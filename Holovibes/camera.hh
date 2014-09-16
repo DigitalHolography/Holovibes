@@ -1,37 +1,57 @@
 #ifndef CAMERA_HH
 # define CAMERA_HH
 
-//Struct of a 2D coordinate
-template <typename T>
-struct coord2D
+# include <string>
+
+namespace cam_driver
 {
-  T x;
-  T y;
-};
+  class Camera
+  {
+  public:
+    enum endianness
+    {
+      BIG_ENDIAN,
+      LITTLE_ENDIAN
+    };
 
-class Camera
-{
- public:
-  Camera(char* name);
-  ~Camera();
+    Camera(std::string name)
+      : name_(name)
+    {}
 
-  //Getters, setters
-  char* getName();
+    ~Camera()
+    {}
 
-  int get_support_external_buffer();
-  int get_support_non_paged_buffer();
-  int get_has_been_externally_allocated();
-  void set_support_external_buffer();
-  void set_support_non_paged_buffer();
-  void set_has_been_externally_allocated();
+    // Getters
+    const std::string& get_name() const
+    {
+      return name_;
+    }
 
- private:
-  char* _name;
+    enum endianness get_endianness() const
+    {
+      return endianness_;
+    }
 
-  //Buffer flags
-  int _support_external_buffer;
-  int _support_non_paged_buffer;
-  int _has_been_externally_allocated;
-};
+    // Setters
+
+    // Virtual methods
+    virtual bool init_camera() = 0;
+    virtual void start_acquisition() = 0;
+    virtual void stop_acquisition() = 0;
+    virtual void shutdown_camera() = 0;
+
+  private:
+    std::string name_;
+    enum endianness endianness_;
+
+    // Buffer properties
+    bool external_buffer_support_;
+    bool non_paged_buffer_support_;
+
+    int frame_height_;
+    int frame_width_;
+    int frame_depth_;
+  };
+}
 
 #endif /* !CAMERA_HH */
