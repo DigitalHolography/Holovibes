@@ -18,9 +18,15 @@
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pike_camera.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pike_camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
