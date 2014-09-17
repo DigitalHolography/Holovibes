@@ -23,5 +23,8 @@
     <ClInclude Include="camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="xiq_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
