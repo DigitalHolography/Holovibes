@@ -3,7 +3,7 @@
 
 # include <string>
 
-namespace cam_driver
+namespace camera
 {
   class Camera
   {
@@ -32,7 +32,15 @@ namespace cam_driver
       return endianness_;
     }
 
-    // Setters
+    int get_frame_width() const
+    {
+      return frame_width_;
+    }
+
+    int get_frame_height() const
+    {
+      return frame_height_;
+    }
 
     // Virtual methods
     virtual bool init_camera() = 0;
@@ -44,13 +52,9 @@ namespace cam_driver
     std::string name_;
     enum endianness endianness_;
 
-    // Buffer properties
-    bool external_buffer_support_;
-    bool non_paged_buffer_support_;
-
     int frame_height_;
     int frame_width_;
-    int frame_depth_;
+    unsigned char frame_bit_depth_;
   };
 }
 
