@@ -48,8 +48,10 @@ namespace camera
     virtual void stop_acquisition() = 0;
     virtual void shutdown_camera() = 0;
 
-  private:
+  protected:
     std::string name_;
+
+  private:
     enum endianness endianness_;
 
     int frame_height_;
