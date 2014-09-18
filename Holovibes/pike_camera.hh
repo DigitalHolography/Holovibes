@@ -2,6 +2,7 @@
 # define PIKE_CAMERA_HH
 
 # include <string>
+# include <FGCamera.h>
 # include "camera.hh"
 
 namespace camera
@@ -9,7 +10,8 @@ namespace camera
   class PikeCamera : public Camera
   {
   public:
-    PikeCamera(std::string name) : Camera(name)
+    PikeCamera(std::string name)
+      : Camera(name)
     {
     }
 
@@ -21,6 +23,12 @@ namespace camera
     void start_acquisition() override;
     void stop_acquisition() override;
     void shutdown_camera() override;
+
+  private:
+    CFGCamera cam_;
+
+    //Retrieve camera name (vendor and model from the device API)
+    std::string get_name_from_device();
   };
 }
 
