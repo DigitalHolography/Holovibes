@@ -4,25 +4,24 @@
 # include <string>
 # include "camera.hh"
 
-namespace cam_driver
+namespace camera
 {
+  class PikeCamera : public Camera
+  {
+  public:
+    PikeCamera(std::string name) : Camera(name)
+    {
+    }
 
-	class PikeCamera : public cam_driver::Camera
-	{
-	public:
-		PikeCamera(std::string name) : Camera(name)
-		{
-		};
+    ~PikeCamera()
+    {
+    }
 
-		~PikeCamera()
-		{
-		};
-
-		virtual bool init_camera();
-		virtual void start_acquisition();
-		virtual void stop_acquisition();
-		virtual void shutdown_camera();
-	};
+    bool init_camera() override;
+    void start_acquisition() override;
+    void stop_acquisition() override;
+    void shutdown_camera() override;
+  };
 }
 
 #endif

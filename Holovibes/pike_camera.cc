@@ -1,6 +1,6 @@
 #include "pike_camera.hh"
 
-namespace cam_driver
+namespace camera
 {
   bool PikeCamera::init_camera()
   {
