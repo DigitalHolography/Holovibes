@@ -20,10 +20,12 @@ namespace camera
     {
     }
 
-    bool init_camera() override;
-    void start_acquisition() override;
-    void stop_acquisition() override;
-    void shutdown_camera() override;
+    virtual bool init_camera() override;
+    virtual void start_acquisition() override;
+    virtual void stop_acquisition() override;
+    virtual void shutdown_camera() override;
+
+    virtual void* get_frame() override;
 
   private:
     CFGCamera cam_;
