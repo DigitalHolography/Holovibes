@@ -1,6 +1,6 @@
 #include "pike_camera.hh"
 
-#define MAXNAMELENGTH 256
+#define MAXNAMELENGTH 64
 #define MAXCAMERAS 1
 #define FRAMETIMEOUT 1000
 
@@ -58,12 +58,13 @@ namespace camera
 
   void PikeCamera::stop_acquisition()
   {
-
+    cam_.StopDevice();
   }
 
   void PikeCamera::shutdown_camera()
   {
-
+    // Free all image buffers and close the capture logic
+    cam_.CloseCapture();
   }
 
   void* PikeCamera::get_frame()
@@ -84,18 +85,18 @@ namespace camera
         << fgframe.Id << std::endl;
     }
 
+    // FIXME allocated on stack and should be compatible with
+    // interface type
     return &fgframe;
   }
 
   std::string PikeCamera::get_name_from_device()
   {
-    char* ccam_name = new char[MAXNAMELENGTH];
+    char ccam_name[MAXNAMELENGTH];
 
     if (cam_.GetDeviceName(ccam_name, MAXNAMELENGTH) != 0)
       return "unknown type";
 
-    std::string cam_name(ccam_name);
-    delete ccam_name;
-    return cam_name;
+    return std::string(ccam_name);
   }
 }
