@@ -9,7 +9,7 @@ namespace camera
   bool PikeCamera::init_camera()
   {
     unsigned long result;
-    FGNODEINFO* nodes_info;
+    FGNODEINFO nodes_info[MAXCAMERAS];
     unsigned long max_nodes = MAXCAMERAS;
     unsigned long copied_nodes = 0;
 
@@ -19,24 +19,25 @@ namespace camera
     //FCE_NOERROR = 0
     if (result == FCE_NOERROR)
     {
-      //Retrieve list of connected nodes (cameras)
-      //Ask for a maximum number of nodes info to fill (max_nodes)
-      //and put them intos nodes_info. It also puts the number of nodes
-      //effectively copied.
+      /* Retrieve list of connected nodes (cameras)
+      ** Ask for a maximum number of nodes info to fill (max_nodes)
+      ** and put them intos nodes_info. It also puts the number of nodes
+      ** effectively copied into copied_nodes.
+      */
       result = FGGetNodeList(nodes_info, max_nodes, &copied_nodes);
     }
 
     //If there is no errors and at least one node detected.
-    if (result == FCE_NOERROR && copied_nodes)
+    if (result == FCE_NOERROR && copied_nodes != 0)
     {
-      //FIXME
       //Connect first node with our cam_ object
+      result = cam_.Connect(&nodes_info[0].Guid);
+
+      //Retrieve name from device and fill name_ with it
+      name_ = get_name_from_device();
     }
 
-    //Retrieve name from device and fill name_ with it
-    name_ = get_name_from_device();
-
-    return true;
+    return result == FCE_NOERROR && copied_nodes != 0;
   }
 
   void PikeCamera::start_acquisition()
@@ -58,7 +59,7 @@ namespace camera
     char* ccam_name = new char[MAXNAMELENGTH];
 
     if (cam_.GetDeviceName(ccam_name, MAXNAMELENGTH) != 0)
-      return "";
+      return "unknown";
 
     std::string cam_name(ccam_name);
 

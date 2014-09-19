@@ -3,6 +3,7 @@
 
 # include <string>
 # include <FGCamera.h>
+# include <iostream>
 # include "camera.hh"
 
 namespace camera
