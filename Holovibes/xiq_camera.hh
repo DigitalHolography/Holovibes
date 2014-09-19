@@ -8,14 +8,10 @@
 
 namespace camera
 {
-  class XiqCamera : Camera
+  class XiqCamera : public Camera
   {
   public:
-    XiqCamera()
-      : Camera("Xiq")
-      , device_(nullptr)
-      , status_(XI_OK)
-    {}
+    XiqCamera();
 
     ~XiqCamera()
     {}
@@ -24,10 +20,12 @@ namespace camera
     virtual void start_acquisition() override;
     virtual void stop_acquisition() override;
     virtual void shutdown_camera() override;
+    virtual void* get_frame() override;
 
   private:
     HANDLE device_;
     XI_RETURN status_;
+    XI_IMG frame_;
   };
 }
 
