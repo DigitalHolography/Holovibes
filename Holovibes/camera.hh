@@ -48,6 +48,8 @@ namespace camera
     virtual void stop_acquisition() = 0;
     virtual void shutdown_camera() = 0;
 
+    virtual void* get_frame() = 0;
+
   protected:
     std::string name_;
 
