@@ -7,7 +7,6 @@ namespace error
   {
 #define ERR_MSG(code, msg) code,
 // Here all .def includes
-#include "errors_pike_camera.def"
 #undef ERR_MSG
   } e_errors;
 }

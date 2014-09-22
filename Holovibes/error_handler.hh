@@ -19,11 +19,12 @@ namespace error
       return instance_;
     }
 
-    bool send_error(int error_code);
+    bool send_error(e_errors code);
+    bool send_error(e_errors code, std::string module_name);
 
   private:
     static ErrorHandler instance_;
-    std::vector<std::string> errors_msgs;
+    std::vector<std::string> errors_msgs_;
 
     ErrorHandler()
     {
