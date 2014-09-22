@@ -4,6 +4,7 @@
 # include <string>
 # include <vector>
 # include <iostream>
+# include <ctime>
 # include "errors_enum.hh"
 
 namespace error
@@ -21,6 +22,8 @@ namespace error
 
     bool send_error(e_errors code);
     bool send_error(e_errors code, std::string module_name);
+    bool send_error(char* msg);
+    bool send_error(char* msg, std::string module_name);
 
   private:
     static ErrorHandler instance_;
@@ -44,6 +47,7 @@ namespace error
     }
 
     void load_errors_msgs();
+    std::string current_time();
   };
 }
 

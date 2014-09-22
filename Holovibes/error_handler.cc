@@ -15,15 +15,46 @@ namespace error
 
   bool ErrorHandler::send_error(e_errors code)
   {
-    std::cerr << "Error: " << errors_msgs_[code] << std::endl;
+    std::cerr << current_time()
+      << "Error: " << errors_msgs_[code] << std::endl;
     return true;
   }
 
   bool ErrorHandler::send_error(e_errors code, std::string module_name)
   {
-    std::cerr << "Error: Module: "
+    std::cerr << current_time()
+      << "Error: Module: "
       << module_name << ": "
       << errors_msgs_[code] << std::endl;
     return true;
+  }
+
+  bool ErrorHandler::send_error(char* msg)
+  {
+    std::cerr << current_time()
+      << "Error: " << msg << std::endl;
+    return true;
+  }
+
+  bool ErrorHandler::send_error(char* msg, std::string module_name)
+  {
+    std::cerr << current_time()
+      << "Error: Module: "
+      << module_name << ": "
+      << msg << std::endl;
+    return true;
+  }
+
+  std::string ErrorHandler::current_time()
+  {
+    time_t rawtime = time(0);
+    struct tm now;
+    localtime_s(&now, &rawtime);
+
+    const size_t size = 26;
+    char buffer[size];
+    asctime_s(buffer, size, &now);
+
+    return std::string(buffer);
   }
 }
