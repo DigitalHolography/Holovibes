@@ -29,6 +29,8 @@ namespace gui
     void wnd_show();
     /* Initialize OpenGL. */
     void gl_init();
+    /* Unload OpenGL ressources. */
+    void gl_free();
 
     const HDC& get_hdc() const
     {

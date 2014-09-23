@@ -62,9 +62,6 @@ namespace gui
       return false;
     }
 
-    /* Get the device context. */
-    hdc_ = GetDC(hwnd_);
-
     return true;
   }
 
@@ -101,6 +98,9 @@ namespace gui
 
   void GLWindow::gl_init()
   {
+    /* Get the device context. */
+    hdc_ = GetDC(hwnd_);
+
     PIXELFORMATDESCRIPTOR pfd = gl_get_pfd();
     int pixel_format = ChoosePixelFormat(hdc_, &pfd);
     if (!pixel_format)
@@ -136,6 +136,13 @@ namespace gui
         .send_error(error::WGL_GL_CONTEXT_MAKECUR);
       return;
     }
+  }
+
+  void GLWindow::gl_free()
+  {
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(hrc_);
+    ReleaseDC(hwnd_, hdc_);
   }
 
   LRESULT GLWindow::wnd_proc(
