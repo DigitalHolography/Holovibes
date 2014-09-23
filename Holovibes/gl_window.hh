@@ -27,6 +27,13 @@ namespace gui
       int height);
     /* Show the window. */
     void wnd_show();
+    /* Initialize OpenGL. */
+    void gl_init();
+
+    const HDC& get_hdc() const
+    {
+      return hdc_;
+    }
 
   private:
     /* Copy is not allowed. */
@@ -34,6 +41,9 @@ namespace gui
     {}
     GLWindow& operator=(const GLWindow&)
     {}
+
+    /* Retrieve the PFD. */
+    PIXELFORMATDESCRIPTOR gl_get_pfd();
 
     static LRESULT CALLBACK wnd_proc(
       HWND hwnd,
