@@ -1,0 +1,7 @@
+ERR_MSG(WGL_CLASS_REGISTERED, "WndClass has already been registered")
+ERR_MSG(WGL_CREATE_WINDOW, "Failed to initialized window")
+ERR_MSG(WGL_INIT_WINDOW, "Not initialized window")
+ERR_MSG(WGL_PIXEL_FORMAT_FIND, "Unable to find a suitable pixel format")
+ERR_MSG(WGL_PIXEL_FORMAT_SET, "Cannot set the pixel format")
+ERR_MSG(WGL_GL_CONTEXT_CREATE, "Unable to create GL context")
+ERR_MSG(WGL_GL_CONTEXT_MAKECUR, "Unable to make current GL context")

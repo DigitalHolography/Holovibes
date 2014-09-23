@@ -13,6 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Macro Files">
+      <UniqueIdentifier>{e4a98df1-2e43-4ad2-8ac7-8e7a631c9874}</UniqueIdentifier>
+      <Extensions>def</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
@@ -37,5 +41,10 @@
     <ClInclude Include="errors_enum.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def">
+      <Filter>Macro Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

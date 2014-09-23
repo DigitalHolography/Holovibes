@@ -1,4 +1,5 @@
 #include "gl_window.hh"
+#include "error_handler.hh"
 
 #include <cassert>
 
@@ -11,7 +12,15 @@ namespace gui
     /* Init must be called only if Window Class
     ** has not been registered.
     */
-    assert(!class_registered_ && "WndClass has already been registered.");
+
+    if (class_registered_)
+    {
+      assert("WndClass has already been registered.");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_CLASS_REGISTERED);
+
+      return false;
+    }
 
     /* Window class structure */
     WNDCLASS wc;
@@ -45,17 +54,29 @@ namespace gui
       NULL, NULL,
       hinstance_, NULL);
 
-    assert(hwnd_ && "Failed to initialize window");
+    if (!hwnd_)
+    {
+      assert("Failed to initialize window");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_CREATE_WINDOW);
+      return false;
+    }
 
     /* Get the device context. */
     hdc_ = GetDC(hwnd_);
 
-    return hwnd_;
+    return true;
   }
 
   void GLWindow::wnd_show()
   {
-    assert(hwnd_ && "Window is not initialized");
+    if (!hwnd_)
+    {
+      assert("Window is not initialized");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_INIT_WINDOW);
+      return;
+    }
     ShowWindow(hwnd_, SW_SHOW);
     SetForegroundWindow(hwnd_);
     SetFocus(hwnd_);
@@ -82,15 +103,39 @@ namespace gui
   {
     PIXELFORMATDESCRIPTOR pfd = gl_get_pfd();
     int pixel_format = ChoosePixelFormat(hdc_, &pfd);
-    assert(pixel_format && "Unable to find a suitable pixel format");
-    bool status = SetPixelFormat(hdc_, pixel_format, &pfd);
-    assert(status && "Cannot set the pixel format");
+    if (!pixel_format)
+    {
+      assert("Unable to find a suitable pixel format");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_PIXEL_FORMAT_FIND);
+      return;
+    }
+
+    if (!SetPixelFormat(hdc_, pixel_format, &pfd))
+    {
+      assert("Cannot set the pixel format");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_PIXEL_FORMAT_SET);
+      return;
+    }
 
     hrc_ = wglCreateContext(hdc_);
-    assert(hrc_ && "Unable to create GL context");
 
-    status = wglMakeCurrent(hdc_, hrc_);
-    assert(status && "Unable to make current GL context");
+    if (!hrc_)
+    {
+      assert("Unable to create GL context");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_GL_CONTEXT_CREATE);
+      return;
+    }
+
+    if (!wglMakeCurrent(hdc_, hrc_))
+    {
+      assert("Unable to make current GL context");
+      error::ErrorHandler::get_instance()
+        .send_error(error::WGL_GL_CONTEXT_MAKECUR);
+      return;
+    }
   }
 
   LRESULT GLWindow::wnd_proc(

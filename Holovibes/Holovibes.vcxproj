@@ -84,6 +84,9 @@
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="gl_window.hh" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
