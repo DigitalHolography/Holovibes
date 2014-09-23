@@ -8,7 +8,7 @@ namespace error
 {
   ErrorHandler ErrorHandler::instance_ = ErrorHandler::ErrorHandler();
 
-  void ErrorHandler::load_errors_msgs()
+  void ErrorHandler::load_msgs()
   {
 #define ERR_MSG(Code, Msg) msgs_[Code] = (Msg);
     // Here all .def includes

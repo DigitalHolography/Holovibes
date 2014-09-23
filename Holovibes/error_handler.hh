@@ -35,7 +35,7 @@ namespace error
   private:
     ErrorHandler()
     {
-      load_errors_msgs();
+      load_msgs();
     }
 
     /* Copy is not allowed. */
@@ -46,7 +46,7 @@ namespace error
     ~ErrorHandler()
     {}
 
-    void load_errors_msgs();
+    void load_msgs();
     std::string current_time() const;
 
   private:
