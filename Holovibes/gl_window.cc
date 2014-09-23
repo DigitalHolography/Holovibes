@@ -2,15 +2,19 @@
 #include <Windows.h>
 #include <gl\GL.h>
 
+#include <cassert>
+
 namespace gui
 {
-  GLWindow* GLWindow::instance_ = nullptr;
+  bool GLWindow::class_registered_ = false;
 
-  bool GLWindow::init(
-    const char* title,
-    int width,
-    int height)
+  bool GLWindow::wnd_class_register()
   {
+    /* Init must be called only if Window Class
+    ** has not been registered.
+    */
+    assert(!class_registered_ && "WndClass has already been registered.");
+
     /* Window class structure */
     WNDCLASS wc;
 
@@ -22,9 +26,15 @@ namespace gui
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.lpszClassName = "OpenGL";
 
-    if (!RegisterClass(&wc))
-      return false;
+    class_registered_ = RegisterClass(&wc);
+    return class_registered_;
+  }
 
+  bool GLWindow::wnd_init(
+    const char* title,
+    int width,
+    int height)
+  {
     hwnd_ = CreateWindow(
       "OpenGL",
       title,
@@ -34,17 +44,15 @@ namespace gui
       NULL, NULL,
       hinstance_, NULL);
 
-    if (!hwnd_)
-    {
-      shutdown();
-      return false;
-    }
+    return hwnd_;
+  }
 
+  void GLWindow::wnd_show()
+  {
+    assert(hwnd_ && "Window is not initialized");
     ShowWindow(hwnd_, SW_SHOW);
     SetForegroundWindow(hwnd_);
     SetFocus(hwnd_);
-
-    return true;
   }
 
   LRESULT GLWindow::wnd_proc(
