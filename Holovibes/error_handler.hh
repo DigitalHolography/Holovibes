@@ -5,7 +5,10 @@
 # include <vector>
 # include <iostream>
 # include <ctime>
+
 # include "errors_enum.hh"
+
+# define MSGS_ARRAY_SIZE 256
 
 namespace error
 {
@@ -20,34 +23,35 @@ namespace error
       return instance_;
     }
 
-    bool send_error(e_errors code);
-    bool send_error(e_errors code, std::string module_name);
-    bool send_error(char* msg);
-    bool send_error(char* msg, std::string module_name);
+    void send_error(const e_errors code) const;
+    void send_error(
+      const e_errors code,
+      const std::string module_name) const;
+    void send_error(const char* msg) const;
+    void send_error(
+      const char* msg,
+      const std::string module_name) const;
 
   private:
-    static ErrorHandler instance_;
-    std::vector<std::string> errors_msgs_;
-
     ErrorHandler()
     {
       load_errors_msgs();
     }
 
+    /* Copy is not allowed. */
     ErrorHandler(const ErrorHandler&)
-    {
-    }
-
-    ~ErrorHandler()
-    {
-    }
-
+    {}
     ErrorHandler& operator=(const ErrorHandler&)
-    {
-    }
+    {}
+    ~ErrorHandler()
+    {}
 
     void load_errors_msgs();
-    std::string current_time();
+    std::string current_time() const;
+
+  private:
+    static ErrorHandler instance_;
+    char* msgs_[MSGS_ARRAY_SIZE];
   };
 }
 

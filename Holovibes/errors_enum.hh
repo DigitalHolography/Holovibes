@@ -5,8 +5,8 @@ namespace error
 {
   typedef enum errors
   {
-#define ERR_MSG(code, msg) code,
-// Here all .def includes
+#define ERR_MSG(Code, Msg) Code,
+    // Here all .def includes
 #undef ERR_MSG
   } e_errors;
 }

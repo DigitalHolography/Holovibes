@@ -1,60 +1,65 @@
 #include "error_handler.hh"
 
+#define TIME_STR_SIZE 26
+#define ERROR_FORMAT "[%s][ERROR] %s\n"
+#define ERROR_MOD_FORMAT "[%s][ERROR][%s] %s\n"
+
 namespace error
 {
   ErrorHandler ErrorHandler::instance_ = ErrorHandler::ErrorHandler();
 
   void ErrorHandler::load_errors_msgs()
   {
-    errors_msgs_ = std::vector<std::string>(256, "");
-
-#define ERR_MSG(code, msg) errors_msgs_[code] = msg;
+#define ERR_MSG(Code, Msg) msgs_[Code] = (Msg);
     // Here all .def includes
 #undef ERR_MSG
   }
 
-  bool ErrorHandler::send_error(e_errors code)
+  void ErrorHandler::send_error(const e_errors code) const
   {
-    std::cerr << current_time()
-      << "Error: " << errors_msgs_[code] << std::endl;
-    return true;
+    fprintf(stderr, ERROR_FORMAT,
+      current_time().c_str(),
+      msgs_[code]);
   }
 
-  bool ErrorHandler::send_error(e_errors code, std::string module_name)
+  void ErrorHandler::send_error(
+    const e_errors code,
+    const std::string module_name) const
   {
-    std::cerr << current_time()
-      << "Error: Module: "
-      << module_name << ": "
-      << errors_msgs_[code] << std::endl;
-    return true;
+    fprintf(stderr, ERROR_MOD_FORMAT,
+      current_time().c_str(),
+      module_name.c_str(),
+      msgs_[code]);
   }
 
-  bool ErrorHandler::send_error(char* msg)
+  void ErrorHandler::send_error(const char* msg) const
   {
-    std::cerr << current_time()
-      << "Error: " << msg << std::endl;
-    return true;
+    fprintf(stderr, ERROR_FORMAT,
+      current_time(),
+      msg);
   }
 
-  bool ErrorHandler::send_error(char* msg, std::string module_name)
+  void ErrorHandler::send_error(
+    const char* msg,
+    const std::string module_name) const
   {
-    std::cerr << current_time()
-      << "Error: Module: "
-      << module_name << ": "
-      << msg << std::endl;
-    return true;
+    fprintf(stderr, ERROR_MOD_FORMAT,
+      current_time().c_str(),
+      module_name.c_str(),
+      msg);
   }
 
-  std::string ErrorHandler::current_time()
+  std::string ErrorHandler::current_time() const
   {
     time_t rawtime = time(0);
     struct tm now;
     localtime_s(&now, &rawtime);
 
-    const size_t size = 26;
-    char buffer[size];
-    asctime_s(buffer, size, &now);
+    char buffer[TIME_STR_SIZE];
+    asctime_s(buffer, TIME_STR_SIZE, &now);
+    /* Remove the '\n' character. */
+    buffer[24] = '\0';
 
-    return std::string(buffer);
+    return buffer;
   }
 }
