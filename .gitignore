@@ -155,5 +155,8 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 
+# Doc
+doc/*
+
 # Do not ignore lib files in lib directory
 !Holovibes/lib/**/*.lib
