@@ -81,9 +81,6 @@
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="errors_pike_camera.def" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
