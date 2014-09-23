@@ -5,7 +5,6 @@
 int main()
 {
   std::cout << "Hello World!" << std::endl;
-  if (gui::GLWindow::get_instance().init("Test", 200, 200));
 
   return 0;
 }
