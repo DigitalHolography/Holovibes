@@ -157,3 +157,7 @@ $RECYCLE.BIN/
 
 # Do not ignore lib files in lib directory
 !Holovibes/lib/**/*.lib
+
+# Doc
+doc/*
+

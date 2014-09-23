@@ -1,0 +1,19 @@
+/*!
+* \mainpage Holovibes
+*
+* Holovibes is an holographic video capture software. Its features
+* includes several cameras interfaces implementations, a direct image
+* renderer and a CUDA computation module for holographic reconstruction.
+*
+* \section Authors
+* - Michael ATLAN <michael.atlan@espci.fr>
+* - Jeffrey BENCTEUX <jeffrey.bencteux@espci.fr>
+* - Thomas KOSTAS <thomas.kostas@espci.fr>
+* - Pierre PAGNOUX <pierre.pagnoux@espci.fr>
+*
+* Previous version of the software:
+*
+* - Antoine DILLEE
+* - Romain CANCILIERE
+*
+*/

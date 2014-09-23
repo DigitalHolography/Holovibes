@@ -93,12 +93,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="error_handler.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="pike_camera.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh" />
     <ClInclude Include="pike_camera.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="errors_enum.hh" />
+    <ClInclude Include="error_handler.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
