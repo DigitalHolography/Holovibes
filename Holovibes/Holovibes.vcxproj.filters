@@ -23,5 +23,11 @@
     <ClInclude Include="camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="frame.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="endianness.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
