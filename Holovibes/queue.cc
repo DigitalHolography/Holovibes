@@ -12,11 +12,6 @@ namespace queue
     else
       start_ = (start_ + 1) % max_elts_;
 
-    std::cout << "Enqueue start: " << start_
-      << " end: " << end_
-      << " elts: " << curr_elts_
-      << std::endl;
-
     return true;
   }
 
@@ -32,12 +27,6 @@ namespace queue
       void* old_ptr = buffer_ + start_ * size_;
       start_ = (start_ + elts_nb) % max_elts_;
       curr_elts_ -= elts_nb;
-
-      unsigned int end_ = (start_ + curr_elts_) % max_elts_;
-      std::cout << "Enqueue start: " << start_
-        << " end: " << end_
-        << " elts: " << curr_elts_
-        << std::endl;
 
       return old_ptr;
     }
