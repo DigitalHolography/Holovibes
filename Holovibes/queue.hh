@@ -43,9 +43,19 @@ namespace queue
       return buffer_ + start_ * size_;
     }
 
+    unsigned int get_start_index() const
+    {
+      return start_;
+    }
+
     void* get_end() const
     {
       return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
+    }
+
+    unsigned int get_end_index() const
+    {
+      return (start_ + curr_elts_) % max_elts_;
     }
 
     bool enqueue(void* elt);
