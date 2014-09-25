@@ -9,7 +9,7 @@ namespace queue
   class Queue
   {
   public:
-    Queue(size_t size, unsigned int elts)
+    Queue(unsigned int size, unsigned int elts)
       : size_(size),
       max_elts_(elts),
       curr_elts_(0),
@@ -56,7 +56,7 @@ namespace queue
     void print() const;
 
   private:
-    size_t size_;
+    unsigned int size_;
     unsigned int max_elts_;
     unsigned int curr_elts_;
     unsigned int start_;
