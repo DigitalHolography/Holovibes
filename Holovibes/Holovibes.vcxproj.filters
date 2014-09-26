@@ -21,7 +21,7 @@
     <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="queue.cc">
+    <ClCompile Include="recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +32,7 @@
     <ClInclude Include="errors_enum.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="queue.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="queue.hxx">
+    <ClInclude Include="recorder.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
