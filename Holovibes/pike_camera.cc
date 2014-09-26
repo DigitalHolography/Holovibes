@@ -69,25 +69,24 @@ namespace camera
 
   void* PikeCamera::get_frame()
   {
-    FGFRAME fgframe;
     unsigned long result;
 
     // Retreiving the frame
-    result = cam_.GetFrame(&fgframe, FRAMETIMEOUT);
+    result = cam_.GetFrame(&fgframe_, FRAMETIMEOUT);
 
     if (result == FCE_NOERROR)
     {
       // Put the frame back to DMA
-      result = cam_.PutFrame(&fgframe);
+      result = cam_.PutFrame(&fgframe_);
 
       std::cout << "Frame received length:"
-        << fgframe.Length << " id:"
-        << fgframe.Id << std::endl;
+        << fgframe_.Length << " id:"
+        << fgframe_.Id << std::endl;
     }
 
     // FIXME allocated on stack and should be compatible with
     // interface type
-    return &fgframe;
+    return &fgframe_;
   }
 
   std::string PikeCamera::get_name_from_device()

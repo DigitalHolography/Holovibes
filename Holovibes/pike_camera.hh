@@ -29,6 +29,7 @@ namespace camera
 
   private:
     CFGCamera cam_;
+    FGFRAME fgframe_;
 
     //Retrieve camera name (vendor and model from the device API)
     std::string get_name_from_device();
