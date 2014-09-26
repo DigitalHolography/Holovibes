@@ -139,6 +139,57 @@ namespace gui
     }
   }
 
+  void GLWindow::gl_enable(
+    int width,
+    int height)
+  {
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_QUADS);
+
+    glGenTextures(1, &texture_);
+    glViewport(0, 0, width, height);
+  }
+
+  void GLWindow::gl_draw(
+    void* frame,
+    int frame_width,
+    int frame_height)
+  {
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexImage2D(
+      GL_TEXTURE_2D,
+      0,
+      GL_LUMINANCE,
+      frame_width,
+      frame_height,
+      0,
+      GL_LUMINANCE,
+      GL_UNSIGNED_BYTE,
+      frame);
+
+    glBegin(GL_QUADS);
+    glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
+    glTexCoord2d(1.0, 0.0); glVertex2d(+1.0, +1.0);
+    glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
+    glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
+    glEnd();
+
+    SwapBuffers(hdc_);
+    glDeleteTextures(1, &texture_);
+  }
+
+  void GLWindow::gl_disable()
+  {
+    glDisable(GL_QUADS);
+    glDisable(GL_TEXTURE_2D);
+
+  }
+
   void GLWindow::gl_free()
   {
     wglMakeCurrent(NULL, NULL);
