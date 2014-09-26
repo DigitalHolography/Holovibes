@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "error_handler.hh"
 
 #define TIME_STR_SIZE 26
