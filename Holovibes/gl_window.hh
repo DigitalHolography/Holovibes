@@ -14,6 +14,7 @@ namespace gui
       , hwnd_(nullptr)
       , hdc_(nullptr)
       , hrc_(nullptr)
+      , texture_(0)
     {}
     ~GLWindow()
     {}
@@ -29,13 +30,16 @@ namespace gui
     void wnd_show();
     /* Initialize OpenGL. */
     void gl_init();
+    /* OpenGL configuration. */
+    void gl_enable(int width, int height);
+    void gl_disable();
+    /* Draw a frame. */
+    void gl_draw(
+      void* frame,
+      int frame_width,
+      int frame_height);
     /* Unload OpenGL ressources. */
     void gl_free();
-
-    const HDC& get_hdc() const
-    {
-      return hdc_;
-    }
 
   private:
     /* Copy is not allowed. */
@@ -60,6 +64,8 @@ namespace gui
     HWND hwnd_;
     HDC hdc_;
     HGLRC hrc_;
+
+    GLuint texture_;
   };
 }
 
