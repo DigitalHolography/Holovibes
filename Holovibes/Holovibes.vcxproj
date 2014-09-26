@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -100,10 +100,15 @@
   <ItemGroup>
     <ClInclude Include="camera.hh" />
     <ClInclude Include="pike_camera.hh" />
+    <ClCompile Include="queue.cc" />
+    <ClCompile Include="recorder.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
+    <ClInclude Include="queue.hh" />
+    <ClInclude Include="queue.hxx" />
+    <ClInclude Include="recorder.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
