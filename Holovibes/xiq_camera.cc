@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "xiq_camera.hh"
-
-#include <iostream>
 
 namespace camera
 {
