@@ -2,6 +2,8 @@
 #include <fstream>
 #include <cstdio>
 #include "pike_camera.hh"
+#include "queue.hh"
+#include "recorder.hh"
 
 int main()
 {
@@ -13,18 +15,17 @@ int main()
     std::cout << cam.get_name() << std::endl;
     cam.start_acquisition();
 
-    FGFRAME* frame = (FGFRAME*) cam.get_frame();
+    unsigned int imgs = 200;
+    queue::Queue queue(1600 * 1200, 100);
+    recorder::Recorder recorder(&queue, "test.raw", 10);
 
-    // Writting to file
-    if (frame != nullptr)
+    FGFRAME* frame;
+    for (int i = 0; i < imgs; ++i)
     {
-      std::ofstream stream;
-      stream.open("test.raw");
-      if (frame->pData)
-        stream.write((char*)frame->pData, frame->Length);
-      else
-        std::cout << "frame pdata null" << std::endl;
-      stream.close();
+      std::cout << "Img " << i << std::endl;
+      frame = (FGFRAME*)cam.get_frame();
+      queue.enqueue(frame->pData);
+      recorder.record();
     }
 
     cam.stop_acquisition();
