@@ -4,11 +4,17 @@
 # include <Windows.h>
 # include <GL/GL.h>
 
-namespace gui
+namespace holovibes
 {
+  /*! GLWindow class use Win32 API to display a window containing an OpenGL
+   * widget.
+   */
   class GLWindow
   {
   public:
+    /*! \brief Constructor of GLWindow object.
+     * It initialize object's fields.
+    **/
     GLWindow()
       : hinstance_(GetModuleHandle(NULL))
       , hwnd_(nullptr)
@@ -16,12 +22,27 @@ namespace gui
       , hrc_(nullptr)
       , texture_(0)
     {}
+    /*! \brief Default destructor.
+     */
     ~GLWindow()
     {}
 
-    /* Register the Window Class. */
-    bool wnd_class_register();
-    /* Initialize the window. */
+    /*! \brief Register the Window Class for subsequent use in calls to the
+     * CreateWindow function.
+     * \remarks A window class can be registered only once, otherwise it will
+     * generate a WGL_CLASS_REGISTERED error.
+     */
+    bool wnd_register_class();
+    
+    /*! \brief Unregister the Window Class.
+    */
+    void wnd_unregister_class();
+
+    /*! \brief Initialize the window.
+     * \param title Title of the window.
+     * \param width Width of the window.
+     * \param height Height of the window.
+     */
     bool wnd_init(
       const char* title,
       int width,
@@ -30,7 +51,10 @@ namespace gui
     void wnd_show();
     /* Initialize OpenGL. */
     void gl_init();
-    /* OpenGL configuration. */
+    /*! \brief OpenGL configuration.
+     * \param width Width of GL viewport.
+     * \param height Height of GL viewport.
+     */
     void gl_enable(int width, int height);
     void gl_disable();
     /* Draw a frame. */

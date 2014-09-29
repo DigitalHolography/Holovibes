@@ -6,11 +6,11 @@
 namespace camera
 {
   XiqCamera::XiqCamera()
-    : Camera("Xiq")
+    : Camera()
     , device_(nullptr)
     , status_(XI_OK)
   {
-    frame_.size = sizeof (XI_IMG);
+    frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
   }

@@ -5,7 +5,7 @@
 #include "gl_window.hh"
 
 using namespace camera;
-using namespace gui;
+using namespace holovibes;
 
 #define WIDTH 512
 #define HEIGHT 512
@@ -17,7 +17,7 @@ int main()
   c->init_camera();
 
   GLWindow w;
-  w.wnd_class_register();
+  w.wnd_register_class();
   w.wnd_init("Test", WIDTH, HEIGHT);
   w.gl_init();
   w.gl_enable(WIDTH, HEIGHT);

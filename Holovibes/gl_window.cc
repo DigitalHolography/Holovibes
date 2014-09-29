@@ -4,11 +4,11 @@
 
 #include <cassert>
 
-namespace gui
+namespace holovibes
 {
   bool GLWindow::class_registered_ = false;
 
-  bool GLWindow::wnd_class_register()
+  bool GLWindow::wnd_register_class()
   {
     /* Init must be called only if Window Class
     ** has not been registered.
@@ -17,8 +17,8 @@ namespace gui
     if (class_registered_)
     {
       assert("WndClass has already been registered.");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_CLASS_REGISTERED);
+      ErrorHandler::get_instance()
+        .send_error(WGL_CLASS_REGISTERED);
 
       return false;
     }
@@ -37,8 +37,17 @@ namespace gui
     wc.lpszMenuName = 0;
     wc.lpszClassName = "OpenGL";
 
-    class_registered_ = RegisterClass(&wc);
+    /* If RegisterClass fails, the return value is zero. */
+    class_registered_ = RegisterClass(&wc) != 0;
     return class_registered_;
+  }
+
+  void GLWindow::wnd_unregister_class()
+  {
+    if (class_registered_)
+      UnregisterClass("OpenGL", hinstance_);
+
+    class_registered_ = false;
   }
 
   bool GLWindow::wnd_init(
@@ -58,8 +67,8 @@ namespace gui
     if (!hwnd_)
     {
       assert("Failed to initialize window");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_CREATE_WINDOW);
+      ErrorHandler::get_instance()
+        .send_error(WGL_CREATE_WINDOW);
       return false;
     }
 
@@ -71,8 +80,8 @@ namespace gui
     if (!hwnd_)
     {
       assert("Window is not initialized");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_INIT_WINDOW);
+      ErrorHandler::get_instance()
+        .send_error(WGL_INIT_WINDOW);
       return;
     }
     ShowWindow(hwnd_, SW_SHOW);
@@ -85,9 +94,9 @@ namespace gui
     PIXELFORMATDESCRIPTOR pfd;
 
     /* Init with null values. */
-    memset(&pfd, 0, sizeof (PIXELFORMATDESCRIPTOR));
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
 
-    pfd.nSize = sizeof (PIXELFORMATDESCRIPTOR);
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;
@@ -107,16 +116,16 @@ namespace gui
     if (!pixel_format)
     {
       assert("Unable to find a suitable pixel format");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_PIXEL_FORMAT_FIND);
+      ErrorHandler::get_instance()
+        .send_error(WGL_PIXEL_FORMAT_FIND);
       return;
     }
 
     if (!SetPixelFormat(hdc_, pixel_format, &pfd))
     {
       assert("Cannot set the pixel format");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_PIXEL_FORMAT_SET);
+      ErrorHandler::get_instance()
+        .send_error(WGL_PIXEL_FORMAT_SET);
       return;
     }
 
@@ -125,16 +134,16 @@ namespace gui
     if (!hrc_)
     {
       assert("Unable to create GL context");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_GL_CONTEXT_CREATE);
+      ErrorHandler::get_instance()
+        .send_error(WGL_GL_CONTEXT_CREATE);
       return;
     }
 
     if (!wglMakeCurrent(hdc_, hrc_))
     {
       assert("Unable to make current GL context");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_GL_CONTEXT_MAKECUR);
+      ErrorHandler::get_instance()
+        .send_error(WGL_GL_CONTEXT_MAKECUR);
       return;
     }
   }
@@ -163,13 +172,17 @@ namespace gui
 
     glTexImage2D(
       GL_TEXTURE_2D,
+      /* Base image level. */
       0,
       GL_LUMINANCE,
       frame_width,
       frame_height,
+      /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
+      /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
       GL_UNSIGNED_BYTE,
+      /* Pointer to image data in memory. */
       frame);
 
     glBegin(GL_QUADS);
@@ -187,7 +200,6 @@ namespace gui
   {
     glDisable(GL_QUADS);
     glDisable(GL_TEXTURE_2D);
-
   }
 
   void GLWindow::gl_free()
