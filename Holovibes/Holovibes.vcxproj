@@ -85,6 +85,8 @@
     <ClInclude Include="gl_window.hh" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="camera.hh" />
+    <ClInclude Include="frame_desc.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="error_handler.cc" />
