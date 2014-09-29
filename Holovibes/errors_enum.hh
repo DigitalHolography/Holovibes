@@ -1,7 +1,7 @@
 #ifndef ERRORS_ENUM_HH
 # define ERRORS_ENUM_HH
 
-namespace error
+namespace holovibes
 {
   typedef enum errors
   {
