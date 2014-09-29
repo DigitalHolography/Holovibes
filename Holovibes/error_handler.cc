@@ -13,6 +13,7 @@ namespace error
   {
 #define ERR_MSG(Code, Msg) msgs_[Code] = (Msg);
     // Here all .def includes
+#include "err\wnd_gl.def"
 #undef ERR_MSG
   }
 

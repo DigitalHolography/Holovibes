@@ -7,6 +7,7 @@ namespace error
   {
 #define ERR_MSG(Code, Msg) Code,
     // Here all .def includes
+#include "err\wnd_gl.def"
 #undef ERR_MSG
   } e_errors;
 }

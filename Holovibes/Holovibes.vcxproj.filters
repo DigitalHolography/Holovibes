@@ -13,30 +13,45 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Macro Files">
+      <UniqueIdentifier>{e4a98df1-2e43-4ad2-8ac7-8e7a631c9874}</UniqueIdentifier>
+      <Extensions>def;</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="error_handler.cc">
+    <ClCompile Include="gl_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="errors_enum.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="error_handler.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="error_handler.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="errors_enum.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def">
+      <Filter>Macro Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
