@@ -28,6 +28,9 @@
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="queue.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +55,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="frame_desc.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
