@@ -35,8 +35,5 @@
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="queue.hxx">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

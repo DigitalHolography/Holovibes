@@ -82,7 +82,6 @@
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="queue.hh" />
-    <ClInclude Include="queue.hxx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
