@@ -15,39 +15,37 @@
     </Filter>
     <Filter Include="Macro Files">
       <UniqueIdentifier>{e4a98df1-2e43-4ad2-8ac7-8e7a631c9874}</UniqueIdentifier>
-      <Extensions>def</Extensions>
+      <Extensions>def;</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gl_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="gl_window.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClCompile Include="error_handler.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="errors_enum.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="error_handler.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="errors_enum.hh">
+    <ClInclude Include="gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
