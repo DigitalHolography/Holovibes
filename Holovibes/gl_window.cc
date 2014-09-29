@@ -163,13 +163,17 @@ namespace holovibes
 
     glTexImage2D(
       GL_TEXTURE_2D,
+      /* Base image level. */
       0,
       GL_LUMINANCE,
       frame_width,
       frame_height,
+      /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
+      /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
       GL_UNSIGNED_BYTE,
+      /* Pointer to image data in memory. */
       frame);
 
     glBegin(GL_QUADS);

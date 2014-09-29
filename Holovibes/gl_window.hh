@@ -46,7 +46,10 @@ namespace holovibes
     void wnd_show();
     /* Initialize OpenGL. */
     void gl_init();
-    /* OpenGL configuration. */
+    /*! \brief OpenGL configuration.
+     * \param width Width of GL viewport.
+     * \param height Height of GL viewport.
+     */
     void gl_enable(int width, int height);
     void gl_disable();
     /* Draw a frame. */
