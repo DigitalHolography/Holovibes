@@ -1,52 +1,41 @@
 #ifndef CAMERA_HH
 # define CAMERA_HH
 
+# include "frame_desc.hh"
+
 # include <string>
 
 namespace camera
 {
   class Camera
   {
+    // Default constants
+    static const int FRAME_TIMEOUT = 1000;
+
   public:
-    enum endianness
-    {
-      BIG_ENDIAN,
-      LITTLE_ENDIAN
-    };
-
-    Camera(std::string name, s_roi *roi_info)
-      : name_(name), roi_info_(roi_info)
-    {
-
-    }
+    Camera()
+      : frame_timeout_(FRAME_TIMEOUT)
+    {}
 
     ~Camera()
     {}
+
+    // Object is non copyable
+    Camera& operator=(const Camera&) = delete;
+    Camera(const Camera&) = delete;
 
     // Getters
     const std::string& get_name() const
     {
       return name_;
     }
-
-    enum endianness get_endianness() const
+    const s_frame_desc& get_frame_descriptor() const
     {
-      return endianness_;
+      return desc_;
     }
-
-    int get_frame_width() const
+    float get_pixel_size() const
     {
-      return frame_width_;
-    }
-
-    int get_frame_height() const
-    {
-      return frame_height_;
-    }
-
-    s_roi* get_roi()
-    {
-      return roi_info_;
+      return pixel_size_;
     }
 
     // Virtual methods
@@ -57,25 +46,18 @@ namespace camera
 
     virtual void* get_frame() = 0;
 
+    /* Protected contains fields that are mutables for inherited class. */
   protected:
-    std::string name_;
-
+    s_frame_desc             desc_;
+    double                   exposure_time_;
+    unsigned short           frame_rate_;
+    const unsigned short     frame_timeout_;
+    /*! Name of the camera. */
+    std::string              name_;
+    /*! Size of a pixel in micrometer. */
+    float                    pixel_size_;
   private:
-    enum endianness endianness_;
-
-    s_roi* roi_info_;
-    int frame_height_;
-    int frame_width_;
-    unsigned char frame_bit_depth_;
   };
-
-  typedef struct roi
-  {
-    int x_start;
-    int y_start;
-    int x_end;
-    int y_end;
-  }s_roi;
 }
 
 #endif /* !CAMERA_HH */

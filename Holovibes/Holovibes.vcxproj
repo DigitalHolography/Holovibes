@@ -80,8 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh" />
-    <ClInclude Include="endianness.hh" />
-    <ClInclude Include="frame.hh" />
+    <ClInclude Include="frame_desc.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
