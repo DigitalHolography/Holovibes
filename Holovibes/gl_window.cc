@@ -8,7 +8,7 @@ namespace holovibes
 {
   bool GLWindow::class_registered_ = false;
 
-  bool GLWindow::wnd_class_register()
+  bool GLWindow::wnd_register_class()
   {
     /* Init must be called only if Window Class
     ** has not been registered.
@@ -37,8 +37,17 @@ namespace holovibes
     wc.lpszMenuName = 0;
     wc.lpszClassName = "OpenGL";
 
-    class_registered_ = RegisterClass(&wc);
+    /* If RegisterClass fails, the return value is zero. */
+    class_registered_ = RegisterClass(&wc) != 0;
     return class_registered_;
+  }
+
+  void GLWindow::wnd_unregister_class()
+  {
+    if (class_registered_)
+      UnregisterClass("OpenGL", hinstance_);
+
+    class_registered_ = false;
   }
 
   bool GLWindow::wnd_init(

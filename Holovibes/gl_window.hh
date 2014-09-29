@@ -32,7 +32,12 @@ namespace holovibes
      * \remarks A window class can be registered only once, otherwise it will
      * generate a WGL_CLASS_REGISTERED error.
      */
-    bool wnd_class_register();
+    bool wnd_register_class();
+    
+    /*! \brief Unregister the Window Class.
+    */
+    void wnd_unregister_class();
+
     /*! \brief Initialize the window.
      * \param title Title of the window.
      * \param width Width of the window.
