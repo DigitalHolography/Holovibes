@@ -10,7 +10,7 @@
 
 # define MSGS_ARRAY_SIZE 256
 
-namespace error
+namespace holovibes
 {
   /* This class is a Singleton
   ** it uses a static object because the class needs to be thread-safe

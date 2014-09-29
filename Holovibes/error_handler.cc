@@ -5,7 +5,7 @@
 #define ERROR_FORMAT "[%s][ERROR] %s\n"
 #define ERROR_MOD_FORMAT "[%s][ERROR][%s] %s\n"
 
-namespace error
+namespace holovibes
 {
   ErrorHandler ErrorHandler::instance_ = ErrorHandler::ErrorHandler();
 
