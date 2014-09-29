@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-namespace gui
+namespace holovibes
 {
   bool GLWindow::class_registered_ = false;
 

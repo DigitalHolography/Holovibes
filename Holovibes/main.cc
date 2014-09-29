@@ -3,9 +3,12 @@
 #include <Windows.h>
 #include "gl_window.hh"
 
-int main()
+namespace holovibes
 {
-  std::cout << "Hello World!" << std::endl;
+  int main()
+  {
+    std::cout << "Hello World!" << std::endl;
 
-  return 0;
+    return 0;
+  }
 }

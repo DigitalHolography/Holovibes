@@ -4,7 +4,7 @@
 # include <Windows.h>
 # include <GL/GL.h>
 
-namespace gui
+namespace holovibes
 {
   class GLWindow
   {
