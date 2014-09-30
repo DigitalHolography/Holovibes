@@ -1,7 +1,6 @@
 #ifndef OPTION_PARSER_HH
 # define OPTION_PARSER_HH
 
-
 #include <boost/tokenizer.hpp>
 #include <boost/token_functions.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -19,46 +18,50 @@
 #include <iostream>
 #include <fstream>
 
-typedef struct options
+namespace holovibes
 {
-  int nbimages;
-  int buffsize;
-  int set_size;
-  int width;
-  int height;
-  int bitdepth;
-  int binning;
-  bool display_images;
-} options_s;
+  typedef struct options
+  {
+    int nbimages;
+    int buffsize;
+    int set_size;
+    int width;
+    int height;
+    int bitdepth;
+    int binning;
+    bool display_images;
+  } s_options;
 
+  class OptionParser
+  {
+  public:
+    OptionParser(int argc, char** argv)
+      : argc_(argc)
+      , argv_(argv)
+      , help_(false)
+      , version_(false)
+    {}
 
-class Option_parser
-{
-public:
-  Option_parser(int argc, char** argv);
-  void init_parser();
-  void proceed_help();
-  void proceed_nbimages();
-  void proceed_display();
-  void proceed_buffsize();
-  void proceed_imageset();
-  void proceed_frameinfo();
-  void proceed_binning();
-  void proceed_version();
-  void proceed();
+    void init_parser();
+    void proceed_help();
+    void proceed_nbimages();
+    void proceed_display();
+    void proceed_buffsize();
+    void proceed_imageset();
+    void proceed_frameinfo();
+    void proceed_binning();
+    void proceed_version();
+    void proceed();
 
-private:
-  boost::program_options::options_description desc_;
-  bool help_;
-  bool version_;
-  int argc_;
-  char** argv_;
-  boost::program_options::variables_map vm_;
-  options_s options_;
-};
+  private:
+    const int argc_;
+    const char** argv_;
+    bool help_;
+    bool version_;
 
-
-
-
-
+    boost::program_options::options_description desc_;
+    boost::program_options::variables_map vm_;
+    s_options options_;
+  };
+}
 #endif

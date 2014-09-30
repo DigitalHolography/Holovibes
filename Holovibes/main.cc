@@ -7,14 +7,12 @@
 #include <iterator>
 #include <algorithm>
 
-
-namespace po = boost::program_options;
-
+using namespace holovibes;
 
 int main(int argc, char *argv[])
 {
-    Option_parser *op = new Option_parser(argc, argv);
-    op->init_parser();
-    op->proceed();
+  OptionParser *op = new OptionParser(argc, argv);
+  op->init_parser();
+  op->proceed();
   return 0;
 }
