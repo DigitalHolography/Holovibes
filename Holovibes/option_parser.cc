@@ -9,6 +9,7 @@ Option_parser::Option_parser(int argc, char** argv)
   argc_ = argc;
   argv_ = argv;
   help_ = false;
+  version_ = false;
 }
 
 void Option_parser::init_parser()
@@ -24,10 +25,19 @@ void Option_parser::init_parser()
     ("height", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
     ("bitdepth", program_options::value<int>(), "Set the bitedepth of the frame to capture to arg value")
     ("binning", program_options::value<int>(), "Set the binning mode")
+    ("version","Display the version of the release used")
     ;
 
- 
+  try
+  {
     program_options::store(program_options::parse_command_line(argc_, argv_, desc_), vm_);
+  }
+  catch (boost::program_options::unknown_option &e)
+  {
+    std::cout << desc_ << std::endl;
+    help_ = true;
+    std::cout << "WARNING: One of your option(s) does not refer to any of the one below" << std::endl << std::endl;
+  }
     program_options::notify(vm_);
 
 }
@@ -130,14 +140,25 @@ void Option_parser::proceed_binning()
   }
 }
 
+void Option_parser::proceed_version()
+{
+  if (vm_.count("version"))
+  {
+    std::cout << "Holovibes  v1.O" << std::endl;
+    version_ = true;
+  }
+}
+
 void Option_parser::proceed()
 {
+  proceed_version();
   proceed_help();
-  if (!help_)
+  if (!help_ && !version_)
   {
     proceed_nbimages();
     proceed_display();
     proceed_buffsize();
+    proceed_binning();
     if (!options_.display_images)
       proceed_imageset();
     proceed_frameinfo();

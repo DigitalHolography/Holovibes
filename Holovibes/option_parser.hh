@@ -44,11 +44,13 @@ public:
   void proceed_imageset();
   void proceed_frameinfo();
   void proceed_binning();
+  void proceed_version();
   void proceed();
 
 private:
   boost::program_options::options_description desc_;
   bool help_;
+  bool version_;
   int argc_;
   char** argv_;
   boost::program_options::variables_map vm_;
