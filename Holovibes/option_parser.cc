@@ -32,11 +32,17 @@ void Option_parser::init_parser()
   {
     program_options::store(program_options::parse_command_line(argc_, argv_, desc_), vm_);
   }
-  catch (boost::program_options::unknown_option &e)
+  catch (boost::program_options::invalid_option_value &e)
   {
     std::cout << desc_ << std::endl;
     help_ = true;
-    std::cout << "WARNING: One of your option(s) does not refer to any of the one below" << std::endl << std::endl;
+    std::cout << "WARNING: One of your option(s) argument does not comply to any of the one below, please refer to the help page" << std::endl << std::endl;
+  }
+  catch (...)
+  {
+    std::cout << desc_ << std::endl;
+    help_ = true;
+    std::cout << "WARNING: One of your option(s) does not refer to any of the one below, please refer to the help page" << std::endl << std::endl;
   }
     program_options::notify(vm_);
 
