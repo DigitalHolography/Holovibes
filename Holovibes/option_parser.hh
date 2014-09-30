@@ -35,7 +35,7 @@ namespace holovibes
   class OptionParser
   {
   public:
-    OptionParser(int argc, char** argv)
+    OptionParser(const int argc, const char** argv)
       : argc_(argc)
       , argv_(argv)
       , help_(false)

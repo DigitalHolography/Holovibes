@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "option_parser.hh"
 
+using namespace boost;
+using namespace boost::program_options;
 namespace holovibes
 {
   void OptionParser::init_parser()

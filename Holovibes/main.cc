@@ -9,7 +9,7 @@
 
 using namespace holovibes;
 
-int main(int argc, char *argv[])
+int main(const int argc, const char *argv[])
 {
   OptionParser *op = new OptionParser(argc, argv);
   op->init_parser();
