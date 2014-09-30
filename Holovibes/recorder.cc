@@ -9,7 +9,7 @@ namespace recorder
     else
       set_size_ = set_size;
     buffer_ = queue;
-    fd_ = fopen(path.c_str(), "w+");
+    fopen_s(&fd_,path.c_str(), "w+");
   }
 
   void Recorder::record()
