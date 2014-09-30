@@ -8,10 +8,21 @@ namespace camera
   class IDSCamera : public Camera
   {
   public:
-    IDSCamera();
-    ~IDSCamera();
+    IDSCamera()
+      : Camera()
+    {
+    }
 
+    ~IDSCamera()
+    {
+    }
 
+    virtual bool init_camera() override;
+    virtual void start_acquisition() override;
+    virtual void stop_acquisition() override;
+    virtual void shutdown_camera() override;
+
+    virtual void* get_frame() override;
   private:
   };
 }
