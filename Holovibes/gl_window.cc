@@ -17,8 +17,8 @@ namespace holovibes
     if (class_registered_)
     {
       assert("WndClass has already been registered.");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_CLASS_REGISTERED);
+      ErrorHandler::get_instance()
+        .send_error(WGL_CLASS_REGISTERED);
 
       return false;
     }
@@ -67,8 +67,8 @@ namespace holovibes
     if (!hwnd_)
     {
       assert("Failed to initialize window");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_CREATE_WINDOW);
+      ErrorHandler::get_instance()
+        .send_error(WGL_CREATE_WINDOW);
       return false;
     }
 
@@ -80,8 +80,8 @@ namespace holovibes
     if (!hwnd_)
     {
       assert("Window is not initialized");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_INIT_WINDOW);
+      ErrorHandler::get_instance()
+        .send_error(WGL_INIT_WINDOW);
       return;
     }
     ShowWindow(hwnd_, SW_SHOW);
@@ -94,9 +94,9 @@ namespace holovibes
     PIXELFORMATDESCRIPTOR pfd;
 
     /* Init with null values. */
-    memset(&pfd, 0, sizeof (PIXELFORMATDESCRIPTOR));
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
 
-    pfd.nSize = sizeof (PIXELFORMATDESCRIPTOR);
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;
@@ -116,16 +116,16 @@ namespace holovibes
     if (!pixel_format)
     {
       assert("Unable to find a suitable pixel format");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_PIXEL_FORMAT_FIND);
+      ErrorHandler::get_instance()
+        .send_error(WGL_PIXEL_FORMAT_FIND);
       return;
     }
 
     if (!SetPixelFormat(hdc_, pixel_format, &pfd))
     {
       assert("Cannot set the pixel format");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_PIXEL_FORMAT_SET);
+      ErrorHandler::get_instance()
+        .send_error(WGL_PIXEL_FORMAT_SET);
       return;
     }
 
@@ -134,16 +134,16 @@ namespace holovibes
     if (!hrc_)
     {
       assert("Unable to create GL context");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_GL_CONTEXT_CREATE);
+      ErrorHandler::get_instance()
+        .send_error(WGL_GL_CONTEXT_CREATE);
       return;
     }
 
     if (!wglMakeCurrent(hdc_, hrc_))
     {
       assert("Unable to make current GL context");
-      error::ErrorHandler::get_instance()
-        .send_error(error::WGL_GL_CONTEXT_MAKECUR);
+      ErrorHandler::get_instance()
+        .send_error(WGL_GL_CONTEXT_MAKECUR);
       return;
     }
   }
@@ -200,7 +200,6 @@ namespace holovibes
   {
     glDisable(GL_QUADS);
     glDisable(GL_TEXTURE_2D);
-
   }
 
   void GLWindow::gl_free()
