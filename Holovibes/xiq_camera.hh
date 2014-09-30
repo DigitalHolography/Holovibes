@@ -23,8 +23,9 @@ namespace camera
     virtual void* get_frame() override;
 
   private:
+    void load_param();
+  private:
     HANDLE device_;
-    XI_RETURN status_;
     XI_IMG frame_;
   };
 }

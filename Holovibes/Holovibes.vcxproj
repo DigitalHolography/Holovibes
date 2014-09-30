@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -93,6 +93,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="camera_exception.hh" />
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="gl_window.hh" />
@@ -102,6 +103,7 @@
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="xiq_camera.hh" />
     <ClInclude Include="queue.hh" />
+    <ClInclude Include="xiq_exception.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="error_handler.cc" />
@@ -113,6 +115,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="xiq_exception.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="err\wnd_gl.def" />
