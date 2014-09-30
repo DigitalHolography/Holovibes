@@ -9,20 +9,15 @@ namespace camera
 {
   class Camera
   {
+  public:
     // Default constants
     static const int FRAME_TIMEOUT = 1000;
 
-  public:
     Camera()
-      : frame_timeout_(FRAME_TIMEOUT)
     {}
 
     ~Camera()
     {}
-
-    // Object is non copyable
-    Camera& operator=(const Camera&) = delete;
-    Camera(const Camera&) = delete;
 
     // Getters
     const std::string& get_name() const
@@ -51,12 +46,14 @@ namespace camera
     s_frame_desc             desc_;
     double                   exposure_time_;
     unsigned short           frame_rate_;
-    const unsigned short     frame_timeout_;
     /*! Name of the camera. */
     std::string              name_;
     /*! Size of a pixel in micrometer. */
     float                    pixel_size_;
   private:
+    // Object is non copyable
+    Camera& operator=(const Camera&) = delete;
+    Camera(const Camera&) = delete;
   };
 }
 
