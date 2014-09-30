@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "queue.hh"
 
 namespace queue

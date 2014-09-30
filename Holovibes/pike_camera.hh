@@ -11,8 +11,8 @@ namespace camera
   class PikeCamera : public Camera
   {
   public:
-    PikeCamera(std::string name)
-      : Camera(name)
+    PikeCamera()
+      : Camera()
     {
     }
 

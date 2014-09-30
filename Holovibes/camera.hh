@@ -1,6 +1,8 @@
 #ifndef CAMERA_HH
 # define CAMERA_HH
 
+# include "frame_desc.hh"
+
 # include <string>
 
 namespace camera
@@ -8,14 +10,10 @@ namespace camera
   class Camera
   {
   public:
-    enum endianness
-    {
-      BIG_ENDIAN,
-      LITTLE_ENDIAN
-    };
+    // Default constants
+    static const int FRAME_TIMEOUT = 1000;
 
-    Camera(std::string name)
-      : name_(name)
+    Camera()
     {}
 
     ~Camera()
@@ -26,20 +24,13 @@ namespace camera
     {
       return name_;
     }
-
-    enum endianness get_endianness() const
+    const s_frame_desc& get_frame_descriptor() const
     {
-      return endianness_;
+      return desc_;
     }
-
-    int get_frame_width() const
+    float get_pixel_size() const
     {
-      return frame_width_;
-    }
-
-    int get_frame_height() const
-    {
-      return frame_height_;
+      return pixel_size_;
     }
 
     // Virtual methods
@@ -50,15 +41,19 @@ namespace camera
 
     virtual void* get_frame() = 0;
 
+    /* Protected contains fields that are mutables for inherited class. */
   protected:
-    std::string name_;
-
+    s_frame_desc             desc_;
+    double                   exposure_time_;
+    unsigned short           frame_rate_;
+    /*! Name of the camera. */
+    std::string              name_;
+    /*! Size of a pixel in micrometer. */
+    float                    pixel_size_;
   private:
-    enum endianness endianness_;
-
-    int frame_height_;
-    int frame_width_;
-    unsigned char frame_bit_depth_;
+    // Object is non copyable
+    Camera& operator=(const Camera&) = delete;
+    Camera(const Camera&) = delete;
   };
 }
 

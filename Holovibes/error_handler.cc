@@ -1,10 +1,11 @@
+#include "stdafx.h"
 #include "error_handler.hh"
 
 #define TIME_STR_SIZE 26
 #define ERROR_FORMAT "[%s][ERROR] %s\n"
 #define ERROR_MOD_FORMAT "[%s][ERROR][%s] %s\n"
 
-namespace error
+namespace holovibes
 {
   ErrorHandler ErrorHandler::instance_ = ErrorHandler::ErrorHandler();
 
@@ -12,6 +13,7 @@ namespace error
   {
 #define ERR_MSG(Code, Msg) msgs_[Code] = (Msg);
     // Here all .def includes
+#include "err\wnd_gl.def"
 #undef ERR_MSG
   }
 

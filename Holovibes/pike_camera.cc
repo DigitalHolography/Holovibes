@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "pike_camera.hh"
 
 #define MAXNAMELENGTH 64
@@ -6,7 +7,6 @@
 
 namespace camera
 {
-
   bool PikeCamera::init_camera()
   {
     unsigned long result;
