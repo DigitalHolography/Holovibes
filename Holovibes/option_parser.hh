@@ -27,6 +27,8 @@ namespace holovibes
     int set_size;
     int width;
     int height;
+    int width_win;
+    int height_win;
     int bitdepth;
     int binning;
     bool display_images;
@@ -51,6 +53,7 @@ namespace holovibes
     void proceed_frameinfo();
     void proceed_binning();
     void proceed_version();
+    void proceed_win_size();
     void proceed();
 
   private:
