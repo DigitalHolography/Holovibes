@@ -41,10 +41,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectLibDir)\avt\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\avt;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files\boost\boost_1_55_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectLibDir)\avt\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\avt;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\Program Files\boost\boost_1_55_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -61,8 +65,11 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\local\boost_1_55_0\lib64-msvc-12.0;C:\local\boost_1_56_0\lib64-msvc-12.0;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;C:\local\boost_1_55_0\lib64-msvc-12.0;C:\local\boost_1_56_0\lib64-msvc-12.0;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -80,9 +87,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\local\boost_1_55_0\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libboost_program_options-vc120-1_55.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local\boost_1_55_0\lib64-msvc-12.0;$(ProjectLibDir)\avt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;libboost_program_options-vc120-1_55.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="errors_enum.hh" />
@@ -95,6 +105,7 @@
     <ClInclude Include="camera.hh" />
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
+    <ClInclude Include="pike_camera.hh" />
     <ClInclude Include="recorder.hh" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +113,7 @@
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="option_parser.cc" />
+    <ClCompile Include="pike_camera.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">

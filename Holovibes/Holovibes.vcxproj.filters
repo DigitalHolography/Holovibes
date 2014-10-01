@@ -19,10 +19,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="error_handler.cc">
+    <ClCompile Include="gl_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cc">
@@ -31,7 +31,7 @@
     <ClCompile Include="option_parser.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl_window.cc">
+    <ClCompile Include="pike_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="queue.cc">
@@ -40,27 +40,30 @@
     <ClCompile Include="recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="errors_enum.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="error_handler.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="errors_enum.hh">
+    <ClInclude Include="gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="option_parser.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <None Include="err\wnd_gl.def">
-      <Filter>Macro Files</Filter>
-    </None>
-    <ClInclude Include="gl_window.hh">
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera.hh">
@@ -72,11 +75,16 @@
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="pike_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="recorder.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
