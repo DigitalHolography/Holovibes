@@ -19,6 +19,35 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="error_handler.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="option_parser.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="error_handler.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="errors_enum.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="option_parser.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <None Include="err\wnd_gl.def">
       <Filter>Macro Files</Filter>
     </None>
