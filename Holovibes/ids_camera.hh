@@ -12,6 +12,9 @@ namespace camera
     IDSCamera()
       : Camera()
     {
+      desc_.width = 2048;
+      desc_.height = 2048;
+      desc_.bit_depth = 8;
     }
 
     ~IDSCamera()
