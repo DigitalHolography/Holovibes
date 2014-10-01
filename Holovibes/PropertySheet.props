@@ -3,12 +3,17 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <ProjectLibDir>$(ProjectDir)lib</ProjectLibDir>
+    <BoostLib>C:\local\boost_1_55_0</BoostLib>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
   <ItemGroup>
     <BuildMacro Include="ProjectLibDir">
       <Value>$(ProjectLibDir)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="BoostLib">
+      <Value>$(BoostLib)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
