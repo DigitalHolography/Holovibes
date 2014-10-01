@@ -13,8 +13,13 @@ namespace camera
   {
     switch (code_)
     {
+    case NOT_CONNECTED:
+      return "is not connected";
     case NOT_INITIALIZED:
-      return "couldn't be initialized.";
+      return "could not be initialized.";
+    case MEMORY_PROBLEM:
+      return "memory troubles, can not access, "
+        "allocate or bind camera memory.";
     case CANT_START_ACQUISITION:
       return "can't start acquisition.";
     case CANT_STOP_ACQUISITION:
