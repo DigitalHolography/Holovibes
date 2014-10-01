@@ -27,7 +27,6 @@ namespace camera
   private:
     // Object is non copyable
     CameraException& operator=(const CameraException&) = delete;
-    CameraException(const CameraException&) = delete;
   };
 }
 
