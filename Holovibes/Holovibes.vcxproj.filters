@@ -31,6 +31,15 @@
     <ClCompile Include="option_parser.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gl_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="queue.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="recorder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -51,5 +60,23 @@
     <None Include="err\wnd_gl.def">
       <Filter>Macro Files</Filter>
     </None>
+    <ClInclude Include="gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="frame_desc.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recorder.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

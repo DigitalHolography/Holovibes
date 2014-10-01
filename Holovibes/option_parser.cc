@@ -19,6 +19,8 @@ namespace holovibes
       ("bitdepth", program_options::value<int>(), "Set the bit depth of the frame to capture to arg value")
       ("binning", program_options::value<int>(), "Set the binning mode")
       ("version", "Display the version of the release used")
+      ("widthdwin", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
+      ("heightwin", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
       ;
 
     try
@@ -66,6 +68,7 @@ namespace holovibes
 
   void OptionParser::proceed_frameinfo()
   {
+   
     if (vm_.count("width"))
     {
       std::cout << "Images width is " <<
@@ -83,6 +86,22 @@ namespace holovibes
       std::cout << "Pixel bitdepth is " <<
         vm_["bitdepth"].as<int>() << std::endl;
       options_.bitdepth = vm_["bitdepth"].as<int>();
+    }
+  }
+
+  void OptionParser::proceed_win_size()
+  {
+    if (vm_.count("widthwin"))
+    {
+      std::cout << "Window width is " <<
+        vm_["widthwin"].as<int>() << std::endl;
+      options_.width_win = vm_["widthwin"].as<int>();
+    }
+    if (vm_.count("heightwin"))
+    {
+      std::cout << "Window height is " <<
+        vm_["heightwin"].as<int>() << std::endl;
+      options_.height = vm_["heightwin"].as<int>();
     }
   }
 
@@ -153,6 +172,7 @@ namespace holovibes
     proceed_help();
     if (!help_ && !version_)
     {
+      proceed_win_size();
       proceed_nbimages();
       proceed_display();
       proceed_buffsize();
