@@ -95,6 +95,7 @@
     <ClInclude Include="camera.hh" />
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
+    <ClInclude Include="recorder.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="error_handler.cc" />
@@ -102,6 +103,7 @@
     <ClCompile Include="ids_camera.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="queue.cc" />
+    <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
