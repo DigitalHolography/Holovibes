@@ -1,38 +1,64 @@
 #include "stdafx.h"
+#include "main.hh"
 #include <iostream>
-#include "camera.hh"
-#include "xiq_camera.hh"
-#include "gl_window.hh"
+#include <fstream>
+#include <cstdio>
+#include "pike_camera.hh"
+#include "queue.hh"
 
-using namespace camera;
+
 using namespace holovibes;
+using namespace camera;
 
-#define WIDTH 512
-#define HEIGHT 512
-
-int main()
+int main(const int argc, const char *argv[])
 {
-  Camera* c = new XiqCamera();
-
-  c->init_camera();
-
-  GLWindow w;
-  w.wnd_register_class();
-  w.wnd_init("Test", WIDTH, HEIGHT);
-  w.gl_init();
-  w.gl_enable(WIDTH, HEIGHT);
-  w.wnd_show();
-
-  c->start_acquisition();
-
-  while (true)
-    w.gl_draw(c->get_frame(), 2048, 2048);
-
-  c->stop_acquisition();
-  w.gl_disable();
-  w.gl_free();
-
-  c->shutdown_camera();
+  OptionParser *op = gen_opt_parser(argc, argv);
+  
+  std::cout << "Hello World!" << std::endl;
 
   return 0;
+}
+
+OptionParser *gen_opt_parser(const int argc, const char *argv[])
+{
+  OptionParser *op = new OptionParser(argc, argv);
+  op->init_parser();
+  op->proceed();
+  return op;
+}
+
+void manage_parsed_info(s_options opt)
+{
+  if (opt.display_images)
+  {
+    //draw_in_win(launch_display(opt));
+  }
+  else
+  {
+  }
+
+}
+
+Camera *create_cam()
+{
+  return (new PikeCamera());
+}
+
+void draw_in_win(GLWindow *win, Camera *cam, s_options opt)
+{
+  for (int i = 0; i < opt.nbimages; i++)
+    win->gl_draw(cam->get_frame(), opt.width, opt.height);
+}
+
+GLWindow *launch_display(s_options opt)
+{
+
+  GLWindow *win = new GLWindow();
+  win->wnd_register_class();
+  win->wnd_init("Holovibes", opt.width_win, opt.height_win);
+  win->wnd_show();
+  win->gl_init();
+  win->gl_enable(opt.width_win, opt.height_win);
+  // draw miss
+  return win;
 }
