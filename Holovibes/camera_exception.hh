@@ -11,7 +11,9 @@ namespace camera
   public:
     enum camera_error
     {
+      NOT_CONNECTED,
       NOT_INITIALIZED,
+      MEMORY_PROBLEM,
       CANT_START_ACQUISITION,
       CANT_STOP_ACQUISITION,
       CANT_GET_FRAME,
