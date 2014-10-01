@@ -65,7 +65,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;C:\local\boost_1_55_0\lib64-msvc-12.0;C:\local\boost_1_56_0\lib64-msvc-12.0;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local\boost_1_55_0\lib64-msvc-12.0</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"</Command>
