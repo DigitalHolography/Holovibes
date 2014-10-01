@@ -19,7 +19,7 @@ namespace holovibes
       ("bitdepth", program_options::value<int>(), "Set the bit depth of the frame to capture to arg value")
       ("binning", program_options::value<int>(), "Set the binning mode")
       ("version", "Display the version of the release used")
-      ("widthdwin", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
+      ("widthwin", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
       ("heightwin", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
       ;
 
@@ -51,6 +51,11 @@ namespace holovibes
     }
   }
 
+  s_options OptionParser::get_opt()
+  {
+    return options_;
+  }
+
   void OptionParser::proceed_display()
   {
     if (vm_.count("display"))
@@ -63,6 +68,7 @@ namespace holovibes
       std::cout << "The images will be recorded to " <<
         vm_["record"].as<std::string>() << std::endl;
       options_.display_images = false;
+      options_.record_path = vm_["record"].as<std::string>();
     }
   }
 
@@ -101,7 +107,7 @@ namespace holovibes
     {
       std::cout << "Window height is " <<
         vm_["heightwin"].as<int>() << std::endl;
-      options_.height = vm_["heightwin"].as<int>();
+      options_.height_win = vm_["heightwin"].as<int>();
     }
   }
 

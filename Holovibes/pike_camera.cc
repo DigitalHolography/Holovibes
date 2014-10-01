@@ -84,9 +84,7 @@ namespace camera
         << fgframe_.Id << std::endl;
     }
 
-    // FIXME allocated on stack and should be compatible with
-    // interface type
-    return &fgframe_;
+    return fgframe_.pData;
   }
 
   std::string PikeCamera::get_name_from_device()
