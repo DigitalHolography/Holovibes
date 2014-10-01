@@ -28,10 +28,10 @@ namespace camera
         is_SetColorMode(cam_, IS_CM_SENSOR_RAW8);
       }
       else
-        throw std::string("Camera couldn't be initialized");
+        throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
     }
     else
-      throw std::string("No camera connected");
+      throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
 
     return result == IS_SUCCESS;
   }
@@ -39,12 +39,10 @@ namespace camera
   void IDSCamera::start_acquisition()
   {
     stop_acquisition();
-
-    int result = IS_SUCCESS;
-    result = is_SetImageMem(cam_, frame_, frame_mem_pid_);
+    int result = is_SetImageMem(cam_, frame_, frame_mem_pid_);
 
     if (result != IS_SUCCESS)
-      throw std::string("Camera memory couldn't be bind");
+      throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
   }
 
   void IDSCamera::stop_acquisition()
@@ -58,15 +56,13 @@ namespace camera
     result = is_ExitCamera(cam_);
 
     if (result != IS_SUCCESS)
-      throw std::string("Couldn't shut down the camera");
+      throw new CameraException(name_, CameraException::camera_error::CANT_SHUTDOWN);
   }
 
   void* IDSCamera::get_frame()
   {
     if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
-    {
-      throw std::string("Couldn't capture the frame");
-    }
+      throw new CameraException(name_, CameraException::camera_error::CANT_GET_FRAME);
 
     return frame_;
   }
