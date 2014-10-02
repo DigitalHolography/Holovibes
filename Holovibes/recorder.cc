@@ -14,8 +14,7 @@ namespace holovibes
     else
       set_size_ = set_size;
     buffer_ = queue;
-    fopen_s(&fd_,path.c_str(), "w+");
-    //fd_ = fopen_s(path.c_str(), "w+");
+    fopen_s(&fd_,path.c_str(), "w+b");
   }
 
   void Recorder::record()
