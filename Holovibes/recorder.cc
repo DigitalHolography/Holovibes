@@ -10,7 +10,13 @@ namespace holovibes
     else
       set_size_ = set_size;
     buffer_ = queue;
-    fopen_s(&fd_,path.c_str(), "w+b");
+    if (fopen_s(&fd_, path.c_str(), "w+b") != 0)
+    {
+      ErrorHandler::get_instance()
+        .send_error("Cannot open the specified file for Writing data");
+    }
+   
+
   }
 
   void Recorder::record()
@@ -18,10 +24,15 @@ namespace holovibes
     if (buffer_->get_current_elts() >= set_size_) // we record them to the drive
     {
       size_t written = contigous_image();
-      fwrite(buffer_->dequeue(written), buffer_->get_size(), written, fd_);
+      size_t elt_written = fwrite(buffer_->dequeue(written), buffer_->get_size(), written, fd_);
+      if (elt_written != written)
+      {
+        ErrorHandler::get_instance()
+          .send_error("One or more images were not correctly saved, the save file is corrupted");
+      }
     }
   }
-  unsigned int Recorder::contigous_image()
+  size_t Recorder::contigous_image()
   {
     if (buffer_->get_max_elts() - buffer_->get_start_index() >= buffer_->get_current_elts())
       return buffer_->get_current_elts();

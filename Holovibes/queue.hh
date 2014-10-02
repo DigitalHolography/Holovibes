@@ -23,12 +23,12 @@ namespace queue
       free(buffer_);
     }
 
-    unsigned int get_size() const
+    size_t get_size() const
     {
       return size_;
     }
 
-    unsigned int get_current_elts() const
+    size_t get_current_elts() const
     {
       return curr_elts_;
     }
@@ -60,15 +60,15 @@ namespace queue
 
     bool enqueue(void* elt);
     void* dequeue();
-    void* dequeue(unsigned int elts_nb);
+    void* dequeue(size_t elts_nb);
 
     // debug only
     void print() const;
 
   private:
-    unsigned int size_;
+    size_t size_;
     unsigned int max_elts_;
-    unsigned int curr_elts_;
+    size_t curr_elts_;
     unsigned int start_;
     char* buffer_;
   };

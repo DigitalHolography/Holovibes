@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "queue.hh"
+#include "error_handler.hh"
 namespace holovibes
 {
   class Recorder
@@ -10,7 +11,7 @@ namespace holovibes
   public:
     Recorder(queue::Queue *queue, std::string path, unsigned int set_size);
     void record();
-    unsigned int contigous_image();
+    size_t contigous_image();
     ~Recorder();
 
   private:

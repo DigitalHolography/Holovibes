@@ -26,7 +26,7 @@ OptionParser *gen_opt_parser(const int argc, const char *argv[])
 
 void manage_parsed_info(s_options opt)
 {
-  Camera *cam = NULL;
+  Camera *cam;
   if (opt.display_images)
   {
     cam = create_cam(opt);
@@ -117,10 +117,13 @@ void draw_in_win(GLWindow *win, Camera *cam, s_options opt)
 GLWindow *launch_display(s_options opt)
 {
   GLWindow *win = new GLWindow();
-  win->wnd_register_class();
-  win->wnd_init("Holovibes", opt.width_win, opt.height_win);
-  win->gl_init();
-  win->gl_enable(opt.width_win, opt.height_win);
-  win->wnd_show();
+  if (win)
+  {
+    win->wnd_register_class();
+    win->wnd_init("Holovibes", opt.width_win, opt.height_win);
+    win->gl_init();
+    win->gl_enable(opt.width_win, opt.height_win);
+    win->wnd_show();
+  }
   return win;
 }

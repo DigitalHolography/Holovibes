@@ -21,7 +21,7 @@ namespace queue
     return dequeue(1);
   }
 
-  void* Queue::dequeue(unsigned int elts_nb)
+  void* Queue::dequeue(size_t elts_nb)
   {
     if (elts_nb <= curr_elts_)
     {
