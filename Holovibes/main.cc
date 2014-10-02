@@ -82,7 +82,7 @@ void kill_cam(Camera *cam)
 
 void draw_in_win(GLWindow *win, Camera *cam, s_options opt)
 {
-  for (int i = 0; i < opt.nbimages; i++)
+  while (true)
     win->gl_draw(cam->get_frame(), opt.width, opt.height);
 }
 
