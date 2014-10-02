@@ -1,15 +1,15 @@
 #include "stdafx.h"
-#include "camera_exception.hh"
+#include "exception_camera.hh"
 
 namespace camera
 {
-  const char* CameraException::what() const
+  const char* ExceptionCamera::what() const
   {
     std::string res = name_ + " " + match_error();
     return res.c_str();
   }
 
-  const std::string CameraException::match_error() const
+  const std::string ExceptionCamera::match_error() const
   {
     switch (code_)
     {

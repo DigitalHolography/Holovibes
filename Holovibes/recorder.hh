@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include "queue.hh"
-namespace recorder
+namespace holovibes
 {
   class Recorder
   {

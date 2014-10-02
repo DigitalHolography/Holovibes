@@ -23,6 +23,7 @@ namespace holovibes
   typedef struct options
   {
     int nbimages;
+    std::string record_path;
     int buffsize;
     int set_size;
     int width;
@@ -55,6 +56,7 @@ namespace holovibes
     void proceed_version();
     void proceed_win_size();
     void proceed();
+    s_options get_opt();
 
   private:
     const int argc_;
