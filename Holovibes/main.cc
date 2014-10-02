@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "main.hh"
+
+
+
 using namespace holovibes;
 using namespace camera;
 
@@ -23,7 +26,7 @@ OptionParser *gen_opt_parser(const int argc, const char *argv[])
 
 void manage_parsed_info(s_options opt)
 {
-  Camera *cam;
+  Camera *cam = NULL;
   if (opt.display_images)
   {
     cam = create_cam(opt);
