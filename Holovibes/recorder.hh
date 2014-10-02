@@ -1,8 +1,6 @@
 #ifndef RECORDER_HH
 # define RECORDER_HH
 
-
-
 #include <stdio.h>
 #include "queue.hh"
 namespace holovibes
