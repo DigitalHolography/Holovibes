@@ -2,7 +2,12 @@
 # define PIKE_CAMERA_HH
 
 # include <string>
+
+/* Disable warnings for external header FGCamera.h. */
+# pragma warning (push, 0)
 # include <FGCamera.h>
+# pragma warning (pop)
+
 # include <iostream>
 # include "camera.hh"
 
