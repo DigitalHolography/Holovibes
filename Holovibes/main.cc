@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "main.hh"
 
-
-
 using namespace holovibes;
 using namespace camera;
 
@@ -64,7 +62,7 @@ Camera *create_cam(s_options opt)
   else if (opt.cam.compare("xiq") == 0)
     cam = new XiqCamera();
   else if (opt.cam.compare("ids") == 0)
-    int i = 0; // FIX ME
+    cam = new IDSCamera();
   else
     std::cout << "cam does not exist" << std::endl;
   if (cam)

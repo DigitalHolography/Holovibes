@@ -58,6 +58,7 @@ namespace holovibes
     {
       std::cout << "The choosen camera is " <<
         vm_["cam"].as<std::string>() << std::endl;
+      options_.cam = vm_["cam"].as<std::string>();
     }
   }
 

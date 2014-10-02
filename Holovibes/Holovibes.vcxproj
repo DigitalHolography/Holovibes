@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -44,11 +44,15 @@
     <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\ids\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\ids\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -63,7 +67,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -89,7 +93,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -119,6 +123,7 @@
     <ClCompile Include="exception_camera.cc" />
     <ClCompile Include="error_handler.cc" />
     <ClCompile Include="gl_window.cc" />
+    <ClCompile Include="ids_camera.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="option_parser.cc" />
     <ClCompile Include="pike_camera.cc" />
