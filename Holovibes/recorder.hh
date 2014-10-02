@@ -1,8 +1,6 @@
 #ifndef RECORDER_HH
 # define RECORDER_HH
 
-
-
 #include <stdio.h>
 #include "queue.hh"
 namespace holovibes
@@ -10,7 +8,7 @@ namespace holovibes
   class Recorder
   {
   public:
-    Recorder(queue::Queue *queue, std::string path, int set_size);
+    Recorder(queue::Queue *queue, std::string path, unsigned int set_size);
     void record();
     unsigned int contigous_image();
     ~Recorder();
@@ -18,8 +16,7 @@ namespace holovibes
   private:
     queue::Queue *buffer_;
     FILE *fd_;
-    int set_size_;
-
+    unsigned int set_size_;
   };
 }
 

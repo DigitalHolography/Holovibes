@@ -21,13 +21,14 @@ namespace holovibes
       ("version", "Display the version of the release used")
       ("widthwin", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
       ("heightwin", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
+      ("cam", program_options::value<std::string>(), "Set the camera to use: pike/xiq/ids")
       ;
 
     try
     {
       program_options::store(program_options::parse_command_line(argc_, argv_, desc_), vm_);
     }
-    catch (boost::program_options::invalid_option_value &e)
+    catch (boost::program_options::invalid_option_value &e_)
     {
       std::cout << desc_ << std::endl;
       help_ = true;
@@ -51,6 +52,15 @@ namespace holovibes
     }
   }
 
+  void OptionParser::proceed_cam()
+  {
+    if (vm_.count("cam"))
+    {
+      std::cout << "The choosen camera is " <<
+        vm_["cam"].as<std::string>() << std::endl;
+    }
+  }
+
   s_options OptionParser::get_opt()
   {
     return options_;
@@ -62,19 +72,20 @@ namespace holovibes
     {
       std::cout << "Images will be displayed" << std::endl;
       options_.display_images = true;
+      options_.record = false;
     }
     else if (vm_.count("record"))
     {
       std::cout << "The images will be recorded to " <<
         vm_["record"].as<std::string>() << std::endl;
       options_.display_images = false;
+      options_.record = true;
       options_.record_path = vm_["record"].as<std::string>();
     }
   }
 
   void OptionParser::proceed_frameinfo()
   {
-   
     if (vm_.count("width"))
     {
       std::cout << "Images width is " <<
@@ -181,10 +192,13 @@ namespace holovibes
       proceed_win_size();
       proceed_nbimages();
       proceed_display();
-      proceed_buffsize();
       proceed_binning();
-      if (!options_.display_images)
+      proceed_cam();
+      if ((!options_.display_images && options_.record)
+        || (options_.display_images && !options_.record))
         proceed_imageset();
+      if (options_.record)
+        proceed_buffsize();
       proceed_frameinfo();
     }
     help_ = false;

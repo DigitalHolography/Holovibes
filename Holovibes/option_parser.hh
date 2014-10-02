@@ -33,6 +33,8 @@ namespace holovibes
     int bitdepth;
     int binning;
     bool display_images;
+    bool record;
+    std::string cam;
   } s_options;
 
   class OptionParser
@@ -56,9 +58,12 @@ namespace holovibes
     void proceed_version();
     void proceed_win_size();
     void proceed();
+    void proceed_cam();
     s_options get_opt();
 
   private:
+
+    OptionParser& operator=(const OptionParser&) = delete;
     const int argc_;
     const char** argv_;
     bool help_;
