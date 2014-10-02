@@ -19,11 +19,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="err\wnd_gl.def">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +32,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pike_camera.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xiq_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="queue.cc">
@@ -80,6 +78,9 @@
     <ClInclude Include="frame_desc.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="xiq_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -92,5 +93,10 @@
     <ClInclude Include="exception_camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def">
+      <Filter>Macro Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -41,23 +41,21 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectLibDir)\avt\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\avt;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(BoostLib);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectLibDir)\avt\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\avt;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\local\boost_1_55_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -65,11 +63,14 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(ProjectLibDir)\avt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"</Command>
+      <Command>
+        copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,11 +89,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\local\boost_1_55_0\lib64-msvc-12.0;$(ProjectLibDir)\avt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"</Command>
+      <Command>
+        copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -106,6 +110,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="camera.hh" />
     <ClInclude Include="frame_desc.hh" />
+    <ClInclude Include="xiq_camera.hh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="pike_camera.hh" />
     <ClInclude Include="recorder.hh" />
@@ -117,6 +122,7 @@
     <ClCompile Include="main.cc" />
     <ClCompile Include="option_parser.cc" />
     <ClCompile Include="pike_camera.cc" />
+    <ClCompile Include="xiq_camera.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">
