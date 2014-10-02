@@ -19,11 +19,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="err\wnd_gl.def">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="error_handler.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,5 +93,10 @@
     <ClInclude Include="exception_camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="err\wnd_gl.def">
+      <Filter>Macro Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -17,7 +17,8 @@ namespace camera
       CANT_START_ACQUISITION,
       CANT_STOP_ACQUISITION,
       CANT_GET_FRAME,
-      CANT_SHUTDOWN
+      CANT_SHUTDOWN,
+      CANT_SET_CONFIG,
     };
 
     ExceptionCamera(std::string name, camera_error code)
@@ -38,7 +39,6 @@ namespace camera
   private:
     // Object is non copyable
     ExceptionCamera& operator=(const ExceptionCamera&) = delete;
-    ExceptionCamera(const ExceptionCamera&) = delete;
 
     const std::string name_;
     const camera_error code_;

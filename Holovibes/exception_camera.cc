@@ -28,6 +28,8 @@ namespace camera
       return "can't get frame.";
     case CANT_SHUTDOWN:
       return "can't shut down camera.";
+    case CANT_SET_CONFIG:
+      return "can't set the camera configuration";
     default:
       return "unknown error";
     }
