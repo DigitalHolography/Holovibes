@@ -96,7 +96,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="camera_exception.hh" />
+    <ClInclude Include="exception_camera.hh" />
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="gl_window.hh" />
@@ -111,7 +111,7 @@
     <ClInclude Include="recorder.hh" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera_exception.cc" />
+    <ClCompile Include="exception_camera.cc" />
     <ClCompile Include="error_handler.cc" />
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="main.cc" />

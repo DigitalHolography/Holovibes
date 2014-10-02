@@ -80,7 +80,6 @@ void kill_cam(Camera *cam)
   delete cam;
 }
 
-
 void draw_in_win(GLWindow *win, Camera *cam, s_options opt)
 {
   for (int i = 0; i < opt.nbimages; i++)
