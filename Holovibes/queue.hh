@@ -4,7 +4,7 @@
 # include <cstdlib>
 # include <iostream>
 
-namespace queue
+namespace holovibes
 {
   class Queue
   {

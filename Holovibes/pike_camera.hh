@@ -21,7 +21,7 @@ namespace camera
     {
     }
 
-    ~PikeCamera()
+    virtual ~PikeCamera()
     {
     }
 

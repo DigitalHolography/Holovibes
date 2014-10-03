@@ -36,6 +36,9 @@ namespace camera
     status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, XI_BP_SAFE);
     status = xiSetParamInt(device_, XI_PRM_EXPOSURE, (int)((double) 1.0e6 * 0.005));
 
+    desc_.height = 2048;
+    desc_.width = 2048;
+
     if (status != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_SET_CONFIG);
   }

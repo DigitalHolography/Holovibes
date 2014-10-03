@@ -27,7 +27,7 @@ namespace holovibes
     {
       program_options::store(program_options::parse_command_line(argc_, argv_, desc_), vm_);
     }
-    catch (boost::program_options::invalid_option_value &e)
+    catch (boost::program_options::invalid_option_value&)
     {
       std::cout << desc_ << std::endl;
       help_ = true;
@@ -51,7 +51,7 @@ namespace holovibes
     }
   }
 
-  s_options OptionParser::get_opt()
+  s_options& OptionParser::get_opt()
   {
     return options_;
   }

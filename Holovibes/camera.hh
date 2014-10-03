@@ -15,8 +15,7 @@ namespace camera
 
     Camera()
     {}
-
-    ~Camera()
+    virtual ~Camera()
     {}
 
     // Getters

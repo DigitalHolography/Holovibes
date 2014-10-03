@@ -56,7 +56,7 @@ namespace holovibes
     void proceed_version();
     void proceed_win_size();
     void proceed();
-    s_options get_opt();
+    s_options& get_opt();
 
   private:
     const int argc_;

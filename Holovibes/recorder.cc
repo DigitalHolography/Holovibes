@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "recorder.hh"
 
+
 namespace holovibes
 {
-  Recorder::Recorder(queue::Queue *queue, std::string path, int set_size)
+  Recorder::Recorder(Queue *queue, std::string path, int set_size)
   {
     if (queue->get_max_elts() <= set_size)
       set_size_ = 1;

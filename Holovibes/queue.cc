@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "queue.hh"
 
-namespace queue
+namespace holovibes
 {
   bool Queue::enqueue(void* elt)
   {
@@ -35,7 +35,7 @@ namespace queue
       return nullptr;
   }
 
-  // debug only
+#if _DEBUG
   void Queue::print() const
   {
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
@@ -49,4 +49,5 @@ namespace queue
       std::cout << (int)(*(buffer_ + i * size_)) << std::endl;
     }
   }
+#endif
 }

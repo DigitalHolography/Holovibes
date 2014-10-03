@@ -8,13 +8,13 @@ namespace holovibes
   class Recorder
   {
   public:
-    Recorder(queue::Queue *queue, std::string path, int set_size);
+    Recorder(Queue *queue, std::string path, int set_size);
     void record();
     unsigned int contigous_image();
     ~Recorder();
 
   private:
-    queue::Queue *buffer_;
+    Queue* buffer_;
     FILE *fd_;
     int set_size_;
 

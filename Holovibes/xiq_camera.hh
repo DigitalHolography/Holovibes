@@ -13,7 +13,7 @@ namespace camera
   public:
     XiqCamera();
 
-    ~XiqCamera()
+    virtual ~XiqCamera()
     {}
 
     virtual bool init_camera() override;

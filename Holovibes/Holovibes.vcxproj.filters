@@ -49,6 +49,9 @@
     <ClCompile Include="exception_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="holovibes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="errors_enum.hh">
@@ -58,9 +61,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gl_window.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="option_parser.hh">
@@ -91,6 +91,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="exception_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="holovibes.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
