@@ -7,6 +7,7 @@
 
 namespace camera
 {
+  /*! Abstract Camera class. */
   class Camera
   {
   public:
@@ -14,9 +15,13 @@ namespace camera
     static const int FRAME_TIMEOUT = 1000;
 
     Camera()
+      : desc_()
+      , name_("Unknown")
+      , exposure_time_(0.0)
+      , frame_rate_(0)
     {}
 
-    ~Camera()
+    virtual ~Camera()
     {}
 
     // Getters
@@ -43,13 +48,14 @@ namespace camera
 
     /* Protected contains fields that are mutables for inherited class. */
   protected:
+    /*! Frame descriptor updated by cameras. */
     s_frame_desc             desc_;
-    double                   exposure_time_;
-    unsigned short           frame_rate_;
+
     /*! Name of the camera. */
     std::string              name_;
-    /*! Size of a pixel in micrometer. */
-    float                    pixel_size_;
+    /*! Exposure time of the camera. */
+    double                   exposure_time_;
+    unsigned short           frame_rate_;
   private:
     // Object is non copyable
     Camera& operator=(const Camera&) = delete;
