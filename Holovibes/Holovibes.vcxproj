@@ -74,6 +74,7 @@
       <Command>
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -100,6 +101,7 @@
       <Command>
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
