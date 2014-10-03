@@ -8,13 +8,13 @@ namespace holovibes
   void OptionParser::init_parser()
   {
     // -42 is a magic number to check the integrity of given params
-    options_.set_size = -42;
-    options_.buffsize = -42;
+    options_.set_size = 0;
+    options_.buffsize = 0;
     options_.height_win = 800;
     options_.width_win = 800;
-    options_.nbimages = -42;
-    options_.width = -42;
-    options_.height = -42;
+    options_.nbimages = 0;
+    options_.width = 0;
+    options_.height = 0;
 
     desc_.add_options()
       ("help,h", "Help message")
@@ -65,12 +65,6 @@ namespace holovibes
       options_.cam = vm_["cameramodel"].as<std::string>();
     }
   }
-
-  s_options OptionParser::get_opt()
-  {
-    return options_;
-  }
-
   void OptionParser::proceed_display()
   {
     if (vm_.count("display"))

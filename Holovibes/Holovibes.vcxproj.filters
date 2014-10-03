@@ -52,6 +52,9 @@
     <ClCompile Include="ids_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pixefly.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="errors_enum.hh">
@@ -94,6 +97,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="exception_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pixefly.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

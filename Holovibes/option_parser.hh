@@ -50,7 +50,15 @@ namespace holovibes
       , version_(false)
     {}
 
-    void init_parser();
+    void init_parser(); //initialize the parser must be called right after the creation
+    void proceed(); //parse the command line given by the user and fill the options_ strucure
+    s_options& get_opt()
+    {
+      return options_;
+    };
+
+  private:
+
     void proceed_help();
     void proceed_display();
     void proceed_buffsize();
@@ -58,12 +66,8 @@ namespace holovibes
     void proceed_frameinfo();
     void proceed_version();
     void proceed_win_size();
-    void proceed();
     void proceed_cam();
     void check_integrity();
-    s_options get_opt();
-
-  private:
 
     OptionParser& operator=(const OptionParser&) = delete;
     const int argc_;

@@ -18,8 +18,6 @@ namespace holovibes
       ErrorHandler::get_instance()
         .send_error("Cannot open the specified file for Writing data");
     }
-   
-
   }
 
   void Recorder::record()
@@ -29,10 +27,10 @@ namespace holovibes
       size_t written = contigous_image();
       size_t elt_written = fwrite(buffer_->dequeue(written), buffer_->get_size(), written, fd_);
       if (elt_written != written)
-      {
-        ErrorHandler::get_instance()
-          .send_error("One or more images were not correctly saved, the save file is corrupted");
-      }
+       {
+       ErrorHandler::get_instance()
+       .send_error("One or more images were not correctly saved, the save file is corrupted");
+       }
     }
   }
   size_t Recorder::contigous_image()
@@ -50,11 +48,10 @@ namespace holovibes
     if (fopen_s(&fdtmp, path_.c_str(), "r") == 0)
       return true;
     return false;
-
   }
   Recorder::~Recorder()
   {
     if (fd_)
-    fclose(fd_);
+      fclose(fd_);
   }
 }
