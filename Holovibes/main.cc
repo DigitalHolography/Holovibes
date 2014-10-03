@@ -35,7 +35,7 @@ void manage_parsed_info(s_options opt)
   else if (opt.record)
   {
     cam = create_cam(opt);
-    queue::Queue *q = new queue::Queue(opt.width * opt.height * opt.bitdepth, opt.buffsize);
+    queue::Queue *q = new queue::Queue(opt.width * opt.height , opt.buffsize);
     Recorder *rec = new Recorder(q, opt.record_path, opt.set_size);
     recording(rec, opt, cam, q);
     free_holo(q, rec, cam);

@@ -15,6 +15,11 @@
 #include <boost/program_options/config.hpp>
 #include <boost/program_options/value_semantic.hpp>
 #include <boost/program_options/version.hpp>
+#include <boost/fusion/include/std_pair.hpp>
+#include <boost/fusion/support/pair.hpp>
+#include <boost/fusion/include/pair.hpp>
+#include <boost/tuple/tuple.hpp> 
+#include <boost/tuple/tuple_io.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -30,8 +35,6 @@ namespace holovibes
     int height;
     int width_win;
     int height_win;
-    int bitdepth;
-    int binning;
     bool display_images;
     bool record;
     std::string cam;
@@ -49,16 +52,15 @@ namespace holovibes
 
     void init_parser();
     void proceed_help();
-    void proceed_nbimages();
     void proceed_display();
     void proceed_buffsize();
     void proceed_imageset();
     void proceed_frameinfo();
-    void proceed_binning();
     void proceed_version();
     void proceed_win_size();
     void proceed();
     void proceed_cam();
+    void check_integrity();
     s_options get_opt();
 
   private:
