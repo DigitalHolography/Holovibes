@@ -4,7 +4,10 @@
 namespace holovibes
 {
   Recorder::Recorder(queue::Queue *queue, std::string path, unsigned set_size)
+    :path_(path)
   {
+    if (check_overwrite())
+      throw std::exception("overwriting an existing file");
     if (queue->get_max_elts() <= set_size)
       set_size_ = 1;
     else
@@ -40,6 +43,14 @@ namespace holovibes
     {
       return buffer_->get_max_elts() - buffer_->get_start_index();
     }
+  }
+  bool Recorder::check_overwrite()
+  {
+    FILE *fdtmp;
+    if (fopen_s(&fdtmp, path_.c_str(), "r") == 0)
+      return true;
+    return false;
+
   }
   Recorder::~Recorder()
   {

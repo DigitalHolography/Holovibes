@@ -11,10 +11,12 @@ namespace holovibes
   public:
     Recorder(queue::Queue *queue, std::string path, unsigned int set_size);
     void record();
+    bool check_overwrite();
     size_t contigous_image();
     ~Recorder();
 
   private:
+    std::string path_;
     queue::Queue *buffer_;
     FILE *fd_;
     unsigned int set_size_;
