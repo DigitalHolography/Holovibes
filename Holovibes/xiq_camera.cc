@@ -7,9 +7,14 @@
 namespace camera
 {
   XiqCamera::XiqCamera()
-    : Camera()
+    : Camera("xiq.ini")
     , device_(nullptr)
   {
+    if (!ini_file_.is_open())
+      load_default_params();
+    else
+      load_ini_params();
+
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
@@ -20,24 +25,8 @@ namespace camera
     if (xiOpenDevice(0, &device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::NOT_INITIALIZED);
 
-    load_param();
-
     // TODO: Unused return.
     return true;
-  }
-
-  void XiqCamera::load_param()
-  {
-    XI_RETURN status = XI_OK;
-
-    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, 1L);
-    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, 1);
-    status = xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, XI_RAW8);
-    status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, XI_BP_SAFE);
-    status = xiSetParamInt(device_, XI_PRM_EXPOSURE, (int)((double) 1.0e6 * 0.005));
-
-    if (status != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_SET_CONFIG);
   }
 
   void XiqCamera::start_acquisition()
@@ -69,5 +58,23 @@ namespace camera
       frame_.nframe);
 
     return frame_.bp;
+  }
+
+  void XiqCamera::load_default_params()
+  {
+    XI_RETURN status = XI_OK;
+
+    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, 1L);
+    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, 1);
+    status = xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, XI_RAW8);
+    status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, XI_BP_SAFE);
+    status = xiSetParamInt(device_, XI_PRM_EXPOSURE, (int)((double) 1.0e6 * 0.005));
+
+    if (status != XI_OK)
+      throw ExceptionCamera(name_, ExceptionCamera::CANT_SET_CONFIG);
+  }
+
+  void XiqCamera::load_ini_params()
+  {
   }
 }
