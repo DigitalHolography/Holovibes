@@ -19,7 +19,7 @@ namespace camera
     ** otherwise it will loads defaults parameters.
     ** \param ini_filepath INI camera configuration file path.
     */
-    Camera(std::string& ini_filepath)
+    Camera(const std::string ini_filepath)
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0)
@@ -57,11 +57,6 @@ namespace camera
     virtual void shutdown_camera() = 0;
     virtual void* get_frame() = 0;
 
-    /* protected methods */
-  protected:
-    virtual void load_default_params() = 0;
-    virtual void load_ini_params() = 0;
-
     /* protected fields */
   protected:
     /*! Frame descriptor updated by cameras. */
@@ -76,6 +71,12 @@ namespace camera
 
     /*! INI configuration file of camera. */
     std::ifstream            ini_file_;
+
+    /* private methods */
+  private:
+    virtual void load_default_params() = 0;
+    virtual void load_ini_params() = 0;
+
   private:
     // Object is non copyable
     Camera& operator=(const Camera&) = delete;
