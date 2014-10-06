@@ -7,7 +7,7 @@
 
 namespace camera
 {
-  bool PikeCamera::init_camera()
+  void PikeCamera::init_camera()
   {
     unsigned long result;
     FGNODEINFO nodes_info[MAXCAMERAS];
@@ -39,7 +39,10 @@ namespace camera
       name_ = get_name_from_device();
     }
 
+#if 0
+    // TODO: Fix me
     return result == FCE_NOERROR && copied_nodes != 0;
+#endif
   }
 
   void PikeCamera::start_acquisition()
@@ -95,5 +98,20 @@ namespace camera
       return "unknown type";
 
     return std::string(ccam_name);
+  }
+
+  void PikeCamera::load_default_params()
+  {
+
+  }
+
+  void PikeCamera::load_ini_params()
+  {
+
+  }
+
+  void PikeCamera::bind_params()
+  {
+
   }
 }

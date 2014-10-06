@@ -7,21 +7,25 @@ namespace holovibes
 {
   void OptionParser::init_parser()
   {
+    // -42 is a magic number to check the integrity of given params
+    options_.set_size = 0;
+    options_.buffsize = 0;
+    options_.height_win = 800;
+    options_.width_win = 800;
+    options_.nbimages = 0;
+    options_.width = 0;
+    options_.height = 0;
+
     desc_.add_options()
-      ("help", "Produce help message")
-      ("nbimages", program_options::value<int>(), "Set the number of images to acquire until the program is closed")
-      ("display", "Display the images captured from the camera")
-      ("record", program_options::value<std::string>(), "Record the images from the camera, wait for arg the path where to save the file")
-      ("buffersize", program_options::value<int>(), "Give the size of the internal buffer allocated in the RAM to store images, default 50")
-      ("imageset", program_options::value<int>(), "Set the size of the set of images to write on the record file. this number should be less than the buffer size")
-      ("width", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
-      ("height", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
-      ("bitdepth", program_options::value<int>(), "Set the bit depth of the frame to capture to arg value")
-      ("binning", program_options::value<int>(), "Set the binning mode")
+      ("help,h", "Help message")
+      ("display,d", program_options::value<std::vector<int>>(), "Display images on screen")
+      ("record,r", program_options::value<std::vector<std::string>>(), "Record  a sequence of images in the given path")
+      ("queuesize,q", program_options::value<int>(), "Size of queue arg in number of images")
+      ("imagesetsize,i", program_options::value<int>(), "Set the size of the set of images to write on the record file. this number should be less than the buffer size")
+      ("width,w", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
+      ("height,h", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
       ("version", "Display the version of the release used")
-      ("widthwin", program_options::value<int>(), "Set the width value of the frame to capture to arg value, Default 800")
-      ("heightwin", program_options::value<int>(), "Set the height value of the frame to capture to arg value, Default 800")
-      ("cam", program_options::value<std::string>(), "Set the camera to use: pike/xiq/ids")
+      ("cameramodel,c", program_options::value<std::string>(), "Set the camera to use: pike/xiq/ids")
       ;
 
     try
@@ -54,19 +58,13 @@ namespace holovibes
 
   void OptionParser::proceed_cam()
   {
-    if (vm_.count("cam"))
+    if (vm_.count("cameramodel"))
     {
       std::cout << "The choosen camera is " <<
-        vm_["cam"].as<std::string>() << std::endl;
-      options_.cam = vm_["cam"].as<std::string>();
+        vm_["cameramodel"].as<std::string>() << std::endl;
+      options_.cam = vm_["cameramodel"].as<std::string>();
     }
   }
-
-  s_options OptionParser::get_opt()
-  {
-    return options_;
-  }
-
   void OptionParser::proceed_display()
   {
     if (vm_.count("display"))
@@ -74,14 +72,36 @@ namespace holovibes
       std::cout << "Images will be displayed" << std::endl;
       options_.display_images = true;
       options_.record = false;
+      std::vector<int> tmp = vm_["display"].as<std::vector<int>>();
+      if (tmp.size() == 1)
+      {
+        options_.height_win = tmp[0];
+        options_.width_win = tmp[0];
+      }
+      else if (tmp.size() > 1)
+      {
+        options_.height_win = tmp[0];
+        options_.width_win = tmp[1];
+      }
     }
     else if (vm_.count("record"))
     {
-      std::cout << "The images will be recorded to " <<
-        vm_["record"].as<std::string>() << std::endl;
-      options_.display_images = false;
       options_.record = true;
-      options_.record_path = vm_["record"].as<std::string>();
+      std::cout << "into record opt" << std::endl;//FIXME
+      std::vector<std::string> tmp = vm_["record"].as<std::vector<std::string>>();
+      std::cout << "vec size " << tmp.size() << std::endl; //FIXME
+      std::cout << "first mermber" << tmp[0] << std::endl; //FIXME
+      if (tmp.size() > 1)
+      {
+        std::cout << "into record opt vector looks good" << std::endl;//FIXME
+        options_.nbimages = atoi(tmp[0].c_str());
+        options_.record_path = tmp[1];
+        std::cout << "The images will be recorded to " <<
+          options_.record_path << std::endl;
+        std::cout << options_.nbimages 
+          << "The images will be recorded"<< std::endl;
+
+      }
     }
   }
 
@@ -99,35 +119,11 @@ namespace holovibes
         vm_["height"].as<int>() << std::endl;
       options_.height = vm_["height"].as<int>();
     }
-    if (vm_.count("bitdepth"))
-    {
-      std::cout << "Pixel bitdepth is " <<
-        vm_["bitdepth"].as<int>() << std::endl;
-      options_.bitdepth = vm_["bitdepth"].as<int>();
-    }
   }
 
   void OptionParser::proceed_win_size()
   {
-    if (vm_.count("widthwin"))
-    {
-      std::cout << "Window width is " <<
-        vm_["widthwin"].as<int>() << std::endl;
-      options_.width_win = vm_["widthwin"].as<int>();
-    }
-    else
-    {
-      std::cout << "Window width is " <<
-        800 << " by default" << std::endl;
-      options_.width_win = 800;
-    }
-    if (vm_.count("heightwin"))
-    {
-      std::cout << "Window height is " <<
-        vm_["heightwin"].as<int>() << std::endl;
-      options_.height_win = vm_["heightwin"].as<int>();
-    }
-    else
+
     {
       std::cout << "Window height is " <<
         800 << " by default" << std::endl;
@@ -136,39 +132,29 @@ namespace holovibes
 
   }
 
-  void OptionParser::proceed_nbimages()
-  {
-    if (vm_.count("nbimages"))
-    {
-      std::cout << "images to save was set to " <<
-        vm_["nbimages"].as<int>() << std::endl;
-      options_.nbimages = vm_["nbimages"].as<int>();
-    }
-  }
-
   void OptionParser::proceed_buffsize()
   {
-    if (vm_.count("buffersize"))
+    if (vm_.count("queuesize"))
     {
-      std::cout << "The buffer size is set to " <<
-        vm_["buffersize"].as<int>() << std::endl;
-      options_.buffsize = vm_["buffersize"].as<int>();
+      std::cout << "The queue size is set to " <<
+        vm_["queuesize"].as<int>() << std::endl;
+      options_.buffsize = vm_["queuesize"].as<int>();
     }
     else
     {
       options_.buffsize = 100;
-      std::cout << "The buffer size has been set to " <<
+      std::cout << "The queue size has been set to " <<
         options_.buffsize << " by default" << std::endl;
     }
   }
 
   void OptionParser::proceed_imageset()
   {
-    if (vm_.count("imageset"))
+    if (vm_.count("imagesetsize"))
     {
       std::cout << "The image set size is set to " <<
-        vm_["imageset"].as<int>() << std::endl;
-      options_.set_size = vm_["imageset"].as<int>();
+        vm_["imagesetsize"].as<int>() << std::endl;
+      options_.set_size = vm_["imagesetsize"].as<int>();
     }
     else
     {
@@ -178,15 +164,6 @@ namespace holovibes
     }
   }
 
-  void OptionParser::proceed_binning()
-  {
-    if (vm_.count("binning"))
-    {
-      std::cout << "The binning mode is set to " <<
-        vm_["binning"].as<int>() << std::endl;
-      options_.binning = vm_["binning"].as<int>();
-    }
-  }
 
   void OptionParser::proceed_version()
   {
@@ -197,15 +174,25 @@ namespace holovibes
     }
   }
 
+  void OptionParser::check_integrity()
+  {
+    if (options_.cam == "")
+      std::cerr << ("Please specify a camera to use") << std::endl;
+    if (options_.buffsize <= 0)
+      std::cerr << ("Please specify a correct queue size") << std::endl;;
+    if (options_.set_size <= 0)
+      std::cerr << ("Please specify a correct imageset size") << std::endl;;
+    if (options_.record && (options_.nbimages <= 0))
+      std::cerr << ("Please specify a number of images to record") << std::endl;
+  }
+
   void OptionParser::proceed()
   {
     proceed_version();
     proceed_help();
     if (!help_ && !version_)
     {
-      proceed_nbimages();
       proceed_display();
-      proceed_binning();
       proceed_cam();
       if ((!options_.display_images && options_.record)
         || (options_.display_images && !options_.record))
@@ -217,5 +204,6 @@ namespace holovibes
       proceed_frameinfo();
     }
     help_ = false;
+    check_integrity();
   }
 }

@@ -3,7 +3,7 @@
 
 namespace camera
 {
-  bool IDSCamera::init_camera()
+  void IDSCamera::init_camera()
   {
     int cameras_nb = 0;
     int result = is_GetNumberOfCameras(&cameras_nb);
@@ -28,23 +28,23 @@ namespace camera
         is_SetColorMode(cam_, IS_CM_SENSOR_RAW8);
       }
       else
-        throw std::string("Camera couldn't be initialized");
+        throw new ExceptionCamera(name_, ExceptionCamera::camera_error::NOT_INITIALIZED);
     }
     else
-      throw std::string("No camera connected");
+      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::NOT_CONNECTED);
 
+#if 0
+    // TODO: Fix me
     return result == IS_SUCCESS;
+#endif
   }
 
   void IDSCamera::start_acquisition()
   {
     stop_acquisition();
 
-    int result = IS_SUCCESS;
-    result = is_SetImageMem(cam_, frame_, frame_mem_pid_);
-
-    if (result != IS_SUCCESS)
-      throw std::string("Camera memory couldn't be bind");
+    if (is_SetImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
+      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
   }
 
   void IDSCamera::stop_acquisition()
@@ -53,21 +53,39 @@ namespace camera
 
   void IDSCamera::shutdown_camera()
   {
-    int result = IS_SUCCESS;
-    result = is_FreeImageMem(cam_, frame_, frame_mem_pid_);
-    result = is_ExitCamera(cam_);
+    if (is_FreeImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
+      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
 
-    if (result != IS_SUCCESS)
-      throw std::string("Couldn't shut down the camera");
+    if (is_ExitCamera(cam_) != IS_SUCCESS)
+      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_SHUTDOWN);
   }
 
   void* IDSCamera::get_frame()
   {
     if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
-    {
-      throw std::string("Couldn't capture the frame");
-    }
+      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_GET_FRAME);
 
     return frame_;
+  }
+
+  void IDSCamera::load_default_params()
+  {
+    desc_.width = 2048;
+    desc_.height = 2048;
+    desc_.endianness = BIG_ENDIAN;
+    desc_.bit_depth = 8;
+
+    exposure_time_ = 49.91;
+    frame_rate_ = 0;
+  }
+
+  void IDSCamera::load_ini_params()
+  {
+
+  }
+
+  void IDSCamera::bind_params()
+  {
+
   }
 }
