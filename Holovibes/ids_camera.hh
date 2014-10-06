@@ -16,11 +16,11 @@ namespace camera
       load_default_params();
     }
 
-    ~IDSCamera()
+    virtual ~IDSCamera()
     {
     }
 
-    virtual bool init_camera() override;
+    virtual void init_camera() override;
     virtual void start_acquisition() override;
     virtual void stop_acquisition() override;
     virtual void shutdown_camera() override;
@@ -29,6 +29,7 @@ namespace camera
 
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
+    virtual void bind_params() override;
 
   private:
     /*! camera handler */
