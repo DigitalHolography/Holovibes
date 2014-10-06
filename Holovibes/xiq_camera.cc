@@ -15,15 +15,12 @@ namespace camera
     frame_.bp_size = 0;
   }
 
-  bool XiqCamera::init_camera()
+  void XiqCamera::init_camera()
   {
     if (xiOpenDevice(0, &device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::NOT_INITIALIZED);
 
     load_param();
-
-    // TODO: Unused return.
-    return true;
   }
 
   void XiqCamera::load_param()
@@ -77,6 +74,12 @@ namespace camera
   }
 
   void XiqCamera::load_ini_params()
+  {
+
+  }
+
+
+  void XiqCamera::bind_params()
   {
 
   }

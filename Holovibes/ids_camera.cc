@@ -3,7 +3,7 @@
 
 namespace camera
 {
-  bool IDSCamera::init_camera()
+  void IDSCamera::init_camera()
   {
     int cameras_nb = 0;
     int result = is_GetNumberOfCameras(&cameras_nb);
@@ -33,7 +33,10 @@ namespace camera
     else
       throw new ExceptionCamera(name_, ExceptionCamera::camera_error::NOT_CONNECTED);
 
+#if 0
+    // TODO: Fix me
     return result == IS_SUCCESS;
+#endif
   }
 
   void IDSCamera::start_acquisition()
@@ -77,6 +80,11 @@ namespace camera
   }
 
   void IDSCamera::load_ini_params()
+  {
+
+  }
+
+  void IDSCamera::bind_params()
   {
 
   }

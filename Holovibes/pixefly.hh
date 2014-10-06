@@ -21,7 +21,7 @@ namespace camera
 
     Pixefly();
 
-    ~Pixefly()
+    virtual ~Pixefly()
     {
     }
 
@@ -47,7 +47,7 @@ namespace camera
     }
 
     // Virtual methods
-    virtual bool init_camera();
+    virtual void init_camera();
     virtual void start_acquisition();
     virtual void stop_acquisition();
     virtual void shutdown_camera();
@@ -89,6 +89,7 @@ namespace camera
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
+    virtual void bind_params() override;
   };
 }
 

@@ -20,10 +20,13 @@ namespace camera
     inited_ = false;
   }
 
-  bool Pixefly::init_camera()
+  void Pixefly::init_camera()
   {
-    if (PCO_OpenCamera(&my_cam_, 0) != 0)
+    if (PCO_OpenCamera(&my_cam_, 0) != 0);
+#if 0
+    // TODO: Fix me
       return false;
+#endif
     stop_acquisition();
     set_sensor();
     buff_size = frame_height_ * frame_width_ * 2; // 16bits 2octets per pixel
@@ -33,7 +36,6 @@ namespace camera
     error_ = PCO_AllocateBuffer(my_cam_, &buff_number, buff_size, &frame_buffer_, &refreshEvent_);
     check_error(error_, "allocateBUffer");
     inited_ = true;
-    return true;
   }
 
   void Pixefly::buff_alloc()
@@ -137,6 +139,11 @@ namespace camera
   }
 
   void Pixefly::load_ini_params()
+  {
+
+  }
+
+  void Pixefly::bind_params()
   {
 
   }
