@@ -102,6 +102,9 @@
     <ClInclude Include="pixefly.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ids_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="err\wnd_gl.def">

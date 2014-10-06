@@ -3,7 +3,7 @@
 
 # include <uEye.h>
 # include "camera.hh"
-# include "camera_exception.hh"
+# include "exception_camera.hh"
 
 namespace camera
 {
@@ -11,11 +11,9 @@ namespace camera
   {
   public:
     IDSCamera()
-      : Camera()
+      : Camera("ids.ini")
     {
-      desc_.width = 2048;
-      desc_.height = 2048;
-      desc_.bit_depth = 8;
+      load_default_params();
     }
 
     ~IDSCamera()
@@ -29,9 +27,17 @@ namespace camera
 
     virtual void* get_frame() override;
 
+    virtual void load_default_params() override;
+    virtual void load_ini_params() override;
+
   private:
+    /*! camera handler */
     HIDS cam_;
+
+    /*! frame pointer */
     char* frame_;
+
+    /*! frame associated memory */
     int frame_mem_pid_;
   };
 }
