@@ -65,7 +65,6 @@ namespace holovibes
     void proceed_imageset();
     void proceed_frameinfo();
     void proceed_version();
-    void proceed_win_size();
     void proceed_cam();
     void check_integrity();
 

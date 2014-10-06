@@ -21,7 +21,7 @@ namespace holovibes
       ("display,d", program_options::value<std::vector<int>>(), "Display images on screen")
       ("record,r", program_options::value<std::vector<std::string>>(), "Record  a sequence of images in the given path")
       ("queuesize,q", program_options::value<int>(), "Size of queue arg in number of images")
-      ("imagesetsize,i", program_options::value<int>(), "Set the size of the set of images to write on the record file. this number should be less than the buffer size")
+      ("imagesetsize,i", program_options::value<int>(), "Set the size  of the set of images to write on the record file. this number should be less than the buffer size")
       ("width,w", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
       ("height,h", program_options::value<int>(), "Set the height value of the frame to capture to arg value")
       ("version", "Display the version of the release used")
@@ -121,16 +121,6 @@ namespace holovibes
     }
   }
 
-  void OptionParser::proceed_win_size()
-  {
-
-    {
-      std::cout << "Window height is " <<
-        800 << " by default" << std::endl;
-      options_.height_win = 800;
-    }
-
-  }
 
   void OptionParser::proceed_buffsize()
   {
@@ -200,7 +190,6 @@ namespace holovibes
       if (options_.record)
         proceed_buffsize();
       if (options_.display_images)
-        proceed_win_size();
       proceed_frameinfo();
     }
     help_ = false;
