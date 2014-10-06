@@ -4,7 +4,7 @@
 namespace camera
 {
   Pixefly::Pixefly()
-    :Camera()
+    : Camera("pixelfly.ini")
   {
     acquiring_ = false;
     frame_bit_depth_ = 14;
@@ -129,5 +129,15 @@ namespace camera
       PCO_GetErrorText(error_, er, len);
       std::cout << er << std::endl;
     }
+  }
+
+  void Pixefly::load_default_params()
+  {
+
+  }
+
+  void Pixefly::load_ini_params()
+  {
+
   }
 }

@@ -12,7 +12,7 @@ namespace camera
   {
   public:
     PikeCamera()
-      : Camera()
+      : Camera("pike.ini")
     {
     }
 
@@ -33,6 +33,10 @@ namespace camera
 
     //Retrieve camera name (vendor and model from the device API)
     std::string get_name_from_device();
+
+  private:
+    virtual void load_default_params() override;
+    virtual void load_ini_params() override;
   };
 }
 

@@ -27,6 +27,10 @@ namespace camera
   private:
     HANDLE device_;
     XI_IMG frame_;
+
+  private:
+    virtual void load_default_params() override;
+    virtual void load_ini_params() override;
   };
 }
 

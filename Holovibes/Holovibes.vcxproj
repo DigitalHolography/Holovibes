@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -41,15 +41,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
     <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
     <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(IncludePath)</IncludePath>

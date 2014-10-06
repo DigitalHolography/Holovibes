@@ -21,7 +21,9 @@ namespace camera
 
     Pixefly();
 
-    ~Pixefly();
+    ~Pixefly()
+    {
+    }
 
     // Getters
     const std::string& get_name() const
@@ -83,6 +85,10 @@ namespace camera
     int fps_;
     float pixel_rate_;
     DWORD error_;
+
+  private:
+    virtual void load_default_params() override;
+    virtual void load_ini_params() override;
   };
 }
 

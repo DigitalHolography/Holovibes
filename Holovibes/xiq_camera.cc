@@ -7,7 +7,7 @@
 namespace camera
 {
   XiqCamera::XiqCamera()
-    : Camera()
+    : Camera("xiq.ini")
     , device_(nullptr)
   {
     frame_.size = sizeof(XI_IMG);
@@ -69,5 +69,15 @@ namespace camera
       frame_.nframe);
 
     return frame_.bp;
+  }
+
+  void XiqCamera::load_default_params()
+  {
+
+  }
+
+  void XiqCamera::load_ini_params()
+  {
+
   }
 }

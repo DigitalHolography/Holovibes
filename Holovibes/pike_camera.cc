@@ -96,4 +96,14 @@ namespace camera
 
     return std::string(ccam_name);
   }
+
+  void PikeCamera::load_default_params()
+  {
+
+  }
+
+  void PikeCamera::load_ini_params()
+  {
+
+  }
 }
