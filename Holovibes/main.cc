@@ -64,7 +64,7 @@ Camera *create_cam(s_options opt)
   else if (opt.cam.compare("ids") == 0)
     cam = new CameraIds();
   else if (opt.cam.compare("pco") == 0)
-    cam = new Pixefly();
+    cam = new CameraPixelfly();
   else
     std::cout << "cam does not exist" << std::endl;
   if (cam)

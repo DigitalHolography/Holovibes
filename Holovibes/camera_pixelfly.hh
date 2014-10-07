@@ -1,5 +1,5 @@
-#ifndef PIXEFLY_HH
-# define PIXEFLY_HH
+#ifndef CAMERA_PIXELFLY_HH
+# define CAMERA_PIXELFLY_HH
 
 #include "windows.h"
 #include <iostream>
@@ -10,7 +10,7 @@
 
 namespace camera
 {
-  class Pixefly : public Camera
+  class CameraPixelfly : public Camera
   {
   public:
     enum endianness
@@ -19,9 +19,9 @@ namespace camera
       LITTLE_ENDIAN
     };
 
-    Pixefly();
+    CameraPixelfly();
 
-    virtual ~Pixefly()
+    virtual ~CameraPixelfly()
     {
     }
 
@@ -93,4 +93,4 @@ namespace camera
   };
 }
 
-#endif
+#endif /* !CAMERA_PIXELFLY_HH */
