@@ -89,7 +89,7 @@ namespace camera
     /*! Name of the camera. */
     std::string              name_;
     /*! Exposure time of the camera. */
-    double                   exposure_time_;
+    float                    exposure_time_;
     /*! Number of frames per second. */
     unsigned short           frame_rate_;
 

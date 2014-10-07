@@ -13,8 +13,11 @@ namespace camera
   public:
     XiqCamera();
 
-    ~XiqCamera()
-    {}
+    virtual ~XiqCamera()
+    {
+      /* Ensure that the camera is closed in case of exception. */
+      shutdown_camera();
+    }
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;
@@ -32,6 +35,9 @@ namespace camera
     XI_IMG frame_;
 
     /* Custom camera parameters. */
+
+    /*! Gain in dB. */
+    float gain_;
     /*! Downsampling rate
     ** 1: 1x1 sensor pixel  = 1 image pixel
     ** 2: 2x2 sensor pixels = 1 image pixel

@@ -62,8 +62,9 @@ namespace camera
   void XiqCamera::load_default_params()
   {
     name_ = "Xiq";
-    exposure_time_ = 0.005;
+    exposure_time_ = 0.005f;
     /* Custom parameters. */
+    gain_ = 0.f;
     downsampling_rate_ = 1;
     downsampling_type_ = XI_SKIPPING;
     img_format_ = XI_RAW8;
@@ -75,43 +76,43 @@ namespace camera
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     /* Use the default value in case of fail. */
-    exposure_time_ = pt.get<double>("xiq.exposure_time", exposure_time_);
+    exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
+    gain_ = pt.get<float>("xiq.gain", gain_);
     downsampling_rate_ = pt.get<int>("xiq.downsampling_rate", downsampling_rate_);
 
     std::string str;
 
     str = pt.get<std::string>("xiq.downsampling_type", "");
-    if (str.compare("BINNING"))
+    if (str == "BINNING")
       downsampling_type_ = XI_BINNING;
-    else if (str.compare("SKIPPING"))
+    else if (str == "SKIPPING")
       downsampling_type_ = XI_SKIPPING;
 
     str = pt.get<std::string>("xiq.format", "");
-    if (str.compare("XI_MONO8"))
+    if (str == "MONO8")
       img_format_ = XI_MONO8;
-    else if (str.compare("XI_MONO16"))
+    else if (str == "MONO16")
       img_format_ = XI_MONO16;
-    else if (str.compare("XI_RAW8"))
+    else if (str == "RAW8")
       img_format_ = XI_RAW8;
-    else if (str.compare("XI_RAW16"))
+    else if (str == "RAW16")
       img_format_ = XI_RAW16;
-
-    std::cout << downsampling_type_;
-    std::cout << exposure_time_ << std::endl;
   }
   
   void XiqCamera::bind_params()
   {
     XI_RETURN status = XI_OK;
 
-    char name[32];
+    const unsigned int name_buffer_size = 32;
+    char name[name_buffer_size];
 
-    status = xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, 32);
-    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
-    status = xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
-    status = xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
-    status = xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
-    status = xiSetParamInt(device_, XI_PRM_EXPOSURE, (int)((double) 1.0e6 * exposure_time_));
+    status |= xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
+    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
+    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
+    status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
+    status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
+    status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+    status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
 
     if (status != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_SET_CONFIG);
