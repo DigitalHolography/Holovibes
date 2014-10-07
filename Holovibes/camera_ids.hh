@@ -1,5 +1,5 @@
-#ifndef IDS_CAMERA_HH
-# define IDS_CAMERA_HH
+#ifndef CAMERA_IDS_HH
+# define CAMERA_IDS_HH
 
 # include <uEye.h>
 # include "camera.hh"
@@ -7,16 +7,16 @@
 
 namespace camera
 {
-  class IDSCamera : public Camera
+  class CameraIds : public Camera
   {
   public:
-    IDSCamera()
+    CameraIds()
       : Camera("ids.ini")
     {
       load_default_params();
     }
 
-    virtual ~IDSCamera()
+    virtual ~CameraIds()
     {
     }
 
@@ -43,4 +43,4 @@ namespace camera
   };
 }
 
-#endif /* !IDS_CAMERA_HH */
+#endif /* !CAMERA_IDS_HH */

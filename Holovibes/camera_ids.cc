@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "ids_camera.hh"
+#include "camera_ids.hh"
 
 namespace camera
 {
-  void IDSCamera::init_camera()
+  void CameraIds::init_camera()
   {
     int cameras_nb = 0;
     int result = is_GetNumberOfCameras(&cameras_nb);
@@ -39,7 +39,7 @@ namespace camera
 #endif
   }
 
-  void IDSCamera::start_acquisition()
+  void CameraIds::start_acquisition()
   {
     stop_acquisition();
 
@@ -47,11 +47,11 @@ namespace camera
       throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
   }
 
-  void IDSCamera::stop_acquisition()
+  void CameraIds::stop_acquisition()
   {
   }
 
-  void IDSCamera::shutdown_camera()
+  void CameraIds::shutdown_camera()
   {
     if (is_FreeImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
       throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
@@ -60,7 +60,7 @@ namespace camera
       throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_SHUTDOWN);
   }
 
-  void* IDSCamera::get_frame()
+  void* CameraIds::get_frame()
   {
     if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
       throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_GET_FRAME);
@@ -68,7 +68,7 @@ namespace camera
     return frame_;
   }
 
-  void IDSCamera::load_default_params()
+  void CameraIds::load_default_params()
   {
     desc_.width = 2048;
     desc_.height = 2048;
@@ -79,12 +79,12 @@ namespace camera
     frame_rate_ = 0;
   }
 
-  void IDSCamera::load_ini_params()
+  void CameraIds::load_ini_params()
   {
 
   }
 
-  void IDSCamera::bind_params()
+  void CameraIds::bind_params()
   {
 
   }

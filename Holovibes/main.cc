@@ -62,7 +62,7 @@ Camera *create_cam(s_options opt)
   else if (opt.cam.compare("xiq") == 0)
     cam = new CameraXiq();
   else if (opt.cam.compare("ids") == 0)
-    cam = new IDSCamera();
+    cam = new CameraIds();
   else if (opt.cam.compare("pco") == 0)
     cam = new Pixefly();
   else

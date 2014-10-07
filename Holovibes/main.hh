@@ -17,7 +17,7 @@
 #include "camera_pike.hh"
 #include "queue.hh"
 #include "exception_camera.hh"
-#include "ids_camera.hh"
+#include "camera_ids.hh"
 #include "pixefly.hh"
 
 using namespace holovibes;

@@ -113,7 +113,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="errors_enum.hh" />
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="gl_window.hh" />
-    <ClInclude Include="ids_camera.hh" />
+    <ClInclude Include="camera_ids.hh" />
     <ClInclude Include="main.hh" />
     <ClInclude Include="option_parser.hh" />
     <ClInclude Include="pixefly.hh" />
@@ -129,7 +129,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="exception_camera.cc" />
     <ClCompile Include="error_handler.cc" />
     <ClCompile Include="gl_window.cc" />
-    <ClCompile Include="ids_camera.cc" />
+    <ClCompile Include="camera_ids.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="option_parser.cc" />
     <ClCompile Include="camera_pike.cc" />
