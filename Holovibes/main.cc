@@ -58,7 +58,7 @@ Camera *create_cam(s_options opt)
 {
   Camera *cam = NULL;
   if (opt.cam.compare("pike") == 0)
-    cam = new PikeCamera();
+    cam = new CameraPike();
   else if (opt.cam.compare("xiq") == 0)
     cam = new CameraXiq();
   else if (opt.cam.compare("ids") == 0)

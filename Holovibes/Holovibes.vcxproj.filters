@@ -31,9 +31,6 @@
     <ClCompile Include="option_parser.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pike_camera.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="queue.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,6 +50,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="camera_xiq.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_pike.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,9 +84,6 @@
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pike_camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="recorder.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera_xiq.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_pike.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

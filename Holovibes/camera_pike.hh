@@ -1,5 +1,5 @@
-#ifndef PIKE_CAMERA_HH
-# define PIKE_CAMERA_HH
+#ifndef CAMERA_PIKE_HH
+# define CAMERA_PIKE_HH
 
 # include <string>
 # include <FGCamera.h>
@@ -8,15 +8,15 @@
 
 namespace camera
 {
-  class PikeCamera : public Camera
+  class CameraPike : public Camera
   {
   public:
-    PikeCamera()
+    CameraPike()
       : Camera("pike.ini")
     {
     }
 
-    virtual ~PikeCamera()
+    virtual ~CameraPike()
     {
     }
 
@@ -41,4 +41,4 @@ namespace camera
   };
 }
 
-#endif
+#endif /* !CAMERA_PIKE_HH */

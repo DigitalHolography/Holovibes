@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "pike_camera.hh"
+#include "camera_pike.hh"
 
 #define MAXNAMELENGTH 64
 #define MAXCAMERAS 1
@@ -7,7 +7,7 @@
 
 namespace camera
 {
-  void PikeCamera::init_camera()
+  void CameraPike::init_camera()
   {
     unsigned long result;
     FGNODEINFO nodes_info[MAXCAMERAS];
@@ -45,7 +45,7 @@ namespace camera
 #endif
   }
 
-  void PikeCamera::start_acquisition()
+  void CameraPike::start_acquisition()
   {
     unsigned long result;
 
@@ -59,18 +59,18 @@ namespace camera
     }
   }
 
-  void PikeCamera::stop_acquisition()
+  void CameraPike::stop_acquisition()
   {
     cam_.StopDevice();
   }
 
-  void PikeCamera::shutdown_camera()
+  void CameraPike::shutdown_camera()
   {
     // Free all image buffers and close the capture logic
     cam_.CloseCapture();
   }
 
-  void* PikeCamera::get_frame()
+  void* CameraPike::get_frame()
   {
     unsigned long result;
 
@@ -90,7 +90,7 @@ namespace camera
     return fgframe_.pData;
   }
 
-  std::string PikeCamera::get_name_from_device()
+  std::string CameraPike::get_name_from_device()
   {
     char ccam_name[MAXNAMELENGTH];
 
@@ -100,17 +100,17 @@ namespace camera
     return std::string(ccam_name);
   }
 
-  void PikeCamera::load_default_params()
+  void CameraPike::load_default_params()
   {
 
   }
 
-  void PikeCamera::load_ini_params()
+  void CameraPike::load_ini_params()
   {
 
   }
 
-  void PikeCamera::bind_params()
+  void CameraPike::bind_params()
   {
 
   }

@@ -14,7 +14,7 @@
 #include "stdafx.h"
 #include <fstream>
 #include <cstdio>
-#include "pike_camera.hh"
+#include "camera_pike.hh"
 #include "queue.hh"
 #include "exception_camera.hh"
 #include "ids_camera.hh"
