@@ -3,7 +3,6 @@
 
 # include <uEye.h>
 # include "camera.hh"
-# include "exception_camera.hh"
 
 namespace camera
 {

@@ -155,6 +155,10 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 
+# =========================
+# Holovibes
+# =========================
+
 # Doxygen
 doc/*
 
@@ -164,3 +168,6 @@ doc/*
 
 # Raw images
 *.raw
+
+# Avoid conflicts with vcxproj.filters
+Holovibes/Holovibes.vcxproj.filters

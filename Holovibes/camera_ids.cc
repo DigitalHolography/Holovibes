@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "camera_ids.hh"
+#include "camera_exception.hh"
 
 namespace camera
 {
@@ -28,10 +29,10 @@ namespace camera
         is_SetColorMode(cam_, IS_CM_SENSOR_RAW8);
       }
       else
-        throw new ExceptionCamera(name_, ExceptionCamera::camera_error::NOT_INITIALIZED);
+        throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
     }
     else
-      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::NOT_CONNECTED);
+      throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
 
 #if 0
     // TODO: Fix me
@@ -44,7 +45,7 @@ namespace camera
     stop_acquisition();
 
     if (is_SetImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
-      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
+      throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
   }
 
   void CameraIds::stop_acquisition()
@@ -54,16 +55,16 @@ namespace camera
   void CameraIds::shutdown_camera()
   {
     if (is_FreeImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
-      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::MEMORY_PROBLEM);
+      throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
 
     if (is_ExitCamera(cam_) != IS_SUCCESS)
-      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_SHUTDOWN);
+      throw new CameraException(name_, CameraException::camera_error::CANT_SHUTDOWN);
   }
 
   void* CameraIds::get_frame()
   {
     if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
-      throw new ExceptionCamera(name_, ExceptionCamera::camera_error::CANT_GET_FRAME);
+      throw new CameraException(name_, CameraException::camera_error::CANT_GET_FRAME);
 
     return frame_;
   }

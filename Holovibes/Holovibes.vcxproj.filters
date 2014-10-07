@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -17,94 +17,6 @@
       <UniqueIdentifier>{e4a98df1-2e43-4ad2-8ac7-8e7a631c9874}</UniqueIdentifier>
       <Extensions>def;</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="error_handler.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="option_parser.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="queue.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="recorder.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="exception_camera.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_xiq.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pike.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_ids.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pixelfly.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="errors_enum.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="error_handler.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl_window.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="option_parser.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="frame_desc.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="queue.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="recorder.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="exception_camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_xiq.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pike.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_ids.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pixelfly.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="err\wnd_gl.def">

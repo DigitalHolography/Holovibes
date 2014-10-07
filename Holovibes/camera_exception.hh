@@ -1,12 +1,12 @@
-#ifndef EXCEPTION_CAMERA_HH
-# define EXCEPTION_CAMERA_HH
+#ifndef CAMERA_EXCEPTION_HH
+# define CAMERA_EXCEPTION_HH
 
 # include <exception>
 # include <string>
 
 namespace camera
 {
-  class ExceptionCamera : public std::exception
+  class CameraException : public std::exception
   {
   public:
     enum camera_error
@@ -21,7 +21,7 @@ namespace camera
       CANT_SET_CONFIG,
     };
 
-    ExceptionCamera(std::string name, camera_error code)
+    CameraException(std::string name, camera_error code)
       : std::exception()
       , name_(name)
       , code_(code)
@@ -38,11 +38,11 @@ namespace camera
 
   private:
     // Object is non copyable
-    ExceptionCamera& operator=(const ExceptionCamera&) = delete;
+    CameraException& operator=(const CameraException&) = delete;
 
     const std::string name_;
     const camera_error code_;
   };
 }
 
-#endif /* !EXCEPTION_CAMERA_HH */
+#endif /* !CAMERA_EXCEPTION_HH */

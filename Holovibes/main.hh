@@ -16,7 +16,7 @@
 #include <cstdio>
 #include "camera_pike.hh"
 #include "queue.hh"
-#include "exception_camera.hh"
+#include "camera_exception.hh"
 #include "camera_ids.hh"
 #include "camera_pixelfly.hh"
 

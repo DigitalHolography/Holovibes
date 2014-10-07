@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "camera_xiq.hh"
-#include "exception_camera.hh"
+#include "camera_exception.hh"
 
 #include <cassert>
 
@@ -22,7 +22,7 @@ namespace camera
   void CameraXiq::init_camera()
   {
     if (xiOpenDevice(0, &device_) != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::NOT_INITIALIZED);
+      throw CameraException(name_, CameraException::NOT_INITIALIZED);
 
     /* Configure the camera API with given parameters. */
     bind_params();
@@ -31,25 +31,25 @@ namespace camera
   void CameraXiq::start_acquisition()
   {
     if (xiStartAcquisition(device_) != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_START_ACQUISITION);
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraXiq::stop_acquisition()
   {
     if (xiStopAcquisition(device_) != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_STOP_ACQUISITION);
+      throw CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
   }
 
   void CameraXiq::shutdown_camera()
   {
     if (xiCloseDevice(device_) != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_SHUTDOWN);
+      throw CameraException(name_, CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraXiq::get_frame()
   {
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_GET_FRAME);
+      throw CameraException(name_, CameraException::CANT_GET_FRAME);
 
     printf("[FRAME][NEW] %dx%d - %u\n",
       frame_.width,
@@ -115,7 +115,7 @@ namespace camera
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
 
     if (status != XI_OK)
-      throw ExceptionCamera(name_, ExceptionCamera::CANT_SET_CONFIG);
+      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
 
     name_ = std::string(name);
   }
