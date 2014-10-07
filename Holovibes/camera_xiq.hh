@@ -1,5 +1,5 @@
-#ifndef XIQ_HH
-# define XIQ_HH
+#ifndef CAMERA_XIQ_HH
+# define CAMERA_XIQ_HH
 
 # include "camera.hh"
 
@@ -8,12 +8,12 @@
 
 namespace camera
 {
-  class XiqCamera : public Camera
+  class CameraXiq : public Camera
   {
   public:
-    XiqCamera();
+    CameraXiq();
 
-    virtual ~XiqCamera()
+    virtual ~CameraXiq()
     {
       /* Ensure that the camera is closed in case of exception. */
       shutdown_camera();
@@ -63,4 +63,4 @@ namespace camera
   };
 }
 
-#endif /* !XIQ_HH */
+#endif /* !CAMERA_XIQ_HH */

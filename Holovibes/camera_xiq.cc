@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include "xiq_camera.hh"
+#include "camera_xiq.hh"
 #include "exception_camera.hh"
 
 #include <cassert>
 
 namespace camera
 {
-  XiqCamera::XiqCamera()
+  CameraXiq::CameraXiq()
     : Camera("xiq.ini")
     , device_(nullptr)
   {
@@ -19,7 +19,7 @@ namespace camera
     frame_.bp_size = 0;
   }
 
-  void XiqCamera::init_camera()
+  void CameraXiq::init_camera()
   {
     if (xiOpenDevice(0, &device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::NOT_INITIALIZED);
@@ -28,25 +28,25 @@ namespace camera
     bind_params();
   }
 
-  void XiqCamera::start_acquisition()
+  void CameraXiq::start_acquisition()
   {
     if (xiStartAcquisition(device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_START_ACQUISITION);
   }
 
-  void XiqCamera::stop_acquisition()
+  void CameraXiq::stop_acquisition()
   {
     if (xiStopAcquisition(device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_STOP_ACQUISITION);
   }
 
-  void XiqCamera::shutdown_camera()
+  void CameraXiq::shutdown_camera()
   {
     if (xiCloseDevice(device_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_SHUTDOWN);
   }
 
-  void* XiqCamera::get_frame()
+  void* CameraXiq::get_frame()
   {
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
       throw ExceptionCamera(name_, ExceptionCamera::CANT_GET_FRAME);
@@ -59,7 +59,7 @@ namespace camera
     return frame_.bp;
   }
 
-  void XiqCamera::load_default_params()
+  void CameraXiq::load_default_params()
   {
     name_ = "Xiq";
     exposure_time_ = 0.005f;
@@ -71,7 +71,7 @@ namespace camera
     buffer_policy_ = XI_BP_SAFE;
  }
 
-  void XiqCamera::load_ini_params()
+  void CameraXiq::load_ini_params()
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
@@ -99,7 +99,7 @@ namespace camera
       img_format_ = XI_RAW16;
   }
   
-  void XiqCamera::bind_params()
+  void CameraXiq::bind_params()
   {
     XI_RETURN status = XI_OK;
 

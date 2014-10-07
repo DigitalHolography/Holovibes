@@ -60,7 +60,7 @@ Camera *create_cam(s_options opt)
   if (opt.cam.compare("pike") == 0)
     cam = new PikeCamera();
   else if (opt.cam.compare("xiq") == 0)
-    cam = new XiqCamera();
+    cam = new CameraXiq();
   else if (opt.cam.compare("ids") == 0)
     cam = new IDSCamera();
   else if (opt.cam.compare("pco") == 0)

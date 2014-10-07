@@ -9,7 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include <Windows.h>
-#include "xiq_camera.hh"
+#include "camera_xiq.hh"
 #include "gl_window.hh"
 #include "stdafx.h"
 #include <fstream>

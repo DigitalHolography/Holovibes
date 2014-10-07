@@ -34,9 +34,6 @@
     <ClCompile Include="pike_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xiq_camera.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="queue.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -53,6 +50,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pixefly.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_xiq.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,13 +78,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="frame_desc.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="xiq_camera.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="queue.hh">
@@ -103,6 +97,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ids_camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_xiq.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
