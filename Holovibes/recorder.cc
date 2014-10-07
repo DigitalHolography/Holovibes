@@ -3,7 +3,7 @@
 
 namespace holovibes
 {
-  Recorder::Recorder(queue::Queue *queue, std::string path, unsigned set_size)
+  Recorder::Recorder(Queue *queue, std::string path, unsigned set_size)
     :path_(path)
   {
     if (check_overwrite())
