@@ -22,14 +22,15 @@ namespace camera
 
   void CameraPixelfly::init_camera()
   {
-    if (PCO_OpenCamera(&my_cam_, 0) != 0);
+    PCO_OpenCamera(&my_cam_, 0);
 #if 0
     // TODO: Fix me
+    if (PCO_OpenCamera(&my_cam_, 0) != 0)
       return false;
 #endif
     stop_acquisition();
     set_sensor();
-    buff_size = frame_height_ * frame_width_ * 2; // 16bits 2octets per pixel
+    buff_size = frame_height_ * frame_width_ * 2; // 16bits 2 bytes per pixel
 
     short buff_number = -1; //permit to allocate a newbuffer
     buff_alloc();
@@ -126,7 +127,7 @@ namespace camera
     if (error != 0)
     {
       std::cout << msg << std::endl;
-      char *er = (char *)malloc(sizeof (char)* 500);
+      char* er = (char*)malloc(sizeof (char) * 500);
       DWORD len = 500;
       PCO_GetErrorText(error_, er, len);
       std::cout << er << std::endl;
@@ -135,16 +136,13 @@ namespace camera
 
   void CameraPixelfly::load_default_params()
   {
-
   }
 
   void CameraPixelfly::load_ini_params()
   {
-
   }
 
   void CameraPixelfly::bind_params()
   {
-
   }
 }

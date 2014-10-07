@@ -102,16 +102,13 @@ namespace camera
 
   void CameraPike::load_default_params()
   {
-
   }
 
   void CameraPike::load_ini_params()
   {
-
   }
 
   void CameraPike::bind_params()
   {
-
   }
 }

@@ -2,8 +2,10 @@
 # define RECORDER_HH
 
 #include <stdio.h>
+
 #include "queue.hh"
 #include "error_handler.hh"
+
 namespace holovibes
 {
   class Recorder

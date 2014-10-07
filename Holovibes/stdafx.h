@@ -9,5 +9,7 @@
 
 #include <Windows.h>
 #include <iostream>
+#include <string>
+#include <exception>
 
 // TODO: reference additional headers your program requires here

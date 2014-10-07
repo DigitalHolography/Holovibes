@@ -76,17 +76,15 @@ namespace camera
     desc_.endianness = BIG_ENDIAN;
     desc_.bit_depth = 8;
 
-    exposure_time_ = 49.91;
+    exposure_time_ = 49.91f;
     frame_rate_ = 0;
   }
 
   void CameraIds::load_ini_params()
   {
-
   }
 
   void CameraIds::bind_params()
   {
-
   }
 }

@@ -3,6 +3,7 @@
 
 using namespace boost;
 using namespace boost::program_options;
+
 namespace holovibes
 {
   void OptionParser::init_parser()
@@ -98,9 +99,8 @@ namespace holovibes
         options_.record_path = tmp[1];
         std::cout << "The images will be recorded to " <<
           options_.record_path << std::endl;
-        std::cout << options_.nbimages 
-          << "The images will be recorded"<< std::endl;
-
+        std::cout << options_.nbimages
+          << "The images will be recorded" << std::endl;
       }
     }
   }
@@ -120,7 +120,6 @@ namespace holovibes
       options_.height = vm_["height"].as<int>();
     }
   }
-
 
   void OptionParser::proceed_buffsize()
   {
@@ -153,7 +152,6 @@ namespace holovibes
         options_.set_size << " by default" << std::endl;
     }
   }
-
 
   void OptionParser::proceed_version()
   {
@@ -190,7 +188,7 @@ namespace holovibes
       if (options_.record)
         proceed_buffsize();
       if (options_.display_images)
-      proceed_frameinfo();
+        proceed_frameinfo();
     }
     help_ = false;
     check_integrity();

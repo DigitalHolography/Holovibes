@@ -1,10 +1,14 @@
 #ifndef CAMERA_PIKE_HH
 # define CAMERA_PIKE_HH
 
-# include <string>
-# include <FGCamera.h>
-# include <iostream>
 # include "camera.hh"
+
+/* Disable warning. */
+# pragma warning (push, 0)
+# include <FGCamera.h>
+# pragma warning (pop)
+# include <iostream>
+# include <string>
 
 namespace camera
 {

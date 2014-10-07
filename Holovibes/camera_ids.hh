@@ -1,8 +1,12 @@
 #ifndef CAMERA_IDS_HH
 # define CAMERA_IDS_HH
 
-# include <uEye.h>
 # include "camera.hh"
+
+/* Disable warnings. */
+# pragma warning (push, 0)
+# include <uEye.h>
+# pragma warning (pop)
 
 namespace camera
 {

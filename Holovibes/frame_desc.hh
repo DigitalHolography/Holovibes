@@ -1,8 +1,6 @@
 #ifndef FRAME_DESC_HH
 # define FRAME_DESC_HH
 
-# include "camera.hh"
-
 namespace camera
 {
   typedef enum endianness
@@ -41,4 +39,4 @@ namespace camera
   } s_frame_desc;
 }
 
-#endif /* !FRAME_HH */
+#endif /* !FRAME_DESC_HH */

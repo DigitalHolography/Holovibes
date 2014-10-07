@@ -2,8 +2,6 @@
 #include "camera_xiq.hh"
 #include "camera_exception.hh"
 
-#include <cassert>
-
 namespace camera
 {
   CameraXiq::CameraXiq()
@@ -69,7 +67,7 @@ namespace camera
     downsampling_type_ = XI_SKIPPING;
     img_format_ = XI_RAW8;
     buffer_policy_ = XI_BP_SAFE;
- }
+  }
 
   void CameraXiq::load_ini_params()
   {
@@ -98,7 +96,7 @@ namespace camera
     else if (str == "RAW16")
       img_format_ = XI_RAW16;
   }
-  
+
   void CameraXiq::bind_params()
   {
     XI_RETURN status = XI_OK;
