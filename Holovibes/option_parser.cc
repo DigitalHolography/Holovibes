@@ -19,7 +19,8 @@ namespace holovibes
     desc_.add_options()
       ("help,h", "Help message")
       ("display,d", program_options::value<std::vector<int>>(), "Display images on screen")
-      ("record,r", program_options::value<std::vector<std::string>>(), "Record  a sequence of images in the given path")
+      ("record,r", program_options::value<std::string>(), "Record  a sequence of images in the given path")
+      ("nbimages,n",program_options::value<int>()," number of images ot record")
       ("queuesize,q", program_options::value<int>(), "Size of queue arg in number of images")
       ("imagesetsize,i", program_options::value<int>(), "Set the size  of the set of images to write on the record file. this number should be less than the buffer size")
       ("width,w", program_options::value<int>(), "Set the width value of the frame to capture to arg value")
@@ -87,21 +88,24 @@ namespace holovibes
     else if (vm_.count("record"))
     {
       options_.record = true;
-      std::cout << "into record opt" << std::endl;//FIXME
-      std::vector<std::string> tmp = vm_["record"].as<std::vector<std::string>>();
-      std::cout << "vec size " << tmp.size() << std::endl; //FIXME
-      std::cout << "first mermber" << tmp[0] << std::endl; //FIXME
-      if (tmp.size() > 1)
-      {
-        std::cout << "into record opt vector looks good" << std::endl;//FIXME
-        options_.nbimages = atoi(tmp[0].c_str());
-        options_.record_path = tmp[1];
-        std::cout << "The images will be recorded to " <<
-          options_.record_path << std::endl;
-        std::cout << options_.nbimages 
-          << "The images will be recorded"<< std::endl;
+      std::string tmp = vm_["record"].as<std::string>();
+      options_.record_path = tmp;
+      std::cout << "The images will be recorded to " <<
+        options_.record_path << std::endl;
+      std::cout << options_.nbimages
+        << "The images will be recorded" << std::endl;
 
-      }
+
+    }
+  }
+
+  void OptionParser::proceed_nbimages()
+  {
+    if (vm_.count("nbimages"))
+    {
+      options_.nbimages = vm_["nbimages"].as<int>();
+      std::cout << options_.nbimages
+        << " images will be recorded" << std::endl;
     }
   }
 
@@ -168,9 +172,9 @@ namespace holovibes
   {
     if (options_.cam == "")
       std::cerr << ("Please specify a camera to use") << std::endl;
-    if (options_.buffsize <= 0)
+    if ((options_.buffsize <= 0) && options_.record)
       std::cerr << ("Please specify a correct queue size") << std::endl;;
-    if (options_.set_size <= 0)
+    if ((options_.set_size <= 0) && options_.record)
       std::cerr << ("Please specify a correct imageset size") << std::endl;;
     if (options_.record && (options_.nbimages <= 0))
       std::cerr << ("Please specify a number of images to record") << std::endl;
@@ -188,8 +192,10 @@ namespace holovibes
         || (options_.display_images && !options_.record))
         proceed_imageset();
       if (options_.record)
+      {
         proceed_buffsize();
-      if (options_.display_images)
+        proceed_nbimages();
+      }
       proceed_frameinfo();
     }
     help_ = false;

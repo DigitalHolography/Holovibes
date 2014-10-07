@@ -61,6 +61,7 @@ namespace holovibes
 
     void proceed_help();
     void proceed_display();
+    void proceed_nbimages();
     void proceed_buffsize();
     void proceed_imageset();
     void proceed_frameinfo();
