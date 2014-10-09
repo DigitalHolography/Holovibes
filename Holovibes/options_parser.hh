@@ -3,7 +3,6 @@
 
 // Clean all these includes.
 # include <boost/tokenizer.hpp>
-# include <boost/token_functions.hpp>
 # include <boost/program_options/options_description.hpp>
 # include <boost/program_options/cmdline.hpp>
 # include <boost/program_options/eof_iterator.hpp>
@@ -16,13 +15,6 @@
 # include <boost/program_options/config.hpp>
 # include <boost/program_options/value_semantic.hpp>
 # include <boost/program_options/version.hpp>
-# include <boost/fusion/include/std_pair.hpp>
-# include <boost/fusion/support/pair.hpp>
-# include <boost/fusion/include/pair.hpp>
-# include <boost/tuple/tuple.hpp>
-# include <boost/tuple/tuple_io.hpp>
-# include <iostream>
-# include <fstream>
 
 # include "options_descriptor.hh"
 
@@ -49,7 +41,7 @@ namespace holovibes
       init_parser();
     }
 
-    /*! \brief Parse the command line given by the user and 
+    /*! \brief Parse the command line given by the user and
      * fill the options descriptor. */
     void parse(int argc, const char* argv[]);
 
