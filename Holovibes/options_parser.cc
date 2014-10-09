@@ -6,8 +6,6 @@
 
 #include <cassert>
 
-#define HOLOVIBES_VERSION "v0.1"`
-
 namespace holovibes
 {
   void OptionsParser::init_parser()
