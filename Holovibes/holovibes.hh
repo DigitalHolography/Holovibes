@@ -20,6 +20,7 @@ namespace holovibes
       PIKE,
       XIQ,
       IDS,
+      PIXELFLY,
     };
 
     Holovibes(enum camera_type c, unsigned int buffer_nb_elts);

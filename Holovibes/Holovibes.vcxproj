@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -117,7 +117,8 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="error_handler.hh" />
     <ClInclude Include="gl_window.hh" />
     <ClInclude Include="holovibes.hh" />
-    <ClInclude Include="option_parser.hh" />
+    <ClInclude Include="options_descriptor.hh" />
+    <ClInclude Include="options_parser.hh" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="frame_desc.hh" />
@@ -134,7 +135,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="holovibes.cc" />
     <ClCompile Include="main.cc" />
-    <ClCompile Include="option_parser.cc" />
+    <ClCompile Include="options_parser.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">
