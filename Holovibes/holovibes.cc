@@ -3,6 +3,7 @@
 #include "frame_desc.hh"
 
 #include <exception>
+#include <thread>
 
 namespace holovibes
 {
@@ -28,6 +29,9 @@ namespace holovibes
 
       const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
       queue_ = new Queue(desc.get_frame_size(), buffer_nb_elts);
+
+      // Debug only
+      rec_ = new Recorder(queue_, "test.raw", 10);
     }
     catch (...)
     {
@@ -43,6 +47,9 @@ namespace holovibes
   {
     delete camera_;
     delete queue_;
+
+    // Debug only
+    delete rec_;
   }
 
   void Holovibes::init_display(
@@ -66,10 +73,11 @@ namespace holovibes
   void Holovibes::update_display()
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
+    static int i = 0;
 
-    queue_->enqueue(camera_->get_frame());
-
-    gl_window_.gl_draw(queue_->dequeue(), desc.width, desc.height);
+    if (queue_->get_current_elts() % 2 == 0)
+      gl_window_.gl_draw(queue_->dequeue(), desc.width, desc.height);
+    std::cout << queue_->get_current_elts() << std::endl;
   }
 
   void Holovibes::init_camera()

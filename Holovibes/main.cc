@@ -2,6 +2,7 @@
 
 #include "options_parser.hh"
 #include "holovibes.hh"
+#include "thread_capture.hh"
 
 int main(int argc, const char* argv[])
 {
@@ -15,12 +16,12 @@ int main(int argc, const char* argv[])
   {
     h.init_camera();
     h.init_display(opts.gl_window_width, opts.gl_window_height);
-    while (true)
-    {
-      h.update_display();
-    }
-  }
 
+    holovibes::ThreadCapture t(*h.camera_, *h.queue_);
+
+    while (true)
+      h.update_display();
+  }
   getchar();
   return 0;
 }
