@@ -1,12 +1,12 @@
 #ifndef CAMERA_HH
 # define CAMERA_HH
 
+# include "frame_desc.hh"
+
 # include <string>
 # include <fstream>
 # include <boost/property_tree/ini_parser.hpp>
 # include <boost/property_tree/ptree.hpp>
-
-# include "frame_desc.hh"
 
 namespace camera
 {
@@ -89,7 +89,7 @@ namespace camera
     /*! Name of the camera. */
     std::string              name_;
     /*! Exposure time of the camera. */
-    double                   exposure_time_;
+    float                    exposure_time_;
     /*! Number of frames per second. */
     unsigned short           frame_rate_;
 

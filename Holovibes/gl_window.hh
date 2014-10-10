@@ -14,7 +14,7 @@ namespace holovibes
   public:
     /*! \brief Constructor of GLWindow object.
      * It initialize object's fields.
-    **/
+     */
     GLWindow()
       : hinstance_(GetModuleHandle(NULL))
       , hwnd_(nullptr)
@@ -33,7 +33,7 @@ namespace holovibes
      * generate a WGL_CLASS_REGISTERED error.
      */
     bool wnd_register_class();
-    
+
     /*! \brief Unregister the Window Class.
     */
     void wnd_unregister_class();

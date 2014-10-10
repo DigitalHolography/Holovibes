@@ -1,16 +1,17 @@
-#ifndef PIXEFLY_HH
-# define PIXEFLY_HH
+#ifndef CAMERA_PIXELFLY_HH
+# define CAMERA_PIXELFLY_HH
 
-#include "windows.h"
-#include <iostream>
-#include "camera.hh"
-#include "sc2_SDKStructures.h"
-#include "SC2_CamExport.h"
-#include "pco_errt.h"
+# include "camera.hh"
+
+# include <Windows.h>
+# include <iostream>
+# include <PCO_errt.h>
+# include <SC2_SDKStructures.h>
+# include <SC2_CamExport.h>
 
 namespace camera
 {
-  class Pixefly : public Camera
+  class CameraPixelfly : public Camera
   {
   public:
     enum endianness
@@ -19,9 +20,9 @@ namespace camera
       LITTLE_ENDIAN
     };
 
-    Pixefly();
+    CameraPixelfly();
 
-    virtual ~Pixefly()
+    virtual ~CameraPixelfly()
     {
     }
 
@@ -93,4 +94,4 @@ namespace camera
   };
 }
 
-#endif
+#endif /* !CAMERA_PIXELFLY_HH */

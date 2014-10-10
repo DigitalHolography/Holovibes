@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "pixefly.hh"
+#include "camera_pixelfly.hh"
 
 namespace camera
 {
-  Pixefly::Pixefly()
+  CameraPixelfly::CameraPixelfly()
     : Camera("pixelfly.ini")
   {
     acquiring_ = false;
@@ -20,16 +20,17 @@ namespace camera
     inited_ = false;
   }
 
-  void Pixefly::init_camera()
+  void CameraPixelfly::init_camera()
   {
-    if (PCO_OpenCamera(&my_cam_, 0) != 0);
+    PCO_OpenCamera(&my_cam_, 0);
 #if 0
     // TODO: Fix me
+    if (PCO_OpenCamera(&my_cam_, 0) != 0)
       return false;
 #endif
     stop_acquisition();
     set_sensor();
-    buff_size = frame_height_ * frame_width_ * 2; // 16bits 2octets per pixel
+    buff_size = frame_height_ * frame_width_ * 2; // 16bits 2 bytes per pixel
 
     short buff_number = -1; //permit to allocate a newbuffer
     buff_alloc();
@@ -38,7 +39,7 @@ namespace camera
     inited_ = true;
   }
 
-  void Pixefly::buff_alloc()
+  void CameraPixelfly::buff_alloc()
   {
     if (internal_buff_alloc_)
       frame_buffer_ = NULL;
@@ -46,14 +47,14 @@ namespace camera
       frame_buffer_ = (WORD*)malloc(buff_size); // WORD* is void*
   }
 
-  int Pixefly::get_frame_size()
+  int CameraPixelfly::get_frame_size()
   {
     if (inited_)
       return (frame_height_ * frame_width_ * 2);
     return 0; // error_checking to place
   }
 
-  void Pixefly::start_acquisition()
+  void CameraPixelfly::start_acquisition()
   {
     acquiring_ = true;
     error_ = PCO_SetRecordingState(my_cam_, (WORD)0x0001);
@@ -63,13 +64,13 @@ namespace camera
     check_error(error_, "addbufferEX start");
   }
 
-  void Pixefly::stop_acquisition()
+  void CameraPixelfly::stop_acquisition()
   {
     acquiring_ = false;
     PCO_SetRecordingState(my_cam_, (WORD)0x0000);
   }
 
-  void Pixefly::shutdown_camera()
+  void CameraPixelfly::shutdown_camera()
   {
     PCO_CancelImages(my_cam_);
     PCO_RemoveBuffer(my_cam_);
@@ -82,7 +83,7 @@ namespace camera
     CloseHandle(refreshEvent_);
   }
 
-  void* Pixefly::get_frame(void)
+  void* CameraPixelfly::get_frame(void)
   {
     static DWORD dwWaitStatus = 0;
     dwWaitStatus = WaitForSingleObject(refreshEvent_, INFINITE);
@@ -100,7 +101,7 @@ namespace camera
     return frame_buffer_;
   }
 
-  void Pixefly::set_sensor()
+  void CameraPixelfly::set_sensor()
   {
     error_ = PCO_SetIRSensitivity(my_cam_,
       (WORD)(irSensitivityEnabled_ ? 0x0001 : 0x0000));
@@ -121,30 +122,27 @@ namespace camera
     check_error(error_, "getSizes");
   }
 
-  void Pixefly::check_error(DWORD error, std::string msg)
+  void CameraPixelfly::check_error(DWORD error, std::string msg)
   {
     if (error != 0)
     {
       std::cout << msg << std::endl;
-      char *er = (char *)malloc(sizeof (char)* 500);
+      char* er = (char*)malloc(sizeof (char) * 500);
       DWORD len = 500;
       PCO_GetErrorText(error_, er, len);
       std::cout << er << std::endl;
     }
   }
 
-  void Pixefly::load_default_params()
+  void CameraPixelfly::load_default_params()
   {
-
   }
 
-  void Pixefly::load_ini_params()
+  void CameraPixelfly::load_ini_params()
   {
-
   }
 
-  void Pixefly::bind_params()
+  void CameraPixelfly::bind_params()
   {
-
   }
 }

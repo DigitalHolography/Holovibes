@@ -3,7 +3,7 @@
 
 namespace holovibes
 {
-  Recorder::Recorder(queue::Queue *queue, std::string path, unsigned set_size)
+  Recorder::Recorder(Queue *queue, std::string path, unsigned set_size)
     :path_(path)
   {
     if (check_overwrite())
@@ -27,10 +27,10 @@ namespace holovibes
       size_t written = contigous_image();
       size_t elt_written = fwrite(buffer_->dequeue(written), buffer_->get_size(), written, fd_);
       if (elt_written != written)
-       {
-       ErrorHandler::get_instance()
-       .send_error("One or more images were not correctly saved, the save file is corrupted");
-       }
+      {
+        ErrorHandler::get_instance()
+          .send_error("One or more images were not correctly saved, the save file is corrupted");
+      }
     }
   }
   size_t Recorder::contigous_image()
