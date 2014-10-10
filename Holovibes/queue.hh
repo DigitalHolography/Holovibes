@@ -9,6 +9,10 @@ namespace holovibes
   class Queue
   {
   public:
+    Queue()
+    {
+    }
+
     Queue(unsigned int size, unsigned int elts)
       : size_(size),
       max_elts_(elts),
