@@ -122,6 +122,15 @@ namespace camera
     if (status != XI_OK)
       throw CameraException(name_, CameraException::CANT_SET_CONFIG);
 
+    /* Fill the frame descriptor. */
+    desc_.width = 2048;
+    desc_.height = 2048;
+    desc_.pixel_size = 5.5f;
+    desc_.bit_depth = 8;
+    if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
+      desc_.bit_depth = 10;
+    desc_.endianness = BIG_ENDIAN;
+
     name_ = std::string(name);
   }
 }

@@ -1,7 +1,6 @@
 #ifndef OPTIONS_PARSER_HH
 # define OPTIONS_PARSER_HH
 
-// Clean all these includes.
 # include <boost/tokenizer.hpp>
 # include <boost/program_options/options_description.hpp>
 # include <boost/program_options/cmdline.hpp>
