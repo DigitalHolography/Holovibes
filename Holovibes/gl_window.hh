@@ -12,27 +12,46 @@ namespace holovibes
   class GLWindow
   {
   public:
-    /*! \brief Constructor of GLWindow object.
-     * It initialize object's fields.
-     */
-    GLWindow()
+    GLWindow(
+      const char* title,
+      int width,
+      int height)
       : hinstance_(GetModuleHandle(NULL))
       , hwnd_(nullptr)
       , hdc_(nullptr)
       , hrc_(nullptr)
       , texture_(0)
-    {}
-    /*! \brief Default destructor.
-     */
-    ~GLWindow()
+    {
+      if (!class_registered_)
+        wnd_register_class();
+
+      wnd_init(title, width, height);
+      wnd_gl_init();
+      gl_enable(width, height);
+    }
+
+    virtual ~GLWindow()
     {}
 
+    /* Show the window. */
+    void wnd_show();
+    /*! \brief OpenGL configuration.
+     * \param width Width of GL viewport.
+     * \param height Height of GL viewport.
+     */
+    /* Draw a frame. */
+    void gl_draw(
+      void* frame,
+      int frame_width,
+      int frame_height);
+
+  private:
     /*! \brief Register the Window Class for subsequent use in calls to the
      * CreateWindow function.
      * \remarks A window class can be registered only once, otherwise it will
      * generate a WGL_CLASS_REGISTERED error.
      */
-    bool wnd_register_class();
+    void wnd_register_class();
 
     /*! \brief Unregister the Window Class.
     */
@@ -43,43 +62,34 @@ namespace holovibes
      * \param width Width of the window.
      * \param height Height of the window.
      */
-    bool wnd_init(
+    void wnd_init(
       const char* title,
       int width,
       int height);
-    /* Show the window. */
-    void wnd_show();
-    /* Initialize OpenGL. */
-    void gl_init();
-    /*! \brief OpenGL configuration.
-     * \param width Width of GL viewport.
-     * \param height Height of GL viewport.
-     */
+
+    /*! Retrieves the PFD. */
+    PIXELFORMATDESCRIPTOR gl_get_pfd();
+
+    /*! Initialize OpenGL in the window. */
+    void wnd_gl_init();
+    /*! Unload OpenGL ressources. */
+    void wnd_gl_free();
+
+    /*! Enable OpenGL features and set the viewport. */
     void gl_enable(int width, int height);
     void gl_disable();
-    /* Draw a frame. */
-    void gl_draw(
-      void* frame,
-      int frame_width,
-      int frame_height);
-    /* Unload OpenGL ressources. */
-    void gl_free();
-
-  private:
-    /* Copy is not allowed. */
-    GLWindow(const GLWindow&)
-    {}
-    GLWindow& operator=(const GLWindow&)
-    {}
-
-    /* Retrieve the PFD. */
-    PIXELFORMATDESCRIPTOR gl_get_pfd();
 
     static LRESULT CALLBACK wnd_proc(
       HWND hwnd,
       UINT msg,
       WPARAM wparam,
       LPARAM lparam);
+
+    /* Copy is not allowed. */
+    GLWindow(const GLWindow&)
+    {}
+    GLWindow& operator=(const GLWindow&)
+    {}
 
   private:
     static bool class_registered_;

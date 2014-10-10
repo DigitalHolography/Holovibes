@@ -3,26 +3,15 @@
 #include "error_handler.hh"
 
 #include <cassert>
+#include <exception>
 
 namespace holovibes
 {
+  /* The window class is not registered by default. */
   bool GLWindow::class_registered_ = false;
 
-  bool GLWindow::wnd_register_class()
+  void GLWindow::wnd_register_class()
   {
-    /* Init must be called only if Window Class
-    ** has not been registered.
-    */
-
-    if (class_registered_)
-    {
-      assert("WndClass has already been registered.");
-      ErrorHandler::get_instance()
-        .send_error(WGL_CLASS_REGISTERED);
-
-      return false;
-    }
-
     /* Window class structure */
     WNDCLASS wc;
 
@@ -38,8 +27,10 @@ namespace holovibes
     wc.lpszClassName = "OpenGL";
 
     /* If RegisterClass fails, the return value is zero. */
-    class_registered_ = RegisterClass(&wc) != 0;
-    return class_registered_;
+    if (RegisterClass(&wc) == 0)
+      throw std::exception("class is already registered");
+
+    class_registered_ = true;
   }
 
   void GLWindow::wnd_unregister_class()
@@ -50,7 +41,7 @@ namespace holovibes
     class_registered_ = false;
   }
 
-  bool GLWindow::wnd_init(
+  void GLWindow::wnd_init(
     const char* title,
     int width,
     int height)
@@ -65,25 +56,14 @@ namespace holovibes
       hinstance_, NULL);
 
     if (!hwnd_)
-    {
-      assert("Failed to initialize window");
-      ErrorHandler::get_instance()
-        .send_error(WGL_CREATE_WINDOW);
-      return false;
-    }
-
-    return true;
+      throw std::exception("failed to instanciate an OpenGL window class");
   }
 
   void GLWindow::wnd_show()
   {
     if (!hwnd_)
-    {
-      assert("Window is not initialized");
-      ErrorHandler::get_instance()
-        .send_error(WGL_INIT_WINDOW);
-      return;
-    }
+      throw std::exception("no window instanciated");
+
     ShowWindow(hwnd_, SW_SHOW);
     SetForegroundWindow(hwnd_);
     SetFocus(hwnd_);
@@ -94,9 +74,9 @@ namespace holovibes
     PIXELFORMATDESCRIPTOR pfd;
 
     /* Init with null values. */
-    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+    memset(&pfd, 0, sizeof (PIXELFORMATDESCRIPTOR));
 
-    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nSize = sizeof (PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;
@@ -106,7 +86,7 @@ namespace holovibes
     return pfd;
   }
 
-  void GLWindow::gl_init()
+  void GLWindow::wnd_gl_init()
   {
     /* Get the device context. */
     hdc_ = GetDC(hwnd_);
@@ -114,38 +94,18 @@ namespace holovibes
     PIXELFORMATDESCRIPTOR pfd = gl_get_pfd();
     int pixel_format = ChoosePixelFormat(hdc_, &pfd);
     if (!pixel_format)
-    {
-      assert("Unable to find a suitable pixel format");
-      ErrorHandler::get_instance()
-        .send_error(WGL_PIXEL_FORMAT_FIND);
-      return;
-    }
+      throw std::exception("unable to find a suitable pixel format");
 
     if (!SetPixelFormat(hdc_, pixel_format, &pfd))
-    {
-      assert("Cannot set the pixel format");
-      ErrorHandler::get_instance()
-        .send_error(WGL_PIXEL_FORMAT_SET);
-      return;
-    }
+      throw std::exception("can not set the pixel format");
 
     hrc_ = wglCreateContext(hdc_);
 
     if (!hrc_)
-    {
-      assert("Unable to create GL context");
-      ErrorHandler::get_instance()
-        .send_error(WGL_GL_CONTEXT_CREATE);
-      return;
-    }
+      throw std::exception("unable to create GL context");
 
     if (!wglMakeCurrent(hdc_, hrc_))
-    {
-      assert("Unable to make current GL context");
-      ErrorHandler::get_instance()
-        .send_error(WGL_GL_CONTEXT_MAKECUR);
-      return;
-    }
+      throw std::exception("unable to make current GL context");
   }
 
   void GLWindow::gl_enable(
@@ -202,7 +162,7 @@ namespace holovibes
     glDisable(GL_TEXTURE_2D);
   }
 
-  void GLWindow::gl_free()
+  void GLWindow::wnd_gl_free()
   {
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(hrc_);
