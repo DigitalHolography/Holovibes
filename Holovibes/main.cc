@@ -1,24 +1,26 @@
 #include "stdafx.h"
 
-#include "option_parser.hh"
+#include "options_parser.hh"
 #include "holovibes.hh"
 
-int main(const int argc, const char* argv[])
+int main(int argc, const char* argv[])
 {
-  holovibes::OptionParser opts_parser(argc, argv);
-  opts_parser.init_parser();
-  opts_parser.proceed();
-  const holovibes::s_options& opts = opts_parser.get_opt();
+  holovibes::OptionsDescriptor opts;
+  holovibes::OptionsParser opts_parser(opts);
+  opts_parser.parse(argc, argv);
 
-  holovibes::Holovibes h(holovibes::Holovibes::XIQ, opts.buffsize);
+  holovibes::Holovibes h(opts.camera, opts.queue_size);
 
-  if (opts.display_images)
+  if (opts.is_gl_window_enabled)
   {
     h.init_camera();
-    h.init_display(opts.width_win, opts.height_win);
+    h.init_display(opts.gl_window_width, opts.gl_window_height);
     while (true)
     {
       h.update_display();
     }
   }
+
+  getchar();
+  return 0;
 }

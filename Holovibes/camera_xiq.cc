@@ -28,6 +28,13 @@ namespace camera
 
   void CameraXiq::start_acquisition()
   {
+    /* Load frame descriptor. */
+    if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
+      desc_.bit_depth = 12;
+
+    desc_.width = 2048;
+    desc_.height = 2048;
+
     if (xiStartAcquisition(device_) != XI_OK)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
   }
@@ -64,7 +71,7 @@ namespace camera
     /* Custom parameters. */
     gain_ = 0.f;
     downsampling_rate_ = 1;
-    downsampling_type_ = XI_SKIPPING;
+    downsampling_type_ = XI_BINNING;
     img_format_ = XI_RAW8;
     buffer_policy_ = XI_BP_SAFE;
   }
