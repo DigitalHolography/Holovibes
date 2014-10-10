@@ -27,7 +27,7 @@ namespace holovibes
         throw std::exception("Error while allocating Camera constructor");
 
       const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-      queue_ = Queue(desc.get_frame_size(), buffer_nb_elts);
+      queue_ = new Queue(desc.get_frame_size(), buffer_nb_elts);
     }
     catch (...)
     {
@@ -42,6 +42,7 @@ namespace holovibes
   Holovibes::~Holovibes()
   {
     delete camera_;
+    delete queue_;
   }
 
   void Holovibes::init_display(
@@ -66,9 +67,9 @@ namespace holovibes
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
 
-    queue_.enqueue(camera_->get_frame());
+    queue_->enqueue(camera_->get_frame());
 
-    gl_window_.gl_draw(queue_.dequeue(), desc.width, desc.height);
+    gl_window_.gl_draw(queue_->dequeue(), desc.width, desc.height);
   }
 
   void Holovibes::init_camera()

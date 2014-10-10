@@ -38,7 +38,7 @@ namespace holovibes
 
   private:
     camera::Camera* camera_;
-    Queue queue_;
+    Queue* queue_;
     GLWindow gl_window_;
   };
 }

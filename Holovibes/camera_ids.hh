@@ -17,6 +17,8 @@ namespace camera
       : Camera("ids.ini")
     {
       load_default_params();
+      if (ini_file_is_open())
+        load_ini_params();
     }
 
     virtual ~CameraIds()
