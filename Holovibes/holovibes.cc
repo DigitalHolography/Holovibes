@@ -18,6 +18,8 @@ namespace holovibes
         camera_ = new camera::CameraPike();
       else if (c == XIQ)
         camera_ = new camera::CameraXiq();
+      else if (c == IDS)
+        camera_ = new camera::CameraIds();
       else
         assert(!"Impossible case");
 
@@ -66,7 +68,7 @@ namespace holovibes
   void Holovibes::update_display()
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-    window_->gl_draw(camera_->get_frame(), desc.width, desc.height);
+    window_->gl_draw(camera_->get_frame(), camera_->get_frame_descriptor());
   }
 
   void Holovibes::init_camera()

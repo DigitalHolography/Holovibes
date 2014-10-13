@@ -4,6 +4,8 @@
 # include <Windows.h>
 # include <GL/GL.h>
 
+# include "frame_desc.hh"
+
 namespace holovibes
 {
   /*! GLWindow class use Win32 API to display a window containing an OpenGL
@@ -45,9 +47,7 @@ namespace holovibes
     /* Draw a frame. */
     void gl_draw(
       void* frame,
-      int frame_width,
-      int frame_height);
-
+      const camera::s_frame_desc& desc);
   private:
     static LRESULT CALLBACK wnd_proc(
       HWND hwnd,

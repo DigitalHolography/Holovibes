@@ -127,8 +127,7 @@ namespace holovibes
 
   void GLWindow::gl_draw(
     void* frame,
-    int frame_width,
-    int frame_height)
+    const camera::s_frame_desc& desc)
   {
     glBindTexture(GL_TEXTURE_2D, texture_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -141,13 +140,13 @@ namespace holovibes
       /* Base image level. */
       0,
       GL_LUMINANCE,
-      frame_width,
-      frame_height,
+      desc.width,
+      desc.height,
       /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
       /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      GL_UNSIGNED_BYTE,
+      desc.get_byte_depth() == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
       /* Pointer to image data in memory. */
       frame);
 

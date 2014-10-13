@@ -17,6 +17,8 @@ namespace camera
       : Camera("ids.ini")
     {
       load_default_params();
+      if (ini_file_is_open())
+        load_ini_params();
     }
 
     virtual ~CameraIds()
@@ -43,6 +45,49 @@ namespace camera
 
     /*! frame associated memory */
     int frame_mem_pid_;
+
+    /*! Gain */
+    unsigned int gain_;
+
+    /*! Subsampling value (2x2, 4x4 ...) */
+    int subsampling_;
+
+    /*! Binning value (2x2, 4x4 ...) */
+    int binning_;
+
+    /*! Image format (also called color mode) */
+    int color_mode_;
+
+    /*! Area Of Interest (AOI) x */
+    int aoi_x;
+
+    /*! Area Of Interest (AOI) y */
+    int aoi_y;
+
+    /*! Area Of Interest (AOI) width */
+    int aoi_width_;
+
+    /*! Area Of Interest (AOI) height */
+    int aoi_height_;
+
+    /*! Trigger mode */
+    int trigger_mode_;
+
+  private:
+    /*! Format gain, it should be between 0 and 100 as it is a coefficient */
+    int format_gain();
+
+    /*! Retreive subsampling mode code from user input string */
+    int get_subsampling_mode(std::string ui);
+
+    /*! Retreive binning mode code from user input string */
+    int get_binning_mode(std::string ui);
+
+    /*! Retreive color mode code from user input string */
+    int get_color_mode(std::string ui);
+
+    /*! Retreive trigger mode code from user input string */
+    int get_trigger_mode(std::string ui);
   };
 }
 

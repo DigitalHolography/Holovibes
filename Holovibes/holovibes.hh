@@ -4,6 +4,7 @@
 # include "camera.hh"
 # include "camera_pike.hh"
 # include "camera_xiq.hh"
+# include "camera_ids.hh"
 # include "gl_window.hh"
 # include "recorder.hh"
 # include "queue.hh"
