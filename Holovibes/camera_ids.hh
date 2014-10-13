@@ -58,6 +58,13 @@ namespace camera
     /*! Image format (also called color mode) */
     int color_mode_;
 
+    /*! Area Of Interest (AOI) x */
+    int aoi_x;
+
+    /*! Area Of Interest (AOI) y */
+    int aoi_y;
+
+  private:
     /*! Retreive subsampling mode code from user input string */
     int get_subsampling_mode(std::string ui);
 

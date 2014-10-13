@@ -90,11 +90,19 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
+    desc_.width = pt.get<int>("ids.aoi_width", 2048);
+    desc_.height = pt.get<int>("ids.aoi_height", 2048);
+    desc_.bit_depth;
+    desc_.endianness;
+    desc_.pixel_size;
+
     exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
     gain_ = pt.get<int>("ids.gain", gain_);
     subsampling_ = get_subsampling_mode(pt.get<std::string>("ids.subsampling", ""));
     binning_ = get_binning_mode(pt.get<std::string>("ids.binning", ""));
     color_mode_ = get_color_mode(pt.get<std::string>("ids.image_format", ""));
+    aoi_x = pt.get<int>("ids.aoi_startx", 0);
+    aoi_y = pt.get<int>("ids.aoi_starty", 0);
   }
 
   void CameraIds::bind_params()
