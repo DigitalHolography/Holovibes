@@ -3,6 +3,7 @@
 
 # include <cstdlib>
 # include <iostream>
+# include <mutex>
 
 namespace holovibes
 {
@@ -32,35 +33,13 @@ namespace holovibes
       return size_;
     }
 
-    size_t get_current_elts() const
-    {
-      return curr_elts_;
-    }
-
-    unsigned int get_max_elts() const
-    {
-      return max_elts_;
-    }
-
-    void* get_start() const
-    {
-      return buffer_ + start_ * size_;
-    }
-
-    unsigned int get_start_index() const
-    {
-      return start_;
-    }
-
-    void* get_end() const
-    {
-      return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
-    }
-
-    unsigned int get_end_index() const
-    {
-      return (start_ + curr_elts_) % max_elts_;
-    }
+    size_t get_current_elts();
+    unsigned int get_max_elts() const;
+    void* get_start();
+    unsigned int get_start_index();
+    void* get_end();
+    void* get_last_images(int n);
+    unsigned int get_end_index();
 
     bool enqueue(void* elt);
     void* dequeue();
@@ -70,11 +49,23 @@ namespace holovibes
     void print() const;
 
   private:
+    // Size of one element
     size_t size_;
+
+    // Maximum elements number
     unsigned int max_elts_;
+
+    // Current elements number
     size_t curr_elts_;
+
+    // Start index
     unsigned int start_;
+
+    // Data buffer
     char* buffer_;
+
+    // Mutex for critical code sections (threads safety)
+    std::mutex mutex_;
   };
 }
 

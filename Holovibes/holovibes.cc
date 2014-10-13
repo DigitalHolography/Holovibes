@@ -73,11 +73,7 @@ namespace holovibes
   void Holovibes::update_display()
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-    static int i = 0;
-
-    if (queue_->get_current_elts() % 2 == 0)
-      gl_window_.gl_draw(queue_->dequeue(), desc.width, desc.height);
-    std::cout << queue_->get_current_elts() << std::endl;
+    gl_window_.gl_draw(queue_->get_last_images(1), desc.width, desc.height);
   }
 
   void Holovibes::init_camera()
