@@ -67,8 +67,8 @@ namespace camera
   {
     desc_.width = 2048;
     desc_.height = 2048;
-    desc_.endianness = BIG_ENDIAN;
     desc_.bit_depth = 8;
+    desc_.endianness = LITTLE_ENDIAN;
 
     exposure_time_ = 49.91f;
     gain_ = 0;
