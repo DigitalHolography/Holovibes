@@ -10,7 +10,7 @@ namespace holovibes
     enum camera_type c,
     unsigned int buffer_nb_elts)
     : camera_(nullptr)
-    , gl_window_()
+    , window_(nullptr)
   {
     try
     {
@@ -42,30 +42,31 @@ namespace holovibes
   {
     if (camera_)
       delete camera_;
+    if (window_)
+      delete window_;
   }
 
   void Holovibes::init_display(
-    unsigned int w,
-    unsigned int h)
+    unsigned int width,
+    unsigned int height)
   {
-    gl_window_.wnd_register_class();
-    gl_window_.wnd_init("Holovibes", w, h);
-    gl_window_.gl_init();
-    gl_window_.gl_enable(w, h);
-    gl_window_.wnd_show();
+    window_ = new GLWindow("OpenGL", width, height);
+    window_->wnd_show();
   }
 
   void Holovibes::dispose_display()
   {
-    gl_window_.gl_disable();
-    gl_window_.gl_free();
-    gl_window_.wnd_unregister_class();
+    if (window_)
+    {
+      delete window_;
+      window_ = nullptr;
+    }
   }
 
   void Holovibes::update_display()
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-    gl_window_.gl_draw(camera_->get_frame(), desc.width, desc.height);
+    window_->gl_draw(camera_->get_frame(), desc.width, desc.height);
   }
 
   void Holovibes::init_camera()

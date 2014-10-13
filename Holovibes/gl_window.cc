@@ -7,8 +7,15 @@
 
 namespace holovibes
 {
-  /* The window class is not registered by default. */
-  bool GLWindow::class_registered_ = false;
+#pragma region WIN32_WindowClass
+  LRESULT GLWindow::wnd_proc(
+    HWND hwnd,
+    UINT msg,
+    WPARAM wparam,
+    LPARAM lparam)
+  {
+    return DefWindowProc(hwnd, msg, wparam, lparam);
+  }
 
   void GLWindow::wnd_register_class()
   {
@@ -29,18 +36,15 @@ namespace holovibes
     /* If RegisterClass fails, the return value is zero. */
     if (RegisterClass(&wc) == 0)
       throw std::exception("class is already registered");
-
-    class_registered_ = true;
   }
 
   void GLWindow::wnd_unregister_class()
   {
-    if (class_registered_)
-      UnregisterClass("OpenGL", hinstance_);
-
-    class_registered_ = false;
+    UnregisterClass("OpenGL", hinstance_);
   }
+#pragma endregion
 
+#pragma region Window
   void GLWindow::wnd_init(
     const char* title,
     int width,
@@ -68,7 +72,9 @@ namespace holovibes
     SetForegroundWindow(hwnd_);
     SetFocus(hwnd_);
   }
+#pragma endregion
 
+#pragma region OpenGL
   inline PIXELFORMATDESCRIPTOR GLWindow::gl_get_pfd()
   {
     PIXELFORMATDESCRIPTOR pfd;
@@ -168,13 +174,5 @@ namespace holovibes
     wglDeleteContext(hrc_);
     ReleaseDC(hwnd_, hdc_);
   }
-
-  LRESULT GLWindow::wnd_proc(
-    HWND hwnd,
-    UINT msg,
-    WPARAM wparam,
-    LPARAM lparam)
-  {
-    return DefWindowProc(hwnd, msg, wparam, lparam);
-  }
+#pragma endregion
 }

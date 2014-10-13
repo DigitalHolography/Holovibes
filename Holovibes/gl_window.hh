@@ -22,8 +22,7 @@ namespace holovibes
       , hrc_(nullptr)
       , texture_(0)
     {
-      if (!class_registered_)
-        wnd_register_class();
+      wnd_register_class();
 
       wnd_init(title, width, height);
       wnd_gl_init();
@@ -31,7 +30,11 @@ namespace holovibes
     }
 
     virtual ~GLWindow()
-    {}
+    {
+      gl_disable();
+      wnd_gl_free();
+      wnd_unregister_class();
+    }
 
     /* Show the window. */
     void wnd_show();
@@ -46,6 +49,12 @@ namespace holovibes
       int frame_height);
 
   private:
+    static LRESULT CALLBACK wnd_proc(
+      HWND hwnd,
+      UINT msg,
+      WPARAM wparam,
+      LPARAM lparam);
+
     /*! \brief Register the Window Class for subsequent use in calls to the
      * CreateWindow function.
      * \remarks A window class can be registered only once, otherwise it will
@@ -79,12 +88,6 @@ namespace holovibes
     void gl_enable(int width, int height);
     void gl_disable();
 
-    static LRESULT CALLBACK wnd_proc(
-      HWND hwnd,
-      UINT msg,
-      WPARAM wparam,
-      LPARAM lparam);
-
     /* Copy is not allowed. */
     GLWindow(const GLWindow&)
     {}
@@ -92,8 +95,6 @@ namespace holovibes
     {}
 
   private:
-    static bool class_registered_;
-
     HINSTANCE hinstance_;
     HWND hwnd_;
     HDC hdc_;

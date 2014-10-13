@@ -37,7 +37,7 @@ namespace holovibes
 
   private:
     camera::Camera* camera_;
-    GLWindow gl_window_;
+    GLWindow* window_;
   };
 }
 
