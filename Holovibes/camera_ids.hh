@@ -45,6 +45,27 @@ namespace camera
 
     /*! frame associated memory */
     int frame_mem_pid_;
+
+    /*! Gain */
+    unsigned int gain_;
+
+    /*! Subsampling value (2x2, 4x4 ...) */
+    int subsampling_;
+
+    /*! Binning value (2x2, 4x4 ...) */
+    int binning_;
+
+    /*! Image format (also called color mode) */
+    int color_mode_;
+
+    /*! Retreive subsampling mode code from user input string */
+    int get_subsampling_mode(std::string ui);
+
+    /*! Retreive binning mode code from user input string */
+    int get_binning_mode(std::string ui);
+
+    /*! Retreive color mode code from user input string */
+    int get_color_mode(std::string ui);
   };
 }
 
