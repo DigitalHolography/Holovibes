@@ -64,7 +64,19 @@ namespace camera
     /*! Area Of Interest (AOI) y */
     int aoi_y;
 
+    /*! Area Of Interest (AOI) width */
+    int aoi_width_;
+
+    /*! Area Of Interest (AOI) height */
+    int aoi_height_;
+
+    /*! Trigger mode */
+    int trigger_mode_;
+
   private:
+    /*! Format gain, it should be between 0 and 100 as it is a coefficient */
+    int format_gain();
+
     /*! Retreive subsampling mode code from user input string */
     int get_subsampling_mode(std::string ui);
 
@@ -73,6 +85,9 @@ namespace camera
 
     /*! Retreive color mode code from user input string */
     int get_color_mode(std::string ui);
+
+    /*! Retreive trigger mode code from user input string */
+    int get_trigger_mode(std::string ui);
   };
 }
 

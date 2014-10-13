@@ -24,9 +24,6 @@ namespace camera
           desc_.bit_depth,
           &frame_,
           &frame_mem_pid_);
-
-        // Setting color mode at 8 bits (grey scale)
-        is_SetColorMode(cam_, IS_CM_SENSOR_RAW8);
       }
       else
         throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
@@ -34,10 +31,7 @@ namespace camera
     else
       throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
 
-#if 0
-    // TODO: Fix me
-    return result == IS_SUCCESS;
-#endif
+    bind_params();
   }
 
   void CameraIds::start_acquisition()
@@ -46,8 +40,6 @@ namespace camera
 
     if (is_SetImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
       throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
-
-    bind_params();
   }
 
   void CameraIds::stop_acquisition()
@@ -82,6 +74,7 @@ namespace camera
     gain_ = 0;
     subsampling_ = -1;
     binning_ = -1;
+    color_mode_ = IS_CM_SENSOR_RAW8;
 
     frame_rate_ = 0;
   }
@@ -90,19 +83,23 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    desc_.width = pt.get<int>("ids.aoi_width", 2048);
-    desc_.height = pt.get<int>("ids.aoi_height", 2048);
+    desc_.width = pt.get<int>("ids.sensor_width", 2048);
+    desc_.height = pt.get<int>("ids.sensor_height", 2048);
     desc_.bit_depth;
     desc_.endianness;
     desc_.pixel_size;
 
     exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
     gain_ = pt.get<int>("ids.gain", gain_);
+    format_gain();
     subsampling_ = get_subsampling_mode(pt.get<std::string>("ids.subsampling", ""));
     binning_ = get_binning_mode(pt.get<std::string>("ids.binning", ""));
     color_mode_ = get_color_mode(pt.get<std::string>("ids.image_format", ""));
     aoi_x = pt.get<int>("ids.aoi_startx", 0);
     aoi_y = pt.get<int>("ids.aoi_starty", 0);
+    aoi_width_ = pt.get<int>("ids.aoi_width", 2048);
+    aoi_height_ = pt.get<int>("ids.aoi_height", 2048);
+    trigger_mode_ = get_trigger_mode(pt.get<std::string>("ids.trigger", ""));
   }
 
   void CameraIds::bind_params()
@@ -125,16 +122,37 @@ namespace camera
     }
 
     // Subsampling
-    status = is_SetSubSampling(cam_, subsampling_);
+    if (subsampling_ != -1)
+      status = is_SetSubSampling(cam_, subsampling_);
 
     // Binning
-    status = is_SetBinning(cam_, binning_);
+    if (binning_ != -1)
+      status = is_SetBinning(cam_, binning_);
 
     // Image format/Color mode
     status = is_SetColorMode(cam_, color_mode_);
 
+    // Area Of Interest
+    IS_RECT rectAOI;
+    rectAOI.s32X = aoi_x;
+    rectAOI.s32Y = aoi_y;
+    rectAOI.s32Width = aoi_width_;
+    rectAOI.s32Height = aoi_height_;
+
+    status = is_AOI(cam_, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
+
+    // Trigger
+    status = is_SetExternalTrigger(cam_, trigger_mode_);
+
     if (status != IS_SUCCESS)
       throw new CameraException(name_, CameraException::camera_error::CANT_SET_CONFIG);
+  }
+
+  int CameraIds::format_gain()
+  {
+    if (gain_ < 0 || gain_ > 100)
+      return 0;
+    return gain_;
   }
 
   int CameraIds::get_subsampling_mode(std::string ui)
@@ -197,5 +215,17 @@ namespace camera
       return IS_CM_MONO16;
     else
       return IS_CM_SENSOR_RAW8;
+  }
+
+  int CameraIds::get_trigger_mode(std::string ui)
+  {
+    if (ui == "Software")
+      return IS_SET_TRIGGER_SOFTWARE;
+    else if (ui == "HardwareHiLo")
+      return IS_SET_TRIGGER_HI_LO;
+    else if (ui == "HardwareLoHi")
+      return IS_SET_TRIGGER_LO_HI;
+    else
+      return IS_SET_TRIGGER_OFF;
   }
 }
