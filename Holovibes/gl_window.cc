@@ -134,6 +134,7 @@ namespace holovibes
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glPixelStorei(GL_PACK_LSB_FIRST, GL_TRUE);
 
     glTexImage2D(
       GL_TEXTURE_2D,
