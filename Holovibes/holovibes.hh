@@ -36,10 +36,19 @@ namespace holovibes
     void init_camera();
     void dispose_camera();
 
+    camera::Camera* get_camera()
+    {
+      return camera_;
+    }
+
+    Queue* get_queue()
+    {
+      return queue_;
+    }
+
+  private:
     camera::Camera* camera_;
     Queue* queue_;
-  private:
-    
     GLWindow gl_window_;
     Recorder* rec_;
   };

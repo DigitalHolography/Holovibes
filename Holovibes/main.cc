@@ -17,7 +17,7 @@ int main(int argc, const char* argv[])
     h.init_camera();
     h.init_display(opts.gl_window_width, opts.gl_window_height);
 
-    holovibes::ThreadCapture t(*h.camera_, *h.queue_);
+    holovibes::ThreadCapture t(*(h.get_camera()), *(h.get_queue()));
 
     while (true)
       h.update_display();
