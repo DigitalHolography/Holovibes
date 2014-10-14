@@ -60,6 +60,7 @@ namespace holovibes
 
   void Holovibes::update_display()
   {
+    window_->wnd_msgs_handler();
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
     GLComponent& c = window_->get_gl_component();
     c.gl_draw(camera_->get_frame(), desc);

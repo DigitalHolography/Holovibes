@@ -90,6 +90,17 @@ namespace holovibes
     }
   }
 
+  void GLWindow::wnd_msgs_handler()
+  {
+    MSG msg;
+
+    if (PeekMessage(&msg, hwnd_, 0, 0, PM_REMOVE))
+    {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+  }
+
   void GLWindow::wnd_show()
   {
     if (!hwnd_)
