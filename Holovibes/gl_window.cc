@@ -6,6 +6,8 @@
 
 namespace holovibes
 {
+  bool GLWindow::running_ = false;
+
   GLWindow::GLWindow(
     const char* title,
     int width,
@@ -44,6 +46,8 @@ namespace holovibes
   {
     delete gl_;
     wnd_unregister_class();
+    /* Make sure the running flag is off. */
+    running_ = false;
   }
 
   void GLWindow::wnd_register_class()
@@ -79,7 +83,11 @@ namespace holovibes
   {
     switch (msg)
     {
+    case WM_CREATE:
+      running_ = true;
+      break;
     case WM_CLOSE:
+      running_ = false;
       DestroyWindow(hwnd);
       break;
     case WM_DESTROY:
@@ -88,6 +96,7 @@ namespace holovibes
     default:
       return DefWindowProc(hwnd, msg, wparam, lparam);
     }
+    return DefWindowProc(hwnd, msg, wparam, lparam);
   }
 
   void GLWindow::wnd_msgs_handler()
@@ -96,7 +105,6 @@ namespace holovibes
 
     if (PeekMessage(&msg, hwnd_, 0, 0, PM_REMOVE))
     {
-      TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
   }

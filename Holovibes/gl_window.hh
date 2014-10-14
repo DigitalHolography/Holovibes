@@ -28,8 +28,18 @@ namespace holovibes
       return *gl_;
     }
 
-    void wnd_msgs_handler();
+    bool running() const
+    {
+      return running_;
+    }
 
+    void send_wm_close()
+    {
+      PostMessage(hwnd_, WM_CLOSE, 0, 0);
+    }
+
+    void wnd_msgs_handler();
+    
   private:
     /*! \brief Register the Window Class for subsequent use in calls to the
      * CreateWindow function.
@@ -59,6 +69,8 @@ namespace holovibes
     HINSTANCE hinstance_;
     HWND hwnd_;
     GLComponent* gl_;
+
+    static bool running_;
   };
 }
 

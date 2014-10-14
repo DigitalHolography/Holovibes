@@ -5,11 +5,9 @@
 # include "camera_pike.hh"
 # include "camera_xiq.hh"
 # include "camera_ids.hh"
-# include "gl_window.hh"
+# include "thread_gl_window.hh"
 # include "recorder.hh"
 # include "queue.hh"
-
-# include <cassert>
 
 namespace holovibes
 {
@@ -31,14 +29,13 @@ namespace holovibes
       unsigned int w,
       unsigned int h);
     void dispose_display();
-    void update_display();
 
     void init_camera();
     void dispose_camera();
 
   private:
     camera::Camera* camera_;
-    GLWindow* window_;
+    ThreadGLWindow* tglhwnd_;
   };
 }
 

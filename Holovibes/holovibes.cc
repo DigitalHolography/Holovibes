@@ -4,12 +4,13 @@
 #include "gl_component.hh"
 
 #include <exception>
+#include <cassert>
 
 namespace holovibes
 {
   Holovibes::Holovibes(enum camera_type c, unsigned int buffer_nb_elts)
     : camera_(nullptr)
-    , window_(nullptr)
+    , tglhwnd_(nullptr)
   {
     try
     {
@@ -40,30 +41,22 @@ namespace holovibes
 
   Holovibes::~Holovibes()
   {
+    delete tglhwnd_;
     delete camera_;
-    delete window_;
   }
 
   void Holovibes::init_display(
     unsigned int width,
     unsigned int height)
   {
-    window_ = new GLWindow("OpenGL", width, height);
-    window_->wnd_show();
+    assert(camera_ && "camera not initialized");
+    tglhwnd_ = new ThreadGLWindow(*camera_, "OpenGL", width, height, 60);
   }
 
   void Holovibes::dispose_display()
   {
-    delete window_;
-    window_ = nullptr;
-  }
-
-  void Holovibes::update_display()
-  {
-    window_->wnd_msgs_handler();
-    const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-    GLComponent& c = window_->get_gl_component();
-    c.gl_draw(camera_->get_frame(), desc);
+    delete tglhwnd_;
+    tglhwnd_ = nullptr;
   }
 
   void Holovibes::init_camera()
