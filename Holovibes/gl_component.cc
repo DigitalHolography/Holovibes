@@ -42,7 +42,7 @@ namespace holovibes
     PIXELFORMATDESCRIPTOR pfd;
 
     /* Init with null values. */
-    memset(&pfd, 0, sizeof `(PIXELFORMATDESCRIPTOR));
+    memset(&pfd, 0, sizeof (PIXELFORMATDESCRIPTOR));
 
     pfd.nSize = sizeof (PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
