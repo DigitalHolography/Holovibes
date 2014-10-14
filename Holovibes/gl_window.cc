@@ -29,6 +29,11 @@ namespace holovibes
     if (!hwnd_)
       throw std::exception("failed to instanciate an OpenGL window class");
 
+    /* It do not have default constructor. The constructor of GLComponent
+     * must be called once the window has been created. So we can not use
+     * the initialization list. It do not provide default constructor because
+     * of ~GLComponent() destructor that free OpenGL ressources and things
+     * become messy without proper initialization. */
     gl_ = new GLComponent(hwnd_, width, height);
     if (!gl_)
       throw std::exception("failed to instanciate GLComponent class.");
