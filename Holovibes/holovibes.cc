@@ -1,14 +1,13 @@
 #include "stdafx.h"
 #include "holovibes.hh"
 #include "frame_desc.hh"
+#include "gl_component.hh"
 
 #include <exception>
 
 namespace holovibes
 {
-  Holovibes::Holovibes(
-    enum camera_type c,
-    unsigned int buffer_nb_elts)
+  Holovibes::Holovibes(enum camera_type c, unsigned int buffer_nb_elts)
     : camera_(nullptr)
     , window_(nullptr)
   {
@@ -32,8 +31,7 @@ namespace holovibes
     }
     catch (...)
     {
-      if (camera_)
-        delete camera_;
+      delete camera_;
 
       // Throw the exception again, without memory leak.
       throw;
@@ -42,10 +40,8 @@ namespace holovibes
 
   Holovibes::~Holovibes()
   {
-    if (camera_)
-      delete camera_;
-    if (window_)
-      delete window_;
+    delete camera_;
+    delete window_;
   }
 
   void Holovibes::init_display(
@@ -58,17 +54,15 @@ namespace holovibes
 
   void Holovibes::dispose_display()
   {
-    if (window_)
-    {
-      delete window_;
-      window_ = nullptr;
-    }
+    delete window_;
+    window_ = nullptr;
   }
 
   void Holovibes::update_display()
   {
     const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-    window_->gl_draw(camera_->get_frame(), camera_->get_frame_descriptor());
+    GLComponent& c = window_->get_gl_component();
+    c.gl_draw(camera_->get_frame(), desc);
   }
 
   void Holovibes::init_camera()

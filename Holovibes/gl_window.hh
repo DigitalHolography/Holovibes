@@ -2,9 +2,8 @@
 # define GL_WINDOW_HH
 
 # include <Windows.h>
-# include <GL/GL.h>
 
-# include "frame_desc.hh"
+# include "gl_component.hh"
 
 namespace holovibes
 {
@@ -17,44 +16,18 @@ namespace holovibes
     GLWindow(
       const char* title,
       int width,
-      int height)
-      : hinstance_(GetModuleHandle(NULL))
-      , hwnd_(nullptr)
-      , hdc_(nullptr)
-      , hrc_(nullptr)
-      , texture_(0)
-    {
-      wnd_register_class();
+      int height);
 
-      wnd_init(title, width, height);
-      wnd_gl_init();
-      gl_enable(width, height);
-    }
-
-    virtual ~GLWindow()
-    {
-      gl_disable();
-      wnd_gl_free();
-      wnd_unregister_class();
-    }
+    virtual ~GLWindow();
 
     /* Show the window. */
     void wnd_show();
-    /*! \brief OpenGL configuration.
-     * \param width Width of GL viewport.
-     * \param height Height of GL viewport.
-     */
-    /* Draw a frame. */
-    void gl_draw(
-      void* frame,
-      const camera::s_frame_desc& desc);
-  private:
-    static LRESULT CALLBACK wnd_proc(
-      HWND hwnd,
-      UINT msg,
-      WPARAM wparam,
-      LPARAM lparam);
 
+    GLComponent& get_gl_component()
+    {
+      return *gl_;
+    }
+  private:
     /*! \brief Register the Window Class for subsequent use in calls to the
      * CreateWindow function.
      * \remarks A window class can be registered only once, otherwise it will
@@ -66,27 +39,12 @@ namespace holovibes
     */
     void wnd_unregister_class();
 
-    /*! \brief Initialize the window.
-     * \param title Title of the window.
-     * \param width Width of the window.
-     * \param height Height of the window.
-     */
-    void wnd_init(
-      const char* title,
-      int width,
-      int height);
-
-    /*! Retrieves the PFD. */
-    PIXELFORMATDESCRIPTOR gl_get_pfd();
-
-    /*! Initialize OpenGL in the window. */
-    void wnd_gl_init();
-    /*! Unload OpenGL ressources. */
-    void wnd_gl_free();
-
-    /*! Enable OpenGL features and set the viewport. */
-    void gl_enable(int width, int height);
-    void gl_disable();
+    /*! Win32 API Message handler. */
+    static LRESULT CALLBACK wnd_proc(
+      HWND hwnd,
+      UINT msg,
+      WPARAM wparam,
+      LPARAM lparam);
 
     /* Copy is not allowed. */
     GLWindow(const GLWindow&)
@@ -97,10 +55,7 @@ namespace holovibes
   private:
     HINSTANCE hinstance_;
     HWND hwnd_;
-    HDC hdc_;
-    HGLRC hrc_;
-
-    GLuint texture_;
+    GLComponent* gl_;
   };
 }
 
