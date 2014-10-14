@@ -20,7 +20,8 @@ namespace holovibes
     hwnd_ = CreateWindow(
       "OpenGL",
       title,
-      WS_CLIPSIBLINGS | WS_CLIPCHILDREN,//WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME, // REMOVE WS_THICKFRAME responsible for window resizing.
+      /* WS_OVERLAPPEDWINDOW without WS_THICKFRAME */
+      WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME,
       CW_USEDEFAULT, CW_USEDEFAULT,
       width, height,
       NULL, NULL,
@@ -61,9 +62,8 @@ namespace holovibes
     wc.lpszMenuName = 0;
     wc.lpszClassName = "OpenGL";
 
-    /* If RegisterClass fails, the return value is zero. */
     if (RegisterClass(&wc) == 0)
-      throw std::exception("class is already registered");
+      throw std::exception("unable to register window class");
   }
 
   void GLWindow::wnd_unregister_class()
