@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -126,6 +126,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
     <ClInclude Include="thread_gl_window.hh" />
+    <ClInclude Include="thread_capture.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_xiq.cc" />

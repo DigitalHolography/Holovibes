@@ -14,7 +14,9 @@ namespace holovibes
   {
     try
     {
-      if (c == PIKE)
+      if (c == IDS)
+        camera_ = new camera::CameraIds();
+      else if (c == PIKE)
         camera_ = new camera::CameraPike();
       else if (c == XIQ)
         camera_ = new camera::CameraXiq();
@@ -25,10 +27,12 @@ namespace holovibes
 
       if (!camera_)
         throw std::exception("Error while allocating Camera constructor");
-#if 0
+
       const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-      frames_ = Queue(desc.get_frame_size(), buffer_nb_elts);
-#endif
+      queue_ = new Queue(desc.get_frame_size(), buffer_nb_elts);
+
+      // Debug only
+      rec_ = new Recorder(queue_, "test.raw", 10);
     }
     catch (...)
     {
@@ -43,6 +47,10 @@ namespace holovibes
   {
     delete tglhwnd_;
     delete camera_;
+    delete queue_;
+
+    // Debug only
+    delete rec_;
   }
 
   void Holovibes::init_display(

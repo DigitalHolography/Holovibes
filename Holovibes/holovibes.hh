@@ -2,6 +2,7 @@
 # define HOLOVIBES_HH
 
 # include "camera.hh"
+# include "camera_ids.hh"
 # include "camera_pike.hh"
 # include "camera_xiq.hh"
 # include "camera_ids.hh"
@@ -33,9 +34,21 @@ namespace holovibes
     void init_camera();
     void dispose_camera();
 
+    camera::Camera* get_camera()
+    {
+      return camera_;
+    }
+
+    Queue* get_queue()
+    {
+      return queue_;
+    }
+
   private:
     camera::Camera* camera_;
     ThreadGLWindow* tglhwnd_;
+    Queue* queue_;
+    Recorder* rec_;
   };
 }
 
