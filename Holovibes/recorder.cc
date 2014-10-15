@@ -6,8 +6,10 @@ namespace holovibes
   Recorder::Recorder(Queue *queue, std::string path, unsigned set_size)
     :path_(path)
   {
-    //if (check_overwrite())
-    //  throw std::exception("overwriting an existing file");
+#ifndef _DEBUG
+    if (check_overwrite())
+      throw std::exception("overwriting an existing file");
+#endif /* Overwrite is useful while debugging. */
     if (queue->get_max_elts() <= set_size)
       set_size_ = 1;
     else
