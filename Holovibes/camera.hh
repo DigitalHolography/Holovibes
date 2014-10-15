@@ -38,7 +38,7 @@ namespace camera
     }
 
 #pragma region getters
-    const s_frame_desc& get_frame_descriptor() const
+    const FrameDescriptor& get_frame_descriptor() const
     {
       return desc_;
     }
@@ -81,7 +81,7 @@ namespace camera
     /* protected fields */
   protected:
     /*! Frame descriptor updated by cameras. */
-    s_frame_desc             desc_;
+    FrameDescriptor          desc_;
 
     /* Theses parameters are common to all cameras.
      * Others parameters such as binning, gain ... belongs to

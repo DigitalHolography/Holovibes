@@ -4,16 +4,17 @@
 # include <thread>
 
 # include "gl_window.hh"
-# include "camera.hh"
+# include "queue.hh"
+# include "frame_desc.hh"
 
 namespace holovibes
 {
   class ThreadGLWindow
   {
   public:
-    // TODO: use Queue instead of Camera.
     ThreadGLWindow(
-      camera::Camera& camera,
+      Queue& queue_,
+      const camera::FrameDescriptor& frame_desc,
       const char* title,
       int width,
       int height);
@@ -23,7 +24,8 @@ namespace holovibes
     void thread_proc();
 
   private:
-    camera::Camera& camera_;
+    Queue& queue_;
+    const camera::FrameDescriptor& frame_desc_;
 
     const char* title_;
     const int width_;

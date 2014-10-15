@@ -3,8 +3,7 @@
 
 # include "camera.hh"
 # include "thread_gl_window.hh"
-# include "recorder.hh"
-# include "queue.hh"
+# include "thread_capture.hh"
 
 namespace holovibes
 {
@@ -19,7 +18,7 @@ namespace holovibes
       PIXELFLY,
     };
 
-    Holovibes(enum camera_type c, unsigned int buffer_nb_elts);
+    Holovibes(enum camera_type c);
     ~Holovibes();
 
     void init_display(
@@ -27,23 +26,13 @@ namespace holovibes
       unsigned int h);
     void dispose_display();
 
-    void init_camera();
-    void dispose_camera();
-
-    camera::Camera* get_camera()
-    {
-      return camera_;
-    }
-
-    Queue* get_queue()
-    {
-      return queue_;
-    }
+    void init_capture(unsigned int buffer_nb_elts);
+    void dispose_capture();
 
   private:
     camera::Camera* camera_;
-    ThreadGLWindow* tglhwnd_;
-    Queue* queue_;
+    ThreadCapture* tcapture_;
+    ThreadGLWindow* tglwnd_;
   };
 }
 

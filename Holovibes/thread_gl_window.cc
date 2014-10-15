@@ -9,11 +9,13 @@
 namespace holovibes
 {
   ThreadGLWindow::ThreadGLWindow(
-    camera::Camera& camera,
+    Queue& queue,
+    const camera::FrameDescriptor& frame_desc,
     const char* title,
     int width,
     int height)
-    : camera_(camera)
+    : queue_(queue)
+    , frame_desc_(frame_desc)
     , title_(title)
     , width_(width)
     , height_(height)
@@ -39,7 +41,7 @@ namespace holovibes
         glw.send_wm_close();
       glw.wnd_msgs_handler();
       GLComponent& gl = glw.get_gl_component();
-      gl.gl_draw(camera_.get_frame(), camera_.get_frame_descriptor());
+      gl.gl_draw(queue_.get_last_images(1), frame_desc_);
       std::this_thread::sleep_for(
         std::chrono::milliseconds(1000 / GLWINDOW_FPS));
     }

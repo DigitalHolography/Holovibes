@@ -10,7 +10,7 @@ namespace camera
   } e_endianness;
 
   /*! This structure contains everything related to the image format. */
-  typedef struct frame_descriptor
+  struct FrameDescriptor
   {
     /*! Width of the frame. */
     unsigned int         width;
@@ -36,7 +36,7 @@ namespace camera
 
       return size;
     }
-  } s_frame_desc;
+  };
 }
 
 #endif /* !FRAME_DESC_HH */

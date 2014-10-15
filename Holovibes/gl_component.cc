@@ -77,7 +77,7 @@ namespace holovibes
 
   void GLComponent::gl_draw(
     const void* frame,
-    const camera::s_frame_desc& desc)
+    const camera::FrameDescriptor& desc)
   {
     glBindTexture(GL_TEXTURE_2D, texture_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

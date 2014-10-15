@@ -20,7 +20,7 @@ namespace holovibes
     /*! Draw a frame. */
     void gl_draw(
       const void* frame,
-      const camera::s_frame_desc& desc);
+      const camera::FrameDescriptor& desc);
 
   private:
     /*! Initialize the OpenGL PixelFormatDescriptor.

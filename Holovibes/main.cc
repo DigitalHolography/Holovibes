@@ -9,13 +9,16 @@ int main(int argc, const char* argv[])
   holovibes::OptionsParser opts_parser(opts);
   opts_parser.parse(argc, argv);
 
-  holovibes::Holovibes h(opts.camera, opts.queue_size);
+  holovibes::Holovibes h(opts.camera);
 
   if (opts.is_gl_window_enabled)
   {
-    h.init_camera();
+    h.init_capture(opts.queue_size);
     h.init_display(opts.gl_window_width, opts.gl_window_height);
+    getchar();
+    h.dispose_display();
+    h.dispose_capture();
   }
-  getchar();
+
   return 0;
 }

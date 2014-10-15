@@ -12,40 +12,30 @@
 
 namespace holovibes
 {
-  Holovibes::Holovibes(enum camera_type c, unsigned int buffer_nb_elts)
+  Holovibes::Holovibes(enum camera_type c)
     : camera_(nullptr)
-    , tglhwnd_(nullptr)
-    , queue_(nullptr)
+    , tglwnd_(nullptr)
+    , tcapture_(nullptr)
   {
-    try
-    {
-      if (c == IDS)
-        camera_ = new camera::CameraIds();
-      else if (c == PIKE)
-        camera_ = new camera::CameraPike();
-      else if (c == PIXELFLY)
-        camera_ = new camera::CameraPixelfly();
-      else if (c == XIQ)
-        camera_ = new camera::CameraXiq();
-      else
-        assert(!"Impossible case");
+    if (c == IDS)
+      camera_ = new camera::CameraIds();
+    else if (c == PIKE)
+      camera_ = new camera::CameraPike();
+    else if (c == PIXELFLY)
+      camera_ = new camera::CameraPixelfly();
+    else if (c == XIQ)
+      camera_ = new camera::CameraXiq();
+    else
+      assert(!"Impossible case");
 
-      if (!camera_)
-        throw std::exception("Error while allocating Camera constructor");
-    }
-    catch (...)
-    {
-      delete camera_;
-
-      // Throw the exception again, without memory leak.
-      throw;
-    }
+    if (!camera_)
+      throw std::exception("Error while allocating Camera constructor");
   }
 
   Holovibes::~Holovibes()
   {
-    delete tglhwnd_;
-    delete queue_;
+    delete tcapture_;
+    delete tglwnd_;
     delete camera_;
   }
 
@@ -54,23 +44,30 @@ namespace holovibes
     unsigned int height)
   {
     assert(camera_ && "camera not initialized");
-    tglhwnd_ = new ThreadGLWindow(*camera_, "OpenGL", width, height);
+    assert(tcapture_ && "capture thread not initialized");
+    const camera::FrameDescriptor& desc = camera_->get_frame_descriptor();
+    Queue& queue = tcapture_->get_queue();
+    tglwnd_ = new ThreadGLWindow(queue, desc, "OpenGL", width, height);
   }
 
   void Holovibes::dispose_display()
   {
-    delete tglhwnd_;
-    tglhwnd_ = nullptr;
+    delete tglwnd_;
+    tglwnd_ = nullptr;
   }
 
-  void Holovibes::init_camera()
+  void Holovibes::init_capture(unsigned int buffer_nb_elts)
   {
+    assert(camera_ && "camera not initialized");
     camera_->init_camera();
     camera_->start_acquisition();
+    tcapture_ = new ThreadCapture(*camera_, buffer_nb_elts);
   }
 
-  void Holovibes::dispose_camera()
+  void Holovibes::dispose_capture()
   {
+    delete tcapture_;
+    tcapture_ = nullptr;
     camera_->stop_acquisition();
     camera_->shutdown_camera();
   }
