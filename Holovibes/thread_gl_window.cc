@@ -4,20 +4,20 @@
 
 #include <chrono>
 
+#define GLWINDOW_FPS 30
+
 namespace holovibes
 {
   ThreadGLWindow::ThreadGLWindow(
     camera::Camera& camera,
     const char* title,
     int width,
-    int height,
-    int fps)
+    int height)
     : camera_(camera)
     , title_(title)
     , width_(width)
     , height_(height)
     , stop_requested_(false)
-    , frequency_(1000 / fps)
     , thread_(&ThreadGLWindow::thread_proc, this)
   {}
 
@@ -40,7 +40,8 @@ namespace holovibes
       glw.wnd_msgs_handler();
       GLComponent& gl = glw.get_gl_component();
       gl.gl_draw(camera_.get_frame(), camera_.get_frame_descriptor());
-      std::this_thread::sleep_for(std::chrono::milliseconds(frequency_));
+      std::this_thread::sleep_for(
+        std::chrono::milliseconds(1000 / GLWINDOW_FPS));
     }
   }
 }

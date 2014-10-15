@@ -50,7 +50,7 @@ namespace holovibes
     unsigned int height)
   {
     assert(camera_ && "camera not initialized");
-    tglhwnd_ = new ThreadGLWindow(*camera_, "OpenGL", width, height, 60);
+    tglhwnd_ = new ThreadGLWindow(*camera_, "OpenGL", width, height);
   }
 
   void Holovibes::dispose_display()

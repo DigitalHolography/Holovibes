@@ -16,8 +16,7 @@ namespace holovibes
       camera::Camera& camera,
       const char* title,
       int width,
-      int height,
-      int fps);
+      int height);
     ~ThreadGLWindow();
 
   private:
@@ -30,7 +29,6 @@ namespace holovibes
     const int width_;
     const int height_;
 
-    long frequency_;
     bool stop_requested_;
     std::thread thread_;
   };
