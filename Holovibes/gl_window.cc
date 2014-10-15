@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "gl_window.hh"
-#include "error_handler.hh"
 
 #include <exception>
 

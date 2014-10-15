@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "recorder.hh"
 
+#include <exception>
+
 namespace holovibes
 {
   Recorder::Recorder(Queue *queue, std::string path, unsigned set_size)
@@ -16,10 +18,7 @@ namespace holovibes
       set_size_ = set_size;
     buffer_ = queue;
     if (fopen_s(&fd_, path.c_str(), "w+b") != 0)
-    {
-      ErrorHandler::get_instance()
-        .send_error("Cannot open the specified file for Writing data");
-    }
+      throw std::exception("can not open the specified file for writing data");
   }
 
   void Recorder::record()
@@ -29,10 +28,7 @@ namespace holovibes
       size_t written = contigous_image();
       size_t elt_written = fwrite(buffer_->dequeue(written), buffer_->get_size(), written, fd_);
       if (elt_written != written)
-      {
-        ErrorHandler::get_instance()
-          .send_error("One or more images were not correctly saved, the save file is corrupted");
-      }
+        throw std::exception("one or more images were not correctly saved, the save file is corrupted");
     }
   }
   size_t Recorder::contigous_image()

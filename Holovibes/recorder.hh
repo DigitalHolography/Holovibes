@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "queue.hh"
-#include "error_handler.hh"
 
 namespace holovibes
 {
