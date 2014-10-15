@@ -14,38 +14,9 @@ namespace camera
   class CameraPixelfly : public Camera
   {
   public:
-    enum endianness
-    {
-      BIG_ENDIAN,
-      LITTLE_ENDIAN
-    };
-
     CameraPixelfly();
-
     virtual ~CameraPixelfly()
-    {
-    }
-
-    // Getters
-    const std::string& get_name() const
-    {
-      return name_;
-    }
-
-    enum endianness get_endianness() const
-    {
-      return endianness_;
-    }
-
-    int get_frame_width() const
-    {
-      return frame_width_;
-    }
-
-    int get_frame_height() const
-    {
-      return frame_height_;
-    }
+    {}
 
     // Virtual methods
     virtual void init_camera();

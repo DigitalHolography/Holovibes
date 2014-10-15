@@ -16,6 +16,7 @@ namespace holovibes
     : camera_(nullptr)
     , tglwnd_(nullptr)
     , tcapture_(nullptr)
+    , recorder_(nullptr)
   {
     if (c == IDS)
       camera_ = new camera::CameraIds();
@@ -70,5 +71,23 @@ namespace holovibes
     tcapture_ = nullptr;
     camera_->stop_acquisition();
     camera_->shutdown_camera();
+  }
+
+  void Holovibes::init_recorder(
+    std::string& filepath,
+    unsigned int rec_set_size,
+    unsigned int rec_n_images)
+  {
+    assert(camera_ && "camera not initialized");
+    assert(tcapture_ && "capture thread not initialized");
+    recorder_ = new Recorder(tcapture_->get_queue(), filepath);
+
+    recorder_->record(rec_n_images);
+  }
+
+  void Holovibes::dispose_recorder()
+  {
+    delete recorder_;
+    recorder_ = nullptr;
   }
 }

@@ -35,12 +35,6 @@ namespace holovibes
       ->default_value(default_queue_size),
       "Size of queue arg in number of images")
 
-      ("imagesetsize,i",
-      po::value<int>()
-      ->default_value(default_img_set_size),
-      "Set the size  of the set of images to write on the record file. "
-      "This number must be less than the buffer size.")
-
       ("cameramodel,c",
       po::value<std::string>()
       ->required(),
@@ -186,17 +180,6 @@ namespace holovibes
         opts_.queue_size = queue_size;
       else
         throw std::exception("queue size is too small");
-    }
-
-    /* Image set size depends of queue size. */
-    if (vm_.count("imagesetsize"))
-    {
-      const unsigned int img_set_size = vm_["imagesetsize"].as<int>();
-
-      if (img_set_size <= opts_.queue_size)
-        opts_.recorder_set_size = img_set_size;
-      else
-        throw std::exception("recorder image set size must be >0 and <= queue size.");
     }
 
     if (vm_.count("record"))

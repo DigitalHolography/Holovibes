@@ -11,14 +11,15 @@ int main(int argc, const char* argv[])
 
   holovibes::Holovibes h(opts.camera);
 
+  h.init_capture(opts.queue_size);
   if (opts.is_gl_window_enabled)
-  {
-    h.init_capture(opts.queue_size);
     h.init_display(opts.gl_window_width, opts.gl_window_height);
-    getchar();
-    h.dispose_display();
-    h.dispose_capture();
-  }
+  if (opts.is_recorder_enabled)
+    h.init_recorder(opts.recorder_filepath, opts.recorder_set_size, opts.recorder_n_img);
 
+  getchar();
+  h.dispose_display();
+  h.dispose_recorder();
+  h.dispose_capture();
   return 0;
 }

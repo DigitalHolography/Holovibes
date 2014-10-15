@@ -26,7 +26,6 @@ namespace holovibes
   {
     const std::string version = "v0.1";
     const int default_queue_size = 50;
-    const int default_img_set_size = 10;
     const int display_size_min = 100;
 
   public:

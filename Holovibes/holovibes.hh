@@ -4,6 +4,7 @@
 # include "camera.hh"
 # include "thread_gl_window.hh"
 # include "thread_capture.hh"
+# include "recorder.hh"
 
 namespace holovibes
 {
@@ -29,10 +30,17 @@ namespace holovibes
     void init_capture(unsigned int buffer_nb_elts);
     void dispose_capture();
 
+    void init_recorder(
+      std::string& filepath,
+      unsigned int rec_set_size,
+      unsigned int rec_n_images);
+    void dispose_recorder();
+
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
     ThreadGLWindow* tglwnd_;
+    Recorder* recorder_;
   };
 }
 
