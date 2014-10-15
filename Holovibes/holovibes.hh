@@ -2,10 +2,6 @@
 # define HOLOVIBES_HH
 
 # include "camera.hh"
-# include "camera_ids.hh"
-# include "camera_pike.hh"
-# include "camera_xiq.hh"
-# include "camera_ids.hh"
 # include "thread_gl_window.hh"
 # include "recorder.hh"
 # include "queue.hh"
@@ -48,7 +44,6 @@ namespace holovibes
     camera::Camera* camera_;
     ThreadGLWindow* tglhwnd_;
     Queue* queue_;
-    Recorder* rec_;
   };
 }
 

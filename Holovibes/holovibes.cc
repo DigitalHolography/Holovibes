@@ -2,6 +2,10 @@
 #include "holovibes.hh"
 #include "frame_desc.hh"
 #include "gl_component.hh"
+#include "camera_ids.hh"
+#include "camera_pike.hh"
+#include "camera_pixelfly.hh"
+#include "camera_xiq.hh"
 
 #include <exception>
 #include <cassert>
@@ -11,6 +15,7 @@ namespace holovibes
   Holovibes::Holovibes(enum camera_type c, unsigned int buffer_nb_elts)
     : camera_(nullptr)
     , tglhwnd_(nullptr)
+    , queue_(nullptr)
   {
     try
     {
@@ -18,21 +23,15 @@ namespace holovibes
         camera_ = new camera::CameraIds();
       else if (c == PIKE)
         camera_ = new camera::CameraPike();
+      else if (c == PIXELFLY)
+        camera_ = new camera::CameraPixelfly();
       else if (c == XIQ)
         camera_ = new camera::CameraXiq();
-      else if (c == IDS)
-        camera_ = new camera::CameraIds();
       else
         assert(!"Impossible case");
 
       if (!camera_)
         throw std::exception("Error while allocating Camera constructor");
-
-      const camera::s_frame_desc& desc = camera_->get_frame_descriptor();
-      queue_ = new Queue(desc.get_frame_size(), buffer_nb_elts);
-
-      // Debug only
-      rec_ = new Recorder(queue_, "test.raw", 10);
     }
     catch (...)
     {
@@ -46,11 +45,8 @@ namespace holovibes
   Holovibes::~Holovibes()
   {
     delete tglhwnd_;
-    delete camera_;
     delete queue_;
-
-    // Debug only
-    delete rec_;
+    delete camera_;
   }
 
   void Holovibes::init_display(

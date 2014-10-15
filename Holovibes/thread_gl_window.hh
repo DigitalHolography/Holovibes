@@ -21,7 +21,7 @@ namespace holovibes
 
   private:
     void thread_proc();
-    
+
   private:
     camera::Camera& camera_;
 

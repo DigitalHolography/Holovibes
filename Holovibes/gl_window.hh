@@ -39,7 +39,7 @@ namespace holovibes
     }
 
     void wnd_msgs_handler();
-    
+
   private:
     /*! \brief Register the Window Class for subsequent use in calls to the
      * CreateWindow function.
