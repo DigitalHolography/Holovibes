@@ -15,10 +15,7 @@ namespace camera
     unsigned long copied_nodes = 0;
 
     // Prepare the entire library for use
-    result = FGInitModule(NULL);
-
-    // FCE_NOERROR = 0
-    if (result == FCE_NOERROR)
+    if (FGInitModule(NULL) == FCE_NOERROR)
     {
       /* Retrieve list of connected nodes (cameras)
       ** Ask for a maximum number of nodes info to fill (max_nodes)
@@ -26,61 +23,49 @@ namespace camera
       ** effectively copied into copied_nodes.
       */
       result = FGGetNodeList(nodes_info, max_nodes, &copied_nodes);
+
+      if (result == FCE_NOERROR && copied_nodes != 0)
+      {
+        // Connect first node with our cam_ object
+        result = cam_.Connect(&nodes_info[0].Guid);
+        name_ = get_name_from_device();
+      }
+      else
+        throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
     }
-
-    // If there is no errors and at least one node detected.
-    if (result == FCE_NOERROR && copied_nodes != 0)
-    {
-      // Connect first node with our cam_ object
-      // Connection betzeen real and logical device.
-      result = cam_.Connect(&nodes_info[0].Guid);
-
-      // Retrieve name from device and fill name_ with it
-      name_ = get_name_from_device();
-    }
-
-#if 0
-    // TODO: Fix me
-    return result == FCE_NOERROR && copied_nodes != 0;
-#endif
+    else
+      throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
   }
 
   void CameraPike::start_acquisition()
   {
-    unsigned long result;
-
     // Allocate DMA for the camera
-    result = cam_.OpenCapture();
+    if(cam_.OpenCapture() != FCE_NOERROR)
+      throw new CameraException(name_, CameraException::camera_error::CANT_START_ACQUISITION);
 
-    if (result == FCE_NOERROR)
-    {
-      // Starts the image device
-      result = cam_.StartDevice();
-    }
+    if (cam_.StartDevice() != FCE_NOERROR)
+      throw new CameraException(name_, CameraException::camera_error::CANT_START_ACQUISITION);
   }
 
   void CameraPike::stop_acquisition()
   {
-    cam_.StopDevice();
+    if(cam_.StopDevice() != FCE_NOERROR)
+      throw new CameraException(name_, CameraException::camera_error::CANT_STOP_ACQUISITION);
   }
 
   void CameraPike::shutdown_camera()
   {
     // Free all image buffers and close the capture logic
-    cam_.CloseCapture();
+    if(cam_.CloseCapture() != FCE_NOERROR)
+      throw new CameraException(name_, CameraException::camera_error::CANT_SHUTDOWN);
   }
 
   void* CameraPike::get_frame()
   {
-    unsigned long result;
-
-    // Retreiving the frame
-    result = cam_.GetFrame(&fgframe_, FRAMETIMEOUT);
-
-    if (result == FCE_NOERROR)
+    if (cam_.GetFrame(&fgframe_, FRAMETIMEOUT) == FCE_NOERROR)
     {
       // Put the frame back to DMA
-      result = cam_.PutFrame(&fgframe_);
+      cam_.PutFrame(&fgframe_);
 
       std::cout << "Frame received length:"
         << fgframe_.Length << " id:"

@@ -2,6 +2,7 @@
 # define CAMERA_PIKE_HH
 
 # include "camera.hh"
+# include "camera_exception.hh"
 
 /* Disable warning. */
 # pragma warning (push, 0)
@@ -18,6 +19,9 @@ namespace camera
     CameraPike()
       : Camera("pike.ini")
     {
+      load_default_params();
+      if (ini_file_is_open())
+        load_ini_params();
     }
 
     virtual ~CameraPike()
