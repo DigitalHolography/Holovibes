@@ -3,7 +3,7 @@
 
 #include "string"
 #include "preprocessing.cuh"
-#include "fourrier_computing.cuh"
+#include "fourier_computing.cuh"
 #include "tools.cuh"
 #include <cuda.h>
 #include <cuda_runtime.h>
