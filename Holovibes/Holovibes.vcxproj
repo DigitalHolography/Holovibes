@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -96,7 +96,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;$(ProjectLibDir)\pixelfly\SC2_Cam.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -108,22 +108,26 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Desktop\merge\Holovibes\contrast_correction.cuh" />
     <ClInclude Include="camera.hh" />
     <ClInclude Include="camera_xiq.hh" />
     <ClInclude Include="camera_ids.hh" />
     <ClInclude Include="camera_pixelfly.hh" />
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
+    <ClInclude Include="fourrier_computing.cuh" />
     <ClInclude Include="gl_component.hh" />
     <ClInclude Include="gl_window.hh" />
     <ClInclude Include="holovibes.hh" />
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
+    <ClInclude Include="preprocessing.cuh" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
+    <ClInclude Include="test.cuh" />
     <ClInclude Include="thread_gl_window.hh" />
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
@@ -153,6 +157,10 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <None Include="err\wnd_gl.def" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="..\..\..\Desktop\merge\Holovibes\contrast_correction.cu" />
+    <CudaCompile Include="preprocessing.cu" />
+    <CudaCompile Include="fourrier_computing.cu" />
+    <CudaCompile Include="test.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="transforms.cu" />
   </ItemGroup>

@@ -1,7 +1,6 @@
 #include "transforms.cuh"
 
-__global__ void kernel_quadratic_lens(cufftComplex* input,
-  cufftComplex* output,
+__global__ void kernel_quadratic_lens(cufftComplex* output,
   unsigned int matrix_size,
   float lambda,
   float dist)
@@ -20,7 +19,7 @@ __global__ void kernel_quadratic_lens(cufftComplex* input,
   if (index < matrix_size)
   {
     csquare = c * (x * x + y * y);
-    output[index].x = cosf(csquare) * input[index].x;
-    output[index].y = sinf(csquare) * input[index].y;
+    output[index].x = cosf(csquare);
+    output[index].y = sinf(csquare);
   }
 }

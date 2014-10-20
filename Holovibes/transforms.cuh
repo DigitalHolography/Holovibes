@@ -12,7 +12,6 @@
 # include <math.h>
 
 __global__ void kernel_quadratic_lens(cufftComplex* input,
-  cufftComplex* output,
   unsigned int matrix_size,
   float lambda,
   float dist);

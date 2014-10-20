@@ -38,6 +38,11 @@ namespace holovibes
       return size_;
     }
 
+    void* get_buffer()
+    {
+      return buffer_;
+    }
+
     size_t get_current_elts();
     unsigned int get_max_elts() const;
     void* get_start();
