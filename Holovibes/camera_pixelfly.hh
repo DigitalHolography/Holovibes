@@ -4,8 +4,6 @@
 # include "camera.hh"
 
 # include <Windows.h>
-# include <iostream>
-# include <PCO_errt.h>
 # include <SC2_SDKStructures.h>
 # include <SC2_CamExport.h>
 
@@ -15,54 +13,56 @@ namespace camera
   {
   public:
     CameraPixelfly();
-    virtual ~CameraPixelfly()
-    {}
 
-    // Virtual methods
-    virtual void init_camera();
-    virtual void start_acquisition();
-    virtual void stop_acquisition();
-    virtual void shutdown_camera();
-    void set_sensor();
-    void check_error(DWORD error, std::string);
-    int get_frame_size(); // should always be called after init_camera
+    virtual ~CameraPixelfly();
 
-    virtual void* get_frame();
-
-    //internal methods
-    void buff_alloc();
-
-  protected:
-    std::string name_;
-
-  private:
-    enum endianness endianness_;
-
-    WORD frame_height_;
-    WORD frame_width_;
-    WORD max_frame_height_;
-    WORD max_frame_width_;
-    WORD bining_x_;
-    WORD bining_y_;
-    unsigned char frame_bit_depth_;
-    HANDLE my_cam_;
-    HANDLE refreshEvent_;
-    WORD *frame_buffer_;
-    bool inited_;
-    bool internal_buff_alloc_;
-    bool irSensitivityEnabled_;
-    bool extendedSensorFormatEnabled_;
-    bool acquiring_;
-    DWORD buff_size;
-    int fps_;
-    float pixel_rate_;
-    DWORD error_;
+    virtual void init_camera() override;
+    virtual void start_acquisition() override;
+    virtual void stop_acquisition() override;
+    virtual void shutdown_camera() override;
+    virtual void* get_frame() override;
 
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
     virtual void bind_params() override;
+
+    void pco_get_sizes();
+    void pco_allocate_buffer();
+
+  private:
+    HANDLE device_;
+    HANDLE refresh_event_;
+    WORD* buffer_;
+
+    /* Custom camera parameters. */
+
+    /*! Format of sensor. The standard format uses only effective pixels,
+     * while the extended format shows all pixels inclusive effective.
+     */
+    bool extended_sensor_format_;
+
+    /* Frequency for shifting the pixels out of the sensor shift registers.
+     * The pixel clock sets the clock frequency and therefore the image sensor
+     * readout speed. At 12 MHz the image quality will be higher due to very
+     * low readout noise. At 25 MHz the image sensor is read out with nearly
+     * double speed, achieving higher frame rates. The pixel_rate_ field unit
+     * is in MHz.
+     */
+    unsigned int pixel_rate_;
+
+    /*! Binning combines neighboring pixels to form super pixels.
+     * It increases the light signal of the resulting pixels and decreases the
+     * spatial resolution of the total image.
+     * The binning_ field enables a x2 square binning.
+     */
+    bool binning_;
+
+    /*! This feature uses a special image sensor control method, allowing
+    * greater sensitivity in the near infrared spectral range.
+    */
+    bool ir_sensitivity_;
   };
 }
 
-#endif /* !CAMERA_PIXELFLY_HH */
+#endif /* !CAMERA_PIXELFLY */
