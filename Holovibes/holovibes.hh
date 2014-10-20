@@ -36,6 +36,9 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
+    void init_compute();
+    void dispose_compute();
+
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;

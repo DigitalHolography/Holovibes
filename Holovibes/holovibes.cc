@@ -90,4 +90,14 @@ namespace holovibes
     delete recorder_;
     recorder_ = nullptr;
   }
+
+  void Holovibes::init_compute()
+  {
+    tcapture_->get_queue();
+  }
+
+  void Holovibes::dispose_compute()
+  {
+
+  }
 }
