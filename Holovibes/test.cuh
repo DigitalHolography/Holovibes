@@ -9,4 +9,6 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+void test_fft(int nbimages, holovibes::Queue *q);
+float *test_16(int nbimages, holovibes::Queue *q);
 #endif

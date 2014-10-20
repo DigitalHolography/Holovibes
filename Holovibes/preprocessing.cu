@@ -6,29 +6,32 @@ float *make_contigous_float(holovibes::Queue *q, int nbimages)
   int blocks = (q->get_size() * nbimages + 511) / 512;
   int contigous_elts = 0;
   cufftReal *output;
-  cudaMalloc(&output, q->get_size() * nbimages * sizeof(float));
+  cudaMalloc(&output, q->get_pixels() * nbimages * sizeof(cufftReal));
   int index = (q->get_start_index() + q->get_current_elts() - nbimages) % q->get_max_elts();
 
   if (q->get_max_elts() - index < nbimages)
     contigous_elts = q->get_max_elts() - nbimages;
   else
     contigous_elts = nbimages;
-
-  std::cout << "contigous: " << contigous_elts << std::endl;
-
   if (contigous_elts < nbimages)
   {
     unsigned char *contigous;
-    cudaMalloc(&contigous, q->get_size() * nbimages); //modify for 16bit
+    cudaMalloc(&contigous, q->get_size() * nbimages);
     cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * q->get_size(), cudaMemcpyDeviceToDevice);
     cudaMemcpy(contigous + contigous_elts * q->get_size(), q->get_buffer(), (nbimages - contigous_elts) * q->get_size(), cudaMemcpyDeviceToDevice);
-    image_2_float << <blocks, threads >> >(output, contigous, q->get_size() * nbimages);
+    if (q->get_frame_desc().get_byte_depth() > 1)
+      image_2_float <<<blocks, threads >>>(output,(unsigned short*) contigous, q->get_pixels() * nbimages);
+    else
+      image_2_float << <blocks, threads >> >(output, contigous, q->get_pixels() * nbimages);
+
     return output;
   }
   else
   {
-    std::cout << "hey" << std::endl;
-    image_2_float << <blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_size() * nbimages);
+    if (q->get_frame_desc().get_byte_depth() > 1)
+      image_2_float <<<blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages);
+    else
+      image_2_float <<<blocks, threads >> >(output, (unsigned char*) q->get_last_images(nbimages), q->get_pixels() * nbimages);
     return output;
   }
 }
@@ -47,32 +50,42 @@ float *make_sqrt_vec(int vec_size)
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
 {
-  float *sqrt_vec = make_sqrt_vec(256); //think about free it
+  float *sqrt_vec;
+  if (q->get_frame_desc().get_byte_depth() == 1)
+    sqrt_vec = make_sqrt_vec(256);
+  else
+    sqrt_vec = make_sqrt_vec(65536);//think about free it
   int threads = 512;
   int blocks = (q->get_size() * nbimages + 511) / 512;
   int contigous_elts = 0;
   cufftComplex *output;
-  cudaMalloc(&output, q->get_size() * nbimages * sizeof(cufftComplex));
+  cudaMalloc(&output, q->get_pixels() * nbimages * sizeof(cufftComplex));
   int index = (q->get_start_index() + q->get_current_elts() - nbimages) % q->get_max_elts();
 
   if (q->get_max_elts() - index < nbimages)
     contigous_elts = q->get_max_elts() - nbimages;
   else
     contigous_elts = nbimages;
-  std::cout << "contigous: " << contigous_elts << std::endl;
   if (contigous_elts < nbimages)
   {
     unsigned char *contigous;
-    cudaMalloc(&contigous, q->get_size() * nbimages); //modify for 16bit
+    cudaMalloc(&contigous, q->get_size() * nbimages); 
     cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * q->get_size(), cudaMemcpyDeviceToDevice);
     cudaMemcpy(contigous + contigous_elts * q->get_size(), q->get_buffer(), (nbimages - contigous_elts) * q->get_size(), cudaMemcpyDeviceToDevice);
-    image_2_complex << <blocks, threads >> >(output, contigous, q->get_size() * nbimages, sqrt_vec);
-    cudaFree(contigous);
+    if (q->get_frame_desc().get_byte_depth() > 1)
+      image_2_complex <<<blocks, threads >> >(output, (unsigned short*)contigous, q->get_pixels() * nbimages, sqrt_vec);
+    else
+      image_2_complex <<<blocks, threads >> >(output, contigous, q->get_pixels() * nbimages, sqrt_vec);
+
     return output;
   }
   else
   {
-    image_2_complex << <blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_size() * nbimages, sqrt_vec);
+    std::cout << "hey" << std::endl;
+    if (q->get_frame_desc().get_byte_depth() > 1)
+      image_2_complex <<<blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
+    else
+      image_2_complex <<<blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
     return output;
   }
 }

@@ -7,23 +7,25 @@
 # include <cuda.h>
 # include <cuda_runtime.h>
 # include <device_launch_parameters.h>
+# include "frame_desc.hh"
 
 namespace holovibes
 {
   class Queue
   {
   public:
-    Queue()
-    {
-    }
+   
 
-    Queue(unsigned int size, unsigned int elts)
-      : size_(size),
+    Queue(const camera::FrameDescriptor frame_desc, unsigned int elts)
+      : frame_desc_(frame_desc),
       max_elts_(elts),
       curr_elts_(0),
       start_(0)
     {
-      if (cudaMalloc(&buffer_, size * elts) != CUDA_SUCCESS)
+      size_ = frame_desc.get_byte_depth() * frame_desc.width * frame_desc.height;
+      pixels_ = frame_desc.width * frame_desc.height;
+
+      if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
         std::cerr << "Queue: couldn't allocate queue" << std::endl;
     }
 
@@ -43,6 +45,16 @@ namespace holovibes
       return buffer_;
     }
 
+    camera::FrameDescriptor get_frame_desc()
+    {
+      return frame_desc_;
+    }
+
+    int get_pixels()
+    {
+      return pixels_;
+    }
+    
     size_t get_current_elts();
     unsigned int get_max_elts() const;
     void* get_start();
@@ -59,9 +71,15 @@ namespace holovibes
     void print() const;
 
   private:
-    // Size of one element
+    // Frame descriptor
+    const camera::FrameDescriptor frame_desc_;
+
+    // Size of one element in bytes
     size_t size_;
 
+    // Pixels per image
+
+    int pixels_;
     // Maximum elements number
     unsigned int max_elts_;
 

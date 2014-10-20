@@ -6,6 +6,7 @@
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"
 #include "camera_xiq.hh"
+#include "test.cuh"
 
 #include <exception>
 #include <cassert>
@@ -93,11 +94,12 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-    tcapture_->get_queue();
+
   }
 
   void Holovibes::dispose_compute()
   {
-
+    //std::cout << "nb elts" <<  << std::endl;
+    test_16(3, &tcapture_->get_queue());
   }
 }
