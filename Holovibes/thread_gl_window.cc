@@ -41,7 +41,15 @@ namespace holovibes
         glw.send_wm_close();
       glw.wnd_msgs_handler();
       GLComponent& gl = glw.get_gl_component();
-      gl.gl_draw(queue_.get_last_images(1), frame_desc_);
+
+      // FIXME
+      // Temporary solution: gl thread gets image from
+      // the queue (GPU) and copy it in CPU to display it. The display
+      // has to be fetch directly in GPU in the future (no copies).
+      void* frame = malloc(queue_.get_size());
+      cudaMemcpy(frame, queue_.get_last_images(1), queue_.get_size(), cudaMemcpyDeviceToHost);
+
+      gl.gl_draw(frame, frame_desc_);
       std::this_thread::sleep_for(
         std::chrono::milliseconds(1000 / GLWINDOW_FPS));
     }

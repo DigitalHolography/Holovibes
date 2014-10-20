@@ -61,7 +61,13 @@ namespace holovibes
     mutex_.lock();
 
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
-    memcpy(buffer_ + (end_ * size_), elt, size_);
+    int cuda_status = cudaMemcpy(buffer_ + (end_ * size_),
+      elt,
+      size_,
+      cudaMemcpyHostToDevice);
+
+    if (cuda_status != CUDA_SUCCESS)
+      std::cerr << "Queue: couldn't enqueue" << std::endl;
 
     if (curr_elts_ < max_elts_)
       ++curr_elts_;

@@ -4,6 +4,9 @@
 # include <cstdlib>
 # include <iostream>
 # include <mutex>
+# include <cuda.h>
+# include <cuda_runtime.h>
+# include <device_launch_parameters.h>
 
 namespace holovibes
 {
@@ -20,12 +23,14 @@ namespace holovibes
       curr_elts_(0),
       start_(0)
     {
-      buffer_ = (char*)malloc(size * elts);
+      if (cudaMalloc(&buffer_, size * elts) != CUDA_SUCCESS)
+        std::cerr << "Queue: couldn't allocate queue" << std::endl;
     }
 
     ~Queue()
     {
-      free(buffer_);
+      if(cudaFree(buffer_) != CUDA_SUCCESS)
+        std::cerr << "Queue: couldn't free queue" << std::endl;
     }
 
     size_t get_size() const

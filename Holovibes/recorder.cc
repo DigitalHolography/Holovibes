@@ -31,7 +31,10 @@ namespace holovibes
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
-      file_.write((const char*)queue_.dequeue(1), queue_.get_size());
+      char* frames = (char*)malloc(queue_.get_size());
+      cudaMemcpy(frames, queue_.dequeue(1), queue_.get_size(), cudaMemcpyDeviceToHost);
+
+      file_.write(frames, queue_.get_size());
     }
   }
 
