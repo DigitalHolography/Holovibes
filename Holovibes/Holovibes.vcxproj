@@ -154,9 +154,6 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="thread_gl_window.cc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="err\wnd_gl.def" />
-  </ItemGroup>
-  <ItemGroup>
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fourrier_computing.cu" />
