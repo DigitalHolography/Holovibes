@@ -14,11 +14,7 @@ namespace camera
   public:
     CameraPixelfly();
 
-    virtual ~CameraPixelfly()
-    {
-      /* Ensure that the camera is closed in case of exception. */
-      shutdown_camera();
-    }
+    virtual ~CameraPixelfly();
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;
@@ -31,8 +27,6 @@ namespace camera
     virtual void load_ini_params() override;
     virtual void bind_params() override;
 
-    void pco_set_size_parameters();
-    void pco_fill_structures();
     void pco_get_sizes();
     void pco_allocate_buffer();
 
@@ -41,13 +35,33 @@ namespace camera
     HANDLE refresh_event_;
     WORD* buffer_;
 
-    PCO_General      pco_general_;
-    PCO_CameraType   pco_camtype_;
-    PCO_Sensor       pco_sensor_;
-    PCO_Description  pco_description_;
-    PCO_Timing       pco_timing_;
-    PCO_Storage      pco_storage_;
-    PCO_Recording    pco_recording_;
+    /* Custom camera parameters. */
+
+    /*! Format of sensor. The standard format uses only effective pixels,
+     * while the extended format shows all pixels inclusive effective.
+     */
+    bool extended_sensor_format_;
+
+    /* Frequency for shifting the pixels out of the sensor shift registers.
+     * The pixel clock sets the clock frequency and therefore the image sensor
+     * readout speed. At 12 MHz the image quality will be higher due to very
+     * low readout noise. At 25 MHz the image sensor is read out with nearly
+     * double speed, achieving higher frame rates. The pixel_rate_ field unit
+     * is in MHz.
+     */
+    unsigned int pixel_rate_;
+
+    /*! Binning combines neighboring pixels to form super pixels.
+     * It increases the light signal of the resulting pixels and decreases the
+     * spatial resolution of the total image.
+     * The binning_ field enables a x2 square binning.
+     */
+    bool binning_;
+
+    /*! This feature uses a special image sensor control method, allowing
+    * greater sensitivity in the near infrared spectral range.
+    */
+    bool ir_sensitivity_;
   };
 }
 

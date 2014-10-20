@@ -15,12 +15,16 @@ namespace camera
     , refresh_event_(CreateEvent(NULL, FALSE, FALSE, "ImgReady"))
     , buffer_(nullptr)
   {
-    pco_set_size_parameters();
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
-    stop_acquisition();
+  }
+
+  CameraPixelfly::~CameraPixelfly()
+  {
+    /* Ensure that the camera is closed in case of exception. */
     shutdown_camera();
+    CloseHandle(refresh_event_);
   }
 
   void CameraPixelfly::init_camera()
@@ -28,81 +32,105 @@ namespace camera
     if (PCO_OpenCamera(&device_, 0) != PCO_NOERROR)
       throw CameraException(name_, CameraException::NOT_INITIALIZED);
 
-    pco_fill_structures();
+    /* Ensure that the camera is not in recording state. */
+    stop_acquisition();
 
     bind_params();
-    pco_get_sizes();
     pco_allocate_buffer();
   }
 
   void CameraPixelfly::start_acquisition()
   {
     int status = PCO_NOERROR;
-    status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+    PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
     if (status != PCO_NOERROR)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    status |= PCO_AddBufferEx(device_, 0, 0, 0, desc_.width, desc_.height, 16);
+    PCO_AddBufferEx(device_, 0, 0, 0, (WORD)desc_.width, (WORD)desc_.height, 16);
   }
 
   void CameraPixelfly::stop_acquisition()
   {
-    PCO_CancelImages(device_);
     PCO_SetRecordingState(device_, PCO_RECSTATE_STOP);
   }
 
   void CameraPixelfly::shutdown_camera()
   {
+    PCO_CancelImages(device_);
     PCO_RemoveBuffer(device_);
     PCO_FreeBuffer(device_, 0);
     PCO_CloseCamera(device_);
-    CloseHandle(refresh_event_);
   }
 
   void* CameraPixelfly::get_frame()
   {
     if (WaitForSingleObject(refresh_event_, 500) == WAIT_OBJECT_0)
     {
-      assert(PCO_AddBufferEx(device_, 0, 0, 0, desc_.width, desc_.height, 16) == PCO_NOERROR);
+      PCO_AddBufferEx(device_, 0, 0, 0, (WORD)desc_.width, (WORD)desc_.height, 16);
       return buffer_;
     }
     return nullptr;
   }
 
   void CameraPixelfly::load_default_params()
-  {}
+  {
+    name_ = "pco.pixelfly";
+    exposure_time_ = 0.003f;
+    extended_sensor_format_ = false;
+    pixel_rate_ = 12;
+    binning_ = false;
+    ir_sensitivity_ = false;
+
+    /* Fill frame descriptor const values. */
+    desc_.bit_depth = 14;
+    desc_.endianness = LITTLE_ENDIAN;
+    desc_.pixel_size = 6.45f;
+  }
 
   void CameraPixelfly::load_ini_params()
-  {}
+  {
+    const boost::property_tree::ptree& pt = get_ini_pt();
+
+    exposure_time_ = pt.get<float>("pixelfly.exposure_time", exposure_time_);
+    extended_sensor_format_ = pt.get<bool>("pixelfly.extended_sensor_format", extended_sensor_format_);
+    pixel_rate_ = pt.get<unsigned int>("pixelfly.pixel_rate", pixel_rate_);
+    if (pixel_rate_ != 12 || pixel_rate_ != 25)
+      pixel_rate_ = 12;
+    binning_ = pt.get<bool>("pixelfly.binning", binning_);
+    ir_sensitivity_ = pt.get<bool>("pixelfly.ir_sensitivity", ir_sensitivity_);
+  }
 
   void CameraPixelfly::bind_params()
   {
-    PCO_SetPixelRate(device_, 25 * 1e6);
+    PCO_SetSensorFormat(device_, extended_sensor_format_);
+    PCO_SetPixelRate(device_, (DWORD)(pixel_rate_ * 1e6));
+    PCO_SetIRSensitivity(device_, ir_sensitivity_);
+    {
+      WORD binning_x = 1;
+      WORD binning_y = 1;
+
+      if (binning_)
+      {
+        binning_x = 2;
+        binning_y = 2;
+      }
+
+      PCO_SetBinning(device_, binning_x, binning_y);
+    }
+    {
+      /* Convert exposure time in milliseconds. */
+      exposure_time_ *= 1e3;
+
+      /* base_time : 0x0002 = ms, 0x0001 = us, 0x0000 = ns */
+      WORD base_time;
+
+      for (base_time = 0x0002; base_time > 0 && exposure_time_ < 1.0f; --base_time)
+        exposure_time_ *= 1e3;
+
+      PCO_SetDelayExposureTime(device_, 0, (DWORD)exposure_time_, 0, base_time);
+    }
     PCO_ArmCamera(device_);
-  }
 
-  void CameraPixelfly::pco_set_size_parameters()
-  {
-    pco_general_.wSize = sizeof(pco_general_);
-    pco_general_.strCamType.wSize = sizeof(pco_general_.strCamType);
-    pco_camtype_.wSize = sizeof(pco_camtype_);
-    pco_sensor_.wSize = sizeof(pco_sensor_);
-    pco_sensor_.strDescription.wSize = sizeof(pco_sensor_.strDescription);
-    pco_sensor_.strDescription2.wSize = sizeof(pco_sensor_.strDescription2);
-    pco_description_.wSize = sizeof(pco_description_);
-    pco_timing_.wSize = sizeof(pco_timing_);
-    pco_storage_.wSize = sizeof(pco_storage_);
-    pco_recording_.wSize = sizeof(pco_recording_);
-  }
-
-  void CameraPixelfly::pco_fill_structures()
-  {
-    PCO_GetGeneral(device_, &pco_general_);
-    PCO_GetCameraType(device_, &pco_camtype_);
-    PCO_GetSensorStruct(device_, &pco_sensor_);
-    PCO_GetCameraDescription(device_, &pco_description_);
-    PCO_GetTimingStruct(device_, &pco_timing_);
-    PCO_GetStorageStruct(device_, &pco_storage_);
-    PCO_GetRecordingStruct(device_, &pco_recording_);
+    pco_get_sizes();
   }
 
   void CameraPixelfly::pco_get_sizes()
@@ -117,10 +145,13 @@ namespace camera
       &ccdres_x,
       &ccdres_y);
 
+    /* Fill the frame descriptor width/height fields. */
     desc_.width = actualres_x;
     desc_.height = actualres_y;
-    desc_.bit_depth = 14;
-    desc_.endianness = LITTLE_ENDIAN;
+
+#if _DEBUG
+    std::cout << actualres_x << ", " << actualres_y << std::endl;
+#endif
   }
 
   void CameraPixelfly::pco_allocate_buffer()
