@@ -92,6 +92,7 @@ namespace camera
     desc_.height = 1200;
     desc_.bit_depth = 8;
     desc_.endianness = LITTLE_ENDIAN;
+    desc_.pixel_size = 7.4;
   }
 
   void CameraPike::load_ini_params()
@@ -101,11 +102,12 @@ namespace camera
     desc_.width = pt.get<int>("pike.sensor_width", 2048);
     desc_.height = pt.get<int>("pike.sensor_height", 2048);
     desc_.bit_depth = pt.get<int>("pike.bit_depth", 8);
-    desc_.endianness;
-    desc_.pixel_size;
-
     exposure_time_ = pt.get<float>("pike.exposure_time", exposure_time_);
     subsampling_ = pt.get<int>("pike.subsampling", 0);
+    gain_ = pt.get<unsigned long>("pike.gain", 0);
+    brightness_ = pt.get<unsigned long>("pike.brightness", 0);
+    shutter_time_ = pt.get<unsigned long>("pike.shutter_time", 0);
+    gamma_ = pt.get<unsigned long>("pike.gamma", 0);
   }
 
   void print_info(FGPINFO pinfo)
@@ -116,11 +118,13 @@ namespace camera
 
   void CameraPike::bind_params()
   {
-    // Status
     unsigned long status = FCE_NOERROR;
 
-    // Image format
     status = cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
+    status = cam_.SetParameter(FGP_GAIN, gain_);
+    status = cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
+    status = cam_.SetParameter(FGP_SHUTTER, shutter_time_);
+    status = cam_.SetParameter(FGP_GAMMA, gamma_);
 
     if (status != FCE_NOERROR)
       throw new CameraException(name_, CameraException::camera_error::CANT_SET_CONFIG);

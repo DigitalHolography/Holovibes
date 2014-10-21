@@ -40,6 +40,10 @@ namespace camera
     FGFRAME fgframe_;
 
     unsigned int subsampling_;
+    unsigned long gain_;
+    unsigned long brightness_;
+    unsigned long shutter_time_;
+    unsigned long gamma_;
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
