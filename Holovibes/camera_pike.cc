@@ -87,10 +87,23 @@ namespace camera
 
   void CameraPike::load_default_params()
   {
+    desc_.width = 1600;
+    desc_.height = 1200;
+    desc_.bit_depth = 8;
+    desc_.endianness = LITTLE_ENDIAN;
   }
 
   void CameraPike::load_ini_params()
   {
+    const boost::property_tree::ptree& pt = get_ini_pt();
+
+    desc_.width = pt.get<int>("pike.sensor_width", 1600);
+    desc_.height = pt.get<int>("pike.sensor_height", 1200);
+    desc_.bit_depth pt.get<int>("", 8);
+    desc_.endianness;
+    desc_.pixel_size;
+
+    exposure_time_ = pt.get<float>("pike.exposure_time", exposure_time_);
   }
 
   void CameraPike::bind_params()
