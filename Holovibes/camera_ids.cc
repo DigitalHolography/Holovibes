@@ -152,7 +152,7 @@ namespace camera
     return gain_;
   }
 
-  int CameraIds::get_subsampling_mode(std::string& ui)
+  int CameraIds::get_subsampling_mode(std::string ui)
   {
     if (ui == "2x2")
       return IS_SUBSAMPLING_2X_VERTICAL | IS_SUBSAMPLING_2X_HORIZONTAL;
@@ -172,7 +172,7 @@ namespace camera
       return IS_SUBSAMPLING_DISABLE;
   }
 
-  int CameraIds::get_binning_mode(std::string& ui)
+  int CameraIds::get_binning_mode(std::string ui)
   {
     if (ui == "2x2")
       return IS_BINNING_2X_VERTICAL | IS_BINNING_2X_HORIZONTAL;
@@ -192,7 +192,7 @@ namespace camera
       return IS_BINNING_DISABLE;
   }
 
-  int CameraIds::get_color_mode(std::string& ui)
+  int CameraIds::get_color_mode(std::string ui)
   {
     desc_.depth = 1;
     if (ui == "RAW8")
@@ -218,7 +218,7 @@ namespace camera
     return IS_CM_SENSOR_RAW8;
   }
 
-  int CameraIds::get_trigger_mode(std::string& ui)
+  int CameraIds::get_trigger_mode(std::string ui)
   {
     if (ui == "Software")
       return IS_SET_TRIGGER_SOFTWARE;
