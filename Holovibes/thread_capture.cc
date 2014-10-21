@@ -7,7 +7,7 @@ namespace holovibes
     camera::Camera& camera,
     unsigned int buffer_nb_elts)
     : camera_(camera)
-    , queue_(camera.get_frame_descriptor().frame_size(), buffer_nb_elts)
+    , queue_(camera.get_frame_descriptor(), buffer_nb_elts)
     , stop_requested_(false)
     , thread_(&ThreadCapture::thread_proc, this)
   {}

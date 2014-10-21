@@ -4,23 +4,21 @@
 # include <cstdlib>
 # include <iostream>
 # include <mutex>
+# include "frame_desc.hh"
 
 namespace holovibes
 {
   class Queue
   {
   public:
-    Queue()
+    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
+      : frame_desc_(frame_desc)
+      , size_(frame_desc.frame_size())
+      , max_elts_(elts)
+      , curr_elts_(0)
+      , start_(0)
     {
-    }
-
-    Queue(unsigned int size, unsigned int elts)
-      : size_(size),
-      max_elts_(elts),
-      curr_elts_(0),
-      start_(0)
-    {
-      buffer_ = (char*)malloc(size * elts);
+      buffer_ = (char*)malloc(size_ * elts);
     }
 
     ~Queue()
@@ -49,6 +47,9 @@ namespace holovibes
     void print() const;
 
   private:
+    // Frame descriptor
+    const camera::FrameDescriptor& frame_desc_;
+
     // Size of one element
     size_t size_;
 
