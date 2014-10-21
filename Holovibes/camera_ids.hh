@@ -78,16 +78,16 @@ namespace camera
     int format_gain();
 
     /*! Retreive subsampling mode code from user input string */
-    int get_subsampling_mode(std::string ui);
+    int get_subsampling_mode(std::string& ui);
 
     /*! Retreive binning mode code from user input string */
-    int get_binning_mode(std::string ui);
+    int get_binning_mode(std::string& ui);
 
     /*! Retreive color mode code from user input string */
-    int get_color_mode(std::string ui);
+    int get_color_mode(std::string& ui);
 
     /*! Retreive trigger mode code from user input string */
-    int get_trigger_mode(std::string ui);
+    int get_trigger_mode(std::string& ui);
   };
 }
 
