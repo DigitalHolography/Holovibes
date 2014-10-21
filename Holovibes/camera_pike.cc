@@ -102,12 +102,16 @@ namespace camera
     desc_.width = pt.get<int>("pike.sensor_width", 2048);
     desc_.height = pt.get<int>("pike.sensor_height", 2048);
     desc_.bit_depth = pt.get<int>("pike.bit_depth", 8);
-    exposure_time_ = pt.get<float>("pike.exposure_time", exposure_time_);
     subsampling_ = pt.get<int>("pike.subsampling", 0);
     gain_ = pt.get<unsigned long>("pike.gain", 0);
     brightness_ = pt.get<unsigned long>("pike.brightness", 0);
-    shutter_time_ = pt.get<unsigned long>("pike.shutter_time", 0);
+    exposure_time_ = pt.get<unsigned long>("pike.shutter_time", 1000);
     gamma_ = pt.get<unsigned long>("pike.gamma", 0);
+
+    roi_startx_ = pt.get<int>("pike.roi_startx", 0);
+    roi_starty_ = pt.get<int>("pike.roi_starty", 0);
+    roi_width_ = pt.get<int>("pike.roi_width", 2048);
+    roi_height_ = pt.get<int>("pike.roi_height", 2048);
   }
 
   void print_info(FGPINFO pinfo)
@@ -123,8 +127,13 @@ namespace camera
     status = cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
     status = cam_.SetParameter(FGP_GAIN, gain_);
     status = cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
-    status = cam_.SetParameter(FGP_SHUTTER, shutter_time_);
+    status = cam_.SetParameter(FGP_SHUTTER, exposure_time_);
     status = cam_.SetParameter(FGP_GAMMA, gamma_);
+
+    status = cam_.SetParameter(FGP_XPOSITION, roi_startx_);
+    status = cam_.SetParameter(FGP_YPOSITION, roi_starty_);
+    status = cam_.SetParameter(FGP_XSIZE, roi_width_);
+    status = cam_.SetParameter(FGP_YSIZE, roi_height_);
 
     if (status != FCE_NOERROR)
       throw new CameraException(name_, CameraException::camera_error::CANT_SET_CONFIG);

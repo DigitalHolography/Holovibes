@@ -42,8 +42,12 @@ namespace camera
     unsigned int subsampling_;
     unsigned long gain_;
     unsigned long brightness_;
-    unsigned long shutter_time_;
     unsigned long gamma_;
+
+    int roi_startx_;
+    int roi_starty_;
+    int roi_width_;
+    int roi_height_;
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
