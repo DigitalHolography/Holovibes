@@ -76,7 +76,6 @@ namespace holovibes
 
   void Holovibes::init_recorder(
     std::string& filepath,
-    unsigned int rec_set_size,
     unsigned int rec_n_images)
   {
     assert(camera_ && "camera not initialized");

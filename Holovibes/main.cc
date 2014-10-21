@@ -15,7 +15,7 @@ int main(int argc, const char* argv[])
   if (opts.is_gl_window_enabled)
     h.init_display(opts.gl_window_width, opts.gl_window_height);
   if (opts.is_recorder_enabled)
-    h.init_recorder(opts.recorder_filepath, opts.recorder_set_size, opts.recorder_n_img);
+    h.init_recorder(opts.recorder_filepath, opts.recorder_n_img);
   h.init_compute();
 
   getchar();

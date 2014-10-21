@@ -26,16 +26,19 @@ namespace holovibes
 
   void Recorder::record(unsigned int n_images)
   {
-    for (int i = 0; i < n_images; ++i)
+    size_t size = queue_.get_size();
+    void* buffer = malloc(size);
+
+    for (unsigned int i = 0; i < n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
-      char* frames = (char*)malloc(queue_.get_size());
-      cudaMemcpy(frames, queue_.dequeue(1), queue_.get_size(), cudaMemcpyDeviceToHost);
-
-      file_.write(frames, queue_.get_size());
+      queue_.dequeue(buffer);
+      file_.write((const char*)buffer, size);
     }
+
+    free(buffer);
   }
 
   bool Recorder::is_file_exist(const std::string& filepath)

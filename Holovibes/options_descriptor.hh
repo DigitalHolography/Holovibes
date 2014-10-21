@@ -17,7 +17,6 @@ namespace holovibes
     /* The constructor sets default values. */
     OptionsDescriptor()
       : recorder_n_img(0)
-      , recorder_set_size(0)
       , recorder_filepath("")
       , queue_size(0)
       , gl_window_width(0)
@@ -30,8 +29,6 @@ namespace holovibes
     /* Parameters */
     /*! Number of images to record. */
     unsigned int recorder_n_img;
-    /*! Size of set to record once at the time. */
-    unsigned int recorder_set_size;
     /*! File path for recorder. */
     std::string recorder_filepath;
     /*! Size of the program queue in number of images. */

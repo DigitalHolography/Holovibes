@@ -23,7 +23,7 @@ namespace holovibes
       "The first argument gives the square size of the display. "
       "The second optional argument specify the height.")
 
-      ("record,r",
+      ("write,w",
       po::value<std::vector<std::string>>()
       ->multitoken(),
       "Record  a sequence of images in the given path. "
