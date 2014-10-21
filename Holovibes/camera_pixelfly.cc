@@ -81,7 +81,7 @@ namespace camera
     ir_sensitivity_ = false;
 
     /* Fill frame descriptor const values. */
-    desc_.bit_depth = 14;
+    desc_.depth = 2;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 6.45f;
   }

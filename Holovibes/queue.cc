@@ -6,7 +6,7 @@ namespace holovibes
   size_t Queue::get_current_elts()
   {
     mutex_.lock();
-    unsigned int curr_elts = curr_elts_;
+    size_t curr_elts = curr_elts_;
     mutex_.unlock();
     return curr_elts;
   }

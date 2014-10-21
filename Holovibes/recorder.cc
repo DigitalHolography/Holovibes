@@ -29,7 +29,7 @@ namespace holovibes
     size_t size = queue_.get_size();
     void* tmp = malloc(size);
 
-    for (int i = 0; i < n_images; ++i)
+    for (unsigned int i = 0; i < n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
