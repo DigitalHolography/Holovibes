@@ -26,13 +26,19 @@ namespace holovibes
 
   void Recorder::record(unsigned int n_images)
   {
+    size_t size = queue_.get_size();
+    void* tmp = malloc(size);
+
     for (int i = 0; i < n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
-      file_.write((const char*)queue_.dequeue(1), queue_.get_size());
+      queue_.dequeue(tmp);
+      file_.write((const char*)tmp, size);
     }
+
+    free(tmp);
   }
 
   bool Recorder::is_file_exist(const std::string& filepath)

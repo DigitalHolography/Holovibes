@@ -42,8 +42,8 @@ namespace holovibes
     unsigned int get_end_index();
 
     bool enqueue(void* elt);
-    void* dequeue();
-    void* dequeue(size_t elts_nb);
+    void dequeue(void* dest);
+    //void* dequeue(size_t elts_nb);
 
     // debug only
     void print() const;
