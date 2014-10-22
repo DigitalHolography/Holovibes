@@ -56,7 +56,7 @@ __global__ void complex_2_module(cufftComplex* input, unsigned char* output, int
 
   while (index < size)
   {
-    output[index] = log10(sqrtf(input[index].x * input[index].x + input[index].y * input[index].y)); //racine 
+    output[index] = log10(sqrtf(input[index].x * input[index].x + input[index].y * input[index].y)); //racine ?log
     index += blockDim.x * gridDim.x;
   }
 }
@@ -67,7 +67,7 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
 
   while (index < size)
   {
-    output[index] = log10(sqrtf(input[index].x * input[index].x + input[index].y * input[index].y)); //racine 
+    output[index] = log10(sqrtf(input[index].x * input[index].x + input[index].y * input[index].y)); //racine ? log
     index += blockDim.x * gridDim.x;
   }
 }
@@ -82,4 +82,24 @@ __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftC
     input[index].y = input[index].y * lens[index % lens_size].y;
     index += blockDim.x * gridDim.x;
   }
+}
+
+void complex_2_modul_call(cufftComplex* input, unsigned short* output, int size, int blocks, int threads)
+{
+  if (blocks > 65536)
+  {
+    blocks = 65536;
+  }
+
+  complex_2_module <<<blocks, threads >> >(input, output, size);
+}
+
+void complex_2_modul_call(cufftComplex* input, unsigned char* output, int size, int blocks, int threads)
+{
+  if (blocks > 65536)
+  {
+    blocks = 65536;
+  }
+
+  complex_2_module <<<blocks, threads >> >(input, output, size);
 }

@@ -3,7 +3,13 @@
 float *make_contigous_float(holovibes::Queue *q, int nbimages)
 {
   int threads = 512;
-  int blocks = (q->get_size() * nbimages + 511) / 512;
+  unsigned int blocks = (q->get_size() * nbimages + 511) / 512;
+  if (blocks > 65536)
+  {
+    blocks = 65536;
+  }
+
+  std::cout << "blocks :" << blocks << std::endl;
   int contigous_elts = 0;
   cufftReal *output;
   cudaMalloc(&output, q->get_pixels() * nbimages * sizeof(cufftReal));
@@ -28,6 +34,7 @@ float *make_contigous_float(holovibes::Queue *q, int nbimages)
   }
   else
   {
+    std::cout << "contigous: " <<contigous_elts << std::endl;
     if (q->get_frame_desc().get_byte_depth() > 1)
       image_2_float <<<blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages);
     else
@@ -50,6 +57,8 @@ float *make_sqrt_vec(int vec_size)
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
 {
+  unsigned char *contigous;
+  cudaMalloc(&contigous, q->get_size() * nbimages);
   float *sqrt_vec;
   if (q->get_frame_desc().get_byte_depth() == 1)
     sqrt_vec = make_sqrt_vec(256);
@@ -57,6 +66,10 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
     sqrt_vec = make_sqrt_vec(65536);//think about free it
   int threads = 512;
   int blocks = (q->get_size() * nbimages + 511) / 512;
+  if (blocks > 65536)
+  {
+    blocks = 65536;
+  }
   int contigous_elts = 0;
   cufftComplex *output;
   cudaMalloc(&output, q->get_pixels() * nbimages * sizeof(cufftComplex));
@@ -68,24 +81,19 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
     contigous_elts = nbimages;
   if (contigous_elts < nbimages)
   {
-    unsigned char *contigous;
-    cudaMalloc(&contigous, q->get_size() * nbimages); 
     cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * q->get_size(), cudaMemcpyDeviceToDevice);
     cudaMemcpy(contigous + contigous_elts * q->get_size(), q->get_buffer(), (nbimages - contigous_elts) * q->get_size(), cudaMemcpyDeviceToDevice);
-    if (q->get_frame_desc().get_byte_depth() > 1)
-      image_2_complex <<<blocks, threads >> >(output, (unsigned short*)contigous, q->get_pixels() * nbimages, sqrt_vec);
-    else
-      image_2_complex <<<blocks, threads >> >(output, contigous, q->get_pixels() * nbimages, sqrt_vec);
-
-    return output;
   }
   else
   {
-    std::cout << "hey" << std::endl;
-    if (q->get_frame_desc().get_byte_depth() > 1)
-      image_2_complex <<<blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
-    else
-      image_2_complex <<<blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
-    return output;
+    std::cout << "image naturally contigous" << std::endl;
+    cudaMemcpy(contigous, q->get_last_images(nbimages), nbimages * q->get_size(), cudaMemcpyDeviceToDevice);
   }
+
+    if (q->get_frame_desc().get_byte_depth() > 1)
+      image_2_complex <<<blocks, threads >> >(output, (unsigned short*)contigous, q->get_pixels() * nbimages, sqrt_vec);
+    else
+      image_2_complex <<<blocks, threads >> >(output, (unsigned char*)contigous, q->get_pixels() * nbimages, sqrt_vec);
+    return output;
+  
 }

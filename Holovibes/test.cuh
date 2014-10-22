@@ -11,4 +11,5 @@
 
 void test_fft(int nbimages, holovibes::Queue *q);
 float *test_16(int nbimages, holovibes::Queue *q);
+void img2disk(std::string path, void* img, unsigned int size);
 #endif

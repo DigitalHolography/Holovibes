@@ -4,6 +4,12 @@ void img2disk(std::string path, void* img, unsigned int size)
 {
   FILE* fd_;
 
+  for (unsigned int i = 0; i < size; i++)
+  {
+    ((char*)img)[i] *= 50;
+    //std::cout << i << std::endl;
+  }
+
   if (fopen_s(&fd_, path.c_str(), "w+b") != 0)
     std::cout << "couldn't open file" << path << std::endl;
   else
@@ -17,11 +23,23 @@ void img2disk(std::string path, void* img, unsigned int size)
 void test_fft(int nbimages, holovibes::Queue *q)
 {
   int threads = 512;
-  int blocks = (q->get_size() * nbimages + 511) / 512;
+  unsigned int blocks = (q->get_size() * nbimages + threads - 1) / threads;
+
+  if (blocks > 65536)
+  {
+    blocks = 65536;
+  }
+
   void *img_gpu;
 
   cudaMalloc(&img_gpu, q->get_size() * nbimages);
   cufftComplex *result_fft = fft_3d(q, nbimages);
+  //cufftComplex *result_fft_cpu = (cufftComplex*) malloc(sizeof (cufftComplex) * 10000);
+  //cudaMemcpy(result_fft_cpu, result_fft, 10000, cudaMemcpyDeviceToHost);
+  //for (int i = 0; i < 100; i++)
+ // {
+  //  std::cout << result_fft_cpu[i].x << std::endl;
+ // }
   if (q->get_frame_desc().get_byte_depth() > 1)
   complex_2_module <<<blocks, threads >> >(result_fft, (unsigned short*)img_gpu, q->get_pixels() * nbimages);
   else
