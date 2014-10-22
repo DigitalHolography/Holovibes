@@ -36,8 +36,6 @@ namespace camera
 
   void CameraIds::start_acquisition()
   {
-    stop_acquisition();
-
     if (is_SetImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
       throw CameraException(name_, CameraException::MEMORY_PROBLEM);
   }
@@ -68,6 +66,7 @@ namespace camera
     desc_.width = 2048;
     desc_.height = 2048;
     desc_.depth = 1;
+    desc_.pixel_size = 5.5f;
     desc_.endianness = LITTLE_ENDIAN;
 
     exposure_time_ = 49.91f;
@@ -75,6 +74,11 @@ namespace camera
     subsampling_ = -1;
     binning_ = -1;
     color_mode_ = IS_CM_SENSOR_RAW8;
+    aoi_x_ = 0;
+    aoi_y_ = 0;
+    aoi_width_ = 2048;
+    aoi_height_ = 2048;
+    trigger_mode_ = IS_SET_TRIGGER_OFF;
 
     frame_rate_ = 0;
   }
@@ -83,8 +87,8 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    desc_.width = pt.get<unsigned short>("ids.sensor_width", 2048);
-    desc_.height = pt.get<unsigned short>("ids.sensor_height", 2048);
+    desc_.width = pt.get<unsigned short>("ids.sensor_width", desc_.width);
+    desc_.height = pt.get<unsigned short>("ids.sensor_height", desc_.height);
 
     exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
     gain_ = pt.get<int>("ids.gain", gain_);
@@ -92,10 +96,10 @@ namespace camera
     subsampling_ = get_subsampling_mode(pt.get<std::string>("ids.subsampling", ""));
     binning_ = get_binning_mode(pt.get<std::string>("ids.binning", ""));
     color_mode_ = get_color_mode(pt.get<std::string>("ids.image_format", ""));
-    aoi_x = pt.get<int>("ids.aoi_startx", 0);
-    aoi_y = pt.get<int>("ids.aoi_starty", 0);
-    aoi_width_ = pt.get<int>("ids.aoi_width", 2048);
-    aoi_height_ = pt.get<int>("ids.aoi_height", 2048);
+    aoi_x_ = pt.get<int>("ids.aoi_startx", aoi_x_);
+    aoi_y_ = pt.get<int>("ids.aoi_starty", aoi_y_);
+    aoi_width_ = pt.get<int>("ids.aoi_width", aoi_width_);
+    aoi_height_ = pt.get<int>("ids.aoi_height", aoi_height_);
     trigger_mode_ = get_trigger_mode(pt.get<std::string>("ids.trigger", ""));
   }
 
@@ -106,13 +110,13 @@ namespace camera
     // Exposure time
     // is_Exposure require a double as third argument.
     double exp = (double)exposure_time_;
-    status = is_Exposure(cam_, IS_EXPOSURE_CMD_SET_EXPOSURE, &exp, sizeof(&exp));
+    status |= is_Exposure(cam_, IS_EXPOSURE_CMD_SET_EXPOSURE, &exp, sizeof(&exp));
 
     // Gain
     if (is_SetGainBoost(cam_, IS_GET_SUPPORTED_GAINBOOST) == IS_SET_GAINBOOST_ON)
     {
-      status = is_SetGainBoost(cam_, IS_SET_GAINBOOST_ON);
-      status = is_SetHardwareGain(cam_, gain_,
+      status |= is_SetGainBoost(cam_, IS_SET_GAINBOOST_ON);
+      status |= is_SetHardwareGain(cam_, gain_,
         IS_IGNORE_PARAMETER,
         IS_IGNORE_PARAMETER,
         IS_IGNORE_PARAMETER);
@@ -120,26 +124,26 @@ namespace camera
 
     // Subsampling
     if (subsampling_ != -1)
-      status = is_SetSubSampling(cam_, subsampling_);
+      status |= is_SetSubSampling(cam_, subsampling_);
 
     // Binning
     if (binning_ != -1)
-      status = is_SetBinning(cam_, binning_);
+      status |= is_SetBinning(cam_, binning_);
 
     // Image format/Color mode
-    status = is_SetColorMode(cam_, color_mode_);
+    status |= is_SetColorMode(cam_, color_mode_);
 
     // Area Of Interest
     IS_RECT rectAOI;
-    rectAOI.s32X = aoi_x;
-    rectAOI.s32Y = aoi_y;
+    rectAOI.s32X = aoi_x_;
+    rectAOI.s32Y = aoi_y_;
     rectAOI.s32Width = aoi_width_;
     rectAOI.s32Height = aoi_height_;
 
-    status = is_AOI(cam_, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
+    status |= is_AOI(cam_, IS_AOI_IMAGE_SET_AOI, (void*)&rectAOI, sizeof(rectAOI));
 
     // Trigger
-    status = is_SetExternalTrigger(cam_, trigger_mode_);
+    status |= is_SetExternalTrigger(cam_, trigger_mode_);
 
     if (status != IS_SUCCESS)
       throw CameraException(name_, CameraException::CANT_SET_CONFIG);
