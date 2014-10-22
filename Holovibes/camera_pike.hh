@@ -43,6 +43,11 @@ namespace camera
     unsigned long gain_;
     unsigned long brightness_;
     unsigned long gamma_;
+    unsigned long speed_;
+
+    unsigned long trigger_on_;
+    unsigned long trigger_pol_;
+    unsigned long trigger_mode_;
 
     int roi_startx_;
     int roi_starty_;

@@ -107,6 +107,11 @@ namespace camera
     brightness_ = pt.get<unsigned long>("pike.brightness", 0);
     exposure_time_ = pt.get<unsigned long>("pike.shutter_time", 1000);
     gamma_ = pt.get<unsigned long>("pike.gamma", 0);
+    speed_ = pt.get<unsigned long>("pike.speed", 800);
+
+    trigger_on_ = pt.get<unsigned long>("pike.trigger_on", 0);
+    trigger_pol_ = pt.get<unsigned long>("pike.trigger_pol", 0);
+    trigger_mode_ = pt.get<unsigned long>("pike.trigger_mode", 0);
 
     roi_startx_ = pt.get<int>("pike.roi_startx", 0);
     roi_starty_ = pt.get<int>("pike.roi_starty", 0);
@@ -129,6 +134,8 @@ namespace camera
     status = cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
     status = cam_.SetParameter(FGP_SHUTTER, exposure_time_);
     status = cam_.SetParameter(FGP_GAMMA, gamma_);
+    status = cam_.SetParameter(FGP_PHYSPEED, speed_);
+    status = cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));
 
     status = cam_.SetParameter(FGP_XPOSITION, roi_startx_);
     status = cam_.SetParameter(FGP_YPOSITION, roi_starty_);
