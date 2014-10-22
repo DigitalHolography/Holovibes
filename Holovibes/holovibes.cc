@@ -99,6 +99,6 @@ namespace holovibes
   void Holovibes::dispose_compute()
   {
     //std::cout << "nb elts" <<  << std::endl;
-    test_16(3, &tcapture_->get_queue());
+    //test_16(3, &tcapture_->get_queue());
   }
 }

@@ -57,8 +57,6 @@ float *make_sqrt_vec(int vec_size)
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
 {
-  unsigned char *contigous;
-  cudaMalloc(&contigous, q->get_size() * nbimages);
   float *sqrt_vec;
   if (q->get_frame_desc().depth == 1)
     sqrt_vec = make_sqrt_vec(256);
@@ -83,12 +81,12 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
   {
     unsigned char *contigous;
     cudaMalloc(&contigous, q->get_size() * nbimages);
-    cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * q->get_size(), cudaMemcpyDeviceToDevice);
-    cudaMemcpy(contigous + contigous_elts * q->get_size(), q->get_buffer(), (nbimages - contigous_elts) * q->get_size(), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * q->get_size() , cudaMemcpyDeviceToDevice);
+    cudaMemcpy(contigous + contigous_elts * q->get_size() * q->get_frame_desc().depth, q->get_buffer(), (nbimages - contigous_elts) * q->get_size(), cudaMemcpyDeviceToDevice);
     if (q->get_frame_desc().depth > 1)
-      image_2_complex << <blocks, threads >> >(output, (unsigned short*)contigous, q->get_pixels() * nbimages, sqrt_vec);
+      image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)contigous, q->get_pixels() * nbimages, sqrt_vec);
     else
-      image_2_complex << <blocks, threads >> >(output, contigous, q->get_pixels() * nbimages, sqrt_vec);
+      image_2_complex8 << <blocks, threads >> >(output, contigous, q->get_pixels() * nbimages, sqrt_vec);
 
     return output;
   }
@@ -96,9 +94,15 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
   {
     std::cout << "hey" << std::endl;
     if (q->get_frame_desc().depth > 1)
-      image_2_complex << <blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
+    {
+      image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
+      std::cout << "in contigous 16 bit" << std::endl;
+    }
     else
-      image_2_complex << <blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
+    {
+      image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), q->get_pixels() * nbimages, sqrt_vec);
+      std::cout << "in contigous 8 bit" << std::endl;
+    }
     return output;
   }
   

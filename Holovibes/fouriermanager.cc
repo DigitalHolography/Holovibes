@@ -30,13 +30,10 @@ void *FourrierManager::get_image()
 void *FourrierManager::compute_image_vector()
 {
   void *gpu_vector;
-  cudaMalloc(&gpu_vector, inputq_->get_size() * nbimages_);
-  int blocks = (inputq_->get_size() * nbimages_ + threads_ - 1) / threads_;
+  cudaMalloc(&gpu_vector, inputq_->get_pixels() * nbimages_ * sizeof(unsigned short));
+  int blocks = (inputq_->get_pixels() * nbimages_ + threads_ - 1) / threads_;
   cufftComplex *result_fft = fft_3d(inputq_, nbimages_);
-  if (bytedepth_ > 1)
-    complex_2_modul_call(result_fft, (unsigned short*)gpu_vector, inputq_->get_pixels() * nbimages_, blocks, threads_);
-  else
-    complex_2_modul_call(result_fft, (unsigned char*)gpu_vector, inputq_->get_pixels() * nbimages_, blocks, threads_);
+  complex_2_modul_call(result_fft, (unsigned short*)gpu_vector, inputq_->get_pixels() * nbimages_, blocks, threads_);
   return gpu_vector;
 }
 

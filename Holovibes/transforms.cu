@@ -13,8 +13,9 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
   float csquare;
   float dx = 5.5e-6f;
   float dy = 5.5e-6f;
-  float x = i * dx;
-  float y = j * dy;
+  // FIXME pass sizex sizy as parameters
+  float x = (i - (sqrtf(matrix_size) / 2)) * dx;
+  float y = (j - (sqrtf(matrix_size) / 2)) * dy;
 
   if (index < matrix_size)
   {

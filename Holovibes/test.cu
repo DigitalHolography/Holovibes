@@ -4,10 +4,9 @@ void img2disk(std::string path, void* img, unsigned int size)
 {
   FILE* fd_;
 
-  for (unsigned int i = 0; i < size; i++)
+  for (unsigned int i = 0; i < size/2 ; i++)
   {
-    ((char*)img)[i] *= 50;
-    //std::cout << i << std::endl;
+    ((unsigned short*)img)[i] *= 50;
   }
 
   if (fopen_s(&fd_, path.c_str(), "w+b") != 0)
@@ -23,33 +22,47 @@ void img2disk(std::string path, void* img, unsigned int size)
 void test_fft(int nbimages, holovibes::Queue *q)
 {
   int threads = 512;
-  unsigned int blocks = (q->get_size() * nbimages + threads - 1) / threads;
+  unsigned int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
 
   if (blocks > 65536)
   {
     blocks = 65536;
   }
 
-  void *img_gpu;
+  unsigned short* img_gpu;
+  cudaMalloc(&img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short));
 
-  cudaMalloc(&img_gpu, q->get_size() * nbimages);
   cufftComplex *result_fft = fft_3d(q, nbimages);
-  //cufftComplex *result_fft_cpu = (cufftComplex*) malloc(sizeof (cufftComplex) * 10000);
-  //cudaMemcpy(result_fft_cpu, result_fft, 10000, cudaMemcpyDeviceToHost);
-  //for (int i = 0; i < 100; i++)
- // {
-  //  std::cout << result_fft_cpu[i].x << std::endl;
- // }
-  if (q->get_frame_desc().depth > 1)
-  complex_2_module <<<blocks, threads >> >(result_fft, (unsigned short*)img_gpu, q->get_pixels() * nbimages);
-  else
-    complex_2_module << <blocks, threads >> >(result_fft, (unsigned char*)img_gpu, q->get_pixels() * nbimages);
 
-  void *img_cpu = (void*)malloc(q->get_size() * nbimages);  
-  cudaMemcpy(img_cpu, img_gpu, q->get_size() *nbimages, cudaMemcpyDeviceToHost);
-  img2disk("afft.raw", img_cpu, q->get_size() * nbimages);
+  complex_2_module <<<blocks, threads >> >(result_fft, img_gpu, q->get_pixels() * nbimages);
+
+  void *img_cpu = (void*)malloc(q->get_pixels() * nbimages  * sizeof (unsigned short));
+  cudaMemcpy(img_cpu, img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short), cudaMemcpyDeviceToHost);
+
+  img2disk("afft.raw", img_cpu, q->get_pixels() * nbimages * sizeof (unsigned short));
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 float *test_16(int nbimages, holovibes::Queue *q)
 {
   std::cout << "test_16" << std::endl;
@@ -62,3 +75,4 @@ float *test_16(int nbimages, holovibes::Queue *q)
    img2disk("atest16.raw", img_cpu, q->get_pixels() * sizeof(float)* nbimages);
    return img_gpu;
 }
+*/

@@ -1,11 +1,11 @@
 #include "fourier_computing.cuh"
 
-cufftComplex *do_cufft_3d(cufftComplex * input, int nbimages, int size_x, int size_y)
+cufftComplex *do_cufft_3d(cufftComplex *input, int nbimages, int size_x, int size_y)
 {
   cufftHandle plan;
   cufftPlan3d(&plan, size_x, size_y, nbimages, CUFFT_C2C);
   cufftComplex *output;
-  cudaError_t er = cudaMalloc(&output, size_x * size_y * nbimages * sizeof (cufftComplex));
+  cudaMalloc(&output, size_x * size_y * nbimages * sizeof (cufftComplex));
   cufftExecC2C(plan, input, output, CUFFT_FORWARD);
   return output;
 }
@@ -13,7 +13,7 @@ cufftComplex *do_cufft_3d(cufftComplex * input, int nbimages, int size_x, int si
 cufftComplex *fft_3d(holovibes::Queue *q, int nbimages)
 {
   int threads = 512;
-  int blocks = (q->get_pixels() * nbimages + 511) / 512;
+  int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
 
   if (blocks > 65536)
   {
