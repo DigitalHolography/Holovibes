@@ -25,7 +25,7 @@ cufftComplex *fft_3d(holovibes::Queue *q, int nbimages)
   dim3 lblocks(q->get_frame_desc().width / 16, q->get_frame_desc().height / 16); // width / eight
   cufftComplex *lens;
   cudaMalloc(&lens, q->get_pixels() * sizeof (cufftComplex));
-  kernel_quadratic_lens <<<lblocks, lthreads >>>(lens, (unsigned int) q->get_pixels(), 532.0e-9f, 1.36f);
+  kernel_quadratic_lens << <lblocks, lthreads >> >(lens, q->get_frame_desc().width, q->get_frame_desc().height, 532.0e-9f, 1.36f);
   apply_quadratic_lens <<<blocks, threads >>>(input, q->get_pixels() * nbimages, lens, q->get_pixels());
   cudaFree(lens);
   cufftComplex *result = do_cufft_3d(input, nbimages, q->get_frame_desc().width, q->get_frame_desc().height);

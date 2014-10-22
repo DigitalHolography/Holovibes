@@ -1,7 +1,8 @@
 #include "transforms.cuh"
 
 __global__ void kernel_quadratic_lens(cufftComplex* output,
-  unsigned int matrix_size,
+  unsigned int xsize,
+  unsigned int ysize,
   float lambda,
   float dist)
 {
@@ -13,11 +14,11 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
   float csquare;
   float dx = 5.5e-6f;
   float dy = 5.5e-6f;
-  // FIXME pass sizex sizy as parameters
-  float x = (i - (sqrtf(matrix_size) / 2)) * dx;
-  float y = (j - (sqrtf(matrix_size) / 2)) * dy;
 
-  if (index < matrix_size)
+  float x = (i - ((float)xsize / 2)) * dx;
+  float y = (j - ((float)ysize / 2)) * dy;
+
+  if (index < xsize * ysize)
   {
     csquare = c * (x * x + y * y);
     output[index].x = cosf(csquare);
