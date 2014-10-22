@@ -32,33 +32,33 @@ namespace camera
         bind_params();
       }
       else
-        throw new CameraException(name_, CameraException::NOT_CONNECTED);
+        throw CameraException(name_, CameraException::NOT_CONNECTED);
     }
     else
-      throw new CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(name_, CameraException::NOT_INITIALIZED);
   }
 
   void CameraPike::start_acquisition()
   {
     // Allocate DMA for the camera
-    if(cam_.OpenCapture() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    if (cam_.OpenCapture() != FCE_NOERROR)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
 
     if (cam_.StartDevice() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraPike::stop_acquisition()
   {
-    if(cam_.StopDevice() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
+    if (cam_.StopDevice() != FCE_NOERROR)
+      throw CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
   }
 
   void CameraPike::shutdown_camera()
   {
     // Free all image buffers and close the capture logic
-    if(cam_.CloseCapture() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::CANT_SHUTDOWN);
+    if (cam_.CloseCapture() != FCE_NOERROR)
+      throw CameraException(name_, CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraPike::get_frame()
@@ -88,35 +88,51 @@ namespace camera
 
   void CameraPike::load_default_params()
   {
-    desc_.width = 1600;
-    desc_.height = 1200;
+    desc_.width = 2048;
+    desc_.height = 2048;
     desc_.depth = 1;
+    desc_.pixel_size = 7.4f;
     desc_.endianness = LITTLE_ENDIAN;
-    desc_.pixel_size = 7.4;
+
+    subsampling_ = 0;
+    gain_ = 0;
+    brightness_ = 0;
+    exposure_time_ = 1000;
+    gamma_ = 0;
+    speed_ = 800;
+
+    trigger_on_ = 0;
+    trigger_pol_ = 0;
+    trigger_mode_ = 0;
+
+    roi_startx_ = 0;
+    roi_starty_ = 0;
+    roi_width_ = 2048;
+    roi_height_ = 2048;
   }
 
   void CameraPike::load_ini_params()
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    desc_.width = pt.get<int>("pike.sensor_width", 2048);
-    desc_.height = pt.get<int>("pike.sensor_height", 2048);
-    desc_.depth = (pt.get<int>("pike.bit_depth", 8) + 7) / 8;
-    subsampling_ = pt.get<int>("pike.subsampling", 0);
-    gain_ = pt.get<unsigned long>("pike.gain", 0);
-    brightness_ = pt.get<unsigned long>("pike.brightness", 0);
-    exposure_time_ = pt.get<unsigned long>("pike.shutter_time", 1000);
-    gamma_ = pt.get<unsigned long>("pike.gamma", 0);
-    speed_ = pt.get<unsigned long>("pike.speed", 800);
+    desc_.width = pt.get<unsigned short>("pike.sensor_width", desc_.width);
+    desc_.height = pt.get<unsigned short>("pike.sensor_height", desc_.height);
+    desc_.depth = (pt.get<unsigned short>("pike.bit_depth", 8) + 7) / 8;
+    subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
+    gain_ = pt.get<unsigned long>("pike.gain", gain_);
+    brightness_ = pt.get<unsigned long>("pike.brightness", brightness_);
+    exposure_time_ = pt.get<float>("pike.shutter_time", exposure_time_);
+    gamma_ = pt.get<unsigned long>("pike.gamma", gamma_);
+    speed_ = pt.get<unsigned long>("pike.speed", speed_);
 
-    trigger_on_ = pt.get<unsigned long>("pike.trigger_on", 0);
-    trigger_pol_ = pt.get<unsigned long>("pike.trigger_pol", 0);
-    trigger_mode_ = pt.get<unsigned long>("pike.trigger_mode", 0);
+    trigger_on_ = pt.get<unsigned long>("pike.trigger_on", trigger_on_);
+    trigger_pol_ = pt.get<unsigned long>("pike.trigger_pol", trigger_pol_);
+    trigger_mode_ = pt.get<unsigned long>("pike.trigger_mode", trigger_mode_);
 
-    roi_startx_ = pt.get<int>("pike.roi_startx", 0);
-    roi_starty_ = pt.get<int>("pike.roi_starty", 0);
-    roi_width_ = pt.get<int>("pike.roi_width", 2048);
-    roi_height_ = pt.get<int>("pike.roi_height", 2048);
+    roi_startx_ = pt.get<int>("pike.roi_startx", roi_startx_);
+    roi_starty_ = pt.get<int>("pike.roi_starty", roi_starty_);
+    roi_width_ = pt.get<int>("pike.roi_width", roi_width_);
+    roi_height_ = pt.get<int>("pike.roi_height", roi_height_);
   }
 
   void print_info(FGPINFO pinfo)
@@ -129,21 +145,20 @@ namespace camera
   {
     unsigned long status = FCE_NOERROR;
 
-    status = cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
-    status = cam_.SetParameter(FGP_GAIN, gain_);
-    status = cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
-    status = cam_.SetParameter(FGP_SHUTTER, exposure_time_);
-    status = cam_.SetParameter(FGP_GAMMA, gamma_);
-    status = cam_.SetParameter(FGP_PHYSPEED, speed_);
-    status = cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));
-
-    status = cam_.SetParameter(FGP_XPOSITION, roi_startx_);
-    status = cam_.SetParameter(FGP_YPOSITION, roi_starty_);
-    status = cam_.SetParameter(FGP_XSIZE, roi_width_);
-    status = cam_.SetParameter(FGP_YSIZE, roi_height_);
+    status |= cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
+    status |= cam_.SetParameter(FGP_GAIN, gain_);
+    status |= cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
+    status |= cam_.SetParameter(FGP_SHUTTER, (unsigned long)exposure_time_);
+    status |= cam_.SetParameter(FGP_GAMMA, gamma_);
+    status |= cam_.SetParameter(FGP_PHYSPEED, speed_);
+    status |= cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));
+    status |= cam_.SetParameter(FGP_XPOSITION, roi_startx_);
+    status |= cam_.SetParameter(FGP_YPOSITION, roi_starty_);
+    status |= cam_.SetParameter(FGP_XSIZE, roi_width_);
+    status |= cam_.SetParameter(FGP_YSIZE, roi_height_);
 
     if (status != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::camera_error::CANT_SET_CONFIG);
+      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
   }
 
   unsigned long CameraPike::to_dcam_format()
@@ -156,9 +171,9 @@ namespace camera
     else if (desc_.width == 1024 && desc_.height == 1024)
     {
       if (subsampling_ == 1)
-        mode == 3;
+        mode = 3;
       else
-        mode == 6;
+        mode = 6;
     }
     else
       mode = 0;
