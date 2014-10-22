@@ -97,7 +97,7 @@ namespace camera
     subsampling_ = 0;
     gain_ = 0;
     brightness_ = 0;
-    exposure_time_ = 1000;
+    exposure_time_ = 1000.0f;
     gamma_ = 0;
     speed_ = 800;
 
@@ -121,7 +121,7 @@ namespace camera
     subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
     gain_ = pt.get<unsigned long>("pike.gain", gain_);
     brightness_ = pt.get<unsigned long>("pike.brightness", brightness_);
-    exposure_time_ = pt.get<float>("pike.shutter_time", exposure_time_);
+    exposure_time_ = pt.get<float>("pike.exposure_time", exposure_time_);
     gamma_ = pt.get<unsigned long>("pike.gamma", gamma_);
     speed_ = pt.get<unsigned long>("pike.speed", speed_);
 
@@ -148,7 +148,7 @@ namespace camera
     status |= cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
     status |= cam_.SetParameter(FGP_GAIN, gain_);
     status |= cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
-    status |= cam_.SetParameter(FGP_SHUTTER, (unsigned long)exposure_time_);
+    status |= cam_.SetParameter(FGP_SHUTTER, exposure_time_);
     status |= cam_.SetParameter(FGP_GAMMA, gamma_);
     status |= cam_.SetParameter(FGP_PHYSPEED, speed_);
     status |= cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));
