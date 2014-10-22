@@ -24,11 +24,11 @@ int main(int argc, const char* argv[])
     std::cout << "Press any key to stop execution..." << std::endl;
     getchar();
   }
-  catch (camera::CameraException e)
+  catch (camera::CameraException& e)
   {
     std::cerr << "[CAMERA] " << e.get_name() << " " << e.what() << std::endl;
   }
-  catch (std::exception e)
+  catch (std::exception& e)
   {
     std::cerr << e.what() << std::endl;
   }
