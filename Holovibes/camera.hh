@@ -24,8 +24,7 @@ namespace camera
     Camera(const std::string ini_filepath)
       : desc_()
       , name_("Unknown")
-      , exposure_time_(0.0)
-      , frame_rate_(0)
+      , exposure_time_(0.0f)
       , ini_file_(ini_filepath, std::ofstream::in)
     {
       if (ini_file_is_open())
@@ -46,13 +45,9 @@ namespace camera
     {
       return name_;
     }
-    double get_exposure_time() const
+    float get_exposure_time() const
     {
       return exposure_time_;
-    }
-    unsigned short get_frame_rate() const
-    {
-      return frame_rate_;
     }
 #pragma endregion
 
@@ -90,8 +85,6 @@ namespace camera
     std::string              name_;
     /*! Exposure time of the camera. */
     float                    exposure_time_;
-    /*! Number of frames per second. */
-    unsigned short           frame_rate_;
 
     /* private methods */
   private:

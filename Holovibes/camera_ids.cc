@@ -79,8 +79,6 @@ namespace camera
     aoi_width_ = 2048;
     aoi_height_ = 2048;
     trigger_mode_ = IS_SET_TRIGGER_OFF;
-
-    frame_rate_ = 0;
   }
 
   void CameraIds::load_ini_params()

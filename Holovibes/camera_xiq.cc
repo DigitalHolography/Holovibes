@@ -8,6 +8,7 @@ namespace camera
     : Camera("xiq.ini")
     , device_(nullptr)
   {
+    name_ = "xiq";
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
@@ -61,7 +62,6 @@ namespace camera
 
   void CameraXiq::load_default_params()
   {
-    name_ = "Xiq";
     exposure_time_ = 0.005f;
     /* Custom parameters. */
     gain_ = 0.f;
