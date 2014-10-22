@@ -10,10 +10,10 @@ int main(int argc, const char* argv[])
   holovibes::OptionsParser opts_parser(opts);
   opts_parser.parse(argc, argv);
 
-  holovibes::Holovibes h(opts.camera);
-
   try
   {
+    holovibes::Holovibes h(opts.camera);
+
     h.init_capture(opts.queue_size);
 
     if (opts.is_gl_window_enabled)
