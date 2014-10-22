@@ -90,7 +90,7 @@ namespace camera
   {
     desc_.width = 1600;
     desc_.height = 1200;
-    desc_.bit_depth = 8;
+    desc_.depth = 1;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 7.4;
   }
@@ -101,7 +101,7 @@ namespace camera
 
     desc_.width = pt.get<int>("pike.sensor_width", 2048);
     desc_.height = pt.get<int>("pike.sensor_height", 2048);
-    desc_.bit_depth = pt.get<int>("pike.bit_depth", 8);
+    desc_.depth = (pt.get<int>("pike.bit_depth", 8) + 7) / 8;
     subsampling_ = pt.get<int>("pike.subsampling", 0);
     gain_ = pt.get<unsigned long>("pike.gain", 0);
     brightness_ = pt.get<unsigned long>("pike.brightness", 0);
@@ -149,7 +149,7 @@ namespace camera
   unsigned long CameraPike::to_dcam_format()
   {
     int mode = 0;
-    int color_mode = desc_.bit_depth == 16 ? CM_Y16 : CM_Y8;
+    int color_mode = desc_.depth == 2 ? CM_Y16 : CM_Y8;
 
     if (desc_.width == 2048 && desc_.height == 2048)
       mode = 0;
