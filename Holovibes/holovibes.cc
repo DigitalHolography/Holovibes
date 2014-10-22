@@ -35,9 +35,9 @@ namespace holovibes
 
   Holovibes::~Holovibes()
   {
-    dispose_display();
-    dispose_recorder();
-    dispose_capture();
+    delete tcapture_;
+    delete tglwnd_;
+    delete camera_;
   }
 
   void Holovibes::init_display(
@@ -71,12 +71,8 @@ namespace holovibes
   {
     delete tcapture_;
     tcapture_ = nullptr;
-    if (camera_)
-    {
-      camera_->stop_acquisition();
-      camera_->shutdown_camera();
-      delete camera_;
-    }
+    camera_->stop_acquisition();
+    camera_->shutdown_camera();
   }
 
   void Holovibes::init_recorder(

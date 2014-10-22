@@ -23,6 +23,10 @@ int main(int argc, const char* argv[])
 
     std::cout << "Press any key to stop execution..." << std::endl;
     getchar();
+
+    h.dispose_display();
+    h.dispose_recorder();
+    h.dispose_capture();
   }
   catch (camera::CameraException& e)
   {

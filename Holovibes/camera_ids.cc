@@ -26,10 +26,10 @@ namespace camera
           &frame_mem_pid_);
       }
       else
-        throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
+        throw CameraException(name_, CameraException::NOT_INITIALIZED);
     }
     else
-      throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
+      throw CameraException(name_, CameraException::NOT_CONNECTED);
 
     bind_params();
   }
@@ -39,7 +39,7 @@ namespace camera
     stop_acquisition();
 
     if (is_SetImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
-      throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
+      throw CameraException(name_, CameraException::MEMORY_PROBLEM);
   }
 
   void CameraIds::stop_acquisition()
@@ -49,16 +49,16 @@ namespace camera
   void CameraIds::shutdown_camera()
   {
     if (is_FreeImageMem(cam_, frame_, frame_mem_pid_) != IS_SUCCESS)
-      throw new CameraException(name_, CameraException::camera_error::MEMORY_PROBLEM);
+      throw CameraException(name_, CameraException::MEMORY_PROBLEM);
 
     if (is_ExitCamera(cam_) != IS_SUCCESS)
-      throw new CameraException(name_, CameraException::camera_error::CANT_SHUTDOWN);
+      throw CameraException(name_, CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraIds::get_frame()
   {
     if (is_FreezeVideo(cam_, IS_WAIT) != IS_SUCCESS)
-      throw new CameraException(name_, CameraException::camera_error::CANT_GET_FRAME);
+      throw CameraException(name_, CameraException::CANT_GET_FRAME);
 
     return frame_;
   }
@@ -142,7 +142,7 @@ namespace camera
     status = is_SetExternalTrigger(cam_, trigger_mode_);
 
     if (status != IS_SUCCESS)
-      throw new CameraException(name_, CameraException::camera_error::CANT_SET_CONFIG);
+      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
   }
 
   int CameraIds::format_gain()
