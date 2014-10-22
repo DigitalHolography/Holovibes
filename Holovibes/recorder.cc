@@ -4,6 +4,7 @@
 #include <exception>
 #include <cassert>
 #include <thread>
+#include <iostream>
 
 namespace holovibes
 {
@@ -15,7 +16,7 @@ namespace holovibes
   {
 #ifndef _DEBUG
     if (is_file_exist(filepath))
-      throw std::exception("overwriting an existing file");
+      throw std::exception("[RECORDER] overwriting an existing file");
 #endif /* Overwrite is useful while debugging. */
 
     file_.open(filepath, std::ios::binary | std::ios::trunc);
@@ -29,6 +30,8 @@ namespace holovibes
     size_t size = queue_.get_size();
     void* buffer = malloc(size);
 
+    std::cout << "[RECORDER] started recording " << n_images << std::endl;
+
     for (unsigned int i = 0; i < n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
@@ -37,6 +40,8 @@ namespace holovibes
       queue_.dequeue(buffer);
       file_.write((const char*)buffer, size);
     }
+
+    std::cout << "[RECORDER] recording has been stopped" << std::endl;
 
     free(buffer);
   }

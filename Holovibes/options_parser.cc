@@ -26,7 +26,7 @@ namespace holovibes
       ("write,w",
       po::value<std::vector<std::string>>()
       ->multitoken(),
-      "Record  a sequence of images in the given path. "
+      "Record a sequence of images in the given path. "
       "The first argument gives the number of images to record. "
       "The second argument gives the filepath where frames will be recorded.")
 
@@ -182,10 +182,10 @@ namespace holovibes
         throw std::exception("queue size is too small");
     }
 
-    if (vm_.count("record"))
+    if (vm_.count("write"))
     {
       const std::vector<std::string>& args =
-        vm_["record"].as<std::vector<std::string>>();
+        vm_["write"].as<std::vector<std::string>>();
 
       if (args.size() == 2)
       {
@@ -205,7 +205,7 @@ namespace holovibes
         }
       }
       else
-        throw std::exception("record expect 2 arguments");
+        throw std::exception("-w/--write expects 2 arguments");
 
       opts_.is_recorder_enabled = true;
     }
