@@ -101,7 +101,7 @@ namespace holovibes
       0,
       GL_LUMINANCE,
       /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      desc.get_byte_depth() == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+      desc.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
       /* Pointer to image data in memory. */
       frame);
 

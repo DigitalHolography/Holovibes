@@ -12,7 +12,7 @@ dist_(dist)
   cudaDeviceProp prop;
   cudaGetDeviceProperties(&prop, count);
   threads_ = prop.maxThreadsPerBlock;
-  bytedepth_ = q->get_frame_desc().get_byte_depth();
+  bytedepth_ = q->get_frame_desc().depth;
   outputq_ = new holovibes::Queue(q->get_frame_desc(), q->get_max_elts());
 }
 
@@ -21,8 +21,10 @@ dist_(dist)
 
 void *FourrierManager::get_image()
 {
+  void* t = NULL;
   gpu_vec_extract((unsigned char*)compute_image_vector());
-  return outputq_->dequeue();
+  outputq_->dequeue(t);
+  return t;
 }
 
 void *FourrierManager::compute_image_vector()

@@ -13,11 +13,11 @@ namespace camera
   struct FrameDescriptor
   {
     /*! Width of the frame. */
-    unsigned int         width;
+    unsigned short         width;
     /*! Height of the frame. */
-    unsigned int         height;
-    /*! Bit depth during acquisition. */
-    unsigned char        bit_depth;
+    unsigned short         height;
+    /*! Byte depth during acquisition. */
+    unsigned short         depth;
     /*! Size of pixels in micrometers. */
     float                pixel_size;
     /*! Endianness of bytes. */
@@ -25,16 +25,17 @@ namespace camera
 
   public:
     /* Helper functions. */
-    unsigned char get_byte_depth() const
-    {
-      return bit_depth / 8 + (bit_depth % 8 ? 1u : 0u);
-    }
-    unsigned int get_frame_size() const
-    {
-      const unsigned int depth = get_byte_depth();
-      const unsigned int size = width * height * depth;
 
-      return size;
+    /*! \brief Return the frame size in bytes. */
+    unsigned int frame_size() const
+    {
+      return width * height * depth;
+    }
+
+    /*! \brief Return the frame resolution (number of pixels). */
+    unsigned int frame_res() const
+    {
+      return width * height;
     }
   };
 }

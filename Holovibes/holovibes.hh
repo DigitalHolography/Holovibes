@@ -32,7 +32,6 @@ namespace holovibes
 
     void init_recorder(
       std::string& filepath,
-      unsigned int rec_set_size,
       unsigned int rec_n_images);
     void dispose_recorder();
 

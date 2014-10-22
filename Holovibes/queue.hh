@@ -14,24 +14,21 @@ namespace holovibes
   class Queue
   {
   public:
-   
-
-    Queue(const camera::FrameDescriptor frame_desc, unsigned int elts)
-      : frame_desc_(frame_desc),
-      max_elts_(elts),
-      curr_elts_(0),
-      start_(0)
+    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
+      : frame_desc_(frame_desc)
+      , size_(frame_desc_.frame_size())
+      , pixels_(frame_desc_.frame_res())
+      , max_elts_(elts)
+      , curr_elts_(0)
+      , start_(0)
     {
-      size_ = frame_desc.get_byte_depth() * frame_desc.width * frame_desc.height;
-      pixels_ = frame_desc.width * frame_desc.height;
-
       if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
         std::cerr << "Queue: couldn't allocate queue" << std::endl;
     }
 
     ~Queue()
     {
-      if(cudaFree(buffer_) != CUDA_SUCCESS)
+      if (cudaFree(buffer_) != CUDA_SUCCESS)
         std::cerr << "Queue: couldn't free queue" << std::endl;
     }
 
@@ -45,7 +42,7 @@ namespace holovibes
       return buffer_;
     }
 
-    camera::FrameDescriptor get_frame_desc()
+    const camera::FrameDescriptor& get_frame_desc() const
     {
       return frame_desc_;
     }
@@ -54,7 +51,7 @@ namespace holovibes
     {
       return pixels_;
     }
-    
+
     size_t get_current_elts();
     unsigned int get_max_elts() const;
     void* get_start();
@@ -64,22 +61,23 @@ namespace holovibes
     unsigned int get_end_index();
 
     bool enqueue(void* elt);
-    void* dequeue();
-    void* dequeue(size_t elts_nb);
+    void dequeue(void* dest);
+    //void* dequeue(size_t elts_nb);
 
     // debug only
     void print() const;
 
   private:
     // Frame descriptor
-    const camera::FrameDescriptor frame_desc_;
+    const camera::FrameDescriptor& frame_desc_;
 
     // Size of one element in bytes
     size_t size_;
 
+    // TODO: Shall be remove and use frame_desc_.frame_res() instead.
     // Pixels per image
-
     int pixels_;
+
     // Maximum elements number
     unsigned int max_elts_;
 

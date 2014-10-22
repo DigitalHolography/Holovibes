@@ -74,7 +74,7 @@ namespace camera
     desc_.width = 2048;
     desc_.height = 2048;
     desc_.pixel_size = 5.5f;
-    desc_.bit_depth = 8;
+    desc_.depth = 1;
     desc_.endianness = BIG_ENDIAN;
   }
 
@@ -126,7 +126,7 @@ namespace camera
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)
-      desc_.bit_depth = 10;
+      desc_.depth = 2;
 
     name_ = std::string(name);
   }

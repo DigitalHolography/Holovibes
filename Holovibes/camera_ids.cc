@@ -21,7 +21,7 @@ namespace camera
         is_AllocImageMem(cam_,
           desc_.width,
           desc_.height,
-          desc_.bit_depth,
+          desc_.depth * 8,
           &frame_,
           &frame_mem_pid_);
       }
@@ -67,7 +67,7 @@ namespace camera
   {
     desc_.width = 2048;
     desc_.height = 2048;
-    desc_.bit_depth = 8;
+    desc_.depth = 1;
     desc_.endianness = LITTLE_ENDIAN;
 
     exposure_time_ = 49.91f;
@@ -83,11 +83,8 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    desc_.width = pt.get<int>("ids.sensor_width", 2048);
-    desc_.height = pt.get<int>("ids.sensor_height", 2048);
-    desc_.bit_depth;
-    desc_.endianness;
-    desc_.pixel_size;
+    desc_.width = pt.get<unsigned short>("ids.sensor_width", 2048);
+    desc_.height = pt.get<unsigned short>("ids.sensor_height", 2048);
 
     exposure_time_ = pt.get<float>("ids.exposure_time", exposure_time_);
     gain_ = pt.get<int>("ids.gain", gain_);
@@ -197,24 +194,28 @@ namespace camera
 
   int CameraIds::get_color_mode(std::string ui)
   {
+    desc_.depth = 1;
     if (ui == "RAW8")
       return IS_CM_SENSOR_RAW8;
-    else if (ui == "RAW10")
-      return IS_CM_SENSOR_RAW10;
-    else if (ui == "RAW12")
-      return IS_CM_SENSOR_RAW12;
-    else if (ui == "RAW16")
-      return IS_CM_SENSOR_RAW16;
-    else if (ui == "MONO8")
+    if (ui == "MONO8")
       return IS_CM_MONO8;
-    else if (ui == "MONO10")
+
+    desc_.depth = 2;
+    if (ui == "RAW10")
+      return IS_CM_SENSOR_RAW10;
+    if (ui == "RAW12")
+      return IS_CM_SENSOR_RAW12;
+    if (ui == "RAW16")
+      return IS_CM_SENSOR_RAW16;
+    if (ui == "MONO10")
       return IS_CM_MONO10;
-    else if (ui == "MONO12")
+    if (ui == "MONO12")
       return IS_CM_MONO12;
-    else if (ui == "MONO16")
+    if (ui == "MONO16")
       return IS_CM_MONO16;
-    else
-      return IS_CM_SENSOR_RAW8;
+
+    desc_.depth = 1;
+    return IS_CM_SENSOR_RAW8;
   }
 
   int CameraIds::get_trigger_mode(std::string ui)

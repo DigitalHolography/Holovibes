@@ -40,10 +40,10 @@ void test_fft(int nbimages, holovibes::Queue *q)
  // {
   //  std::cout << result_fft_cpu[i].x << std::endl;
  // }
-  if (q->get_frame_desc().get_byte_depth() > 1)
+  if (q->get_frame_desc().depth > 1)
   complex_2_module <<<blocks, threads >> >(result_fft, (unsigned short*)img_gpu, q->get_pixels() * nbimages);
   else
-    complex_2_module <<<blocks, threads >> >(result_fft, (unsigned char*)img_gpu, q->get_pixels() * nbimages);
+    complex_2_module << <blocks, threads >> >(result_fft, (unsigned char*)img_gpu, q->get_pixels() * nbimages);
 
   void *img_cpu = (void*)malloc(q->get_size() * nbimages);  
   cudaMemcpy(img_cpu, img_gpu, q->get_size() *nbimages, cudaMemcpyDeviceToHost);
@@ -55,7 +55,7 @@ float *test_16(int nbimages, holovibes::Queue *q)
   std::cout << "test_16" << std::endl;
   //std::cout << "nb elt" << q->get_end_index() - q->get_start_index() << std::endl;
   float *img_gpu = make_contigous_float(q, nbimages);
-  float *img_cpu = (float*)malloc(q->get_pixels() * sizeof (float) * nbimages);
+  float *img_cpu = (float*)malloc(q->get_pixels() * sizeof(float) * nbimages);
   if (img_cpu)
     std::cout << "alloc ok" << std::endl;
    cudaMemcpy(img_cpu, img_gpu, q->get_pixels() * sizeof(float)* nbimages, cudaMemcpyDeviceToHost);
