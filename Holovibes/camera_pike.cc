@@ -68,9 +68,11 @@ namespace camera
       // Put the frame back to DMA
       cam_.PutFrame(&fgframe_);
 
-      /*std::cout << "Frame received length:"
+#if _DEBUG
+      std::cout << "Frame received length:"
         << fgframe_.Length << " id:"
-        << fgframe_.Id << std::endl;*/
+        << fgframe_.Id << std::endl;
+#endif
     }
 
     return fgframe_.pData;
@@ -133,12 +135,6 @@ namespace camera
     roi_starty_ = pt.get<int>("pike.roi_starty", roi_starty_);
     roi_width_ = pt.get<int>("pike.roi_width", roi_width_);
     roi_height_ = pt.get<int>("pike.roi_height", roi_height_);
-  }
-
-  void print_info(FGPINFO pinfo)
-  {
-    std::cout << "Min: " << IMGRES(pinfo.MinValue) << " Max: " << IMGRES(pinfo.MaxValue) << std::endl;
-    std::cout << "Actual: " << IMGRES(pinfo.IsValue) << std::endl;
   }
 
   void CameraPike::bind_params()
