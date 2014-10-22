@@ -32,33 +32,33 @@ namespace camera
         bind_params();
       }
       else
-        throw new CameraException(name_, CameraException::camera_error::NOT_CONNECTED);
+        throw new CameraException(name_, CameraException::NOT_CONNECTED);
     }
     else
-      throw new CameraException(name_, CameraException::camera_error::NOT_INITIALIZED);
+      throw new CameraException(name_, CameraException::NOT_INITIALIZED);
   }
 
   void CameraPike::start_acquisition()
   {
     // Allocate DMA for the camera
     if(cam_.OpenCapture() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::camera_error::CANT_START_ACQUISITION);
+      throw new CameraException(name_, CameraException::CANT_START_ACQUISITION);
 
     if (cam_.StartDevice() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::camera_error::CANT_START_ACQUISITION);
+      throw new CameraException(name_, CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraPike::stop_acquisition()
   {
     if(cam_.StopDevice() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::camera_error::CANT_STOP_ACQUISITION);
+      throw new CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
   }
 
   void CameraPike::shutdown_camera()
   {
     // Free all image buffers and close the capture logic
     if(cam_.CloseCapture() != FCE_NOERROR)
-      throw new CameraException(name_, CameraException::camera_error::CANT_SHUTDOWN);
+      throw new CameraException(name_, CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraPike::get_frame()
