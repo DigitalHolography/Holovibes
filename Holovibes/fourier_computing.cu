@@ -4,10 +4,8 @@ cufftComplex *do_cufft_3d(cufftComplex *input, int nbimages, int size_x, int siz
 {
   cufftHandle plan;
   cufftPlan3d(&plan, size_x, size_y, nbimages, CUFFT_C2C);
-  cufftComplex *output;
-  cudaMalloc(&output, size_x * size_y * nbimages * sizeof (cufftComplex));
-  cufftExecC2C(plan, input, output, CUFFT_FORWARD);
-  return output;
+  cufftExecC2C(plan, input, input, CUFFT_FORWARD);
+  return input;
 }
 
 cufftComplex *fft_3d(holovibes::Queue *q, int nbimages)

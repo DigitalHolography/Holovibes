@@ -10,5 +10,5 @@
 #include "tools.cuh"
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages);
-float *make_contigous_float(holovibes::Queue *q, int nbimages);
+
 #endif

@@ -50,10 +50,10 @@ int main(int argc, const char* argv[])
   desc.pixel_size = 1;
   FILE *fd;
 
-  int images_2_read = 16;
+  int images_2_read = 2;
   fopen_s(&fd, "2phase_rawfrog.raw", "r+b");
-  unsigned char *img =(unsigned char*) malloc(16 * 2048 * 2048);
-  fread((void*)img, 2048 * 2048, 16, fd);
+  unsigned char *img = (unsigned char*)malloc(images_2_read * 2048 * 2048);
+  fread((void*)img, 2048 * 2048, images_2_read, fd);
 
   //img2disk("testload.raw", img, 2048 * 2048 * 16);
 
@@ -63,7 +63,7 @@ int main(int argc, const char* argv[])
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
 
-  test_fft(2, q);
+  test_fft(1, q);
   getchar();
   //test_16(10,q);
   //getchar();
