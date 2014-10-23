@@ -41,9 +41,19 @@ void *FourrierManager::compute_image_vector()
 
 void FourrierManager::gpu_vec_extract(unsigned char *gpu_vec)
 {
-  void *to_eq = gpu_vec + (p_ * inputq_->get_size());
-  outputq_->enqueue(to_eq, cudaMemcpyDeviceToDevice);
-  cudaFree(gpu_vec);
+  if (p_ > 0)
+  {
+    void *to_eq = gpu_vec + (p_ * inputq_->get_size());
+    outputq_->enqueue(to_eq, cudaMemcpyDeviceToDevice);
+    cudaFree(gpu_vec);
+  }
+  else
+  {
+    for (int i = 0; i < nbimages_; i++)
+    {
+     // outputq_->enqueue()
+    }
+  }
 }
 
 
