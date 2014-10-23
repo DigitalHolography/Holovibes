@@ -41,10 +41,7 @@ void load_images()
 {}
 int main(int argc, const char* argv[])
 {
-  //camera::Camera *cam = new camera::CameraPixelfly();
-  //cam->init_camera();
-  //cam->start_acquisition();
-  std::cout << "us: " << sizeof(unsigned short) << std::endl;
+  std::cout << "us" << sizeof(unsigned short) << std::endl;
 
   camera::FrameDescriptor desc;
   desc.depth = 1;
@@ -58,16 +55,12 @@ int main(int argc, const char* argv[])
   unsigned char *img =(unsigned char*) malloc(16 * 2048 * 2048);
   fread((void*)img, 2048 * 2048, 16, fd);
 
-
-
   //img2disk("testload.raw", img, 2048 * 2048 * 16);
-
-
 
   holovibes::Queue *q = new holovibes::Queue(desc, 50);
   for (int i = 0; i < images_2_read; i++)
   {
-    q->enqueue((void*) &img[i * desc.width * desc.height * desc.depth]);
+    q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
 
   test_fft(2, q);

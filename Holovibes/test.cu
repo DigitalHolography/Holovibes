@@ -4,7 +4,7 @@ void img2disk(std::string path, void* img, unsigned int size)
 {
   FILE* fd_;
 
-  for (unsigned int i = 0; i < size/2 ; i++)
+  for (unsigned int i = 0; i < size / sizeof(unsigned short); i++)
   {
     ((unsigned short*)img)[i] *= 50;
   }
@@ -23,23 +23,22 @@ void test_fft(int nbimages, holovibes::Queue *q)
 {
   int threads = 512;
   unsigned int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
+  unsigned int cube_size = q->get_pixels() * nbimages * sizeof(unsigned short);
 
   if (blocks > 65536)
-  {
     blocks = 65536;
-  }
 
   unsigned short* img_gpu;
-  cudaMalloc(&img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short));
+  cudaMalloc(&img_gpu, cube_size);
 
   cufftComplex *result_fft = fft_3d(q, nbimages); // return a cufftComplex result of the fft3d of nbimages
 
   complex_2_module <<<blocks, threads >> >(result_fft, img_gpu, q->get_pixels() * nbimages); // convert the complex im
 
-  void *img_cpu = (void*)malloc(q->get_pixels() * nbimages  * sizeof (unsigned short));
-  cudaMemcpy(img_cpu, img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short), cudaMemcpyDeviceToHost);
+  unsigned short* img_cpu = (unsigned short*)malloc(cube_size);
+  cudaMemcpy(img_cpu, img_gpu, cube_size, cudaMemcpyDeviceToHost);
 
-  img2disk("afft.raw", img_cpu, q->get_pixels() * nbimages * sizeof (unsigned short));
+  img2disk("afft.raw", img_cpu, cube_size);
 }
 
 

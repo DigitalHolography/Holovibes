@@ -56,7 +56,7 @@ namespace holovibes
     return end_index;
   }
 
-  bool Queue::enqueue(void* elt)
+  bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
   {
     mutex_.lock();
 
@@ -64,7 +64,7 @@ namespace holovibes
     int cuda_status = cudaMemcpy(buffer_ + (end_ * size_),
       elt,
       size_,
-      cudaMemcpyHostToDevice);
+      cuda_kind);
 
     if (cuda_status != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't enqueue" << std::endl;
@@ -85,6 +85,17 @@ namespace holovibes
     {
       void* last_img = buffer_ + ((start_ + curr_elts_ - 1) % max_elts_) * size_;
       memcpy(dest, last_img, size_);
+    }
+    mutex_.unlock();
+  }
+
+  void Queue::dequeue()
+  {
+    mutex_.lock();
+    if (curr_elts_ > 0)
+    {
+      start_ = (start_ + 1) % max_elts_;
+      curr_elts_ -= 1;
     }
     mutex_.unlock();
   }

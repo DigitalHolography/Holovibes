@@ -11,8 +11,9 @@
 #define _USE_MATH_DEFINES
 # include <math.h>
 
-__global__ void kernel_quadratic_lens(cufftComplex* input,
-  unsigned int matrix_size,
+__global__ void kernel_quadratic_lens(cufftComplex* output,
+  unsigned int xsize,
+  unsigned int ysize,
   float lambda,
   float dist);
 
