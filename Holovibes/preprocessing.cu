@@ -80,6 +80,7 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
     contigous_elts = q->get_max_elts() - nbimages;
   else
     contigous_elts = nbimages;
+
   if (contigous_elts < nbimages)
   {
     unsigned char *contigous;

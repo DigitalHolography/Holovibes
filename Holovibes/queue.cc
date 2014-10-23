@@ -78,13 +78,13 @@ namespace holovibes
     return true;
   }
 
-  void Queue::dequeue(void* dest)
+  void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
   {
     mutex_.lock();
     if (curr_elts_ > 0)
     {
       void* last_img = buffer_ + ((start_ + curr_elts_ - 1) % max_elts_) * size_;
-      memcpy(dest, last_img, size_);
+      cudaMemcpy(dest, last_img, size_, cuda_kind);
     }
     mutex_.unlock();
   }

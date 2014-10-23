@@ -61,7 +61,7 @@ namespace holovibes
     unsigned int get_end_index();
 
     bool enqueue(void* elt, cudaMemcpyKind cuda_kind);
-    void dequeue(void* dest);
+    void dequeue(void* dest, cudaMemcpyKind cuda_kind);
     void dequeue();
     //void* dequeue(size_t elts_nb);
 

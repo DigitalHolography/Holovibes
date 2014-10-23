@@ -23,7 +23,7 @@ void *FourrierManager::get_image()
 {
   void* t = NULL;
   gpu_vec_extract((unsigned char*)compute_image_vector());
-  outputq_->dequeue(t);
+  outputq_->dequeue(t, cudaMemcpyDeviceToHost);
   return t;
 }
 
