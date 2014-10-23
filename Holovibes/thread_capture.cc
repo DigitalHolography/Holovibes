@@ -22,6 +22,6 @@ namespace holovibes
   void ThreadCapture::thread_proc()
   {
     while (!stop_requested_)
-      queue_.enqueue(camera_.get_frame());
+      queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
   }
 }

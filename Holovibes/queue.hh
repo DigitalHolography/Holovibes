@@ -60,8 +60,9 @@ namespace holovibes
     void* get_last_images(int n);
     unsigned int get_end_index();
 
-    bool enqueue(void* elt);
+    bool enqueue(void* elt, cudaMemcpyKind cuda_kind);
     void dequeue(void* dest);
+    void dequeue();
     //void* dequeue(size_t elts_nb);
 
     // debug only

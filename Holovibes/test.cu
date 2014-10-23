@@ -4,7 +4,7 @@ void img2disk(std::string path, void* img, unsigned int size)
 {
   FILE* fd_;
 
-  for (unsigned int i = 0; i < size/2 ; i++)
+  for (unsigned int i = 0; i < size / sizeof(unsigned short); i++)
   {
     ((unsigned short*)img)[i] *= 50;
   }
