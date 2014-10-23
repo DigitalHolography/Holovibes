@@ -120,6 +120,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="gl_component.hh" />
     <ClInclude Include="gl_window.hh" />
     <ClInclude Include="holovibes.hh" />
+    <ClInclude Include="loader.hh" />
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="preprocessing.cuh" />
@@ -144,6 +145,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="gl_component.cc" />
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="holovibes.cc" />
+    <ClCompile Include="loader.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="options_parser.cc" />
     <ClCompile Include="queue.cc" />

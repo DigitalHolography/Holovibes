@@ -32,9 +32,9 @@ void test_fft(int nbimages, holovibes::Queue *q)
   unsigned short* img_gpu;
   cudaMalloc(&img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short));
 
-  cufftComplex *result_fft = fft_3d(q, nbimages);
+  cufftComplex *result_fft = fft_3d(q, nbimages); // return a cufftComplex result of the fft3d of nbimages
 
-  complex_2_module <<<blocks, threads >> >(result_fft, img_gpu, q->get_pixels() * nbimages);
+  complex_2_module <<<blocks, threads >> >(result_fft, img_gpu, q->get_pixels() * nbimages); // convert the complex im
 
   void *img_cpu = (void*)malloc(q->get_pixels() * nbimages  * sizeof (unsigned short));
   cudaMemcpy(img_cpu, img_gpu, q->get_pixels() * nbimages * sizeof (unsigned short), cudaMemcpyDeviceToHost);

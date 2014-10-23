@@ -44,7 +44,7 @@ int main(int argc, const char* argv[])
   //camera::Camera *cam = new camera::CameraPixelfly();
   //cam->init_camera();
   //cam->start_acquisition();
-  std::cout << "us" << sizeof(unsigned short) << std::endl;
+  std::cout << "us: " << sizeof(unsigned short) << std::endl;
 
   camera::FrameDescriptor desc;
   desc.depth = 1;
