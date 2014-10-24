@@ -70,7 +70,7 @@ namespace holovibes
 
   private:
     // Frame descriptor
-    const camera::FrameDescriptor& frame_desc_;
+    const camera::FrameDescriptor frame_desc_;
 
     // Size of one element in bytes
     size_t size_;

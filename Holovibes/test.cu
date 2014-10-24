@@ -38,7 +38,7 @@ cufftComplex* create_lens(unsigned int size_x, unsigned int size_y, float lambda
   return lens;
 }
 
-void* fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect)
+void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer)
 {
   // Sizes
   unsigned int pixel_size = q->get_frame_desc().width * q->get_frame_desc().height * nbimages;
@@ -67,22 +67,10 @@ void* fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_v
   cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
-  unsigned short* real_output_gpu;
-  cudaMalloc(&real_output_gpu, short_size);
-
-  complex_2_module << <blocks, threads >> >(complex_input, real_output_gpu, pixel_size);
-
-  // Write to disk
-  unsigned short* real_output_cpu = (unsigned short*)malloc(short_size);
-  cudaMemcpy(real_output_cpu, real_output_gpu, short_size, cudaMemcpyDeviceToHost);
-
-  img2disk("atest_jeff.raw", real_output_cpu, short_size);
+  complex_2_module << <blocks, threads >> >(complex_input, result_buffer, pixel_size);
 
   // Free all
   cudaFree(complex_input);
-  free(real_output_cpu);
-
-  return real_output_gpu;
 }
 
 

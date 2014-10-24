@@ -93,7 +93,6 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-
   }
 
   void Holovibes::dispose_compute()

@@ -7,6 +7,7 @@
 #include "camera_pixelfly.hh"
 #include "queue.hh"
 #include "test.cuh"
+#include "fouriermanager.hh"
 
 int main(int argc, const char* argv[])
 {
@@ -28,8 +29,15 @@ int main(int argc, const char* argv[])
   {
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
+  //
+  FourrierManager fm = FourrierManager(1, 2, 535.0e-9f, 1.36f, q);
 
-  test_fft(16, q);
+  fm.compute_hologram();
+  void* img_gpu = fm.get_queue()->get_last_images(1);
+  void* img_cpu = malloc(fm.get_queue()->get_size());
+  cudaMemcpy(img_cpu, img_gpu, fm.get_queue()->get_size(),cudaMemcpyDeviceToHost);
 
+  img2disk("at.raw", img_cpu, fm.get_queue()->get_size());
+  getchar();
   return 0;
 }
