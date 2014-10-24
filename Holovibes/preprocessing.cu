@@ -20,7 +20,7 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
   else
     sqrt_vec = make_sqrt_vec(65536);//think about free it
   int threads = 512;
-  int blocks = (q->get_size() * nbimages + 511) / 512;
+  int blocks = (q->get_pixels() * nbimages + 511) / 512;
   if (blocks > 65536)
   {
     blocks = 65536;
@@ -61,7 +61,7 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
     }
     else
     {
-      image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)q->get_last_images(nbimages), vec_size_pix, sqrt_vec);
+      image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)(q->get_last_images(nbimages)), vec_size_pix, sqrt_vec);
       std::cout << "in contigous 8 bit" << std::endl;
     }
     return output;
