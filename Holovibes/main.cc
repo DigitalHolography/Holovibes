@@ -19,7 +19,7 @@ int main(int argc, const char* argv[])
 
   // Loading images
   int images_2_read = 16;
-  fopen_s(&fd, "test.raw", "r+b");
+  fopen_s(&fd, "2phase_rawfrog.raw", "r+b");
   unsigned char *img = (unsigned char*)malloc(images_2_read * 2048 * 2048);
   fread((void*)img, 2048 * 2048, images_2_read, fd);
 
@@ -29,10 +29,7 @@ int main(int argc, const char* argv[])
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
 
-  img2disk("test2.raw", q->get_last_images(images_2_read), 2048 * 2048 * images_2_read);
-
-  //test_fft(16, q);
-  getchar();
+  test_fft(16, q);
 
   return 0;
 }

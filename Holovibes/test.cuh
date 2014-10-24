@@ -2,7 +2,6 @@
 #define TEST_CUH
 
 #include "string"
-#include "preprocessing.cuh"
 #include "fourier_computing.cuh"
 #include "tools.cuh"
 #include <cuda.h>

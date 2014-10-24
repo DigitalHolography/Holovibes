@@ -32,8 +32,8 @@ __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int siz
 
   while (index < size)
   {
-    res[index].x = data[index];//sqrt_tab[data[index]];
-    res[index].y = data[index];//sqrt_tab[data[index]];
+    res[index].x = sqrt_tab[data[index]];
+    res[index].y = sqrt_tab[data[index]];
     index += blockDim.x * gridDim.x;
   }
 }
@@ -56,7 +56,7 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
 
   while (index < size)
   {
-    output[index] = log10(sqrtf(input[index].x * input[index].x + input[index].y * input[index].y));
+    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
     index += blockDim.x * gridDim.x;
   }
 }
