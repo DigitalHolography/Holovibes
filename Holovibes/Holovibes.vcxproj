@@ -95,7 +95,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;$(ProjectLibDir)\pixelfly\SC2_Cam.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
