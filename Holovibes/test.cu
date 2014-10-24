@@ -69,8 +69,15 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   // Complex --> real (unsigned short)
   complex_2_module << <blocks, threads >> >(complex_input, result_buffer, pixel_size);
 
+  // Write to disk
+  unsigned short* real_output_cpu = (unsigned short*)malloc(short_size);
+  cudaMemcpy(real_output_cpu, result_buffer, short_size, cudaMemcpyDeviceToHost);
+
+  img2disk("atest_jeff.raw", real_output_cpu, short_size);
+
   // Free all
   cudaFree(complex_input);
+  free(real_output_cpu);
 }
 
 
