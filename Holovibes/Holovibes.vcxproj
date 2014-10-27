@@ -129,7 +129,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
-    <ClInclude Include="test.cuh" />
+    <ClInclude Include="fft1.cuh" />
     <ClInclude Include="thread_gl_window.hh" />
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
@@ -161,7 +161,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fourier_computing.cu" />
-    <CudaCompile Include="test.cu" />
+    <CudaCompile Include="fft1.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="transforms.cu" />
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include "camera.hh"
 #include "camera_pixelfly.hh"
 #include "queue.hh"
-#include "test.cuh"
+#include "fft1.cuh"
 
 class ImageLoader
 {

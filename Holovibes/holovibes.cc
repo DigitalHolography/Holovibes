@@ -6,7 +6,6 @@
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"
 #include "camera_xiq.hh"
-#include "test.cuh"
 
 #include <exception>
 #include <cassert>

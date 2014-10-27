@@ -3,7 +3,7 @@
 
 #include "queue.hh"
 #include "fourier_computing.cuh"
-#include "test.cuh"
+#include "fft1.cuh"
 
 namespace holovibes
 {

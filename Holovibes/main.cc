@@ -6,7 +6,6 @@
 #include "camera.hh"
 #include "camera_pixelfly.hh"
 #include "queue.hh"
-#include "test.cuh"
 #include "fouriermanager.hh"
 
 int main(int argc, const char* argv[])
