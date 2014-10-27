@@ -9,7 +9,7 @@
 #include "queue.hh"
 #include "tools.cuh"
 
-cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages);
+cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *sqrt_vec);
 float *make_sqrt_vec(int vec_size);
 
 #endif

@@ -12,13 +12,8 @@ float *make_sqrt_vec(int vec_size)
   return vec_gpu;
 }
 
-cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages)
+cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *sqrt_vec)
 {
-  float *sqrt_vec;
-  if (q->get_frame_desc().depth == 1)
-    sqrt_vec = make_sqrt_vec(256);
-  else
-    sqrt_vec = make_sqrt_vec(65536);//think about free it
   int threads = 512;
   int blocks = (q->get_pixels() * nbimages + 511) / 512;
   if (blocks > 65536)
