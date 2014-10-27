@@ -30,7 +30,7 @@ int main(int argc, const char* argv[])
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
   //
-  FourrierManager fm = FourrierManager(1, 2, 535.0e-9f, 1.36f, q);
+  holovibes::FourrierManager fm = holovibes::FourrierManager(8, 16, 535.0e-9f, 1.36f, *q);
 
   fm.compute_hologram();
   void* img_gpu = fm.get_queue()->get_last_images(1);
