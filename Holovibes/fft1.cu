@@ -42,8 +42,8 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   unsigned int blocks = (pixel_size + threads - 1) / threads;
 
   // Hardware limit !!
-  if (blocks > 65335)
-    blocks = 65335;
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks() - 1;
 
   cufftComplex* complex_input = make_contigous_complex(q, nbimages, sqrt_vect);
 
