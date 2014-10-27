@@ -33,9 +33,9 @@ int main(int argc, const char* argv[])
   FourrierManager fm = FourrierManager(1, 2, 535.0e-9f, 1.36f, q);
 
   fm.compute_hologram();
-  void* img_gpu = fm.get_queue()->get_last_images(16);
+  void* img_gpu = fm.get_queue()->get_last_images(1);
 
-  img2disk("at.raw", img_gpu, fm.get_queue()->get_size() * 16);
+  img2disk("at.raw", img_gpu, fm.get_queue()->get_size());
   getchar();
   return 0;
 }

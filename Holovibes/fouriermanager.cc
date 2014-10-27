@@ -4,8 +4,8 @@
 FourrierManager::FourrierManager(int p, int nbimages, float lambda, float dist, holovibes::Queue *q)
 {
   p_ = p;
-  nbimages_ = nbimages_;
-  lambda_ = lambda_;
+  nbimages_ = nbimages;
+  lambda_ = lambda;
   dist_ = dist;
   inputq_ = q;
   camera::FrameDescriptor fd = inputq_->get_frame_desc();
@@ -34,12 +34,8 @@ FourrierManager::FourrierManager(int p, int nbimages, float lambda, float dist, 
 
 void FourrierManager::compute_hologram()
 {
-  int img_size = inputq_->get_pixels() * sizeof (unsigned short);
   fft_1(nbimages_, inputq_, lens_, sqrt_vec_, output_buffer_);
-  unsigned short *img_p = output_buffer_ + (p_ * inputq_->get_pixels());
-  void *img_cpu = malloc(img_size);
-  cudaMemcpy(img_cpu, img_p, img_size, cudaMemcpyDeviceToHost);
-  outputq_->enqueue(img_cpu, cudaMemcpyHostToDevice);
+  outputq_->enqueue(output_buffer_ + p_ * inputq_->get_pixels(), cudaMemcpyDeviceToDevice);
 }
 
 holovibes::Queue *FourrierManager::get_queue()
