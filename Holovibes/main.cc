@@ -29,9 +29,24 @@ int main(int argc, const char* argv[])
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
   //
-  holovibes::FourrierManager fm = holovibes::FourrierManager(8, 16, 535.0e-9f, 1.36f, *q);
+  holovibes::FourrierManager fm = holovibes::FourrierManager(1, 5, 535.0e-9f, 1.36f, *q);
+
+  cudaEvent_t start, stop;
+  float time;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start, 0);
+
 
   fm.compute_hologram();
+
+  cudaEventRecord(stop, 0);
+  cudaEventSynchronize(stop);
+
+  cudaEventElapsedTime(&time, start, stop);
+  printf("Time for the kernel: %f ms\n", time);
+
+
   void* img_gpu = fm.get_queue()->get_last_images(1);
 
   img2disk("at.raw", img_gpu, fm.get_queue()->get_size());

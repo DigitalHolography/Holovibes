@@ -45,10 +45,7 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   if (blocks >= 65536)
     blocks = 65535;
 
-  cufftComplex* complex_input;
-  cudaMalloc(&complex_input, complex_size);
-
-  image_2_complex8 << <blocks, threads >> >(complex_input, (unsigned char*)q->get_last_images(nbimages), pixel_size, sqrt_vect);
+  cufftComplex* complex_input = make_contigous_complex(q, nbimages);
 
   // Apply lens
   apply_quadratic_lens << <blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
