@@ -29,7 +29,7 @@ int main(int argc, const char* argv[])
     q->enqueue((void*)&img[i * desc.width * desc.height * desc.depth], cudaMemcpyHostToDevice);
   }
   //
-  holovibes::FourrierManager fm = holovibes::FourrierManager(1, 2, 535.0e-9f, 1.36f, *q);
+  holovibes::FourrierManager fm = holovibes::FourrierManager(8, 16, 535.0e-9f, 1.36f, *q);
 
   cudaEvent_t start, stop;
   float time;

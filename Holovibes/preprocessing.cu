@@ -16,9 +16,9 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
 {
   int threads = 512;
   int blocks = (q->get_pixels() * nbimages + 511) / 512;
-  if (blocks > 65536)
+  if (blocks > 65535)
   {
-    blocks = 65536;
+    blocks = 65535;
   }
   int vec_size_pix = q->get_pixels() * nbimages;
   int vec_size_byt = q->get_size() * nbimages;
