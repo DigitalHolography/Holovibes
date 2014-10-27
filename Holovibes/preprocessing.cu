@@ -14,12 +14,11 @@ float *make_sqrt_vec(int vec_size)
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *sqrt_vec)
 {
-  int threads = 512;
-  int blocks = (q->get_pixels() * nbimages + 511) / 512;
-  if (blocks > 65535)
-  {
-    blocks = 65535;
-  }
+  int threads = get_max_threads_1d();
+  int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks() - 1;
+
   int vec_size_pix = q->get_pixels() * nbimages;
   int vec_size_byt = q->get_size() * nbimages;
   int img_byte = q->get_size();
