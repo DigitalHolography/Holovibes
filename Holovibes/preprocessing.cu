@@ -40,9 +40,9 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
     cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * img_byte, cudaMemcpyDeviceToDevice);
     cudaMemcpy(contigous + contigous_elts * img_byte, q->get_buffer(), (nbimages - contigous_elts) * img_byte, cudaMemcpyDeviceToDevice);
     if (q->get_frame_desc().depth > 1)
-      image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)contigous, vec_size_pix, sqrt_vec);
+      image_2_complex16 <<<blocks, threads >> >(output, (unsigned short*)contigous, vec_size_pix, sqrt_vec);
     else
-      image_2_complex8 << <blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
+      image_2_complex8 <<<blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
 
     return output;
   }

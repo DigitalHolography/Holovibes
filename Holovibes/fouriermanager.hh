@@ -4,6 +4,7 @@
 #include "queue.hh"
 #include "fourier_computing.cuh"
 #include "fft1.cuh"
+#include "contrast_correction.cuh"
 
 namespace holovibes
 {
