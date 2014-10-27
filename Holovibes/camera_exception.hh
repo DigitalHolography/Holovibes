@@ -34,7 +34,7 @@ namespace camera
       return name_;
     }
 
-    const std::string match_error() const;
+    const char* match_error() const;
 
   private:
     // Object is non copyable

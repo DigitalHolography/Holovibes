@@ -60,6 +60,14 @@ namespace camera
     ** or xiApi allocated memory.
     */
     XI_BP buffer_policy_;
+    /*!
+    ** Trigger mode
+    ** XI_TRG_OFF : Capture of next image is automatically started after previous.
+    ** XI_TRG_EDGE_RISING: Capture is started on rising edge of selected input.
+    ** XI_TRG_EDGE_FALLING: Capture is started on falling edge of selected input. 
+    ** XI_TRG_SOFTWARE: Capture is started with software trigger.
+    */
+    XI_TRG_SOURCE trigger_src_;
   };
 }
 

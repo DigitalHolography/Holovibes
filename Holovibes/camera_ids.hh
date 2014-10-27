@@ -16,6 +16,7 @@ namespace camera
     CameraIds()
       : Camera("ids.ini")
     {
+      name_ = "ids";
       load_default_params();
       if (ini_file_is_open())
         load_ini_params();
@@ -59,10 +60,10 @@ namespace camera
     int color_mode_;
 
     /*! Area Of Interest (AOI) x */
-    int aoi_x;
+    int aoi_x_;
 
     /*! Area Of Interest (AOI) y */
-    int aoi_y;
+    int aoi_y_;
 
     /*! Area Of Interest (AOI) width */
     int aoi_width_;

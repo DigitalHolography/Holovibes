@@ -5,11 +5,10 @@ namespace camera
 {
   const char* CameraException::what() const
   {
-    std::string res = name_ + " " + match_error();
-    return res.c_str();
+    return match_error();
   }
 
-  const std::string CameraException::match_error() const
+  const char* CameraException::match_error() const
   {
     switch (code_)
     {

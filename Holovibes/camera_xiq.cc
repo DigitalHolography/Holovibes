@@ -8,6 +8,7 @@ namespace camera
     : Camera("xiq.ini")
     , device_(nullptr)
   {
+    name_ = "xiq";
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
@@ -61,7 +62,6 @@ namespace camera
 
   void CameraXiq::load_default_params()
   {
-    name_ = "Xiq";
     exposure_time_ = 0.005f;
     /* Custom parameters. */
     gain_ = 0.f;
@@ -104,6 +104,8 @@ namespace camera
       img_format_ = XI_RAW8;
     else if (str == "RAW16")
       img_format_ = XI_RAW16;
+
+    trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);
   }
 
   void CameraXiq::bind_params()
@@ -120,6 +122,7 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
     status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
+    status |= xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
 
     if (status != XI_OK)
       throw CameraException(name_, CameraException::CANT_SET_CONFIG);
