@@ -30,7 +30,7 @@ cufftComplex* create_lens(unsigned int size_x, unsigned int size_y, float lambda
   return lens;
 }
 
-void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer)
+void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan)
 {
   // Sizes
   unsigned int pixel_size = q->get_frame_desc().width * q->get_frame_desc().height * nbimages;
@@ -48,11 +48,11 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   cufftComplex* complex_input = make_contigous_complex(q, nbimages);
 
   // Apply lens
-  apply_quadratic_lens << <blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
+  apply_quadratic_lens <<<blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
 
   // FFT
-  cufftHandle plan;
-  cufftPlan3d(&plan, nbimages, q->get_frame_desc().width, q->get_frame_desc().height, CUFFT_C2C);
+  //cufftHandle plan;
+  //cufftPlan3d(&plan, nbimages, q->get_frame_desc().width, q->get_frame_desc().height, CUFFT_C2C);
   cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)

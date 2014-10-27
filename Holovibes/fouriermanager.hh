@@ -21,6 +21,7 @@ namespace holovibes
     float *sqrt_vec_; //gpu_vec
     unsigned short *output_buffer_;
     int threads_;
+    cufftHandle plan_;
     int bytedepth_;
     int p_;
     int nbimages_;

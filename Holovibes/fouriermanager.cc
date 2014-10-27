@@ -20,11 +20,12 @@ namespace holovibes
     else
       sqrt_vec_ = make_sqrt_vec(256);
     lens_ = create_lens(inputq_.get_frame_desc().width, inputq_.get_frame_desc().height, lambda_, dist_);
+    cufftPlan3d(&plan_, nbimages, inputq_.get_frame_desc().width, inputq_.get_frame_desc().height, CUFFT_C2C);
   }
 
   void FourrierManager::compute_hologram()
   {
-    fft_1(nbimages_, &inputq_, lens_, sqrt_vec_, output_buffer_);
+    fft_1(nbimages_, &inputq_, lens_, sqrt_vec_, output_buffer_, plan_);
     outputq_->enqueue(output_buffer_ + p_ * inputq_.get_pixels(), cudaMemcpyDeviceToDevice);
   }
 
