@@ -16,11 +16,15 @@ void img2disk(std::string path, void* img, unsigned int size)
 {
   FILE* fd_;
 
+  void* cpu_img = malloc(size);
+  if (cudaMemcpy(cpu_img, img, size, cudaMemcpyDeviceToHost) != CUDA_SUCCESS)
+    std::cout << "couldn't copy mem" << std::endl;
+
   if (fopen_s(&fd_, path.c_str(), "w+b") != 0)
     std::cout << "couldn't open file" << path << std::endl;
   else
   {
-    if (fwrite(img, size, 1, fd_) != 1)
+    if (fwrite(cpu_img, size, 1, fd_) != 1)
       std::cout << "couldn't write file to disk" << std::endl;
     fclose(fd_);
   }

@@ -13,28 +13,24 @@ FourrierManager::FourrierManager(int p, int nbimages, float lambda, float dist, 
   outputq_ =  new holovibes::Queue(fd, inputq_->get_max_elts());
   cudaMalloc(&output_buffer_, inputq_->get_pixels() * sizeof (unsigned short) * nbimages_);
 
-
-  //debug
-  void *test = malloc(inputq_->get_pixels() * sizeof (unsigned short)* nbimages_);
+  /*debug
+  void *test = malloc(inputq_->get_pixels() * sizeof (unsigned short) * nbimages_);
   void *test2;
-  cudaMalloc(&test2, inputq_->get_pixels() * sizeof (unsigned short)* nbimages_);
+  cudaMalloc(&test2, inputq_->get_pixels() * sizeof (unsigned short) * nbimages_);
  
-  if (cudaMemcpy(test, output_buffer_, inputq_->get_pixels() * sizeof (unsigned short)* nbimages_, cudaMemcpyDeviceToHost) != CUDA_SUCCESS)
+  if (cudaMemcpy(test, output_buffer_, inputq_->get_pixels() * sizeof (unsigned short) * nbimages_, cudaMemcpyDeviceToHost) != CUDA_SUCCESS)
     std::cout << "fail copy device2host" << std::endl;
-  if (cudaMemcpy(test2, output_buffer_, inputq_->get_pixels() * sizeof (unsigned short)* nbimages_, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
+  if (cudaMemcpy(test2, output_buffer_, inputq_->get_pixels() * sizeof (unsigned short) * nbimages_, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
     std::cout << "fail copy device2device" << std::endl;
   std::cout << inputq_->get_pixels() * sizeof (unsigned short) << std::endl;
-  //debug
+  */
 
   if (q->get_frame_desc().depth > 1)
-    sqrt_vec_ = make_sqrt_vec(65535);
+    sqrt_vec_ = make_sqrt_vec(65536);
   else
     sqrt_vec_ = make_sqrt_vec(256);
   lens_ = create_lens(inputq_->get_frame_desc().width, inputq_->get_frame_desc().height, lambda_, dist_);
 }
-
-
-
 
 void FourrierManager::compute_hologram()
 {

@@ -33,11 +33,9 @@ int main(int argc, const char* argv[])
   FourrierManager fm = FourrierManager(1, 2, 535.0e-9f, 1.36f, q);
 
   fm.compute_hologram();
-  void* img_gpu = fm.get_queue()->get_last_images(1);
-  void* img_cpu = malloc(fm.get_queue()->get_size());
-  cudaMemcpy(img_cpu, img_gpu, fm.get_queue()->get_size(),cudaMemcpyDeviceToHost);
+  void* img_gpu = fm.get_queue()->get_last_images(16);
 
-  img2disk("at.raw", img_cpu, fm.get_queue()->get_size());
+  img2disk("at.raw", img_gpu, fm.get_queue()->get_size() * 16);
   getchar();
   return 0;
 }
