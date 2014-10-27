@@ -36,6 +36,7 @@ namespace holovibes
 
   FourrierManager::~FourrierManager()
   {
+    delete outputq_;
     cudaFree(lens_);
     cudaFree(output_buffer_);
     cudaFree(sqrt_vec_);

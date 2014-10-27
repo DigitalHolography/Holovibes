@@ -18,7 +18,7 @@ namespace holovibes
 
   private:
     cufftComplex *lens_;
-    float *sqrt_vec_; //gpu_vec
+    float *sqrt_vec_;
     unsigned short *output_buffer_;
     int threads_;
     cufftHandle plan_;
@@ -31,12 +31,5 @@ namespace holovibes
     holovibes::Queue& inputq_;
   };
 }
-
-
-
-
-
-
-
 
 #endif
