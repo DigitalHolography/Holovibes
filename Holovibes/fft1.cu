@@ -20,9 +20,9 @@ void img2disk(std::string path, void* img, unsigned int size)
 
 cufftComplex* create_lens(unsigned int size_x, unsigned int size_y, float lambda, float z)
 {
-  // FIXME compute dynamically (nb threads)
-  dim3 lthreads(16, 16);
-  dim3 lblocks(size_x / 16, size_y / 16);
+  unsigned int threads_2d = get_max_threads_2d();
+  dim3 lthreads(threads_2d, threads_2d);
+  dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
   cufftComplex *lens;
   cudaMalloc(&lens, size_x * size_y * sizeof(cufftComplex));
   kernel_quadratic_lens << <lblocks, lthreads >> >(lens, size_x, size_y, lambda, z);
@@ -38,12 +38,12 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   unsigned int short_size = pixel_size * sizeof(unsigned short);
 
   // Loaded images --> complex
-  int threads = 512;
+  int threads = get_max_threads_1d();
   unsigned int blocks = (pixel_size + threads - 1) / threads;
 
   // Hardware limit !!
-  if (blocks >= 65536)
-    blocks = 65535;
+  if (blocks >= get_max_blocks())
+    blocks = get_max_blocks() - 1;
 
   cufftComplex* complex_input = make_contigous_complex(q, nbimages);
 
