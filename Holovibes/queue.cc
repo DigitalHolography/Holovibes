@@ -69,13 +69,6 @@ namespace holovibes
     if (cuda_status != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't enqueue" << std::endl;
 
-    if (cuda_status == cudaErrorInvalidMemcpyDirection)
-      std::cerr << "cudaErrorInvalidMemcpyDirection" << std::endl;
-    else if (cuda_status == cudaErrorInvalidDevicePointer)
-      std::cerr << "cudaErrorInvalidDevicePointer" << std::endl;
-    else if (cuda_status == cudaErrorInvalidValue)
-      std::cerr << "cudaErrorInvalidValue" << std::endl;
-
     if (curr_elts_ < max_elts_)
       ++curr_elts_;
     else
