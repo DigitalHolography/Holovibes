@@ -146,7 +146,7 @@ namespace camera
     status |= cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
     status |= cam_.SetParameter(FGP_SHUTTER, exposure_time_);
     status |= cam_.SetParameter(FGP_GAMMA, gamma_);
-    status |= cam_.SetParameter(FGP_PHYSPEED, speed_);
+    status |= cam_.SetParameter(FGP_PHYSPEED, to_speed());
     status |= cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));
     status |= cam_.SetParameter(FGP_XPOSITION, roi_startx_);
     status |= cam_.SetParameter(FGP_YPOSITION, roi_starty_);
@@ -175,5 +175,19 @@ namespace camera
       mode = 0;
 
     return MAKEDCAMFORMAT(7, mode, color_mode);
+  }
+
+  unsigned long CameraPike::to_speed()
+  {
+    if (speed_ == 100)
+      return FG_PHYSPEED::PS_100MBIT;
+    else if (speed_ == 200)
+      return FG_PHYSPEED::PS_200MBIT;
+    else if (speed_ == 400)
+      return FG_PHYSPEED::PS_400MBIT;
+    else if (speed_ == 800)
+      return FG_PHYSPEED::PS_800MBIT;
+    else
+      return FG_PHYSPEED::PS_800MBIT;
   }
 }
