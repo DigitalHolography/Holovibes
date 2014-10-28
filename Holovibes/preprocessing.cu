@@ -47,16 +47,13 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
   }
   else
   {
-    std::cout << "hey" << std::endl;
     if (q->get_frame_desc().depth > 1)
     {
       image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), vec_size_pix, sqrt_vec);
-      std::cout << "in contigous 16 bit" << std::endl;
     }
     else
     {
       image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)(q->get_last_images(nbimages)), vec_size_pix, sqrt_vec);
-      std::cout << "in contigous 8 bit" << std::endl;
     }
     return output;
   }

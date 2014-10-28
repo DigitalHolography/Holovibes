@@ -8,7 +8,8 @@ namespace holovibes
     nbimages_(nbimages),
     lambda_(lambda),
     dist_(dist),
-    inputq_(q)
+    inputq_(q),
+    compute_on_(false)
   {
     camera::FrameDescriptor fd = inputq_.get_frame_desc();
     fd.depth = 2;
@@ -26,13 +27,14 @@ namespace holovibes
 
   void FourrierManager::compute_hologram()
   {
+    std::cout << "compute hologram" << std::endl;
     fft_1(nbimages_, &inputq_, lens_, sqrt_vec_, output_buffer_, plan_);
     outputq_->enqueue(output_buffer_ + p_ * inputq_.get_pixels(), cudaMemcpyDeviceToDevice);
   }
 
-  holovibes::Queue* FourrierManager::get_queue()
+  holovibes::Queue& FourrierManager::get_queue()
   {
-    return outputq_;
+    return *outputq_;
   }
 
   FourrierManager::~FourrierManager()
@@ -41,5 +43,20 @@ namespace holovibes
     cudaFree(lens_);
     cudaFree(output_buffer_);
     cudaFree(sqrt_vec_);
+  }
+
+  void FourrierManager::start_compute()
+  {
+    compute_on_ = true;
+
+    while (inputq_.get_current_elts() >= nbimages_ && compute_on_)
+    {
+      compute_hologram();
+    }
+  }
+
+  void FourrierManager::stop_compute()
+  {
+    compute_on_ = false;
   }
 }

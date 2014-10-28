@@ -1,5 +1,5 @@
 #ifndef FOURIERMANAGER_HH
-#define FOURRIERMANAGER_HH
+#define FOURIERMANAGER_HH
 
 #include "queue.hh"
 #include "fourier_computing.cuh"
@@ -14,7 +14,9 @@ namespace holovibes
     FourrierManager();
     ~FourrierManager();
     void compute_hologram();
-    holovibes::Queue *get_queue();
+    holovibes::Queue &get_queue();
+    void start_compute();
+    void stop_compute();
 
   private:
     cufftComplex *lens_;
@@ -29,6 +31,8 @@ namespace holovibes
     float dist_;
     holovibes::Queue* outputq_;
     holovibes::Queue& inputq_;
+
+    bool compute_on_;
   };
 }
 

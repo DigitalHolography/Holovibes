@@ -123,7 +123,7 @@ namespace camera
     subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
     gain_ = pt.get<unsigned long>("pike.gain", gain_);
     brightness_ = pt.get<unsigned long>("pike.brightness", brightness_);
-    exposure_time_ = pt.get<float>("pike.exposure_time", exposure_time_);
+    exposure_time_ = pt.get<float>("pike.shutter_time", exposure_time_);
     gamma_ = pt.get<unsigned long>("pike.gamma", gamma_);
     speed_ = pt.get<unsigned long>("pike.speed", speed_);
 

@@ -5,6 +5,7 @@
 # include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
+# include "fouriermanager.hh"
 
 namespace holovibes
 {
@@ -35,7 +36,7 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
-    void init_compute();
+    void init_compute(unsigned int p, unsigned int images_nb, float lambda, float z);
     void dispose_compute();
 
   private:
@@ -43,6 +44,7 @@ namespace holovibes
     ThreadCapture* tcapture_;
     ThreadGLWindow* tglwnd_;
     Recorder* recorder_;
+    FourrierManager* fm_;
   };
 }
 
