@@ -47,6 +47,7 @@ namespace holovibes
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
+    assert(tcompute_ && "compute not initialized");
     const camera::FrameDescriptor& desc = tcompute_->get_queue().get_frame_desc();
     Queue& queue = tcompute_->get_queue();
     //const camera::FrameDescriptor& desc = camera_->get_frame_descriptor();
@@ -97,6 +98,8 @@ namespace holovibes
 
   void Holovibes::init_compute(unsigned int p, unsigned int images_nb, float lambda, float z)
   {
+    assert(camera_ && "camera not initialized");
+    assert(tcapture_ && "capture thread not initialized");
     tcompute_ = new ThreadCompute(p, images_nb, lambda, z, tcapture_->get_queue());
   }
 

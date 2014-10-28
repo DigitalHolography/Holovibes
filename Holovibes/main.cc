@@ -21,7 +21,7 @@ int main(int argc, const char* argv[])
 
     h.init_capture(opts.queue_size);
 
-    h.init_compute(0, 2, 600.0e-9f, 1.36f);
+    h.init_compute(0, 30, 600.0e-9f, 1.36f);
 
     if (opts.is_gl_window_enabled)
       h.init_display(opts.gl_window_width, opts.gl_window_height);

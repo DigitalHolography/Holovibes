@@ -19,15 +19,6 @@ namespace holovibes
     camera::FrameDescriptor fd = input_q_.get_frame_desc();
     fd.depth = 2;
     output_q_ = new Queue(fd, input_q_.get_max_elts());
-    cudaMalloc(&output_buffer_, input_q_.get_pixels() * sizeof(unsigned short) * images_nb_);
-
-    if (input_q_.get_frame_desc().depth > 1)
-      sqrt_vec_ = make_sqrt_vec(65536);
-    else
-      sqrt_vec_ = make_sqrt_vec(256);
-
-    lens_ = create_lens(input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, lambda_, z_);
-    cufftPlan3d(&plan_, images_nb_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, CUFFT_C2C);
   }
 
   ThreadCompute::~ThreadCompute()
@@ -50,14 +41,29 @@ namespace holovibes
 
   void ThreadCompute::compute_hologram()
   {
-    fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
-    output_q_->enqueue(output_buffer_ + p_ * output_q_->get_size(), cudaMemcpyDeviceToDevice);
+    if (input_q_.get_current_elts() >= images_nb_)
+    {
+      std::cout << "compute" << std::endl;
+      fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
+      output_q_->enqueue(output_buffer_ + p_ * output_q_->get_size(), cudaMemcpyDeviceToDevice);
+      input_q_.dequeue();
+    }
   }
 
   void ThreadCompute::thread_proc()
   {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    while (input_q_.get_current_elts() >= images_nb_ && compute_on_)
+    cudaMalloc(&output_buffer_, input_q_.get_pixels() * sizeof(unsigned short) * images_nb_);
+
+    if (input_q_.get_frame_desc().depth > 1)
+      sqrt_vec_ = make_sqrt_vec(65536);
+    else
+      sqrt_vec_ = make_sqrt_vec(256);
+
+    lens_ = create_lens(input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, lambda_, z_);
+
+    cufftPlan3d(&plan_, images_nb_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, CUFFT_C2C);
+
+    while (compute_on_)
       compute_hologram();
   }
 }
