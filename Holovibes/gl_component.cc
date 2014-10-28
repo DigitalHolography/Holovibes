@@ -13,18 +13,18 @@ namespace holovibes
 
     const int pixel_format = ChoosePixelFormat(hdc_, &pfd);
     if (!pixel_format)
-      throw std::exception("unable to find a suitable pixel format");
+      throw std::exception("[OPENGL] unable to find a suitable pixel format");
 
     if (!SetPixelFormat(hdc_, pixel_format, &pfd))
-      throw std::exception("can not set the pixel format");
+      throw std::exception("[OPENGL] can not set the pixel format");
 
     hrc_ = wglCreateContext(hdc_);
 
     if (!hrc_)
-      throw std::exception("unable to create GL context");
+      throw std::exception("[OPENGL] unable to create GL context");
 
     if (!wglMakeCurrent(hdc_, hrc_))
-      throw std::exception("unable to make current GL context");
+      throw std::exception("[OPENGL] unable to make current GL context");
 
     gl_enable(width, height);
   }
@@ -42,9 +42,9 @@ namespace holovibes
     PIXELFORMATDESCRIPTOR pfd;
 
     /* Init with null values. */
-    memset(&pfd, 0, sizeof (PIXELFORMATDESCRIPTOR));
+    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
 
-    pfd.nSize = sizeof (PIXELFORMATDESCRIPTOR);
+    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
     pfd.iPixelType = PFD_TYPE_RGBA;

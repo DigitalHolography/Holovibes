@@ -49,6 +49,7 @@ namespace holovibes
     const camera::FrameDescriptor& desc = camera_->get_frame_descriptor();
     Queue& queue = tcapture_->get_queue();
     tglwnd_ = new ThreadGLWindow(queue, desc, "OpenGL", width, height);
+    std::cout << "[DISPLAY] display thread started" << std::endl;
   }
 
   void Holovibes::dispose_display()
@@ -63,6 +64,7 @@ namespace holovibes
     camera_->init_camera();
     camera_->start_acquisition();
     tcapture_ = new ThreadCapture(*camera_, buffer_nb_elts);
+    std::cout << "[CAPTURE] capture thread started" << std::endl;
   }
 
   void Holovibes::dispose_capture()
@@ -80,7 +82,7 @@ namespace holovibes
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     recorder_ = new Recorder(tcapture_->get_queue(), filepath);
-
+    std::cout << "[RECORDER] recorder initialized" << std::endl;
     recorder_->record(rec_n_images);
   }
 

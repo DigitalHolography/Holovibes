@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -157,8 +157,6 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     </ClCompile>
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_gl_window.cc" />
-  </ItemGroup>
-  <ItemGroup>
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="hardware_limits.cc" />
     <CudaCompile Include="preprocessing.cu" />

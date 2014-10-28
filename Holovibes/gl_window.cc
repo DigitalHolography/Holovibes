@@ -29,7 +29,7 @@ namespace holovibes
       hinstance_, NULL);
 
     if (!hwnd_)
-      throw std::exception("failed to instanciate an OpenGL window class");
+      throw std::exception("[DISPLAY] failed to instanciate an OpenGL window class");
 
     /* It do not have default constructor. The constructor of GLComponent
      * must be called once the window has been created. So we can not use
@@ -38,7 +38,7 @@ namespace holovibes
      * become messy without proper initialization. */
     gl_ = new GLComponent(hwnd_, width, height);
     if (!gl_)
-      throw std::exception("failed to instanciate GLComponent class.");
+      throw std::exception("[DISPLAY] failed to instanciate GLComponent class.");
   }
 
   GLWindow::~GLWindow()
@@ -66,7 +66,7 @@ namespace holovibes
     wc.lpszClassName = "OpenGL";
 
     if (RegisterClass(&wc) == 0)
-      throw std::exception("unable to register window class");
+      throw std::exception("[DISPLAY] unable to register window class");
   }
 
   void GLWindow::wnd_unregister_class()
@@ -111,7 +111,7 @@ namespace holovibes
   void GLWindow::wnd_show()
   {
     if (!hwnd_)
-      throw std::exception("no window instanciated");
+      throw std::exception("[DISPLAY] no window instanciated");
 
     ShowWindow(hwnd_, SW_SHOW);
     UpdateWindow(hwnd_);

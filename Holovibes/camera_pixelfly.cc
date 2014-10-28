@@ -15,6 +15,7 @@ namespace camera
     , refresh_event_(CreateEvent(NULL, FALSE, FALSE, "ImgReady"))
     , buffer_(nullptr)
   {
+    name_ = "pixelfly";
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
@@ -73,7 +74,6 @@ namespace camera
 
   void CameraPixelfly::load_default_params()
   {
-    name_ = "pco.pixelfly";
     exposure_time_ = 0.003f;
     extended_sensor_format_ = false;
     pixel_rate_ = 12;
