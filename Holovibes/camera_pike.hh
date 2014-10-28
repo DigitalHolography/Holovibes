@@ -62,7 +62,10 @@ namespace camera
     //Retrieve camera name (vendor and model from the device API)
     std::string get_name_from_device();
 
-    unsigned long CameraPike::to_dcam_format();
+    unsigned long to_dcam_format();
+
+    // Convert user input to speed parameter
+    unsigned long to_speed();
   };
 }
 
