@@ -73,6 +73,60 @@ __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftC
   }
 }
 
+__global__ void shift_corners(unsigned short *input, unsigned short *output, int size_x, int size_y)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size_x * size_y)
+  {
+    int x = index % size_x;
+    int y = index / size_y;
+    int n_x;
+    int n_y;
+    if (x < size_x / 2) // zone 1/3
+    {
+      if (y < size_y / 2) //zone 1
+      {
+        n_x = x + size_x / 2;
+        n_y = y + size_y / 2;
+      }
+      else // zone 3
+      {
+        n_x = x + size_x / 2;
+        n_y = y - size_y / 2;
+      }
+    }
+    else // zone 2/4
+    {
+      if (y < size_y / 2) //zone 2
+      {
+        n_x = x - size_x / 2;
+        n_y = y + size_y / 2;
+      }
+      else // zone 4
+      {
+        n_x = x - size_x / 2;
+        n_y = y - size_y / 2;
+      }
+    }
+    output[n_y * size_x + n_x] = input[index];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void shift_corners(unsigned short **input, int size_x, int size_y)
+{
+  unsigned short *output;
+  cudaMalloc(&output, size_x * size_y * sizeof (unsigned short));
+  int threads = get_max_threads_1d();
+  int blocks = ((size_x * size_x) + threads - 1) / threads;
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+  shift_corners << <blocks, threads >> >(*input, output, size_x, size_y);
+  cudaFree(*input);
+  *input = output;
+}
+
 void complex_2_modul_call(cufftComplex* input, unsigned short* output, int size, int blocks, int threads)
 {
   if (blocks > 65536)

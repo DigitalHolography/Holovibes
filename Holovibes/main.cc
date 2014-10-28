@@ -14,7 +14,7 @@ int main(int argc, const char* argv[])
   holovibes::OptionsDescriptor opts;
   holovibes::OptionsParser opts_parser(opts);
   opts_parser.parse(argc, argv);
-
+  
   try
   {
     holovibes::Holovibes h(opts.camera);
@@ -41,6 +41,5 @@ int main(int argc, const char* argv[])
   {
     std::cerr << e.what() << std::endl;
   }
-
   return 0;
 }

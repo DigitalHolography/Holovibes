@@ -39,7 +39,14 @@ namespace holovibes
     unsigned int gl_window_height;
     /*! Selected camera */
     Holovibes::camera_type camera;
-
+    /*! Lambda in meters for fft*/
+    float lambda;
+    /*! Dist in meters for fft*/
+    float distance;
+    /*! Nbimages to apply the fft on*/
+    int nbimages;
+    /*! Image to keep from the fft result*/
+    int p;
     /* Enabled features */
     bool is_gl_window_enabled;
     bool is_recorder_enabled;
