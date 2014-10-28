@@ -3,6 +3,7 @@
 
 #include "queue.hh"
 #include "fft1.cuh"
+#include "contrast_correction.cuh"
 
 namespace holovibes
 {

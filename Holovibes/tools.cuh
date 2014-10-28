@@ -7,6 +7,7 @@
 # include <cufft.h>
 # include <cufftXt.h>
 # include <cufftw.h>
+# include "hardware_limits.hh"
 
 // CONVERSION FUNCTIONS
 __global__ void image_2_float(cufftReal* res, unsigned char* data, int size);
@@ -17,5 +18,6 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
 __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftComplex *lens, int lens_size);
 void complex_2_modul_call(cufftComplex* input, unsigned short* output, int size, int blocks, int threads);
 void complex_2_modul_call(cufftComplex* input, unsigned char* output, int size, int blocks, int threads);
+void shift_corners(unsigned short **input, int size_x, int size_y);
 
 #endif /* !TOOLS_CUH_ */

@@ -39,6 +39,11 @@ namespace holovibes
       po::value<std::string>()
       ->required(),
       "Set the camera to use: pike/xiq/ids/pixelfly.")
+
+      ("fft1,f",
+      po::value<std::vector<std::string>>()->multitoken(),
+      "p, set size, lambda, dist"
+      )
       ;
   }
 
@@ -127,6 +132,33 @@ namespace holovibes
 
   void OptionsParser::proceed_holovibes()
   {
+    if (vm_.count("fft1"))
+    {
+      const std::vector<std::string>& args =
+        vm_["fft1"].as<std::vector<std::string>>();
+      if (args.size() == 4)
+      {
+        try
+        {
+          int p = boost::lexical_cast<int>(args[0]);
+          int nbimage = boost::lexical_cast<int>(args[1]);
+          float lambda = boost::lexical_cast<float>(args[2]);
+          float dist = boost::lexical_cast<float>(args[3]);
+          opts_.nbimages = nbimage;
+          opts_.distance = dist;
+          opts_.lambda = lambda;
+          opts_.p = p;
+          std::cout << "p: " << p << " nbi: " << nbimage << " lambda: " << lambda << " dist: " << dist << std::endl;
+        }
+        catch (boost::bad_lexical_cast&)
+        {
+          throw std::exception("wrong fft parameters (must be numbers)");
+        }
+      }
+      else
+        throw std::exception("-f/--fft expects 4 arguments");
+    }
+
     if (vm_.count("cameramodel"))
     {
       const std::string& camera = vm_["cameramodel"].as<std::string>();
