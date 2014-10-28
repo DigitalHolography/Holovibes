@@ -43,6 +43,11 @@ namespace holovibes
       thread_.join();
   }
 
+  Queue& ThreadCompute::get_queue()
+  {
+    return *output_q_;
+  }
+
   void ThreadCompute::compute_hologram()
   {
     std::cout << "compute hologram" << std::endl;
@@ -52,6 +57,7 @@ namespace holovibes
 
   void ThreadCompute::thread_proc()
   {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     while (input_q_.get_current_elts() >= images_nb_ && compute_on_)
       compute_hologram();
   }

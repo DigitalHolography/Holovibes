@@ -14,10 +14,10 @@ namespace holovibes
 {
   Holovibes::Holovibes(enum camera_type c)
     : camera_(nullptr)
-    , tglwnd_(nullptr)
     , tcapture_(nullptr)
+    , tcompute_(nullptr)
+    , tglwnd_(nullptr)
     , recorder_(nullptr)
-    , fm_(nullptr)
   {
     if (c == IDS)
       camera_ = new camera::CameraIds();
@@ -47,8 +47,9 @@ namespace holovibes
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
-    const camera::FrameDescriptor& desc = fm_->get_queue().get_frame_desc();
-    Queue& queue = fm_->get_queue();
+    const camera::FrameDescriptor& desc = tcompute_->get_queue().get_frame_desc();
+    Queue& queue = tcompute_->get_queue();
+    //const camera::FrameDescriptor& desc = camera_->get_frame_descriptor();
     //Queue& queue = tcapture_->get_queue();
     tglwnd_ = new ThreadGLWindow(queue, desc, "OpenGL", width, height);
     std::cout << "[DISPLAY] display thread started" << std::endl;
@@ -96,13 +97,11 @@ namespace holovibes
 
   void Holovibes::init_compute(unsigned int p, unsigned int images_nb, float lambda, float z)
   {
-    fm_ = new FourrierManager(p, images_nb, lambda, z, tcapture_->get_queue());
-    fm_->start_compute();
+    tcompute_ = new ThreadCompute(p, images_nb, lambda, z, tcapture_->get_queue());
   }
 
   void Holovibes::dispose_compute()
   {
-    fm_->stop_compute();
-    delete fm_;
+    delete tcompute_;
   }
 }

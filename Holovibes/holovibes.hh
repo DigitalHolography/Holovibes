@@ -2,6 +2,7 @@
 # define HOLOVIBES_HH
 
 # include "camera.hh"
+# include "thread_compute.hh"
 # include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
@@ -42,9 +43,9 @@ namespace holovibes
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
+    ThreadCompute* tcompute_;
     ThreadGLWindow* tglwnd_;
     Recorder* recorder_;
-    FourrierManager* fm_;
   };
 }
 

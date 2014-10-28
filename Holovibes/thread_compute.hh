@@ -20,6 +20,7 @@ namespace holovibes
       Queue& q);
     ~ThreadCompute();
 
+    Queue& get_queue();
   private:
     void thread_proc();
     void compute_hologram();
