@@ -2,7 +2,6 @@
 #define FOURIERMANAGER_HH
 
 #include "queue.hh"
-#include "fourier_computing.cuh"
 #include "fft1.cuh"
 
 namespace holovibes

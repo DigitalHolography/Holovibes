@@ -50,9 +50,8 @@ namespace holovibes
 
   void ThreadCompute::compute_hologram()
   {
-    std::cout << "compute hologram" << std::endl;
     fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
-    output_q_->enqueue(output_buffer_ + p_ * input_q_.get_pixels(), cudaMemcpyDeviceToDevice);
+    output_q_->enqueue(output_buffer_ + p_ * output_q_->get_size(), cudaMemcpyDeviceToDevice);
   }
 
   void ThreadCompute::thread_proc()

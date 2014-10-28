@@ -7,6 +7,7 @@
 # include <device_launch_parameters.h>
 # include "queue.hh"
 # include "fft1.cuh"
+#include "preprocessing.cuh"
 
 namespace holovibes
 {
