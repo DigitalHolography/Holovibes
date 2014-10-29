@@ -46,9 +46,9 @@ namespace holovibes
       // Temporary solution: gl thread gets image from
       // the queue (GPU) and copy it in CPU to display it. The display
       // has to be fetch directly in GPU in the future (no copies).
-      //unsigned short* shifted = (unsigned short*)queue_.get_last_images(1);
-      //shift_corners(&shifted, queue_.get_frame_desc().width, queue_.get_frame_desc().height);
-      void* shifted = queue_.get_last_images(1);
+      unsigned short* shifted = (unsigned short*)queue_.get_last_images(1);
+      shift_corners(&shifted, queue_.get_frame_desc().width, queue_.get_frame_desc().height);
+      //void* shifted = queue_.get_last_images(1);
       void* frame = malloc(queue_.get_size());
       cudaMemcpy(frame, shifted, queue_.get_size(), cudaMemcpyDeviceToHost);
 

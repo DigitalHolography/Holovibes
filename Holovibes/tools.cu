@@ -117,14 +117,15 @@ __global__ void shift_corners(unsigned short *input, unsigned short *output, int
 void shift_corners(unsigned short **input, int size_x, int size_y)
 {
   unsigned short *output;
-  cudaMalloc(&output, size_x * size_y * sizeof (unsigned short));
+  unsigned int size = size_x * size_y * sizeof(unsigned short);
+  cudaMalloc(&output, size);
   int threads = get_max_threads_1d();
   int blocks = ((size_x * size_x) + threads - 1) / threads;
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
   shift_corners << <blocks, threads >> >(*input, output, size_x, size_y);
-  cudaFree(*input);
-  *input = output;
+  cudaMemcpy(*input, output, size, cudaMemcpyDeviceToDevice);
+  cudaFree(output);
 }
 
 void complex_2_modul_call(cufftComplex* input, unsigned short* output, int size, int blocks, int threads)

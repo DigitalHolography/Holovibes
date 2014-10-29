@@ -23,37 +23,43 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
   int vec_size_byt = q->get_size() * nbimages;
   int img_byte = q->get_size();
   int contigous_elts = 0;
+
   cufftComplex *output;
   cudaMalloc(&output, vec_size_pix * sizeof(cufftComplex));
-  int index = (q->get_start_index() + q->get_current_elts() - nbimages) % q->get_max_elts();
 
-  if (q->get_max_elts() - index < nbimages)
-    contigous_elts = q->get_max_elts() - nbimages;
-  else
+  if (q->get_start_index() + nbimages <= q->get_max_elts())
     contigous_elts = nbimages;
+  else
+    contigous_elts = q->get_max_elts() - q->get_start_index();
 
   if (contigous_elts < nbimages)
   {
     unsigned char *contigous;
     cudaMalloc(&contigous, vec_size_byt);
-    cudaMemcpy(contigous, q->get_last_images(nbimages), contigous_elts * img_byte, cudaMemcpyDeviceToDevice);
+
+    // Copy contiguous elements of the end of the queue into buffer
+    cudaMemcpy(contigous, q->get_start(), contigous_elts * img_byte, cudaMemcpyDeviceToDevice);
+
+    // Copy the contiguous elements left of the beginning of the queue into buffer
     cudaMemcpy(contigous + contigous_elts * img_byte, q->get_buffer(), (nbimages - contigous_elts) * img_byte, cudaMemcpyDeviceToDevice);
+
     if (q->get_frame_desc().depth > 1)
       image_2_complex16 <<<blocks, threads >> >(output, (unsigned short*)contigous, vec_size_pix, sqrt_vec);
     else
       image_2_complex8 <<<blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
 
+    cudaFree(contigous);
     return output;
   }
   else
   {
     if (q->get_frame_desc().depth > 1)
     {
-      image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_last_images(nbimages), vec_size_pix, sqrt_vec);
+      image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_start(), vec_size_pix, sqrt_vec);
     }
     else
     {
-      image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)(q->get_last_images(nbimages)), vec_size_pix, sqrt_vec);
+      image_2_complex8 << <blocks, threads >> >(output, (unsigned char*)q->get_start(), vec_size_pix, sqrt_vec);
     }
     return output;
   }
