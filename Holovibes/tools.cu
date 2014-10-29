@@ -44,8 +44,8 @@ __global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int s
 
   while (index < size)
   {
-    res[index].x = sqrt_tab[data[index]];
-    res[index].y = sqrt_tab[data[index]];
+    res[index].x = sqrt_tab[data[index]]; 
+    res[index].y = sqrt_tab[data[index]]; 
     index += blockDim.x * gridDim.x;
   }
 }

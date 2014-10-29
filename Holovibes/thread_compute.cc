@@ -46,7 +46,7 @@ namespace holovibes
       std::cout << "compute" << std::endl;
       fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
       unsigned short *shifted = output_buffer_ + p_ * input_q_.get_pixels();
-      shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+      //shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
       output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
       input_q_.dequeue();
     }

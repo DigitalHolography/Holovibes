@@ -1,4 +1,5 @@
 #include "preprocessing.cuh"
+#include "fft1.cuh"
 
 float *make_sqrt_vec(int vec_size)
 {
@@ -55,7 +56,20 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
   {
     if (q->get_frame_desc().depth > 1)
     {
+      // fix me
+      img2disk("at.raw", q->get_start(), q->get_size() * nbimages);
+      //getchar();
+      //exit(0);
+      //fixme
+      void *my_image;//fix me
+      cudaMalloc(&my_image, q->get_size() * nbimages); //f
       image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_start(), vec_size_pix, sqrt_vec);
+      complex_2_module << <blocks, threads >> >(output, (unsigned short*)my_image, q->get_pixels() * nbimages);//f
+      img2disk("ab.raw",my_image, q->get_size() * nbimages);//f
+      exit(0); //f`
+
+
+      std::cout << " in contuigousd 16" << std::endl;
     }
     else
     {

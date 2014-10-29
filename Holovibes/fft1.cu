@@ -48,13 +48,17 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   cufftComplex* complex_input = make_contigous_complex(q, nbimages, sqrt_vect);
 
   // Apply lens
-  apply_quadratic_lens <<<blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
+ // apply_quadratic_lens <<<blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
 
   // FFT
-  cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
+ // cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
   complex_2_module << <blocks, threads >> >(complex_input, result_buffer, pixel_size);
+  //img2disk("at.raw", result_buffer, short_size * nbimages);
+  //std::cout << nbimages << std::endl;
+  getchar();
+  exit(0);
 
   // Free all
   cudaFree(complex_input);
