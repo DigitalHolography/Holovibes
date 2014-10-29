@@ -94,7 +94,7 @@ namespace camera
     desc_.height = 2048;
     desc_.depth = 1;
     desc_.pixel_size = 7.4f;
-    desc_.endianness = LITTLE_ENDIAN;
+    desc_.endianness = BIG_ENDIAN;
 
     subsampling_ = 0;
     gain_ = 0;
