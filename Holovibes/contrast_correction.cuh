@@ -11,10 +11,11 @@
 #include <cufftw.h>
 #include <math.h>
 #include <time.h>
-# include "queue.hh"
+#include "queue.hh"
+#include "hardware_limits.hh"
 
 
-void correct_contrast(unsigned char *img, int img_size);
+void correct_contrast(unsigned char *img, int img_size, int bytedepth);
 void sum_histo(int *histo, int *summed_histo);
 
 
