@@ -25,13 +25,13 @@ namespace holovibes
   {
     compute_on_ = false;
 
+    if (thread_.joinable())
+      thread_.join();
+
     delete output_q_;
     cudaFree(lens_);
     cudaFree(output_buffer_);
     cudaFree(sqrt_vec_);
-
-    if (thread_.joinable())
-      thread_.join();
   }
 
   Queue& ThreadCompute::get_queue()
