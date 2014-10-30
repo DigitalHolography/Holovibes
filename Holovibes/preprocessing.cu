@@ -51,6 +51,8 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
 
     std::cout << "not contiguous" << std::endl;
 
+    //img2disk("atest.raw", contigous, vec_size_byt);
+    //exit(0);
     cudaFree(contigous);
     return output;
   }

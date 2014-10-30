@@ -18,6 +18,7 @@ namespace holovibes
   {
     camera::FrameDescriptor fd = input_q_.get_frame_desc();
     fd.depth = 2;
+    fd.endianness = camera::LITTLE_ENDIAN;
     output_q_ = new Queue(fd, input_q_.get_max_elts());
   }
 
