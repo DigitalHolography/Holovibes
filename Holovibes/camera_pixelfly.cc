@@ -46,7 +46,7 @@ namespace camera
     PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
     if (status != PCO_NOERROR)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    PCO_AddBufferEx(device_, 0, 0, 0, (WORD)desc_.width, (WORD)desc_.height, 16);
+    PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
   }
 
   void CameraPixelfly::stop_acquisition()
@@ -66,7 +66,7 @@ namespace camera
   {
     if (WaitForSingleObject(refresh_event_, 500) == WAIT_OBJECT_0)
     {
-      PCO_AddBufferEx(device_, 0, 0, 0, (WORD)desc_.width, (WORD)desc_.height, 16);
+      PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
       return buffer_;
     }
     return nullptr;
@@ -102,7 +102,7 @@ namespace camera
   void CameraPixelfly::bind_params()
   {
     PCO_SetSensorFormat(device_, extended_sensor_format_);
-    PCO_SetPixelRate(device_, (DWORD)(pixel_rate_ * 1e6));
+    PCO_SetPixelRate(device_, static_cast<DWORD>(pixel_rate_ * 1e6));
     PCO_SetIRSensitivity(device_, ir_sensitivity_);
     {
       WORD binning_x = 1;
@@ -126,7 +126,7 @@ namespace camera
       for (base_time = 0x0002; base_time > 0 && exposure_time_ < 1.0f; --base_time)
         exposure_time_ *= 1e3;
 
-      PCO_SetDelayExposureTime(device_, 0, (DWORD)exposure_time_, 0, base_time);
+      PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(exposure_time_), 0, base_time);
     }
     PCO_ArmCamera(device_);
 
