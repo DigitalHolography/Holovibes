@@ -37,16 +37,19 @@ namespace camera
     stop_acquisition();
 
     bind_params();
-    pco_allocate_buffer();
+    if (pco_allocate_buffer() != PCO_NOERROR)
+      throw CameraException(name_, CameraException::MEMORY_PROBLEM);
   }
 
   void CameraPixelfly::start_acquisition()
   {
     int status = PCO_NOERROR;
-    PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+
+    status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+    status |= PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
+
     if (status != PCO_NOERROR)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
   }
 
   void CameraPixelfly::stop_acquisition()
@@ -56,6 +59,7 @@ namespace camera
 
   void CameraPixelfly::shutdown_camera()
   {
+    /* No error checking because that method is called in destructor. */
     PCO_CancelImages(device_);
     PCO_RemoveBuffer(device_);
     PCO_FreeBuffer(device_, 0);
@@ -69,7 +73,7 @@ namespace camera
       PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
       return buffer_;
     }
-    return nullptr;
+    throw CameraException(name_, CameraException::CANT_GET_FRAME);
   }
 
   void CameraPixelfly::load_default_params()
@@ -101,9 +105,11 @@ namespace camera
 
   void CameraPixelfly::bind_params()
   {
-    PCO_SetSensorFormat(device_, extended_sensor_format_);
-    PCO_SetPixelRate(device_, static_cast<DWORD>(pixel_rate_ * 1e6));
-    PCO_SetIRSensitivity(device_, ir_sensitivity_);
+    int status = PCO_NOERROR;
+
+    status |= PCO_SetSensorFormat(device_, extended_sensor_format_);
+    status |= PCO_SetPixelRate(device_, static_cast<DWORD>(pixel_rate_ * 1e6));
+    status |= PCO_SetIRSensitivity(device_, ir_sensitivity_);
     {
       WORD binning_x = 1;
       WORD binning_y = 1;
@@ -114,7 +120,7 @@ namespace camera
         binning_y = 2;
       }
 
-      PCO_SetBinning(device_, binning_x, binning_y);
+      status |= PCO_SetBinning(device_, binning_x, binning_y);
     }
     {
       /* Convert exposure time in milliseconds. */
@@ -126,19 +132,21 @@ namespace camera
       for (base_time = 0x0002; base_time > 0 && exposure_time_ < 1.0f; --base_time)
         exposure_time_ *= 1e3;
 
-      PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(exposure_time_), 0, base_time);
+      status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(exposure_time_), 0, base_time);
     }
-    PCO_ArmCamera(device_);
+    status |= PCO_ArmCamera(device_);
+    status |= pco_get_sizes();
 
-    pco_get_sizes();
+    if (status != PCO_NOERROR)
+      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
   }
 
-  void CameraPixelfly::pco_get_sizes()
+  int CameraPixelfly::pco_get_sizes()
   {
     WORD actualres_x, actualres_y;
     WORD ccdres_x, ccdres_y;
 
-    PCO_GetSizes(
+    int status = PCO_GetSizes(
       device_,
       &actualres_x,
       &actualres_y,
@@ -152,14 +160,16 @@ namespace camera
 #if _DEBUG
     std::cout << actualres_x << ", " << actualres_y << std::endl;
 #endif
+
+    return status;
   }
 
-  void CameraPixelfly::pco_allocate_buffer()
+  int CameraPixelfly::pco_allocate_buffer()
   {
     SHORT buffer_nbr = -1;
     DWORD buffer_size = desc_.width * desc_.height * sizeof(WORD);
 
-    PCO_AllocateBuffer(
+    int status = PCO_AllocateBuffer(
       device_,
       &buffer_nbr,
       buffer_size,
@@ -167,5 +177,6 @@ namespace camera
       &refresh_event_);
 
     assert(buffer_nbr == 0);
+    return status;
   }
 }

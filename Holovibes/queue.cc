@@ -83,7 +83,7 @@ namespace holovibes
     mutex_.unlock();
   }
 
-  /*
+#if 0
   void* Queue::dequeue(size_t elts_nb)
   {
     if (elts_nb <= curr_elts_)
@@ -101,7 +101,7 @@ namespace holovibes
     else
       return nullptr;
   }
-  */
+#endif /* #OLD */
 
 #if _DEBUG
   void Queue::print() const
