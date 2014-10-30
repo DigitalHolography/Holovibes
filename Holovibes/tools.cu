@@ -128,12 +128,26 @@ void shift_corners(unsigned short **input, int size_x, int size_y)
   cudaFree(output);
 }
 
-void complex_2_modul_call(cufftComplex* input, unsigned short* output, int size, int blocks, int threads)
+__global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
 {
-  if (blocks > 65536)
-  {
-    blocks = 65536;
-  }
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  complex_2_module <<<blocks, threads >> >(input, output, size);
+  while (index < size)
+  {
+    output[index] = (input[index] << 8) | (input[index] >> 8);
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks - 1;
+
+  kernel_endianness_conversion << <blocks, threads >> >(input, output, size);
 }

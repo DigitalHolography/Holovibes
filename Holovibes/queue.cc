@@ -61,10 +61,14 @@ namespace holovibes
     mutex_.lock();
 
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
-    int cuda_status = cudaMemcpy(buffer_ + (end_ * size_),
+    char* new_elt_adress = buffer_ + (end_ * size_);
+    int cuda_status = cudaMemcpy(new_elt_adress,
       elt,
       size_,
       cuda_kind);
+
+    if (frame_desc_.depth == 2 && frame_desc_.endianness == camera::BIG_ENDIAN)
+      endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, size_);
 
     if (cuda_status != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't enqueue" << std::endl;

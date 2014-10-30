@@ -49,6 +49,8 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
     else
       image_2_complex8 <<<blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
 
+    std::cout << "not contiguous" << std::endl;
+
     cudaFree(contigous);
     return output;
   }
