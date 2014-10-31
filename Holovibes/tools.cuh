@@ -10,8 +10,6 @@
 # include "hardware_limits.hh"
 
 // CONVERSION FUNCTIONS
-__global__ void image_2_float(cufftReal* res, unsigned char* data, int size);
-__global__ void image_2_float(cufftReal* res, unsigned short* data, int size);
 __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab);
 __global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int size, float *sqrt_tab);
 __global__ void complex_2_module(cufftComplex* input, unsigned short* output, int size);

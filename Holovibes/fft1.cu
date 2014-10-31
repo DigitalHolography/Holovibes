@@ -38,12 +38,14 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   unsigned int short_size = pixel_size * sizeof(unsigned short);
 
   // Loaded images --> complex
-  int threads = get_max_threads_1d();
+  unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (pixel_size + threads - 1) / threads;
 
   // Hardware limit !!
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
+  blocks = 65535;
+
 
   cufftComplex* complex_input = make_contigous_complex(q, nbimages, sqrt_vect);
 
@@ -51,14 +53,10 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   apply_quadratic_lens <<<blocks, threads >> >(complex_input, pixel_size, lens, q->get_pixels());
 
   // FFT
- cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
+  cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
   complex_2_module << <blocks, threads >> >(complex_input, result_buffer, pixel_size);
-  //img2disk("at.raw", result_buffer, short_size);
-  //std::cout << nbimages << std::endl;
-  //getchar();
-  //exit(0);
 
   // Free all
   cudaFree(complex_input);

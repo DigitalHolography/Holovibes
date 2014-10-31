@@ -15,15 +15,17 @@ float *make_sqrt_vec(int vec_size)
 
 cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *sqrt_vec)
 {
-  int threads = get_max_threads_1d();
-  int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
+
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
+  blocks = 65535;
 
-  int vec_size_pix = q->get_pixels() * nbimages;
-  int vec_size_byt = q->get_size() * nbimages;
-  int img_byte = q->get_size();
-  int contigous_elts = 0;
+  unsigned int vec_size_pix = q->get_pixels() * nbimages;
+  unsigned int vec_size_byt = q->get_size() * nbimages;
+  unsigned int img_byte = q->get_size();
+  unsigned int contigous_elts = 0;
 
   cufftComplex *output;
   cudaMalloc(&output, vec_size_pix * sizeof(cufftComplex));
@@ -39,21 +41,25 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
     cudaMalloc(&contigous, vec_size_byt);
 
     // Copy contiguous elements of the end of the queue into buffer
-    cudaMemcpy(contigous, q->get_start(), contigous_elts * img_byte, cudaMemcpyDeviceToDevice);
+    if (cudaMemcpy(contigous, q->get_start(), contigous_elts * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
+      std::cout << "non contiguous memcpy failed" << std::endl;
 
     // Copy the contiguous elements left of the beginning of the queue into buffer
-    cudaMemcpy(contigous + contigous_elts * img_byte, q->get_buffer(), (nbimages - contigous_elts) * img_byte, cudaMemcpyDeviceToDevice);
+    if (cudaMemcpy(contigous + contigous_elts * img_byte, q->get_buffer(), (nbimages - contigous_elts) * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
+      std::cout << "non contiguous memcpy failed" << std::endl;
 
     if (q->get_frame_desc().depth > 1)
       image_2_complex16 <<<blocks, threads >> >(output, (unsigned short*)contigous, vec_size_pix, sqrt_vec);
     else
       image_2_complex8 <<<blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
 
-    std::cout << "not contiguous" << std::endl;
+    //std::cout << "not contiguous" << std::endl;
 
     //img2disk("atest.raw", contigous, vec_size_byt);
     //exit(0);
-    cudaFree(contigous);
+    if(cudaFree(contigous) != CUDA_SUCCESS)
+      std::cout << "non contiguous free failed" << std::endl;
+
     return output;
   }
   else
@@ -61,7 +67,7 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
     if (q->get_frame_desc().depth > 1)
     {
       image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_start(), vec_size_pix, sqrt_vec);
-      std::cout << " in contuigousd 16" << std::endl;
+      //std::cout << " in contuigousd 16" << std::endl;
     }
     else
     {

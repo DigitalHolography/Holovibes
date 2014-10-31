@@ -4,28 +4,6 @@
 
 // CONVERSION FUNCTIONS
 
-__global__ void image_2_float(cufftReal* res, unsigned char* data, int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    res[index] = (float)data[index];
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-__global__ void image_2_float(cufftReal* res, unsigned short* data, int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    res[index] = (float)data[index];
-    index += blockDim.x * gridDim.x;
-  }
-}
-
 __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -56,7 +34,13 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
 
   while (index < size)
   {
-    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+    float m = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+
+    if (m > 65535.0f)
+      output[index] = 65535;
+    else
+      output[index] = m;
+
     index += blockDim.x * gridDim.x;
   }
 }
@@ -119,8 +103,8 @@ void shift_corners(unsigned short **input, int size_x, int size_y)
   unsigned short *output;
   unsigned int size = size_x * size_y * sizeof(unsigned short);
   cudaMalloc(&output, size);
-  int threads = get_max_threads_1d();
-  int blocks = ((size_x * size_x) + threads - 1) / threads;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = ((size_x * size_x) + threads - 1) / threads;
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
   shift_corners << <blocks, threads >> >(*input, output, size_x, size_y);
