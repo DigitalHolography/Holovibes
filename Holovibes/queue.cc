@@ -79,6 +79,7 @@ namespace holovibes
     {
       void* last_img = buffer_ + ((start_ + curr_elts_ - 1) % max_elts_) * size_;
       memcpy(dest, last_img, size_);
+      curr_elts_ -= 1;
     }
     mutex_.unlock();
   }
