@@ -56,10 +56,7 @@ namespace holovibes
   {
     cudaMalloc(&output_buffer_, input_q_.get_pixels() * sizeof(unsigned short) * images_nb_);
 
-    if (input_q_.get_frame_desc().depth > 1)
-      sqrt_vec_ = make_sqrt_vec(65536);
-    else
-      sqrt_vec_ = make_sqrt_vec(256);
+    sqrt_vec_ = make_sqrt_vec(65536);
 
     lens_ = create_lens(input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, lambda_, z_);
 

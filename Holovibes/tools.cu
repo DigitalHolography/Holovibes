@@ -10,8 +10,10 @@ __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int siz
 
   while (index < size)
   {
-    res[index].x = sqrt_tab[data[index]];
-    res[index].y = sqrt_tab[data[index]];
+    // Image rescaling on 2^16 colors (65535 / 255 = 257)
+    unsigned int val = sqrt_tab[data[index] * 257];
+    res[index].x = val;
+    res[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
