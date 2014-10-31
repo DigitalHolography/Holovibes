@@ -6,7 +6,6 @@
 # include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
-# include "fouriermanager.hh"
 
 namespace holovibes
 {

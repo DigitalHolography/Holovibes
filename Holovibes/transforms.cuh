@@ -10,10 +10,10 @@
 /* Mandatory to use math.h constants (such as pi) */
 #define _USE_MATH_DEFINES
 # include <math.h>
+# include "camera.hh"
 
 __global__ void kernel_quadratic_lens(cufftComplex* output,
-  unsigned int xsize,
-  unsigned int ysize,
+  camera::FrameDescriptor fd,
   float lambda,
   float dist);
 

@@ -58,7 +58,7 @@ namespace holovibes
 
     sqrt_vec_ = make_sqrt_vec(65536);
 
-    lens_ = create_lens(input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, lambda_, z_);
+    lens_ = create_lens(input_q_.get_frame_desc(), lambda_, z_);
 
     cufftPlan3d(&plan_, images_nb_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, CUFFT_C2C);
 

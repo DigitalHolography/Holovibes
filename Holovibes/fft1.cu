@@ -18,14 +18,14 @@ void img2disk(std::string path, void* img, unsigned int size)
   }
 }
 
-cufftComplex* create_lens(unsigned int size_x, unsigned int size_y, float lambda, float z)
+cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
-  dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+  dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
   cufftComplex *lens;
-  cudaMalloc(&lens, size_x * size_y * sizeof(cufftComplex));
-  kernel_quadratic_lens << <lblocks, lthreads >> >(lens, size_x, size_y, lambda, z);
+  cudaMalloc(&lens, fd.width * fd.height * sizeof(cufftComplex));
+  kernel_quadratic_lens << <lblocks, lthreads >> >(lens, fd, lambda, z);
 
   return lens;
 }
