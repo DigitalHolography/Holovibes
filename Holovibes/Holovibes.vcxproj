@@ -115,6 +115,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
     <ClInclude Include="contrast_correction.cuh" />
+    <ClInclude Include="fft2.cuh" />
     <ClInclude Include="fouriermanager.hh" />
     <ClInclude Include="gl_component.hh" />
     <ClInclude Include="gl_window.hh" />
@@ -142,7 +143,6 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="camera_pike.cc" />
     <ClCompile Include="camera_pixelfly.cc" />
     <ClCompile Include="camera_exception.cc" />
-    <ClCompile Include="fouriermanager.cc" />
     <ClCompile Include="gl_component.cc" />
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="holovibes.cc" />
@@ -159,6 +159,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="thread_gl_window.cc" />
     <CudaCompile Include="contrast_correction.cu" />
+    <CudaCompile Include="fft2.cu" />
     <CudaCompile Include="hardware_limits.cc" />
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fft1.cu" />

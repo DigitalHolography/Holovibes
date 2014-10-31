@@ -1,3 +1,4 @@
+
 #include "transforms.cuh"
 
 __global__ void kernel_quadratic_lens(cufftComplex* output,
@@ -24,4 +25,18 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
     output[index].x = cosf(csquare);
     output[index].y = sinf(csquare);
   }
+}
+
+__global__ void spectral(float *u_square, float *v_square, cufftComplex *output, unsigned int output_size, float lambda, float distance)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < output_size)
+  {
+    float lambda_square = lambda * lambda;
+    float thetha = 2 * M_PI * distance / lambda * sqrt(1 - (lambda_square * u_square[index]) - (lambda_square * v_square[index]));
+    output[index].x = cosf(thetha);// fix me
+    output[index].y = sinf(thetha );// fix me
+      index += blockDim.x * gridDim.x;
+  }
+
 }

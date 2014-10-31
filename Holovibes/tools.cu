@@ -126,6 +126,42 @@ __global__ void kernel_endianness_conversion(unsigned short* input, unsigned sho
   }
 }
 
+__global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsigned int size_x , unsigned int size_y)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size_x || index < size_y)
+  {
+    float rounded = 0;
+    float to_round = index / 2;
+    int entire_part = floor(to_round);
+    float decimal_part = to_round - entire_part;
+    if (decimal_part >= 0.5)
+      rounded = entire_part + 1;
+    else
+      rounded = entire_part;
+
+
+    if (index < size_x)
+      u[index] = ((index - 1) - rounded) * pasu;
+    if (index < size_y)
+      v[index] = ((index - 1) - rounded) * pasv;
+    index += blockDim.x * gridDim.x;
+  }
+}
+// output_u size_x * size_y 
+// output_v size_x * size_y
+
+__global__ void meshgrind_square(float *input_u, float *input_v, float *output_u, float *output_v, unsigned int size_x, unsigned int size_y)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size_x * size_y)
+  {
+    output_u[index] = input_u[index % size_x] * input_u[index % size_x];
+    output_v[index] = input_v[index / size_y] * input_v[index / size_y];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
 void endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
