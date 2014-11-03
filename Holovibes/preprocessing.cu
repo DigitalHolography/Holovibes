@@ -19,8 +19,7 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
   unsigned int blocks = (q->get_pixels() * nbimages + threads - 1) / threads;
 
   if (blocks > get_max_blocks())
-    blocks = get_max_blocks() - 1;
-  blocks = 65535;
+    blocks = get_max_blocks();
 
   unsigned int vec_size_pix = q->get_pixels() * nbimages;
   unsigned int vec_size_byt = q->get_size() * nbimages;
@@ -42,23 +41,19 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
 
     // Copy contiguous elements of the end of the queue into buffer
     if (cudaMemcpy(contigous, q->get_start(), contigous_elts * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
-      std::cout << "non contiguous memcpy failed" << std::endl;
+      std::cerr << "non contiguous memcpy failed" << std::endl;
 
     // Copy the contiguous elements left of the beginning of the queue into buffer
     if (cudaMemcpy(contigous + contigous_elts * img_byte, q->get_buffer(), (nbimages - contigous_elts) * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
-      std::cout << "non contiguous memcpy failed" << std::endl;
+      std::cerr << "non contiguous memcpy failed" << std::endl;
 
     if (q->get_frame_desc().depth > 1)
       image_2_complex16 <<<blocks, threads >> >(output, (unsigned short*)contigous, vec_size_pix, sqrt_vec);
     else
       image_2_complex8 <<<blocks, threads >> >(output, contigous, vec_size_pix, sqrt_vec);
 
-    //std::cout << "not contiguous" << std::endl;
-
-    //img2disk("atest.raw", contigous, vec_size_byt);
-    //exit(0);
     if(cudaFree(contigous) != CUDA_SUCCESS)
-      std::cout << "non contiguous free failed" << std::endl;
+      std::cerr << "non contiguous free failed" << std::endl;
 
     return output;
   }
@@ -67,7 +62,6 @@ cufftComplex *make_contigous_complex(holovibes::Queue *q, int nbimages, float *s
     if (q->get_frame_desc().depth > 1)
     {
       image_2_complex16 << <blocks, threads >> >(output, (unsigned short*)q->get_start(), vec_size_pix, sqrt_vec);
-      //std::cout << " in contuigousd 16" << std::endl;
     }
     else
     {

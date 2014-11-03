@@ -1,12 +1,8 @@
-# Holovibes v0.1 #
+# Holovibes v0.1.1 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
-## Dependencies ##
-
-### Libraries ###
-
-* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
+## User dependencies ##
 
 ### Cameras drivers ###
 
@@ -14,6 +10,24 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [Driver IDS](http://en.ids-imaging.com) V4.41
 * [AVT Vimba](http://www.alliedvisiontec.com/us/products/legacy.html) V1.3
 * [PCO.Pixelfly driver USB 2.0](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
+
+### CUDA ###
+
+* [CUDA 6.5 Production Release](https://developer.nvidia.com/cuda-downloads)
+
+### Visual C++ redistributable ###
+
+* [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
+
+## Developers dependencies ##
+
+### Libraries ###
+
+* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
+
+### IDE ###
+
+* Visual Studio 2013 Professional
 
 ## Features ##
 
@@ -27,9 +41,16 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * OpenGL realtime display
 * Record frames
 
-## AUTHORS ##
+## Authors ##
 
 * Michael ATLAN <michael.atlan@espci.fr>
 * Jeffrey BENCTEUX <jeffrey.bencteux@espci.fr>
 * Thomas KOSTAS <thomas.kostas@espci.fr>
 * Pierre PAGNOUX <pierre.pagnoux@epita.fr>
+
+## Changelog ##
+
+### v.0.1.1 ###
+
+* Fix recorder issue.
+* Fix pike 16-bits issue.

@@ -66,8 +66,10 @@ namespace holovibes
     void dequeue();
     //void* dequeue(size_t elts_nb);
 
+#if _DEBUG
     // debug only
     void print() const;
+#endif
 
   private:
     // Frame descriptor
