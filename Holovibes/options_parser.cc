@@ -39,12 +39,34 @@ namespace holovibes
       po::value<std::string>()
       ->required(),
       "Set the camera to use: pike/xiq/ids/pixelfly.")
-
-      ("fft1,f",
-      po::value<std::vector<std::string>>()->multitoken(),
-      "p, set size, lambda, dist"
-      )
       ;
+
+    cuda_desc_.add_options()
+      ("1fft",
+      "Enable the 1-FFT method: Fresnel transform. Requires n, p, l, z parameters.")
+
+      ("2fft",
+      "Enable the 2-FFT method: Angular spectrum propagation approache. Requires n, p, l, z parameters.")
+
+      ("nsamples,n",
+      po::value<int>(),
+      "Number of samples N.")
+
+      ("pindex,p",
+      po::value<int>(),
+      "Select the p-th component of the DFT, p must be defined in {0, ..., N - 1}.")
+
+      ("lambda,l",
+      po::value<float>(),
+      "Light wavelength.")
+
+      ("zdistance,z",
+      po::value<float>(),
+      "The parameter z corresponds to the sensor-to-object distance.")
+      ;
+
+    desc_.add(cuda_desc_);
+    desc_.add(help_desc_);
   }
 
   void OptionsParser::parse(int argc, const char* argv[])
@@ -132,33 +154,6 @@ namespace holovibes
 
   void OptionsParser::proceed_holovibes()
   {
-    if (vm_.count("fft1"))
-    {
-      const std::vector<std::string>& args =
-        vm_["fft1"].as<std::vector<std::string>>();
-      if (args.size() == 4)
-      {
-        try
-        {
-          int p = boost::lexical_cast<int>(args[0]);
-          int nbimage = boost::lexical_cast<int>(args[1]);
-          float lambda = boost::lexical_cast<float>(args[2]);
-          float dist = boost::lexical_cast<float>(args[3]);
-          opts_.nbimages = nbimage;
-          opts_.distance = dist;
-          opts_.lambda = lambda;
-          opts_.p = p;
-          std::cout << "p: " << p << " nbi: " << nbimage << " lambda: " << lambda << " dist: " << dist << std::endl;
-        }
-        catch (boost::bad_lexical_cast&)
-        {
-          throw std::exception("wrong fft parameters (must be numbers)");
-        }
-      }
-      else
-        throw std::exception("-f/--fft expects 4 arguments");
-    }
-
     if (vm_.count("cameramodel"))
     {
       const std::string& camera = vm_["cameramodel"].as<std::string>();
@@ -241,5 +236,71 @@ namespace holovibes
 
       opts_.is_recorder_enabled = true;
     }
+
+    if (vm_.count("1fft"))
+    {
+      proceed_dft_params();
+      opts_.is_1fft_enabled = true;
+    }
+
+    if (vm_.count("2fft"))
+    {
+      if (opts_.is_1fft_enabled)
+        throw std::exception("1fft method already selected");
+
+      proceed_dft_params();
+      opts_.is_2fft_enabled = true;
+    }
+  }
+
+  void OptionsParser::proceed_dft_params()
+  {
+    if (vm_.count("nsamples"))
+    {
+      const int nsamples = vm_["nsamples"].as<int>();
+
+      if (nsamples <= 0)
+        throw std::exception("--nsamples parameter must be strictly positive");
+
+      if (nsamples >= opts_.queue_size)
+        throw std::exception("--nsamples can not be greater than the queue size");
+
+      opts_.nsamples = nsamples;
+    }
+    else
+      throw std::exception("--nsamples is required");
+
+    if (vm_.count("pindex"))
+    {
+      const int pindex = vm_["pindex"].as<int>();
+
+      if (pindex < 0 || pindex >= opts_.nsamples)
+        throw std::exception("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
+
+      opts_.pindex = pindex;
+    }
+    else
+      throw std::exception("--pindex is required");
+
+    if (vm_.count("lambda"))
+    {
+      const float lambda = vm_["lambda"].as<float>();
+
+      if (lambda <= 0.0000f)
+        throw std::exception("--lambda parameter must be strictly positive");
+
+      opts_.lambda = lambda;
+    }
+    else
+      throw std::exception("--lambda is required");
+
+    if (vm_.count("zdistance"))
+    {
+      const float zdistance = vm_["zdistance"].as<float>();
+
+      opts_.zdistance = zdistance;
+    }
+    else
+      throw std::exception("--zdistance is required");
   }
 }

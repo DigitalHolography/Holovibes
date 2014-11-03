@@ -24,16 +24,17 @@ namespace holovibes
 {
   class OptionsParser
   {
-    const std::string version = "v0.1";
-    const int default_queue_size = 50;
-    const int display_size_min = 100;
+    const std::string version = "v0.2";
+    const unsigned int default_queue_size = 20;
+    const unsigned int display_size_min = 100;
 
   public:
     OptionsParser(OptionsDescriptor& opts)
       : opts_(opts)
       , pos_desc_()
       , help_desc_("Help")
-      , desc_("Holovibes options")
+      , cuda_desc_("CUDA options")
+      , desc_("General options")
       , vm_()
     {
       init_parser();
@@ -50,6 +51,8 @@ namespace holovibes
     void proceed_holovibes();
     /*! Handle help/version options. */
     void proceed_help();
+    /*! Checks DFT parameters. Each parameter is mandatory. */
+    void proceed_dft_params();
 
     /*! Print the version & help message. */
     void print_help();
@@ -62,6 +65,8 @@ namespace holovibes
     const po::positional_options_description pos_desc_;
     /*! Describes help program options. */
     po::options_description help_desc_;
+    /*! Describes compute options (cuda, fft, ...) */
+    po::options_description cuda_desc_;
     /*! Describes all program options. */
     po::options_description desc_;
     /*! Stores all option values. */

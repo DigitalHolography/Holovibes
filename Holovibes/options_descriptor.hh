@@ -24,6 +24,12 @@ namespace holovibes
       , camera()
       , is_gl_window_enabled(false)
       , is_recorder_enabled(false)
+      , is_1fft_enabled(false)
+      , is_2fft_enabled(false)
+      , nsamples(0)
+      , pindex(0)
+      , lambda(0.0f)
+      , zdistance(0.0f)
     {}
 
     /* Parameters */
@@ -39,17 +45,19 @@ namespace holovibes
     unsigned int gl_window_height;
     /*! Selected camera */
     Holovibes::camera_type camera;
-    /*! Lambda in meters for fft*/
-    float lambda;
-    /*! Dist in meters for fft*/
-    float distance;
-    /*! Nbimages to apply the fft on*/
-    int nbimages;
-    /*! Image to keep from the fft result*/
-    int p;
     /* Enabled features */
     bool is_gl_window_enabled;
     bool is_recorder_enabled;
+    bool is_1fft_enabled;
+    bool is_2fft_enabled;
+    /* Number of samples in which apply the fft on. */
+    unsigned int nsamples;
+    /*! p-th output component to show. */
+    unsigned int pindex;
+    /*! Lambda in meters. */
+    float lambda;
+    /*! Sensor-to-object distance. */
+    float zdistance;
   };
 }
 #endif /* !OPTIONS_DESCRIPTOR_HH */
