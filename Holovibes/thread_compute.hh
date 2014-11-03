@@ -7,7 +7,8 @@
 # include <device_launch_parameters.h>
 # include "queue.hh"
 # include "fft1.cuh"
-#include "preprocessing.cuh"
+# include "fft2.cuh"
+# include "preprocessing.cuh"
 
 namespace holovibes
 {
@@ -18,7 +19,8 @@ namespace holovibes
       unsigned int images_nb,
       float lambda,
       float dist,
-      Queue& q);
+      Queue& q,
+      int type);
     ~ThreadCompute();
 
     Queue& get_queue();
@@ -41,6 +43,7 @@ namespace holovibes
     float *sqrt_vec_;
     unsigned short *output_buffer_;
     Queue* output_q_;
+    int type_;
   };
 }
 

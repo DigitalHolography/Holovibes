@@ -7,14 +7,16 @@ namespace holovibes
     unsigned int images_nb,
     float lambda,
     float z,
-    Queue& input_q) :
+    Queue& input_q,
+    int type) :
     p_(p),
     images_nb_(images_nb),
     lambda_(lambda),
     z_(z),
     input_q_(input_q),
     compute_on_(true),
-    thread_(&ThreadCompute::thread_proc, this)
+    thread_(&ThreadCompute::thread_proc, this),
+    type_(type)
   {
     camera::FrameDescriptor fd = input_q_.get_frame_desc();
     fd.depth = 2;
@@ -44,7 +46,10 @@ namespace holovibes
   {
     if (input_q_.get_current_elts() >= images_nb_)
     {
-      fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
+     // if (type_ == 1)
+        fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
+     // else
+      //  fft_2(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
       unsigned short *shifted = output_buffer_ + p_ * input_q_.get_pixels();
       shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
       output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
@@ -58,7 +63,10 @@ namespace holovibes
 
     sqrt_vec_ = make_sqrt_vec(65536);
 
-    lens_ = create_lens(input_q_.get_frame_desc(), lambda_, z_);
+    //if (type_ == 1)
+      lens_ = create_lens(input_q_.get_frame_desc(), lambda_, z_);
+    //else
+     // lens_ = create_spectral(lambda_, z_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, 1.0e-6f, 1.0e-6f);
 
     cufftPlan3d(&plan_, images_nb_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, CUFFT_C2C);
 
