@@ -16,7 +16,7 @@ namespace holovibes
   {
 #ifndef _DEBUG
     if (is_file_exist(filepath))
-      throw std::exception("[RECORDER] overwriting an existing file");
+      throw std::exception("[RECORDER] error overwriting an existing file");
 #endif /* Overwrite is useful while debugging. */
 
     file_.open(filepath, std::ios::binary | std::ios::trunc);
@@ -28,7 +28,7 @@ namespace holovibes
   void Recorder::record(unsigned int n_images)
   {
     size_t size = queue_.get_size();
-    void* buffer = malloc(size);
+    char* buffer = new char[size]();
 
     std::cout << "[RECORDER] started recording " << n_images << std::endl;
 
@@ -37,13 +37,13 @@ namespace holovibes
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
-      queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
-      file_.write((const char*)buffer, size);
+      queue_.dequeue(buffer);
+      file_.write(buffer, size);
     }
 
     std::cout << "[RECORDER] recording has been stopped" << std::endl;
 
-    free(buffer);
+    delete[] buffer;
   }
 
   bool Recorder::is_file_exist(const std::string& filepath)

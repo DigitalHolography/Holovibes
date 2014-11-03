@@ -27,8 +27,8 @@ namespace camera
     virtual void load_ini_params() override;
     virtual void bind_params() override;
 
-    void pco_get_sizes();
-    void pco_allocate_buffer();
+    int pco_get_sizes();
+    int pco_allocate_buffer();
 
   private:
     HANDLE device_;

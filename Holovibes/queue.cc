@@ -89,6 +89,7 @@ namespace holovibes
     {
       void* last_img = buffer_ + ((start_ + curr_elts_ - 1) % max_elts_) * size_;
       cudaMemcpy(dest, last_img, size_, cuda_kind);
+      curr_elts_--;
     }
     mutex_.unlock();
   }
@@ -103,26 +104,6 @@ namespace holovibes
     }
     mutex_.unlock();
   }
-
-  /*
-  void* Queue::dequeue(size_t elts_nb)
-  {
-    if (elts_nb <= curr_elts_)
-    {
-      mutex_.lock();
-
-      void* old_ptr = buffer_ + start_ * size_;
-      start_ = (start_ + elts_nb) % max_elts_;
-      curr_elts_ -= elts_nb;
-
-      mutex_.unlock();
-
-      return old_ptr;
-    }
-    else
-      return nullptr;
-  }
-  */
 
 #if _DEBUG
   void Queue::print() const
