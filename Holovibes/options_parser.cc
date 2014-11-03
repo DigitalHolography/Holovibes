@@ -241,6 +241,7 @@ namespace holovibes
     {
       proceed_dft_params();
       opts_.is_1fft_enabled = true;
+      opts_.compute_desc.algorithm = ComputeDescriptor::FFT1;
     }
 
     if (vm_.count("2fft"))
@@ -250,6 +251,7 @@ namespace holovibes
 
       proceed_dft_params();
       opts_.is_2fft_enabled = true;
+      opts_.compute_desc.algorithm = ComputeDescriptor::FFT2;
     }
   }
 
@@ -265,7 +267,7 @@ namespace holovibes
       if (nsamples >= opts_.queue_size)
         throw std::exception("--nsamples can not be greater than the queue size");
 
-      opts_.nsamples = nsamples;
+      opts_.compute_desc.nsamples = nsamples;
     }
     else
       throw std::exception("--nsamples is required");
@@ -274,10 +276,10 @@ namespace holovibes
     {
       const int pindex = vm_["pindex"].as<int>();
 
-      if (pindex < 0 || pindex >= opts_.nsamples)
+      if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
         throw std::exception("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
 
-      opts_.pindex = pindex;
+      opts_.compute_desc.pindex = pindex;
     }
     else
       throw std::exception("--pindex is required");
@@ -289,7 +291,7 @@ namespace holovibes
       if (lambda <= 0.0000f)
         throw std::exception("--lambda parameter must be strictly positive");
 
-      opts_.lambda = lambda;
+      opts_.compute_desc.lambda = lambda;
     }
     else
       throw std::exception("--lambda is required");
@@ -298,7 +300,7 @@ namespace holovibes
     {
       const float zdistance = vm_["zdistance"].as<float>();
 
-      opts_.zdistance = zdistance;
+      opts_.compute_desc.zdistance = zdistance;
     }
     else
       throw std::exception("--zdistance is required");

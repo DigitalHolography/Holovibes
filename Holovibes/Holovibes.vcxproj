@@ -120,6 +120,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="camera_pixelfly.hh" />
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
+    <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="fft2.cuh" />
     <ClInclude Include="gl_component.hh" />

@@ -3,24 +3,18 @@
 
 namespace holovibes
 {
-  ThreadCompute::ThreadCompute(unsigned int p,
-    unsigned int images_nb,
-    float lambda,
-    float z,
-    Queue& input_q,
-    int type) :
-    p_(p),
-    images_nb_(images_nb),
-    lambda_(lambda),
-    z_(z),
-    input_q_(input_q),
-    compute_on_(true),
-    thread_(&ThreadCompute::thread_proc, this),
-    type_(type)
+  ThreadCompute::ThreadCompute(
+    const ComputeDescriptor& desc,
+    Queue& input_q)
+    : compute_desc_(desc)
+    , input_q_(input_q)
+    , compute_on_(true)
+    , thread_(&ThreadCompute::thread_proc, this)
   {
     camera::FrameDescriptor fd = input_q_.get_frame_desc();
     fd.depth = 2;
     fd.endianness = camera::LITTLE_ENDIAN;
+
     output_q_ = new Queue(fd, input_q_.get_max_elts());
   }
 
@@ -32,9 +26,6 @@ namespace holovibes
       thread_.join();
 
     delete output_q_;
-    cudaFree(lens_);
-    cudaFree(output_buffer_);
-    cudaFree(sqrt_vec_);
   }
 
   Queue& ThreadCompute::get_queue()
@@ -42,35 +33,83 @@ namespace holovibes
     return *output_q_;
   }
 
-  void ThreadCompute::compute_hologram()
-  {
-    if (input_q_.get_current_elts() >= images_nb_)
-    {
-     // if (type_ == 1)
-        fft_1(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
-     // else
-      //  fft_2(images_nb_, &input_q_, lens_, sqrt_vec_, output_buffer_, plan_);
-      unsigned short *shifted = output_buffer_ + p_ * input_q_.get_pixels();
-      shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-      output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
-      input_q_.dequeue();
-    }
-  }
-
   void ThreadCompute::thread_proc()
   {
-    cudaMalloc(&output_buffer_, input_q_.get_pixels() * sizeof(unsigned short) * images_nb_);
+    /* Ressources allocation */
+    float* sqrt_array = make_sqrt_vec(65536);
+    /* Output buffer containing p images ordered in frequency. */
+    unsigned short *pbuffer;
+    cudaMalloc(
+      &pbuffer,
+      input_q_.get_pixels() * sizeof(unsigned short) * compute_desc_.nsamples);
+    cufftHandle plan;
+    cufftPlan3d(
+      &plan,
+      compute_desc_.nsamples,            // NX
+      input_q_.get_frame_desc().width,   // NY
+      input_q_.get_frame_desc().height,  // NZ
+      CUFFT_C2C);
 
-    sqrt_vec_ = make_sqrt_vec(65536);
+    cufftComplex* lens = nullptr;
 
-    //if (type_ == 1)
-      lens_ = create_lens(input_q_.get_frame_desc(), lambda_, z_);
-    //else
-     // lens_ = create_spectral(lambda_, z_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, 1.0e-6f, 1.0e-6f);
+    /* Pointer on the selected FFT algorithm */
+    void(*fft_algorithm)(
+      int nsamples,
+      holovibes::Queue* q,
+      cufftComplex* lens,
+      float* sqrt_array,
+      unsigned short* pbuffer,
+      cufftHandle plan) = nullptr;
 
-    cufftPlan3d(&plan_, images_nb_, input_q_.get_frame_desc().width, input_q_.get_frame_desc().height, CUFFT_C2C);
+    if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+    {
+      lens = create_lens(
+        input_q_.get_frame_desc(),
+        compute_desc_.lambda,
+        compute_desc_.zdistance);
+      fft_algorithm = &fft_1;
+    }
+    else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+    {
+      lens = create_spectral(
+        compute_desc_.lambda,
+        compute_desc_.zdistance,
+        input_q_.get_frame_desc().width,
+        input_q_.get_frame_desc().height,
+        input_q_.get_frame_desc().pixel_size,
+        input_q_.get_frame_desc().pixel_size);
+      fft_algorithm = &fft_2;
+    }
+    else
+      assert(!"Impossible case");
 
+    /* Thread loop */
     while (compute_on_)
-      compute_hologram();
+    {
+      if (input_q_.get_current_elts() >= compute_desc_.nsamples)
+      {
+        fft_algorithm(
+          compute_desc_.nsamples,
+          &input_q_,
+          lens,
+          sqrt_array,
+          pbuffer,
+          plan);
+
+        /* Shifting */
+        unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
+        shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+
+        /* Store p-th image */
+        output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
+        input_q_.dequeue();
+      }
+    }
+
+    /* Free ressources */
+    cudaFree(lens);
+    cufftDestroy(plan);
+    cudaFree(pbuffer);
+    cudaFree(sqrt_array);
   }
 }

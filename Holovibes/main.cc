@@ -20,8 +20,8 @@ int main(int argc, const char* argv[])
 
     h.init_capture(opts.queue_size);
 
-    h.init_compute(opts.pindex, opts.nsamples, opts.lambda, opts.zdistance);
-
+    if (opts.is_1fft_enabled || opts.is_2fft_enabled)
+      h.init_compute(opts.compute_desc);
     if (opts.is_gl_window_enabled)
       h.init_display(opts.gl_window_width, opts.gl_window_height);
     if (opts.is_recorder_enabled)

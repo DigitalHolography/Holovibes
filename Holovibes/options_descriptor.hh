@@ -3,13 +3,12 @@
 
 # include <string>
 # include "holovibes.hh"
+# include "compute_descriptor.hh"
 
 namespace holovibes
 {
   /*! \brief The aim of this structure is to contain user
   ** parameters entered with the CLI or GUI.
-  ** This is class with private fields to check inputs integrity at
-  ** the earliest step.
   **/
   struct OptionsDescriptor
   {
@@ -26,10 +25,7 @@ namespace holovibes
       , is_recorder_enabled(false)
       , is_1fft_enabled(false)
       , is_2fft_enabled(false)
-      , nsamples(0)
-      , pindex(0)
-      , lambda(0.0f)
-      , zdistance(0.0f)
+      , compute_desc()
     {}
 
     /* Parameters */
@@ -50,14 +46,7 @@ namespace holovibes
     bool is_recorder_enabled;
     bool is_1fft_enabled;
     bool is_2fft_enabled;
-    /* Number of samples in which apply the fft on. */
-    unsigned int nsamples;
-    /*! p-th output component to show. */
-    unsigned int pindex;
-    /*! Lambda in meters. */
-    float lambda;
-    /*! Sensor-to-object distance. */
-    float zdistance;
+    ComputeDescriptor compute_desc;
   };
 }
 #endif /* !OPTIONS_DESCRIPTOR_HH */
