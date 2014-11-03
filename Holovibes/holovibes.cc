@@ -100,7 +100,7 @@ namespace holovibes
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
-    tcompute_ = new ThreadCompute(p, images_nb, lambda, z, tcapture_->get_queue());
+    tcompute_ = new ThreadCompute(p, images_nb, lambda, z, tcapture_->get_queue(), 1);
   }
 
   void Holovibes::dispose_compute()
