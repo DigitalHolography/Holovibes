@@ -51,6 +51,7 @@ This enables holograms computation using the XiQ camera, displaying in a square 
 * Cameras configuration using INI files
 * OpenGL realtime display
 * Record frames
+* Hologram computation using the 1FFT algorithm
 
 ## Authors ##
 
