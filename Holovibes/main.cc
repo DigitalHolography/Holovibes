@@ -8,7 +8,24 @@
 #include "camera_pixelfly.hh"
 #include "queue.hh"
 
-int main(int argc, const char* argv[])
+#undef min
+#include <QtWidgets>
+
+#include "window.hh"
+
+int main(int argc, char* argv[])
+{
+  QApplication a(argc, argv);
+  QPushButton button("Hello ");
+  button.show();
+  //Window w;
+  //w.show();
+  std::cout << "test" << std::endl;
+  getchar();
+  return a.exec();
+}
+
+/*int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
   holovibes::OptionsParser opts_parser(opts);
@@ -44,4 +61,4 @@ int main(int argc, const char* argv[])
     std::cerr << e.what() << std::endl;
   }
   return 0;
-}
+}*/

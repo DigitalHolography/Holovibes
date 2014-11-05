@@ -46,14 +46,14 @@
     <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(QTDIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(QTDIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -64,6 +64,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -93,6 +94,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +144,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
+    <ClInclude Include="window.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_xiq.cc" />
@@ -164,6 +167,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="thread_gl_window.cc" />
+    <ClCompile Include="window.cc" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="fft2.cu" />
     <CudaCompile Include="hardware_limits.cc" />
