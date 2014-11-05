@@ -11,17 +11,13 @@
 #undef min
 #include <QtWidgets>
 
-#include "window.hh"
+#include "main_window.hh"
 
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
-  QPushButton button("Hello ");
-  button.show();
-  //Window w;
-  //w.show();
-  std::cout << "test" << std::endl;
-  getchar();
+  Window w;
+  w.show();
   return a.exec();
 }
 
