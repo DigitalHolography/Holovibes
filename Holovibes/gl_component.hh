@@ -26,7 +26,7 @@ namespace holovibes
     /*! Initialize the OpenGL PixelFormatDescriptor.
      * PFD informs the system how we are going to use the DC.
      */
-    PIXELFORMATDESCRIPTOR get_pfd();
+    static PIXELFORMATDESCRIPTOR get_pfd();
     /*! Enable OpenGL features and set the viewport. */
     void gl_enable(int width, int height);
     void gl_disable();

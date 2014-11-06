@@ -31,7 +31,7 @@ namespace holovibes
       assert(!"Impossible case");
 
     if (!camera_)
-      throw std::exception("Error while allocating Camera constructor");
+      throw std::runtime_error("Error while allocating Camera constructor");
   }
 
   Holovibes::~Holovibes()
