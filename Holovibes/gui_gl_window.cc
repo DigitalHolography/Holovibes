@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "gui_gl_window.hh"
 
-namespace holovibes
+namespace gui
 {
   GuiGLWindow::GuiGLWindow(QWidget *parent)
     : QMainWindow(parent)

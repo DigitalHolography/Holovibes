@@ -13,14 +13,41 @@
 
 #include "main_window.hh"
 #include "gui_gl_window.hh"
+#include "gui_gl_widget.hh"
+
+#include "camera.hh"
+
+#include "camera_ids.hh"
 
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
-  holovibes::MainWindow w;
+  gui::MainWindow w;
   w.show();
-  holovibes::GuiGLWindow glw(&w);
+  gui::GuiGLWindow glw(&w);
+
+  camera::FrameDescriptor fd;
+  fd.width = 2048;
+  fd.height = 2048;
+  fd.depth = 1;
+  fd.pixel_size = 5.5;
+  fd.endianness = camera::LITTLE_ENDIAN;
+
+  gui::GLWidget glwi(&glw, fd);
+  glwi.resize(glwi.sizeHint());
+  glwi.show();
   glw.show();
+
+  camera::CameraIds cam;
+
+  cam.init_camera();
+  cam.start_acquisition();
+
+  void* frame = malloc(fd.width * fd.height * fd.depth);
+  memcpy(frame, cam.get_frame(), fd.width * fd.height * fd.depth);
+
+  glwi.setFrame(frame);
+
   return a.exec();
 }
 

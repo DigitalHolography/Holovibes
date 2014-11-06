@@ -64,12 +64,12 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -94,14 +94,14 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -137,6 +137,16 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
+    <CustomBuild Include="gui_gl_widget.hh">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+    </CustomBuild>
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
     <ClInclude Include="loader.hh" />
@@ -171,12 +181,14 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="camera_pike.cc" />
     <ClCompile Include="camera_pixelfly.cc" />
     <ClCompile Include="camera_exception.cc" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc" />
     <ClCompile Include="gl_component.cc" />
     <ClCompile Include="gl_window.cc" />
+    <ClCompile Include="gui_gl_widget.cc" />
     <ClCompile Include="gui_gl_window.cc" />
     <ClCompile Include="holovibes.cc" />
     <ClCompile Include="loader.cc" />

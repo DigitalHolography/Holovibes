@@ -1,0 +1,87 @@
+#include "gui_gl_widget.hh"
+
+namespace gui
+{
+  GLWidget::GLWidget(QWidget *parent, camera::FrameDescriptor fd)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
+    fd_(fd),
+    texture_(0)
+  {
+    frame_ = malloc(fd.width * fd.height * fd.depth);
+  }
+
+  GLWidget::~GLWidget()
+  {
+  }
+
+  QSize GLWidget::minimumSizeHint() const
+  {
+    return QSize(fd_.width, fd_.height);
+  }
+
+  QSize GLWidget::sizeHint() const
+  {
+    return QSize(fd_.width, fd_.height);
+  }
+
+  void GLWidget::setFrame(void* frame)
+  {
+    frame_ = frame;
+  }
+
+  void GLWidget::initializeGL()
+  {
+    std::cout << "in intializeGL" << std::endl;
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_QUADS);
+
+    glGenTextures(1, &texture_);
+    glViewport(0, 0, fd_.width, fd_.height);
+  }
+
+  void GLWidget::resizeGL(int width, int height)
+  {
+    std::cout << "in resizeGL" << std::endl;
+    glViewport(0, 0, width, height);
+  }
+
+  void GLWidget::paintGL()
+  {
+    std::cout << "in paintGL" << std::endl;
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindTexture(GL_TEXTURE_2D, texture_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    if (fd_.endianness == camera::BIG_ENDIAN)
+      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+    else
+      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+
+    glTexImage2D(
+      GL_TEXTURE_2D,
+      /* Base image level. */
+      0,
+      GL_LUMINANCE,
+      fd_.width,
+      fd_.height,
+      /* border: This value must be 0. */
+      0,
+      GL_LUMINANCE,
+      /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
+      fd_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+      /* Pointer to image data in memory. */
+      frame_);
+
+    glBegin(GL_QUADS);
+    glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
+    glTexCoord2d(1.0, 0.0); glVertex2d(+1.0, +1.0);
+    glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
+    glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
+    glEnd();
+  }
+}

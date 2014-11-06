@@ -4,7 +4,7 @@
 # include <QMainWindow>
 # include "ui_main_window.h"
 
-namespace holovibes
+namespace gui
 {
   class MainWindow : public QMainWindow
   {

@@ -4,7 +4,7 @@
 # include <QMainWindow>
 # include "ui_gl_window.h"
 
-namespace holovibes
+namespace gui
 {
   class GuiGLWindow : public QMainWindow
   {

@@ -125,6 +125,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_gl_widget.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
@@ -229,6 +235,9 @@
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="gui_gl_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
