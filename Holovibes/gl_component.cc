@@ -1,14 +1,22 @@
 #include "stdafx.h"
 #include "gl_component.hh"
 #include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
 
 namespace holovibes
 {
-  GLComponent::GLComponent(HWND hwnd, int width, int height)
+  GLComponent::GLComponent(
+    HWND hwnd,
+    const camera::FrameDescriptor& frame_desc,
+    int width,
+    int height)
     : hwnd_(hwnd)
     , hdc_(GetDC(hwnd))
     , hrc_(nullptr)
+    , frame_desc_(frame_desc)
     , texture_(0)
+    , buffer_(0)
+    , cuda_buffer_(nullptr)
   {
     PIXELFORMATDESCRIPTOR pfd = get_pfd();
 
@@ -76,26 +84,45 @@ namespace holovibes
     glEnable(GL_QUADS);
 
     glGenTextures(1, &texture_);
+    glGenBuffers(1, &buffer_);
+    glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
+    glBufferData(
+      GL_TEXTURE_BUFFER,
+      frame_desc_.frame_size(),
+      nullptr,
+      GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+    cudaGraphicsGLRegisterBuffer(&cuda_buffer_, buffer_, cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
     glViewport(0, 0, width, height);
   }
 
   void GLComponent::gl_disable()
   {
+    glDeleteTextures(1, &texture_);
+    glDeleteBuffers(1, &buffer_);
     glDisable(GL_QUADS);
     glDisable(GL_TEXTURE_2D);
   }
 
   void GLComponent::gl_draw(
-    const void* frame,
-    const camera::FrameDescriptor& desc)
+    const void* src)
   {
+    cudaGraphicsMapResources(1, &cuda_buffer_);
+    size_t size;
+    void* dst;
+    cudaGraphicsResourceGetMappedPointer(&dst, &size, cuda_buffer_);
+    cudaMemcpy(dst, src, size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+    cudaGraphicsUnmapResources(1, &cuda_buffer_);
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer_);
     glBindTexture(GL_TEXTURE_2D, texture_);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    if (desc.endianness == camera::BIG_ENDIAN)
+    if (frame_desc_.endianness == camera::BIG_ENDIAN)
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
@@ -105,15 +132,15 @@ namespace holovibes
       /* Base image level. */
       0,
       GL_LUMINANCE,
-      desc.width,
-      desc.height,
+      frame_desc_.width,
+      frame_desc_.height,
       /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
       /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      desc.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+      frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
       /* Pointer to image data in memory. */
-      frame);
+      NULL);
 
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
@@ -123,6 +150,5 @@ namespace holovibes
     glEnd();
 
     SwapBuffers(hdc_);
-    glDeleteTextures(1, &texture_);
   }
 }

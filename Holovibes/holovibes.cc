@@ -51,15 +51,13 @@ namespace holovibes
 
     if (tcompute_)
     {
-      const camera::FrameDescriptor& desc = tcompute_->get_queue().get_frame_desc();
       Queue& queue = tcompute_->get_queue();
-      tglwnd_ = new ThreadGLWindow(queue, desc, "OpenGL", width, height);
+      tglwnd_ = new ThreadGLWindow(queue, "OpenGL", width, height);
     }
     else
     {
-      const camera::FrameDescriptor& desc = camera_->get_frame_descriptor();
       Queue& queue = tcapture_->get_queue();
-      tglwnd_ = new ThreadGLWindow(queue, desc, "OpenGL", width, height);
+      tglwnd_ = new ThreadGLWindow(queue, "OpenGL", width, height);
     }
     std::cout << "[DISPLAY] display thread started" << std::endl;
   }

@@ -10,7 +10,8 @@ namespace holovibes
   GLWindow::GLWindow(
     const char* title,
     int width,
-    int height)
+    int height,
+    const camera::FrameDescriptor& desc)
     : hinstance_(GetModuleHandle(NULL))
     , hwnd_(nullptr)
     , gl_(nullptr)
@@ -36,7 +37,7 @@ namespace holovibes
      * the initialization list. It do not provide default constructor because
      * of ~GLComponent() destructor that free OpenGL ressources and things
      * become messy without proper initialization. */
-    gl_ = new GLComponent(hwnd_, width, height);
+    gl_ = new GLComponent(hwnd_, desc, width, height);
     if (!gl_)
       throw std::runtime_error("[DISPLAY] failed to instanciate GLComponent class.");
   }
