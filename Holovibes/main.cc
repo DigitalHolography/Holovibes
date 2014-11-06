@@ -12,12 +12,15 @@
 #include <QtWidgets>
 
 #include "main_window.hh"
+#include "gui_gl_window.hh"
 
 int main(int argc, char* argv[])
 {
   QApplication a(argc, argv);
-  Window w;
+  holovibes::MainWindow w;
   w.show();
+  holovibes::GuiGLWindow glw(&w);
+  glw.show();
   return a.exec();
 }
 

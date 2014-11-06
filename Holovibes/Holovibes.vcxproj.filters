@@ -25,6 +25,12 @@
       <UniqueIdentifier>{e7bbddd6-f330-4e16-a366-e6ac808111a8}</UniqueIdentifier>
       <Extensions>cuh;</Extensions>
     </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{42051917-46e7-4cd9-8e34-6ee3adc4c3a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{a92f5a26-c24b-4d75-87a7-34cddd371f0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="contrast_correction.cu">
@@ -100,6 +106,24 @@
     </ClCompile>
     <ClCompile Include="thread_compute.cc">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_gl_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -187,5 +211,25 @@
     <ClInclude Include="fft2.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="main_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gl_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gl_window.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

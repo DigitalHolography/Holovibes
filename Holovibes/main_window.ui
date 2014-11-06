@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>624</width>
+    <height>273</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Holovibes</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -19,12 +19,114 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>624</width>
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Camera">
+    <property name="title">
+     <string>&amp;Camera</string>
+    </property>
+    <widget class="QMenu" name="menu_Model">
+     <property name="title">
+      <string>&amp;Model</string>
+     </property>
+     <addaction name="actionIDS"/>
+     <addaction name="actionPike"/>
+     <addaction name="actionPixelfly"/>
+     <addaction name="actionXIQ"/>
+    </widget>
+    <addaction name="menu_Model"/>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menu_Record">
+    <property name="title">
+     <string>&amp;Record</string>
+    </property>
+    <addaction name="actionStart"/>
+    <addaction name="actionSettings_2"/>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionAuto_contrast"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionDocumentation"/>
+    <addaction name="actionCredits"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu_Camera"/>
+   <addaction name="menu_Record"/>
+   <addaction name="menu_Tools"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionIDS">
+   <property name="text">
+    <string>IDS</string>
+   </property>
+  </action>
+  <action name="actionPike">
+   <property name="text">
+    <string>Pike</string>
+   </property>
+  </action>
+  <action name="actionPixelfly">
+   <property name="text">
+    <string>Pixelfly</string>
+   </property>
+  </action>
+  <action name="actionXIQ">
+   <property name="text">
+    <string>XIQ</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="text">
+    <string>Start</string>
+   </property>
+  </action>
+  <action name="actionSettings_2">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionAuto_contrast">
+   <property name="text">
+    <string>Auto contrast</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionCredits">
+   <property name="text">
+    <string>Credits</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

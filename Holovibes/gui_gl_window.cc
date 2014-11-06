@@ -1,15 +1,15 @@
 #include "stdafx.h"
-#include "main_window.hh"
+#include "gui_gl_window.hh"
 
 namespace holovibes
 {
-  MainWindow::MainWindow(QWidget *parent)
+  GuiGLWindow::GuiGLWindow(QWidget *parent)
     : QMainWindow(parent)
   {
     ui.setupUi(this);
   }
-
-  MainWindow::~MainWindow()
+  
+  GuiGLWindow::~GuiGLWindow()
   {
   }
 }

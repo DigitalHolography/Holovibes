@@ -1,19 +1,22 @@
-#ifndef WINDOW_HH_
-# define WINDOW_HH_
+#ifndef MAIN_WINDOW_HH_
+# define MAIN_WINDOW_HH_
 
 # include <QMainWindow>
 # include "ui_main_window.h"
 
-class Window : public QMainWindow
+namespace holovibes
 {
-  Q_OBJECT
+  class MainWindow : public QMainWindow
+  {
+    Q_OBJECT
 
-public:
-  Window(QWidget *parent = 0);
-  ~Window();
+  public:
+    MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
-private:
-  Ui::MainWindow ui;
-};
+  private:
+    Ui::MainWindow ui;
+  };
+}
 
-#endif WINDOW_HH_
+#endif /* !MAIN_WINDOW_HH_ */
