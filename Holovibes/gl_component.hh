@@ -1,6 +1,7 @@
 #ifndef GL_COMPONENT_HH
 # define GL_COMPONENT_HH
 
+# include <GL/glew.h>
 # include <GL/GL.h>
 # include <Windows.h>
 

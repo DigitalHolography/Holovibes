@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "gl_component.hh"
+#include <cuda_gl_interop.h>
 
 namespace holovibes
 {
@@ -26,6 +27,7 @@ namespace holovibes
     if (!wglMakeCurrent(hdc_, hrc_))
       throw std::runtime_error("[OPENGL] unable to make current GL context");
 
+    glewInit();
     gl_enable(width, height);
   }
 
