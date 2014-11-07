@@ -67,8 +67,8 @@ namespace holovibes
       size_,
       cuda_kind);
 
-    if (frame_desc_.depth == 2 && frame_desc_.endianness == camera::BIG_ENDIAN)
-      endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, size_);
+    if (is_big_endian_)
+      endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
 
     if (cuda_status != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't enqueue" << std::endl;
