@@ -144,7 +144,7 @@ namespace camera
     status |= cam_.SetParameter(FGP_IMAGEFORMAT, to_dcam_format());
     status |= cam_.SetParameter(FGP_GAIN, gain_);
     status |= cam_.SetParameter(FGP_BRIGHTNESS, brightness_);
-    status |= cam_.SetParameter(FGP_SHUTTER, exposure_time_);
+    status |= cam_.SetParameter(FGP_SHUTTER, static_cast<unsigned long>(exposure_time_));
     status |= cam_.SetParameter(FGP_GAMMA, gamma_);
     status |= cam_.SetParameter(FGP_PHYSPEED, to_speed());
     status |= cam_.SetParameter(FGP_TRIGGER, MAKETRIGGER(trigger_on_, trigger_pol_, 0, trigger_mode_, 0));

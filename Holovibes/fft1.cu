@@ -16,8 +16,6 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
 {
   // Sizes
   unsigned int pixel_size = q->get_frame_desc().width * q->get_frame_desc().height * nbimages;
-  unsigned int complex_size = pixel_size * sizeof(cufftComplex);
-  unsigned int short_size = pixel_size * sizeof(unsigned short);
 
   // Loaded images --> complex
   unsigned int threads = get_max_threads_1d();
@@ -27,7 +25,7 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  cufftComplex* complex_input = make_contigous_complex(q, nbimages, sqrt_vect);
+  cufftComplex* complex_input = make_contiguous_complex(q, nbimages, sqrt_vect);
 
   // Apply lens
   apply_quadratic_lens <<<blocks, threads>>>(complex_input, pixel_size, lens, q->get_pixels());

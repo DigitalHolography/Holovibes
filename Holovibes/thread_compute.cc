@@ -45,7 +45,7 @@ namespace holovibes
   void ThreadCompute::thread_proc()
   {
     /* Ressources allocation */
-    float* sqrt_array = make_sqrt_vec(65536);
+    float* sqrt_array = make_sqrt_vect(65536);
     /* Output buffer containing p images ordered in frequency. */
     unsigned short *pbuffer;
     cudaMalloc(

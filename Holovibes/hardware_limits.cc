@@ -11,7 +11,7 @@ unsigned int get_max_threads_2d()
 {
   cudaDeviceProp prop;
   cudaGetDeviceProperties(&prop, 0);
-  return sqrt(prop.maxThreadsPerBlock);
+  return static_cast<unsigned int>(sqrt(prop.maxThreadsPerBlock));
 }
 
 unsigned int get_max_blocks()
