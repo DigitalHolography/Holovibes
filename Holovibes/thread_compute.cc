@@ -1,6 +1,14 @@
 #include "stdafx.h"
-#include "thread_compute.hh"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
 #include <functional>
+
+#include "thread_compute.hh"
+#include "fft1.cuh"
+#include "fft2.cuh"
+#include "preprocessing.cuh"
 
 namespace holovibes
 {
