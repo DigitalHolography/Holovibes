@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "thread_compute.hh"
+#include <functional>
 
 namespace holovibes
 {
@@ -52,14 +53,10 @@ namespace holovibes
 
     cufftComplex* lens = nullptr;
 
-    /* Pointer on the selected FFT algorithm */
-    void(*fft_algorithm)(
-      int nsamples,
-      holovibes::Queue* q,
-      cufftComplex* lens,
-      float* sqrt_array,
-      unsigned short* pbuffer,
-      cufftHandle plan) = nullptr;
+    /* function ptr on the selected FFT algorithm */
+    std::function
+      <void(int, Queue*, cufftComplex*, float*, unsigned short*, cufftHandle)>
+      fft_algorithm;
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -67,7 +64,7 @@ namespace holovibes
         input_q_.get_frame_desc(),
         compute_desc_.lambda,
         compute_desc_.zdistance);
-      fft_algorithm = &fft_1;
+      fft_algorithm = fft_1;
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
@@ -78,7 +75,7 @@ namespace holovibes
         input_q_.get_frame_desc().height,
         input_q_.get_frame_desc().pixel_size,
         input_q_.get_frame_desc().pixel_size);
-      fft_algorithm = &fft_2;
+      fft_algorithm = fft_2;
     }
     else
       assert(!"Impossible case");
