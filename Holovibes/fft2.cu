@@ -16,7 +16,7 @@ cufftComplex *create_spectral(float lambda, float distance, int size_x, int size
   return output;
 }
 
-void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan3d, int p, cufftHandle plan2d)
+void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan3d, unsigned int p, cufftHandle plan2d)
 {
   // Sizes
   unsigned int pixel_size = q->get_pixels() * nbimages;
@@ -55,20 +55,17 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   cudaDeviceSynchronize();
 
 
-  std::cout << std::endl << "POOOOST" << std::endl;
+ // std::cout << std::endl << "POOOOST" << std::endl;
 
   divide<<<blocks, threads >>>(pimage, size_x, size_y, nbimages);
-
-
-    
 
   //back to real
   complex_2_module <<<blocks, threads >> >(pimage, result_buffer, image_pixel); // one image
  
-  img2disk("ak.raw", result_buffer, image_pixel * sizeof (unsigned short));
-  std::cout << "image written" << std::endl;
-  getchar();
-  exit(0);
+  //img2disk("ak.raw", result_buffer, image_pixel * sizeof (unsigned short));
+  //std::cout << "image written" << std::endl;
+  //getchar();
+  //exit(0);
   // Free all
   cudaFree(pimage);
   cudaFree(complex_input);
