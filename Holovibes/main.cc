@@ -16,37 +16,26 @@
 #include "gui_gl_widget.hh"
 
 #include "camera.hh"
-
 #include "camera_ids.hh"
+#include "camera_pixelfly.hh"
+#include <thread>
 
 int main(int argc, char* argv[])
 {
+  // Holovibes object
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::PIXELFLY);
+  h.init_capture(20);
+
+  // GUI
   QApplication a(argc, argv);
   gui::MainWindow w;
   w.show();
   gui::GuiGLWindow glw(&w);
 
-  camera::FrameDescriptor fd;
-  fd.width = 2048;
-  fd.height = 2048;
-  fd.depth = 1;
-  fd.pixel_size = 5.5;
-  fd.endianness = camera::LITTLE_ENDIAN;
-
-  gui::GLWidget glwi(&glw, fd);
+  gui::GLWidget glwi(&glw, h.get_capture_queue());
   glwi.resize(glwi.sizeHint());
   glwi.show();
   glw.show();
-
-  camera::CameraIds cam;
-
-  cam.init_camera();
-  cam.start_acquisition();
-
-  void* frame = malloc(fd.width * fd.height * fd.depth);
-  memcpy(frame, cam.get_frame(), fd.width * fd.height * fd.depth);
-
-  glwi.setFrame(frame);
 
   return a.exec();
 }

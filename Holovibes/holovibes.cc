@@ -79,6 +79,11 @@ namespace holovibes
     camera_->shutdown_camera();
   }
 
+  Queue& Holovibes::get_capture_queue()
+  {
+    return tcapture_->get_queue();
+  }
+
   void Holovibes::init_recorder(
     std::string& filepath,
     unsigned int rec_n_images)

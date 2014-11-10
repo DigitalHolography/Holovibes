@@ -30,6 +30,7 @@ namespace holovibes
 
     void init_capture(unsigned int buffer_nb_elts);
     void dispose_capture();
+    Queue& get_capture_queue();
 
     void init_recorder(
       std::string& filepath,

@@ -2,8 +2,12 @@
 # define GUI_GL_WIDGET_HH_
 
 # include <QGLWidget>
-# include "camera.hh"
 # include <GL/GL.h>
+# include <cuda.h>
+# include <cuda_runtime.h>
+# include <device_launch_parameters.h>
+# include "camera.hh"
+# include "queue.hh"
 
 namespace gui
 {
@@ -12,13 +16,10 @@ namespace gui
     Q_OBJECT
 
   public:
-    GLWidget(QWidget *parent, camera::FrameDescriptor fd);
+    GLWidget(QWidget *parent, holovibes::Queue& q);
     ~GLWidget();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
-
-    // debug
-    void setFrame(void* frame);
 
   protected:
     void initializeGL() override;
@@ -26,6 +27,7 @@ namespace gui
     void paintGL() override;
 
   private:
+    holovibes::Queue& q_;
     camera::FrameDescriptor fd_;
     GLuint texture_;
     void* frame_;

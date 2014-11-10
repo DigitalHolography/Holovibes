@@ -2,12 +2,13 @@
 
 namespace gui
 {
-  GLWidget::GLWidget(QWidget *parent, camera::FrameDescriptor fd)
+  GLWidget::GLWidget(QWidget *parent, holovibes::Queue& q)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
-    fd_(fd),
+    q_(q),
+    fd_(q_.get_frame_desc()),
     texture_(0)
   {
-    frame_ = malloc(fd.width * fd.height * fd.depth);
+    frame_ = malloc(fd_.width * fd_.height * fd_.depth);
   }
 
   GLWidget::~GLWidget()
@@ -22,11 +23,6 @@ namespace gui
   QSize GLWidget::sizeHint() const
   {
     return QSize(fd_.width, fd_.height);
-  }
-
-  void GLWidget::setFrame(void* frame)
-  {
-    frame_ = frame;
   }
 
   void GLWidget::initializeGL()
@@ -62,6 +58,10 @@ namespace gui
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
+
+    unsigned int frame_size = fd_.width * fd_.height * fd_.depth;
+    cudaMemcpy(frame_, q_.get_last_images(1), frame_size, cudaMemcpyDeviceToHost);
+
     glTexImage2D(
       GL_TEXTURE_2D,
       /* Base image level. */
@@ -83,5 +83,7 @@ namespace gui
     glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
+
+    update();
   }
 }
