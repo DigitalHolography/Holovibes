@@ -30,7 +30,8 @@ namespace holovibes
     size_t size = queue_.get_size();
     char* buffer = new char[size]();
 
-    std::cout << "[RECORDER] started recording " << n_images << std::endl;
+    std::cout << "[RECORDER] started recording " <<
+      n_images << "frames" << std::endl;
 
     for (unsigned int i = 0; i < n_images; ++i)
     {
