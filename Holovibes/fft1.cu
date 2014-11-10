@@ -55,8 +55,9 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
 
   // Complex --> real (unsigned short)
   complex_2_module << <blocks, threads >> >(complex_input, result_buffer, pixel_size);
+  
 
-  // Free all
+ // Free all
   cudaFree(complex_input);
 }
 

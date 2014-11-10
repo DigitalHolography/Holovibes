@@ -5,7 +5,7 @@ ImageLoader::ImageLoader(std::string path, int nbimages, int bytedepth, int widt
 {
   FILE *fd;
   fopen_s(&fd, path.c_str(), "r+b");
-  void *img = malloc(width * height * bytedepth);
+  void *img = malloc(width * height * bytedepth * nbimages);
   fread((void*)img, width * height * bytedepth, nbimages, fd);
   for (int i = 0; i < nbimages; i++)
   {

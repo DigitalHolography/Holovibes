@@ -162,6 +162,17 @@ __global__ void meshgrind_square(float *input_u, float *input_v, float *output_u
   }
 }
 
+__global__ void divide(cufftComplex* image, int size_x, int size_y, int nbimages)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size_x * size_y)
+  {
+    image[index].x = image[index].x / ((float)nbimages * (float)size_x * (float)size_y);
+    image[index].y = image[index].y / ((float)nbimages * (float)size_x * (float)size_y);
+    index += blockDim.x * gridDim.x;
+  }
+}
+
 void endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();

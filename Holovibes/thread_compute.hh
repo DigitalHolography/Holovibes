@@ -37,13 +37,15 @@ namespace holovibes
 
     bool compute_on_;
     std::thread thread_;
+    int type_;
 
     cufftComplex *lens_;
-    cufftHandle plan_;
+    cufftHandle plan3d_;
+    cufftHandle plan2d_;
     float *sqrt_vec_;
     unsigned short *output_buffer_;
     Queue* output_q_;
-    int type_;
+    
   };
 }
 
