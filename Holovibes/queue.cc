@@ -59,8 +59,7 @@ namespace holovibes
   bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
   {
     mutex_.lock();
-    std::cout << frame_desc_.width << std::endl;// remove 
-    std::cout << frame_desc_.depth << std::endl;
+
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
     int cuda_status = cudaMemcpy(new_elt_adress,

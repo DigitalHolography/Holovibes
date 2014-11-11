@@ -1,8 +1,6 @@
 #include "fft2.cuh"
 
-
-
-cufftComplex *create_spectral(float lambda, float distance, int size_x, int size_y, float pasx, float pasy,camera::FrameDescriptor fd)
+cufftComplex *create_spectral(float lambda, float distance, int size_x, int size_y, float pasx, float pasy, camera::FrameDescriptor fd)
 {
   cufftComplex *output;
   cudaMalloc(&output, size_x * size_y * sizeof(cufftComplex));
@@ -11,7 +9,7 @@ cufftComplex *create_spectral(float lambda, float distance, int size_x, int size
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
-  kernel_spectral_lens<<<lblocks,lthreads>>>(output, fd, lambda, distance);
+  kernel_spectral_lens<<<lblocks, lthreads>>>(output, fd, lambda, distance);
 
   return output;
 }
@@ -24,8 +22,8 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   unsigned int image_pixel = q->get_pixels();
   unsigned int complex_image_size = image_pixel * sizeof(cufftComplex);
   unsigned int short_size = pixel_size * sizeof(unsigned short);
-  int size_x = q->get_frame_desc().width;
-  int size_y = q->get_frame_desc().height;
+  unsigned short size_x = q->get_frame_desc().width;
+  unsigned short size_y = q->get_frame_desc().height;
 
   // Loaded images --> complex
   unsigned int threads = get_max_threads_1d();
@@ -40,7 +38,7 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
 
   //3d fft
   cufftExecC2C(plan3d, complex_input, complex_input, CUFFT_FORWARD);
-  
+
   // extratct the (p) image
   cufftComplex* pimage;
   cudaMalloc(&pimage, complex_image_size);
@@ -50,23 +48,15 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   // apply lens
   apply_quadratic_lens << <blocks, threads >> >(pimage, image_pixel, lens, image_pixel);
 
-   if (cufftExecC2C(plan2d, pimage, pimage, CUFFT_INVERSE) != CUFFT_SUCCESS)
+  if (cufftExecC2C(plan2d, pimage, pimage, CUFFT_INVERSE) != CUFFT_SUCCESS)
     std::cout << "fail fft 2" << std::endl;
   cudaDeviceSynchronize();
-
-
- // std::cout << std::endl << "POOOOST" << std::endl;
 
   divide<<<blocks, threads >>>(pimage, size_x, size_y, nbimages);
 
   //back to real
   complex_2_module <<<blocks, threads >> >(pimage, result_buffer, image_pixel); // one image
- 
-  //img2disk("ak.raw", result_buffer, image_pixel * sizeof (unsigned short));
-  //std::cout << "image written" << std::endl;
-  //getchar();
-  //exit(0);
-  // Free all
+
   cudaFree(pimage);
   cudaFree(complex_input);
 }
