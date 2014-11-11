@@ -4,10 +4,6 @@
 #include "holovibes.hh"
 #include "camera_exception.hh"
 
-#include "camera.hh"
-#include "camera_pixelfly.hh"
-#include "queue.hh"
-
 int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
