@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "tools.cuh"
 
+#include <device_launch_parameters.h>
+#include "hardware_limits.hh"
+
 // CONVERSION FUNCTIONS
 
 __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab)

@@ -1,14 +1,13 @@
 #include "stdafx.h"
 
+#include <cassert>
 #include <cuda.h>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <functional>
 
 #include "thread_compute.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "preprocessing.cuh"
+#include "tools.cuh"
 
 namespace holovibes
 {
@@ -67,7 +66,7 @@ namespace holovibes
       input_q_.get_frame_desc().height,  // NZ
       CUFFT_C2C);
 
-    cufftHandle plan2d;
+    cufftHandle plan2d = 0;
     if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
       cufftPlan2d(&plan2d, input_q_.get_frame_desc().width,

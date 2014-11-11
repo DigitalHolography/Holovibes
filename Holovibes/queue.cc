@@ -1,5 +1,7 @@
 #include "stdafx.h"
+
 #include "queue.hh"
+#include "tools.cuh"
 
 namespace holovibes
 {

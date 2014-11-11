@@ -1,5 +1,9 @@
 #include "hardware_limits.hh"
 
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cmath>
+
 unsigned int get_max_threads_1d()
 {
   cudaDeviceProp prop;

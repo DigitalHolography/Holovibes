@@ -1,13 +1,25 @@
 #include "preprocessing.cuh"
-#include "fft1.cuh"
-#include <iostream>
+
+//#include "fft1.cuh"
+//#include <iostream>
+//#include <cuda.h>
+//#include <cuda_runtime.h>
+//#include <device_launch_parameters.h>
+//#include <cufft.h>
+//#include <cufftXt.h>
+//#include <cufftw.h>
+//#include "queue.hh"
+//#include "tools.cuh"
+
+#include "hardware_limits.hh"
+#include "tools.cuh"
 
 float *make_sqrt_vect(int vect_size)
 {
   float* vect = new float[vect_size]();
 
   for (int i = 0; i < vect_size; i++)
-    vect[i] = sqrtf(i);
+    vect[i] = sqrtf(static_cast<float>(i));
 
   float* vect_gpu;
   cudaMalloc(&vect_gpu, sizeof(float) * vect_size);

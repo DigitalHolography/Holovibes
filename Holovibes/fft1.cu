@@ -1,5 +1,11 @@
 #include "fft1.cuh"
 
+#include <cuda_runtime.h>
+#include "hardware_limits.hh"
+#include "tools.cuh"
+#include "preprocessing.cuh"
+#include "transforms.cuh"
+
 cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z)
 {
   unsigned int threads_2d = get_max_threads_2d();

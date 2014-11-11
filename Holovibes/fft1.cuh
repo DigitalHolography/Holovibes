@@ -1,15 +1,11 @@
 #ifndef FFT1_CUH
 # define FFT1_CUH
 
-#include "tools.cuh"
-#include "hardware_limits.hh"
-#include "preprocessing.cuh"
-#include "transforms.cuh"
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include <cufft.h>
+#include "queue.hh"
+#include "frame_desc.hh"
 
-void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan);
 cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z);
+void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan);
 
 #endif /* !FFT1_CUH */

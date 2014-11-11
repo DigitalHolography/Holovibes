@@ -1,14 +1,12 @@
 #ifndef QUEUE_HH
 # define QUEUE_HH
 
-# include <cstdlib>
 # include <iostream>
 # include <mutex>
 # include <cuda.h>
 # include <cuda_runtime.h>
-# include <device_launch_parameters.h>
+
 # include "frame_desc.hh"
-# include "tools.cuh"
 
 namespace holovibes
 {

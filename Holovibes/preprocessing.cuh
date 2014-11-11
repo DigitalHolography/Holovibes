@@ -1,17 +1,10 @@
 #ifndef PREPROCESSING_CUH
-#define PREPROCESSING_CUH
+# define PREPROCESSING_CUH
 
-#include <cuda.h>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
-#include <cufft.h>
-#include <cufftXt.h>
-#include <cufftw.h>
-#include "queue.hh"
-#include "tools.cuh"
-#include "hardware_limits.hh"
+# include <cufft.h>
+# include "queue.hh"
 
 cufftComplex *make_contiguous_complex(holovibes::Queue *q, unsigned int nbimages, float *sqrt_vec);
 float *make_sqrt_vect(int vect_size);
 
-#endif
+#endif /* !PREPROCESSING_CUH */

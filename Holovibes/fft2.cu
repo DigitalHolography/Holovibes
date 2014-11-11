@@ -1,5 +1,12 @@
 #include "fft2.cuh"
 
+#include <cuda_runtime.h>
+
+#include "hardware_limits.hh"
+#include "transforms.cuh"
+#include "preprocessing.cuh"
+#include "tools.cuh"
+
 cufftComplex *create_spectral(float lambda, float distance, int size_x, int size_y, float pasx, float pasy, camera::FrameDescriptor fd)
 {
   cufftComplex *output;

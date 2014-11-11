@@ -1,9 +1,12 @@
 #include "contrast_correction.cuh"
-#ifndef __CUDACC__
-#define __CUDACC__
-#endif
 
-__global__ void make_histo(int *histo, unsigned char *img, int img_size)
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cstdlib>
+
+#include "hardware_limits.hh"
+
+__global__ static void make_histo(int *histo, unsigned char *img, int img_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -13,7 +16,7 @@ __global__ void make_histo(int *histo, unsigned char *img, int img_size)
   }
 }
 
-__global__ void apply_correction(int *sum_histo, unsigned char *img, int img_size, int tons)
+__global__ static void apply_correction(int *sum_histo, unsigned char *img, int img_size, int tons)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -57,7 +60,7 @@ void correct_contrast(unsigned char *img, int img_size, int bytedepth)
   cudaMemcpy(histo_cpu, histo, tons * sizeof(int), cudaMemcpyDeviceToHost);
   sum_histo_c(histo_cpu, sum_histo_cpu, bytedepth);
   cudaMemcpy(sum_histo, sum_histo_cpu, tons * sizeof(int), cudaMemcpyHostToDevice);
-  apply_correction <<<blocks, threads >> >(sum_histo, img, img_size, tons);
+  apply_correction <<<blocks, threads>>>(sum_histo, img, img_size, tons);
   cudaFree(histo);
   cudaFree(sum_histo);
   free(histo_cpu);

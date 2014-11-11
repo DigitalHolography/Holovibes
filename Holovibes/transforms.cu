@@ -1,5 +1,13 @@
 #include "transforms.cuh"
 
+#include <device_launch_parameters.h>
+
+#ifndef _USE_MATH_DEFINES
+/* Enables math constants. */
+# define _USE_MATH_DEFINES
+#endif /* !_USE_MATH_DEFINES */
+#include <math.h>
+
 __global__ void kernel_quadratic_lens(cufftComplex* output,
   camera::FrameDescriptor fd,
   float lambda,
@@ -28,8 +36,7 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
 __global__ void kernel_spectral_lens(cufftComplex* output,
   camera::FrameDescriptor fd,
   float lambda,
-  float distance
-  )
+  float distance)
 {
   unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
