@@ -8,7 +8,6 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
   camera::FrameDescriptor fd,
   float lambda,
   float dist);
-__global__ void spectral_rework(cufftComplex *input, cufftComplex *output, int size_x, int size_y);
 __global__ void kernel_spectral_lens(cufftComplex* output, camera::FrameDescriptor fd, float lambda, float distance);
 
 #endif /* !TRANSFORMS_CUH_ */

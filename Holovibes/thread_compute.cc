@@ -91,7 +91,8 @@ namespace holovibes
         input_q_.get_frame_desc().width,
         input_q_.get_frame_desc().height,
         input_q_.get_frame_desc().pixel_size,
-        input_q_.get_frame_desc().pixel_size, input_q_.get_frame_desc());
+        input_q_.get_frame_desc().pixel_size,
+        input_q_.get_frame_desc());
     }
     else
       assert(!"Impossible case");

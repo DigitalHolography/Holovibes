@@ -25,10 +25,8 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
 {
   // Sizes
   unsigned int pixel_size = q->get_pixels() * nbimages;
-  unsigned int complex_size = pixel_size * sizeof(cufftComplex);
   unsigned int image_pixel = q->get_pixels();
   unsigned int complex_image_size = image_pixel * sizeof(cufftComplex);
-  unsigned int short_size = pixel_size * sizeof(unsigned short);
   unsigned short size_x = q->get_frame_desc().width;
   unsigned short size_y = q->get_frame_desc().height;
 
