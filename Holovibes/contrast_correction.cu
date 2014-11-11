@@ -1,5 +1,5 @@
 #include "contrast_correction.cuh"
-#ifndef __CUDACC__  
+#ifndef __CUDACC__
 #define __CUDACC__
 #endif
 
@@ -32,7 +32,7 @@ void sum_histo_c(int *histo, int *summed_histo, int bytedepth)
   summed_histo[0] = histo[0];
   for (int i = 1; i < tons; i++)
   {
-      summed_histo[i] += summed_histo[i - 1] + histo[i];
+    summed_histo[i] += summed_histo[i - 1] + histo[i];
   }
 }
 

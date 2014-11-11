@@ -23,7 +23,7 @@ namespace holovibes
       , curr_elts_(0)
       , start_(0)
       , is_big_endian_(frame_desc.depth == 2 &&
-        frame_desc.endianness == camera::BIG_ENDIAN)
+      frame_desc.endianness == camera::BIG_ENDIAN)
     {
       if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
         std::cerr << "Queue: couldn't allocate queue" << std::endl;

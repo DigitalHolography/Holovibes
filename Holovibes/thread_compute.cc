@@ -49,8 +49,8 @@ namespace holovibes
     unsigned short *pbuffer = nullptr;
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
-    cudaMalloc(
-      &pbuffer,
+      cudaMalloc(
+        &pbuffer,
         input_q_.get_pixels() * sizeof(unsigned short)* compute_desc_.nsamples);
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
@@ -75,9 +75,7 @@ namespace holovibes
         CUFFT_C2C);
     }
 
-
     cufftComplex* lens = nullptr;
-
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -94,7 +92,7 @@ namespace holovibes
         input_q_.get_frame_desc().width,
         input_q_.get_frame_desc().height,
         input_q_.get_frame_desc().pixel_size,
-        input_q_.get_frame_desc().pixel_size,input_q_.get_frame_desc());
+        input_q_.get_frame_desc().pixel_size, input_q_.get_frame_desc());
     }
     else
       assert(!"Impossible case");
@@ -107,18 +105,18 @@ namespace holovibes
         if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
         {
           fft_1(
-          compute_desc_.nsamples,
-          &input_q_,
-          lens,
-          sqrt_array,
-          pbuffer,
+            compute_desc_.nsamples,
+            &input_q_,
+            lens,
+            sqrt_array,
+            pbuffer,
             plan3d);
 
-        /* Shifting */
-        unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
-        shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-        /* Store p-th image */
-        output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
+          /* Shifting */
+          unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
+          shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+          /* Store p-th image */
+          output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
         }
         else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
         {
@@ -129,7 +127,6 @@ namespace holovibes
           output_q_->enqueue(pbuffer, cudaMemcpyDeviceToDevice);
         }
 
-        
         input_q_.dequeue();
       }
     }

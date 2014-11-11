@@ -12,9 +12,6 @@ public:
   ImageLoader(std::string path, int nbimages, int bytedepth, int width, int height, holovibes::Queue *q);
   ~ImageLoader();
 private:
-
 };
-
-
 
 #endif

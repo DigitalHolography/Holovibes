@@ -1,4 +1,3 @@
-
 #include "transforms.cuh"
 
 __global__ void kernel_quadratic_lens(cufftComplex* output,
@@ -45,7 +44,7 @@ __global__ void kernel_spectral_lens(cufftComplex* output,
   float du = 1 / (((float)fd.width) * dx);
   float dv = 1 / (((float)fd.height) * dy);
 
-  float u = (i - ((float)fd.width / 2)) * du ; //fix me -1
+  float u = (i - ((float)fd.width / 2)) * du; //fix me -1
   float v = (j - ((float)fd.height / 2)) * dv; //fix me -1
 
   if (index < fd.width * fd.height)
@@ -71,8 +70,8 @@ __global__ void spectral(float pasu, float pasv, cufftComplex *output, unsigned 
 
   int x = index % size_x;
   int y = index / size_y;
-    float u = ((x - 1) - rounded) * pasu;
-    float v = ((y - 1) - rounded) * pasv;
+  float u = ((x - 1) - rounded) * pasu;
+  float v = ((y - 1) - rounded) * pasv;
 
   if (index < size_x * size_y)
   {
@@ -83,7 +82,6 @@ __global__ void spectral(float pasu, float pasv, cufftComplex *output, unsigned 
     output[index].x = cosf(thetha);
     output[index].y = sinf(thetha);
   }
-
 }
 
 __global__ void spectral_rework1(cufftComplex *input, cufftComplex *output, int size_x, int size_y)
@@ -104,10 +102,7 @@ __global__ void spectral_rework1(cufftComplex *input, cufftComplex *output, int 
         output[n_y * size_x + n_x] = input[index];
       }
     }
-      
   }
-  
-
 }
 
 __global__ void spectral_rework2(cufftComplex *input, cufftComplex *output, int size_x, int size_y)
@@ -128,6 +123,5 @@ __global__ void spectral_rework2(cufftComplex *input, cufftComplex *output, int 
         output[n_y * size_x + n_x] = input[index];
       }
     }
-
   }
 }
