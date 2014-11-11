@@ -129,7 +129,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="gl_window.hh" />
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
-    <ClInclude Include="loader.hh" />
+    <ClInclude Include="frame_file_loader.hh" />
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="preprocessing.cuh" />
@@ -154,7 +154,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="gl_component.cc" />
     <ClCompile Include="gl_window.cc" />
     <ClCompile Include="holovibes.cc" />
-    <ClCompile Include="loader.cc" />
+    <ClCompile Include="frame_file_loader.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="options_parser.cc" />
     <ClCompile Include="queue.cc" />
@@ -163,6 +163,7 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="test_main_loader_recorder.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="thread_gl_window.cc" />

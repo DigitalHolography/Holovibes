@@ -4,6 +4,7 @@
 #include "holovibes.hh"
 #include "camera_exception.hh"
 
+#if 0
 int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
@@ -41,3 +42,4 @@ int main(int argc, const char* argv[])
   }
   return 0;
 }
+#endif
