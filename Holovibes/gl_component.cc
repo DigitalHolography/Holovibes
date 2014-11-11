@@ -13,18 +13,18 @@ namespace holovibes
 
     const int pixel_format = ChoosePixelFormat(hdc_, &pfd);
     if (!pixel_format)
-      throw std::exception("[OPENGL] unable to find a suitable pixel format");
+      throw std::runtime_error("[OPENGL] unable to find a suitable pixel format");
 
     if (!SetPixelFormat(hdc_, pixel_format, &pfd))
-      throw std::exception("[OPENGL] can not set the pixel format");
+      throw std::runtime_error("[OPENGL] can not set the pixel format");
 
     hrc_ = wglCreateContext(hdc_);
 
     if (!hrc_)
-      throw std::exception("[OPENGL] unable to create GL context");
+      throw std::runtime_error("[OPENGL] unable to create GL context");
 
     if (!wglMakeCurrent(hdc_, hrc_))
-      throw std::exception("[OPENGL] unable to make current GL context");
+      throw std::runtime_error("[OPENGL] unable to make current GL context");
 
     gl_enable(width, height);
   }
@@ -39,19 +39,27 @@ namespace holovibes
 
   inline PIXELFORMATDESCRIPTOR GLComponent::get_pfd()
   {
-    PIXELFORMATDESCRIPTOR pfd;
-
-    /* Init with null values. */
-    memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-
-    pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 24;
-    pfd.cDepthBits = 16;
-
-    return pfd;
+    return PIXELFORMATDESCRIPTOR
+    {
+      sizeof(PIXELFORMATDESCRIPTOR), // Size of this Pixel Format Descriptor
+      1,                             // Version Number
+      PFD_DRAW_TO_WINDOW |           // Format Must Support Window
+      PFD_SUPPORT_OPENGL |           // Format Must Support OpenGL
+      PFD_DOUBLEBUFFER,              // Must Support Double Buffering
+      PFD_TYPE_RGBA,                 // Request An RGBA Format
+      16,                            // Select Our Color Depth, 8 bits / channel
+      0, 0, 0, 0, 0, 0,              // Color Bits Ignored
+      0,                             // No Alpha Buffer
+      0,                             // Shift Bit Ignored
+      0,                             // No Accumulation Buffer
+      0, 0, 0, 0,                    // Accumulation Bits Ignored
+      24,                            // 32 bit Z-Buffer (Depth Buffer)
+      0,                             // No Stencil Buffer
+      0,                             // No Auxiliary Buffer
+      PFD_MAIN_PLANE,                // Main Drawing Layer
+      0,                             // Reserved
+      0, 0, 0                        // Layer Masks Ignored
+    };
   }
 
   /*! \brief OpenGL configuration.

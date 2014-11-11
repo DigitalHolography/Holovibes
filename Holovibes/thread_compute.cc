@@ -1,5 +1,14 @@
 #include "stdafx.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <functional>
+
 #include "thread_compute.hh"
+#include "fft1.cuh"
+#include "fft2.cuh"
+#include "preprocessing.cuh"
 
 namespace holovibes
 {
@@ -35,13 +44,13 @@ namespace holovibes
   void ThreadCompute::thread_proc()
   {
     /* Ressources allocation */
-    float* sqrt_array = make_sqrt_vec(65536);
+    float* sqrt_array = make_sqrt_vect(65536);
     /* Output buffer containing p images ordered in frequency. */
     unsigned short *pbuffer = nullptr;
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
-      cudaMalloc(
-        &pbuffer,
+    cudaMalloc(
+      &pbuffer,
         input_q_.get_pixels() * sizeof(unsigned short)* compute_desc_.nsamples);
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
@@ -98,18 +107,18 @@ namespace holovibes
         if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
         {
           fft_1(
-            compute_desc_.nsamples,
-            &input_q_,
-            lens,
-            sqrt_array,
-            pbuffer,
+          compute_desc_.nsamples,
+          &input_q_,
+          lens,
+          sqrt_array,
+          pbuffer,
             plan3d);
 
-          /* Shifting */
-          unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
-          shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-          /* Store p-th image */
-          output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
+        /* Shifting */
+        unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
+        shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+        /* Store p-th image */
+        output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
         }
         else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
         {

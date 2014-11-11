@@ -31,7 +31,7 @@ namespace holovibes
       assert(!"Impossible case");
 
     if (!camera_)
-      throw std::exception("Error while allocating Camera constructor");
+      throw std::runtime_error("Error while allocating Camera constructor");
   }
 
   Holovibes::~Holovibes()
@@ -93,7 +93,14 @@ namespace holovibes
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
-    recorder_ = new Recorder(tcapture_->get_queue(), filepath);
+    if (tcompute_)
+    {
+      recorder_ = new Recorder(tcompute_->get_queue(), filepath);
+    }
+    else
+    {
+      recorder_ = new Recorder(tcapture_->get_queue(), filepath);
+    }
     std::cout << "[RECORDER] recorder initialized" << std::endl;
     recorder_->record(rec_n_images);
   }

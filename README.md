@@ -1,4 +1,4 @@
-# Holovibes v0.1.1 #
+# Holovibes v0.2 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -18,6 +18,17 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 ### Visual C++ redistributable ###
 
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
+
+## Typical Usage ##
+
+1. *Configure* the camera (xiq for example) with .ini.
+2. *Launch* Holovibes using the *Windows PowerShell* for example:
+
+~~~
+./Holovibes.exe -c xiq -d 720 --1fft -n 2 -p 0 -l 536e-9 -z 1.36
+~~~
+
+This enables holograms computation using the XiQ camera, displaying in a square windows of 720x720 pixels.
 
 ## Developers dependencies ##
 
@@ -40,17 +51,33 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * Cameras configuration using INI files
 * OpenGL realtime display
 * Record frames
+* Hologram computation using the 1FFT algorithm
 
 ## Authors ##
 
 * Michael ATLAN <michael.atlan@espci.fr>
-* Jeffrey BENCTEUX <jeffrey.bencteux@espci.fr>
-* Thomas KOSTAS <thomas.kostas@espci.fr>
+* Jeffrey BENCTEUX <jeffrey.bencteux@epita.fr>
+* Thomas KOSTAS <thomas.kostas@epita.fr>
 * Pierre PAGNOUX <pierre.pagnoux@epita.fr>
 
 ## Changelog ##
+
+### v.0.1 ###
+
+* Command line front-end.
+* Handles 4 cameras: xiq, ids, pike, pixelfly.
+* Use INI files to configure cameras.
+* OpenGL display.
+* Records frames.
 
 ### v.0.1.1 ###
 
 * Fix recorder issue.
 * Fix pike 16-bits issue.
+
+### v.0.2.0 ###
+
+* Add 1FFT algorithm written in CUDA.
+* When FFT is enabled, the recorder writes output frames.
+* When FFT is enabled, the display shows output frames at 30fps.
+* Some bug fixes.

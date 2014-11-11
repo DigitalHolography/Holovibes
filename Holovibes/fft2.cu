@@ -34,7 +34,7 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
     blocks = get_max_blocks() - 1;
 
   //get contigous images
-  cufftComplex* complex_input = make_contigous_complex(q, nbimages, sqrt_vect);
+  cufftComplex* complex_input = make_contiguous_complex(q, nbimages, sqrt_vect);
 
   //3d fft
   cufftExecC2C(plan3d, complex_input, complex_input, CUFFT_FORWARD);

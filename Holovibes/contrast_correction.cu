@@ -3,8 +3,7 @@
 #define __CUDACC__
 #endif
 
-
-__global__ void make_histo(int *histo, unsigned short *img, int img_size)
+__global__ void make_histo(int *histo, unsigned char *img, int img_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -14,8 +13,7 @@ __global__ void make_histo(int *histo, unsigned short *img, int img_size)
   }
 }
 
-
-__global__ void apply_correction(int *sum_histo, unsigned short *img, int img_size, int tons)
+__global__ void apply_correction(int *sum_histo, unsigned char *img, int img_size, int tons)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -36,25 +34,24 @@ void sum_histo_c(int *histo, int *summed_histo, int bytedepth)
   {
       summed_histo[i] += summed_histo[i - 1] + histo[i];
   }
-
 }
 
-void correct_contrast(unsigned short *img,int img_size, int bytedepth)
+void correct_contrast(unsigned char *img, int img_size, int bytedepth)
 {
   int tons = 65536;
   if (bytedepth == 1)
     tons = 256;
-  int threads = get_max_threads_1d();
-  int blocks = (img_size + threads - 1) / threads;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (img_size + threads - 1) / threads;
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
 
   int *histo;
   int *sum_histo;
-  int *histo_cpu = (int*)calloc(sizeof(int) * tons,1);
-  int *sum_histo_cpu = (int*)calloc(sizeof(int)* tons,1 );
-  cudaMalloc(&sum_histo, tons * sizeof (int));
-  cudaMalloc(&histo, tons * sizeof (int));
+  int *histo_cpu = (int*)calloc(sizeof(int) * tons, 1);
+  int *sum_histo_cpu = (int*)calloc(1, sizeof(int)* tons);
+  cudaMalloc(&sum_histo, tons * sizeof(int));
+  cudaMalloc(&histo, tons * sizeof(int));
   cudaMemset(histo, 0, tons * sizeof(int));
   make_histo<<<blocks, threads>>>(histo, img, img_size);
   cudaMemcpy(histo_cpu, histo, tons * sizeof(int), cudaMemcpyDeviceToHost);
