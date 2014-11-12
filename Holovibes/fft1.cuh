@@ -5,7 +5,16 @@
 #include "queue.hh"
 #include "frame_desc.hh"
 
-cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z);
-void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan);
+cufftComplex* create_lens(
+  const camera::FrameDescriptor& fd,
+  float lambda,
+  float z);
+void fft_1(
+  unsigned short *result_buffer,
+  holovibes::Queue& q,
+  cufftComplex *lens,
+  float *sqrt_vect,
+  cufftHandle plan,
+  int nbimages);
 
 #endif /* !FFT1_CUH */

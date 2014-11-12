@@ -8,8 +8,9 @@
 #endif /* !_USE_MATH_DEFINES */
 #include <math.h>
 
-__global__ void kernel_quadratic_lens(cufftComplex* output,
-  camera::FrameDescriptor fd,
+__global__ void kernel_quadratic_lens(
+  cufftComplex* output,
+  const camera::FrameDescriptor fd,
   float lambda,
   float dist)
 {
@@ -33,8 +34,9 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
   }
 }
 
-__global__ void kernel_spectral_lens(cufftComplex* output,
-  camera::FrameDescriptor fd,
+__global__ void kernel_spectral_lens(
+  cufftComplex* output,
+  const camera::FrameDescriptor fd,
   float lambda,
   float distance)
 {
@@ -51,8 +53,8 @@ __global__ void kernel_spectral_lens(cufftComplex* output,
   float du = 1 / (((float)fd.width) * dx);
   float dv = 1 / (((float)fd.height) * dy);
 
-  float u = (i - ((float)fd.width / 2)) * du; //fix me -1
-  float v = (j - ((float)fd.height / 2)) * dv; //fix me -1
+  float u = (i - (float)(lrintf((float)fd.width / 2))) * du;
+  float v = (j - (float)(lrintf((float)fd.height / 2))) * dv;
 
   if (index < fd.width * fd.height)
   {

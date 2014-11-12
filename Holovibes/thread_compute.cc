@@ -90,8 +90,6 @@ namespace holovibes
         compute_desc_.zdistance,
         input_q_.get_frame_desc().width,
         input_q_.get_frame_desc().height,
-        input_q_.get_frame_desc().pixel_size,
-        input_q_.get_frame_desc().pixel_size,
         input_q_.get_frame_desc());
     }
     else
@@ -105,12 +103,12 @@ namespace holovibes
         if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
         {
           fft_1(
-            compute_desc_.nsamples,
-            &input_q_,
+            pbuffer,
+            input_q_,
             lens,
             sqrt_array,
-            pbuffer,
-            plan3d);
+            plan3d,
+            compute_desc_.nsamples);
 
           /* Shifting */
           unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
@@ -120,10 +118,16 @@ namespace holovibes
         }
         else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
         {
-          fft_2(compute_desc_.nsamples, &input_q_, lens, sqrt_array, pbuffer, plan3d, compute_desc_.pindex, plan2d);
+          fft_2(
+            pbuffer,
+            input_q_,
+            lens,
+            sqrt_array,
+            plan3d,
+            plan2d,
+            compute_desc_.nsamples,
+            compute_desc_.pindex);
           shift_corners(&pbuffer, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-          //img2disk("ak.raw", pbuffer, input_q_.get_pixels() * sizeof (unsigned short));
-          //exit(0);
           output_q_->enqueue(pbuffer, cudaMemcpyDeviceToDevice);
         }
 
