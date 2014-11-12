@@ -6,7 +6,10 @@
 #include "preprocessing.cuh"
 #include "transforms.cuh"
 
-cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z)
+cufftComplex* create_lens(
+  const camera::FrameDescriptor& fd,
+  float lambda,
+  float z)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
@@ -18,10 +21,16 @@ cufftComplex* create_lens(camera::FrameDescriptor fd, float lambda, float z)
   return lens;
 }
 
-void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan)
+void fft_1(
+  unsigned short *result_buffer,
+  holovibes::Queue& q,
+  cufftComplex *lens,
+  float *sqrt_vect,
+  cufftHandle plan,
+  int nbimages)
 {
   // Sizes
-  unsigned int pixel_size = q->get_frame_desc().width * q->get_frame_desc().height * nbimages;
+  unsigned int pixel_size = q.get_frame_desc().width * q.get_frame_desc().height * nbimages;
 
   // Loaded images --> complex
   unsigned int threads = get_max_threads_1d();
@@ -34,7 +43,7 @@ void fft_1(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   cufftComplex* complex_input = make_contiguous_complex(q, nbimages, sqrt_vect);
 
   // Apply lens
-  apply_quadratic_lens <<<blocks, threads>>>(complex_input, pixel_size, lens, q->get_pixels());
+  apply_quadratic_lens <<<blocks, threads>>>(complex_input, pixel_size, lens, q.get_pixels());
 
   // FFT
   cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);

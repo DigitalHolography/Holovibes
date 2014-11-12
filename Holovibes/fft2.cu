@@ -7,7 +7,12 @@
 #include "preprocessing.cuh"
 #include "tools.cuh"
 
-cufftComplex *create_spectral(float lambda, float distance, int size_x, int size_y, float pasx, float pasy, camera::FrameDescriptor fd)
+cufftComplex *create_spectral(
+  float lambda,
+  float distance,
+  int size_x,
+  int size_y,
+  const camera::FrameDescriptor& fd)
 {
   cufftComplex *output;
   cudaMalloc(&output, size_x * size_y * sizeof(cufftComplex));
@@ -21,14 +26,22 @@ cufftComplex *create_spectral(float lambda, float distance, int size_x, int size
   return output;
 }
 
-void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_vect, unsigned short *result_buffer, cufftHandle plan3d, unsigned int p, cufftHandle plan2d)
+void fft_2(
+  unsigned short* result_buffer,
+  holovibes::Queue& q,
+  cufftComplex *lens,
+  float *sqrt_vect,
+  cufftHandle plan3d,
+  cufftHandle plan2d,
+  unsigned int nbimages,
+  unsigned int p)
 {
   // Sizes
-  unsigned int pixel_size = q->get_pixels() * nbimages;
-  unsigned int image_pixel = q->get_pixels();
+  unsigned int pixel_size = q.get_pixels() * nbimages;
+  unsigned int image_pixel = q.get_pixels();
   unsigned int complex_image_size = image_pixel * sizeof(cufftComplex);
-  unsigned short size_x = q->get_frame_desc().width;
-  unsigned short size_y = q->get_frame_desc().height;
+  unsigned short size_x = q.get_frame_desc().width;
+  unsigned short size_y = q.get_frame_desc().height;
 
   // Loaded images --> complex
   unsigned int threads = get_max_threads_1d();
@@ -51,7 +64,7 @@ void fft_2(int nbimages, holovibes::Queue *q, cufftComplex *lens, float *sqrt_ve
   cudaMemcpy(pimage, image, complex_image_size, cudaMemcpyDeviceToDevice);
 
   // apply lens
-  apply_quadratic_lens << <blocks, threads >> >(pimage, image_pixel, lens, image_pixel);
+  apply_quadratic_lens <<<blocks, threads >>>(pimage, image_pixel, lens, image_pixel);
 
   if (cufftExecC2C(plan2d, pimage, pimage, CUFFT_INVERSE) != CUFFT_SUCCESS)
     std::cout << "fail fft 2" << std::endl;
