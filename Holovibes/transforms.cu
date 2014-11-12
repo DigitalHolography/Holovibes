@@ -1,8 +1,16 @@
-
 #include "transforms.cuh"
 
-__global__ void kernel_quadratic_lens(cufftComplex* output,
-  camera::FrameDescriptor fd,
+#include <device_launch_parameters.h>
+
+#ifndef _USE_MATH_DEFINES
+/* Enables math constants. */
+# define _USE_MATH_DEFINES
+#endif /* !_USE_MATH_DEFINES */
+#include <math.h>
+
+__global__ void kernel_quadratic_lens(
+  cufftComplex* output,
+  const camera::FrameDescriptor fd,
   float lambda,
   float dist)
 {
@@ -26,16 +34,32 @@ __global__ void kernel_quadratic_lens(cufftComplex* output,
   }
 }
 
-__global__ void spectral(float *u_square, float *v_square, cufftComplex *output, unsigned int output_size, float lambda, float distance)
+__global__ void kernel_spectral_lens(
+  cufftComplex* output,
+  const camera::FrameDescriptor fd,
+  float lambda,
+  float distance)
 {
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < output_size)
-  {
-    float lambda_square = lambda * lambda;
-    float thetha = 2 * M_PI * distance / lambda * sqrt(1 - (lambda_square * u_square[index]) - (lambda_square * v_square[index]));
-    output[index].x = cosf(thetha);// fix me
-    output[index].y = sinf(thetha );// fix me
-      index += blockDim.x * gridDim.x;
-  }
+  unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned int index = j * blockDim.x * gridDim.x + i;
 
+  float c = 2 * M_PI * distance / lambda;
+  float csquare;
+
+  float dx = fd.pixel_size * 1.0e-6f;
+  float dy = fd.pixel_size * 1.0e-6f;
+
+  float du = 1 / (((float)fd.width) * dx);
+  float dv = 1 / (((float)fd.height) * dy);
+
+  float u = (i - (float)(lrintf((float)fd.width / 2))) * du;
+  float v = (j - (float)(lrintf((float)fd.height / 2))) * dv;
+
+  if (index < fd.width * fd.height)
+  {
+    csquare = c * sqrtf(1.0f - lambda * lambda * u * u - lambda * lambda * v * v);
+    output[index].x = cosf(csquare);
+    output[index].y = sinf(csquare);
+  }
 }

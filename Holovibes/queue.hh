@@ -1,14 +1,12 @@
 #ifndef QUEUE_HH
 # define QUEUE_HH
 
-# include <cstdlib>
 # include <iostream>
 # include <mutex>
 # include <cuda.h>
 # include <cuda_runtime.h>
-# include <device_launch_parameters.h>
+
 # include "frame_desc.hh"
-# include "tools.cuh"
 
 namespace holovibes
 {
@@ -22,9 +20,14 @@ namespace holovibes
       , max_elts_(elts)
       , curr_elts_(0)
       , start_(0)
+      , is_big_endian_(frame_desc.depth == 2 &&
+      frame_desc.endianness == camera::BIG_ENDIAN)
     {
       if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
         std::cerr << "Queue: couldn't allocate queue" << std::endl;
+
+      if (is_big_endian_)
+        frame_desc_.endianness = camera::LITTLE_ENDIAN;
     }
 
     ~Queue()
@@ -73,7 +76,7 @@ namespace holovibes
 
   private:
     // Frame descriptor
-    const camera::FrameDescriptor frame_desc_;
+    camera::FrameDescriptor frame_desc_;
 
     // Size of one element in bytes
     size_t size_;
@@ -90,6 +93,8 @@ namespace holovibes
 
     // Start index
     unsigned int start_;
+
+    const bool is_big_endian_;
 
     // Data buffer
     char* buffer_;

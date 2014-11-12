@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "tools.cuh"
 
+#include <device_launch_parameters.h>
+#include "hardware_limits.hh"
 
 // CONVERSION FUNCTIONS
 
@@ -24,8 +26,8 @@ __global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int s
 
   while (index < size)
   {
-    res[index].x = sqrt_tab[data[index]]; 
-    res[index].y = sqrt_tab[data[index]]; 
+    res[index].x = sqrt_tab[data[index]];
+    res[index].y = sqrt_tab[data[index]];
     index += blockDim.x * gridDim.x;
   }
 }
@@ -114,7 +116,7 @@ void shift_corners(unsigned short **input, int size_x, int size_y)
   cudaFree(output);
 }
 
-__global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
+__global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, size_t size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -126,7 +128,7 @@ __global__ void kernel_endianness_conversion(unsigned short* input, unsigned sho
   }
 }
 
-__global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsigned int size_x , unsigned int size_y)
+__global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsigned int size_x, unsigned int size_y)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size_x || index < size_y)
@@ -140,7 +142,6 @@ __global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsign
     else
       rounded = entire_part;
 
-
     if (index < size_x)
       u[index] = ((index - 1) - rounded) * pasu;
     if (index < size_y)
@@ -148,9 +149,9 @@ __global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsign
     index += blockDim.x * gridDim.x;
   }
 }
-// output_u size_x * size_y 
-// output_v size_x * size_y
 
+// output_u size_x * size_y
+// output_v size_x * size_y
 __global__ void meshgrind_square(float *input_u, float *input_v, float *output_u, float *output_v, unsigned int size_x, unsigned int size_y)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -158,6 +159,17 @@ __global__ void meshgrind_square(float *input_u, float *input_v, float *output_u
   {
     output_u[index] = input_u[index % size_x] * input_u[index % size_x];
     output_v[index] = input_v[index / size_y] * input_v[index / size_y];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+__global__ void divide(cufftComplex* image, int size_x, int size_y, int nbimages)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size_x * size_y)
+  {
+    image[index].x = image[index].x / ((float)nbimages * (float)size_x * (float)size_y);
+    image[index].y = image[index].y / ((float)nbimages * (float)size_x * (float)size_y);
     index += blockDim.x * gridDim.x;
   }
 }
@@ -171,5 +183,5 @@ void endianness_conversion(unsigned short* input, unsigned short* output, unsign
   if (blocks > max_blocks)
     blocks = max_blocks - 1;
 
-  kernel_endianness_conversion << <blocks, threads >> >(input, output, size);
+  kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
 }

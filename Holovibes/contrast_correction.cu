@@ -1,10 +1,16 @@
 #include "contrast_correction.cuh"
-#ifndef __CUDACC__  
-#define __CUDACC__
-#endif
 
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cstdlib>
 
-__global__ void make_histo(int *histo, void *img, int img_size,int bytedepth)
+#include "hardware_limits.hh"
+
+__global__ void make_histo(
+  int *histo,
+  void *img,
+  int img_size,
+  int bytedepth)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -17,7 +23,12 @@ __global__ void make_histo(int *histo, void *img, int img_size,int bytedepth)
   }
 }
 
-__global__ void auto_contrast(unsigned int min,float factor, void *img, unsigned int size, int bytedepth)
+__global__ void apply_contrast(
+  unsigned int min,
+  float factor,
+  void *img,
+  unsigned int size,
+  int bytedepth)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -45,8 +56,13 @@ __global__ void auto_contrast(unsigned int min,float factor, void *img, unsigned
   }
 }
 
-
-void find_min_max(unsigned int *min, unsigned int *max, int *histo, int bytedepth, int percent, unsigned int nbpixels)
+void find_min_max(
+  unsigned int *min,
+  unsigned int *max,
+  int *histo,
+  int bytedepth,
+  int percent,
+  unsigned int nbpixels)
 {
   int acceptable = (percent / 100) * nbpixels;
   if (bytedepth == 1)
@@ -78,10 +94,15 @@ void find_min_max(unsigned int *min, unsigned int *max, int *histo, int bytedept
           *min = i;
       }
     }
-  } 
+  }
 }
 
-void manual_contrast_correction(void *img, unsigned int img_size, int bytedepth, unsigned int manual_min, unsigned int manual_max)
+void manual_contrast_correction(
+  void *img,
+  unsigned int img_size,
+  int bytedepth,
+  unsigned int manual_min,
+  unsigned int manual_max)
 {
   int tons = 65536;
   if (bytedepth == 1)
@@ -91,21 +112,27 @@ void manual_contrast_correction(void *img, unsigned int img_size, int bytedepth,
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
   float factor = tons / (manual_max - manual_min);
-  auto_contrast << <blocks, threads >> >(manual_min, factor, img, img_size, bytedepth);
+  apply_contrast <<<blocks, threads>>>(manual_min, factor, img, img_size, bytedepth);
 }
 
-void auto_contrast_correction(unsigned int *min, unsigned int *max, void *img,unsigned int img_size, unsigned int bytedepth,unsigned int percent)
+void auto_contrast_correction(
+  unsigned int *min,
+  unsigned int *max,
+  void *img,
+  unsigned int img_size,
+  unsigned int bytedepth,
+  unsigned int percent)
 {
   int tons = 65536;
   if (bytedepth == 1)
     tons = 256;
-  int threads = get_max_threads_1d();
-  int blocks = (img_size + threads - 1) / threads;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (img_size + threads - 1) / threads;
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
   int *histo;
   int *histo_cpu = (int*)calloc(sizeof(int)* tons, 1);
-  cudaMalloc(&histo, tons * sizeof (int));
+  cudaMalloc(&histo, tons * sizeof(int));
   cudaMemset(histo, 0, tons * sizeof(int));
   make_histo << <blocks, threads >> >(histo, img, img_size, bytedepth);
   cudaMemcpy(histo_cpu, histo, tons * sizeof(int), cudaMemcpyDeviceToHost);

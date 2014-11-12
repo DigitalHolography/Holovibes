@@ -264,7 +264,7 @@ namespace holovibes
       if (nsamples <= 0)
         throw std::runtime_error("--nsamples parameter must be strictly positive");
 
-      if (nsamples >= opts_.queue_size)
+      if (static_cast<unsigned int>(nsamples) >= opts_.queue_size)
         throw std::runtime_error("--nsamples can not be greater than the queue size");
 
       opts_.compute_desc.nsamples = nsamples;
@@ -276,7 +276,7 @@ namespace holovibes
     {
       const int pindex = vm_["pindex"].as<int>();
 
-      if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
+      if (pindex < 0 || static_cast<unsigned int>(pindex) >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
 
       opts_.compute_desc.pindex = pindex;
