@@ -34,6 +34,7 @@ namespace holovibes
     /*! Enable OpenGL features and set the viewport. */
     void gl_enable(int width, int height);
     void gl_disable();
+    void gl_error_checking();
 
   private:
     /*! Window handle */
@@ -45,7 +46,6 @@ namespace holovibes
 
     const camera::FrameDescriptor& frame_desc_;
 
-    GLuint texture_;
     GLuint buffer_;
 
     struct cudaGraphicsResource* cuda_buffer_;
