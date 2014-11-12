@@ -1,13 +1,11 @@
 #ifndef GL_COMPONENT_HH
 # define GL_COMPONENT_HH
 
-# include <GL/glew.h>
 # include <GL/GL.h>
 # include <Windows.h>
+# include <cuda_gl_interop.h>
 
 # include "frame_desc.hh"
-
-# include <cuda_gl_interop.h>
 
 namespace holovibes
 {

@@ -2,6 +2,7 @@
 #include "gl_component.hh"
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
+#include <GL/glew.h>
 
 namespace holovibes
 {
