@@ -31,9 +31,6 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="1">
       <widget class="gui::GroupBox" name="View">
-       <property name="visible">
-         <bool>false</bool>
-       </property>
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -64,7 +61,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Logarithm</string>
+         <string>Log scale</string>
         </property>
        </widget>
        <widget class="QLabel" name="label_6">
@@ -152,6 +149,15 @@
          </rect>
         </property>
        </widget>
+       <zorder>checkBox</zorder>
+       <zorder>label_6</zorder>
+       <zorder>checkBox_2</zorder>
+       <zorder>label_7</zorder>
+       <zorder>label_8</zorder>
+       <zorder>pushButton</zorder>
+       <zorder>doubleSpinBox_3</zorder>
+       <zorder>doubleSpinBox_4</zorder>
+       <zorder>Vibrometry</zorder>
       </widget>
      </item>
      <item row="0" column="0">
@@ -178,6 +184,9 @@
         </property>
         <property name="text">
          <string>Direct</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QRadioButton" name="radioButton_2">
@@ -261,6 +270,9 @@
           <height>22</height>
          </rect>
         </property>
+        <property name="maximum">
+         <double>3000.000000000000000</double>
+        </property>
        </widget>
        <widget class="QLabel" name="label_4">
         <property name="geometry">
@@ -283,6 +295,12 @@
           <width>62</width>
           <height>22</height>
          </rect>
+        </property>
+        <property name="minimum">
+         <double>-10000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10000.000000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_5">
@@ -313,16 +331,13 @@
      <item row="0" column="2">
       <widget class="gui::GroupBox" name="Vibrometry">
        <property name="title">
-        <string>Vibrometry</string>
-       </property>
-       <property name="visible">
-         <bool>false</bool>
+        <string>Special</string>
        </property>
        <property name="flat">
         <bool>false</bool>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="checked">
         <bool>false</bool>
@@ -330,8 +345,8 @@
        <widget class="QLabel" name="label_9">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>30</y>
+          <x>40</x>
+          <y>70</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -343,8 +358,8 @@
        <widget class="QSpinBox" name="spinBox_3">
         <property name="geometry">
          <rect>
-          <x>50</x>
-          <y>30</y>
+          <x>80</x>
+          <y>70</y>
           <width>44</width>
           <height>22</height>
          </rect>
@@ -353,8 +368,8 @@
        <widget class="QSpinBox" name="spinBox_4">
         <property name="geometry">
          <rect>
-          <x>50</x>
-          <y>60</y>
+          <x>80</x>
+          <y>100</y>
           <width>44</width>
           <height>22</height>
          </rect>
@@ -363,8 +378,8 @@
        <widget class="QLabel" name="label_10">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>60</y>
+          <x>40</x>
+          <y>100</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -373,6 +388,26 @@
          <string>q:</string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_12">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>81</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Vibrometry:</string>
+        </property>
+       </widget>
+       <zorder>label_9</zorder>
+       <zorder>spinBox_3</zorder>
+       <zorder>spinBox_4</zorder>
+       <zorder>label_10</zorder>
+       <zorder>label_12</zorder>
+       <zorder>Record</zorder>
+       <zorder>Record</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -388,7 +423,7 @@
          <rect>
           <x>20</x>
           <y>30</y>
-          <width>111</width>
+          <width>121</width>
           <height>16</height>
          </rect>
         </property>
@@ -410,13 +445,49 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>60</y>
-          <width>181</width>
-          <height>28</height>
+          <y>140</y>
+          <width>171</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Output file ...</string>
+         <string>browse</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>110</y>
+          <width>171</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_13">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>80</y>
+          <width>71</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Output file:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>170</y>
+          <width>171</width>
+          <height>61</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Rec</string>
         </property>
        </widget>
       </widget>
@@ -569,7 +640,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Vibrometry</string>
+    <string>Special</string>
    </property>
   </action>
   <action name="actionRecord">

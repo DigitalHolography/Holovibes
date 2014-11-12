@@ -38,6 +38,7 @@ namespace gui
   void GLWidget::resizeGL(int width, int height)
   {
     glViewport(0, 0, width, height);
+    std::cout << "resize gl" << std::endl;
   }
 
   void GLWidget::paintGL()
