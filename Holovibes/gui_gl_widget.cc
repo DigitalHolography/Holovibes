@@ -27,7 +27,6 @@ namespace gui
 
   void GLWidget::initializeGL()
   {
-    std::cout << "in intializeGL" << std::endl;
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_QUADS);
@@ -38,13 +37,11 @@ namespace gui
 
   void GLWidget::resizeGL(int width, int height)
   {
-    std::cout << "in resizeGL" << std::endl;
     glViewport(0, 0, width, height);
   }
 
   void GLWidget::paintGL()
   {
-    std::cout << "in paintGL" << std::endl;
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindTexture(GL_TEXTURE_2D, texture_);
