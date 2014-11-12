@@ -3,6 +3,7 @@
 
 # include <GL/GL.h>
 # include <Windows.h>
+# include <cuda_gl_interop.h>
 
 # include "frame_desc.hh"
 
@@ -14,13 +15,16 @@ namespace holovibes
   class GLComponent
   {
   public:
-    GLComponent(HWND hwnd, int width, int height);
+    GLComponent(
+      HWND hwnd,
+      const camera::FrameDescriptor& frame_desc,
+      int width,
+      int height);
     ~GLComponent();
 
     /*! Draw a frame. */
     void gl_draw(
-      const void* frame,
-      const camera::FrameDescriptor& desc);
+      const void* frame);
 
   private:
     /*! Initialize the OpenGL PixelFormatDescriptor.
@@ -30,6 +34,7 @@ namespace holovibes
     /*! Enable OpenGL features and set the viewport. */
     void gl_enable(int width, int height);
     void gl_disable();
+    void gl_error_checking();
 
   private:
     /*! Window handle */
@@ -39,8 +44,11 @@ namespace holovibes
     /*! OpenGL render context. This is our bridge to the OpenGL system. */
     HGLRC hrc_;
 
-    /*! The frame to draw is stored in a GLTexture2D. */
-    GLuint texture_;
+    const camera::FrameDescriptor& frame_desc_;
+
+    GLuint buffer_;
+
+    struct cudaGraphicsResource* cuda_buffer_;
   };
 }
 

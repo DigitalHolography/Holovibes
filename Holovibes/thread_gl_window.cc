@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "thread_gl_window.hh"
 #include "gl_component.hh"
-#include "tools.cuh"
 #include <chrono>
 
 #define GLWINDOW_FPS 30
@@ -10,12 +9,11 @@ namespace holovibes
 {
   ThreadGLWindow::ThreadGLWindow(
     Queue& queue,
-    const camera::FrameDescriptor& frame_desc,
     const char* title,
     int width,
     int height)
     : queue_(queue)
-    , frame_desc_(frame_desc)
+    , frame_desc_(queue.get_frame_desc())
     , title_(title)
     , width_(width)
     , height_(height)
@@ -32,9 +30,8 @@ namespace holovibes
 
   void ThreadGLWindow::thread_proc()
   {
-    GLWindow glw(title_, width_, height_);
+    GLWindow glw(title_, width_, height_, queue_.get_frame_desc());
     glw.wnd_show();
-    void* frame = operator new(queue_.get_size());
 
     while (glw.running())
     {
@@ -43,18 +40,11 @@ namespace holovibes
       glw.wnd_msgs_handler();
       GLComponent& gl = glw.get_gl_component();
 
-      // FIXME
-      // Temporary solution: gl thread gets image from
-      // the queue (GPU) and copy it in CPU to display it. The display
-      // has to be fetch directly in GPU in the future (no copies).
-      void* shifted = queue_.get_last_images(1);
-      cudaMemcpy(frame, shifted, queue_.get_size(), cudaMemcpyDeviceToHost);
+      void* frame = queue_.get_last_images(1);
 
-      gl.gl_draw(frame, frame_desc_);
+      gl.gl_draw(frame);
       std::this_thread::sleep_for(
         std::chrono::milliseconds(1000 / GLWINDOW_FPS));
     }
-
-    delete frame;
   }
 }

@@ -1,13 +1,23 @@
 #include "stdafx.h"
+
+#include <GL/glew.h>
+#include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
 #include "gl_component.hh"
 
 namespace holovibes
 {
-  GLComponent::GLComponent(HWND hwnd, int width, int height)
+  GLComponent::GLComponent(
+    HWND hwnd,
+    const camera::FrameDescriptor& frame_desc,
+    int width,
+    int height)
     : hwnd_(hwnd)
     , hdc_(GetDC(hwnd))
     , hrc_(nullptr)
-    , texture_(0)
+    , frame_desc_(frame_desc)
+    , buffer_(0)
+    , cuda_buffer_(nullptr)
   {
     PIXELFORMATDESCRIPTOR pfd = get_pfd();
 
@@ -26,6 +36,7 @@ namespace holovibes
     if (!wglMakeCurrent(hdc_, hrc_))
       throw std::runtime_error("[OPENGL] unable to make current GL context");
 
+    glewInit();
     gl_enable(width, height);
   }
 
@@ -71,47 +82,81 @@ namespace holovibes
     int height)
   {
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_QUADS);
 
-    glGenTextures(1, &texture_);
+    /* Generate buffer name. */
+    glGenBuffers(1, &buffer_);
+
+    /* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
+    glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
+    /* Creates and initialize a buffer object's data store. */
+    glBufferData(
+      GL_TEXTURE_BUFFER,
+      frame_desc_.frame_size(),
+      nullptr,
+      GL_DYNAMIC_DRAW);
+    /* Unbind any buffer of GL_TEXTURE_BUFFER target. */
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+    /* Register buffer name to CUDA. */
+    cudaGraphicsGLRegisterBuffer(
+      &cuda_buffer_,
+      buffer_,
+      cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+
     glViewport(0, 0, width, height);
   }
 
   void GLComponent::gl_disable()
   {
-    glDisable(GL_QUADS);
+    /* Unregister buffer for access by CUDA. */
+    cudaGraphicsUnregisterResource(cuda_buffer_);
+    /* Destroy buffer name. */
+    glDeleteBuffers(1, &buffer_);
     glDisable(GL_TEXTURE_2D);
   }
 
   void GLComponent::gl_draw(
-    const void* frame,
-    const camera::FrameDescriptor& desc)
+    const void* src)
   {
-    glBindTexture(GL_TEXTURE_2D, texture_);
+    /* Map the buffer for access by CUDA. */
+    cudaGraphicsMapResources(1, &cuda_buffer_);
+    size_t buffer_size;
+    void* buffer_ptr;
+    cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
+    /* CUDA memcpy of the frame to opengl buffer. */
+    cudaMemcpy(buffer_ptr, src, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+    /* Unmap the buffer for access by CUDA. */
+    cudaGraphicsUnmapResources(1, &cuda_buffer_);
+
+    /* Bind the buffer object to the target GL_PIXEL_UNPACK_BUFFER.
+     * This affects glTexImage2D command. */
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer_);
+
+    if (frame_desc_.endianness == camera::BIG_ENDIAN)
+      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+    else
+      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    if (desc.endianness == camera::BIG_ENDIAN)
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-    else
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
     glTexImage2D(
       GL_TEXTURE_2D,
       /* Base image level. */
       0,
       GL_LUMINANCE,
-      desc.width,
-      desc.height,
+      frame_desc_.width,
+      frame_desc_.height,
       /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
       /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      desc.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+      frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
       /* Pointer to image data in memory. */
-      frame);
+      NULL);
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
@@ -121,6 +166,13 @@ namespace holovibes
     glEnd();
 
     SwapBuffers(hdc_);
-    glDeleteTextures(1, &texture_);
+    gl_error_checking();
+  }
+
+  void GLComponent::gl_error_checking()
+  {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+      std::cerr << "[GL] " << gluErrorString(error) << std::endl;
   }
 }

@@ -16,7 +16,8 @@ namespace holovibes
     GLWindow(
       const char* title,
       int width,
-      int height);
+      int height,
+      const camera::FrameDescriptor& desc);
 
     virtual ~GLWindow();
 

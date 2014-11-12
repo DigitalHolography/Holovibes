@@ -14,7 +14,6 @@ namespace holovibes
   public:
     ThreadGLWindow(
       Queue& queue_,
-      const camera::FrameDescriptor& frame_desc,
       const char* title,
       int width,
       int height);
