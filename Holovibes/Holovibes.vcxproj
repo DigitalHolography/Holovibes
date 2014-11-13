@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -42,19 +42,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(GlewLib)\lib\Release\x64;$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(GlewLib)\lib\Release\x64;$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -75,10 +71,16 @@
     </Link>
     <PostBuildEvent>
       <Command>
-copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
+        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
+
+        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
     <CudaCompile>
@@ -106,10 +108,17 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+      <Command>
+        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
+        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
+
+        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
     <CudaCompile>

@@ -1,8 +1,10 @@
-# Holovibes v0.2 #
+# Holovibes v0.3 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
 ## User dependencies ##
+
+* Microsoft Windows 7 x64
 
 ### Cameras drivers ###
 
@@ -28,13 +30,14 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 ./Holovibes.exe -c xiq -d 720 --1fft -n 2 -p 0 -l 536e-9 -z 1.36
 ~~~
 
-This enables holograms computation using the XiQ camera, displaying in a square windows of 720x720 pixels.
+This enables holograms (FFT1 algorithm) computation using the XiQ camera, displaying in a square windows of 720x720 pixels.
 
 ## Developers dependencies ##
 
 ### Libraries ###
 
 * [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
+* [GLEW: OpenGL Extension Wrangler Library](http://glew.sourceforge.net)
 
 ### IDE ###
 
@@ -51,7 +54,7 @@ This enables holograms computation using the XiQ camera, displaying in a square 
 * Cameras configuration using INI files
 * OpenGL realtime display
 * Record frames
-* Hologram computation using the 1FFT algorithm
+* Hologram computation using the FFT1/FFT2 algorithms.
 
 ## Authors ##
 
@@ -73,11 +76,18 @@ This enables holograms computation using the XiQ camera, displaying in a square 
 ### v.0.1.1 ###
 
 * Fix recorder issue.
-* Fix pike 16-bits issue.
+* Fix pike 16-bit issue.
 
 ### v.0.2.0 ###
 
-* Add 1FFT algorithm written in CUDA.
+* Add FFT1 algorithm written in CUDA.
 * When FFT is enabled, the recorder writes output frames.
 * When FFT is enabled, the display shows output frames at 30fps.
 * Some bug fixes.
+
+### v.0.3.0 ###
+
+* Add FFT2 algorithm written in CUDA.
+* Images to be displayed remains in GPU memory (no more copy to CPU-GPU).
+* Fix queue endianness handling.
+* 8-bit frames are rescaled in 16-bit frames before computation.
