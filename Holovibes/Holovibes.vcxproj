@@ -155,6 +155,7 @@
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
+    <ClInclude Include="vibrometry.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_xiq.cc" />
@@ -185,6 +186,7 @@
     <CudaCompile Include="fft1.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="transforms.cu" />
+    <CudaCompile Include="vibrometry.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
