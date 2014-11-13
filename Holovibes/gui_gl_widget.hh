@@ -16,10 +16,13 @@ namespace gui
     Q_OBJECT
 
   public:
-    GLWidget(QWidget *parent, holovibes::Queue& q);
+    GLWidget(QWidget *parent, holovibes::Queue& q, unsigned int width, unsigned int height);
     ~GLWidget();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
+
+  public slots:
+    void resizeFromWindow(int width, int height);
 
   protected:
     void initializeGL() override;
@@ -28,6 +31,8 @@ namespace gui
 
   private:
     holovibes::Queue& q_;
+    unsigned int width_;
+    unsigned int height_;
     camera::FrameDescriptor fd_;
     GLuint texture_;
     void* frame_;

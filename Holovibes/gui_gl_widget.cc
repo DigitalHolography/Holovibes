@@ -2,9 +2,11 @@
 
 namespace gui
 {
-  GLWidget::GLWidget(QWidget *parent, holovibes::Queue& q)
+  GLWidget::GLWidget(QWidget *parent, holovibes::Queue& q, unsigned int width, unsigned int height)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
     q_(q),
+    width_(width),
+    height_(height),
     fd_(q_.get_frame_desc()),
     texture_(0)
   {
@@ -17,12 +19,12 @@ namespace gui
 
   QSize GLWidget::minimumSizeHint() const
   {
-    return QSize(fd_.width, fd_.height);
+    return QSize(width_, height_);
   }
 
   QSize GLWidget::sizeHint() const
   {
-    return QSize(fd_.width, fd_.height);
+    return QSize(width_, height_);
   }
 
   void GLWidget::initializeGL()
@@ -32,13 +34,12 @@ namespace gui
     glEnable(GL_QUADS);
 
     glGenTextures(1, &texture_);
-    glViewport(0, 0, fd_.width, fd_.height);
+    glViewport(0, 0, width_, height_);
   }
 
   void GLWidget::resizeGL(int width, int height)
   {
     glViewport(0, 0, width, height);
-    std::cout << "resize gl" << std::endl;
   }
 
   void GLWidget::paintGL()
@@ -83,5 +84,11 @@ namespace gui
     glEnd();
 
     update();
+  }
+
+  void GLWidget::resizeFromWindow(int width, int height)
+  {
+    resizeGL(width, height);
+    resize(QSize(width, height));
   }
 }

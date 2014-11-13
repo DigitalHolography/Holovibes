@@ -46,7 +46,7 @@
        <property name="flat">
         <bool>false</bool>
        </property>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="logScaleCheckBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -64,7 +64,7 @@
          <string>Log scale</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="contrastLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -77,7 +77,7 @@
          <string>Contrast:</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="shiftCornersCheckBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -90,7 +90,7 @@
          <string>Shifted corners</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="minLabel">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -103,7 +103,7 @@
          <string>Min:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_8">
+       <widget class="QLabel" name="maxLabel">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -116,7 +116,7 @@
          <string>Max:</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="autoPushButton">
         <property name="geometry">
          <rect>
           <x>90</x>
@@ -129,7 +129,7 @@
          <string>Auto</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+       <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
         <property name="geometry">
          <rect>
           <x>90</x>
@@ -139,7 +139,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+       <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
         <property name="geometry">
          <rect>
           <x>90</x>
@@ -149,15 +149,6 @@
          </rect>
         </property>
        </widget>
-       <zorder>checkBox</zorder>
-       <zorder>label_6</zorder>
-       <zorder>checkBox_2</zorder>
-       <zorder>label_7</zorder>
-       <zorder>label_8</zorder>
-       <zorder>pushButton</zorder>
-       <zorder>doubleSpinBox_3</zorder>
-       <zorder>doubleSpinBox_4</zorder>
-       <zorder>Vibrometry</zorder>
       </widget>
      </item>
      <item row="0" column="0">
@@ -173,7 +164,7 @@
        <property name="flat">
         <bool>false</bool>
        </property>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="directImageRadioButton">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -189,7 +180,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="hologramRadioButton">
         <property name="geometry">
          <rect>
           <x>110</x>
@@ -202,7 +193,7 @@
          <string>Hologram</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox">
+       <widget class="QSpinBox" name="phaseNumberSpinBox">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -212,7 +203,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="PhaseNumberLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -225,7 +216,7 @@
          <string>Phase #:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox_2">
+       <widget class="QSpinBox" name="pSpinBox">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -235,7 +226,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="pLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -248,7 +239,7 @@
          <string>p:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="wavelengthLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -261,7 +252,7 @@
          <string>Wavelength(nm):</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <widget class="QDoubleSpinBox" name="wavelengthSpinBox">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -274,7 +265,7 @@
          <double>3000.000000000000000</double>
         </property>
        </widget>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="zLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -287,7 +278,7 @@
          <string>z:</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+       <widget class="QDoubleSpinBox" name="zSpinBox">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -303,7 +294,7 @@
          <double>10000.000000000000000</double>
         </property>
        </widget>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="algorithmLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -342,7 +333,7 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label_9">
+       <widget class="QLabel" name="pLabelVibro">
         <property name="geometry">
          <rect>
           <x>40</x>
@@ -355,7 +346,7 @@
          <string>p:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox_3">
+       <widget class="QSpinBox" name="pSpinBoxVibro">
         <property name="geometry">
          <rect>
           <x>80</x>
@@ -365,7 +356,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox_4">
+       <widget class="QSpinBox" name="qSpinBoxVibro">
         <property name="geometry">
          <rect>
           <x>80</x>
@@ -375,7 +366,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="qLabelVibro">
         <property name="geometry">
          <rect>
           <x>40</x>
@@ -388,7 +379,7 @@
          <string>q:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="vibrometryLabel">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -401,13 +392,6 @@
          <string>Vibrometry:</string>
         </property>
        </widget>
-       <zorder>label_9</zorder>
-       <zorder>spinBox_3</zorder>
-       <zorder>spinBox_4</zorder>
-       <zorder>label_10</zorder>
-       <zorder>label_12</zorder>
-       <zorder>Record</zorder>
-       <zorder>Record</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -418,7 +402,7 @@
        <property name="flat">
         <bool>false</bool>
        </property>
-       <widget class="QLabel" name="label_11">
+       <widget class="QLabel" name="numberOfFramesLabel">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -431,7 +415,7 @@
          <string>Number of frames:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox_5">
+       <widget class="QSpinBox" name="numberOfFramesSpinBox">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -441,7 +425,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -454,7 +438,7 @@
          <string>browse</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="pathLineEdit">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -464,7 +448,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_13">
+       <widget class="QLabel" name="outputFileLabel">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -477,7 +461,7 @@
          <string>Output file:</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="recPushButton">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -508,8 +492,8 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionConfigure"/>
     <addaction name="actionExit"/>
-    <addaction name="actionExit_2"/>
    </widget>
    <widget class="QMenu" name="menu_Camera">
     <property name="title">
@@ -611,7 +595,7 @@
     <string>Credits</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="actionConfigure">
    <property name="text">
     <string>Configure</string>
    </property>
@@ -654,7 +638,7 @@
     <string>Record</string>
    </property>
   </action>
-  <action name="actionExit_2">
+  <action name="actionExit">
    <property name="text">
     <string>Exit</string>
    </property>
@@ -712,8 +696,8 @@
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>10</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>133</x>
@@ -728,12 +712,28 @@
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>13</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>496</x>
      <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>17</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>28</x>
+     <y>-20</y>
     </hint>
    </hints>
   </connection>

@@ -32,7 +32,11 @@ int main(int argc, char* argv[])
   w.show();
   gui::GuiGLWindow glw(&w);
 
-  gui::GLWidget glwi(&glw, h.get_capture_queue());
+  unsigned int gl_width = 512;
+  unsigned int gl_height = 512;
+
+  gui::GLWidget glwi(&glw, h.get_capture_queue(), gl_width, gl_height);
+  glwi.setObjectName("GL");
   glwi.resize(glwi.sizeHint());
   glwi.show();
   glw.show();
