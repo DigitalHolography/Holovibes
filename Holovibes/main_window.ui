@@ -737,8 +737,262 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>directImageRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_image_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-61</x>
+     <y>71</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>phaseNumberSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_phase_number(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>155</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-3</x>
+     <y>94</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>142</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-13</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>wavelengthSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_wavelength(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-15</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>162</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-23</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_algorithm(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>173</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-26</x>
+     <y>237</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autoPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_auto_contrast()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>345</x>
+     <y>77</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-50</x>
+     <y>59</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>minDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>322</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-26</x>
+     <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>maxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>347</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-89</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>logScaleCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_log_scale(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>282</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-48</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>shiftCornersCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_shifted_corners(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>204</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>186</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pSpinBoxVibro</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_vibro(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>530</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>539</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSpinBoxVibro</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_q_vibro(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>550</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>580</x>
+     <y>-28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>numberOfFramesSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_number_of_frames(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>815</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>785</x>
+     <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>755</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>640</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>test()</slot>
+  <slot>set_image_mode(bool)</slot>
+  <slot>set_phase_number(int)</slot>
+  <slot>set_p(int)</slot>
+  <slot>set_wavelength(double)</slot>
+  <slot>set_z(double)</slot>
+  <slot>set_algorithm(QString)</slot>
+  <slot>set_auto_contrast()</slot>
+  <slot>set_contrast_min(double)</slot>
+  <slot>set_contrast_max(double)</slot>
+  <slot>set_log_scale(bool)</slot>
+  <slot>set_shifted_corners(bool)</slot>
+  <slot>set_p_vibro(int)</slot>
+  <slot>set_q_vibro(int)</slot>
+  <slot>set_number_of_frames(int)</slot>
+  <slot>set_record()</slot>
  </slots>
 </ui>
