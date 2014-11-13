@@ -6,7 +6,8 @@
 #include "preprocessing.cuh"
 #include "transforms.cuh"
 
-cufftComplex* create_lens(
+void fft1_lens(
+  cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   float lambda,
   float z)
@@ -14,11 +15,8 @@ cufftComplex* create_lens(
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
-  cufftComplex *lens;
-  cudaMalloc(&lens, fd.width * fd.height * sizeof(cufftComplex));
-  kernel_quadratic_lens <<<lblocks, lthreads>>>(lens, fd, lambda, z);
 
-  return lens;
+  kernel_quadratic_lens <<<lblocks, lthreads>>>(lens, fd, lambda, z);
 }
 
 void fft_1(

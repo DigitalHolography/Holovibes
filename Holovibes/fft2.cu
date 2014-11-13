@@ -7,23 +7,17 @@
 #include "preprocessing.cuh"
 #include "tools.cuh"
 
-cufftComplex *create_spectral(
+void fft2_lens(
+  cufftComplex* lens,
+  const camera::FrameDescriptor& fd,
   float lambda,
-  float distance,
-  int size_x,
-  int size_y,
-  const camera::FrameDescriptor& fd)
+  float z)
 {
-  cufftComplex *output;
-  cudaMalloc(&output, size_x * size_y * sizeof(cufftComplex));
-  cudaMemset(output, 0, size_x * size_y * sizeof(cufftComplex));
-
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
-  dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
-  kernel_spectral_lens<<<lblocks, lthreads>>>(output, fd, lambda, distance);
+  dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
-  return output;
+  kernel_spectral_lens<<<lblocks, lthreads>>>(lens, fd, lambda, z);
 }
 
 void fft_2(

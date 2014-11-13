@@ -4,12 +4,11 @@
 #include <cufft.h>
 #include "queue.hh"
 
-cufftComplex *create_spectral(
+void fft2_lens(
+  cufftComplex* lens,
+  const camera::FrameDescriptor& fd,
   float lambda,
-  float distance,
-  int size_x,
-  int size_y,
-  const camera::FrameDescriptor& fd);
+  float z);
 void fft_2(
   unsigned short* result_buffer,
   holovibes::Queue& q,

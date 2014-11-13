@@ -3,20 +3,16 @@
 #include "hardware_limits.hh"
 #include "tools.cuh"
 
-float *make_sqrt_vect(int vect_size)
+void make_sqrt_vect(float* out, unsigned short n)
 {
-  float* vect = new float[vect_size]();
+  float* vect = new float[n]();
 
-  for (int i = 0; i < vect_size; i++)
+  for (size_t i = 0; i < n; ++i)
     vect[i] = sqrtf(static_cast<float>(i));
 
-  float* vect_gpu;
-  cudaMalloc(&vect_gpu, sizeof(float) * vect_size);
-  cudaMemcpy(vect_gpu, vect, sizeof(float) * vect_size, cudaMemcpyHostToDevice);
+  cudaMemcpy(out, vect, sizeof(float) * n, cudaMemcpyHostToDevice);
 
   delete[] vect;
-
-  return vect_gpu;
 }
 
 cufftComplex *make_contiguous_complex(

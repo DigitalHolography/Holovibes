@@ -5,7 +5,9 @@
 #include "queue.hh"
 #include "frame_desc.hh"
 
-cufftComplex* create_lens(
+/*! \param lens Lens is externally allocated. */
+void fft1_lens(
+  cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   float lambda,
   float z);

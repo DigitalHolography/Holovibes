@@ -22,11 +22,10 @@ namespace holovibes
   private:
     ComputeDescriptor compute_desc_;
     Queue& input_q_;
+    Queue* output_q_;
 
     bool compute_on_;
     std::thread thread_;
-
-    Queue* output_q_;
   };
 }
 
