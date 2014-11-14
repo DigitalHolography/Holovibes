@@ -49,7 +49,7 @@ void fft_1(
   cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
-  complex_2_argument <<<blocks, threads>>>(complex_input, result_buffer, pixel_size);
+  complex_2_module <<<blocks, threads>>>(complex_input, result_buffer, pixel_size);
 
   // Free all
   cudaFree(complex_input);
