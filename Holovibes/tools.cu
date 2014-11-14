@@ -97,53 +97,11 @@ __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftC
   }
 }
 
-/*__global__ void shift_corners(unsigned short *input, unsigned short *output, int size_x, int size_y)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size_x * size_y)
-  {
-    int x = index % size_x;
-    int y = index / size_y;
-    int n_x;
-    int n_y;
-    if (x < size_x / 2) // zone 1/3
-    {
-      if (y < size_y / 2) //zone 1
-      {
-        n_x = x + size_x / 2;
-        n_y = y + size_y / 2;
-      }
-      else // zone 3
-      {
-        n_x = x + size_x / 2;
-        n_y = y - size_y / 2;
-      }
-    }
-    else // zone 2/4
-    {
-      if (y < size_y / 2) //zone 2
-      {
-        n_x = x - size_x / 2;
-        n_y = y + size_y / 2;
-      }
-      else // zone 4
-      {
-        n_x = x - size_x / 2;
-        n_y = y - size_y / 2;
-      }
-    }
-    output[n_y * size_x + n_x] = input[index];
-    index += blockDim.x * gridDim.x;
-  }
-}*/
-
 __global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x, unsigned int size_y)
 {
   unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
   unsigned int index = j * blockDim.x * gridDim.x + i;
-  unsigned short tmp = 0;
   unsigned int ni = 0;
   unsigned int nj = 0;
   unsigned int nindex = 0;
@@ -156,7 +114,6 @@ __global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x,
     {
       ni = i + size_x / 2;
       nj = j - size_y / 2;
-
     }
     // Right superior quarter
     else
@@ -167,9 +124,9 @@ __global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x,
 
     nindex = nj * size_x + ni;
 
-    tmp = input[index];
-    input[index] = input[nindex];
-    input[nindex] = tmp;
+    input[nindex] ^= input[index];
+    input[index] ^= input[nindex];
+    input[nindex] ^= input[index];
   }
 }
 
@@ -181,20 +138,6 @@ void shift_corners(unsigned short* input, int size_x, int size_y)
 
   kernel_shift_corners <<< lblocks, lthreads >>>(input, size_x, size_y);
 }
-
-/*void shift_corners(unsigned short **input, int size_x, int size_y)
-{
-  unsigned short *output;
-  unsigned int size = size_x * size_y * sizeof(unsigned short);
-  cudaMalloc(&output, size);
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = ((size_x * size_x) + threads - 1) / threads;
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-  shift_corners << <blocks, threads >> >(*input, output, size_x, size_y);
-  cudaMemcpy(*input, output, size, cudaMemcpyDeviceToDevice);
-  cudaFree(output);
-}*/
 
 __global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, size_t size)
 {
