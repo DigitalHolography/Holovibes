@@ -19,6 +19,7 @@ namespace holovibes
       unsigned short n);
     virtual ~PipelineRessources();
 
+    // \TODO inline getters.
     Queue& get_input_queue();
     Queue& get_output_queue();
     float* get_sqrt_vector() const;
@@ -26,6 +27,7 @@ namespace holovibes
     cufftHandle get_plan3d();
     cufftHandle get_plan2d();
     cufftComplex* get_lens();
+    unsigned short*& get_output_frame_ptr();
 
     /*! Update pbuffer/plan3d allocation for n output frames. */
     void update_n_parameter(unsigned short n);
@@ -64,6 +66,9 @@ namespace holovibes
     cufftHandle plan2d_;
     /*! cufftComplex array containing lens. */
     cufftComplex* gpu_lens_;
+
+    /*! Output frame pointer. */
+    unsigned short* gpu_output_frame_;
   };
 }
 

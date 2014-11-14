@@ -19,6 +19,7 @@ namespace holovibes
     , plan3d_(0)
     , plan2d_(0)
     , gpu_lens_(nullptr)
+    , gpu_output_frame_(nullptr)
   {
     new_gpu_sqrt_vector(sqrt_vector_size);
     new_gpu_pbuffer(n);
@@ -71,6 +72,11 @@ namespace holovibes
   cufftComplex* PipelineRessources::get_lens()
   {
     return gpu_lens_;
+  }
+
+  unsigned short*& PipelineRessources::get_output_frame_ptr()
+  {
+    return gpu_output_frame_;
   }
 
   void PipelineRessources::update_n_parameter(unsigned short n)

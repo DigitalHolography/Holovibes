@@ -4,6 +4,7 @@
 #include <cassert>
 #include "fft1.cuh"
 #include "fft2.cuh"
+#include "tools.cuh"
 
 namespace holovibes
 {
@@ -25,17 +26,24 @@ namespace holovibes
 
   void Pipeline::refresh()
   {
+    const camera::FrameDescriptor& input_fd =
+      res_.get_input_queue().get_frame_desc();
+    const camera::FrameDescriptor& output_fd =
+      res_.get_output_queue().get_frame_desc();
+
     /* Clean current vector. */
     fn_vect_.clear();
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
+      // Initialize FFT1 lens.
       fft1_lens(
         res_.get_lens(),
-        res_.get_input_queue().get_frame_desc(),
+        input_fd,
         compute_desc_.lambda,
         compute_desc_.zdistance);
 
+      // Add FFT1.
       fn_vect_.push_back(std::bind(
         fft_1,
         res_.get_pbuffer(),
@@ -44,17 +52,31 @@ namespace holovibes
         res_.get_sqrt_vector(),
         res_.get_plan3d(),
         compute_desc_.nsamples));
+
+      res_.get_output_frame_ptr() =
+        res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res();
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
       fft2_lens(
         res_.get_lens(),
-        res_.get_input_queue().get_frame_desc(),
+        input_fd,
         compute_desc_.lambda,
         compute_desc_.zdistance);
     }
     else
       assert(!"Impossible case.");
+
+    /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
+
+    if (compute_desc_.shift_corners_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        res_.get_output_frame_ptr(),
+        output_fd.width,
+        output_fd.height));
+    }
 
     if (autofocus_requested_)
     {
@@ -84,9 +106,9 @@ namespace holovibes
         ++cit)
         (*cit)();
 
-      unsigned short* output_frame = res_.get_pbuffer() +
-        compute_desc_.pindex * res_.get_input_queue().get_pixels();
-      res_.get_output_queue().enqueue(output_frame, cudaMemcpyDeviceToDevice);
+      res_.get_output_queue().enqueue(
+        res_.get_output_frame_ptr(),
+        cudaMemcpyDeviceToDevice);
       res_.get_input_queue().dequeue();
     }
   }
