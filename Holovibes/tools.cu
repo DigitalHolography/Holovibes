@@ -97,7 +97,7 @@ __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftC
   }
 }
 
-__global__ void shift_corners(unsigned short *input, unsigned short *output, int size_x, int size_y)
+/*__global__ void shift_corners(unsigned short *input, unsigned short *output, int size_x, int size_y)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -136,9 +136,53 @@ __global__ void shift_corners(unsigned short *input, unsigned short *output, int
     output[n_y * size_x + n_x] = input[index];
     index += blockDim.x * gridDim.x;
   }
+}*/
+
+__global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x, unsigned int size_y)
+{
+  unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+  unsigned int index = j * blockDim.x * gridDim.x + i;
+  unsigned short tmp = 0;
+  unsigned int ni = 0;
+  unsigned int nj = 0;
+  unsigned int nindex = 0;
+
+  // Superior half of the matrix
+  if (j > size_y / 2)
+  {
+    // Left superior quarter of the matrix
+    if (i < size_x / 2)
+    {
+      ni = i + size_x / 2;
+      nj = j - size_y / 2;
+
+    }
+    // Right superior quarter
+    else
+    {
+      ni = i - size_x / 2;
+      nj = j - size_y / 2;
+    }
+
+    nindex = nj * size_x + ni;
+
+    tmp = input[index];
+    input[index] = input[nindex];
+    input[nindex] = tmp;
+  }
 }
 
-void shift_corners(unsigned short **input, int size_x, int size_y)
+void shift_corners(unsigned short* input, int size_x, int size_y)
+{
+  unsigned int threads_2d = get_max_threads_2d();
+  dim3 lthreads(threads_2d, threads_2d);
+  dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+
+  kernel_shift_corners <<< lblocks, lthreads >>>(input, size_x, size_y);
+}
+
+/*void shift_corners(unsigned short **input, int size_x, int size_y)
 {
   unsigned short *output;
   unsigned int size = size_x * size_y * sizeof(unsigned short);
@@ -150,7 +194,7 @@ void shift_corners(unsigned short **input, int size_x, int size_y)
   shift_corners << <blocks, threads >> >(*input, output, size_x, size_y);
   cudaMemcpy(*input, output, size, cudaMemcpyDeviceToDevice);
   cudaFree(output);
-}
+}*/
 
 __global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, size_t size)
 {
@@ -160,41 +204,6 @@ __global__ void kernel_endianness_conversion(unsigned short* input, unsigned sho
   {
     output[index] = (input[index] << 8) | (input[index] >> 8);
 
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-__global__ void fft2_make_u_v(float pasu, float pasv, float *u, float *v, unsigned int size_x, unsigned int size_y)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size_x || index < size_y)
-  {
-    float rounded = 0;
-    float to_round = index / 2;
-    int entire_part = floor(to_round);
-    float decimal_part = to_round - entire_part;
-    if (decimal_part >= 0.5)
-      rounded = entire_part + 1;
-    else
-      rounded = entire_part;
-
-    if (index < size_x)
-      u[index] = ((index - 1) - rounded) * pasu;
-    if (index < size_y)
-      v[index] = ((index - 1) - rounded) * pasv;
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-// output_u size_x * size_y
-// output_v size_x * size_y
-__global__ void meshgrind_square(float *input_u, float *input_v, float *output_u, float *output_v, unsigned int size_x, unsigned int size_y)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size_x * size_y)
-  {
-    output_u[index] = input_u[index % size_x] * input_u[index % size_x];
-    output_v[index] = input_v[index / size_y] * input_v[index / size_y];
     index += blockDim.x * gridDim.x;
   }
 }

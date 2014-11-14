@@ -112,7 +112,7 @@ namespace holovibes
 
           /* Shifting */
           unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
-          shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+          shift_corners(shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
           /* Store p-th image */
           output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
         }
@@ -127,7 +127,7 @@ namespace holovibes
             plan2d,
             compute_desc_.nsamples,
             compute_desc_.pindex);
-          shift_corners(&pbuffer, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
+          shift_corners(pbuffer, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
           output_q_->enqueue(pbuffer, cudaMemcpyDeviceToDevice);
         }
 
