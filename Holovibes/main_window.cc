@@ -83,9 +83,26 @@ namespace gui
     print_parameter("number of frames", value);
   }
 
+  void MainWindow::browse_file()
+  {
+    QString filename = QFileDialog::getOpenFileName(this,
+      tr("Record output file"), "C://", tr(""));
+
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    path_line_edit->insert(filename);
+  }
+
   void MainWindow::set_record()
   {
     print_parameter("record", "enabled");
+
+    QProgressBar* record_progress_bar = findChild<QProgressBar*>("recordProgressBar");
+
+    for (int i = 0; i < 100; ++i)
+    {
+      record_progress_bar->setValue(i);
+      std::this_thread::sleep_for(std::chrono::milliseconds(33));
+    }
   }
 
   template <typename T>

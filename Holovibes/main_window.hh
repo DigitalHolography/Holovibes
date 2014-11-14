@@ -1,7 +1,9 @@
 #ifndef MAIN_WINDOW_HH_
 # define MAIN_WINDOW_HH_
 
+# include <thread>
 # include <QMainWindow>
+# include <QFileDialog>
 # include "ui_main_window.h"
 
 namespace gui
@@ -36,6 +38,7 @@ namespace gui
 
     // Record
     void set_number_of_frames(int value);
+    void browse_file();
     void set_record();
 
   private:

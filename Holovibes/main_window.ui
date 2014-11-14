@@ -434,9 +434,9 @@
        <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>140</y>
-          <width>171</width>
+          <x>120</x>
+          <y>80</y>
+          <width>71</width>
           <height>21</height>
          </rect>
         </property>
@@ -471,13 +471,26 @@
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>170</y>
+          <y>150</y>
           <width>171</width>
-          <height>61</height>
+          <height>41</height>
          </rect>
         </property>
         <property name="text">
          <string>Rec</string>
+        </property>
+       </widget>
+       <widget class="QProgressBar" name="recordProgressBar">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>200</y>
+          <width>171</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>24</number>
         </property>
        </widget>
       </widget>
@@ -734,8 +747,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>17</x>
-     <y>8</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>28</x>
@@ -974,12 +987,28 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>755</x>
-     <y>239</y>
+     <x>843</x>
+     <y>223</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
      <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>browsePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>778</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>889</x>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -1000,5 +1029,6 @@
   <slot>set_q_vibro(int)</slot>
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
+  <slot>browse_file()</slot>
  </slots>
 </ui>
