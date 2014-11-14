@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>878</width>
+    <width>856</width>
     <height>299</height>
    </rect>
   </property>
@@ -24,133 +24,11 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>851</width>
+      <width>831</width>
       <height>241</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="1">
-      <widget class="gui::GroupBox" name="View">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-         <kerning>true</kerning>
-        </font>
-       </property>
-       <property name="title">
-        <string>View</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-       <widget class="QCheckBox" name="logScaleCheckBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>130</y>
-          <width>101</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Log scale</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="contrastLabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>53</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Contrast:</string>
-        </property>
-       </widget>
-       <widget class="QCheckBox" name="shiftCornersCheckBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>160</y>
-          <width>121</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Shifted corners</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="minLabel">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>70</y>
-          <width>53</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Min:</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="maxLabel">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>100</y>
-          <width>53</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Max:</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="autoPushButton">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>30</y>
-          <width>61</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Auto</string>
-        </property>
-       </widget>
-       <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>70</y>
-          <width>62</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
-        <property name="geometry">
-         <rect>
-          <x>90</x>
-          <y>100</y>
-          <width>62</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="gui::GroupBox" name="ImageRendering">
        <property name="font">
@@ -398,6 +276,12 @@
          <string>Vibrometry:</string>
         </property>
        </widget>
+       <zorder>pLabelVibro</zorder>
+       <zorder>pSpinBoxVibro</zorder>
+       <zorder>qSpinBoxVibro</zorder>
+       <zorder>qLabelVibro</zorder>
+       <zorder>vibrometryLabel</zorder>
+       <zorder>View</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -411,7 +295,7 @@
        <widget class="QLabel" name="numberOfFramesLabel">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>30</y>
           <width>121</width>
           <height>16</height>
@@ -424,7 +308,7 @@
        <widget class="QSpinBox" name="numberOfFramesSpinBox">
         <property name="geometry">
          <rect>
-          <x>140</x>
+          <x>120</x>
           <y>30</y>
           <width>61</width>
           <height>21</height>
@@ -434,7 +318,7 @@
        <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
          <rect>
-          <x>120</x>
+          <x>110</x>
           <y>80</y>
           <width>71</width>
           <height>21</height>
@@ -447,7 +331,7 @@
        <widget class="QLineEdit" name="pathLineEdit">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>110</y>
           <width>171</width>
           <height>22</height>
@@ -457,7 +341,7 @@
        <widget class="QLabel" name="outputFileLabel">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>80</y>
           <width>71</width>
           <height>16</height>
@@ -470,7 +354,7 @@
        <widget class="QPushButton" name="recPushButton">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>150</y>
           <width>171</width>
           <height>41</height>
@@ -483,7 +367,7 @@
        <widget class="QProgressBar" name="recordProgressBar">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>200</y>
           <width>171</width>
           <height>23</height>
@@ -495,6 +379,153 @@
        </widget>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="gui::GroupBox" name="View">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="title">
+        <string>View</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <widget class="QCheckBox" name="logScaleCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>101</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Log scale</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="contrastLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>53</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Contrast:</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="shiftCornersCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>90</y>
+          <width>121</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Shifted corners</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="minLabel">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>170</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Min:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="maxLabel">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>200</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Max:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="autoPushButton">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>130</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="minDoubleSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>170</y>
+          <width>62</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="maxDoubleSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>200</y>
+          <width>62</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>141</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>magnitude</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>squared magnitude</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>argument</string>
+         </property>
+        </item>
+       </widget>
+      </widget>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -503,7 +534,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>878</width>
+     <width>856</width>
      <height>22</height>
     </rect>
    </property>
