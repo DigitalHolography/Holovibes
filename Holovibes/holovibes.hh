@@ -46,6 +46,9 @@ namespace holovibes
     ThreadCompute* tcompute_;
     ThreadGLWindow* tglwnd_;
     Recorder* recorder_;
+
+    Queue* input_;
+    Queue* output_;
   };
 }
 

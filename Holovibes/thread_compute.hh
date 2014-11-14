@@ -12,7 +12,8 @@ namespace holovibes
   public:
     ThreadCompute(
       const ComputeDescriptor& desc,
-      Queue& q);
+      Queue& input,
+      Queue& output);
     ~ThreadCompute();
 
     Queue& get_queue();
@@ -21,8 +22,8 @@ namespace holovibes
 
   private:
     ComputeDescriptor compute_desc_;
-    Queue& input_q_;
-    Queue* output_q_;
+    Queue& input_;
+    Queue& output_;
 
     bool compute_on_;
     std::thread thread_;
