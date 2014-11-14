@@ -4,6 +4,12 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 
+#ifndef _USE_MATH_DEFINES
+/* Enables math constants. */
+# define _USE_MATH_DEFINES
+#endif /* !_USE_MATH_DEFINES */
+#include <math.h>
+
 // CONVERSION FUNCTIONS
 __global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab);
 __global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int size, float *sqrt_tab);

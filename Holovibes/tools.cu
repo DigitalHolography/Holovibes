@@ -49,6 +49,42 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
   }
 }
 
+__global__ void complex_2_squared_magnitude(cufftComplex* input, unsigned short* output, int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    float m = input[index].x * input[index].x + input[index].y * input[index].y;
+
+    if (m > 65535.0f)
+      output[index] = 65535;
+    else
+      output[index] = m;
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+__global__ void complex_2_argument(cufftComplex* input, unsigned short* output, int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  float pi_div_2 = M_PI / 2.0f;
+  float c = 65535.0f / M_PI;
+
+  while (index < size)
+  {
+    float m = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
+
+    if (m > 65535.0f)
+      output[index] = 65535;
+    else
+      output[index] = m;
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
 __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftComplex *lens, int lens_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
