@@ -12,12 +12,27 @@ namespace holovibes
       FFT2,
     };
 
+    enum complex_view_mode
+    {
+      MODULUS,
+      SQUARED_MODULUS,
+      ARGUMENT,
+    };
+
     ComputeDescriptor()
       : algorithm(FFT1)
       , nsamples(0)
       , pindex(0)
       , lambda(0.0f)
       , zdistance(0.0f)
+      , view_mode(SQUARED_MODULUS)
+      , log_scale_enabled(false)
+      , shift_corners_enabled(false)
+      , contrast_enabled(false)
+      , contrast_min(0)
+      , contrast_max(65535)
+      , vibrometry_q(0)
+      , vibrometry_p(0)
     {}
 
     enum fft_algorithm algorithm;
@@ -29,6 +44,14 @@ namespace holovibes
     float lambda;
     /*! Sensor-to-object distance. */
     float zdistance;
+    enum complex_view_mode view_mode;
+    bool log_scale_enabled;
+    bool shift_corners_enabled;
+    bool contrast_enabled;
+    unsigned short contrast_min;
+    unsigned short contrast_max;
+    unsigned short vibrometry_q;
+    unsigned short vibrometry_p;
   };
 }
 
