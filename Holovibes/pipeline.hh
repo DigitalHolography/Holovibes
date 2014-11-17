@@ -20,6 +20,11 @@ namespace holovibes
       ComputeDescriptor& desc);
     virtual ~Pipeline();
 
+    ComputeDescriptor& get_compute_desc()
+    {
+      return compute_desc_;
+    }
+
     void request_refresh();
     void request_autofocus();
     void request_autocontrast();
@@ -31,7 +36,7 @@ namespace holovibes
     Pipeline(const Pipeline&) = delete;
   private:
     FnVector fn_vect_;
-    ComputeDescriptor& compute_desc_;
+    ComputeDescriptor compute_desc_;
     PipelineRessources res_;
 
     bool autofocus_requested_;
