@@ -41,6 +41,7 @@ namespace holovibes
 
     bool autofocus_requested_;
     bool autocontrast_requested_;
+    bool refresh_requested_;
   };
 }
 

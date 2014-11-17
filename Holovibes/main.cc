@@ -14,33 +14,51 @@
 #include "gui_gl_window.hh"
 #include "gui_gl_widget.hh"
 
+#include "compute_descriptor.hh"
+#include "pipeline.hh"
+
 #include <thread>
 
-/*int main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
   // Holovibes object
-  holovibes::Holovibes h(holovibes::Holovibes::camera_type::PIXELFLY);
+  holovibes::ComputeDescriptor cd;
+  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
+  cd.shift_corners_enabled = false;
+  cd.pindex = 0;
+  cd.nsamples = 2;
+  cd.lambda = 536e-9f;
+  cd.zdistance = 1.36f;
+
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
   h.init_capture(20);
+  holovibes::Pipeline* pipeline = h.init_compute(cd);
+
+  if (!pipeline)
+  {
+    std::cout << "pipeline null" << std::endl;
+    getchar();
+  }
 
   // GUI
   QApplication a(argc, argv);
-  gui::MainWindow w;
+  gui::MainWindow w(pipeline);
   w.show();
   gui::GuiGLWindow glw(&w);
 
   unsigned int gl_width = 512;
   unsigned int gl_height = 512;
 
-  gui::GLWidget glwi(&glw, h.get_capture_queue(), gl_width, gl_height);
+  gui::GLWidget glwi(&glw, h.get_output_queue(), gl_width, gl_height);
   glwi.setObjectName("GL");
   glwi.resize(glwi.sizeHint());
   glwi.show();
   glw.show();
 
   return a.exec();
-}*/
+}
 
-int main(int argc, const char* argv[])
+/*int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
   holovibes::OptionsParser opts_parser(opts);
@@ -76,4 +94,4 @@ int main(int argc, const char* argv[])
     std::cerr << e.what() << std::endl;
   }
   return 0;
-}
+}*/

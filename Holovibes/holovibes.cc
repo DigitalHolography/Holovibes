@@ -119,7 +119,7 @@ namespace holovibes
     recorder_ = nullptr;
   }
 
-  Pipeline& Holovibes::init_compute(ComputeDescriptor& desc)
+  Pipeline* Holovibes::init_compute(ComputeDescriptor& desc)
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
@@ -131,7 +131,7 @@ namespace holovibes
 
     tcompute_ = new ThreadCompute(desc, *input_, *output_);
     std::cout << "[CUDA] compute thread started" << std::endl;
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     return tcompute_->get_pipeline();
   }
 
