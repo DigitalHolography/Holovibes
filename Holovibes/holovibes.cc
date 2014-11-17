@@ -73,8 +73,8 @@ namespace holovibes
   void Holovibes::init_capture(unsigned int buffer_nb_elts)
   {
     assert(camera_ && "camera not initialized");
-    input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
     camera_->init_camera();
+    input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
     camera_->start_acquisition();
     tcapture_ = new ThreadCapture(*camera_, *input_);
     std::cout << "[CAPTURE] capture thread started" << std::endl;
