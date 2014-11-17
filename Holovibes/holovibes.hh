@@ -7,6 +7,7 @@
 # include "thread_capture.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
+# include "pipeline.hh"
 
 namespace holovibes
 {
@@ -37,7 +38,7 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
-    void init_compute(ComputeDescriptor& desc);
+    Pipeline& init_compute(ComputeDescriptor& desc);
     void dispose_compute();
 
   private:

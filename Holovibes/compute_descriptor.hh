@@ -52,6 +52,10 @@ namespace holovibes
     unsigned short contrast_max;
     unsigned short vibrometry_q;
     unsigned short vibrometry_p;
+
+  private:
+    ComputeDescriptor(const ComputeDescriptor&) = delete;
+    ComputeDescriptor& operator=(const ComputeDescriptor&) = delete;
   };
 }
 

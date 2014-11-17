@@ -4,6 +4,7 @@
 # include <thread>
 # include "queue.hh"
 # include "compute_descriptor.hh"
+# include "pipeline.hh"
 
 namespace holovibes
 {
@@ -11,19 +12,23 @@ namespace holovibes
   {
   public:
     ThreadCompute(
-      const ComputeDescriptor& desc,
+      ComputeDescriptor& desc,
       Queue& input,
       Queue& output);
     ~ThreadCompute();
 
-    Queue& get_queue();
+    Pipeline& get_pipeline()
+    {
+      return *pipeline_;
+    }
   private:
     void thread_proc();
 
   private:
-    ComputeDescriptor compute_desc_;
+    ComputeDescriptor& compute_desc_;
     Queue& input_;
     Queue& output_;
+    Pipeline* pipeline_;
 
     bool compute_on_;
     std::thread thread_;

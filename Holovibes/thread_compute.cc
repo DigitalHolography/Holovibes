@@ -7,12 +7,13 @@
 namespace holovibes
 {
   ThreadCompute::ThreadCompute(
-    const ComputeDescriptor& desc,
+    ComputeDescriptor& desc,
     Queue& input,
     Queue& output)
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
+    , pipeline_(nullptr)
     , compute_on_(true)
     , thread_(&ThreadCompute::thread_proc, this)
   {}
@@ -27,8 +28,11 @@ namespace holovibes
 
   void ThreadCompute::thread_proc()
   {
-    Pipeline p(input_, output_, compute_desc_);
+    pipeline_ = new Pipeline(input_, output_, compute_desc_);
+
     while (compute_on_)
-      p.exec();
+      pipeline_->exec();
+
+    delete pipeline_;
   }
 }
