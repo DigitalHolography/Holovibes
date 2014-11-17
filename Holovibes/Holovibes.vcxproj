@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -42,18 +42,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ximea\includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectLibDir)\ids;$(ProjectLibDir)\avt;$(ProjectLibDir)\ximea;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(ProjectLibDir)\ids;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\pixelfly\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -69,19 +67,26 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
-copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
+        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
+
+        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_35,sm_35</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -101,18 +106,26 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+      <Command>
+        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
+        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
+
+        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
       </Command>
     </PostBuildEvent>
     <CudaCompile>
       <CodeGeneration>compute_35,sm_35</CodeGeneration>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -122,9 +135,11 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClInclude Include="camera_pixelfly.hh" />
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
+    <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="fft2.cuh" />
-    <ClInclude Include="fouriermanager.hh" />
+    <ClInclude Include="GeneratedFiles\ui_gl_window.h" />
+    <ClInclude Include="GeneratedFiles\ui_main_window.h" />
     <ClInclude Include="gl_component.hh" />
     <ClInclude Include="gl_window.hh" />
     <CustomBuild Include="gui_gl_window.hh">
@@ -138,8 +153,8 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="gui_gl_widget.hh">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
@@ -159,9 +174,11 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     </CustomBuild>
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
-    <ClInclude Include="loader.hh" />
+    <ClInclude Include="frame_file_loader.hh" />
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
+    <ClInclude Include="pipeline.hh" />
+    <ClInclude Include="pipeline_ressources.hh" />
     <ClInclude Include="preprocessing.cuh" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -203,15 +220,18 @@ copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
     <ClCompile Include="gui_gl_window.cc" />
     <ClCompile Include="gui_group_box.cc" />
     <ClCompile Include="holovibes.cc" />
-    <ClCompile Include="loader.cc" />
+    <ClCompile Include="frame_file_loader.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="options_parser.cc" />
+    <ClCompile Include="pipeline.cc" />
+    <ClCompile Include="pipeline_ressources.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="test_main_loader_recorder.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="thread_gl_window.cc" />

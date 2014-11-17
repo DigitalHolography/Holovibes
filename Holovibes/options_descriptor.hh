@@ -3,13 +3,12 @@
 
 # include <string>
 # include "holovibes.hh"
+# include "compute_descriptor.hh"
 
 namespace holovibes
 {
   /*! \brief The aim of this structure is to contain user
   ** parameters entered with the CLI or GUI.
-  ** This is class with private fields to check inputs integrity at
-  ** the earliest step.
   **/
   struct OptionsDescriptor
   {
@@ -24,6 +23,9 @@ namespace holovibes
       , camera()
       , is_gl_window_enabled(false)
       , is_recorder_enabled(false)
+      , is_1fft_enabled(false)
+      , is_2fft_enabled(false)
+      , compute_desc()
     {}
 
     /* Parameters */
@@ -39,17 +41,12 @@ namespace holovibes
     unsigned int gl_window_height;
     /*! Selected camera */
     Holovibes::camera_type camera;
-    /*! Lambda in meters for fft*/
-    float lambda;
-    /*! Dist in meters for fft*/
-    float distance;
-    /*! Nbimages to apply the fft on*/
-    int nbimages;
-    /*! Image to keep from the fft result*/
-    int p;
     /* Enabled features */
     bool is_gl_window_enabled;
     bool is_recorder_enabled;
+    bool is_1fft_enabled;
+    bool is_2fft_enabled;
+    ComputeDescriptor compute_desc;
   };
 }
 #endif /* !OPTIONS_DESCRIPTOR_HH */

@@ -10,7 +10,8 @@ namespace holovibes
   GLWindow::GLWindow(
     const char* title,
     int width,
-    int height)
+    int height,
+    const camera::FrameDescriptor& desc)
     : hinstance_(GetModuleHandle(NULL))
     , hwnd_(nullptr)
     , gl_(nullptr)
@@ -29,16 +30,16 @@ namespace holovibes
       hinstance_, NULL);
 
     if (!hwnd_)
-      throw std::exception("[DISPLAY] failed to instanciate an OpenGL window class");
+      throw std::runtime_error("[DISPLAY] failed to instanciate an OpenGL window class");
 
     /* It do not have default constructor. The constructor of GLComponent
      * must be called once the window has been created. So we can not use
      * the initialization list. It do not provide default constructor because
      * of ~GLComponent() destructor that free OpenGL ressources and things
      * become messy without proper initialization. */
-    gl_ = new GLComponent(hwnd_, width, height);
+    gl_ = new GLComponent(hwnd_, desc, width, height);
     if (!gl_)
-      throw std::exception("[DISPLAY] failed to instanciate GLComponent class.");
+      throw std::runtime_error("[DISPLAY] failed to instanciate GLComponent class.");
   }
 
   GLWindow::~GLWindow()
@@ -66,7 +67,7 @@ namespace holovibes
     wc.lpszClassName = "OpenGL";
 
     if (RegisterClass(&wc) == 0)
-      throw std::exception("[DISPLAY] unable to register window class");
+      throw std::runtime_error("[DISPLAY] unable to register window class");
   }
 
   void GLWindow::wnd_unregister_class()
@@ -111,7 +112,7 @@ namespace holovibes
   void GLWindow::wnd_show()
   {
     if (!hwnd_)
-      throw std::exception("[DISPLAY] no window instanciated");
+      throw std::runtime_error("[DISPLAY] no window instanciated");
 
     ShowWindow(hwnd_, SW_SHOW);
     UpdateWindow(hwnd_);

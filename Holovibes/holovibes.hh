@@ -6,6 +6,8 @@
 # include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
+# include "compute_descriptor.hh"
+# include "pipeline.hh"
 
 namespace holovibes
 {
@@ -37,7 +39,7 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
-    void init_compute(unsigned int p, unsigned int images_nb, float lambda, float z);
+    Pipeline& init_compute(ComputeDescriptor& desc);
     void dispose_compute();
 
   private:
@@ -46,6 +48,9 @@ namespace holovibes
     ThreadCompute* tcompute_;
     ThreadGLWindow* tglwnd_;
     Recorder* recorder_;
+
+    Queue* input_;
+    Queue* output_;
   };
 }
 

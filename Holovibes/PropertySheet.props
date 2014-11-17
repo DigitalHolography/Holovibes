@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <ProjectLibDir>$(ProjectDir)lib</ProjectLibDir>
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
+    <GlewLib>C:\glew-1.11.0</GlewLib>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -14,6 +15,10 @@
     </BuildMacro>
     <BuildMacro Include="BoostLib">
       <Value>$(BoostLib)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="GlewLib">
+      <Value>$(GlewLib)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>

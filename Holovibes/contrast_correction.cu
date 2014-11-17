@@ -1,45 +1,108 @@
 #include "contrast_correction.cuh"
-#ifndef __CUDACC__  
-#define __CUDACC__
-#endif
 
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cstdlib>
 
-__global__ void make_histo(int *histo, unsigned char *img, int img_size)
+#include "hardware_limits.hh"
+
+__global__ void make_histo(
+  int *histo,
+  void *img,
+  int img_size,
+  int bytedepth)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (index < img_size)
   {
-    atomicAdd(&histo[img[index]], 1);
+    if (bytedepth == 1)
+      atomicAdd(&histo[((unsigned char*)img)[index]], 1);
+    else
+      atomicAdd(&histo[((unsigned short*)img)[index]], 1);
   }
 }
 
-
-__global__ void apply_correction(int *sum_histo, unsigned char *img, int img_size, int tons)
+__global__ void apply_contrast(
+  unsigned int min,
+  float factor,
+  void *img,
+  unsigned int size,
+  int bytedepth)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  while (index < img_size)
+  while (index < size)
   {
-    img[index] = ((tons - 1) * sum_histo[img[index]] / img_size);;
+    if (bytedepth == 1)
+    {
+      int value = factor * (float)(((unsigned char*)img)[index] - min);
+      if (value > 255)
+        value = 255;
+      else if (value < 0)
+        value = 0;
+      ((unsigned char*)img)[index] = value;
+    }
+    else
+    {
+      int value = factor * (float)(((unsigned short*)img)[index] - min);
+      if (value > 65535)
+        value = 65535;
+      else if (value < 0)
+        value = 0;
+      ((unsigned short*)img)[index] = value;
+    }
     index += blockDim.x * gridDim.x;
   }
 }
 
-void sum_histo_c(int *histo, int *summed_histo, int bytedepth)
+void find_min_max(
+  unsigned int *min,
+  unsigned int *max,
+  int *histo,
+  int bytedepth,
+  int percent,
+  unsigned int nbpixels)
 {
-  int tons = 65536;
+  int acceptable = (percent / 100) * nbpixels;
   if (bytedepth == 1)
-    tons = 256;
-  summed_histo[0] = histo[0];
-  for (int i = 1; i < tons; i++)
   {
-      summed_histo[i] += summed_histo[i - 1] + histo[i];
+    *min = 255;
+    *max = 0;
+    for (int i = 0; i < 255; i++)
+    {
+      if (histo[i] > acceptable)
+      {
+        if (i > *max)
+          *max = i;
+        if (i < *min)
+          *min = i;
+      }
+    }
   }
-
+  else
+  {
+    *min = 65535;
+    *max = 0;
+    for (int i = 0; i < 65535; i++)
+    {
+      if (histo[i] > acceptable)
+      {
+        if (i > *max)
+          *max = i;
+        if (i < *min)
+          *min = i;
+      }
+    }
+  }
 }
 
-void correct_contrast(unsigned char *img,int img_size, int bytedepth)
+void manual_contrast_correction(
+  void *img,
+  unsigned int img_size,
+  int bytedepth,
+  unsigned int manual_min,
+  unsigned int manual_max)
 {
   int tons = 65536;
   if (bytedepth == 1)
@@ -48,21 +111,33 @@ void correct_contrast(unsigned char *img,int img_size, int bytedepth)
   int blocks = (img_size + threads - 1) / threads;
   if (blocks > get_max_blocks())
     blocks = get_max_blocks() - 1;
+  float factor = tons / (manual_max - manual_min);
+  apply_contrast <<<blocks, threads>>>(manual_min, factor, img, img_size, bytedepth);
+}
 
+void auto_contrast_correction(
+  unsigned int *min,
+  unsigned int *max,
+  void *img,
+  unsigned int img_size,
+  unsigned int bytedepth,
+  unsigned int percent)
+{
+  int tons = 65536;
+  if (bytedepth == 1)
+    tons = 256;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (img_size + threads - 1) / threads;
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks() - 1;
   int *histo;
-  int *sum_histo;
-  int *histo_cpu = (int*)calloc(sizeof(int) * tons,1);
-  int *sum_histo_cpu = (int*)calloc(1,sizeof(int)* tons);
-  cudaMalloc(&sum_histo, tons * sizeof (int));
-  cudaMalloc(&histo, tons * sizeof (int));
+  int *histo_cpu = (int*)calloc(sizeof(int)* tons, 1);
+  cudaMalloc(&histo, tons * sizeof(int));
   cudaMemset(histo, 0, tons * sizeof(int));
-  make_histo<<<blocks, threads>>>(histo, img, img_size);
+  make_histo << <blocks, threads >> >(histo, img, img_size, bytedepth);
   cudaMemcpy(histo_cpu, histo, tons * sizeof(int), cudaMemcpyDeviceToHost);
-  sum_histo_c(histo_cpu, sum_histo_cpu, bytedepth);
-  cudaMemcpy(sum_histo, sum_histo_cpu, tons * sizeof(int), cudaMemcpyHostToDevice);
-  apply_correction <<<blocks, threads >> >(sum_histo, img, img_size, tons);
+  find_min_max(min, max, histo_cpu, bytedepth, percent, img_size);
+  float factor = tons / (*max - *min);
   cudaFree(histo);
-  cudaFree(sum_histo);
   free(histo_cpu);
-  free(sum_histo_cpu);
 }

@@ -2,9 +2,8 @@
 
 #include "options_parser.hh"
 #include "holovibes.hh"
-#include "camera_exception.hh"
-
 #include "camera.hh"
+#include "camera_exception.hh"
 #include "camera_pixelfly.hh"
 #include "queue.hh"
 
@@ -15,12 +14,9 @@
 #include "gui_gl_window.hh"
 #include "gui_gl_widget.hh"
 
-#include "camera.hh"
-#include "camera_ids.hh"
-#include "camera_pixelfly.hh"
 #include <thread>
 
-int main(int argc, char* argv[])
+/*int main(int argc, char* argv[])
 {
   // Holovibes object
   holovibes::Holovibes h(holovibes::Holovibes::camera_type::PIXELFLY);
@@ -42,9 +38,9 @@ int main(int argc, char* argv[])
   glw.show();
 
   return a.exec();
-}
+}*/
 
-/*int main(int argc, const char* argv[])
+int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
   holovibes::OptionsParser opts_parser(opts);
@@ -56,8 +52,8 @@ int main(int argc, char* argv[])
 
     h.init_capture(opts.queue_size);
 
-    h.init_compute(opts.p, opts.nbimages, opts.lambda, opts.distance);
-
+    if (opts.is_1fft_enabled || opts.is_2fft_enabled)
+      h.init_compute(opts.compute_desc);
     if (opts.is_gl_window_enabled)
       h.init_display(opts.gl_window_width, opts.gl_window_height);
     if (opts.is_recorder_enabled)
@@ -80,4 +76,4 @@ int main(int argc, char* argv[])
     std::cerr << e.what() << std::endl;
   }
   return 0;
-}*/
+}
