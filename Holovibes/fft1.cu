@@ -20,10 +20,10 @@ void fft1_lens(
 }
 
 void fft_1(
+  cufftComplex* input_buffer,
   unsigned short *result_buffer,
   holovibes::Queue& q,
   cufftComplex *lens,
-  float *sqrt_vect,
   cufftHandle plan,
   unsigned int nbimages)
 {
@@ -38,17 +38,12 @@ void fft_1(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  cufftComplex* complex_input = make_contiguous_complex(q, nbimages, sqrt_vect);
-
   // Apply lens
-  apply_quadratic_lens <<<blocks, threads>>>(complex_input, pixel_size, lens, q.get_pixels());
+  apply_quadratic_lens <<<blocks, threads>>>(input_buffer, pixel_size, lens, q.get_pixels());
 
   // FFT
-  cufftExecC2C(plan, complex_input, complex_input, CUFFT_FORWARD);
+  cufftExecC2C(plan, input_buffer, input_buffer, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
-  complex_2_module <<<blocks, threads>>>(complex_input, result_buffer, pixel_size);
-
-  // Free all
-  cudaFree(complex_input);
+  complex_2_module <<<blocks, threads>>>(input_buffer, result_buffer, pixel_size);
 }

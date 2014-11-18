@@ -6,28 +6,36 @@
 
 // CONVERSION FUNCTIONS
 
-__global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab)
+__global__ void img8_to_complex(
+  cufftComplex* output,
+  unsigned char* input,
+  unsigned int size,
+  const float* sqrt_array)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    unsigned int val = sqrt_tab[data[index] * 257];
-    res[index].x = val;
-    res[index].y = val;
+    unsigned int val = sqrt_array[input[index] * 257];
+    output[index].x = val;
+    output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
 
-__global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int size, float *sqrt_tab)
+__global__ void img16_to_complex(
+  cufftComplex* output,
+  unsigned short* input,
+  unsigned int size,
+  const float* sqrt_array)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   while (index < size)
   {
-    res[index].x = sqrt_tab[data[index]];
-    res[index].y = sqrt_tab[data[index]];
+    output[index].x = sqrt_array[input[index]];
+    output[index].y = sqrt_array[input[index]];
     index += blockDim.x * gridDim.x;
   }
 }

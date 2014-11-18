@@ -20,6 +20,7 @@ void fft2_lens(
   kernel_spectral_lens<<<lblocks, lthreads>>>(lens, fd, lambda, z);
 }
 
+#if 0
 void fft_2(
   unsigned short* result_buffer,
   holovibes::Queue& q,
@@ -72,3 +73,4 @@ void fft_2(
   cudaFree(pimage);
   cudaFree(complex_input);
 }
+#endif

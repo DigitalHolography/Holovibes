@@ -31,9 +31,9 @@ namespace holovibes
     {
       return gpu_sqrt_vector_;
     }
-    unsigned short* get_pbuffer()
+    unsigned short* get_output_buffer()
     {
-      return gpu_pbuffer_;
+      return gpu_output_buffer_;
     }
     cufftHandle get_plan3d()
     {
@@ -46,6 +46,10 @@ namespace holovibes
     cufftComplex* get_lens()
     {
       return gpu_lens_;
+    }
+    cufftComplex* get_input_buffer()
+    {
+      return gpu_input_buffer_;
     }
     unsigned short* get_output_frame_ptr()
     {
@@ -65,8 +69,8 @@ namespace holovibes
     void delete_gpu_sqrt_vector();
 
     /*! Alloc pbuffer for n output frames. */
-    void new_gpu_pbuffer(unsigned short n);
-    void delete_gpu_pbuffer();
+    void new_gpu_output_buffer(unsigned short n);
+    void delete_gpu_output_buffer();
 
     void new_plan3d(unsigned short n);
     void delete_plan3d();
@@ -77,6 +81,9 @@ namespace holovibes
     void new_gpu_lens();
     void delete_gpu_lens();
 
+    void new_gpu_input_buffer(unsigned short n);
+    void delete_gpu_input_buffer();
+
     PipelineResources& operator=(const PipelineResources&) = delete;
     PipelineResources(const PipelineResources&) = delete;
   private:
@@ -85,14 +92,16 @@ namespace holovibes
 
     /*! Vector filled with sqrtf values. */
     float* gpu_sqrt_vector_;
-    /*! Output buffer containing n frames ordered in frequency (p phase). */
-    unsigned short* gpu_pbuffer_;
+    /*! Output buffer containing n frames ordered in frequency. */
+    unsigned short* gpu_output_buffer_;
     /*! CUDA FFT Plan 3D. */
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. */
     cufftHandle plan2d_;
     /*! cufftComplex array containing lens. */
     cufftComplex* gpu_lens_;
+    /*! cufftComplex array containing n contiguous frames. */
+    cufftComplex* gpu_input_buffer_;
 
     /*! Output frame pointer. */
     unsigned short* gpu_output_frame_;

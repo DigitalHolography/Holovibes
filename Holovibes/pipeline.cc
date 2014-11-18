@@ -5,6 +5,7 @@
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "tools.cuh"
+#include "preprocessing.cuh"
 
 namespace holovibes
 {
@@ -40,6 +41,14 @@ namespace holovibes
       res_.update_n_parameter(compute_desc_.nsamples);
     }
 
+    // Fill input complex buffer.
+    fn_vect_.push_back(std::bind(
+      make_contiguous_complex,
+      std::ref(res_.get_input_queue()),
+      res_.get_input_buffer(),
+      compute_desc_.nsamples.load(),
+      res_.get_sqrt_vector()));
+
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       // Initialize FFT1 lens.
@@ -52,15 +61,15 @@ namespace holovibes
       // Add FFT1.
       fn_vect_.push_back(std::bind(
         fft_1,
-        res_.get_pbuffer(),
+        res_.get_input_buffer(),
+        res_.get_output_buffer(),
         std::ref(res_.get_input_queue()),
         res_.get_lens(),
-        res_.get_sqrt_vector(),
         res_.get_plan3d(),
         compute_desc_.nsamples.load()));
 
       res_.set_output_frame_ptr(
-        res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res());
+        res_.get_output_buffer() + compute_desc_.pindex * output_fd.frame_res());
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
@@ -144,8 +153,8 @@ namespace holovibes
 
   void Pipeline::request_update_n(unsigned short n)
   {
-    compute_desc_.nsamples = n;
     update_n_requested_ = true;
+    compute_desc_.nsamples = n;
     request_refresh();
   }
 }
