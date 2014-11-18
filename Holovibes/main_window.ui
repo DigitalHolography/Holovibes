@@ -139,6 +139,12 @@
           <height>22</height>
          </rect>
         </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="minimum">
+         <double>-1.000000000000000</double>
+        </property>
         <property name="maximum">
          <double>3000.000000000000000</double>
         </property>
@@ -168,6 +174,9 @@
           <height>22</height>
          </rect>
         </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
         <property name="minimum">
          <double>-10000.000000000000000</double>
         </property>
@@ -191,7 +200,7 @@
          <string>Algorithm:</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="algorithmComboBox">
         <property name="geometry">
          <rect>
           <x>130</x>
@@ -200,6 +209,16 @@
           <height>22</height>
          </rect>
         </property>
+        <item>
+         <property name="text">
+          <string>1FFT</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2FFT</string>
+         </property>
+        </item>
        </widget>
       </widget>
      </item>
@@ -276,12 +295,6 @@
          <string>Vibrometry:</string>
         </property>
        </widget>
-       <zorder>pLabelVibro</zorder>
-       <zorder>pSpinBoxVibro</zorder>
-       <zorder>qSpinBoxVibro</zorder>
-       <zorder>qLabelVibro</zorder>
-       <zorder>vibrometryLabel</zorder>
-       <zorder>View</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -868,7 +881,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBox</sender>
+   <sender>algorithmComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_algorithm(QString)</slot>

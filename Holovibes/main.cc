@@ -40,6 +40,8 @@ int main(int argc, char* argv[])
   glwi.show();
   glw.show();
 
+  h.get_compute_desc().register_observer(w);
+
   return a.exec();
 }
 

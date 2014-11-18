@@ -20,10 +20,39 @@ namespace gui
 
     holovibes_.set_compute_desc(cd);
     holovibes_.init_compute();
+
+    // Display default values
+    notify();
   }
 
   MainWindow::~MainWindow()
   {
+  }
+
+  void MainWindow::notify()
+  {
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+    phase_number->setValue(cd.nsamples);
+
+    QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+    p->setValue(cd.pindex);
+
+    QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
+    lambda->setValue((double)cd.lambda);
+
+    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+    z->setValue(cd.zdistance);
+
+    QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+
+    if (cd.algorithm == holovibes::ComputeDescriptor::FFT1)
+      algorithm->setCurrentIndex(0);
+    else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
+      algorithm->setCurrentIndex(1);
+    else
+      algorithm->setCurrentIndex(0);
   }
 
   void MainWindow::set_image_mode(bool value)

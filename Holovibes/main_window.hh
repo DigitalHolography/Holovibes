@@ -8,16 +8,19 @@
 # include "holovibes.hh"
 # include "pipeline.hh"
 # include "compute_descriptor.hh"
+# include "observer.hh"
 
 namespace gui
 {
-  class MainWindow : public QMainWindow
+  class MainWindow : public QMainWindow, public holovibes::Observer
   {
     Q_OBJECT
 
   public:
     MainWindow(holovibes::Holovibes& holovibes, QWidget *parent = 0);
     ~MainWindow();
+
+    void notify() override;
 
   public slots:
     // Image rendering
