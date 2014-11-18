@@ -116,12 +116,18 @@ namespace holovibes
         res_.get_output_frame_ptr(),
         cudaMemcpyDeviceToDevice);
       res_.get_input_queue().dequeue();
+
+      if (refresh_requested_)
+      {
+        refresh();
+        refresh_requested_ = false;
+      }
     }
   }
 
   void Pipeline::request_refresh()
   {
-    fn_vect_.push_back(std::bind(&Pipeline::refresh, this));
+    refresh_requested_ = true;
   }
 
   void Pipeline::request_autocontrast()
