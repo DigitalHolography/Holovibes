@@ -1,8 +1,7 @@
 #ifndef OBSERVABLE_HH
 # define OBSERVABLE_HH
 
-# include <set>
-# include <algorithm>
+# include <vector>
 
 # include "observer.hh"
 
@@ -13,20 +12,15 @@ namespace holovibes
   public:
     void register_observer(Observer& o)
     {
-      observers_.insert(o);
-    }
-
-    void unregister_observer(Observer& o)
-    {
-      observers_.erase(o);
+      observers_.push_back(&o);
     }
 
     void notify_observers()
     {
-      for (auto it = observers_.begin();
+      for (std::vector<Observer*>::iterator it = observers_.begin();
         it != observers_.end();
         ++it)
-        (*it).notify();
+        (*it)->notify();
     }
 
   protected:
@@ -37,7 +31,7 @@ namespace holovibes
     {}
 
   private:
-    std::set<Observer&> observers_;
+    std::vector<Observer*> observers_;
   };
 }
 

@@ -34,6 +34,12 @@ namespace holovibes
     /* Clean current vector. */
     fn_vect_.clear();
 
+    if (update_n_requested_)
+    {
+      update_n_requested_ = false;
+      res_.update_n_parameter(compute_desc_.nsamples);
+    }
+
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       // Initialize FFT1 lens.
@@ -53,8 +59,8 @@ namespace holovibes
         res_.get_plan3d(),
         compute_desc_.nsamples));
 
-      res_.get_output_frame_ptr() =
-        res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res();
+      res_.set_output_frame_ptr(
+        res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res());
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
@@ -127,6 +133,13 @@ namespace holovibes
   void Pipeline::request_autofocus()
   {
     autofocus_requested_ = true;
+    request_refresh();
+  }
+
+  void Pipeline::request_update_n(unsigned short n)
+  {
+    compute_desc_.nsamples = n;
+    update_n_requested_ = true;
     request_refresh();
   }
 }

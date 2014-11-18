@@ -6,7 +6,7 @@
 
 # include "queue.hh"
 # include "compute_descriptor.hh"
-# include "pipeline_ressources.hh"
+# include "pipeline_resources.hh"
 
 namespace holovibes
 {
@@ -23,6 +23,7 @@ namespace holovibes
     void request_refresh();
     void request_autofocus();
     void request_autocontrast();
+    void request_update_n(unsigned short n);
     void exec();
   private:
     void refresh();
@@ -32,10 +33,11 @@ namespace holovibes
   private:
     FnVector fn_vect_;
     ComputeDescriptor& compute_desc_;
-    PipelineRessources res_;
+    PipelineResources res_;
 
     bool autofocus_requested_;
     bool autocontrast_requested_;
+    bool update_n_requested_;
   };
 }
 
