@@ -141,6 +141,8 @@
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
     <ClInclude Include="frame_file_loader.hh" />
+    <ClInclude Include="observable.hh" />
+    <ClInclude Include="observer.hh" />
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="pipeline.hh" />

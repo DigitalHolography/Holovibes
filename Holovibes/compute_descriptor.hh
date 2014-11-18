@@ -1,10 +1,12 @@
 #ifndef COMPUTE_DESCRIPTOR_HH
 # define COMPUTE_DESCRIPTOR_HH
 
+# include "observable.hh"
+
 namespace holovibes
 {
   /*! \brief The aim of this structure is to contain CUDA compute parameters. */
-  struct ComputeDescriptor
+  struct ComputeDescriptor : public Observable
   {
     enum fft_algorithm
     {
@@ -20,7 +22,8 @@ namespace holovibes
     };
 
     ComputeDescriptor()
-      : algorithm(FFT1)
+      : Observable()
+      , algorithm(FFT1)
       , nsamples(0)
       , pindex(0)
       , lambda(0.0f)
