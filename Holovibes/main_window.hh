@@ -5,7 +5,9 @@
 # include <QMainWindow>
 # include <QFileDialog>
 # include "ui_main_window.h"
+# include "holovibes.hh"
 # include "pipeline.hh"
+# include "compute_descriptor.hh"
 
 namespace gui
 {
@@ -14,7 +16,7 @@ namespace gui
     Q_OBJECT
 
   public:
-    MainWindow(holovibes::Pipeline& pipeline, QWidget *parent = 0);
+    MainWindow(holovibes::Holovibes& holovibes, QWidget *parent = 0);
     ~MainWindow();
 
   public slots:
@@ -44,7 +46,7 @@ namespace gui
 
   private:
     Ui::MainWindow ui;
-    holovibes::Pipeline& pipeline_;
+    holovibes::Holovibes& holovibes_;
 
     //Debug
     template <typename T>

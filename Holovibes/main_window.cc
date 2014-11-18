@@ -3,11 +3,23 @@
 
 namespace gui
 {
-  MainWindow::MainWindow(holovibes::Pipeline& pipeline, QWidget *parent)
+  MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
     : QMainWindow(parent),
-    pipeline_(pipeline)
+    holovibes_(holovibes)
   {
     ui.setupUi(this);
+
+    // FIXME
+    holovibes::ComputeDescriptor cd;
+    cd.algorithm = holovibes::ComputeDescriptor::FFT1;
+    cd.shift_corners_enabled = false;
+    cd.pindex = 0;
+    cd.nsamples = 4;
+    cd.lambda = 536e-9f;
+    cd.zdistance = 1.36f;
+
+    holovibes_.set_compute_desc(cd);
+    holovibes_.init_compute();
   }
 
   MainWindow::~MainWindow()
@@ -36,7 +48,10 @@ namespace gui
 
   void  MainWindow::set_z(double value)
   {
-    print_parameter("z", value);
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    cd.zdistance = static_cast<float>(value);
+    pipeline.request_refresh();
   }
 
   void  MainWindow::set_algorithm(QString value)
@@ -66,8 +81,9 @@ namespace gui
 
   void MainWindow::set_shifted_corners(bool value)
   {
-    pipeline_.get_compute_desc().shift_corners_enabled = value;
-    pipeline_.request_refresh();
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes_.get_compute_desc().shift_corners_enabled = value;
+    pipeline.request_refresh();
   }
 
   void MainWindow::set_p_vibro(int value)

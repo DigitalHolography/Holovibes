@@ -43,8 +43,25 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
-    Pipeline& init_compute(ComputeDescriptor& desc);
+    void init_compute();
     void dispose_compute();
+
+    Pipeline& get_pipeline()
+    {
+      if (pipeline_)
+        return *pipeline_;
+      throw std::runtime_error("Pipeline is null");
+    }
+
+    ComputeDescriptor& get_compute_desc()
+    {
+      return compute_desc_;
+    }
+
+    void set_compute_desc(ComputeDescriptor& compute_desc)
+    {
+      compute_desc_ = compute_desc;
+    }
 
   private:
     camera::Camera* camera_;
@@ -55,6 +72,8 @@ namespace holovibes
 
     Queue* input_;
     Queue* output_;
+    Pipeline* pipeline_;
+    ComputeDescriptor compute_desc_;
   };
 }
 
