@@ -15,6 +15,7 @@ namespace holovibes
     , output_(output)
     , pipeline_(nullptr)
     , compute_on_(true)
+    , memory_cv_()
     , thread_(&ThreadCompute::thread_proc, this)
   {}
 
@@ -29,6 +30,8 @@ namespace holovibes
   void ThreadCompute::thread_proc()
   {
     pipeline_ = new Pipeline(input_, output_, compute_desc_);
+
+    memory_cv_.notify_one();
 
     while (compute_on_)
       pipeline_->exec();
