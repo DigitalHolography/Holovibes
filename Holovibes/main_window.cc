@@ -33,17 +33,32 @@ namespace gui
 
   void  MainWindow::set_phase_number(int value)
   {
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    cd.nsamples = value;
     print_parameter("phase number", value);
   }
 
   void  MainWindow::set_p(int value)
   {
-    print_parameter("p", value);
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    
+    if (value < cd.nsamples)
+    {
+      cd.pindex = value;
+      pipeline.request_refresh();
+    }
+    else
+      std::cout << "p param has to be between 0 and n" << "\n";
   }
 
   void  MainWindow::set_wavelength(double value)
   {
-    print_parameter("wavelength", value);
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    cd.lambda = static_cast<float>(value);
+    pipeline.request_refresh();
   }
 
   void  MainWindow::set_z(double value)
