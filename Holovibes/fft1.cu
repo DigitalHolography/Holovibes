@@ -25,7 +25,7 @@ void fft_1(
   cufftComplex *lens,
   float *sqrt_vect,
   cufftHandle plan,
-  int nbimages)
+  unsigned int nbimages)
 {
   // Sizes
   unsigned int pixel_size = q.get_frame_desc().width * q.get_frame_desc().height * nbimages;

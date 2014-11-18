@@ -17,6 +17,6 @@ void fft_1(
   cufftComplex *lens,
   float *sqrt_vect,
   cufftHandle plan,
-  int nbimages);
+  unsigned int nbimages);
 
 #endif /* !FFT1_CUH */

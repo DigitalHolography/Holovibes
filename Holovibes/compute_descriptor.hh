@@ -1,6 +1,8 @@
 #ifndef COMPUTE_DESCRIPTOR_HH
 # define COMPUTE_DESCRIPTOR_HH
 
+# include <atomic>
+
 # include "observable.hh"
 
 namespace holovibes
@@ -38,23 +40,23 @@ namespace holovibes
       , vibrometry_p(0)
     {}
 
-    enum fft_algorithm algorithm;
+    std::atomic<enum fft_algorithm> algorithm;
     /*! Number of samples in which apply the fft on. */
-    unsigned int nsamples;
+    std::atomic<unsigned int> nsamples;
     /*! p-th output component to show. */
-    unsigned int pindex;
+    std::atomic<unsigned int> pindex;
     /*! Lambda in meters. */
-    float lambda;
+    std::atomic<float> lambda;
     /*! Sensor-to-object distance. */
-    float zdistance;
-    enum complex_view_mode view_mode;
-    bool log_scale_enabled;
-    bool shift_corners_enabled;
-    bool contrast_enabled;
-    unsigned short contrast_min;
-    unsigned short contrast_max;
-    unsigned short vibrometry_q;
-    unsigned short vibrometry_p;
+    std::atomic<float> zdistance;
+    std::atomic<enum complex_view_mode> view_mode;
+    std::atomic<bool> log_scale_enabled;
+    std::atomic<bool> shift_corners_enabled;
+    std::atomic<bool> contrast_enabled;
+    std::atomic<unsigned short> contrast_min;
+    std::atomic<unsigned short> contrast_max;
+    std::atomic<unsigned short> vibrometry_q;
+    std::atomic<unsigned short> vibrometry_p;
   };
 }
 

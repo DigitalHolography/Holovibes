@@ -57,7 +57,7 @@ namespace holovibes
         res_.get_lens(),
         res_.get_sqrt_vector(),
         res_.get_plan3d(),
-        compute_desc_.nsamples));
+        compute_desc_.nsamples.load()));
 
       res_.set_output_frame_ptr(
         res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res());
