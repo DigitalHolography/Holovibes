@@ -34,9 +34,7 @@ namespace gui
   void  MainWindow::set_phase_number(int value)
   {
     holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-    cd.nsamples = value;
-    print_parameter("phase number", value);
+    pipeline.request_update_n(value);
   }
 
   void  MainWindow::set_p(int value)

@@ -1,5 +1,5 @@
-#ifndef PIPELINE_RESSOURCES_HH
-# define PIPELINE_RESSOURCES_HH
+#ifndef PIPELINE_RESOURCES_HH
+# define PIPELINE_RESOURCES_HH
 
 # include <cufft.h>
 
@@ -7,27 +7,54 @@
 
 namespace holovibes
 {
-  class PipelineRessources
+  class PipelineResources
   {
   public:
     static const unsigned short sqrt_vector_size = 65535;
   public:
     /*! n stands for the 'nframes' parameters of ComputeDescriptor. */
-    PipelineRessources(
+    PipelineResources(
       Queue& input,
       Queue& output,
       unsigned short n);
-    virtual ~PipelineRessources();
+    virtual ~PipelineResources();
 
-    // \TODO inline getters.
-    Queue& get_input_queue();
-    Queue& get_output_queue();
-    float* get_sqrt_vector() const;
-    unsigned short* get_pbuffer();
-    cufftHandle get_plan3d();
-    cufftHandle get_plan2d();
-    cufftComplex* get_lens();
-    unsigned short*& get_output_frame_ptr();
+    Queue& get_input_queue()
+    {
+      return input_;
+    }
+    Queue& get_output_queue()
+    {
+      return output_;
+    }
+    float* get_sqrt_vector() const
+    {
+      return gpu_sqrt_vector_;
+    }
+    unsigned short* get_pbuffer()
+    {
+      return gpu_pbuffer_;
+    }
+    cufftHandle get_plan3d()
+    {
+      return plan3d_;
+    }
+    cufftHandle get_plan2d()
+    {
+      return plan2d_;
+    }
+    cufftComplex* get_lens()
+    {
+      return gpu_lens_;
+    }
+    unsigned short* get_output_frame_ptr()
+    {
+      return gpu_output_frame_;
+    }
+    void set_output_frame_ptr(unsigned short* ptr)
+    {
+      gpu_output_frame_ = ptr;
+    }
 
     /*! Update pbuffer/plan3d allocation for n output frames. */
     void update_n_parameter(unsigned short n);
@@ -50,8 +77,8 @@ namespace holovibes
     void new_gpu_lens();
     void delete_gpu_lens();
 
-    PipelineRessources& operator=(const PipelineRessources&) = delete;
-    PipelineRessources(const PipelineRessources&) = delete;
+    PipelineResources& operator=(const PipelineResources&) = delete;
+    PipelineResources(const PipelineResources&) = delete;
   private:
     Queue& input_;
     Queue& output_;
@@ -72,4 +99,4 @@ namespace holovibes
   };
 }
 
-#endif /* !PIPELINE_RESSOURCES_HH */
+#endif /* !PIPELINE_RESOURCES_HH */
