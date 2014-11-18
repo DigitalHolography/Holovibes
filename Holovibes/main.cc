@@ -26,19 +26,13 @@ int main(int argc, char* argv[])
   cd.algorithm = holovibes::ComputeDescriptor::FFT1;
   cd.shift_corners_enabled = false;
   cd.pindex = 0;
-  cd.nsamples = 2;
+  cd.nsamples = 4;
   cd.lambda = 536e-9f;
   cd.zdistance = 1.36f;
 
   holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
   h.init_capture(20);
-  holovibes::Pipeline* pipeline = h.init_compute(cd);
-
-  if (!pipeline)
-  {
-    std::cout << "pipeline null" << std::endl;
-    getchar();
-  }
+  holovibes::Pipeline& pipeline = h.init_compute(cd);
 
   // GUI
   QApplication a(argc, argv);

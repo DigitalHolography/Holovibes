@@ -3,7 +3,7 @@
 
 namespace gui
 {
-  MainWindow::MainWindow(holovibes::Pipeline* pipeline, QWidget *parent)
+  MainWindow::MainWindow(holovibes::Pipeline& pipeline, QWidget *parent)
     : QMainWindow(parent),
     pipeline_(pipeline)
   {
@@ -66,8 +66,8 @@ namespace gui
 
   void MainWindow::set_shifted_corners(bool value)
   {
-    pipeline_->get_compute_desc().shift_corners_enabled = value;
-    pipeline_->request_refresh();
+    pipeline_.get_compute_desc().shift_corners_enabled = value;
+    pipeline_.request_refresh();
   }
 
   void MainWindow::set_p_vibro(int value)

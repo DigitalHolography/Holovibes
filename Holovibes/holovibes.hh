@@ -43,7 +43,7 @@ namespace holovibes
       unsigned int rec_n_images);
     void dispose_recorder();
 
-    Pipeline* init_compute(ComputeDescriptor& desc);
+    Pipeline& init_compute(ComputeDescriptor& desc);
     void dispose_compute();
 
   private:

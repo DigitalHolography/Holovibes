@@ -17,9 +17,9 @@ namespace holovibes
       Queue& output);
     ~ThreadCompute();
 
-    Pipeline* get_pipeline()
+    Pipeline& get_pipeline()
     {
-      return pipeline_;
+      return *pipeline_;
     }
   private:
     void thread_proc();

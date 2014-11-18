@@ -119,7 +119,7 @@ namespace holovibes
     recorder_ = nullptr;
   }
 
-  Pipeline* Holovibes::init_compute(ComputeDescriptor& desc)
+  Pipeline& Holovibes::init_compute(ComputeDescriptor& desc)
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
