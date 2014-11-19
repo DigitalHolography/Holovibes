@@ -57,6 +57,7 @@ namespace gui
 
   void MainWindow::set_image_mode(bool value)
   {
+
     print_parameter("image mode", value);
   }
 

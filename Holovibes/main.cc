@@ -22,24 +22,14 @@
 int main(int argc, char* argv[])
 {
   // Holovibes object
-  holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::PIXELFLY);
   h.init_capture(20);
 
   // GUI
   QApplication a(argc, argv);
   gui::MainWindow w(h);
   w.show();
-  gui::GuiGLWindow glw(&w);
-
-  unsigned int gl_width = 512;
-  unsigned int gl_height = 512;
-
-  gui::GLWidget glwi(&glw, h.get_output_queue(), gl_width, gl_height);
-  glwi.setObjectName("GL");
-  glwi.resize(glwi.sizeHint());
-  glwi.show();
-  glw.show();
-
+  h.init_display(512, 512);
   h.get_compute_desc().register_observer(w);
 
   return a.exec();

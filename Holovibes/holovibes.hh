@@ -8,6 +8,7 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
+# include "gui_gl_window.hh"
 
 namespace holovibes
 {
@@ -67,7 +68,8 @@ namespace holovibes
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
     ThreadCompute* tcompute_;
-    ThreadGLWindow* tglwnd_;
+    gui::GuiGLWindow* gl_window_;
+    gui::GLWidget* gl_widget_;
     Recorder* recorder_;
 
     Queue* input_;

@@ -16,7 +16,7 @@ namespace gui
     Q_OBJECT
 
   public:
-    GLWidget(QWidget *parent, holovibes::Queue& q, unsigned int width, unsigned int height);
+    GLWidget(holovibes::Queue& q, unsigned int width, unsigned int height, QWidget* parent = 0);
     ~GLWidget();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;

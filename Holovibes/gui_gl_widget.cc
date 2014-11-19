@@ -2,7 +2,7 @@
 
 namespace gui
 {
-  GLWidget::GLWidget(QWidget *parent, holovibes::Queue& q, unsigned int width, unsigned int height)
+  GLWidget::GLWidget(holovibes::Queue& q, unsigned int width, unsigned int height, QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
     q_(q),
     width_(width),
@@ -15,6 +15,7 @@ namespace gui
 
   GLWidget::~GLWidget()
   {
+    free(frame_);
   }
 
   QSize GLWidget::minimumSizeHint() const

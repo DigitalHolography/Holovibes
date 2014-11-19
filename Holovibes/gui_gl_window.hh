@@ -13,13 +13,17 @@ namespace gui
     Q_OBJECT
 
   public:
-    GuiGLWindow(QWidget *parent = 0);
+    GuiGLWindow(unsigned int width,
+      unsigned int height,
+      holovibes::Queue&,
+      QWidget* parent = 0);
     ~GuiGLWindow();
 
     void resizeEvent(QResizeEvent* e) override;
 
   private:
     Ui::GLWindow ui;
+    GLWidget* gl_widget_;
   };
 }
 

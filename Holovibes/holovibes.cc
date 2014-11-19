@@ -16,7 +16,8 @@ namespace holovibes
     : camera_(nullptr)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
-    , tglwnd_(nullptr)
+    , gl_window_(nullptr)
+    , gl_widget_(nullptr)
     , recorder_(nullptr)
     , input_(nullptr)
     , output_(nullptr)
@@ -42,7 +43,7 @@ namespace holovibes
   {
     delete tcompute_;
     delete tcapture_;
-    delete tglwnd_;
+    delete gl_window_;
     delete camera_;
     delete input_;
     delete output_;
@@ -52,24 +53,14 @@ namespace holovibes
     unsigned int width,
     unsigned int height)
   {
-    assert(camera_ && "camera not initialized");
-    assert(tcapture_ && "capture thread not initialized");
-
-    if (tcompute_)
-    {
-      tglwnd_ = new ThreadGLWindow(*output_, "OpenGL", width, height);
-    }
-    else
-    {
-      tglwnd_ = new ThreadGLWindow(*input_, "OpenGL", width, height);
-    }
-    std::cout << "[DISPLAY] display thread started" << std::endl;
+    gl_window_ = new gui::GuiGLWindow(width, height, *input_);
+    gl_window_->show();
   }
 
   void Holovibes::dispose_display()
   {
-    delete tglwnd_;
-    tglwnd_ = nullptr;
+    delete gl_window_;
+    gl_window_ = nullptr;
   }
 
   void Holovibes::init_capture(unsigned int buffer_nb_elts)
