@@ -20,8 +20,8 @@ void fft1_lens(
 }
 
 void fft_1(
-  cufftComplex* input_buffer,
-  unsigned short *result_buffer,
+  cufftComplex* input,
+  unsigned short *output,
   holovibes::Queue& q,
   cufftComplex *lens,
   cufftHandle plan,
@@ -39,11 +39,11 @@ void fft_1(
     blocks = get_max_blocks();
 
   // Apply lens
-  apply_quadratic_lens <<<blocks, threads>>>(input_buffer, pixel_size, lens, q.get_pixels());
+  kernel_apply_lens <<<blocks, threads>>>(input, pixel_size, lens, q.get_pixels());
 
   // FFT
-  cufftExecC2C(plan, input_buffer, input_buffer, CUFFT_FORWARD);
+  cufftExecC2C(plan, input, input, CUFFT_FORWARD);
 
   // Complex --> real (unsigned short)
-  complex_2_module <<<blocks, threads>>>(input_buffer, result_buffer, pixel_size);
+  complex_to_modulus(input, output, pixel_size);
 }

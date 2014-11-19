@@ -40,7 +40,10 @@ __global__ void img16_to_complex(
   }
 }
 
-__global__ void complex_2_module(cufftComplex* input, unsigned short* output, int size)
+static __global__ void kernel_complex_to_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -57,7 +60,24 @@ __global__ void complex_2_module(cufftComplex* input, unsigned short* output, in
   }
 }
 
-__global__ void complex_2_squared_magnitude(cufftComplex* input, unsigned short* output, int size)
+void complex_to_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_complex_to_modulus<<<blocks, threads>>>(input, output, size);
+}
+
+static __global__ void kernel_complex_to_squared_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -74,7 +94,24 @@ __global__ void complex_2_squared_magnitude(cufftComplex* input, unsigned short*
   }
 }
 
-__global__ void complex_2_argument(cufftComplex* input, unsigned short* output, int size)
+void complex_to_squared_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_complex_to_squared_modulus<<<blocks, threads>>>(input, output, size);
+}
+
+static __global__ void kernel_complex_to_argument(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   float pi_div_2 = M_PI / 2.0f;
@@ -93,7 +130,25 @@ __global__ void complex_2_argument(cufftComplex* input, unsigned short* output, 
   }
 }
 
-__global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftComplex *lens, int lens_size)
+void complex_to_argument(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_complex_to_argument<<<blocks, threads>>>(input, output, size);
+}
+
+__global__ void kernel_apply_lens(
+  cufftComplex *input,
+  unsigned int input_size,
+  cufftComplex *lens,
+  unsigned int lens_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -105,7 +160,10 @@ __global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftC
   }
 }
 
-__global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x, unsigned int size_y)
+static __global__ void kernel_shift_corners(
+  unsigned short* input,
+  unsigned int size_x,
+  unsigned int size_y)
 {
   unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -138,7 +196,10 @@ __global__ void kernel_shift_corners(unsigned short* input, unsigned int size_x,
   }
 }
 
-void shift_corners(unsigned short* input, int size_x, int size_y)
+void shift_corners(
+  unsigned short* input,
+  unsigned int size_x,
+  unsigned int size_y)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
@@ -147,7 +208,10 @@ void shift_corners(unsigned short* input, int size_x, int size_y)
   kernel_shift_corners <<< lblocks, lthreads >>>(input, size_x, size_y);
 }
 
-__global__ void kernel_endianness_conversion(unsigned short* input, unsigned short* output, size_t size)
+static __global__ void kernel_endianness_conversion(
+  unsigned short* input,
+  unsigned short* output,
+  size_t size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -159,18 +223,10 @@ __global__ void kernel_endianness_conversion(unsigned short* input, unsigned sho
   }
 }
 
-__global__ void divide(cufftComplex* image, int size_x, int size_y, int nbimages)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size_x * size_y)
-  {
-    image[index].x = image[index].x / ((float)nbimages * (float)size_x * (float)size_y);
-    image[index].y = image[index].y / ((float)nbimages * (float)size_x * (float)size_y);
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-void endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size)
+void endianness_conversion(
+  unsigned short* input,
+  unsigned short* output,
+  unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int max_blocks = get_max_blocks();
@@ -180,4 +236,19 @@ void endianness_conversion(unsigned short* input, unsigned short* output, unsign
     blocks = max_blocks - 1;
 
   kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
+}
+
+__global__ void kernel_divide(
+  cufftComplex* image,
+  unsigned int size_x,
+  unsigned int size_y,
+  unsigned int nbimages)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size_x * size_y)
+  {
+    image[index].x = image[index].x / ((float)nbimages * (float)size_x * (float)size_y);
+    image[index].y = image[index].y / ((float)nbimages * (float)size_x * (float)size_y);
+    index += blockDim.x * gridDim.x;
+  }
 }
