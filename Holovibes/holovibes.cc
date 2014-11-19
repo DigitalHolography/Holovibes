@@ -16,8 +16,6 @@ namespace holovibes
     : camera_(nullptr)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
-    , gl_window_(nullptr)
-    , gl_widget_(nullptr)
     , recorder_(nullptr)
     , input_(nullptr)
     , output_(nullptr)
@@ -43,7 +41,6 @@ namespace holovibes
   {
     delete tcompute_;
     delete tcapture_;
-    delete gl_window_;
     delete camera_;
     delete input_;
     delete output_;
@@ -53,14 +50,10 @@ namespace holovibes
     unsigned int width,
     unsigned int height)
   {
-    gl_window_ = new gui::GuiGLWindow(width, height, *input_);
-    gl_window_->show();
   }
 
   void Holovibes::dispose_display()
   {
-    delete gl_window_;
-    gl_window_ = nullptr;
   }
 
   void Holovibes::init_capture(unsigned int buffer_nb_elts)

@@ -29,7 +29,6 @@ int main(int argc, char* argv[])
   QApplication a(argc, argv);
   gui::MainWindow w(h);
   w.show();
-  h.init_display(512, 512);
   h.get_compute_desc().register_observer(w);
 
   return a.exec();

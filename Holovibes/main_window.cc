@@ -5,7 +5,8 @@ namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
     : QMainWindow(parent),
-    holovibes_(holovibes)
+    holovibes_(holovibes),
+    gl_window_(nullptr)
   {
     ui.setupUi(this);
 
@@ -21,12 +22,15 @@ namespace gui
     holovibes_.set_compute_desc(cd);
     holovibes_.init_compute();
 
+    gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_output_queue(), this);
+
     // Display default values
     notify();
   }
 
   MainWindow::~MainWindow()
   {
+    delete gl_window_;
   }
 
   void MainWindow::notify()
@@ -57,8 +61,18 @@ namespace gui
 
   void MainWindow::set_image_mode(bool value)
   {
+    holovibes_.dispose_compute();
 
-    print_parameter("image mode", value);
+    delete gl_window_;
+
+    // If direct mode
+    if (value)
+      gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_capture_queue(), this);
+    else
+    {
+      holovibes_.init_compute();
+      gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_output_queue(), this);
+    }
   }
 
   void  MainWindow::set_phase_number(int value)

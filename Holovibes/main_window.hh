@@ -9,6 +9,7 @@
 # include "pipeline.hh"
 # include "compute_descriptor.hh"
 # include "observer.hh"
+# include "gui_gl_window.hh"
 
 namespace gui
 {
@@ -50,6 +51,7 @@ namespace gui
   private:
     Ui::MainWindow ui;
     holovibes::Holovibes& holovibes_;
+    GuiGLWindow* gl_window_;
 
     //Debug
     template <typename T>

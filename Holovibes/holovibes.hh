@@ -68,8 +68,6 @@ namespace holovibes
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
     ThreadCompute* tcompute_;
-    gui::GuiGLWindow* gl_window_;
-    gui::GLWidget* gl_widget_;
     Recorder* recorder_;
 
     Queue* input_;
