@@ -40,7 +40,7 @@ namespace holovibes
       glw.wnd_msgs_handler();
       GLComponent& gl = glw.get_gl_component();
 
-      void* frame = queue_.get_last_images(1);
+      const void* frame = queue_.get_last_images(1);
 
       gl.gl_draw(frame);
       std::this_thread::sleep_for(

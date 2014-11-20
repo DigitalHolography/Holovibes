@@ -33,6 +33,7 @@ namespace gui
     void set_algorithm(QString value);
 
     // View
+    void set_view_mode(QString value);
     void set_auto_contrast();
     void set_contrast_min(double value);
     void set_contrast_max(double value);

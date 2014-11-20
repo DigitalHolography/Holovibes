@@ -40,6 +40,25 @@ namespace holovibes
       , vibrometry_p(0)
     {}
 
+    ComputeDescriptor& operator=(const ComputeDescriptor& cd)
+    {
+      algorithm = cd.algorithm.load();
+      nsamples = cd.nsamples.load();
+      pindex = cd.pindex.load();
+      lambda = cd.lambda.load();
+      zdistance = cd.zdistance.load();
+      view_mode = cd.view_mode.load();
+      log_scale_enabled = cd.log_scale_enabled.load();
+      shift_corners_enabled = cd.shift_corners_enabled.load();
+      contrast_enabled = cd.contrast_enabled.load();
+      contrast_min = cd.contrast_min.load();
+      contrast_max = cd.contrast_max.load();
+      vibrometry_p = cd.vibrometry_p.load();
+      vibrometry_q = cd.vibrometry_q.load();
+
+      return *this;
+    }
+
     std::atomic<enum fft_algorithm> algorithm;
     /*! Number of samples in which apply the fft on. */
     std::atomic<unsigned int> nsamples;

@@ -903,8 +903,8 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>345</x>
-     <y>77</y>
+     <x>350</x>
+     <y>163</y>
     </hint>
     <hint type="destinationlabel">
      <x>-50</x>
@@ -919,8 +919,8 @@
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>117</y>
+     <x>341</x>
+     <y>203</y>
     </hint>
     <hint type="destinationlabel">
      <x>-26</x>
@@ -935,8 +935,8 @@
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>145</y>
+     <x>341</x>
+     <y>233</y>
     </hint>
     <hint type="destinationlabel">
      <x>-89</x>
@@ -951,8 +951,8 @@
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>282</x>
-     <y>169</y>
+     <x>330</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>-48</x>
@@ -967,8 +967,8 @@
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>204</y>
+     <x>350</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -1031,7 +1031,7 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>843</x>
+     <x>818</x>
      <y>223</y>
     </hint>
     <hint type="destinationlabel">
@@ -1056,6 +1056,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboBox_2</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_view_mode(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>301</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>306</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1074,5 +1090,6 @@
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
   <slot>browse_file()</slot>
+  <slot>set_view_mode(QString)</slot>
  </slots>
 </ui>

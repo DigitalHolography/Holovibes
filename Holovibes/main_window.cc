@@ -22,7 +22,7 @@ namespace gui
     holovibes_.set_compute_desc(cd);
     holovibes_.init_compute();
 
-    gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_output_queue(), this);
+    gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
 
     // Display default values
     notify();
@@ -62,16 +62,16 @@ namespace gui
   void MainWindow::set_image_mode(bool value)
   {
     holovibes_.dispose_compute();
-
+    QPoint old_pos = gl_window_->pos();
     delete gl_window_;
 
     // If direct mode
     if (value)
-      gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_capture_queue(), this);
+      gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_capture_queue(), this);
     else
     {
       holovibes_.init_compute();
-      gl_window_ = new GuiGLWindow(512, 512, holovibes_.get_output_queue(), this);
+      gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_output_queue(), this);
     }
   }
 
@@ -113,7 +113,32 @@ namespace gui
 
   void  MainWindow::set_algorithm(QString value)
   {
-    print_parameter("p", qPrintable(value));
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    if (value == "1FFT")
+      cd.algorithm = holovibes::ComputeDescriptor::FFT1;
+    else if (value == "2FFT")
+      cd.algorithm = holovibes::ComputeDescriptor::FFT2;
+
+    pipeline.request_refresh();
+  }
+
+  void MainWindow::set_view_mode(QString value)
+  {
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    if (value == "magnitude")
+      cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+    else if (value == "squared magnitude")
+      cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+    else if (value == "argument")
+      cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+    else
+      cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+
+    pipeline.request_refresh();
   }
 
   void MainWindow::set_auto_contrast()

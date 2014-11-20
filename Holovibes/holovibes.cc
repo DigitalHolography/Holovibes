@@ -76,11 +76,6 @@ namespace holovibes
     input_ = nullptr;
   }
 
-  Queue& Holovibes::get_capture_queue()
-  {
-    return *input_;
-  }
-
   void Holovibes::init_recorder(
     std::string& filepath,
     unsigned int rec_n_images)

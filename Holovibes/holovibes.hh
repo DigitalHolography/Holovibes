@@ -33,7 +33,12 @@ namespace holovibes
 
     void init_capture(unsigned int buffer_nb_elts);
     void dispose_capture();
-    Queue& get_capture_queue();
+
+    Queue& get_capture_queue()
+    {
+      return *input_;
+    }
+
     Queue& get_output_queue()
     {
       return *output_;

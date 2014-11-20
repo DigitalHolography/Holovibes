@@ -13,9 +13,10 @@ namespace gui
     Q_OBJECT
 
   public:
-    GuiGLWindow(unsigned int width,
+    GuiGLWindow(QPoint& pos,
+      unsigned int width,
       unsigned int height,
-      holovibes::Queue&,
+      holovibes::Queue& queue,
       QWidget* parent = 0);
     ~GuiGLWindow();
 

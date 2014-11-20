@@ -3,7 +3,8 @@
 
 namespace gui
 {
-      GuiGLWindow::GuiGLWindow(unsigned int width,
+      GuiGLWindow::GuiGLWindow(QPoint& pos,
+      unsigned int width,
       unsigned int height,
       holovibes::Queue& queue,
       QWidget* parent)
@@ -11,6 +12,7 @@ namespace gui
     gl_widget_(nullptr)
   {
     ui.setupUi(this);
+    this->move(pos);
     this->show();
     gl_widget_ = new GLWidget(queue, width, height, this);
     gl_widget_->show();
