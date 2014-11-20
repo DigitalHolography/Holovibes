@@ -50,7 +50,7 @@ namespace camera
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
       throw CameraException(name_, CameraException::CANT_GET_FRAME);
 
-#if _DEBUG
+#if 0
     printf("[FRAME][NEW] %dx%d - %u\n",
       frame_.width,
       frame_.height,

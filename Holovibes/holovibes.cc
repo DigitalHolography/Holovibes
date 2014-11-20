@@ -118,7 +118,6 @@ namespace holovibes
     std::mutex mutex;
     std::unique_lock<std::mutex> lck(mutex);
 
-
     std::cout << "Pipeline is initializing ";
     while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
       std::cout << ".";

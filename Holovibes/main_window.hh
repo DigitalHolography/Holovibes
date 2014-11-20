@@ -53,6 +53,7 @@ namespace gui
     Ui::MainWindow ui;
     holovibes::Holovibes& holovibes_;
     GuiGLWindow* gl_window_;
+    bool is_direct_mode_;
 
     //Debug
     template <typename T>
