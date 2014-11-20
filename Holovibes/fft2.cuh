@@ -9,14 +9,21 @@ void fft2_lens(
   const camera::FrameDescriptor& fd,
   float lambda,
   float z);
+
+/*! FFT2 takes input complex buffer and computes a p frame that is stored
+ * at output pointer. The output pointer can be another complex buffer or the
+ * same as input buffer.
+ * -NOTE- It makes sense that this function should compute on all frames
+ * (not only the p-th).
+ */
 void fft_2(
-  unsigned short* result_buffer,
-  holovibes::Queue& q,
+  cufftComplex* input,
+  cufftComplex* output,
   cufftComplex *lens,
-  float *sqrt_vect,
   cufftHandle plan3d,
   cufftHandle plan2d,
-  unsigned int nbimages,
+  unsigned int frame_resolution,
+  unsigned int nframes,
   unsigned int p);
 
 #endif

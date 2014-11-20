@@ -41,9 +41,8 @@ __global__ void kernel_apply_lens(
 // TODO: Explain what this does.
 __global__ void kernel_divide(
   cufftComplex* image,
-  unsigned int size_x,
-  unsigned int size_y,
-  unsigned int nbimages);
+  unsigned int size,
+  float divider);
 void shift_corners(
   unsigned short *input,
   unsigned int size_x,

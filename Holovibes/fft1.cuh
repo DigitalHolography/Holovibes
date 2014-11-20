@@ -12,11 +12,10 @@ void fft1_lens(
   float lambda,
   float z);
 void fft_1(
-  cufftComplex* input_buffer,
-  unsigned short *result_buffer,
-  holovibes::Queue& q,
-  cufftComplex *lens,
+  cufftComplex* input,
+  cufftComplex* lens,
   cufftHandle plan,
-  unsigned int nbimages);
+  unsigned int frame_resolution,
+  unsigned int nframes);
 
 #endif /* !FFT1_CUH */

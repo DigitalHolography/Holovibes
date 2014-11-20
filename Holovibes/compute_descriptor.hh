@@ -30,7 +30,7 @@ namespace holovibes
       , pindex(0)
       , lambda(0.0f)
       , zdistance(0.0f)
-      , view_mode(SQUARED_MODULUS)
+      , view_mode(MODULUS)
       , log_scale_enabled(false)
       , shift_corners_enabled(false)
       , contrast_enabled(false)

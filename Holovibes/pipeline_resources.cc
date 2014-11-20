@@ -20,6 +20,7 @@ namespace holovibes
     , plan2d_(0)
     , gpu_lens_(nullptr)
     , gpu_input_buffer_(nullptr)
+    , gpu_input_frame_(nullptr)
     , gpu_output_frame_(nullptr)
   {
     assert(n != 0 && "n parameter can not be 0");

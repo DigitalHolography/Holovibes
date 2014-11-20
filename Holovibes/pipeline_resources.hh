@@ -51,6 +51,14 @@ namespace holovibes
     {
       return gpu_input_buffer_;
     }
+    cufftComplex* get_input_frame_ptr()
+    {
+      return gpu_input_frame_;
+    }
+    void set_input_frame_ptr(cufftComplex* ptr)
+    {
+      gpu_input_frame_ = ptr;
+    }
     unsigned short* get_output_frame_ptr()
     {
       return gpu_output_frame_;
@@ -103,6 +111,8 @@ namespace holovibes
     /*! cufftComplex array containing n contiguous frames. */
     cufftComplex* gpu_input_buffer_;
 
+    /*! Input frame pointer. */
+    cufftComplex* gpu_input_frame_;
     /*! Output frame pointer. */
     unsigned short* gpu_output_frame_;
   };

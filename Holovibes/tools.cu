@@ -240,15 +240,14 @@ void endianness_conversion(
 
 __global__ void kernel_divide(
   cufftComplex* image,
-  unsigned int size_x,
-  unsigned int size_y,
-  unsigned int nbimages)
+  unsigned int size,
+  float divider)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size_x * size_y)
+  while (index < size)
   {
-    image[index].x = image[index].x / ((float)nbimages * (float)size_x * (float)size_y);
-    image[index].y = image[index].y / ((float)nbimages * (float)size_x * (float)size_y);
+    image[index].x = image[index].x / divider;
+    image[index].y = image[index].y / divider;
     index += blockDim.x * gridDim.x;
   }
 }

@@ -62,14 +62,13 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         fft_1,
         res_.get_input_buffer(),
-        res_.get_output_buffer(),
-        std::ref(res_.get_input_queue()),
         res_.get_lens(),
         res_.get_plan3d(),
+        input_fd.frame_res(),
         compute_desc_.nsamples.load()));
 
-      res_.set_output_frame_ptr(
-        res_.get_output_buffer() + compute_desc_.pindex * output_fd.frame_res());
+      res_.set_input_frame_ptr(
+        res_.get_input_buffer() + compute_desc_.pindex * input_fd.frame_res());
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
@@ -78,6 +77,50 @@ namespace holovibes
         input_fd,
         compute_desc_.lambda,
         compute_desc_.zdistance);
+
+      res_.set_input_frame_ptr(
+        res_.get_input_buffer() + compute_desc_.pindex * input_fd.frame_res());
+
+      fn_vect_.push_back(std::bind(
+        fft_2,
+        res_.get_input_buffer(),
+        res_.get_input_frame_ptr(),
+        res_.get_lens(),
+        res_.get_plan3d(),
+        res_.get_plan2d(),
+        input_fd.frame_res(),
+        compute_desc_.nsamples.load(),
+        compute_desc_.pindex.load()));
+    }
+    else
+      assert(!"Impossible case.");
+
+    res_.set_output_frame_ptr(res_.get_output_buffer());
+
+    /* Apply conversion to unsigned short. */
+    if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_modulus,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_squared_modulus,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_argument,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
     }
     else
       assert(!"Impossible case.");
