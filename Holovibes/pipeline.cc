@@ -5,6 +5,7 @@
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "tools.cuh"
+#include "preprocessing.cuh"
 
 namespace holovibes
 {
@@ -40,6 +41,14 @@ namespace holovibes
       res_.update_n_parameter(compute_desc_.nsamples);
     }
 
+    // Fill input complex buffer.
+    fn_vect_.push_back(std::bind(
+      make_contiguous_complex,
+      std::ref(res_.get_input_queue()),
+      res_.get_input_buffer(),
+      compute_desc_.nsamples.load(),
+      res_.get_sqrt_vector()));
+
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       // Initialize FFT1 lens.
@@ -52,15 +61,14 @@ namespace holovibes
       // Add FFT1.
       fn_vect_.push_back(std::bind(
         fft_1,
-        res_.get_pbuffer(),
-        std::ref(res_.get_input_queue()),
+        res_.get_input_buffer(),
         res_.get_lens(),
-        res_.get_sqrt_vector(),
         res_.get_plan3d(),
-        compute_desc_.nsamples));
+        input_fd.frame_res(),
+        compute_desc_.nsamples.load()));
 
-      res_.set_output_frame_ptr(
-        res_.get_pbuffer() + compute_desc_.pindex * output_fd.frame_res());
+      res_.set_input_frame_ptr(
+        res_.get_input_buffer() + compute_desc_.pindex * input_fd.frame_res());
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
@@ -69,6 +77,50 @@ namespace holovibes
         input_fd,
         compute_desc_.lambda,
         compute_desc_.zdistance);
+
+      res_.set_input_frame_ptr(
+        res_.get_input_buffer() + compute_desc_.pindex * input_fd.frame_res());
+
+      fn_vect_.push_back(std::bind(
+        fft_2,
+        res_.get_input_buffer(),
+        res_.get_input_frame_ptr(),
+        res_.get_lens(),
+        res_.get_plan3d(),
+        res_.get_plan2d(),
+        input_fd.frame_res(),
+        compute_desc_.nsamples.load(),
+        compute_desc_.pindex.load()));
+    }
+    else
+      assert(!"Impossible case.");
+
+    res_.set_output_frame_ptr(res_.get_output_buffer());
+
+    /* Apply conversion to unsigned short. */
+    if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_modulus,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_squared_modulus,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_argument,
+        res_.get_input_frame_ptr(),
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
     }
     else
       assert(!"Impossible case.");
@@ -144,8 +196,8 @@ namespace holovibes
 
   void Pipeline::request_update_n(unsigned short n)
   {
-    compute_desc_.nsamples = n;
     update_n_requested_ = true;
+    compute_desc_.nsamples = n;
     request_refresh();
   }
 }

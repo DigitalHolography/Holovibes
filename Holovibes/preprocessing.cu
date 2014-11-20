@@ -15,62 +15,87 @@ void make_sqrt_vect(float* out, unsigned short n)
   delete[] vect;
 }
 
-cufftComplex *make_contiguous_complex(
-  holovibes::Queue& q,
-  unsigned int nbimages,
-  float *sqrt_vec)
+/* -NOTE- This function can be improved by specifying
+ * img8_to_complex or img16_to_complex in the pipeline to avoid
+ * branch conditions. But it is no big deal.
+ * Otherwise, the convert function are not called outside because
+ * this function would need an unsigned short buffer that is unused
+ * anywhere else.
+ */
+void make_contiguous_complex(
+  holovibes::Queue& input,
+  cufftComplex* output,
+  unsigned int n,
+  const float* sqrt_array)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (q.get_pixels() * nbimages + threads - 1) / threads;
+  unsigned int blocks = (input.get_pixels() * n + threads - 1) / threads;
 
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  unsigned int vec_size_pix = q.get_pixels() * nbimages;
-  size_t vec_size_byte = q.get_size() * nbimages;
-  size_t img_byte = q.get_size();
-  unsigned int contiguous_elts = 0;
+  const unsigned int frame_resolution = input.get_pixels();
+  const camera::FrameDescriptor& frame_desc = input.get_frame_desc();
 
-  cufftComplex *output;
-  cudaMalloc(&output, vec_size_pix * sizeof(cufftComplex));
-
-  if (q.get_start_index() + nbimages <= q.get_max_elts())
-    contiguous_elts = nbimages;
-  else
-    contiguous_elts = q.get_max_elts() - q.get_start_index();
-
-  if (contiguous_elts < nbimages)
+  if (input.get_start_index() + n <= input.get_max_elts())
   {
-    unsigned char *contiguous;
-    cudaMalloc(&contiguous, vec_size_byte);
-
-    // Copy contiguous elements of the end of the queue into buffer
-    if (cudaMemcpy(contiguous, q.get_start(), contiguous_elts * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
-      std::cerr << "non contiguous memcpy failed" << std::endl;
-
-    // Copy the contiguous elements left of the beginning of the queue into buffer
-    if (cudaMemcpy(contiguous + contiguous_elts * img_byte, q.get_buffer(), (nbimages - contiguous_elts) * img_byte, cudaMemcpyDeviceToDevice) != CUDA_SUCCESS)
-      std::cerr << "non contiguous memcpy failed" << std::endl;
-
-    if (q.get_frame_desc().depth > 1)
-      image_2_complex16 <<<blocks, threads >>>(output, (unsigned short*)contiguous, vec_size_pix, sqrt_vec);
-    else
-      image_2_complex8 <<<blocks, threads >>>(output, contiguous, vec_size_pix, sqrt_vec);
-
-    if (cudaFree(contiguous) != CUDA_SUCCESS)
-      std::cerr << "non contiguous free failed" << std::endl;
-  }
-  else
-  {
-    if (q.get_frame_desc().depth > 1)
+    const unsigned int n_frame_resolution = frame_resolution * n;
+    /* Contiguous case. */
+    if (frame_desc.depth > 1)
     {
-      image_2_complex16 <<<blocks, threads >>>(output, (unsigned short*)q.get_start(), vec_size_pix, sqrt_vec);
+      img16_to_complex<<<blocks, threads>>>(
+        output,
+        static_cast<unsigned short*>(input.get_start()),
+        n_frame_resolution,
+        sqrt_array);
     }
     else
     {
-      image_2_complex8 <<<blocks, threads >>>(output, (unsigned char*)q.get_start(), vec_size_pix, sqrt_vec);
+      img8_to_complex<<<blocks, threads>>>(
+        output,
+        static_cast<unsigned char*>(input.get_start()),
+        n_frame_resolution,
+        sqrt_array);
     }
   }
+  else
+  {
+    const unsigned int contiguous_elts = input.get_max_elts() - input.get_start_index();
+    const unsigned int contiguous_elts_res = frame_resolution * contiguous_elts;
+    const unsigned int left_elts = n - contiguous_elts;
+    const unsigned int left_elts_res = frame_resolution * left_elts;
 
-  return output;
+    if (frame_desc.depth > 1)
+    {
+      // Convert contiguous elements (at the end of the queue).
+      img16_to_complex<<<blocks, threads>>>(
+        output,
+        static_cast<unsigned short*>(input.get_start()),
+        contiguous_elts_res,
+        sqrt_array);
+
+      // Convert the contiguous elements left (at the beginning of queue).
+      img16_to_complex<<<blocks, threads>>>(
+        output + contiguous_elts_res,
+        static_cast<unsigned short*>(input.get_buffer()),
+        left_elts_res,
+        sqrt_array);
+    }
+    else
+    {
+      // Convert contiguous elements (at the end of the queue).
+      img8_to_complex<<<blocks, threads>>>(
+        output,
+        static_cast<unsigned char*>(input.get_start()),
+        contiguous_elts_res,
+        sqrt_array);
+
+      // Convert the contiguous elements left (at the beginning of queue).
+      img8_to_complex<<<blocks, threads>>>(
+        output + contiguous_elts_res,
+        static_cast<unsigned char*>(input.get_buffer()),
+        left_elts_res,
+        sqrt_array);
+    }
+  }
 }

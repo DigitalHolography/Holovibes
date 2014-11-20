@@ -15,26 +15,31 @@ namespace holovibes
     : input_(input)
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
-    , gpu_pbuffer_(nullptr)
+    , gpu_output_buffer_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , gpu_lens_(nullptr)
+    , gpu_input_buffer_(nullptr)
+    , gpu_input_frame_(nullptr)
     , gpu_output_frame_(nullptr)
   {
+    assert(n != 0 && "n parameter can not be 0");
     new_gpu_sqrt_vector(sqrt_vector_size);
-    new_gpu_pbuffer(n);
+    new_gpu_output_buffer(n);
     new_plan3d(n);
     new_plan2d();
     new_gpu_lens();
+    new_gpu_input_buffer(n);
   }
 
   PipelineResources::~PipelineResources()
   {
     delete_gpu_sqrt_vector();
-    delete_gpu_pbuffer();
+    delete_gpu_output_buffer();
     delete_plan3d();
     delete_plan2d();
     delete_gpu_lens();
+    delete_gpu_input_buffer();
   }
 
   /* Public methods */
@@ -42,10 +47,12 @@ namespace holovibes
   void PipelineResources::update_n_parameter(unsigned short n)
   {
     assert(n != 0 && "n must be strictly positive");
-    delete_gpu_pbuffer();
+    delete_gpu_output_buffer();
+    new_gpu_output_buffer(n);
     delete_plan3d();
-    new_gpu_pbuffer(n);
     new_plan3d(n);
+    delete_gpu_input_buffer();
+    new_gpu_input_buffer(n);
   }
 
   /* Private methods */
@@ -61,15 +68,15 @@ namespace holovibes
     cudaFree(gpu_sqrt_vector_);
   }
 
-  void PipelineResources::new_gpu_pbuffer(unsigned short n)
+  void PipelineResources::new_gpu_output_buffer(unsigned short n)
   {
-    assert(cudaMalloc/*<unsigned short>*/(&gpu_pbuffer_,
-      sizeof(unsigned short) * input_.get_pixels() * n) == CUDA_SUCCESS);
+    cudaMalloc<unsigned short>(&gpu_output_buffer_,
+      sizeof(unsigned short) * input_.get_pixels() * n);
   }
 
-  void PipelineResources::delete_gpu_pbuffer()
+  void PipelineResources::delete_gpu_output_buffer()
   {
-    cudaFree(gpu_pbuffer_);
+    cudaFree(gpu_output_buffer_);
   }
 
   void PipelineResources::new_plan3d(unsigned short n)
@@ -110,5 +117,16 @@ namespace holovibes
   void PipelineResources::delete_gpu_lens()
   {
     cudaFree(gpu_lens_);
+  }
+
+  void PipelineResources::new_gpu_input_buffer(unsigned short n)
+  {
+    cudaMalloc<cufftComplex>(&gpu_input_buffer_,
+      sizeof(cufftComplex) * input_.get_pixels() * n);
+  }
+
+  void PipelineResources::delete_gpu_input_buffer()
+  {
+    cudaFree(gpu_input_buffer_);
   }
 }

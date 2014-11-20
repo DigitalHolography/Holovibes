@@ -1,5 +1,5 @@
-#ifndef TOOLS_CUH_
-# define TOOLS_CUH_
+#ifndef TOOLS_CUH
+# define TOOLS_CUH
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -11,14 +11,45 @@
 #include <math.h>
 
 // CONVERSION FUNCTIONS
-__global__ void image_2_complex8(cufftComplex* res, unsigned char* data, int size, float *sqrt_tab);
-__global__ void image_2_complex16(cufftComplex* res, unsigned short* data, int size, float *sqrt_tab);
-__global__ void complex_2_module(cufftComplex* input, unsigned short* output, int size);
-__global__ void complex_2_squared_magnitude(cufftComplex* input, unsigned short* output, int size);
-__global__ void complex_2_argument(cufftComplex* input, unsigned short* output, int size);
-__global__ void apply_quadratic_lens(cufftComplex *input, int input_size, cufftComplex *lens, int lens_size);
-__global__ void divide(cufftComplex* image, int size_x, int size_y, int nbimages);
-void shift_corners(unsigned short *input, int size_x, int size_y);
-void endianness_conversion(unsigned short* input, unsigned short* output, unsigned int size);
+__global__ void img8_to_complex(
+  cufftComplex* output,
+  unsigned char* input,
+  unsigned int size,
+  const float* sqrt_array);
+__global__ void img16_to_complex(
+  cufftComplex* output,
+  unsigned short* input,
+  unsigned int size,
+  const float* sqrt_array);
+void complex_to_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size);
+void complex_to_squared_modulus(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size);
+void complex_to_argument(
+  cufftComplex* input,
+  unsigned short* output,
+  unsigned int size);
+__global__ void kernel_apply_lens(
+  cufftComplex *input,
+  unsigned int input_size,
+  cufftComplex *lens,
+  unsigned int lens_size);
+// TODO: Explain what this does.
+__global__ void kernel_divide(
+  cufftComplex* image,
+  unsigned int size,
+  float divider);
+void shift_corners(
+  unsigned short *input,
+  unsigned int size_x,
+  unsigned int size_y);
+void endianness_conversion(
+  unsigned short* input,
+  unsigned short* output,
+  unsigned int size);
 
-#endif /* !TOOLS_CUH_ */
+#endif /* !TOOLS_CUH */
