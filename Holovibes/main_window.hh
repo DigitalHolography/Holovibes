@@ -45,7 +45,6 @@ namespace gui
     void set_q_vibro(int value);
 
     // Record
-    void set_number_of_frames(int value);
     void browse_file();
     void set_record();
 

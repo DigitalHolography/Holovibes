@@ -327,6 +327,9 @@
           <height>21</height>
          </rect>
         </property>
+        <property name="maximum">
+         <number>1000000</number>
+        </property>
        </widget>
        <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
@@ -1005,22 +1008,6 @@
     <hint type="destinationlabel">
      <x>580</x>
      <y>-28</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>numberOfFramesSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_number_of_frames(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>815</x>
-     <y>72</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>785</x>
-     <y>-20</y>
     </hint>
    </hints>
   </connection>

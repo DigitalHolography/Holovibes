@@ -165,17 +165,31 @@ namespace gui
 
   void MainWindow::set_auto_contrast()
   {
-    print_parameter("auto contrast", "enabled");
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      pipeline.request_autocontrast();
+    }
   }
 
   void MainWindow::set_contrast_min(double value)
   {
-    print_parameter("contrast min", value);
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes_.get_compute_desc().contrast_min = value;
+      pipeline.request_refresh();
+    }
   }
 
   void MainWindow::set_contrast_max(double value)
   {
-    print_parameter("contrast max", value);
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes_.get_compute_desc().contrast_max = value;
+      pipeline.request_refresh();
+    }
   }
 
   void MainWindow::set_log_scale(bool value)
@@ -201,17 +215,22 @@ namespace gui
 
   void MainWindow::set_p_vibro(int value)
   {
-    print_parameter("p vibrometry", value);
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes_.get_compute_desc().vibrometry_p = value;
+      pipeline.request_refresh();
+    }
   }
 
   void MainWindow::set_q_vibro(int value)
   {
-    print_parameter("q vibrometry", value);
-  }
-
-  void MainWindow::set_number_of_frames(int value)
-  {
-    print_parameter("number of frames", value);
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes_.get_compute_desc().vibrometry_q = value;
+      pipeline.request_refresh();
+    }
   }
 
   void MainWindow::browse_file()
