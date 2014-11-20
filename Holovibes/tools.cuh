@@ -51,5 +51,8 @@ void endianness_conversion(
   unsigned short* input,
   unsigned short* output,
   unsigned int size);
+void apply_log10(
+  unsigned short* input,
+  unsigned int size);
 
 #endif /* !TOOLS_CUH */
