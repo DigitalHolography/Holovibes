@@ -5,6 +5,7 @@
     <ProjectLibDir>$(ProjectDir)lib</ProjectLibDir>
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
     <GlewLib>C:\glew-1.11.0</GlewLib>
+    <QTDIR>C:\Qt\Qt5.3.2\5.3\msvc2013_64_opengl</QTDIR>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -20,6 +21,9 @@
     <BuildMacro Include="GlewLib">
       <Value>$(GlewLib)</Value>
       <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+    <BuildMacro Include="QTDIR">
+      <Value>$(QTDIR)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
