@@ -158,7 +158,10 @@ namespace gui
 
   void MainWindow::set_log_scale(bool value)
   {
-    print_parameter("log scale", value);
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    cd.log_scale_enabled = value;
+    pipeline.request_refresh();
   }
 
   void MainWindow::set_shifted_corners(bool value)

@@ -22,7 +22,7 @@
 int main(int argc, char* argv[])
 {
   // Holovibes object
-  holovibes::Holovibes h(holovibes::Holovibes::camera_type::PIXELFLY);
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::XIQ);
   h.init_capture(20);
 
   // GUI
