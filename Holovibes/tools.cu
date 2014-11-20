@@ -251,3 +251,37 @@ __global__ void kernel_divide(
     index += blockDim.x * gridDim.x;
   }
 }
+
+__global__ void kernel_log10(
+  unsigned short* input,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  const float scale = 65535.0f / log10f(65535.0f);
+
+  while (index < size)
+  {
+    float value = log10f(input[index]) * scale;
+
+    if (value > 65535.0f)
+      input[index] = 65535;
+    else
+      input[index] = value;
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void apply_log10(
+  unsigned short* input,
+  unsigned int size)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_log10<<<blocks, threads>>>(input, size);
+}

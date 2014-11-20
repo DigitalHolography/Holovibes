@@ -127,6 +127,14 @@ namespace holovibes
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
+    if (compute_desc_.log_scale_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        apply_log10,
+        res_.get_output_frame_ptr(),
+        input_fd.frame_res()));
+    }
+
     if (compute_desc_.shift_corners_enabled)
     {
       fn_vect_.push_back(std::bind(
