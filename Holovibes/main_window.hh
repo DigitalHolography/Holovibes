@@ -29,6 +29,8 @@ namespace gui
     void set_image_mode(bool value);
     void set_phase_number(int value);
     void set_p(int value);
+    void increment_p();
+    void decrement_p();
     void set_wavelength(double value);
     void set_z(double value);
     void increment_z();
@@ -67,6 +69,8 @@ namespace gui
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
+    QShortcut* p_left_shortcut_;
+    QShortcut* p_right_shortcut_;
   };
 }
 

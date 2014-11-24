@@ -33,6 +33,12 @@ namespace gui
     z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
     connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
 
+    p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
+    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
+
+    p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
+    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+
     if (is_direct_mode_)
       disable();
 
@@ -69,6 +75,12 @@ namespace gui
       algorithm->setCurrentIndex(1);
     else
       algorithm->setCurrentIndex(0);
+
+    QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+    p_vibro->setValue(cd.vibrometry_p);
+
+    QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
+    q_vibro->setValue(cd.vibrometry_q);
   }
 
   void MainWindow::set_image_mode(bool value)
@@ -118,10 +130,45 @@ namespace gui
         p_vibro->setValue(value);
 
         cd.pindex = value;
+        cd.vibrometry_p = value;
         pipeline.request_refresh();
       }
       else
         std::cout << "p param has to be between 0 and n" << "\n";
+    }
+  }
+
+  void MainWindow::increment_p()
+  {
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (cd.pindex < cd.nsamples - 1)
+      {
+        cd.pindex++;
+        cd.vibrometry_p++;
+        notify();
+        pipeline.request_refresh();
+      }
+    }
+  }
+
+  void MainWindow::decrement_p()
+  {
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (cd.pindex > 0)
+      {
+        cd.pindex--;
+        cd.vibrometry_p--;
+        notify();
+        pipeline.request_refresh();
+      }
     }
   }
 
@@ -149,18 +196,24 @@ namespace gui
 
   void MainWindow::increment_z()
   {
-    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-    set_z(cd.zdistance + Z_STEP);
-    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
-    z->setValue(cd.zdistance);
+    if (!is_direct_mode_)
+    {
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+      set_z(cd.zdistance + Z_STEP);
+      QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+      z->setValue(cd.zdistance);
+    }
   }
 
   void MainWindow::decrement_z()
   {
-    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-    set_z(cd.zdistance - Z_STEP);
-    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
-    z->setValue(cd.zdistance);
+    if (!is_direct_mode_)
+    {
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+      set_z(cd.zdistance - Z_STEP);
+      QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+      z->setValue(cd.zdistance);
+    }
   }
 
   void  MainWindow::set_algorithm(QString value)
