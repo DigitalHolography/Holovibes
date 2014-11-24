@@ -4,6 +4,7 @@
 # include <thread>
 # include <QMainWindow>
 # include <QFileDialog>
+# include <QShortcut>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -30,6 +31,8 @@ namespace gui
     void set_p(int value);
     void set_wavelength(double value);
     void set_z(double value);
+    void increment_z();
+    void decrement_z();
     void set_algorithm(QString value);
 
     // View
@@ -49,17 +52,21 @@ namespace gui
     void set_record();
 
   private:
-    Ui::MainWindow ui;
-    holovibes::Holovibes& holovibes_;
-    GuiGLWindow* gl_window_;
-    bool is_direct_mode_;
-
     void enable();
     void disable();
 
     //Debug
     template <typename T>
     void print_parameter(std::string name, T value);
+
+  private:
+    Ui::MainWindow ui;
+    holovibes::Holovibes& holovibes_;
+    GuiGLWindow* gl_window_;
+    bool is_direct_mode_;
+
+    QShortcut* z_up_shortcut_;
+    QShortcut* z_down_shortcut_;
   };
 }
 

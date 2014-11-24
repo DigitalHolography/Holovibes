@@ -80,6 +80,12 @@
           <height>22</height>
          </rect>
         </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>256</number>
+        </property>
        </widget>
        <widget class="QLabel" name="PhaseNumberLabel">
         <property name="geometry">
@@ -586,7 +592,7 @@
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
-     <string>&amp;View</string>
+     <string>View</string>
     </property>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
@@ -676,21 +682,36 @@
    <property name="text">
     <string>Image rendering</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+I</string>
+   </property>
   </action>
   <action name="actionView">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>View</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+V</string>
    </property>
   </action>
   <action name="actionSpecial">
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Special</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+S</string>
    </property>
   </action>
   <action name="actionRecord">
@@ -703,10 +724,16 @@
    <property name="text">
     <string>Record</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+R</string>
+   </property>
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>

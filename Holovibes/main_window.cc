@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "main_window.hh"
 
+# define Z_STEP 0.01
+
 namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
@@ -24,6 +26,13 @@ namespace gui
 
     gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
     
+    // Keyboard shortcuts
+    z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
+    connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
+
+    z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
+    connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
+
     if (is_direct_mode_)
       disable();
 
@@ -136,6 +145,22 @@ namespace gui
       cd.zdistance = static_cast<float>(value);
       pipeline.request_refresh();
     }
+  }
+
+  void MainWindow::increment_z()
+  {
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    set_z(cd.zdistance + Z_STEP);
+    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+    z->setValue(cd.zdistance);
+  }
+
+  void MainWindow::decrement_z()
+  {
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    set_z(cd.zdistance - Z_STEP);
+    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+    z->setValue(cd.zdistance);
   }
 
   void  MainWindow::set_algorithm(QString value)
