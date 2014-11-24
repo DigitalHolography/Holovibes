@@ -54,6 +54,9 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
 
+    void enable();
+    void disable();
+
     //Debug
     template <typename T>
     void print_parameter(std::string name, T value);

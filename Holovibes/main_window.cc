@@ -23,6 +23,9 @@ namespace gui
     holovibes_.set_compute_desc(cd);
 
     gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
+    
+    if (is_direct_mode_)
+      disable();
 
     // Display default values
     notify();
@@ -70,12 +73,16 @@ namespace gui
     {
       gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_capture_queue(), this);
       is_direct_mode_ = true;
+
+      disable();
     }
     else
     {
       holovibes_.init_compute();
       gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_output_queue(), this);
       is_direct_mode_ = false;
+
+      enable();
     }
   }
 
@@ -259,6 +266,9 @@ namespace gui
 
   void MainWindow::set_record()
   {
+    if (!is_direct_mode_)
+      disable();
+
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
     int nb_of_frames = nb_of_frames_spinbox->value();
@@ -266,6 +276,87 @@ namespace gui
 
     holovibes_.init_recorder(path, nb_of_frames);
     holovibes_.dispose_recorder();
+
+    if (!is_direct_mode_)
+      enable();
+  }
+
+  void MainWindow::enable()
+  {
+    GroupBox* view = findChild<GroupBox*>("View");
+    view->setDisabled(false);
+
+    GroupBox* special = findChild<GroupBox*>("Vibrometry");
+    special->setDisabled(false);
+
+    QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
+    phase_number_label->setDisabled(false);
+
+    QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
+    phase_nb->setDisabled(false);
+
+    QLabel* p_label = findChild<QLabel*>("pLabel");
+    p_label->setDisabled(false);
+
+    QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+    p->setDisabled(false);
+
+    QLabel* wavelength_label = findChild<QLabel*>("wavelengthLabel");
+    wavelength_label->setDisabled(false);
+
+    QDoubleSpinBox* wavelength = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
+    wavelength->setDisabled(false);
+
+    QLabel* z_label = findChild<QLabel*>("zLabel");
+    z_label->setDisabled(false);
+
+    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+    z->setDisabled(false);
+
+    QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
+    algorithm_label->setDisabled(false);
+
+    QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+    algorithm->setDisabled(false);
+  }
+
+  void MainWindow::disable()
+  {
+    GroupBox* view = findChild<GroupBox*>("View");
+    view->setDisabled(true);
+
+    GroupBox* special = findChild<GroupBox*>("Vibrometry");
+    special->setDisabled(true);
+
+    QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
+    phase_number_label->setDisabled(true);
+
+    QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
+    phase_nb->setDisabled(true);
+
+    QLabel* p_label = findChild<QLabel*>("pLabel");
+    p_label->setDisabled(true);
+
+    QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+    p->setDisabled(true);
+
+    QLabel* wavelength_label = findChild<QLabel*>("wavelengthLabel");
+    wavelength_label->setDisabled(true);
+
+    QDoubleSpinBox* wavelength = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
+    wavelength->setDisabled(true);
+
+    QLabel* z_label = findChild<QLabel*>("zLabel");
+    z_label->setDisabled(true);
+
+    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+    z->setDisabled(true);
+
+    QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
+    algorithm_label->setDisabled(true);
+
+    QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+    algorithm->setDisabled(true);
   }
 
   template <typename T>
