@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -180,7 +180,6 @@
     <ClInclude Include="options_descriptor.hh" />
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="pipeline.hh" />
-    <ClInclude Include="pipeline_resources.hh" />
     <ClInclude Include="preprocessing.cuh" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -226,7 +225,6 @@
     <ClCompile Include="main.cc" />
     <ClCompile Include="options_parser.cc" />
     <ClCompile Include="pipeline.cc" />
-    <ClCompile Include="pipeline_resources.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="stdafx.cpp">

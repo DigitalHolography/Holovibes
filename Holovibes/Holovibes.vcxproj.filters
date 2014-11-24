@@ -80,9 +80,6 @@
     <ClCompile Include="holovibes.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="loader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -137,6 +134,15 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="frame_file_loader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_main_loader_recorder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
@@ -160,9 +166,6 @@
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="fouriermanager.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gl_component.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -173,9 +176,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="holovibes.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="loader.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="options_descriptor.hh">
@@ -222,6 +222,27 @@
     </ClInclude>
     <ClInclude Include="fft2.cuh">
       <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_descriptor.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gl_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_main_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="frame_file_loader.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="observable.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="observer.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline.hh">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
