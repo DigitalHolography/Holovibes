@@ -16,6 +16,7 @@ namespace holovibes
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
     , gpu_output_buffer_(nullptr)
+    , gpu_float_buffer_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , gpu_lens_(nullptr)
@@ -25,7 +26,8 @@ namespace holovibes
   {
     assert(n != 0 && "n parameter can not be 0");
     new_gpu_sqrt_vector(sqrt_vector_size);
-    new_gpu_output_buffer(n);
+    new_gpu_output_buffer(1);
+    new_gpu_float_buffer();
     new_plan3d(n);
     new_plan2d();
     new_gpu_lens();
@@ -36,6 +38,7 @@ namespace holovibes
   {
     delete_gpu_sqrt_vector();
     delete_gpu_output_buffer();
+    delete_gpu_float_buffer();
     delete_plan3d();
     delete_plan2d();
     delete_gpu_lens();
@@ -77,6 +80,17 @@ namespace holovibes
   void PipelineResources::delete_gpu_output_buffer()
   {
     cudaFree(gpu_output_buffer_);
+  }
+
+  void PipelineResources::new_gpu_float_buffer()
+  {
+    cudaMalloc<float>(&gpu_float_buffer_,
+      sizeof(float) * input_.get_pixels());
+  }
+
+  void PipelineResources::delete_gpu_float_buffer()
+  {
+    cudaFree(gpu_float_buffer_);
   }
 
   void PipelineResources::new_plan3d(unsigned short n)

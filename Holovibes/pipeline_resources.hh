@@ -35,6 +35,10 @@ namespace holovibes
     {
       return gpu_output_buffer_;
     }
+    float* get_float_buffer()
+    {
+      return gpu_float_buffer_;
+    }
     cufftHandle get_plan3d()
     {
       return plan3d_;
@@ -80,6 +84,9 @@ namespace holovibes
     void new_gpu_output_buffer(unsigned short n);
     void delete_gpu_output_buffer();
 
+    void new_gpu_float_buffer();
+    void delete_gpu_float_buffer();
+
     void new_plan3d(unsigned short n);
     void delete_plan3d();
 
@@ -100,8 +107,10 @@ namespace holovibes
 
     /*! Vector filled with sqrtf values. */
     float* gpu_sqrt_vector_;
-    /*! Output buffer containing n frames ordered in frequency. */
+    /*! Output frame containing n frames ordered in frequency. */
     unsigned short* gpu_output_buffer_;
+    /*! Float frame */
+    float* gpu_float_buffer_;
     /*! CUDA FFT Plan 3D. */
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. */

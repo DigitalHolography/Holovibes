@@ -95,15 +95,13 @@ namespace holovibes
     else
       assert(!"Impossible case.");
 
-    res_.set_output_frame_ptr(res_.get_output_buffer());
-
     /* Apply conversion to unsigned short. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {
       fn_vect_.push_back(std::bind(
         complex_to_modulus,
         res_.get_input_frame_ptr(),
-        res_.get_output_frame_ptr(),
+        res_.get_float_buffer(),
         input_fd.frame_res()));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
@@ -111,7 +109,7 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         complex_to_squared_modulus,
         res_.get_input_frame_ptr(),
-        res_.get_output_frame_ptr(),
+        res_.get_float_buffer(),
         input_fd.frame_res()));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
@@ -119,7 +117,7 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         complex_to_argument,
         res_.get_input_frame_ptr(),
-        res_.get_output_frame_ptr(),
+        res_.get_float_buffer(),
         input_fd.frame_res()));
     }
     else
@@ -131,15 +129,21 @@ namespace holovibes
     {
       fn_vect_.push_back(std::bind(
         apply_log10,
-        res_.get_output_frame_ptr(),
+        res_.get_float_buffer(),
         input_fd.frame_res()));
     }
+
+    fn_vect_.push_back(std::bind(
+      float_to_ushort,
+      res_.get_float_buffer(),
+      res_.get_output_buffer(),
+      input_fd.frame_res()));
 
     if (compute_desc_.shift_corners_enabled)
     {
       fn_vect_.push_back(std::bind(
         shift_corners,
-        res_.get_output_frame_ptr(),
+        res_.get_output_buffer(),
         output_fd.width,
         output_fd.height));
     }
@@ -173,7 +177,7 @@ namespace holovibes
         (*cit)();
 
       res_.get_output_queue().enqueue(
-        res_.get_output_frame_ptr(),
+        res_.get_output_buffer(),
         cudaMemcpyDeviceToDevice);
       res_.get_input_queue().dequeue();
 

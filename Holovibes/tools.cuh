@@ -23,15 +23,15 @@ __global__ void img16_to_complex(
   const float* sqrt_array);
 void complex_to_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size);
 void complex_to_squared_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size);
 void complex_to_argument(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size);
 __global__ void kernel_apply_lens(
   cufftComplex *input,
@@ -52,7 +52,11 @@ void endianness_conversion(
   unsigned short* output,
   unsigned int size);
 void apply_log10(
-  unsigned short* input,
+  float* input,
+  unsigned int size);
+void float_to_ushort(
+  float* input,
+  unsigned short* output,
   unsigned int size);
 
 #endif /* !TOOLS_CUH */

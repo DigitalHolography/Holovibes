@@ -42,19 +42,14 @@ __global__ void img16_to_complex(
 
 static __global__ void kernel_complex_to_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   while (index < size)
   {
-    float m = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
-
-    if (m > 65535.0f)
-      output[index] = 65535;
-    else
-      output[index] = m;
+    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
 
     index += blockDim.x * gridDim.x;
   }
@@ -62,7 +57,7 @@ static __global__ void kernel_complex_to_modulus(
 
 void complex_to_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
@@ -76,19 +71,14 @@ void complex_to_modulus(
 
 static __global__ void kernel_complex_to_squared_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
   while (index < size)
   {
-    float m = input[index].x * input[index].x + input[index].y * input[index].y;
-
-    if (m > 65535.0f)
-      output[index] = 65535;
-    else
-      output[index] = m;
+    output[index] = input[index].x * input[index].x + input[index].y * input[index].y;
 
     index += blockDim.x * gridDim.x;
   }
@@ -96,7 +86,7 @@ static __global__ void kernel_complex_to_squared_modulus(
 
 void complex_to_squared_modulus(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
@@ -110,7 +100,7 @@ void complex_to_squared_modulus(
 
 static __global__ void kernel_complex_to_argument(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -119,12 +109,7 @@ static __global__ void kernel_complex_to_argument(
 
   while (index < size)
   {
-    float m = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
-
-    if (m > 65535.0f)
-      output[index] = 65535;
-    else
-      output[index] = m;
+    output[index] = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
 
     index += blockDim.x * gridDim.x;
   }
@@ -132,7 +117,7 @@ static __global__ void kernel_complex_to_argument(
 
 void complex_to_argument(
   cufftComplex* input,
-  unsigned short* output,
+  float* output,
   unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
@@ -253,7 +238,7 @@ __global__ void kernel_divide(
 }
 
 __global__ void kernel_log10(
-  unsigned short* input,
+  float* input,
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -262,19 +247,14 @@ __global__ void kernel_log10(
 
   while (index < size)
   {
-    float value = log10f(input[index]) * scale;
-
-    if (value > 65535.0f)
-      input[index] = 65535;
-    else
-      input[index] = value;
+    input[index] = log10f(input[index]) * scale;
 
     index += blockDim.x * gridDim.x;
   }
 }
 
 void apply_log10(
-  unsigned short* input,
+  float* input,
   unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
@@ -284,4 +264,39 @@ void apply_log10(
     blocks = get_max_blocks();
 
   kernel_log10<<<blocks, threads>>>(input, size);
+}
+
+static __global__ void kernel_float_to_ushort(
+  float* input,
+  unsigned short* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    if (input[index] > 65535.0f)
+      output[index] = 65535;
+    else if (input[index] < 0.0f)
+      output[index] = 0;
+    else
+      output[index] = static_cast<unsigned short>(input[index]);
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void float_to_ushort(
+  float* input,
+  unsigned short* output,
+  unsigned int size)
+{
+
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_float_to_ushort<<<blocks, threads>>>(input, output, size);
 }
