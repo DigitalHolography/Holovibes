@@ -97,6 +97,10 @@ namespace gui
 
       if (value < cd.nsamples)
       {
+        // Synchronize with p_vibro
+        QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+        p_vibro->setValue(value);
+
         cd.pindex = value;
         pipeline.request_refresh();
       }
@@ -218,8 +222,19 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().vibrometry_p = value;
-      pipeline.request_refresh();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (value < cd.nsamples)
+      {
+        // Synchronize with p
+        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+        p->setValue(value);
+
+        cd.vibrometry_p = value;
+        pipeline.request_refresh();
+      }
+      else
+        std::cout << "p param has to be between 0 and n" << "\n";
     }
   }
 
