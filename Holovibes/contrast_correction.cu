@@ -6,7 +6,7 @@
 
 #include "hardware_limits.hh"
 
-__global__ void make_histo(
+static __global__ void make_histo(
   int *histo,
   void *img,
   int img_size,
@@ -23,40 +23,7 @@ __global__ void make_histo(
   }
 }
 
-__global__ void apply_contrast(
-  unsigned int min,
-  float factor,
-  void *img,
-  unsigned int size,
-  int bytedepth)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    if (bytedepth == 1)
-    {
-      int value = factor * (float)(((unsigned char*)img)[index] - min);
-      if (value > 255)
-        value = 255;
-      else if (value < 0)
-        value = 0;
-      ((unsigned char*)img)[index] = value;
-    }
-    else
-    {
-      int value = factor * (float)(((unsigned short*)img)[index] - min);
-      if (value > 65535)
-        value = 65535;
-      else if (value < 0)
-        value = 0;
-      ((unsigned short*)img)[index] = value;
-    }
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-void find_min_max(
+static void find_min_max(
   unsigned int *min,
   unsigned int *max,
   int *histo,
@@ -97,24 +64,6 @@ void find_min_max(
   }
 }
 
-void manual_contrast_correction(
-  void *img,
-  unsigned int img_size,
-  int bytedepth,
-  unsigned int manual_min,
-  unsigned int manual_max)
-{
-  int tons = 65536;
-  if (bytedepth == 1)
-    tons = 256;
-  int threads = get_max_threads_1d();
-  int blocks = (img_size + threads - 1) / threads;
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks() - 1;
-  float factor = tons / (manual_max - manual_min);
-  apply_contrast <<<blocks, threads>>>(manual_min, factor, img, img_size, bytedepth);
-}
-
 void auto_contrast_correction(
   unsigned int *min,
   unsigned int *max,
@@ -140,4 +89,36 @@ void auto_contrast_correction(
   float factor = tons / (*max - *min);
   cudaFree(histo);
   free(histo_cpu);
+}
+
+static __global__ void apply_contrast(
+  float* input,
+  unsigned int size,
+  float factor,
+  unsigned int min)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    input[index] = factor * (input[index] - static_cast<float>(min));
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void manual_contrast_correction(
+  float* input,
+  unsigned int size,
+  unsigned int dynamic_range,
+  unsigned int min,
+  unsigned int max)
+{
+  unsigned int threads = get_max_threads_1d();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  const float factor = static_cast<float>(dynamic_range) / static_cast<float>(max - min);
+  apply_contrast<<<blocks, threads>>>(input, size, factor, min);
 }

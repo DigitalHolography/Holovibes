@@ -6,6 +6,7 @@
 #include "fft2.cuh"
 #include "tools.cuh"
 #include "preprocessing.cuh"
+#include "contrast_correction.cuh"
 
 namespace holovibes
 {
@@ -214,6 +215,17 @@ namespace holovibes
         apply_log10,
         gpu_float_buffer_,
         input_fd.frame_res()));
+    }
+
+    if (compute_desc_.contrast_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        manual_contrast_correction,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        65535,
+        compute_desc_.contrast_min.load(),
+        compute_desc_.contrast_max.load()));
     }
 
     fn_vect_.push_back(std::bind(
