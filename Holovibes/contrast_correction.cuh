@@ -4,15 +4,14 @@
 void manual_contrast_correction(
   float* input,
   unsigned int size,
-  unsigned int dynamic_range,
-  unsigned int min,
-  unsigned int max);
+  unsigned short dynamic_range,
+  unsigned short min,
+  unsigned short max);
 void auto_contrast_correction(
-  unsigned int *min,
-  unsigned int *max,
-  void *img,
-  unsigned int img_size,
-  unsigned int bytedepth,
-  unsigned int percent);
+  float* input,
+  unsigned int size,
+  unsigned int* min,
+  unsigned int* max,
+  float threshold);
 
 #endif /* !CONTRAST_CORRECTION_CUH */

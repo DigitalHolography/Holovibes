@@ -64,21 +64,21 @@ static void find_min_max(
   }
 }
 
+// Fix this
+#if 0
 void auto_contrast_correction(
-  unsigned int *min,
-  unsigned int *max,
-  void *img,
-  unsigned int img_size,
-  unsigned int bytedepth,
-  unsigned int percent)
+  float* input,
+  unsigned int size,
+  unsigned int* min,
+  unsigned int* max,
+  float threshold) // percent
 {
-  int tons = 65536;
-  if (bytedepth == 1)
-    tons = 256;
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (img_size + threads - 1) / threads;
+  unsigned int blocks = (size + threads - 1) / threads;
+
   if (blocks > get_max_blocks())
-    blocks = get_max_blocks() - 1;
+    blocks = get_max_blocks();
+
   int *histo;
   int *histo_cpu = (int*)calloc(sizeof(int)* tons, 1);
   cudaMalloc(&histo, tons * sizeof(int));
@@ -90,12 +90,13 @@ void auto_contrast_correction(
   cudaFree(histo);
   free(histo_cpu);
 }
+#endif
 
 static __global__ void apply_contrast(
   float* input,
   unsigned int size,
   float factor,
-  unsigned int min)
+  unsigned short min)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -109,9 +110,9 @@ static __global__ void apply_contrast(
 void manual_contrast_correction(
   float* input,
   unsigned int size,
-  unsigned int dynamic_range,
-  unsigned int min,
-  unsigned int max)
+  unsigned short dynamic_range,
+  unsigned short min,
+  unsigned short max)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
