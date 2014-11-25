@@ -1,10 +1,12 @@
 #ifndef VIBROMETRY_CUH
 # define VIBROMETRY_CUH
 
-# include <cuda_runtime.h>
 # include <cufft.h>
-# include "frame_desc.hh"
-# include "hardware_limits.hh"
 
+void frame_ratio(
+  cufftComplex* frame_p,
+  cufftComplex* frame_q,
+  cufftComplex* output,
+  unsigned int size);
 
 #endif /* !VIBROMETRY_CUH */

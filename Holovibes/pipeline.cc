@@ -6,6 +6,7 @@
 #include "tools.cuh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
+#include "vibrometry.cuh"
 
 namespace holovibes
 {
@@ -152,7 +153,21 @@ namespace holovibes
         input_fd.frame_res(),
         compute_desc_.nsamples.load()));
 
+      /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+
+      if (compute_desc_.vibrometry_enabled)
+      {
+        /* q frame pointer */
+        const cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+
+        fn_vect_.push_back(std::bind(
+          frame_ratio,
+          gpu_input_frame_ptr_,
+          q,
+          gpu_input_frame_ptr_,
+          input_fd.frame_res()));
+      }
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {

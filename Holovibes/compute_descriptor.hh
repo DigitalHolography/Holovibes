@@ -34,10 +34,10 @@ namespace holovibes
       , log_scale_enabled(false)
       , shift_corners_enabled(false)
       , contrast_enabled(false)
+      , vibrometry_enabled(false)
       , contrast_min(0)
       , contrast_max(65535)
       , vibrometry_q(0)
-      , vibrometry_p(0)
     {}
 
     ComputeDescriptor& operator=(const ComputeDescriptor& cd)
@@ -51,9 +51,9 @@ namespace holovibes
       log_scale_enabled = cd.log_scale_enabled.load();
       shift_corners_enabled = cd.shift_corners_enabled.load();
       contrast_enabled = cd.contrast_enabled.load();
+      vibrometry_enabled = cd.vibrometry_enabled.load();
       contrast_min = cd.contrast_min.load();
       contrast_max = cd.contrast_max.load();
-      vibrometry_p = cd.vibrometry_p.load();
       vibrometry_q = cd.vibrometry_q.load();
 
       return *this;
@@ -72,10 +72,10 @@ namespace holovibes
     std::atomic<bool> log_scale_enabled;
     std::atomic<bool> shift_corners_enabled;
     std::atomic<bool> contrast_enabled;
+    std::atomic<bool> vibrometry_enabled;
     std::atomic<unsigned short> contrast_min;
     std::atomic<unsigned short> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
-    std::atomic<unsigned short> vibrometry_p;
   };
 }
 

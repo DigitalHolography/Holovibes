@@ -290,7 +290,6 @@ void float_to_ushort(
   unsigned short* output,
   unsigned int size)
 {
-
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
 
