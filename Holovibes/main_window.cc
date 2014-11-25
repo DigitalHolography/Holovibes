@@ -252,6 +252,38 @@ namespace gui
     }
   }
 
+  void MainWindow::set_contrast_mode(bool value)
+  {
+    if (!is_direct_mode_)
+    {
+      QLabel* min_label = findChild<QLabel*>("minLabel");
+      QLabel* max_label = findChild<QLabel*>("maxLabel");
+      QSpinBox* contrast_min = findChild<QSpinBox*>("contrastMinSpinBox");
+      QSpinBox* contrast_max = findChild<QSpinBox*>("contrastMaxSpinBox");
+
+      if (value)
+      {
+        min_label->setDisabled(false);
+        max_label->setDisabled(false);
+        contrast_min->setDisabled(false);
+        contrast_max->setDisabled(false);
+      }
+      else
+      {
+        min_label->setDisabled(true);
+        max_label->setDisabled(true);
+        contrast_min->setDisabled(true);
+        contrast_max->setDisabled(true);
+      }
+
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      cd.contrast_enabled = value;
+      pipeline.request_refresh();
+    }
+  }
+
   void MainWindow::set_auto_contrast()
   {
     if (!is_direct_mode_)
@@ -261,7 +293,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_contrast_min(double value)
+  void MainWindow::set_contrast_min(int value)
   {
     if (!is_direct_mode_)
     {
@@ -271,7 +303,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_contrast_max(double value)
+  void MainWindow::set_contrast_max(int value)
   {
     if (!is_direct_mode_)
     {

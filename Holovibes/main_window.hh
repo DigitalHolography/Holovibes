@@ -39,9 +39,10 @@ namespace gui
 
     // View
     void set_view_mode(QString value);
+    void set_contrast_mode(bool value);
     void set_auto_contrast();
-    void set_contrast_min(double value);
-    void set_contrast_max(double value);
+    void set_contrast_min(int value);
+    void set_contrast_max(int value);
     void set_log_scale(bool value);
     void set_shifted_corners(bool value);
 
