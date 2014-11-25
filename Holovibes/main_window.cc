@@ -76,10 +76,10 @@ namespace gui
     else
       algorithm->setCurrentIndex(0);
 
-    QSpinBox* contrast_min = findChild<QSpinBox*>("contrastMinSpinBox");
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
     contrast_min->setValue(cd.contrast_min);
 
-    QSpinBox* contrast_max = findChild<QSpinBox*>("contrastMaxSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
     contrast_max->setValue(cd.contrast_max);
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
@@ -300,8 +300,8 @@ namespace gui
     {
       QLabel* min_label = findChild<QLabel*>("minLabel");
       QLabel* max_label = findChild<QLabel*>("maxLabel");
-      QSpinBox* contrast_min = findChild<QSpinBox*>("contrastMinSpinBox");
-      QSpinBox* contrast_max = findChild<QSpinBox*>("contrastMaxSpinBox");
+      QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+      QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
 
       if (value)
       {
@@ -335,22 +335,22 @@ namespace gui
     }
   }
 
-  void MainWindow::set_contrast_min(int value)
+  void MainWindow::set_contrast_min(double value)
   {
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().contrast_min = value;
+      holovibes_.get_compute_desc().contrast_min = pow(10, value);
       pipeline.request_refresh();
     }
   }
 
-  void MainWindow::set_contrast_max(int value)
+  void MainWindow::set_contrast_max(double value)
   {
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().contrast_max = value;
+      holovibes_.get_compute_desc().contrast_max = pow(10, value);
       pipeline.request_refresh();
     }
   }

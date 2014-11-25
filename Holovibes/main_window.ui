@@ -519,7 +519,7 @@
          <string>Contrast</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="contrastMinSpinBox">
+       <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -527,15 +527,18 @@
          <rect>
           <x>60</x>
           <y>170</y>
-          <width>61</width>
+          <width>62</width>
           <height>22</height>
          </rect>
         </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
         <property name="maximum">
-         <number>65535</number>
+         <double>100.000000000000000</double>
         </property>
        </widget>
-       <widget class="QSpinBox" name="contrastMaxSpinBox">
+       <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -543,12 +546,15 @@
          <rect>
           <x>60</x>
           <y>200</y>
-          <width>61</width>
+          <width>62</width>
           <height>22</height>
          </rect>
         </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
         <property name="maximum">
-         <number>1000000</number>
+         <double>100.000000000000000</double>
         </property>
        </widget>
       </widget>
@@ -1082,38 +1088,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>contrastMaxSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_max(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>315</x>
-     <y>247</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>312</x>
-     <y>326</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>contrastMinSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_contrast_min(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>330</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>391</x>
-     <y>305</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>vibrometryCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -1209,6 +1183,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>contrastMinDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>-33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>contrastMaxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>331</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1218,8 +1224,8 @@
   <slot>set_z(double)</slot>
   <slot>set_algorithm(QString)</slot>
   <slot>set_auto_contrast()</slot>
-  <slot>set_contrast_min(int)</slot>
-  <slot>set_contrast_max(int)</slot>
+  <slot>set_contrast_min(double)</slot>
+  <slot>set_contrast_max(double)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_shifted_corners(bool)</slot>
   <slot>set_p_vibro(int)</slot>
