@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "holovibes.hh"
 #include "frame_desc.hh"
 #include "gl_component.hh"

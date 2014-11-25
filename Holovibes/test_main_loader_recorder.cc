@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 # include "frame_file_loader.hh"
 # include "compute_descriptor.hh"
 # include "thread_compute.hh"

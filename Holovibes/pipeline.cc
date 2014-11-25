@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "pipeline.hh"
 
 #include <cassert>

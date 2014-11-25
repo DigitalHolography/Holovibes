@@ -54,6 +54,9 @@
     <CudaCompile Include="fft2.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="vibrometry.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_xiq.cc">
@@ -90,9 +93,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="recorder.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thread_capture.cc">
@@ -187,12 +187,6 @@
     <ClInclude Include="preprocessing.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="frame_desc.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -243,6 +237,9 @@
     </ClInclude>
     <ClInclude Include="pipeline.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vibrometry.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

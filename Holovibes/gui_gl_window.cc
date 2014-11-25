@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "gui_gl_window.hh"
 
 namespace gui

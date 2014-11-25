@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "camera_pixelfly.hh"
 #include "camera_exception.hh"
 

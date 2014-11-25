@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "recorder.hh"
 
 #include <exception>

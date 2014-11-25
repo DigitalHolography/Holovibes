@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "main_window.hh"
 
 # define Z_STEP 0.01

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "tools.cuh"
 
 #include <device_launch_parameters.h>
