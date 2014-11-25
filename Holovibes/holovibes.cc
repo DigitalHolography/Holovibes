@@ -70,10 +70,19 @@ namespace holovibes
   {
     delete tcapture_;
     tcapture_ = nullptr;
-    camera_->stop_acquisition();
-    camera_->shutdown_camera();
+
+    if (camera_)
+    {
+      camera_->stop_acquisition();
+      camera_->shutdown_camera();
+    }
+
     delete input_;
     input_ = nullptr;
+    delete camera_;
+    camera_ = nullptr;
+
+    std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
 
   void Holovibes::init_recorder(

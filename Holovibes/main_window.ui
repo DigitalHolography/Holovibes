@@ -379,24 +379,11 @@
           <x>10</x>
           <y>150</y>
           <width>171</width>
-          <height>41</height>
+          <height>61</height>
          </rect>
         </property>
         <property name="text">
          <string>Rec</string>
-        </property>
-       </widget>
-       <widget class="QProgressBar" name="recordProgressBar">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>200</y>
-          <width>171</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="value">
-         <number>24</number>
         </property>
        </widget>
       </widget>
@@ -561,7 +548,7 @@
          </rect>
         </property>
         <property name="maximum">
-         <number>65535</number>
+         <number>1000000</number>
         </property>
        </widget>
       </widget>
@@ -593,6 +580,7 @@
      <property name="title">
       <string>&amp;Model</string>
      </property>
+     <addaction name="actionNone"/>
      <addaction name="actionIDS"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
@@ -625,7 +613,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionIDS">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>IDS</string>
@@ -633,7 +621,7 @@
   </action>
   <action name="actionPike">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Pike</string>
@@ -641,7 +629,7 @@
   </action>
   <action name="actionPixelfly">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Pixelfly</string>
@@ -649,7 +637,7 @@
   </action>
   <action name="actionXIQ">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>XIQ</string>
@@ -752,6 +740,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionNone">
+   <property name="text">
+    <string>None</string>
    </property>
   </action>
  </widget>
@@ -1136,6 +1129,86 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionIDS</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ids()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>182</x>
+     <y>4</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>-24</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPike</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pike()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>258</x>
+     <y>9</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>250</x>
+     <y>-50</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPixelfly</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pixelfly()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>385</x>
+     <y>12</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>-47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQ</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>6</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>-33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNone</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_none()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>118</x>
+     <y>8</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>-26</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1157,5 +1230,10 @@
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
   <slot>set_vibro_mode(bool)</slot>
+  <slot>camera_ids()</slot>
+  <slot>camera_pike()</slot>
+  <slot>camera_pixelfly()</slot>
+  <slot>camera_xiq()</slot>
+  <slot>camera_none()</slot>
  </slots>
 </ui>

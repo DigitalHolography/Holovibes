@@ -24,10 +24,7 @@ namespace gui
     holovibes_.set_compute_desc(cd);
 
     // FIXME
-    load_camera(holovibes::Holovibes::XIQ);
-
-    if (holovibes_.is_camera_initialized())
-      gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
+    //change_camera(holovibes::Holovibes::XIQ);
     
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -92,16 +89,51 @@ namespace gui
     q_vibro->setValue(cd.vibrometry_q);
   }
 
+  void MainWindow::camera_ids()
+  {
+    change_camera(holovibes::Holovibes::IDS);
+  }
+
+  void MainWindow::camera_none()
+  {
+    delete gl_window_;
+    gl_window_ = nullptr;
+    if (!is_direct_mode_)
+      holovibes_.dispose_compute();
+    holovibes_.dispose_capture();
+  }
+
+  void MainWindow::camera_pike()
+  {
+    change_camera(holovibes::Holovibes::PIKE);
+  }
+
+  void MainWindow::camera_pixelfly()
+  {
+    change_camera(holovibes::Holovibes::PIXELFLY);
+  }
+
+  void MainWindow::camera_xiq()
+  {
+    change_camera(holovibes::Holovibes::XIQ);
+  }
+
   void MainWindow::set_image_mode(bool value)
   {
     holovibes_.dispose_compute();
-    QPoint old_pos = gl_window_->pos();
+    QPoint pos;
+
+    if (gl_window_)
+      pos = gl_window_->pos();
+    else
+      pos = QPoint(0, 0);
+
     delete gl_window_;
 
     // If direct mode
     if (value)
     {
-      gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_capture_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, 512, 512, holovibes_.get_capture_queue(), this);
       is_direct_mode_ = true;
 
       disable();
@@ -109,7 +141,7 @@ namespace gui
     else
     {
       holovibes_.init_compute();
-      gl_window_ = new GuiGLWindow(old_pos, 512, 512, holovibes_.get_output_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, 512, 512, holovibes_.get_output_queue(), this);
       is_direct_mode_ = false;
 
       enable();
@@ -494,11 +526,14 @@ namespace gui
     algorithm->setDisabled(true);
   }
 
-  void MainWindow::load_camera(holovibes::Holovibes::camera_type camera_type)
+  void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
   {
     try
     {
+      holovibes_.dispose_capture();
+
       holovibes_.init_capture(camera_type, 20);
+      set_image_mode(true);
     }
     catch (camera::CameraException& e)
     {
