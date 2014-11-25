@@ -27,6 +27,13 @@ namespace gui
     void notify() override;
 
   public slots:
+    // Menu
+    void camera_none();
+    void camera_ids();
+    void camera_pike();
+    void camera_pixelfly();
+    void camera_xiq();
+
     // Image rendering
     void set_image_mode(bool value);
     void set_phase_number(int value);
@@ -60,7 +67,7 @@ namespace gui
   private:
     void enable();
     void disable();
-    void load_camera(holovibes::Holovibes::camera_type camera_type);
+    void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
 
     //Debug
