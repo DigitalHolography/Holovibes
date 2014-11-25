@@ -6,20 +6,24 @@
 
 #include "hardware_limits.hh"
 
-static __global__ void make_histo(
-  int *histo,
-  void *img,
-  int img_size,
-  int bytedepth)
+static __global__ void kernel_histogram(
+  float* input,
+  unsigned int input_size,
+  unsigned int* histogram,
+  unsigned int histogram_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (index < img_size)
+  while (index < input_size)
   {
-    if (bytedepth == 1)
-      atomicAdd(&histo[((unsigned char*)img)[index]], 1);
-    else
-      atomicAdd(&histo[((unsigned short*)img)[index]], 1);
+    unsigned int pixel_value = __float2_uint_rz(input[index]);
+
+    if (pixel_value >= histogram_size)
+      pixel_value = histogram_size - 1;
+
+    atomicAdd(histogram[pixel_value], 1);
+
+    index += blockDim.x * gridDim.x;
   }
 }
 
