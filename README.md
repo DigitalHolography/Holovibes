@@ -98,6 +98,7 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, displa
 	* Keyboard shortcuts
 	* New Qt OpenGL window (resizeable)
 	* Updates holograms parameters in live
+    * Guards and protections against bad user actions
 * Add pipeline to apply algorithms.
 * Fix queue issue when using big endian camera (Queue ensures that his content is little endian).
 * Better memory management (less cudaMalloc), resources are allocated once at start and only few reallocations occurs when tweaking the Phase# parameter.
