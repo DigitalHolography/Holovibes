@@ -242,11 +242,9 @@ __global__ void kernel_log10(
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  const float scale = 65535.0f / log10f(65535.0f);
-
   while (index < size)
   {
-    input[index] = log10f(input[index]) * scale;
+    input[index] = log10f(input[index]);
 
     index += blockDim.x * gridDim.x;
   }
