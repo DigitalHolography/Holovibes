@@ -159,7 +159,7 @@ namespace holovibes
       if (compute_desc_.vibrometry_enabled)
       {
         /* q frame pointer */
-        const cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+        cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
 
         fn_vect_.push_back(std::bind(
           frame_ratio,
