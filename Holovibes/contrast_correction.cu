@@ -6,6 +6,7 @@
 
 #include "hardware_limits.hh"
 
+#if 0
 static __global__ void kernel_histogram(
   float* input,
   unsigned int input_size,
@@ -26,6 +27,7 @@ static __global__ void kernel_histogram(
     index += blockDim.x * gridDim.x;
   }
 }
+#endif
 
 static void find_min_max(
   unsigned int *min,
@@ -100,7 +102,7 @@ static __global__ void apply_contrast(
   float* input,
   unsigned int size,
   float factor,
-  unsigned short min)
+  float min)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -115,8 +117,8 @@ void manual_contrast_correction(
   float* input,
   unsigned int size,
   unsigned short dynamic_range,
-  unsigned short min,
-  unsigned short max)
+  float min,
+  float max)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -124,6 +126,6 @@ void manual_contrast_correction(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  const float factor = static_cast<float>(dynamic_range) / static_cast<float>(max - min);
+  const float factor = static_cast<float>(dynamic_range) / (max - min);
   apply_contrast<<<blocks, threads>>>(input, size, factor, min);
 }

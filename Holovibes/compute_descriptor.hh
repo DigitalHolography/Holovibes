@@ -73,8 +73,8 @@ namespace holovibes
     std::atomic<bool> shift_corners_enabled;
     std::atomic<bool> contrast_enabled;
     std::atomic<bool> vibrometry_enabled;
-    std::atomic<unsigned short> contrast_min;
-    std::atomic<unsigned short> contrast_max;
+    std::atomic<float> contrast_min;
+    std::atomic<float> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
   };
 }
