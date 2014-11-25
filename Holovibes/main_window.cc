@@ -65,7 +65,7 @@ namespace gui
     p->setValue(cd.pindex);
 
     QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
-    lambda->setValue((double)cd.lambda);
+    lambda->setValue(cd.lambda * 1.0e9f);
 
     QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
     z->setValue(cd.zdistance);
@@ -78,6 +78,12 @@ namespace gui
       algorithm->setCurrentIndex(1);
     else
       algorithm->setCurrentIndex(0);
+
+    QSpinBox* contrast_min = findChild<QSpinBox*>("contrastMinSpinBox");
+    contrast_min->setValue(cd.contrast_min);
+
+    QSpinBox* contrast_max = findChild<QSpinBox*>("contrastMaxSpinBox");
+    contrast_max->setValue(cd.contrast_max);
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
@@ -380,7 +386,7 @@ namespace gui
         pipeline.request_refresh();
       }
       else
-        display_error("p param has to be between 0 and phase #");
+        display_error("q param has to be between 0 and phase #");
     }
   }
 
