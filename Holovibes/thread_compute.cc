@@ -1,29 +1,23 @@
 #include "stdafx.h"
 
-#include <cassert>
-#include <cuda.h>
-
 #include "thread_compute.hh"
-#include "fft1.cuh"
-#include "fft2.cuh"
-#include "preprocessing.cuh"
-#include "tools.cuh"
+#include "pipeline.hh"
+#include <cassert>
 
 namespace holovibes
 {
   ThreadCompute::ThreadCompute(
-    const ComputeDescriptor& desc,
-    Queue& input_q)
+    ComputeDescriptor& desc,
+    Queue& input,
+    Queue& output)
     : compute_desc_(desc)
-    , input_q_(input_q)
+    , input_(input)
+    , output_(output)
+    , pipeline_(nullptr)
     , compute_on_(true)
+    , memory_cv_()
     , thread_(&ThreadCompute::thread_proc, this)
-  {
-    camera::FrameDescriptor fd = input_q_.get_frame_desc();
-    fd.depth = 2;
-
-    output_q_ = new Queue(fd, input_q_.get_max_elts());
-  }
+  {}
 
   ThreadCompute::~ThreadCompute()
   {
@@ -31,115 +25,17 @@ namespace holovibes
 
     if (thread_.joinable())
       thread_.join();
-
-    delete output_q_;
-  }
-
-  Queue& ThreadCompute::get_queue()
-  {
-    return *output_q_;
   }
 
   void ThreadCompute::thread_proc()
   {
-    /* Ressources allocation */
-    float* sqrt_array = make_sqrt_vect(65536);
-    /* Output buffer containing p images ordered in frequency. */
-    unsigned short *pbuffer = nullptr;
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
-    {
-      cudaMalloc(
-        &pbuffer,
-        input_q_.get_pixels() * sizeof(unsigned short)* compute_desc_.nsamples);
-    }
-    else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-    {
-      cudaMalloc(
-        &pbuffer,
-        input_q_.get_pixels() * sizeof(unsigned short));
-    }
-    cufftHandle plan3d;
-    cufftPlan3d(
-      &plan3d,
-      compute_desc_.nsamples,            // NX
-      input_q_.get_frame_desc().width,   // NY
-      input_q_.get_frame_desc().height,  // NZ
-      CUFFT_C2C);
+    pipeline_ = new Pipeline(input_, output_, compute_desc_);
 
-    cufftHandle plan2d = 0;
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-    {
-      cufftPlan2d(&plan2d, input_q_.get_frame_desc().width,
-        input_q_.get_frame_desc().height,
-        CUFFT_C2C);
-    }
+    memory_cv_.notify_one();
 
-    cufftComplex* lens = nullptr;
-
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
-    {
-      lens = create_lens(
-        input_q_.get_frame_desc(),
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
-    }
-    else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-    {
-      lens = create_spectral(
-        compute_desc_.lambda,
-        compute_desc_.zdistance,
-        input_q_.get_frame_desc().width,
-        input_q_.get_frame_desc().height,
-        input_q_.get_frame_desc());
-    }
-    else
-      assert(!"Impossible case");
-
-    /* Thread loop */
     while (compute_on_)
-    {
-      if (input_q_.get_current_elts() >= compute_desc_.nsamples)
-      {
-        if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
-        {
-          fft_1(
-            pbuffer,
-            input_q_,
-            lens,
-            sqrt_array,
-            plan3d,
-            compute_desc_.nsamples);
+      pipeline_->exec();
 
-          /* Shifting */
-          unsigned short *shifted = pbuffer + compute_desc_.pindex * input_q_.get_pixels();
-          shift_corners(&shifted, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-          /* Store p-th image */
-          output_q_->enqueue(shifted, cudaMemcpyDeviceToDevice);
-        }
-        else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-        {
-          fft_2(
-            pbuffer,
-            input_q_,
-            lens,
-            sqrt_array,
-            plan3d,
-            plan2d,
-            compute_desc_.nsamples,
-            compute_desc_.pindex);
-          shift_corners(&pbuffer, output_q_->get_frame_desc().width, output_q_->get_frame_desc().height);
-          output_q_->enqueue(pbuffer, cudaMemcpyDeviceToDevice);
-        }
-
-        input_q_.dequeue();
-      }
-    }
-
-    /* Free ressources */
-    cudaFree(lens);
-    cufftDestroy(plan2d);
-    cufftDestroy(plan3d);
-    cudaFree(pbuffer);
-    cudaFree(sqrt_array);
+    delete pipeline_;
   }
 }

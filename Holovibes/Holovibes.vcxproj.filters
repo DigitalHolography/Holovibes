@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -25,5 +25,250 @@
       <UniqueIdentifier>{e7bbddd6-f330-4e16-a366-e6ac808111a8}</UniqueIdentifier>
       <Extensions>cuh;</Extensions>
     </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{42051917-46e7-4cd9-8e34-6ee3adc4c3a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{a92f5a26-c24b-4d75-87a7-34cddd371f0d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="contrast_correction.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="hardware_limits.cc">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="preprocessing.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="fft1.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="tools.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="transforms.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="fft2.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="camera_xiq.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_ids.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_pike.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_pixelfly.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_exception.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_component.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="holovibes.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="options_parser.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="queue.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="recorder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_capture.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_gl_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_compute.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_gl_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_widget.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_group_box.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="frame_file_loader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_main_loader_recorder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_xiq.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_ids.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_pixelfly.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_pike.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_exception.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="contrast_correction.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_component.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware_limits.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="holovibes.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="options_descriptor.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="options_parser.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="preprocessing.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="frame_desc.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="recorder.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fft1.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_gl_window.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_capture.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="transforms.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_compute.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fft2.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_descriptor.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gl_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_main_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="frame_file_loader.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="observable.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="observer.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="main_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gl_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gl_window.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_group_box.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

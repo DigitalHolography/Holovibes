@@ -5,9 +5,9 @@ namespace holovibes
 {
   ThreadCapture::ThreadCapture(
     camera::Camera& camera,
-    unsigned int buffer_nb_elts)
+    Queue& input)
     : camera_(camera)
-    , queue_(camera.get_frame_descriptor(), buffer_nb_elts)
+    , queue_(input)
     , stop_requested_(false)
     , thread_(&ThreadCapture::thread_proc, this)
   {}

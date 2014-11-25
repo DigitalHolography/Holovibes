@@ -2,17 +2,16 @@
 # define CONTRAST_CORRECTION_CUH
 
 void manual_contrast_correction(
-  void *img,
-  unsigned int img_size,
-  int bytedepth,
-  unsigned int manual_min,
-  unsigned int manual_max);
+  float* input,
+  unsigned int size,
+  unsigned short dynamic_range,
+  unsigned short min,
+  unsigned short max);
 void auto_contrast_correction(
-  unsigned int *min,
-  unsigned int *max,
-  void *img,
-  unsigned int img_size,
-  unsigned int bytedepth,
-  unsigned int percent);
+  float* input,
+  unsigned int size,
+  unsigned int* min,
+  unsigned int* max,
+  float threshold);
 
 #endif /* !CONTRAST_CORRECTION_CUH */

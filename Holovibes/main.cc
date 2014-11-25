@@ -2,9 +2,39 @@
 
 #include "options_parser.hh"
 #include "holovibes.hh"
+#include "camera.hh"
 #include "camera_exception.hh"
+#include "camera_pixelfly.hh"
+#include "queue.hh"
 
-int main(int argc, const char* argv[])
+#undef min
+#include <QtWidgets>
+
+#include "main_window.hh"
+#include "gui_gl_window.hh"
+#include "gui_gl_widget.hh"
+
+#include "compute_descriptor.hh"
+#include "pipeline.hh"
+
+#include <thread>
+
+int main(int argc, char* argv[])
+{
+  // Holovibes object
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::XIQ);
+  h.init_capture(20);
+
+  // GUI
+  QApplication a(argc, argv);
+  gui::MainWindow w(h);
+  w.show();
+  h.get_compute_desc().register_observer(w);
+
+  return a.exec();
+}
+
+/*int main(int argc, const char* argv[])
 {
   holovibes::OptionsDescriptor opts;
   holovibes::OptionsParser opts_parser(opts);
@@ -40,4 +70,4 @@ int main(int argc, const char* argv[])
     std::cerr << e.what() << std::endl;
   }
   return 0;
-}
+}*/

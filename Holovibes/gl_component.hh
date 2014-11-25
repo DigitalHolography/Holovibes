@@ -1,7 +1,6 @@
 #ifndef GL_COMPONENT_HH
 # define GL_COMPONENT_HH
 
-# include <GL/GL.h>
 # include <Windows.h>
 # include <cuda_gl_interop.h>
 

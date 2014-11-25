@@ -4,6 +4,7 @@
 # include "compute_descriptor.hh"
 # include "thread_compute.hh"
 # include "recorder.hh"
+# include "queue.hh"
 
 #if 0
 int main()
@@ -30,9 +31,13 @@ int main()
       camera::BIG_ENDIAN);
     comp_desc.zdistance = z;
 
-    holovibes::ThreadCompute t(comp_desc, f.get_queue());
+    camera::FrameDescriptor fd = f.get_queue().get_frame_desc();
+    fd.depth = 2;
+    holovibes::Queue output(fd, 20);
 
-    holovibes::Recorder r(t.get_queue(), "fft2_mire_" + std::to_string(i) + ".raw");
+    holovibes::ThreadCompute t(comp_desc, f.get_queue(), output);
+
+    holovibes::Recorder r(output, "fft2_mire_" + std::to_string(i) + ".raw");
     r.record(1);
   }
   return 0;

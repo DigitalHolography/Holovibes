@@ -4,20 +4,26 @@
 #include <cufft.h>
 #include "queue.hh"
 
-cufftComplex *create_spectral(
+void fft2_lens(
+  cufftComplex* lens,
+  const camera::FrameDescriptor& fd,
   float lambda,
-  float distance,
-  int size_x,
-  int size_y,
-  const camera::FrameDescriptor& fd);
+  float z);
+
+/*! FFT2 takes input complex buffer and computes a p frame that is stored
+ * at output pointer. The output pointer can be another complex buffer or the
+ * same as input buffer.
+ * -NOTE- It makes sense that this function should compute on all frames
+ * (not only the p-th).
+ */
 void fft_2(
-  unsigned short* result_buffer,
-  holovibes::Queue& q,
+  cufftComplex* input,
+  cufftComplex* output,
   cufftComplex *lens,
-  float *sqrt_vect,
   cufftHandle plan3d,
   cufftHandle plan2d,
-  unsigned int nbimages,
+  unsigned int frame_resolution,
+  unsigned int nframes,
   unsigned int p);
 
 #endif

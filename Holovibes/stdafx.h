@@ -7,7 +7,7 @@
 
 #include "targetver.h"
 
-#include <Windows.h>
+//#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <exception>

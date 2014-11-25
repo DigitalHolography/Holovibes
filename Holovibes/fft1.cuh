@@ -5,16 +5,17 @@
 #include "queue.hh"
 #include "frame_desc.hh"
 
-cufftComplex* create_lens(
+/*! \param lens Lens is externally allocated. */
+void fft1_lens(
+  cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   float lambda,
   float z);
 void fft_1(
-  unsigned short *result_buffer,
-  holovibes::Queue& q,
-  cufftComplex *lens,
-  float *sqrt_vect,
+  cufftComplex* input,
+  cufftComplex* lens,
   cufftHandle plan,
-  int nbimages);
+  unsigned int frame_resolution,
+  unsigned int nframes);
 
 #endif /* !FFT1_CUH */

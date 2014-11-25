@@ -91,3 +91,20 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, displa
 * Images to be displayed remains in GPU memory (no more copy to CPU-GPU).
 * Fix queue endianness handling.
 * 8-bit frames are rescaled in 16-bit frames before computation.
+
+### v.0.4.2 ###
+
+* Add Qt user interface.
+	* Keyboard shortcuts
+	* New Qt OpenGL window (resizeable)
+	* Updates holograms parameters in live
+* Add pipeline to apply algorithms.
+* Fix queue issue when using big endian camera (Queue ensures that his content is little endian).
+* Better memory management (less cudaMalloc), resources are allocated once at start and only few reallocations occurs when tweaking the Phase# parameter.
+* Shift corners algorithm has been optimized.
+* Make contiguous has been improved (no cudaMalloc and cudaMemcpy).
+* Add manual contrast correction.
+* Add log10 filter.
+* Post-FFT algorithms are more precise (using floats instead of ushorts).
+* Thread shared resources are no longer allocated in threads.
+* CUDA kernels are less monolithic (complex-real conversions are separated).

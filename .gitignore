@@ -171,3 +171,5 @@ doc/*
 
 # Avoid conflicts with vcxproj.filters
 Holovibes/Holovibes.vcxproj.filters
+
+Holovibes/GeneratedFiles/

@@ -16,8 +16,11 @@ namespace holovibes
     : camera_(nullptr)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
-    , tglwnd_(nullptr)
     , recorder_(nullptr)
+    , input_(nullptr)
+    , output_(nullptr)
+    , pipeline_(nullptr)
+    , compute_desc_()
   {
     if (c == IDS)
       camera_ = new camera::CameraIds();
@@ -38,42 +41,28 @@ namespace holovibes
   {
     delete tcompute_;
     delete tcapture_;
-    delete tglwnd_;
     delete camera_;
+    delete input_;
+    delete output_;
   }
 
   void Holovibes::init_display(
     unsigned int width,
     unsigned int height)
   {
-    assert(camera_ && "camera not initialized");
-    assert(tcapture_ && "capture thread not initialized");
-
-    if (tcompute_)
-    {
-      Queue& queue = tcompute_->get_queue();
-      tglwnd_ = new ThreadGLWindow(queue, "OpenGL", width, height);
-    }
-    else
-    {
-      Queue& queue = tcapture_->get_queue();
-      tglwnd_ = new ThreadGLWindow(queue, "OpenGL", width, height);
-    }
-    std::cout << "[DISPLAY] display thread started" << std::endl;
   }
 
   void Holovibes::dispose_display()
   {
-    delete tglwnd_;
-    tglwnd_ = nullptr;
   }
 
   void Holovibes::init_capture(unsigned int buffer_nb_elts)
   {
     assert(camera_ && "camera not initialized");
     camera_->init_camera();
+    input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
     camera_->start_acquisition();
-    tcapture_ = new ThreadCapture(*camera_, buffer_nb_elts);
+    tcapture_ = new ThreadCapture(*camera_, *input_);
     std::cout << "[CAPTURE] capture thread started" << std::endl;
   }
 
@@ -83,6 +72,8 @@ namespace holovibes
     tcapture_ = nullptr;
     camera_->stop_acquisition();
     camera_->shutdown_camera();
+    delete input_;
+    input_ = nullptr;
   }
 
   void Holovibes::init_recorder(
@@ -93,11 +84,11 @@ namespace holovibes
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
-      recorder_ = new Recorder(tcompute_->get_queue(), filepath);
+      recorder_ = new Recorder(*output_, filepath);
     }
     else
     {
-      recorder_ = new Recorder(tcapture_->get_queue(), filepath);
+      recorder_ = new Recorder(*input_, filepath);
     }
     std::cout << "[RECORDER] recorder initialized" << std::endl;
     recorder_->record(rec_n_images);
@@ -109,16 +100,38 @@ namespace holovibes
     recorder_ = nullptr;
   }
 
-  void Holovibes::init_compute(ComputeDescriptor& desc)
+  void Holovibes::init_compute()
   {
     assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
-    tcompute_ = new ThreadCompute(desc, tcapture_->get_queue());
+    assert(input_ && "input queue not initialized");
+
+    camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
+    output_frame_desc.depth = 2;
+    output_ = new Queue(output_frame_desc, input_->get_max_elts());
+
+    tcompute_ = new ThreadCompute(compute_desc_, *input_, *output_);
+    std::cout << "[CUDA] compute thread started" << std::endl;
+
+    // A wait_for is necessary here in order for the pipeline to finish
+    // its allocations before getting it.
+    std::mutex mutex;
+    std::unique_lock<std::mutex> lck(mutex);
+
+    std::cout << "Pipeline is initializing ";
+    while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+      std::cout << ".";
+    std::cout << "\n";
+
+    pipeline_ = &tcompute_->get_pipeline();
   }
 
   void Holovibes::dispose_compute()
   {
     delete tcompute_;
     tcompute_ = nullptr;
+    pipeline_ = nullptr;
+    delete output_;
+    output_ = nullptr;
   }
 }
