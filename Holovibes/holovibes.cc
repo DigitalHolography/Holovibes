@@ -11,7 +11,7 @@
 
 namespace holovibes
 {
-  Holovibes::Holovibes(enum camera_type c)
+  Holovibes::Holovibes()
     : camera_(nullptr)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
@@ -21,19 +21,6 @@ namespace holovibes
     , pipeline_(nullptr)
     , compute_desc_()
   {
-    if (c == IDS)
-      camera_ = new camera::CameraIds();
-    else if (c == PIKE)
-      camera_ = new camera::CameraPike();
-    else if (c == PIXELFLY)
-      camera_ = new camera::CameraPixelfly();
-    else if (c == XIQ)
-      camera_ = new camera::CameraXiq();
-    else
-      assert(!"Impossible case");
-
-    if (!camera_)
-      throw std::runtime_error("Error while allocating Camera constructor");
   }
 
   Holovibes::~Holovibes()
@@ -55,8 +42,22 @@ namespace holovibes
   {
   }
 
-  void Holovibes::init_capture(unsigned int buffer_nb_elts)
+  void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
+    if (c == IDS)
+      camera_ = new camera::CameraIds();
+    else if (c == PIKE)
+      camera_ = new camera::CameraPike();
+    else if (c == PIXELFLY)
+      camera_ = new camera::CameraPixelfly();
+    else if (c == XIQ)
+      camera_ = new camera::CameraXiq();
+    else
+      assert(!"Impossible case");
+
+    if (!camera_)
+      throw std::runtime_error("Error while allocating Camera constructor");
+
     assert(camera_ && "camera not initialized");
     camera_->init_camera();
     input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);

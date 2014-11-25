@@ -5,12 +5,14 @@
 # include <QMainWindow>
 # include <QFileDialog>
 # include <QShortcut>
+# include <QMessageBox>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
+# include "camera_exception.hh"
 
 namespace gui
 {
@@ -47,6 +49,7 @@ namespace gui
     void set_shifted_corners(bool value);
 
     // Special
+    void set_vibro_mode(bool value);
     void set_p_vibro(int value);
     void set_q_vibro(int value);
 
@@ -57,6 +60,8 @@ namespace gui
   private:
     void enable();
     void disable();
+    void load_camera(holovibes::Holovibes::camera_type camera_type);
+    void display_error(std::string msg);
 
     //Debug
     template <typename T>

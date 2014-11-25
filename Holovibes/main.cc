@@ -20,8 +20,7 @@
 int main(int argc, char* argv[])
 {
   // Holovibes object
-  holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
-  h.init_capture(20);
+  holovibes::Holovibes h;
 
   // GUI
   QApplication a(argc, argv);

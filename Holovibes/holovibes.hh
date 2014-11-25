@@ -23,7 +23,7 @@ namespace holovibes
       PIXELFLY,
     };
 
-    Holovibes(enum camera_type c);
+    Holovibes();
     ~Holovibes();
 
     void init_display(
@@ -31,8 +31,13 @@ namespace holovibes
       unsigned int h);
     void dispose_display();
 
-    void init_capture(unsigned int buffer_nb_elts);
+    void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
     void dispose_capture();
+
+    bool is_camera_initialized()
+    {
+      return camera_ != nullptr;
+    }
 
     Queue& get_capture_queue()
     {

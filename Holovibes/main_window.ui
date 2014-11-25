@@ -245,8 +245,8 @@
        <widget class="QLabel" name="pLabelVibro">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>70</y>
+          <x>30</x>
+          <y>60</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -258,8 +258,8 @@
        <widget class="QSpinBox" name="pSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>80</x>
-          <y>70</y>
+          <x>60</x>
+          <y>60</y>
           <width>44</width>
           <height>22</height>
          </rect>
@@ -268,8 +268,8 @@
        <widget class="QSpinBox" name="qSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>80</x>
-          <y>100</y>
+          <x>60</x>
+          <y>90</y>
           <width>44</width>
           <height>22</height>
          </rect>
@@ -278,8 +278,8 @@
        <widget class="QLabel" name="qLabelVibro">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>100</y>
+          <x>30</x>
+          <y>90</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -288,17 +288,17 @@
          <string>q:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="vibrometryLabel">
+       <widget class="QCheckBox" name="vibrometryCheckBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>30</y>
-          <width>81</width>
-          <height>16</height>
+          <width>91</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Vibrometry:</string>
+         <string>Vibrometry</string>
         </property>
        </widget>
       </widget>
@@ -522,7 +522,7 @@
        <widget class="QCheckBox" name="checkBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>130</y>
           <width>82</width>
           <height>21</height>
@@ -1015,8 +1015,8 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>550</x>
-     <y>143</y>
+     <x>530</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -1120,6 +1120,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>vibrometryCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_vibro_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>477</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>470</x>
+     <y>-22</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1140,5 +1156,6 @@
   <slot>browse_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
+  <slot>set_vibro_mode(bool)</slot>
  </slots>
 </ui>

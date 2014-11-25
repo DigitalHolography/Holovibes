@@ -23,7 +23,11 @@ namespace gui
 
     holovibes_.set_compute_desc(cd);
 
-    gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
+    // FIXME
+    load_camera(holovibes::Holovibes::XIQ);
+
+    if (holovibes_.is_camera_initialized())
+      gl_window_ = new GuiGLWindow(QPoint(0, 0), 512, 512, holovibes_.get_capture_queue(), this);
     
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -76,6 +80,7 @@ namespace gui
       algorithm->setCurrentIndex(0);
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+    p_vibro->setValue(cd.pindex);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
@@ -329,6 +334,18 @@ namespace gui
     }
   }
 
+  void MainWindow::set_vibro_mode(bool value)
+  {
+    if (!is_direct_mode_)
+    {
+      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      cd.vibrometry_enabled = value;
+      pipeline.request_refresh();
+    }
+  }
+
   void MainWindow::set_p_vibro(int value)
   {
     if (!is_direct_mode_)
@@ -342,10 +359,11 @@ namespace gui
         QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
         p->setValue(value);
 
+        cd.pindex = value;
         pipeline.request_refresh();
       }
       else
-        std::cout << "p param has to be between 0 and n" << "\n";
+        display_error("p param has to be between 0 and phase #");;
     }
   }
 
@@ -354,8 +372,15 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().vibrometry_q = value;
-      pipeline.request_refresh();
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (value < cd.nsamples)
+      {
+        holovibes_.get_compute_desc().vibrometry_q = value;
+        pipeline.request_refresh();
+      }
+      else
+        display_error("p param has to be between 0 and phase #");
     }
   }
 
@@ -461,6 +486,30 @@ namespace gui
 
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
     algorithm->setDisabled(true);
+  }
+
+  void MainWindow::load_camera(holovibes::Holovibes::camera_type camera_type)
+  {
+    try
+    {
+      holovibes_.init_capture(camera_type, 20);
+    }
+    catch (camera::CameraException& e)
+    {
+      display_error("[CAMERA]" + std::string(e.what()));
+    }
+    catch (std::exception& e)
+    {
+      display_error(e.what());
+    }
+  }
+
+  void MainWindow::display_error(std::string msg)
+  {
+    QMessageBox msg_box;
+    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setIcon(QMessageBox::Critical);
+    msg_box.exec();
   }
 
   template <typename T>
