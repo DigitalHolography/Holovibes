@@ -12,6 +12,7 @@ namespace gui
   {
     ui.setupUi(this);
     this->move(pos);
+    this->resize(QSize(width, height));
     this->show();
     gl_widget_ = new GLWidget(queue, width, height, this);
     gl_widget_->show();

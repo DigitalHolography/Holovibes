@@ -121,19 +121,23 @@ namespace gui
   void MainWindow::set_image_mode(bool value)
   {
     holovibes_.dispose_compute();
-    QPoint pos;
+    QPoint pos(0, 0);
+    unsigned int width = 512;
+    unsigned int height = 512;
 
     if (gl_window_)
+    {
       pos = gl_window_->pos();
-    else
-      pos = QPoint(0, 0);
+      width = gl_window_->size().width();
+      height = gl_window_->size().height();
+    }
 
     delete gl_window_;
 
     // If direct mode
     if (value)
     {
-      gl_window_ = new GuiGLWindow(pos, 512, 512, holovibes_.get_capture_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue(), this);
       is_direct_mode_ = true;
 
       disable();
@@ -141,7 +145,7 @@ namespace gui
     else
     {
       holovibes_.init_compute();
-      gl_window_ = new GuiGLWindow(pos, 512, 512, holovibes_.get_output_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue(), this);
       is_direct_mode_ = false;
 
       enable();
