@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "thread_gl_window.hh"
 #include "gl_component.hh"
 #include <chrono>

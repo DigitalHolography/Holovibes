@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "camera_pike.hh"
 
 #define MAXNAMELENGTH 64

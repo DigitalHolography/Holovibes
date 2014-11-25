@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "camera_xiq.hh"
 #include "camera_exception.hh"
 

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "thread_capture.hh"
 
 namespace holovibes

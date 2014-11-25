@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "main_window.hh"
 
 # define Z_STEP 0.01
@@ -77,7 +76,6 @@ namespace gui
       algorithm->setCurrentIndex(0);
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
-    p_vibro->setValue(cd.vibrometry_p);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
@@ -130,7 +128,6 @@ namespace gui
         p_vibro->setValue(value);
 
         cd.pindex = value;
-        cd.vibrometry_p = value;
         pipeline.request_refresh();
       }
       else
@@ -148,7 +145,6 @@ namespace gui
       if (cd.pindex < cd.nsamples - 1)
       {
         cd.pindex++;
-        cd.vibrometry_p++;
         notify();
         pipeline.request_refresh();
       }
@@ -165,7 +161,6 @@ namespace gui
       if (cd.pindex > 0)
       {
         cd.pindex--;
-        cd.vibrometry_p--;
         notify();
         pipeline.request_refresh();
       }
@@ -347,7 +342,6 @@ namespace gui
         QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
         p->setValue(value);
 
-        cd.vibrometry_p = value;
         pipeline.request_refresh();
       }
       else

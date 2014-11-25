@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "thread_compute.hh"
 #include "pipeline.hh"
 #include <cassert>

@@ -1,8 +1,9 @@
-#include "stdafx.h"
-
 #include <GL/glew.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
+#include <stdexcept>
+#include <iostream>
+
 #include "gl_component.hh"
 
 namespace holovibes

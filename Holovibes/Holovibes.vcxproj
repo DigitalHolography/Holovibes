@@ -63,6 +63,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,6 +101,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,8 +183,6 @@
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="pipeline.hh" />
     <ClInclude Include="preprocessing.cuh" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
@@ -192,6 +192,7 @@
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
+    <ClInclude Include="vibrometry.cuh" />
     <CustomBuild Include="main_window.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
@@ -227,10 +228,6 @@
     <ClCompile Include="pipeline.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="test_main_loader_recorder.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
@@ -243,6 +240,7 @@
     <CudaCompile Include="fft1.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="transforms.cu" />
+    <CudaCompile Include="vibrometry.cu" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">

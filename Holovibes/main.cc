@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "options_parser.hh"
 #include "holovibes.hh"
 #include "camera.hh"
@@ -22,7 +20,7 @@
 int main(int argc, char* argv[])
 {
   // Holovibes object
-  holovibes::Holovibes h(holovibes::Holovibes::camera_type::XIQ);
+  holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
   h.init_capture(20);
 
   // GUI

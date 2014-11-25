@@ -1,7 +1,6 @@
-#include "stdafx.h"
 #include "gl_window.hh"
 
-#include <exception>
+#include <stdexcept>
 
 namespace holovibes
 {

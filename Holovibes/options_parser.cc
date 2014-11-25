@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "options_parser.hh"
 
 #include <boost\algorithm\string.hpp>

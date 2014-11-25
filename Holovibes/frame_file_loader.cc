@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "frame_file_loader.hh"
 #include <exception>
 
