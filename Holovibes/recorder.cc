@@ -30,7 +30,7 @@ namespace holovibes
     char* buffer = new char[size]();
 
     std::cout << "[RECORDER] started recording " <<
-      n_images << "frames" << std::endl;
+      n_images << " frames" << std::endl;
 
     for (unsigned int i = 0; i < n_images; ++i)
     {
