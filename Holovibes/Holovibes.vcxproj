@@ -205,6 +205,7 @@
     <ClCompile Include="camera_pike.cc" />
     <ClCompile Include="camera_pixelfly.cc" />
     <ClCompile Include="camera_exception.cc" />
+    <ClCompile Include="compute_descriptor.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc" />

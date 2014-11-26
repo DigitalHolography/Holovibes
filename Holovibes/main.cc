@@ -1,5 +1,4 @@
 #include <Windows.h>
-#include <cstdlib>
 
 #include "options_parser.hh"
 #include "holovibes.hh"

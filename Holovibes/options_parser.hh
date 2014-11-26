@@ -33,7 +33,8 @@ namespace holovibes
 
     /*! \brief Parse the command line given by the user and
      * fill the options descriptor. Will automatically call
-     * help/version print and exit. */
+     * help/version print and exit.
+     * ComputeDescriptor::sanity_check is called. */
     void parse(int argc, char* const argv[]);
 
   private:
@@ -57,11 +58,11 @@ namespace holovibes
     void proceed_help();
     /*! Check features values and fill OptionsDescriptor.*/
     void proceed_features();
-    /*! Check compute values and fill OptionsDescriptor. */
+    /*! Fill OptionsDescriptor with compute values. */
     void proceed_compute();
 
     /*! Checks DFT parameters. Each parameter is mandatory. */
-    void check_dft_params();
+    void check_compute_params();
 
     /*! Print the version & help message. */
     void print_help();

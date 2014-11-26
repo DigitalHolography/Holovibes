@@ -134,6 +134,9 @@
     <ClCompile Include="test_main_loader_recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="compute_descriptor.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">

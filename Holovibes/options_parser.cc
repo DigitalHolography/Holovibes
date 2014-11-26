@@ -41,25 +41,25 @@ namespace holovibes
     if (is_no_gui)
     {
       features_opts_desc_.add_options()
-      ("display,d",
-      po::value<std::vector<int>>()
-      ->multitoken(),
-      "Display images on screen. "
-      "The first argument gives the square size of the display. "
-      "The second optional argument specify the height.")
+        ("display,d",
+        po::value<std::vector<int>>()
+        ->multitoken(),
+        "Display images on screen. "
+        "The first argument gives the square size of the display. "
+        "The second optional argument specify the height.")
 
-      ("write,w",
-      po::value<std::vector<std::string>>()
-      ->multitoken(),
-      "Record a sequence of images in the given path. "
-      "The first argument gives the number of images to record. "
-      "The second argument gives the filepath where frames will be recorded.")
+        ("write,w",
+        po::value<std::vector<std::string>>()
+        ->multitoken(),
+        "Record a sequence of images in the given path. "
+        "The first argument gives the number of images to record. "
+        "The second argument gives the filepath where frames will be recorded.")
 
-      ("cameramodel,c",
-      po::value<std::string>()
-      ->required(),
-      "Set the camera to use: pike/xiq/ids/pixelfly.")
-      ;
+        ("cameramodel,c",
+        po::value<std::string>()
+        ->required(),
+        "Set the camera to use: pike/xiq/ids/pixelfly.")
+        ;
     }
   }
 
@@ -141,9 +141,12 @@ namespace holovibes
       parse_features_compute_options(argc, argv);
 
       proceed_features();
+      proceed_compute();
 
-      if (opts_.is_compute_enabled)
-        proceed_compute();
+      if (!opts_.is_gui_enabled)
+        check_compute_params();
+
+      opts_.compute_desc.sanity_check();
 
       succeed = true;
     }
@@ -291,7 +294,10 @@ namespace holovibes
 
       opts_.is_recorder_enabled = true;
     }
+  }
 
+  void OptionsParser::proceed_compute()
+  {
     if (vm_.count("1fft"))
     {
       opts_.is_compute_enabled = true;
@@ -306,56 +312,54 @@ namespace holovibes
       opts_.is_compute_enabled = true;
       opts_.compute_desc.algorithm = ComputeDescriptor::FFT2;
     }
-  }
 
-  void OptionsParser::proceed_compute()
-  {
     if (vm_.count("nsamples"))
     {
       const int nsamples = vm_["nsamples"].as<int>();
-
       if (nsamples <= 0)
         throw std::runtime_error("--nsamples parameter must be strictly positive");
 
-      if (static_cast<unsigned int>(nsamples) >= opts_.queue_size)
-        throw std::runtime_error("--nsamples can not be greater than the queue size");
-
       opts_.compute_desc.nsamples = nsamples;
+
+      if (opts_.compute_desc.nsamples >= opts_.queue_size)
+        throw std::runtime_error("--nsamples can not be greater than the queue size");
     }
-    else
-      throw std::runtime_error("--nsamples is required");
 
     if (vm_.count("pindex"))
     {
       const int pindex = vm_["pindex"].as<int>();
-
       if (pindex < 0 || static_cast<unsigned int>(pindex) >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
-
       opts_.compute_desc.pindex = pindex;
     }
-    else
-      throw std::runtime_error("--pindex is required");
 
     if (vm_.count("lambda"))
     {
       const float lambda = vm_["lambda"].as<float>();
-
       if (lambda <= 0.0000f)
         throw std::runtime_error("--lambda parameter must be strictly positive");
-
       opts_.compute_desc.lambda = lambda;
     }
-    else
-      throw std::runtime_error("--lambda is required");
 
     if (vm_.count("zdistance"))
     {
       const float zdistance = vm_["zdistance"].as<float>();
-
       opts_.compute_desc.zdistance = zdistance;
     }
-    else
+  }
+
+  void OptionsParser::check_compute_params()
+  {
+    if (!vm_.count("nsamples"))
+      throw std::runtime_error("--nsamples is required");
+
+    if (!vm_.count("pindex"))
+      throw std::runtime_error("--pindex is required");
+
+    if (!vm_.count("lambda"))
+      throw std::runtime_error("--lambda is required");
+
+    if (!vm_.count("zdistance"))
       throw std::runtime_error("--zdistance is required");
   }
 }
