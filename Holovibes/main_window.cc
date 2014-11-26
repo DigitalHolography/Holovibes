@@ -12,17 +12,6 @@ namespace gui
   {
     ui.setupUi(this);
 
-    // FIXME
-    holovibes::ComputeDescriptor cd;
-    cd.algorithm = holovibes::ComputeDescriptor::FFT1;
-    cd.shift_corners_enabled = false;
-    cd.pindex = 0;
-    cd.nsamples = 4;
-    cd.lambda = 536e-9f;
-    cd.zdistance = 1.36f;
-
-    holovibes_.set_compute_desc(cd);
-    
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
     connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));

@@ -10,11 +10,10 @@
 int main(int argc, char* argv[])
 {
   holovibes::OptionsDescriptor opts;
-  /* This needs to be updated. */
-#if 0
+
   holovibes::OptionsParser opts_parser(opts);
   opts_parser.parse(argc, argv);
-#endif
+
   holovibes::Holovibes h;
   h.set_compute_desc(opts.compute_desc);
 
@@ -40,7 +39,7 @@ int main(int argc, char* argv[])
     {
       h.init_capture(opts.camera, opts.queue_size);
 
-      if (opts.is_1fft_enabled || opts.is_2fft_enabled)
+      if (opts.is_compute_enabled)
         h.init_compute();
       if (opts.is_gl_window_enabled)
         h.init_display(opts.gl_window_width, opts.gl_window_height);

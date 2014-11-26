@@ -7,14 +7,40 @@
 
 namespace holovibes
 {
-  void OptionsParser::init_parser()
+  OptionsParser::OptionsParser(OptionsDescriptor& opts)
+    : opts_(opts)
+    , pos_desc_()
+    , general_opts_desc_("General")
+    , features_opts_desc_("Features")
+    , compute_opts_desc_("Computation options")
+    , merge_opts_desc_()
+    , vm_()
   {
-    help_desc_.add_options()
+    init_general_options();
+    init_compute_options();
+  }
+
+  void OptionsParser::init_general_options()
+  {
+    general_opts_desc_.add_options()
       ("version", "Print the version number of Holovibes and exit.")
       ("help,h", "Print a summary of the command-line options to Holovibes and exit.")
+      ("nogui", "Disable graphical user interface.")
+      ;
+  }
+
+  void OptionsParser::init_features_options(bool is_no_gui)
+  {
+    features_opts_desc_.add_options()
+      ("queuesize,q",
+      po::value<int>()
+      ->default_value(default_queue_size),
+      "Size of queue arg in number of images")
       ;
 
-    desc_.add_options()
+    if (is_no_gui)
+    {
+      features_opts_desc_.add_options()
       ("display,d",
       po::value<std::vector<int>>()
       ->multitoken(),
@@ -29,18 +55,17 @@ namespace holovibes
       "The first argument gives the number of images to record. "
       "The second argument gives the filepath where frames will be recorded.")
 
-      ("queuesize,q",
-      po::value<int>()
-      ->default_value(default_queue_size),
-      "Size of queue arg in number of images")
-
       ("cameramodel,c",
       po::value<std::string>()
       ->required(),
       "Set the camera to use: pike/xiq/ids/pixelfly.")
       ;
+    }
+  }
 
-    cuda_desc_.add_options()
+  void OptionsParser::init_compute_options()
+  {
+    compute_opts_desc_.add_options()
       ("1fft",
       "Enable the 1-FFT method: Fresnel transform. Requires n, p, l, z parameters.")
 
@@ -63,9 +88,38 @@ namespace holovibes
       po::value<float>(),
       "The parameter z corresponds to the sensor-to-object distance.")
       ;
+  }
 
-    desc_.add(cuda_desc_);
-    desc_.add(help_desc_);
+  void OptionsParser::init_merge_options()
+  {
+    merge_opts_desc_.add(general_opts_desc_);
+    merge_opts_desc_.add(features_opts_desc_);
+    merge_opts_desc_.add(compute_opts_desc_);
+  }
+
+  void OptionsParser::parse_general_options(int argc, char* const argv[])
+  {
+    /* First parsing to check help/version options. */
+    po::store(po::command_line_parser(argc, argv)
+      .options(general_opts_desc_)
+      .allow_unregistered()
+      .run(), vm_);
+    po::notify(vm_);
+  }
+
+  bool OptionsParser::get_is_gui_enabled()
+  {
+    return !vm_.count("nogui");
+  }
+
+  void OptionsParser::parse_features_compute_options(int argc, char* const argv[])
+  {
+    po::store(
+      po::command_line_parser(argc, argv)
+      .options(merge_opts_desc_)
+      .positional(pos_desc_)
+      .run(), vm_);
+    po::notify(vm_);
   }
 
   void OptionsParser::parse(int argc, char* const argv[])
@@ -74,22 +128,23 @@ namespace holovibes
 
     try
     {
-      /* First parsing to check help/version options. */
-      po::store(po::command_line_parser(argc, argv)
-        .options(help_desc_)
-        .allow_unregistered()
-        .run(), vm_);
-      po::notify(vm_);
+      parse_general_options(argc, argv);
+
+      opts_.is_gui_enabled = get_is_gui_enabled();
+
+      init_features_options(!opts_.is_gui_enabled);
+      init_merge_options();
+
+      /* May exit here. */
       proceed_help();
 
-      /* Parsing holovibes options. */
-      po::store(
-        po::command_line_parser(argc, argv)
-        .options(desc_)
-        .positional(pos_desc_)
-        .run(), vm_);
-      po::notify(vm_);
-      proceed_holovibes();
+      parse_features_compute_options(argc, argv);
+
+      proceed_features();
+
+      if (opts_.is_compute_enabled)
+        proceed_compute();
+
       succeed = true;
     }
     catch (po::unknown_option& e)
@@ -127,8 +182,9 @@ namespace holovibes
   void OptionsParser::print_help()
   {
     print_version();
-    std::cout << "\nUsage: ./holovibes.exe [OPTIONS]" << std::endl;
-    std::cout << desc_;
+    std::cout << "\nUsage: ./holovibes.exe [OPTIONS]\n"
+      << "This help message depends on --nogui parameter (more options available).\n" << std::endl;
+    std::cout << merge_opts_desc_;
   }
 
   void OptionsParser::print_version()
@@ -151,7 +207,7 @@ namespace holovibes
     }
   }
 
-  void OptionsParser::proceed_holovibes()
+  void OptionsParser::proceed_features()
   {
     if (vm_.count("cameramodel"))
     {
@@ -238,23 +294,21 @@ namespace holovibes
 
     if (vm_.count("1fft"))
     {
-      proceed_dft_params();
-      opts_.is_1fft_enabled = true;
+      opts_.is_compute_enabled = true;
       opts_.compute_desc.algorithm = ComputeDescriptor::FFT1;
     }
 
     if (vm_.count("2fft"))
     {
-      if (opts_.is_1fft_enabled)
+      if (opts_.is_compute_enabled)
         throw std::runtime_error("1fft method already selected");
 
-      proceed_dft_params();
-      opts_.is_2fft_enabled = true;
+      opts_.is_compute_enabled = true;
       opts_.compute_desc.algorithm = ComputeDescriptor::FFT2;
     }
   }
 
-  void OptionsParser::proceed_dft_params()
+  void OptionsParser::proceed_compute()
   {
     if (vm_.count("nsamples"))
     {
