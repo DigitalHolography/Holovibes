@@ -1,4 +1,6 @@
 #include <Windows.h>
+#include <cstdlib>
+
 #include "options_parser.hh"
 #include "holovibes.hh"
 
@@ -30,7 +32,13 @@ int main(int argc, char* argv[])
     w.show();
     h.get_compute_desc().register_observer(w);
 
-    return a.exec();
+    int status = a.exec();
+
+#ifndef _DEBUG
+    ShowWindow(GetConsoleWindow(), SW_SHOW);
+#endif /* !_DEBUG */
+
+    return status;
   }
   else
   {
