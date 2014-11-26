@@ -1,6 +1,5 @@
 #include "holovibes.hh"
 #include "frame_desc.hh"
-#include "gl_component.hh"
 #include "camera_ids.hh"
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"

@@ -42,13 +42,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>true</LinkIncremental>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(GlewLib)\include;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectLibDir)\pixelfly\includes;$(BoostLib);$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(CudaToolkitIncludeDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(GlewLib)\lib\Release\x64;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH)</ExecutablePath>
@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -77,7 +77,6 @@
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
-        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
@@ -108,7 +107,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;glew32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(ProjectLibDir)\pixelfly\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies);cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;$(CudaToolkitLibDir);$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -117,7 +116,6 @@
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
-        copy /Y "$(GlewLib)\bin\Release\x64\glew32.dll" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
@@ -142,8 +140,6 @@
     <ClInclude Include="fft2.cuh" />
     <ClInclude Include="GeneratedFiles\ui_gl_window.h" />
     <ClInclude Include="GeneratedFiles\ui_main_window.h" />
-    <ClInclude Include="gl_component.hh" />
-    <ClInclude Include="gl_window.hh" />
     <CustomBuild Include="gui_gl_window.hh">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
@@ -188,7 +184,6 @@
     <ClInclude Include="recorder.hh" />
     <ClInclude Include="fft1.cuh" />
     <ClInclude Include="thread_compute.hh" />
-    <ClInclude Include="thread_gl_window.hh" />
     <ClInclude Include="thread_capture.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
@@ -216,8 +211,6 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc" />
-    <ClCompile Include="gl_component.cc" />
-    <ClCompile Include="gl_window.cc" />
     <ClCompile Include="gui_gl_widget.cc" />
     <ClCompile Include="gui_gl_window.cc" />
     <ClCompile Include="gui_group_box.cc" />
@@ -231,7 +224,6 @@
     <ClCompile Include="test_main_loader_recorder.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
-    <ClCompile Include="thread_gl_window.cc" />
     <ClCompile Include="main_window.cc" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="fft2.cu" />

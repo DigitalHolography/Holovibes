@@ -74,12 +74,6 @@
     <ClCompile Include="camera_exception.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gl_component.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="holovibes.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thread_capture.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_gl_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thread_compute.cc">
@@ -166,12 +157,6 @@
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="gl_component.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl_window.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="hardware_limits.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -198,9 +183,6 @@
     </ClInclude>
     <ClInclude Include="fft1.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_gl_window.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="thread_capture.hh">
       <Filter>Header Files</Filter>

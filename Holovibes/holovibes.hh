@@ -3,7 +3,6 @@
 
 # include "camera.hh"
 # include "thread_compute.hh"
-# include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
