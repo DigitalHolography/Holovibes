@@ -43,14 +43,19 @@ namespace camera
 	void CameraIxon::start_acquisition()
 	{
 		unsigned int error;
-		error = SetExposureTime(0.5);
+		error = SetAcquisitionMode(5); // RUN TILL ABORT
 		if (error != DRV_SUCCESS)
 			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-		//SetDDGTriggerMode(0); //   0  internal / 1 external
-		error = SetShutter(1, 0, 0, 0);
+		error = SetReadMode(4);
 		if (error != DRV_SUCCESS)
 			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-		error = SetTriggerMode(0); //0 = internal
+		error = SetExposureTime(exposure_time_);
+		if (error != DRV_SUCCESS)
+			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+		error = SetShutter(ttl_, shutter_mode_, shutter_open_, shutter_close_);
+		if (error != DRV_SUCCESS)
+			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+		error = SetTriggerMode(trigger_mode_);
 		if (error != DRV_SUCCESS)
 			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
 		//SetReadMode(4);
@@ -59,10 +64,7 @@ namespace camera
 			throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
 		//SetFrameTransferMode()//ne effcet in kinetics or single scan
 		//SetAcquisitionMode(5); // 1 single scan / 2 accumulates / 3 kinectics / 4 fast kin / 5 run till abort
-		
-		
 		long nbuff;
-		//std::cout << 
 		if (GetSizeOfCircularBuffer(&nbuff) == DRV_NOT_INITIALIZED)
 			std::cout << "drv no init" << std::endl;
 		std::cout << "nbbuff " << nbuff << std::endl;
@@ -72,9 +74,7 @@ namespace camera
 	}
 
 	void CameraIxon::stop_acquisition()
-	{
-
-		
+	{	
 	}
 
 	void CameraIxon::shutdown_camera()
@@ -88,13 +88,13 @@ namespace camera
 		long last;
 		GetNumberNewImages(&first, &last);
 		std::cout << "first: " << first << " last: " << last << std::endl;
-		//GetAcquiredData16(image_, desc_.frame_res());
-		unsigned int error = GetMostRecentImage16(image_, desc_.width * desc_.height);
-		if (error != DRV_SUCCESS)
-		{
-			std::cout << error << " error" << std::endl;
+		SendSoftwareTrigger();
+		WaitForAcquisition();
+		unsigned int error = GetNewData16(image_, desc_.width * desc_.height);
 
-		}
+		if (error != DRV_SUCCESS && error != DRV_NO_NEW_DATA)
+			throw CameraException(name_, CameraException::CANT_GET_FRAME);
+		else
 		return ((void*)image_);
 	}
 
@@ -105,6 +105,12 @@ namespace camera
 		desc_.depth = 2;
 		desc_.pixel_size = 7.4f;
 		desc_.endianness = BIG_ENDIAN;
+		exposure_time_ = 0.1;
+		trigger_mode_ = 10; //0
+		shutter_close_ = 0;
+		shutter_open_ = 0;
+		ttl_ = 1;
+		shutter_mode_ = 5; //0
 	}
 
 	void CameraIxon::load_ini_params()
@@ -114,8 +120,12 @@ namespace camera
 		desc_.width = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
 		desc_.height = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
 
-		exposure_time_ = pt.get<float>("ixon.shutter_time", exposure_time_);
-		
+		exposure_time_ = pt.get<float>("ixon.exposure_time", exposure_time_);
+		trigger_mode_ = pt.get<int>("ixon.trigger_mode", trigger_mode_);
+		shutter_close_ = pt.get<float>("ixon.shutter_close", shutter_close_);
+		shutter_open_ = pt.get<float>("ixon.shutter_open", shutter_close_);
+		ttl_ = pt.get<int>("ixon.ttl", ttl_);
+		shutter_mode_ = pt.get<int>("ixon.shutter_mode", shutter_mode_);
 	}
 
 	void CameraIxon::bind_params()

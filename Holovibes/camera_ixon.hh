@@ -31,6 +31,11 @@ namespace camera
 	private:
 		long device_handle;
 		unsigned short* image_;
+		int trigger_mode_;
+		float shutter_close_;
+		float shutter_open_;
+		int ttl_;
+		int shutter_mode_;
 		//unsigned char* buffers_[NBUFFERS];
 	};
 }

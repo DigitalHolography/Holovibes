@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
 	void *imgs = malloc(c.get_frame_descriptor().frame_size() * 100);
 	for (int i = 0; i < 100; i++)
 	{
+		Sleep(100);
 		void *frame = c.get_frame();
 		memcpy((unsigned char*)imgs + i * c.get_frame_descriptor().frame_size(), frame, c.get_frame_descriptor().frame_size());
 	}
