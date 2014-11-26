@@ -77,10 +77,10 @@ namespace gui
       algorithm->setCurrentIndex(0);
 
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-    contrast_min->setValue(cd.contrast_min);
+    contrast_min->setValue(log10(cd.contrast_min));
 
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-    contrast_max->setValue(cd.contrast_max);
+    contrast_max->setValue(log10(cd.contrast_max));
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
