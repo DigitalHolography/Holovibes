@@ -2,6 +2,7 @@
 # define GUI_GL_WIDGET_HH_
 
 # include <QGLWidget>
+# include <QTimer>
 # include <GL/GL.h>
 # include <cuda.h>
 # include <cuda_runtime.h>
@@ -36,6 +37,7 @@ namespace gui
     camera::FrameDescriptor fd_;
     GLuint texture_;
     void* frame_;
+    QTimer timer_;
   };
 }
 
