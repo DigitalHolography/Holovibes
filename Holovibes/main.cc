@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
   opts_parser.parse(argc, argv);
 #endif
   holovibes::Holovibes h;
+  h.set_compute_desc(opts.compute_desc);
 
   if (opts.is_gui_enabled)
   {
@@ -38,7 +39,6 @@ int main(int argc, char* argv[])
     try
     {
       h.init_capture(opts.camera, opts.queue_size);
-      h.set_compute_desc(opts.compute_desc);
 
       if (opts.is_1fft_enabled || opts.is_2fft_enabled)
         h.init_compute();

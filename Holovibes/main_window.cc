@@ -433,7 +433,7 @@ namespace gui
 
   void MainWindow::browse_file()
   {
-    QString filename = QFileDialog::getOpenFileName(this,
+    QString filename = QFileDialog::getSaveFileName(this,
       tr("Record output file"), "C://", tr(""));
 
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
