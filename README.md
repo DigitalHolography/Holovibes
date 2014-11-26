@@ -132,3 +132,5 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Thread shared resources are no longer allocated in threads.
 * CUDA kernels are less monolithic (complex-real conversions are separated).
 * Fix pixelfly hologram mode.
+* CLI updated (--nogui mode)
+* CLI can set parameters on GUI.
