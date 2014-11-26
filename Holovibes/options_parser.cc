@@ -68,7 +68,7 @@ namespace holovibes
     desc_.add(help_desc_);
   }
 
-  void OptionsParser::parse(int argc, const char* argv[])
+  void OptionsParser::parse(int argc, char* const argv[])
   {
     bool succeed = false;
 

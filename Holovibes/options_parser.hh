@@ -42,7 +42,7 @@ namespace holovibes
 
     /*! \brief Parse the command line given by the user and
      * fill the options descriptor. */
-    void parse(int argc, const char* argv[]);
+    void parse(int argc, char* const argv[]);
 
   private:
     /*! Parser initialization: loads options. */
