@@ -4,6 +4,8 @@
 #include "camera_exception.hh"
 #include "camera_pixelfly.hh"
 #include "queue.hh"
+#include "camera_ixon.hh"
+
 
 #undef min
 #include <QtWidgets>
@@ -19,6 +21,22 @@
 
 int main(int argc, char* argv[])
 {
+	camera::CameraIxon c = camera::CameraIxon();
+	c.init_camera();
+	c.start_acquisition();
+	Sleep(2000);
+	void *imgs = malloc(c.get_frame_descriptor().frame_size() * 100);
+	for (int i = 0; i < 100; i++)
+	{
+		void *frame = c.get_frame();
+		memcpy((unsigned char*)imgs + i * c.get_frame_descriptor().frame_size(), frame, c.get_frame_descriptor().frame_size());
+	}
+	FILE *f;
+	fopen_s(&f,"ixon.raw","w+b");
+	fwrite(imgs, c.get_frame_descriptor().frame_size(), 100, f);
+	fclose(f);
+	exit(0);
+	
   // Holovibes object
   holovibes::Holovibes h(holovibes::Holovibes::camera_type::IDS);
   h.init_capture(20);
