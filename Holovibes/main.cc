@@ -1,21 +1,11 @@
+#include <Windows.h>
 #include "options_parser.hh"
 #include "holovibes.hh"
-#include "camera.hh"
-#include "camera_exception.hh"
-#include "camera_pixelfly.hh"
-#include "queue.hh"
 
 #undef min
 #include <QtWidgets>
 
 #include "main_window.hh"
-#include "gui_gl_window.hh"
-#include "gui_gl_widget.hh"
-
-#include "compute_descriptor.hh"
-#include "pipeline.hh"
-
-#include <thread>
 
 int main(int argc, char* argv[])
 {
