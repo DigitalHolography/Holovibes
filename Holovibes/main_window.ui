@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,6 +17,9 @@
    <font>
     <pointsize>8</pointsize>
    </font>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Holovibes</string>
@@ -1110,8 +1116,8 @@
    <slot>camera_ids()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>4</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>195</x>
@@ -1126,8 +1132,8 @@
    <slot>camera_pike()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>258</x>
-     <y>9</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
@@ -1142,8 +1148,8 @@
    <slot>camera_pixelfly()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>12</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>360</x>
@@ -1158,8 +1164,8 @@
    <slot>camera_xiq()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>6</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -1174,8 +1180,8 @@
    <slot>camera_none()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>8</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>123</x>

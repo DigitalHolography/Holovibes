@@ -65,6 +65,9 @@ namespace gui
     void browse_file();
     void set_record();
 
+  protected:
+    virtual void closeEvent(QCloseEvent* event) override;
+
   private:
     void enable();
     void disable();

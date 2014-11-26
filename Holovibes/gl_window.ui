@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>GLWindow</class>
  <widget class="QMainWindow" name="GLWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>

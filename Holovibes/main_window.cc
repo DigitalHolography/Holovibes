@@ -22,9 +22,6 @@ namespace gui
     cd.zdistance = 1.36f;
 
     holovibes_.set_compute_desc(cd);
-
-    // FIXME
-    //change_camera(holovibes::Holovibes::XIQ);
     
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -48,6 +45,9 @@ namespace gui
 
   MainWindow::~MainWindow()
   {
+    holovibes_.dispose_compute();
+    holovibes_.dispose_capture();
+
     delete gl_window_;
   }
 
@@ -137,7 +137,7 @@ namespace gui
     // If direct mode
     if (value)
     {
-      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
       is_direct_mode_ = true;
 
       disable();
@@ -145,7 +145,7 @@ namespace gui
     else
     {
       holovibes_.init_compute();
-      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue(), this);
+      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
       is_direct_mode_ = false;
 
       enable();
@@ -450,6 +450,12 @@ namespace gui
 
     if (!is_direct_mode_)
       enable();
+  }
+
+  void MainWindow::closeEvent(QCloseEvent* event)
+  {
+    if (gl_window_)
+      gl_window_->close();
   }
 
   void MainWindow::enable()
