@@ -1,26 +1,38 @@
-#include "gui_gl_widget.hh"
+#include <QOpenGL.h>
+#include <cuda_gl_interop.h>
+#include <cuda_runtime.h>
+#include <iostream>
 
-#define DISPLAY_TIMEOUT 50
+#include "gui_gl_widget.hh"
 
 namespace gui
 {
-  GLWidget::GLWidget(holovibes::Queue& q, unsigned int width, unsigned int height, QWidget *parent)
-    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent),
-    q_(q),
-    width_(width),
-    height_(height),
-    fd_(q_.get_frame_desc()),
-    texture_(0),
-    timer_(this)
+  GLWidget::GLWidget(
+    holovibes::Queue& q,
+    unsigned int width,
+    unsigned int height,
+    QWidget *parent)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+    , QOpenGLFunctions()
+    , timer_(this)
+    , width_(width)
+    , height_(height)
+    , queue_(q)
+    , frame_desc_(q.get_frame_desc())
+    , buffer_(0)
+    , cuda_buffer_(nullptr)
   {
-    frame_ = malloc(fd_.width * fd_.height * fd_.depth);
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
-    timer_.start(DISPLAY_TIMEOUT);
+    timer_.start(1000 / DISPLAY_FRAMERATE);
   }
 
   GLWidget::~GLWidget()
   {
-    free(frame_);
+    /* Unregister buffer for access by CUDA. */
+    cudaGraphicsUnregisterResource(cuda_buffer_);
+    /* Destroy buffer name. */
+    glDeleteBuffers(1, &buffer_);
+    glDisable(GL_TEXTURE_2D);
   }
 
   QSize GLWidget::minimumSizeHint() const
@@ -35,11 +47,29 @@ namespace gui
 
   void GLWidget::initializeGL()
   {
+    initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_QUADS);
 
-    glGenTextures(1, &texture_);
+    /* Generate buffer name. */
+    glGenBuffers(1, &buffer_);
+
+    /* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
+    glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
+    /* Creates and initialize a buffer object's data store. */
+    glBufferData(
+      GL_TEXTURE_BUFFER,
+      frame_desc_.frame_size(),
+      nullptr,
+      GL_DYNAMIC_DRAW);
+    /* Unbind any buffer of GL_TEXTURE_BUFFER target. */
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+    /* Register buffer name to CUDA. */
+    cudaGraphicsGLRegisterBuffer(
+      &cuda_buffer_,
+      buffer_,
+      cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+
     glViewport(0, 0, width_, height_);
   }
 
@@ -52,35 +82,48 @@ namespace gui
   {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindTexture(GL_TEXTURE_2D, texture_);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    const void* frame = queue_.get_last_images(1);
 
-    if (fd_.endianness == camera::BIG_ENDIAN)
+    /* Map the buffer for access by CUDA. */
+    cudaGraphicsMapResources(1, &cuda_buffer_);
+    size_t buffer_size;
+    void* buffer_ptr;
+    cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
+    /* CUDA memcpy of the frame to opengl buffer. */
+    cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+    /* Unmap the buffer for access by CUDA. */
+    cudaGraphicsUnmapResources(1, &cuda_buffer_);
+
+    /* Bind the buffer object to the target GL_PIXEL_UNPACK_BUFFER.
+     * This affects glTexImage2D command. */
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer_);
+
+    if (frame_desc_.endianness == camera::BIG_ENDIAN)
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
-
-    unsigned int frame_size = fd_.width * fd_.height * fd_.depth;
-    cudaMemcpy(frame_, q_.get_last_images(1), frame_size, cudaMemcpyDeviceToHost);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glTexImage2D(
       GL_TEXTURE_2D,
       /* Base image level. */
       0,
       GL_LUMINANCE,
-      fd_.width,
-      fd_.height,
+      frame_desc_.width,
+      frame_desc_.height,
       /* border: This value must be 0. */
       0,
       GL_LUMINANCE,
       /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      fd_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
+      frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
       /* Pointer to image data in memory. */
-      frame_);
+      NULL);
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
@@ -88,6 +131,15 @@ namespace gui
     glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
+
+    gl_error_checking();
+  }
+
+  void GLWidget::gl_error_checking()
+  {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR)
+      std::cerr << "[GL] " << glGetString(error) << std::endl;
   }
 
   void GLWidget::resizeFromWindow(int width, int height)

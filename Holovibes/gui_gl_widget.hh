@@ -2,22 +2,27 @@
 # define GUI_GL_WIDGET_HH_
 
 # include <QGLWidget>
+# include <QOpenGLFunctions.h>
 # include <QTimer>
-# include <GL/GL.h>
-# include <cuda.h>
-# include <cuda_runtime.h>
-# include <device_launch_parameters.h>
-# include "camera.hh"
+
+# include <cuda_gl_interop.h>
+
 # include "queue.hh"
+# include "frame_desc.hh"
 
 namespace gui
 {
-  class GLWidget : public QGLWidget
+  class GLWidget : public QGLWidget, protected QOpenGLFunctions
   {
     Q_OBJECT
+      const unsigned int DISPLAY_FRAMERATE = 30;
 
   public:
-    GLWidget(holovibes::Queue& q, unsigned int width, unsigned int height, QWidget* parent = 0);
+    GLWidget(
+      holovibes::Queue& q,
+      unsigned int width,
+      unsigned int height,
+      QWidget* parent = 0);
     ~GLWidget();
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
@@ -31,13 +36,22 @@ namespace gui
     void paintGL() override;
 
   private:
-    holovibes::Queue& q_;
+    void gl_error_checking();
+
+  private:
+    /* --- QT --- */
+    QTimer timer_;
+
+    /* Window size hints */
     unsigned int width_;
     unsigned int height_;
-    camera::FrameDescriptor fd_;
-    GLuint texture_;
-    void* frame_;
-    QTimer timer_;
+
+    /* --- CUDA/OpenGL --- */
+    holovibes::Queue& queue_;
+    const camera::FrameDescriptor& frame_desc_;
+
+    GLuint buffer_;
+    struct cudaGraphicsResource* cuda_buffer_;
   };
 }
 
