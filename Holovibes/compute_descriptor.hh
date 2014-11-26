@@ -35,7 +35,7 @@ namespace holovibes
       , shift_corners_enabled(false)
       , contrast_enabled(false)
       , vibrometry_enabled(false)
-      , contrast_min(0)
+      , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q(0)
     {}
