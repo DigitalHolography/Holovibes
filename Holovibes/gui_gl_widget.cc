@@ -1,5 +1,7 @@
 #include "gui_gl_widget.hh"
 
+#define DISPLAY_TIMEOUT 50
+
 namespace gui
 {
   GLWidget::GLWidget(holovibes::Queue& q, unsigned int width, unsigned int height, QWidget *parent)
@@ -8,9 +10,12 @@ namespace gui
     width_(width),
     height_(height),
     fd_(q_.get_frame_desc()),
-    texture_(0)
+    texture_(0),
+    timer_(this)
   {
     frame_ = malloc(fd_.width * fd_.height * fd_.depth);
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
+    timer_.start(DISPLAY_TIMEOUT);
   }
 
   GLWidget::~GLWidget()
@@ -83,8 +88,6 @@ namespace gui
     glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
-
-    update();
   }
 
   void GLWidget::resizeFromWindow(int width, int height)
