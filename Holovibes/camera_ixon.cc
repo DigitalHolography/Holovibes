@@ -109,9 +109,12 @@ namespace camera
 
 	void CameraIxon::load_ini_params()
 	{
-
-
 		/* Use the default value in case of fail. */
+		const boost::property_tree::ptree& pt = get_ini_pt();
+		desc_.width = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
+		desc_.height = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
+
+		exposure_time_ = pt.get<float>("ixon.shutter_time", exposure_time_);
 		
 	}
 
