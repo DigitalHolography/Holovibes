@@ -13,11 +13,15 @@ namespace camera
     , device_(nullptr)
     , refresh_event_(CreateEvent(NULL, FALSE, FALSE, "ImgReady"))
     , buffer_(nullptr)
+    , squared_buffer_(new WORD[2048 * 2048])
   {
     name_ = "pixelfly";
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
+
+    for (unsigned int i = 0; i < 2048 * 2048; ++i)
+      squared_buffer_[i] = 0;
   }
 
   CameraPixelfly::~CameraPixelfly()
@@ -25,6 +29,7 @@ namespace camera
     /* Ensure that the camera is closed in case of exception. */
     shutdown_camera();
     CloseHandle(refresh_event_);
+    delete squared_buffer_;
   }
 
   void CameraPixelfly::init_camera()
@@ -69,8 +74,21 @@ namespace camera
   {
     if (WaitForSingleObject(refresh_event_, 500) == WAIT_OBJECT_0)
     {
-      PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(desc_.width), static_cast<WORD>(desc_.height), 16);
-      return buffer_;
+      PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(actual_res_x_), static_cast<WORD>(actual_res_y_), 16);
+
+      unsigned int squared_buffer_offset = 0;
+      for (WORD y = 0; y < actual_res_y_; ++y)
+      {
+        for (WORD x = 0; x < actual_res_x_; ++x)
+        {
+          squared_buffer_[squared_buffer_offset + x] = buffer_[y * actual_res_x_ + x];
+        }
+
+        /* Add size of a squared buffer line. */
+        squared_buffer_offset += 2048;
+      }
+
+      return squared_buffer_;
     }
     throw CameraException(name_, CameraException::CANT_GET_FRAME);
   }
@@ -87,6 +105,8 @@ namespace camera
     desc_.depth = 2;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 6.45f;
+    desc_.width = 2048;
+    desc_.height = 2048;
   }
 
   void CameraPixelfly::load_ini_params()
@@ -142,22 +162,17 @@ namespace camera
 
   int CameraPixelfly::pco_get_sizes()
   {
-    WORD actualres_x, actualres_y;
     WORD ccdres_x, ccdres_y;
 
     int status = PCO_GetSizes(
       device_,
-      &actualres_x,
-      &actualres_y,
+      &actual_res_x_,
+      &actual_res_y_,
       &ccdres_x,
       &ccdres_y);
 
-    /* Fill the frame descriptor width/height fields. */
-    desc_.width = actualres_x;
-    desc_.height = actualres_y;
-
 #if _DEBUG
-    std::cout << actualres_x << ", " << actualres_y << std::endl;
+    std::cout << actual_res_x_ << ", " << actual_res_y_ << std::endl;
 #endif
 
     return status;
