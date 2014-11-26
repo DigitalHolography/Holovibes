@@ -618,6 +618,7 @@
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionFull_screen"/>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
     <addaction name="actionSpecial"/>
@@ -763,6 +764,11 @@
   <action name="actionNone">
    <property name="text">
     <string>None</string>
+   </property>
+  </action>
+  <action name="actionFull_screen">
+   <property name="text">
+    <string>Full screen</string>
    </property>
   </action>
  </widget>
@@ -962,8 +968,8 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>350</x>
-     <y>163</y>
+     <x>400</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>-50</x>
@@ -1227,6 +1233,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionFull_screen</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>gl_full_screen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>437</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1253,5 +1275,6 @@
   <slot>camera_pixelfly()</slot>
   <slot>camera_xiq()</slot>
   <slot>camera_none()</slot>
+  <slot>gl_full_screen()</slot>
  </slots>
 </ui>

@@ -89,6 +89,11 @@ namespace gui
     q_vibro->setValue(cd.vibrometry_q);
   }
 
+  void MainWindow::gl_full_screen()
+  {
+    gl_window_->full_screen();
+  }
+
   void MainWindow::camera_ids()
   {
     change_camera(holovibes::Holovibes::IDS);

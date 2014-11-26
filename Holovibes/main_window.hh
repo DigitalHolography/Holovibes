@@ -29,6 +29,7 @@ namespace gui
 
   public slots:
     // Menu
+    void gl_full_screen();
     void camera_none();
     void camera_ids();
     void camera_pike();
@@ -88,6 +89,8 @@ namespace gui
     QShortcut* z_down_shortcut_;
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
+    QShortcut* gl_full_screen_;
+    QShortcut* gl_normal_screen_;
   };
 }
 
