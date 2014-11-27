@@ -72,7 +72,7 @@ namespace camera
 
   void* CameraPixelfly::get_frame()
   {
-    if (WaitForSingleObject(refresh_event_, 500) == WAIT_OBJECT_0)
+    if (WaitForSingleObject(refresh_event_, 2000) == WAIT_OBJECT_0)
     {
       PCO_AddBufferEx(device_, 0, 0, 0, static_cast<WORD>(actual_res_x_), static_cast<WORD>(actual_res_y_), 16);
 

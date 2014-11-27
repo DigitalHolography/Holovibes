@@ -9,7 +9,8 @@ namespace gui
     holovibes_(holovibes),
     gl_window_(nullptr),
     is_direct_mode_(true),
-    is_enabled_camera_(false)
+    is_enabled_camera_(false),
+    record_thread_(nullptr)
   {
     ui.setupUi(this);
 
@@ -454,11 +455,34 @@ namespace gui
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
 
-    holovibes_.init_recorder(path, nb_of_frames);
-    holovibes_.dispose_recorder();
+    if (is_direct_mode_)
+    {
+      record_thread_ = new ThreadRecorder(
+        holovibes_.get_capture_queue(),
+        path,
+        nb_of_frames,
+        this);
+    }
+    else
+    {
+      record_thread_ = new ThreadRecorder(
+        holovibes_.get_output_queue(),
+        path,
+        nb_of_frames,
+        this);
+    }
+
+    connect(record_thread_, SIGNAL(finished()), this, SLOT(finish_record()));
+    record_thread_->start();
 
     if (!is_direct_mode_)
       enable();
+  }
+
+  void MainWindow::finish_record()
+  {
+    delete record_thread_;
+    record_thread_ = nullptr;
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)

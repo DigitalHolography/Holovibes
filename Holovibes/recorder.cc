@@ -12,6 +12,7 @@ namespace holovibes
     const std::string& filepath)
     : queue_(queue)
     , file_()
+    , stop_requested_(false)
   {
 #ifndef _DEBUG
     if (is_file_exist(filepath))
@@ -32,7 +33,7 @@ namespace holovibes
     std::cout << "[RECORDER] started recording " <<
       n_images << " frames" << std::endl;
 
-    for (unsigned int i = 0; i < n_images; ++i)
+    for (unsigned int i = 0; !stop_requested_ && i < n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
@@ -44,6 +45,11 @@ namespace holovibes
     std::cout << "[RECORDER] recording has been stopped" << std::endl;
 
     delete[] buffer;
+  }
+
+  void Recorder::stop()
+  {
+    stop_requested_ = true;
   }
 
   bool Recorder::is_file_exist(const std::string& filepath)

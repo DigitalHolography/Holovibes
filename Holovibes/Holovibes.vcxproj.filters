@@ -137,6 +137,12 @@
     <ClCompile Include="compute_descriptor.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="thread_recorder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
@@ -250,6 +256,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="gui_group_box.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="thread_recorder.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

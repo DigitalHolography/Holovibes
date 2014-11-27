@@ -185,6 +185,16 @@
     <ClInclude Include="fft1.cuh" />
     <ClInclude Include="thread_compute.hh" />
     <ClInclude Include="thread_capture.hh" />
+    <CustomBuild Include="thread_recorder.hh">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
+    </CustomBuild>
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
@@ -210,6 +220,7 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc" />
     <ClCompile Include="GeneratedFiles\qrc_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc" />
     <ClCompile Include="gui_gl_widget.cc" />
@@ -226,6 +237,7 @@
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
+    <ClCompile Include="thread_recorder.cc" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="fft2.cu" />
     <CudaCompile Include="hardware_limits.cc" />

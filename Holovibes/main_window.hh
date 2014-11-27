@@ -14,6 +14,7 @@
 # include "observer.hh"
 # include "gui_gl_window.hh"
 # include "camera_exception.hh"
+# include "thread_recorder.hh"
 
 namespace gui
 {
@@ -65,6 +66,7 @@ namespace gui
     // Record
     void browse_file();
     void set_record();
+    void finish_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -89,6 +91,8 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
     bool is_enabled_camera_;
+    
+    ThreadRecorder* record_thread_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
