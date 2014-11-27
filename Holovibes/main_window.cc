@@ -467,32 +467,38 @@ namespace gui
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
 
-    if (is_direct_mode_)
+    try
     {
-      record_thread_ = new ThreadRecorder(
-        holovibes_.get_capture_queue(),
-        path,
-        nb_of_frames,
-        this);
+      if (is_direct_mode_)
+      {
+        record_thread_ = new ThreadRecorder(
+          holovibes_.get_capture_queue(),
+          path,
+          nb_of_frames,
+          this);
+      }
+      else
+      {
+        record_thread_ = new ThreadRecorder(
+          holovibes_.get_output_queue(),
+          path,
+          nb_of_frames,
+          this);
+      }
+
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(finish_record()));
+      record_thread_->start();
+
+      QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+      cancel_button->setDisabled(false);
+
+      if (!is_direct_mode_)
+        enable();
     }
-    else
+    catch (std::exception& e)
     {
-      record_thread_ = new ThreadRecorder(
-        holovibes_.get_output_queue(),
-        path,
-        nb_of_frames,
-        this);
+      display_error(e.what());
     }
-
-    connect(record_thread_, SIGNAL(finished()), this, SLOT(finish_record()));
-    record_thread_->start();
-
-    QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
-
-    cancel_button->setDisabled(false);
-
-    if (!is_direct_mode_)
-      enable();
   }
 
   void MainWindow::cancel_record()
