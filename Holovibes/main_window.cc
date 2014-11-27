@@ -125,6 +125,18 @@ namespace gui
     change_camera(holovibes::Holovibes::XIQ);
   }
 
+  void MainWindow::credits()
+  {
+    display_info("Holovibes v0.4.2\n\n"
+      "Scientists:\n"
+      "Michael Atlan\n"
+      "\n"
+      "Developers:\n"
+      "Jeffrey Bencteux\n"
+      "Thomas Kostas\n"
+      "Pierre Pagnoux\n");
+  }
+
   void MainWindow::set_image_mode(bool value)
   {
     if (is_enabled_camera_)

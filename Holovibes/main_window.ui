@@ -1278,6 +1278,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionCredits</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>credits()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>-25</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1306,5 +1322,6 @@
   <slot>camera_none()</slot>
   <slot>gl_full_screen()</slot>
   <slot>cancel_record()</slot>
+  <slot>credits()</slot>
  </slots>
 </ui>

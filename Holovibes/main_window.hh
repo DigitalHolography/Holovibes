@@ -36,6 +36,7 @@ namespace gui
     void camera_pike();
     void camera_pixelfly();
     void camera_xiq();
+    void credits();
 
     // Image rendering
     void set_image_mode(bool value);
