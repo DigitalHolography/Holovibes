@@ -519,6 +519,7 @@ namespace gui
     cancel_button->setDisabled(true);
     delete record_thread_;
     record_thread_ = nullptr;
+    display_info("Record has completed successfully");
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)
