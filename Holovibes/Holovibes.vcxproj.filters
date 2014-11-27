@@ -143,6 +143,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="camera_ixon.hh">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_ixon.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
