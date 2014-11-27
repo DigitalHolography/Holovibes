@@ -164,9 +164,6 @@
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_ixon.hh">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="camera_ixon.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -258,6 +255,9 @@
     </ClInclude>
     <ClInclude Include="vibrometry.cuh">
       <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_ixon.hh">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

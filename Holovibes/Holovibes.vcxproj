@@ -215,7 +215,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_ixon.cc" />
-    <ClCompile Include="camera_ixon.hh" />
+    <ClInclude Include="camera_ixon.hh" />
     <ClCompile Include="camera_xiq.cc" />
     <ClCompile Include="camera_ids.cc" />
     <ClCompile Include="camera_pike.cc" />

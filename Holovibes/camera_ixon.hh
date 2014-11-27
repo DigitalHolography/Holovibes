@@ -2,7 +2,8 @@
 # define CAMERA_IXON_HH
 
 # include "camera.hh"
-#include "atmcd32d.h"
+# include <atmcd32d.h>
+# include <iostream>
 
 namespace camera
 {
