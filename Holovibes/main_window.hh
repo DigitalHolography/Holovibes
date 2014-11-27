@@ -65,6 +65,7 @@ namespace gui
     // Record
     void browse_file();
     void set_record();
+    void cancel_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -78,6 +79,7 @@ namespace gui
     void record_disable();
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
+    void display_info(std::string msg);
 
     //Debug
     template <typename T>

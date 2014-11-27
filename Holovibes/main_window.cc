@@ -461,6 +461,15 @@ namespace gui
       enable();
   }
 
+  void MainWindow::cancel_record()
+  {
+    display_info("Record canceled");
+    holovibes_.dispose_recorder();
+
+    if (!is_direct_mode_)
+      enable();
+  }
+
   void MainWindow::closeEvent(QCloseEvent* event)
   {
     if (gl_window_)
@@ -601,6 +610,14 @@ namespace gui
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Critical);
+    msg_box.exec();
+  }
+
+  void MainWindow::display_info(std::string msg)
+  {
+    QMessageBox msg_box;
+    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
   }
 
