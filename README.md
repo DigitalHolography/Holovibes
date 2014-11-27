@@ -121,6 +121,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 	* Updates holograms parameters in live
     * Guards and protections against bad user actions
     * Camera change on the fly
+    * Record canceling feature
 * Add pipeline to apply algorithms.
 * Fix queue issue when using big endian camera (Queue ensures that his content is little endian).
 * Better memory management (less cudaMalloc), resources are allocated once at start and only few reallocations occurs when tweaking the Phase# parameter.
