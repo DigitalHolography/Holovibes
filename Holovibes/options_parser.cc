@@ -143,7 +143,7 @@ namespace holovibes
       proceed_features();
       proceed_compute();
 
-      if (!opts_.is_gui_enabled)
+      if (!opts_.is_gui_enabled && opts_.is_compute_enabled)
         check_compute_params();
 
       opts_.compute_desc.sanity_check();
