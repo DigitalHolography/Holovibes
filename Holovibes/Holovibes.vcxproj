@@ -216,13 +216,38 @@
     <ClCompile Include="camera_pixelfly.cc" />
     <ClCompile Include="camera_exception.cc" />
     <ClCompile Include="compute_descriptor.cc" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc" />
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_window.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_group_box.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_main_window.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_thread_recorder.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="gui_gl_widget.cc" />
     <ClCompile Include="gui_gl_window.cc" />
     <ClCompile Include="gui_group_box.cc" />
