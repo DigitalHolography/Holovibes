@@ -463,8 +463,8 @@ namespace gui
 
   void MainWindow::cancel_record()
   {
-    display_info("Record canceled");
     holovibes_.dispose_recorder();
+    display_info("Record canceled");
 
     if (!is_direct_mode_)
       enable();

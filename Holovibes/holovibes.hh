@@ -83,6 +83,9 @@ namespace holovibes
     Queue* output_;
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
+
+    // CLI only
+    gui::GuiGLWindow* gl_window_;
   };
 }
 
