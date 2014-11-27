@@ -575,8 +575,12 @@ namespace gui
   {
     try
     {
+      camera_disable();
+      record_disable();
+      delete gl_window_;
+      gl_window_ = nullptr;
+      holovibes_.dispose_compute();
       holovibes_.dispose_capture();
-
       holovibes_.init_capture(camera_type, 20);
       camera_enable();
       record_enable();

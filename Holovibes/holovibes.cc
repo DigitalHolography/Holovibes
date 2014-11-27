@@ -58,11 +58,25 @@ namespace holovibes
       throw std::runtime_error("Error while allocating Camera constructor");
 
     assert(camera_ && "camera not initialized");
-    camera_->init_camera();
-    input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
-    camera_->start_acquisition();
-    tcapture_ = new ThreadCapture(*camera_, *input_);
-    std::cout << "[CAPTURE] capture thread started" << std::endl;
+
+    try
+    {
+      camera_->init_camera();
+      input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
+      camera_->start_acquisition();
+      tcapture_ = new ThreadCapture(*camera_, *input_);
+      std::cout << "[CAPTURE] capture thread started" << std::endl;
+    }
+    catch (std::exception& e)
+    {
+      delete tcapture_;
+      tcapture_ = nullptr;
+      delete input_;
+      input_ = nullptr;
+      delete camera_;
+      camera_ = nullptr;
+      throw;
+    }
   }
 
   void Holovibes::dispose_capture()
