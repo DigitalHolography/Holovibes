@@ -8,21 +8,30 @@ namespace gui
     : QMainWindow(parent),
     holovibes_(holovibes),
     gl_window_(nullptr),
-    is_direct_mode_(true)
+    is_direct_mode_(true),
+    is_enabled_camera_(false)
   {
     ui.setupUi(this);
 
+    // FIXME (it will be when loading a camera from ini file)
+    camera_disable();
+    record_disable();
+
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
+    z_up_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
 
     z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
+    z_down_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
 
     p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
+    p_left_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
 
     p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
+    p_right_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
     if (is_direct_mode_)
@@ -95,6 +104,9 @@ namespace gui
     if (!is_direct_mode_)
       holovibes_.dispose_compute();
     holovibes_.dispose_capture();
+    camera_disable();
+    record_disable();
+    disable();
   }
 
   void MainWindow::camera_pike()
@@ -114,35 +126,38 @@ namespace gui
 
   void MainWindow::set_image_mode(bool value)
   {
-    holovibes_.dispose_compute();
-    QPoint pos(0, 0);
-    unsigned int width = 512;
-    unsigned int height = 512;
-
-    if (gl_window_)
+    if (is_enabled_camera_)
     {
-      pos = gl_window_->pos();
-      width = gl_window_->size().width();
-      height = gl_window_->size().height();
-    }
+      holovibes_.dispose_compute();
+      QPoint pos(0, 0);
+      unsigned int width = 512;
+      unsigned int height = 512;
 
-    delete gl_window_;
+      if (gl_window_)
+      {
+        pos = gl_window_->pos();
+        width = gl_window_->size().width();
+        height = gl_window_->size().height();
+      }
 
-    // If direct mode
-    if (value)
-    {
-      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
-      is_direct_mode_ = true;
+      delete gl_window_;
 
-      disable();
-    }
-    else
-    {
-      holovibes_.init_compute();
-      gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
-      is_direct_mode_ = false;
+      // If direct mode
+      if (value)
+      {
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
+        is_direct_mode_ = true;
 
-      enable();
+        disable();
+      }
+      else
+      {
+        holovibes_.init_compute();
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
+        is_direct_mode_ = false;
+
+        enable();
+      }
     }
   }
 
@@ -530,6 +545,32 @@ namespace gui
     algorithm->setDisabled(true);
   }
 
+  void MainWindow::camera_enable()
+  {
+    is_enabled_camera_ = true;
+    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
+    image_rendering->setDisabled(false);
+  }
+
+  void MainWindow::camera_disable()
+  {
+    is_enabled_camera_ = false;
+    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
+    image_rendering->setDisabled(true);
+  }
+
+  void MainWindow::record_enable()
+  {
+    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
+    image_rendering->setDisabled(false);
+  }
+
+  void MainWindow::record_disable()
+  {
+    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
+    image_rendering->setDisabled(true);
+  }
+
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
   {
     try
@@ -537,7 +578,9 @@ namespace gui
       holovibes_.dispose_capture();
 
       holovibes_.init_capture(camera_type, 20);
-      set_image_mode(true);
+      camera_enable();
+      record_enable();
+      set_image_mode(is_direct_mode_);
     }
     catch (camera::CameraException& e)
     {

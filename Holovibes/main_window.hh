@@ -72,6 +72,10 @@ namespace gui
   private:
     void enable();
     void disable();
+    void camera_enable();
+    void camera_disable();
+    void record_enable();
+    void record_disable();
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
 
@@ -84,6 +88,7 @@ namespace gui
     holovibes::Holovibes& holovibes_;
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
+    bool is_enabled_camera_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
