@@ -488,6 +488,7 @@ namespace gui
     record_thread_->start();
 
     QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+
     cancel_button->setDisabled(false);
 
     if (!is_direct_mode_)

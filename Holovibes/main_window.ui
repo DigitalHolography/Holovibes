@@ -392,7 +392,7 @@
          <string>Rec</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="cancelPushButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -1266,7 +1266,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>cancelPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>cancel_record()</slot>
