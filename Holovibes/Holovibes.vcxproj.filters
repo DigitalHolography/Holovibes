@@ -31,6 +31,12 @@
     <Filter Include="Generated Files">
       <UniqueIdentifier>{a92f5a26-c24b-4d75-87a7-34cddd371f0d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{2e6b114c-da42-4a5f-84bc-c55ea6731c24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{5d8f330a-0ea3-4ba9-8db0-3839536cba01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="contrast_correction.cu">
@@ -101,29 +107,11 @@
     <ClCompile Include="gui_gl_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_gl_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_gl_widget.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui_group_box.cc">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
-      <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="frame_file_loader.cc">
       <Filter>Source Files</Filter>
@@ -140,7 +128,40 @@
     <ClCompile Include="thread_recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_window.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_group_box.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_main_window.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_thread_recorder.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_gl_window.cc">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="camera_ixon.hh">
