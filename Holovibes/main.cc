@@ -10,6 +10,7 @@
 
 int main(int argc, char* argv[])
 {
+  QApplication a(argc, argv);
   holovibes::OptionsDescriptor opts;
 
   holovibes::OptionsParser opts_parser(opts);
@@ -26,7 +27,6 @@ int main(int argc, char* argv[])
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif /* !_DEBUG */
     
-    QApplication a(argc, argv);
     gui::MainWindow w(h);
     w.show();
     h.get_compute_desc().register_observer(w);
@@ -52,14 +52,6 @@ int main(int argc, char* argv[])
         h.init_display(opts.gl_window_width, opts.gl_window_height);
       if (opts.is_recorder_enabled)
         h.init_recorder(opts.recorder_filepath, opts.recorder_n_img);
-
-      std::cout << "Press any key to stop execution..." << std::endl;
-      getchar();
-
-      h.dispose_display();
-      h.dispose_recorder();
-      h.dispose_compute();
-      h.dispose_capture();
     }
     catch (camera::CameraException& e)
     {
@@ -70,6 +62,6 @@ int main(int argc, char* argv[])
       std::cerr << e.what() << std::endl;
     }
 
-    return 0;
+    return a.exec();
   }
 }
