@@ -66,6 +66,7 @@ namespace gui
     // Record
     void browse_file();
     void set_record();
+    void cancel_record();
     void finish_record();
 
   protected:
@@ -80,6 +81,7 @@ namespace gui
     void record_disable();
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
+    void display_info(std::string msg);
 
     //Debug
     template <typename T>
@@ -91,7 +93,7 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
     bool is_enabled_camera_;
-    
+
     ThreadRecorder* record_thread_;
 
     QShortcut* z_up_shortcut_;

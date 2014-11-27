@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>856</width>
-    <height>299</height>
+    <height>311</height>
    </rect>
   </property>
   <property name="font">
@@ -385,11 +385,24 @@
           <x>10</x>
           <y>150</y>
           <width>171</width>
-          <height>61</height>
+          <height>31</height>
          </rect>
         </property>
         <property name="text">
          <string>Rec</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>190</y>
+          <width>171</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Cancel</string>
         </property>
        </widget>
       </widget>
@@ -861,7 +874,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>28</x>
-     <y>-20</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -876,7 +889,7 @@
      <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-61</x>
+     <x>0</x>
      <y>71</y>
     </hint>
    </hints>
@@ -892,7 +905,7 @@
      <y>111</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-3</x>
+     <x>0</x>
      <y>94</y>
     </hint>
    </hints>
@@ -908,7 +921,7 @@
      <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-13</x>
+     <x>0</x>
      <y>143</y>
     </hint>
    </hints>
@@ -924,7 +937,7 @@
      <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-15</x>
+     <x>0</x>
      <y>176</y>
     </hint>
    </hints>
@@ -940,7 +953,7 @@
      <y>205</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-23</x>
+     <x>0</x>
      <y>202</y>
     </hint>
    </hints>
@@ -956,7 +969,7 @@
      <y>236</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-26</x>
+     <x>0</x>
      <y>237</y>
     </hint>
    </hints>
@@ -972,7 +985,7 @@
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-50</x>
+     <x>0</x>
      <y>59</y>
     </hint>
    </hints>
@@ -988,7 +1001,7 @@
      <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-48</x>
+     <x>0</x>
      <y>153</y>
     </hint>
    </hints>
@@ -1004,7 +1017,7 @@
      <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-2</x>
+     <x>0</x>
      <y>186</y>
     </hint>
    </hints>
@@ -1021,7 +1034,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
-     <y>-13</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1037,7 +1050,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
-     <y>-28</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1049,11 +1062,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>818</x>
-     <y>223</y>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
-     <y>-11</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1068,7 +1081,7 @@
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>889</x>
+     <x>855</x>
      <y>121</y>
     </hint>
    </hints>
@@ -1085,7 +1098,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
-     <y>-11</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1101,7 +1114,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
-     <y>-14</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1117,7 +1130,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>470</x>
-     <y>-22</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1133,7 +1146,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>195</x>
-     <y>-24</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1149,7 +1162,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>250</x>
-     <y>-50</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1165,7 +1178,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>360</x>
-     <y>-47</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1181,7 +1194,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>-33</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1197,7 +1210,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>123</x>
-     <y>-26</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1213,7 +1226,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
-     <y>-33</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1229,7 +1242,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
-     <y>331</y>
+     <y>310</y>
     </hint>
    </hints>
   </connection>
@@ -1240,12 +1253,28 @@
    <slot>gl_full_screen()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>16</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>437</x>
-     <y>341</y>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancel_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>745</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>745</x>
+     <y>351</y>
     </hint>
    </hints>
   </connection>
@@ -1276,5 +1305,6 @@
   <slot>camera_xiq()</slot>
   <slot>camera_none()</slot>
   <slot>gl_full_screen()</slot>
+  <slot>cancel_record()</slot>
  </slots>
 </ui>

@@ -19,6 +19,7 @@ namespace holovibes
     , output_(nullptr)
     , pipeline_(nullptr)
     , compute_desc_()
+    , gl_window_(nullptr)
   {
   }
 
@@ -35,10 +36,15 @@ namespace holovibes
     unsigned int width,
     unsigned int height)
   {
+    if (output_)
+      gl_window_ = new gui::GuiGLWindow(QPoint(0, 0), width, height, *output_);
+    else
+      gl_window_ = new gui::GuiGLWindow(QPoint(0, 0), width, height, *input_);
   }
 
   void Holovibes::dispose_display()
   {
+    delete gl_window_;
   }
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)

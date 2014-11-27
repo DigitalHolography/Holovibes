@@ -479,6 +479,18 @@ namespace gui
       enable();
   }
 
+  void MainWindow::cancel_record()
+  {
+    if (record_thread_)
+    {
+      record_thread_->stop();
+      display_info("Record canceled");
+
+      if (!is_direct_mode_)
+        enable();
+    }
+  }
+
   void MainWindow::finish_record()
   {
     delete record_thread_;
@@ -625,6 +637,14 @@ namespace gui
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Critical);
+    msg_box.exec();
+  }
+
+  void MainWindow::display_info(std::string msg)
+  {
+    QMessageBox msg_box;
+    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
   }
 
