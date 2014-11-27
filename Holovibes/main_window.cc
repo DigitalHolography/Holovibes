@@ -637,6 +637,7 @@ namespace gui
     {
       camera_disable();
       record_disable();
+      disable();
       delete gl_window_;
       gl_window_ = nullptr;
       holovibes_.dispose_compute();
