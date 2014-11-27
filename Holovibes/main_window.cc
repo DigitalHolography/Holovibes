@@ -487,6 +487,9 @@ namespace gui
     connect(record_thread_, SIGNAL(finished()), this, SLOT(finish_record()));
     record_thread_->start();
 
+    QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+    cancel_button->setDisabled(false);
+
     if (!is_direct_mode_)
       enable();
   }
@@ -505,6 +508,8 @@ namespace gui
 
   void MainWindow::finish_record()
   {
+    QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+    cancel_button->setDisabled(true);
     delete record_thread_;
     record_thread_ = nullptr;
   }
