@@ -48,6 +48,7 @@ namespace gui
     void set_z(double value);
     void increment_z();
     void decrement_z();
+    void set_z_step(double value);
     void set_algorithm(QString value);
 
     // View
@@ -88,6 +89,7 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
     bool is_enabled_camera_;
+    double z_step_;
 
     ThreadRecorder* record_thread_;
 

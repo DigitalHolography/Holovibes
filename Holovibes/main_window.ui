@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>856</width>
-    <height>311</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="font">
@@ -31,7 +31,7 @@
       <x>10</x>
       <y>10</y>
       <width>831</width>
-      <height>241</height>
+      <height>261</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -203,7 +203,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>190</y>
+          <y>220</y>
           <width>81</width>
           <height>16</height>
          </rect>
@@ -216,7 +216,7 @@
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>190</y>
+          <y>220</y>
           <width>81</width>
           <height>22</height>
          </rect>
@@ -231,6 +231,35 @@
           <string>2FFT</string>
          </property>
         </item>
+       </widget>
+       <widget class="QLabel" name="zStepLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>190</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>z step</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="zStepDoubleSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>190</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <double>0.100000000000000</double>
+        </property>
        </widget>
       </widget>
      </item>
@@ -971,8 +1000,8 @@
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>236</y>
+     <x>144</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1280,7 +1309,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>745</x>
-     <y>351</y>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -1296,7 +1325,23 @@
     </hint>
     <hint type="destinationlabel">
      <x>99</x>
-     <y>-25</y>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zStepDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_step(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>368</y>
     </hint>
    </hints>
   </connection>
@@ -1329,5 +1374,6 @@
   <slot>gl_full_screen()</slot>
   <slot>cancel_record()</slot>
   <slot>credits()</slot>
+  <slot>set_z_step(double)</slot>
  </slots>
 </ui>

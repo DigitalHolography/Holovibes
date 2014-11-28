@@ -10,7 +10,8 @@ namespace gui
     gl_window_(nullptr),
     is_direct_mode_(true),
     is_enabled_camera_(false),
-    record_thread_(nullptr)
+    record_thread_(nullptr),
+    z_step_(Z_STEP)
   {
     ui.setupUi(this);
 
@@ -263,7 +264,7 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      set_z(cd.zdistance + Z_STEP);
+      set_z(cd.zdistance + z_step_);
       QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
       z->setValue(cd.zdistance);
     }
@@ -274,10 +275,17 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      set_z(cd.zdistance - Z_STEP);
+      set_z(cd.zdistance - z_step_);
       QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
       z->setValue(cd.zdistance);
     }
+  }
+
+  void MainWindow::set_z_step(double value)
+  {
+    z_step_ = value;
+    QDoubleSpinBox* z_spinbox = findChild<QDoubleSpinBox*>("zSpinBox");
+    z_spinbox->setSingleStep(value);
   }
 
   void  MainWindow::set_algorithm(QString value)
@@ -576,6 +584,12 @@ namespace gui
 
     QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
     z->setDisabled(!value);
+
+    QLabel* z_step_label = findChild<QLabel*>("zStepLabel");
+    z_step_label->setDisabled(!value);
+
+    QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
+    z_step->setDisabled(!value);
 
     QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
     algorithm_label->setDisabled(!value);
