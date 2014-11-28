@@ -362,7 +362,13 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().contrast_min = pow(10, value);
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (cd.log_scale_enabled)
+        cd.contrast_min = value;
+      else
+        cd.contrast_min = pow(10, value);
+
       pipeline.request_refresh();
     }
   }
@@ -372,7 +378,13 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().contrast_max = pow(10, value);
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (cd.log_scale_enabled)
+        cd.contrast_max = value;
+      else
+        cd.contrast_max = pow(10, value);
+
       pipeline.request_refresh();
     }
   }
