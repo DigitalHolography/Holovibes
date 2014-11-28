@@ -22,7 +22,7 @@
    <enum>Qt::ClickFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>Holovibes</string>
+   <string>HoloVibes</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="gridLayoutWidget">
@@ -67,7 +67,7 @@
        <widget class="QRadioButton" name="hologramRadioButton">
         <property name="geometry">
          <rect>
-          <x>110</x>
+          <x>100</x>
           <y>30</y>
           <width>95</width>
           <height>21</height>
@@ -80,9 +80,9 @@
        <widget class="QSpinBox" name="phaseNumberSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>70</y>
-          <width>61</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -109,9 +109,9 @@
        <widget class="QSpinBox" name="pSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>100</y>
-          <width>61</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -139,15 +139,15 @@
          </rect>
         </property>
         <property name="text">
-         <string>Wavelength(nm):</string>
+         <string>λ(nm):</string>
         </property>
        </widget>
        <widget class="QDoubleSpinBox" name="wavelengthSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>130</y>
-          <width>62</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -180,9 +180,9 @@
        <widget class="QDoubleSpinBox" name="zSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>160</y>
-          <width>62</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -215,9 +215,9 @@
        <widget class="QComboBox" name="algorithmComboBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>190</y>
-          <width>61</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -266,7 +266,7 @@
          <rect>
           <x>60</x>
           <y>60</y>
-          <width>44</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
@@ -276,7 +276,7 @@
          <rect>
           <x>60</x>
           <y>90</y>
-          <width>44</width>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
@@ -1291,8 +1291,8 @@
    <slot>credits()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>13</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>99</x>

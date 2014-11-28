@@ -15,8 +15,8 @@ namespace gui
     ui.setupUi(this);
 
     // FIXME (it will be when loading a camera from ini file)
-    camera_disable();
-    record_disable();
+    camera_visible(false);
+    record_visible(false);
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -36,7 +36,7 @@ namespace gui
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
     if (is_direct_mode_)
-      disable();
+      global_visibility(false);
 
     // Display default values
     notify();
@@ -105,9 +105,9 @@ namespace gui
     if (!is_direct_mode_)
       holovibes_.dispose_compute();
     holovibes_.dispose_capture();
-    camera_disable();
-    record_disable();
-    disable();
+    camera_visible(false);
+    record_visible(false);
+    global_visibility(false);
   }
 
   void MainWindow::camera_pike()
@@ -161,7 +161,7 @@ namespace gui
         gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
         is_direct_mode_ = true;
 
-        disable();
+        global_visibility(false);
       }
       else
       {
@@ -169,7 +169,7 @@ namespace gui
         gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
         is_direct_mode_ = false;
 
-        enable();
+        global_visibility(true);
       }
     }
   }
@@ -471,11 +471,12 @@ namespace gui
 
   void MainWindow::set_record()
   {
-    if (!is_direct_mode_)
-      disable();
+    global_visibility(false);
+    record_but_cancel_visible(false);
 
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
 
@@ -503,9 +504,6 @@ namespace gui
 
       QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
       cancel_button->setDisabled(false);
-
-      if (!is_direct_mode_)
-        enable();
     }
     catch (std::exception& e)
     {
@@ -515,23 +513,30 @@ namespace gui
 
   void MainWindow::cancel_record()
   {
+    record_but_cancel_visible(true);
+
     if (record_thread_)
     {
       record_thread_->stop();
       display_info("Record canceled");
 
       if (!is_direct_mode_)
-        enable();
+        global_visibility(true);
     }
   }
 
   void MainWindow::finish_record()
   {
+    record_but_cancel_visible(true);
+
     QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
     cancel_button->setDisabled(true);
     delete record_thread_;
     record_thread_ = nullptr;
     display_info("Record has completed successfully");
+
+    if (!is_direct_mode_)
+      global_visibility(true);
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)
@@ -540,124 +545,88 @@ namespace gui
       gl_window_->close();
   }
 
-  void MainWindow::enable()
+  void MainWindow::global_visibility(bool value)
   {
     GroupBox* view = findChild<GroupBox*>("View");
-    view->setDisabled(false);
+    view->setDisabled(!value);
 
     GroupBox* special = findChild<GroupBox*>("Vibrometry");
-    special->setDisabled(false);
+    special->setDisabled(!value);
 
     QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
-    phase_number_label->setDisabled(false);
+    phase_number_label->setDisabled(!value);
 
     QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
-    phase_nb->setDisabled(false);
+    phase_nb->setDisabled(!value);
 
     QLabel* p_label = findChild<QLabel*>("pLabel");
-    p_label->setDisabled(false);
+    p_label->setDisabled(!value);
 
     QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-    p->setDisabled(false);
+    p->setDisabled(!value);
 
     QLabel* wavelength_label = findChild<QLabel*>("wavelengthLabel");
-    wavelength_label->setDisabled(false);
+    wavelength_label->setDisabled(!value);
 
     QDoubleSpinBox* wavelength = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
-    wavelength->setDisabled(false);
+    wavelength->setDisabled(!value);
 
     QLabel* z_label = findChild<QLabel*>("zLabel");
-    z_label->setDisabled(false);
+    z_label->setDisabled(!value);
 
     QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
-    z->setDisabled(false);
+    z->setDisabled(!value);
 
     QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
-    algorithm_label->setDisabled(false);
+    algorithm_label->setDisabled(!value);
 
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-    algorithm->setDisabled(false);
+    algorithm->setDisabled(!value);
   }
 
-  void MainWindow::disable()
+  void MainWindow::camera_visible(bool value)
   {
-    GroupBox* view = findChild<GroupBox*>("View");
-    view->setDisabled(true);
-
-    GroupBox* special = findChild<GroupBox*>("Vibrometry");
-    special->setDisabled(true);
-
-    QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
-    phase_number_label->setDisabled(true);
-
-    QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
-    phase_nb->setDisabled(true);
-
-    QLabel* p_label = findChild<QLabel*>("pLabel");
-    p_label->setDisabled(true);
-
-    QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-    p->setDisabled(true);
-
-    QLabel* wavelength_label = findChild<QLabel*>("wavelengthLabel");
-    wavelength_label->setDisabled(true);
-
-    QDoubleSpinBox* wavelength = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
-    wavelength->setDisabled(true);
-
-    QLabel* z_label = findChild<QLabel*>("zLabel");
-    z_label->setDisabled(true);
-
-    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
-    z->setDisabled(true);
-
-    QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
-    algorithm_label->setDisabled(true);
-
-    QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-    algorithm->setDisabled(true);
-  }
-
-  void MainWindow::camera_enable()
-  {
-    is_enabled_camera_ = true;
+    is_enabled_camera_ = value;
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
-    image_rendering->setDisabled(false);
+    image_rendering->setDisabled(!value);
   }
 
-  void MainWindow::camera_disable()
-  {
-    is_enabled_camera_ = false;
-    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
-    image_rendering->setDisabled(true);
-  }
-
-  void MainWindow::record_enable()
+  void MainWindow::record_visible(bool value)
   {
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
-    image_rendering->setDisabled(false);
+    image_rendering->setDisabled(!value);
   }
 
-  void MainWindow::record_disable()
+  void MainWindow::record_but_cancel_visible(bool value)
   {
-    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
-    image_rendering->setDisabled(true);
+    QLabel* nb_of_frames_label = findChild<QLabel*>("numberOfFramesLabel");
+    nb_of_frames_label->setDisabled(!value);
+    QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    nb_of_frames_spinbox->setDisabled(!value);
+    QLabel* output_file_label = findChild<QLabel*>("outputFileLabel");
+    output_file_label->setDisabled(!value);
+    QPushButton* browse_button = findChild<QPushButton*>("browsePushButton");
+    browse_button->setDisabled(!value);
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    path_line_edit->setDisabled(!value);
+    QPushButton* record_button = findChild<QPushButton*>("recPushButton");
+    record_button->setDisabled(!value);
   }
 
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
   {
     try
     {
-      camera_disable();
-      record_disable();
-      disable();
+      camera_visible(false);
+      record_visible(false);
+      global_visibility(false);
       delete gl_window_;
       gl_window_ = nullptr;
       holovibes_.dispose_compute();
       holovibes_.dispose_capture();
       holovibes_.init_capture(camera_type, 20);
-      camera_enable();
-      record_enable();
+      camera_visible(true);
+      record_visible(true);
       set_image_mode(is_direct_mode_);
     }
     catch (camera::CameraException& e)
@@ -684,11 +653,5 @@ namespace gui
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
-  }
-
-  template <typename T>
-  void MainWindow::print_parameter(std::string name, T value)
-  {
-    std::cout << "Parameter " << name << " changed to " << std::boolalpha << value << std::endl;
   }
 }

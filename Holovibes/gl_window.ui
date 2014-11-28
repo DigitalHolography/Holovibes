@@ -78,7 +78,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>GLWindow</string>
+   <string>Real time display</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">

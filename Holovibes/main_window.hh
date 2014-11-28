@@ -74,19 +74,13 @@ namespace gui
     virtual void closeEvent(QCloseEvent* event) override;
 
   private:
-    void enable();
-    void disable();
-    void camera_enable();
-    void camera_disable();
-    void record_enable();
-    void record_disable();
+    void global_visibility(bool value);
+    void camera_visible(bool value);
+    void record_visible(bool value);
+    void record_but_cancel_visible(bool value);
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
     void display_info(std::string msg);
-
-    //Debug
-    template <typename T>
-    void print_parameter(std::string name, T value);
 
   private:
     Ui::MainWindow ui;
