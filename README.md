@@ -1,4 +1,4 @@
-# Holovibes v0.4.2 #
+# Holovibes v0.4.3 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -135,3 +135,11 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Fix pixelfly hologram mode.
 * CLI updated (--nogui mode)
 * CLI can set parameters on GUI.
+
+### v.0.4.3 ###
+
+* GUI
+	* Visibility methods changed to handle both case instead of having two methods
+	* SpinBox sizes changed
+	* Names of windows and parameters changed
+	* When log scale is enabled, the value given to the pipeline is not powered to 10^9
