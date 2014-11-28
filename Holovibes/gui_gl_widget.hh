@@ -4,6 +4,7 @@
 # include <QGLWidget>
 # include <QOpenGLFunctions.h>
 # include <QTimer>
+# include <QMouseEvent>
 
 # include <cuda_gl_interop.h>
 
@@ -35,12 +36,20 @@ namespace gui
     void resizeGL(int width, int height) override;
     void paintGL() override;
 
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
+
   private:
+    void selection_rect(int startx, int starty, int endx, int endy);
     void gl_error_checking();
 
   private:
     /* --- QT --- */
     QTimer timer_;
+    unsigned int startx_;
+    unsigned int starty_;
+    unsigned int endx_;
+    unsigned int endy_;
 
     /* Window size hints */
     unsigned int width_;

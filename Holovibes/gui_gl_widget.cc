@@ -132,7 +132,35 @@ namespace gui
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
 
+    selection_rect(0, 0, 512, 1024);
+
     gl_error_checking();
+  }
+
+  void GLWidget::mousePressEvent(QMouseEvent* e)
+  {
+    std::cout << e->x() << " " << e->y() << std::endl;
+    startx_ = e->x();
+    starty_ = e->y();
+  }
+
+  void GLWidget::mouseReleaseEvent(QMouseEvent* e)
+  {
+    std::cout << e->x() << " " << e->y() << std::endl;
+    endx_ = e->x();
+    endy_ = e->y();
+  }
+
+  void GLWidget::selection_rect(int startx, int starty, int endx, int endy)
+  {
+    float xmax = 2048.0f;
+    float ymax = 2048.0f;
+    float nstartx = (2.0f * (float)startx) / xmax - 1.0f;
+    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f);
+    float nendx = (2.0f * (float)endx) / xmax - 1.0f;
+    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f);
+
+    glRectf(nstartx, nstarty, nendx, nendy);
   }
 
   void GLWidget::gl_error_checking()
