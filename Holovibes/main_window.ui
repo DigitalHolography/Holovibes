@@ -648,6 +648,7 @@
      </property>
      <addaction name="actionNone"/>
      <addaction name="actionIDS"/>
+     <addaction name="actionIXon"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
@@ -820,6 +821,11 @@
   <action name="actionFull_screen">
    <property name="text">
     <string>Full screen</string>
+   </property>
+  </action>
+  <action name="actionIXon">
+   <property name="text">
+    <string>iXon</string>
    </property>
   </action>
  </widget>
@@ -1364,6 +1370,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionIXon</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ixon()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>448</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1395,5 +1417,6 @@
   <slot>credits()</slot>
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
+  <slot>camera_ixon()</slot>
  </slots>
 </ui>

@@ -16,10 +16,11 @@ namespace holovibes
   public:
     enum camera_type
     {
-      PIKE,
-      XIQ,
       IDS,
+      IXON,
+      PIKE,
       PIXELFLY,
+      XIQ,
     };
 
     Holovibes();

@@ -35,6 +35,7 @@ namespace gui
     void gl_full_screen();
     void camera_none();
     void camera_ids();
+    void camera_ixon();
     void camera_pike();
     void camera_pixelfly();
     void camera_xiq();

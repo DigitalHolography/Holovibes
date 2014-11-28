@@ -1,6 +1,7 @@
 #include "holovibes.hh"
 #include "frame_desc.hh"
 #include "camera_ids.hh"
+#include "camera_ixon.hh"
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"
 #include "camera_xiq.hh"
@@ -35,6 +36,8 @@ namespace holovibes
   {
     if (c == IDS)
       camera_ = new camera::CameraIds();
+    else if (c == IXON)
+      camera_ = new camera::CameraIxon();
     else if (c == PIKE)
       camera_ = new camera::CameraPike();
     else if (c == PIXELFLY)

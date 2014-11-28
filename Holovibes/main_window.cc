@@ -99,6 +99,11 @@ namespace gui
     change_camera(holovibes::Holovibes::IDS);
   }
 
+  void MainWindow::camera_ixon()
+  {
+    change_camera(holovibes::Holovibes::IXON);
+  }
+
   void MainWindow::camera_none()
   {
     delete gl_window_;
