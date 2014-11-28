@@ -404,6 +404,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.log_scale_enabled = value;
+
+      if (cd.contrast_enabled)
+      {
+        std::cout << "in it" << std::endl;
+        set_contrast_min(log10f(cd.contrast_min));
+        set_contrast_max(log10f(cd.contrast_max));
+      }
+
       pipeline.request_refresh();
     }
   }
