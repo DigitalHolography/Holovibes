@@ -25,11 +25,6 @@ namespace holovibes
     Holovibes();
     ~Holovibes();
 
-    void init_display(
-      unsigned int w,
-      unsigned int h);
-    void dispose_display();
-
     void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
     void dispose_capture();
 
@@ -83,9 +78,6 @@ namespace holovibes
     Queue* output_;
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
-
-    // CLI only
-    gui::GuiGLWindow* gl_window_;
   };
 }
 

@@ -41,16 +41,10 @@ namespace holovibes
     if (is_no_gui)
     {
       features_opts_desc_.add_options()
-        ("display,d",
-        po::value<std::vector<int>>()
-        ->multitoken(),
-        "Display images on screen. "
-        "The first argument gives the square size of the display. "
-        "The second optional argument specify the height.")
-
         ("write,w",
         po::value<std::vector<std::string>>()
-        ->multitoken(),
+        ->multitoken()
+        ->required(),
         "Record a sequence of images in the given path. "
         "The first argument gives the number of images to record. "
         "The second argument gives the filepath where frames will be recorded.")
@@ -59,6 +53,17 @@ namespace holovibes
         po::value<std::string>()
         ->required(),
         "Set the camera to use: pike/xiq/ids/pixelfly.")
+        ;
+    }
+    else
+    {
+      features_opts_desc_.add_options()
+        ("display,d",
+        po::value<std::vector<int>>()
+        ->multitoken(),
+        "Set default sizes of realtime display."
+        "The first argument gives the square size of the display. "
+        "The second optional argument specify the height.")
         ;
     }
   }

@@ -10,7 +10,6 @@
 
 int main(int argc, char* argv[])
 {
-  QApplication a(argc, argv);
   holovibes::OptionsDescriptor opts;
 
   holovibes::OptionsParser opts_parser(opts);
@@ -22,6 +21,7 @@ int main(int argc, char* argv[])
   if (opts.is_gui_enabled)
   {
     /* --- GUI mode --- */
+  QApplication a(argc, argv);
 #ifndef _DEBUG
     /* Hides the console window. */
     ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -48,20 +48,23 @@ int main(int argc, char* argv[])
 
       if (opts.is_compute_enabled)
         h.init_compute();
-      if (opts.is_gl_window_enabled)
-        h.init_display(opts.gl_window_width, opts.gl_window_height);
-      if (opts.is_recorder_enabled)
-        h.init_recorder(opts.recorder_filepath, opts.recorder_n_img);
+
+      h.init_recorder(opts.recorder_filepath, opts.recorder_n_img);
+
+      h.dispose_recorder();
+      h.dispose_compute();
+      h.dispose_capture();
     }
     catch (camera::CameraException& e)
     {
       std::cerr << "[CAMERA] " << e.get_name() << " " << e.what() << std::endl;
+      return 1;
     }
     catch (std::exception& e)
     {
       std::cerr << e.what() << std::endl;
+      return 1;
     }
-
-    return a.exec();
+    return 0;
   }
 }
