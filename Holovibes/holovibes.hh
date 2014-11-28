@@ -68,6 +68,11 @@ namespace holovibes
       compute_desc_ = compute_desc;
     }
 
+    const std::string& get_camera_ini_path() const
+    {
+      return camera_->get_ini_path();
+    }
+
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;

@@ -711,6 +711,9 @@
    </property>
   </action>
   <action name="actionSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Settings</string>
    </property>
@@ -1345,6 +1348,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_camera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>12</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>-22</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1375,5 +1394,6 @@
   <slot>cancel_record()</slot>
   <slot>credits()</slot>
   <slot>set_z_step(double)</slot>
+  <slot>configure_camera()</slot>
  </slots>
 </ui>

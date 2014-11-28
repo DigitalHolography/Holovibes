@@ -7,6 +7,8 @@
 # include <QFileDialog>
 # include <QShortcut>
 # include <QMessageBox>
+# include <QDesktopServices>
+# include <boost/filesystem.hpp>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -36,6 +38,7 @@ namespace gui
     void camera_pike();
     void camera_pixelfly();
     void camera_xiq();
+    void configure_camera();
     void credits();
 
     // Image rendering
@@ -82,6 +85,7 @@ namespace gui
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
     void display_info(std::string msg);
+    void open_file(const std::string& path);
 
   private:
     Ui::MainWindow ui;

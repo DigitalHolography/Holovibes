@@ -138,6 +138,11 @@ namespace gui
       "Pierre Pagnoux\n");
   }
 
+  void MainWindow::configure_camera()
+  {
+    open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
+  }
+
   void MainWindow::set_image_mode(bool value)
   {
     if (is_enabled_camera_)
@@ -611,6 +616,8 @@ namespace gui
     is_enabled_camera_ = value;
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
     image_rendering->setDisabled(!value);
+    QAction* settings = findChild<QAction*>("actionSettings");
+    settings->setDisabled(!value);
   }
 
   void MainWindow::record_visible(bool value)
@@ -675,5 +682,10 @@ namespace gui
     msg_box.setText(QString::fromUtf8(msg.c_str()));
     msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
+  }
+
+  void MainWindow::open_file(const std::string& path)
+  {
+    QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
   }
 }
