@@ -2,6 +2,7 @@
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include <float.h>
 #include <cstdlib>
 
 #include "hardware_limits.hh"
@@ -70,13 +71,29 @@ static void find_min_max(
   }
 }
 
-// Fix this
-#if 0
+void find_min_max_img(
+  float *img_cpu,
+  float *min,
+  float *max,
+  unsigned int nbpixels)
+{
+    *min = FLT_MAX;
+    *max = FLT_MIN;
+    for (int i = 0; i < nbpixels; i++)
+    {
+      if (img_cpu[i] > *max)
+          *max = i;
+        if (img_cpu[i] < *min)
+          *min = i;
+    }
+}
+
+// Fix 
 void auto_contrast_correction(
   float* input,
   unsigned int size,
-  unsigned int* min,
-  unsigned int* max,
+  float* min,
+  float* max,
   float threshold) // percent
 {
   unsigned int threads = get_max_threads_1d();
@@ -96,7 +113,6 @@ void auto_contrast_correction(
   cudaFree(histo);
   free(histo_cpu);
 }
-#endif
 
 static __global__ void apply_contrast(
   float* input,
