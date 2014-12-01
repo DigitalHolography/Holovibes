@@ -92,6 +92,30 @@ namespace holovibes
       ("zdistance,z",
       po::value<float>(),
       "The parameter z corresponds to the sensor-to-object distance.")
+
+      ("viewmode",
+      po::value<std::string>(),
+      "Select the view mode: magnitude/sqrtmagnitude/argument.")
+
+      ("log",
+      "Apply log10 on output frames.")
+
+      ("nofftshift",
+      "Disable FFT shifting.")
+
+      ("contrastmin",
+      po::value<float>(),
+      "Enable contrast and set min value."
+      "Argument use logarithmic scale.")
+
+      ("contrastmax",
+      po::value<float>(),
+      "Enable contrast and set max value."
+      "Argument use logarithmic scale.")
+
+      ("vibrometry,v",
+      po::value<int>(),
+      "Select the q-th component of the DFT and enable vibrometry, vq must be defined in {0, ..., N - 1}.")
       ;
   }
 
@@ -352,6 +376,60 @@ namespace holovibes
     {
       const float zdistance = vm_["zdistance"].as<float>();
       opts_.compute_desc.zdistance = zdistance;
+    }
+
+    if (vm_.count("viewmode"))
+    {
+      const std::string viewmode = vm_["viewmode"].as<std::string>();
+      if (boost::iequals(viewmode, "magnitude"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::MODULUS;
+      else if (boost::iequals(viewmode, "sqrtmagnitude"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::SQUARED_MODULUS;
+      else if (boost::iequals(viewmode, "argument"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::ARGUMENT;
+      else
+        throw std::runtime_error("unknown view mode");
+    }
+
+    opts_.compute_desc.log_scale_enabled = vm_.count("log");
+
+    opts_.compute_desc.shift_corners_enabled = !vm_.count("nofftshift");
+
+    if (vm_.count("contrastmin"))
+    {
+      const float log_min = vm_["contrastmin"].as<float>();
+
+      if (log_min < -100.0f || log_min > 100.0f)
+        throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
+
+      if (opts_.compute_desc.log_scale_enabled)
+        opts_.compute_desc.contrast_min = log_min;
+      else
+        opts_.compute_desc.contrast_min = pow(10.0, log_min);
+      opts_.compute_desc.contrast_enabled = true;
+    }
+
+    if (vm_.count("contrastmax"))
+    {
+      const float log_max = vm_["contrastmax"].as<float>();
+
+      if (log_max < -100.0f || log_max > 100.0f)
+        throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
+
+      if (opts_.compute_desc.log_scale_enabled)
+        opts_.compute_desc.contrast_max = log_max;
+      else
+        opts_.compute_desc.contrast_max = pow(10.0, log_max);
+      opts_.compute_desc.contrast_enabled = true;
+    }
+
+    if (vm_.count("vibrometry"))
+    {
+      const int vibrometry_q = vm_["vibrometry"].as<int>();
+      if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
+        throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
+      opts_.compute_desc.vibrometry_q = vibrometry_q;
+      opts_.compute_desc.vibrometry_enabled = true;
     }
   }
 
