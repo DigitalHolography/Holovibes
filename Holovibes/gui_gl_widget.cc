@@ -139,7 +139,7 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      float selection_color[4] = { 0.0f, 0.0f, 0.3f, 0.3f };
+      float selection_color[4] = { 0.0f, 0.3f, 0.0f, 0.4f };
       selection_rect(startx_, starty_, endx_, endy_, selection_color);
     }
 
@@ -163,12 +163,15 @@ namespace gui
   {
     endx_ = (e->x() * frame_desc_.width) / width();
     endy_ = (e->y() * frame_desc_.height) / height();
+
+    // FIXME
+    zoom();
   }
 
   void GLWidget::selection_rect(int startx, int starty, int endx, int endy, float color[4])
   {
-    float xmax = 2048.0f;
-    float ymax = 2048.0f;
+    float xmax = frame_desc_.width;
+    float ymax = frame_desc_.height;
     float nstartx = (2.0f * (float)startx) / xmax - 1.0f;
     float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f);
     float nendx = (2.0f * (float)endx) / xmax - 1.0f;
@@ -184,6 +187,38 @@ namespace gui
     glVertex2f(nendx, nendy);
     glVertex2f(nstartx, nendy);
     glEnd();
+
+    glDisable(GL_BLEND);
+  }
+
+  void GLWidget::zoom()
+  {
+    int originx = 0;//frame_desc_.width / 2;
+    int originy = 0;// frame_desc_.height / 2;
+
+    int a = (endx_ - startx_) / 2;
+    int b = (endy_ - starty_) / 2;
+
+    // Sign of the translation
+    int px_sign = originx < startx_ ? -1 : 1;
+    int py_sign = originy < starty_ ? -1 : 1;
+
+    // Projections on x and y axis
+    int px = px_sign * abs(startx_ + a - originx);
+    int py = py_sign * abs(starty_ + b - originy);
+
+    // Normalization for OpenGL
+    float npx = (2.0f * (float)px) / frame_desc_.width;
+    float npy = -1.0f * (2.0f * (float)py) / frame_desc_.height;
+    
+    std::cout << "px " << px << std::endl;
+    std::cout << "py" << py << std::endl;
+    std::cout << "npx " << npx << std::endl;
+    std::cout << "npy" << npy << std::endl;
+
+    glTranslatef(npx + 1.0f, npy - 1.0f, 1.0f);
+    
+    //glScalef(2.0f, 2.0f, 1.0f);
   }
 
   void GLWidget::gl_error_checking()

@@ -42,16 +42,17 @@ namespace gui
 
   private:
     void selection_rect(int startx, int starty, int endx, int endy, float color[4]);
+    void zoom();
     void gl_error_checking();
 
   private:
     /* --- QT --- */
     QTimer timer_;
     bool is_selection_enabled_;
-    unsigned int startx_;
-    unsigned int starty_;
-    unsigned int endx_;
-    unsigned int endy_;
+    int startx_;
+    int starty_;
+    int endx_;
+    int endy_;
 
     /* Window size hints */
     unsigned int width_;
