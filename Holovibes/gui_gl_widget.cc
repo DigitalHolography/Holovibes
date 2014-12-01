@@ -22,6 +22,8 @@ namespace gui
     , buffer_(0)
     , cuda_buffer_(nullptr)
     , is_selection_enabled_(false)
+    , px_(0.0f)
+    , py_(0.0f)
   {
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
@@ -149,22 +151,26 @@ namespace gui
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
     is_selection_enabled_ = true;
-    startx_ = (e->x() * frame_desc_.width) / width();
-    starty_ = (e->y() * frame_desc_.height) / height();
+    startx_ = (e->x() * frame_desc_.width) / width() + px_;
+    starty_ = (e->y() * frame_desc_.height) / height() + py_;
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width();
-    endy_ = (e->y() * frame_desc_.height) / height();
+    endx_ = (e->x() * frame_desc_.width) / width() + px_;
+    endy_ = (e->y() * frame_desc_.height) / height() + py_;
   }
 
   void GLWidget::mouseReleaseEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width();
-    endy_ = (e->y() * frame_desc_.height) / height();
+    endx_ = (e->x() * frame_desc_.width) / width() + px_;
+    endy_ = (e->y() * frame_desc_.height) / height() + py_;
+    is_selection_enabled_ = false;
 
-    // FIXME
+    std::cout << "start (" << startx_ << ", " << starty_ << ")" << std::endl;
+    std::cout << "end (" << endx_ << ", " << endy_ << ")" << std::endl;
+    std::cout << "mouse release eve(px, py): (" << px_ << ", " << py_ << ")" << std::endl;
+    //FIXME
     zoom();
   }
 
@@ -193,32 +199,44 @@ namespace gui
 
   void GLWidget::zoom()
   {
-    int originx = 0;//frame_desc_.width / 2;
-    int originy = 0;// frame_desc_.height / 2;
+    int selection_width = endx_ - startx_;
+    int selection_height = endy_ - starty_;
 
-    int a = (endx_ - startx_) / 2;
-    int b = (endy_ - starty_) / 2;
+    float xratio = (float)frame_desc_.width / (float)selection_width;
+    float yratio = (float)frame_desc_.height / (float)selection_height;
+
+    float min_ratio = xratio < yratio ? xratio : yratio;
+
+    // Zoom
+    glScalef(min_ratio, min_ratio, 1.0f);
+
+    int originx = 0 + px_;
+    int originy = 0 + py_;
 
     // Sign of the translation
     int px_sign = originx < startx_ ? -1 : 1;
     int py_sign = originy < starty_ ? -1 : 1;
 
-    // Projections on x and y axis
-    int px = px_sign * abs(startx_ + a - originx);
-    int py = py_sign * abs(starty_ + b - originy);
+    // Projections on x and y axis / translation vector coordinates
+    // Centering the selection zone by adding selection_dim / 2
+    int px = px_sign * abs(startx_ + selection_width / 2 - originx);
+    int py = py_sign * abs(starty_ + selection_height / 2 - originy);
+
+    px -= px_;
+    py -= py_;
+
+    std::cout << "translate(px, py): (" << px << ", " << py << ")" << std::endl;
 
     // Normalization for OpenGL
     float npx = (2.0f * (float)px) / frame_desc_.width;
     float npy = -1.0f * (2.0f * (float)py) / frame_desc_.height;
-    
-    std::cout << "px " << px << std::endl;
-    std::cout << "py" << py << std::endl;
-    std::cout << "npx " << npx << std::endl;
-    std::cout << "npy" << npy << std::endl;
 
+    // Translation in the middle of the window
     glTranslatef(npx + 1.0f, npy - 1.0f, 1.0f);
-    
-    //glScalef(2.0f, 2.0f, 1.0f);
+
+    // Keeping previouses translations
+    px_ -= px + frame_desc_.width / 2;
+    py_ -= py + frame_desc_.height / 2;
   }
 
   void GLWidget::gl_error_checking()

@@ -54,6 +54,10 @@ namespace gui
     int endx_;
     int endy_;
 
+    // Translation
+    float px_;
+    float py_;
+
     /* Window size hints */
     unsigned int width_;
     unsigned int height_;
