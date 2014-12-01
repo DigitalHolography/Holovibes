@@ -52,7 +52,7 @@ namespace holovibes
         ("cameramodel,c",
         po::value<std::string>()
         ->required(),
-        "Set the camera to use: pike/xiq/ids/pixelfly.")
+        "Set the camera to use: pike/xiq/ids/pixelfly/ixon.")
         ;
     }
     else
@@ -229,6 +229,8 @@ namespace holovibes
         opts_.camera = Holovibes::PIKE;
       else if (boost::iequals(camera, "pixelfly"))
         opts_.camera = Holovibes::PIXELFLY;
+      else if (boost::iequals(camera, "ixon"))
+        opts_.camera = Holovibes::IXON;
       else
         throw std::runtime_error("unknown camera model");
     }
