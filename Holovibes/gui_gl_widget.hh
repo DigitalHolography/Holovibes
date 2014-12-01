@@ -41,7 +41,7 @@ namespace gui
     void mouseReleaseEvent(QMouseEvent* e) override;
 
   private:
-    void selection_rect(int startx, int starty, int endx, int endy);
+    void selection_rect(int startx, int starty, int endx, int endy, float color[4]);
     void gl_error_checking();
 
   private:

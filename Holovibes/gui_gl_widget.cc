@@ -81,6 +81,7 @@ namespace gui
 
   void GLWidget::paintGL()
   {
+    glEnable(GL_TEXTURE_2D);
     glClear(GL_COLOR_BUFFER_BIT);
 
     const void* frame = queue_.get_last_images(1);
@@ -127,14 +128,20 @@ namespace gui
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBegin(GL_QUADS);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glTexCoord2d(0.0, 0.0); glVertex2d(-1.0, +1.0);
     glTexCoord2d(1.0, 0.0); glVertex2d(+1.0, +1.0);
     glTexCoord2d(1.0, 1.0); glVertex2d(+1.0, -1.0);
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
 
+    glDisable(GL_TEXTURE_2D);
+
     if (is_selection_enabled_)
-      selection_rect(startx_, starty_, endx_, endy_);
+    {
+      float selection_color[4] = { 0.0f, 0.0f, 0.3f, 0.3f };
+      selection_rect(startx_, starty_, endx_, endy_, selection_color);
+    }
 
     gl_error_checking();
   }
@@ -158,7 +165,7 @@ namespace gui
     endy_ = (e->y() * frame_desc_.height) / height();
   }
 
-  void GLWidget::selection_rect(int startx, int starty, int endx, int endy)
+  void GLWidget::selection_rect(int startx, int starty, int endx, int endy, float color[4])
   {
     float xmax = 2048.0f;
     float ymax = 2048.0f;
@@ -167,7 +174,16 @@ namespace gui
     float nendx = (2.0f * (float)endx) / xmax - 1.0f;
     float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f);
 
-    glRectf(nstartx, nstarty, nendx, nendy);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBegin(GL_POLYGON);
+    glColor4f(color[0], color[1], color[2], color[3]);
+    glVertex2f(nstartx, nstarty);
+    glVertex2f(nendx, nstarty);
+    glVertex2f(nendx, nendy);
+    glVertex2f(nstartx, nendy);
+    glEnd();
   }
 
   void GLWidget::gl_error_checking()
