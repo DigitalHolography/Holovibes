@@ -177,18 +177,45 @@ namespace holovibes
         compute_desc_.lambda,
         compute_desc_.zdistance);
 
+      /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 
-      fn_vect_.push_back(std::bind(
-        fft_2,
-        gpu_input_buffer_,
-        gpu_input_frame_ptr_,
-        gpu_lens_,
-        plan3d_,
-        plan2d_,
-        input_fd.frame_res(),
-        compute_desc_.nsamples.load(),
-        compute_desc_.pindex.load()));
+      if (compute_desc_.vibrometry_enabled)
+      {
+        fn_vect_.push_back(std::bind(
+          fft_2,
+          gpu_input_buffer_,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.vibrometry_q.load()));
+
+        /* q frame pointer */
+        cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+
+        fn_vect_.push_back(std::bind(
+          frame_ratio,
+          gpu_input_frame_ptr_,
+          q,
+          gpu_input_frame_ptr_,
+          input_fd.frame_res()));
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          fft_2,
+          gpu_input_buffer_,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.pindex.load()));
+      }
     }
     else
       assert(!"Impossible case.");

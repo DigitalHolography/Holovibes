@@ -360,8 +360,11 @@ namespace gui
 
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
       cd.contrast_enabled = value;
+
+      set_contrast_min(contrast_min->value());
+      set_contrast_max(contrast_max->value());
+
       pipeline.request_refresh();
     }
   }
@@ -382,12 +385,15 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.log_scale_enabled)
-        cd.contrast_min = value;
-      else
-        cd.contrast_min = pow(10, value);
+      if (cd.contrast_enabled)
+      {
+        if (cd.log_scale_enabled)
+          cd.contrast_min = value;
+        else
+          cd.contrast_min = pow(10, value);
 
-      pipeline.request_refresh();
+        pipeline.request_refresh();
+      }
     }
   }
 
@@ -398,12 +404,15 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.log_scale_enabled)
-        cd.contrast_max = value;
-      else
-        cd.contrast_max = pow(10, value);
+      if (cd.contrast_enabled)
+      {
+        if (cd.log_scale_enabled)
+          cd.contrast_max = value;
+        else
+          cd.contrast_max = pow(10, value);
 
-      pipeline.request_refresh();
+        pipeline.request_refresh();
+      }
     }
   }
 
@@ -417,9 +426,10 @@ namespace gui
 
       if (cd.contrast_enabled)
       {
-        std::cout << "in it" << std::endl;
-        set_contrast_min(log10f(cd.contrast_min));
-        set_contrast_max(log10f(cd.contrast_max));
+        QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+        QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+        set_contrast_min(contrast_min->value());
+        set_contrast_max(contrast_max->value());
       }
 
       pipeline.request_refresh();
