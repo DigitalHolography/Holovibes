@@ -22,13 +22,13 @@ void fft2_lens(
 
 void fft_2(
   cufftComplex* input,
-  cufftComplex* output,
-  cufftComplex *lens,
+  cufftComplex* lens,
   cufftHandle plan3d,
   cufftHandle plan2d,
   unsigned int frame_resolution,
   unsigned int nframes,
-  unsigned int p)
+  unsigned int p,
+  unsigned int q)
 {
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
@@ -41,14 +41,19 @@ void fft_2(
   cufftExecC2C(plan3d, input, input, CUFFT_FORWARD);
 
   cufftComplex* pframe = input + frame_resolution * p;
+  cufftComplex* qframe = input + frame_resolution * q;
 
   kernel_apply_lens<<<blocks, threads>>>(
-    pframe,
-    frame_resolution,
+    input,
+    n_frame_resolution,
     lens,
     frame_resolution);
 
-  cufftExecC2C(plan2d, pframe, output, CUFFT_INVERSE);
-
-  kernel_divide<<<blocks, threads >>>(output, frame_resolution, n_frame_resolution);
+  cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
+  kernel_divide<<<blocks, threads >>>(pframe, frame_resolution, n_frame_resolution);
+  if (p != q)
+  {
+    cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
+    kernel_divide <<<blocks, threads>>>(qframe, frame_resolution, n_frame_resolution);
+  }
 }
