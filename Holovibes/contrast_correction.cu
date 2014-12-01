@@ -4,6 +4,7 @@
 #include <device_launch_parameters.h>
 #include <float.h>
 #include <cstdlib>
+#include <iostream>
 
 #include "hardware_limits.hh"
 
@@ -88,30 +89,17 @@ void find_min_max_img(
     }
 }
 
-// Fix 
 void auto_contrast_correction(
   float* input,
   unsigned int size,
   float* min,
-  float* max,
-  float threshold) // percent
+  float* max)
 {
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-
-  int *histo;
-  int *histo_cpu = (int*)calloc(sizeof(int)* tons, 1);
-  cudaMalloc(&histo, tons * sizeof(int));
-  cudaMemset(histo, 0, tons * sizeof(int));
-  make_histo << <blocks, threads >> >(histo, img, img_size, bytedepth);
-  cudaMemcpy(histo_cpu, histo, tons * sizeof(int), cudaMemcpyDeviceToHost);
-  find_min_max(min, max, histo_cpu, bytedepth, percent, img_size);
-  float factor = tons / (*max - *min);
-  cudaFree(histo);
-  free(histo_cpu);
+  float *img_cpu = (float *)malloc(size * sizeof (float));
+  cudaMemcpy(img_cpu, input, sizeof(float)* size, cudaMemcpyDeviceToHost);
+  find_min_max_img(input, min, max, size);
+  free(img_cpu);
+  std::cout << "min: " << *min << "max: " << *max << std::endl;
 }
 
 static __global__ void apply_contrast(
