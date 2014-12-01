@@ -21,6 +21,7 @@ namespace gui
     , frame_desc_(q.get_frame_desc())
     , buffer_(0)
     , cuda_buffer_(nullptr)
+    , is_selection_enabled_(false)
   {
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
@@ -132,23 +133,29 @@ namespace gui
     glTexCoord2d(0.0, 1.0); glVertex2d(-1.0, -1.0);
     glEnd();
 
-    selection_rect(0, 0, 512, 1024);
+    if (is_selection_enabled_)
+      selection_rect(startx_, starty_, endx_, endy_);
 
     gl_error_checking();
   }
 
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
-    std::cout << e->x() << " " << e->y() << std::endl;
-    startx_ = e->x();
-    starty_ = e->y();
+    is_selection_enabled_ = true;
+    startx_ = (e->x() * frame_desc_.width) / width();
+    starty_ = (e->y() * frame_desc_.height) / height();
+  }
+
+  void GLWidget::mouseMoveEvent(QMouseEvent* e)
+  {
+    endx_ = (e->x() * frame_desc_.width) / width();
+    endy_ = (e->y() * frame_desc_.height) / height();
   }
 
   void GLWidget::mouseReleaseEvent(QMouseEvent* e)
   {
-    std::cout << e->x() << " " << e->y() << std::endl;
-    endx_ = e->x();
-    endy_ = e->y();
+    endx_ = (e->x() * frame_desc_.width) / width();
+    endy_ = (e->y() * frame_desc_.height) / height();
   }
 
   void GLWidget::selection_rect(int startx, int starty, int endx, int endy)

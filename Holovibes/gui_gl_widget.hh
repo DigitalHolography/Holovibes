@@ -37,6 +37,7 @@ namespace gui
     void paintGL() override;
 
     void mousePressEvent(QMouseEvent* e) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
     void mouseReleaseEvent(QMouseEvent* e) override;
 
   private:
@@ -46,6 +47,7 @@ namespace gui
   private:
     /* --- QT --- */
     QTimer timer_;
+    bool is_selection_enabled_;
     unsigned int startx_;
     unsigned int starty_;
     unsigned int endx_;
