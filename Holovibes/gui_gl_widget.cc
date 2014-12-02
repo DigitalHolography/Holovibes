@@ -24,6 +24,7 @@ namespace gui
     , is_selection_enabled_(false)
     , px_(0.0f)
     , py_(0.0f)
+    , zoom_ratio_(1.0f)
   {
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
@@ -150,9 +151,16 @@ namespace gui
 
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
-    is_selection_enabled_ = true;
-    startx_ = (e->x() * frame_desc_.width) / width();
-    starty_ = (e->y() * frame_desc_.height) / height();
+    if (e->button() == Qt::LeftButton)
+    {
+      is_selection_enabled_ = false;
+      startx_ = (e->x() * frame_desc_.width) / width();
+      starty_ = (e->y() * frame_desc_.height) / height();
+    }
+    else
+    {
+      dezoom();
+    }
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -163,21 +171,30 @@ namespace gui
 
   void GLWidget::mouseReleaseEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width();
-    endy_ = (e->y() * frame_desc_.height) / height();
-    is_selection_enabled_ = false;
+    if (e->button() == Qt::LeftButton)
+    {
+      endx_ = (e->x() * frame_desc_.width) / width();
+      endy_ = (e->y() * frame_desc_.height) / height();
+      is_selection_enabled_ = false;
 
-    zoom();
+      zoom();
+    }
   }
 
   void GLWidget::selection_rect(int startx, int starty, int endx, int endy, float color[4])
   {
     float xmax = frame_desc_.width;
     float ymax = frame_desc_.height;
-    float nstartx = (2.0f * (float)startx) / xmax - 1.0f - px_;
-    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f) - py_;
-    float nendx = (2.0f * (float)endx) / xmax - 1.0f - px_;
-    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f) - py_;
+
+    float nstartx = (2.0f * (float)startx) / xmax - 1.0f;
+    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f);
+    float nendx = (2.0f * (float)endx) / xmax - 1.0f;
+    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f);
+
+    nstartx -= px_;
+    nstarty -= py_;
+    nendx -= px_;
+    nendy -= py_;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -204,21 +221,36 @@ namespace gui
     float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = startx_ + ((endx_ - startx_) / 2);
-    int ysource = starty_ + ((endy_ - starty_) / 2);
+    int xsource = startx_;//+ ((endx_ - startx_) / 2);
+    int ysource = starty_;//+ ((endy_ - starty_) / 2);
 
     // Normalizing source points to OpenGL coords
     float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
     float nysource = -1.0f * ((2.0f * (float)ysource) / (float)frame_desc_.height - 1.0f);
 
+    std::cout << "Source (" << nxsource / zoom_ratio_ << ", " << nysource / zoom_ratio_ << ")" << std::endl;
+
     // Projection of the translation
     float px = xdest - nxsource;
     float py = ydest - nysource;
 
+    px /= zoom_ratio_;
+    py /= zoom_ratio_;
+
     glTranslatef(px, py, 0.0f);
 
+    zoom_ratio_ *= 2.0f;
     px_ += px;
     py_ += py;
+  }
+
+  void GLWidget::dezoom()
+  {
+    glScalef(1.0f / zoom_ratio_, 1.0f / zoom_ratio_, 1.0f);
+    glTranslatef(-px_, -py_, 0.0f);
+    zoom_ratio_ = 1.0f;
+    px_ = 0.0f;
+    py_ = 0.0f;
   }
 
   void GLWidget::gl_error_checking()

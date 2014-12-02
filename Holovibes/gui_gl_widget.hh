@@ -43,6 +43,7 @@ namespace gui
   private:
     void selection_rect(int startx, int starty, int endx, int endy, float color[4]);
     void zoom();
+    void dezoom();
     void gl_error_checking();
 
   private:
@@ -57,6 +58,9 @@ namespace gui
     // Translation
     float px_;
     float py_;
+
+    // Zoom ratio
+    float zoom_ratio_;
 
     /* Window size hints */
     unsigned int width_;
