@@ -151,26 +151,22 @@ namespace gui
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
     is_selection_enabled_ = true;
-    startx_ = (e->x() * frame_desc_.width) / width() + px_;
-    starty_ = (e->y() * frame_desc_.height) / height() + py_;
+    startx_ = (e->x() * frame_desc_.width) / width();
+    starty_ = (e->y() * frame_desc_.height) / height();
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width() + px_;
-    endy_ = (e->y() * frame_desc_.height) / height() + py_;
+    endx_ = (e->x() * frame_desc_.width) / width();
+    endy_ = (e->y() * frame_desc_.height) / height();
   }
 
   void GLWidget::mouseReleaseEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width() + px_;
-    endy_ = (e->y() * frame_desc_.height) / height() + py_;
+    endx_ = (e->x() * frame_desc_.width) / width();
+    endy_ = (e->y() * frame_desc_.height) / height();
     is_selection_enabled_ = false;
 
-    std::cout << "start (" << startx_ << ", " << starty_ << ")" << std::endl;
-    std::cout << "end (" << endx_ << ", " << endy_ << ")" << std::endl;
-    std::cout << "mouse release eve(px, py): (" << px_ << ", " << py_ << ")" << std::endl;
-    //FIXME
     zoom();
   }
 
@@ -178,10 +174,10 @@ namespace gui
   {
     float xmax = frame_desc_.width;
     float ymax = frame_desc_.height;
-    float nstartx = (2.0f * (float)startx) / xmax - 1.0f;
-    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f);
-    float nendx = (2.0f * (float)endx) / xmax - 1.0f;
-    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f);
+    float nstartx = (2.0f * (float)startx) / xmax - 1.0f - px_;
+    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f) - py_;
+    float nendx = (2.0f * (float)endx) / xmax - 1.0f - px_;
+    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f) - py_;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -199,44 +195,30 @@ namespace gui
 
   void GLWidget::zoom()
   {
-    int selection_width = endx_ - startx_;
-    int selection_height = endy_ - starty_;
+    // Rescaling picture
+    glScalef(2.0f, 2.0f, 1.0f);
 
-    float xratio = (float)frame_desc_.width / (float)selection_width;
-    float yratio = (float)frame_desc_.height / (float)selection_height;
+    // Translation
+    // Destination point is center of the window (OpenGL coords)
+    float xdest = 0.0f;
+    float ydest = 0.0f;
 
-    float min_ratio = xratio < yratio ? xratio : yratio;
+    // Source point is center of the selection zone (normal coords)
+    int xsource = startx_ + ((endx_ - startx_) / 2);
+    int ysource = starty_ + ((endy_ - starty_) / 2);
 
-    // Zoom
-    glScalef(min_ratio, min_ratio, 1.0f);
+    // Normalizing source points to OpenGL coords
+    float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
+    float nysource = -1.0f * ((2.0f * (float)ysource) / (float)frame_desc_.height - 1.0f);
 
-    int originx = 0 + px_;
-    int originy = 0 + py_;
+    // Projection of the translation
+    float px = xdest - nxsource;
+    float py = ydest - nysource;
 
-    // Sign of the translation
-    int px_sign = originx < startx_ ? -1 : 1;
-    int py_sign = originy < starty_ ? -1 : 1;
+    glTranslatef(px, py, 0.0f);
 
-    // Projections on x and y axis / translation vector coordinates
-    // Centering the selection zone by adding selection_dim / 2
-    int px = px_sign * abs(startx_ + selection_width / 2 - originx);
-    int py = py_sign * abs(starty_ + selection_height / 2 - originy);
-
-    px -= px_;
-    py -= py_;
-
-    std::cout << "translate(px, py): (" << px << ", " << py << ")" << std::endl;
-
-    // Normalization for OpenGL
-    float npx = (2.0f * (float)px) / frame_desc_.width;
-    float npy = -1.0f * (2.0f * (float)py) / frame_desc_.height;
-
-    // Translation in the middle of the window
-    glTranslatef(npx + 1.0f, npy - 1.0f, 1.0f);
-
-    // Keeping previouses translations
-    px_ -= px + frame_desc_.width / 2;
-    py_ -= py + frame_desc_.height / 2;
+    px_ += px;
+    py_ += py;
   }
 
   void GLWidget::gl_error_checking()
