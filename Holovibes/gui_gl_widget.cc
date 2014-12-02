@@ -153,7 +153,7 @@ namespace gui
   {
     if (e->button() == Qt::LeftButton)
     {
-      is_selection_enabled_ = false;
+      is_selection_enabled_ = true;
       startx_ = (e->x() * frame_desc_.width) / width();
       starty_ = (e->y() * frame_desc_.height) / height();
     }
@@ -212,42 +212,46 @@ namespace gui
 
   void GLWidget::zoom()
   {
-    // Rescaling picture
-    glScalef(2.0f, 2.0f, 1.0f);
-
     // Translation
     // Destination point is center of the window (OpenGL coords)
     float xdest = 0.0f;
     float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = startx_;//+ ((endx_ - startx_) / 2);
-    int ysource = starty_;//+ ((endy_ - starty_) / 2);
+    int xsource = startx_ + ((endx_ - startx_) / 2);
+    int ysource = starty_ + ((endy_ - starty_) / 2);
 
     // Normalizing source points to OpenGL coords
     float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
     float nysource = -1.0f * ((2.0f * (float)ysource) / (float)frame_desc_.height - 1.0f);
 
-    std::cout << "Source (" << nxsource / zoom_ratio_ << ", " << nysource / zoom_ratio_ << ")" << std::endl;
-
     // Projection of the translation
     float px = xdest - nxsource;
     float py = ydest - nysource;
 
-    px /= zoom_ratio_;
-    py /= zoom_ratio_;
-
     glTranslatef(px, py, 0.0f);
 
-    zoom_ratio_ *= 2.0f;
+    float xratio = (float)frame_desc_.width / ((float)endx_ - (float)startx_);
+    float yratio = (float)frame_desc_.height / ((float)endy_ - (float)starty_);
+
+    float min_ratio = xratio < yratio ? xratio : yratio;
+
+    // Rescaling picture
+    glScalef(min_ratio, min_ratio, 1.0f);
+
+    zoom_ratio_ *= min_ratio;
+
+    // FIXME
+    // Translate back
+    //glTranslatef(-px, -py, 0.0f);
+
     px_ += px;
     py_ += py;
   }
 
   void GLWidget::dezoom()
   {
-    glScalef(1.0f / zoom_ratio_, 1.0f / zoom_ratio_, 1.0f);
-    glTranslatef(-px_, -py_, 0.0f);
+    glLoadIdentity();
     zoom_ratio_ = 1.0f;
     px_ = 0.0f;
     py_ = 0.0f;
