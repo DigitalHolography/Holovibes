@@ -1,4 +1,4 @@
-# Holovibes v0.3 #
+# Holovibes v0.4.3 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -21,23 +21,37 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
 
+### Qt 5.3.2 ###
+
+* [Qt OpenSource Windows x64 MSVC OpenGL 5.3.2](http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-msvc2013_64_opengl-5.3.2.exe.mirrorlist)
+
 ## Typical Usage ##
+
+### GUI - *Graphical User Interface*
+
+1. *Configure* the camera (xiq for example) with .ini.
+2. Double-click on holovibes.exe icon.
+
+### CLI - *Command Line Interface*
 
 1. *Configure* the camera (xiq for example) with .ini.
 2. *Launch* Holovibes using the *Windows PowerShell* for example:
 
 ~~~
-./Holovibes.exe -c xiq -d 720 --1fft -n 2 -p 0 -l 536e-9 -z 1.36
+./Holovibes.exe -c xiq -w 10 frames.raw --1fft -n 2 -p 0 -l 536e-9 -z 1.36
 ~~~
 
-This enables holograms (FFT1 algorithm) computation using the XiQ camera, displaying in a square windows of 720x720 pixels.
+This enables holograms (FFT1 algorithm) computation using the XiQ camera, recording 10 frames in file `frames.raw`.
+
+#### About CLI mode
+
+This mode is useful to do batch computation (call holovibes from a script).
 
 ## Developers dependencies ##
 
 ### Libraries ###
 
 * [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
-* [GLEW: OpenGL Extension Wrangler Library](http://glew.sourceforge.net)
 
 ### IDE ###
 
@@ -55,6 +69,13 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, displa
 * OpenGL realtime display
 * Record frames
 * Hologram computation using the FFT1/FFT2 algorithms.
+* Logarithm filter
+* Manual contrast (logarithmic scale values)
+* Three view modes : *magnitude*, *squared magnitude* and *argument*.
+* Graphical user interface
+	* Change parameters on the fly
+	* Shortcuts for convenience
+* Vibrometry analysis.
 
 ## Authors ##
 
@@ -98,6 +119,9 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, displa
 	* Keyboard shortcuts
 	* New Qt OpenGL window (resizeable)
 	* Updates holograms parameters in live
+    * Guards and protections against bad user actions
+    * Camera change on the fly
+    * Record canceling feature
 * Add pipeline to apply algorithms.
 * Fix queue issue when using big endian camera (Queue ensures that his content is little endian).
 * Better memory management (less cudaMalloc), resources are allocated once at start and only few reallocations occurs when tweaking the Phase# parameter.
@@ -108,3 +132,18 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, displa
 * Post-FFT algorithms are more precise (using floats instead of ushorts).
 * Thread shared resources are no longer allocated in threads.
 * CUDA kernels are less monolithic (complex-real conversions are separated).
+* Fix pixelfly hologram mode.
+* CLI updated (--nogui mode)
+* CLI can set parameters on GUI.
+
+### v.0.4.3 ###
+
+* GUI
+	* Visibility methods changed to handle both case instead of having two methods
+	* SpinBox sizes changed
+	* Names of windows and parameters changed
+	* When log scale is enabled, the value given to the pipeline is not powered to 10^9
+	* When contrast enabled, enabling the log scale will update the contrast (to convenient values).
+* Update CLI
+	* Display mode is not available in --nogui mode
+	* No Qt in CLI mode

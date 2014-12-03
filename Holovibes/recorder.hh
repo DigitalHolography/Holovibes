@@ -16,13 +16,14 @@ namespace holovibes
     ~Recorder();
 
     void record(unsigned int n_images);
-
+    void stop();
   private:
     bool is_file_exist(const std::string& filepath);
 
   private:
     Queue& queue_;
     std::ofstream file_;
+    bool stop_requested_;
   };
 }
 

@@ -5,8 +5,8 @@ void manual_contrast_correction(
   float* input,
   unsigned int size,
   unsigned short dynamic_range,
-  unsigned short min,
-  unsigned short max);
+  float min,
+  float max);
 void auto_contrast_correction(
   float* input,
   unsigned int size,

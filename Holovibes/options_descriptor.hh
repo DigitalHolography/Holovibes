@@ -21,10 +21,10 @@ namespace holovibes
       , gl_window_width(0)
       , gl_window_height(0)
       , camera()
+      , is_gui_enabled(true)
       , is_gl_window_enabled(false)
       , is_recorder_enabled(false)
-      , is_1fft_enabled(false)
-      , is_2fft_enabled(false)
+      , is_compute_enabled(false)
       , compute_desc()
     {}
 
@@ -42,10 +42,10 @@ namespace holovibes
     /*! Selected camera */
     Holovibes::camera_type camera;
     /* Enabled features */
+    bool is_gui_enabled;
     bool is_gl_window_enabled;
     bool is_recorder_enabled;
-    bool is_1fft_enabled;
-    bool is_2fft_enabled;
+    bool is_compute_enabled;
     ComputeDescriptor compute_desc;
   };
 }

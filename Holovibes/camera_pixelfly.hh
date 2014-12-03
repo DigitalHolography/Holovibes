@@ -33,7 +33,13 @@ namespace camera
   private:
     HANDLE device_;
     HANDLE refresh_event_;
+    /* PCO buffer of actual_res_x_ * actual_res_y_ */
     WORD* buffer_;
+    /*! Squared buffer of 2048 * 2048. */
+    WORD* squared_buffer_;
+
+    WORD actual_res_x_;
+    WORD actual_res_y_;
 
     /* Custom camera parameters. */
 

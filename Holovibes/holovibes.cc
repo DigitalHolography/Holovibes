@@ -1,7 +1,7 @@
 #include "holovibes.hh"
 #include "frame_desc.hh"
-#include "gl_component.hh"
 #include "camera_ids.hh"
+#include "camera_ixon.hh"
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"
 #include "camera_xiq.hh"
@@ -11,7 +11,7 @@
 
 namespace holovibes
 {
-  Holovibes::Holovibes(enum camera_type c)
+  Holovibes::Holovibes()
     : camera_(nullptr)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
@@ -21,19 +21,6 @@ namespace holovibes
     , pipeline_(nullptr)
     , compute_desc_()
   {
-    if (c == IDS)
-      camera_ = new camera::CameraIds();
-    else if (c == PIKE)
-      camera_ = new camera::CameraPike();
-    else if (c == PIXELFLY)
-      camera_ = new camera::CameraPixelfly();
-    else if (c == XIQ)
-      camera_ = new camera::CameraXiq();
-    else
-      assert(!"Impossible case");
-
-    if (!camera_)
-      throw std::runtime_error("Error while allocating Camera constructor");
   }
 
   Holovibes::~Holovibes()
@@ -45,34 +32,63 @@ namespace holovibes
     delete output_;
   }
 
-  void Holovibes::init_display(
-    unsigned int width,
-    unsigned int height)
+  void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
-  }
+    if (c == IDS)
+      camera_ = new camera::CameraIds();
+    else if (c == IXON)
+      camera_ = new camera::CameraIxon();
+    else if (c == PIKE)
+      camera_ = new camera::CameraPike();
+    else if (c == PIXELFLY)
+      camera_ = new camera::CameraPixelfly();
+    else if (c == XIQ)
+      camera_ = new camera::CameraXiq();
+    else
+      assert(!"Impossible case");
 
-  void Holovibes::dispose_display()
-  {
-  }
+    if (!camera_)
+      throw std::runtime_error("Error while allocating Camera constructor");
 
-  void Holovibes::init_capture(unsigned int buffer_nb_elts)
-  {
     assert(camera_ && "camera not initialized");
-    camera_->init_camera();
-    input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
-    camera_->start_acquisition();
-    tcapture_ = new ThreadCapture(*camera_, *input_);
-    std::cout << "[CAPTURE] capture thread started" << std::endl;
+
+    try
+    {
+      camera_->init_camera();
+      input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
+      camera_->start_acquisition();
+      tcapture_ = new ThreadCapture(*camera_, *input_);
+      std::cout << "[CAPTURE] capture thread started" << std::endl;
+    }
+    catch (std::exception& e)
+    {
+      delete tcapture_;
+      tcapture_ = nullptr;
+      delete input_;
+      input_ = nullptr;
+      delete camera_;
+      camera_ = nullptr;
+      throw;
+    }
   }
 
   void Holovibes::dispose_capture()
   {
     delete tcapture_;
     tcapture_ = nullptr;
-    camera_->stop_acquisition();
-    camera_->shutdown_camera();
+
+    if (camera_)
+    {
+      camera_->stop_acquisition();
+      camera_->shutdown_camera();
+    }
+
     delete input_;
     input_ = nullptr;
+    delete camera_;
+    camera_ = nullptr;
+
+    std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
 
   void Holovibes::init_recorder(

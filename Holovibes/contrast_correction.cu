@@ -6,22 +6,28 @@
 
 #include "hardware_limits.hh"
 
-static __global__ void make_histo(
-  int *histo,
-  void *img,
-  int img_size,
-  int bytedepth)
+#if 0
+static __global__ void kernel_histogram(
+  float* input,
+  unsigned int input_size,
+  unsigned int* histogram,
+  unsigned int histogram_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (index < img_size)
+  while (index < input_size)
   {
-    if (bytedepth == 1)
-      atomicAdd(&histo[((unsigned char*)img)[index]], 1);
-    else
-      atomicAdd(&histo[((unsigned short*)img)[index]], 1);
+    unsigned int pixel_value = __float2_uint_rz(input[index]);
+
+    if (pixel_value >= histogram_size)
+      pixel_value = histogram_size - 1;
+
+    atomicAdd(histogram[pixel_value], 1);
+
+    index += blockDim.x * gridDim.x;
   }
 }
+#endif
 
 static void find_min_max(
   unsigned int *min,
@@ -96,7 +102,7 @@ static __global__ void apply_contrast(
   float* input,
   unsigned int size,
   float factor,
-  unsigned short min)
+  float min)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -111,8 +117,8 @@ void manual_contrast_correction(
   float* input,
   unsigned int size,
   unsigned short dynamic_range,
-  unsigned short min,
-  unsigned short max)
+  float min,
+  float max)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -120,6 +126,6 @@ void manual_contrast_correction(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  const float factor = static_cast<float>(dynamic_range) / static_cast<float>(max - min);
+  const float factor = static_cast<float>(dynamic_range) / (max - min);
   apply_contrast<<<blocks, threads>>>(input, size, factor, min);
 }

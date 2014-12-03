@@ -7,40 +7,70 @@
 
 namespace holovibes
 {
-  void OptionsParser::init_parser()
+  OptionsParser::OptionsParser(OptionsDescriptor& opts)
+    : opts_(opts)
+    , pos_desc_()
+    , general_opts_desc_("General")
+    , features_opts_desc_("Features")
+    , compute_opts_desc_("Computation options")
+    , merge_opts_desc_()
+    , vm_()
   {
-    help_desc_.add_options()
+    init_general_options();
+    init_compute_options();
+  }
+
+  void OptionsParser::init_general_options()
+  {
+    general_opts_desc_.add_options()
       ("version", "Print the version number of Holovibes and exit.")
       ("help,h", "Print a summary of the command-line options to Holovibes and exit.")
+      ("nogui", "Disable graphical user interface.")
       ;
+  }
 
-    desc_.add_options()
-      ("display,d",
-      po::value<std::vector<int>>()
-      ->multitoken(),
-      "Display images on screen. "
-      "The first argument gives the square size of the display. "
-      "The second optional argument specify the height.")
-
-      ("write,w",
-      po::value<std::vector<std::string>>()
-      ->multitoken(),
-      "Record a sequence of images in the given path. "
-      "The first argument gives the number of images to record. "
-      "The second argument gives the filepath where frames will be recorded.")
-
+  void OptionsParser::init_features_options(bool is_no_gui)
+  {
+    features_opts_desc_.add_options()
       ("queuesize,q",
       po::value<int>()
       ->default_value(default_queue_size),
       "Size of queue arg in number of images")
-
-      ("cameramodel,c",
-      po::value<std::string>()
-      ->required(),
-      "Set the camera to use: pike/xiq/ids/pixelfly.")
       ;
 
-    cuda_desc_.add_options()
+    if (is_no_gui)
+    {
+      features_opts_desc_.add_options()
+        ("write,w",
+        po::value<std::vector<std::string>>()
+        ->multitoken()
+        ->required(),
+        "Record a sequence of images in the given path. "
+        "The first argument gives the number of images to record. "
+        "The second argument gives the filepath where frames will be recorded.")
+
+        ("cameramodel,c",
+        po::value<std::string>()
+        ->required(),
+        "Set the camera to use: pike/xiq/ids/pixelfly/ixon.")
+        ;
+    }
+    else
+    {
+      features_opts_desc_.add_options()
+        ("display,d",
+        po::value<std::vector<int>>()
+        ->multitoken(),
+        "Set default sizes of realtime display."
+        "The first argument gives the square size of the display. "
+        "The second optional argument specify the height.")
+        ;
+    }
+  }
+
+  void OptionsParser::init_compute_options()
+  {
+    compute_opts_desc_.add_options()
       ("1fft",
       "Enable the 1-FFT method: Fresnel transform. Requires n, p, l, z parameters.")
 
@@ -62,34 +92,91 @@ namespace holovibes
       ("zdistance,z",
       po::value<float>(),
       "The parameter z corresponds to the sensor-to-object distance.")
-      ;
 
-    desc_.add(cuda_desc_);
-    desc_.add(help_desc_);
+      ("viewmode",
+      po::value<std::string>(),
+      "Select the view mode: magnitude/sqrtmagnitude/argument.")
+
+      ("log",
+      "Apply log10 on output frames.")
+
+      ("nofftshift",
+      "Disable FFT shifting.")
+
+      ("contrastmin",
+      po::value<float>(),
+      "Enable contrast and set min value."
+      "Argument use logarithmic scale.")
+
+      ("contrastmax",
+      po::value<float>(),
+      "Enable contrast and set max value."
+      "Argument use logarithmic scale.")
+
+      ("vibrometry,v",
+      po::value<int>(),
+      "Select the q-th component of the DFT and enable vibrometry, vq must be defined in {0, ..., N - 1}.")
+      ;
   }
 
-  void OptionsParser::parse(int argc, const char* argv[])
+  void OptionsParser::init_merge_options()
+  {
+    merge_opts_desc_.add(general_opts_desc_);
+    merge_opts_desc_.add(features_opts_desc_);
+    merge_opts_desc_.add(compute_opts_desc_);
+  }
+
+  void OptionsParser::parse_general_options(int argc, char* const argv[])
+  {
+    /* First parsing to check help/version options. */
+    po::store(po::command_line_parser(argc, argv)
+      .options(general_opts_desc_)
+      .allow_unregistered()
+      .run(), vm_);
+    po::notify(vm_);
+  }
+
+  bool OptionsParser::get_is_gui_enabled()
+  {
+    return !vm_.count("nogui");
+  }
+
+  void OptionsParser::parse_features_compute_options(int argc, char* const argv[])
+  {
+    po::store(
+      po::command_line_parser(argc, argv)
+      .options(merge_opts_desc_)
+      .positional(pos_desc_)
+      .run(), vm_);
+    po::notify(vm_);
+  }
+
+  void OptionsParser::parse(int argc, char* const argv[])
   {
     bool succeed = false;
 
     try
     {
-      /* First parsing to check help/version options. */
-      po::store(po::command_line_parser(argc, argv)
-        .options(help_desc_)
-        .allow_unregistered()
-        .run(), vm_);
-      po::notify(vm_);
+      parse_general_options(argc, argv);
+
+      opts_.is_gui_enabled = get_is_gui_enabled();
+
+      init_features_options(!opts_.is_gui_enabled);
+      init_merge_options();
+
+      /* May exit here. */
       proceed_help();
 
-      /* Parsing holovibes options. */
-      po::store(
-        po::command_line_parser(argc, argv)
-        .options(desc_)
-        .positional(pos_desc_)
-        .run(), vm_);
-      po::notify(vm_);
-      proceed_holovibes();
+      parse_features_compute_options(argc, argv);
+
+      proceed_features();
+      proceed_compute();
+
+      if (!opts_.is_gui_enabled && opts_.is_compute_enabled)
+        check_compute_params();
+
+      opts_.compute_desc.sanity_check();
+
       succeed = true;
     }
     catch (po::unknown_option& e)
@@ -127,8 +214,9 @@ namespace holovibes
   void OptionsParser::print_help()
   {
     print_version();
-    std::cout << "\nUsage: ./holovibes.exe [OPTIONS]" << std::endl;
-    std::cout << desc_;
+    std::cout << "\nUsage: ./holovibes.exe [OPTIONS]\n"
+      << "This help message depends on --nogui parameter (more options available).\n" << std::endl;
+    std::cout << merge_opts_desc_;
   }
 
   void OptionsParser::print_version()
@@ -151,7 +239,7 @@ namespace holovibes
     }
   }
 
-  void OptionsParser::proceed_holovibes()
+  void OptionsParser::proceed_features()
   {
     if (vm_.count("cameramodel"))
     {
@@ -165,6 +253,8 @@ namespace holovibes
         opts_.camera = Holovibes::PIKE;
       else if (boost::iequals(camera, "pixelfly"))
         opts_.camera = Holovibes::PIXELFLY;
+      else if (boost::iequals(camera, "ixon"))
+        opts_.camera = Holovibes::IXON;
       else
         throw std::runtime_error("unknown camera model");
     }
@@ -235,73 +325,126 @@ namespace holovibes
 
       opts_.is_recorder_enabled = true;
     }
+  }
 
+  void OptionsParser::proceed_compute()
+  {
     if (vm_.count("1fft"))
     {
-      proceed_dft_params();
-      opts_.is_1fft_enabled = true;
+      opts_.is_compute_enabled = true;
       opts_.compute_desc.algorithm = ComputeDescriptor::FFT1;
     }
 
     if (vm_.count("2fft"))
     {
-      if (opts_.is_1fft_enabled)
+      if (opts_.is_compute_enabled)
         throw std::runtime_error("1fft method already selected");
 
-      proceed_dft_params();
-      opts_.is_2fft_enabled = true;
+      opts_.is_compute_enabled = true;
       opts_.compute_desc.algorithm = ComputeDescriptor::FFT2;
     }
-  }
 
-  void OptionsParser::proceed_dft_params()
-  {
     if (vm_.count("nsamples"))
     {
       const int nsamples = vm_["nsamples"].as<int>();
-
       if (nsamples <= 0)
         throw std::runtime_error("--nsamples parameter must be strictly positive");
 
-      if (static_cast<unsigned int>(nsamples) >= opts_.queue_size)
-        throw std::runtime_error("--nsamples can not be greater than the queue size");
-
       opts_.compute_desc.nsamples = nsamples;
+
+      if (opts_.compute_desc.nsamples >= opts_.queue_size)
+        throw std::runtime_error("--nsamples can not be greater than the queue size");
     }
-    else
-      throw std::runtime_error("--nsamples is required");
 
     if (vm_.count("pindex"))
     {
       const int pindex = vm_["pindex"].as<int>();
-
       if (pindex < 0 || static_cast<unsigned int>(pindex) >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
-
       opts_.compute_desc.pindex = pindex;
     }
-    else
-      throw std::runtime_error("--pindex is required");
 
     if (vm_.count("lambda"))
     {
       const float lambda = vm_["lambda"].as<float>();
-
       if (lambda <= 0.0000f)
         throw std::runtime_error("--lambda parameter must be strictly positive");
-
       opts_.compute_desc.lambda = lambda;
     }
-    else
-      throw std::runtime_error("--lambda is required");
 
     if (vm_.count("zdistance"))
     {
       const float zdistance = vm_["zdistance"].as<float>();
-
       opts_.compute_desc.zdistance = zdistance;
     }
-    else
+
+    if (vm_.count("viewmode"))
+    {
+      const std::string viewmode = vm_["viewmode"].as<std::string>();
+      if (boost::iequals(viewmode, "magnitude"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::MODULUS;
+      else if (boost::iequals(viewmode, "sqrtmagnitude"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::SQUARED_MODULUS;
+      else if (boost::iequals(viewmode, "argument"))
+        opts_.compute_desc.view_mode = ComputeDescriptor::ARGUMENT;
+      else
+        throw std::runtime_error("unknown view mode");
+    }
+
+    opts_.compute_desc.log_scale_enabled = vm_.count("log");
+
+    opts_.compute_desc.shift_corners_enabled = !vm_.count("nofftshift");
+
+    if (vm_.count("contrastmin"))
+    {
+      const float log_min = vm_["contrastmin"].as<float>();
+
+      if (log_min < -100.0f || log_min > 100.0f)
+        throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
+
+      if (opts_.compute_desc.log_scale_enabled)
+        opts_.compute_desc.contrast_min = log_min;
+      else
+        opts_.compute_desc.contrast_min = pow(10.0, log_min);
+      opts_.compute_desc.contrast_enabled = true;
+    }
+
+    if (vm_.count("contrastmax"))
+    {
+      const float log_max = vm_["contrastmax"].as<float>();
+
+      if (log_max < -100.0f || log_max > 100.0f)
+        throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
+
+      if (opts_.compute_desc.log_scale_enabled)
+        opts_.compute_desc.contrast_max = log_max;
+      else
+        opts_.compute_desc.contrast_max = pow(10.0, log_max);
+      opts_.compute_desc.contrast_enabled = true;
+    }
+
+    if (vm_.count("vibrometry"))
+    {
+      const int vibrometry_q = vm_["vibrometry"].as<int>();
+      if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
+        throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
+      opts_.compute_desc.vibrometry_q = vibrometry_q;
+      opts_.compute_desc.vibrometry_enabled = true;
+    }
+  }
+
+  void OptionsParser::check_compute_params()
+  {
+    if (!vm_.count("nsamples"))
+      throw std::runtime_error("--nsamples is required");
+
+    if (!vm_.count("pindex"))
+      throw std::runtime_error("--pindex is required");
+
+    if (!vm_.count("lambda"))
+      throw std::runtime_error("--lambda is required");
+
+    if (!vm_.count("zdistance"))
       throw std::runtime_error("--zdistance is required");
   }
 }

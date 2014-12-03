@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>856</width>
-    <height>299</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="font">
@@ -15,8 +18,11 @@
     <pointsize>8</pointsize>
    </font>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
   <property name="windowTitle">
-   <string>Holovibes</string>
+   <string>HoloVibes</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="gridLayoutWidget">
@@ -25,7 +31,7 @@
       <x>10</x>
       <y>10</y>
       <width>831</width>
-      <height>241</height>
+      <height>261</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -61,7 +67,7 @@
        <widget class="QRadioButton" name="hologramRadioButton">
         <property name="geometry">
          <rect>
-          <x>110</x>
+          <x>100</x>
           <y>30</y>
           <width>95</width>
           <height>21</height>
@@ -74,9 +80,9 @@
        <widget class="QSpinBox" name="phaseNumberSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>70</y>
-          <width>61</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -103,9 +109,9 @@
        <widget class="QSpinBox" name="pSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>100</y>
-          <width>61</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -133,15 +139,15 @@
          </rect>
         </property>
         <property name="text">
-         <string>Wavelength(nm):</string>
+         <string>λ(nm):</string>
         </property>
        </widget>
        <widget class="QDoubleSpinBox" name="wavelengthSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>130</y>
-          <width>62</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -174,9 +180,9 @@
        <widget class="QDoubleSpinBox" name="zSpinBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
+          <x>100</x>
           <y>160</y>
-          <width>62</width>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -197,7 +203,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>190</y>
+          <y>220</y>
           <width>81</width>
           <height>16</height>
          </rect>
@@ -209,9 +215,9 @@
        <widget class="QComboBox" name="algorithmComboBox">
         <property name="geometry">
          <rect>
-          <x>130</x>
-          <y>190</y>
-          <width>61</width>
+          <x>100</x>
+          <y>220</y>
+          <width>81</width>
           <height>22</height>
          </rect>
         </property>
@@ -225,6 +231,35 @@
           <string>2FFT</string>
          </property>
         </item>
+       </widget>
+       <widget class="QLabel" name="zStepLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>190</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>z step</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="zStepDoubleSpinBox">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>190</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <double>0.100000000000000</double>
+        </property>
        </widget>
       </widget>
      </item>
@@ -245,8 +280,8 @@
        <widget class="QLabel" name="pLabelVibro">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>70</y>
+          <x>30</x>
+          <y>60</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -258,9 +293,9 @@
        <widget class="QSpinBox" name="pSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>80</x>
-          <y>70</y>
-          <width>44</width>
+          <x>60</x>
+          <y>60</y>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
@@ -268,9 +303,9 @@
        <widget class="QSpinBox" name="qSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>80</x>
-          <y>100</y>
-          <width>44</width>
+          <x>60</x>
+          <y>90</y>
+          <width>71</width>
           <height>22</height>
          </rect>
         </property>
@@ -278,8 +313,8 @@
        <widget class="QLabel" name="qLabelVibro">
         <property name="geometry">
          <rect>
-          <x>40</x>
-          <y>100</y>
+          <x>30</x>
+          <y>90</y>
           <width>31</width>
           <height>21</height>
          </rect>
@@ -288,17 +323,30 @@
          <string>q:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="vibrometryLabel">
+       <widget class="QCheckBox" name="vibrometryCheckBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>30</y>
-          <width>81</width>
-          <height>16</height>
+          <width>91</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Vibrometry:</string>
+         <string>Vibrometry</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="averageCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>81</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Average</string>
         </property>
        </widget>
       </widget>
@@ -332,6 +380,9 @@
           <width>61</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="minimum">
+         <number>1</number>
         </property>
         <property name="maximum">
          <number>1000000</number>
@@ -379,24 +430,27 @@
           <x>10</x>
           <y>150</y>
           <width>171</width>
-          <height>41</height>
+          <height>31</height>
          </rect>
         </property>
         <property name="text">
          <string>Rec</string>
         </property>
        </widget>
-       <widget class="QProgressBar" name="recordProgressBar">
+       <widget class="QPushButton" name="cancelPushButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>200</y>
+          <y>190</y>
           <width>171</width>
-          <height>23</height>
+          <height>31</height>
          </rect>
         </property>
-        <property name="value">
-         <number>24</number>
+        <property name="text">
+         <string>Cancel</string>
         </property>
        </widget>
       </widget>
@@ -522,7 +576,7 @@
        <widget class="QCheckBox" name="checkBox">
         <property name="geometry">
          <rect>
-          <x>20</x>
+          <x>10</x>
           <y>130</y>
           <width>82</width>
           <height>21</height>
@@ -532,7 +586,7 @@
          <string>Contrast</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="contrastMinSpinBox">
+       <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -540,15 +594,21 @@
          <rect>
           <x>60</x>
           <y>170</y>
-          <width>61</width>
+          <width>62</width>
           <height>22</height>
          </rect>
         </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
         <property name="maximum">
-         <number>65535</number>
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
         </property>
        </widget>
-       <widget class="QSpinBox" name="contrastMaxSpinBox">
+       <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -556,12 +616,18 @@
          <rect>
           <x>60</x>
           <y>200</y>
-          <width>61</width>
+          <width>62</width>
           <height>22</height>
          </rect>
         </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
         <property name="maximum">
-         <number>65535</number>
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
         </property>
        </widget>
       </widget>
@@ -575,7 +641,7 @@
      <x>0</x>
      <y>0</y>
      <width>856</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -593,7 +659,9 @@
      <property name="title">
       <string>&amp;Model</string>
      </property>
+     <addaction name="actionNone"/>
      <addaction name="actionIDS"/>
+     <addaction name="actionIXon"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
@@ -612,6 +680,7 @@
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionFull_screen"/>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
     <addaction name="actionSpecial"/>
@@ -625,7 +694,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionIDS">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>IDS</string>
@@ -633,7 +702,7 @@
   </action>
   <action name="actionPike">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Pike</string>
@@ -641,7 +710,7 @@
   </action>
   <action name="actionPixelfly">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Pixelfly</string>
@@ -649,13 +718,16 @@
   </action>
   <action name="actionXIQ">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>XIQ</string>
    </property>
   </action>
   <action name="actionSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Settings</string>
    </property>
@@ -754,6 +826,21 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
+  <action name="actionNone">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="actionFull_screen">
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+  </action>
+  <action name="actionIXon">
+   <property name="text">
+    <string>iXon</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -844,7 +931,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>28</x>
-     <y>-20</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -859,7 +946,7 @@
      <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-61</x>
+     <x>0</x>
      <y>71</y>
     </hint>
    </hints>
@@ -875,7 +962,7 @@
      <y>111</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-3</x>
+     <x>0</x>
      <y>94</y>
     </hint>
    </hints>
@@ -891,7 +978,7 @@
      <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-13</x>
+     <x>0</x>
      <y>143</y>
     </hint>
    </hints>
@@ -907,7 +994,7 @@
      <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-15</x>
+     <x>0</x>
      <y>176</y>
     </hint>
    </hints>
@@ -923,7 +1010,7 @@
      <y>205</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-23</x>
+     <x>0</x>
      <y>202</y>
     </hint>
    </hints>
@@ -935,11 +1022,11 @@
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>236</y>
+     <x>144</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-26</x>
+     <x>0</x>
      <y>237</y>
     </hint>
    </hints>
@@ -951,11 +1038,11 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>350</x>
-     <y>163</y>
+     <x>400</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-50</x>
+     <x>0</x>
      <y>59</y>
     </hint>
    </hints>
@@ -971,7 +1058,7 @@
      <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-48</x>
+     <x>0</x>
      <y>153</y>
     </hint>
    </hints>
@@ -987,7 +1074,7 @@
      <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-2</x>
+     <x>0</x>
      <y>186</y>
     </hint>
    </hints>
@@ -1004,7 +1091,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
-     <y>-13</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1015,12 +1102,12 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>550</x>
-     <y>143</y>
+     <x>530</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
-     <y>-28</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1032,11 +1119,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>818</x>
-     <y>223</y>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
-     <y>-11</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1051,7 +1138,7 @@
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>889</x>
+     <x>855</x>
      <y>121</y>
     </hint>
    </hints>
@@ -1068,7 +1155,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
-     <y>-11</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1084,39 +1171,247 @@
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
-     <y>-14</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>contrastMaxSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <sender>vibrometryCheckBox</sender>
+   <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_contrast_max(int)</slot>
+   <slot>set_vibro_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
-     <y>247</y>
+     <x>477</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
-     <x>312</x>
-     <y>326</y>
+     <x>470</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>contrastMinSpinBox</sender>
-   <signal>valueChanged(int)</signal>
+   <sender>actionIDS</sender>
+   <signal>triggered(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_contrast_min(int)</slot>
+   <slot>camera_ids()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>214</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>391</x>
-     <y>305</y>
+     <x>195</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPike</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pike()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>250</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPixelfly</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pixelfly()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQ</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNone</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_none()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>contrastMinDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>326</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>375</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>contrastMaxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_contrast_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFull_screen</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>gl_full_screen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>437</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancel_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>745</x>
+     <y>242</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>745</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCredits</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>credits()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zStepDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_step(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>368</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_camera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>-22</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIXon</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ixon()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>448</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>averageCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_average_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>181</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>478</x>
+     <y>439</y>
     </hint>
    </hints>
   </connection>
@@ -1129,8 +1424,8 @@
   <slot>set_z(double)</slot>
   <slot>set_algorithm(QString)</slot>
   <slot>set_auto_contrast()</slot>
-  <slot>set_contrast_min(int)</slot>
-  <slot>set_contrast_max(int)</slot>
+  <slot>set_contrast_min(double)</slot>
+  <slot>set_contrast_max(double)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_shifted_corners(bool)</slot>
   <slot>set_p_vibro(int)</slot>
@@ -1140,5 +1435,18 @@
   <slot>browse_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
+  <slot>set_vibro_mode(bool)</slot>
+  <slot>camera_ids()</slot>
+  <slot>camera_pike()</slot>
+  <slot>camera_pixelfly()</slot>
+  <slot>camera_xiq()</slot>
+  <slot>camera_none()</slot>
+  <slot>gl_full_screen()</slot>
+  <slot>cancel_record()</slot>
+  <slot>credits()</slot>
+  <slot>set_z_step(double)</slot>
+  <slot>configure_camera()</slot>
+  <slot>camera_ixon()</slot>
+  <slot>set_average_mode(bool)</slot>
  </slots>
 </ui>

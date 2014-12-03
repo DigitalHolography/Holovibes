@@ -1,16 +1,22 @@
 #ifndef MAIN_WINDOW_HH_
 # define MAIN_WINDOW_HH_
 
+# include <cmath>
 # include <thread>
 # include <QMainWindow>
 # include <QFileDialog>
 # include <QShortcut>
+# include <QMessageBox>
+# include <QDesktopServices>
+# include <boost/filesystem.hpp>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
+# include "camera_exception.hh"
+# include "thread_recorder.hh"
 
 namespace gui
 {
@@ -25,6 +31,17 @@ namespace gui
     void notify() override;
 
   public slots:
+    // Menu
+    void gl_full_screen();
+    void camera_none();
+    void camera_ids();
+    void camera_ixon();
+    void camera_pike();
+    void camera_pixelfly();
+    void camera_xiq();
+    void configure_camera();
+    void credits();
+
     // Image rendering
     void set_image_mode(bool value);
     void set_phase_number(int value);
@@ -35,43 +52,59 @@ namespace gui
     void set_z(double value);
     void increment_z();
     void decrement_z();
+    void set_z_step(double value);
     void set_algorithm(QString value);
 
     // View
     void set_view_mode(QString value);
     void set_contrast_mode(bool value);
     void set_auto_contrast();
-    void set_contrast_min(int value);
-    void set_contrast_max(int value);
+    void set_contrast_min(double value);
+    void set_contrast_max(double value);
     void set_log_scale(bool value);
     void set_shifted_corners(bool value);
 
     // Special
+    void set_vibro_mode(bool value);
     void set_p_vibro(int value);
     void set_q_vibro(int value);
+    void set_average_mode(bool value);
 
     // Record
     void browse_file();
     void set_record();
+    void cancel_record();
+    void finish_record();
+
+  protected:
+    virtual void closeEvent(QCloseEvent* event) override;
 
   private:
-    void enable();
-    void disable();
-
-    //Debug
-    template <typename T>
-    void print_parameter(std::string name, T value);
+    void global_visibility(bool value);
+    void camera_visible(bool value);
+    void record_visible(bool value);
+    void record_but_cancel_visible(bool value);
+    void change_camera(holovibes::Holovibes::camera_type camera_type);
+    void display_error(std::string msg);
+    void display_info(std::string msg);
+    void open_file(const std::string& path);
 
   private:
     Ui::MainWindow ui;
     holovibes::Holovibes& holovibes_;
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
+    bool is_enabled_camera_;
+    double z_step_;
+
+    ThreadRecorder* record_thread_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
     QShortcut* p_left_shortcut_;
     QShortcut* p_right_shortcut_;
+    QShortcut* gl_full_screen_;
+    QShortcut* gl_normal_screen_;
   };
 }
 

@@ -3,6 +3,7 @@
 
 # include <QMainWindow>
 # include <QResizeEvent>
+# include <QShortcut>
 # include "ui_gl_window.h"
 # include "gui_gl_widget.hh"
 
@@ -22,9 +23,18 @@ namespace gui
 
     void resizeEvent(QResizeEvent* e) override;
 
+  public slots:
+    void full_screen();
+    void maximized_screen();
+    void default_screen();
+
   private:
     Ui::GLWindow ui;
     GLWidget* gl_widget_;
+
+    QShortcut* full_screen_;
+    QShortcut* maximized_screen_;
+    QShortcut* default_screen_;
   };
 }
 

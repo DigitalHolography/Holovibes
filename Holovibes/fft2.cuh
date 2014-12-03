@@ -18,12 +18,12 @@ void fft2_lens(
  */
 void fft_2(
   cufftComplex* input,
-  cufftComplex* output,
-  cufftComplex *lens,
+  cufftComplex* lens,
   cufftHandle plan3d,
   cufftHandle plan2d,
   unsigned int frame_resolution,
   unsigned int nframes,
-  unsigned int p);
+  unsigned int p,
+  unsigned int q);
 
 #endif

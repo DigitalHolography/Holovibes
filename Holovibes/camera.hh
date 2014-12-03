@@ -26,6 +26,7 @@ namespace camera
       , name_("Unknown")
       , exposure_time_(0.0f)
       , ini_file_(ini_filepath, std::ofstream::in)
+      , ini_path_(ini_filepath)
     {
       if (ini_file_is_open())
         boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
@@ -48,6 +49,10 @@ namespace camera
     float get_exposure_time() const
     {
       return exposure_time_;
+    }
+    const std::string& get_ini_path()
+    {
+      return ini_path_;
     }
 #pragma endregion
 
@@ -97,6 +102,8 @@ namespace camera
 
     /* private fields */
   private:
+    /*! INI configuration file path */
+    std::string              ini_path_;
     /*! INI configuration file of camera. */
     std::ifstream            ini_file_;
     /*! INI property tree. */

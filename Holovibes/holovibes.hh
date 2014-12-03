@@ -3,7 +3,6 @@
 
 # include "camera.hh"
 # include "thread_compute.hh"
-# include "thread_gl_window.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
@@ -17,22 +16,23 @@ namespace holovibes
   public:
     enum camera_type
     {
-      PIKE,
-      XIQ,
       IDS,
+      IXON,
+      PIKE,
       PIXELFLY,
+      XIQ,
     };
 
-    Holovibes(enum camera_type c);
+    Holovibes();
     ~Holovibes();
 
-    void init_display(
-      unsigned int w,
-      unsigned int h);
-    void dispose_display();
-
-    void init_capture(unsigned int buffer_nb_elts);
+    void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
     void dispose_capture();
+
+    bool is_camera_initialized()
+    {
+      return camera_ != nullptr;
+    }
 
     Queue& get_capture_queue()
     {
@@ -67,6 +67,11 @@ namespace holovibes
     void set_compute_desc(ComputeDescriptor& compute_desc)
     {
       compute_desc_ = compute_desc;
+    }
+
+    const std::string& get_camera_ini_path() const
+    {
+      return camera_->get_ini_path();
     }
 
   private:
