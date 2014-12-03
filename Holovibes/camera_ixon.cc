@@ -61,7 +61,26 @@ namespace camera
     error = SetImage(1, 1, 1, /*desc_.width*/ r_x, 1, r_y /*desc_.height*/);
     if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetPreAmpGain(gain_mode_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetKineticCycleTime(kinetic_time_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetHSSpeed(0, horizontal_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetVSSpeed(vertical_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+
+
+    
     //SetCoolerMode(0);
+    //int depth;
+     // int a = GetBitDepth(2, &depth);
+     // std::cout << "depth" << std::endl;
+
     StartAcquisition();
   }
 
@@ -99,7 +118,6 @@ namespace camera
     {
       for (int y = 0; y < r_y; y++)
         memcpy(output_image_ + y * desc_.width , image_ + r_y * y , r_y * sizeof(unsigned short));
-      //return ((void*)image_);
       return ((void *)output_image_);
     }
   }
@@ -114,13 +132,17 @@ namespace camera
     desc_.pixel_size = 8.0f;
     desc_.endianness = LITTLE_ENDIAN;
     exposure_time_ = 0.1;
-    trigger_mode_ = 10; //0
+    trigger_mode_ = 10;
     shutter_close_ = 0;
     shutter_open_ = 0;
     ttl_ = 1;
-    shutter_mode_ = 5; //0
+    shutter_mode_ = 5;
     acquisiton_mode_ = 5;
     read_mode_ = 4;
+    gain_mode_ = 0;
+    kinetic_time_ = 0;
+    horizontal_shift_speed_ = 0;
+    vertical_shift_speed_ = 0;
   }
 
   void CameraIxon::load_ini_params()
@@ -138,6 +160,10 @@ namespace camera
     shutter_mode_ = pt.get<int>("ixon.shutter_mode", shutter_mode_);
     acquisiton_mode_ = pt.get<int>("ixon.acquistion_mode", acquisiton_mode_);
     read_mode_ = pt.get<int>("ixon.read_mode", read_mode_);
+    kinetic_time_ = pt.get<float>("ixon.kinetic_cycle_time", kinetic_time_);
+    gain_mode_ = pt.get<int>("ixon.gain_mode", gain_mode_);
+    horizontal_shift_speed_ = pt.get<float>("ixon.horizontal_shift_speed", horizontal_shift_speed_);
+    vertical_shift_speed_ = pt.get<float>("ixon.vertical_shift_speed", vertical_shift_speed_);
   }
   void CameraIxon::bind_params()
   {
