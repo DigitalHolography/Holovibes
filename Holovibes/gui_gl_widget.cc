@@ -229,24 +229,19 @@ namespace gui
     float px = xdest - nxsource;
     float py = ydest - nysource;
 
-    glTranslatef(px, py, 0.0f);
-
     float xratio = (float)frame_desc_.width / ((float)endx_ - (float)startx_);
     float yratio = (float)frame_desc_.height / ((float)endy_ - (float)starty_);
 
     float min_ratio = xratio < yratio ? xratio : yratio;
+    zoom_ratio_ *= min_ratio;
+
+    glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
 
     // Rescaling picture
     glScalef(min_ratio, min_ratio, 1.0f);
 
-    zoom_ratio_ *= min_ratio;
-
-    // FIXME
-    // Translate back
-    //glTranslatef(-px, -py, 0.0f);
-
-    px_ += px;
-    py_ += py;
+    px_ += px * min_ratio;
+    py_ += py * min_ratio;
   }
 
   void GLWidget::dezoom()
