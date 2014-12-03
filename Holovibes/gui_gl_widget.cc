@@ -22,10 +22,14 @@ namespace gui
     , buffer_(0)
     , cuda_buffer_(nullptr)
     , is_selection_enabled_(false)
+    , is_zoom_enabled_(true)
+    , is_average_enabled_(false)
+    , is_signal_selection_(true)
     , px_(0.0f)
     , py_(0.0f)
     , zoom_ratio_(1.0f)
   {
+    this->setObjectName("GLWidget");
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
   }
@@ -142,8 +146,19 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      float selection_color[4] = { 0.0f, 0.3f, 0.0f, 0.4f };
-      selection_rect(selection_, selection_color);
+      if (is_zoom_enabled_)
+      {
+        float selection_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
+        selection_rect(selection_, selection_color);
+      }
+      else // Average mode
+      {
+        float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
+        selection_rect(signal_selection_, signal_color);
+
+        float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
+        selection_rect(noise_selection_, noise_color);
+      }
     }
 
     gl_error_checking();
@@ -151,36 +166,57 @@ namespace gui
 
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
-    if (e->button() == Qt::LeftButton)
-    {
-      is_selection_enabled_ = true;
-      selection_.setTopLeft(QPoint(
-        (e->x() * frame_desc_.width) / width(),
-        (e->y() * frame_desc_.height) / height()));
-    }
-    else
-    {
-      dezoom();
-    }
+      if (e->button() == Qt::LeftButton)
+      {
+        is_selection_enabled_ = true;
+        selection_.setTopLeft(QPoint(
+          (e->x() * frame_desc_.width) / width(),
+          (e->y() * frame_desc_.height) / height()));
+      }
+      else
+        if (is_zoom_enabled_)
+          dezoom();
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
   {
-    selection_.setBottomRight(QPoint(
-      (e->x() * frame_desc_.width) / width(),
-      (e->y() * frame_desc_.height) / height()));
-  }
-
-  void GLWidget::mouseReleaseEvent(QMouseEvent* e)
-  {
-    if (e->button() == Qt::LeftButton)
+    if (is_selection_enabled_)
     {
       selection_.setBottomRight(QPoint(
         (e->x() * frame_desc_.width) / width(),
         (e->y() * frame_desc_.height) / height()));
 
-      is_selection_enabled_ = false;
-      zoom();
+      if (is_average_enabled_)
+      {
+        if (is_signal_selection_)
+          signal_selection_ = selection_;
+        else // Noise selection
+          noise_selection_ = selection_;
+      }
+    }
+  }
+
+  void GLWidget::mouseReleaseEvent(QMouseEvent* e)
+  {
+    if (is_selection_enabled_)
+    {
+      selection_.setBottomRight(QPoint(
+        (e->x() * frame_desc_.width) / width(),
+        (e->y() * frame_desc_.height) / height()));
+
+      if (is_zoom_enabled_)
+      {
+        is_selection_enabled_ = false;
+        zoom(selection_);
+      }
+      else // Average mode
+      {
+        if (is_signal_selection_)
+          signal_selection_ = selection_;
+        else // Noise selection
+          noise_selection_ = selection_;
+        is_signal_selection_ = !is_signal_selection_;
+      }
     }
   }
 
@@ -218,7 +254,7 @@ namespace gui
     glDisable(GL_BLEND);
   }
 
-  void GLWidget::zoom()
+  void GLWidget::zoom(const QRect& selection)
   {
     // Translation
     // Destination point is center of the window (OpenGL coords)
@@ -226,8 +262,8 @@ namespace gui
     float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = selection_.topLeft().x() + ((selection_.bottomRight().x() - selection_.topLeft().x()) / 2);
-    int ysource = selection_.topLeft().y() + ((selection_.bottomRight().y() - selection_.topLeft().y()) / 2);
+    int xsource = selection.topLeft().x() + ((selection.bottomRight().x() - selection.topLeft().x()) / 2);
+    int ysource = selection.topLeft().y() + ((selection.bottomRight().y() - selection.topLeft().y()) / 2);
 
     // Normalizing source points to OpenGL coords
     float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
@@ -238,8 +274,8 @@ namespace gui
     float py = ydest - nysource;
 
     // Zoom ratio
-    float xratio = (float)frame_desc_.width / ((float)selection_.bottomRight().x() - (float)selection_.topLeft().x());
-    float yratio = (float)frame_desc_.height / ((float)selection_.bottomRight().y() - (float)selection_.topLeft().y());
+    float xratio = (float)frame_desc_.width / ((float)selection.bottomRight().x() - (float)selection.topLeft().x());
+    float yratio = (float)frame_desc_.height / ((float)selection.bottomRight().y() - (float)selection.topLeft().y());
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     zoom_ratio_ *= min_ratio;
@@ -273,5 +309,11 @@ namespace gui
   {
     resizeGL(width, height);
     resize(QSize(width, height));
+  }
+
+  void GLWidget::set_average_mode(bool value)
+  {
+    is_average_enabled_ = value;
+    is_zoom_enabled_ = !value;
   }
 }

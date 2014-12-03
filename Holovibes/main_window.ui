@@ -1399,6 +1399,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>averageCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_average_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>181</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>478</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1431,5 +1447,6 @@
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
   <slot>camera_ixon()</slot>
+  <slot>set_average_mode(bool)</slot>
  </slots>
 </ui>

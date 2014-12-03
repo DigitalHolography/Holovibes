@@ -30,6 +30,7 @@ namespace gui
 
   public slots:
     void resizeFromWindow(int width, int height);
+    void set_average_mode(bool value);
 
   protected:
     void initializeGL() override;
@@ -42,7 +43,7 @@ namespace gui
 
   private:
     void selection_rect(const QRect& selection, float color[4]);
-    void zoom();
+    void zoom(const QRect& selection);
     void dezoom();
     void gl_error_checking();
 
@@ -51,6 +52,11 @@ namespace gui
     QTimer timer_;
     bool is_selection_enabled_;
     QRect selection_;
+    bool is_zoom_enabled_;
+    bool is_average_enabled_;
+    bool is_signal_selection_;
+    QRect signal_selection_;
+    QRect noise_selection_;
 
     // Translation
     float px_;

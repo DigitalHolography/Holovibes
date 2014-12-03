@@ -498,7 +498,8 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
-
+    GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    gl_widget->set_average_mode(value);
   }
 
   void MainWindow::browse_file()
