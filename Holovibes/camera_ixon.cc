@@ -1,11 +1,12 @@
-//#include "stdafx.h"
 #include "camera_ixon.hh"
 #include "camera_exception.hh"
+
+#include "atmcd32d.h"
 
 namespace camera
 {
   CameraIxon::CameraIxon()
-    : Camera("Ixon.ini")
+    : Camera("ixon.ini")
   {
     name_ = "ixon";
     long nb_cam;
@@ -14,11 +15,10 @@ namespace camera
     if (nb_cam < 1)
       throw CameraException(name_, CameraException::NOT_CONNECTED);
 
-    std::cout << nb_cam << std::endl;//remove me
-
     if (ini_file_is_open())
       load_ini_params();
   }
+
   CameraIxon::~CameraIxon()
   {
   }
@@ -34,8 +34,12 @@ namespace camera
       throw CameraException(name_, CameraException::NOT_INITIALIZED);
     int x, y;
     GetDetector(&x, &y);
+#if _DEBUG
     std::cout << x << "    " << y << std::endl;
-    image_ = (unsigned short*)malloc(desc_.frame_size());
+#endif
+    image_ = new unsigned short[desc_.frame_res()];
+    /* CALL BIND PARAMS ! */
+    bind_params();
   }
 
   void CameraIxon::start_acquisition()
@@ -59,18 +63,26 @@ namespace camera
     error = SetImage(1, 1, 1, desc_.width, 1, desc_.height);
     if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+
+#if _DEBUG
+    /* FIXME: Enable this. */
     //SetCoolerMode(0);
+#endif
+
+    /* FIXME: Do error checking on start acquisition. */
     StartAcquisition();
   }
 
   void CameraIxon::stop_acquisition()
   {
+    /* FIXME */
+    //AbortAcquisition();
   }
 
   void CameraIxon::shutdown_camera()
   {
     ShutDown();
-    free(image_);
+    delete[] image_;
   }
 
   void* CameraIxon::get_frame()
@@ -90,10 +102,10 @@ namespace camera
     WaitForAcquisition();
     error = GetNewData16(image_, desc_.width * desc_.height);
 
-    if (error != DRV_SUCCESS && error != DRV_NO_NEW_DATA)
+    if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_GET_FRAME);
-    else
-      return ((void*)image_);
+
+    return image_;
   }
 
   void CameraIxon::load_default_params()
@@ -117,6 +129,8 @@ namespace camera
   {
     /* Use the default value in case of fail. */
     const boost::property_tree::ptree& pt = get_ini_pt();
+
+    /* Set width/height in INI file is bad (what happens if the user set weird values ?). */
     desc_.width = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
     desc_.height = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
 
@@ -131,5 +145,7 @@ namespace camera
   }
   void CameraIxon::bind_params()
   {
+    /* FIXME: Where is this stuff ?
+     * Start acquisition do too much things. */
   }
 }

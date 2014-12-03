@@ -2,7 +2,6 @@
 # define CAMERA_IXON_HH
 
 # include "camera.hh"
-#include "atmcd32d.h"
 
 namespace camera
 {
@@ -10,7 +9,7 @@ namespace camera
   {
   public:
     CameraIxon();
-    ~CameraIxon();
+    virtual ~CameraIxon();
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;
@@ -31,6 +30,7 @@ namespace camera
     float shutter_open_;
     int ttl_;
     int shutter_mode_;
+    /* FIXME: What acquisiton means ? */
     int acquisiton_mode_;
     int read_mode_;
   };
