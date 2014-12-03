@@ -5,6 +5,7 @@
 #include "camera_pike.hh"
 #include "camera_pixelfly.hh"
 #include "camera_xiq.hh"
+#include "camera_edge.hh"
 
 #include <exception>
 #include <cassert>
@@ -41,7 +42,7 @@ namespace holovibes
     else if (c == PIKE)
       camera_ = new camera::CameraPike();
     else if (c == PIXELFLY)
-      camera_ = new camera::CameraPixelfly();
+      camera_ = new camera::CameraEdge();
     else if (c == XIQ)
       camera_ = new camera::CameraXiq();
     else

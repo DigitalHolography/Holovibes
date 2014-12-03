@@ -167,6 +167,9 @@
     <ClCompile Include="camera_ixon.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="camera_edge.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hh">
@@ -257,6 +260,9 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="camera_ixon.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_edge.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
