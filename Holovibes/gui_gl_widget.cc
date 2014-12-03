@@ -196,6 +196,11 @@ namespace gui
     nendx -= px_;
     nendy -= py_;
 
+    nstartx /= zoom_ratio_;
+    nstarty /= zoom_ratio_;
+    nendx /= zoom_ratio_;
+    nendy /= zoom_ratio_;
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -229,19 +234,21 @@ namespace gui
     float px = xdest - nxsource;
     float py = ydest - nysource;
 
+    // Zoom ratio
     float xratio = (float)frame_desc_.width / ((float)endx_ - (float)startx_);
     float yratio = (float)frame_desc_.height / ((float)endy_ - (float)starty_);
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     zoom_ratio_ *= min_ratio;
 
+    // Translation
     glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
 
-    // Rescaling picture
+    // Rescale
     glScalef(min_ratio, min_ratio, 1.0f);
 
-    px_ += px * min_ratio;
-    py_ += py * min_ratio;
+    px_ += px * zoom_ratio_;
+    py_ += py * zoom_ratio_;
   }
 
   void GLWidget::dezoom()
