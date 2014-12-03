@@ -68,6 +68,7 @@ namespace gui
     void set_vibro_mode(bool value);
     void set_p_vibro(int value);
     void set_q_vibro(int value);
+    void set_average_mode(bool value);
 
     // Record
     void browse_file();

@@ -143,7 +143,7 @@ namespace gui
     if (is_selection_enabled_)
     {
       float selection_color[4] = { 0.0f, 0.3f, 0.0f, 0.4f };
-      selection_rect(startx_, starty_, endx_, endy_, selection_color);
+      selection_rect(selection_, selection_color);
     }
 
     gl_error_checking();
@@ -154,8 +154,9 @@ namespace gui
     if (e->button() == Qt::LeftButton)
     {
       is_selection_enabled_ = true;
-      startx_ = (e->x() * frame_desc_.width) / width();
-      starty_ = (e->y() * frame_desc_.height) / height();
+      selection_.setTopLeft(QPoint(
+        (e->x() * frame_desc_.width) / width(),
+        (e->y() * frame_desc_.height) / height()));
     }
     else
     {
@@ -165,31 +166,33 @@ namespace gui
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
   {
-    endx_ = (e->x() * frame_desc_.width) / width();
-    endy_ = (e->y() * frame_desc_.height) / height();
+    selection_.setBottomRight(QPoint(
+      (e->x() * frame_desc_.width) / width(),
+      (e->y() * frame_desc_.height) / height()));
   }
 
   void GLWidget::mouseReleaseEvent(QMouseEvent* e)
   {
     if (e->button() == Qt::LeftButton)
     {
-      endx_ = (e->x() * frame_desc_.width) / width();
-      endy_ = (e->y() * frame_desc_.height) / height();
-      is_selection_enabled_ = false;
+      selection_.setBottomRight(QPoint(
+        (e->x() * frame_desc_.width) / width(),
+        (e->y() * frame_desc_.height) / height()));
 
+      is_selection_enabled_ = false;
       zoom();
     }
   }
 
-  void GLWidget::selection_rect(int startx, int starty, int endx, int endy, float color[4])
+  void GLWidget::selection_rect(const QRect& selection, float color[4])
   {
     float xmax = frame_desc_.width;
     float ymax = frame_desc_.height;
 
-    float nstartx = (2.0f * (float)startx) / xmax - 1.0f;
-    float nstarty = -1.0f * ((2.0f * (float)starty) / ymax - 1.0f);
-    float nendx = (2.0f * (float)endx) / xmax - 1.0f;
-    float nendy = -1.0f * ((2.0f * (float)endy) / ymax - 1.0f);
+    float nstartx = (2.0f * (float)selection.topLeft().x()) / xmax - 1.0f;
+    float nstarty = -1.0f * ((2.0f * (float)selection.topLeft().y()) / ymax - 1.0f);
+    float nendx = (2.0f * (float)selection.bottomRight().x()) / xmax - 1.0f;
+    float nendy = -1.0f * ((2.0f * (float)selection.bottomRight().y()) / ymax - 1.0f);
 
     nstartx -= px_;
     nstarty -= py_;
@@ -223,8 +226,8 @@ namespace gui
     float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = startx_ + ((endx_ - startx_) / 2);
-    int ysource = starty_ + ((endy_ - starty_) / 2);
+    int xsource = selection_.topLeft().x() + ((selection_.bottomRight().x() - selection_.topLeft().x()) / 2);
+    int ysource = selection_.topLeft().y() + ((selection_.bottomRight().y() - selection_.topLeft().y()) / 2);
 
     // Normalizing source points to OpenGL coords
     float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
@@ -235,8 +238,8 @@ namespace gui
     float py = ydest - nysource;
 
     // Zoom ratio
-    float xratio = (float)frame_desc_.width / ((float)endx_ - (float)startx_);
-    float yratio = (float)frame_desc_.height / ((float)endy_ - (float)starty_);
+    float xratio = (float)frame_desc_.width / ((float)selection_.bottomRight().x() - (float)selection_.topLeft().x());
+    float yratio = (float)frame_desc_.height / ((float)selection_.bottomRight().y() - (float)selection_.topLeft().y());
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     zoom_ratio_ *= min_ratio;

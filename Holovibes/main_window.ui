@@ -336,6 +336,19 @@
          <string>Vibrometry</string>
         </property>
        </widget>
+       <widget class="QCheckBox" name="averageCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>81</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Average</string>
+        </property>
+       </widget>
       </widget>
      </item>
      <item row="0" column="3">
@@ -1361,8 +1374,8 @@
    <slot>configure_camera()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>12</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
@@ -1377,8 +1390,8 @@
    <slot>camera_ixon()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>128</x>
-     <y>13</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>121</x>

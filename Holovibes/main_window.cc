@@ -496,6 +496,11 @@ namespace gui
     }
   }
 
+  void MainWindow::set_average_mode(bool value)
+  {
+
+  }
+
   void MainWindow::browse_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
