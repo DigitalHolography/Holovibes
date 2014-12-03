@@ -260,6 +260,18 @@ namespace holovibes
 
     if (compute_desc_.contrast_enabled)
     {
+      if (autocontrast_requested_)
+      {
+        int min = 0;
+        int max = 0;
+
+        compute_desc_.contrast_min = min;
+        compute_desc_.contrast_max = max;
+        compute_desc_.notify_observers();
+
+        autocontrast_requested_ = false;
+      }
+
       fn_vect_.push_back(std::bind(
         manual_contrast_correction,
         gpu_float_buffer_,
@@ -288,12 +300,6 @@ namespace holovibes
     {
       autofocus_requested_ = false;
       // push autofocus();
-    }
-
-    if (autocontrast_requested_)
-    {
-      autocontrast_requested_ = false;
-      // push autocontrast();
     }
 
     if (autocontrast_requested_ ||
