@@ -296,6 +296,10 @@ namespace holovibes
         output_fd.height));
     }
 
+    if (compute_desc_.average_enabled)
+    {
+    }
+
     if (autofocus_requested_)
     {
       autofocus_requested_ = false;

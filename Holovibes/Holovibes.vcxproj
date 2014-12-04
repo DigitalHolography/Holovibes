@@ -133,9 +133,10 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="average.cuh" />
     <ClInclude Include="camera.hh" />
-    <ClInclude Include="camera_xiq.hh" />
     <ClInclude Include="camera_ids.hh" />
+    <ClInclude Include="camera_xiq.hh" />
     <ClInclude Include="camera_pixelfly.hh" />
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
@@ -270,6 +271,7 @@
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
     <ClCompile Include="thread_recorder.cc" />
+    <CudaCompile Include="average.cu" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="fft2.cu" />
     <CudaCompile Include="hardware_limits.cc" />

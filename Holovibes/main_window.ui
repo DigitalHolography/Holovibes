@@ -349,7 +349,7 @@
          <string>Average in ROI</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="ROIFileLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -362,7 +362,7 @@
          <string>ROI file:</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="ROIBrowseButton">
         <property name="geometry">
          <rect>
           <x>120</x>
@@ -375,7 +375,7 @@
          <string>browse</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="ROIFileLineEdit">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -385,7 +385,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="saveROIPushButton">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -398,7 +398,7 @@
          <string>Save ROI</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="loadROIPushButton">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -411,7 +411,7 @@
          <string>Load ROI</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="ROIOutputFileLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -424,7 +424,7 @@
          <string>Output file:</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="ROIOutputLineEdit">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -434,7 +434,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_4">
+       <widget class="QPushButton" name="ROIOutputPushButton">
         <property name="geometry">
          <rect>
           <x>120</x>
@@ -447,7 +447,7 @@
          <string>browse</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_5">
+       <widget class="QPushButton" name="ROIPushButton">
         <property name="geometry">
          <rect>
           <x>10</x>
