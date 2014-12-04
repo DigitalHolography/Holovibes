@@ -2,11 +2,12 @@
 #include "camera_exception.hh"
 
 #include <PCO_err.h>
+#include <sc2_defs.h>
 
 namespace camera
 {
   CameraPCOEdge::CameraPCOEdge()
-    : CameraPCO("edge.ini", 0)
+    : CameraPCO("edge.ini", CAMERATYPE_PCO_EDGE_USB3)
   {
     name_ = "edge";
     load_default_params();
@@ -20,7 +21,7 @@ namespace camera
 
   void CameraPCOEdge::load_default_params()
   {
-    exposure_time_ = 0.05f;
+    exposure_time_ = 0.024f;
     extended_sensor_format_ = true;
     pixel_rate_ = 110;
     binning_ = false;

@@ -50,18 +50,23 @@ namespace camera
 
   void CameraPCO::init_camera()
   {
+    int status = PCO_NOERROR;
     if (PCO_OpenCamera(&device_, 0) != PCO_NOERROR)
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(name_, CameraException::NOT_CONNECTED);
     
-    /* TODO check type*/
+    PCO_CameraType str_camera_type;
+    str_camera_type.wSize = sizeof(PCO_CameraType);
+
+    status |= PCO_GetCameraType(device_, &str_camera_type);
+
+    if (str_camera_type.wCamType != camera_type_)
+      throw CameraException(name_, CameraException::NOT_CONNECTED);
 
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();
 
     bind_params();
 
-    int status = PCO_NOERROR;
-    /* TODO ERROR CHECKING */
     /* Retrieve frame resolution. */
     status |= get_sensor_sizes();
     /* Buffer memory allocation. */
