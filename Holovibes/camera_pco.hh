@@ -12,7 +12,7 @@
 
 namespace camera
 {
-  const SHORT NBUFFERS = 4;
+  const SHORT NBUFFERS = 6;
   /*! This class contains common stuff for PCO cameras. */
   class CameraPCO : public Camera
   {

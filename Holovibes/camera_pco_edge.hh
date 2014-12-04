@@ -23,11 +23,6 @@ namespace camera
   private:
     /* Custom camera parameters. */
 
-    /*! Format of sensor. The standard format uses only effective pixels,
-     * while the extended format shows all pixels inclusive effective.
-     */
-    bool extended_sensor_format_;
-
     /* Frequency for shifting the pixels out of the sensor shift registers.
      * The pixel clock sets the clock frequency and therefore the image sensor
      * readout speed. At 12 MHz the image quality will be higher due to very

@@ -60,7 +60,10 @@ namespace camera
     status |= PCO_GetCameraType(device_, &str_camera_type);
 
     if (str_camera_type.wCamType != camera_type_)
+    {
+      PCO_CloseCamera(device_);
       throw CameraException(name_, CameraException::NOT_CONNECTED);
+    }
 
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();

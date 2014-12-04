@@ -22,7 +22,6 @@ namespace camera
   void CameraPCOEdge::load_default_params()
   {
     exposure_time_ = 0.024f;
-    extended_sensor_format_ = true;
     pixel_rate_ = 110;
     binning_ = false;
 
@@ -39,10 +38,6 @@ namespace camera
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     exposure_time_ = pt.get<float>("pixelfly.exposure_time", exposure_time_);
-    extended_sensor_format_ = pt.get<bool>("pixelfly.extended_sensor_format", extended_sensor_format_);
-    pixel_rate_ = pt.get<unsigned int>("pixelfly.pixel_rate", pixel_rate_);
-    if (pixel_rate_ != 12 || pixel_rate_ != 25)
-      pixel_rate_ = 12;
     binning_ = pt.get<bool>("pixelfly.binning", binning_);
   }
 
@@ -51,7 +46,7 @@ namespace camera
     int status = PCO_NOERROR;
 
     status |= PCO_ResetSettingsToDefault(device_);
-    status |= PCO_SetSensorFormat(device_, extended_sensor_format_);
+    status |= PCO_SetSensorFormat(device_, 0);
     status |= PCO_SetPixelRate(device_, static_cast<DWORD>(pixel_rate_ * 1e6));
     {
       WORD binning_x = 1;

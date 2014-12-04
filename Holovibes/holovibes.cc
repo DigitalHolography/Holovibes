@@ -48,11 +48,6 @@ namespace holovibes
     else
       assert(!"Impossible case");
 
-    if (!camera_)
-      throw std::runtime_error("Error while allocating Camera constructor");
-
-    assert(camera_ && "camera not initialized");
-
     try
     {
       camera_->init_camera();
