@@ -45,10 +45,17 @@ namespace gui
     void selection_rect(const QRect& selection, float color[4]);
     void zoom(const QRect& selection);
     void dezoom();
+
+    /* Assure that the rectangle starts at topLeft and ends at bottomRight
+    no matter what direction the user uses to select a zone */
+    void swap_selection_corners(QRect& selection);
+
     void gl_error_checking();
 
+    // Debug
+    void print_selection(QRect& selection);
+
   private:
-    /* --- QT --- */
     QTimer timer_;
     bool is_selection_enabled_;
     QRect selection_;

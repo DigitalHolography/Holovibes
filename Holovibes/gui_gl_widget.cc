@@ -204,10 +204,13 @@ namespace gui
         (e->x() * frame_desc_.width) / width(),
         (e->y() * frame_desc_.height) / height()));
 
+      swap_selection_corners(selection_);
+
       if (is_zoom_enabled_)
       {
         is_selection_enabled_ = false;
         zoom(selection_);
+        selection_ = QRect(0, 0, 0, 0);
       }
       else // Average mode
       {
@@ -296,6 +299,63 @@ namespace gui
     zoom_ratio_ = 1.0f;
     px_ = 0.0f;
     py_ = 0.0f;
+  }
+
+  void GLWidget::swap_selection_corners(QRect& selection)
+  {
+    int x_top_left = selection.topLeft().x();
+    int y_top_left = selection.topLeft().y();
+    int x_bottom_right = selection.bottomRight().x();
+    int y_bottom_rigth = selection.bottomRight().y();
+
+    QPoint tmp;
+
+    if (x_top_left < x_bottom_right)
+    {
+      if (y_top_left > y_bottom_rigth)
+      {
+        // Vertical swap
+        tmp = selection.bottomLeft();
+        selection.setBottomLeft(selection.topLeft());
+        selection.setTopLeft(tmp);
+      }
+      //else
+      //{
+      //  This case is the default one, it doesn't need to be handled.
+      //}
+    }
+    else
+    {
+      if (y_top_left < y_bottom_rigth)
+      {
+        // Horizontal swap
+        tmp = selection.topLeft();
+        selection.setTopLeft(selection.topRight());
+        selection.setTopRight(tmp);
+      }
+      else
+      {
+        // Vertical and horizontal swaps
+        tmp = selection.bottomLeft();
+        selection.setBottomLeft(selection.topLeft());
+        selection.setTopLeft(tmp);
+
+        tmp = selection.topLeft();
+        selection.setTopLeft(selection.topRight());
+        selection.setTopRight(tmp);
+      }
+    }
+  }
+
+  // Debug
+  void GLWidget::print_selection(QRect& selection)
+  {
+    std::cout << "Selection: ["
+      << selection.topLeft().x() << ", " << selection.topLeft().y()
+      << "] [" << selection.topRight().x() << ", " << selection.topRight().y() << "] "
+      << "[" << selection.bottomLeft().x() << ", " << selection.bottomLeft().y() << "] "
+      << "[" << selection.bottomRight().x() << ", " << selection.bottomRight().y() << "] "
+      << std::endl;
   }
 
   void GLWidget::gl_error_checking()
