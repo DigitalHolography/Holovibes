@@ -81,12 +81,13 @@ namespace camera
       i < buffers_.size();
       ++i)
     {
-      status |= PCO_AddBufferEx(
+      status |= PCO_AddBufferExtern(
         device_,
-        0, 0, i,
-        actual_res_x_,
-        actual_res_y_,
-        16);
+        buffers_events_[i],
+        0, 0, 0, 0,
+        buffers_[i],
+        buffer_size_,
+        &buffers_driver_status_[i]);
     }
 
     if (status != PCO_NOERROR)
@@ -108,7 +109,7 @@ namespace camera
       i < buffers_.size();
       ++i)
     {
-      PCO_FreeBuffer(device_, i);
+      delete[] buffers_[i];
       buffers_[i] = nullptr;
     }
     PCO_CloseCamera(device_);
@@ -124,12 +125,13 @@ namespace camera
       FRAME_TIMEOUT)) < WAIT_ABANDONED_0)
     {
       DWORD buffer_index = event_status - WAIT_OBJECT_0;
-      PCO_AddBufferEx(
+      PCO_AddBufferExtern(
         device_,
-        0, 0, buffer_index,
-        actual_res_x_,
-        actual_res_y_,
-        16);
+        buffers_events_[buffer_index],
+        0, 0, 0, 0,
+        buffers_[buffer_index],
+        buffer_size_,
+        &buffers_driver_status_[buffer_index]);
 
       return buffers_[buffer_index];
     }
@@ -157,18 +159,22 @@ namespace camera
   
   int CameraPCO::allocate_buffers()
   {
-    DWORD buffer_size = desc_.width * desc_.height * sizeof(WORD);
+    buffer_size_ = desc_.width * desc_.height * sizeof(WORD);
     int status = PCO_NOERROR;
 
+    /* TODO: Error checking new operator -> try/catch. */
     for (unsigned int i = 0;
       i < buffers_.size();
       ++i)
     {
+      buffers_[i] = new unsigned short[buffer_size_]();
+
       SHORT buffer_nbr = -1;
+
       status |= PCO_AllocateBuffer(
         device_,
         &buffer_nbr,
-        buffer_size,
+        buffer_size_,
         &buffers_[i],
         &buffers_events_[i]);
 
