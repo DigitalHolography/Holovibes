@@ -7,7 +7,6 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
-# include "gui_gl_window.hh"
 
 namespace holovibes
 {

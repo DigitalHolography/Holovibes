@@ -11,6 +11,7 @@
 # include "queue.hh"
 # include "frame_desc.hh"
 # include "geometry.hh"
+# include "holovibes.hh"
 
 namespace gui
 {
@@ -21,7 +22,7 @@ namespace gui
 
   public:
     GLWidget(
-      holovibes::Queue& q,
+      holovibes::Holovibes& q,
       unsigned int width,
       unsigned int height,
       QWidget* parent = 0);
@@ -57,6 +58,8 @@ namespace gui
     void print_selection(QRect& selection);
 
   private:
+    holovibes::Holovibes& h_;
+
     QTimer timer_;
     bool is_selection_enabled_;
     holovibes::Rectangle selection_;

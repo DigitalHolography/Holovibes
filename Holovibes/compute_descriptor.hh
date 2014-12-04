@@ -4,6 +4,7 @@
 # include <atomic>
 
 # include "observable.hh"
+# include "geometry.hh"
 
 namespace holovibes
 {
@@ -62,6 +63,11 @@ namespace holovibes
     std::atomic<float> contrast_min;
     std::atomic<float> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
+
+    /*! Average mode signal zone */
+    Rectangle signal_zone;
+    /*! Average mode noise zone */
+    Rectangle noise_zone;
   };
 }
 

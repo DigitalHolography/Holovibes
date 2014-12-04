@@ -169,7 +169,7 @@ namespace gui
       // If direct mode
       if (value)
       {
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_);
         is_direct_mode_ = true;
 
         global_visibility(false);
@@ -177,7 +177,7 @@ namespace gui
       else
       {
         holovibes_.init_compute();
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_);
         is_direct_mode_ = false;
 
         global_visibility(true);

@@ -8,17 +8,18 @@
 namespace gui
 {
   GLWidget::GLWidget(
-    holovibes::Queue& q,
+    holovibes::Holovibes& h,
     unsigned int width,
     unsigned int height,
     QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
     , QOpenGLFunctions()
+    , h_(h)
     , timer_(this)
     , width_(width)
     , height_(height)
-    , queue_(q)
-    , frame_desc_(q.get_frame_desc())
+    , queue_(h.get_capture_queue())
+    , frame_desc_(queue_.get_frame_desc())
     , buffer_(0)
     , cuda_buffer_(nullptr)
     , is_selection_enabled_(false)
@@ -223,9 +224,15 @@ namespace gui
       else // Average mode
       {
         if (is_signal_selection_)
+        {
           signal_selection_ = selection_;
+          h_.get_compute_desc().signal_zone = signal_selection_;
+        }
         else // Noise selection
+        {
           noise_selection_ = selection_;
+          h_.get_compute_desc().noise_zone = noise_selection_;
+        }
         is_signal_selection_ = !is_signal_selection_;
       }
     }

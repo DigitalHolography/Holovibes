@@ -6,6 +6,7 @@
 # include <QShortcut>
 # include "ui_gl_window.h"
 # include "gui_gl_widget.hh"
+# include "holovibes.hh"
 
 namespace gui
 {
@@ -17,7 +18,7 @@ namespace gui
     GuiGLWindow(QPoint& pos,
       unsigned int width,
       unsigned int height,
-      holovibes::Queue& queue,
+      holovibes::Holovibes& h,
       QWidget* parent = 0);
     ~GuiGLWindow();
 
