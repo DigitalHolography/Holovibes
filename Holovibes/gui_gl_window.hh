@@ -19,6 +19,7 @@ namespace gui
       unsigned int width,
       unsigned int height,
       holovibes::Holovibes& h,
+      holovibes::Queue& q,
       QWidget* parent = 0);
     ~GuiGLWindow();
 

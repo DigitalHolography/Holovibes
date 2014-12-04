@@ -22,7 +22,8 @@ namespace gui
 
   public:
     GLWidget(
-      holovibes::Holovibes& q,
+      holovibes::Holovibes& h,
+      holovibes::Queue& q,
       unsigned int width,
       unsigned int height,
       QWidget* parent = 0);

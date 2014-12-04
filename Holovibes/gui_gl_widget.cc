@@ -9,6 +9,7 @@ namespace gui
 {
   GLWidget::GLWidget(
     holovibes::Holovibes& h,
+    holovibes::Queue& q,
     unsigned int width,
     unsigned int height,
     QWidget *parent)
@@ -18,7 +19,7 @@ namespace gui
     , timer_(this)
     , width_(width)
     , height_(height)
-    , queue_(h.get_capture_queue())
+    , queue_(q)
     , frame_desc_(queue_.get_frame_desc())
     , buffer_(0)
     , cuda_buffer_(nullptr)
