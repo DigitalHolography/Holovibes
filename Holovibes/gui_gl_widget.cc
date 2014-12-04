@@ -169,9 +169,9 @@ namespace gui
       if (e->button() == Qt::LeftButton)
       {
         is_selection_enabled_ = true;
-        selection_.setTopLeft(QPoint(
+        selection_.top_left = holovibes::Point2D(
           (e->x() * frame_desc_.width) / width(),
-          (e->y() * frame_desc_.height) / height()));
+          ( e->y() * frame_desc_.height) / height());
       }
       else
         if (is_zoom_enabled_)
@@ -182,9 +182,9 @@ namespace gui
   {
     if (is_selection_enabled_)
     {
-      selection_.setBottomRight(QPoint(
+      selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
-        (e->y() * frame_desc_.height) / height()));
+         (e->y() * frame_desc_.height) / height());
 
       if (is_average_enabled_)
       {
@@ -200,9 +200,17 @@ namespace gui
   {
     if (is_selection_enabled_)
     {
-      selection_.setBottomRight(QPoint(
+      selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
-        (e->y() * frame_desc_.height) / height()));
+         (e->y() * frame_desc_.height) / height());
+
+      selection_.bottom_left = holovibes::Point2D(
+        selection_.top_left.x,
+         (e->y() * frame_desc_.height) / height());
+
+      selection_.top_right = holovibes::Point2D(
+        (e->x() * frame_desc_.width) / width(),
+        selection_.top_left.y);
 
       swap_selection_corners(selection_);
 
@@ -210,7 +218,7 @@ namespace gui
       {
         is_selection_enabled_ = false;
         zoom(selection_);
-        selection_ = QRect(0, 0, 0, 0);
+        selection_ = holovibes::Rectangle();
       }
       else // Average mode
       {
@@ -223,15 +231,15 @@ namespace gui
     }
   }
 
-  void GLWidget::selection_rect(const QRect& selection, float color[4])
+  void GLWidget::selection_rect(const holovibes::Rectangle& selection, float color[4])
   {
     float xmax = frame_desc_.width;
     float ymax = frame_desc_.height;
 
-    float nstartx = (2.0f * (float)selection.topLeft().x()) / xmax - 1.0f;
-    float nstarty = -1.0f * ((2.0f * (float)selection.topLeft().y()) / ymax - 1.0f);
-    float nendx = (2.0f * (float)selection.bottomRight().x()) / xmax - 1.0f;
-    float nendy = -1.0f * ((2.0f * (float)selection.bottomRight().y()) / ymax - 1.0f);
+    float nstartx = (2.0f * (float)selection.top_left.x) / xmax - 1.0f;
+    float nstarty = -1.0f * ((2.0f * (float)selection.top_left.y) / ymax - 1.0f);
+    float nendx = (2.0f * (float)selection.bottom_right.x) / xmax - 1.0f;
+    float nendy = -1.0f * ((2.0f * (float)selection.bottom_right.y) / ymax - 1.0f);
 
     nstartx -= px_;
     nstarty -= py_;
@@ -257,7 +265,7 @@ namespace gui
     glDisable(GL_BLEND);
   }
 
-  void GLWidget::zoom(const QRect& selection)
+  void GLWidget::zoom(const holovibes::Rectangle& selection)
   {
     // Translation
     // Destination point is center of the window (OpenGL coords)
@@ -265,8 +273,8 @@ namespace gui
     float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = selection.topLeft().x() + ((selection.bottomRight().x() - selection.topLeft().x()) / 2);
-    int ysource = selection.topLeft().y() + ((selection.bottomRight().y() - selection.topLeft().y()) / 2);
+    int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
+    int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
 
     // Normalizing source points to OpenGL coords
     float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
@@ -277,8 +285,8 @@ namespace gui
     float py = ydest - nysource;
 
     // Zoom ratio
-    float xratio = (float)frame_desc_.width / ((float)selection.bottomRight().x() - (float)selection.topLeft().x());
-    float yratio = (float)frame_desc_.height / ((float)selection.bottomRight().y() - (float)selection.topLeft().y());
+    float xratio = (float)frame_desc_.width / ((float)selection.bottom_right.x - (float)selection.top_left.x);
+    float yratio = (float)frame_desc_.height / ((float)selection.bottom_right.y - (float)selection.top_left.y);
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     zoom_ratio_ *= min_ratio;
@@ -301,12 +309,12 @@ namespace gui
     py_ = 0.0f;
   }
 
-  void GLWidget::swap_selection_corners(QRect& selection)
+  void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
   {
-    int x_top_left = selection.topLeft().x();
-    int y_top_left = selection.topLeft().y();
-    int x_bottom_right = selection.bottomRight().x();
-    int y_bottom_rigth = selection.bottomRight().y();
+    int x_top_left = selection.top_left.x;
+    int y_top_left = selection.top_left.y;
+    int x_bottom_right = selection.bottom_right.x;
+    int y_bottom_rigth = selection.bottom_right.y;
 
     QPoint tmp;
 
@@ -314,10 +322,7 @@ namespace gui
     {
       if (y_top_left > y_bottom_rigth)
       {
-        // Vertical swap
-        tmp = selection.bottomLeft();
-        selection.setBottomLeft(selection.topLeft());
-        selection.setTopLeft(tmp);
+        selection.horizontal_symetry();
       }
       //else
       //{
@@ -328,21 +333,13 @@ namespace gui
     {
       if (y_top_left < y_bottom_rigth)
       {
-        // Horizontal swap
-        tmp = selection.topLeft();
-        selection.setTopLeft(selection.topRight());
-        selection.setTopRight(tmp);
+        selection.vertical_symetry();
       }
       else
       {
         // Vertical and horizontal swaps
-        tmp = selection.bottomLeft();
-        selection.setBottomLeft(selection.topLeft());
-        selection.setTopLeft(tmp);
-
-        tmp = selection.topLeft();
-        selection.setTopLeft(selection.topRight());
-        selection.setTopRight(tmp);
+        selection.vertical_symetry();
+        selection.horizontal_symetry();
       }
     }
   }

@@ -10,6 +10,7 @@
 
 # include "queue.hh"
 # include "frame_desc.hh"
+# include "geometry.hh"
 
 namespace gui
 {
@@ -42,13 +43,13 @@ namespace gui
     void mouseReleaseEvent(QMouseEvent* e) override;
 
   private:
-    void selection_rect(const QRect& selection, float color[4]);
-    void zoom(const QRect& selection);
+    void selection_rect(const holovibes::Rectangle& selection, float color[4]);
+    void zoom(const holovibes::Rectangle& selection);
     void dezoom();
 
     /* Assure that the rectangle starts at topLeft and ends at bottomRight
     no matter what direction the user uses to select a zone */
-    void swap_selection_corners(QRect& selection);
+    void swap_selection_corners(holovibes::Rectangle& selection);
 
     void gl_error_checking();
 
@@ -58,12 +59,12 @@ namespace gui
   private:
     QTimer timer_;
     bool is_selection_enabled_;
-    QRect selection_;
+    holovibes::Rectangle selection_;
     bool is_zoom_enabled_;
     bool is_average_enabled_;
     bool is_signal_selection_;
-    QRect signal_selection_;
-    QRect noise_selection_;
+    holovibes::Rectangle signal_selection_;
+    holovibes::Rectangle noise_selection_;
 
     // Translation
     float px_;

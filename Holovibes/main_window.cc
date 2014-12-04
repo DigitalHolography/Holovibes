@@ -190,7 +190,9 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      global_visibility(false);
       pipeline.request_update_n(value);
+      global_visibility(true);
     }
   }
 
