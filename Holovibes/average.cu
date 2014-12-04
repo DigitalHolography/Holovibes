@@ -19,16 +19,9 @@ __global__ void make_average(float *image, unsigned int size_x, unsigned int siz
 
 void make_average_plot(std::vector<float> *result_vect,
   float *image,
-  unsigned int size_x_s,
-  unsigned int size_y_s,
-  unsigned int size_x_n,
-  unsigned int size_y_n,
-  float *out_value,
   const camera::FrameDescriptor fd,
-  unsigned int start_x_s,
-  unsigned int start_y_s,
-  unsigned int start_x_n,
-  unsigned int start_y_n)
+  holovibes::Rectangle& signal,
+  holovibes::Rectangle& noise)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int max_blocks = get_max_blocks();
@@ -37,11 +30,16 @@ void make_average_plot(std::vector<float> *result_vect,
   float s;
   float n;
 
-  make_average << <blocks, threads >> >(image, size_x_n, size_y_n, &n, fd.frame_res(), start_x_n, start_y_n, fd);
-  make_average << <blocks, threads >> >(image, size_x_s, size_y_s, &s, fd.frame_res(), start_x_s, start_y_s, fd);
+  unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
+  unsigned int signal_height = abs(signal.bottom_left.x - signal.bottom_right.x);
+  unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
+  unsigned int noise_height = abs(noise.bottom_left.x - noise.bottom_right.x);
 
-  s = s * float(1 / float(size_x_s * size_y_s));
-  n = n * float(1 / float(size_x_n * size_y_n));
+  make_average << <blocks, threads >> >(image, noise_width, noise_height, &n, fd.frame_res(), noise.top_left.x, noise.top_left.y, fd);
+  make_average << <blocks, threads >> >(image, signal_width, signal_height, &s, fd.frame_res(), signal.top_left.x, signal.top_left.y, fd);
+
+  s = s * float(1 / float(signal_width * signal_height));
+  n = n * float(1 / float(noise_width * noise_height));
 
   float moy = 10 * log10f(s / n);
   result_vect->push_back(moy);
