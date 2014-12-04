@@ -167,7 +167,10 @@
     <ClCompile Include="camera_ixon.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_edge.cc">
+    <ClCompile Include="camera_pco.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_pco_edge.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -262,7 +265,10 @@
     <ClInclude Include="camera_ixon.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera_edge.hh">
+    <ClInclude Include="camera_pco.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_pco_edge.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

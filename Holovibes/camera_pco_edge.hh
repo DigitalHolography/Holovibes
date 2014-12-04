@@ -1,7 +1,7 @@
-#ifndef CAMERA_EDGE_HH
-# define CAMERA_EDGE_HH
+#ifndef CAMERA_PCO_EDGE_HH
+# define CAMERA_PCO_EDGE_HH
 
-# include "camera.hh"
+# include "camera_pco.hh"
 
 # include <Windows.h>
 # include <SC2_SDKStructures.h>
@@ -9,36 +9,18 @@
 
 namespace camera
 {
-  class CameraEdge : public Camera
+  class CameraPCOEdge : public CameraPCO
   {
   public:
-    CameraEdge();
-
-    virtual ~CameraEdge();
-
-    virtual void init_camera() override;
-    virtual void start_acquisition() override;
-    virtual void stop_acquisition() override;
-    virtual void shutdown_camera() override;
-    virtual void* get_frame() override;
+    CameraPCOEdge();
+    virtual ~CameraPCOEdge();
 
   private:
     virtual void load_default_params() override;
     virtual void load_ini_params() override;
     virtual void bind_params() override;
 
-    int pco_get_sizes();
-    int pco_allocate_buffer();
-
   private:
-    HANDLE device_;
-    HANDLE refresh_event_;
-    /* PCO buffer of actual_res_x_ * actual_res_y_ */
-    WORD* buffer_;
-
-    WORD actual_res_x_;
-    WORD actual_res_y_;
-
     /* Custom camera parameters. */
 
     /*! Format of sensor. The standard format uses only effective pixels,
@@ -64,4 +46,4 @@ namespace camera
   };
 }
 
-#endif /* !CAMERA_EDGE_HH */
+#endif /* !CAMERA_PCO_EDGE_HH */
