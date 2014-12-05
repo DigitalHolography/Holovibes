@@ -49,6 +49,7 @@ namespace camera
     status |= PCO_ResetSettingsToDefault(device_);
     status |= PCO_SetSensorFormat(device_, 0);
     status |= PCO_SetTriggerMode(device_, triggermode_);
+    status |= PCO_SetNoiseFilterMode(device_, 0);
 
     {
       /* Convert exposure time in milliseconds. */
