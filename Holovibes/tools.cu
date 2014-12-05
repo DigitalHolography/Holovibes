@@ -145,7 +145,7 @@ __global__ void kernel_apply_lens(
 }
 
 static __global__ void kernel_shift_corners(
-  unsigned short* input,
+  float* input,
   unsigned int size_x,
   unsigned int size_y)
 {
@@ -155,6 +155,7 @@ static __global__ void kernel_shift_corners(
   unsigned int ni = 0;
   unsigned int nj = 0;
   unsigned int nindex = 0;
+  float tmp;
 
   // Superior half of the matrix
   if (j > size_y / 2)
@@ -174,14 +175,14 @@ static __global__ void kernel_shift_corners(
 
     nindex = nj * size_x + ni;
 
-    input[nindex] ^= input[index];
-    input[index] ^= input[nindex];
-    input[nindex] ^= input[index];
+    tmp = input[nindex];
+    input[nindex] = input[index];
+    input[index] = tmp;
   }
 }
 
 void shift_corners(
-  unsigned short* input,
+  float* input,
   unsigned int size_x,
   unsigned int size_y)
 {

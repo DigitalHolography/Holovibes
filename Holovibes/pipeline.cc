@@ -264,8 +264,8 @@ namespace holovibes
     {
       if (autocontrast_requested_)
       {
-        int min = 0;
-        int max = 0;
+        float min = 0.0f;
+        float max = 0.0f;
 
         compute_desc_.contrast_min = min;
         compute_desc_.contrast_max = max;
@@ -281,6 +281,15 @@ namespace holovibes
         65535,
         compute_desc_.contrast_min.load(),
         compute_desc_.contrast_max.load()));
+    }
+
+    if (compute_desc_.shift_corners_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        gpu_float_buffer_,
+        output_fd.width,
+        output_fd.height));
     }
 
     if (compute_desc_.average_enabled)
@@ -299,15 +308,6 @@ namespace holovibes
       gpu_float_buffer_,
       gpu_output_buffer_,
       input_fd.frame_res()));
-
-    if (compute_desc_.shift_corners_enabled)
-    {
-      fn_vect_.push_back(std::bind(
-        shift_corners,
-        gpu_output_buffer_,
-        output_fd.width,
-        output_fd.height));
-    }
 
     if (autofocus_requested_)
     {
@@ -335,12 +335,6 @@ namespace holovibes
         gpu_output_buffer_,
         cudaMemcpyDeviceToDevice);
       input_.dequeue();
-
-      if (!average_results_.empty())
-      {
-        std::cout << "Average: " << average_results_.back() << std::endl;
-        average_results_.pop_back();
-      }
 
       if (refresh_requested_)
       {

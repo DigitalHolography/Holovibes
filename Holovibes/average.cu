@@ -14,7 +14,6 @@ __global__ void make_average(float *image, unsigned int size_x, unsigned int siz
       && y >= start_y && y < start_y + size_y)
     {
       atomicAdd(out_value, image[index]);
-      image[index] = 0;
     }
 
     index += blockDim.x * gridDim.x;
@@ -55,5 +54,8 @@ void make_average_plot(std::vector<float> *result_vect,
   *cpu_n = *cpu_n * float(1 / float(noise_width * noise_height));
 
   float moy = 10 * log10f(*cpu_s / *cpu_n);
+
+  result_vect->push_back(*cpu_s);
+  result_vect->push_back(*cpu_n);
   result_vect->push_back(moy);
 }
