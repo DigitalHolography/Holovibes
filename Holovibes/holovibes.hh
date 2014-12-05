@@ -15,6 +15,7 @@ namespace holovibes
   public:
     enum camera_type
     {
+      EDGE,
       IDS,
       IXON,
       PIKE,
