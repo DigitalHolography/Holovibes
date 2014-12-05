@@ -3,9 +3,9 @@
 #include "camera_ids.hh"
 #include "camera_ixon.hh"
 #include "camera_pike.hh"
-#include "camera_pixelfly.hh"
-#include "camera_xiq.hh"
 #include "camera_pco_edge.hh"
+#include "camera_pco_pixelfly.hh"
+#include "camera_xiq.hh"
 
 #include <exception>
 #include <cassert>
@@ -35,14 +35,16 @@ namespace holovibes
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
-    if (c == IDS)
+    if (c == EDGE)
+      camera_ = new camera::CameraPCOEdge();
+    else if (c == IDS)
       camera_ = new camera::CameraIds();
     else if (c == IXON)
       camera_ = new camera::CameraIxon();
     else if (c == PIKE)
       camera_ = new camera::CameraPike();
     else if (c == PIXELFLY)
-      camera_ = new camera::CameraPCOEdge();
+      camera_ = new camera::CameraPCOPixelfly();
     else if (c == XIQ)
       camera_ = new camera::CameraXiq();
     else

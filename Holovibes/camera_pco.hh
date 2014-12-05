@@ -29,7 +29,11 @@ namespace camera
     virtual void* get_frame() override;
 
   protected:
+    WORD get_actual_res_x() { return actual_res_x_; }
+    WORD get_actual_res_y() { return actual_res_y_; }
+  protected:
     HANDLE device_;
+
   private:
     int get_sensor_sizes();
     int allocate_buffers();
