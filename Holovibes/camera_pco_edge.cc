@@ -47,7 +47,6 @@ namespace camera
 
     status |= PCO_ResetSettingsToDefault(device_);
     status |= PCO_SetSensorFormat(device_, 0);
-    status |= PCO_SetPixelRate(device_, static_cast<DWORD>(pixel_rate_ * 1e6));
     {
       WORD binning_x = 1;
       WORD binning_y = 1;

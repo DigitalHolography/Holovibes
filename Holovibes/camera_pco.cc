@@ -54,6 +54,9 @@ namespace camera
     if (PCO_OpenCamera(&device_, 0) != PCO_NOERROR)
       throw CameraException(name_, CameraException::NOT_CONNECTED);
     
+    /* Ensure that the camera is not in recording state. */
+    stop_acquisition();
+
     PCO_CameraType str_camera_type;
     str_camera_type.wSize = sizeof(PCO_CameraType);
 
@@ -64,9 +67,6 @@ namespace camera
       PCO_CloseCamera(device_);
       throw CameraException(name_, CameraException::NOT_CONNECTED);
     }
-
-    /* Ensure that the camera is not in recording state. */
-    stop_acquisition();
 
     bind_params();
 
@@ -167,7 +167,7 @@ namespace camera
   
   int CameraPCO::allocate_buffers()
   {
-    buffer_size_ = desc_.width * desc_.height * sizeof(WORD);
+    buffer_size_ = actual_res_x_ * actual_res_y_ * sizeof(WORD);
     int status = PCO_NOERROR;
 
     /* TODO: Error checking new operator -> try/catch. */
