@@ -339,11 +339,11 @@ namespace holovibes
       if (average_results_.size() >= 3)
       {
         std::cout << "Average (<10log10(<S>/<N>), <S>, <N>) : ("
-          << log10f(average_results_.back());
+          << average_results_.back();
         average_results_.pop_back();
-        std::cout << ", " << log10f(average_results_.back());
+        std::cout << ", " << average_results_.back();
         average_results_.pop_back();
-        std::cout << ", " << log10f(average_results_.back());
+        std::cout << ", " << average_results_.back();
         std::cout << ")" << std::endl;
         average_results_.pop_back();
       }
