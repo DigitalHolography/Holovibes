@@ -22,7 +22,13 @@ namespace camera
 
   private:
     /* Custom camera parameters. */
-
+    
+    /*! * 0x0000: auto trigger.
+     *  * 0x0001: software trigger.
+     *  * 0x0002: extern exposure & software trigger.
+     *  * 0x0003: extern exposure control.
+     */
+    WORD triggermode_;
   };
 }
 

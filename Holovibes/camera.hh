@@ -10,13 +10,12 @@
 
 namespace camera
 {
+  static int FRAME_TIMEOUT = 10000;
+
   /*! Abstract Camera class. */
   class Camera
   {
   public:
-    // Default constants
-    static const int FRAME_TIMEOUT = 2000;
-
     /*! \brief Base class constructor. It opens the ini file if any,
     ** otherwise it will loads defaults parameters.
     ** \param ini_filepath INI camera configuration file path.

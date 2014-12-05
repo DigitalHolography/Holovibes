@@ -22,6 +22,7 @@ namespace camera
   void CameraPCOEdge::load_default_params()
   {
     exposure_time_ = 0.024f;
+    triggermode_ = 0;
 
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
@@ -36,6 +37,9 @@ namespace camera
     const boost::property_tree::ptree& pt = get_ini_pt();
 
     exposure_time_ = pt.get<float>("pco-edge.exposure_time", exposure_time_);
+    triggermode_ = pt.get<WORD>("pco-edge.trigger_mode", triggermode_);
+    if (triggermode_ < 3)
+      triggermode_ = 0;
   }
 
   void CameraPCOEdge::bind_params()
@@ -44,6 +48,7 @@ namespace camera
 
     status |= PCO_ResetSettingsToDefault(device_);
     status |= PCO_SetSensorFormat(device_, 0);
+    status |= PCO_SetTriggerMode(device_, triggermode_);
 
     {
       /* Convert exposure time in milliseconds. */
