@@ -19,6 +19,7 @@ namespace camera
     , buffers_events_()
     , buffers_()
   {
+    /* Buffers events initialization. */
     for (unsigned int i = 0;
       i < buffers_events_.size();
       ++i)
@@ -40,11 +41,20 @@ namespace camera
     /* Ensure that the camera is closed in case of exception. */
     shutdown_camera();
 
+    /* Close buffers events. */
     for (unsigned int i = 0;
       i < buffers_events_.size();
       ++i)
     {
       CloseHandle(buffers_events_[i]);
+    }
+
+    for (unsigned int i = 0;
+      i < buffers_.size();
+      ++i)
+    {
+      delete[] buffers_[i];
+      buffers_[i] = nullptr;
     }
   }
 
@@ -57,11 +67,10 @@ namespace camera
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();
 
+    /* Camera type checking. */
     PCO_CameraType str_camera_type;
     str_camera_type.wSize = sizeof(PCO_CameraType);
-
     status |= PCO_GetCameraType(device_, &str_camera_type);
-
     if (str_camera_type.wCamType != camera_type_)
     {
       PCO_CloseCamera(device_);
@@ -85,6 +94,8 @@ namespace camera
 
     status |= PCO_ArmCamera(device_);
     status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+
+    /* Add buffers into queue. */
     for (unsigned int i = 0;
       i < buffers_.size();
       ++i)
@@ -112,6 +123,7 @@ namespace camera
     /* No error checking because that method is called in destructor. */
     PCO_CancelImages(device_);
     PCO_RemoveBuffer(device_);
+    PCO_CloseCamera(device_);
 
     for (unsigned int i = 0;
       i < buffers_.size();
@@ -120,7 +132,6 @@ namespace camera
       delete[] buffers_[i];
       buffers_[i] = nullptr;
     }
-    PCO_CloseCamera(device_);
   }
 
   void* CameraPCO::get_frame()
@@ -171,22 +182,29 @@ namespace camera
     int status = PCO_NOERROR;
 
     /* TODO: Error checking new operator -> try/catch. */
-    for (unsigned int i = 0;
-      i < buffers_.size();
-      ++i)
+    try
     {
-      buffers_[i] = new unsigned short[buffer_size_]();
+      for (unsigned int i = 0;
+        i < buffers_.size();
+        ++i)
+      {
+        buffers_[i] = new unsigned short[buffer_size_]();
 
-      SHORT buffer_nbr = -1;
+        SHORT buffer_nbr = -1;
 
-      status |= PCO_AllocateBuffer(
-        device_,
-        &buffer_nbr,
-        buffer_size_,
-        &buffers_[i],
-        &buffers_events_[i]);
+        status |= PCO_AllocateBuffer(
+          device_,
+          &buffer_nbr,
+          buffer_size_,
+          &buffers_[i],
+          &buffers_events_[i]);
 
-      assert(buffer_nbr == i);
+        assert(buffer_nbr == i);
+      }
+    }
+    catch (std::bad_alloc& ba)
+    {
+      throw CameraException(name_, CameraException::MEMORY_PROBLEM);
     }
 
     return status;
