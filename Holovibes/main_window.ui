@@ -771,6 +771,7 @@
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionEdge"/>
      <addaction name="actionIDS"/>
      <addaction name="actionIXon"/>
      <addaction name="actionPike"/>
@@ -950,6 +951,11 @@
   <action name="actionIXon">
    <property name="text">
     <string>iXon</string>
+   </property>
+  </action>
+  <action name="actionEdge">
+   <property name="text">
+    <string>Edge</string>
    </property>
   </action>
  </widget>
@@ -1197,8 +1203,8 @@
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>108</y>
+     <x>509</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -1213,8 +1219,8 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>133</y>
+     <x>609</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -1517,12 +1523,28 @@
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>181</y>
+     <x>559</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
      <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_edge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>56</x>
+     <y>9</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>59</x>
+     <y>-23</y>
     </hint>
    </hints>
   </connection>
@@ -1559,5 +1581,6 @@
   <slot>configure_camera()</slot>
   <slot>camera_ixon()</slot>
   <slot>set_average_mode(bool)</slot>
+  <slot>camera_edge()</slot>
  </slots>
 </ui>

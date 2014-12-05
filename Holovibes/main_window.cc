@@ -142,6 +142,11 @@ namespace gui
     global_visibility(false);
   }
 
+  void MainWindow::camera_edge()
+  {
+    change_camera(holovibes::Holovibes::EDGE);
+  }
+
   void MainWindow::camera_pike()
   {
     change_camera(holovibes::Holovibes::PIKE);
