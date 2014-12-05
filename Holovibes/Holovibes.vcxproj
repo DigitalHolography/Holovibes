@@ -80,6 +80,7 @@
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
@@ -121,6 +122,7 @@
         copy /Y "$(ProjectLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"

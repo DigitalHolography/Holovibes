@@ -22,8 +22,6 @@ namespace camera
   void CameraPCOEdge::load_default_params()
   {
     exposure_time_ = 0.024f;
-    pixel_rate_ = 110;
-    binning_ = false;
 
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
@@ -37,8 +35,7 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    exposure_time_ = pt.get<float>("pixelfly.exposure_time", exposure_time_);
-    binning_ = pt.get<bool>("pixelfly.binning", binning_);
+    exposure_time_ = pt.get<float>("pco-edge.exposure_time", exposure_time_);
   }
 
   void CameraPCOEdge::bind_params()
@@ -47,18 +44,7 @@ namespace camera
 
     status |= PCO_ResetSettingsToDefault(device_);
     status |= PCO_SetSensorFormat(device_, 0);
-    {
-      WORD binning_x = 1;
-      WORD binning_y = 1;
 
-      if (binning_)
-      {
-        binning_x = 2;
-        binning_y = 2;
-      }
-
-      status |= PCO_SetBinning(device_, binning_x, binning_y);
-    }
     {
       /* Convert exposure time in milliseconds. */
       exposure_time_ *= 1e3;

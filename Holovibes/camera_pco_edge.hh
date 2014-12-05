@@ -23,21 +23,6 @@ namespace camera
   private:
     /* Custom camera parameters. */
 
-    /* Frequency for shifting the pixels out of the sensor shift registers.
-     * The pixel clock sets the clock frequency and therefore the image sensor
-     * readout speed. At 12 MHz the image quality will be higher due to very
-     * low readout noise. At 25 MHz the image sensor is read out with nearly
-     * double speed, achieving higher frame rates. The pixel_rate_ field unit
-     * is in MHz.
-     */
-    unsigned int pixel_rate_;
-
-    /*! Binning combines neighboring pixels to form super pixels.
-     * It increases the light signal of the resulting pixels and decreases the
-     * spatial resolution of the total image.
-     * The binning_ field enables a x2 square binning.
-     */
-    bool binning_;
   };
 }
 
