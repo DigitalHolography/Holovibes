@@ -229,7 +229,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples)
       {
         // Synchronize with p_vibro
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
@@ -493,7 +493,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples)
       {
         // Synchronize with p
         QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
@@ -514,7 +514,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples)
       {
         holovibes_.get_compute_desc().vibrometry_q = value;
         pipeline.request_refresh();

@@ -49,9 +49,9 @@ namespace holovibes
 
     std::atomic<enum fft_algorithm> algorithm;
     /*! Number of samples in which apply the fft on. */
-    std::atomic<unsigned int> nsamples;
+    std::atomic<unsigned short> nsamples;
     /*! p-th output component to show. */
-    std::atomic<unsigned int> pindex;
+    std::atomic<unsigned short> pindex;
     /*! Lambda in meters. */
     std::atomic<float> lambda;
     /*! Sensor-to-object distance. */
