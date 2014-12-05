@@ -7,6 +7,7 @@
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"
+#include "average.cuh"
 
 namespace holovibes
 {
@@ -30,6 +31,7 @@ namespace holovibes
     , autocontrast_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
+    , average_results_()
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -281,6 +283,17 @@ namespace holovibes
         compute_desc_.contrast_max.load()));
     }
 
+    if (compute_desc_.average_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        make_average_plot,
+        &average_results_,
+        gpu_float_buffer_,
+        output_fd,
+        compute_desc_.signal_zone,
+        compute_desc_.noise_zone));
+    }
+
     fn_vect_.push_back(std::bind(
       float_to_ushort,
       gpu_float_buffer_,
@@ -294,10 +307,6 @@ namespace holovibes
         gpu_output_buffer_,
         output_fd.width,
         output_fd.height));
-    }
-
-    if (compute_desc_.average_enabled)
-    {
     }
 
     if (autofocus_requested_)
@@ -326,6 +335,12 @@ namespace holovibes
         gpu_output_buffer_,
         cudaMemcpyDeviceToDevice);
       input_.dequeue();
+
+      if (!average_results_.empty())
+      {
+        std::cout << "Average: " << average_results_.back() << std::endl;
+        average_results_.pop_back();
+      }
 
       if (refresh_requested_)
       {

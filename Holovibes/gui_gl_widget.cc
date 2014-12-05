@@ -224,6 +224,8 @@ namespace gui
       }
       else // Average mode
       {
+        h_.get_compute_desc().average_enabled = true;
+
         if (is_signal_selection_)
         {
           signal_selection_ = selection_;
@@ -233,8 +235,10 @@ namespace gui
         {
           noise_selection_ = selection_;
           h_.get_compute_desc().noise_zone = noise_selection_;
+          h_.get_pipeline().request_refresh();
         }
         is_signal_selection_ = !is_signal_selection_;
+
       }
     }
   }

@@ -59,6 +59,9 @@ namespace holovibes
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
+
+    // FIXME
+    std::vector<float> average_results_;
   };
 }
 
