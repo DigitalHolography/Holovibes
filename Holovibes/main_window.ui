@@ -1548,6 +1548,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionConfigure</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_holovibes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>50</x>
+     <y>11</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>-34</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1582,5 +1598,6 @@
   <slot>camera_ixon()</slot>
   <slot>set_average_mode(bool)</slot>
   <slot>camera_edge()</slot>
+  <slot>configure_holovibes()</slot>
  </slots>
 </ui>

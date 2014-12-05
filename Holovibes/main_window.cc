@@ -1,6 +1,7 @@
 #include "main_window.hh"
 
-# define Z_STEP 0.01
+#define Z_STEP 0.01
+#define GLOBAL_INI_PATH "holovibes.ini"
 
 namespace gui
 {
@@ -10,14 +11,16 @@ namespace gui
     gl_window_(nullptr),
     is_direct_mode_(true),
     is_enabled_camera_(false),
-    record_thread_(nullptr),
-    z_step_(Z_STEP)
+    z_step_(Z_STEP),
+    record_thread_(nullptr)
   {
     ui.setupUi(this);
 
     // FIXME (it will be when loading a camera from ini file)
     camera_visible(false);
     record_visible(false);
+
+    load_ini("holovibes.ini");
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -113,6 +116,11 @@ namespace gui
 
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(cd.average_enabled);
+  }
+
+  void MainWindow::configure_holovibes()
+  {
+    open_file(boost::filesystem::current_path().generic_string() + "/" + GLOBAL_INI_PATH);
   }
 
   void MainWindow::gl_full_screen()
@@ -705,27 +713,30 @@ namespace gui
 
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
   {
-    try
+    if (camera_type != holovibes::Holovibes::NONE)
     {
-      camera_visible(false);
-      record_visible(false);
-      global_visibility(false);
-      delete gl_window_;
-      gl_window_ = nullptr;
-      holovibes_.dispose_compute();
-      holovibes_.dispose_capture();
-      holovibes_.init_capture(camera_type, 20);
-      camera_visible(true);
-      record_visible(true);
-      set_image_mode(is_direct_mode_);
-    }
-    catch (camera::CameraException& e)
-    {
-      display_error("[CAMERA]" + std::string(e.what()));
-    }
-    catch (std::exception& e)
-    {
-      display_error(e.what());
+      try
+      {
+        camera_visible(false);
+        record_visible(false);
+        global_visibility(false);
+        delete gl_window_;
+        gl_window_ = nullptr;
+        holovibes_.dispose_compute();
+        holovibes_.dispose_capture();
+        holovibes_.init_capture(camera_type, 20);
+        camera_visible(true);
+        record_visible(true);
+        set_image_mode(is_direct_mode_);
+      }
+      catch (camera::CameraException& e)
+      {
+        display_error("[CAMERA]" + std::string(e.what()));
+      }
+      catch (std::exception& e)
+      {
+        display_error(e.what());
+      }
     }
   }
 
@@ -748,5 +759,39 @@ namespace gui
   void MainWindow::open_file(const std::string& path)
   {
     QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
+  }
+
+
+  void MainWindow::load_ini(const std::string& path)
+  {
+    boost::property_tree::ptree ptree;
+    boost::property_tree::ini_parser::read_ini(path, ptree);
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    if (!ptree.empty())
+    {
+      std::string camera_str = ptree.get<std::string>("holovibes.camera");
+
+      if (camera_str == "Edge")
+        change_camera(holovibes::Holovibes::EDGE);
+      if (camera_str == "IDS")
+        change_camera(holovibes::Holovibes::IDS);
+      else if (camera_str == "iXon")
+        change_camera(holovibes::Holovibes::IXON);
+      else if (camera_str == "Pike")
+        change_camera(holovibes::Holovibes::PIKE);
+      else if (camera_str == "Pixelfly")
+        change_camera(holovibes::Holovibes::PIXELFLY);
+      else if (camera_str == "XIQ")
+        change_camera(holovibes::Holovibes::XIQ);
+      else
+        change_camera(holovibes::Holovibes::NONE);
+
+    }
+  }
+
+  void MainWindow::save_ini(const std::string& path)
+  {
+
   }
 }

@@ -9,6 +9,8 @@
 # include <QMessageBox>
 # include <QDesktopServices>
 # include <boost/filesystem.hpp>
+# include <boost/property_tree/ptree.hpp>
+# include <boost/property_tree/ini_parser.hpp>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -32,6 +34,7 @@ namespace gui
 
   public slots:
     // Menu
+    void configure_holovibes();
     void gl_full_screen();
     void camera_none();
     void camera_edge();
@@ -89,6 +92,8 @@ namespace gui
     void display_error(std::string msg);
     void display_info(std::string msg);
     void open_file(const std::string& path);
+    void load_ini(const std::string& path);
+    void save_ini(const std::string& path);
 
   private:
     Ui::MainWindow ui;
