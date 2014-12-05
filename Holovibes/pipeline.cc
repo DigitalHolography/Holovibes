@@ -252,6 +252,26 @@ namespace holovibes
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
+    if (compute_desc_.shift_corners_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        gpu_float_buffer_,
+        output_fd.width,
+        output_fd.height));
+    }
+
+    if (compute_desc_.average_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        make_average_plot,
+        &average_results_,
+        gpu_float_buffer_,
+        output_fd,
+        compute_desc_.signal_zone,
+        compute_desc_.noise_zone));
+    }
+
     if (compute_desc_.log_scale_enabled)
     {
       fn_vect_.push_back(std::bind(
@@ -281,26 +301,6 @@ namespace holovibes
         65535,
         compute_desc_.contrast_min.load(),
         compute_desc_.contrast_max.load()));
-    }
-
-    if (compute_desc_.shift_corners_enabled)
-    {
-      fn_vect_.push_back(std::bind(
-        shift_corners,
-        gpu_float_buffer_,
-        output_fd.width,
-        output_fd.height));
-    }
-
-    if (compute_desc_.average_enabled)
-    {
-      fn_vect_.push_back(std::bind(
-        make_average_plot,
-        &average_results_,
-        gpu_float_buffer_,
-        output_fd,
-        compute_desc_.signal_zone,
-        compute_desc_.noise_zone));
     }
 
     fn_vect_.push_back(std::bind(
@@ -339,11 +339,11 @@ namespace holovibes
       if (average_results_.size() >= 3)
       {
         std::cout << "Average (<10log10(<S>/<N>), <S>, <N>) : ("
-          << average_results_.back();
+          << log10f(average_results_.back());
         average_results_.pop_back();
-        std::cout << ", " << average_results_.back();
+        std::cout << ", " << log10f(average_results_.back());
         average_results_.pop_back();
-        std::cout << ", " << average_results_.back();
+        std::cout << ", " << log10f(average_results_.back());
         std::cout << ")" << std::endl;
         average_results_.pop_back();
       }

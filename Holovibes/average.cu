@@ -53,12 +53,17 @@ void make_average_plot(std::vector<float> *result_vect,
   cudaMemcpy(cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost);
 
-  *cpu_s = *cpu_s * float(1 / float(signal_width * signal_height));
-  *cpu_n = *cpu_n * float(1 / float(noise_width * noise_height));
+  *cpu_s /=  float(signal_width * signal_height);
+  *cpu_n /=  float(noise_width * noise_height);
 
   float moy = 10 * log10f(*cpu_s / *cpu_n);
 
   result_vect->push_back(*cpu_s);
   result_vect->push_back(*cpu_n);
   result_vect->push_back(moy);
+
+  cudaFree(gpu_n);
+  cudaFree(gpu_s);
+  free(cpu_s);
+  free(cpu_n);
 }
