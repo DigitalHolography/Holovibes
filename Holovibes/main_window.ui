@@ -659,7 +659,7 @@
          <string>Auto</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox_2">
+       <widget class="QComboBox" name="viewModeComboBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -684,7 +684,7 @@
          </property>
         </item>
        </widget>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="contrastCheckBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1255,7 +1255,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBox_2</sender>
+   <sender>viewModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_view_mode(QString)</slot>
@@ -1271,7 +1271,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>contrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_contrast_mode(bool)</slot>

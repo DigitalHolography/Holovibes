@@ -33,7 +33,7 @@ namespace holovibes
       , zdistance(1.50f)
       , view_mode(MODULUS)
       , log_scale_enabled(false)
-      , shift_corners_enabled(false)
+      , shift_corners_enabled(true)
       , contrast_enabled(false)
       , vibrometry_enabled(false)
       , contrast_min(1)

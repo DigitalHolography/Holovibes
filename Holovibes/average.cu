@@ -30,6 +30,9 @@ void make_average_plot(std::vector<float> *result_vect,
   unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (fd.frame_res() + threads - 1) / threads;
 
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
   float* gpu_s;
   float* gpu_n;
 

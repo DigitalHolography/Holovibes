@@ -76,17 +76,43 @@ namespace gui
     else
       algorithm->setCurrentIndex(0);
 
+    QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
+
+    if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
+      view_mode->setCurrentIndex(0);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::SQUARED_MODULUS)
+      view_mode->setCurrentIndex(1);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
+      view_mode->setCurrentIndex(2);
+    else
+      view_mode->setCurrentIndex(0);
+
+    QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
+    log_scale->setChecked(cd.log_scale_enabled);
+
+    QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
+    shift_corners->setChecked(cd.shift_corners_enabled);
+
+    QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
+    contrast->setChecked(cd.contrast_enabled);
+
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
     contrast_min->setValue(log10(cd.contrast_min));
 
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
     contrast_max->setValue(log10(cd.contrast_max));
 
+    QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
+    vibro->setChecked(cd.vibrometry_enabled);
+
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
+
+    QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
+    average->setChecked(cd.average_enabled);
   }
 
   void MainWindow::gl_full_screen()
@@ -500,8 +526,15 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
+
+    if (!value)
+    {
+      holovibes_.get_compute_desc().average_enabled = false;
+      pipeline.request_refresh();
+    }
   }
 
   void MainWindow::browse_file()
