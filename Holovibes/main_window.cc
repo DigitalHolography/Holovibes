@@ -177,7 +177,7 @@ namespace gui
 
   void MainWindow::credits()
   {
-    display_info("Holovibes v0.4.3\n\n"
+    display_info("Holovibes v0.5\n\n"
       "Scientists:\n"
       "Michael Atlan\n"
       "\n"
@@ -781,30 +781,52 @@ namespace gui
     if (!ptree.empty())
     {
       // Camera type
-      int camera_type = ptree.get<int>("holovibes.camera", 0);
+      int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      int frame_timeout = ptree.get<int>("holovibes.frame_timeout", camera::FRAME_TIMEOUT);
+      int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
       camera::FRAME_TIMEOUT = frame_timeout;
 
-      // Hologram parameters
-      unsigned short phase_number = ptree.get<unsigned short>("holovibes.phase_number", cd.nsamples);
+      // Image rendering
+      unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
 
-      unsigned short p_index = ptree.get<unsigned short>("holovibes.p_index", cd.pindex);
+      unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex = p_index;
 
-      float lambda = ptree.get<float>("holovibes.lambda", cd.lambda);
+      float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
       cd.lambda = lambda;
 
-      float z_distance = ptree.get<float>("holovibes.z_distance", cd.zdistance);
+      float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
       cd.zdistance = z_distance;
 
-      float z_step = ptree.get<float>("holovibes.z_step", 0.01f);
+      float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
       if (z_step > 0.0f)
         z_step_ = z_step;
+
+      int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
+      cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
+
+      // View
+      int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
+      cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
+
+      bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
+      cd.log_scale_enabled = log_scale_enabled;
+
+      bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
+      cd.shift_corners_enabled = shift_corners_enabled;
+
+      bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
+      cd.contrast_enabled = contrast_enabled;
+
+      float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
+      cd.contrast_min = contrast_min;
+
+      float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
+      cd.contrast_max = contrast_max;
     }
   }
 
@@ -813,13 +835,23 @@ namespace gui
     boost::property_tree::ptree ptree;
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-    ptree.put("holovibes.camera", camera_type_);
-    ptree.put("holovibes.frame_timeout", camera::FRAME_TIMEOUT);
-    ptree.put("holovibes.phase_number", cd.nsamples);
-    ptree.put("holovibes.p_index", cd.pindex);
-    ptree.put("holovibes.lambda", cd.lambda);
-    ptree.put("holovibes.z_distance", cd.zdistance);
-    ptree.put("holovibes.z_step", z_step_);
+    // Image rendering
+    ptree.put("image_rendering.camera", camera_type_);
+    ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
+    ptree.put("image_rendering.phase_number", cd.nsamples);
+    ptree.put("image_rendering.p_index", cd.pindex);
+    ptree.put("image_rendering.lambda", cd.lambda);
+    ptree.put("image_rendering.z_distance", cd.zdistance);
+    ptree.put("image_rendering.z_step", z_step_);
+    ptree.put("image_rendering.algorithm", cd.algorithm);
+
+    // View
+    ptree.put("view.view_mode", cd.view_mode);
+    ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
+    ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
+    ptree.put("view.contrast_enabled", cd.contrast_enabled);
+    ptree.put("view.contrast_min", pow(10, cd.contrast_min));
+    ptree.put("view.contrast_max", pow(10, cd.contrast_max));
 
     boost::property_tree::write_ini(path, ptree);
   }
