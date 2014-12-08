@@ -102,6 +102,7 @@ namespace gui
     bool is_direct_mode_;
     bool is_enabled_camera_;
     double z_step_;
+    holovibes::Holovibes::camera_type camera_type_;
 
     ThreadRecorder* record_thread_;
 

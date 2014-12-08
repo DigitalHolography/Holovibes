@@ -1,6 +1,5 @@
 #include "main_window.hh"
 
-#define Z_STEP 0.01
 #define GLOBAL_INI_PATH "holovibes.ini"
 
 namespace gui
@@ -11,7 +10,8 @@ namespace gui
     gl_window_(nullptr),
     is_direct_mode_(true),
     is_enabled_camera_(false),
-    z_step_(Z_STEP),
+    z_step_(0.01f),
+    camera_type_(holovibes::Holovibes::NONE),
     record_thread_(nullptr)
   {
     ui.setupUi(this);
@@ -70,6 +70,9 @@ namespace gui
 
     QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
     z->setValue(cd.zdistance);
+
+    QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
+    z_step->setValue(z_step_);
 
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
 
@@ -734,6 +737,7 @@ namespace gui
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
+        camera_type_ = camera_type;
       }
       catch (camera::CameraException& e)
       {
@@ -777,40 +781,30 @@ namespace gui
     if (!ptree.empty())
     {
       // Camera type
-      std::string camera_str = ptree.get<std::string>("holovibes.camera", "NONE");
-
-      if (camera_str == "Edge")
-        change_camera(holovibes::Holovibes::EDGE);
-      if (camera_str == "IDS")
-        change_camera(holovibes::Holovibes::IDS);
-      else if (camera_str == "iXon")
-        change_camera(holovibes::Holovibes::IXON);
-      else if (camera_str == "Pike")
-        change_camera(holovibes::Holovibes::PIKE);
-      else if (camera_str == "Pixelfly")
-        change_camera(holovibes::Holovibes::PIXELFLY);
-      else if (camera_str == "XIQ")
-        change_camera(holovibes::Holovibes::XIQ);
-      else
-        change_camera(holovibes::Holovibes::NONE);
+      int camera_type = ptree.get<int>("holovibes.camera", 0);
+      change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      int frame_timeout = ptree.get<int>("holovibes.frame_timeout", 10000);
+      int frame_timeout = ptree.get<int>("holovibes.frame_timeout", camera::FRAME_TIMEOUT);
       camera::FRAME_TIMEOUT = frame_timeout;
 
       // Hologram parameters
-      unsigned short phase_number = ptree.get<unsigned short>("holovibes.phase_number", 2);
+      unsigned short phase_number = ptree.get<unsigned short>("holovibes.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
 
-      unsigned short p_index = ptree.get<unsigned short>("holovibes.p_index", 0);
+      unsigned short p_index = ptree.get<unsigned short>("holovibes.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex = p_index;
 
-      float lambda = ptree.get<float>("holovibes.lambda", 532.0e-9f);
+      float lambda = ptree.get<float>("holovibes.lambda", cd.lambda);
       cd.lambda = lambda;
 
-      float z_distance = ptree.get<float>("holovibes.z_distance", 1.36f);
+      float z_distance = ptree.get<float>("holovibes.z_distance", cd.zdistance);
       cd.zdistance = z_distance;
+
+      float z_step = ptree.get<float>("holovibes.z_step", 0.01f);
+      if (z_step > 0.0f)
+        z_step_ = z_step;
     }
   }
 
@@ -819,11 +813,13 @@ namespace gui
     boost::property_tree::ptree ptree;
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+    ptree.put("holovibes.camera", camera_type_);
     ptree.put("holovibes.frame_timeout", camera::FRAME_TIMEOUT);
     ptree.put("holovibes.phase_number", cd.nsamples);
     ptree.put("holovibes.p_index", cd.pindex);
     ptree.put("holovibes.lambda", cd.lambda);
     ptree.put("holovibes.z_distance", cd.zdistance);
+    ptree.put("holovibes.z_step", z_step_);
 
     boost::property_tree::write_ini(path, ptree);
   }
