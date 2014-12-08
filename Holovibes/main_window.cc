@@ -63,6 +63,7 @@ namespace gui
     
     QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
     p->setValue(cd.pindex);
+    p->setMaximum(cd.nsamples - 1);
 
     QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
     lambda->setValue(cd.lambda * 1.0e9f);
@@ -110,6 +111,7 @@ namespace gui
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
+    p_vibro->setMaximum(cd.nsamples - 1);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
@@ -232,6 +234,7 @@ namespace gui
       global_visibility(false);
       pipeline.request_update_n(value);
       global_visibility(true);
+      notify();
     }
   }
 
@@ -252,7 +255,7 @@ namespace gui
         pipeline.request_refresh();
       }
       else
-        std::cout << "p param has to be between 0 and n" << "\n";
+        display_error("p param has to be between 0 and n");
     }
   }
 
@@ -263,12 +266,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.pindex < cd.nsamples - 1)
+      if (cd.pindex < cd.nsamples)
       {
         cd.pindex++;
         notify();
         pipeline.request_refresh();
       }
+      else
+        display_error("p param has to be between 0 and n - 1");
     }
   }
 
@@ -279,12 +284,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.pindex > 0)
+      if (cd.pindex >= 0)
       {
         cd.pindex--;
         notify();
         pipeline.request_refresh();
       }
+      else
+        display_error("p param has to be between 0 and n - 1");
     }
   }
 
@@ -506,17 +513,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples)
+      if (value < (int)cd.nsamples && value >= 0)
       {
-        // Synchronize with p
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setValue(value);
-
         cd.pindex = value;
+        notify();
         pipeline.request_refresh();
       }
       else
-        display_error("p param has to be between 0 and phase #");;
+        display_error("p param has to be between 0 and n - 1");;
     }
   }
 
