@@ -39,8 +39,6 @@ void auto_contrast_correction(
     *min = 1.0f;
   if (*max < 1.0f)
     *max = 1.0f;
-
-  std::cout << "min: " << *min << "max: " << *max << std::endl;
 }
 
 static __global__ void apply_contrast(

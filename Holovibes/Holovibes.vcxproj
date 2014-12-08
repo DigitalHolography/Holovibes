@@ -73,7 +73,7 @@
     </Link>
     <PostBuildEvent>
       <Command>
-        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\pco\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ixon\atmcd64d.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
@@ -115,7 +115,7 @@
     </Link>
     <PostBuildEvent>
       <Command>
-        copy /Y "$(ProjectLibDir)\pixelfly\SC2_Cam.dll" "$(TargetDir)"
+        copy /Y "$(ProjectLibDir)\pco\SC2_Cam.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ixon\atmcd64d.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(ProjectLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
