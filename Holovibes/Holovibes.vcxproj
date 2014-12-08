@@ -272,7 +272,6 @@
     <ClCompile Include="pipeline.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
-    <ClCompile Include="test_main_loader_recorder.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />

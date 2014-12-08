@@ -63,6 +63,9 @@
     <CudaCompile Include="vibrometry.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="average.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera_xiq.cc">
@@ -114,9 +117,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pipeline.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="test_main_loader_recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="compute_descriptor.cc">
@@ -269,6 +269,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera_pco_pixelfly.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="average.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
