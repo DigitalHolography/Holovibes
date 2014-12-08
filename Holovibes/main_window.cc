@@ -294,7 +294,7 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.lambda = static_cast<float>(value);
+      cd.lambda = static_cast<float>(value) * 1.0e-9f;
       pipeline.request_refresh();
     }
   }
