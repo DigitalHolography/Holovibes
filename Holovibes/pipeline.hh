@@ -27,6 +27,10 @@ namespace holovibes
     void exec();
   private:
     void update_n_parameter(unsigned short n);
+    static void autocontrast_caller(
+      float* input,
+      unsigned int size,
+      ComputeDescriptor& compute_desc);
     void refresh();
 
     Pipeline& operator=(const Pipeline&) = delete;
