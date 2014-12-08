@@ -798,7 +798,6 @@ namespace gui
     }
     catch (std::exception& e)
     {
-      display_info("Holovibes.ini not found, creating it.");
       std::ofstream os("holovibes.ini");
     }
 
