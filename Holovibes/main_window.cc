@@ -791,7 +791,17 @@ namespace gui
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-    boost::property_tree::ini_parser::read_ini(path, ptree);
+
+    try
+    {
+      boost::property_tree::ini_parser::read_ini(path, ptree);
+    }
+    catch (std::exception& e)
+    {
+      display_info("Holovibes.ini not found, creating it.");
+      std::ofstream os("holovibes.ini");
+    }
+
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
     if (!ptree.empty())
