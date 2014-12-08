@@ -635,6 +635,8 @@ namespace gui
 
   void MainWindow::closeEvent(QCloseEvent* event)
   {
+    save_ini("holovibes.ini");
+
     if (gl_window_)
       gl_window_->close();
   }
@@ -774,7 +776,8 @@ namespace gui
 
     if (!ptree.empty())
     {
-      std::string camera_str = ptree.get<std::string>("holovibes.camera");
+      // Camera type
+      std::string camera_str = ptree.get<std::string>("holovibes.camera", "NONE");
 
       if (camera_str == "Edge")
         change_camera(holovibes::Holovibes::EDGE);
@@ -791,11 +794,37 @@ namespace gui
       else
         change_camera(holovibes::Holovibes::NONE);
 
+      // Frame timeout
+      int frame_timeout = ptree.get<int>("holovibes.frame_timeout", 10000);
+      camera::FRAME_TIMEOUT = frame_timeout;
+
+      // Hologram parameters
+      unsigned short phase_number = ptree.get<unsigned short>("holovibes.phase_number", 2);
+      cd.nsamples = phase_number;
+
+      unsigned short p_index = ptree.get<unsigned short>("holovibes.p_index", 0);
+      if (p_index >= 0 && p_index < cd.nsamples)
+        cd.pindex = p_index;
+
+      float lambda = ptree.get<float>("holovibes.lambda", 532.0e-9f);
+      cd.lambda = lambda;
+
+      float z_distance = ptree.get<float>("holovibes.z_distance", 1.36f);
+      cd.zdistance = z_distance;
     }
   }
 
   void MainWindow::save_ini(const std::string& path)
   {
+    boost::property_tree::ptree ptree;
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+    ptree.put("holovibes.frame_timeout", camera::FRAME_TIMEOUT);
+    ptree.put("holovibes.phase_number", cd.nsamples);
+    ptree.put("holovibes.p_index", cd.pindex);
+    ptree.put("holovibes.lambda", cd.lambda);
+    ptree.put("holovibes.z_distance", cd.zdistance);
+
+    boost::property_tree::write_ini(path, ptree);
   }
 }
