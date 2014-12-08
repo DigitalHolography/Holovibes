@@ -104,10 +104,17 @@ namespace gui
     contrast->setChecked(cd.contrast_enabled);
 
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-    contrast_min->setValue(log10(cd.contrast_min));
+    /* Autocontrast values depends on log_scale option. */
+    if (cd.log_scale_enabled)
+      contrast_min->setValue(cd.contrast_min);
+    else
+      contrast_min->setValue(log10(cd.contrast_min));
 
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-    contrast_max->setValue(log10(cd.contrast_max));
+    if (cd.log_scale_enabled)
+      contrast_max->setValue(cd.contrast_max);
+    else
+      contrast_max->setValue(log10(cd.contrast_max));
 
     QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
     vibro->setChecked(cd.vibrometry_enabled);

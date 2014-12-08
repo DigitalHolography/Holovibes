@@ -10,8 +10,7 @@ void manual_contrast_correction(
 void auto_contrast_correction(
   float* input,
   unsigned int size,
-  unsigned int* min,
-  unsigned int* max,
-  float threshold);
+  float* min,
+  float* max);
 
 #endif /* !CONTRAST_CORRECTION_CUH */

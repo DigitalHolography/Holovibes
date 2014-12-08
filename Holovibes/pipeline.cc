@@ -117,6 +117,9 @@ namespace holovibes
 
   void Pipeline::refresh()
   {
+    /* Reset refresh flag. */
+    refresh_requested_ = false;
+
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
@@ -280,20 +283,20 @@ namespace holovibes
         input_fd.frame_res()));
     }
 
+    if (autocontrast_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        autocontrast_caller,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        std::ref(compute_desc_)));
+
+      autocontrast_requested_ = false;
+      request_refresh();
+    }
+
     if (compute_desc_.contrast_enabled)
     {
-      if (autocontrast_requested_)
-      {
-        float min = 0.0f;
-        float max = 0.0f;
-
-        compute_desc_.contrast_min = min;
-        compute_desc_.contrast_max = max;
-        compute_desc_.notify_observers();
-
-        autocontrast_requested_ = false;
-      }
-
       fn_vect_.push_back(std::bind(
         manual_contrast_correction,
         gpu_float_buffer_,
@@ -312,13 +315,8 @@ namespace holovibes
     if (autofocus_requested_)
     {
       autofocus_requested_ = false;
-      // push autofocus();
-    }
-
-    if (autocontrast_requested_ ||
-      autofocus_requested_)
-    {
       request_refresh();
+      // push autofocus();
     }
   }
 
@@ -349,10 +347,7 @@ namespace holovibes
       }
 
       if (refresh_requested_)
-      {
         refresh();
-        refresh_requested_ = false;
-      }
     }
   }
 
@@ -378,5 +373,20 @@ namespace holovibes
     update_n_requested_ = true;
     compute_desc_.nsamples = n;
     request_refresh();
+  }
+
+  void Pipeline::autocontrast_caller(
+    float* input,
+    unsigned int size,
+    ComputeDescriptor& compute_desc)
+  {
+    float min = 0.0f;
+    float max = 0.0f;
+
+    auto_contrast_correction(input, size, &min, &max);
+
+    compute_desc.contrast_min = min;
+    compute_desc.contrast_max = max;
+    compute_desc.notify_observers();
   }
 }
