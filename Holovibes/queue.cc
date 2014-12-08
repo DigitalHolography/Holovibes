@@ -87,8 +87,9 @@ namespace holovibes
     mutex_.lock();
     if (curr_elts_ > 0)
     {
-      void* last_img = buffer_ + ((start_ + curr_elts_ - 1) % max_elts_) * size_;
-      cudaMemcpy(dest, last_img, size_, cuda_kind);
+      void* first_img = buffer_ + start_ * size_;
+      cudaMemcpy(dest, first_img, size_, cuda_kind);
+      start_ = (start_ + 1) % max_elts_;
       curr_elts_--;
     }
     mutex_.unlock();
