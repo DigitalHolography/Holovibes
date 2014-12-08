@@ -1580,6 +1580,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ROIBrowseButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_roi_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>581</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>440</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1616,5 +1632,6 @@
   <slot>camera_edge()</slot>
   <slot>configure_holovibes()</slot>
   <slot>browse_roi_output_file()</slot>
+  <slot>browse_roi_file()</slot>
  </slots>
 </ui>

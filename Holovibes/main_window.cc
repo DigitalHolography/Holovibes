@@ -16,7 +16,6 @@ namespace gui
   {
     ui.setupUi(this);
 
-    // FIXME (it will be when loading a camera from ini file)
     camera_visible(false);
     record_visible(false);
 
@@ -557,17 +556,17 @@ namespace gui
 
   void MainWindow::browse_roi_file()
   {
-    /*QString filename = QFileDialog::getOpenFileUrl(this,
-      tr("ROI output file"), "C://", tr("Ini file (*.ini)"));
+    QString filename = QFileDialog::getOpenFileName(this,
+      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
-    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
-    roi_output_line_edit->insert(filename);*/
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_output_line_edit->insert(filename);
   }
 
   void MainWindow::browse_roi_output_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
-      tr("ROI output file"), "C://", tr("Ini file (*.ini)"));
+      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     roi_output_line_edit->insert(filename);
@@ -576,7 +575,7 @@ namespace gui
   void MainWindow::browse_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
-      tr("Record output file"), "C://", tr(""));
+      tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
 
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
     path_line_edit->insert(filename);
