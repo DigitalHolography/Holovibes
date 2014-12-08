@@ -44,7 +44,7 @@ __global__ void kernel_divide(
   unsigned int size,
   float divider);
 void shift_corners(
-  unsigned short *input,
+  float *input,
   unsigned int size_x,
   unsigned int size_y);
 void endianness_conversion(

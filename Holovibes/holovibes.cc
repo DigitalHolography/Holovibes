@@ -1,8 +1,10 @@
 #include "holovibes.hh"
 #include "frame_desc.hh"
 #include "camera_ids.hh"
+#include "camera_ixon.hh"
 #include "camera_pike.hh"
-#include "camera_pixelfly.hh"
+#include "camera_pco_edge.hh"
+#include "camera_pco_pixelfly.hh"
 #include "camera_xiq.hh"
 
 #include <exception>
@@ -19,7 +21,6 @@ namespace holovibes
     , output_(nullptr)
     , pipeline_(nullptr)
     , compute_desc_()
-    , gl_window_(nullptr)
   {
   }
 
@@ -32,38 +33,22 @@ namespace holovibes
     delete output_;
   }
 
-  void Holovibes::init_display(
-    unsigned int width,
-    unsigned int height)
-  {
-    if (output_)
-      gl_window_ = new gui::GuiGLWindow(QPoint(0, 0), width, height, *output_);
-    else
-      gl_window_ = new gui::GuiGLWindow(QPoint(0, 0), width, height, *input_);
-  }
-
-  void Holovibes::dispose_display()
-  {
-    delete gl_window_;
-  }
-
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
-    if (c == IDS)
+    if (c == EDGE)
+      camera_ = new camera::CameraPCOEdge();
+    else if (c == IDS)
       camera_ = new camera::CameraIds();
+    else if (c == IXON)
+      camera_ = new camera::CameraIxon();
     else if (c == PIKE)
       camera_ = new camera::CameraPike();
     else if (c == PIXELFLY)
-      camera_ = new camera::CameraPixelfly();
+      camera_ = new camera::CameraPCOPixelfly();
     else if (c == XIQ)
       camera_ = new camera::CameraXiq();
     else
       assert(!"Impossible case");
-
-    if (!camera_)
-      throw std::runtime_error("Error while allocating Camera constructor");
-
-    assert(camera_ && "camera not initialized");
 
     try
     {

@@ -7,6 +7,10 @@
 # include <QFileDialog>
 # include <QShortcut>
 # include <QMessageBox>
+# include <QDesktopServices>
+# include <boost/filesystem.hpp>
+# include <boost/property_tree/ptree.hpp>
+# include <boost/property_tree/ini_parser.hpp>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -30,12 +34,16 @@ namespace gui
 
   public slots:
     // Menu
+    void configure_holovibes();
     void gl_full_screen();
     void camera_none();
+    void camera_edge();
     void camera_ids();
+    void camera_ixon();
     void camera_pike();
     void camera_pixelfly();
     void camera_xiq();
+    void configure_camera();
     void credits();
 
     // Image rendering
@@ -64,6 +72,7 @@ namespace gui
     void set_vibro_mode(bool value);
     void set_p_vibro(int value);
     void set_q_vibro(int value);
+    void set_average_mode(bool value);
 
     // Record
     void browse_file();
@@ -82,6 +91,9 @@ namespace gui
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
     void display_info(std::string msg);
+    void open_file(const std::string& path);
+    void load_ini(const std::string& path);
+    void save_ini(const std::string& path);
 
   private:
     Ui::MainWindow ui;
@@ -90,6 +102,7 @@ namespace gui
     bool is_direct_mode_;
     bool is_enabled_camera_;
     double z_step_;
+    holovibes::Holovibes::camera_type camera_type_;
 
     ThreadRecorder* record_thread_;
 

@@ -3,23 +3,24 @@
 //-------------------------------------------|       (*) header    //
 // Project     | PCO                         |       ( ) others    //
 //-----------------------------------------------------------------//
-// Platform    | Embedded System, PC                               //
+// Platform    | - Embedded platforms like M16C, AVR32, PIC32 etc. //
+//             | - PC with several Windows versions, Linux etc.    //
 //-----------------------------------------------------------------//
-// Environment | All 'C'-compiler used at PCO                      //
+// Environment | - Platform dependent                              //
 //-----------------------------------------------------------------//
 // Purpose     | PCO - Error text defines                          //
 //-----------------------------------------------------------------//
-// Author      |  FRE, MBL, LWA, PCO Computer Optics GmbH          //
+// Author      | FRE, MBL, LWA, PCO AG                             //
 //-----------------------------------------------------------------//
-// Revision    |  rev. 0.05 rel. 0.00                              //
+// Revision    | versioned using SVN                               //
 //-----------------------------------------------------------------//
 // Notes       | This error defines should be used in every future //                                  
 //             | design. It is designed to hold a huge range of    //
 //             | errors and warnings                               //
 //-----------------------------------------------------------------//
-// (c) 2002 PCO AG * Donaupark 11 *                                //
-// D-93309      Kelheim / Germany * Phone: +49 (0)9441 / 2005-0 *  //
-// Fax: +49 (0)9441 / 2005-20 * Email: info@pco.de                 //
+// (c) 2003-2014 PCO AG * Donaupark 11 * D-93309 Kelheim / Germany //
+// *  Phone: +49 (0)9441 / 2005-0  *                               //
+// *  Fax:   +49 (0)9441 / 2005-20 *  Email: info@pco.de           //
 //-----------------------------------------------------------------//
 
 
@@ -93,7 +94,7 @@
 
 static char* PCO_ERROR_COMMON_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "Function call with wrong parameter.",           // 0xA0000001  PCO_ERROR_WRONGVALUE 
   "Handle is invalid.",                            // 0xA0000002  PCO_ERROR_INVALIDHANDLE 
   "No memory available.",                          // 0xA0000003  PCO_ERROR_NOMEMORY 
@@ -104,6 +105,15 @@ static char* PCO_ERROR_COMMON_TXT[] =
   "The called module is not initialized.",         // 0xA0000007  PCO_ERROR_NOTINIT
   "Disk full.",                                    // 0xA0000008  PCO_ERROR_DISKFULL
   "",                                              // 0xA0000009
+  "",                                              // 0xA000000A
+  "",                                              // 0xA000000B
+  "",                                              // 0xA000000C
+  "",                                              // 0xA000000D
+  "",                                              // 0xA000000E
+  "",                                              // 0xA000000F
+  "Validation of context failed",                  // 0xA0000010  PCO_ERROR_VALIDATION
+  "Wrong library version",                         // 0xA0000011  PCO_ERROR_LIBRARYVERSION
+  "Wrong camera version",                          // 0xA0000012  PCO_ERROR_CAMERAVERSION
 };
 
 const int COMMON_MSGNUM = sizeof(PCO_ERROR_COMMON_TXT) / sizeof(PCO_ERROR_COMMON_TXT[0]);
@@ -115,7 +125,7 @@ const int COMMON_MSGNUM = sizeof(PCO_ERROR_COMMON_TXT) / sizeof(PCO_ERROR_COMMON
   
 static char* PCO_ERROR_DRIVER_TXT[] = 
 {
-  "No error.",                                     // 0x00002000  PCO_NOERROR
+  "OK.",                                           // 0x00002000  PCO_NOERROR
   "Initialization failed; no camera connected.",   // 0x80002001  PCO_ERROR_DRIVER_NOTINIT
   "",                                              // 0x80002002  
   "",                                              // 0x80002003  
@@ -181,7 +191,7 @@ const int DRIVER_MSGNUM = sizeof(PCO_ERROR_DRIVER_TXT) / sizeof(PCO_ERROR_DRIVER
 
 static char* PCO_ERROR_SDKDLL_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "wSize of an embedded buffer is to small.",      // 0x80003001  PCO_ERROR_SDKDLL_NESTEDBUFFERSIZE   
   "wSize of a buffer is to small.",                // 0x80003002  PCO_ERROR_SDKDLL_BUFFERSIZE   
   "A dialog is not available.",                    // 0x80003003  PCO_ERROR_SDKDLL_DIALOGNOTAVAILABLE   
@@ -212,7 +222,7 @@ const int SDKDLL_MSGNUM = sizeof(PCO_ERROR_SDKDLL_TXT) / sizeof(PCO_ERROR_SDKDLL
 
 static char* PCO_ERROR_APPLICATION_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "Error while waiting for a picture.",            // 0x80004001  PCO_ERROR_APPLICATION_PICTURETIMEOUT   
   "Error while saving file.",                      // 0x80004002  PCO_ERROR_APPLICATION_SAVEFILE 
   "A function inside a DLL could not be found.",   // 0x80004003  PCO_ERROR_APPLICATION_FUNCTIONNOTFOUND 
@@ -235,7 +245,7 @@ const int APPLICATION_MSGNUM = sizeof(PCO_ERROR_APPLICATION_TXT) / sizeof(PCO_ER
 
 static char* PCO_ERROR_FIRMWARE_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "Timeout in telegram.",                          // 0x80001001  PCO_ERROR_FIRMWARE_TELETIMEOUT   
   "Wrong checksum in telegram.",                   // 0x80001002  PCO_ERROR_FIRMWARE_WRONGCHECKSUM   
   "No acknowledge.",                               // 0x80001003  PCO_ERROR_FIRMWARE_NOACK   
@@ -295,17 +305,21 @@ static char* PCO_ERROR_FIRMWARE_TXT[] =
   "",                                              // 0x8000102E  
   "",                                              // 0x8000102F  
 
-  "COC Trigger setting invalid.",                  // 0x80001030  PCO_ERROR_FIRMWARE_COC_TRIGGER_INVALID 
-  "COC PixelRate setting invalid.",                // 0x80001031  PCO_ERROR_FIRMWARE_COC_PIXELRATE_INVALID
-  "COC Powerdown setting invalid.",                // 0x80001032  PCO_ERROR_FIRMWARE_COC_POWERDOWN_INVALID
-  "COC Sensorformat setting invalid.",             // 0x80001033  PCO_ERROR_FIRMWARE_COC_SENSORFORMAT_INVALID
-  "COC ROI to Binning setting invalid.",           // 0x80001034  PCO_ERROR_FIRMWARE_COC_ROI_BINNING_INVALID
-  "COC ROI to Double setting invalid.",            // 0x80001035  PCO_ERROR_FIRMWARE_COC_ROI_DOUBLE_INVALID
-  "COC Mode setting invalid.",                     // 0x80001036  PCO_ERROR_FIRMWARE_COC_MODE_INVALID
-  "COC Delay setting invalid.",                    // 0x80001037  PCO_ERROR_FIRMWARE_COC_DELAY_INVALID
-  "COC Exposure setting invalid.",                 // 0x80001038  PCO_ERROR_FIRMWARE_COC_EXPOS_INVALID
-  "COC Timebase setting invalid.",                 // 0x80001039  PCO_ERROR_FIRMWARE_COC_TIMEBASE_INVALID
-  "", "", "", "", "", "",                          // 0x8000103A - 0x8000103F
+  "Camera trigger setting invalid.",               // 0x80001030  PCO_ERROR_FIRMWARE_COC_TRIGGER_INVALID 
+  "Camera pixel rate invalid.",                    // 0x80001031  PCO_ERROR_FIRMWARE_COC_PIXELRATE_INVALID
+  "Camera powerdown setting invalid.",             // 0x80001032  PCO_ERROR_FIRMWARE_COC_POWERDOWN_INVALID
+  "Camera sensorformat invalid.",                  // 0x80001033  PCO_ERROR_FIRMWARE_COC_SENSORFORMAT_INVALID
+  "Camera setting ROI to binning invalid.",        // 0x80001034  PCO_ERROR_FIRMWARE_COC_ROI_BINNING_INVALID
+  "Camera setting ROI to double invalid.",         // 0x80001035  PCO_ERROR_FIRMWARE_COC_ROI_DOUBLE_INVALID
+  "Camera mode setting invalid.",                  // 0x80001036  PCO_ERROR_FIRMWARE_COC_MODE_INVALID
+  "Camera delay setting invalid.",                 // 0x80001037  PCO_ERROR_FIRMWARE_COC_DELAY_INVALID
+  "Camera exposure setting invalid.",              // 0x80001038  PCO_ERROR_FIRMWARE_COC_EXPOS_INVALID
+  "Camera timebase setting invalid.",              // 0x80001039  PCO_ERROR_FIRMWARE_COC_TIMEBASE_INVALID
+  "ROI is not symmetrical.",                       // 0x8000103A  PCO_ERROR_FIRMWARE_ROI_NOT_SYMMETRICAL
+  "ROI steps do not match",                        // 0x8000103B  PCO_ERROR_FIRMWARE_ROI_STEPPING
+  "ROI setting is wrong",                          // 0x8000103C  PCO_ERROR_FIRMWARE_ROI_SETTING
+
+  "",                                              // 0x8000103F
 
   "COC modulate period time invalid.",             // 0x80001040 PCO_ERROR_FIRMWARE_COC_PERIOD_INVALID
   "COC modulate monitor time invalid",             // 0x80001041 PCO_ERROR_FIRMWARE_COC_MONITOR_INVALID
@@ -375,7 +389,7 @@ static char ERROR_CODE_OUTOFRANGE_TXT[] = "Error code out of range.";
 
 static char* PCO_ERROR_FWWARNING_TXT[] = 
 {
-  "No error.",
+  "OK.",
   "Function is already on.",                       // 0xC0001001 PCO_WARNING_FIRMWARE_FUNCALON     
   "Function is already off.",                      // 0xC0001002 PCO_WARNING_FIRMWARE_FUNCALOFF     
   "High temperature.",                             // 0xC0001003 PCO_WARNING_FIRMWARE_HIGH_TEMPERATURE
@@ -386,7 +400,7 @@ const int FWWARNING_MSGNUM = sizeof(PCO_ERROR_FWWARNING_TXT) / sizeof(PCO_ERROR_
 
 static char* PCO_ERROR_DRIVERWARNING_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
 };
 
 const int DRIVERWARNING_MSGNUM = sizeof(PCO_ERROR_DRIVERWARNING_TXT) / sizeof(PCO_ERROR_DRIVERWARNING_TXT[0]);
@@ -394,7 +408,7 @@ const int DRIVERWARNING_MSGNUM = sizeof(PCO_ERROR_DRIVERWARNING_TXT) / sizeof(PC
 
 static char* PCO_ERROR_SDKDLLWARNING_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "Buffers are still allocated",                   // 0xC0003001 PCO_WARNING_SDKDLL_BUFFER_STILL_ALLOKATED
   "No Images are in the board buffer",             // 0xC0003002 PCO_WARNING_SDKDLL_NO_IMAGE_BOARD
   "value change when testing COC",                 // 0xC0003003 PCO_WARNING_SDKDLL_COC_VALCHANGE
@@ -405,8 +419,9 @@ const int SDKDLLWARNING_MSGNUM = sizeof(PCO_ERROR_SDKDLLWARNING_TXT) / sizeof(PC
 
 static char* PCO_ERROR_APPLICATIONWARNING_TXT[] = 
 {
-  "No error.",                                     // 0x00000000  PCO_NOERROR
+  "OK.",                                           // 0x00000000  PCO_NOERROR
   "Memory recorder buffer is full.",               // 0xC0004001  PCO_WARNING_APPLICATION_RECORDERFULL
+  "Settings have been adapted to valid values.",   // 0xC0004002  PCO_WARNING_APPLICATION_SETTINGSADAPTED
 };
 
 const int APPLICATIONWARNING_MSGNUM = sizeof(PCO_ERROR_APPLICATIONWARNING_TXT) / sizeof(PCO_ERROR_APPLICATIONWARNING_TXT[0]);
@@ -445,7 +460,7 @@ void PCO_GetErrorText(DWORD dwerr, char* pbuf, DWORD dwlen)
 
   if ((dwerr == PCO_NOERROR) || (index == 0))
   {
-    sprintf_s(pbuf, dwlen, "No error.");
+    sprintf_s(pbuf, dwlen, "OK.");
     return;
   }
 
@@ -513,6 +528,7 @@ void PCO_GetErrorText(DWORD dwerr, char* pbuf, DWORD dwlen)
         case  PCO_ERROR_CONVERTDLL:    devicetxt = "convert dll";    break;
         case  PCO_ERROR_FILEDLL:       devicetxt = "file dll";    break;
         case  PCO_ERROR_JAVANATIVEDLL: devicetxt = "java native dll";    break;
+        case  PCO_ERROR_PROGLIB:       devicetxt = "programmer library";   break;
         default: devicetxt = "Unknown device";
       }
       break;
@@ -523,6 +539,7 @@ void PCO_GetErrorText(DWORD dwerr, char* pbuf, DWORD dwlen)
       switch(device)
       {
         case PCO_ERROR_CAMWARE:    devicetxt = "CamWare";    break;
+        case PCO_ERROR_PROGRAMMER: devicetxt = "Programmer";    break;
         default: devicetxt = "Unknown device";
       }
 
@@ -658,3 +675,5 @@ void PCO_GetErrorText(DWORD dwerr, char* pbuf, DWORD dwlen);
 
 #endif//PCO_ERRT_H_CREATE_OBJECT
 #endif//PCO_ERRT_H
+// please leave last cr lf intact!!
+// =========================================== end of file ============================================== //

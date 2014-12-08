@@ -4,11 +4,14 @@
 # include <QGLWidget>
 # include <QOpenGLFunctions.h>
 # include <QTimer>
+# include <QMouseEvent>
 
 # include <cuda_gl_interop.h>
 
 # include "queue.hh"
 # include "frame_desc.hh"
+# include "geometry.hh"
+# include "holovibes.hh"
 
 namespace gui
 {
@@ -19,6 +22,7 @@ namespace gui
 
   public:
     GLWidget(
+      holovibes::Holovibes& h,
       holovibes::Queue& q,
       unsigned int width,
       unsigned int height,
@@ -29,18 +33,49 @@ namespace gui
 
   public slots:
     void resizeFromWindow(int width, int height);
+    void set_average_mode(bool value);
 
   protected:
     void initializeGL() override;
     void resizeGL(int width, int height) override;
     void paintGL() override;
 
-  private:
-    void gl_error_checking();
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
 
   private:
-    /* --- QT --- */
+    void selection_rect(const holovibes::Rectangle& selection, float color[4]);
+    void zoom(const holovibes::Rectangle& selection);
+    void dezoom();
+
+    /* Assure that the rectangle starts at topLeft and ends at bottomRight
+    no matter what direction the user uses to select a zone */
+    void swap_selection_corners(holovibes::Rectangle& selection);
+
+    void gl_error_checking();
+
+    // Debug
+    void print_selection(QRect& selection);
+
+  private:
+    holovibes::Holovibes& h_;
+
     QTimer timer_;
+    bool is_selection_enabled_;
+    holovibes::Rectangle selection_;
+    bool is_zoom_enabled_;
+    bool is_average_enabled_;
+    bool is_signal_selection_;
+    holovibes::Rectangle signal_selection_;
+    holovibes::Rectangle noise_selection_;
+
+    // Translation
+    float px_;
+    float py_;
+
+    // Zoom ratio
+    float zoom_ratio_;
 
     /* Window size hints */
     unsigned int width_;

@@ -25,6 +25,13 @@ namespace camera
     virtual void bind_params() override;
 
   private:
+    float vertical_shift_speed_;
+    float horizontal_shift_speed_;
+    int gain_mode_;
+    float kinetic_time_;
+    unsigned short r_x;
+    unsigned short r_y;
+    unsigned short *output_image_;
     long device_handle;
     unsigned short* image_;
     int trigger_mode_;

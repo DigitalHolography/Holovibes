@@ -44,7 +44,7 @@ static void find_min_max(
   {
     *min = 255;
     *max = 0;
-    for (int i = 0; i < 255; i++)
+    for (unsigned int i = 0; i < 255; i++)
     {
       if (histo[i] > acceptable)
       {
@@ -59,7 +59,7 @@ static void find_min_max(
   {
     *min = 65535;
     *max = 0;
-    for (int i = 0; i < 65535; i++)
+    for (unsigned int i = 0; i < 65535; i++)
     {
       if (histo[i] > acceptable)
       {

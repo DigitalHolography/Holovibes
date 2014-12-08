@@ -34,7 +34,10 @@ namespace camera
     int x, y;
     GetDetector(&x, &y);
     std::cout << x << "    " << y << std::endl;
-    image_ = (unsigned short*)malloc(desc_.frame_size());
+    image_ = (unsigned short*)malloc(r_x * r_y * sizeof(unsigned short));
+   // r_x = desc_.width;
+   // r_y = desc_.height;
+    output_image_ = (unsigned short *)malloc(desc_.frame_size());
   }
 
   void CameraIxon::start_acquisition()
@@ -55,10 +58,29 @@ namespace camera
     error = SetTriggerMode(trigger_mode_);
     if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetImage(1, 1, 1, desc_.width, 1, desc_.height);
+    error = SetImage(1, 1, 1, /*desc_.width*/ r_x, 1, r_y /*desc_.height*/);
     if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetPreAmpGain(gain_mode_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetKineticCycleTime(kinetic_time_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetHSSpeed(0, horizontal_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetVSSpeed(vertical_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+
+
+    
     //SetCoolerMode(0);
+    //int depth;
+     // int a = GetBitDepth(2, &depth);
+     // std::cout << "depth" << std::endl;
+
     StartAcquisition();
   }
 
@@ -70,6 +92,7 @@ namespace camera
   {
     ShutDown();
     free(image_);
+    free(output_image_);
   }
 
   void* CameraIxon::get_frame()
@@ -87,37 +110,47 @@ namespace camera
     }
 
     WaitForAcquisition();
-    error = GetNewData16(image_, desc_.width * desc_.height);
+    error = GetNewData16(image_, r_x * r_y);
 
     if (error != DRV_SUCCESS && error != DRV_NO_NEW_DATA)
       throw CameraException(name_, CameraException::CANT_GET_FRAME);
     else
-      return ((void*)image_);
+    {
+      for (int y = 0; y < r_y; y++)
+        memcpy(output_image_ + y * desc_.width , image_ + r_y * y , r_y * sizeof(unsigned short));
+      return ((void *)output_image_);
+    }
   }
 
   void CameraIxon::load_default_params()
   {
-    desc_.width = 1002;
-    desc_.height = 1002;
+    desc_.width = 1024;
+    desc_.height = 1024;
+    r_x = 1002;
+    r_y = 1002;
     desc_.depth = 2;
-    desc_.pixel_size = 7.4f;
+    desc_.pixel_size = 8.0f;
     desc_.endianness = LITTLE_ENDIAN;
     exposure_time_ = 0.1;
-    trigger_mode_ = 10; //0
+    trigger_mode_ = 10;
     shutter_close_ = 0;
     shutter_open_ = 0;
     ttl_ = 1;
-    shutter_mode_ = 5; //0
+    shutter_mode_ = 5;
     acquisiton_mode_ = 5;
     read_mode_ = 4;
+    gain_mode_ = 0;
+    kinetic_time_ = 0;
+    horizontal_shift_speed_ = 0;
+    vertical_shift_speed_ = 0;
   }
 
   void CameraIxon::load_ini_params()
   {
     /* Use the default value in case of fail. */
     const boost::property_tree::ptree& pt = get_ini_pt();
-    desc_.width = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
-    desc_.height = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
+    r_x = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
+    r_y = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
 
     exposure_time_ = pt.get<float>("ixon.exposure_time", exposure_time_);
     trigger_mode_ = pt.get<int>("ixon.trigger_mode", trigger_mode_);
@@ -127,6 +160,10 @@ namespace camera
     shutter_mode_ = pt.get<int>("ixon.shutter_mode", shutter_mode_);
     acquisiton_mode_ = pt.get<int>("ixon.acquistion_mode", acquisiton_mode_);
     read_mode_ = pt.get<int>("ixon.read_mode", read_mode_);
+    kinetic_time_ = pt.get<float>("ixon.kinetic_cycle_time", kinetic_time_);
+    gain_mode_ = pt.get<int>("ixon.gain_mode", gain_mode_);
+    horizontal_shift_speed_ = pt.get<float>("ixon.horizontal_shift_speed", horizontal_shift_speed_);
+    vertical_shift_speed_ = pt.get<float>("ixon.vertical_shift_speed", vertical_shift_speed_);
   }
   void CameraIxon::bind_params()
   {

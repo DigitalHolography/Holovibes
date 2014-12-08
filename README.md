@@ -38,10 +38,10 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 2. *Launch* Holovibes using the *Windows PowerShell* for example:
 
 ~~~
-./Holovibes.exe -c xiq -d 720 --1fft -n 2 -p 0 -l 536e-9 -z 1.36
+./Holovibes.exe -c xiq -w 10 frames.raw --1fft -n 2 -p 0 -l 536e-9 -z 1.36
 ~~~
 
-This enables holograms (FFT1 algorithm) computation using the XiQ camera, displaying in a square windows of 720x720 pixels.
+This enables holograms (FFT1 algorithm) computation using the XiQ camera, recording 10 frames in file `frames.raw`.
 
 #### About CLI mode
 
@@ -143,3 +143,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 	* SpinBox sizes changed
 	* Names of windows and parameters changed
 	* When log scale is enabled, the value given to the pipeline is not powered to 10^9
+	* When contrast enabled, enabling the log scale will update the contrast (to convenient values).
+* Update CLI
+	* Display mode is not available in --nogui mode
+	* No Qt in CLI mode

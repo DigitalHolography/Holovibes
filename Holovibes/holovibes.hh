@@ -7,7 +7,6 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
-# include "gui_gl_window.hh"
 
 namespace holovibes
 {
@@ -16,19 +15,17 @@ namespace holovibes
   public:
     enum camera_type
     {
-      PIKE,
-      XIQ,
+      NONE,
+      EDGE,
       IDS,
+      IXON,
+      PIKE,
       PIXELFLY,
+      XIQ,
     };
 
     Holovibes();
     ~Holovibes();
-
-    void init_display(
-      unsigned int w,
-      unsigned int h);
-    void dispose_display();
 
     void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
     void dispose_capture();
@@ -73,6 +70,11 @@ namespace holovibes
       compute_desc_ = compute_desc;
     }
 
+    const std::string& get_camera_ini_path() const
+    {
+      return camera_->get_ini_path();
+    }
+
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
@@ -83,9 +85,6 @@ namespace holovibes
     Queue* output_;
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
-
-    // CLI only
-    gui::GuiGLWindow* gl_window_;
   };
 }
 

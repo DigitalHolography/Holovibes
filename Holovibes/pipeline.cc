@@ -7,6 +7,7 @@
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"
+#include "average.cuh"
 
 namespace holovibes
 {
@@ -30,6 +31,7 @@ namespace holovibes
     , autocontrast_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
+    , average_results_()
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -177,18 +179,45 @@ namespace holovibes
         compute_desc_.lambda,
         compute_desc_.zdistance);
 
+      /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 
-      fn_vect_.push_back(std::bind(
-        fft_2,
-        gpu_input_buffer_,
-        gpu_input_frame_ptr_,
-        gpu_lens_,
-        plan3d_,
-        plan2d_,
-        input_fd.frame_res(),
-        compute_desc_.nsamples.load(),
-        compute_desc_.pindex.load()));
+      if (compute_desc_.vibrometry_enabled)
+      {
+        fn_vect_.push_back(std::bind(
+          fft_2,
+          gpu_input_buffer_,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.vibrometry_q.load()));
+
+        /* q frame pointer */
+        cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+
+        fn_vect_.push_back(std::bind(
+          frame_ratio,
+          gpu_input_frame_ptr_,
+          q,
+          gpu_input_frame_ptr_,
+          input_fd.frame_res()));
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          fft_2,
+          gpu_input_buffer_,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.pindex.load()));
+      }
     }
     else
       assert(!"Impossible case.");
@@ -223,6 +252,26 @@ namespace holovibes
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
+    if (compute_desc_.shift_corners_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        gpu_float_buffer_,
+        output_fd.width,
+        output_fd.height));
+    }
+
+    if (compute_desc_.average_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        make_average_plot,
+        &average_results_,
+        gpu_float_buffer_,
+        output_fd,
+        compute_desc_.signal_zone,
+        compute_desc_.noise_zone));
+    }
+
     if (compute_desc_.log_scale_enabled)
     {
       fn_vect_.push_back(std::bind(
@@ -233,6 +282,18 @@ namespace holovibes
 
     if (compute_desc_.contrast_enabled)
     {
+      if (autocontrast_requested_)
+      {
+        float min = 0.0f;
+        float max = 0.0f;
+
+        compute_desc_.contrast_min = min;
+        compute_desc_.contrast_max = max;
+        compute_desc_.notify_observers();
+
+        autocontrast_requested_ = false;
+      }
+
       fn_vect_.push_back(std::bind(
         manual_contrast_correction,
         gpu_float_buffer_,
@@ -248,25 +309,10 @@ namespace holovibes
       gpu_output_buffer_,
       input_fd.frame_res()));
 
-    if (compute_desc_.shift_corners_enabled)
-    {
-      fn_vect_.push_back(std::bind(
-        shift_corners,
-        gpu_output_buffer_,
-        output_fd.width,
-        output_fd.height));
-    }
-
     if (autofocus_requested_)
     {
       autofocus_requested_ = false;
       // push autofocus();
-    }
-
-    if (autocontrast_requested_)
-    {
-      autocontrast_requested_ = false;
-      // push autocontrast();
     }
 
     if (autocontrast_requested_ ||
@@ -289,6 +335,18 @@ namespace holovibes
         gpu_output_buffer_,
         cudaMemcpyDeviceToDevice);
       input_.dequeue();
+
+      if (average_results_.size() >= 3)
+      {
+        std::cout << "Average (<10log10(<S>/<N>), <S>, <N>) : ("
+          << average_results_.back();
+        average_results_.pop_back();
+        std::cout << ", " << average_results_.back();
+        average_results_.pop_back();
+        std::cout << ", " << average_results_.back();
+        std::cout << ")" << std::endl;
+        average_results_.pop_back();
+      }
 
       if (refresh_requested_)
       {

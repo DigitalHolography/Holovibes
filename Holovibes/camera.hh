@@ -10,22 +10,22 @@
 
 namespace camera
 {
+  static int FRAME_TIMEOUT = 10000;
+
   /*! Abstract Camera class. */
   class Camera
   {
   public:
-    // Default constants
-    static const int FRAME_TIMEOUT = 1000;
-
     /*! \brief Base class constructor. It opens the ini file if any,
     ** otherwise it will loads defaults parameters.
     ** \param ini_filepath INI camera configuration file path.
     */
-    Camera(const std::string ini_filepath)
+    Camera(const std::string& ini_filepath)
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
       , ini_file_(ini_filepath, std::ofstream::in)
+      , ini_path_(ini_filepath)
     {
       if (ini_file_is_open())
         boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
@@ -48,6 +48,10 @@ namespace camera
     float get_exposure_time() const
     {
       return exposure_time_;
+    }
+    const std::string& get_ini_path()
+    {
+      return ini_path_;
     }
 #pragma endregion
 
@@ -86,8 +90,8 @@ namespace camera
     /*! Exposure time of the camera. */
     float                    exposure_time_;
 
-    /* private methods */
-  private:
+    /* protected methods */
+  protected:
     /*! Load default parameters. */
     virtual void load_default_params() = 0;
     /*! Load parameters from INI file. */
@@ -97,6 +101,8 @@ namespace camera
 
     /* private fields */
   private:
+    /*! INI configuration file path */
+    std::string              ini_path_;
     /*! INI configuration file of camera. */
     std::ifstream            ini_file_;
     /*! INI property tree. */
