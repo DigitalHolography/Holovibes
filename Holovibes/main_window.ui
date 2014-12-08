@@ -1539,8 +1539,8 @@
    <slot>camera_edge()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>56</x>
-     <y>9</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>59</x>
@@ -1555,12 +1555,28 @@
    <slot>configure_holovibes()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>11</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>50</x>
      <y>-34</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIOutputPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_roi_output_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>577</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>589</x>
+     <y>412</y>
     </hint>
    </hints>
   </connection>
@@ -1599,5 +1615,6 @@
   <slot>set_average_mode(bool)</slot>
   <slot>camera_edge()</slot>
   <slot>configure_holovibes()</slot>
+  <slot>browse_roi_output_file()</slot>
  </slots>
 </ui>

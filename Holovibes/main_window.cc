@@ -394,27 +394,18 @@ namespace gui
 
   void MainWindow::set_contrast_mode(bool value)
   {
+    QLabel* min_label = findChild<QLabel*>("minLabel");
+    QLabel* max_label = findChild<QLabel*>("maxLabel");
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+
+    min_label->setDisabled(!value);
+    max_label->setDisabled(!value);
+    contrast_min->setDisabled(!value);
+    contrast_max->setDisabled(!value);
+
     if (!is_direct_mode_)
     {
-      QLabel* min_label = findChild<QLabel*>("minLabel");
-      QLabel* max_label = findChild<QLabel*>("maxLabel");
-      QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-      QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-
-      if (value)
-      {
-        min_label->setDisabled(false);
-        max_label->setDisabled(false);
-        contrast_min->setDisabled(false);
-        contrast_max->setDisabled(false);
-      }
-      else
-      {
-        min_label->setDisabled(true);
-        max_label->setDisabled(true);
-        contrast_min->setDisabled(true);
-        contrast_max->setDisabled(true);
-      }
 
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -562,6 +553,24 @@ namespace gui
       holovibes_.get_compute_desc().average_enabled = false;
       pipeline.request_refresh();
     }
+  }
+
+  void MainWindow::browse_roi_file()
+  {
+    /*QString filename = QFileDialog::getOpenFileUrl(this,
+      tr("ROI output file"), "C://", tr("Ini file (*.ini)"));
+
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    roi_output_line_edit->insert(filename);*/
+  }
+
+  void MainWindow::browse_roi_output_file()
+  {
+    QString filename = QFileDialog::getSaveFileName(this,
+      tr("ROI output file"), "C://", tr("Ini file (*.ini)"));
+
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    roi_output_line_edit->insert(filename);
   }
 
   void MainWindow::browse_file()
@@ -857,8 +866,8 @@ namespace gui
     ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
     ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
     ptree.put("view.contrast_enabled", cd.contrast_enabled);
-    ptree.put("view.contrast_min", pow(10, cd.contrast_min));
-    ptree.put("view.contrast_max", pow(10, cd.contrast_max));
+    ptree.put("view.contrast_min", cd.contrast_min);
+    ptree.put("view.contrast_max", cd.contrast_max);
 
     boost::property_tree::write_ini(path, ptree);
   }

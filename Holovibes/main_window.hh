@@ -73,6 +73,8 @@ namespace gui
     void set_p_vibro(int value);
     void set_q_vibro(int value);
     void set_average_mode(bool value);
+    void browse_roi_file();
+    void browse_roi_output_file();
 
     // Record
     void browse_file();
