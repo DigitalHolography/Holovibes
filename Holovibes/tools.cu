@@ -155,10 +155,10 @@ static __global__ void kernel_shift_corners(
   unsigned int ni = 0;
   unsigned int nj = 0;
   unsigned int nindex = 0;
-  float tmp;
+  float tmp = 0.0f;
 
   // Superior half of the matrix
-  if (j > size_y / 2)
+  if (j >= size_y / 2)
   {
     // Left superior quarter of the matrix
     if (i < size_x / 2)
