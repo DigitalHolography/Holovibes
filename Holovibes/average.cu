@@ -32,7 +32,7 @@ void make_average_plot(
   float *input,
   const unsigned int width,
   const unsigned int height,
-  std::vector<float>& output,
+  std::vector<std::tuple<float, float, float>>& output,
   holovibes::Rectangle& signal,
   holovibes::Rectangle& noise)
 {
@@ -71,9 +71,7 @@ void make_average_plot(
 
   float moy = 10 * log10f(cpu_s / cpu_n);
 
-  output.push_back(cpu_s);
-  output.push_back(cpu_n);
-  output.push_back(moy);
+  output.push_back(std::tuple < float, float, float > { cpu_s, cpu_n, moy });
 
   cudaFree(gpu_n);
   cudaFree(gpu_s);

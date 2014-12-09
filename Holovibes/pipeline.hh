@@ -2,6 +2,7 @@
 # define PIPELINE_HH
 
 # include <vector>
+# include <tuple>
 # include <functional>
 # include <cufft.h>
 
@@ -65,7 +66,7 @@ namespace holovibes
     bool update_n_requested_;
 
     // FIXME
-    std::vector<float> average_results_;
+    std::vector<std::tuple<float, float, float>> average_results_;
   };
 }
 

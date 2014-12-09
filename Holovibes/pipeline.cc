@@ -335,16 +335,16 @@ namespace holovibes
         cudaMemcpyDeviceToDevice);
       input_.dequeue();
 
-      if (average_results_.size() >= 3)
+      if (average_results_.size() >= 1)
       {
+        std::tuple<float, float, float> res = average_results_.back();
+        average_results_.pop_back();
+
         std::cout << "Average (<10log10(<S>/<N>), <S>, <N>) : ("
-          << average_results_.back();
-        average_results_.pop_back();
-        std::cout << ", " << average_results_.back();
-        average_results_.pop_back();
-        std::cout << ", " << average_results_.back();
-        std::cout << ")" << std::endl;
-        average_results_.pop_back();
+          << std::get<0>(res)
+          << ", " << std::get<1>(res)
+          << ", " << std::get<2>(res)
+          << ")" << std::endl;
       }
 
       if (refresh_requested_)
