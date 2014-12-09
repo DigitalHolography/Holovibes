@@ -10,9 +10,11 @@
 # include "frame_desc.hh"
 # include "geometry.hh"
 
-void make_average_plot(std::vector<float> *result_vect,
-  float *image,
-  const camera::FrameDescriptor fd,
+void make_average_plot(
+  float *input,
+  const unsigned int width,
+  const unsigned int height,
+  std::vector<float>& output,
   holovibes::Rectangle& signal,
   holovibes::Rectangle& noise);
 

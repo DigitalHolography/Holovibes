@@ -268,9 +268,10 @@ namespace holovibes
     {
       fn_vect_.push_back(std::bind(
         make_average_plot,
-        &average_results_,
         gpu_float_buffer_,
-        output_fd,
+        input_fd.width,
+        input_fd.height,
+        std::ref(average_results_),
         compute_desc_.signal_zone.load(),
         compute_desc_.noise_zone.load()));
     }
