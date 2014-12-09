@@ -118,6 +118,8 @@ namespace gui
     QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
     vibro->setChecked(cd.vibrometry_enabled);
 
+    image_ratio_visible(cd.vibrometry_enabled);
+
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
     p_vibro->setMaximum(cd.nsamples - 1);
@@ -127,6 +129,8 @@ namespace gui
 
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(cd.average_enabled);
+
+    average_visible(cd.average_enabled);
   }
 
   void MainWindow::configure_holovibes()
@@ -501,6 +505,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+      image_ratio_visible(value);
       cd.vibrometry_enabled = value;
       pipeline.request_refresh();
     }
@@ -552,6 +557,8 @@ namespace gui
       holovibes_.get_compute_desc().average_enabled = false;
       pipeline.request_refresh();
     }
+
+    average_visible(value);
   }
 
   void MainWindow::browse_roi_file()
@@ -802,6 +809,32 @@ namespace gui
     path_line_edit->setDisabled(!value);
     QPushButton* record_button = findChild<QPushButton*>("recPushButton");
     record_button->setDisabled(!value);
+  }
+
+  void MainWindow::image_ratio_visible(bool value)
+  {
+    QLabel* p_label_vibro = findChild<QLabel*>("pLabelVibro");
+    p_label_vibro->setDisabled(!value);
+    QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+    p_vibro->setDisabled(!value);
+    QLabel* q_label_vibro = findChild<QLabel*>("qLabelVibro");
+    q_label_vibro->setDisabled(!value);
+    QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
+    q_vibro->setDisabled(!value);
+  }
+
+  void MainWindow::average_visible(bool value)
+  {
+    QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
+    roi_file_label->setDisabled(!value);
+    QPushButton* roi_browse_button = findChild<QPushButton*>("ROIBrowseButton");
+    roi_browse_button->setDisabled(!value);
+    QLineEdit* roi_file_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_file_line_edit->setDisabled(!value);
+    QPushButton* save_roi_button = findChild<QPushButton*>("saveROIPushButton");
+    save_roi_button->setDisabled(!value);
+    QPushButton* load_roi_button = findChild<QPushButton*>("loadROIPushButton");
+    load_roi_button->setDisabled(!value);
   }
 
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
