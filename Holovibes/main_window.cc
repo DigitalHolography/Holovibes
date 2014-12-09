@@ -126,6 +126,7 @@ namespace gui
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
+    q_vibro->setMaximum(cd.nsamples - 1);
 
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(cd.average_enabled);
@@ -536,7 +537,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples)
+      if (value < (int)cd.nsamples && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q = value;
         pipeline.request_refresh();
