@@ -271,8 +271,8 @@ namespace holovibes
         &average_results_,
         gpu_float_buffer_,
         output_fd,
-        compute_desc_.signal_zone,
-        compute_desc_.noise_zone));
+        compute_desc_.signal_zone.load(),
+        compute_desc_.noise_zone.load()));
     }
 
     if (compute_desc_.log_scale_enabled)

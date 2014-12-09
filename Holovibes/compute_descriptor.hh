@@ -67,9 +67,9 @@ namespace holovibes
 
     std::atomic<bool> average_enabled;
     /*! Average mode signal zone */
-    Rectangle signal_zone;
+    std::atomic<Rectangle> signal_zone;
     /*! Average mode noise zone */
-    Rectangle noise_zone;
+    std::atomic<Rectangle> noise_zone;
   };
 }
 
