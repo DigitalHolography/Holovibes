@@ -75,6 +75,11 @@ namespace holovibes
       return camera_->get_ini_path();
     }
 
+    std::vector<std::tuple<float, float, float>>& get_average_vector()
+    {
+      return average_vector_;
+    }
+
   private:
     camera::Camera* camera_;
     ThreadCapture* tcapture_;
@@ -85,6 +90,8 @@ namespace holovibes
     Queue* output_;
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
+
+    std::vector<std::tuple<float, float, float>> average_vector_;
   };
 }
 

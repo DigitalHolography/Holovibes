@@ -378,6 +378,7 @@ namespace holovibes
     average_n_ = n;
 
     average_requested_ = true;
+    request_refresh();
   }
 
   void Pipeline::autocontrast_caller(

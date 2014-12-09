@@ -21,6 +21,7 @@ namespace holovibes
     , output_(nullptr)
     , pipeline_(nullptr)
     , compute_desc_()
+    , average_vector_()
   {
   }
 

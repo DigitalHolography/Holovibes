@@ -13,7 +13,8 @@ namespace gui
     is_enabled_average_(false),
     z_step_(0.01f),
     camera_type_(holovibes::Holovibes::NONE),
-    record_thread_(nullptr)
+    record_thread_(nullptr),
+    average_record_timer_(this)
   {
     ui.setupUi(this);
 
@@ -44,6 +45,8 @@ namespace gui
 
     // Display default values
     notify();
+
+    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
   }
 
   MainWindow::~MainWindow()
@@ -720,6 +723,39 @@ namespace gui
 
     if (!is_direct_mode_)
       global_visibility(true);
+  }
+
+  void MainWindow::average_record()
+  {
+    QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    nb_frames_ = nb_of_frames_spin_box->value();
+
+    holovibes_.get_average_vector().resize(nb_frames_);
+    holovibes_.get_average_vector().clear();
+    average_record_timer_.start(100);
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+  }
+
+  void MainWindow::test_average_record()
+  {
+    std::vector<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+
+    if (vector.size() >= nb_frames_)
+    {
+      QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+      std::string path = output_line_edit->text().toUtf8();
+
+      average_record_timer_.stop();
+      std::ofstream of(path);
+      
+      for (auto it = vector.begin(); it != vector.end(); ++it)
+      {
+        std::tuple<float, float, float>& tuple = *it;
+        of << std::get<0>(tuple) << ","
+          << std::get<1>(tuple) << ","
+          << std::get<2>(tuple) << "\n";
+      }
+    }
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)

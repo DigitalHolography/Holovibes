@@ -83,6 +83,8 @@ namespace gui
     void set_record();
     void cancel_record();
     void finish_record();
+    void average_record();
+    void test_average_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -113,6 +115,8 @@ namespace gui
     holovibes::Holovibes::camera_type camera_type_;
 
     ThreadRecorder* record_thread_;
+    QTimer average_record_timer_;
+    unsigned int nb_frames_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
