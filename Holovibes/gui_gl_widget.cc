@@ -219,7 +219,9 @@ namespace gui
       if (is_zoom_enabled_)
       {
         is_selection_enabled_ = false;
-        zoom(selection_);
+
+        if (selection_.top_left != selection_.bottom_right)
+          zoom(selection_);
         selection_ = holovibes::Rectangle();
       }
       else // Average mode

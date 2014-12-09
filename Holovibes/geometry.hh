@@ -32,6 +32,11 @@ namespace holovibes
       y = p.y;
       return *this;
     }
+
+    bool operator!=(const Point2D& p)
+    {
+      return x != p.x || y != p.y;
+    }
   };
 
   struct Rectangle
