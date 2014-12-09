@@ -31,7 +31,8 @@ namespace holovibes
     , autocontrast_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
-    , average_results_()
+    , average_output_(nullptr)
+    , average_n_(0)
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -264,16 +265,18 @@ namespace holovibes
         output_fd.height));
     }
 
-    if (false)
+    if (average_requested_)
     {
       fn_vect_.push_back(std::bind(
-        make_average_plot,
+        &Pipeline::average_caller,
+        this,
         gpu_float_buffer_,
         input_fd.width,
         input_fd.height,
-        std::ref(average_results_),
         compute_desc_.signal_zone.load(),
         compute_desc_.noise_zone.load()));
+
+      average_requested_ = false;
     }
 
     if (compute_desc_.log_scale_enabled)
@@ -335,18 +338,6 @@ namespace holovibes
         cudaMemcpyDeviceToDevice);
       input_.dequeue();
 
-      if (average_results_.size() >= 1)
-      {
-        std::tuple<float, float, float> res = average_results_.back();
-        average_results_.pop_back();
-
-        std::cout << "Average (<10log10(<S>/<N>), <S>, <N>) : ("
-          << std::get<0>(res)
-          << ", " << std::get<1>(res)
-          << ", " << std::get<2>(res)
-          << ")" << std::endl;
-      }
-
       if (refresh_requested_)
         refresh();
     }
@@ -376,6 +367,19 @@ namespace holovibes
     request_refresh();
   }
 
+  void Pipeline::request_average(
+    std::vector<std::tuple<float, float, float>>* output,
+    unsigned int n)
+  {
+    assert(output != nullptr);
+    assert(n != 0);
+
+    average_output_ = output;
+    average_n_ = n;
+
+    average_requested_ = true;
+  }
+
   void Pipeline::autocontrast_caller(
     float* input,
     unsigned int size,
@@ -389,5 +393,25 @@ namespace holovibes
     compute_desc.contrast_min = min;
     compute_desc.contrast_max = max;
     compute_desc.notify_observers();
+  }
+
+  void Pipeline::average_caller(
+    float* input,
+    unsigned int width,
+    unsigned int height,
+    Rectangle& signal,
+    Rectangle& noise)
+  {
+    if (average_n_ > 0)
+    {
+      average_output_->push_back(make_average_plot(input, width, height, signal, noise));
+      average_n_--;
+    }
+    else
+    {
+      average_n_ = 0;
+      average_output_ = nullptr;
+      request_refresh();
+    }
   }
 }

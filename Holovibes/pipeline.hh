@@ -25,6 +25,9 @@ namespace holovibes
     void request_autofocus();
     void request_autocontrast();
     void request_update_n(unsigned short n);
+    void request_average(
+      std::vector<std::tuple<float, float, float>>* output,
+      unsigned int n);
     void exec();
   private:
     void update_n_parameter(unsigned short n);
@@ -32,6 +35,12 @@ namespace holovibes
       float* input,
       unsigned int size,
       ComputeDescriptor& compute_desc);
+    void average_caller(
+      float* input,
+      unsigned int width,
+      unsigned int height,
+      Rectangle& signal,
+      Rectangle& noise);
     void refresh();
 
     Pipeline& operator=(const Pipeline&) = delete;
@@ -64,9 +73,10 @@ namespace holovibes
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
+    bool average_requested_;
 
-    // FIXME
-    std::vector<std::tuple<float, float, float>> average_results_;
+    std::vector<std::tuple<float, float, float>>* average_output_;
+    unsigned int average_n_;
   };
 }
 
