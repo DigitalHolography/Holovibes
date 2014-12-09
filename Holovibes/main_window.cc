@@ -556,7 +556,7 @@ namespace gui
 
   void MainWindow::browse_roi_file()
   {
-    QString filename = QFileDialog::getOpenFileName(this,
+    QString filename = QFileDialog::getSaveFileName(this,
       tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
@@ -570,6 +570,73 @@ namespace gui
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     roi_output_line_edit->insert(filename);
+  }
+
+  void MainWindow::save_roi()
+  {
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    std::string path = path_line_edit->text().toUtf8();
+
+    if (path != "")
+    {
+      boost::property_tree::ptree ptree;
+      const GLWidget& gl_widget = gl_window_->get_gl_widget();
+      const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
+      const holovibes::Rectangle& noise = gl_widget.get_noise_selection();
+
+      ptree.put("signal.top_left_x", signal.top_left.x);
+      ptree.put("signal.top_left_y", signal.top_left.y);
+      ptree.put("signal.bottom_right_x", signal.bottom_right.x);
+      ptree.put("signal.bottom_right_y", signal.bottom_right.y);
+
+      ptree.put("noise.top_left_x", noise.top_left.x);
+      ptree.put("noise.top_left_y", noise.top_left.y);
+      ptree.put("noise.bottom_right_x", noise.bottom_right.x);
+      ptree.put("noise.bottom_right_y", noise.bottom_right.y);
+
+      boost::property_tree::write_ini(path, ptree);
+      display_info("Average zones saved in " + path);
+    }
+  }
+
+  void MainWindow::load_roi()
+  {
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    std::string path = path_line_edit->text().toUtf8();
+    boost::property_tree::ptree ptree;
+    GLWidget& gl_widget = gl_window_->get_gl_widget();
+
+    try
+    {
+      boost::property_tree::ini_parser::read_ini(path, ptree);
+
+      holovibes::Point2D signal_top_left;
+      holovibes::Point2D signal_bottom_right;
+      holovibes::Point2D noise_top_left;
+      holovibes::Point2D noise_bottom_right;
+
+      signal_top_left.x = ptree.get<int>("signal.top_left_x", 0);
+      signal_top_left.y = ptree.get<int>("signal.top_left_y", 0);
+      signal_bottom_right.x = ptree.get<int>("signal.bottom_right_x", 0);
+      signal_bottom_right.y = ptree.get<int>("signal.bottom_right_y", 0);
+
+      noise_top_left.x = ptree.get<int>("noise.top_left_x", 0);
+      noise_top_left.y = ptree.get<int>("noise.top_left_y", 0);
+      noise_bottom_right.x = ptree.get<int>("noise.bottom_right_x", 0);
+      noise_bottom_right.y = ptree.get<int>("noise.bottom_right_y", 0);
+
+      holovibes::Rectangle signal(signal_top_left, signal_bottom_right);
+      holovibes::Rectangle noise(noise_top_left, noise_bottom_right);
+
+      gl_widget.set_signal_selection(signal);
+      gl_widget.set_noise_selection(noise);
+      gl_widget.enable_selection();
+      set_average_mode(true);
+    }
+    catch (std::exception& e)
+    {
+      display_error("Couldn't load ini file\n" + std::string(e.what()));
+    }
   }
 
   void MainWindow::browse_file()

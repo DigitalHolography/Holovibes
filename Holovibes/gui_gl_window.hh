@@ -25,6 +25,11 @@ namespace gui
 
     void resizeEvent(QResizeEvent* e) override;
 
+    GLWidget& get_gl_widget() const
+    {
+      return *gl_widget_;
+    }
+
   public slots:
     void full_screen();
     void maximized_screen();

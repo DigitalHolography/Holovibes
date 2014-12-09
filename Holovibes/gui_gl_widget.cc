@@ -356,17 +356,6 @@ namespace gui
     }
   }
 
-  // Debug
-  void GLWidget::print_selection(QRect& selection)
-  {
-    std::cout << "Selection: ["
-      << selection.topLeft().x() << ", " << selection.topLeft().y()
-      << "] [" << selection.topRight().x() << ", " << selection.topRight().y() << "] "
-      << "[" << selection.bottomLeft().x() << ", " << selection.bottomLeft().y() << "] "
-      << "[" << selection.bottomRight().x() << ", " << selection.bottomRight().y() << "] "
-      << std::endl;
-  }
-
   void GLWidget::gl_error_checking()
   {
     GLenum error = glGetError();

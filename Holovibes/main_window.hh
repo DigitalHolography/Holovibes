@@ -75,6 +75,8 @@ namespace gui
     void set_average_mode(bool value);
     void browse_roi_file();
     void browse_roi_output_file();
+    void save_roi();
+    void load_roi();
 
     // Record
     void browse_file();

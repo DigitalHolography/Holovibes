@@ -31,6 +31,31 @@ namespace gui
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
+    void enable_selection()
+    {
+      is_selection_enabled_ = true;
+    }
+
+    const holovibes::Rectangle& get_signal_selection() const
+    {
+      return signal_selection_;
+    }
+
+    const holovibes::Rectangle& get_noise_selection() const
+    {
+      return noise_selection_;
+    }
+
+    void set_signal_selection(const holovibes::Rectangle& selection)
+    {
+      signal_selection_ = selection;
+    }
+
+    void set_noise_selection(const holovibes::Rectangle& selection)
+    {
+      noise_selection_ = selection;
+    }
+
   public slots:
     void resizeFromWindow(int width, int height);
     void set_average_mode(bool value);
@@ -54,9 +79,6 @@ namespace gui
     void swap_selection_corners(holovibes::Rectangle& selection);
 
     void gl_error_checking();
-
-    // Debug
-    void print_selection(QRect& selection);
 
   private:
     holovibes::Holovibes& h_;

@@ -411,18 +411,6 @@
          <string>Load ROI</string>
         </property>
        </widget>
-       <zorder>pLabelVibro</zorder>
-       <zorder>pSpinBoxVibro</zorder>
-       <zorder>qSpinBoxVibro</zorder>
-       <zorder>qLabelVibro</zorder>
-       <zorder>vibrometryCheckBox</zorder>
-       <zorder>averageCheckBox</zorder>
-       <zorder>ROIFileLabel</zorder>
-       <zorder>ROIBrowseButton</zorder>
-       <zorder>ROIFileLineEdit</zorder>
-       <zorder>saveROIPushButton</zorder>
-       <zorder>loadROIPushButton</zorder>
-       <zorder>Record</zorder>
       </widget>
      </item>
      <item row="0" column="1">
@@ -1263,8 +1251,8 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>217</y>
+     <x>728</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -1279,8 +1267,8 @@
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>778</x>
-     <y>122</y>
+     <x>818</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -1471,8 +1459,8 @@
    <slot>cancel_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>745</x>
-     <y>242</y>
+     <x>818</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>745</x>
@@ -1599,8 +1587,8 @@
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>577</x>
-     <y>271</y>
+     <x>818</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1621,6 +1609,38 @@
     <hint type="destinationlabel">
      <x>619</x>
      <y>440</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveROIPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_roi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>465</x>
+     <y>462</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadROIPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>load_roi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>556</x>
+     <y>237</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>569</x>
+     <y>384</y>
     </hint>
    </hints>
   </connection>
@@ -1661,5 +1681,7 @@
   <slot>configure_holovibes()</slot>
   <slot>browse_roi_output_file()</slot>
   <slot>browse_roi_file()</slot>
+  <slot>save_roi()</slot>
+  <slot>load_roi()</slot>
  </slots>
 </ui>
