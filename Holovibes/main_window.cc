@@ -751,7 +751,8 @@ namespace gui
       for (auto it = vector.begin(); it != vector.end(); ++it)
       {
         std::tuple<float, float, float>& tuple = *it;
-        of << std::get<0>(tuple) << ","
+        of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
+          << std::get<0>(tuple) << ","
           << std::get<1>(tuple) << ","
           << std::get<2>(tuple) << "\n";
       }
