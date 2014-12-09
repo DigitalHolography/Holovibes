@@ -1,4 +1,4 @@
-# Holovibes v0.5.1 #
+# Holovibes v0.5.2 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -168,3 +168,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 ### v.0.5.1 ###
 
 * Fix dequeue method for Recorder
+
+### v.0.5.2 ###
+
+* Fix FFT shift corner algorithm
