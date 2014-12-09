@@ -10,6 +10,7 @@ namespace gui
     gl_window_(nullptr),
     is_direct_mode_(true),
     is_enabled_camera_(false),
+    is_enabled_average_(false),
     z_step_(0.01f),
     camera_type_(holovibes::Holovibes::NONE),
     record_thread_(nullptr)
@@ -131,9 +132,9 @@ namespace gui
     q_vibro->setMaximum(cd.nsamples - 1);
 
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
-    average->setChecked(cd.average_enabled);
+    average->setChecked(is_enabled_average_);
 
-    average_visible(cd.average_enabled);
+    average_visible(is_enabled_average_);
   }
 
   void MainWindow::configure_holovibes()
@@ -549,12 +550,7 @@ namespace gui
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
 
-    if (!value)
-    {
-      holovibes_.get_compute_desc().average_enabled = false;
-      pipeline.request_refresh();
-    }
-
+    // TODO
     average_visible(value);
   }
 

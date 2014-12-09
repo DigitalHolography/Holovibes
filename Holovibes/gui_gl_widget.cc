@@ -377,9 +377,8 @@ namespace gui
     is_zoom_enabled_ = !value;
   }
 
+  // TODO
   void GLWidget::launch_average_computation()
   {
-    h_.get_compute_desc().average_enabled = true;
-    h_.get_pipeline().request_refresh();
   }
 }

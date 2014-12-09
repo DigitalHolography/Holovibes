@@ -108,6 +108,7 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
     bool is_enabled_camera_;
+    bool is_enabled_average_;
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
 

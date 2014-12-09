@@ -264,7 +264,7 @@ namespace holovibes
         output_fd.height));
     }
 
-    if (compute_desc_.average_enabled)
+    if (false)
     {
       fn_vect_.push_back(std::bind(
         make_average_plot,

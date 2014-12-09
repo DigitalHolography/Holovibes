@@ -39,7 +39,6 @@ namespace holovibes
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q(0)
-      , average_enabled(false)
     {}
 
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
@@ -65,7 +64,6 @@ namespace holovibes
     std::atomic<float> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
 
-    std::atomic<bool> average_enabled;
     /*! Average mode signal zone */
     std::atomic<Rectangle> signal_zone;
     /*! Average mode noise zone */
