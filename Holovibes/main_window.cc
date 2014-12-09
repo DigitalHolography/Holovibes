@@ -564,6 +564,7 @@ namespace gui
       tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_output_line_edit->clear();
     roi_output_line_edit->insert(filename);
   }
 
@@ -651,6 +652,7 @@ namespace gui
       tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
 
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    path_line_edit->clear();
     path_line_edit->insert(filename);
   }
 
