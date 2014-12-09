@@ -49,6 +49,9 @@ std::tuple<float, float, float> make_average_plot(
   cudaMalloc(&gpu_s, sizeof(float));
   cudaMalloc(&gpu_n, sizeof(float));
 
+  cudaMemset(gpu_s, 0, sizeof(float));
+  cudaMemset(gpu_n, 0, sizeof(float));
+
   unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
   unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
