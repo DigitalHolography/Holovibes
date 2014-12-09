@@ -224,7 +224,6 @@ namespace gui
       }
       else // Average mode
       {
-        h_.get_compute_desc().average_enabled = true;
 
         if (is_signal_selection_)
         {
@@ -235,7 +234,7 @@ namespace gui
         {
           noise_selection_ = selection_;
           h_.get_compute_desc().noise_zone = noise_selection_;
-          h_.get_pipeline().request_refresh();
+          launch_average_computation();
         }
         is_signal_selection_ = !is_signal_selection_;
 
@@ -373,5 +372,11 @@ namespace gui
   {
     is_average_enabled_ = value;
     is_zoom_enabled_ = !value;
+  }
+
+  void GLWidget::launch_average_computation()
+  {
+    h_.get_compute_desc().average_enabled = true;
+    h_.get_pipeline().request_refresh();
   }
 }

@@ -49,12 +49,16 @@ namespace gui
     void set_signal_selection(const holovibes::Rectangle& selection)
     {
       signal_selection_ = selection;
+      h_.get_compute_desc().signal_zone = signal_selection_;
     }
 
     void set_noise_selection(const holovibes::Rectangle& selection)
     {
       noise_selection_ = selection;
+      h_.get_compute_desc().noise_zone = noise_selection_;
     }
+
+    void launch_average_computation();
 
   public slots:
     void resizeFromWindow(int width, int height);

@@ -597,6 +597,8 @@ namespace gui
       boost::property_tree::write_ini(path, ptree);
       display_info("Average zones saved in " + path);
     }
+    else
+      display_error("Invalid path");
   }
 
   void MainWindow::load_roi()
@@ -631,7 +633,7 @@ namespace gui
       gl_widget.set_signal_selection(signal);
       gl_widget.set_noise_selection(noise);
       gl_widget.enable_selection();
-      set_average_mode(true);
+      gl_widget.launch_average_computation();
     }
     catch (std::exception& e)
     {
