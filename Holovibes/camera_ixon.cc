@@ -39,7 +39,6 @@ namespace camera
     std::cout << x << "    " << y << std::endl;
 #endif
     image_ = new unsigned short[desc_.frame_res()];
-    /* CALL BIND PARAMS ! */
     bind_params();
    // r_x = desc_.width;
    // r_y = desc_.height;
@@ -49,50 +48,14 @@ namespace camera
   void CameraIxon::start_acquisition()
   {
     unsigned int error;
-    error = SetAcquisitionMode(acquisiton_mode_); // RUN TILL ABORT
+    error = StartAcquisition();
     if (error != DRV_SUCCESS)
       throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetReadMode(read_mode_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetExposureTime(exposure_time_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetShutter(ttl_, shutter_mode_, shutter_open_, shutter_close_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetTriggerMode(trigger_mode_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetImage(1, 1, 1, /*desc_.width*/ r_x, 1, r_y /*desc_.height*/);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetPreAmpGain(gain_mode_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetKineticCycleTime(kinetic_time_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetHSSpeed(0, horizontal_shift_speed_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-    error = SetVSSpeed(vertical_shift_speed_);
-    if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
-
-#if _DEBUG
-    /* FIXME: Enable this. */
-    //SetCoolerMode(0);
-#endif
-
-    /* FIXME: Do error checking on start acquisition. */
-    StartAcquisition();
   }
 
   void CameraIxon::stop_acquisition()
   {
-    /* FIXME */
-    //AbortAcquisition();
+    AbortAcquisition();
   }
 
   void CameraIxon::shutdown_camera()
@@ -131,7 +94,6 @@ namespace camera
   {
     desc_.width = 1024;
     desc_.height = 1024;
-    /* FIXME: Sensor size is hardcoded. */
     r_x = 1002;
     r_y = 1002;
     desc_.depth = 2;
@@ -156,7 +118,6 @@ namespace camera
     /* Use the default value in case of fail. */
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    /* Set width/height in INI file is bad (what happens if the user set weird values ?). */
     r_x = pt.get<unsigned short>("ixon.sensor_width", desc_.width);
     r_y = pt.get<unsigned short>("ixon.sensor_height", desc_.height);
 
@@ -175,7 +136,36 @@ namespace camera
   }
   void CameraIxon::bind_params()
   {
-    /* FIXME: Where is this stuff ?
-     * Start acquisition do too much things. */
+    unsigned int error;
+    error = SetAcquisitionMode(acquisiton_mode_); // RUN TILL ABORT
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetReadMode(read_mode_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetExposureTime(exposure_time_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetShutter(ttl_, shutter_mode_, shutter_open_, shutter_close_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetTriggerMode(trigger_mode_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetImage(1, 1, 1, r_x, 1, r_y);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetPreAmpGain(gain_mode_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetKineticCycleTime(kinetic_time_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetHSSpeed(0, horizontal_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+    error = SetVSSpeed(vertical_shift_speed_);
+    if (error != DRV_SUCCESS)
+      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
   }
 }
