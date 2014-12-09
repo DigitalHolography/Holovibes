@@ -99,6 +99,8 @@ namespace gui
     QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
     shift_corners->setChecked(cd.shift_corners_enabled);
 
+    contrast_visible(cd.contrast_enabled);
+
     QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
     contrast->setChecked(cd.contrast_enabled);
 
@@ -118,15 +120,20 @@ namespace gui
     QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
     vibro->setChecked(cd.vibrometry_enabled);
 
+    image_ratio_visible(cd.vibrometry_enabled);
+
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
     p_vibro->setMaximum(cd.nsamples - 1);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
+    q_vibro->setMaximum(cd.nsamples - 1);
 
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(cd.average_enabled);
+
+    average_visible(cd.average_enabled);
   }
 
   void MainWindow::configure_holovibes()
@@ -393,15 +400,9 @@ namespace gui
 
   void MainWindow::set_contrast_mode(bool value)
   {
-    QLabel* min_label = findChild<QLabel*>("minLabel");
-    QLabel* max_label = findChild<QLabel*>("maxLabel");
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-
-    min_label->setDisabled(!value);
-    max_label->setDisabled(!value);
-    contrast_min->setDisabled(!value);
-    contrast_max->setDisabled(!value);
+    contrast_visible(value);
 
     if (!is_direct_mode_)
     {
@@ -501,6 +502,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+      image_ratio_visible(value);
       cd.vibrometry_enabled = value;
       pipeline.request_refresh();
     }
@@ -531,7 +533,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples)
+      if (value < (int)cd.nsamples && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q = value;
         pipeline.request_refresh();
@@ -552,6 +554,8 @@ namespace gui
       holovibes_.get_compute_desc().average_enabled = false;
       pipeline.request_refresh();
     }
+
+    average_visible(value);
   }
 
   void MainWindow::browse_roi_file()
@@ -560,6 +564,7 @@ namespace gui
       tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_output_line_edit->clear();
     roi_output_line_edit->insert(filename);
   }
 
@@ -647,6 +652,7 @@ namespace gui
       tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
 
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    path_line_edit->clear();
     path_line_edit->insert(filename);
   }
 
@@ -782,6 +788,19 @@ namespace gui
     settings->setDisabled(!value);
   }
 
+  void MainWindow::contrast_visible(bool value)
+  {
+    QLabel* min_label = findChild<QLabel*>("minLabel");
+    QLabel* max_label = findChild<QLabel*>("maxLabel");
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+
+    min_label->setDisabled(!value);
+    max_label->setDisabled(!value);
+    contrast_min->setDisabled(!value);
+    contrast_max->setDisabled(!value);
+  }
+
   void MainWindow::record_visible(bool value)
   {
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
@@ -802,6 +821,32 @@ namespace gui
     path_line_edit->setDisabled(!value);
     QPushButton* record_button = findChild<QPushButton*>("recPushButton");
     record_button->setDisabled(!value);
+  }
+
+  void MainWindow::image_ratio_visible(bool value)
+  {
+    QLabel* p_label_vibro = findChild<QLabel*>("pLabelVibro");
+    p_label_vibro->setDisabled(!value);
+    QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+    p_vibro->setDisabled(!value);
+    QLabel* q_label_vibro = findChild<QLabel*>("qLabelVibro");
+    q_label_vibro->setDisabled(!value);
+    QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
+    q_vibro->setDisabled(!value);
+  }
+
+  void MainWindow::average_visible(bool value)
+  {
+    QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
+    roi_file_label->setDisabled(!value);
+    QPushButton* roi_browse_button = findChild<QPushButton*>("ROIBrowseButton");
+    roi_browse_button->setDisabled(!value);
+    QLineEdit* roi_file_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_file_line_edit->setDisabled(!value);
+    QPushButton* save_roi_button = findChild<QPushButton*>("saveROIPushButton");
+    save_roi_button->setDisabled(!value);
+    QPushButton* load_roi_button = findChild<QPushButton*>("loadROIPushButton");
+    load_roi_button->setDisabled(!value);
   }
 
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)

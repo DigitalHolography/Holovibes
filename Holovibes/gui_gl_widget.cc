@@ -219,12 +219,14 @@ namespace gui
       if (is_zoom_enabled_)
       {
         is_selection_enabled_ = false;
-        zoom(selection_);
+
+        if (selection_.top_left != selection_.bottom_right)
+          zoom(selection_);
+
         selection_ = holovibes::Rectangle();
       }
       else // Average mode
       {
-
         if (is_signal_selection_)
         {
           signal_selection_ = selection_;
@@ -236,8 +238,9 @@ namespace gui
           h_.get_compute_desc().noise_zone = noise_selection_;
           launch_average_computation();
         }
-        is_signal_selection_ = !is_signal_selection_;
 
+        is_signal_selection_ = !is_signal_selection_;
+        selection_ = holovibes::Rectangle();
       }
     }
   }
