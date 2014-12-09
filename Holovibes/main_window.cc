@@ -99,6 +99,8 @@ namespace gui
     QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
     shift_corners->setChecked(cd.shift_corners_enabled);
 
+    contrast_visible(cd.contrast_enabled);
+
     QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
     contrast->setChecked(cd.contrast_enabled);
 
@@ -398,15 +400,9 @@ namespace gui
 
   void MainWindow::set_contrast_mode(bool value)
   {
-    QLabel* min_label = findChild<QLabel*>("minLabel");
-    QLabel* max_label = findChild<QLabel*>("maxLabel");
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-
-    min_label->setDisabled(!value);
-    max_label->setDisabled(!value);
-    contrast_min->setDisabled(!value);
-    contrast_max->setDisabled(!value);
+    contrast_visible(value);
 
     if (!is_direct_mode_)
     {
@@ -788,6 +784,19 @@ namespace gui
     image_rendering->setDisabled(!value);
     QAction* settings = findChild<QAction*>("actionSettings");
     settings->setDisabled(!value);
+  }
+
+  void MainWindow::contrast_visible(bool value)
+  {
+    QLabel* min_label = findChild<QLabel*>("minLabel");
+    QLabel* max_label = findChild<QLabel*>("maxLabel");
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+
+    min_label->setDisabled(!value);
+    max_label->setDisabled(!value);
+    contrast_min->setDisabled(!value);
+    contrast_max->setDisabled(!value);
   }
 
   void MainWindow::record_visible(bool value)
