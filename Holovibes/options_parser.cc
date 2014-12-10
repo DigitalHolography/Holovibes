@@ -52,7 +52,7 @@ namespace holovibes
         ("cameramodel,c",
         po::value<std::string>()
         ->required(),
-        "Set the camera to use: pike/xiq/ids/pixelfly/ixon.")
+        "Set the camera to use: pike/xiq/ids/pixelfly/ixon/edge.")
         ;
     }
     else
@@ -95,7 +95,7 @@ namespace holovibes
 
       ("viewmode",
       po::value<std::string>(),
-      "Select the view mode: magnitude/sqrtmagnitude/argument.")
+      "Select the view mode: magnitude/squaredmagnitude/argument.")
 
       ("log",
       "Apply log10 on output frames.")
@@ -255,6 +255,8 @@ namespace holovibes
         opts_.camera = Holovibes::PIXELFLY;
       else if (boost::iequals(camera, "ixon"))
         opts_.camera = Holovibes::IXON;
+      else if (boost::iequals(camera, "edge"))
+        opts_.camera = Holovibes::EDGE;
       else
         throw std::runtime_error("unknown camera model");
     }
@@ -383,7 +385,7 @@ namespace holovibes
       const std::string viewmode = vm_["viewmode"].as<std::string>();
       if (boost::iequals(viewmode, "magnitude"))
         opts_.compute_desc.view_mode = ComputeDescriptor::MODULUS;
-      else if (boost::iequals(viewmode, "sqrtmagnitude"))
+      else if (boost::iequals(viewmode, "squaredmagnitude"))
         opts_.compute_desc.view_mode = ComputeDescriptor::SQUARED_MODULUS;
       else if (boost::iequals(viewmode, "argument"))
         opts_.compute_desc.view_mode = ComputeDescriptor::ARGUMENT;
