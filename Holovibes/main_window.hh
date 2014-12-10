@@ -86,6 +86,7 @@ namespace gui
     void finish_record();
     void average_record();
     void test_average_record();
+    void cancel_average_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;

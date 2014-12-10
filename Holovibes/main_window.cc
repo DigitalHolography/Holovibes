@@ -774,6 +774,22 @@ namespace gui
     }
   }
 
+  void MainWindow::cancel_average_record()
+  {
+    if (is_enabled_average_)
+    {
+      average_record_timer_.stop();
+      holovibes_.get_pipeline().request_refresh();
+      holovibes_.get_average_vector().clear();
+
+      global_visibility(true);
+      record_but_cancel_visible(true);
+      average_record_but_cancel_visible(true);
+      QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+      roi_stop_push_button->setDisabled(true);
+    }
+  }
+
   void MainWindow::closeEvent(QCloseEvent* event)
   {
     save_ini("holovibes.ini");

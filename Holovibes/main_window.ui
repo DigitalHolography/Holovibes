@@ -1708,8 +1708,8 @@
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>591</x>
-     <y>202</y>
+     <x>619</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
      <x>619</x>
@@ -1724,8 +1724,8 @@
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>265</y>
+     <x>519</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -1740,8 +1740,8 @@
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>257</y>
+     <x>619</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -1756,12 +1756,28 @@
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>265</y>
+     <x>728</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
      <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancel_average_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>783</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>784</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>
@@ -1805,5 +1821,6 @@
   <slot>save_roi()</slot>
   <slot>load_roi()</slot>
   <slot>average_record()</slot>
+  <slot>cancel_average_record()</slot>
  </slots>
 </ui>
