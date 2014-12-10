@@ -552,6 +552,7 @@ namespace gui
     holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
+    is_enabled_average_ = value;
 
     // TODO
     average_visible(value);
@@ -1000,6 +1001,16 @@ namespace gui
 
       float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
       cd.contrast_max = contrast_max;
+
+      // Special
+      bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
+      cd.vibrometry_enabled = image_ratio_enabled;
+
+      int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
+      cd.vibrometry_q = q_vibro;
+
+      bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
+      is_enabled_average_ = average_enabled;
     }
   }
 
@@ -1025,6 +1036,11 @@ namespace gui
     ptree.put("view.contrast_enabled", cd.contrast_enabled);
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
+
+    // Special
+    ptree.put("special.image_ratio_enabled", cd.vibrometry_enabled);
+    ptree.put("special.image_ratio_q", cd.vibrometry_q);
+    ptree.put("special.average_enabled", is_enabled_average_);
 
     boost::property_tree::write_ini(path, ptree);
   }
