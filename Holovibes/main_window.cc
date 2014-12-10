@@ -748,6 +748,8 @@ namespace gui
       average_record_timer_.stop();
       std::ofstream of(path);
       
+      of << "signal,noise,average\n";
+
       for (auto it = vector.begin(); it != vector.end(); ++it)
       {
         std::tuple<float, float, float>& tuple = *it;
