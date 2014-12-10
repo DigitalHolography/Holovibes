@@ -571,7 +571,7 @@ namespace gui
   void MainWindow::browse_roi_output_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
-      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+      tr("ROI output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     roi_output_line_edit->insert(filename);
@@ -735,6 +735,12 @@ namespace gui
     holovibes_.get_average_vector().clear();
     average_record_timer_.start(100);
     holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+
+    global_visibility(false);
+    record_but_cancel_visible(false);
+    average_record_but_cancel_visible(false);
+    QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+    roi_stop_push_button->setDisabled(false);
   }
 
   void MainWindow::test_average_record()
@@ -759,6 +765,12 @@ namespace gui
           << std::get<1>(tuple) << ","
           << std::get<2>(tuple) << "\n";
       }
+
+      global_visibility(true);
+      record_but_cancel_visible(true);
+      average_record_but_cancel_visible(true);
+      QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+      roi_stop_push_button->setDisabled(true);
     }
   }
 
@@ -883,6 +895,18 @@ namespace gui
     save_roi_button->setDisabled(!value);
     QPushButton* load_roi_button = findChild<QPushButton*>("loadROIPushButton");
     load_roi_button->setDisabled(!value);
+  }
+
+  void MainWindow::average_record_but_cancel_visible(bool value)
+  {
+    QLabel* roi_output_file_label = findChild<QLabel*>("ROIOutputFileLabel");
+    roi_output_file_label->setDisabled(!value);
+    QPushButton* roi_output_push_button = findChild<QPushButton*>("ROIOutputPushButton");
+    roi_output_push_button->setDisabled(!value);
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    roi_output_line_edit->setDisabled(!value);
+    QPushButton* roi_push_button = findChild<QPushButton*>("ROIPushButton");
+    roi_push_button->setDisabled(!value);
   }
 
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)

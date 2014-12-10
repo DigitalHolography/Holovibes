@@ -98,6 +98,7 @@ namespace gui
     void record_but_cancel_visible(bool value);
     void image_ratio_visible(bool value);
     void average_visible(bool value);
+    void average_record_but_cancel_visible(bool value);
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
     void display_info(std::string msg);

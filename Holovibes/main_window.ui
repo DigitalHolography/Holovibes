@@ -846,7 +846,7 @@
          <string>Rec</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="ROIStopPushButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
