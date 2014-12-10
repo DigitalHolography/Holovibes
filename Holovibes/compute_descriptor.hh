@@ -4,6 +4,7 @@
 # include <atomic>
 
 # include "observable.hh"
+# include "geometry.hh"
 
 namespace holovibes
 {
@@ -32,7 +33,7 @@ namespace holovibes
       , zdistance(1.50f)
       , view_mode(MODULUS)
       , log_scale_enabled(false)
-      , shift_corners_enabled(false)
+      , shift_corners_enabled(true)
       , contrast_enabled(false)
       , vibrometry_enabled(false)
       , contrast_min(1)
@@ -47,9 +48,9 @@ namespace holovibes
 
     std::atomic<enum fft_algorithm> algorithm;
     /*! Number of samples in which apply the fft on. */
-    std::atomic<unsigned int> nsamples;
+    std::atomic<unsigned short> nsamples;
     /*! p-th output component to show. */
-    std::atomic<unsigned int> pindex;
+    std::atomic<unsigned short> pindex;
     /*! Lambda in meters. */
     std::atomic<float> lambda;
     /*! Sensor-to-object distance. */
@@ -62,6 +63,11 @@ namespace holovibes
     std::atomic<float> contrast_min;
     std::atomic<float> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
+
+    /*! Average mode signal zone */
+    std::atomic<Rectangle> signal_zone;
+    /*! Average mode noise zone */
+    std::atomic<Rectangle> noise_zone;
   };
 }
 

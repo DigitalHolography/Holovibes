@@ -7,6 +7,7 @@
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"
+#include "average.cuh"
 
 namespace holovibes
 {
@@ -30,6 +31,8 @@ namespace holovibes
     , autocontrast_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
+    , average_output_(nullptr)
+    , average_n_(0)
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -115,6 +118,9 @@ namespace holovibes
 
   void Pipeline::refresh()
   {
+    /* Reset refresh flag. */
+    refresh_requested_ = false;
+
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
@@ -250,6 +256,29 @@ namespace holovibes
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
+    if (compute_desc_.shift_corners_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        gpu_float_buffer_,
+        output_fd.width,
+        output_fd.height));
+    }
+
+    if (average_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        &Pipeline::average_caller,
+        this,
+        gpu_float_buffer_,
+        input_fd.width,
+        input_fd.height,
+        compute_desc_.signal_zone.load(),
+        compute_desc_.noise_zone.load()));
+
+      average_requested_ = false;
+    }
+
     if (compute_desc_.log_scale_enabled)
     {
       fn_vect_.push_back(std::bind(
@@ -258,20 +287,20 @@ namespace holovibes
         input_fd.frame_res()));
     }
 
+    if (autocontrast_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        autocontrast_caller,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        std::ref(compute_desc_)));
+
+      autocontrast_requested_ = false;
+      request_refresh();
+    }
+
     if (compute_desc_.contrast_enabled)
     {
-      if (autocontrast_requested_)
-      {
-        int min = 0;
-        int max = 0;
-
-        compute_desc_.contrast_min = min;
-        compute_desc_.contrast_max = max;
-        compute_desc_.notify_observers();
-
-        autocontrast_requested_ = false;
-      }
-
       fn_vect_.push_back(std::bind(
         manual_contrast_correction,
         gpu_float_buffer_,
@@ -287,25 +316,11 @@ namespace holovibes
       gpu_output_buffer_,
       input_fd.frame_res()));
 
-    if (compute_desc_.shift_corners_enabled)
-    {
-      fn_vect_.push_back(std::bind(
-        shift_corners,
-        gpu_output_buffer_,
-        output_fd.width,
-        output_fd.height));
-    }
-
     if (autofocus_requested_)
     {
       autofocus_requested_ = false;
-      // push autofocus();
-    }
-
-    if (autocontrast_requested_ ||
-      autofocus_requested_)
-    {
       request_refresh();
+      // push autofocus();
     }
   }
 
@@ -324,10 +339,7 @@ namespace holovibes
       input_.dequeue();
 
       if (refresh_requested_)
-      {
         refresh();
-        refresh_requested_ = false;
-      }
     }
   }
 
@@ -353,5 +365,54 @@ namespace holovibes
     update_n_requested_ = true;
     compute_desc_.nsamples = n;
     request_refresh();
+  }
+
+  void Pipeline::request_average(
+    std::vector<std::tuple<float, float, float>>* output,
+    unsigned int n)
+  {
+    assert(output != nullptr);
+    assert(n != 0);
+
+    average_output_ = output;
+    average_n_ = n;
+
+    average_requested_ = true;
+    request_refresh();
+  }
+
+  void Pipeline::autocontrast_caller(
+    float* input,
+    unsigned int size,
+    ComputeDescriptor& compute_desc)
+  {
+    float min = 0.0f;
+    float max = 0.0f;
+
+    auto_contrast_correction(input, size, &min, &max);
+
+    compute_desc.contrast_min = min;
+    compute_desc.contrast_max = max;
+    compute_desc.notify_observers();
+  }
+
+  void Pipeline::average_caller(
+    float* input,
+    unsigned int width,
+    unsigned int height,
+    Rectangle& signal,
+    Rectangle& noise)
+  {
+    if (average_n_ > 0)
+    {
+      average_output_->push_back(make_average_plot(input, width, height, signal, noise));
+      average_n_--;
+    }
+    else
+    {
+      average_n_ = 0;
+      average_output_ = nullptr;
+      request_refresh();
+    }
   }
 }

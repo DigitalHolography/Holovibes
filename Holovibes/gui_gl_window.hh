@@ -6,6 +6,7 @@
 # include <QShortcut>
 # include "ui_gl_window.h"
 # include "gui_gl_widget.hh"
+# include "holovibes.hh"
 
 namespace gui
 {
@@ -17,11 +18,17 @@ namespace gui
     GuiGLWindow(QPoint& pos,
       unsigned int width,
       unsigned int height,
-      holovibes::Queue& queue,
+      holovibes::Holovibes& h,
+      holovibes::Queue& q,
       QWidget* parent = 0);
     ~GuiGLWindow();
 
     void resizeEvent(QResizeEvent* e) override;
+
+    GLWidget& get_gl_widget() const
+    {
+      return *gl_widget_;
+    }
 
   public slots:
     void full_screen();

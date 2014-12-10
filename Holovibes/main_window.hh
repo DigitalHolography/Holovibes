@@ -3,12 +3,15 @@
 
 # include <cmath>
 # include <thread>
+# include <iomanip>
 # include <QMainWindow>
 # include <QFileDialog>
 # include <QShortcut>
 # include <QMessageBox>
 # include <QDesktopServices>
 # include <boost/filesystem.hpp>
+# include <boost/property_tree/ptree.hpp>
+# include <boost/property_tree/ini_parser.hpp>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -32,8 +35,10 @@ namespace gui
 
   public slots:
     // Menu
+    void configure_holovibes();
     void gl_full_screen();
     void camera_none();
+    void camera_edge();
     void camera_ids();
     void camera_ixon();
     void camera_pike();
@@ -69,12 +74,18 @@ namespace gui
     void set_p_vibro(int value);
     void set_q_vibro(int value);
     void set_average_mode(bool value);
+    void browse_roi_file();
+    void browse_roi_output_file();
+    void save_roi();
+    void load_roi();
 
     // Record
     void browse_file();
     void set_record();
     void cancel_record();
     void finish_record();
+    void average_record();
+    void test_average_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -82,12 +93,17 @@ namespace gui
   private:
     void global_visibility(bool value);
     void camera_visible(bool value);
+    void contrast_visible(bool value);
     void record_visible(bool value);
     void record_but_cancel_visible(bool value);
+    void image_ratio_visible(bool value);
+    void average_visible(bool value);
     void change_camera(holovibes::Holovibes::camera_type camera_type);
     void display_error(std::string msg);
     void display_info(std::string msg);
     void open_file(const std::string& path);
+    void load_ini(const std::string& path);
+    void save_ini(const std::string& path);
 
   private:
     Ui::MainWindow ui;
@@ -95,9 +111,13 @@ namespace gui
     GuiGLWindow* gl_window_;
     bool is_direct_mode_;
     bool is_enabled_camera_;
+    bool is_enabled_average_;
     double z_step_;
+    holovibes::Holovibes::camera_type camera_type_;
 
     ThreadRecorder* record_thread_;
+    QTimer average_record_timer_;
+    unsigned int nb_frames_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;

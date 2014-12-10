@@ -7,7 +7,8 @@ namespace gui
       GuiGLWindow::GuiGLWindow(QPoint& pos,
       unsigned int width,
       unsigned int height,
-      holovibes::Queue& queue,
+      holovibes::Holovibes& h,
+      holovibes::Queue& q,
       QWidget* parent)
     : QMainWindow(parent),
     gl_widget_(nullptr),
@@ -32,7 +33,7 @@ namespace gui
     this->move(pos);
     this->resize(QSize(width, height));
     this->show();
-    gl_widget_ = new GLWidget(queue, width, height, this);
+    gl_widget_ = new GLWidget(h, q, width, height, this);
     gl_widget_->show();
   }
   

@@ -11,13 +11,13 @@
 //-----------------------------------------------------------------//
 // Author      | FRE, PCO AG                                       //
 //-----------------------------------------------------------------//
-// Revision    |  rev. 1.10 rel. 1.10                              //
+// Revision    |  rev. 1.18 rel. 1.18                              //
 //-----------------------------------------------------------------//
 // Notes       | Some functions are illustrated with an example    //
 //             | source code. If the function you need doesn't     //
 //             | have some source code sample, please take a look  //
 //             | on other functions supplied with source code. You //
-//             | will find some usefull code there and you will be //
+//             | will find some useful code there and you will be  //
 //             | able to adapt the code to the function you need.  //
 //             |                                                   //
 //             | To get informations about the ranges of the       //
@@ -34,76 +34,101 @@
 //-----------------------------------------------------------------//
 // Rev.:     | Date:      | Changed:                               //
 // --------- | ---------- | ---------------------------------------//
-//  0.10     | 03.07.2003 |  new file, FRE                         //
+//  0.10     | 03.07.2003 | new file, FRE                          //
 //-----------------------------------------------------------------//
-//  0.13     | 08.12.2003 |  Added GetSizes, FRE                   //
+//  0.13     | 08.12.2003 | Added GetSizes, FRE                    //
 //-----------------------------------------------------------------//
-//  0.14     | 14.01.2004 |  Added GetCOCRuntime,                  //
-//           |            |  Added GetBufferStatus, FRE            //
+//  0.14     | 14.01.2004 | Added GetCOCRuntime,                   //
+//           |            | Added GetBufferStatus, FRE             //
 //-----------------------------------------------------------------//
-//  0.15     | 06.02.2004 |  Added SetImagestruct                  //
-//           |            |  Added SetStoragestruct                //
-//           | 18.02.2004 |  Added Self calibration and correction //
+//  0.15     | 06.02.2004 | Added SetImagestruct                   //
+//           |            | Added SetStoragestruct                 //
+//           | 18.02.2004 | Added Self calibration and correction  //
 //-----------------------------------------------------------------//
-//  0.16     | 23.03.2004 |  Removed single entries for dwDelay    //
-//           |            |  and dwExposure, now they are part of  //
-//           |            |  the delay/exposure table, FRE         //
+//  0.16     | 23.03.2004 | Removed single entries for dwDelay     //
+//           |            | and dwExposure, now they are part of   //
+//           |            | the delay/exposure table, FRE          //
 //-----------------------------------------------------------------//
-//  1.0      | 04.05.2004 |  Released to market                    //
+//  1.0      | 04.05.2004 | Released to market                     //
 //           |            |                                        //
 //-----------------------------------------------------------------//
-//  1.01     | 04.05.2004 |  Added FPSExposureMode, FRE            //
-//           |            |  Set-Get-1394Transferparameter         //
+//  1.01     | 04.05.2004 | Added FPSExposureMode, FRE             //
+//           |            | Set-Get-1394Transferparameter          //
 //-----------------------------------------------------------------//
-//  1.02     | 29.07.2004 |  Changed to explicit linking           //
-//           |            |  Added CamLink interface capability    //
-//           | 23.07.2004 |  Added OpenCameraEx                    //
-//           | 06.10.2004 |  Added SetTimeouts                     //
-//           | 10.11.2004 |  Added GetBuffer                       //
+//  1.02     | 29.07.2004 | Changed to explicit linking            //
+//           |            | Added CamLink interface capability     //
+//           | 23.07.2004 | Added OpenCameraEx                     //
+//           | 06.10.2004 | Added SetTimeouts                      //
+//           | 10.11.2004 | Added GetBuffer                        //
 //-----------------------------------------------------------------//
-//  1.03     | 22.02.2005 |  Added AddBufferEx and GetImageEx, FRE //
-//           |            |  Allocate sizes adapted due to possible//
-//           |            |  crash in case of changing the transfer//
-//           |            |  parameters.                           //
+//  1.03     | 22.02.2005 | Added AddBufferEx and GetImageEx, FRE  //
+//           |            | Allocate sizes adapted due to possible //
+//           |            | crash in case of changing the transfer //
+//           |            | parameters.                            //
 //-----------------------------------------------------------------//
-//  1.04     | 19.04.2005 |  Added PCO_Get(Set)NoiseFilterMode, FRE//
-//           |            |  Added try catch blocks where pointer  //
-//           |            |  are passed in. Changed the init. where//
-//           |            |  an error occured while retrieving data//
-//           |            |  Bugfix: GetImage(Ex) is able to trans.//
-//           |            |  more than one image, now...           //
-//           | 20.07.2005 |  Added record stop event stuff, FRE    //
+//  1.04     | 19.04.2005 | Added PCO_Get(Set)NoiseFilterMode, FRE //
+//           |            | Added try catch blocks where pointer   //
+//           |            | are passed in. Changed the init. where //
+//           |            | an error occurred while retrieving data//
+//           |            | Bugfix: GetImage(Ex) is able to trans. //
+//           |            | more than one image, now...            //
+//           | 20.07.2005 | Added record stop event stuff, FRE     //
 //-----------------------------------------------------------------//
-//  1.05     | 27.02.2006 |  Added PCO_GetCameraName, FRE          //
-//           |            |  Added PCO_xxxHotPixelxxx, FRE         //
+//  1.05     | 27.02.2006 | Added PCO_GetCameraName, FRE           //
+//           |            | Added PCO_xxxHotPixelxxx, FRE          //
 //-----------------------------------------------------------------//
-//  1.06     | 02.06.2006 |  Added PCO_GetCameraDescriptionEx, FRE //
-//           |            |  Added PCO_xxxModulationMode, FRE      //
-//           |            |  Added PCO_GetInfoString, FRE          //
+//  1.06     | 02.06.2006 | Added PCO_GetCameraDescriptionEx, FRE  //
+//           |            | Added PCO_xxxModulationMode, FRE       //
+//           |            | Added PCO_GetInfoString, FRE           //
 //-----------------------------------------------------------------//
-//  1.08     | 19.09.2007 |  FRE:Added PCO_GetInfoString, FRE      //
+//  1.08     | 19.09.2007 | FRE:Added PCO_GetInfoString, FRE       //
 //-----------------------------------------------------------------//
-//  1.09     | 17.04.2008 |  FRE: Minor corrections, FRE           //
+//  1.09     | 01.04.2008 | FRE: added USB interface sc2_usb.dll   //
+//           | 17.04.2008 | FRE: Minor corrections, FRE            //
 //-----------------------------------------------------------------//
-//  1.10     | 05.03.2009 |  FRE: Added Get/SetFrameRate           //
-//           |            |  Added HW IO functions and desc.       //
-//           |            |  Added PCO_S(G)etInterfaceOutputFormat //
-//           | 28.05.2009 |  Added PCO_S(G)etBayerMultiplier,      //
-//           |            |  and PCO_GetColorCorrectionMatrix      //
-//           | 01.07.2009 |  Added PCO_GetImageTiming              //
-//           | 02.07.2009 |  Added PCO_GetFirmWareInfo             //
+//  1.10     | 05.03.2009 | FRE: Added Get/SetFrameRate            //
+//           |            | Added HW IO functions and desc.        //
+//           |            | Added PCO_S(G)etInterfaceOutputFormat  //
+//           | 28.05.2009 | Added PCO_S(G)etBayerMultiplier,       //
+//           |            | and PCO_GetColorCorrectionMatrix       //
+//           | 01.07.2009 | Added PCO_GetImageTiming               //
+//           | 02.07.2009 | Added PCO_GetFirmWareInfo              //
 //-----------------------------------------------------------------//
-//  1.11     | 22.10.2009 |  FRE: Added PCO_G(S)etGigEIPAddress    //
+//  1.11     | 22.10.2009 | FRE: Added Me4 interface dll sc2_cl_me4//
+//           |            | FRE: Added PCO_G(S)etGigEIPAddress     //
 //-----------------------------------------------------------------//
-//  1.12     | 02.03.2010 |  FRE: Added PCO_G(S)etMetaDataMode     //
-//           | 08.03.2010 |  FRE: Added PCO_G(S)etFastTimingMode   //
+//  1.12     | 02.03.2010 | FRE: Added PCO_G(S)etMetaDataMode      //
+//           | 08.03.2010 | FRE: Added PCO_G(S)etFastTimingMode    //
 //-----------------------------------------------------------------//
-//  1.13     | 16.11.2010 |  FRE: added                            //
+//  1.13     | 16.11.2010 | FRE: added                             //
 //           |            | PCO_GetCameraSetup, PCO_SetCameraSetup //
 //-----------------------------------------------------------------//
-//  1.14     | 31.03.2011 |  FRE: added                            //
+//  1.14     | 31.03.2011 | FRE: added                             //
 //           |            | PCO_G(S)etPowerSaveMode                //
 //           |            | PCO_GetBatteryStatus                   //
+//-----------------------------------------------------------------//
+//  1.14_x   | 01.12.2011 | FRE: added                             //
+//           |            | USB3 interface dll sc2_usb3.dll        //
+//           |            | PCO_G(S)etImageTransferMode            //
+//-----------------------------------------------------------------//
+//  1.15     | 13.12.2011 | FRE: added                             //
+//           |            | PCO_G(S)etColorSettings                //
+//-----------------------------------------------------------------//
+//  1.16     | 02.08.2012 | FRE: added                             //
+//           |            | WLAN interface dll sc2_wlan.dll        //
+//           |            | PCO_G(S)etAcquireModeEx                //
+//-----------------------------------------------------------------//
+//  1.17     | 11.10.2013 | FRE: added                             //
+//           |            | PCO_SetTransferParametersAuto          //
+//           | 23.10.2013 | PCO_GetAPIManagement                   //
+//           |            | PCO_EnableSoftROI                      //
+//-----------------------------------------------------------------//
+//  1.18     | 18.02.2014 | FRE: added                             //
+//           |            | PCO_GetCoolingSetpoints                //
+//           | 16.05.2014 | PCO_G(S)etHWLEDSignal                  //
+//           |            | PCO_G(S)etCmosLineTiming               //
+//           |            | PCO_G(S)etCmosLineExposureDelay        //
+//           | 20.05.2014 | Commands for Flim                      //
 //-----------------------------------------------------------------//
 
 #ifdef SC2_CAM_EXPORTS
@@ -117,14 +142,17 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {            //  Assume C declarations for C++
+extern "C" {                           //  Assume C declarations for C++
 #endif  //C++
+
+#define PCO_SDK_VERMAJOR 1             // Shows the current version of the sc2_cam.dll
+#define PCO_SDK_VERMINOR 18
 
 // VERY IMPORTANT INFORMATION:
 /*******************************************************************/
 /* PLEASE: Do not forget to fill in all wSize Parameters while     */
-/* using the structure funtions. Some structures even have embedded*/
-/* wSize parameters.                                               */
+/* using the structure functions. Some structures even have got    */
+/* embedded wSize parameters.                                      */
 /*******************************************************************/
 /* All indexes, but segment and image parameters are zero based.   */
 /* If you access the camera with segment and image parameters the  */
@@ -194,7 +222,8 @@ SC2_SDK_FUNC int WINAPI PCO_GetCameraType(HANDLE ph, PCO_CameraType *strCamType)
 */
 
 SC2_SDK_FUNC int WINAPI PCO_GetCameraHealthStatus(HANDLE ph, DWORD* dwWarn, DWORD* dwErr, DWORD* dwStatus);
-// Gets the last warnings, errors and status of the camera.
+// Gets the last warnings, errors and status of the camera. To call this function
+// is not mandatory, but recommended repeatedly.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD *dwWarn -> Pointer to a DWORD variable, to receive the warning value.
 //     DWORD *dwErr -> Pointer to a DWORD variable, to receive the error value.
@@ -452,7 +481,7 @@ SC2_SDK_FUNC int WINAPI PCO_SetROI(HANDLE ph,
                             WORD wRoiY0, // Roi upper left y
                             WORD wRoiX1, // Roi lower right x
                             WORD wRoiY1);// Roi lower right y
-// Gets the region of interest of the camera. X0, Y0 start at 1. X1, Y1 end with max. sensor size.
+// Sets the region of interest of the camera. X0, Y0 start at 1. X1, Y1 end with max. sensor size.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wRoiX0 -> WORD variable to hold the x value for the upper left corner.
 //     WORD wRoiY0 -> WORD variable to hold the y value for the upper left corner.
@@ -584,16 +613,30 @@ SC2_SDK_FUNC int WINAPI PCO_SetIRSensitivity(HANDLE ph,
 //     WORD wIR -> WORD variable to hold the IR Sensitivity mode.
 // Out: int -> Error message.
 
+SC2_SDK_FUNC int WINAPI PCO_GetCoolingSetpoints(HANDLE ph, WORD  wBlockID,
+                                                WORD  *wNumSetPoints,
+                                                SHORT *sCoolSetpoints);
+// Gets the cooling set points of the camera. This is used when there is no min max range available.
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wBlockID -> Number of the block to query (currently 0)
+//     WORD *wNumSetpoints -> WORD Pointer to set the max number of setpoints to query and to get the
+//                            valid number of set points inside the camera. In case more than
+//                            COOLING_SETPOINTS_BLOCKSIZE set points are valid they can be queried by
+//                            incrementing the wBlockID till wNumSetPoints is reached.
+//                            The valid members of the set points can be used to set the SetCoolingSetpointTemperature
+//     SHORT *sCoolSetpoints -> Pointer to a SHORT array to receive the possible cooling setpoint temperatures.
+// Out: int -> Error message.
+
 SC2_SDK_FUNC int WINAPI PCO_GetCoolingSetpointTemperature(HANDLE ph,
-                                SHORT *sCoolSet); // Cooling setpoint
-// Gets the cooling setpoint temperature of the camera.
+                                SHORT *sCoolSet); // Cooling set point
+// Gets the cooling set point temperature of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     SHORT *sCoolSet -> Pointer to a SHORT variable to receive the cooling setpoint temperature.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_SetCoolingSetpointTemperature(HANDLE ph,
-                                SHORT sCoolSet); // Cooling setpoint
-// Sets the cooling setpoint temperature of the camera.
+                                SHORT sCoolSet); // Cooling set point
+// Sets the cooling set point temperature of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     SHORT sCoolSet -> SHORT variable to hold the cooling setpoint temperature.
 // Out: int -> Error message.
@@ -643,7 +686,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetHWIOSignalDescriptor(HANDLE ph, WORD wSignalNum, 
 // Out: int -> Error message
 
 SC2_SDK_FUNC int WINAPI PCO_GetColorCorrectionMatrix(HANDLE ph, double* pdMatrix);
-// Gets the color multiplier matrix to normalise the color values of a color camera to 6500k.
+// Gets the color multiplier matrix to normalize the color values of a color camera to 6500k.
 // This option is only available with a pco.dimax
 // In: HANDLE ph -> Handle to a proviously opened camera.
 //     double *pdMatrix -> Array pointer to a double array containing
@@ -747,7 +790,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetLookupTableInfo(HANDLE ph,
 SC2_SDK_FUNC int WINAPI PCO_GetActiveLookupTable(HANDLE ph,
   WORD        *wIdentifier,            // define LUT to be activated, 0x0000 for no LUT
   WORD        *wParameter);            // optional parameter
-// Gets the active lookup tables in the camera, if available.
+// Gets the active lookup table in the camera, if available.
 // Only available with a pco.edge
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     see above.
@@ -756,7 +799,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetActiveLookupTable(HANDLE ph,
 SC2_SDK_FUNC int WINAPI PCO_SetActiveLookupTable(HANDLE ph,
   WORD        *wIdentifier,            // define LUT to be activated, 0x0000 for no LUT
   WORD        *wParameter);            // optional parameter
-// Sets the active lookup tables in the camera, if available.
+// Sets the active lookup table in the camera, if available.
 // Only available with a pco.edge
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     see above.
@@ -768,7 +811,7 @@ SC2_SDK_FUNC int WINAPI PCO_LoadLookupTable(HANDLE ph,
   WORD        *wFormat,                // data structure in *bData (see defines)
   WORD        *wLength,                // valid number of bytes within this call
   BYTE        *bData);                 // data
-// Loads a lookup tables to the camera, if available.
+// Loads a lookup table to the camera, if available.
 // Only available with a pco.edge
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     see above.
@@ -880,10 +923,10 @@ SC2_SDK_FUNC int WINAPI PCO_SetTriggerMode(HANDLE ph, WORD wTriggerMode);
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_ForceTrigger(HANDLE ph, WORD *wTriggered);
-// Forces a trigger to the camera.
+// Forces a software trigger to the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD* wTriggered -> Pointer to a WORD variable to receive whether
-//                         a trigger occured or not.
+//                         a trigger occurred or not.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_GetCameraBusyStatus(HANDLE ph, WORD* wCameraBusyState);
@@ -923,13 +966,13 @@ SC2_SDK_FUNC int WINAPI PCO_GetExpTrigSignalStatus(HANDLE ph, WORD* wExpTrgSigna
 //                            exposure trigger signal state.
 // Out: int -> Error message.
 
-SC2_SDK_FUNC int WINAPI PCO_GetCOCRuntime(HANDLE ph, DWORD* dwTime_s, DWORD* dwTime_us);
-// Gets the exposure trigger signal state of the camera.
+SC2_SDK_FUNC int WINAPI PCO_GetCOCRuntime(HANDLE ph, DWORD* dwTime_s, DWORD* dwTime_ns);
+// Gets the exposure runtime for one image of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD* dwTime_s -> Pointer to a DWORD variable to receive the
 //                        time part in seconds of the COC.
-//     DWORD* dwTime_us -> Pointer to a DWORD variable to receive the
-//                         time part in microseconds of the COC.
+//     DWORD* dwTime_ns -> Pointer to a DWORD variable to receive the
+//                         time part in nanoseconds of the COC (range: 0ns-999.999.999ns).
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_GetFPSExposureMode(HANDLE ph, WORD* wFPSExposureMode, DWORD* dwFPSExposureTime);
@@ -947,10 +990,11 @@ SC2_SDK_FUNC int WINAPI PCO_SetFPSExposureMode(HANDLE ph, WORD wFPSExposureMode,
 //     WORD wFPSExposureMode -> WORD variable to hold the FPS-exposure-mode.
 //     DWORD* dwFPSExposureTime -> Pointer to a DWORD variable to receive the FPS exposure time.
 // Out: int -> Error message
+
 SC2_SDK_FUNC int WINAPI PCO_GetModulationMode(HANDLE ph, WORD *wModulationMode, DWORD *dwPeriodicalTime,
                                               WORD *wTimebasePeriodical, DWORD *dwNumberOfExposures,
                                               LONG *lMonitorOffset);
-// Gets the modulation mode and neccessary parameters
+// Gets the modulation mode and necessary parameters
 // This option is only available with a modulation enabled camera
 // In: HANDLE ph -> Handle to a proviously opened camera.
 //     WORD *wModulationMode -> Pointer to a WORD variable to receive the modulation mode
@@ -959,10 +1003,11 @@ SC2_SDK_FUNC int WINAPI PCO_GetModulationMode(HANDLE ph, WORD *wModulationMode, 
 //     DWORD *dwNumberOfExposures -> Pointer to a DWORD variable to receive the number of exposures
 //     LONG *lMonitorOffset -> Pointer to a signed DWORD variable to receive the monitor offset
 // Out: int -> Error message
+
 SC2_SDK_FUNC int WINAPI PCO_SetModulationMode(HANDLE ph, WORD wModulationMode, DWORD dwPeriodicalTime,
                                               WORD wTimebasePeriodical, DWORD dwNumberOfExposures,
                                               LONG lMonitorOffset);
-// Sets the modulation mode and neccessary parameters
+// Sets the modulation mode and necessary parameters
 // This option is only available with a modulation enabled camera
 // In: HANDLE ph -> Handle to a proviously opened camera.
 //     WORD wModulationMode -> WORD variable to hold the modulation mode
@@ -1028,13 +1073,13 @@ SC2_SDK_FUNC int WINAPI PCO_GetImageTiming(HANDLE ph, PCO_ImageTiming *pstrImage
 // Out: int -> Error message
 
 SC2_SDK_FUNC int WINAPI PCO_GetCameraSynchMode(HANDLE ph, WORD *wCameraSynchMode);
-// Gets the camera synch mode of the camera.
+// Gets the camera synchronization mode of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD* wCameraSynchMode -> Pointer to a WORD variable to receive the synch mode.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_SetCameraSynchMode(HANDLE ph, WORD wCameraSynchMode);
-// Sets the camera synch mode of the camera.
+// Sets the camera synchronization mode of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wCameraSynchMode -> WORD variable to set the synch mode.
 // Out: int -> Error message.
@@ -1052,10 +1097,10 @@ SC2_SDK_FUNC int WINAPI PCO_SetFastTimingMode(HANDLE hCam, WORD wFastTimingMode)
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_GetSensorSignalStatus(HANDLE hCam, DWORD* dwStatus, DWORD* dwImageCount, DWORD* dwReserved1, DWORD *dwReserved2);
-// Gets the signal state of the camera sensor. The signals must not be deemed to be a realtime
+// Gets the signal state of the camera sensor. The signals must not be deemed to be a real time
 // response of the sensor, since the command path adds a system dependent delay. Sending a command
 // and getting the camera response lasts about 2ms (+/- 1ms; for 'simple' commands). In case
-// you need a closer synchronisation use hardware signals.
+// you need a closer synchronization use hardware signals.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD* dwStatus -> DWORD pointer to receive the status flags of the sensor (can be NULL).
 //                        Bit0: SIGNAL_STATE_BUSY  0x0001
@@ -1065,6 +1110,25 @@ SC2_SDK_FUNC int WINAPI PCO_GetSensorSignalStatus(HANDLE hCam, DWORD* dwStatus, 
 //     DWORD* dwImageCount -> DWORD pointer to receive the # of the last finished image(can be NULL).
 //     DWORD* dwReserved -> DWORD pointer for future use (can be NULL).
 // Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_GetHWLEDSignal(HANDLE hCam, DWORD* dwHWLEDSignal);
+SC2_SDK_FUNC int WINAPI PCO_SetHWLEDSignal(HANDLE hCam, DWORD dwHWLEDSignal);
+SC2_SDK_FUNC int WINAPI PCO_GetCmosLineTiming(HANDLE hCam, WORD* wParameter, WORD* wTimeBase,
+                                              DWORD* dwLineTime, DWORD* dwReserved, WORD wReservedLen);
+// DWORD * dwReserved -> DWORD pointer for future use (can be NULL)
+// WORD wReservedLen -> WORD variable to set the lentght of the dwReserved array in DWORDS
+SC2_SDK_FUNC int WINAPI PCO_SetCmosLineTiming(HANDLE hCam, WORD wParameter, WORD wTimeBase,
+                                              DWORD dwLineTime, DWORD* dwReserved, WORD wReservedLen);
+// DWORD * dwReserved -> DWORD pointer for future use (can be NULL)
+// WORD wReservedLen -> WORD variable to set the lentght of the dwReserved array in DWORDS
+SC2_SDK_FUNC int WINAPI PCO_GetCmosLineExposureDelay(HANDLE hCam, DWORD* dwExposureLines, DWORD* dwDelayLines,
+                                                     DWORD* dwReserved, WORD wReservedLen);
+// DWORD * dwReserved -> DWORD pointer for future use (can be NULL)
+// WORD wReservedLen -> WORD variable to set the lentght of the dwReserved array in DWORDS
+SC2_SDK_FUNC int WINAPI PCO_SetCmosLineExposureDelay(HANDLE hCam, DWORD dwExposureLines, DWORD dwDelayLines,
+                                                     DWORD* dwReserved, WORD wReservedLen);
+// DWORD * dwReserved -> DWORD pointer for future use (can be NULL)
+// WORD wReservedLen -> WORD variable to set the lentght of the dwReserved array in DWORDS
 
 /////////////////////////////////////////////////////////////////////
 /////// End: Timing commands ////////////////////////////////////////
@@ -1088,21 +1152,21 @@ SC2_SDK_FUNC int WINAPI PCO_SetStorageStruct(HANDLE ph, PCO_Storage *strStorage)
 
 
 SC2_SDK_FUNC int WINAPI PCO_GetCameraRamSize(HANDLE ph, DWORD* dwRamSize, WORD* wPageSize);
-// Gets the ram and pagesize of the camera.
+// Gets the ram and page size of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD* dwRamSize -> Pointer to a DWORD variable to receive the ramsize in pages.
 //     DWORD* dwPageSize -> Pointer to a DWORD variable to receive the pagesize in bytes.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_GetCameraRamSegmentSize(HANDLE ph, DWORD* dwRamSegSize);
-// Gets the segmentsizes of the camera.
+// Gets the segment sizes of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD* dwRamSegSize -> Pointer to a DWORD array to receive the ramsegmentsize in pages.
 // Out: int -> Error message.
 /* Example: see PCO_SetCameraRamSegmentSize */
 
 SC2_SDK_FUNC int WINAPI PCO_SetCameraRamSegmentSize(HANDLE ph, DWORD* dwRamSegSize);
-// Gets the segmentsizes of the camera.
+// Sets the segment sizes of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD* dwRamSegSize -> Pointer to a DWORD array to receive the ramsegmentsize in pages.
 // Out: int -> Error message.
@@ -1122,7 +1186,7 @@ SC2_SDK_FUNC int WINAPI PCO_SetCameraRamSegmentSize(HANDLE ph, DWORD* dwRamSegSi
 */
 
 SC2_SDK_FUNC int WINAPI PCO_ClearRamSegment(HANDLE ph);
-// Clears (deletes all images) of the actieve ram segment of the camera.
+// Clears (deletes all images) of the active ram segment of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 // Out: int -> Error message.
 
@@ -1244,7 +1308,9 @@ SC2_SDK_FUNC int WINAPI PCO_SetDateTime(HANDLE ph,
                                         WORD wHour,
                                         BYTE ucMin,
                                         BYTE ucSec);
-// Sets the time and date to the camera.
+// Sets the time and date to the camera. The precision is only 'one second'. Thus
+// you'll have to synchronize the time to set with the pc timer in order to get the
+// same absolute time.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     BYTE ucDay -> Day of month (1-31).
 //     BYTE ucMonth -> Month of the year (1-12).
@@ -1284,7 +1350,7 @@ SC2_SDK_FUNC int WINAPI PCO_SetRecordStopEvent(HANDLE ph, WORD wRecordStopEventM
 
 SC2_SDK_FUNC int WINAPI PCO_StopRecord(HANDLE ph, WORD* wReserved0, DWORD *dwReserved1);
 // Activates the Stop according to the settings of PCO_SetRecordStopEvent.
-// If you wan't to stop immediately please use PCO_SetRecordingState=0
+// If you want to stop immediately please use PCO_SetRecordingState=0
 // This option is only available with a pco.1200hs, pco.dimax
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD* wReserved0 -> Pointer to a WORD variable (Set content to zero: wReserved0 = 0!).
@@ -1325,7 +1391,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetSegmentImageSettings(HANDLE ph, WORD wSegment,
                                                     WORD* wRoiY0,
                                                     WORD* wRoiX1,
                                                     WORD* wRoiY1);
-// Gets the region of interest of the camera. X0, Y0 start at 1. X1, Y1 end with max. sensor size.
+// Gets the sizes information for one segment. X0, Y0 start at 1. X1, Y1 end with max. sensor size.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD *wXRes -> Pointer to a WORD variable to receive the x resolution of the image in segment
 //     WORD *wYRes -> Pointer to a WORD variable to receive the y resolution of the image in segment
@@ -1367,19 +1433,19 @@ SC2_SDK_FUNC int WINAPI PCO_SetBitAlignment(HANDLE ph, WORD wBitAlignment);
 
 SC2_SDK_FUNC int WINAPI PCO_WriteHotPixelList(HANDLE ph, WORD wListNo, WORD wNumValid,
                                  WORD* wHotPixX, WORD* wHotPixY);
-// Writes a hotpixel list to the camera.
+// Writes a hot pixel list to the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wListNo -> WORD variable which holds the number of the list (zero based).
 //     WORD wNumValid -> WORD variable which holds the number of valid members
 //     WORD *wHotPixX -> WORD array which holds the x coordinates of a hotpixel list
 //     WORD *wHotPixY -> WORD array which holds the y coordinates of a hotpixel list
-//     x and y coordinates have to be conistent, that means corresponding coordinate pairs
+//     x and y coordinates have to be consistent, that means corresponding coordinate pairs
 //     must have the same index!
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_ReadHotPixelList(HANDLE ph, WORD wListNo, WORD wArraySize, WORD* wNumValid, WORD* wNumMax,
                                  WORD* wHotPixX, WORD* wHotPixY);
-// Reads a hotpixel list from the camera.
+// Reads a hot pixel list from the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wListNo -> WORD variable which holds the number of the list (zero based).
 //     WORD wArraySize -> WORD variable which holds the number of members, which can be transferred
@@ -1392,7 +1458,7 @@ SC2_SDK_FUNC int WINAPI PCO_ReadHotPixelList(HANDLE ph, WORD wListNo, WORD wArra
 //     WORD *wHotPixY -> WORD array which gets the y coordinates of a hotpixel list
 //                       This ptr can be set to ZERO if only the valid and max number
 //                       have to be read.
-//     x and y coordinates are conistent, that means corresponding coordinate pairs
+//     x and y coordinates are consistent, that means corresponding coordinate pairs
 //     have the same index!
 // Out: int -> Error message.
 
@@ -1400,7 +1466,7 @@ SC2_SDK_FUNC int WINAPI PCO_ClearHotPixelList(HANDLE ph,
                                               WORD wListNo,
                                               DWORD dwMagic1,
                                               DWORD dwMagic2);
-// Clears a hotpixel list in the camera.
+// Clears a hot pixel list in the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wListNo -> WORD variable which holds the number of the list (zero based).
 //     DWORD dwMagic1 -> DWORD variable which holds the unlock code 1.
@@ -1408,14 +1474,14 @@ SC2_SDK_FUNC int WINAPI PCO_ClearHotPixelList(HANDLE ph,
 
 SC2_SDK_FUNC int WINAPI PCO_GetHotPixelCorrectionMode(HANDLE ph,
                                                       WORD *wHotPixelCorrectionMode);
-// Sets the time hot pixel correction mode of the camera.
+// Gets the hot pixel correction mode of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD* wHotPixelCorrectionMode -> Pointer to a WORD variable to receive the hot pixel correction mode.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_SetHotPixelCorrectionMode(HANDLE ph,
                                                       WORD wHotPixelCorrectionMode);
-// Sets the time hot pixel correction mode of the camera.
+// Sets the hot pixel correction mode of the camera.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wHotPixelCorrectionMode -> WORD variable to hold the hot pixel correction mode.
 // Out: int -> Error message.
@@ -1428,7 +1494,7 @@ SC2_SDK_FUNC int WINAPI PCO_PlayImagesFromSegmentHDSDI(HANDLE ph,
                                                        DWORD dwRangeLow,
                                                        DWORD dwRangeHigh,
                                                        DWORD dwStartPos);
-// Gets the actual play pointer position for the HDSDI interface.
+// Sets the actual play conditions for the HDSDI interface.
 // This option is only available with a pco.dimax
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wSegment -> WORD variable to set play segment (1,2,3,4)
@@ -1500,6 +1566,7 @@ SC2_SDK_FUNC int WINAPI PCO_SetInterfaceOutputFormat(HANDLE ph,
 
 SC2_SDK_FUNC int WINAPI PCO_GetMetaDataMode(HANDLE ph, WORD* wMetaDataMode, WORD* wMetaDataSize,
                                             WORD* wMetaDataVersion);
+// Gets the meta data mode settings
 // This option is only available with pco.dimax
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD* wMetaDataMode -> Pointer to a WORD variable receiving the meta data mode.
@@ -1509,6 +1576,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetMetaDataMode(HANDLE ph, WORD* wMetaDataMode, WORD
 
 SC2_SDK_FUNC int WINAPI PCO_SetMetaDataMode(HANDLE ph, WORD wMetaDataMode, WORD* wMetaDataSize,
                                             WORD* wMetaDataVersion);
+// Sets the meta data mode settings
 // This option is only available with pco.dimax
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD  wMetaDataMode -> WORD variable to set the meta data mode.
@@ -1517,22 +1585,22 @@ SC2_SDK_FUNC int WINAPI PCO_SetMetaDataMode(HANDLE ph, WORD wMetaDataMode, WORD*
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_SetColorSettings(HANDLE ph, PCO_Image_ColorSet *strColorSet);
-// This option is only available with pco.dimax and HD/SDI interface.
 // Sets the color convert settings inside the camera.
+// This option is only available with pco.dimax and HD/SDI interface.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     PCO_Image_ColorSet *strColorSet -> Pointer to a PCO_Image_ColorSet structure to set the color set data.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_GetColorSettings(HANDLE ph, PCO_Image_ColorSet *strColorSet);
-// This option is only available with pco.dimax and HD/SDI interface.
 // Gets the color convert settings inside the camera.
+// This option is only available with pco.dimax and HD/SDI interface.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     PCO_Image_ColorSet *strColorSet -> Pointer to a PCO_Image_ColorSet structure to receive the color set data.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_DoWhiteBalance(HANDLE ph, WORD wMode, WORD* wParam, WORD wParamLen);
-// This option is only available with pco.dimax and HD/SDI interface.
 // Starts a white balancing calculation.
+// This option is only available with pco.dimax and HD/SDI interface.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD  wMode -> WORD variable to set the meta data mode. Set to 1.
 //     WORD* wParam -> Pointer to a WORD array. Not used. Set members to zero before calling!
@@ -1577,12 +1645,13 @@ SC2_SDK_FUNC int WINAPI PCO_OpenCameraEx(HANDLE *ph, PCO_OpenStruct* strOpenStru
   strOpenStruct.wCameraNumber = 0;
   //strOpenStruct.wCameraNumAtInterface will be filled by the OpenCameraEx call;
                                        // Current number of camera at the interface
-  strOpenStruct.wOpenFlags[0] = InitMode; // Used for setting up camlink with Silicon SW
-  // Following defines exist:
+  strOpenStruct.wOpenFlags[0] = <combination of flags>; // Used for setting up camlink with Silicon SW
+  // Following defines exist for Silicon Software Me3:
   // #define PCO_SC2_CL_ME3_LOAD_SINGLE_AREA 0x0100
   // #define PCO_SC2_CL_ME3_LOAD_DUAL_AREA   0x0200
   // #define PCO_SC2_CL_ME3_LOAD_SINGLE_LINE 0x0300
   // #define PCO_SC2_CL_ME3_LOAD_DUAL_LINE   0x0400 -> this is the default setting
+  // Set to zero for all other interface types
 
   //strOpenStruct.wOpenFlags[1...19] are not used up to now
 
@@ -1663,7 +1732,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetBuffer(HANDLE ph, SHORT sBufNr, WORD** wBuf, HAND
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_FreeBuffer(HANDLE ph, SHORT sBufNr);
-// Frees an previously allocated image buffer.
+// Frees a previously allocated image buffer.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     SHORT sBufNr -> SHORT variable to hold the buffer number.
 // Out: int -> Error message.
@@ -1755,14 +1824,51 @@ SC2_SDK_FUNC int WINAPI PCO_GetTransferParameter(HANDLE ph, void* buffer, int il
 //     int ilen -> Total length of the buffer in bytes.
 // Out: int -> Error message.
 
+SC2_SDK_FUNC int WINAPI PCO_SetTransferParametersAuto(HANDLE ph, void* buffer, int ilen);
+// Automatically sets the transfer parameters for a pco.edge 5.5. This is the recommended
+// function in case Soft-ROI is enabled. This function replaces PCO_G(S)etTransferParameter
+// and PCO_SetActiveLookupTable.
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     void *buffer -> Pointer to an array to receive the transfer parameters. Should be set to NULL.
+//                     Can be set to receive current setting.
+//     int ilen -> Total length of the buffer in bytes. Should be set to 0.
+// Sample call:
+// HANDLE ph;
+// ... // open, etc.
+// int err = PCO_SetTransferParametersAuto(ph, NULL, 0);
+// Out: int -> Error message.
+//      void *buffer -> Pointer to an array to receive the transfer parameters in case buffer is not NULL.
+//      int ilen -> Total length of the buffer in bytes.
+
 SC2_SDK_FUNC int WINAPI PCO_CamLinkSetImageParameters(HANDLE ph, WORD wxres, WORD wyres);
-// Necessary while using a CamLink interface
-// If there is a change in buffer size (ROI, binning) this function has to be called 
-// with the new x and y resolution. Additionally this function has to be called, if you
-// switch to another camRAM segment and like to get images.
+// Necessary while using a CamLink interface. It is recommended to use this function
+// with all other interface types of pco.
+// If there is a change in buffer size (ROI, binning) and/or ROI relocation this function must
+// be called with the new x and y resolution. Additionally this function has to be called,
+// if you switch to another camRAM segment with different x and y size or ROI and like to get images.
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     WORD wxres -> X Resolution of the images to be transferred
 //     WORD wyres -> Y Resolution of the images to be transferred
+// Out: int -> Error message.
+
+#define IMAGEPARAMETERS_READ_FROM_SEGMENTS   0x01
+#define IMAGEPARAMETERS_READ_WHILE_RECORDING 0x02
+SC2_SDK_FUNC int WINAPI PCO_SetImageParameters(HANDLE ph, WORD wxres, WORD wyres, DWORD dwflags, void* param, int ilen);
+// Necessary while using a soft-roi enabled interface. It is recommended to use this function
+// with all interface types of pco when soft-roi is enabled. This function can be used as a replacement for
+// PCO_CamLinkSetImageParameters
+// If there is a change in buffer size (ROI, binning) and/or ROI relocation this function must
+// be called with the new x and y resolution. Additionally this function has to be called,
+// if you switch to another camRAM segment with different x and y size or ROI and like to get images.
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wxres -> X Resolution of the images to be transferred
+//     WORD wyres -> Y Resolution of the images to be transferred
+//     DWORD dwflags -> Flags to select the correct soft-ROI for interface preparation
+//                      Set IMAGEPARAMETERS_READ_FROM_SEGMENTS when the next image operation will read images
+//                      from one of the CamRAM segments (if available).
+//                      Set IMAGEPARAMETERS_READ_WHILE_RECORDING when the next image operation is a recording
+//     void* param -> Pointer to a structure for future use (set to NULL); Currently not used.
+//     int ilen -> int to hold the length of the param structure for future use (set to 0); Currently not used.
 // Out: int -> Error message.
 
 SC2_SDK_FUNC int WINAPI PCO_SetTimeouts(HANDLE ph, void *buf_in,unsigned int size_in);
@@ -1788,7 +1894,7 @@ SC2_SDK_FUNC int WINAPI PCO_GetGigEIPAddress(HANDLE ph,
 
 SC2_SDK_FUNC int WINAPI PCO_SetGigEIPAddress(HANDLE ph, DWORD dwFlags,
                          BYTE BField0, BYTE BField1, BYTE BField2, BYTE BField3);
-// Gets the IP address of the camera, e.g. 192.168.1.20
+// Sets the IP address of the camera, e.g. 192.168.1.20
 // In: HANDLE ph -> Handle to a previously opened camera.
 //     DWORD dwFlags -> DWORD flags, to avoid Messagebox set 0x01; others must be zero
 //     BYTE BField0 -> BYTE, to set the upper part of the IP adr., e.g. 192.
@@ -1869,7 +1975,32 @@ SC2_SDK_FUNC int WINAPI PCO_EnableInterface(WORD wInterface, WORD wInterfaceEnab
 // Set wInterfaceEnabled to 0.
 
 SC2_SDK_FUNC int WINAPI PCO_ResetLib();
-// Resets the sc2_cam internal enumerator.
+// Resets the sc2_cam internal enumerator and unloads all loaded interface dlls.
+
+SC2_SDK_FUNC int WINAPI PCO_EnableSoftROI(HANDLE ph, WORD wSoftROIFlags, void* /*param*/, int /*ilen*/);
+// Enables Soft-ROI functionality for Soft-ROI capable interfaces. In case it is necessary
+// to get a smaller ROI-granularity (e.g. in x-direction it is only possible to set
+// the ROI in steps of 160 pixels with a pco.edge 5.5) this function enables smaller
+// granularity (e.g. a pco.edge 5.5 is reduced to 4 pixels in x-direction).
+// If Soft-ROI is enabled it is recommended to use PCO_SetTransferParametersAuto(ph, NULL,0).
+// This makes sure that the camera and interface are set to the correct transfer modes
+// when using Soft-ROI. PCO_GetTransferParameter, PCO_SetTransferParameter and
+// PCO_SetActiveLookupTable are replaced by the PCO_SetTransferParametersAuto function.
+// If PCO_SetTransferParametersAuto is not used it is mandatory to take care for the
+// correct setup of the transfer parameters (e.g. Soft-ROI is smaller than x=1920, but
+// the camera ROI is bigger than x=1920 due to the granularity of the camera).
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wSoftROIFlags -> Set Bit 0=true to enable or Bit 0=false to disable soft-ROI
+//     void* param -> Pointer to a structure for future use (set to NULL); Currently not used.
+//     int ilen -> int to hold the length of the param structure for future use (set to 0); Currently not used.
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_GetAPIManagement(HANDLE ph, WORD *wFlags, PCO_APIManagement* pstrApi);
+// Call this function to get information about API management.
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wFlags -> Bit 0=true soft ROI is enabled / Bit 0=false soft-ROI is disabled
+//     PCO_APIManagement* pstrApi -> Pointer to a PCO_APIManagement structure (currently not used), set to NULL
+// Out: int -> Error message.
 
 /////////////////////////////////////////////////////////////////////
 /////// End: API Management commands ////////////////////////////////
@@ -1898,6 +2029,142 @@ SC2_SDK_FUNC int WINAPI PCO_WriteHeadEEProm(HANDLE ph, WORD wAddress, BYTE bData
 /////////////////////////////////////////////////////////////////////
 /////// End: FirmWare commands //////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////
+/////// Flim commands ///////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+SC2_SDK_FUNC int WINAPI PCO_GetFlimModulationParameter(HANDLE ph, 
+                 WORD *wSourceSelect,  // modulation source (internal/external)
+                 WORD *wOutputWaveform,// modulation output waveform
+                 WORD *wReserved1,     // reserved for future use
+                 WORD *wReserved2);    // reserved for future use
+// Gets the modulation mode parameters for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD* wSourceSelect -> Pointer to a WORD variable to receive the modulation source
+//     WORD* wOutputWaveform -> Pointer to a WORD variable to receive the modulation wave form
+//     WORD* wReservedx -> Reserved for future use, can be zero. Content will be set to zero
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_SetFlimModulationParameter(HANDLE ph, 
+                 WORD wSourceSelect,   // modulation source (internal/external)
+                 WORD wOutputWaveform, // modulation output waveform
+                 WORD wReserved1,      // reserved for future use
+                 WORD wReserved2);     // reserved for future use
+// Sets the modulation mode parameters for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wSourceSelect -> WORD variable to set the modulation source
+//     WORD wOutputWaveform -> WORD variable to set the modulation wave form
+//     WORD wReservedx -> Reserved for future use, set to zero.
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_GetFlimPhaseSequenceParameter(HANDLE ph, 
+                 WORD *wPhaseNumber,   // number of phases per modulation period
+                 WORD *wPhaseSymmetry, // modulation taps gather each phase information singularly by the appropriate tap or symmetrically by both taps
+                 WORD *wPhaseOrder,    // recording order of (symmetrically) gathered phases
+                 WORD *wTapSelect,     // additional selection of one of both or both taps
+                 WORD *wReserved1,     // reserved for future use
+                 WORD *wReserved2);    // reserved for future use
+// Gets the modulation phase sequence parameters for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD* wPhaseNumber -> Pointer to a WORD variable to receive the number of phases
+//     WORD* wPhaseSymmetry -> Pointer to a WORD variable to receive the phase symmetry
+//     WORD* wPhaseOrder -> Pointer to a WORD variable to receive the phase order
+//     WORD* wTapSelect -> Pointer to a WORD variable to receive the tap select
+//     WORD* wReservedx -> Reserved for future use, can be zero. Content will be set to zero
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_SetFlimPhaseSequenceParameter(HANDLE ph, 
+                  WORD wPhaseNumber,   // number of phases per modulation period
+                  WORD wPhaseSymmetry, // modulation taps gather each phase information singularly by the appropriate tap or symmetrically by both taps
+                  WORD wPhaseOrder,    // recording order of (symmetrically) gathered phases
+                  WORD wTapSelect,     // additional selection of one of both or both taps
+                  WORD wReserved1,     // reserved for future use
+                  WORD wReserved2);    // reserved for future use
+// Sets the modulation phase sequence parameters for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wPhaseNumber -> WORD variable to set the number of phases
+//     WORD wPhaseSymmetry -> WORD variable to set the phase symmetry
+//     WORD wPhaseOrder -> WORD variable to set the phase order
+//     WORD wTapSelect -> WORD variable to set the tap select
+//     WORD wReservedx -> Reserved for future use, set to zero.
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_GetFlimImageProcessingFlow(HANDLE ph, 
+            WORD* wAsymmetryCorrection,// averaging mode of both taps holding the same phase information
+            WORD* wCalculationMode,    // reserved for future use (method/parameters for phasor calculation etc.)
+            WORD* wReferencingMode,    // reserved for future use (sequence is stored as reference, reference is used etc.)
+            WORD* wThresholdLow,       // reserved for future use (lower threshold for clipping calculated pixel data containing no information)
+            WORD* wThresholdHigh,      // reserved for future use (upper threshold for clipping calculated pixel data containing no information)
+            WORD* wOutputMode,         // reserved for future use (image output format and types)
+            WORD* wReserved1,          // reserved for future use
+            WORD* wReserved2,          // reserved for future use
+            WORD* wReserved3,          // reserved for future use
+            WORD* wReserved4);         // reserved for future use
+// Gets the Image processing flow for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD* wAsymmetryCorrection -> Pointer to a WORD variable to receive the average mode
+//     WORD* wCalculationMode -> Pointer to a WORD variable to receive the calculation mode
+//     WORD* wReferencingMode -> Pointer to a WORD variable to receive the reference mode
+//     WORD* wThresholdLow(High) -> Pointer to a WORD variable to receive the clipping threshold
+//     WORD* wOutputMode -> Pointer to a WORD variable to receive the image output mode
+//     WORD* wReservedx -> Reserved for future use, can be zero. Content will be set to zero
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_SetFlimImageProcessingFlow(HANDLE ph, 
+             WORD wAsymmetryCorrection,// averaging mode of both taps holding the same phase information
+             WORD wCalculationMode,    // reserved for future use (method/parameters for phasor calculation etc.)
+             WORD wReferencingMode,    // reserved for future use (sequence is stored as reference, reference is used etc.)
+             WORD wThresholdLow,       // reserved for future use (lower threshold for clipping calculated pixel data containing no information)
+             WORD wThresholdHigh,      // reserved for future use (upper threshold for clipping calculated pixel data containing no information)
+             WORD wOutputMode,         // reserved for future use (image output format and types)
+             WORD wReserved1,          // reserved for future use
+             WORD wReserved2,          // reserved for future use
+             WORD wReserved3,          // reserved for future use
+             WORD wReserved4);         // reserved for future use
+// Gets the Image processing flow for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     WORD wAsymmetryCorrection -> WORD variable to set the average mode
+//     WORD wCalculationMode -> WORD variable to set the calculation mode
+//     WORD wReferencingMode -> WORD variable to set the reference mode
+//     WORD wThresholdLow(High) -> WORD variable to set the clipping threshold
+//     WORD wOutputMode -> WORD variable to set the image output mode
+//     WORD wReservedx -> Reserved for future use, set to zero.
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_GetFlimMasterModulationFrequency(HANDLE ph, 
+                  DWORD *dwFrequency); // modulation frequency in Hz
+// Gets the master modulation frequency for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     DWORD* dwFrequency -> Pointer to a DWORD variable to receive the modulation frequency
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_SetFlimMasterModulationFrequency(HANDLE ph, 
+                  DWORD dwFrequency); // modulation frequency in Hz
+// Sets the master modulation frequency for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     DWORD dwFrequency -> DWORD variable to set the modulation frequency
+// Out: int -> Error message.
+
+
+SC2_SDK_FUNC int WINAPI PCO_GetFlimRelativePhase(HANDLE ph, 
+              DWORD *dwPhaseMilliDeg); // relative phase between image sensor and modulation signal in milli-degrees
+// Gets the relative phase for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     DWORD* dwPhaseMilliDeg -> Pointer to a DWORD variable to receive the relative phase
+// Out: int -> Error message.
+
+SC2_SDK_FUNC int WINAPI PCO_SetFlimRelativePhase(HANDLE ph, 
+               DWORD dwPhaseMilliDeg); // relative phase between image sensor and modulation signal in milli-degrees
+// Sets the relative phase for pco.flim
+// In: HANDLE ph -> Handle to a previously opened camera.
+//     DWORD dwPhaseMilliDeg -> DWORD variable to set the relative phase
+// Out: int -> Error message.
+
+/////////////////////////////////////////////////////////////////////
+/////// End: Flim commands //////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
 #ifdef __cplusplus
 }       //  Assume C declarations for C++
 #endif  //C++

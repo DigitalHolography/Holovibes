@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>856</width>
-    <height>329</height>
+    <height>325</height>
    </rect>
   </property>
   <property name="font">
@@ -280,7 +280,7 @@
        <widget class="QLabel" name="pLabelVibro">
         <property name="geometry">
          <rect>
-          <x>30</x>
+          <x>10</x>
           <y>60</y>
           <width>31</width>
           <height>21</height>
@@ -293,9 +293,9 @@
        <widget class="QSpinBox" name="pSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>60</x>
+          <x>30</x>
           <y>60</y>
-          <width>71</width>
+          <width>51</width>
           <height>22</height>
          </rect>
         </property>
@@ -303,9 +303,9 @@
        <widget class="QSpinBox" name="qSpinBoxVibro">
         <property name="geometry">
          <rect>
-          <x>60</x>
+          <x>30</x>
           <y>90</y>
-          <width>71</width>
+          <width>51</width>
           <height>22</height>
          </rect>
         </property>
@@ -313,9 +313,9 @@
        <widget class="QLabel" name="qLabelVibro">
         <property name="geometry">
          <rect>
-          <x>30</x>
+          <x>10</x>
           <y>90</y>
-          <width>31</width>
+          <width>21</width>
           <height>21</height>
          </rect>
         </property>
@@ -328,25 +328,369 @@
          <rect>
           <x>10</x>
           <y>30</y>
-          <width>91</width>
+          <width>131</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Vibrometry</string>
+         <string>Image ratio Ip/Iq</string>
         </property>
        </widget>
        <widget class="QCheckBox" name="averageCheckBox">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>130</y>
-          <width>81</width>
+          <y>120</y>
+          <width>121</width>
           <height>20</height>
          </rect>
         </property>
         <property name="text">
-         <string>Average</string>
+         <string>Average in ROI</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="ROIFileLabel">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>170</y>
+          <width>53</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>ROI file:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="ROIBrowseButton">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>170</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>browse</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="ROIFileLineEdit">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>200</y>
+          <width>181</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="saveROIPushButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>230</y>
+          <width>81</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Save ROI</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="loadROIPushButton">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>230</y>
+          <width>81</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Load ROI</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>150</y>
+          <width>41</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>255</red>
+              <green>0</green>
+              <blue>128</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>255</red>
+              <green>0</green>
+              <blue>128</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>120</red>
+              <green>120</green>
+              <blue>120</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Signal</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>150</y>
+          <width>31</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>66</red>
+              <green>143</green>
+              <blue>163</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>66</red>
+              <green>143</green>
+              <blue>163</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>120</red>
+              <green>120</green>
+              <blue>120</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="text">
+         <string>Noise</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="gui::GroupBox" name="View">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="title">
+        <string>View</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <widget class="QCheckBox" name="logScaleCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>101</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Log scale</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="shiftCornersCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>121</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Shifted corners</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="minLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Min:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="maxLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>190</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Max:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="autoPushButton">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>130</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="viewModeComboBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>141</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <item>
+         <property name="text">
+          <string>magnitude</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>squared magnitude</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>argument</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QCheckBox" name="contrastCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>82</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Contrast</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>160</y>
+          <width>62</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>190</y>
+          <width>62</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
         </property>
        </widget>
       </widget>
@@ -385,14 +729,14 @@
          <number>1</number>
         </property>
         <property name="maximum">
-         <number>1000000</number>
+         <number>10000000</number>
         </property>
        </widget>
        <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>80</y>
+          <y>60</y>
           <width>71</width>
           <height>21</height>
          </rect>
@@ -405,7 +749,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>110</y>
+          <y>90</y>
           <width>171</width>
           <height>22</height>
          </rect>
@@ -415,22 +759,22 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>80</y>
-          <width>71</width>
+          <y>60</y>
+          <width>91</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Output file:</string>
+         <string>Image output:</string>
         </property>
        </widget>
        <widget class="QPushButton" name="recPushButton">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>150</y>
-          <width>171</width>
-          <height>31</height>
+          <y>120</y>
+          <width>81</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
@@ -443,191 +787,79 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>190</y>
-          <width>171</width>
-          <height>31</height>
+          <x>110</x>
+          <y>120</y>
+          <width>71</width>
+          <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Stop</string>
         </property>
        </widget>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="gui::GroupBox" name="View">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-         <kerning>true</kerning>
-        </font>
-       </property>
-       <property name="title">
-        <string>View</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-       <widget class="QCheckBox" name="logScaleCheckBox">
+       <widget class="QLabel" name="ROIOutputFileLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
+          <y>170</y>
           <width>101</width>
           <height>21</height>
          </rect>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
         <property name="text">
-         <string>Log scale</string>
+         <string>Average output:</string>
         </property>
        </widget>
-       <widget class="QCheckBox" name="shiftCornersCheckBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>90</y>
-          <width>121</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Shifted corners</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="minLabel">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>170</y>
-          <width>53</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Min:</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="maxLabel">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>200</y>
-          <width>53</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Max:</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="autoPushButton">
+       <widget class="QPushButton" name="ROIOutputPushButton">
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>130</y>
+          <y>170</y>
           <width>61</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Auto</string>
+         <string>browse</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="comboBox_2">
+       <widget class="QLineEdit" name="ROIOutputLineEdit">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
-          <width>141</width>
+          <y>200</y>
+          <width>171</width>
           <height>22</height>
          </rect>
         </property>
-        <item>
-         <property name="text">
-          <string>magnitude</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>squared magnitude</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>argument</string>
-         </property>
-        </item>
        </widget>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QPushButton" name="ROIPushButton">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>130</y>
-          <width>82</width>
+          <y>230</y>
+          <width>81</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Contrast</string>
+         <string>Rec</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
+       <widget class="QPushButton" name="pushButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="geometry">
          <rect>
-          <x>60</x>
-          <y>170</y>
-          <width>62</width>
-          <height>22</height>
+          <x>110</x>
+          <y>230</y>
+          <width>71</width>
+          <height>21</height>
          </rect>
         </property>
-        <property name="minimum">
-         <double>-100.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-       </widget>
-       <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>60</x>
-          <y>200</y>
-          <width>62</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="minimum">
-         <double>-100.000000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
+        <property name="text">
+         <string>Stop</string>
         </property>
        </widget>
       </widget>
@@ -660,6 +892,7 @@
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionEdge"/>
      <addaction name="actionIDS"/>
      <addaction name="actionIXon"/>
      <addaction name="actionPike"/>
@@ -839,6 +1072,11 @@
   <action name="actionIXon">
    <property name="text">
     <string>iXon</string>
+   </property>
+  </action>
+  <action name="actionEdge">
+   <property name="text">
+    <string>Edge</string>
    </property>
   </action>
  </widget>
@@ -1086,8 +1324,8 @@
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>108</y>
+     <x>509</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -1102,8 +1340,8 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>530</x>
-     <y>133</y>
+     <x>509</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -1118,8 +1356,8 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>217</y>
+     <x>728</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -1134,8 +1372,8 @@
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>778</x>
-     <y>122</y>
+     <x>818</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -1144,7 +1382,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>comboBox_2</sender>
+   <sender>viewModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_view_mode(QString)</slot>
@@ -1160,7 +1398,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>contrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_contrast_mode(bool)</slot>
@@ -1326,12 +1564,12 @@
    <slot>cancel_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>745</x>
-     <y>242</y>
+     <x>818</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>745</x>
-     <y>328</y>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1363,7 +1601,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
-     <y>368</y>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1379,7 +1617,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>87</x>
-     <y>-22</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1395,7 +1633,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>121</x>
-     <y>448</y>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -1406,12 +1644,124 @@
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>181</y>
+     <x>559</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
-     <y>439</y>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_edge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>59</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConfigure</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_holovibes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIOutputPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_roi_output_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>808</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>589</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIBrowseButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_roi_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>saveROIPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>save_roi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>465</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadROIPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>load_roi()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>566</x>
+     <y>257</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>569</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>average_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>680</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>679</x>
+     <y>397</y>
     </hint>
    </hints>
   </connection>
@@ -1448,5 +1798,12 @@
   <slot>configure_camera()</slot>
   <slot>camera_ixon()</slot>
   <slot>set_average_mode(bool)</slot>
+  <slot>camera_edge()</slot>
+  <slot>configure_holovibes()</slot>
+  <slot>browse_roi_output_file()</slot>
+  <slot>browse_roi_file()</slot>
+  <slot>save_roi()</slot>
+  <slot>load_roi()</slot>
+  <slot>average_record()</slot>
  </slots>
 </ui>

@@ -1,4 +1,4 @@
-# Holovibes v0.4.3 #
+# Holovibes v0.5.3 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -11,7 +11,8 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [XiAPI](http://www.ximea.com/support/wiki/apis/XiAPI) XiQ Camera XIMEA API V4.01.80
 * [Driver IDS](http://en.ids-imaging.com) V4.41
 * [AVT Vimba](http://www.alliedvisiontec.com/us/products/legacy.html) V1.3
-* [PCO.Pixelfly driver USB 2.0](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
+* [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
+* [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 
 ### CUDA ###
 
@@ -59,23 +60,28 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Features ##
 
-* Command line options
-* Works with 4 cameras:
-    * XiQ
+* Command line options (for batch processing only)
+* Works with 6 cameras:
+    * Edge
+    * iXon
     * IDS
     * Pike
     * Pixelfly
+    * XiQ
 * Cameras configuration using INI files
 * OpenGL realtime display
+  * Zone selection (zoom, signal/noise averaging)
 * Record frames
 * Hologram computation using the FFT1/FFT2 algorithms.
 * Logarithm filter
 * Manual contrast (logarithmic scale values)
+* Auto-contrast
 * Three view modes : *magnitude*, *squared magnitude* and *argument*.
 * Graphical user interface
-	* Change parameters on the fly
-	* Shortcuts for convenience
+  * Change parameters on the fly
+  * Shortcuts for convenience
 * Vibrometry analysis.
+* Settings auto saving.
 
 ## Authors ##
 
@@ -116,9 +122,9 @@ This mode is useful to do batch computation (call holovibes from a script).
 ### v.0.4.2 ###
 
 * Add Qt user interface.
-	* Keyboard shortcuts
-	* New Qt OpenGL window (resizeable)
-	* Updates holograms parameters in live
+  * Keyboard shortcuts
+  * New Qt OpenGL window (resizeable)
+  * Updates holograms parameters in live
     * Guards and protections against bad user actions
     * Camera change on the fly
     * Record canceling feature
@@ -139,11 +145,35 @@ This mode is useful to do batch computation (call holovibes from a script).
 ### v.0.4.3 ###
 
 * GUI
-	* Visibility methods changed to handle both case instead of having two methods
-	* SpinBox sizes changed
-	* Names of windows and parameters changed
-	* When log scale is enabled, the value given to the pipeline is not powered to 10^9
-	* When contrast enabled, enabling the log scale will update the contrast (to convenient values).
+  * Visibility methods changed to handle both case instead of having two methods
+  * SpinBox sizes changed
+  * Names of windows and parameters changed
+  * When log scale is enabled, the value given to the pipeline is not powered to 10^9
+  * When contrast enabled, enabling the log scale will update the contrast (to convenient values).
 * Update CLI
-	* Display mode is not available in --nogui mode
-	* No Qt in CLI mode
+  * Display mode is not available in --nogui mode
+  * No Qt in CLI mode
+
+### v.0.5 ###
+
+* Zone selection (OpenGL)
+* Zoom (OpenGL)
+* Signal/Noise zone selection average
+* Auto loading/saving Holovibes' configuration in INI file
+* Minor bug fixes
+* New PCO cameras handling (+ pco.edge, camera checking)
+* Auto-contrast
+* Camera Andor iXon support (beta)
+
+### v.0.5.1 ###
+
+* Fix dequeue method for Recorder
+
+### v.0.5.2 ###
+
+* Fix FFT shift corner algorithm
+
+### v.0.5.3 ###
+
+* GUI bug fixes
+* Add average values recording

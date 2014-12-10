@@ -1,6 +1,6 @@
 #include "main_window.hh"
 
-# define Z_STEP 0.01
+#define GLOBAL_INI_PATH "holovibes.ini"
 
 namespace gui
 {
@@ -10,14 +10,18 @@ namespace gui
     gl_window_(nullptr),
     is_direct_mode_(true),
     is_enabled_camera_(false),
+    is_enabled_average_(false),
+    z_step_(0.01f),
+    camera_type_(holovibes::Holovibes::NONE),
     record_thread_(nullptr),
-    z_step_(Z_STEP)
+    average_record_timer_(this)
   {
     ui.setupUi(this);
 
-    // FIXME (it will be when loading a camera from ini file)
     camera_visible(false);
     record_visible(false);
+
+    load_ini("holovibes.ini");
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -41,6 +45,8 @@ namespace gui
 
     // Display default values
     notify();
+
+    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
   }
 
   MainWindow::~MainWindow()
@@ -60,12 +66,16 @@ namespace gui
     
     QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
     p->setValue(cd.pindex);
+    p->setMaximum(cd.nsamples - 1);
 
     QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
     lambda->setValue(cd.lambda * 1.0e9f);
 
     QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
     z->setValue(cd.zdistance);
+
+    QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
+    z_step->setValue(z_step_);
 
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
 
@@ -76,17 +86,63 @@ namespace gui
     else
       algorithm->setCurrentIndex(0);
 
+    QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
+
+    if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
+      view_mode->setCurrentIndex(0);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::SQUARED_MODULUS)
+      view_mode->setCurrentIndex(1);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
+      view_mode->setCurrentIndex(2);
+    else
+      view_mode->setCurrentIndex(0);
+
+    QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
+    log_scale->setChecked(cd.log_scale_enabled);
+
+    QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
+    shift_corners->setChecked(cd.shift_corners_enabled);
+
+    contrast_visible(cd.contrast_enabled);
+
+    QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
+    contrast->setChecked(cd.contrast_enabled);
+
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-    contrast_min->setValue(log10(cd.contrast_min));
+    /* Autocontrast values depends on log_scale option. */
+    if (cd.log_scale_enabled)
+      contrast_min->setValue(cd.contrast_min);
+    else
+      contrast_min->setValue(log10(cd.contrast_min));
 
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-    contrast_max->setValue(log10(cd.contrast_max));
+    if (cd.log_scale_enabled)
+      contrast_max->setValue(cd.contrast_max);
+    else
+      contrast_max->setValue(log10(cd.contrast_max));
+
+    QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
+    vibro->setChecked(cd.vibrometry_enabled);
+
+    image_ratio_visible(cd.vibrometry_enabled);
 
     QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
     p_vibro->setValue(cd.pindex);
+    p_vibro->setMaximum(cd.nsamples - 1);
 
     QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
     q_vibro->setValue(cd.vibrometry_q);
+    q_vibro->setMaximum(cd.nsamples - 1);
+
+    QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
+    average->setChecked(is_enabled_average_);
+
+    average_visible(is_enabled_average_);
+  }
+
+  void MainWindow::configure_holovibes()
+  {
+    open_file(boost::filesystem::current_path().generic_string() + "/" + GLOBAL_INI_PATH);
   }
 
   void MainWindow::gl_full_screen()
@@ -116,6 +172,11 @@ namespace gui
     global_visibility(false);
   }
 
+  void MainWindow::camera_edge()
+  {
+    change_camera(holovibes::Holovibes::EDGE);
+  }
+
   void MainWindow::camera_pike()
   {
     change_camera(holovibes::Holovibes::PIKE);
@@ -133,7 +194,7 @@ namespace gui
 
   void MainWindow::credits()
   {
-    display_info("Holovibes v0.4.3\n\n"
+    display_info("Holovibes v0.5.3\n\n"
       "Scientists:\n"
       "Michael Atlan\n"
       "\n"
@@ -169,7 +230,7 @@ namespace gui
       // If direct mode
       if (value)
       {
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_capture_queue());
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue());
         is_direct_mode_ = true;
 
         global_visibility(false);
@@ -177,7 +238,7 @@ namespace gui
       else
       {
         holovibes_.init_compute();
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_.get_output_queue());
+        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue());
         is_direct_mode_ = false;
 
         global_visibility(true);
@@ -190,7 +251,10 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+      global_visibility(false);
       pipeline.request_update_n(value);
+      global_visibility(true);
+      notify();
     }
   }
 
@@ -201,7 +265,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples)
       {
         // Synchronize with p_vibro
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
@@ -211,7 +275,7 @@ namespace gui
         pipeline.request_refresh();
       }
       else
-        std::cout << "p param has to be between 0 and n" << "\n";
+        display_error("p param has to be between 0 and n");
     }
   }
 
@@ -222,12 +286,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.pindex < cd.nsamples - 1)
+      if (cd.pindex < cd.nsamples)
       {
         cd.pindex++;
         notify();
         pipeline.request_refresh();
       }
+      else
+        display_error("p param has to be between 0 and n - 1");
     }
   }
 
@@ -238,12 +304,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.pindex > 0)
+      if (cd.pindex >= 0)
       {
         cd.pindex--;
         notify();
         pipeline.request_refresh();
       }
+      else
+        display_error("p param has to be between 0 and n - 1");
     }
   }
 
@@ -253,7 +321,7 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.lambda = static_cast<float>(value);
+      cd.lambda = static_cast<float>(value) * 1.0e-9f;
       pipeline.request_refresh();
     }
   }
@@ -336,27 +404,12 @@ namespace gui
 
   void MainWindow::set_contrast_mode(bool value)
   {
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+    contrast_visible(value);
+
     if (!is_direct_mode_)
     {
-      QLabel* min_label = findChild<QLabel*>("minLabel");
-      QLabel* max_label = findChild<QLabel*>("maxLabel");
-      QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-      QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-
-      if (value)
-      {
-        min_label->setDisabled(false);
-        max_label->setDisabled(false);
-        contrast_min->setDisabled(false);
-        contrast_max->setDisabled(false);
-      }
-      else
-      {
-        min_label->setDisabled(true);
-        max_label->setDisabled(true);
-        contrast_min->setDisabled(true);
-        contrast_max->setDisabled(true);
-      }
 
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -453,6 +506,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+      image_ratio_visible(value);
       cd.vibrometry_enabled = value;
       pipeline.request_refresh();
     }
@@ -465,17 +519,14 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples && value >= 0)
       {
-        // Synchronize with p
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setValue(value);
-
         cd.pindex = value;
+        notify();
         pipeline.request_refresh();
       }
       else
-        display_error("p param has to be between 0 and phase #");;
+        display_error("p param has to be between 0 and n - 1");;
     }
   }
 
@@ -486,7 +537,7 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < cd.nsamples)
+      if (value < (int)cd.nsamples && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q = value;
         pipeline.request_refresh();
@@ -498,16 +549,109 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
+
+    // TODO
+    average_visible(value);
+  }
+
+  void MainWindow::browse_roi_file()
+  {
+    QString filename = QFileDialog::getSaveFileName(this,
+      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_output_line_edit->clear();
+    roi_output_line_edit->insert(filename);
+  }
+
+  void MainWindow::browse_roi_output_file()
+  {
+    QString filename = QFileDialog::getSaveFileName(this,
+      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+
+    QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    roi_output_line_edit->insert(filename);
+  }
+
+  void MainWindow::save_roi()
+  {
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    std::string path = path_line_edit->text().toUtf8();
+
+    if (path != "")
+    {
+      boost::property_tree::ptree ptree;
+      const GLWidget& gl_widget = gl_window_->get_gl_widget();
+      const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
+      const holovibes::Rectangle& noise = gl_widget.get_noise_selection();
+
+      ptree.put("signal.top_left_x", signal.top_left.x);
+      ptree.put("signal.top_left_y", signal.top_left.y);
+      ptree.put("signal.bottom_right_x", signal.bottom_right.x);
+      ptree.put("signal.bottom_right_y", signal.bottom_right.y);
+
+      ptree.put("noise.top_left_x", noise.top_left.x);
+      ptree.put("noise.top_left_y", noise.top_left.y);
+      ptree.put("noise.bottom_right_x", noise.bottom_right.x);
+      ptree.put("noise.bottom_right_y", noise.bottom_right.y);
+
+      boost::property_tree::write_ini(path, ptree);
+      display_info("Average zones saved in " + path);
+    }
+    else
+      display_error("Invalid path");
+  }
+
+  void MainWindow::load_roi()
+  {
+    QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    std::string path = path_line_edit->text().toUtf8();
+    boost::property_tree::ptree ptree;
+    GLWidget& gl_widget = gl_window_->get_gl_widget();
+
+    try
+    {
+      boost::property_tree::ini_parser::read_ini(path, ptree);
+
+      holovibes::Point2D signal_top_left;
+      holovibes::Point2D signal_bottom_right;
+      holovibes::Point2D noise_top_left;
+      holovibes::Point2D noise_bottom_right;
+
+      signal_top_left.x = ptree.get<int>("signal.top_left_x", 0);
+      signal_top_left.y = ptree.get<int>("signal.top_left_y", 0);
+      signal_bottom_right.x = ptree.get<int>("signal.bottom_right_x", 0);
+      signal_bottom_right.y = ptree.get<int>("signal.bottom_right_y", 0);
+
+      noise_top_left.x = ptree.get<int>("noise.top_left_x", 0);
+      noise_top_left.y = ptree.get<int>("noise.top_left_y", 0);
+      noise_bottom_right.x = ptree.get<int>("noise.bottom_right_x", 0);
+      noise_bottom_right.y = ptree.get<int>("noise.bottom_right_y", 0);
+
+      holovibes::Rectangle signal(signal_top_left, signal_bottom_right);
+      holovibes::Rectangle noise(noise_top_left, noise_bottom_right);
+
+      gl_widget.set_signal_selection(signal);
+      gl_widget.set_noise_selection(noise);
+      gl_widget.enable_selection();
+      gl_widget.launch_average_computation();
+    }
+    catch (std::exception& e)
+    {
+      display_error("Couldn't load ini file\n" + std::string(e.what()));
+    }
   }
 
   void MainWindow::browse_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
-      tr("Record output file"), "C://", tr(""));
+      tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
 
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    path_line_edit->clear();
     path_line_edit->insert(filename);
   }
 
@@ -581,8 +725,46 @@ namespace gui
       global_visibility(true);
   }
 
+  void MainWindow::average_record()
+  {
+    QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    nb_frames_ = nb_of_frames_spin_box->value();
+
+    holovibes_.get_average_vector().resize(nb_frames_);
+    holovibes_.get_average_vector().clear();
+    average_record_timer_.start(100);
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+  }
+
+  void MainWindow::test_average_record()
+  {
+    std::vector<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+
+    if (vector.size() >= nb_frames_)
+    {
+      QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+      std::string path = output_line_edit->text().toUtf8();
+
+      average_record_timer_.stop();
+      std::ofstream of(path);
+      
+      of << "signal,noise,average\n";
+
+      for (auto it = vector.begin(); it != vector.end(); ++it)
+      {
+        std::tuple<float, float, float>& tuple = *it;
+        of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
+          << std::get<0>(tuple) << ","
+          << std::get<1>(tuple) << ","
+          << std::get<2>(tuple) << "\n";
+      }
+    }
+  }
+
   void MainWindow::closeEvent(QCloseEvent* event)
   {
+    save_ini("holovibes.ini");
+
     if (gl_window_)
       gl_window_->close();
   }
@@ -641,6 +823,19 @@ namespace gui
     settings->setDisabled(!value);
   }
 
+  void MainWindow::contrast_visible(bool value)
+  {
+    QLabel* min_label = findChild<QLabel*>("minLabel");
+    QLabel* max_label = findChild<QLabel*>("maxLabel");
+    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+
+    min_label->setDisabled(!value);
+    max_label->setDisabled(!value);
+    contrast_min->setDisabled(!value);
+    contrast_max->setDisabled(!value);
+  }
+
   void MainWindow::record_visible(bool value)
   {
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
@@ -663,29 +858,59 @@ namespace gui
     record_button->setDisabled(!value);
   }
 
+  void MainWindow::image_ratio_visible(bool value)
+  {
+    QLabel* p_label_vibro = findChild<QLabel*>("pLabelVibro");
+    p_label_vibro->setDisabled(!value);
+    QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+    p_vibro->setDisabled(!value);
+    QLabel* q_label_vibro = findChild<QLabel*>("qLabelVibro");
+    q_label_vibro->setDisabled(!value);
+    QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
+    q_vibro->setDisabled(!value);
+  }
+
+  void MainWindow::average_visible(bool value)
+  {
+    QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
+    roi_file_label->setDisabled(!value);
+    QPushButton* roi_browse_button = findChild<QPushButton*>("ROIBrowseButton");
+    roi_browse_button->setDisabled(!value);
+    QLineEdit* roi_file_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+    roi_file_line_edit->setDisabled(!value);
+    QPushButton* save_roi_button = findChild<QPushButton*>("saveROIPushButton");
+    save_roi_button->setDisabled(!value);
+    QPushButton* load_roi_button = findChild<QPushButton*>("loadROIPushButton");
+    load_roi_button->setDisabled(!value);
+  }
+
   void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
   {
-    try
+    if (camera_type != holovibes::Holovibes::NONE)
     {
-      camera_visible(false);
-      record_visible(false);
-      global_visibility(false);
-      delete gl_window_;
-      gl_window_ = nullptr;
-      holovibes_.dispose_compute();
-      holovibes_.dispose_capture();
-      holovibes_.init_capture(camera_type, 20);
-      camera_visible(true);
-      record_visible(true);
-      set_image_mode(is_direct_mode_);
-    }
-    catch (camera::CameraException& e)
-    {
-      display_error("[CAMERA]" + std::string(e.what()));
-    }
-    catch (std::exception& e)
-    {
-      display_error(e.what());
+      try
+      {
+        camera_visible(false);
+        record_visible(false);
+        global_visibility(false);
+        delete gl_window_;
+        gl_window_ = nullptr;
+        holovibes_.dispose_compute();
+        holovibes_.dispose_capture();
+        holovibes_.init_capture(camera_type, 20);
+        camera_visible(true);
+        record_visible(true);
+        set_image_mode(is_direct_mode_);
+        camera_type_ = camera_type;
+      }
+      catch (camera::CameraException& e)
+      {
+        display_error("[CAMERA]" + std::string(e.what()));
+      }
+      catch (std::exception& e)
+      {
+        display_error(e.what());
+      }
     }
   }
 
@@ -708,5 +933,99 @@ namespace gui
   void MainWindow::open_file(const std::string& path)
   {
     QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
+  }
+
+
+  void MainWindow::load_ini(const std::string& path)
+  {
+    boost::property_tree::ptree ptree;
+
+    try
+    {
+      boost::property_tree::ini_parser::read_ini(path, ptree);
+    }
+    catch (std::exception& e)
+    {
+      std::ofstream os("holovibes.ini");
+    }
+
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    if (!ptree.empty())
+    {
+      // Camera type
+      int camera_type = ptree.get<int>("image_rendering.camera", 0);
+      change_camera((holovibes::Holovibes::camera_type)camera_type);
+
+      // Frame timeout
+      int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
+      camera::FRAME_TIMEOUT = frame_timeout;
+
+      // Image rendering
+      unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
+      cd.nsamples = phase_number;
+
+      unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
+      if (p_index >= 0 && p_index < cd.nsamples)
+        cd.pindex = p_index;
+
+      float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
+      cd.lambda = lambda;
+
+      float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
+      cd.zdistance = z_distance;
+
+      float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
+      if (z_step > 0.0f)
+        z_step_ = z_step;
+
+      int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
+      cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
+
+      // View
+      int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
+      cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
+
+      bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
+      cd.log_scale_enabled = log_scale_enabled;
+
+      bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
+      cd.shift_corners_enabled = shift_corners_enabled;
+
+      bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
+      cd.contrast_enabled = contrast_enabled;
+
+      float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
+      cd.contrast_min = contrast_min;
+
+      float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
+      cd.contrast_max = contrast_max;
+    }
+  }
+
+  void MainWindow::save_ini(const std::string& path)
+  {
+    boost::property_tree::ptree ptree;
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+    // Image rendering
+    ptree.put("image_rendering.camera", camera_type_);
+    ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
+    ptree.put("image_rendering.phase_number", cd.nsamples);
+    ptree.put("image_rendering.p_index", cd.pindex);
+    ptree.put("image_rendering.lambda", cd.lambda);
+    ptree.put("image_rendering.z_distance", cd.zdistance);
+    ptree.put("image_rendering.z_step", z_step_);
+    ptree.put("image_rendering.algorithm", cd.algorithm);
+
+    // View
+    ptree.put("view.view_mode", cd.view_mode);
+    ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
+    ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
+    ptree.put("view.contrast_enabled", cd.contrast_enabled);
+    ptree.put("view.contrast_min", cd.contrast_min);
+    ptree.put("view.contrast_max", cd.contrast_max);
+
+    boost::property_tree::write_ini(path, ptree);
   }
 }

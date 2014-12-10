@@ -10,18 +10,17 @@
 
 namespace camera
 {
+  static int FRAME_TIMEOUT = 10000;
+
   /*! Abstract Camera class. */
   class Camera
   {
   public:
-    // Default constants
-    static const int FRAME_TIMEOUT = 1000;
-
     /*! \brief Base class constructor. It opens the ini file if any,
     ** otherwise it will loads defaults parameters.
     ** \param ini_filepath INI camera configuration file path.
     */
-    Camera(const std::string ini_filepath)
+    Camera(const std::string& ini_filepath)
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
@@ -91,8 +90,8 @@ namespace camera
     /*! Exposure time of the camera. */
     float                    exposure_time_;
 
-    /* private methods */
-  private:
+    /* protected methods */
+  protected:
     /*! Load default parameters. */
     virtual void load_default_params() = 0;
     /*! Load parameters from INI file. */
