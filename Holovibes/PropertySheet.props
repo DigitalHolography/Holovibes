@@ -5,6 +5,7 @@
     <ProjectLibDir>$(ProjectDir)lib</ProjectLibDir>
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
     <QTDIR>C:\Qt\Qt5.3.2\5.3\msvc2013_64_opengl</QTDIR>
+    <QWTDIR>C:\qwt-6.1.1</QWTDIR>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -19,6 +20,9 @@
     </BuildMacro>
     <BuildMacro Include="QTDIR">
       <Value>$(QTDIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="QWTDIR">
+      <Value>$(QWTDIR)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
