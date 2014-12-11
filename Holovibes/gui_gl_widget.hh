@@ -95,6 +95,7 @@ namespace gui
     bool is_signal_selection_;
     holovibes::Rectangle signal_selection_;
     holovibes::Rectangle noise_selection_;
+    QWidget* parent_;
 
     // Translation
     float px_;

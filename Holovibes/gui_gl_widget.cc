@@ -30,6 +30,7 @@ namespace gui
     , px_(0.0f)
     , py_(0.0f)
     , zoom_ratio_(1.0f)
+    , parent_(parent)
   {
     this->setObjectName("GLWidget");
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
@@ -313,6 +314,8 @@ namespace gui
 
     px_ += px * zoom_ratio_;
     py_ += py * zoom_ratio_;
+
+    parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(min_ratio).c_str()));
   }
 
   void GLWidget::dezoom()
@@ -321,6 +324,7 @@ namespace gui
     zoom_ratio_ = 1.0f;
     px_ = 0.0f;
     py_ = 0.0f;
+    parent_->setWindowTitle(QString("Real time display"));
   }
 
   void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
