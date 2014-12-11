@@ -315,7 +315,7 @@ namespace gui
     px_ += px * zoom_ratio_;
     py_ += py * zoom_ratio_;
 
-    parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(min_ratio).c_str()));
+    parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
   }
 
   void GLWidget::dezoom()
