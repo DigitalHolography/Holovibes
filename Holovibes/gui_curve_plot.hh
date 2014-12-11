@@ -3,6 +3,10 @@
 
 # include <QtWidgets>
 # include <qwt_plot.h>
+# include <qwt_plot_curve.h>
+# include <qwt_series_data.h>
+# include <vector>
+# include <tuple>
 
 namespace gui
 {
@@ -11,6 +15,13 @@ namespace gui
   public:
     CurvePlot(QString title, QWidget* parent = 0);
     ~CurvePlot();
+    QSize minimumSizeHint() const override;
+    QSize sizeHint() const override;
+
+    void load_data_vector(const std::vector<std::tuple<float, float, float>>& vector);
+
+  private:
+    QwtPlotCurve curve_;
   };
 }
 
