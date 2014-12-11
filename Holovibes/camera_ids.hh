@@ -1,7 +1,7 @@
 #ifndef CAMERA_IDS_HH
 # define CAMERA_IDS_HH
 
-# include "camera.hh"
+# include "camera/camera.hh"
 
 /* Disable warnings. */
 # pragma warning (push, 0)

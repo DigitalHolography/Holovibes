@@ -1,5 +1,5 @@
 #include "camera_ixon.hh"
-#include "camera_exception.hh"
+#include "camera/camera_exception.hh"
 
 #include "atmcd32d.h"
 #include <iostream>

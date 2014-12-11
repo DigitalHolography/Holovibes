@@ -1,5 +1,5 @@
 #include "holovibes.hh"
-#include "frame_desc.hh"
+#include "camera/frame_desc.hh"
 #include "camera_ids.hh"
 #include "camera_ixon.hh"
 #include "camera_pike.hh"

@@ -1,5 +1,5 @@
 #include "camera_pco.hh"
-#include "camera_exception.hh"
+#include "camera/camera_exception.hh"
 #include <boost/lexical_cast.hpp>
 
 #include <PCO_err.h>

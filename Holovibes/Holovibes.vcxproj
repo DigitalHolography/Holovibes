@@ -136,14 +136,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="average.cuh" />
-    <ClInclude Include="camera.hh" />
+    <ClInclude Include="camera\camera.hh" />
+    <ClInclude Include="camera\camera_exception.hh" />
+    <ClInclude Include="camera\frame_desc.hh" />
     <ClInclude Include="camera_pco_edge.hh" />
     <ClInclude Include="camera_pco.hh" />
     <ClInclude Include="camera_xiq.hh" />
     <ClInclude Include="camera_ids.hh" />
     <ClInclude Include="camera_pco_pixelfly.hh" />
     <ClInclude Include="camera_pike.hh" />
-    <ClInclude Include="camera_exception.hh" />
     <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="fft2.cuh" />
@@ -189,7 +190,6 @@
     <ClInclude Include="options_parser.hh" />
     <ClInclude Include="pipeline.hh" />
     <ClInclude Include="preprocessing.cuh" />
-    <ClInclude Include="frame_desc.hh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
     <ClInclude Include="fft1.cuh" />
@@ -220,6 +220,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="camera\camera_exception.cc" />
     <ClCompile Include="camera_pco_edge.cc" />
     <ClCompile Include="camera_ixon.cc" />
     <ClInclude Include="camera_ixon.hh" />
@@ -228,7 +229,6 @@
     <ClCompile Include="camera_ids.cc" />
     <ClCompile Include="camera_pike.cc" />
     <ClCompile Include="camera_pco_pixelfly.cc" />
-    <ClCompile Include="camera_exception.cc" />
     <ClCompile Include="compute_descriptor.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

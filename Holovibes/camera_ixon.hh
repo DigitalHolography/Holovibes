@@ -1,7 +1,7 @@
 #ifndef CAMERA_IXON_HH
 # define CAMERA_IXON_HH
 
-# include "camera.hh"
+# include "camera/camera.hh"
 
 namespace camera
 {

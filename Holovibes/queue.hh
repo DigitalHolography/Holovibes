@@ -6,7 +6,7 @@
 # include <cuda.h>
 # include <cuda_runtime.h>
 
-# include "frame_desc.hh"
+# include "camera/frame_desc.hh"
 
 namespace holovibes
 {

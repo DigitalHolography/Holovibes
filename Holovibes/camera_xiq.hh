@@ -1,7 +1,7 @@
 #ifndef CAMERA_XIQ_HH
 # define CAMERA_XIQ_HH
 
-# include "camera.hh"
+# include "camera/camera.hh"
 
 # include <Windows.h>
 # include <xiApi.h>

@@ -1,5 +1,5 @@
 #include "camera_pco_pixelfly.hh"
-#include "camera_exception.hh"
+#include "camera/camera_exception.hh"
 
 #include <PCO_err.h>
 #include <sc2_defs.h>

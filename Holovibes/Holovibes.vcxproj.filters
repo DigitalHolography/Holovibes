@@ -77,9 +77,6 @@
     <ClCompile Include="camera_pike.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_exception.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="holovibes.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -173,11 +170,11 @@
     <ClCompile Include="camera_pco_pixelfly.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="camera\camera_exception.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="camera_xiq.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -185,9 +182,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="camera_pike.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_exception.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="contrast_correction.cuh">
@@ -207,9 +201,6 @@
     </ClInclude>
     <ClInclude Include="preprocessing.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="frame_desc.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
@@ -275,6 +266,15 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="geometry.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera\camera.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera\camera_exception.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera\frame_desc.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

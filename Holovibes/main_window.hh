@@ -18,7 +18,7 @@
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
-# include "camera_exception.hh"
+# include "camera/camera_exception.hh"
 # include "thread_recorder.hh"
 
 namespace gui
