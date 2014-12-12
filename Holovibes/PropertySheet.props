@@ -2,20 +2,39 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <ProjectLibDir>$(ProjectDir)lib</ProjectLibDir>
+    <ProjectLibDir>$(SolutionDir)lib</ProjectLibDir>
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
     <QTDIR>C:\Qt\Qt5.3.2\5.3\msvc2013_64_opengl</QTDIR>
   </PropertyGroup>
-  <PropertyGroup />
-  <ItemDefinitionGroup />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>HolovibesPropertySheet</_PropertySheetDisplayName>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_35,sm_35</CodeGeneration>
+    </CudaCompile>
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectLibDir)\ixon\includes;$(ProjectLibDir)\pco\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(BoostLib);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions />
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectLibDir)\pco\SC2_Cam.lib;$(ProjectLibDir)\ids\uEye_api_64.lib;$(ProjectLibDir)\avt\FGCamera.lib;$(ProjectLibDir)\ximea\m3apiX64.lib;$(ProjectLibDir)\ixon\atmcd64m.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>
+      </GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="ProjectLibDir">
       <Value>$(ProjectLibDir)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="BoostLib">
       <Value>$(BoostLib)</Value>
-      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="QTDIR">
       <Value>$(QTDIR)</Value>
