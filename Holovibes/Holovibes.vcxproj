@@ -145,6 +145,7 @@
     <ClInclude Include="camera_pike.hh" />
     <ClInclude Include="camera_exception.hh" />
     <ClInclude Include="compute_descriptor.hh" />
+    <ClInclude Include="concurrent_deque.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="fft2.cuh" />
     <ClInclude Include="GeneratedFiles\ui_gl_window.h" />

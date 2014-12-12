@@ -21,6 +21,7 @@
 # include "gui_curve_plot.hh"
 # include "camera_exception.hh"
 # include "thread_recorder.hh"
+# include "concurrent_deque.hh"
 
 namespace gui
 {

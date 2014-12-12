@@ -5,9 +5,11 @@
 # include <qwt_plot.h>
 # include <qwt_plot_curve.h>
 # include <qwt_series_data.h>
-# include <deque>
 # include <tuple>
 # include <iostream>
+# include <array>
+
+# include "concurrent_deque.hh"
 
 namespace gui
 {
@@ -16,7 +18,7 @@ namespace gui
     Q_OBJECT
 
   public:
-    CurvePlot(std::deque<std::tuple<float, float, float>>& data_vect,
+    CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
       QString title,
       QWidget* parent = 0);
     ~CurvePlot();
@@ -29,10 +31,11 @@ namespace gui
     void update();
 
   private:
-    std::deque<std::tuple<float, float, float>>& data_vect_;
+    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect_;
     QwtPlot plot_;
     QwtPlotCurve curve_;
     QTimer timer_;
+    std::array<std::tuple<float, float, float>, 100> average_array_;
   };
 }
 

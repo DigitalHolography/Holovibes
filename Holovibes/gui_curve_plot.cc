@@ -5,7 +5,7 @@
 
 namespace gui
 {
-  CurvePlot::CurvePlot(std::deque<std::tuple<float, float, float>>& data_vect,
+  CurvePlot::CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
     QString title, 
     QWidget* parent)
     : QWidget(parent),
@@ -42,11 +42,11 @@ namespace gui
 
     if (!data_vect_.empty())
     {
-      for (auto it = data_vect_.rbegin(); it != data_vect_.rend(); ++it)
+      size_t copied_elts_nb = data_vect_.fill_array(average_array_);
+
+      for (size_t i = 0; i < copied_elts_nb; ++i)
       {
-        std::tuple<float, float, float> tuple = *it;
-        new_data << QPointF(i, std::get<2>(tuple));
-        ++i;
+        new_data << QPointF(i, std::get<2>(average_array_[i]));
       }
     }
 

@@ -564,8 +564,8 @@ namespace gui
     delete average_plot_;
     average_plot_ = nullptr;
 
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), 10000);
-    average_plot_ = new CurvePlot(holovibes_.get_average_vector(), "Average");
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue(), 10000);
+    average_plot_ = new CurvePlot(holovibes_.get_average_queue(), "Average");
   }
 
   void MainWindow::browse_roi_file()
@@ -741,10 +741,10 @@ namespace gui
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_frames_ = nb_of_frames_spin_box->value();
 
-    holovibes_.get_average_vector().resize(nb_frames_);
-    holovibes_.get_average_vector().clear();
+    holovibes_.get_average_queue().resize(nb_frames_);
+    holovibes_.get_average_queue().clear();
     average_record_timer_.start(100);
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue(), nb_frames_);
 
     global_visibility(false);
     record_but_cancel_visible(false);
@@ -755,9 +755,9 @@ namespace gui
 
   void MainWindow::test_average_record()
   {
-    std::deque<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& queue = holovibes_.get_average_queue();
 
-    if (vector.size() >= nb_frames_)
+    if (queue.size() >= nb_frames_)
     {
       QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
       std::string path = output_line_edit->text().toUtf8();
@@ -767,7 +767,7 @@ namespace gui
       
       of << "signal,noise,average\n";
 
-      for (auto it = vector.begin(); it != vector.end(); ++it)
+      for (auto it = queue.begin(); it != queue.end(); ++it)
       {
         std::tuple<float, float, float>& tuple = *it;
         of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
@@ -790,7 +790,7 @@ namespace gui
     {
       average_record_timer_.stop();
       holovibes_.get_pipeline().request_refresh();
-      holovibes_.get_average_vector().clear();
+      holovibes_.get_average_queue().clear();
 
       global_visibility(true);
       record_but_cancel_visible(true);

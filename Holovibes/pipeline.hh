@@ -2,12 +2,12 @@
 # define PIPELINE_HH
 
 # include <vector>
-# include <deque>
 # include <tuple>
 # include <functional>
 # include <cufft.h>
 
 # include "queue.hh"
+# include "concurrent_deque.hh"
 # include "compute_descriptor.hh"
 
 namespace holovibes
@@ -27,7 +27,7 @@ namespace holovibes
     void request_autocontrast();
     void request_update_n(unsigned short n);
     void request_average(
-      std::deque<std::tuple<float, float, float>>* output,
+      ConcurrentDeque<std::tuple<float, float, float>>* output,
       unsigned int n);
     void exec();
   private:
@@ -76,7 +76,7 @@ namespace holovibes
     bool update_n_requested_;
     bool average_requested_;
 
-    std::deque<std::tuple<float, float, float>>* average_output_;
+    ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
   };
 }
