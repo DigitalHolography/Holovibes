@@ -368,7 +368,7 @@ namespace holovibes
   }
 
   void Pipeline::request_average(
-    std::vector<std::tuple<float, float, float>>* output,
+    std::deque<std::tuple<float, float, float>>* output,
     unsigned int n)
   {
     assert(output != nullptr);

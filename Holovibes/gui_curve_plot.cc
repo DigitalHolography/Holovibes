@@ -5,7 +5,7 @@
 
 namespace gui
 {
-  CurvePlot::CurvePlot(const std::vector<std::tuple<float, float, float>>& data_vect,
+  CurvePlot::CurvePlot(std::deque<std::tuple<float, float, float>>& data_vect,
     QString title, 
     QWidget* parent)
     : QWidget(parent),
@@ -57,6 +57,12 @@ namespace gui
   void CurvePlot::update()
   {
     load_data_vector();
+
+    while (data_vect_.size() > 100)
+    {
+      data_vect_.pop_front();
+    }
+
     plot_.replot();
   }
 }

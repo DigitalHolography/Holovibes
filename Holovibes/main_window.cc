@@ -755,7 +755,7 @@ namespace gui
 
   void MainWindow::test_average_record()
   {
-    std::vector<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+    std::deque<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
 
     if (vector.size() >= nb_frames_)
     {

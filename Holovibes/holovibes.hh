@@ -1,6 +1,7 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
+# include <deque>
 # include "camera.hh"
 # include "thread_compute.hh"
 # include "thread_capture.hh"
@@ -75,7 +76,7 @@ namespace holovibes
       return camera_->get_ini_path();
     }
 
-    std::vector<std::tuple<float, float, float>>& get_average_vector()
+    std::deque<std::tuple<float, float, float>>& get_average_vector()
     {
       return average_vector_;
     }
@@ -91,7 +92,7 @@ namespace holovibes
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
 
-    std::vector<std::tuple<float, float, float>> average_vector_;
+    std::deque<std::tuple<float, float, float>> average_vector_;
   };
 }
 
