@@ -18,7 +18,7 @@ namespace gui
     plot_.setMinimumSize(WIDTH, HEIGHT);
     show();
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
-    timer_.start(100);
+    timer_.start(40);
   }
 
   CurvePlot::~CurvePlot()
