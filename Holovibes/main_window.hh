@@ -18,6 +18,7 @@
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
+# include "gui_curve_plot.hh"
 # include "camera_exception.hh"
 # include "thread_recorder.hh"
 
@@ -74,6 +75,7 @@ namespace gui
     void set_p_vibro(int value);
     void set_q_vibro(int value);
     void set_average_mode(bool value);
+    void set_average_graphic();
     void browse_roi_file();
     void browse_roi_output_file();
     void save_roi();
@@ -116,6 +118,8 @@ namespace gui
     bool is_enabled_average_;
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
+
+    CurvePlot* average_plot_;
 
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;

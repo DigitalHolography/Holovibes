@@ -1,13 +1,24 @@
 #include "gui_curve_plot.hh"
 
+#define WIDTH 600
+#define HEIGHT 300
+
 namespace gui
 {
-  CurvePlot::CurvePlot(QString title, QWidget* parent)
-    : QwtPlot(title, parent),
-    curve_("First curve")
+  CurvePlot::CurvePlot(const std::vector<std::tuple<float, float, float>>& data_vect,
+    QString title, 
+    QWidget* parent)
+    : QWidget(parent),
+    data_vect_(data_vect),
+    plot_(title, this),
+    curve_("First curve"),
+    timer_(this)
   {
-    this->setMinimumSize(600, 300);
+    this->setMinimumSize(WIDTH, HEIGHT);
+    plot_.setMinimumSize(WIDTH, HEIGHT);
     show();
+    connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
+    timer_.start(100);
   }
 
   CurvePlot::~CurvePlot()
@@ -16,32 +27,36 @@ namespace gui
 
   QSize CurvePlot::minimumSizeHint() const
   {
-    return QSize(500, 200);
+    return QSize(WIDTH, HEIGHT);
   }
 
   QSize CurvePlot::sizeHint() const
   {
-    return QSize(500, 200);
+    return QSize(WIDTH, HEIGHT);
   }
 
-  void CurvePlot::load_data_vector(const std::vector<std::tuple<float, float, float>>& vector)
+  void CurvePlot::load_data_vector()
   {
     QPolygonF new_data;
-    static int frame_nb = 0;
+    unsigned int i = 0;
 
-    if (!vector.empty())
+    if (!data_vect_.empty())
     {
-      for (auto it = vector.begin(); it != vector.end(); ++it)
+      for (auto it = data_vect_.rbegin(); it != data_vect_.rend(); ++it)
       {
-        const std::tuple<float, float, float>& tuple = *it;
-
-        new_data << QPointF(frame_nb, std::get<2>(tuple));
-        ++frame_nb;
+        std::tuple<float, float, float> tuple = *it;
+        new_data << QPointF(i, std::get<2>(tuple));
+        ++i;
       }
     }
 
     curve_.setSamples(new_data);
-    curve_.attach(this);
-    replot();
+    curve_.attach(&plot_);
+  }
+
+  void CurvePlot::update()
+  {
+    load_data_vector();
+    plot_.replot();
   }
 }

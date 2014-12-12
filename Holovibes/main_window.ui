@@ -516,6 +516,19 @@
          <string>Noise</string>
         </property>
        </widget>
+       <widget class="QPushButton" name="pushButton">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>120</y>
+          <width>61</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>plot</string>
+        </property>
+       </widget>
       </widget>
      </item>
      <item row="0" column="1">
@@ -1781,6 +1794,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_average_graphic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>163</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>588</x>
+     <y>-51</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1822,5 +1851,6 @@
   <slot>load_roi()</slot>
   <slot>average_record()</slot>
   <slot>cancel_average_record()</slot>
+  <slot>set_average_graphic()</slot>
  </slots>
 </ui>

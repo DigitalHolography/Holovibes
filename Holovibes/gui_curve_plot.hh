@@ -7,21 +7,32 @@
 # include <qwt_series_data.h>
 # include <vector>
 # include <tuple>
+# include <iostream>
 
 namespace gui
 {
-  class CurvePlot : public QwtPlot
+  class CurvePlot : public QWidget
   {
+    Q_OBJECT
+
   public:
-    CurvePlot(QString title, QWidget* parent = 0);
+    CurvePlot(const std::vector<std::tuple<float, float, float>>& data_vect,
+      QString title,
+      QWidget* parent = 0);
     ~CurvePlot();
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
-    void load_data_vector(const std::vector<std::tuple<float, float, float>>& vector);
+    void load_data_vector();
+
+  public slots:
+    void update();
 
   private:
+    const std::vector<std::tuple<float, float, float>>& data_vect_;
+    QwtPlot plot_;
     QwtPlotCurve curve_;
+    QTimer timer_;
   };
 }
 

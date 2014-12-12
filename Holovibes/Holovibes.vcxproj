@@ -180,7 +180,16 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
     </CustomBuild>
     <ClInclude Include="geometry.hh" />
-    <ClInclude Include="gui_curve_plot.hh" />
+    <CustomBuild Include="gui_curve_plot.hh">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
+    </CustomBuild>
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
     <ClInclude Include="frame_file_loader.hh" />
@@ -231,6 +240,7 @@
     <ClCompile Include="camera_pco_pixelfly.cc" />
     <ClCompile Include="camera_exception.cc" />
     <ClCompile Include="compute_descriptor.cc" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>

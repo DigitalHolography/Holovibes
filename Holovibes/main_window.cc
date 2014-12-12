@@ -13,6 +13,7 @@ namespace gui
     is_enabled_average_(false),
     z_step_(0.01f),
     camera_type_(holovibes::Holovibes::NONE),
+    average_plot_(nullptr),
     record_thread_(nullptr),
     average_record_timer_(this)
   {
@@ -556,6 +557,15 @@ namespace gui
 
     // TODO
     average_visible(value);
+  }
+
+  void MainWindow::set_average_graphic()
+  {
+    delete average_plot_;
+    average_plot_ = nullptr;
+
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), 10000);
+    average_plot_ = new CurvePlot(holovibes_.get_average_vector(), "Average");
   }
 
   void MainWindow::browse_roi_file()
