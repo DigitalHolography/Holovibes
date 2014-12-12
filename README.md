@@ -182,3 +182,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * GUI/CLI minor changes
 * Update iXon camera
+
+### v.0.5.5 ###
+
+* GUI plot average
