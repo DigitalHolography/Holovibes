@@ -564,7 +564,7 @@ namespace gui
     delete average_plot_;
     average_plot_ = nullptr;
 
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue(), 10000);
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
     average_plot_ = new CurvePlot(holovibes_.get_average_queue(), "Average");
   }
 
@@ -744,7 +744,7 @@ namespace gui
     holovibes_.get_average_queue().resize(nb_frames_);
     holovibes_.get_average_queue().clear();
     average_record_timer_.start(100);
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue(), nb_frames_);
+    holovibes_.get_pipeline().request_average_record(&holovibes_.get_average_queue(), nb_frames_);
 
     global_visibility(false);
     record_but_cancel_visible(false);

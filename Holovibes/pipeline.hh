@@ -27,6 +27,8 @@ namespace holovibes
     void request_autocontrast();
     void request_update_n(unsigned short n);
     void request_average(
+      ConcurrentDeque<std::tuple<float, float, float>>* output);
+    void request_average_record(
       ConcurrentDeque<std::tuple<float, float, float>>* output,
       unsigned int n);
     void exec();
@@ -37,6 +39,12 @@ namespace holovibes
       unsigned int size,
       ComputeDescriptor& compute_desc);
     void average_caller(
+      float* input,
+      unsigned int width,
+      unsigned int height,
+      Rectangle& signal,
+      Rectangle& noise);
+    void average_record_caller(
       float* input,
       unsigned int width,
       unsigned int height,
@@ -75,6 +83,7 @@ namespace holovibes
     bool refresh_requested_;
     bool update_n_requested_;
     bool average_requested_;
+    bool average_record_requested;
 
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
