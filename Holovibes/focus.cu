@@ -46,8 +46,6 @@ void extract_s(cufftComplex* input, cufftComplex *output,
   unsigned int size, holovibes::Rectangle& s_coord,
   camera::FrameDescriptor input_fd)
 {
-  int img_x;
-  int img_y;
   int start_x = s_coord.top_left.x;
   int start_y = s_coord.top_left.y;
   int end_x = s_coord.top_right.x;
