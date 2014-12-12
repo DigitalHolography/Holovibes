@@ -58,7 +58,7 @@ namespace gui
     while (data_vect_.size() > 100)
       data_vect_.pop_front();
 
-    plot_.setAxisScale(0, 0.0, 10.0, 1.0);
+    plot_.setAxisScale(0, -5.0, 15.0, 2.0);
     plot_.replot();
   }
 }
