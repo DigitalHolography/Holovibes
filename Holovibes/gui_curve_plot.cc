@@ -38,16 +38,13 @@ namespace gui
   void CurvePlot::load_data_vector()
   {
     QPolygonF new_data;
-    unsigned int i = 0;
 
     if (!data_vect_.empty())
     {
       size_t copied_elts_nb = data_vect_.fill_array(average_array_);
 
       for (size_t i = 0; i < copied_elts_nb; ++i)
-      {
         new_data << QPointF(i, std::get<2>(average_array_[i]));
-      }
     }
 
     curve_.setSamples(new_data);
@@ -59,10 +56,9 @@ namespace gui
     load_data_vector();
 
     while (data_vect_.size() > 100)
-    {
       data_vect_.pop_front();
-    }
 
+    plot_.setAxisScale(0, 0.0, 10.0, 1.0);
     plot_.replot();
   }
 }
