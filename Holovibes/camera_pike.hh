@@ -1,8 +1,8 @@
 #ifndef CAMERA_PIKE_HH
 # define CAMERA_PIKE_HH
 
-# include "camera/camera.hh"
-# include "camera/camera_exception.hh"
+# include <camera.hh>
+# include <camera_exception.hh>
 
 /* Disable warning. */
 # pragma warning (push, 0)

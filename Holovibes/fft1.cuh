@@ -3,7 +3,7 @@
 
 #include <cufft.h>
 #include "queue.hh"
-#include "camera/frame_desc.hh"
+#include <frame_desc.hh>
 
 /*! \param lens Lens is externally allocated. */
 void fft1_lens(

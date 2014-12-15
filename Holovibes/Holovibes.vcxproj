@@ -110,9 +110,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="average.cuh" />
-    <ClInclude Include="camera\camera.hh" />
-    <ClInclude Include="camera\camera_exception.hh" />
-    <ClInclude Include="camera\frame_desc.hh" />
     <ClInclude Include="camera_pco_edge.hh" />
     <ClInclude Include="camera_pco.hh" />
     <ClInclude Include="camera_xiq.hh" />
@@ -194,7 +191,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera\camera_exception.cc" />
     <ClCompile Include="camera_pco_edge.cc" />
     <ClCompile Include="camera_ixon.cc" />
     <ClInclude Include="camera_ixon.hh" />

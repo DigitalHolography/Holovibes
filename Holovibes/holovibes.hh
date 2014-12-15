@@ -1,7 +1,7 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
-# include "camera/camera.hh"
+# include <camera.hh>
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"

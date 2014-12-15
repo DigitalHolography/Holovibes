@@ -1,7 +1,7 @@
 #ifndef CAMERA_PCO_HH
 # define CAMERA_PCO_HH
 
-# include "camera/camera.hh"
+# include <camera.hh>
 
 # include <iostream>
 # include <array>

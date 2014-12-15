@@ -1,5 +1,5 @@
 #include "camera_ids.hh"
-#include "camera/camera_exception.hh"
+#include <camera_exception.hh>
 
 namespace camera
 {

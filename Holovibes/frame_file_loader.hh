@@ -4,7 +4,7 @@
 # include <string>
 # include <fstream>
 # include "queue.hh"
-# include "camera/frame_desc.hh"
+# include <frame_desc.hh>
 
 namespace holovibes
 {

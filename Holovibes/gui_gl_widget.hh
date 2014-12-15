@@ -9,7 +9,7 @@
 # include <cuda_gl_interop.h>
 
 # include "queue.hh"
-# include "camera/frame_desc.hh"
+# include <frame_desc.hh>
 # include "geometry.hh"
 # include "holovibes.hh"
 

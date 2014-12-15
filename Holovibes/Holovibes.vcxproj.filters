@@ -170,9 +170,6 @@
     <ClCompile Include="camera_pco_pixelfly.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera\camera_exception.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera_xiq.hh">
@@ -266,15 +263,6 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="geometry.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera\camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera\camera_exception.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera\frame_desc.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

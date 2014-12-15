@@ -3,7 +3,7 @@
 
 # include <thread>
 
-# include "camera/camera.hh"
+# include <camera.hh>
 # include "queue.hh"
 
 namespace holovibes

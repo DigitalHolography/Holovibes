@@ -19,7 +19,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectLibDir)\ixon\include;$(ProjectLibDir)\pco\include;$(ProjectLibDir)\avt\include;$(ProjectLibDir)\ids\include;$(ProjectLibDir)\ximea\include;$(BoostLib);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectLibDir)\ixon\include;$(ProjectLibDir)\pco\include;$(ProjectLibDir)\avt\include;$(ProjectLibDir)\ids\include;$(ProjectLibDir)\ximea\include;$(BoostLib);$(SolutionDir)Camera\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions />
     </ClCompile>
     <Link>
