@@ -186,3 +186,9 @@ This mode is useful to do batch computation (call holovibes from a script).
 ### v.0.5.5 ###
 
 * GUI plot average
+
+### v.0.5.6 ###
+
+* GUI plot average can be resized
+* GUI auto scale for plot average
+* GUI minor bugs fixed
