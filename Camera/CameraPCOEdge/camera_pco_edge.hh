@@ -9,7 +9,7 @@
 
 namespace camera
 {
-  class CameraPCOEdge : public CameraPCO
+  class CAMERA_API CameraPCOEdge : public CameraPCO
   {
   public:
     CameraPCOEdge();

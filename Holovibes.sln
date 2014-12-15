@@ -6,21 +6,38 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Holovibes", "Holovibes\Holovibes.vcxproj", "{CA75A564-8C60-4C3B-8778-996F1879BF65}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraPCOPixelfly", "Camera\CameraPCOPixelfly\CameraPCOPixelfly.vcxproj", "{D981B600-1444-4D9B-8124-45CC358AB8DF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraIds", "Camera\CameraIds\CameraIds.vcxproj", "{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraIxon", "Camera\CameraIxon\CameraIxon.vcxproj", "{BD9D923D-7F70-48BE-B385-6645B49E3B0B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraPCOEdge", "Camera\CameraPCOEdge\CameraPCOEdge.vcxproj", "{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraPike", "Camera\CameraPike\CameraPike.vcxproj", "{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraXiq", "Camera\CameraXiq\CameraXiq.vcxproj", "{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {328009CF-2632-445C-B96E-DEB3AF2A4C71}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Camera Libraries", "Camera Libraries", "{26D59CCE-F3C2-4C90-96EA-625470BC8225}"
 	ProjectSection(SolutionItems) = preProject
 		Camera\include\camera.hh = Camera\include\camera.hh
-		Camera\camera_exception.cc = Camera\camera_exception.cc
 		Camera\include\camera_exception.hh = Camera\include\camera_exception.hh
 		Camera\include\frame_desc.hh = Camera\include\frame_desc.hh
 	EndProjectSection
@@ -30,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CameraPCO", "CameraPCO", "{
 		Camera\CameraPCO\camera_pco.cc = Camera\CameraPCO\camera_pco.cc
 		Camera\CameraPCO\camera_pco.hh = Camera\CameraPCO\camera_pco.hh
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaseCamera", "Camera\BaseCamera\BaseCamera.vcxproj", "{328009CF-2632-445C-B96E-DEB3AF2A4C71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,10 +62,12 @@ Global
 		{CA75A564-8C60-4C3B-8778-996F1879BF65}.Release|x64.Build.0 = Release|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.ActiveCfg = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.Build.0 = Debug|x64
+		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.Deploy.0 = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Release|x64.ActiveCfg = Release|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Release|x64.Build.0 = Release|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.ActiveCfg = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.Build.0 = Debug|x64
+		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.Deploy.0 = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Release|x64.ActiveCfg = Release|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Release|x64.Build.0 = Release|x64
 		{BD9D923D-7F70-48BE-B385-6645B49E3B0B}.Debug|x64.ActiveCfg = Debug|x64
@@ -55,6 +76,7 @@ Global
 		{BD9D923D-7F70-48BE-B385-6645B49E3B0B}.Release|x64.Build.0 = Release|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.ActiveCfg = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.Build.0 = Debug|x64
+		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.Deploy.0 = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Release|x64.ActiveCfg = Release|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Release|x64.Build.0 = Release|x64
 		{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E}.Debug|x64.ActiveCfg = Debug|x64
@@ -63,8 +85,13 @@ Global
 		{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E}.Release|x64.Build.0 = Release|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.ActiveCfg = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.Build.0 = Debug|x64
+		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.Deploy.0 = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Release|x64.ActiveCfg = Release|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Release|x64.Build.0 = Release|x64
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71}.Debug|x64.ActiveCfg = Debug|x64
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71}.Debug|x64.Build.0 = Debug|x64
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71}.Release|x64.ActiveCfg = Release|x64
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,5 +104,6 @@ Global
 		{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
 		{D45B9D31-7307-47C9-BBC1-69822B48DBD7} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
+		{328009CF-2632-445C-B96E-DEB3AF2A4C71} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
 	EndGlobalSection
 EndGlobal

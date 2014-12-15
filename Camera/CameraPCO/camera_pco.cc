@@ -13,7 +13,7 @@ namespace camera
   CameraPCO::CameraPCO(
     const std::string& ini_filepath,
     WORD camera_type)
-    : Camera(ini_filepath)
+    : Camera(ini_filepath.c_str())
     , device_(nullptr)
     , camera_type_(camera_type)
     , buffers_events_()
@@ -202,7 +202,7 @@ namespace camera
         assert(buffer_nbr == i);
       }
     }
-    catch (std::bad_alloc& ba)
+    catch (std::bad_alloc&)
     {
       throw CameraException(CameraException::MEMORY_PROBLEM);
     }

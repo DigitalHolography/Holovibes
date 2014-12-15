@@ -56,6 +56,8 @@ namespace camera
 
   private:
     const camera_error code_;
+
+    CameraException& operator=(const CameraException&) = delete;
   };
 }
 

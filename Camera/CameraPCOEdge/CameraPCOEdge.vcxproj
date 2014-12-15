@@ -11,10 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\CameraPCO\camera_pco.cc" />
     <ClCompile Include="camera_pco_edge.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CameraPCO\camera_pco.hh" />
     <ClInclude Include="camera_pco_edge.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BaseCamera\BaseCamera.vcxproj">
+      <Project>{328009cf-2632-445c-b96e-deb3af2a4c71}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}</ProjectGuid>
@@ -41,10 +48,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)PropertySheet.props" />
+    <Import Project="..\CameraDLL.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)PropertySheet.props" />
+    <Import Project="..\CameraDLL.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -56,8 +65,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionLibDir)\pco\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -1,14 +1,10 @@
 #include "holovibes.hh"
 #include <frame_desc.hh>
-#include "camera_ids.hh"
-#include "camera_ixon.hh"
-#include "camera_pike.hh"
-#include "camera_pco_edge.hh"
-#include "camera_pco_pixelfly.hh"
-#include "camera_xiq.hh"
+#include <camera.hh>
 
 #include <exception>
 #include <cassert>
+#include <Windows.h>
 
 namespace holovibes
 {
@@ -36,6 +32,15 @@ namespace holovibes
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
+    HINSTANCE dllHandle = NULL;
+    dllHandle = LoadLibrary("CameraPCOPixelfly.dll");
+    if (dllHandle != NULL)
+    {
+      typedef camera::Camera* (*init)();
+      init f = (init)GetProcAddress(dllHandle, "InitializeCamera");
+      camera_ = f();
+    }
+#if 0
     if (c == EDGE)
       camera_ = new camera::CameraPCOEdge();
     else if (c == IDS)
@@ -50,6 +55,7 @@ namespace holovibes
       camera_ = new camera::CameraXiq();
     else
       assert(!"Impossible case");
+#endif
 
     try
     {
