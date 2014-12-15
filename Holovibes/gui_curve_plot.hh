@@ -2,6 +2,7 @@
 # define GUI_CURVE_PLOT_HH
 
 # include <QtWidgets>
+# include <QVector>
 # include <qwt_plot.h>
 # include <qwt_plot_curve.h>
 # include <qwt_series_data.h>

@@ -19,6 +19,8 @@ namespace gui
     this->setMinimumSize(width, height);
     plot_.setMinimumSize(width, height);
     plot_.setAxisScale(0, -5.0, 15.0, 2.0);
+    plot_.setCanvasBackground(QColor(0, 0, 0));
+    curve_.setPen(QColor(0, 255, 0));
     show();
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(40);
@@ -45,7 +47,7 @@ namespace gui
 
   void CurvePlot::load_data_vector()
   {
-    QPolygonF new_data;
+    QVector<QPointF> new_data;
 
     if (!data_vect_.empty())
     {
