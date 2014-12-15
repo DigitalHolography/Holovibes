@@ -2,7 +2,6 @@
 # define CAMERA_EXCEPTION_HH
 
 # include <exception>
-# include <string>
 
 namespace camera
 {
@@ -21,26 +20,41 @@ namespace camera
       CANT_SET_CONFIG,
     };
 
-    CameraException(std::string name, camera_error code)
+    CameraException(camera_error code)
       : std::exception()
-      , name_(name)
       , code_(code)
     {}
+    
+    virtual ~CameraException()
+    {}
 
-    virtual const char* what() const override;
-
-    const std::string& get_name() const
+    virtual const char* what() const override
     {
-      return name_;
+      switch (code_)
+      {
+      case NOT_CONNECTED:
+        return "is not connected";
+      case NOT_INITIALIZED:
+        return "could not be initialized.";
+      case MEMORY_PROBLEM:
+        return "memory troubles, can not access, "
+          "allocate or bind camera memory.";
+      case CANT_START_ACQUISITION:
+        return "can't start acquisition.";
+      case CANT_STOP_ACQUISITION:
+        return "can't stop acquisition.";
+      case CANT_GET_FRAME:
+        return "can't get frame.";
+      case CANT_SHUTDOWN:
+        return "can't shut down camera.";
+      case CANT_SET_CONFIG:
+        return "can't set the camera configuration";
+      default:
+        return "unknown error";
+      }
     }
 
-    const char* match_error() const;
-
   private:
-    // Object is non copyable
-    CameraException& operator=(const CameraException&) = delete;
-
-    const std::string name_;
     const camera_error code_;
   };
 }

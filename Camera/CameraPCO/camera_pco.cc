@@ -62,7 +62,7 @@ namespace camera
   {
     int status = PCO_NOERROR;
     if (PCO_OpenCamera(&device_, 0) != PCO_NOERROR)
-      throw CameraException(name_, CameraException::NOT_CONNECTED);
+      throw CameraException(CameraException::NOT_CONNECTED);
     
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();
@@ -74,7 +74,7 @@ namespace camera
     if (str_camera_type.wCamType != camera_type_)
     {
       PCO_CloseCamera(device_);
-      throw CameraException(name_, CameraException::NOT_CONNECTED);
+      throw CameraException(CameraException::NOT_CONNECTED);
     }
 
     bind_params();
@@ -85,7 +85,7 @@ namespace camera
     status |= allocate_buffers();
 
     if (status != PCO_NOERROR)
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(CameraException::NOT_INITIALIZED);
   }
 
   void CameraPCO::start_acquisition()
@@ -110,7 +110,7 @@ namespace camera
     }
 
     if (status != PCO_NOERROR)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraPCO::stop_acquisition()
@@ -155,7 +155,7 @@ namespace camera
       return buffers_[buffer_index];
     }
 
-    throw CameraException(name_, CameraException::CANT_GET_FRAME);
+    throw CameraException(CameraException::CANT_GET_FRAME);
   }
 
   int CameraPCO::get_sensor_sizes()
@@ -204,7 +204,7 @@ namespace camera
     }
     catch (std::bad_alloc& ba)
     {
-      throw CameraException(name_, CameraException::MEMORY_PROBLEM);
+      throw CameraException(CameraException::MEMORY_PROBLEM);
     }
 
     return status;

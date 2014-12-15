@@ -2,7 +2,6 @@
 # define CAMERA_PIKE_HH
 
 # include <camera.hh>
-# include <camera_exception.hh>
 
 /* Disable warning. */
 # pragma warning (push, 0)

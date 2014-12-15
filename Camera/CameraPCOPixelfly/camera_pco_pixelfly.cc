@@ -106,6 +106,6 @@ namespace camera
     }
 
     if (status != PCO_NOERROR)
-      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
+      throw CameraException(CameraException::CANT_SET_CONFIG);
   }
 }

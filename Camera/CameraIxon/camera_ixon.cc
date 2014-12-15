@@ -14,7 +14,7 @@ namespace camera
     load_default_params();
     GetAvailableCameras(&nb_cam);
     if (nb_cam < 1)
-      throw CameraException(name_, CameraException::NOT_CONNECTED);
+      throw CameraException(CameraException::NOT_CONNECTED);
 
     if (ini_file_is_open())
       load_ini_params();
@@ -28,11 +28,11 @@ namespace camera
   {
     GetCameraHandle(0, &device_handle);
     if (SetCurrentCamera(device_handle) == DRV_P1INVALID)
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(CameraException::NOT_INITIALIZED);
     char aBuffer[256];
     GetCurrentDirectory(256, aBuffer);
     if (Initialize(aBuffer) != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(CameraException::NOT_INITIALIZED);
     int x, y;
     GetDetector(&x, &y);
 #if _DEBUG
@@ -50,7 +50,7 @@ namespace camera
     unsigned int error;
     error = StartAcquisition();
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraIxon::stop_acquisition()
@@ -76,14 +76,14 @@ namespace camera
     {
       error = SendSoftwareTrigger();
       if (error != DRV_SUCCESS)
-        throw CameraException(name_, CameraException::CANT_GET_FRAME);
+        throw CameraException(CameraException::CANT_GET_FRAME);
     }
 
     WaitForAcquisition();
     error = GetNewData16(image_, r_x * r_y);
 
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_GET_FRAME);
+      throw CameraException(CameraException::CANT_GET_FRAME);
 
     for (int y = 0; y < r_y; y++)
       memcpy(output_image_ + y * desc_.width, image_ + r_y * y, r_y * sizeof(unsigned short));
@@ -139,33 +139,33 @@ namespace camera
     unsigned int error;
     error = SetAcquisitionMode(acquisiton_mode_); // RUN TILL ABORT
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetReadMode(read_mode_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetExposureTime(exposure_time_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetShutter(ttl_, shutter_mode_, shutter_open_, shutter_close_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetTriggerMode(trigger_mode_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetImage(1, 1, 1, r_x, 1, r_y);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetPreAmpGain(gain_mode_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetKineticCycleTime(kinetic_time_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetHSSpeed(0, horizontal_shift_speed_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
     error = SetVSSpeed(vertical_shift_speed_);
     if (error != DRV_SUCCESS)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
   }
 }

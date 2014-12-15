@@ -20,7 +20,7 @@ namespace camera
   void CameraXiq::init_camera()
   {
     if (xiOpenDevice(0, &device_) != XI_OK)
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(CameraException::NOT_INITIALIZED);
 
     /* Configure the camera API with given parameters. */
     bind_params();
@@ -29,25 +29,25 @@ namespace camera
   void CameraXiq::start_acquisition()
   {
     if (xiStartAcquisition(device_) != XI_OK)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraXiq::stop_acquisition()
   {
     if (xiStopAcquisition(device_) != XI_OK)
-      throw CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
+      throw CameraException(CameraException::CANT_STOP_ACQUISITION);
   }
 
   void CameraXiq::shutdown_camera()
   {
     if (xiCloseDevice(device_) != XI_OK)
-      throw CameraException(name_, CameraException::CANT_SHUTDOWN);
+      throw CameraException(CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraXiq::get_frame()
   {
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
-      throw CameraException(name_, CameraException::CANT_GET_FRAME);
+      throw CameraException(CameraException::CANT_GET_FRAME);
 
 #if 0
     printf("[FRAME][NEW] %dx%d - %u\n",
@@ -124,7 +124,7 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
 
     if (status != XI_OK)
-      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
+      throw CameraException(CameraException::CANT_SET_CONFIG);
 
     /* Update the frame descriptor. */
     if (img_format_ == XI_RAW16 || img_format_ == XI_MONO16)

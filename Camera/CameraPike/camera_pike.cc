@@ -1,4 +1,5 @@
 #include "camera_pike.hh"
+#include <camera_exception.hh>
 
 #define MAXNAMELENGTH 64
 #define MAXCAMERAS 1
@@ -31,33 +32,33 @@ namespace camera
         bind_params();
       }
       else
-        throw CameraException(name_, CameraException::NOT_CONNECTED);
+        throw CameraException(CameraException::NOT_CONNECTED);
     }
     else
-      throw CameraException(name_, CameraException::NOT_INITIALIZED);
+      throw CameraException(CameraException::NOT_INITIALIZED);
   }
 
   void CameraPike::start_acquisition()
   {
     // Allocate DMA for the camera
     if (cam_.OpenCapture() != FCE_NOERROR)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
 
     if (cam_.StartDevice() != FCE_NOERROR)
-      throw CameraException(name_, CameraException::CANT_START_ACQUISITION);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
   }
 
   void CameraPike::stop_acquisition()
   {
     if (cam_.StopDevice() != FCE_NOERROR)
-      throw CameraException(name_, CameraException::CANT_STOP_ACQUISITION);
+      throw CameraException(CameraException::CANT_STOP_ACQUISITION);
   }
 
   void CameraPike::shutdown_camera()
   {
     // Free all image buffers and close the capture logic
     if (cam_.CloseCapture() != FCE_NOERROR)
-      throw CameraException(name_, CameraException::CANT_SHUTDOWN);
+      throw CameraException(CameraException::CANT_SHUTDOWN);
   }
 
   void* CameraPike::get_frame()
@@ -153,7 +154,7 @@ namespace camera
     status |= cam_.SetParameter(FGP_YSIZE, roi_height_);
 
     if (status != FCE_NOERROR)
-      throw CameraException(name_, CameraException::CANT_SET_CONFIG);
+      throw CameraException(CameraException::CANT_SET_CONFIG);
   }
 
   unsigned long CameraPike::to_dcam_format()
