@@ -149,7 +149,6 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      std::cout << is_average_enabled_ << "\n";
       if (is_average_enabled_)
       {
         float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
@@ -377,7 +376,6 @@ namespace gui
 
   void GLWidget::set_average_mode(bool value)
   {
-    std::cout << "set " << value << std::endl;
     is_average_enabled_ = value;
     is_zoom_enabled_ = !value;
   }

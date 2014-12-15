@@ -559,8 +559,6 @@ namespace gui
     gl_widget->set_average_mode(value);
     is_enabled_average_ = value;
 
-    std::cout << "slot set_average_mode " << value << std::endl;
-
     // TODO
     average_visible(value);
   }
