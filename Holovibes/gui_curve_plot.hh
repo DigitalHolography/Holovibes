@@ -20,6 +20,8 @@ namespace gui
   public:
     CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
       QString title,
+      unsigned int width,
+      unsigned int height,
       QWidget* parent = 0);
     ~CurvePlot();
     QSize minimumSizeHint() const override;

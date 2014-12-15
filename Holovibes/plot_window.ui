@@ -6,20 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>635</width>
-    <height>247</height>
+    <width>600</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Real time ROI plot</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Auto scale</string>
+    </property>
+   </widget>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>635</width>
+     <width>600</width>
      <height>26</height>
     </rect>
    </property>

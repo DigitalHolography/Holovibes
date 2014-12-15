@@ -2,7 +2,10 @@
 # define GUI_PLOT_WINDOW_HH
 
 # include <QMainWindow>
+# include <QtWidgets>
 # include "ui_plot_window.h"
+# include "gui_curve_plot.hh"
+# include "concurrent_deque.hh"
 
 namespace gui
 {
@@ -11,11 +14,15 @@ namespace gui
     Q_OBJECT
 
   public:
-    PlotWindow(QWidget* parent = 0);
+    PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
+      QString title,
+      QWidget* parent = 0);
     ~PlotWindow();
 
   private:
     Ui::PlotWindow ui;
+
+    CurvePlot curve_plot_;
   };
 }
 

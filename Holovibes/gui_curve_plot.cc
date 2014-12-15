@@ -6,7 +6,9 @@
 namespace gui
 {
   CurvePlot::CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-    QString title, 
+    QString title,
+    unsigned int width,
+    unsigned int height,
     QWidget* parent)
     : QWidget(parent),
     data_vect_(data_vect),
@@ -14,8 +16,8 @@ namespace gui
     curve_("First curve"),
     timer_(this)
   {
-    this->setMinimumSize(WIDTH, HEIGHT);
-    plot_.setMinimumSize(WIDTH, HEIGHT);
+    this->setMinimumSize(width, height);
+    plot_.setMinimumSize(width, height);
     show();
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(40);

@@ -560,14 +560,10 @@ namespace gui
   }
 
   void MainWindow::set_average_graphic()
-  {
-    /*delete average_plot_;
-    average_plot_ = nullptr;
-
+  {    
+    delete plot_window_;
     holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
-    average_plot_ = new CurvePlot(holovibes_.get_average_queue(), "Average");*/
-
-    plot_window_ = new PlotWindow();
+    plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
   }
 
   void MainWindow::browse_roi_file()
