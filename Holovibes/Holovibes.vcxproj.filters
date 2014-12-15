@@ -68,15 +68,6 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera_xiq.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_ids.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pike.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="holovibes.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -158,29 +149,8 @@
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_ixon.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pco.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pco_edge.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pco_pixelfly.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera_xiq.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_ids.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pike.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
@@ -246,18 +216,6 @@
     </ClInclude>
     <ClInclude Include="vibrometry.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_ixon.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco_edge.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco_pixelfly.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="average.cuh">
       <Filter>Header Files CUDA</Filter>
