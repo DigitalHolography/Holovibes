@@ -17,6 +17,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraPike", "Camera\Camera
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraXiq", "Camera\CameraXiq\CameraXiq.vcxproj", "{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Camera Libraries", "Camera Libraries", "{26D59CCE-F3C2-4C90-96EA-625470BC8225}"
+	ProjectSection(SolutionItems) = preProject
+		Camera\include\camera.hh = Camera\include\camera.hh
+		Camera\camera_exception.cc = Camera\camera_exception.cc
+		Camera\include\camera_exception.hh = Camera\include\camera_exception.hh
+		Camera\include\frame_desc.hh = Camera\include\frame_desc.hh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CameraPCO", "CameraPCO", "{D45B9D31-7307-47C9-BBC1-69822B48DBD7}"
+	ProjectSection(SolutionItems) = preProject
+		Camera\CameraPCO\camera_pco.cc = Camera\CameraPCO\camera_pco.cc
+		Camera\CameraPCO\camera_pco.hh = Camera\CameraPCO\camera_pco.hh
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,5 +68,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D981B600-1444-4D9B-8124-45CC358AB8DF} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
+		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
+		{BD9D923D-7F70-48BE-B385-6645B49E3B0B} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
+		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
+		{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
+		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
+		{D45B9D31-7307-47C9-BBC1-69822B48DBD7} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
 	EndGlobalSection
 EndGlobal
