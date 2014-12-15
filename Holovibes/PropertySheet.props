@@ -19,7 +19,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(ProjectLibDir)\ixon\includes;$(ProjectLibDir)\pco\includes;$(ProjectLibDir)\avt\includes;$(ProjectLibDir)\ids\includes;$(ProjectLibDir)\ximea\includes;$(BoostLib);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectLibDir)\ixon\include;$(ProjectLibDir)\pco\include;$(ProjectLibDir)\avt\include;$(ProjectLibDir)\ids\include;$(ProjectLibDir)\ximea\include;$(BoostLib);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions />
     </ClCompile>
     <Link>
