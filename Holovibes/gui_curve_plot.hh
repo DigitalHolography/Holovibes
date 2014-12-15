@@ -27,6 +27,7 @@ namespace gui
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
+    void resizeEvent(QResizeEvent* e) override;
     void load_data_vector();
 
   public slots:

@@ -37,6 +37,11 @@ namespace gui
     return QSize(WIDTH, HEIGHT);
   }
 
+  void CurvePlot::resizeEvent(QResizeEvent* e)
+  {
+    plot_.resize(e->size());
+  }
+
   void CurvePlot::load_data_vector()
   {
     QPolygonF new_data;

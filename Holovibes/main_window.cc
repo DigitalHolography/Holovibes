@@ -804,6 +804,9 @@ namespace gui
 
     if (gl_window_)
       gl_window_->close();
+
+    if (plot_window_)
+      plot_window_->close();
   }
 
   void MainWindow::global_visibility(bool value)
