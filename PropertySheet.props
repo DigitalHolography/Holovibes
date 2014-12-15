@@ -19,13 +19,13 @@
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ixon\include;$(SolutionLibDir)\pco\include;$(SolutionLibDir)\avt\include;$(SolutionLibDir)\ids\include;$(SolutionLibDir)\ximea\include;$(BoostLib);$(SolutionDir)Camera\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BoostLib);$(SolutionDir)Camera\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(SolutionLibDir)\pco\SC2_Cam.lib;$(SolutionLibDir)\ids\uEye_api_64.lib;$(SolutionLibDir)\avt\FGCamera.lib;$(SolutionLibDir)\ximea\m3apiX64.lib;$(SolutionLibDir)\ixon\atmcd64m.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>
       </GenerateDebugInformation>
     </Link>
