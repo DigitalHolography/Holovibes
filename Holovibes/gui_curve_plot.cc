@@ -18,6 +18,7 @@ namespace gui
   {
     this->setMinimumSize(width, height);
     plot_.setMinimumSize(width, height);
+    plot_.setAxisScale(0, -5.0, 15.0, 2.0);
     show();
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(40);
@@ -65,7 +66,29 @@ namespace gui
     while (data_vect_.size() > 100)
       data_vect_.pop_front();
 
-    plot_.setAxisScale(0, -5.0, 15.0, 2.0);
+    plot_.replot();
+  }
+
+  void CurvePlot::auto_scale()
+  {
+    std::array<std::tuple<float, float, float>, 100> tmp = average_array_;
+
+    float min = FLT_MAX;
+    float max = FLT_MIN;
+    float curr = 0.0f;
+
+    for (int i = 0; i < 100; ++i)
+    {
+      curr = std::get<2>(tmp[i]);
+
+      if (curr < min)
+        min = curr;
+
+      if (curr > max)
+        max = curr;
+    }
+
+    plot_.setAxisScale(0, min - 1.0, max + 1.0, 2.0);
     plot_.replot();
   }
 }

@@ -19,8 +19,10 @@ namespace gui
       QWidget* parent = 0);
     ~PlotWindow();
 
-
     void resizeEvent(QResizeEvent* e) override;
+
+  public slots:
+    void auto_scale();
 
   private:
     Ui::PlotWindow ui;

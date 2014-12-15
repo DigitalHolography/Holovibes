@@ -8,6 +8,7 @@
 # include <tuple>
 # include <iostream>
 # include <array>
+# include <float.h>
 
 # include "concurrent_deque.hh"
 
@@ -29,6 +30,7 @@ namespace gui
 
     void resizeEvent(QResizeEvent* e) override;
     void load_data_vector();
+    void auto_scale();
 
   public slots:
     void update();

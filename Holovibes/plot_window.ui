@@ -41,5 +41,25 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>auto_scale()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>64</x>
+     <y>-23</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>auto_scale()</slot>
+ </slots>
 </ui>
