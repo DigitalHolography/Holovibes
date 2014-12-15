@@ -1,7 +1,7 @@
 #ifndef CAMERA_PCO_EDGE_HH
 # define CAMERA_PCO_EDGE_HH
 
-# include "camera_pco.hh"
+# include "../CameraPCO/camera_pco.hh"
 
 # include <Windows.h>
 # include <SC2_SDKStructures.h>
