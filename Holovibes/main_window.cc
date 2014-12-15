@@ -138,6 +138,9 @@ namespace gui
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(is_enabled_average_);
 
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    gl_widget->set_average_mode(is_enabled_average_);
+
     average_visible(is_enabled_average_);
   }
 
@@ -244,6 +247,8 @@ namespace gui
 
         global_visibility(true);
       }
+
+      notify();
     }
   }
 
@@ -550,10 +555,11 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
     is_enabled_average_ = value;
+
+    std::cout << "slot set_average_mode " << value << std::endl;
 
     // TODO
     average_visible(value);
@@ -646,7 +652,6 @@ namespace gui
       gl_widget.set_signal_selection(signal);
       gl_widget.set_noise_selection(noise);
       gl_widget.enable_selection();
-      gl_widget.launch_average_computation();
     }
     catch (std::exception& e)
     {
@@ -986,7 +991,6 @@ namespace gui
   {
     QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
   }
-
 
   void MainWindow::load_ini(const std::string& path)
   {
