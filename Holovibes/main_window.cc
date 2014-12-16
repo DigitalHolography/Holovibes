@@ -139,7 +139,8 @@ namespace gui
     average->setChecked(is_enabled_average_);
 
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    gl_widget->set_average_mode(is_enabled_average_);
+    if (gl_widget)
+      gl_widget->set_average_mode(is_enabled_average_);
 
     average_visible(is_enabled_average_);
   }
@@ -739,6 +740,10 @@ namespace gui
 
   void MainWindow::average_record()
   {
+    // Stop chart if enable
+    if (plot_window_)
+      plot_window_->stop_drawing();
+
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_frames_ = nb_of_frames_spin_box->value();
 
@@ -782,6 +787,13 @@ namespace gui
       average_record_but_cancel_visible(true);
       QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
       roi_stop_push_button->setDisabled(true);
+
+      // Reenable chart if enabled and stoppped previously
+      if (plot_window_)
+      {
+        holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+        plot_window_->start_drawing();
+      }
     }
   }
 

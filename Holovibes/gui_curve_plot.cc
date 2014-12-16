@@ -2,6 +2,7 @@
 
 #define WIDTH 600
 #define HEIGHT 300
+#define TIMER_FREQ 40
 
 namespace gui
 {
@@ -23,7 +24,7 @@ namespace gui
     curve_.setPen(QColor(0, 255, 0));
     show();
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
-    timer_.start(40);
+    timer_.start(TIMER_FREQ);
   }
 
   CurvePlot::~CurvePlot()
@@ -61,16 +62,6 @@ namespace gui
     curve_.attach(&plot_);
   }
 
-  void CurvePlot::update()
-  {
-    load_data_vector();
-
-    while (data_vect_.size() > 100)
-      data_vect_.pop_front();
-
-    plot_.replot();
-  }
-
   void CurvePlot::auto_scale()
   {
     std::array<std::tuple<float, float, float>, 100> tmp = average_array_;
@@ -91,6 +82,27 @@ namespace gui
     }
 
     plot_.setAxisScale(0, min - 1.0, max + 1.0, 2.0);
+    plot_.replot();
+  }
+
+  void CurvePlot::start()
+  {
+    timer_.start(TIMER_FREQ);
+  }
+
+  void CurvePlot::stop()
+  {
+    if (timer_.isActive())
+      timer_.stop();
+  }
+
+  void CurvePlot::update()
+  {
+    load_data_vector();
+
+    while (data_vect_.size() > 100)
+      data_vect_.pop_front();
+
     plot_.replot();
   }
 }

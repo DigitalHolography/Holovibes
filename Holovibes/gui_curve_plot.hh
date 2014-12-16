@@ -32,6 +32,8 @@ namespace gui
     void resizeEvent(QResizeEvent* e) override;
     void load_data_vector();
     void auto_scale();
+    void start();
+    void stop();
 
   public slots:
     void update();

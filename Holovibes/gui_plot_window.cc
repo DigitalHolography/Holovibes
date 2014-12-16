@@ -23,6 +23,16 @@ namespace gui
     curve_plot_.resize(e->size().width() - 20, e->size().height() - 50);
   }
 
+  void PlotWindow::start_drawing()
+  {
+    curve_plot_.start();
+  }
+
+  void PlotWindow::stop_drawing()
+  {
+    curve_plot_.stop();
+  }
+
   void PlotWindow::auto_scale()
   {
     curve_plot_.auto_scale();

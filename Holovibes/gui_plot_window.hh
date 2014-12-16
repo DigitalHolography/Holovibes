@@ -20,6 +20,8 @@ namespace gui
     ~PlotWindow();
 
     void resizeEvent(QResizeEvent* e) override;
+    void start_drawing();
+    void stop_drawing();
 
   public slots:
     void auto_scale();
