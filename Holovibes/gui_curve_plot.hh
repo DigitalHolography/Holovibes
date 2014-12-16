@@ -34,6 +34,7 @@ namespace gui
     void auto_scale();
     void start();
     void stop();
+    void set_points_nb(unsigned int n);
 
   public slots:
     void update();
@@ -42,8 +43,9 @@ namespace gui
     holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect_;
     QwtPlot plot_;
     QwtPlotCurve curve_;
+    unsigned int points_nb_;
     QTimer timer_;
-    std::array<std::tuple<float, float, float>, 100> average_array_;
+    std::vector<std::tuple<float, float, float>> average_vector_;
   };
 }
 

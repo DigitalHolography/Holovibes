@@ -37,4 +37,9 @@ namespace gui
   {
     curve_plot_.auto_scale();
   }
+
+  void PlotWindow::change_points_nb(int n)
+  {
+    curve_plot_.set_points_nb(n);
+  }
 }

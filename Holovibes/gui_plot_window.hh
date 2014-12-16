@@ -25,6 +25,7 @@ namespace gui
 
   public slots:
     void auto_scale();
+    void change_points_nb(int n);
 
   private:
     Ui::PlotWindow ui;

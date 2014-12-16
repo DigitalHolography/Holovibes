@@ -139,12 +139,12 @@ namespace holovibes
       mutex_.unlock();
     }
 
-    template <size_t S>
-    size_t fill_array(std::array<T, S>& a)
+    size_t fill_array(std::vector<T>& a, size_t nb_elts)
     {
       mutex_.lock();
-      size_t i = 0;
-      for (auto it = deque_.rbegin(); it != deque_.rend() && i < a.size(); ++it)
+      unsigned int i = 0;
+
+      for (auto it = deque_.rbegin(); it != deque_.rend() && i < nb_elts; ++it)
       {
         a[i] = *it;
         ++i;

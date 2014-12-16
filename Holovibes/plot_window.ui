@@ -14,7 +14,7 @@
    <string>Real time ROI plot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="autoScalePushButton">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -25,6 +25,44 @@
     </property>
     <property name="text">
      <string>Auto scale</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="PointsNbSpinBox">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>10</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="buttonSymbols">
+     <enum>QAbstractSpinBox::UpDownArrows</enum>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>1000000</number>
+    </property>
+    <property name="value">
+     <number>100</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="PointsNbLabel">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>10</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Points nb:</string>
     </property>
    </widget>
   </widget>
@@ -43,7 +81,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButton</sender>
+   <sender>autoScalePushButton</sender>
    <signal>clicked()</signal>
    <receiver>PlotWindow</receiver>
    <slot>auto_scale()</slot>
@@ -58,8 +96,25 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>PointsNbSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>change_points_nb(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>210</x>
+     <y>-25</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>auto_scale()</slot>
+  <slot>change_points_nb(int)</slot>
  </slots>
 </ui>
