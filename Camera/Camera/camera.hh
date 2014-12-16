@@ -1,7 +1,7 @@
-#ifndef CAMERA_PIMPL_HH
-# define CAMERA_PIMPL_HH
+#ifndef CAMERA_HH
+# define CAMERA_HH
 
-# include <camera.hh>
+# include <icamera.hh>
 # include <frame_desc.hh>
 
 # include <string>
@@ -11,10 +11,26 @@
 
 namespace camera
 {
-  class Camera::CameraPimpl
+  class Camera : public ICamera
   {
   public:
-    CameraPimpl(const char* const ini_filepath)
+    virtual ~Camera()
+    {}
+
+    const FrameDescriptor& get_frame_descriptor() const override
+    {
+      return desc_;
+    }
+    const char* get_name() const override
+    {
+      return name_.c_str();
+    }
+    const char* get_ini_path() const override
+    {
+      return ini_path_.c_str();
+    }
+  protected:
+    Camera(const std::string& ini_filepath)
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
@@ -24,13 +40,6 @@ namespace camera
     {
       if (ini_file_is_open())
         boost::property_tree::ini_parser::read_ini(ini_file_, ini_pt_);
-    }
-
-    ~CameraPimpl() = default;
-
-    const std::string& get_ini_path() const
-    {
-      return ini_path_;
     }
 
     bool ini_file_is_open() const
@@ -48,7 +57,14 @@ namespace camera
       return ini_pt_;
     }
 
-  public:
+    /*! Load default parameters. */
+    virtual void load_default_params() = 0;
+    /*! Load parameters from INI file. */
+    virtual void load_ini_params() = 0;
+    /*! Send current parameters to camera API. */
+    virtual void bind_params() = 0;
+
+  protected:
     /*! Frame descriptor updated by cameras. */
     FrameDescriptor          desc_;
 
@@ -69,5 +85,4 @@ namespace camera
     boost::property_tree::ptree ini_pt_;
   };
 }
-
-#endif /* !CAMERA_PIMPL_HH */
+#endif /* !CAMERA_HH */

@@ -3,7 +3,7 @@
 namespace holovibes
 {
   ThreadCapture::ThreadCapture(
-    camera::Camera& camera,
+    camera::ICamera& camera,
     Queue& input)
     : camera_(camera)
     , queue_(input)

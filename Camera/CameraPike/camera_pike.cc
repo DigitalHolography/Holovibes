@@ -7,6 +7,11 @@
 
 namespace camera
 {
+  ICamera* new_camera_device()
+  {
+    return new CameraPike();
+  }
+
   void CameraPike::init_camera()
   {
     unsigned long result;

@@ -16,11 +16,6 @@
   <ItemGroup>
     <ClInclude Include="camera_pike.hh" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BaseCamera\BaseCamera.vcxproj">
-      <Project>{328009cf-2632-445c-b96e-deb3af2a4c71}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{47E0B11B-6AC0-4D69-80BB-BC6A92367B2E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

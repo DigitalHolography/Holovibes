@@ -1,7 +1,7 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
-# include <camera.hh>
+# include <icamera.hh>
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
@@ -81,7 +81,7 @@ namespace holovibes
     }
 
   private:
-    camera::Camera* camera_;
+    camera::ICamera* camera_;
     ThreadCapture* tcapture_;
     ThreadCompute* tcompute_;
     Recorder* recorder_;

@@ -1,6 +1,5 @@
 #include "holovibes.hh"
 #include <frame_desc.hh>
-#include <camera.hh>
 
 #include <exception>
 #include <cassert>
@@ -36,8 +35,8 @@ namespace holovibes
     dllHandle = LoadLibrary("CameraPCOPixelfly.dll");
     if (dllHandle != NULL)
     {
-      typedef camera::Camera* (*init)();
-      init f = (init)GetProcAddress(dllHandle, "InitializeCamera");
+      typedef camera::ICamera* (*init)();
+      init f = (init)GetProcAddress(dllHandle, "new_camera_device");
       camera_ = f();
     }
 #if 0

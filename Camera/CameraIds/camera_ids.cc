@@ -3,6 +3,11 @@
 
 namespace camera
 {
+  ICamera* new_camera_device()
+  {
+    return new CameraIds();
+  }
+
   void CameraIds::init_camera()
   {
     int cameras_nb = 0;

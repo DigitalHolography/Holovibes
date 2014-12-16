@@ -14,7 +14,7 @@ namespace camera
 {
   const SHORT NBUFFERS = 2;
   /*! This class contains common stuff for PCO cameras. */
-  class CAMERA_API CameraPCO : public Camera
+  class CameraPCO : public Camera
   {
   public:
     CameraPCO(

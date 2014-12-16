@@ -18,11 +18,6 @@
     <ClInclude Include="..\CameraPCO\camera_pco.hh" />
     <ClInclude Include="camera_pco_edge.hh" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BaseCamera\BaseCamera.vcxproj">
-      <Project>{328009cf-2632-445c-b96e-deb3af2a4c71}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

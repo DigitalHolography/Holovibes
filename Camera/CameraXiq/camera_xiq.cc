@@ -3,6 +3,11 @@
 
 namespace camera
 {
+  ICamera* new_camera_device()
+  {
+    return new CameraXiq();
+  }
+
   CameraXiq::CameraXiq()
     : Camera("xiq.ini")
     , device_(nullptr)

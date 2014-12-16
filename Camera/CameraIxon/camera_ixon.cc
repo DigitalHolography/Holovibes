@@ -6,6 +6,11 @@
 
 namespace camera
 {
+  ICamera* new_camera_device()
+  {
+    return new CameraIxon();
+  }
+
   CameraIxon::CameraIxon()
     : Camera("ixon.ini")
   {

@@ -9,7 +9,7 @@
 
 namespace camera
 {
-  class CAMERA_API CameraPCOPixelfly : public CameraPCO
+  class CameraPCOPixelfly : public CameraPCO
   {
   public:
     CameraPCOPixelfly();

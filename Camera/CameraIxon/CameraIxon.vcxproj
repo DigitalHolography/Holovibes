@@ -16,11 +16,6 @@
   <ItemGroup>
     <ClInclude Include="camera_ixon.hh" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BaseCamera\BaseCamera.vcxproj">
-      <Project>{328009cf-2632-445c-b96e-deb3af2a4c71}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BD9D923D-7F70-48BE-B385-6645B49E3B0B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
