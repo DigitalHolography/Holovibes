@@ -223,6 +223,9 @@
     <ClInclude Include="geometry.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="camera_loader.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.hh">

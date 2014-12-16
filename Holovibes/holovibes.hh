@@ -1,7 +1,7 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
-# include <icamera.hh>
+# include "camera_loader.hh"
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
@@ -32,7 +32,7 @@ namespace holovibes
 
     bool is_camera_initialized()
     {
-      return camera_ != nullptr;
+      return camera_loader_.get_camera().operator bool();
     }
 
     Queue& get_capture_queue()
@@ -70,9 +70,9 @@ namespace holovibes
       compute_desc_ = compute_desc;
     }
 
-    const std::string get_camera_ini_path() const
+    const char* get_camera_ini_path() const
     {
-      return camera_->get_ini_path();
+      return camera_loader_.get_camera()->get_ini_path();
     }
 
     std::vector<std::tuple<float, float, float>>& get_average_vector()
@@ -81,7 +81,7 @@ namespace holovibes
     }
 
   private:
-    camera::ICamera* camera_;
+    camera::CameraLoader camera_loader_;
     ThreadCapture* tcapture_;
     ThreadCompute* tcompute_;
     Recorder* recorder_;

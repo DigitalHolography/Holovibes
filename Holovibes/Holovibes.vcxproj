@@ -111,6 +111,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="average.cuh" />
+    <ClInclude Include="camera_loader.hh" />
     <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="fft2.cuh" />

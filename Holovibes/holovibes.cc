@@ -3,12 +3,13 @@
 
 #include <exception>
 #include <cassert>
-#include <Windows.h>
+#include <memory>
+#include <icamera.hh>
 
 namespace holovibes
 {
   Holovibes::Holovibes()
-    : camera_(nullptr)
+    : camera_loader_()
     , tcapture_(nullptr)
     , tcompute_(nullptr)
     , recorder_(nullptr)
@@ -24,44 +25,34 @@ namespace holovibes
   {
     delete tcompute_;
     delete tcapture_;
-    delete camera_;
     delete input_;
     delete output_;
   }
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
-    HINSTANCE dllHandle = NULL;
-    dllHandle = LoadLibrary("CameraPCOPixelfly.dll");
-    if (dllHandle != NULL)
-    {
-      typedef camera::ICamera* (*init)();
-      init f = (init)GetProcAddress(dllHandle, "new_camera_device");
-      camera_ = f();
-    }
-#if 0
-    if (c == EDGE)
-      camera_ = new camera::CameraPCOEdge();
-    else if (c == IDS)
-      camera_ = new camera::CameraIds();
-    else if (c == IXON)
-      camera_ = new camera::CameraIxon();
-    else if (c == PIKE)
-      camera_ = new camera::CameraPike();
-    else if (c == PIXELFLY)
-      camera_ = new camera::CameraPCOPixelfly();
-    else if (c == XIQ)
-      camera_ = new camera::CameraXiq();
-    else
-      assert(!"Impossible case");
-#endif
-
     try
     {
-      camera_->init_camera();
-      input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
-      camera_->start_acquisition();
-      tcapture_ = new ThreadCapture(*camera_, *input_);
+      if (c == EDGE)
+        camera_loader_.load_camera("CameraPCOEdge.dll");
+      else if (c == IDS)
+        camera_loader_.load_camera("CameraIds.dll");
+      else if (c == IXON)
+        camera_loader_.load_camera("CameraIxon.dll");
+      else if (c == PIKE)
+        camera_loader_.load_camera("CameraPike.dll");
+      else if (c == PIXELFLY)
+        camera_loader_.load_camera("CameraPCOPixelfly.dll");
+      else if (c == XIQ)
+        camera_loader_.load_camera("CameraXiq.dll");
+      else
+        assert(!"Impossible case");
+
+      std::unique_ptr<camera::ICamera>& camera = camera_loader_.get_camera();
+      camera->init_camera();
+      input_ = new Queue(camera->get_frame_descriptor(), buffer_nb_elts);
+      camera->start_acquisition();
+      tcapture_ = new ThreadCapture(*camera, *input_);
       std::cout << "[CAPTURE] capture thread started" << std::endl;
     }
     catch (std::exception& e)
@@ -70,8 +61,7 @@ namespace holovibes
       tcapture_ = nullptr;
       delete input_;
       input_ = nullptr;
-      delete camera_;
-      camera_ = nullptr;
+      camera_loader_.unload_camera();
       throw;
     }
   }
@@ -81,16 +71,17 @@ namespace holovibes
     delete tcapture_;
     tcapture_ = nullptr;
 
-    if (camera_)
+    std::unique_ptr<camera::ICamera>& camera = camera_loader_.get_camera();
+
+    if (camera)
     {
-      camera_->stop_acquisition();
-      camera_->shutdown_camera();
+      camera->stop_acquisition();
+      camera->shutdown_camera();
     }
 
     delete input_;
     input_ = nullptr;
-    delete camera_;
-    camera_ = nullptr;
+    camera_loader_.unload_camera();
 
     std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
@@ -99,7 +90,7 @@ namespace holovibes
     std::string& filepath,
     unsigned int rec_n_images)
   {
-    assert(camera_ && "camera not initialized");
+    assert(camera_loader_.get_camera() && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
@@ -121,7 +112,7 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-    assert(camera_ && "camera not initialized");
+    assert(camera_loader_.get_camera() && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     assert(input_ && "input queue not initialized");
 
