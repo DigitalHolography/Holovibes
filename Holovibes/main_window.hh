@@ -87,6 +87,7 @@ namespace gui
     void set_record();
     void cancel_record();
     void finish_record();
+    void browse_batch_input();
     void average_record();
     void test_average_record();
     void cancel_average_record();
