@@ -43,7 +43,7 @@ int load_batch_file(const char* filepath)
   global.next_to_execute = 1;
   free_cmd_tab();
   FILE* f = NULL;
-  if (fopen_s(&f, filepath, "r"))
+  if (fopen_s(&f, filepath, "r") != 0)
     return -1;
   global.commands = parsefile(f);
   fclose(f);
