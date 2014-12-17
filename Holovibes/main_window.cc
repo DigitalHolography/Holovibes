@@ -740,7 +740,33 @@ namespace gui
   
   void MainWindow::browse_batch_input()
   {
+    QString filename = QFileDialog::getSaveFileName(this,
+      tr("Batch input file"), "C://", tr("All files (*)"));
 
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    batch_input_line_edit->clear();
+    batch_input_line_edit->insert(filename);
+  }
+
+  void MainWindow::batch_record()
+  {
+    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    load_batch_file(batch_input_line_edit->text().toUtf8());
+
+    std::string output_path = file_output_line_edit->text().toUtf8();
+    unsigned int frame_nb = frame_nb_spin_box->value();
+
+    holovibes::Queue* q;
+
+    if (is_direct_mode_)
+      q = &holovibes_.get_capture_queue();
+    else
+      q = &holovibes_.get_output_queue();
+
+    while (execute_next_block())
+      ThreadRecorder tr(*q, output_path, frame_nb, this);
   }
 
   void MainWindow::average_record()
