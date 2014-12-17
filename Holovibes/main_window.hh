@@ -18,8 +18,10 @@
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
+# include "gui_plot_window.hh"
 # include <camera_exception.hh>
 # include "thread_recorder.hh"
+# include "concurrent_deque.hh"
 
 namespace gui
 {
@@ -74,6 +76,7 @@ namespace gui
     void set_p_vibro(int value);
     void set_q_vibro(int value);
     void set_average_mode(bool value);
+    void set_average_graphic();
     void browse_roi_file();
     void browse_roi_output_file();
     void save_roi();
@@ -116,6 +119,8 @@ namespace gui
     bool is_enabled_average_;
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
+
+    PlotWindow* plot_window_;
 
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;

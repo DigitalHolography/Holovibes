@@ -58,8 +58,6 @@ namespace gui
       h_.get_compute_desc().noise_zone = noise_selection_;
     }
 
-    void launch_average_computation();
-
   public slots:
     void resizeFromWindow(int width, int height);
     void set_average_mode(bool value);

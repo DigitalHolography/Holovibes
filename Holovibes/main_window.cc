@@ -13,6 +13,7 @@ namespace gui
     is_enabled_average_(false),
     z_step_(0.01f),
     camera_type_(holovibes::Holovibes::NONE),
+    plot_window_(nullptr),
     record_thread_(nullptr),
     average_record_timer_(this)
   {
@@ -137,6 +138,10 @@ namespace gui
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(is_enabled_average_);
 
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    if (gl_widget)
+      gl_widget->set_average_mode(is_enabled_average_);
+
     average_visible(is_enabled_average_);
   }
 
@@ -243,6 +248,8 @@ namespace gui
 
         global_visibility(true);
       }
+
+      notify();
     }
   }
 
@@ -549,13 +556,19 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
     is_enabled_average_ = value;
 
     // TODO
     average_visible(value);
+  }
+
+  void MainWindow::set_average_graphic()
+  {    
+    delete plot_window_;
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+    plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
   }
 
   void MainWindow::browse_roi_file()
@@ -638,7 +651,6 @@ namespace gui
       gl_widget.set_signal_selection(signal);
       gl_widget.set_noise_selection(noise);
       gl_widget.enable_selection();
-      gl_widget.launch_average_computation();
     }
     catch (std::exception& e)
     {
@@ -728,13 +740,17 @@ namespace gui
 
   void MainWindow::average_record()
   {
+    // Stop chart if enable
+    if (plot_window_)
+      plot_window_->stop_drawing();
+
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_frames_ = nb_of_frames_spin_box->value();
 
-    holovibes_.get_average_vector().resize(nb_frames_);
-    holovibes_.get_average_vector().clear();
+    holovibes_.get_average_queue().resize(nb_frames_);
+    holovibes_.get_average_queue().clear();
     average_record_timer_.start(100);
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+    holovibes_.get_pipeline().request_average_record(&holovibes_.get_average_queue(), nb_frames_);
 
     global_visibility(false);
     record_but_cancel_visible(false);
@@ -745,9 +761,9 @@ namespace gui
 
   void MainWindow::test_average_record()
   {
-    std::vector<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& queue = holovibes_.get_average_queue();
 
-    if (vector.size() >= nb_frames_)
+    if (queue.size() >= nb_frames_)
     {
       QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
       std::string path = output_line_edit->text().toUtf8();
@@ -757,7 +773,7 @@ namespace gui
       
       of << "signal,noise,average\n";
 
-      for (auto it = vector.begin(); it != vector.end(); ++it)
+      for (auto it = queue.begin(); it != queue.end(); ++it)
       {
         std::tuple<float, float, float>& tuple = *it;
         of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
@@ -771,6 +787,13 @@ namespace gui
       average_record_but_cancel_visible(true);
       QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
       roi_stop_push_button->setDisabled(true);
+
+      // Reenable chart if enabled and stoppped previously
+      if (plot_window_)
+      {
+        holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+        plot_window_->start_drawing();
+      }
     }
   }
 
@@ -780,7 +803,7 @@ namespace gui
     {
       average_record_timer_.stop();
       holovibes_.get_pipeline().request_refresh();
-      holovibes_.get_average_vector().clear();
+      holovibes_.get_average_queue().clear();
 
       global_visibility(true);
       record_but_cancel_visible(true);
@@ -796,6 +819,9 @@ namespace gui
 
     if (gl_window_)
       gl_window_->close();
+
+    if (plot_window_)
+      plot_window_->close();
   }
 
   void MainWindow::global_visibility(bool value)
@@ -975,7 +1001,6 @@ namespace gui
   {
     QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
   }
-
 
   void MainWindow::load_ini(const std::string& path)
   {

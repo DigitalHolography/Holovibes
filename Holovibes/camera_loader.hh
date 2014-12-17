@@ -1,8 +1,9 @@
 #ifndef CAMERA_LOADER_HH
 # define CAMERA_LOADER_HH
 
-# include <icamera.hh>
 # include <Windows.h>
+#undef min
+# include <icamera.hh>
 # include <string>
 # include <exception>
 # include <memory>

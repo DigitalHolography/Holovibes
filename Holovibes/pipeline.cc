@@ -31,6 +31,8 @@ namespace holovibes
     , autocontrast_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
+    , average_requested_(false)
+    , average_record_requested(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
@@ -267,14 +269,30 @@ namespace holovibes
 
     if (average_requested_)
     {
-      fn_vect_.push_back(std::bind(
-        &Pipeline::average_caller,
-        this,
-        gpu_float_buffer_,
-        input_fd.width,
-        input_fd.height,
-        compute_desc_.signal_zone.load(),
-        compute_desc_.noise_zone.load()));
+      if (average_record_requested)
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipeline::average_record_caller,
+          this,
+          gpu_float_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load()));
+
+        average_record_requested = false;
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipeline::average_caller,
+          this,
+          gpu_float_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load()));
+      }
 
       average_requested_ = false;
     }
@@ -368,7 +386,18 @@ namespace holovibes
   }
 
   void Pipeline::request_average(
-    std::vector<std::tuple<float, float, float>>* output,
+    ConcurrentDeque<std::tuple<float, float, float>>* output)
+  {
+    assert(output != nullptr);
+
+    average_output_ = output;
+
+    average_requested_ = true;
+    request_refresh();
+  }
+
+  void Pipeline::request_average_record(
+    ConcurrentDeque<std::tuple<float, float, float>>* output,
     unsigned int n)
   {
     assert(output != nullptr);
@@ -378,6 +407,7 @@ namespace holovibes
     average_n_ = n;
 
     average_requested_ = true;
+    average_record_requested = true;
     request_refresh();
   }
 
@@ -397,6 +427,16 @@ namespace holovibes
   }
 
   void Pipeline::average_caller(
+    float* input,
+    unsigned int width,
+    unsigned int height,
+    Rectangle& signal,
+    Rectangle& noise)
+  {
+    average_output_->push_back(make_average_plot(input, width, height, signal, noise));
+  }
+
+  void Pipeline::average_record_caller(
     float* input,
     unsigned int width,
     unsigned int height,

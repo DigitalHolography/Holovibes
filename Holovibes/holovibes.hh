@@ -7,6 +7,7 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
+# include "concurrent_deque.hh"
 
 namespace holovibes
 {
@@ -75,9 +76,9 @@ namespace holovibes
       return camera_loader_.get_camera()->get_ini_path();
     }
 
-    std::vector<std::tuple<float, float, float>>& get_average_vector()
+    ConcurrentDeque<std::tuple<float, float, float>>& get_average_queue()
     {
-      return average_vector_;
+      return average_queue_;
     }
 
   private:
@@ -91,7 +92,7 @@ namespace holovibes
     Pipeline* pipeline_;
     ComputeDescriptor compute_desc_;
 
-    std::vector<std::tuple<float, float, float>> average_vector_;
+    ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
   };
 }
 

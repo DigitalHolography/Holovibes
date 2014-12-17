@@ -5,6 +5,7 @@
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
     <QTDIR>C:\Qt\Qt5.3.2\5.3\msvc2013_64_opengl</QTDIR>
     <SolutionLibDir>$(SolutionDir)lib</SolutionLibDir>
+    <QWTDIR>C:\qwt-6.1.1</QWTDIR>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>HolovibesPropertySheet</_PropertySheetDisplayName>
@@ -38,6 +39,9 @@
     </BuildMacro>
     <BuildMacro Include="SolutionLibDir">
       <Value>$(SolutionLibDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="QWTDIR">
+      <Value>$(QWTDIR)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

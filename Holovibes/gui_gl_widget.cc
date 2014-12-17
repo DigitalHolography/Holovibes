@@ -149,18 +149,18 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      if (is_zoom_enabled_)
-      {
-        float selection_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
-        selection_rect(selection_, selection_color);
-      }
-      else // Average mode
+      if (is_average_enabled_)
       {
         float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
         selection_rect(signal_selection_, signal_color);
 
         float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
         selection_rect(noise_selection_, noise_color);
+      }
+      else // if (is_zoom_enabled_)
+      {
+        float selection_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
+        selection_rect(selection_, selection_color);
       }
     }
 
@@ -217,16 +217,7 @@ namespace gui
 
       swap_selection_corners(selection_);
 
-      if (is_zoom_enabled_)
-      {
-        is_selection_enabled_ = false;
-
-        if (selection_.top_left != selection_.bottom_right)
-          zoom(selection_);
-
-        selection_ = holovibes::Rectangle();
-      }
-      else // Average mode
+      if (is_average_enabled_)
       {
         if (is_signal_selection_)
         {
@@ -237,10 +228,18 @@ namespace gui
         {
           noise_selection_ = selection_;
           h_.get_compute_desc().noise_zone = noise_selection_;
-          launch_average_computation();
         }
 
         is_signal_selection_ = !is_signal_selection_;
+        selection_ = holovibes::Rectangle();
+      }
+      else // if (is_zoom_enabled_)
+      {
+        is_selection_enabled_ = false;
+
+        if (selection_.top_left != selection_.bottom_right)
+          zoom(selection_);
+
         selection_ = holovibes::Rectangle();
       }
     }
@@ -379,10 +378,5 @@ namespace gui
   {
     is_average_enabled_ = value;
     is_zoom_enabled_ = !value;
-  }
-
-  // TODO
-  void GLWidget::launch_average_computation()
-  {
   }
 }

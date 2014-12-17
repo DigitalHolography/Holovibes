@@ -149,6 +149,24 @@
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_plot_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_plot_window.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_plot_window.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_curve_plot.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_curve_plot.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -226,6 +244,12 @@
     <ClInclude Include="camera_loader.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="concurrent_deque.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_curve_plot.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.hh">
@@ -254,6 +278,15 @@
     </CustomBuild>
     <CustomBuild Include="thread_recorder.hh">
       <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_plot_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="plot_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="plot_window.qrc">
+      <Filter>Resource Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
