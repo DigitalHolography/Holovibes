@@ -807,7 +807,10 @@ namespace gui
         q = &holovibes_.get_output_queue();
 
       if (execute_next_block())
+      {
         record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+        file_nb++;
+      }
       else
       {
         batch_timer_.stop();
