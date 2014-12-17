@@ -753,20 +753,31 @@ namespace gui
     QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-    load_batch_file(batch_input_line_edit->text().toUtf8());
 
+    const char* input_path = batch_input_line_edit->text().toUtf8();
     std::string output_path = file_output_line_edit->text().toUtf8();
     unsigned int frame_nb = frame_nb_spin_box->value();
 
-    holovibes::Queue* q;
 
-    if (is_direct_mode_)
-      q = &holovibes_.get_capture_queue();
+
+    int status = load_batch_file(input_path);
+
+    if (status != 0)
+      display_error("Couldn't load batch input file.");
+    else if (output_path == "")
+      display_error("Please provide an output file path.");
     else
-      q = &holovibes_.get_output_queue();
+    {
+      holovibes::Queue* q;
 
-    while (execute_next_block())
-      ThreadRecorder tr(*q, output_path, frame_nb, this);
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      while (execute_next_block())
+        ThreadRecorder tr(*q, output_path, frame_nb, this);
+    }
   }
 
   void MainWindow::average_record()
