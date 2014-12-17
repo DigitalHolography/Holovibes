@@ -1,6 +1,6 @@
 #include "device_init.h"
 
-global_s global;
+extern global_s global;
 
 int initialize_board(int board_index) // return 1 on success or 0 fail
 {

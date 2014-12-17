@@ -361,6 +361,11 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating files from UI file - PlotWindow</Message>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GPIB\GPIB.vcxproj">
+      <Project>{4945af2e-4e1f-4052-b8b6-5b0990d1e121}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.targets" />
