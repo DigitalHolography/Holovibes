@@ -10,6 +10,17 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="device_init.h" />
+    <ClInclude Include="gpib_controller.h" />
+    <ClInclude Include="include\gpib.h" />
+    <ClInclude Include="parser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="device_init.c" />
+    <ClCompile Include="gpib_controller.c" />
+    <ClCompile Include="parser.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4945AF2E-4E1F-4052-B8B6-5B0990D1E121}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -56,10 +67,16 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <ClCompile>
+      <CompileAs>CompileAsC</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <CompileAs>CompileAsC</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

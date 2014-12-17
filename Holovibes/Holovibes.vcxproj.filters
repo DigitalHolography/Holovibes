@@ -247,9 +247,6 @@
     <ClInclude Include="concurrent_deque.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui_curve_plot.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.hh">
@@ -287,6 +284,9 @@
     </CustomBuild>
     <CustomBuild Include="plot_window.qrc">
       <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_curve_plot.hh">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
