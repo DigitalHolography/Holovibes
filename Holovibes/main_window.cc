@@ -754,13 +754,13 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
-    const char* input_path = batch_input_line_edit->text().toUtf8();
+    std::string input_path = batch_input_line_edit->text().toUtf8();
     std::string output_path = file_output_line_edit->text().toUtf8();
     unsigned int frame_nb = frame_nb_spin_box->value();
 
 
 
-    int status = load_batch_file(input_path);
+    int status = load_batch_file(input_path.c_str());
 
     if (status != 0)
       display_error("Couldn't load batch input file.");
