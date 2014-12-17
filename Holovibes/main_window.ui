@@ -301,21 +301,6 @@
          <string>plot</string>
         </property>
        </widget>
-       <zorder>pLabelVibro</zorder>
-       <zorder>pSpinBoxVibro</zorder>
-       <zorder>qSpinBoxVibro</zorder>
-       <zorder>qLabelVibro</zorder>
-       <zorder>vibrometryCheckBox</zorder>
-       <zorder>averageCheckBox</zorder>
-       <zorder>ROIFileLabel</zorder>
-       <zorder>ROIBrowseButton</zorder>
-       <zorder>ROIFileLineEdit</zorder>
-       <zorder>saveROIPushButton</zorder>
-       <zorder>loadROIPushButton</zorder>
-       <zorder>label</zorder>
-       <zorder>label_2</zorder>
-       <zorder>pushButton</zorder>
-       <zorder>Record</zorder>
       </widget>
      </item>
      <item row="0" column="1">
@@ -506,17 +491,6 @@
          <string>Contrast type:</string>
         </property>
        </widget>
-       <zorder>logScaleCheckBox</zorder>
-       <zorder>shiftCornersCheckBox</zorder>
-       <zorder>minLabel</zorder>
-       <zorder>maxLabel</zorder>
-       <zorder>autoPushButton</zorder>
-       <zorder>viewModeComboBox</zorder>
-       <zorder>contrastCheckBox</zorder>
-       <zorder>contrastMinDoubleSpinBox</zorder>
-       <zorder>contrastMaxDoubleSpinBox</zorder>
-       <zorder>ImageRendering</zorder>
-       <zorder>contrastTypeLabel</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -686,7 +660,7 @@
          <string>Stop</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="BatchInputLineEdit">
+       <widget class="QLineEdit" name="batchInputLineEdit">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -696,7 +670,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="BatchInputLabel">
+       <widget class="QLabel" name="batchInputLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -709,7 +683,7 @@
          <string>Batch input:</string>
         </property>
        </widget>
-       <widget class="QPushButton" name="BatchInputBrowsePushButton">
+       <widget class="QPushButton" name="batchInputBrowsePushButton">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -958,6 +932,9 @@
         </property>
         <property name="decimals">
          <number>4</number>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
         </property>
         <property name="value">
          <double>0.100000000000000</double>
@@ -1297,8 +1274,8 @@
    <slot>set_phase_number(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
-     <y>111</y>
+     <x>156</x>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1313,8 +1290,8 @@
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>142</y>
+     <x>176</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1329,8 +1306,8 @@
    <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>176</y>
+     <x>174</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1345,8 +1322,8 @@
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>205</y>
+     <x>163</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1361,8 +1338,8 @@
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>278</y>
+     <x>145</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1378,7 +1355,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>400</x>
-     <y>187</y>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1394,7 +1371,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>330</x>
-     <y>113</y>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1410,7 +1387,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>350</x>
-     <y>143</y>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1457,7 +1434,7 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>728</x>
+     <x>698</x>
      <y>177</y>
     </hint>
     <hint type="destinationlabel">
@@ -1489,8 +1466,8 @@
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>301</x>
-     <y>72</y>
+     <x>370</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -1505,8 +1482,8 @@
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>277</x>
-     <y>168</y>
+     <x>311</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -1617,8 +1594,8 @@
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>213</y>
+     <x>341</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -1633,8 +1610,8 @@
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>306</x>
-     <y>239</y>
+     <x>341</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -1697,8 +1674,8 @@
    <slot>set_z_step(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>171</x>
-     <y>236</y>
+     <x>172</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -1745,8 +1722,8 @@
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>559</x>
-     <y>176</y>
+     <x>539</x>
+     <y>203</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -1793,8 +1770,8 @@
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>808</x>
-     <y>207</y>
+     <x>818</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1809,8 +1786,8 @@
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>619</x>
-     <y>227</y>
+     <x>609</x>
+     <y>254</y>
     </hint>
     <hint type="destinationlabel">
      <x>619</x>
@@ -1826,7 +1803,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>519</x>
-     <y>287</y>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -1841,8 +1818,8 @@
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>619</x>
-     <y>287</y>
+     <x>609</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -1858,7 +1835,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>728</x>
-     <y>287</y>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -1873,8 +1850,8 @@
    <slot>cancel_average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>783</x>
-     <y>278</y>
+     <x>818</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>784</x>
@@ -1889,12 +1866,28 @@
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>600</x>
-     <y>163</y>
+     <x>609</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
      <y>-51</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>batchInputBrowsePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_batch_input()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>759</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>879</x>
+     <y>196</y>
     </hint>
    </hints>
   </connection>
@@ -1940,5 +1933,6 @@
   <slot>average_record()</slot>
   <slot>cancel_average_record()</slot>
   <slot>set_average_graphic()</slot>
+  <slot>browse_batch_input()</slot>
  </slots>
 </ui>

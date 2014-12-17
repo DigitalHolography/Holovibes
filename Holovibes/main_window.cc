@@ -11,7 +11,7 @@ namespace gui
     is_direct_mode_(true),
     is_enabled_camera_(false),
     is_enabled_average_(false),
-    z_step_(0.01f),
+    z_step_(0.1f),
     camera_type_(holovibes::Holovibes::NONE),
     plot_window_(nullptr),
     record_thread_(nullptr),
@@ -613,7 +613,7 @@ namespace gui
       ptree.put("noise.bottom_right_y", noise.bottom_right.y);
 
       boost::property_tree::write_ini(path, ptree);
-      display_info("Average zones saved in " + path);
+      display_info("Roi saved in " + path);
     }
     else
       display_error("Invalid path");
@@ -736,6 +736,11 @@ namespace gui
 
     if (!is_direct_mode_)
       global_visibility(true);
+  }
+  
+  void MainWindow::browse_batch_input()
+  {
+
   }
 
   void MainWindow::average_record()
