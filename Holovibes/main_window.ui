@@ -1891,6 +1891,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>batch_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>737</x>
+     <y>168</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>724</x>
+     <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -1934,5 +1950,6 @@
   <slot>cancel_average_record()</slot>
   <slot>set_average_graphic()</slot>
   <slot>browse_batch_input()</slot>
+  <slot>batch_record()</slot>
  </slots>
 </ui>

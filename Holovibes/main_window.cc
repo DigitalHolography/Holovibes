@@ -740,7 +740,7 @@ namespace gui
   
   void MainWindow::browse_batch_input()
   {
-    QString filename = QFileDialog::getSaveFileName(this,
+    QString filename = QFileDialog::getOpenFileName(this,
       tr("Batch input file"), "C://", tr("All files (*)"));
 
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
