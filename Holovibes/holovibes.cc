@@ -61,7 +61,8 @@ namespace holovibes
       tcapture_ = nullptr;
       delete input_;
       input_ = nullptr;
-      camera_loader_.unload_camera();
+      camera_loader_.get_camera().reset(nullptr);
+      // Do NOT unload the library (because of the _re_throw)
       throw;
     }
   }
