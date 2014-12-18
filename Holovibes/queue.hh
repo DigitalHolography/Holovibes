@@ -67,6 +67,7 @@ namespace holovibes
     void dequeue(void* dest, cudaMemcpyKind cuda_kind);
     void dequeue();
     //void* dequeue(size_t elts_nb);
+    void flush();
 
 #if _DEBUG
     // debug only
