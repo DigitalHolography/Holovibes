@@ -102,7 +102,7 @@ void manage_cmd(char *cmd)
     Sleep(wait_time);
     free(time);
   }
-  else if (strncmp(cmd, "InstrumentAddress", strlen("InstrumentAddress")) == 0)
+  else if (strncmp(cmd, "#InstrumentAddress", strlen("#InstrumentAddress")) == 0)
   {
     char *address = (char*)calloc(256, sizeof(char));
     strncpy_s(address, 256, cmd + strlen("InstrumentAddress "), strlen("InstrumentAddress ") - 1);
