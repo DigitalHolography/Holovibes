@@ -808,18 +808,16 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      if (execute_next_block())
-      {
-        record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
-        record_thread_->start();
-        file_nb++;
-      }
-      else
+      if (!execute_next_block())
       {
         batch_timer_.stop();
         record_thread_ = nullptr;
         display_info("Batch record done");
       }
+
+      record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+      record_thread_->start();
+      file_nb++;
     }
   }
 
