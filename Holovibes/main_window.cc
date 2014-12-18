@@ -783,28 +783,29 @@ namespace gui
   void MainWindow::batch_next_record()
   {
     delete record_thread_;
+    static unsigned int file_nb = 1;
 
-    if (execute_next_block())
+    execute_next_block();
+
+    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+
+    std::string output_path = file_output_line_edit->text().toUtf8();
+    unsigned int frame_nb = frame_nb_spin_box->value();
+
+    if (file_nb <= frame_nb)
     {
-      static int file_nb = 1;
-
-      std::string file_index;
-      std::ostringstream convert;
-      convert << file_nb;
-      file_index = convert.str();
-
-      QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
-      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-
-      std::string output_path = file_output_line_edit->text().toUtf8();
-      unsigned int frame_nb = frame_nb_spin_box->value();
-
       holovibes::Queue* q;
 
       if (is_direct_mode_)
         q = &holovibes_.get_capture_queue();
       else
         q = &holovibes_.get_output_queue();
+
+      std::string file_index;
+      std::ostringstream convert;
+      convert << file_nb;
+      file_index = convert.str();
 
       record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
       connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
