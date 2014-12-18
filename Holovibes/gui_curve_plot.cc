@@ -3,7 +3,7 @@
 #define WIDTH 600
 #define HEIGHT 300
 #define TIMER_FREQ 40
-#define POINTS 1000
+#define POINTS 200
 
 namespace gui
 {
