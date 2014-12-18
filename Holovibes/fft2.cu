@@ -43,11 +43,15 @@ void fft_2(
   cufftComplex* pframe = input + frame_resolution * p;
   cufftComplex* qframe = input + frame_resolution * q;
 
+  cudaDeviceSynchronize();
+
   kernel_apply_lens<<<blocks, threads>>>(
     input,
     n_frame_resolution,
     lens,
     frame_resolution);
+
+  cudaDeviceSynchronize();
 
   cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
   kernel_divide<<<blocks, threads >>>(pframe, frame_resolution, n_frame_resolution);
@@ -56,4 +60,6 @@ void fft_2(
     cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
     kernel_divide <<<blocks, threads>>>(qframe, frame_resolution, n_frame_resolution);
   }
+
+  cudaDeviceSynchronize();
 }

@@ -14,6 +14,7 @@ namespace gui
     z_step_(0.1f),
     camera_type_(holovibes::Holovibes::NONE),
     plot_window_(nullptr),
+    batch_timer_(this),
     record_thread_(nullptr),
     average_record_timer_(this)
   {
@@ -48,6 +49,7 @@ namespace gui
     notify();
 
     connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
+    connect(&batch_timer_, SIGNAL(timeout()), this, SLOT(test_batch_record()));
   }
 
   MainWindow::~MainWindow()
@@ -740,7 +742,83 @@ namespace gui
   
   void MainWindow::browse_batch_input()
   {
+    QString filename = QFileDialog::getOpenFileName(this,
+      tr("Batch input file"), "C://", tr("All files (*)"));
 
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    batch_input_line_edit->clear();
+    batch_input_line_edit->insert(filename);
+  }
+
+  void MainWindow::batch_record()
+  {
+    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+
+    std::string input_path = batch_input_line_edit->text().toUtf8();
+    std::string output_path = file_output_line_edit->text().toUtf8();
+    unsigned int frame_nb = frame_nb_spin_box->value();
+
+    int status = load_batch_file(input_path.c_str());
+
+    if (status != 0)
+      display_error("Couldn't load batch input file.");
+    else if (output_path == "")
+      display_error("Please provide an output file path.");
+    else
+    {
+      holovibes::Queue* q;
+
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      execute_next_block();
+      record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+      record_thread_->start();
+      batch_timer_.start(100);
+    }
+  }
+
+  void MainWindow::test_batch_record()
+  {
+    static int file_nb = 1;
+
+    std::string file_index;
+    std::ostringstream convert;
+    convert << file_nb;
+    file_index = convert.str();
+
+    if (record_thread_->isFinished())
+    {
+      delete record_thread_;
+
+      QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+
+      std::string output_path = file_output_line_edit->text().toUtf8();
+      unsigned int frame_nb = frame_nb_spin_box->value();
+
+      holovibes::Queue* q;
+
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      if (!execute_next_block())
+      {
+        batch_timer_.stop();
+        record_thread_ = nullptr;
+        display_info("Batch record done");
+      }
+
+      record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+      record_thread_->start();
+      file_nb++;
+    }
   }
 
   void MainWindow::average_record()

@@ -12,6 +12,8 @@
 # include <boost/filesystem.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
+# include <gpib.h>
+# include <camera_exception.hh>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -19,7 +21,6 @@
 # include "observer.hh"
 # include "gui_gl_window.hh"
 # include "gui_plot_window.hh"
-# include <camera_exception.hh>
 # include "thread_recorder.hh"
 # include "concurrent_deque.hh"
 
@@ -88,6 +89,8 @@ namespace gui
     void cancel_record();
     void finish_record();
     void browse_batch_input();
+    void batch_record();
+    void test_batch_record();
     void average_record();
     void test_average_record();
     void cancel_average_record();
@@ -122,6 +125,8 @@ namespace gui
     holovibes::Holovibes::camera_type camera_type_;
 
     PlotWindow* plot_window_;
+
+    QTimer batch_timer_;
 
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;

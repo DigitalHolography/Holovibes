@@ -9,7 +9,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>HolovibesPropertySheet</_PropertySheetDisplayName>
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <CudaCompile>
@@ -26,8 +26,7 @@
     <Link>
       <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>
-      </GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

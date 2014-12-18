@@ -49,7 +49,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(SolutionDir)GPIB\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
     </ClCompile>
@@ -57,7 +57,6 @@
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(QWTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;qwt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -80,7 +79,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(SolutionDir)GPIB\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
@@ -89,7 +88,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(QWTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;qwt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -360,6 +358,11 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating files from UI file - PlotWindow</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating files from UI file - PlotWindow</Message>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GPIB\GPIB.vcxproj">
+      <Project>{4945af2e-4e1f-4052-b8b6-5b0990d1e121}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
