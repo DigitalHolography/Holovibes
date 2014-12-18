@@ -15,7 +15,8 @@ namespace gui
     camera_type_(holovibes::Holovibes::NONE),
     plot_window_(nullptr),
     record_thread_(nullptr),
-    average_record_timer_(this)
+    average_record_timer_(this),
+    file_index_(1)
   {
     ui.setupUi(this);
 
@@ -783,7 +784,6 @@ namespace gui
   void MainWindow::batch_next_record()
   {
     delete record_thread_;
-    static unsigned int file_nb = 1;
 
     QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -800,10 +800,13 @@ namespace gui
 
     std::string file_index;
     std::ostringstream convert;
-    convert << file_nb;
+    convert <<  std::setw(6) << std::setfill('0') << file_index_;
     file_index = convert.str();
 
-    record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+    std::vector<std::string> path_tokens;
+    split_string(output_path, '.', path_tokens);
+
+    record_thread_ = new ThreadRecorder(*q, path_tokens[0] + "_" + file_index + "." + path_tokens[1], frame_nb, this);
 
     if (execute_next_block())
       connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
@@ -811,13 +814,14 @@ namespace gui
       connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
 
     record_thread_->start();
-    file_nb++;
+    file_index_++;
   }
 
   void MainWindow::batch_finished_record()
   {
     delete record_thread_;
     record_thread_ = nullptr;
+    file_index_ = 1;
     display_info("Batch record done");
   }
 
@@ -1191,5 +1195,14 @@ namespace gui
     ptree.put("special.average_enabled", is_enabled_average_);
 
     boost::property_tree::write_ini(path, ptree);
+  }
+
+  void MainWindow::split_string(const std::string& str, char delim, std::vector<std::string>& elts)
+  {
+    std::stringstream ss(str);
+    std::string item;
+
+    while (std::getline(ss, item, delim))
+      elts.push_back(item);
   }
 }

@@ -14,6 +14,8 @@
 # include <boost/property_tree/ini_parser.hpp>
 # include <gpib.h>
 # include <camera_exception.hh>
+# include <cstring>
+# include <vector>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -114,6 +116,7 @@ namespace gui
     void open_file(const std::string& path);
     void load_ini(const std::string& path);
     void save_ini(const std::string& path);
+    void split_string(const std::string& str, char delim, std::vector<std::string>& elts);
 
   private:
     Ui::MainWindow ui;
@@ -130,6 +133,8 @@ namespace gui
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;
     unsigned int nb_frames_;
+
+    unsigned int file_index_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
