@@ -28,8 +28,9 @@ int initialize_board(int board_index) // return 1 on success or 0 fail
   }
   else
     return 0;
-  if (!clear_board(device_handle))
-    return 0;
+  for (int i = 0; i < global.nb_devices;i++)
+    clear_board(global.device_tab[i].device_handler);
+   
   for (int i = 0; i < global.nb_devices; i++)
   {
     ibrsc(global.device_tab[i].device_handler, 0);
@@ -71,6 +72,7 @@ int clear_board(int device_handler)
   ibclr(device_handler);
   if (ibsta & ERR)
   {
+    int i = iberr;
     printf("Device can't be cleared \n");
     return 0;
   }
