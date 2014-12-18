@@ -774,8 +774,8 @@ namespace gui
         q = &holovibes_.get_output_queue();
 
       execute_next_block();
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
       record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
       record_thread_->start();
     }
   }
@@ -811,6 +811,7 @@ namespace gui
     }
 
     record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+    connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
     record_thread_->start();
     file_nb++;
   }
