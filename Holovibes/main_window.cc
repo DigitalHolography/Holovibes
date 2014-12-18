@@ -775,6 +775,7 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
+      execute_next_block();
       record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
       batch_timer_.start(100);
     }
