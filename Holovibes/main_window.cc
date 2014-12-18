@@ -777,6 +777,7 @@ namespace gui
 
       execute_next_block();
       record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+      record_thread_->start();
       batch_timer_.start(100);
     }
   }
@@ -810,12 +811,12 @@ namespace gui
       if (execute_next_block())
       {
         record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+        record_thread_->start();
         file_nb++;
       }
       else
       {
         batch_timer_.stop();
-        delete record_thread_;
         record_thread_ = nullptr;
         display_info("Batch record done");
       }
