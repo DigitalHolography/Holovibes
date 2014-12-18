@@ -197,3 +197,10 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * GUI ROI plot is freezing when recording
 * GUI changing ROI plot number of points on the fly
+
+### v.0.5.8 ###
+
+* GUI bind gpib
+* GUI minor bugs fixed
+* Recorder bug fixed
+* Camera DLL loader
