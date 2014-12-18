@@ -90,7 +90,7 @@ namespace gui
     void finish_record();
     void browse_batch_input();
     void batch_record();
-    void test_batch_record();
+    void batch_next_record();
     void average_record();
     void test_average_record();
     void cancel_average_record();
@@ -125,8 +125,6 @@ namespace gui
     holovibes::Holovibes::camera_type camera_type_;
 
     PlotWindow* plot_window_;
-
-    QTimer batch_timer_;
 
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;
