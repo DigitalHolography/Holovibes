@@ -91,6 +91,7 @@ namespace gui
     void browse_batch_input();
     void batch_record();
     void batch_next_record();
+    void batch_finished_record();
     void average_record();
     void test_average_record();
     void cancel_average_record();
