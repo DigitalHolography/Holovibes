@@ -782,38 +782,40 @@ namespace gui
 
   void MainWindow::batch_next_record()
   {
-    static int file_nb = 1;
-
-    std::string file_index;
-    std::ostringstream convert;
-    convert << file_nb;
-    file_index = convert.str();
-
     delete record_thread_;
 
-    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
-    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    if (execute_next_block())
+    {
+      static int file_nb = 1;
 
-    std::string output_path = file_output_line_edit->text().toUtf8();
-    unsigned int frame_nb = frame_nb_spin_box->value();
+      std::string file_index;
+      std::ostringstream convert;
+      convert << file_nb;
+      file_index = convert.str();
 
-    holovibes::Queue* q;
+      QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
-    if (is_direct_mode_)
-      q = &holovibes_.get_capture_queue();
+      std::string output_path = file_output_line_edit->text().toUtf8();
+      unsigned int frame_nb = frame_nb_spin_box->value();
+
+      holovibes::Queue* q;
+
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      record_thread_->start();
+      file_nb++;
+    }
     else
-      q = &holovibes_.get_output_queue();
-
-    if (!execute_next_block())
     {
       record_thread_ = nullptr;
       display_info("Batch record done");
     }
-
-    record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
-    connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-    record_thread_->start();
-    file_nb++;
   }
 
   void MainWindow::average_record()
