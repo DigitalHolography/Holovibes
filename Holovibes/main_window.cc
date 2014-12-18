@@ -803,20 +803,22 @@ namespace gui
     convert << file_nb;
     file_index = convert.str();
 
+    record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
+
     if (execute_next_block())
       connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
     else
       connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
 
-    record_thread_ = new ThreadRecorder(*q, output_path + file_index, frame_nb, this);
     record_thread_->start();
     file_nb++;
   }
 
   void MainWindow::batch_finished_record()
   {
-      record_thread_ = nullptr;
-      display_info("Batch record done");
+    delete record_thread_;
+    record_thread_ = nullptr;
+    display_info("Batch record done");
   }
 
   void MainWindow::average_record()
