@@ -812,12 +812,18 @@ namespace gui
     }
   }
 
-  void MainWindow::batch_next_record(const std::string& path)
+  void MainWindow::batch_next_record()
   {
     delete record_thread_;
 
     QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    std::string path;
+
+    if (is_batch_img_)
+      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    else
+      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
 
     unsigned int frame_nb = frame_nb_spin_box->value();
 
