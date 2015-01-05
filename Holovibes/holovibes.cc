@@ -9,7 +9,8 @@
 namespace holovibes
 {
   Holovibes::Holovibes()
-    : camera_loader_()
+    : camera_()
+    , camera_initialized_(false)
     , tcapture_(nullptr)
     , tcompute_(nullptr)
     , recorder_(nullptr)
@@ -31,29 +32,31 @@ namespace holovibes
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
+    camera_initialized_ = false;
+
     try
     {
       if (c == EDGE)
-        camera_loader_.load_camera("CameraPCOEdge.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
       else if (c == IDS)
-        camera_loader_.load_camera("CameraIds.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
       else if (c == IXON)
-        camera_loader_.load_camera("CameraIxon.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraIxon.dll");
       else if (c == PIKE)
-        camera_loader_.load_camera("CameraPike.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
       else if (c == PIXELFLY)
-        camera_loader_.load_camera("CameraPCOPixelfly.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
       else if (c == XIQ)
-        camera_loader_.load_camera("CameraXiq.dll");
+        camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
       else
         assert(!"Impossible case");
 
-      std::unique_ptr<camera::ICamera>& camera = camera_loader_.get_camera();
-      camera->init_camera();
-      input_ = new Queue(camera->get_frame_descriptor(), buffer_nb_elts);
-      camera->start_acquisition();
-      tcapture_ = new ThreadCapture(*camera, *input_);
+      camera_->init_camera();
+      input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
+      camera_->start_acquisition();
+      tcapture_ = new ThreadCapture(*camera_, *input_);
       std::cout << "[CAPTURE] capture thread started" << std::endl;
+      camera_initialized_ = true;
     }
     catch (std::exception& e)
     {
@@ -61,8 +64,7 @@ namespace holovibes
       tcapture_ = nullptr;
       delete input_;
       input_ = nullptr;
-      camera_loader_.get_camera().reset(nullptr);
-      // Do NOT unload the library (because of the _re_throw)
+
       throw;
     }
   }
@@ -72,17 +74,17 @@ namespace holovibes
     delete tcapture_;
     tcapture_ = nullptr;
 
-    std::unique_ptr<camera::ICamera>& camera = camera_loader_.get_camera();
-
-    if (camera)
+    if (camera_ && camera_initialized_)
     {
-      camera->stop_acquisition();
-      camera->shutdown_camera();
+      camera_->stop_acquisition();
+      camera_->shutdown_camera();
     }
 
     delete input_;
     input_ = nullptr;
-    camera_loader_.unload_camera();
+
+    camera_.reset();
+    camera_initialized_ = false;
 
     std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
@@ -91,7 +93,7 @@ namespace holovibes
     std::string& filepath,
     unsigned int rec_n_images)
   {
-    assert(camera_loader_.get_camera() && "camera not initialized");
+    assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
@@ -113,7 +115,7 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-    assert(camera_loader_.get_camera() && "camera not initialized");
+    assert(camera_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     assert(input_ && "input queue not initialized");
 

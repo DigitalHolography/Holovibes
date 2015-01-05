@@ -1,13 +1,15 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
-# include "camera_loader.hh"
+# include "camera_dll.hh"
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
 # include "concurrent_deque.hh"
+
+# include <memory>
 
 namespace holovibes
 {
@@ -33,7 +35,7 @@ namespace holovibes
 
     bool is_camera_initialized()
     {
-      return camera_loader_.get_camera().operator bool();
+      return camera_.operator bool();
     }
 
     Queue& get_capture_queue()
@@ -73,7 +75,7 @@ namespace holovibes
 
     const char* get_camera_ini_path() const
     {
-      return camera_loader_.get_camera()->get_ini_path();
+      return camera_->get_ini_path();
     }
 
     ConcurrentDeque<std::tuple<float, float, float>>& get_average_queue()
@@ -82,7 +84,8 @@ namespace holovibes
     }
 
   private:
-    camera::CameraLoader camera_loader_;
+    std::shared_ptr<camera::ICamera> camera_;
+    bool camera_initialized_;
     ThreadCapture* tcapture_;
     ThreadCompute* tcompute_;
     Recorder* recorder_;

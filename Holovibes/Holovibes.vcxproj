@@ -109,7 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="average.cuh" />
-    <ClInclude Include="camera_loader.hh" />
+    <ClInclude Include="camera_dll.hh" />
     <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="concurrent_deque.hh" />
     <ClInclude Include="contrast_correction.cuh" />
@@ -206,6 +206,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="camera_dll.cc" />
     <ClCompile Include="compute_descriptor.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
