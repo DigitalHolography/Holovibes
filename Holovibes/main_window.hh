@@ -92,8 +92,10 @@ namespace gui
     void cancel_record();
     void finish_record();
     void browse_batch_input();
-    void batch_record();
-    void batch_next_record();
+    void image_batch_record();
+    void csv_batch_record();
+    void batch_record(const std::string& path);
+    void batch_next_record(const std::string& path);
     void batch_finished_record();
     void average_record();
     void test_average_record();

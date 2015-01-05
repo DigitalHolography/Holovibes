@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>850</width>
-    <height>368</height>
+    <width>834</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="font">
@@ -30,7 +30,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>831</width>
+      <width>811</width>
       <height>301</height>
      </rect>
     </property>
@@ -636,12 +636,12 @@
          <rect>
           <x>10</x>
           <y>270</y>
-          <width>81</width>
+          <width>51</width>
           <height>21</height>
          </rect>
         </property>
         <property name="text">
-         <string>Record</string>
+         <string>Rec.</string>
         </property>
        </widget>
        <widget class="QPushButton" name="ROIStopPushButton">
@@ -650,9 +650,9 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>130</x>
           <y>270</y>
-          <width>81</width>
+          <width>51</width>
           <height>21</height>
          </rect>
         </property>
@@ -675,7 +675,7 @@
          <rect>
           <x>10</x>
           <y>150</y>
-          <width>91</width>
+          <width>71</width>
           <height>16</height>
          </rect>
         </property>
@@ -701,6 +701,19 @@
          <rect>
           <x>70</x>
           <y>120</y>
+          <width>51</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Batch</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="ROIBatchPushButton">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>270</y>
           <width>51</width>
           <height>21</height>
          </rect>
@@ -950,7 +963,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>850</width>
+     <width>834</width>
      <height>26</height>
     </rect>
    </property>
@@ -1354,8 +1367,8 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>400</x>
-     <y>247</y>
+     <x>395</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1370,8 +1383,8 @@
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>157</y>
+     <x>325</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1386,8 +1399,8 @@
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>350</x>
-     <y>187</y>
+     <x>345</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1402,8 +1415,8 @@
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>118</y>
+     <x>499</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -1418,8 +1431,8 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>509</x>
-     <y>148</y>
+     <x>499</x>
+     <y>158</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -1434,7 +1447,7 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>698</x>
+     <x>683</x>
      <y>177</y>
     </hint>
     <hint type="destinationlabel">
@@ -1450,11 +1463,11 @@
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
+     <x>803</x>
      <y>117</y>
     </hint>
     <hint type="destinationlabel">
-     <x>855</x>
+     <x>833</x>
      <y>121</y>
     </hint>
    </hints>
@@ -1466,8 +1479,8 @@
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>370</x>
-     <y>99</y>
+     <x>365</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -1482,8 +1495,8 @@
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
-     <y>247</y>
+     <x>306</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -1594,8 +1607,8 @@
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>341</x>
-     <y>277</y>
+     <x>336</x>
+     <y>298</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -1610,8 +1623,8 @@
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>341</x>
-     <y>307</y>
+     <x>336</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -1642,7 +1655,7 @@
    <slot>cancel_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
+     <x>803</x>
      <y>177</y>
     </hint>
     <hint type="destinationlabel">
@@ -1722,8 +1735,8 @@
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>539</x>
-     <y>203</y>
+     <x>529</x>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -1770,8 +1783,8 @@
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>247</y>
+     <x>803</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -1786,8 +1799,8 @@
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>254</y>
+     <x>599</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>619</x>
@@ -1802,8 +1815,8 @@
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>519</x>
-     <y>314</y>
+     <x>509</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -1818,8 +1831,8 @@
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>314</y>
+     <x>599</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -1834,12 +1847,12 @@
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>728</x>
-     <y>314</y>
+     <x>683</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
-     <y>397</y>
+     <y>368</y>
     </hint>
    </hints>
   </connection>
@@ -1850,12 +1863,12 @@
    <slot>cancel_average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>307</y>
+     <x>803</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>784</x>
-     <y>380</y>
+     <y>368</y>
     </hint>
    </hints>
   </connection>
@@ -1866,12 +1879,12 @@
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>197</y>
+     <x>599</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
-     <y>-51</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -1886,7 +1899,7 @@
      <y>196</y>
     </hint>
     <hint type="destinationlabel">
-     <x>879</x>
+     <x>833</x>
      <y>196</y>
     </hint>
    </hints>
@@ -1895,15 +1908,31 @@
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>batch_record()</slot>
+   <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>737</x>
-     <y>168</y>
+     <x>720</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>724</x>
+     <x>717</x>
      <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIBatchPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>csv_batch_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>725</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>720</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -1951,5 +1980,7 @@
   <slot>set_average_graphic()</slot>
   <slot>browse_batch_input()</slot>
   <slot>batch_record()</slot>
+  <slot>image_batch_record()</slot>
+  <slot>csv_batch_record()</slot>
  </slots>
 </ui>

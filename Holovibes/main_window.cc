@@ -751,22 +751,36 @@ namespace gui
     batch_input_line_edit->insert(filename);
   }
 
-  void MainWindow::batch_record()
+  void MainWindow::image_batch_record()
+  {
+    QLineEdit* output_path = findChild<QLineEdit*>("pathLineEdit");
+
+    is_batch_img_ = true;
+    batch_record(std::string(output_path->text().toUtf8()));
+  }
+
+  void MainWindow::csv_batch_record()
+  {
+    QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
+
+    is_batch_img_ = false;
+    batch_record(std::string(output_path->text().toUtf8()));
+  }
+
+  void MainWindow::batch_record(const std::string& path)
   {
     file_index_ = 1;
-    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
     std::string input_path = batch_input_line_edit->text().toUtf8();
-    std::string output_path = file_output_line_edit->text().toUtf8();
     unsigned int frame_nb = frame_nb_spin_box->value();
 
     int status = load_batch_file(input_path.c_str());
 
     if (status != 0)
       display_error("Couldn't load batch input file.");
-    else if (output_path == "")
+    else if (path == "")
       display_error("Please provide an output file path.");
     else
     {
@@ -781,7 +795,7 @@ namespace gui
 
       if (is_batch_img_)
       {
-        record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+        record_thread_ = new ThreadRecorder(*q, path, frame_nb, this);
         connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
         record_thread_->start();
       }
@@ -789,7 +803,7 @@ namespace gui
       {
         CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
           holovibes_.get_average_queue(),
-          output_path,
+          path,
           frame_nb,
           this);
         connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
@@ -798,14 +812,13 @@ namespace gui
     }
   }
 
-  void MainWindow::batch_next_record()
+  void MainWindow::batch_next_record(const std::string& path)
   {
     delete record_thread_;
 
     QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
-    std::string output_path = file_output_line_edit->text().toUtf8();
     unsigned int frame_nb = frame_nb_spin_box->value();
 
     holovibes::Queue* q;
@@ -815,7 +828,7 @@ namespace gui
     else
       q = &holovibes_.get_output_queue();
 
-    std::string output_filename = format_batch_output(output_path, file_index_);
+    std::string output_filename = format_batch_output(path, file_index_);
 
     if (is_batch_img_)
     {
