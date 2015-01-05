@@ -24,6 +24,7 @@
 # include "gui_gl_window.hh"
 # include "gui_plot_window.hh"
 # include "thread_recorder.hh"
+# include "thread_csv_record.hh"
 # include "concurrent_deque.hh"
 
 namespace gui
@@ -117,6 +118,7 @@ namespace gui
     void load_ini(const std::string& path);
     void save_ini(const std::string& path);
     void split_string(const std::string& str, char delim, std::vector<std::string>& elts);
+    std::string format_batch_output(const std::string& path, unsigned int index);
 
   private:
     Ui::MainWindow ui;
@@ -125,12 +127,14 @@ namespace gui
     bool is_direct_mode_;
     bool is_enabled_camera_;
     bool is_enabled_average_;
+    bool is_batch_img_;
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
 
     PlotWindow* plot_window_;
 
     ThreadRecorder* record_thread_;
+    ThreadCSVRecord* CSV_record_thread_;
     QTimer average_record_timer_;
     unsigned int nb_frames_;
 

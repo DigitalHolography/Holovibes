@@ -11,10 +11,12 @@ namespace gui
     is_direct_mode_(true),
     is_enabled_camera_(false),
     is_enabled_average_(false),
+    is_batch_img_(true),
     z_step_(0.1f),
     camera_type_(holovibes::Holovibes::NONE),
     plot_window_(nullptr),
     record_thread_(nullptr),
+    CSV_record_thread_(nullptr),
     average_record_timer_(this),
     file_index_(1)
   {
@@ -751,6 +753,7 @@ namespace gui
 
   void MainWindow::batch_record()
   {
+    file_index_ = 1;
     QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -775,9 +778,23 @@ namespace gui
         q = &holovibes_.get_output_queue();
 
       execute_next_block();
-      record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-      record_thread_->start();
+
+      if (is_batch_img_)
+      {
+        record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+        record_thread_->start();
+      }
+      else
+      {
+        CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+          holovibes_.get_average_queue(),
+          output_path,
+          frame_nb,
+          this);
+        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+        CSV_record_thread_->start();
+      }
     }
   }
 
@@ -798,22 +815,35 @@ namespace gui
     else
       q = &holovibes_.get_output_queue();
 
-    std::string file_index;
-    std::ostringstream convert;
-    convert <<  std::setw(6) << std::setfill('0') << file_index_;
-    file_index = convert.str();
+    std::string output_filename = format_batch_output(output_path, file_index_);
 
-    std::vector<std::string> path_tokens;
-    split_string(output_path, '.', path_tokens);
+    if (is_batch_img_)
+    {
+      record_thread_ = new ThreadRecorder(*q, output_filename, frame_nb, this);
 
-    record_thread_ = new ThreadRecorder(*q, path_tokens[0] + "_" + file_index + "." + path_tokens[1], frame_nb, this);
+      if (execute_next_block())
+        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      else
+        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
 
-    if (execute_next_block())
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      record_thread_->start();
+    }
     else
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+    {
+      CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+        holovibes_.get_average_queue(),
+        output_filename,
+        frame_nb,
+        this);
 
-    record_thread_->start();
+      if (execute_next_block())
+        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      else
+        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+
+      CSV_record_thread_->start();
+    }
+
     file_index_++;
   }
 
@@ -821,6 +851,8 @@ namespace gui
   {
     delete record_thread_;
     record_thread_ = nullptr;
+    delete CSV_record_thread_;
+    CSV_record_thread_ = nullptr;
     file_index_ = 1;
     display_info("Batch record done");
   }
@@ -1204,5 +1236,18 @@ namespace gui
 
     while (std::getline(ss, item, delim))
       elts.push_back(item);
+  }
+
+  std::string MainWindow::format_batch_output(const std::string& path, unsigned int index)
+  {
+    std::string file_index;
+    std::ostringstream convert;
+    convert <<  std::setw(6) << std::setfill('0') << index;
+    file_index = convert.str();
+
+    std::vector<std::string> path_tokens;
+    split_string(path, '.', path_tokens);
+
+    return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
   }
 }
