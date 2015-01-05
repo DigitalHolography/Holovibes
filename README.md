@@ -1,4 +1,4 @@
-# Holovibes v0.5.8 #
+# Holovibes v0.5.9 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
