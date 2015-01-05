@@ -1,6 +1,5 @@
 #include "camera_dll.hh"
 #include <iostream>
-#include <cassert>
 
 namespace camera
 {
@@ -18,11 +17,7 @@ namespace camera
     if (!init)
       throw std::runtime_error("unable to retrieve the 'new_camera_device' function");
 
-    ICamera* camera = init();
-    assert(camera);
-    DeleterDLL deleter(dll_handle);
-
-    return std::shared_ptr<ICamera>(camera, deleter);
+    return std::shared_ptr<ICamera>(init(), DeleterDLL(dll_handle));
   }
 
   CameraDLL::DeleterDLL::DeleterDLL(HINSTANCE dll_handle)
@@ -31,7 +26,6 @@ namespace camera
 
   void CameraDLL::DeleterDLL::operator()(ICamera* camera)
   {
-    std::cout << camera->get_name() << " deleted" << std::endl;
     delete camera;
     FreeLibrary(dll_handle_);
   }

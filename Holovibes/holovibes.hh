@@ -58,9 +58,9 @@ namespace holovibes
 
     Pipeline& get_pipeline()
     {
-      if (pipeline_)
-        return *pipeline_;
-      throw std::runtime_error("Pipeline is null");
+      if (tcompute_)
+        return tcompute_->get_pipeline();
+      throw std::runtime_error("cannot get pipeline, no compute thread");
     }
 
     ComputeDescriptor& get_compute_desc()
@@ -86,13 +86,13 @@ namespace holovibes
   private:
     std::shared_ptr<camera::ICamera> camera_;
     bool camera_initialized_;
-    ThreadCapture* tcapture_;
-    ThreadCompute* tcompute_;
-    Recorder* recorder_;
+    std::unique_ptr<ThreadCapture> tcapture_;
+    std::unique_ptr<ThreadCompute> tcompute_;
+    std::unique_ptr<Recorder> recorder_;
 
-    Queue* input_;
-    Queue* output_;
-    Pipeline* pipeline_;
+    std::unique_ptr<Queue> input_;
+    std::unique_ptr<Queue> output_;
+
     ComputeDescriptor compute_desc_;
 
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;

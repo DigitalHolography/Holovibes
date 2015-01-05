@@ -11,12 +11,11 @@ namespace holovibes
   Holovibes::Holovibes()
     : camera_()
     , camera_initialized_(false)
-    , tcapture_(nullptr)
-    , tcompute_(nullptr)
-    , recorder_(nullptr)
-    , input_(nullptr)
-    , output_(nullptr)
-    , pipeline_(nullptr)
+    , tcapture_()
+    , tcompute_()
+    , recorder_()
+    , input_()
+    , output_()
     , compute_desc_()
     , average_queue_()
   {
@@ -24,10 +23,12 @@ namespace holovibes
 
   Holovibes::~Holovibes()
   {
+#if 0
     delete tcompute_;
     delete tcapture_;
     delete input_;
     delete output_;
+#endif
   }
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
@@ -52,18 +53,16 @@ namespace holovibes
         assert(!"Impossible case");
 
       camera_->init_camera();
-      input_ = new Queue(camera_->get_frame_descriptor(), buffer_nb_elts);
+      input_.reset(new Queue(camera_->get_frame_descriptor(), buffer_nb_elts));
       camera_->start_acquisition();
-      tcapture_ = new ThreadCapture(*camera_, *input_);
+      tcapture_.reset(new ThreadCapture(*camera_, *input_));
       std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
     }
     catch (std::exception& e)
     {
-      delete tcapture_;
-      tcapture_ = nullptr;
-      delete input_;
-      input_ = nullptr;
+      tcapture_.reset(nullptr);
+      input_.reset(nullptr);
 
       throw;
     }
@@ -71,18 +70,14 @@ namespace holovibes
 
   void Holovibes::dispose_capture()
   {
-    delete tcapture_;
-    tcapture_ = nullptr;
-
+    tcapture_.reset(nullptr);
     if (camera_ && camera_initialized_)
     {
       camera_->stop_acquisition();
       camera_->shutdown_camera();
     }
 
-    delete input_;
-    input_ = nullptr;
-
+    input_.reset(nullptr);
     camera_.reset();
     camera_initialized_ = false;
 
@@ -97,11 +92,11 @@ namespace holovibes
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
-      recorder_ = new Recorder(*output_, filepath);
+      recorder_.reset(new Recorder(*output_, filepath));
     }
     else
     {
-      recorder_ = new Recorder(*input_, filepath);
+      recorder_.reset(new Recorder(*input_, filepath));
     }
     std::cout << "[RECORDER] recorder initialized" << std::endl;
     recorder_->record(rec_n_images);
@@ -109,8 +104,7 @@ namespace holovibes
 
   void Holovibes::dispose_recorder()
   {
-    delete recorder_;
-    recorder_ = nullptr;
+    recorder_.reset(nullptr);
   }
 
   void Holovibes::init_compute()
@@ -121,9 +115,9 @@ namespace holovibes
 
     camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
     output_frame_desc.depth = 2;
-    output_ = new Queue(output_frame_desc, input_->get_max_elts());
+    output_.reset(new Queue(output_frame_desc, input_->get_max_elts()));
 
-    tcompute_ = new ThreadCompute(compute_desc_, *input_, *output_);
+    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_));
     std::cout << "[CUDA] compute thread started" << std::endl;
 
     // A wait_for is necessary here in order for the pipeline to finish
@@ -135,16 +129,11 @@ namespace holovibes
     while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
       std::cout << ".";
     std::cout << "\n";
-
-    pipeline_ = &tcompute_->get_pipeline();
   }
 
   void Holovibes::dispose_compute()
   {
-    delete tcompute_;
-    tcompute_ = nullptr;
-    pipeline_ = nullptr;
-    delete output_;
-    output_ = nullptr;
+    tcompute_.reset(nullptr);
+    output_.reset(nullptr);
   }
 }
