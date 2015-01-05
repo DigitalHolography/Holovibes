@@ -2,11 +2,16 @@
 
 namespace gui
 {
-    ThreadCSVRecord::ThreadCSVRecord(Deque& deque,
+    ThreadCSVRecord::ThreadCSVRecord(holovibes::Pipeline& pipeline,
+      Deque& deque,
+      const std::string& path,
       unsigned int nb_frames,
       QObject* parent)
       : QThread(parent),
-      deque_(deque)
+      pipeline_(pipeline),
+      deque_(deque),
+      path_(path),
+      nb_frames_(nb_frames)
     {
     }
 
@@ -20,5 +25,23 @@ namespace gui
 
     void ThreadCSVRecord::run()
     {
+      deque_.clear();
+      pipeline_.request_average_record(&deque_, nb_frames_);
+
+      while (deque_.size() < nb_frames_)
+        continue;
+
+      std::ofstream of(path_, std::ofstream::out);
+      
+      of << "signal,noise,average\n";
+
+      for (auto it = deque_.begin(); it != deque_.end(); ++it)
+      {
+        std::tuple<float, float, float>& tuple = *it;
+        of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
+          << std::get<0>(tuple) << ","
+          << std::get<1>(tuple) << ","
+          << std::get<2>(tuple) << "\n";
+      }
     }
 }
