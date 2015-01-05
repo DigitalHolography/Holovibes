@@ -823,7 +823,7 @@ namespace gui
     if (is_batch_img_)
       path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
     else
-      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+      path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
 
     unsigned int frame_nb = frame_nb_spin_box->value();
 
