@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     }
     catch (camera::CameraException& e)
     {
-      std::cerr << "[CAMERA] " << e.get_name() << " " << e.what() << std::endl;
+      std::cerr << "[CAMERA] " << e.what() << std::endl;
       return 1;
     }
     catch (std::exception& e)

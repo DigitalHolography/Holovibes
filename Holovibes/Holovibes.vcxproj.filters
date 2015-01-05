@@ -68,18 +68,6 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera_xiq.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_ids.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_pike.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_exception.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="holovibes.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -161,35 +149,29 @@
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_ixon.cc">
+    <ClCompile Include="gui_plot_window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_pco.cc">
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_plot_window.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_plot_window.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_curve_plot.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_pco_edge.cc">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="camera_pco_pixelfly.cc">
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_curve_plot.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_xiq.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_ids.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pike.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_exception.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
@@ -207,9 +189,6 @@
     </ClInclude>
     <ClInclude Include="preprocessing.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="frame_desc.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="queue.hh">
       <Filter>Header Files</Filter>
@@ -259,22 +238,16 @@
     <ClInclude Include="vibrometry.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="camera_ixon.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco_edge.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_pco_pixelfly.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="average.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="geometry.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="concurrent_deque.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_dll.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -304,6 +277,18 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="thread_recorder.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_plot_window.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="plot_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="plot_window.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_curve_plot.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

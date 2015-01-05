@@ -106,6 +106,14 @@ namespace holovibes
     mutex_.unlock();
   }
 
+  void Queue::flush()
+  {
+    mutex_.lock();
+    curr_elts_ = 0;
+    start_ = 0;
+    mutex_.unlock();
+  }
+
 #if _DEBUG
   void Queue::print() const
   {

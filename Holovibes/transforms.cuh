@@ -2,7 +2,7 @@
 # define TRANSFORMS_CUH_
 
 # include <cufft.h>
-# include "frame_desc.hh"
+# include <frame_desc.hh>
 
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,

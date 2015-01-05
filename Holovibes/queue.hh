@@ -6,7 +6,7 @@
 # include <cuda.h>
 # include <cuda_runtime.h>
 
-# include "frame_desc.hh"
+# include <frame_desc.hh>
 
 namespace holovibes
 {
@@ -67,6 +67,7 @@ namespace holovibes
     void dequeue(void* dest, cudaMemcpyKind cuda_kind);
     void dequeue();
     //void* dequeue(size_t elts_nb);
+    void flush();
 
 #if _DEBUG
     // debug only

@@ -12,14 +12,19 @@
 # include <boost/filesystem.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
+# include <gpib.h>
+# include <camera_exception.hh>
+# include <cstring>
+# include <vector>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
-# include "camera_exception.hh"
+# include "gui_plot_window.hh"
 # include "thread_recorder.hh"
+# include "concurrent_deque.hh"
 
 namespace gui
 {
@@ -74,6 +79,7 @@ namespace gui
     void set_p_vibro(int value);
     void set_q_vibro(int value);
     void set_average_mode(bool value);
+    void set_average_graphic();
     void browse_roi_file();
     void browse_roi_output_file();
     void save_roi();
@@ -84,6 +90,10 @@ namespace gui
     void set_record();
     void cancel_record();
     void finish_record();
+    void browse_batch_input();
+    void batch_record();
+    void batch_next_record();
+    void batch_finished_record();
     void average_record();
     void test_average_record();
     void cancel_average_record();
@@ -106,6 +116,7 @@ namespace gui
     void open_file(const std::string& path);
     void load_ini(const std::string& path);
     void save_ini(const std::string& path);
+    void split_string(const std::string& str, char delim, std::vector<std::string>& elts);
 
   private:
     Ui::MainWindow ui;
@@ -117,9 +128,13 @@ namespace gui
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
 
+    PlotWindow* plot_window_;
+
     ThreadRecorder* record_thread_;
     QTimer average_record_timer_;
     unsigned int nb_frames_;
+
+    unsigned int file_index_;
 
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;

@@ -1,12 +1,15 @@
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 
-# include "camera.hh"
+# include "camera_dll.hh"
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
+# include "concurrent_deque.hh"
+
+# include <memory>
 
 namespace holovibes
 {
@@ -32,7 +35,7 @@ namespace holovibes
 
     bool is_camera_initialized()
     {
-      return camera_ != nullptr;
+      return camera_.operator bool();
     }
 
     Queue& get_capture_queue()
@@ -55,9 +58,9 @@ namespace holovibes
 
     Pipeline& get_pipeline()
     {
-      if (pipeline_)
-        return *pipeline_;
-      throw std::runtime_error("Pipeline is null");
+      if (tcompute_)
+        return tcompute_->get_pipeline();
+      throw std::runtime_error("cannot get pipeline, no compute thread");
     }
 
     ComputeDescriptor& get_compute_desc()
@@ -70,28 +73,29 @@ namespace holovibes
       compute_desc_ = compute_desc;
     }
 
-    const std::string& get_camera_ini_path() const
+    const char* get_camera_ini_path() const
     {
       return camera_->get_ini_path();
     }
 
-    std::vector<std::tuple<float, float, float>>& get_average_vector()
+    ConcurrentDeque<std::tuple<float, float, float>>& get_average_queue()
     {
-      return average_vector_;
+      return average_queue_;
     }
 
   private:
-    camera::Camera* camera_;
-    ThreadCapture* tcapture_;
-    ThreadCompute* tcompute_;
-    Recorder* recorder_;
+    std::shared_ptr<camera::ICamera> camera_;
+    bool camera_initialized_;
+    std::unique_ptr<ThreadCapture> tcapture_;
+    std::unique_ptr<ThreadCompute> tcompute_;
+    std::unique_ptr<Recorder> recorder_;
 
-    Queue* input_;
-    Queue* output_;
-    Pipeline* pipeline_;
+    std::unique_ptr<Queue> input_;
+    std::unique_ptr<Queue> output_;
+
     ComputeDescriptor compute_desc_;
 
-    std::vector<std::tuple<float, float, float>> average_vector_;
+    ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
   };
 }
 

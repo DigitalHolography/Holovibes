@@ -9,7 +9,7 @@
 # include <cuda_gl_interop.h>
 
 # include "queue.hh"
-# include "frame_desc.hh"
+# include <frame_desc.hh>
 # include "geometry.hh"
 # include "holovibes.hh"
 
@@ -57,8 +57,6 @@ namespace gui
       noise_selection_ = selection;
       h_.get_compute_desc().noise_zone = noise_selection_;
     }
-
-    void launch_average_computation();
 
   public slots:
     void resizeFromWindow(int width, int height);

@@ -9,6 +9,7 @@ namespace gui
     unsigned int n_images,
     QObject* parent)
     : QThread(parent)
+    , queue_(queue)
     , recorder_(queue, filepath)
     , n_images_(n_images)
   {}
@@ -23,6 +24,7 @@ namespace gui
 
   void ThreadRecorder::run()
   {
+    queue_.flush();
     recorder_.record(n_images_);
   }
 }

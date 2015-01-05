@@ -11,10 +11,12 @@ namespace gui
     is_direct_mode_(true),
     is_enabled_camera_(false),
     is_enabled_average_(false),
-    z_step_(0.01f),
+    z_step_(0.1f),
     camera_type_(holovibes::Holovibes::NONE),
+    plot_window_(nullptr),
     record_thread_(nullptr),
-    average_record_timer_(this)
+    average_record_timer_(this),
+    file_index_(1)
   {
     ui.setupUi(this);
 
@@ -46,7 +48,7 @@ namespace gui
     // Display default values
     notify();
 
-    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
+    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));;
   }
 
   MainWindow::~MainWindow()
@@ -137,6 +139,10 @@ namespace gui
     QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
     average->setChecked(is_enabled_average_);
 
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    if (gl_widget)
+      gl_widget->set_average_mode(is_enabled_average_);
+
     average_visible(is_enabled_average_);
   }
 
@@ -194,7 +200,7 @@ namespace gui
 
   void MainWindow::credits()
   {
-    display_info("Holovibes v0.5.4\n\n"
+    display_info("Holovibes v0.5.9\n\n"
       "Scientists:\n"
       "Michael Atlan\n"
       "\n"
@@ -243,6 +249,8 @@ namespace gui
 
         global_visibility(true);
       }
+
+      notify();
     }
   }
 
@@ -549,13 +557,19 @@ namespace gui
 
   void MainWindow::set_average_mode(bool value)
   {
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_average_mode(value);
     is_enabled_average_ = value;
 
     // TODO
     average_visible(value);
+  }
+
+  void MainWindow::set_average_graphic()
+  {    
+    delete plot_window_;
+    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+    plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
   }
 
   void MainWindow::browse_roi_file()
@@ -600,7 +614,7 @@ namespace gui
       ptree.put("noise.bottom_right_y", noise.bottom_right.y);
 
       boost::property_tree::write_ini(path, ptree);
-      display_info("Average zones saved in " + path);
+      display_info("Roi saved in " + path);
     }
     else
       display_error("Invalid path");
@@ -638,7 +652,6 @@ namespace gui
       gl_widget.set_signal_selection(signal);
       gl_widget.set_noise_selection(noise);
       gl_widget.enable_selection();
-      gl_widget.launch_average_computation();
     }
     catch (std::exception& e)
     {
@@ -725,16 +738,106 @@ namespace gui
     if (!is_direct_mode_)
       global_visibility(true);
   }
+  
+  void MainWindow::browse_batch_input()
+  {
+    QString filename = QFileDialog::getOpenFileName(this,
+      tr("Batch input file"), "C://", tr("All files (*)"));
+
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    batch_input_line_edit->clear();
+    batch_input_line_edit->insert(filename);
+  }
+
+  void MainWindow::batch_record()
+  {
+    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+
+    std::string input_path = batch_input_line_edit->text().toUtf8();
+    std::string output_path = file_output_line_edit->text().toUtf8();
+    unsigned int frame_nb = frame_nb_spin_box->value();
+
+    int status = load_batch_file(input_path.c_str());
+
+    if (status != 0)
+      display_error("Couldn't load batch input file.");
+    else if (output_path == "")
+      display_error("Please provide an output file path.");
+    else
+    {
+      holovibes::Queue* q;
+
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      execute_next_block();
+      record_thread_ = new ThreadRecorder(*q, output_path, frame_nb, this);
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      record_thread_->start();
+    }
+  }
+
+  void MainWindow::batch_next_record()
+  {
+    delete record_thread_;
+
+    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+
+    std::string output_path = file_output_line_edit->text().toUtf8();
+    unsigned int frame_nb = frame_nb_spin_box->value();
+
+    holovibes::Queue* q;
+
+    if (is_direct_mode_)
+      q = &holovibes_.get_capture_queue();
+    else
+      q = &holovibes_.get_output_queue();
+
+    std::string file_index;
+    std::ostringstream convert;
+    convert <<  std::setw(6) << std::setfill('0') << file_index_;
+    file_index = convert.str();
+
+    std::vector<std::string> path_tokens;
+    split_string(output_path, '.', path_tokens);
+
+    record_thread_ = new ThreadRecorder(*q, path_tokens[0] + "_" + file_index + "." + path_tokens[1], frame_nb, this);
+
+    if (execute_next_block())
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+    else
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+
+    record_thread_->start();
+    file_index_++;
+  }
+
+  void MainWindow::batch_finished_record()
+  {
+    delete record_thread_;
+    record_thread_ = nullptr;
+    file_index_ = 1;
+    display_info("Batch record done");
+  }
 
   void MainWindow::average_record()
   {
+    // Stop chart if enable
+    if (plot_window_)
+      plot_window_->stop_drawing();
+
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_frames_ = nb_of_frames_spin_box->value();
 
-    holovibes_.get_average_vector().resize(nb_frames_);
-    holovibes_.get_average_vector().clear();
+    holovibes_.get_average_queue().resize(nb_frames_);
+    holovibes_.get_average_queue().clear();
     average_record_timer_.start(100);
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_vector(), nb_frames_);
+    holovibes_.get_pipeline().request_average_record(&holovibes_.get_average_queue(), nb_frames_);
 
     global_visibility(false);
     record_but_cancel_visible(false);
@@ -745,9 +848,9 @@ namespace gui
 
   void MainWindow::test_average_record()
   {
-    std::vector<std::tuple<float, float, float>>& vector = holovibes_.get_average_vector();
+    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& queue = holovibes_.get_average_queue();
 
-    if (vector.size() >= nb_frames_)
+    if (queue.size() >= nb_frames_)
     {
       QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
       std::string path = output_line_edit->text().toUtf8();
@@ -757,7 +860,7 @@ namespace gui
       
       of << "signal,noise,average\n";
 
-      for (auto it = vector.begin(); it != vector.end(); ++it)
+      for (auto it = queue.begin(); it != queue.end(); ++it)
       {
         std::tuple<float, float, float>& tuple = *it;
         of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
@@ -771,6 +874,13 @@ namespace gui
       average_record_but_cancel_visible(true);
       QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
       roi_stop_push_button->setDisabled(true);
+
+      // Reenable chart if enabled and stoppped previously
+      if (plot_window_)
+      {
+        holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+        plot_window_->start_drawing();
+      }
     }
   }
 
@@ -780,7 +890,7 @@ namespace gui
     {
       average_record_timer_.stop();
       holovibes_.get_pipeline().request_refresh();
-      holovibes_.get_average_vector().clear();
+      holovibes_.get_average_queue().clear();
 
       global_visibility(true);
       record_but_cancel_visible(true);
@@ -796,6 +906,9 @@ namespace gui
 
     if (gl_window_)
       gl_window_->close();
+
+    if (plot_window_)
+      plot_window_->close();
   }
 
   void MainWindow::global_visibility(bool value)
@@ -976,7 +1089,6 @@ namespace gui
     QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
   }
 
-
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
@@ -1083,5 +1195,14 @@ namespace gui
     ptree.put("special.average_enabled", is_enabled_average_);
 
     boost::property_tree::write_ini(path, ptree);
+  }
+
+  void MainWindow::split_string(const std::string& str, char delim, std::vector<std::string>& elts)
+  {
+    std::stringstream ss(str);
+    std::string item;
+
+    while (std::getline(ss, item, delim))
+      elts.push_back(item);
   }
 }

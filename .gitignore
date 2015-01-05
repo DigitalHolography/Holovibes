@@ -163,8 +163,8 @@ $RECYCLE.BIN/
 doc/*
 
 # Do not ignore lib/dll files in lib directory
-!Holovibes/lib/**/*.lib
-!Holovibes/lib/**/*.dll
+!lib/**/*.lib
+!lib/**/*.dll
 
 # Raw images
 *.raw

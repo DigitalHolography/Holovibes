@@ -28,6 +28,7 @@ namespace gui
   private:
     void run() override;
   private:
+    holovibes::Queue& queue_;
     holovibes::Recorder recorder_;
     unsigned int n_images_;
   };
