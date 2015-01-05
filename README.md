@@ -204,3 +204,8 @@ This mode is useful to do batch computation (call holovibes from a script).
 * GUI minor bugs fixed
 * Recorder bug fixed
 * Camera DLL loader
+
+### v.0.5.9 ###
+
+* Improved DLL loader
+* Add smart pointers (memory safety)
