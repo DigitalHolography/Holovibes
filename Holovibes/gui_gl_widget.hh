@@ -16,17 +16,17 @@
 
 namespace gui
 {
+  typedef enum selection
+  {
+    AUTOFOCUS,
+    AVERAGE,
+    ZOOM
+  } eselection;
+
   class GLWidget : public QGLWidget, protected QOpenGLFunctions
   {
     Q_OBJECT
       const unsigned int DISPLAY_FRAMERATE = 30;
-
-    typedef enum selection
-    {
-      AUTOFOCUS,
-      AVERAGE,
-      ZOOM
-    } eselection;
 
   public:
     GLWidget(
@@ -66,9 +66,13 @@ namespace gui
       h_.get_compute_desc().noise_zone = noise_selection_;
     }
 
+    void set_selection_mode(eselection mode)
+    {
+      selection_mode_ = mode;
+    }
+
   public slots:
     void resizeFromWindow(int width, int height);
-    void set_average_mode(bool value);
 
   protected:
     void initializeGL() override;

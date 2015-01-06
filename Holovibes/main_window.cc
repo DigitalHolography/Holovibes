@@ -140,8 +140,8 @@ namespace gui
     average->setChecked(is_enabled_average_);
 
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    if (gl_widget)
-      gl_widget->set_average_mode(is_enabled_average_);
+    if (gl_widget && is_enabled_average_)
+      gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 
     average_visible(is_enabled_average_);
   }
@@ -410,6 +410,12 @@ namespace gui
     }
   }
 
+  void MainWindow::set_autofocus_mode()
+  {
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
+  }
+
   void MainWindow::set_contrast_mode(bool value)
   {
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
@@ -558,7 +564,10 @@ namespace gui
   void MainWindow::set_average_mode(bool value)
   {
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    gl_widget->set_average_mode(value);
+    if (value)
+      gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+    else
+      gl_widget->set_selection_mode(gui::eselection::ZOOM);
     is_enabled_average_ = value;
 
     // TODO

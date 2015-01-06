@@ -151,10 +151,12 @@ namespace gui
       float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
       float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
       float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
+      float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 
       switch (selection_mode_)
       {
       case AUTOFOCUS:
+        selection_rect(selection_, autofocus_color);
         break;
       case AVERAGE:
         selection_rect(signal_selection_, signal_color);
@@ -224,6 +226,7 @@ namespace gui
       switch (selection_mode_)
       {
       case AUTOFOCUS:
+        selection_mode_ = ZOOM;
         break;
       case AVERAGE:
         if (is_signal_selection_)
@@ -379,13 +382,5 @@ namespace gui
   {
     resizeGL(width, height);
     resize(QSize(width, height));
-  }
-
-  void GLWidget::set_average_mode(bool value)
-  {
-    if (value)
-      selection_mode_ = AVERAGE;
-    else
-      selection_mode_ = ZOOM;
   }
 }
