@@ -1,14 +1,19 @@
 #include "average.cuh"
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cmath>
+
+#include "hardware_limits.hh"
 
 static __global__ void kernel_sum(
   float* input,
   unsigned int width,
   unsigned int height,
   float* output,
-  unsigned int z_start_x,
-  unsigned int z_start_y,
-  unsigned int z_width,
-  unsigned int z_height)
+  unsigned int zone_start_x,
+  unsigned int zone_start_y,
+  unsigned int zone_width,
+  unsigned int zone_height)
 {
   unsigned int size = width * height;
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -18,8 +23,8 @@ static __global__ void kernel_sum(
     int x = index % width;
     int y = index / height;
 
-    if (x >= z_start_x && x < z_start_x + z_width
-      && y >= z_start_y && y < z_start_y + z_height)
+    if (x >= zone_start_x && x < zone_start_x + zone_width
+      && y >= zone_start_y && y < zone_start_y + zone_height)
     {
       atomicAdd(output, input[index]);
     }
