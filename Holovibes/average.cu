@@ -33,60 +33,53 @@ static __global__ void kernel_sum(
   }
 }
 
-/* -- AVERAGE OPERATOR -- */
-float average_operator(
-  float* input,
-  const unsigned int width,
-  const unsigned int height,
-  holovibes::Rectangle& zone)
-{
-  const unsigned int size = width * height;
-  const unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
-
-  float* gpu_sum;
-  cudaMalloc<float>(&gpu_sum, sizeof(float));
-  cudaMemset(gpu_sum, 0, sizeof(float));
-
-  const unsigned int zone_width = abs(zone.top_right.x - zone.top_left.x);
-  const unsigned int zone_height = abs(zone.bottom_left.y - zone.top_left.y);
-
-  kernel_sum <<<blocks, threads >>>(
-    input,
-    width,
-    height,
-    gpu_sum,
-    zone.top_left.x,
-    zone.top_left.y,
-    zone_width,
-    zone_height);
-
-  float cpu_sum;
-  cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
-
-  cudaFree(gpu_sum);
-
-  cpu_sum /= float(zone_width * zone_height);
-
-  return cpu_sum;
-}
-
-/* -- VIBROMETRY -- */
 std::tuple<float, float, float> make_average_plot(
-  float* input,
+  float *input,
   const unsigned int width,
   const unsigned int height,
   holovibes::Rectangle& signal,
   holovibes::Rectangle& noise)
 {
-  float cpu_s = average_operator(input, width, height, signal);
-  float cpu_n = average_operator(input, width, height, noise);
+  unsigned int size = width * height;
+  unsigned int threads = get_max_threads_1d();
+  unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks;
+
+  float* gpu_s;
+  float* gpu_n;
+
+  cudaMalloc(&gpu_s, sizeof(float));
+  cudaMalloc(&gpu_n, sizeof(float));
+
+  cudaMemset(gpu_s, 0, sizeof(float));
+  cudaMemset(gpu_n, 0, sizeof(float));
+
+  unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
+  unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
+  unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
+  unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
+
+  kernel_sum <<<blocks, threads>>>(input, width, height, gpu_n,
+    noise.top_left.x, noise.top_left.y, noise_width, noise_height);
+  kernel_sum <<<blocks, threads>>>(input, width, height, gpu_s,
+    signal.top_left.x, signal.top_left.y, signal_width, signal_height);
+
+  float cpu_s;
+  float cpu_n;
+
+  cudaMemcpy(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost);
+
+  cpu_s /=  float(signal_width * signal_height);
+  cpu_n /=  float(noise_width * noise_height);
 
   float moy = 10 * log10f(cpu_s / cpu_n);
+
+  cudaFree(gpu_n);
+  cudaFree(gpu_s);
 
   return std::tuple<float, float, float>{ cpu_s, cpu_n, moy };
 }
