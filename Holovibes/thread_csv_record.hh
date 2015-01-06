@@ -19,7 +19,7 @@ namespace gui
   public:
     ThreadCSVRecord(holovibes::Pipeline& pipeline,
       Deque& deque,
-      const std::string& path,
+      std::string path,
       unsigned int nb_frames,
       QObject* parent = nullptr);
     ~ThreadCSVRecord();
@@ -33,7 +33,7 @@ namespace gui
   private:
     holovibes::Pipeline& pipeline_;
     Deque& deque_;
-    const std::string& path_;
+    std::string path_;
     unsigned int nb_frames_;
   };
 }

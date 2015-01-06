@@ -4,7 +4,7 @@ namespace gui
 {
     ThreadCSVRecord::ThreadCSVRecord(holovibes::Pipeline& pipeline,
       Deque& deque,
-      const std::string& path,
+      std::string path,
       unsigned int nb_frames,
       QObject* parent)
       : QThread(parent),
@@ -31,6 +31,7 @@ namespace gui
       while (deque_.size() < nb_frames_)
         continue;
 
+      std::cout << path_ << std::endl;
       std::ofstream of(path_);
       
       of << "signal,noise,average\n";

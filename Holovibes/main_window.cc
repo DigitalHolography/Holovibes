@@ -795,7 +795,7 @@ namespace gui
 
       if (is_batch_img_)
       {
-        record_thread_ = new ThreadRecorder(*q, path, frame_nb, this);
+        record_thread_ = new ThreadRecorder(*q, format_batch_output(path, file_index_), frame_nb, this);
         connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
         record_thread_->start();
       }
@@ -803,12 +803,14 @@ namespace gui
       {
         CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
           holovibes_.get_average_queue(),
-          path,
+          format_batch_output(path, file_index_),
           frame_nb,
           this);
         connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
         CSV_record_thread_->start();
       }
+
+      ++file_index_;
     }
   }
 
