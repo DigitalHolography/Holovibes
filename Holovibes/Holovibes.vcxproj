@@ -191,6 +191,16 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
     </CustomBuild>
+    <CustomBuild Include="thread_csv_record.hh">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
+    </CustomBuild>
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
@@ -226,6 +236,7 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_thread_csv_record.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -267,6 +278,7 @@
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
+    <ClCompile Include="thread_csv_record.cc" />
     <ClCompile Include="thread_recorder.cc" />
     <CudaCompile Include="average.cu" />
     <CudaCompile Include="contrast_correction.cu" />
