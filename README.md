@@ -209,3 +209,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * Improved DLL loader
 * Add smart pointers (memory safety)
+
+### v.0.6.0 ###
+
+* CSV batch
