@@ -5,7 +5,7 @@
 
 #include "hardware_limits.hh"
 
-static __global__ void kernel_sum(
+static __global__ void kernel_zone_sum(
   float* input,
   unsigned int width,
   unsigned int height,
@@ -62,9 +62,9 @@ std::tuple<float, float, float> make_average_plot(
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
   unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
 
-  kernel_sum <<<blocks, threads>>>(input, width, height, gpu_n,
+  kernel_zone_sum <<<blocks, threads>>>(input, width, height, gpu_n,
     noise.top_left.x, noise.top_left.y, noise_width, noise_height);
-  kernel_sum <<<blocks, threads>>>(input, width, height, gpu_s,
+  kernel_zone_sum <<<blocks, threads>>>(input, width, height, gpu_s,
     signal.top_left.x, signal.top_left.y, signal_width, signal_height);
 
   float cpu_s;

@@ -8,6 +8,7 @@
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"
 #include "average.cuh"
+#include "autofocus.cuh"
 
 namespace holovibes
 {
@@ -327,6 +328,15 @@ namespace holovibes
         compute_desc_.contrast_min.load(),
         compute_desc_.contrast_max.load()));
     }
+
+    /* --- TEST PURPOSE --- */
+    fn_vect_.push_back(std::bind(
+      [](float* input, unsigned int square_size)
+    {
+      focus_metric(input, square_size);
+    },
+      gpu_float_buffer_,
+      2048));
 
     fn_vect_.push_back(std::bind(
       float_to_ushort,

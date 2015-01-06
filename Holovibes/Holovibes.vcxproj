@@ -108,6 +108,7 @@
     <CudaCompile />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="autofocus.cuh" />
     <ClInclude Include="average.cuh" />
     <ClInclude Include="camera_dll.hh" />
     <ClInclude Include="compute_descriptor.hh" />
@@ -268,6 +269,7 @@
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
     <ClCompile Include="thread_recorder.cc" />
+    <CudaCompile Include="autofocus.cu" />
     <CudaCompile Include="average.cu" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="fft2.cu" />
