@@ -31,7 +31,6 @@ namespace gui
       while (deque_.size() < nb_frames_)
         continue;
 
-      std::cout << path_ << std::endl;
       std::ofstream of(path_);
       
       of << "signal,noise,average\n";
