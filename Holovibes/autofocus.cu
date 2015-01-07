@@ -108,10 +108,10 @@ static float average_local_variance(
     cudaMemcpy2D(
       ke_gpu_frame,
       ke_gpu_frame_pitch,
-      &ke_cpu,
+      ke_cpu,
       3 * sizeof(cufftComplex),
       3 * sizeof(cufftComplex),
-      3 * sizeof(cufftComplex),
+      3,
       cudaMemcpyHostToDevice);
   }
 
@@ -171,6 +171,8 @@ static float average_local_variance(
     i_ke_convolution,
     i_ke_convolution,
     size);
+
+  cudaDeviceSynchronize();
 
   float average_local_variance = average_operator(i_ke_convolution, size);
 

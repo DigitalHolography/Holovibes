@@ -384,10 +384,10 @@ void frame_memcpy(
 
   cudaMemcpy2D(
     output,
-    output_width,
+    output_width * sizeof(float),
     zone_ptr,
-    input_width,
-    zone_width,
+    input_width * sizeof(float),
+    zone_width * sizeof(float),
     zone_height,
     cudaMemcpyDeviceToDevice);
 #if 0
@@ -416,6 +416,7 @@ static __global__ void kernel_sum(
   }
 }
 
+#include <iostream>
 float average_operator(
   const float* input,
   const unsigned int size)
@@ -436,12 +437,14 @@ float average_operator(
     gpu_sum,
     size);
 
-  float cpu_sum;
+  float cpu_sum = 0.0f;
   cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
 
   cudaFree(gpu_sum);
-
+  std::cout << "sum " << cpu_sum << std::endl;
+  std::cout << "size " << size << std::endl;
   cpu_sum /= float(size);
+  std::cout << "sum/size: " << cpu_sum << std::endl;
 
   return cpu_sum;
 }
