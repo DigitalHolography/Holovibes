@@ -86,7 +86,7 @@ static float average_local_variance(
   cudaMallocPitch(&ke_gpu_frame,
     &ke_gpu_frame_pitch,
     square_size * sizeof(cufftComplex),
-    square_size * sizeof(cufftComplex));
+    square_size);
   cudaMemset2D(
     ke_gpu_frame,
     ke_gpu_frame_pitch,
