@@ -784,6 +784,9 @@ namespace gui
       display_error("Please provide an output file path.");
     else
     {
+      global_visibility(false);
+      camera_visible(false);
+
       holovibes::Queue* q;
 
       if (is_direct_mode_)
@@ -875,7 +878,16 @@ namespace gui
     delete CSV_record_thread_;
     CSV_record_thread_ = nullptr;
     file_index_ = 1;
+    global_visibility(true);
+    camera_visible(true);
     display_info("Batch record done");
+
+    if (plot_window_)
+    {
+      plot_window_->stop_drawing();
+      holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+      plot_window_->start_drawing();
+    }
   }
 
   void MainWindow::average_record()
