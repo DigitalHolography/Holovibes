@@ -92,7 +92,7 @@ static float average_local_variance(
     ke_gpu_frame_pitch,
     0,
     square_size * sizeof(cufftComplex),
-    square_size * sizeof(cufftComplex));
+    square_size);
 
   {
     cufftComplex ke_19;
