@@ -41,8 +41,12 @@ __global__ void kernel_apply_lens(
   cufftComplex *lens,
   unsigned int lens_size);
 // TODO: Explain what this does.
-__global__ void kernel_divide(
+__global__ void kernel_complex_divide(
   cufftComplex* image,
+  unsigned int size,
+  float divider);
+__global__ void kernel_float_divide(
+  float* input,
   unsigned int size,
   float divider);
 void shift_corners(

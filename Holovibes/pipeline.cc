@@ -268,6 +268,15 @@ namespace holovibes
         output_fd.height));
     }
 
+    /* --- TEST PURPOSE --- */
+    fn_vect_.push_back(std::bind(
+      [](float* input, unsigned int square_size)
+    {
+      focus_metric(input, square_size);
+    },
+      gpu_float_buffer_,
+      2048));
+
     if (average_requested_)
     {
       if (average_record_requested)
@@ -297,15 +306,6 @@ namespace holovibes
 
       average_requested_ = false;
     }
-
-    /* --- TEST PURPOSE --- */
-    fn_vect_.push_back(std::bind(
-      [](float* input, unsigned int square_size)
-    {
-      focus_metric(input, square_size);
-    },
-      gpu_float_buffer_,
-      2048));
 
     if (compute_desc_.log_scale_enabled)
     {

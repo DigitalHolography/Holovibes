@@ -3,7 +3,7 @@
 
 
 float focus_metric(
-  float* input,
+  const float* input,
   unsigned int square_size);
 
 #endif /* !AUTOFOCUS_CUH */

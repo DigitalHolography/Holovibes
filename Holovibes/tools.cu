@@ -223,7 +223,7 @@ void endianness_conversion(
   kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
 }
 
-__global__ void kernel_divide(
+__global__ void kernel_complex_divide(
   cufftComplex* image,
   unsigned int size,
   float divider)
@@ -233,6 +233,19 @@ __global__ void kernel_divide(
   {
     image[index].x = image[index].x / divider;
     image[index].y = image[index].y / divider;
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+__global__ void kernel_float_divide(
+  float* input,
+  unsigned int size,
+  float divider)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size)
+  {
+    input[index] /= divider;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -441,10 +454,8 @@ float average_operator(
   cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
 
   cudaFree(gpu_sum);
-  std::cout << "sum " << cpu_sum << std::endl;
-  std::cout << "size " << size << std::endl;
+
   cpu_sum /= float(size);
-  std::cout << "sum/size: " << cpu_sum << std::endl;
 
   return cpu_sum;
 }

@@ -189,17 +189,250 @@ static float average_local_variance(
   return average_local_variance;
 }
 
-/* TODO: Fix me */
-float focus_metric(
-  float* input,
+static __global__ void kernel_plus_operator(
+  const float* input_left,
+  const float* input_right,
+  float* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  while (index < size)
+  {
+    output[index] = input_left[index] + input_right[index];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+static __global__ void kernel_sqrt_operator(
+  const float* input,
+  float* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  while (index < size)
+  {
+    output[index] = sqrtf(input[index]);
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+static float sobel_operator(
+  const float* input,
   unsigned int square_size)
 {
   unsigned int size = square_size * square_size;
-  float global_variance = global_variance_intensity(input, size);
-  float avr_local_variance = average_local_variance(input, square_size);
+  unsigned int threads = get_max_threads_1d();
+  const unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks;
+
+  /* ks matrix with same size than input */
+  cufftComplex* ks_gpu_frame;
+  size_t ks_gpu_frame_pitch;
+
+  /* Allocates memory for ks_gpu_frame. */
+  cudaMallocPitch(&ks_gpu_frame,
+    &ks_gpu_frame_pitch,
+    square_size * sizeof(cufftComplex),
+    square_size);
+  cudaMemset2D(
+    ks_gpu_frame,
+    ks_gpu_frame_pitch,
+    0,
+    square_size * sizeof(cufftComplex),
+    square_size);
+
+  {
+    const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
+
+    /* Build the ks 3x3 matrix */
+    float ks_cpu[9] =
+    {
+      1.0f, 0.0f, -1.0f,
+      2.0f, 0.0f, -2.0f,
+      1.0f, 0.0f, -1.0f
+    };
+
+    cufftComplex ks_complex_cpu[9];
+    for (int i = 0; i < 9; ++i)
+    {
+      ks_cpu[i] *= coeff;
+      ks_complex_cpu[i].x = ks_cpu[i];
+      ks_complex_cpu[i].y = ks_cpu[i];
+    }
+
+    /* Copy the ks matrix to ks_gpu_frame. */
+    cudaMemcpy2D(
+      ks_gpu_frame,
+      ks_gpu_frame_pitch,
+      ks_complex_cpu,
+      3 * sizeof(cufftComplex),
+      3 * sizeof(cufftComplex),
+      3,
+      cudaMemcpyHostToDevice);
+  }
+
+  /* kst matrix with same size than input */
+  cufftComplex* kst_gpu_frame;
+  size_t kst_gpu_frame_pitch;
+
+  /* Allocates memory for kst_gpu_frame. */
+  cudaMallocPitch(&kst_gpu_frame,
+    &kst_gpu_frame_pitch,
+    square_size * sizeof(cufftComplex),
+    square_size);
+  cudaMemset2D(
+    kst_gpu_frame,
+    kst_gpu_frame_pitch,
+    0,
+    square_size * sizeof(cufftComplex),
+    square_size);
+
+  {
+    const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
+
+    /* Build the kst 3x3 matrix */
+    float kst_cpu[9] =
+    {
+      1.0f, 2.0f, 1.0f,
+      0.0f, 0.0f, 0.0f,
+      -1.0f, -2.0f, -1.0f
+    };
+
+    cufftComplex kst_complex_cpu[9];
+    for (int i = 0; i < 9; ++i)
+    {
+      kst_cpu[i] *= coeff;
+      kst_complex_cpu[i].x = kst_cpu[i];
+      kst_complex_cpu[i].y = kst_cpu[i];
+    }
+
+    /* Copy the kst matrix to kst_gpu_frame. */
+    cudaMemcpy2D(
+      kst_gpu_frame,
+      kst_gpu_frame_pitch,
+      kst_complex_cpu,
+      3 * sizeof(cufftComplex),
+      3 * sizeof(cufftComplex),
+      3,
+      cudaMemcpyHostToDevice);
+  }
+
+  cufftComplex* input_complex;
+  cudaMalloc(&input_complex, size * sizeof(cufftComplex));
+
+  /* Convert input float frame to complex frame. */
+  kernel_float_to_complex <<<blocks, threads>>>(input, input_complex, size);
+
+  /* Allocation of convolution i * ks output */
+  float* i_ks_convolution;
+  cudaMalloc(&i_ks_convolution, size * sizeof(float));
+
+  /* Allocation of convolution i * kst output */
+  float* i_kst_convolution;
+  cudaMalloc(&i_kst_convolution, size * sizeof(float));
+
+  cufftHandle plan2d_x;
+  cufftHandle plan2d_k;
+  cufftPlan2d(&plan2d_x, square_size, square_size, CUFFT_C2C);
+  cufftPlan2d(&plan2d_k, square_size, square_size, CUFFT_C2C);
+
+  /* Compute i * ks. */
+  convolution_operator(
+    input_complex,
+    ks_gpu_frame,
+    i_ks_convolution,
+    size,
+    plan2d_x,
+    plan2d_k);
+
+  /* Compute (i * ks)^2 */
+  kernel_multiply_frames_float<<<blocks, threads>>>(
+    i_ks_convolution,
+    i_ks_convolution,
+    i_ks_convolution,
+    size);
+
+  /* Compute i * kst. */
+  convolution_operator(
+    input_complex,
+    kst_gpu_frame,
+    i_kst_convolution,
+    size,
+    plan2d_x,
+    plan2d_k);
+
+  /* Compute (i * kst)^2 */
+  kernel_multiply_frames_float<<<blocks, threads>>>(
+    i_kst_convolution,
+    i_kst_convolution,
+    i_kst_convolution,
+    size);
+
+  /* Compute (i * ks)^2 - (i * kst)^2 */
+  kernel_plus_operator<<<blocks, threads>>>(
+    i_ks_convolution,
+    i_kst_convolution,
+    i_ks_convolution,
+    size);
+
+  kernel_sqrt_operator<<<blocks, threads>>>(
+    i_ks_convolution,
+    i_ks_convolution,
+    size);
+
+  cudaDeviceSynchronize();
+
+  float average_magnitude = average_operator(i_ks_convolution, size);
+
+  /* -- Free ressources -- */
+  cufftDestroy(plan2d_x);
+  cufftDestroy(plan2d_k);
+
+  cudaFree(i_ks_convolution);
+  cudaFree(i_kst_convolution);
+
+  cudaFree(input_complex);
+
+  cudaFree(kst_gpu_frame);
+  cudaFree(ks_gpu_frame);
+
+  return average_magnitude;
+}
+
+/* TODO: Fix me */
+float focus_metric(
+  const float* input,
+  unsigned int square_size)
+{
+  unsigned int size = square_size * square_size;
+  unsigned int threads = get_max_threads_1d();
+  const unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks;
+
+  float* input_tmp;
+  cudaMalloc(&input_tmp, size * sizeof(float));
+  cudaMemcpy(input_tmp, input, size * sizeof(float), cudaMemcpyDeviceToDevice);
+
+  /* Divide each pixels to avoid higher values than float can contains. */
+  kernel_float_divide<<<blocks, threads>>>(input_tmp, size, 2048 * 2048);
+
+  float global_variance = global_variance_intensity(input_tmp, size);
+  float avr_local_variance = average_local_variance(input_tmp, square_size);
+  float avr_magnitude = sobel_operator(input_tmp, square_size);
+
+  cudaFree(input_tmp);
 
   std::cout << "global variance: " << global_variance << std::endl;
   std::cout << "avr_local_variance: " << avr_local_variance << std::endl;
+  std::cout << "avr_magnitude: " << avr_magnitude << std::endl;
 
-  return global_variance * avr_local_variance;
+  return global_variance * avr_local_variance * avr_magnitude;
 }
