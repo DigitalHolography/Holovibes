@@ -80,6 +80,9 @@ namespace gui
     no matter what direction the user uses to select a zone */
     void swap_selection_corners(holovibes::Rectangle& selection);
 
+    /* Ensure that rectangle is in widget's bounds. */
+    void bounds_check(holovibes::Rectangle& selection);
+
     void gl_error_checking();
 
   private:

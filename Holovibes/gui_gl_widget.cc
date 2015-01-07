@@ -215,6 +215,7 @@ namespace gui
         (e->x() * frame_desc_.width) / width(),
         selection_.top_left.y);
 
+      bounds_check(selection_);
       swap_selection_corners(selection_);
 
       if (is_average_enabled_)
@@ -359,6 +360,21 @@ namespace gui
         selection.horizontal_symetry();
       }
     }
+  }
+
+  void GLWidget::bounds_check(holovibes::Rectangle& selection)
+  {
+    if (selection.bottom_right.x < 0)
+      selection.bottom_right.x = 0;
+    if (selection.bottom_right.x > frame_desc_.width)
+      selection.bottom_right.x = frame_desc_.width;
+
+    if (selection.bottom_right.y < 0)
+      selection.bottom_right.y = 0;
+    if (selection.bottom_right.y > frame_desc_.height)
+      selection.bottom_right.y = frame_desc_.height;
+
+    selection = holovibes::Rectangle(selection.top_left, selection.bottom_right);
   }
 
   void GLWidget::gl_error_checking()
