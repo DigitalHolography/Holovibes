@@ -404,9 +404,8 @@ static float sobel_operator(
   return average_magnitude;
 }
 
-/* TODO: Fix me */
 float focus_metric(
-  const float* input,
+  float* input,
   unsigned int square_size)
 {
   unsigned int size = square_size * square_size;
@@ -417,22 +416,17 @@ float focus_metric(
   if (blocks > max_blocks)
     blocks = max_blocks;
 
-  float* input_tmp;
-  cudaMalloc(&input_tmp, size * sizeof(float));
-  cudaMemcpy(input_tmp, input, size * sizeof(float), cudaMemcpyDeviceToDevice);
-
   /* Divide each pixels to avoid higher values than float can contains. */
-  kernel_float_divide<<<blocks, threads>>>(input_tmp, size, 2048 * 2048);
+  kernel_float_divide<<<blocks, threads>>>(input, size, size);
 
-  float global_variance = global_variance_intensity(input_tmp, size);
-  float avr_local_variance = average_local_variance(input_tmp, square_size);
-  float avr_magnitude = sobel_operator(input_tmp, square_size);
-
-  cudaFree(input_tmp);
+  float global_variance = global_variance_intensity(input, size);
+  float avr_local_variance = average_local_variance(input, square_size);
+  float avr_magnitude = sobel_operator(input, square_size);
 
   std::cout << "global variance: " << global_variance << std::endl;
   std::cout << "avr_local_variance: " << avr_local_variance << std::endl;
   std::cout << "avr_magnitude: " << avr_magnitude << std::endl;
 
-  return global_variance * avr_local_variance * avr_magnitude;
+  //return global_variance * avr_local_variance * avr_magnitude;
+  return global_variance * avr_magnitude;
 }

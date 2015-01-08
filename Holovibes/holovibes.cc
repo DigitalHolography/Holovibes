@@ -22,14 +22,7 @@ namespace holovibes
   }
 
   Holovibes::~Holovibes()
-  {
-#if 0
-    delete tcompute_;
-    delete tcapture_;
-    delete input_;
-    delete output_;
-#endif
-  }
+  {}
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {

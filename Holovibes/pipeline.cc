@@ -1,6 +1,8 @@
 #include "pipeline.hh"
 
 #include <cassert>
+#include <algorithm>
+
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "tools.cuh"
@@ -136,6 +138,14 @@ namespace holovibes
       update_n_parameter(compute_desc_.nsamples);
     }
 
+    if (autofocus_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        &Pipeline::autofocus_caller,
+        this));
+      return;
+    }
+
     // Fill input complex buffer.
     fn_vect_.push_back(std::bind(
       make_contiguous_complex,
@@ -268,15 +278,6 @@ namespace holovibes
         output_fd.height));
     }
 
-    /* --- TEST PURPOSE --- */
-    fn_vect_.push_back(std::bind(
-      [](float* input, unsigned int square_size)
-    {
-      focus_metric(input, square_size);
-    },
-      gpu_float_buffer_,
-      2048));
-
     if (average_requested_)
     {
       if (average_record_requested)
@@ -343,13 +344,6 @@ namespace holovibes
       gpu_float_buffer_,
       gpu_output_buffer_,
       input_fd.frame_res()));
-
-    if (autofocus_requested_)
-    {
-      autofocus_requested_ = false;
-      request_refresh();
-      // push autofocus();
-    }
   }
 
   void Pipeline::exec()
@@ -464,5 +458,124 @@ namespace holovibes
       average_output_ = nullptr;
       request_refresh();
     }
+  }
+
+  /* Looks like the pipeline, but it search for the right z value. */
+  void Pipeline::autofocus_caller()
+  {
+    float z_min = compute_desc_.autofocus_z_min;
+    float z_max = compute_desc_.autofocus_z_max;
+    unsigned int z_div = compute_desc_.autofocus_z_div;
+    Rectangle zone = compute_desc_.autofocus_zone;
+
+    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+
+    /* Fill gpu_input complex buffer. */
+
+    make_contiguous_complex(
+      input_,
+      gpu_input_buffer_,
+      compute_desc_.nsamples,
+      gpu_sqrt_vector_);
+    if (cudaGetLastError())
+      std::cout << "something wrong\n";
+
+    /* Autofocus needs to work on the same images.
+     * It will computes on copies. */
+    cufftComplex* gpu_input_buffer_tmp;
+    size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
+    cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
+    float z_step = (z_max - z_min) / float(z_div);
+    std::vector<float> focus_metric_values;
+
+    for (float z = z_min; z < z_max; z += z_step)
+    {
+      /* Make input frames copies. */
+      cudaMemcpy(
+        gpu_input_buffer_tmp,
+        gpu_input_buffer_,
+        gpu_input_buffer_size,
+        cudaMemcpyDeviceToDevice);
+
+      if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+      {
+        fft1_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          z);
+
+        fft_1(
+          gpu_input_buffer_tmp,
+          gpu_lens_,
+          plan3d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples);
+
+        gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+      }
+      else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+      {
+        fft2_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          z);
+
+        gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+
+        fft_2(
+          gpu_input_buffer_tmp,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples,
+          compute_desc_.pindex,
+          compute_desc_.pindex);
+      }
+      else
+        assert(!"Impossible case");
+
+      if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+      {
+        complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+      }
+      else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+      {
+        complex_to_squared_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+      }
+      else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+      {
+        complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+      }
+      else
+        assert(!"Impossible case");
+
+      if (compute_desc_.shift_corners_enabled)
+      {
+        shift_corners(
+          gpu_float_buffer_,
+          output_.get_frame_desc().width,
+          output_.get_frame_desc().height);
+      }
+
+      float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
+      output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
+
+      focus_metric_values.push_back(focus_metric(gpu_float_buffer_, input_fd.width));
+    }
+
+    /* Find max z */
+    auto biggest = std::max_element(focus_metric_values.begin(), focus_metric_values.end());
+    auto max_pos = std::distance(focus_metric_values.begin(), biggest);
+    float af_z = z_min + max_pos * z_step;
+
+    std::cout << "z: " << af_z << "Max - C(z): " << *biggest << "\n";
+
+    compute_desc_.zdistance = af_z;
+    compute_desc_.notify_observers();
+
+    cudaFree(gpu_input_buffer_tmp);
   }
 }

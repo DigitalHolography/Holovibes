@@ -50,6 +50,7 @@ namespace holovibes
       unsigned int height,
       Rectangle& signal,
       Rectangle& noise);
+    void autofocus_caller();
     void refresh();
 
     Pipeline& operator=(const Pipeline&) = delete;
