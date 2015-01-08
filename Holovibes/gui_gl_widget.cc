@@ -33,6 +33,7 @@ namespace gui
     , parent_(parent)
   {
     this->setObjectName("GLWidget");
+    this->resize(QSize(width, height));
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
   }
