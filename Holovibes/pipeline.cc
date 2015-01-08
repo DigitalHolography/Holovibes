@@ -144,6 +144,7 @@ namespace holovibes
         &Pipeline::autofocus_caller,
         this));
       autofocus_requested_ = false;
+      request_refresh();
       return;
     }
 
@@ -380,7 +381,6 @@ namespace holovibes
   void Pipeline::request_autofocus()
   {
     autofocus_requested_ = true;
-    std::cout << "request_autofocus()" << std::endl;
     request_refresh();
   }
 
@@ -462,6 +462,7 @@ namespace holovibes
     }
   }
 
+#include <iostream>
   /* Looks like the pipeline, but it search for the right z value. */
   void Pipeline::autofocus_caller()
   {
@@ -479,8 +480,6 @@ namespace holovibes
       gpu_input_buffer_,
       compute_desc_.nsamples,
       gpu_sqrt_vector_);
-    if (cudaGetLastError())
-      std::cout << "something wrong\n";
 
     /* Autofocus needs to work on the same images.
      * It will computes on copies. */
@@ -489,6 +488,16 @@ namespace holovibes
     cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
     float z_step = (z_max - z_min) / float(z_div);
     std::vector<float> focus_metric_values;
+
+    /* Compute square af zone. */
+    float* gpu_float_buffer_af_zone;
+    unsigned int zone_width = zone.top_right.x - zone.top_left.x;
+    unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
+
+    unsigned int af_square_size =
+      powf(2, roundf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
+
+    cudaMalloc(&gpu_float_buffer_af_zone, af_square_size * af_square_size * sizeof(float));
 
     for (float z = z_min; z < z_max; z += z_step)
     {
@@ -565,7 +574,10 @@ namespace holovibes
       float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
       output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
 
-      focus_metric_values.push_back(focus_metric(gpu_float_buffer_, input_fd.width));
+      frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
+
+      float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
+      focus_metric_values.push_back(focus_metric_value);
     }
 
     /* Find max z */
@@ -578,6 +590,7 @@ namespace holovibes
     compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();
 
+    cudaFree(gpu_float_buffer_af_zone);
     cudaFree(gpu_input_buffer_tmp);
   }
 }
