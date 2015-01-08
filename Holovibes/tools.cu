@@ -403,16 +403,6 @@ void frame_memcpy(
     zone_width * sizeof(float),
     zone_height,
     cudaMemcpyDeviceToDevice);
-#if 0
-  for (unsigned int y = 0; y < zone_height; ++y)
-  {
-    cudaMemcpy(
-      output + y * output_width,
-      zone_ptr + y * input_width,
-      zone_width,
-      cudaMemcpyDeviceToDevice);
-  }
-#endif
 }
 
 static __global__ void kernel_sum(

@@ -68,7 +68,7 @@ namespace camera
 
   void* CameraPike::get_frame()
   {
-    if (cam_.GetFrame(&fgframe_, FRAMETIMEOUT) == FCE_NOERROR)
+    if (cam_.GetFrame(&fgframe_, FRAME_TIMEOUT) == FCE_NOERROR)
     {
       // Put the frame back to DMA
       cam_.PutFrame(&fgframe_);
