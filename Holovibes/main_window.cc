@@ -202,7 +202,7 @@ namespace gui
 
   void MainWindow::credits()
   {
-    display_info("Holovibes v0.5.9\n\n"
+    display_info("Holovibes v0.7.0\n\n"
       "Scientists:\n"
       "Michael Atlan\n"
       "\n"

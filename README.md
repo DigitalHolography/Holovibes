@@ -218,3 +218,6 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * CSV plot and batch simultaneously
 
+### v0.7 ###
+
+* Add autofocus algorithm (using global variance and average magnitude - sobel)
