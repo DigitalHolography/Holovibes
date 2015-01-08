@@ -590,6 +590,7 @@ namespace gui
       tr("ROI output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
 
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    roi_output_line_edit->clear();
     roi_output_line_edit->insert(filename);
   }
 
