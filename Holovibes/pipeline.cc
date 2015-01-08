@@ -584,10 +584,13 @@ namespace holovibes
 
     /* Find max z */
     auto biggest = std::max_element(focus_metric_values.begin(), focus_metric_values.end());
+    /* Case the max has not been found. */
+    if (biggest == focus_metric_values.end())
+      biggest = focus_metric_values.begin();
     auto max_pos = std::distance(focus_metric_values.begin(), biggest);
     float af_z = z_min + max_pos * z_step;
 
-    std::cout << "z: " << af_z << "Max - C(z): " << *biggest << "\n";
+    std::cout << "z = " << af_z << "  Max[C(z)]: " << *biggest << "\n";
 
     compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();

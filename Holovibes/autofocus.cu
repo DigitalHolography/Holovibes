@@ -403,12 +403,5 @@ float focus_metric(
   float avr_local_variance = average_local_variance(input, square_size);
   float avr_magnitude = sobel_operator(input, square_size);
 
-#if _DEBUG
-  std::cout << "global variance: " << global_variance << std::endl;
-  std::cout << "avr_local_variance: " << avr_local_variance << std::endl;
-  std::cout << "avr_magnitude: " << avr_magnitude << std::endl;
-#endif
-
-  //return global_variance * avr_local_variance * avr_magnitude;
-  return global_variance * avr_magnitude;
+  return global_variance * avr_local_variance * avr_magnitude;
 }
