@@ -13,6 +13,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [AVT Vimba](http://www.alliedvisiontec.com/us/products/legacy.html) V1.3
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
+* Andor iXon SDK *link not available* V2.9
 
 ### CUDA ###
 
@@ -22,9 +23,9 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
 
-### Qt 5.3.2 ###
+### Qt 5.4 ###
 
-* [Qt OpenSource Windows x64 MSVC OpenGL 5.3.2](http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-msvc2013_64_opengl-5.3.2.exe.mirrorlist)
+* [Qt OpenSource Windows x64 MSVC OpenGL 5.4](http://download.qt-project.org/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-msvc2013_64_opengl-5.4.0.exe)
 
 ## Typical Usage ##
 
@@ -53,6 +54,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 ### Libraries ###
 
 * [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
+* [Qwt 6.1.2](http://sourceforge.net/projects/qwt/files/qwt/6.1.2/)
 
 ### IDE ###
 
@@ -82,6 +84,9 @@ This mode is useful to do batch computation (call holovibes from a script).
   * Shortcuts for convenience
 * Vibrometry analysis.
 * Settings auto saving.
+* Batch savings (CSV)
+* Autofocus
+* Average plot real-time display
 
 ## Authors ##
 
@@ -222,3 +227,5 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * Add autofocus algorithm (using global variance and average magnitude - sobel)
 * Some minor fixes
+* update to qwt 6.1.2
+* update to qt 5.4
