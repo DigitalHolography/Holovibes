@@ -301,21 +301,6 @@
          <string>plot</string>
         </property>
        </widget>
-       <zorder>pLabelVibro</zorder>
-       <zorder>pSpinBoxVibro</zorder>
-       <zorder>qSpinBoxVibro</zorder>
-       <zorder>qLabelVibro</zorder>
-       <zorder>vibrometryCheckBox</zorder>
-       <zorder>averageCheckBox</zorder>
-       <zorder>ROIFileLabel</zorder>
-       <zorder>ROIBrowseButton</zorder>
-       <zorder>ROIFileLineEdit</zorder>
-       <zorder>saveROIPushButton</zorder>
-       <zorder>loadROIPushButton</zorder>
-       <zorder>label</zorder>
-       <zorder>label_2</zorder>
-       <zorder>pushButton</zorder>
-       <zorder>View</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -765,21 +750,6 @@
          <double>0.100000000000000</double>
         </property>
        </widget>
-       <zorder>directImageRadioButton</zorder>
-       <zorder>hologramRadioButton</zorder>
-       <zorder>phaseNumberSpinBox</zorder>
-       <zorder>PhaseNumberLabel</zorder>
-       <zorder>pSpinBox</zorder>
-       <zorder>pLabel</zorder>
-       <zorder>wavelengthLabel</zorder>
-       <zorder>wavelengthSpinBox</zorder>
-       <zorder>zLabel</zorder>
-       <zorder>zSpinBox</zorder>
-       <zorder>algorithmLabel</zorder>
-       <zorder>algorithmComboBox</zorder>
-       <zorder>zStepLabel</zorder>
-       <zorder>zStepDoubleSpinBox</zorder>
-       <zorder>View</zorder>
       </widget>
      </item>
      <item row="0" column="1">
@@ -970,7 +940,7 @@
          <string>Contrast type:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="autofocusLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -983,7 +953,7 @@
          <string>Autofocus:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="zmaxLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -996,7 +966,7 @@
          <string>z max:</string>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <widget class="QDoubleSpinBox" name="zmaxDoubleSpinBox">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -1006,7 +976,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+       <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -1016,7 +986,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="zminLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1029,7 +999,7 @@
          <string>z min:</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="zdivLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1042,7 +1012,7 @@
          <string>nb of values:</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBox">
+       <widget class="QSpinBox" name="zdivSpinBox">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -1050,6 +1020,9 @@
           <width>81</width>
           <height>22</height>
          </rect>
+        </property>
+        <property name="maximum">
+         <number>100000</number>
         </property>
        </widget>
        <widget class="QPushButton" name="autofocusPushButton">

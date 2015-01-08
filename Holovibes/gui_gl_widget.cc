@@ -32,6 +32,7 @@ namespace gui
     , parent_(parent)
   {
     this->setObjectName("GLWidget");
+    this->resize(QSize(width, height));
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
   }
@@ -226,6 +227,7 @@ namespace gui
       switch (selection_mode_)
       {
       case AUTOFOCUS:
+        emit autofocus_zone_selected(selection_);
         selection_mode_ = ZOOM;
         break;
       case AVERAGE:

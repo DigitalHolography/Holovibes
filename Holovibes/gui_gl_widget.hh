@@ -74,6 +74,9 @@ namespace gui
   public slots:
     void resizeFromWindow(int width, int height);
 
+  signals:
+    void autofocus_zone_selected(holovibes::Rectangle zone);
+
   protected:
     void initializeGL() override;
     void resizeGL(int width, int height) override;

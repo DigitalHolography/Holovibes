@@ -48,7 +48,7 @@ namespace gui
     // Display default values
     notify();
 
-    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));;
+    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
   }
 
   MainWindow::~MainWindow()
@@ -414,6 +414,26 @@ namespace gui
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
+
+    double z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
+    double z_min = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
+    unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+
+    desc.autofocus_z_min = z_min;
+    desc.autofocus_z_max = z_max;
+    desc.autofocus_z_div = z_div;
+
+    connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
+  }
+
+  void MainWindow::request_autofocus(holovibes::Rectangle zone)
+  {
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+
+    desc.autofocus_zone = zone;
+    pipeline.request_autofocus();
   }
 
   void MainWindow::set_contrast_mode(bool value)
