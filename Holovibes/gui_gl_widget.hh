@@ -1,6 +1,7 @@
 #ifndef GUI_GL_WIDGET_HH_
 # define GUI_GL_WIDGET_HH_
 
+# include <array>
 # include <QGLWidget>
 # include <QOpenGLFunctions.h>
 # include <QTimer>
@@ -15,6 +16,13 @@
 
 namespace gui
 {
+  typedef enum selection
+  {
+    AUTOFOCUS,
+    AVERAGE,
+    ZOOM
+  } eselection;
+
   class GLWidget : public QGLWidget, protected QOpenGLFunctions
   {
     Q_OBJECT
@@ -58,9 +66,16 @@ namespace gui
       h_.get_compute_desc().noise_zone = noise_selection_;
     }
 
+    void set_selection_mode(eselection mode)
+    {
+      selection_mode_ = mode;
+    }
+
   public slots:
     void resizeFromWindow(int width, int height);
-    void set_average_mode(bool value);
+
+  signals:
+    void autofocus_zone_selected(holovibes::Rectangle zone);
 
   protected:
     void initializeGL() override;
@@ -91,8 +106,7 @@ namespace gui
     QTimer timer_;
     bool is_selection_enabled_;
     holovibes::Rectangle selection_;
-    bool is_zoom_enabled_;
-    bool is_average_enabled_;
+    eselection selection_mode_;
     bool is_signal_selection_;
     holovibes::Rectangle signal_selection_;
     holovibes::Rectangle noise_selection_;

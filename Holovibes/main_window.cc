@@ -50,7 +50,7 @@ namespace gui
     // Display default values
     notify();
 
-    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));;
+    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
   }
 
   MainWindow::~MainWindow()
@@ -142,8 +142,8 @@ namespace gui
     average->setChecked(is_enabled_average_);
 
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    if (gl_widget)
-      gl_widget->set_average_mode(is_enabled_average_);
+    if (gl_widget && is_enabled_average_)
+      gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 
     average_visible(is_enabled_average_);
   }
@@ -412,6 +412,34 @@ namespace gui
     }
   }
 
+  void MainWindow::set_autofocus_mode()
+  {
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
+
+    float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
+    float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
+    unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+
+    desc.autofocus_z_min = z_min;
+    desc.autofocus_z_max = z_max;
+    desc.autofocus_z_div = z_div;
+
+    connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
+  }
+
+  void MainWindow::request_autofocus(holovibes::Rectangle zone)
+  {
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+
+    desc.autofocus_zone = zone;
+    pipeline.request_autofocus();
+    gl_widget->set_selection_mode(gui::eselection::ZOOM);
+  }
+
   void MainWindow::set_contrast_mode(bool value)
   {
     QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
@@ -560,7 +588,10 @@ namespace gui
   void MainWindow::set_average_mode(bool value)
   {
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    gl_widget->set_average_mode(value);
+    if (value)
+      gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+    else
+      gl_widget->set_selection_mode(gui::eselection::ZOOM);
     is_enabled_average_ = value;
 
     // TODO

@@ -223,7 +223,7 @@ void endianness_conversion(
   kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
 }
 
-__global__ void kernel_divide(
+__global__ void kernel_complex_divide(
   cufftComplex* image,
   unsigned int size,
   float divider)
@@ -233,6 +233,19 @@ __global__ void kernel_divide(
   {
     image[index].x = image[index].x / divider;
     image[index].y = image[index].y / divider;
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+__global__ void kernel_float_divide(
+  float* input,
+  unsigned int size,
+  float divider)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  while (index < size)
+  {
+    input[index] /= divider;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -296,4 +309,153 @@ void float_to_ushort(
     blocks = get_max_blocks();
 
   kernel_float_to_ushort<<<blocks, threads>>>(input, output, size);
+}
+
+__global__ void kernel_multiply_frames_complex(
+  const cufftComplex* input1,
+  const cufftComplex* input2,
+  cufftComplex* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    output[index].x = input1[index].x * input2[index].x;
+    output[index].y = input1[index].y * input2[index].y;
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+__global__ void kernel_multiply_frames_float(
+  const float* input1,
+  const float* input2,
+  float* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    output[index] = input1[index] * input2[index];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+void convolution_operator(
+  const cufftComplex* x,
+  const cufftComplex* k,
+  float* out,
+  unsigned int size,
+  cufftHandle plan2d_x,
+  cufftHandle plan2d_k)
+{
+  unsigned int threads = get_max_threads_1d();
+  const unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks;
+
+  /* The convolution operator is used only when using autofocus feature.
+   * It could be optimized but it's useless since it will be used sometimes. */
+  cufftComplex* tmp_x;
+  cufftComplex* tmp_k;
+  cudaMalloc<cufftComplex>(&tmp_x, size * sizeof(cufftComplex));
+  cudaMalloc<cufftComplex>(&tmp_k, size * sizeof(cufftComplex));
+
+  cufftExecC2C(plan2d_x, const_cast<cufftComplex*>(x), tmp_x, CUFFT_FORWARD);
+  cufftExecC2C(plan2d_k, const_cast<cufftComplex*>(k), tmp_k, CUFFT_FORWARD);
+  
+  cudaDeviceSynchronize();
+
+  kernel_multiply_frames_complex <<<blocks, threads>>>(tmp_x, tmp_k, tmp_x, size);
+
+  cudaDeviceSynchronize();
+
+  cufftExecC2C(plan2d_x, tmp_x, tmp_x, CUFFT_INVERSE);
+
+  cudaDeviceSynchronize();
+
+  kernel_complex_to_modulus <<<blocks, threads>>>(tmp_x, out, size);
+
+  cudaFree(tmp_x);
+  cudaFree(tmp_k);
+}
+
+void frame_memcpy(
+  const float* input,
+  const holovibes::Rectangle& zone,
+  const unsigned int input_width,
+  float* output,
+  const unsigned int output_width)
+{
+  const unsigned int zone_width = abs(zone.top_right.x - zone.top_left.x);
+  const unsigned int zone_height = abs(zone.bottom_left.y - zone.top_left.y);
+
+  const float* zone_ptr = input + (zone.top_left.y * input_width + zone.top_left.x);
+
+  cudaMemcpy2D(
+    output,
+    output_width * sizeof(float),
+    zone_ptr,
+    input_width * sizeof(float),
+    zone_width * sizeof(float),
+    zone_height,
+    cudaMemcpyDeviceToDevice);
+#if 0
+  for (unsigned int y = 0; y < zone_height; ++y)
+  {
+    cudaMemcpy(
+      output + y * output_width,
+      zone_ptr + y * input_width,
+      zone_width,
+      cudaMemcpyDeviceToDevice);
+  }
+#endif
+}
+
+static __global__ void kernel_sum(
+  const float* input,
+  float* sum,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  while (index < size)
+  {
+    atomicAdd(sum, input[index]);
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+#include <iostream>
+float average_operator(
+  const float* input,
+  const unsigned int size)
+{
+  const unsigned int threads = get_max_threads_1d();
+  const unsigned int max_blocks = get_max_blocks();
+  unsigned int blocks = (size + threads - 1) / threads;
+
+  if (blocks > max_blocks)
+    blocks = max_blocks;
+
+  float* gpu_sum;
+  cudaMalloc<float>(&gpu_sum, sizeof(float));
+  cudaMemset(gpu_sum, 0, sizeof(float));
+
+  kernel_sum <<<blocks, threads>>>(
+    input,
+    gpu_sum,
+    size);
+
+  float cpu_sum = 0.0f;
+  cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
+
+  cudaFree(gpu_sum);
+
+  cpu_sum /= float(size);
+
+  return cpu_sum;
 }

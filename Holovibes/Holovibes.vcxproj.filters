@@ -66,6 +66,9 @@
     <CudaCompile Include="average.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="autofocus.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -249,6 +252,9 @@
     </ClInclude>
     <ClInclude Include="camera_dll.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="autofocus.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

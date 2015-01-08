@@ -68,6 +68,8 @@ namespace gui
 
     // View
     void set_view_mode(QString value);
+    void set_autofocus_mode();
+    void request_autofocus(holovibes::Rectangle zone);
     void set_contrast_mode(bool value);
     void set_auto_contrast();
     void set_contrast_min(double value);

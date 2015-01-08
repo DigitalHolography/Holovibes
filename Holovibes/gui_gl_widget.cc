@@ -24,8 +24,7 @@ namespace gui
     , buffer_(0)
     , cuda_buffer_(nullptr)
     , is_selection_enabled_(false)
-    , is_zoom_enabled_(true)
-    , is_average_enabled_(false)
+    , selection_mode_(eselection::ZOOM)
     , is_signal_selection_(true)
     , px_(0.0f)
     , py_(0.0f)
@@ -150,18 +149,25 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      if (is_average_enabled_)
-      {
-        float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
-        selection_rect(signal_selection_, signal_color);
+      float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
+      float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
+      float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
+      float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 
-        float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
-        selection_rect(noise_selection_, noise_color);
-      }
-      else // if (is_zoom_enabled_)
+      switch (selection_mode_)
       {
-        float selection_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
-        selection_rect(selection_, selection_color);
+      case AUTOFOCUS:
+        selection_rect(selection_, autofocus_color);
+        break;
+      case AVERAGE:
+        selection_rect(signal_selection_, signal_color);
+        selection_rect(noise_selection_, noise_color);
+        break;
+      case ZOOM:
+        selection_rect(selection_, zoom_color);
+        break;
+      default:
+        break;
       }
     }
 
@@ -178,7 +184,7 @@ namespace gui
           ( e->y() * frame_desc_.height) / height());
       }
       else
-        if (is_zoom_enabled_)
+        if (selection_mode_ == ZOOM)
           dezoom();
   }
 
@@ -190,7 +196,7 @@ namespace gui
         (e->x() * frame_desc_.width) / width(),
          (e->y() * frame_desc_.height) / height());
 
-      if (is_average_enabled_)
+      if (selection_mode_ == AVERAGE)
       {
         if (is_signal_selection_)
           signal_selection_ = selection_;
@@ -219,8 +225,13 @@ namespace gui
       bounds_check(selection_);
       swap_selection_corners(selection_);
 
-      if (is_average_enabled_)
+      switch (selection_mode_)
       {
+      case AUTOFOCUS:
+        emit autofocus_zone_selected(selection_);
+        selection_mode_ = ZOOM;
+        break;
+      case AVERAGE:
         if (is_signal_selection_)
         {
           signal_selection_ = selection_;
@@ -231,19 +242,19 @@ namespace gui
           noise_selection_ = selection_;
           h_.get_compute_desc().noise_zone = noise_selection_;
         }
-
         is_signal_selection_ = !is_signal_selection_;
-        selection_ = holovibes::Rectangle();
-      }
-      else // if (is_zoom_enabled_)
-      {
+        break;
+      case ZOOM:
         is_selection_enabled_ = false;
 
         if (selection_.top_left != selection_.bottom_right)
           zoom(selection_);
-
-        selection_ = holovibes::Rectangle();
+        break;
+      default:
+        break;
       }
+
+      selection_ = holovibes::Rectangle();
     }
   }
 
@@ -389,11 +400,5 @@ namespace gui
   {
     resizeGL(width, height);
     resize(QSize(width, height));
-  }
-
-  void GLWidget::set_average_mode(bool value)
-  {
-    is_average_enabled_ = value;
-    is_zoom_enabled_ = !value;
   }
 }

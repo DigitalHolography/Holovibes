@@ -63,11 +63,17 @@ namespace holovibes
     std::atomic<float> contrast_min;
     std::atomic<float> contrast_max;
     std::atomic<unsigned short> vibrometry_q;
-
+    
     /*! Average mode signal zone */
     std::atomic<Rectangle> signal_zone;
     /*! Average mode noise zone */
     std::atomic<Rectangle> noise_zone;
+
+    /*! Autofocus */
+    std::atomic<float> autofocus_z_min;
+    std::atomic<float> autofocus_z_max;
+    std::atomic<unsigned int> autofocus_z_div;
+    std::atomic<Rectangle> autofocus_zone;
   };
 }
 
