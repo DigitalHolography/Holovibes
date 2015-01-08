@@ -125,10 +125,6 @@ static float average_local_variance(
   float* i_ke_convolution;
   cudaMalloc(&i_ke_convolution, size * sizeof(float));
 
-  /* Allocation of convolution i^2 * ke output */
-  float* i2_ke_convolution;
-  cudaMalloc(&i2_ke_convolution, size * sizeof(float));
-
   cufftHandle plan2d_x;
   cufftHandle plan2d_k;
   cufftPlan2d(&plan2d_x, square_size, square_size, CUFFT_C2C);
@@ -143,31 +139,16 @@ static float average_local_variance(
     plan2d_x,
     plan2d_k);
 
-  /* Compute (i * ke)^2 */
+  /* Compute i - i * ke. */
+  kernel_minus_operator<<<blocks, threads>>>(
+    input,
+    i_ke_convolution,
+    i_ke_convolution,
+    size);
+
+  /* Compute (i - i * ke)^2 */
   kernel_multiply_frames_float<<<blocks, threads>>>(
     i_ke_convolution,
-    i_ke_convolution,
-    i_ke_convolution,
-    size);
-
-  /* Compute i^2 * ke. */
-  kernel_multiply_frames_complex<<<blocks, threads>>>(
-    input_complex,
-    input_complex,
-    input_complex,
-    size);
-
-  convolution_operator(
-    input_complex,
-    ke_gpu_frame,
-    i2_ke_convolution,
-    size,
-    plan2d_x,
-    plan2d_k);
-
-  /* Compute (i^2 * ke) - (i * ke)^2 */
-  kernel_minus_operator<<<blocks, threads>>>(
-    i2_ke_convolution,
     i_ke_convolution,
     i_ke_convolution,
     size);
@@ -180,7 +161,6 @@ static float average_local_variance(
   cufftDestroy(plan2d_x);
   cufftDestroy(plan2d_k);
 
-  cudaFree(i2_ke_convolution);
   cudaFree(i_ke_convolution);
 
   cudaFree(input_complex);

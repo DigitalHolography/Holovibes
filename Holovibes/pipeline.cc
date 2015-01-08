@@ -496,8 +496,10 @@ namespace holovibes
 
     unsigned int af_square_size =
       powf(2, roundf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
+    unsigned int af_size = af_square_size * af_square_size;
 
-    cudaMalloc(&gpu_float_buffer_af_zone, af_square_size * af_square_size * sizeof(float));
+    cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
+    cudaMemset(gpu_float_buffer_af_zone, 0, af_size);
 
     for (float z = z_min; z < z_max; z += z_step)
     {
