@@ -143,6 +143,7 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         &Pipeline::autofocus_caller,
         this));
+      autofocus_requested_ = false;
       return;
     }
 
@@ -379,6 +380,7 @@ namespace holovibes
   void Pipeline::request_autofocus()
   {
     autofocus_requested_ = true;
+    std::cout << "request_autofocus()" << std::endl;
     request_refresh();
   }
 
