@@ -76,7 +76,9 @@ namespace camera
     long first;
     long last;
     GetNumberNewImages(&first, &last);
+#if _DEBUG
     std::cout << "first: " << first << " last: " << last << std::endl;
+#endif
     if (trigger_mode_ == 10)
     {
       error = SendSoftwareTrigger();
