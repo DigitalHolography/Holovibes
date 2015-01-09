@@ -133,6 +133,7 @@ namespace gui
     bool is_enabled_camera_;
     bool is_enabled_average_;
     bool is_batch_img_;
+    bool is_batch_interrupted_;
     double z_step_;
     holovibes::Holovibes::camera_type camera_type_;
 

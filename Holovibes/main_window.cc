@@ -12,6 +12,7 @@ namespace gui
     is_enabled_camera_(false),
     is_enabled_average_(false),
     is_batch_img_(true),
+    is_batch_interrupted_(false),
     z_step_(0.1f),
     camera_type_(holovibes::Holovibes::NONE),
     plot_window_(nullptr),
@@ -801,6 +802,7 @@ namespace gui
     QLineEdit* output_path = findChild<QLineEdit*>("pathLineEdit");
 
     is_batch_img_ = true;
+    is_batch_interrupted_ = false;
     batch_record(std::string(output_path->text().toUtf8()));
   }
 
@@ -809,6 +811,7 @@ namespace gui
     QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
 
     is_batch_img_ = false;
+    is_batch_interrupted_ = false;
     batch_record(std::string(output_path->text().toUtf8()));
   }
 
@@ -868,56 +871,63 @@ namespace gui
 
   void MainWindow::batch_next_record()
   {
-    delete record_thread_;
-
-    QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
-    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-    std::string path;
-
-    if (is_batch_img_)
-      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
-    else
-      path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
-
-    unsigned int frame_nb = frame_nb_spin_box->value();
-
-    holovibes::Queue* q;
-
-    if (is_direct_mode_)
-      q = &holovibes_.get_capture_queue();
-    else
-      q = &holovibes_.get_output_queue();
-
-    std::string output_filename = format_batch_output(path, file_index_);
-
-    if (is_batch_img_)
+    if (!is_batch_interrupted_)
     {
-      record_thread_ = new ThreadRecorder(*q, output_filename, frame_nb, this);
+      delete record_thread_;
 
-      if (execute_next_block())
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+      QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
+      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+      std::string path;
+
+      if (is_batch_img_)
+        path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
       else
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+        path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
 
-      record_thread_->start();
+      unsigned int frame_nb = frame_nb_spin_box->value();
+
+      holovibes::Queue* q;
+
+      if (is_direct_mode_)
+        q = &holovibes_.get_capture_queue();
+      else
+        q = &holovibes_.get_output_queue();
+
+      std::string output_filename = format_batch_output(path, file_index_);
+
+      if (is_batch_img_)
+      {
+        record_thread_ = new ThreadRecorder(*q, output_filename, frame_nb, this);
+
+        if (execute_next_block())
+          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+        else
+          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+
+        record_thread_->start();
+      }
+      else
+      {
+        CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+          holovibes_.get_average_queue(),
+          output_filename,
+          frame_nb,
+          this);
+
+        if (execute_next_block())
+          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+        else
+          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+
+        CSV_record_thread_->start();
+      }
+
+      file_index_++;
     }
     else
     {
-      CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
-        holovibes_.get_average_queue(),
-        output_filename,
-        frame_nb,
-        this);
-
-      if (execute_next_block())
-        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-      else
-        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-      CSV_record_thread_->start();
+      batch_finished_record();
     }
-
-    file_index_++;
   }
 
   void MainWindow::batch_finished_record()
@@ -942,14 +952,22 @@ namespace gui
   void MainWindow::stop_image_record()
   {
     if (record_thread_)
+    {
       record_thread_->stop();
+      is_batch_interrupted_ = true;
+    }
   }
 
   void MainWindow::stop_csv_record()
   {
     if (is_enabled_average_)
+    {
       if (CSV_record_thread_)
+      {
         CSV_record_thread_->stop();
+        is_batch_interrupted_ = true;
+      }
+    }
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)
