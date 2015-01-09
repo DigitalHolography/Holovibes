@@ -420,11 +420,16 @@ namespace gui
     unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    desc.autofocus_z_min = z_min;
-    desc.autofocus_z_max = z_max;
-    desc.autofocus_z_div = z_div;
+    if (z_min < z_max)
+    {
+      desc.autofocus_z_min = z_min;
+      desc.autofocus_z_max = z_max;
+      desc.autofocus_z_div = z_div;
 
-    connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
+      connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
+    }
+    else
+      display_error("z min has to be strictly inferior to z max");
   }
 
   void MainWindow::request_autofocus(holovibes::Rectangle zone)

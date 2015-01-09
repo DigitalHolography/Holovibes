@@ -301,6 +301,21 @@
          <string>plot</string>
         </property>
        </widget>
+       <zorder>pLabelVibro</zorder>
+       <zorder>pSpinBoxVibro</zorder>
+       <zorder>qSpinBoxVibro</zorder>
+       <zorder>qLabelVibro</zorder>
+       <zorder>vibrometryCheckBox</zorder>
+       <zorder>averageCheckBox</zorder>
+       <zorder>ROIFileLabel</zorder>
+       <zorder>ROIBrowseButton</zorder>
+       <zorder>ROIFileLineEdit</zorder>
+       <zorder>saveROIPushButton</zorder>
+       <zorder>loadROIPushButton</zorder>
+       <zorder>label</zorder>
+       <zorder>label_2</zorder>
+       <zorder>pushButton</zorder>
+       <zorder>View</zorder>
       </widget>
      </item>
      <item row="0" column="3">
@@ -820,7 +835,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>250</y>
+          <y>130</y>
           <width>31</width>
           <height>16</height>
          </rect>
@@ -836,7 +851,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>270</y>
+          <y>150</y>
           <width>31</width>
           <height>16</height>
          </rect>
@@ -848,8 +863,8 @@
        <widget class="QPushButton" name="autoPushButton">
         <property name="geometry">
          <rect>
-          <x>120</x>
-          <y>220</y>
+          <x>110</x>
+          <y>100</y>
           <width>61</width>
           <height>21</height>
          </rect>
@@ -887,7 +902,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>220</y>
+          <y>100</y>
           <width>82</width>
           <height>21</height>
          </rect>
@@ -903,7 +918,7 @@
         <property name="geometry">
          <rect>
           <x>60</x>
-          <y>250</y>
+          <y>130</y>
           <width>62</width>
           <height>22</height>
          </rect>
@@ -925,7 +940,7 @@
         <property name="geometry">
          <rect>
           <x>60</x>
-          <y>270</y>
+          <y>150</y>
           <width>62</width>
           <height>22</height>
          </rect>
@@ -957,7 +972,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>100</y>
+          <y>180</y>
           <width>61</width>
           <height>16</height>
          </rect>
@@ -970,7 +985,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>130</y>
+          <y>210</y>
           <width>51</width>
           <height>16</height>
          </rect>
@@ -983,27 +998,45 @@
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>130</y>
+          <y>210</y>
           <width>81</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
         </property>
        </widget>
        <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>160</y>
+          <y>240</y>
           <width>81</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="minimum">
+         <double>-100.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="zminLabel">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>160</y>
+          <y>240</y>
           <width>41</width>
           <height>16</height>
          </rect>
@@ -1016,20 +1049,20 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>190</y>
+          <y>270</y>
           <width>81</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>nb of values:</string>
+         <string># iterations:</string>
         </property>
        </widget>
        <widget class="QSpinBox" name="zdivSpinBox">
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>190</y>
+          <y>270</y>
           <width>81</width>
           <height>22</height>
          </rect>
@@ -1037,12 +1070,15 @@
         <property name="maximum">
          <number>100000</number>
         </property>
+        <property name="value">
+         <number>2</number>
+        </property>
        </widget>
        <widget class="QPushButton" name="autofocusPushButton">
         <property name="geometry">
          <rect>
           <x>100</x>
-          <y>100</y>
+          <y>180</y>
           <width>81</width>
           <height>21</height>
          </rect>
