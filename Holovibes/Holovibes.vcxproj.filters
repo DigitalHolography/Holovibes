@@ -173,6 +173,15 @@
     <ClCompile Include="camera_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="thread_csv_record.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_thread_csv_record.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_thread_csv_record.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -295,6 +304,9 @@
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="gui_curve_plot.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="thread_csv_record.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
