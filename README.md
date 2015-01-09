@@ -1,4 +1,4 @@
-# Holovibes v0.7 #
+# Holovibes v0.7.1 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -229,3 +229,9 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Some minor fixes
 * update to qwt 6.1.2
 * update to qt 5.4
+
+### v0.7.1 ###
+
+* All records can now be stopped
+* Autofocus is now handling selection zones
+* Minor GUI changes
