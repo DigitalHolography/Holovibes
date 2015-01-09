@@ -95,24 +95,30 @@ static float average_local_variance(
     square_size);
 
   {
-    cufftComplex ke_19;
-    ke_19.x = sqrtf(1.0f / 9.0f);
-    ke_19.y = sqrtf(1.0f / 9.0f);
+     unsigned int matrix_width = 100;
+    if (matrix_width > square_size)
+      matrix_width = square_size;
 
-    /* Build the ke 3x3 matrix */
-    cufftComplex ke_cpu[9];
-    for (int i = 0; i < 9; ++i)
-      ke_cpu[i] = ke_19;
+    cufftComplex ke;
+    ke.x = sqrtf(1.0f / float(matrix_width));
+    ke.y = sqrtf(1.0f / float(matrix_width));
+
+    /* Build the ke matrix */
+    cufftComplex* ke_cpu = new cufftComplex[matrix_width * matrix_width];
+    for (int i = 0; i < matrix_width * matrix_width; ++i)
+      ke_cpu[i] = ke;
 
     /* Copy the ke matrix to ke_gpu_frame. */
     cudaMemcpy2D(
       ke_gpu_frame,
       ke_gpu_frame_pitch,
       ke_cpu,
-      3 * sizeof(cufftComplex),
-      3 * sizeof(cufftComplex),
-      3,
+      matrix_width * sizeof(cufftComplex),
+      matrix_width * sizeof(cufftComplex),
+      matrix_width,
       cudaMemcpyHostToDevice);
+
+    delete[] ke_cpu;
   }
 
   cufftComplex* input_complex;
@@ -400,8 +406,14 @@ float focus_metric(
   kernel_float_divide<<<blocks, threads>>>(input, size, size);
 
   float global_variance = global_variance_intensity(input, size);
+  if (isnan(global_variance))
+    std::cout << "gv nan" << std::endl;
   float avr_local_variance = average_local_variance(input, square_size);
+  if (isnan(avr_local_variance))
+    std::cout << "alv nan" << std::endl;
   float avr_magnitude = sobel_operator(input, square_size);
+  if (isnan(avr_magnitude))
+    std::cout << "am nan" << std::endl;
 
   return global_variance * avr_local_variance * avr_magnitude;
 }
