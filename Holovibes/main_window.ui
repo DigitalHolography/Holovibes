@@ -1747,22 +1747,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>cancelPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cancel_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>818</x>
-     <y>177</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>745</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionCredits</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -1955,22 +1939,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>ROIStopPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cancel_average_record()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>818</x>
-     <y>307</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>784</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -2050,6 +2018,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>cancelPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>stop_image_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>799</x>
+     <y>162</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>743</x>
+     <y>-62</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ROIStopPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>stop_csv_record()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>784</x>
+     <y>316</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>766</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -2098,5 +2098,7 @@
   <slot>set_autofocus_mode()</slot>
   <slot>csv_batch_record()</slot>
   <slot>image_batch_record()</slot>
+  <slot>stop_image_record()</slot>
+  <slot>stop_csv_record()</slot>
  </slots>
 </ui>

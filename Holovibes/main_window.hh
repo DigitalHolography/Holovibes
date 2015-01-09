@@ -92,17 +92,17 @@ namespace gui
     // Record
     void browse_file();
     void set_record();
-    void cancel_record();
-    void finish_record();
+    void finished_image_record();
+    void average_record();
+    void finished_average_record();
     void browse_batch_input();
     void image_batch_record();
     void csv_batch_record();
     void batch_record(const std::string& path);
     void batch_next_record();
     void batch_finished_record();
-    void average_record();
-    void test_average_record();
-    void cancel_average_record();
+    void stop_image_record();
+    void stop_csv_record();
 
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -140,7 +140,6 @@ namespace gui
 
     ThreadRecorder* record_thread_;
     ThreadCSVRecord* CSV_record_thread_;
-    QTimer average_record_timer_;
     unsigned int nb_frames_;
 
     unsigned int file_index_;

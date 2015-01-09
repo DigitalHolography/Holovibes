@@ -11,7 +11,8 @@ namespace gui
       pipeline_(pipeline),
       deque_(deque),
       path_(path),
-      nb_frames_(nb_frames)
+      nb_frames_(nb_frames),
+      record_(true)
     {
     }
 
@@ -21,6 +22,7 @@ namespace gui
 
     void ThreadCSVRecord::stop()
     {
+      record_ = false;
     }
 
     void ThreadCSVRecord::run()
@@ -31,17 +33,23 @@ namespace gui
       while (deque_.size() < nb_frames_)
         continue;
 
+      std::cout << path_ << "\n";
       std::ofstream of(path_);
       
       of << "signal,noise,average\n";
 
-      for (auto it = deque_.begin(); it != deque_.end(); ++it)
+      unsigned int i = 0;
+      unsigned int deque_size = deque_.size();
+      while (i < deque_size && record_)
       {
-        std::tuple<float, float, float>& tuple = *it;
+        std::tuple<float, float, float>& tuple = deque_[i];
         of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
           << std::get<0>(tuple) << ","
           << std::get<1>(tuple) << ","
           << std::get<2>(tuple) << "\n";
+        ++i;
       }
+
+      pipeline_.request_refresh();
     }
 }

@@ -17,7 +17,6 @@ namespace gui
     plot_window_(nullptr),
     record_thread_(nullptr),
     CSV_record_thread_(nullptr),
-    average_record_timer_(this),
     file_index_(1)
   {
     ui.setupUi(this);
@@ -49,8 +48,6 @@ namespace gui
 
     // Display default values
     notify();
-
-    connect(&average_record_timer_, SIGNAL(timeout()), this, SLOT(test_average_record()));
   }
 
   MainWindow::~MainWindow()
@@ -733,7 +730,7 @@ namespace gui
           this);
       }
 
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(finish_record()));
+      connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
       record_thread_->start();
 
       QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
@@ -745,34 +742,50 @@ namespace gui
     }
   }
 
-  void MainWindow::cancel_record()
+  void MainWindow::finished_image_record()
   {
-    record_but_cancel_visible(true);
-
-    if (record_thread_)
-    {
-      record_thread_->stop();
-      display_info("Record canceled");
-
-      if (!is_direct_mode_)
-        global_visibility(true);
-    }
-  }
-
-  void MainWindow::finish_record()
-  {
-    record_but_cancel_visible(true);
-
-    QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
-    cancel_button->setDisabled(true);
     delete record_thread_;
     record_thread_ = nullptr;
-    display_info("Record has completed successfully");
-
-    if (!is_direct_mode_)
-      global_visibility(true);
+    display_info("Record done");
+    global_visibility(true);
+    record_but_cancel_visible(true);
   }
   
+  void MainWindow::average_record()
+  {
+    QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    nb_frames_ = nb_of_frames_spin_box->value();
+    QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+    std::string output_path = output_line_edit->text().toUtf8();
+
+    CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+      holovibes_.get_average_queue(),
+      output_path,
+      nb_frames_,
+      this);
+    connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(finished_average_record()));
+    CSV_record_thread_->start();
+
+    global_visibility(false);
+    record_but_cancel_visible(false);
+    average_record_but_cancel_visible(false);
+    QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+    roi_stop_push_button->setDisabled(false);
+  }
+
+  void MainWindow::finished_average_record()
+  {
+    delete CSV_record_thread_;
+    CSV_record_thread_ = nullptr;
+    display_info("ROI record done");
+
+    global_visibility(true);
+    record_but_cancel_visible(true);
+    average_record_but_cancel_visible(true);
+    QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+    roi_stop_push_button->setDisabled(true);
+  }
+
   void MainWindow::browse_batch_input()
   {
     QString filename = QFileDialog::getOpenFileName(this,
@@ -926,79 +939,17 @@ namespace gui
     }
   }
 
-  void MainWindow::average_record()
+  void MainWindow::stop_image_record()
   {
-    // Stop chart if enable
-    if (plot_window_)
-      plot_window_->stop_drawing();
-
-    QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-    nb_frames_ = nb_of_frames_spin_box->value();
-
-    holovibes_.get_average_queue().resize(nb_frames_);
-    holovibes_.get_average_queue().clear();
-    average_record_timer_.start(100);
-    holovibes_.get_pipeline().request_average_record(&holovibes_.get_average_queue(), nb_frames_);
-
-    global_visibility(false);
-    record_but_cancel_visible(false);
-    average_record_but_cancel_visible(false);
-    QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
-    roi_stop_push_button->setDisabled(false);
+    if (record_thread_)
+      record_thread_->stop();
   }
 
-  void MainWindow::test_average_record()
-  {
-    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& queue = holovibes_.get_average_queue();
-
-    if (queue.size() >= nb_frames_)
-    {
-      QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
-      std::string path = output_line_edit->text().toUtf8();
-
-      average_record_timer_.stop();
-      std::ofstream of(path);
-      
-      of << "signal,noise,average\n";
-
-      for (auto it = queue.begin(); it != queue.end(); ++it)
-      {
-        std::tuple<float, float, float>& tuple = *it;
-        of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
-          << std::get<0>(tuple) << ","
-          << std::get<1>(tuple) << ","
-          << std::get<2>(tuple) << "\n";
-      }
-
-      global_visibility(true);
-      record_but_cancel_visible(true);
-      average_record_but_cancel_visible(true);
-      QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
-      roi_stop_push_button->setDisabled(true);
-
-      // Reenable chart if enabled and stoppped previously
-      if (plot_window_)
-      {
-        holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
-        plot_window_->start_drawing();
-      }
-    }
-  }
-
-  void MainWindow::cancel_average_record()
+  void MainWindow::stop_csv_record()
   {
     if (is_enabled_average_)
-    {
-      average_record_timer_.stop();
-      holovibes_.get_pipeline().request_refresh();
-      holovibes_.get_average_queue().clear();
-
-      global_visibility(true);
-      record_but_cancel_visible(true);
-      average_record_but_cancel_visible(true);
-      QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
-      roi_stop_push_button->setDisabled(true);
-    }
+      if (CSV_record_thread_)
+        CSV_record_thread_->stop();
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)

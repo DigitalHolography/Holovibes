@@ -35,6 +35,7 @@ namespace gui
     Deque& deque_;
     std::string path_;
     unsigned int nb_frames_;
+    bool record_;
   };
 }
 
