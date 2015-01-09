@@ -802,6 +802,7 @@ namespace gui
   void MainWindow::batch_record(const std::string& path)
   {
     file_index_ = 1;
+    struct stat buff;
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
@@ -809,11 +810,14 @@ namespace gui
     unsigned int frame_nb = frame_nb_spin_box->value();
 
     int status = load_batch_file(input_path.c_str());
+    std::string formatted_path = format_batch_output(path, file_index_);
 
     if (status != 0)
       display_error("Couldn't load batch input file.");
     else if (path == "")
       display_error("Please provide an output file path.");
+    else if (stat(formatted_path.c_str(), &buff) == 0)
+      display_error("File: " + path + " already exists.");
     else
     {
       global_visibility(false);
@@ -830,7 +834,7 @@ namespace gui
 
       if (is_batch_img_)
       {
-        record_thread_ = new ThreadRecorder(*q, format_batch_output(path, file_index_), frame_nb, this);
+        record_thread_ = new ThreadRecorder(*q, formatted_path, frame_nb, this);
         connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
         record_thread_->start();
       }
@@ -838,7 +842,7 @@ namespace gui
       {
         CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
           holovibes_.get_average_queue(),
-          format_batch_output(path, file_index_),
+          formatted_path,
           frame_nb,
           this);
         connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));

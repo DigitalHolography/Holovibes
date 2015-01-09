@@ -16,6 +16,7 @@
 # include <camera_exception.hh>
 # include <cstring>
 # include <vector>
+# include <sys/stat.h>
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
