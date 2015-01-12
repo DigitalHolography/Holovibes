@@ -5,6 +5,13 @@
 
 #include "hardware_limits.hh"
 
+/*! \brief  Sume 2 zone of input image
+*
+* \param input The image from where zones should be summed.
+* \param width The width of the input image.
+* \param height The height of the input image.
+*
+*/
 static __global__ void kernel_zone_sum(
   float* input,
   unsigned int width,
@@ -33,6 +40,16 @@ static __global__ void kernel_zone_sum(
   }
 }
 
+/*! \brief  Make the average plot on the 2 select zones
+*
+* \param input The image from where zones should be ploted
+* \param width The width of the input image.
+* \param height The height of the input image.
+* \param signal Coordinates of the signal zone to use.
+* \param noise Coordinates of the noise zone to use.
+* \rerun A tupple of 3 floats <sum of signal zones pixels, sum of noise zone pixels, average>.
+*
+*/
 std::tuple<float, float, float> make_average_plot(
   float *input,
   const unsigned int width,
