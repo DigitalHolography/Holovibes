@@ -4,7 +4,13 @@
 #include "hardware_limits.hh"
 
 // CONVERSION FUNCTIONS
-
+/*! \brief  This function permit to transform an 8 bit image to her complexe representation
+*
+* The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
+* into the complex output.
+* The input image is seen as unsigned char(8 bits data container) because of her bit depth.
+* The result is given in output.
+*/
 __global__ void img8_to_complex(
   cufftComplex* output,
   unsigned char* input,
@@ -23,6 +29,13 @@ __global__ void img8_to_complex(
   }
 }
 
+/*! \brief  This function permit to transform an 16 bit image to her complexe representation
+*
+* The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
+* into the complex output.
+* The input image is seen as unsigned short(16 bits data container) because of her bit depth.
+* The result is given in output.
+*/
 __global__ void img16_to_complex(
   cufftComplex* output,
   unsigned short* input,
@@ -39,6 +52,12 @@ __global__ void img16_to_complex(
   }
 }
 
+/*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to 
+* treat with the function.
+* The result is given in output.
+*/
 static __global__ void kernel_complex_to_modulus(
   cufftComplex* input,
   float* output,
@@ -54,6 +73,13 @@ static __global__ void kernel_complex_to_modulus(
   }
 }
 
+/*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
+* treat with the function.
+* The result is given in output.
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void complex_to_modulus(
   cufftComplex* input,
   float* output,
@@ -68,6 +94,12 @@ void complex_to_modulus(
   kernel_complex_to_modulus<<<blocks, threads>>>(input, output, size);
 }
 
+/*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
+* treat with the function.
+* The result is given in output.
+*/
 static __global__ void kernel_complex_to_squared_modulus(
   cufftComplex* input,
   float* output,
@@ -83,6 +115,13 @@ static __global__ void kernel_complex_to_squared_modulus(
   }
 }
 
+/*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
+* treat with the function.
+* The result is given in output.
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void complex_to_squared_modulus(
   cufftComplex* input,
   float* output,
@@ -97,6 +136,12 @@ void complex_to_squared_modulus(
   kernel_complex_to_squared_modulus<<<blocks, threads>>>(input, output, size);
 }
 
+/*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
+* treat with the function.
+* The result is given in output.
+*/
 static __global__ void kernel_complex_to_argument(
   cufftComplex* input,
   float* output,
@@ -114,6 +159,13 @@ static __global__ void kernel_complex_to_argument(
   }
 }
 
+/*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
+*
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
+* treat with the function.
+* The result is given in output.
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void complex_to_argument(
   cufftComplex* input,
   float* output,
@@ -127,6 +179,12 @@ void complex_to_argument(
 
   kernel_complex_to_argument<<<blocks, threads>>>(input, output, size);
 }
+
+/*! \brief  Apply a previously computed lens to image(s).
+*
+* The image(s) to treat, seen as input, should be contigous, the input_size is the total number of pixels to
+* treat with the function.
+*/
 
 __global__ void kernel_apply_lens(
   cufftComplex *input,
@@ -144,6 +202,12 @@ __global__ void kernel_apply_lens(
   }
 }
 
+/*! \brief  Permits to shift the corners of an image.
+*
+* This function shift zero-frequency component to center of spectrum
+* as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+* The transformation happens in-place.
+*/
 static __global__ void kernel_shift_corners(
   float* input,
   unsigned int size_x,
@@ -181,6 +245,12 @@ static __global__ void kernel_shift_corners(
   }
 }
 
+/*! \brief  Permits to shift the corners of an image.
+*
+* This function shift zero-frequency component to center of spectrum
+* as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void shift_corners(
   float* input,
   unsigned int size_x,
@@ -193,6 +263,12 @@ void shift_corners(
   kernel_shift_corners <<< lblocks, lthreads >>>(input, size_x, size_y);
 }
 
+/*! \brief  Convert the endianness of input image(s) from big endian to little endian.
+*
+* The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+*/
 static __global__ void kernel_endianness_conversion(
   unsigned short* input,
   unsigned short* output,
@@ -208,6 +284,13 @@ static __global__ void kernel_endianness_conversion(
   }
 }
 
+/*! \brief  Convert the endianness of input image(s) from big endian to little endian.
+*
+* The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void endianness_conversion(
   unsigned short* input,
   unsigned short* output,
@@ -223,6 +306,13 @@ void endianness_conversion(
   kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
 }
 
+/*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
+*
+* The image(s) to treat, seen as image, should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
+*/
 __global__ void kernel_complex_divide(
   cufftComplex* image,
   unsigned int size,
@@ -237,6 +327,14 @@ __global__ void kernel_complex_divide(
   }
 }
 
+/*! \brief  Divide all the pixels of input image(s) by the float divider.
+*
+* The image(s) to treat should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 __global__ void kernel_float_divide(
   float* input,
   unsigned int size,
@@ -249,6 +347,13 @@ __global__ void kernel_float_divide(
     index += blockDim.x * gridDim.x;
   }
 }
+
+/*! \brief  compute the log of all the pixels of input image(s).
+*
+* The image(s) to treat should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The value of pixels is replaced by their log10 value
+*/
 
 __global__ void kernel_log10(
   float* input,
@@ -264,6 +369,13 @@ __global__ void kernel_log10(
   }
 }
 
+/*! \brief  compute the log of all the pixels of input image(s).
+*
+* The image(s) to treat should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The value of pixels is replaced by their log10 value
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void apply_log10(
   float* input,
   unsigned int size)
@@ -277,6 +389,12 @@ void apply_log10(
   kernel_log10<<<blocks, threads>>>(input, size);
 }
 
+/*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
+*
+* The image(s) to treat should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+*/
 static __global__ void kernel_float_to_ushort(
   float* input,
   unsigned short* output,
@@ -297,6 +415,13 @@ static __global__ void kernel_float_to_ushort(
   }
 }
 
+/*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
+*
+* The image(s) to treat should be contigous, the size is the total number of pixels to
+* convert with the function.
+* The result is given in output.
+* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+*/
 void float_to_ushort(
   float* input,
   unsigned short* output,
@@ -311,6 +436,12 @@ void float_to_ushort(
   kernel_float_to_ushort<<<blocks, threads>>>(input, output, size);
 }
 
+/*! \brief  Multiply the pixels value of 2 complexe input images
+*
+* The images to multiply should have the same size.
+* The result is given in output.
+* Output should have the same size of inputs.
+*/
 __global__ void kernel_multiply_frames_complex(
   const cufftComplex* input1,
   const cufftComplex* input2,
@@ -327,6 +458,12 @@ __global__ void kernel_multiply_frames_complex(
   }
 }
 
+/*! \brief  Multiply the pixels value of 2 float input images
+*
+* The images to multiply should have the same size.
+* The result is given in output.
+* Output should have the same size of inputs.
+*/
 __global__ void kernel_multiply_frames_float(
   const float* input1,
   const float* input2,
@@ -342,6 +479,14 @@ __global__ void kernel_multiply_frames_float(
   }
 }
 
+
+/*! \brief  apply the convolution operator to 2 complex images (x,k).
+*
+* The 2 images should have the same size.
+* The result value is given is out.
+* The 2 used planes should be externally prepared (for performance reasons).
+* For further informations: Autofocus of holograms based on image sharpness.
+*/
 void convolution_operator(
   const cufftComplex* x,
   const cufftComplex* k,
@@ -383,6 +528,12 @@ void convolution_operator(
   cudaFree(tmp_k);
 }
 
+/*! \brief  Extract a part of the input image to the output.
+*
+* The exracted aera should be less Than the input image.
+* The result extracted image given is contained in output, the output should be preallocated.
+* Coordonates of the extracted zone are specified into the zone.
+*/
 void frame_memcpy(
   const float* input,
   const holovibes::Rectangle& zone,
@@ -405,6 +556,12 @@ void frame_memcpy(
     cudaMemcpyDeviceToDevice);
 }
 
+/*! \brief  Sum all the pixels of the input image.
+*
+* The result of the sumation is contained in the parameted sum,
+* The size parameter represent the number of pixels to sum,
+* it should be equal to the number of pixels of the image.
+*/
 static __global__ void kernel_sum(
   const float* input,
   float* sum,
@@ -419,6 +576,10 @@ static __global__ void kernel_sum(
   }
 }
 
+/*! \brief   Make the average of all pixels contained into the input image
+*
+* The size parameter is the number of pixels of the input image
+*/
 #include <iostream>
 float average_operator(
   const float* input,
