@@ -765,6 +765,7 @@ namespace gui
     {
       plot_window_->stop_drawing();
       delete plot_window_;
+      plot_window_ = nullptr;
       holovibes_.get_pipeline().request_refresh();
     }
 
@@ -826,6 +827,7 @@ namespace gui
     {
       plot_window_->stop_drawing();
       delete plot_window_;
+      plot_window_ = nullptr;
       holovibes_.get_pipeline().request_refresh();
     }
 
