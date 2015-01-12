@@ -4,10 +4,10 @@
 #include "hardware_limits.hh"
 
 // CONVERSION FUNCTIONS
-/*! \brief  This function permit to transform an 8 bit image to her complexe representation
+/*! \brief  This function permit to transform an 8 bit image to her complexe representation.
 *
 * The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
-* into the complex output.
+* part of the complex output.
 * The input image is seen as unsigned char(8 bits data container) because of her bit depth.
 * The result is given in output.
 */
@@ -33,7 +33,7 @@ __global__ void img8_to_complex(
 *
 * The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
 * into the complex output.
-* The input image is seen as unsigned short(16 bits data container) because of her bit depth.
+* The input image is seen as unsigned short(16 bits data container) because of her bitbytebytedepth.
 * The result is given in output.
 */
 __global__ void img16_to_complex(
@@ -78,7 +78,7 @@ static __global__ void kernel_complex_to_modulus(
 * The image(s) to treat should be contigous into the input, the size is the total number of pixels to
 * treat with the function.
 * The result is given in output.
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_modulus(
   cufftComplex* input,
@@ -120,7 +120,7 @@ static __global__ void kernel_complex_to_squared_modulus(
 * The image(s) to treat should be contigous into the input, the size is the total number of pixels to
 * treat with the function.
 * The result is given in output.
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_squared_modulus(
   cufftComplex* input,
@@ -164,7 +164,7 @@ static __global__ void kernel_complex_to_argument(
 * The image(s) to treat should be contigous into the input, the size is the total number of pixels to
 * treat with the function.
 * The result is given in output.
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_argument(
   cufftComplex* input,
@@ -249,7 +249,7 @@ static __global__ void kernel_shift_corners(
 *
 * This function shift zero-frequency component to center of spectrum
 * as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void shift_corners(
   float* input,
@@ -289,7 +289,7 @@ static __global__ void kernel_endianness_conversion(
 * The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to
 * convert with the function.
 * The result is given in output.
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void endianness_conversion(
   unsigned short* input,
@@ -333,7 +333,7 @@ __global__ void kernel_complex_divide(
 * convert with the function.
 * The result is given in output.
 * NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 __global__ void kernel_float_divide(
   float* input,
@@ -374,7 +374,7 @@ __global__ void kernel_log10(
 * The image(s) to treat should be contigous, the size is the total number of pixels to
 * convert with the function.
 * The value of pixels is replaced by their log10 value
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void apply_log10(
   float* input,
@@ -420,7 +420,7 @@ static __global__ void kernel_float_to_ushort(
 * The image(s) to treat should be contigous, the size is the total number of pixels to
 * convert with the function.
 * The result is given in output.
-* This function make the Kernel call for the user in order to make the usage of the previous function easier.
+* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void float_to_ushort(
   float* input,
@@ -532,7 +532,7 @@ void convolution_operator(
 *
 * The exracted aera should be less Than the input image.
 * The result extracted image given is contained in output, the output should be preallocated.
-* Coordonates of the extracted zone are specified into the zone.
+* Coordonates of the extracted area are specified into the zone.
 */
 void frame_memcpy(
   const float* input,
