@@ -745,6 +745,8 @@ namespace gui
     catch (std::exception& e)
     {
       display_error(e.what());
+      global_visibility(true);
+      record_but_cancel_visible(true);
     }
   }
 
@@ -759,6 +761,13 @@ namespace gui
   
   void MainWindow::average_record()
   {
+    if (plot_window_)
+    {
+      plot_window_->stop_drawing();
+      delete plot_window_;
+      holovibes_.get_pipeline().request_refresh();
+    }
+
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_frames_ = nb_of_frames_spin_box->value();
     QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
@@ -813,6 +822,13 @@ namespace gui
 
   void MainWindow::csv_batch_record()
   {
+    if (plot_window_)
+    {
+      plot_window_->stop_drawing();
+      delete plot_window_;
+      holovibes_.get_pipeline().request_refresh();
+    }
+
     QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
 
     is_batch_img_ = false;
