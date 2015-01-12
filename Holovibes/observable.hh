@@ -7,6 +7,10 @@
 
 namespace holovibes
 {
+  /*! \brief *Observer* design pattern.
+   *
+   * Set a child class to be Observable and contains a list of Observer that
+   * will be notified when the Observable class is modified. */
   class Observable
   {
   public:
