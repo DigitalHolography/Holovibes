@@ -462,7 +462,6 @@ namespace holovibes
     }
   }
 
-#include <iostream>
   /* Looks like the pipeline, but it search for the right z value. */
   void Pipeline::autofocus_caller()
   {
