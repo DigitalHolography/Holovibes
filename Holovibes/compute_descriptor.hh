@@ -8,7 +8,17 @@
 
 namespace holovibes
 {
-  /*! \brief The aim of this structure is to contain CUDA compute parameters. */
+  /*! \brief Contains compute parameters.
+   *
+   * Theses parameters will be used when the pipeline is refresh.
+   * It defines parameters for FFT, lens (Fresnel transforms ...),
+   * post-processing (contrast, shift_corners, log scale).
+   *
+   * The class use the *Observer* design pattern instead of the signal
+   * mechanism of Qt because classes in the namespace holovibes are
+   * independent of GUI or CLI implementations. So that, the code remains
+   * reusable.
+   */
   struct ComputeDescriptor : public Observable
   {
     enum fft_algorithm
