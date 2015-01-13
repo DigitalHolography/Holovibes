@@ -9,7 +9,7 @@ namespace camera
     LITTLE_ENDIAN
   } e_endianness;
 
-  /*! This structure contains everything related to the image format. */
+  /*! \brief This structure contains everything related to the image format. */
   struct FrameDescriptor
   {
     /*! Width of the frame. */

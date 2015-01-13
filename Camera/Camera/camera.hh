@@ -11,6 +11,10 @@
 
 namespace camera
 {
+  /*! \class Camera
+   *
+   * \brief Add to ICamera interface datas and INI file loading.
+   */
   class Camera : public ICamera
   {
   public:
@@ -30,6 +34,9 @@ namespace camera
       return ini_path_.c_str();
     }
   protected:
+    /*! \brief Camera contructor
+     *
+     * Try to open the INI file, if any, parse it with Boost. */
     Camera(const std::string& ini_filepath)
       : desc_()
       , name_("Unknown")
@@ -57,11 +64,18 @@ namespace camera
       return ini_pt_;
     }
 
-    /*! Load default parameters. */
+    /*! \brief Load default parameters
+     *
+     * Fill default values in class fields and frame descriptor. It depends on
+     * the camera model. It ensure the camera will work with these default
+     * settings. */
     virtual void load_default_params() = 0;
     /*! Load parameters from INI file. */
     virtual void load_ini_params() = 0;
-    /*! Send current parameters to camera API. */
+    /*! Send current parameters to camera API.
+     *
+     * Use once parameters has been loaded with load_default_params or
+     * load_ini_params. Checks if parameters are valid. */
     virtual void bind_params() = 0;
 
   protected:
