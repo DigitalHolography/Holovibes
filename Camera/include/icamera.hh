@@ -26,7 +26,11 @@ namespace camera
    *
    * This is also the [C++ Mature Approach: Using an Abstract
    * Interface](http://www.codeproject.com/Articles/28969/HowTo-Export-C-classes-from-a-DLL)
-   * to export a C++ class within a DLL. */
+   * to export a C++ class within a DLL.
+   *
+   * # How to use it ?
+   *
+   * Use only headers file of Camera/include folder. */
   class ICamera
   {
   public:
