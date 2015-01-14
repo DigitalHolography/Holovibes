@@ -3,6 +3,7 @@
 
 namespace holovibes
 {
+  /*! Point in 2D */
   struct Point2D
   {
     int x;
@@ -39,6 +40,7 @@ namespace holovibes
     }
   };
 
+  /*! Rectangle used for selections */
   struct Rectangle
   {
     Point2D top_left;

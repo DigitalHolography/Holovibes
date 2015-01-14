@@ -7,7 +7,12 @@
 
 namespace holovibes
 {
-
+  /*! \class Concurrent Deque
+  **
+  ** This class is a thread safe wrapper on std::deque.
+  ** It is used mainly to store average/ROI values.
+  ** Every method locks a mutex, do the action and delocks the mutex.
+  */
   template <class T> class ConcurrentDeque
   {
   public:
@@ -139,14 +144,19 @@ namespace holovibes
       mutex_.unlock();
     }
 
-    size_t fill_array(std::vector<T>& a, size_t nb_elts)
+    /*! \brief Fill a given vector with deque values
+    **
+    ** \param vect vecto to fill
+    ** \param nb_elts number of elements to copy
+    */
+    size_t fill_array(std::vector<T>& vect, size_t nb_elts)
     {
       mutex_.lock();
       unsigned int i = 0;
 
       for (auto it = deque_.rbegin(); it != deque_.rend() && i < nb_elts; ++it)
       {
-        a[i] = *it;
+        vect[i] = *it;
         ++i;
       }
       mutex_.unlock();
