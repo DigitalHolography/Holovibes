@@ -30,7 +30,7 @@ namespace camera
    *
    * # How to use it ?
    *
-   * Use only headers file of Camera/include folder. */
+   * Use only header files in Camera/include folder. */
   class ICamera
   {
   public:
