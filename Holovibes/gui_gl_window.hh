@@ -10,17 +10,31 @@
 
 namespace gui
 {
+  /*! \class GuiGLWindow 
+  **
+  ** QMainWindow overload used to display the real time OpenGL frame.
+  */
   class GuiGLWindow : public QMainWindow
   {
     Q_OBJECT
 
   public:
+    /*! \brief GuiGLWindow constructor 
+    **
+    ** \param pos initial position of the window
+    ** \param width width of the window in pixels
+    ** \param height height of the window in pixels
+    ** \param h holovibes object
+    ** \param q Queue from where to grab frames to display
+    ** \param parent Qt parent
+    */
     GuiGLWindow(QPoint& pos,
       unsigned int width,
       unsigned int height,
       holovibes::Holovibes& h,
       holovibes::Queue& q,
       QWidget* parent = 0);
+    /* \brief GuiGLWindow destructor */
     ~GuiGLWindow();
 
     void resizeEvent(QResizeEvent* e) override;
@@ -31,17 +45,23 @@ namespace gui
     }
 
   public slots:
+    /*! \brief Set window to fullscreen mode */
     void full_screen();
+    /*! \brief Set window to the maximum dimension of the screen */
     void maximized_screen();
+    /*! \brief Set window back to normal default mode */
     void default_screen();
 
   private:
     Ui::GLWindow ui;
+    /*! GL widget, it updates itself */
     GLWidget* gl_widget_;
 
+    /*! \{ \name Screen modes keyboard shortcuts */
     QShortcut* full_screen_;
     QShortcut* maximized_screen_;
     QShortcut* default_screen_;
+    /*! \} */
   };
 }
 
