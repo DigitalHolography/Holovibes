@@ -8,6 +8,14 @@
 #endif /* !_USE_MATH_DEFINES */
 #include <math.h>
 
+/*! \brief Compute a lens to apply to an image 
+*
+*
+* \param n output The lens computed by the function.
+* The output should have the same caracteristics of 
+* of the images on wich the lens will be applied.
+* \param fd File descriptor of the images on wich the lens will be applied.
+*/
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
@@ -34,6 +42,14 @@ __global__ void kernel_quadratic_lens(
   }
 }
 
+/*! \brief Compute a lens to apply to an image
+*
+*
+* \param n output The lens computed by the function.
+* The output should have the same caracteristics of
+* of the images on wich the lens will be applied.
+* \param fd File descriptor of the images on wich the lens will be applied.
+*/
 __global__ void kernel_spectral_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
