@@ -72,7 +72,9 @@
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
-      </Command>
+
+        copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
+</Command>
     </PostBuildEvent>
     <CudaCompile />
   </ItemDefinitionGroup>
@@ -103,7 +105,9 @@
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
-      </Command>
+
+        copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
+</Command>
     </PostBuildEvent>
     <CudaCompile />
   </ItemDefinitionGroup>
@@ -180,6 +184,7 @@
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
     <ClInclude Include="fft1.cuh" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="thread_compute.hh" />
     <ClInclude Include="thread_capture.hh" />
     <CustomBuild Include="thread_recorder.hh">
@@ -383,6 +388,14 @@
     <ProjectReference Include="..\GPIB\GPIB.vcxproj">
       <Project>{4945af2e-4e1f-4052-b8b6-5b0990d1e121}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Holovibes.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <DeploymentContent>false</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

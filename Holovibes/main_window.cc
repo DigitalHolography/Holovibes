@@ -21,6 +21,7 @@ namespace gui
     file_index_(1)
   {
     ui.setupUi(this);
+    this->setWindowIcon(QIcon("icon1.ico"));
 
     camera_visible(false);
     record_visible(false);

@@ -16,6 +16,7 @@ namespace gui
     maximized_screen_(nullptr)
   {
     ui.setupUi(this);
+    this->setWindowIcon(QIcon("icon1.ico"));
 
     // Keyboard shortcuts
     full_screen_ = new QShortcut(QKeySequence("Ctrl+f"), this);
