@@ -15,7 +15,11 @@ void make_sqrt_vect(float* out, unsigned short n)
   delete[] vect;
 }
 
-/* -NOTE- This function can be improved by specifying
+/*
+ *
+ *
+ *
+ *\note This function can be improved by specifying
  * img8_to_complex or img16_to_complex in the pipeline to avoid
  * branch conditions. But it is no big deal.
  * Otherwise, the convert function are not called outside because
