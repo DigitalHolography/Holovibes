@@ -24,7 +24,7 @@ namespace holovibes
 {
   class OptionsParser
   {
-    const std::string version = "v.0.7.0";
+    const std::string version = "v.1.0.0";
     const unsigned int default_queue_size = 20;
     const unsigned int display_size_min = 100;
 
