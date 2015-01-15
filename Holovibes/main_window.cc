@@ -18,7 +18,8 @@ namespace gui
     plot_window_(nullptr),
     record_thread_(nullptr),
     CSV_record_thread_(nullptr),
-    file_index_(1)
+    file_index_(1),
+    q_max_size_(20)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -1145,7 +1146,7 @@ namespace gui
         gl_window_ = nullptr;
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
-        holovibes_.init_capture(camera_type, 20);
+        holovibes_.init_capture(camera_type, q_max_size_);
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
@@ -1208,6 +1209,9 @@ namespace gui
       int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
       camera::FRAME_TIMEOUT = frame_timeout;
 
+      // Queue max size
+      q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
+
       // Image rendering
       unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
@@ -1268,6 +1272,7 @@ namespace gui
     // Image rendering
     ptree.put("image_rendering.camera", camera_type_);
     ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
+    ptree.put("image_rendering.queue_size", q_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
     ptree.put("image_rendering.p_index", cd.pindex);
     ptree.put("image_rendering.lambda", cd.lambda);

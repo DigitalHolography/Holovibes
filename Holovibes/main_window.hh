@@ -361,6 +361,9 @@ namespace gui
     /*! File index used in batch recording */
     unsigned int file_index_;
 
+    /*! Queue max size */
+    unsigned int q_max_size_;
+
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;
     QShortcut* z_down_shortcut_;
