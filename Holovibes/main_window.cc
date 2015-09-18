@@ -155,7 +155,10 @@ namespace gui
 
   void MainWindow::gl_full_screen()
   {
-    gl_window_->full_screen();
+    if (gl_window_)
+      gl_window_->full_screen();
+    else
+      display_error("No camera selected");
   }
 
   void MainWindow::camera_ids()
