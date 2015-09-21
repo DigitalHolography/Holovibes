@@ -1039,7 +1039,7 @@ namespace gui
 	  gl_window_ = nullptr;
 	  holovibes_.dispose_compute();
 	  holovibes_.dispose_capture();
-	  holovibes_.set_import_mode(file_src, frame_desc, loop_checkbox->isChecked(), fps_spinbox->value(), camera_type_);
+	  holovibes_.set_import_mode(file_src, frame_desc, loop_checkbox->isChecked(), fps_spinbox->value());
 	  camera_visible(true);
 	  record_visible(true);
 	  set_image_mode(is_direct_mode_);
