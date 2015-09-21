@@ -387,7 +387,7 @@ namespace holovibes
   void Pipeline::request_update_n(unsigned short n)
   {
     update_n_requested_ = true;
-    compute_desc_.nsamples = n;
+    compute_desc_.nsamples.exchange(n);
     request_refresh();
   }
 

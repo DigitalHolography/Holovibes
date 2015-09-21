@@ -49,7 +49,7 @@ namespace holovibes
       : Observable()
       , algorithm(FFT1)
       , nsamples(2)
-      , pindex(0)
+      , pindex()
       , lambda(532e-9f)
       , zdistance(1.50f)
       , view_mode(MODULUS)
@@ -59,8 +59,11 @@ namespace holovibes
       , vibrometry_enabled(false)
       , contrast_min(1)
       , contrast_max(65535)
-      , vibrometry_q(0)
-    {}
+      , vibrometry_q()
+    {
+		pindex = 0;
+		vibrometry_q = 0;
+	}
 
     /*! \brief Assignment operator
      *
@@ -80,7 +83,7 @@ namespace holovibes
     /*! Number of samples in which apply the fft on. */
     std::atomic<unsigned short> nsamples;
     /*! p-th output component to show. */
-    std::atomic<unsigned short> pindex;
+    std::atomic_ushort pindex;
     /*! Lambda in meters. */
     std::atomic<float> lambda;
     /*! Sensor-to-object distance. */
