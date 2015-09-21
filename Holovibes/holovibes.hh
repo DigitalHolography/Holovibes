@@ -140,7 +140,7 @@ namespace holovibes
     /* Use shared pointers to ensure each ressources will freed. */
     std::shared_ptr<camera::ICamera> camera_;
     bool camera_initialized_;
-    std::unique_ptr<ThreadCapture> tcapture_;
+    std::unique_ptr<IThreadInput> tcapture_;
     std::unique_ptr<ThreadCompute> tcompute_;
     std::unique_ptr<Recorder> recorder_;
 

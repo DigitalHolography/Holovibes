@@ -6,9 +6,11 @@
 # include <icamera.hh>
 # include "queue.hh"
 
+# include "ithread_input.hh"
+
 namespace holovibes
 {
-  class ThreadCapture
+	class ThreadCapture : public IThreadInput
   {
   public:
     ThreadCapture(camera::ICamera& camera, Queue& input);
@@ -20,7 +22,6 @@ namespace holovibes
   private:
     camera::ICamera& camera_;
     Queue& queue_;
-    bool stop_requested_;
     std::thread thread_;
   };
 }
