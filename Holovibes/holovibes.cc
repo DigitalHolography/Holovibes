@@ -48,7 +48,14 @@ namespace holovibes
       camera_->init_camera();
       input_.reset(new Queue(camera_->get_frame_descriptor(), buffer_nb_elts));
       camera_->start_acquisition();
-      tcapture_.reset(new ThreadCapture(*camera_, *input_));
+	  tcapture_.reset(new ThreadCapture(*camera_, *input_));
+	
+	/*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
+		  , camera_->get_frame_descriptor()
+		  , true
+		  , 16
+		  , *input_));*/
+	  
       std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
     }

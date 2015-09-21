@@ -4,10 +4,12 @@
 # include "camera_dll.hh"
 # include "thread_compute.hh"
 # include "thread_capture.hh"
+# include "thread_reader.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
 # include "concurrent_deque.hh"
+
 
 # include <memory>
 
@@ -99,6 +101,52 @@ namespace holovibes
      * use the Pipeline before it finished the initialization. */
     void init_compute();
     void dispose_compute();
+
+	const void set_import_mode(std::string &file_src
+		, camera::FrameDescriptor frame_desc
+		, bool loop
+		, unsigned int fps
+		, enum camera_type c // NOP
+		)
+	{
+		camera_initialized_ = false;
+		
+		try
+		{
+			if (c == EDGE)
+				camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
+			else if (c == IDS)
+				camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
+			else if (c == IXON)
+				camera_ = camera::CameraDLL::load_camera("CameraIxon.dll");
+			else if (c == PIKE)
+				camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
+			else if (c == PIXELFLY)
+				camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
+			else if (c == XIQ)
+				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
+			else
+				assert(!"Impossible case");
+			camera_->init_camera();
+			input_.reset(new Queue(frame_desc, 20)); // buffer_nb_elts = 20
+			tcapture_.reset(
+				new ThreadReader(file_src
+				, frame_desc
+				, loop
+				, fps
+				, *input_));
+			std::cout << "[CAPTURE] reader thread started" << std::endl;
+			camera_initialized_ = true;
+		}
+		catch (std::exception& e)
+		{
+			tcapture_.reset(nullptr);
+			input_.reset(nullptr);
+
+			throw;
+		}
+	}
+
 
     /*! \{ \name Getters/Setters */
     Pipeline& get_pipeline()

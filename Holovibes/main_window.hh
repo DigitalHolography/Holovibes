@@ -261,6 +261,15 @@ namespace gui
     void stop_image_record();
     /*! \brief Stop average/ROI record */
     void stop_csv_record();
+
+	/*! \brief Import Browse file */
+	void import_browse_file();
+	/*! \brief Import file */
+	void import_file();
+	/*! \brief Stop Import file */
+	void import_file_stop();
+
+
     /*! \} */
 
   protected:

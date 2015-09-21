@@ -998,6 +998,57 @@ namespace gui
     }
   }
 
+  void MainWindow::import_browse_file()
+  {
+	  QString filename = QFileDialog::getOpenFileName(this,
+		  tr("import file"), "C://", tr("All files (*)"));
+
+	  QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+	  import_line_edit->clear();
+	  import_line_edit->insert(filename);
+  }
+
+  void MainWindow::import_file_stop(void)
+  {
+	  // holovibes_.init_capture(camera_type_, q_max_size_);
+	  change_camera(camera_type_);
+  }
+
+  void MainWindow::import_file()
+  {
+	  QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+	  QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
+	  QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
+	  QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
+	  QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+	  QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
+	  QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+
+	  std::string file_src = import_line_edit->text().toUtf8();
+	  camera::FrameDescriptor frame_desc =
+	  {
+			width_spinbox->value(),
+			height_spinbox->value(),
+			// 0:depth = 8, 1:depth = 16
+			depth_spinbox->currentIndex() + 1,
+			(big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
+	  };
+	  camera_visible(false);
+	  record_visible(false);
+	  global_visibility(false);
+	  delete gl_window_;
+	  gl_window_ = nullptr;
+	  holovibes_.dispose_compute();
+	  holovibes_.dispose_capture();
+	  holovibes_.set_import_mode(file_src, frame_desc, loop_checkbox->isChecked(), fps_spinbox->value(), camera_type_);
+	  camera_visible(true);
+	  record_visible(true);
+	  set_image_mode(is_direct_mode_);
+
+
+  }
+
+
   void MainWindow::closeEvent(QCloseEvent* event)
   {
     save_ini("holovibes.ini");
