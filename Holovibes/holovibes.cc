@@ -61,6 +61,7 @@ namespace holovibes
     }
     catch (std::exception& e)
     {
+		std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
       input_.reset(nullptr);
 

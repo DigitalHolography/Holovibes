@@ -73,11 +73,6 @@ namespace camera
       // Put the frame back to DMA
       cam_.PutFrame(&fgframe_);
 
-#if _DEBUG
-      std::cout << "Frame received length:"
-        << fgframe_.Length << " id:"
-        << fgframe_.Id << std::endl;
-#endif
     }
 
     return fgframe_.pData;
