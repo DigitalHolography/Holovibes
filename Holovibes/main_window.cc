@@ -1009,7 +1009,6 @@ namespace gui
 
   void MainWindow::import_file_stop(void)
   {
-	  // holovibes_.init_capture(camera_type_, q_max_size_);
 	  change_camera(camera_type_);
   }
 
@@ -1039,12 +1038,15 @@ namespace gui
 	  gl_window_ = nullptr;
 	  holovibes_.dispose_compute();
 	  holovibes_.dispose_capture();
-	  holovibes_.set_import_mode(file_src, frame_desc, loop_checkbox->isChecked(), fps_spinbox->value());
+	  holovibes_.set_import_mode(
+		  file_src,
+		  frame_desc,
+		  loop_checkbox->isChecked(),
+		  fps_spinbox->value(),
+		  q_max_size_);
 	  camera_visible(true);
 	  record_visible(true);
 	  set_image_mode(is_direct_mode_);
-
-
   }
 
 
@@ -1254,19 +1256,19 @@ namespace gui
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
     if (!ptree.empty())
-    {
+	{
+	  // Queue max size
+	  q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
+
       // Camera type
       int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
       int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-      camera::FRAME_TIMEOUT = frame_timeout;
+	  camera::FRAME_TIMEOUT = frame_timeout;
 
-      // Queue max size
-      q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
-
-      // Image rendering
+	  // Image rendering
       unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
 

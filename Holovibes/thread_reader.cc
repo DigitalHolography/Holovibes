@@ -45,8 +45,6 @@ namespace holovibes
 						ifs.close();
 						ifs.open(file_src_, std::istream::in);
 					}
-					//else
-					//	stop_requested_ = true;
 				}
 			}
 		}
