@@ -284,7 +284,7 @@ namespace gui
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
         p_vibro->setValue(value);
 
-        cd.pindex = value;
+        cd.pindex.exchange(value);
         pipeline.request_refresh();
       }
       else
@@ -301,7 +301,7 @@ namespace gui
 
       if (cd.pindex < cd.nsamples)
       {
-        cd.pindex++;
+        ++(cd.pindex);
         notify();
         pipeline.request_refresh();
       }
@@ -319,7 +319,7 @@ namespace gui
 
       if (cd.pindex >= 0)
       {
-        cd.pindex--;
+        --(cd.pindex);
         notify();
         pipeline.request_refresh();
       }
@@ -429,7 +429,7 @@ namespace gui
     {
       desc.autofocus_z_min = z_min;
       desc.autofocus_z_max = z_max;
-      desc.autofocus_z_div = z_div;
+      desc.autofocus_z_div.exchange(z_div);
 
       connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
     }
@@ -459,7 +459,7 @@ namespace gui
 
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.contrast_enabled = value;
+      cd.contrast_enabled.exchange(value);
 
       set_contrast_min(contrast_min->value());
       set_contrast_max(contrast_max->value());
@@ -521,7 +521,7 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.log_scale_enabled = value;
+      cd.log_scale_enabled.exchange(value);
 
       if (cd.contrast_enabled)
       {
@@ -540,7 +540,7 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes_.get_compute_desc().shift_corners_enabled = value;
+      holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
       pipeline.request_refresh();
     }
   }
@@ -553,7 +553,7 @@ namespace gui
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       image_ratio_visible(value);
-      cd.vibrometry_enabled = value;
+      cd.vibrometry_enabled.exchange(value);
       pipeline.request_refresh();
     }
   }
@@ -567,7 +567,7 @@ namespace gui
 
       if (value < (int)cd.nsamples && value >= 0)
       {
-        cd.pindex = value;
+        cd.pindex.exchange(value);
         notify();
         pipeline.request_refresh();
       }
@@ -585,7 +585,7 @@ namespace gui
 
       if (value < (int)cd.nsamples && value >= 0)
       {
-        holovibes_.get_compute_desc().vibrometry_q = value;
+        holovibes_.get_compute_desc().vibrometry_q.exchange(value);
         pipeline.request_refresh();
       }
       else
@@ -1272,7 +1272,7 @@ namespace gui
 
       unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
-        cd.pindex = p_index;
+        cd.pindex.exchange(p_index);
 
       float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
       cd.lambda = lambda;
@@ -1292,13 +1292,13 @@ namespace gui
       cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
 
       bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
-      cd.log_scale_enabled = log_scale_enabled;
+      cd.log_scale_enabled.exchange(log_scale_enabled);
 
       bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
-      cd.shift_corners_enabled = shift_corners_enabled;
+      cd.shift_corners_enabled.exchange(shift_corners_enabled);
 
       bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
-      cd.contrast_enabled = contrast_enabled;
+      cd.contrast_enabled.exchange(contrast_enabled);
 
       float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
       cd.contrast_min = contrast_min;
@@ -1308,10 +1308,10 @@ namespace gui
 
       // Special
       bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
-      cd.vibrometry_enabled = image_ratio_enabled;
+      cd.vibrometry_enabled.exchange(image_ratio_enabled);
 
       int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
-      cd.vibrometry_q = q_vibro;
+      cd.vibrometry_q.exchange(q_vibro);
 
       bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
       is_enabled_average_ = average_enabled;
