@@ -109,7 +109,7 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-    assert(camera_ && "camera not initialized");
+	assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     assert(input_ && "input queue not initialized");
 

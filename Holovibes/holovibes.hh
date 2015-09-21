@@ -106,28 +106,12 @@ namespace holovibes
 		, camera::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
-		, enum camera_type c // NOP
 		)
 	{
 		camera_initialized_ = false;
 		
 		try
 		{
-			if (c == EDGE)
-				camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
-			else if (c == IDS)
-				camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-			else if (c == IXON)
-				camera_ = camera::CameraDLL::load_camera("CameraIxon.dll");
-			else if (c == PIKE)
-				camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
-			else if (c == PIXELFLY)
-				camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
-			else if (c == XIQ)
-				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
-			else
-				assert(!"Impossible case");
-			camera_->init_camera();
 			input_.reset(new Queue(frame_desc, 20)); // buffer_nb_elts = 20
 			tcapture_.reset(
 				new ThreadReader(file_src
