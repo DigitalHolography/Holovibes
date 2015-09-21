@@ -29,8 +29,8 @@ void fft_1(
 {
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (n_frame_resolution + threads - 1) / threads;
+  unsigned int threads = 128;
+  unsigned int blocks = n_frame_resolution / threads;
 
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
