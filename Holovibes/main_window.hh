@@ -262,12 +262,16 @@ namespace gui
     /*! \brief Stop average/ROI record */
     void stop_csv_record();
 
-	/*! \brief Import Browse file */
+	/*! \brief Set import file src */
 	void import_browse_file();
-	/*! \brief Import file */
+	/*! \brief Run thread_reader */
 	void import_file();
-	/*! \brief Stop Import file */
+	/*! \brief Stop thread_reader, and launch thread_capture */
 	void import_file_stop();
+	/*! \brief Update end to start if start > end */
+	void import_start_spinbox_update();
+	/*! \brief Update start to end if start < end */
+	void import_end_spinbox_update();
 
 
     /*! \} */

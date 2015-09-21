@@ -8,12 +8,17 @@ namespace holovibes
 		, camera::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
+		, unsigned int spanStart
+		, unsigned int spanEnd
 		, Queue& input)
 		: IThreadInput()
 		, file_src_(file_src)
 		, frame_desc_(frame_desc)
 		, loop_(loop)
 		, fps_(fps)
+		, frameId_(0)
+		, spanStart_(spanStart)
+		, spanEnd_(spanEnd)
 		, queue_(input)
 		, thread_(&ThreadReader::thread_proc, this)
 	{
@@ -32,9 +37,11 @@ namespace holovibes
 			{
 				if (!ifs.is_open())
 					throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-				if (ifs.good())
+				if (ifs.good() && frameId_ < spanEnd_)
 				{
-					ifs.read(buffer, frame_size);
+					do {
+						ifs.read(buffer, frame_size);
+					} while (++frameId_ < spanStart_);
 					queue_.enqueue(buffer, cudaMemcpyHostToDevice);
 					Sleep(1000 / fps_);
 				}
@@ -44,6 +51,7 @@ namespace holovibes
 					{
 						ifs.close();
 						ifs.open(file_src_, std::istream::in);
+						frameId_ = 0;
 					}
 				}
 			}

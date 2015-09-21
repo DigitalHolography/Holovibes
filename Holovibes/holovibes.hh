@@ -33,8 +33,8 @@ namespace holovibes
      *
      * The non hardcoded-way would be to search for DLL and build a list of
      * available cameras. */
-    enum camera_type
-    {
+		  enum camera_type
+		  {
       NONE,
       EDGE,
       IDS,
@@ -106,6 +106,8 @@ namespace holovibes
 		, camera::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
+		, unsigned int spanStart
+		, unsigned int spanEnd
 		, unsigned int q_max_size_)
 	{
 		camera_initialized_ = false;
@@ -118,6 +120,8 @@ namespace holovibes
 				, frame_desc
 				, loop
 				, fps
+				, spanStart
+				, spanEnd
 				, *input_));
 			std::cout << "[CAPTURE] reader thread started" << std::endl;
 			camera_initialized_ = true;

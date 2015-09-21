@@ -1018,6 +1018,8 @@ namespace gui
 	  QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
 	  QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
 	  QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
+	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
 	  QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
 	  QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
 	  QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
@@ -1043,12 +1045,31 @@ namespace gui
 		  frame_desc,
 		  loop_checkbox->isChecked(),
 		  fps_spinbox->value(),
+		  start_spinbox->value(),
+		  end_spinbox->value(),
 		  q_max_size_);
 	  camera_visible(true);
 	  record_visible(true);
 	  set_image_mode(is_direct_mode_);
   }
 
+  void MainWindow::import_start_spinbox_update()
+  {
+	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+
+	  if (start_spinbox->value() > end_spinbox->value())
+		  end_spinbox->setValue(start_spinbox->value());
+  }
+
+  void MainWindow::import_end_spinbox_update()
+  {
+	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+
+	  if (end_spinbox->value() < start_spinbox->value())
+		  start_spinbox->setValue(end_spinbox->value());
+  }
 
   void MainWindow::closeEvent(QCloseEvent* event)
   {

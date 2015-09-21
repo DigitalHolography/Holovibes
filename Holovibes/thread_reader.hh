@@ -18,6 +18,8 @@ namespace holovibes
 			, camera::FrameDescriptor frame_desc
 			, bool loop
 			, unsigned int fps
+			, unsigned int spanStart
+			, unsigned int spanEnd
 			, Queue& input);
 		virtual ~ThreadReader();
 
@@ -27,6 +29,9 @@ namespace holovibes
 		bool loop_;
 		unsigned int fps_;
 		camera::FrameDescriptor frame_desc_;
+		unsigned int frameId_;
+		unsigned int spanStart_;
+		unsigned int spanEnd_;
 		Queue& queue_;
 
 		std::thread thread_;

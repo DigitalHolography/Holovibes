@@ -63,10 +63,10 @@ namespace holovibes
     {
 		std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
-      input_.reset(nullptr);
+	  input_.reset(nullptr);
 
       throw;
-    }
+	}
   }
 
   void Holovibes::dispose_capture()
