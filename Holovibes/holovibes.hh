@@ -106,13 +106,13 @@ namespace holovibes
 		, camera::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
-		)
+		, unsigned int q_max_size_)
 	{
 		camera_initialized_ = false;
 		
 		try
 		{
-			input_.reset(new Queue(frame_desc, 20)); // buffer_nb_elts = 20
+			input_.reset(new Queue(frame_desc, q_max_size_));
 			tcapture_.reset(
 				new ThreadReader(file_src
 				, frame_desc
