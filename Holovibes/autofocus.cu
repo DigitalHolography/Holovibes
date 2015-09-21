@@ -5,9 +5,26 @@
 # include "hardware_limits.hh"
 # include "tools.cuh"
 # include "average.cuh"
-
+# include <stdio.h>
 /* -- REMOVE THIS -- */
 # include <iostream>
+
+
+static __global__ void kernel_minus_operator(
+  const float* input_left,
+  const float* input_right,
+  float* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  while (index < size)
+  {
+    output[index] = input_left[index] - input_right[index];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
 
 static float global_variance_intensity(
   const float* input,
@@ -20,21 +37,32 @@ static float global_variance_intensity(
   if (blocks > max_blocks)
     blocks = max_blocks;
 
-  float* squared_input;
-  cudaMalloc<float>(&squared_input, size * sizeof(float));
-
-  kernel_multiply_frames_float <<<blocks, threads>>>(input, input, squared_input, size);
-
-  float average_squared_input = average_operator(squared_input, size);
-  float average_input = average_operator(input, size);
-  float average_input_squared = average_input * average_input;
-
-  float global_variance = average_squared_input - average_input_squared;
   //FIXME : It seems like this is not what is written on the paper.
   // The paper suggests <(I - <I>)^2> and here it seems like 
   // <I^2> - <I>^2 is done.
 
-  cudaFree(squared_input);
+  // <I>
+  float average_input = average_operator(input, size);
+
+  // We create a matrix of <I> in order to do the substraction
+  float* matrix_average;
+  cudaMalloc(&matrix_average, size * sizeof(float));
+
+  float* cpu_average_matrix = (float *) malloc(sizeof(float) * size);
+  for (int i = 0; i < size; ++i)
+    cpu_average_matrix[i] = average_input;
+
+  cudaMemcpy(matrix_average, cpu_average_matrix, size * sizeof(float), cudaMemcpyHostToDevice);
+
+  // I - <I>
+  kernel_minus_operator <<<blocks, threads>>>(input, matrix_average, matrix_average, size);
+
+  // We take it to the power of 2
+  kernel_multiply_frames_float <<<blocks, threads>>>(matrix_average, matrix_average, matrix_average, size);
+
+  // And we take the average
+  float global_variance = average_operator(matrix_average, size);
+
 
   return global_variance;
 }
@@ -54,20 +82,6 @@ static __global__ void kernel_float_to_complex(
   }
 }
 
-static __global__ void kernel_minus_operator(
-  const float* input_left,
-  const float* input_right,
-  float* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
-  while (index < size)
-  {
-    output[index] = input_left[index] - input_right[index];
-    index += blockDim.x * gridDim.x;
-  }
-}
 
 static float average_local_variance(
   const float* input,
@@ -98,7 +112,6 @@ static float average_local_variance(
     square_size);
 
   {
-    // FIXME : Why is the matrix's size 100 when a 3x3 matrix is suggested ?
      unsigned int matrix_width = 100;
     if (matrix_width > square_size)
       matrix_width = square_size;
@@ -237,7 +250,8 @@ static float sobel_operator(
     square_size);
 
   {
-    // FIXME : I really don't understand this coeff
+    // This coeff will just scale the matrix in a different way
+    // It is the p-norm (2) of the matrix.
     const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
 
     /* Build the ks 3x3 matrix */
