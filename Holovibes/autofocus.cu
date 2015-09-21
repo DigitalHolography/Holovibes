@@ -30,6 +30,9 @@ static float global_variance_intensity(
   float average_input_squared = average_input * average_input;
 
   float global_variance = average_squared_input - average_input_squared;
+  //FIXME : It seems like this is not what is written on the paper.
+  // The paper suggests <(I - <I>)^2> and here it seems like 
+  // <I^2> - <I>^2 is done.
 
   cudaFree(squared_input);
 
@@ -95,6 +98,7 @@ static float average_local_variance(
     square_size);
 
   {
+    // FIXME : Why is the matrix's size 100 when a 3x3 matrix is suggested ?
      unsigned int matrix_width = 100;
     if (matrix_width > square_size)
       matrix_width = square_size;
@@ -233,6 +237,7 @@ static float sobel_operator(
     square_size);
 
   {
+    // FIXME : I really don't understand this coeff
     const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
 
     /* Build the ks 3x3 matrix */
