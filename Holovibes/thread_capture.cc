@@ -5,9 +5,9 @@ namespace holovibes
   ThreadCapture::ThreadCapture(
     camera::ICamera& camera,
     Queue& input)
-    : camera_(camera)
+    : IThreadInput()
+	, camera_(camera)
     , queue_(input)
-    , stop_requested_(false)
     , thread_(&ThreadCapture::thread_proc, this)
   {}
 
