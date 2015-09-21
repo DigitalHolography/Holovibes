@@ -263,8 +263,8 @@ namespace holovibes
 
     if (vm_.count("display"))
     {
-      const std::vector<int>& display_size =
-        vm_["display"].as<std::vector<int>>();
+      const std::vector<unsigned int>& display_size =
+		  vm_["display"].as<std::vector<unsigned int>>();
 
       if (!display_size.empty())
       {
@@ -348,7 +348,7 @@ namespace holovibes
 
     if (vm_.count("nsamples"))
     {
-      const int nsamples = vm_["nsamples"].as<int>();
+		const unsigned short nsamples = vm_["nsamples"].as<unsigned short>();
       if (nsamples <= 0)
         throw std::runtime_error("--nsamples parameter must be strictly positive");
 
@@ -360,8 +360,8 @@ namespace holovibes
 
     if (vm_.count("pindex"))
     {
-      const int pindex = vm_["pindex"].as<int>();
-      if (pindex < 0 || static_cast<unsigned int>(pindex) >= opts_.compute_desc.nsamples)
+		const unsigned short pindex = vm_["pindex"].as<unsigned short>();
+      if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
       opts_.compute_desc.pindex = pindex;
     }
@@ -399,7 +399,7 @@ namespace holovibes
 
     if (vm_.count("contrastmin"))
     {
-      const float log_min = vm_["contrastmin"].as<float>();
+		const double log_min = vm_["contrastmin"].as<double>();
 
       if (log_min < -100.0f || log_min > 100.0f)
         throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");

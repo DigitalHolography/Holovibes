@@ -24,14 +24,14 @@ namespace holovibes
 		std::ifstream	ifs(file_src_, std::istream::in | std::ifstream::binary);
 		unsigned int frame_size = frame_desc_.width * frame_desc_.height;
 		char* buffer = new char[frame_size];
-		std::cout << "start read file " << file_src_ << std::endl;
+		std::cout << "[READER] start read file " << file_src_ << std::endl;
 
 		try
 		{
 			while (!stop_requested_)
 			{
 				if (!ifs.is_open())
-					throw std::runtime_error("[LOADER] unable to read/open file: " + file_src_);
+					throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 				if (ifs.good())
 				{
 					ifs.read(buffer, frame_size);
@@ -54,7 +54,7 @@ namespace holovibes
 		{
 			std::cout << e.what() << std::endl;
 		}
-		std::cout << "stop read file " << file_src_ << std::endl;
+		std::cout << "[READER] stop read file " << file_src_ << std::endl;
 		ifs.close();
 		stop_requested_ = true;
 		delete[] buffer;

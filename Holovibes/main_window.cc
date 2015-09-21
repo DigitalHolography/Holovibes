@@ -903,7 +903,6 @@ namespace gui
     {
       delete record_thread_;
 
-      QLineEdit* file_output_line_edit = findChild<QLineEdit*>("pathLineEdit");
       QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
       std::string path;
 
@@ -1051,6 +1050,7 @@ namespace gui
 
   void MainWindow::closeEvent(QCloseEvent* event)
   {
+	  (void)event;
     save_ini("holovibes.ini");
 
     if (gl_window_)
@@ -1248,7 +1248,7 @@ namespace gui
     }
     catch (std::exception& e)
     {
-      std::ofstream os("holovibes.ini");
+		std::cout << e.what() << std::endl;
     }
 
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
