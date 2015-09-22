@@ -12,6 +12,7 @@ namespace camera
   /*! \brief This structure contains everything related to the image format. */
   struct FrameDescriptor
   {
+  public:
     /*! Width of the frame. */
     unsigned short         width;
     /*! Height of the frame. */
@@ -23,7 +24,6 @@ namespace camera
     /*! Endianness of bytes. */
     e_endianness         endianness;
 
-  public:
     /* Helper functions. */
 
     /*! \brief Return the frame size in bytes. */
