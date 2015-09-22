@@ -1264,6 +1264,11 @@ namespace gui
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
+	gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+	gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
+	gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+	gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
+	gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
 
     try
     {
@@ -1290,6 +1295,8 @@ namespace gui
 	  camera::FRAME_TIMEOUT = frame_timeout;
 
 	  // Image rendering
+	  image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
+
       unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
 
@@ -1311,6 +1318,8 @@ namespace gui
       cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
 
       // View
+	  view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
+
       int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
       cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
 
@@ -1330,6 +1339,8 @@ namespace gui
       cd.contrast_max = contrast_max;
 
       // Special
+	  special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
+
       bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
       cd.vibrometry_enabled.exchange(image_ratio_enabled);
 
@@ -1338,16 +1349,28 @@ namespace gui
 
       bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
       is_enabled_average_ = average_enabled;
+
+	  // Record
+	  record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
+
+	  // Import
+	  import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
     }
   }
 
   void MainWindow::save_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+	gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
+	gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+	gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
+	gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
 
     // Image rendering
-    ptree.put("image_rendering.camera", camera_type_);
+	ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
+	ptree.put("image_rendering.camera", camera_type_);
     ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
     ptree.put("image_rendering.queue_size", q_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
@@ -1358,6 +1381,7 @@ namespace gui
     ptree.put("image_rendering.algorithm", cd.algorithm);
 
     // View
+	ptree.put("view.hidden", view_group_box->isHidden());
     ptree.put("view.view_mode", cd.view_mode);
     ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
     ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
@@ -1366,9 +1390,16 @@ namespace gui
     ptree.put("view.contrast_max", cd.contrast_max);
 
     // Special
+	ptree.put("special.hidden", special_group_box->isHidden());
     ptree.put("special.image_ratio_enabled", cd.vibrometry_enabled);
     ptree.put("special.image_ratio_q", cd.vibrometry_q);
     ptree.put("special.average_enabled", is_enabled_average_);
+
+	// Record
+	ptree.put("record.hidden", record_group_box->isHidden());
+
+	// Import
+	ptree.put("import.hidden", import_group_box->isHidden());
 
     boost::property_tree::write_ini(path, ptree);
   }

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1015</width>
-    <height>359</height>
+    <width>1017</width>
+    <height>357</height>
    </rect>
   </property>
   <property name="font">
@@ -532,24 +532,6 @@
          <string>Batch</string>
         </property>
        </widget>
-       <zorder>numberOfFramesLabel</zorder>
-       <zorder>numberOfFramesSpinBox</zorder>
-       <zorder>browsePushButton</zorder>
-       <zorder>pathLineEdit</zorder>
-       <zorder>outputFileLabel</zorder>
-       <zorder>recPushButton</zorder>
-       <zorder>cancelPushButton</zorder>
-       <zorder>ROIOutputFileLabel</zorder>
-       <zorder>ROIOutputPushButton</zorder>
-       <zorder>ROIOutputLineEdit</zorder>
-       <zorder>ROIPushButton</zorder>
-       <zorder>ROIStopPushButton</zorder>
-       <zorder>batchInputLineEdit</zorder>
-       <zorder>batchInputLabel</zorder>
-       <zorder>batchInputBrowsePushButton</zorder>
-       <zorder>pushButton_2</zorder>
-       <zorder>ROIBatchPushButton</zorder>
-       <zorder>Record_2</zorder>
       </widget>
      </item>
      <item row="0" column="0">
@@ -1093,7 +1075,7 @@
       </widget>
      </item>
      <item row="0" column="4">
-      <widget class="gui::GroupBox" name="Record_2">
+      <widget class="gui::GroupBox" name="Import">
        <property name="title">
         <string>Import</string>
        </property>
@@ -1479,7 +1461,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1015</width>
+     <width>1017</width>
      <height>22</height>
     </rect>
    </property>
@@ -1525,6 +1507,7 @@
     <addaction name="actionView"/>
     <addaction name="actionSpecial"/>
     <addaction name="actionRecord"/>
+    <addaction name="actionImport"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -1613,7 +1596,7 @@
     <string>Image rendering</string>
    </property>
    <property name="shortcut">
-    <string>Alt+I</string>
+    <string>Alt+D</string>
    </property>
   </action>
   <action name="actionView">
@@ -1675,6 +1658,9 @@
    <property name="text">
     <string>Full screen</string>
    </property>
+   <property name="statusTip">
+    <string/>
+   </property>
   </action>
   <action name="actionIXon">
    <property name="text">
@@ -1684,6 +1670,20 @@
   <action name="actionEdge">
    <property name="text">
     <string>Edge</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Import</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+I</string>
    </property>
   </action>
  </widget>
@@ -2545,6 +2545,22 @@
     <hint type="destinationlabel">
      <x>1012</x>
      <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImport</sender>
+   <signal>changed()</signal>
+   <receiver>Import</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>912</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
