@@ -64,6 +64,8 @@ static float global_variance_intensity(
   float global_variance = average_operator(matrix_average, size);
 
 
+  cudaFree(matrix_average);
+
   return global_variance;
 }
 
@@ -112,7 +114,7 @@ static float average_local_variance(
     square_size);
 
   {
-     unsigned int matrix_width = 100;
+     unsigned int matrix_width = 9;
     if (matrix_width > square_size)
       matrix_width = square_size;
 
@@ -189,7 +191,8 @@ static float average_local_variance(
   cudaFree(input_complex);
   cudaFree(ke_gpu_frame);
 
-  return average_local_variance;
+
+  return average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
@@ -431,8 +434,5 @@ float focus_metric(
   /*if (isnan(avr_local_variance))
     std::cout << "alv nan" << std::endl;*/
   float avr_magnitude = sobel_operator(input, square_size);
-  /*if (isnan(avr_magnitude))
-    std::cout << "am nan" << std::endl;*/
-  //std::cout << global_variance * avr_magnitude << std::endl;
   return global_variance * avr_local_variance * avr_magnitude;
 }
