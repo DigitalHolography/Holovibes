@@ -57,6 +57,8 @@ static float global_variance_intensity(
 
   cudaFree(matrix_average);
 
+  cudaFree(matrix_average);
+
   return global_variance;
 }
 
@@ -181,7 +183,8 @@ static float average_local_variance(
   cudaFree(input_complex);
   cudaFree(ke_gpu_frame);
 
-  return average_local_variance;
+
+  return average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
