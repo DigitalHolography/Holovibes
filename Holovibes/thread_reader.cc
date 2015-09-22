@@ -50,7 +50,7 @@ namespace holovibes
 					if (loop_)
 					{
 						ifs.close();
-						ifs.open(file_src_, std::istream::in);
+						ifs.open(file_src_, std::istream::in | std::ifstream::binary);
 						frameId_ = 0;
 					}
 				}

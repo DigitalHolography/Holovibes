@@ -534,6 +534,7 @@ void convolution_operator(
 * The result extracted image given is contained in output, the output should be preallocated.
 * Coordonates of the extracted area are specified into the zone.
 */
+#include <iostream>
 void frame_memcpy(
   const float* input,
   const holovibes::Rectangle& zone,

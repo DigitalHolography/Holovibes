@@ -192,7 +192,7 @@ static float average_local_variance(
   cudaFree(ke_gpu_frame);
 
 
-  return average_local_variance / average_local_variance;
+  return 1; // average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
@@ -436,5 +436,6 @@ float focus_metric(
   float avr_magnitude = sobel_operator(input, square_size);
   if (isnan(avr_magnitude))
     std::cout << "am nan" << std::endl;
+  std::cout << global_variance * avr_magnitude << std::endl;
   return global_variance * avr_local_variance * avr_magnitude;
 }

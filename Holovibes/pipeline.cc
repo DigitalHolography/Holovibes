@@ -500,7 +500,7 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size);
 
-    for (float z = z_min; z < z_max; z += z_step)
+    for (float z = z_min + z_step; z < z_max - z_step; z += z_step)
     {
       /* Make input frames copies. */
       cudaMemcpy(
@@ -576,6 +576,18 @@ namespace holovibes
       output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
 
       frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
+
+      // soz
+      /*
+      float* my_before = (float *)malloc(sizeof(float) * af_square_size);
+      cudaMemcpy(my_before, gpu_float_buffer_, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
+      float* my_local = (float *)malloc(sizeof(float) * af_square_size);
+      cudaMemcpy(my_local, gpu_float_buffer_af_zone, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
+      for (size_t i = 0; i < af_square_size; ++i)
+        std::cout << "output[i]: " << my_local[i] << " -- input[i]: " << my_before[i] << std::endl;
+        */
+      //end soz
+
 
       float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
       focus_metric_values.push_back(focus_metric_value);
