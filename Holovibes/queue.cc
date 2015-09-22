@@ -67,11 +67,15 @@ namespace holovibes
       size_,
       cuda_kind);
 
+	if (cuda_status != CUDA_SUCCESS)
+	{
+	  std::cerr << "Queue: couldn't enqueue" << std::endl;
+	  mutex_.unlock();
+	  return false;
+	}
+		
     if (is_big_endian_)
       endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
-
-    if (cuda_status != CUDA_SUCCESS)
-      std::cerr << "Queue: couldn't enqueue" << std::endl;
 
     if (curr_elts_ < max_elts_)
       ++curr_elts_;
