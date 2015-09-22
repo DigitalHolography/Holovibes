@@ -103,7 +103,7 @@ namespace holovibes
     void dispose_compute();
 
 	const void set_import_mode(std::string &file_src
-		, camera::FrameDescriptor frame_desc
+		, holovibes::ThreadReader::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
 		, unsigned int spanStart
@@ -114,7 +114,7 @@ namespace holovibes
 		
 		try
 		{
-			input_.reset(new Queue(frame_desc, q_max_size_));
+			input_.reset(new Queue(frame_desc.desc, q_max_size_));
 			tcapture_.reset(
 				new ThreadReader(file_src
 				, frame_desc

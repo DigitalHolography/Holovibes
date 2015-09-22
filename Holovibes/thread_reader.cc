@@ -5,7 +5,7 @@
 namespace holovibes
 {
 	ThreadReader::ThreadReader(std::string file_src
-		, camera::FrameDescriptor frame_desc
+		, ThreadReader::FrameDescriptor frame_desc
 		, bool loop
 		, unsigned int fps
 		, unsigned int spanStart
@@ -13,7 +13,8 @@ namespace holovibes
 		, Queue& input)
 		: IThreadInput()
 		, file_src_(file_src)
-		, frame_desc_(frame_desc)
+		, frame_desc_(frame_desc.desc)
+		, desc_(frame_desc)
 		, loop_(loop)
 		, fps_(fps)
 		, frameId_(0)
@@ -29,7 +30,9 @@ namespace holovibes
 		std::ifstream	ifs(file_src_, std::istream::in | std::ifstream::binary);
 		unsigned int frame_size = frame_desc_.width * frame_desc_.height;
 		char* buffer = new char[frame_size];
-		std::cout << "[READER] start read file " << file_src_ << std::endl;
+
+		for (int i = 0; i < frame_size; ++i)
+			buffer[i] = 0;
 
 		try
 		{
@@ -40,8 +43,10 @@ namespace holovibes
 				if (ifs.good() && frameId_ < spanEnd_)
 				{
 					do {
-						ifs.read(buffer, frame_size);
+						for (unsigned int y = 0; y < desc_.img_height; ++y)
+							ifs.read(buffer + y * frame_desc_.width, desc_.img_width);
 					} while (++frameId_ < spanStart_);
+
 					queue_.enqueue(buffer, cudaMemcpyHostToDevice);
 					Sleep(1000 / fps_);
 				}
@@ -49,8 +54,9 @@ namespace holovibes
 				{
 					if (loop_)
 					{
-						ifs.close();
-						ifs.open(file_src_, std::istream::in);
+						if (ifs.is_open())
+							ifs.close();
+						ifs.open(file_src_, std::istream::in | std::ifstream::binary);
 						frameId_ = 0;
 					}
 				}
@@ -60,8 +66,8 @@ namespace holovibes
 		{
 			std::cout << e.what() << std::endl;
 		}
-		std::cout << "[READER] stop read file " << file_src_ << std::endl;
-		ifs.close();
+		if (ifs.is_open())
+			ifs.close();
 		stop_requested_ = true;
 		delete[] buffer;
 	}
