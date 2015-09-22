@@ -192,7 +192,7 @@ static float average_local_variance(
   cudaFree(ke_gpu_frame);
 
 
-  return average_local_variance / average_local_variance;
+  return 1; // average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
