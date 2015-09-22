@@ -28,7 +28,7 @@ namespace holovibes
 	void	ThreadReader::thread_proc()
 	{
 		std::ifstream	ifs(file_src_, std::istream::in | std::ifstream::binary);
-		unsigned int frame_size = frame_desc_.width * frame_desc_.height;
+		unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 		char* buffer = new char[frame_size];
 
 		for (int i = 0; i < frame_size; ++i)
@@ -44,7 +44,7 @@ namespace holovibes
 				{
 					do {
 						for (unsigned int y = 0; y < desc_.img_height; ++y)
-							ifs.read(buffer + y * frame_desc_.width, desc_.img_width);
+							ifs.read(buffer + y * frame_desc_.width * frame_desc_.depth, desc_.img_width * frame_desc_.depth);
 					} while (++frameId_ < spanStart_);
 
 					queue_.enqueue(buffer, cudaMemcpyHostToDevice);
