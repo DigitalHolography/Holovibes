@@ -486,6 +486,7 @@ namespace holovibes
     size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
     cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
     float z_step = (z_max - z_min) / float(z_div);
+
     std::vector<float> focus_metric_values;
 
     /* Compute square af zone. */
@@ -494,13 +495,13 @@ namespace holovibes
     unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
 
     unsigned int af_square_size =
-      powf(2, roundf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
+      powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
     unsigned int af_size = af_square_size * af_square_size;
 
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size);
 
-    for (float z = z_min + z_step; z < z_max - z_step; z += z_step)
+    for (float z = z_min; z < z_max; z += z_step)
     {
       /* Make input frames copies. */
       cudaMemcpy(
@@ -590,7 +591,8 @@ namespace holovibes
 
 
       float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
-      focus_metric_values.push_back(focus_metric_value);
+      if (!std::isnan(focus_metric_value))
+        focus_metric_values.push_back(focus_metric_value);
     }
 
     /* Find max z */
