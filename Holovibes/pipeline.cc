@@ -584,7 +584,6 @@ namespace holovibes
       frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
 
       const float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
-
       if (!std::isnan(focus_metric_value))
         focus_metric_values.push_back(focus_metric_value);
       else

@@ -58,6 +58,7 @@ static float global_variance_intensity(
   cudaFree(matrix_average);
 
   cudaFree(matrix_average);
+  myfile << global_variance << "/";
 
   return global_variance;
 }
@@ -184,7 +185,8 @@ static float average_local_variance(
   cudaFree(ke_gpu_frame);
 
 
-  return 1; // average_local_variance / average_local_variance;
+  myfile << average_local_variance << "/";
+  return average_local_variance; // average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
@@ -396,6 +398,8 @@ static float sobel_operator(
   // HEHEHEHEHEHEHEHEH
   return 1.0f / average_magnitude;
 }
+
+
 
 float focus_metric(
   float* input,
