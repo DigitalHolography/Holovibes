@@ -435,7 +435,8 @@ namespace gui
       desc.autofocus_z_max = z_max;
       desc.autofocus_z_div.exchange(z_div);
 
-      connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)));
+      connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)),
+		  Qt::UniqueConnection);
     }
     else
       display_error("z min has to be strictly inferior to z max");
