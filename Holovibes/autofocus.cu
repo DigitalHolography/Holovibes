@@ -411,14 +411,14 @@ float focus_metric(
   kernel_float_divide<<<blocks, threads>>>(input, size, size);
 
   float global_variance = global_variance_intensity(input, size);
-  if (isnan(global_variance))
-    std::cout << "gv nan" << std::endl;
+  /*if (isnan(global_variance))
+    std::cout << "gv nan" << std::endl;*/
   float avr_local_variance = average_local_variance(input, square_size);
-  if (isnan(avr_local_variance))
-    std::cout << "alv nan" << std::endl;
+  /*if (isnan(avr_local_variance))
+    std::cout << "alv nan" << std::endl;*/
   float avr_magnitude = sobel_operator(input, square_size);
-  if (isnan(avr_magnitude))
-    std::cout << "am nan" << std::endl;
-
+  /*if (isnan(avr_magnitude))
+    std::cout << "am nan" << std::endl;*/
+  //std::cout << global_variance * avr_magnitude << std::endl;
   return global_variance * avr_local_variance * avr_magnitude;
 }
