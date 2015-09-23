@@ -501,6 +501,7 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size);
 
+
     for (float z = z_min; z < z_max; z += z_step)
     {
       /* Make input frames copies. */
@@ -578,21 +579,13 @@ namespace holovibes
 
       frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
 
-      // soz
-      /*
-      float* my_before = (float *)malloc(sizeof(float) * af_square_size);
-      cudaMemcpy(my_before, gpu_float_buffer_, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
-      float* my_local = (float *)malloc(sizeof(float) * af_square_size);
-      cudaMemcpy(my_local, gpu_float_buffer_af_zone, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
-      for (size_t i = 0; i < af_square_size; ++i)
-        std::cout << "output[i]: " << my_local[i] << " -- input[i]: " << my_before[i] << std::endl;
-        */
-      //end soz
 
-
+      // We don't want nan values in our vector
       float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
       if (!std::isnan(focus_metric_value))
         focus_metric_values.push_back(focus_metric_value);
+      else
+        focus_metric_values.push_back(0);
     }
 
     /* Find max z */
@@ -603,7 +596,7 @@ namespace holovibes
     auto max_pos = std::distance(focus_metric_values.begin(), biggest);
     float af_z = z_min + max_pos * z_step;
 
-    std::cout << "z = " << af_z << "  Max[C(z)]: " << *biggest << "\n";
+    std::cout << "z" << max_pos <<" = " << af_z << "  Max[C(z)]: " << *biggest << "\n";
 
     compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();

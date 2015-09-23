@@ -8,6 +8,9 @@
 # include <stdio.h>
 /* -- REMOVE THIS -- */
 # include <iostream>
+# include <fstream>
+
+std::ofstream myfile("file.txt");
 
 
 static __global__ void kernel_minus_operator(
@@ -65,6 +68,7 @@ static float global_variance_intensity(
 
 
   cudaFree(matrix_average);
+  myfile << global_variance << "/";
 
   return global_variance;
 }
@@ -114,30 +118,34 @@ static float average_local_variance(
     square_size);
 
   {
-     unsigned int matrix_width = 9;
-    if (matrix_width > square_size)
-      matrix_width = square_size;
+    const float pnorm = 1.0f;// / (3.0f);
 
-    cufftComplex ke;
-    ke.x = sqrtf(1.0f / float(matrix_width));
-    ke.y = sqrtf(1.0f / float(matrix_width));
+    /* Build the 3x3 matrix */
+    float ke_cpu[9] =
+    {
+      1.0f, 1.0f, 1.0f,
+      1.0f, 1.0f, 1.0f,
+      1.0f, 1.0f, 1.0f
+    };
 
-    /* Build the ke matrix */
-    cufftComplex* ke_cpu = new cufftComplex[matrix_width * matrix_width];
-    for (int i = 0; i < matrix_width * matrix_width; ++i)
-      ke_cpu[i] = ke;
+    cufftComplex ke_complex_cpu[9];
+    for (int i = 0; i < 9; ++i)
+    {
+      ke_cpu[i] *= pnorm;
+      ke_complex_cpu[i].x = ke_cpu[i];
+      ke_complex_cpu[i].y = ke_cpu[i];
+    }
 
     /* Copy the ke matrix to ke_gpu_frame. */
     cudaMemcpy2D(
       ke_gpu_frame,
       ke_gpu_frame_pitch,
       ke_cpu,
-      matrix_width * sizeof(cufftComplex),
-      matrix_width * sizeof(cufftComplex),
-      matrix_width,
+      3 * sizeof(cufftComplex),
+      3 * sizeof(cufftComplex),
+      3,
       cudaMemcpyHostToDevice);
 
-    delete[] ke_cpu;
   }
 
   cufftComplex* input_complex;
@@ -192,7 +200,8 @@ static float average_local_variance(
   cudaFree(ke_gpu_frame);
 
 
-  return 1; // average_local_variance / average_local_variance;
+  myfile << average_local_variance << "/";
+  return average_local_variance; // average_local_variance / average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
@@ -255,7 +264,7 @@ static float sobel_operator(
   {
     // This coeff will just scale the matrix in a different way
     // It is the p-norm (2) of the matrix.
-    const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
+    const float coeff = 1.0f;// / (2.0f * sqrtf(3.0f));
 
     /* Build the ks 3x3 matrix */
     float ks_cpu[9] =
@@ -301,7 +310,7 @@ static float sobel_operator(
     square_size);
 
   {
-    const float coeff = 1.0f / (2.0f * sqrtf(3.0f));
+    const float coeff = 1.0f; // / (2.0f * sqrtf(3.0f));
 
     /* Build the kst 3x3 matrix */
     float kst_cpu[9] =
@@ -409,8 +418,11 @@ static float sobel_operator(
   cudaFree(kst_gpu_frame);
   cudaFree(ks_gpu_frame);
 
+  myfile << average_magnitude << std::endl;
   return average_magnitude;
 }
+
+
 
 float focus_metric(
   float* input,
@@ -436,6 +448,6 @@ float focus_metric(
   float avr_magnitude = sobel_operator(input, square_size);
   if (isnan(avr_magnitude))
     std::cout << "am nan" << std::endl;
-  std::cout << global_variance * avr_magnitude << std::endl;
+  std::cout << global_variance * avr_local_variance *avr_magnitude << std::endl;
   return global_variance * avr_local_variance * avr_magnitude;
 }
