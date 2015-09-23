@@ -54,7 +54,7 @@ namespace holovibes
       sizeof(float) * input_.get_pixels());
 
     /* Square root vector */
-    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65535);
+    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65536);
     make_sqrt_vect(gpu_sqrt_vector_, 65535);
 
     /* gpu_lens */
@@ -501,7 +501,6 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size);
 
-
     for (float z = z_min; z < z_max; z += z_step)
     {
       /* Make input frames copies. */
@@ -579,9 +578,19 @@ namespace holovibes
 
       frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
 
+      // soz
+      /*
+      float* my_before = (float *)malloc(sizeof(float) * af_square_size);
+      cudaMemcpy(my_before, gpu_float_buffer_, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
+      float* my_local = (float *)malloc(sizeof(float) * af_square_size);
+      cudaMemcpy(my_local, gpu_float_buffer_af_zone, sizeof(float) * af_square_size, cudaMemcpyDeviceToHost);
+      for (size_t i = 0; i < af_square_size; ++i)
+        std::cout << "output[i]: " << my_local[i] << " -- input[i]: " << my_before[i] << std::endl;
+        */
+      //end soz
 
-      // We don't want nan values in our vector
       float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
+	  std::cout << " ; FM " << focus_metric_value << std::endl;
       if (!std::isnan(focus_metric_value))
         focus_metric_values.push_back(focus_metric_value);
       else
