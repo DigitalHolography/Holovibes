@@ -8,9 +8,7 @@
 # include <stdio.h>
 /* -- REMOVE THIS -- */
 # include <iostream>
-# include <fstream>
 
-std::ofstream myfile("file.txt");
 
 
 static __global__ void kernel_minus_operator(
@@ -68,7 +66,6 @@ static float global_variance_intensity(
 
 
   cudaFree(matrix_average);
-  myfile << global_variance << "/";
 
   return global_variance;
 }
@@ -200,8 +197,7 @@ static float average_local_variance(
   cudaFree(ke_gpu_frame);
 
 
-  myfile << average_local_variance << "/";
-  return average_local_variance; // average_local_variance / average_local_variance;
+  return average_local_variance;
 }
 
 static __global__ void kernel_plus_operator(
@@ -418,8 +414,8 @@ static float sobel_operator(
   cudaFree(kst_gpu_frame);
   cudaFree(ks_gpu_frame);
 
-  myfile << average_magnitude << std::endl;
-  return average_magnitude;
+  // HEHEHEHEHEHEHEHEH
+  return 1.0f / average_magnitude;
 }
 
 
@@ -440,11 +436,8 @@ float focus_metric(
   kernel_float_divide<<<blocks, threads>>>(input, size, size);
 
   float global_variance = global_variance_intensity(input, size);
-  /*if (isnan(global_variance))
-    std::cout << "gv nan" << std::endl;*/
   float avr_local_variance = average_local_variance(input, square_size);
-  /*if (isnan(avr_local_variance))
-    std::cout << "alv nan" << std::endl;*/
   float avr_magnitude = sobel_operator(input, square_size);
+
   return global_variance * avr_local_variance * avr_magnitude;
 }
