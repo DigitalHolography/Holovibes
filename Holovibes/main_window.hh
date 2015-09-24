@@ -166,6 +166,10 @@ namespace gui
     ** \param zone selection zone for computation
     */
     void request_autofocus(holovibes::Rectangle zone);
+    /*! \brief Request to stop the autofocus currently
+    **  occuring.
+    */
+    void request_autofocus_stop();
     /*! \brief Enable or disable contrast mode
     ** \param value true to enable coontrast, false otherwise.
     */
@@ -384,6 +388,7 @@ namespace gui
     QShortcut* p_right_shortcut_;
     QShortcut* gl_full_screen_;
     QShortcut* gl_normal_screen_;
+    QShortcut* autofocus_ctrl_c_shortcut_;
     /*! \} */
   };
 }

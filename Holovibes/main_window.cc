@@ -46,6 +46,10 @@ namespace gui
     p_right_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
+    autofocus_ctrl_c_shortcut_ = new QShortcut(tr("Ctrl+C"), this);
+    autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
+    connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
+
     if (is_direct_mode_)
       global_visibility(false);
 
@@ -446,6 +450,18 @@ namespace gui
     desc.autofocus_zone = zone;
     pipeline.request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
+  }
+
+  void MainWindow::request_autofocus_stop()
+  {
+      try
+      {
+        holovibes_.get_pipeline().request_autofocus_stop();
+      }
+      catch (std::runtime_error& e)
+      {
+          std::cerr << e.what() << std::endl;
+      }
   }
 
   void MainWindow::set_contrast_mode(bool value)

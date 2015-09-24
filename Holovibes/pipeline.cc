@@ -381,7 +381,13 @@ namespace holovibes
   void Pipeline::request_autofocus()
   {
     autofocus_requested_ = true;
+    autofocus_stop_requested_ = false;
     request_refresh();
+  }
+
+  void Pipeline::request_autofocus_stop()
+  {
+      autofocus_stop_requested_ = true;
   }
 
   void Pipeline::request_update_n(unsigned short n)
@@ -501,7 +507,7 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
 
-    for (float z = z_min; z < z_max; z += z_step)
+    for (float z = z_min; !autofocus_stop_requested_ && z < z_max; z += z_step)
     {
       /* Make input frames copies. */
       cudaMemcpy(
