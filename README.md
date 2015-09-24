@@ -87,6 +87,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Batch savings (CSV)
 * Autofocus
 * Average plot real-time display
+* Importing .raw images instead of taking the input from the camera.
 
 ## Authors ##
 
@@ -254,3 +255,17 @@ Major release
 
 * Add documentation `;-)`
 * Add HoloVibes' icon
+
+
+## September 2015 -- January 2016 ##
+
+Eric, Arnaud and Geoffrey are now working on the project until January 2016.
+
+
+### v.1.0.1
+
+* Instead of taking the source images directly from the camera, the user can specify an input file (.raw) which will be read by the program.
+* The autofocus has been improved a lot in terms of precision.
+* Some small performance changes.
+
+
