@@ -573,21 +573,9 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
 
-<<<<<<< HEAD
     /// The main loop that calculates all z, and find the max one
     // z_step will decrease and zmin and zmax will merge into
     // the best autofocus_value
-=======
-
-    for (float z = z_min; z < z_max; z += z_step)
-    {
-      /* Make input frames copies. */
-      cudaMemcpy(
-        gpu_input_buffer_tmp,
-        gpu_input_buffer_,
-        gpu_input_buffer_size,
-        cudaMemcpyDeviceToDevice);
->>>>>>> Af, avr_variance is done with raw matrix, coeffs were changed
 
     float af_z = 0.0f;
     auto biggest = focus_metric_values.begin();

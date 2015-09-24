@@ -58,7 +58,6 @@ static float global_variance_intensity(
   cudaFree(matrix_average);
 
   cudaFree(matrix_average);
-  myfile << global_variance << "/";
 
   return global_variance;
 }
