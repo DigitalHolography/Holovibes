@@ -63,6 +63,8 @@ namespace holovibes
     void request_refresh();
     /*! \brief Request the pipeline to apply the autofocus algorithm. */
     void request_autofocus();
+    /*! \brief Request the pipeline to stop the occuring autofocus. */
+    void request_autofocus_stop();
     /*! \brief Request the pipeline to apply the autocontrast algorithm. */
     void request_autocontrast();
     /*! \brief Request the pipeline to update the nsamples parameter.
@@ -198,6 +200,7 @@ namespace holovibes
 
     /*! \{ \name request flags */
     bool autofocus_requested_;
+    bool autofocus_stop_requested_;
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
