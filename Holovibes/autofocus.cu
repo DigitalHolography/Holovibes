@@ -6,10 +6,6 @@
 # include "tools.cuh"
 # include "average.cuh"
 # include <stdio.h>
-/* -- REMOVE THIS -- */
-# include <iostream>
-
-
 
 static __global__ void kernel_minus_operator(
   const float* input_left,
@@ -18,14 +14,13 @@ static __global__ void kernel_minus_operator(
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
+
   while (index < size)
   {
     output[index] = input_left[index] - input_right[index];
     index += blockDim.x * gridDim.x;
   }
 }
-
 
 static float global_variance_intensity(
   const float* input,
@@ -38,10 +33,6 @@ static float global_variance_intensity(
   if (blocks > max_blocks)
     blocks = max_blocks;
 
-  //FIXME : It seems like this is not what is written on the paper.
-  // The paper suggests <(I - <I>)^2> and here it seems like 
-  // <I^2> - <I>^2 is done.
-
   // <I>
   float average_input = average_operator(input, size);
 
@@ -49,21 +40,20 @@ static float global_variance_intensity(
   float* matrix_average;
   cudaMalloc(&matrix_average, size * sizeof(float));
 
-  float* cpu_average_matrix = (float *) malloc(sizeof(float) * size);
-  for (int i = 0; i < size; ++i)
+  float* cpu_average_matrix = (float *)malloc(sizeof(float) * size);
+  for (unsigned int i = 0; i < size; ++i)
     cpu_average_matrix[i] = average_input;
 
   cudaMemcpy(matrix_average, cpu_average_matrix, size * sizeof(float), cudaMemcpyHostToDevice);
 
   // I - <I>
-  kernel_minus_operator <<<blocks, threads>>>(input, matrix_average, matrix_average, size);
+  kernel_minus_operator << <blocks, threads >> >(input, matrix_average, matrix_average, size);
 
   // We take it to the power of 2
-  kernel_multiply_frames_float <<<blocks, threads>>>(matrix_average, matrix_average, matrix_average, size);
+  kernel_multiply_frames_float << <blocks, threads >> >(matrix_average, matrix_average, matrix_average, size);
 
   // And we take the average
   float global_variance = average_operator(matrix_average, size);
-
 
   cudaFree(matrix_average);
 
@@ -76,7 +66,7 @@ static __global__ void kernel_float_to_complex(
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
+
   while (index < size)
   {
     output[index].x = input[index];
@@ -84,7 +74,6 @@ static __global__ void kernel_float_to_complex(
     index += blockDim.x * gridDim.x;
   }
 }
-
 
 static float average_local_variance(
   const float* input,
@@ -115,8 +104,6 @@ static float average_local_variance(
     square_size);
 
   {
-    const float pnorm = 1.0f;// / (3.0f);
-
     /* Build the 3x3 matrix */
     float ke_cpu[9] =
     {
@@ -128,7 +115,6 @@ static float average_local_variance(
     cufftComplex ke_complex_cpu[9];
     for (int i = 0; i < 9; ++i)
     {
-      ke_cpu[i] *= pnorm;
       ke_complex_cpu[i].x = ke_cpu[i];
       ke_complex_cpu[i].y = ke_cpu[i];
     }
@@ -137,19 +123,18 @@ static float average_local_variance(
     cudaMemcpy2D(
       ke_gpu_frame,
       ke_gpu_frame_pitch,
-      ke_cpu,
+      ke_complex_cpu,
       3 * sizeof(cufftComplex),
       3 * sizeof(cufftComplex),
       3,
       cudaMemcpyHostToDevice);
-
   }
 
   cufftComplex* input_complex;
   cudaMalloc(&input_complex, size * sizeof(cufftComplex));
 
   /* Convert input float frame to complex frame. */
-  kernel_float_to_complex <<<blocks, threads>>>(input, input_complex, size);
+  kernel_float_to_complex << <blocks, threads >> >(input, input_complex, size);
 
   /* Allocation of convolution i * ke output */
   float* i_ke_convolution;
@@ -170,14 +155,14 @@ static float average_local_variance(
     plan2d_k);
 
   /* Compute i - i * ke. */
-  kernel_minus_operator<<<blocks, threads>>>(
+  kernel_minus_operator << <blocks, threads >> >(
     input,
     i_ke_convolution,
     i_ke_convolution,
     size);
 
   /* Compute (i - i * ke)^2 */
-  kernel_multiply_frames_float<<<blocks, threads>>>(
+  kernel_multiply_frames_float << <blocks, threads >> >(
     i_ke_convolution,
     i_ke_convolution,
     i_ke_convolution,
@@ -196,7 +181,6 @@ static float average_local_variance(
   cudaFree(input_complex);
   cudaFree(ke_gpu_frame);
 
-
   return average_local_variance;
 }
 
@@ -207,7 +191,7 @@ static __global__ void kernel_plus_operator(
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
+
   while (index < size)
   {
     output[index] = input_left[index] + input_right[index];
@@ -221,7 +205,7 @@ static __global__ void kernel_sqrt_operator(
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
+
   while (index < size)
   {
     output[index] = sqrtf(input[index]);
@@ -339,7 +323,7 @@ static float sobel_operator(
   cudaMalloc(&input_complex, size * sizeof(cufftComplex));
 
   /* Convert input float frame to complex frame. */
-  kernel_float_to_complex <<<blocks, threads>>>(input, input_complex, size);
+  kernel_float_to_complex << <blocks, threads >> >(input, input_complex, size);
 
   /* Allocation of convolution i * ks output */
   float* i_ks_convolution;
@@ -364,7 +348,7 @@ static float sobel_operator(
     plan2d_k);
 
   /* Compute (i * ks)^2 */
-  kernel_multiply_frames_float<<<blocks, threads>>>(
+  kernel_multiply_frames_float << <blocks, threads >> >(
     i_ks_convolution,
     i_ks_convolution,
     i_ks_convolution,
@@ -380,20 +364,20 @@ static float sobel_operator(
     plan2d_k);
 
   /* Compute (i * kst)^2 */
-  kernel_multiply_frames_float<<<blocks, threads>>>(
+  kernel_multiply_frames_float << <blocks, threads >> >(
     i_kst_convolution,
     i_kst_convolution,
     i_kst_convolution,
     size);
 
   /* Compute (i * ks)^2 - (i * kst)^2 */
-  kernel_plus_operator<<<blocks, threads>>>(
+  kernel_plus_operator << <blocks, threads >> >(
     i_ks_convolution,
     i_kst_convolution,
     i_ks_convolution,
     size);
 
-  kernel_sqrt_operator<<<blocks, threads>>>(
+  kernel_sqrt_operator << <blocks, threads >> >(
     i_ks_convolution,
     i_ks_convolution,
     size);
@@ -418,8 +402,6 @@ static float sobel_operator(
   return 1.0f / average_magnitude;
 }
 
-
-
 float focus_metric(
   float* input,
   unsigned int square_size)
@@ -433,7 +415,7 @@ float focus_metric(
     blocks = max_blocks;
 
   /* Divide each pixels to avoid higher values than float can contains. */
-  kernel_float_divide<<<blocks, threads>>>(input, size, size);
+  kernel_float_divide << <blocks, threads >> >(input, size, static_cast<float>(size));
 
   float global_variance = global_variance_intensity(input, size);
   float avr_local_variance = average_local_variance(input, square_size);

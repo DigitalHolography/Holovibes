@@ -46,12 +46,12 @@ namespace holovibes
   class Pipeline
   {
     /*! \brief Vector of procedures type */
-    using FnVector = std::vector<std::function<void()>>;
+    using FnVector = std::vector < std::function<void()> > ;
   public:
-  /*! \brief Allocate CPU/GPU ressources for computation.
-   * \param input Input queue containing acquired frames.
-   * \param output Output queue where computed frames will be stored.
-   * \param desc ComputeDescriptor that contains computation parameters. */
+    /*! \brief Allocate CPU/GPU ressources for computation.
+     * \param input Input queue containing acquired frames.
+     * \param output Output queue where computed frames will be stored.
+     * \param desc ComputeDescriptor that contains computation parameters. */
     Pipeline(
       Queue& input,
       Queue& output,
@@ -68,7 +68,7 @@ namespace holovibes
     /*! \brief Request the pipeline to apply the autocontrast algorithm. */
     void request_autocontrast();
     /*! \brief Request the pipeline to update the nsamples parameter.
-     * 
+     *
      * Use this method when the user has requested the nsamples parameter to be
      * updated. The pipeline will automatically resize FFT buffers to contains
      * nsamples frames. */
@@ -193,7 +193,6 @@ namespace holovibes
     /*! CUDA FFT Plan 2D. */
     cufftHandle plan2d_;
     /*! \} */
-
 
     /*! Input frame pointer. */
     cufftComplex* gpu_input_frame_ptr_;

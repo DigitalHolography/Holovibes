@@ -86,7 +86,7 @@ namespace holovibes
 
     /* CUFFT plan3d */
     cufftDestroy(plan3d_);
-    
+
     /* gpu_lens */
     cudaFree(gpu_lens_);
 
@@ -387,7 +387,7 @@ namespace holovibes
 
   void Pipeline::request_autofocus_stop()
   {
-      autofocus_stop_requested_ = true;
+    autofocus_stop_requested_ = true;
   }
 
   void Pipeline::request_update_n(unsigned short n)
@@ -468,7 +468,7 @@ namespace holovibes
     }
   }
 
-  /* Looks like the pipeline, but it search for the right z value. */
+  /* Looks like the pipeline, but it searches for the right z value. */
   void Pipeline::autofocus_caller()
   {
     float z_min = compute_desc_.autofocus_z_min;
@@ -479,7 +479,6 @@ namespace holovibes
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 
     /* Fill gpu_input complex buffer. */
-
     make_contiguous_complex(
       input_,
       gpu_input_buffer_,
@@ -599,7 +598,6 @@ namespace holovibes
       biggest = focus_metric_values.begin();
     auto max_pos = std::distance(focus_metric_values.begin(), biggest);
     float af_z = z_min + max_pos * z_step;
-
 
     compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();
