@@ -471,9 +471,9 @@ namespace holovibes
   /* Looks like the pipeline, but it searches for the right z value. */
   void Pipeline::autofocus_caller()
   {
-    float z_min = compute_desc_.autofocus_z_min;
-    float z_max = compute_desc_.autofocus_z_max;
-    unsigned int z_div = compute_desc_.autofocus_z_div;
+    const float z_min = compute_desc_.autofocus_z_min;
+    const float z_max = compute_desc_.autofocus_z_max;
+    const unsigned int z_div = compute_desc_.autofocus_z_div;
     Rectangle zone = compute_desc_.autofocus_zone;
 
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
@@ -488,20 +488,20 @@ namespace holovibes
     /* Autofocus needs to work on the same images.
      * It will computes on copies. */
     cufftComplex* gpu_input_buffer_tmp;
-    size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
+    const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
     cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
-    float z_step = (z_max - z_min) / float(z_div);
+    const float z_step = (z_max - z_min) / float(z_div);
 
     std::vector<float> focus_metric_values;
 
     /* Compute square af zone. */
     float* gpu_float_buffer_af_zone;
-    unsigned int zone_width = zone.top_right.x - zone.top_left.x;
-    unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
+    const unsigned int zone_width = zone.top_right.x - zone.top_left.x;
+    const unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
 
-    unsigned int af_square_size =
+    const unsigned int af_square_size =
       powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
-    unsigned int af_size = af_square_size * af_square_size;
+    const unsigned int af_size = af_square_size * af_square_size;
 
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
     cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
@@ -583,7 +583,7 @@ namespace holovibes
 
       frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
 
-      float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
+      const float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size);
 
       if (!std::isnan(focus_metric_value))
         focus_metric_values.push_back(focus_metric_value);
@@ -597,7 +597,7 @@ namespace holovibes
     if (biggest == focus_metric_values.end())
       biggest = focus_metric_values.begin();
     auto max_pos = std::distance(focus_metric_values.begin(), biggest);
-    float af_z = z_min + max_pos * z_step;
+    const float af_z = z_min + max_pos * z_step;
 
     compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();

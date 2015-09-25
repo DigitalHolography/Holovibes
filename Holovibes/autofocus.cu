@@ -34,7 +34,7 @@ static float global_variance_intensity(
     blocks = max_blocks;
 
   // <I>
-  float average_input = average_operator(input, size);
+  const float average_input = average_operator(input, size);
 
   // We create a matrix of <I> in order to do the substraction
   float* matrix_average;
@@ -53,7 +53,7 @@ static float global_variance_intensity(
   kernel_multiply_frames_float << <blocks, threads >> >(matrix_average, matrix_average, matrix_average, size);
 
   // And we take the average
-  float global_variance = average_operator(matrix_average, size);
+  const float global_variance = average_operator(matrix_average, size);
 
   cudaFree(matrix_average);
 
@@ -170,7 +170,7 @@ static float average_local_variance(
 
   cudaDeviceSynchronize();
 
-  float average_local_variance = average_operator(i_ke_convolution, size);
+  const float average_local_variance = average_operator(i_ke_convolution, size);
 
   /* -- Free ressources -- */
   cufftDestroy(plan2d_x);
@@ -242,10 +242,6 @@ static float sobel_operator(
     square_size);
 
   {
-    // This coeff will just scale the matrix in a different way
-    // It is the p-norm (2) of the matrix.
-    const float coeff = 1.0f;// / (2.0f * sqrtf(3.0f));
-
     /* Build the ks 3x3 matrix */
     float ks_cpu[9] =
     {
@@ -257,7 +253,6 @@ static float sobel_operator(
     cufftComplex ks_complex_cpu[9];
     for (int i = 0; i < 9; ++i)
     {
-      ks_cpu[i] *= coeff;
       ks_complex_cpu[i].x = ks_cpu[i];
       ks_complex_cpu[i].y = ks_cpu[i];
     }
@@ -290,8 +285,6 @@ static float sobel_operator(
     square_size);
 
   {
-    const float coeff = 1.0f; // / (2.0f * sqrtf(3.0f));
-
     /* Build the kst 3x3 matrix */
     float kst_cpu[9] =
     {
@@ -303,7 +296,6 @@ static float sobel_operator(
     cufftComplex kst_complex_cpu[9];
     for (int i = 0; i < 9; ++i)
     {
-      kst_cpu[i] *= coeff;
       kst_complex_cpu[i].x = kst_cpu[i];
       kst_complex_cpu[i].y = kst_cpu[i];
     }
@@ -384,7 +376,7 @@ static float sobel_operator(
 
   cudaDeviceSynchronize();
 
-  float average_magnitude = average_operator(i_ks_convolution, size);
+  const float average_magnitude = average_operator(i_ks_convolution, size);
 
   /* -- Free ressources -- */
   cufftDestroy(plan2d_x);
@@ -417,9 +409,9 @@ float focus_metric(
   /* Divide each pixels to avoid higher values than float can contains. */
   kernel_float_divide << <blocks, threads >> >(input, size, static_cast<float>(size));
 
-  float global_variance = global_variance_intensity(input, size);
-  float avr_local_variance = average_local_variance(input, square_size);
-  float avr_magnitude = sobel_operator(input, square_size);
+  const float global_variance = global_variance_intensity(input, size);
+  const float avr_local_variance = average_local_variance(input, square_size);
+  const float avr_magnitude = sobel_operator(input, square_size);
 
   return global_variance * avr_local_variance * avr_magnitude;
 }
