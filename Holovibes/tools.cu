@@ -54,7 +54,7 @@ __global__ void img16_to_complex(
 
 /*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
 *
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to 
+* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
 * treat with the function.
 * The result is given in output.
 */
@@ -91,7 +91,7 @@ void complex_to_modulus(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_modulus<<<blocks, threads>>>(input, output, size);
+  kernel_complex_to_modulus << <blocks, threads >> >(input, output, size);
 }
 
 /*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
@@ -133,7 +133,7 @@ void complex_to_squared_modulus(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_squared_modulus<<<blocks, threads>>>(input, output, size);
+  kernel_complex_to_squared_modulus << <blocks, threads >> >(input, output, size);
 }
 
 /*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
@@ -177,7 +177,7 @@ void complex_to_argument(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_argument<<<blocks, threads>>>(input, output, size);
+  kernel_complex_to_argument << <blocks, threads >> >(input, output, size);
 }
 
 /*! \brief  Apply a previously computed lens to image(s).
@@ -260,7 +260,7 @@ void shift_corners(
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
 
-  kernel_shift_corners <<< lblocks, lthreads >>>(input, size_x, size_y);
+  kernel_shift_corners << < lblocks, lthreads >> >(input, size_x, size_y);
 }
 
 /*! \brief  Convert the endianness of input image(s) from big endian to little endian.
@@ -303,7 +303,7 @@ void endianness_conversion(
   if (blocks > max_blocks)
     blocks = max_blocks - 1;
 
-  kernel_endianness_conversion <<<blocks, threads >>>(input, output, size);
+  kernel_endianness_conversion << <blocks, threads >> >(input, output, size);
 }
 
 /*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
@@ -386,7 +386,7 @@ void apply_log10(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_log10<<<blocks, threads>>>(input, size);
+  kernel_log10 << <blocks, threads >> >(input, size);
 }
 
 /*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
@@ -433,7 +433,7 @@ void float_to_ushort(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_float_to_ushort<<<blocks, threads>>>(input, output, size);
+  kernel_float_to_ushort << <blocks, threads >> >(input, output, size);
 }
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
@@ -479,7 +479,6 @@ __global__ void kernel_multiply_frames_float(
   }
 }
 
-
 /*! \brief  apply the convolution operator to 2 complex images (x,k).
 *
 * The 2 images should have the same size.
@@ -511,10 +510,10 @@ void convolution_operator(
 
   cufftExecC2C(plan2d_x, const_cast<cufftComplex*>(x), tmp_x, CUFFT_FORWARD);
   cufftExecC2C(plan2d_k, const_cast<cufftComplex*>(k), tmp_k, CUFFT_FORWARD);
-  
+
   cudaDeviceSynchronize();
 
-  kernel_multiply_frames_complex <<<blocks, threads>>>(tmp_x, tmp_k, tmp_x, size);
+  kernel_multiply_frames_complex << <blocks, threads >> >(tmp_x, tmp_k, tmp_x, size);
 
   cudaDeviceSynchronize();
 
@@ -522,7 +521,7 @@ void convolution_operator(
 
   cudaDeviceSynchronize();
 
-  kernel_complex_to_modulus <<<blocks, threads>>>(tmp_x, out, size);
+  kernel_complex_to_modulus << <blocks, threads >> >(tmp_x, out, size);
 
   cudaFree(tmp_x);
   cudaFree(tmp_k);
@@ -569,7 +568,7 @@ static __global__ void kernel_sum(
   unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  
+
   while (index < size)
   {
     atomicAdd(sum, input[index]);
@@ -581,7 +580,6 @@ static __global__ void kernel_sum(
 *
 * The size parameter is the number of pixels of the input image
 */
-#include <iostream>
 float average_operator(
   const float* input,
   const unsigned int size)
@@ -597,7 +595,7 @@ float average_operator(
   cudaMalloc<float>(&gpu_sum, sizeof(float));
   cudaMemset(gpu_sum, 0, sizeof(float));
 
-  kernel_sum <<<blocks, threads>>>(
+  kernel_sum << <blocks, threads >> >(
     input,
     gpu_sum,
     size);
