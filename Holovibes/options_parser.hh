@@ -25,8 +25,11 @@ namespace holovibes
   class OptionsParser
   {
     const std::string version = "v.1.0.0";
-    const unsigned int default_queue_size = 20;
-    const unsigned int display_size_min = 100;
+	const unsigned int default_queue_size = 20;
+	const unsigned int display_size_min = 100;
+	const unsigned int default_fps = 30;
+	const unsigned int default_depth = 8;
+	const bool default_is_big_endian = 30;
 
   public:
     OptionsParser(OptionsDescriptor& opts);
@@ -40,7 +43,7 @@ namespace holovibes
   private:
     /*! Parser initialization: loads options. */
     void init_general_options();
-    void init_features_options(bool is_no_gui);
+	void init_features_options(bool is_no_gui, bool is_import_mode_enable);
     void init_compute_options();
     /*! Build merge descriptor that contains
      * general/features/compute options. */
@@ -51,6 +54,9 @@ namespace holovibes
     void parse_general_options(int argc, char* const argv[]);
     /*! Is gui enabled regarding the nogui option. */
     bool get_is_gui_enabled();
+
+	/*! Is import mode enabled regarding the import option. */
+	bool get_is_import_mode();
 
     void parse_features_compute_options(int argc, char* const argv[]);
 
@@ -75,8 +81,10 @@ namespace holovibes
     /* Empty positional options. */
     const po::positional_options_description pos_desc_;
     /*! Describes general program options. */
-    po::options_description general_opts_desc_;
-    /*! Describes features (what to do) options of Holovibes. */
+	po::options_description general_opts_desc_;
+	/*! Describes import mode (what look file). */
+	po::options_description import_opts_desc_;
+	/*! Describes features (what to do) options of Holovibes. */
     po::options_description features_opts_desc_;
     /*! Describes compute (how to do) options (cuda, fft, ...) */
     po::options_description compute_opts_desc_;

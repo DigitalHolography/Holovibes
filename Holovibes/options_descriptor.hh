@@ -38,14 +38,32 @@ namespace holovibes
     /*! GL Window width. */
     unsigned int gl_window_width;
     /*! GL Window height. */
-    unsigned int gl_window_height;
-    /*! Selected camera */
-    Holovibes::camera_type camera;
+	unsigned int gl_window_height;
+	/*! Selected camera */
+	Holovibes::camera_type camera;
+	/*! File path to import. */
+	std::string		file_src;
+	/*! File image width. */
+	unsigned int file_image_width;
+	/*! File image height. */
+	unsigned int file_image_height;
+	/*! File image depth. */
+	unsigned int file_image_depth;
+	/*! File image is big endian. */
+	unsigned int file_is_big_endian;
+	/*! Frame imported per seconds. */
+	unsigned int	 fps;
+	/*! First frame id imported. */
+	unsigned int	 spanStart;
+	/*! Last frame id imported. */
+	unsigned int	 spanEnd;
+
     /* Enabled features */
     bool is_gui_enabled;
     bool is_gl_window_enabled;
     bool is_recorder_enabled;
     bool is_compute_enabled;
+	bool is_import_mode_enabled;
     ComputeDescriptor compute_desc;
   };
 }
