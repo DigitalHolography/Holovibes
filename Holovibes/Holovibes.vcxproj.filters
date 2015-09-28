@@ -182,6 +182,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_thread_csv_record.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ithread_input.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -266,6 +272,12 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ithread_input.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_reader.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

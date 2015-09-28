@@ -469,8 +469,10 @@ namespace holovibes
   }
 
   /* Looks like the pipeline, but it searches for the right z value.
-  The method choosen, iterates on 10 points between min and max, take the max
-  and increase the precision to focus around the max more and more
+  The method choosen, iterates on the numbers of points given by the user
+  between min and max, take the max and increase the precision to focus
+  around the max more and more according to the number of iterations
+  choosen.
   If the users chooses 2 iterations, a max will be choosen out of 10 images
   done between min and max. This max will be added and substracted a value
   in order to have a new (more accurate) zmin and zmax. And 10 more images
@@ -480,8 +482,8 @@ namespace holovibes
   {
     float z_min = compute_desc_.autofocus_z_min;
     float z_max = compute_desc_.autofocus_z_max;
-    const unsigned int z_div = 10;
-    const unsigned int user_div = compute_desc_.autofocus_z_div;
+    const unsigned int z_div = compute_desc_.autofocus_z_div;
+    const unsigned int z_iter = compute_desc_.autofocus_z_iter;
 
     Rectangle zone = compute_desc_.autofocus_zone;
 
@@ -523,7 +525,7 @@ namespace holovibes
     auto biggest = focus_metric_values.begin();
     unsigned int max_pos = 0;
 
-    for (unsigned i = 0; i < user_div; ++i)
+    for (unsigned i = 0; i < z_iter; ++i)
     {
       for (float z = z_min; !autofocus_stop_requested_ && z < z_max; z += z_step)
       {

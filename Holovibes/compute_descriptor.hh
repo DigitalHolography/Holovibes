@@ -114,8 +114,10 @@ namespace holovibes
     std::atomic<float> autofocus_z_min;
     /*! Z maximal range for autofocus. */
     std::atomic<float> autofocus_z_max;
-    /*! Number of iterations of autofocus between the z range. */
+    /*! Number of points of autofocus between the z range. */
     std::atomic<unsigned int> autofocus_z_div;
+    /*! Number of iterations of autofocus between the z range. */
+    std::atomic<unsigned int> autofocus_z_iter;
     /*! Selected zone in which apply the autofocus algorithm. */
     std::atomic<Rectangle> autofocus_zone;
   };
