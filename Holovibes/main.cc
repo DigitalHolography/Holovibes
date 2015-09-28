@@ -53,7 +53,8 @@ int main(int argc, char* argv[])
 				holovibes::ThreadReader::FrameDescriptor({
 				opts.file_image_width,
 				opts.file_image_height,
-				opts.file_image_depth / 8 - 1,
+				opts.file_image_depth / 8,
+				0.0f,
 				(opts.file_is_big_endian ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
 			}),
 			false,
