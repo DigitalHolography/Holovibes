@@ -137,4 +137,38 @@ namespace holovibes
     tcompute_.reset(nullptr);
     output_.reset(nullptr);
   }
+
+  void Holovibes::init_import_mode(std::string &file_src
+	  , holovibes::ThreadReader::FrameDescriptor frame_desc
+	  , bool loop
+	  , unsigned int fps
+	  , unsigned int spanStart
+	  , unsigned int spanEnd
+	  , unsigned int q_max_size_)
+  {
+	  camera_initialized_ = false;
+
+	  try
+	  {
+		  input_.reset(new Queue(frame_desc.desc, q_max_size_));
+		  tcapture_.reset(
+			  new ThreadReader(file_src
+			  , frame_desc
+			  , loop
+			  , fps
+			  , spanStart
+			  , spanEnd
+			  , *input_));
+		  std::cout << "[CAPTURE] reader thread started" << std::endl;
+		  camera_initialized_ = true;
+	  }
+	  catch (std::exception& e)
+	  {
+		  std::cout << e.what() << std::endl;
+		  tcapture_.reset(nullptr);
+		  input_.reset(nullptr);
+
+		  throw;
+	  }
+  }
 }
