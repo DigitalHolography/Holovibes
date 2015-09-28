@@ -101,13 +101,13 @@ namespace holovibes
     void init_compute();
     void dispose_compute();
 
-	void init_import_mode(std::string &file_src
-		, holovibes::ThreadReader::FrameDescriptor frame_desc
-		, bool loop
-		, unsigned int fps
-		, unsigned int spanStart
-		, unsigned int spanEnd
-		, unsigned int q_max_size_);
+    void init_import_mode(std::string &file_src
+	, holovibes::ThreadReader::FrameDescriptor frame_desc
+	, bool loop
+	, unsigned int fps
+	, unsigned int spanStart
+	, unsigned int spanEnd
+	, unsigned int q_max_size_);
 
 
     /*! \{ \name Getters/Setters */
