@@ -78,11 +78,11 @@ namespace holovibes
       "Enable the 2-FFT method: Angular spectrum propagation approache. Requires n, p, l, z parameters.")
 
       ("nsamples,n",
-      po::value<int>(),
+	  po::value<unsigned short>(),
       "Number of samples N.")
 
       ("pindex,p",
-      po::value<int>(),
+	  po::value<unsigned short>(),
       "Select the p-th component of the DFT, p must be defined in {0, ..., N - 1}.")
 
       ("lambda,l",
