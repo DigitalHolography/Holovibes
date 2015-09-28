@@ -1059,7 +1059,7 @@ namespace gui
 	  gl_window_ = nullptr;
 	  holovibes_.dispose_compute();
 	  holovibes_.dispose_capture();
-	  holovibes_.set_import_mode(
+	  holovibes_.init_import_mode(
 		  file_src,
 		  frame_desc,
 		  loop_checkbox->isChecked(),
