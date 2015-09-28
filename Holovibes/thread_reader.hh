@@ -57,7 +57,7 @@ namespace holovibes
 					desc.width = desc.height = biggestBorder;
 
 				if (!isPowerOfTwo(biggestBorder))
-					desc.width = desc.height = nextHightestPowerOf2(biggestBorder);
+					desc.width = desc.height = static_cast<unsigned short>(nextHightestPowerOf2(biggestBorder));
 			}
 
 			FrameDescriptor(camera::FrameDescriptor d)

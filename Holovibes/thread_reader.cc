@@ -31,7 +31,7 @@ namespace holovibes
 		unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 		char* buffer = new char[frame_size];
 
-		for (int i = 0; i < frame_size; ++i)
+		for (unsigned int i = 0; i < frame_size; ++i)
 			buffer[i] = 0;
 
 		try

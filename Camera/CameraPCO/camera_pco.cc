@@ -138,7 +138,7 @@ namespace camera
   {
     DWORD event_status;
     if ((event_status = WaitForMultipleObjects(
-      buffers_events_.size(),
+      static_cast<DWORD>(buffers_events_.size()),
       buffers_events_._Elems,
       FALSE,
       FRAME_TIMEOUT)) < WAIT_ABANDONED_0)
@@ -199,11 +199,13 @@ namespace camera
           &buffers_[i],
           &buffers_events_[i]);
 
-        assert(buffer_nbr == i);
+        assert(buffer_nbr == static_cast<SHORT>(i));
       }
     }
     catch (std::bad_alloc& ba)
     {
+      // Erasing "unused variable ba" warning.
+      ba;
       throw CameraException(CameraException::MEMORY_PROBLEM);
     }
 

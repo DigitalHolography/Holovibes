@@ -39,7 +39,7 @@ namespace gui
       of << "signal,noise,average\n";
 
       unsigned int i = 0;
-      unsigned int deque_size = deque_.size();
+      unsigned int deque_size = static_cast<unsigned int>(deque_.size());
       while (i < deque_size && record_)
       {
         std::tuple<float, float, float>& tuple = deque_[i];
