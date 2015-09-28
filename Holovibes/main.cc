@@ -44,7 +44,26 @@ int main(int argc, char* argv[])
     /* --- CLI mode --- */
     try
     {
-      h.init_capture(opts.camera, opts.queue_size);
+		if (!opts.is_import_mode_enabled)
+			h.init_capture(opts.camera, opts.queue_size);
+		else
+		{
+			h.init_import_mode(
+				opts.file_src,
+				holovibes::ThreadReader::FrameDescriptor({
+				opts.file_image_width,
+				opts.file_image_height,
+				opts.file_image_depth / 8 - 1,
+				(opts.file_is_big_endian ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
+			}),
+			false,
+			opts.fps,
+			opts.spanStart,
+			opts.spanEnd,
+			opts.queue_size);
+		}
+
+
 
       if (opts.is_compute_enabled)
         h.init_compute();
