@@ -89,7 +89,7 @@ namespace holovibes
     std::string& filepath,
     unsigned int rec_n_images)
   {
-    assert(camera_ && "camera not initialized");
+	  assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
