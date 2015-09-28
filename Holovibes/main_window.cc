@@ -427,6 +427,7 @@ namespace gui
     float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
     float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
     unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
+    unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
     if (z_min < z_max)
@@ -434,6 +435,7 @@ namespace gui
       desc.autofocus_z_min = z_min;
       desc.autofocus_z_max = z_max;
       desc.autofocus_z_div.exchange(z_div);
+      desc.autofocus_z_iter = z_iter;
 
       connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)),
 		  Qt::UniqueConnection);
