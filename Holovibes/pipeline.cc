@@ -500,7 +500,7 @@ namespace holovibes
     const unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
 
     const unsigned int af_square_size =
-      powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height))));
+      static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
     const unsigned int af_size = af_square_size * af_square_size;
 
     cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));

@@ -75,9 +75,9 @@ namespace holovibes
       return rit;
     }
     
-    unsigned int size()
+    size_t size()
     {
-      unsigned int s;
+      size_t s;
 
       mutex_.lock();
       s = deque_.size();

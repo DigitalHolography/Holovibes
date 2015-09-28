@@ -23,8 +23,8 @@ namespace camera
     virtual void bind_params() override;
 
   private:
-    float vertical_shift_speed_;
-    float horizontal_shift_speed_;
+    int vertical_shift_speed_;
+    int horizontal_shift_speed_;
     int gain_mode_;
     float kinetic_time_;
     unsigned short r_x;
@@ -33,8 +33,8 @@ namespace camera
     long device_handle;
     unsigned short* image_;
     int trigger_mode_;
-    float shutter_close_;
-    float shutter_open_;
+    int shutter_close_;
+    int shutter_open_;
     int ttl_;
     int shutter_mode_;
     /* FIXME: What acquisiton means ? */

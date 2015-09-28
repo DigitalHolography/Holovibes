@@ -106,7 +106,7 @@ namespace camera
     desc_.depth = 2;
     desc_.pixel_size = 8.0f;
     desc_.endianness = LITTLE_ENDIAN;
-    exposure_time_ = 0.1;
+    exposure_time_ = 0.1f;
     trigger_mode_ = 10;
     shutter_close_ = 0;
     shutter_open_ = 0;
@@ -130,16 +130,16 @@ namespace camera
 
     exposure_time_ = pt.get<float>("ixon.exposure_time", exposure_time_);
     trigger_mode_ = pt.get<int>("ixon.trigger_mode", trigger_mode_);
-    shutter_close_ = pt.get<float>("ixon.shutter_close", shutter_close_);
-    shutter_open_ = pt.get<float>("ixon.shutter_open", shutter_close_);
+    shutter_close_ = pt.get<int>("ixon.shutter_close", shutter_close_);
+    shutter_open_ = pt.get<int>("ixon.shutter_open", shutter_close_);
     ttl_ = pt.get<int>("ixon.ttl", ttl_);
     shutter_mode_ = pt.get<int>("ixon.shutter_mode", shutter_mode_);
     acquisiton_mode_ = pt.get<int>("ixon.acquistion_mode", acquisiton_mode_);
     read_mode_ = pt.get<int>("ixon.read_mode", read_mode_);
     kinetic_time_ = pt.get<float>("ixon.kinetic_cycle_time", kinetic_time_);
     gain_mode_ = pt.get<int>("ixon.gain_mode", gain_mode_);
-    horizontal_shift_speed_ = pt.get<float>("ixon.horizontal_shift_speed", horizontal_shift_speed_);
-    vertical_shift_speed_ = pt.get<float>("ixon.vertical_shift_speed", vertical_shift_speed_);
+    horizontal_shift_speed_ = pt.get<int>("ixon.horizontal_shift_speed", horizontal_shift_speed_);
+    vertical_shift_speed_ = pt.get<int>("ixon.vertical_shift_speed", vertical_shift_speed_);
   }
   void CameraIxon::bind_params()
   {

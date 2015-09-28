@@ -393,7 +393,7 @@ namespace holovibes
         throw std::runtime_error("unknown view mode");
     }
 
-    opts_.compute_desc.log_scale_enabled = vm_.count("log");
+    opts_.compute_desc.log_scale_enabled = vm_.count("log") > 0;
 
     opts_.compute_desc.shift_corners_enabled = !vm_.count("nofftshift");
 
@@ -405,9 +405,9 @@ namespace holovibes
         throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
       if (opts_.compute_desc.log_scale_enabled)
-        opts_.compute_desc.contrast_min = log_min;
+        opts_.compute_desc.contrast_min = static_cast<float>(log_min);
       else
-        opts_.compute_desc.contrast_min = pow(10.0, log_min);
+        opts_.compute_desc.contrast_min = static_cast<float>(pow(10.0, log_min));
       opts_.compute_desc.contrast_enabled = true;
     }
 
@@ -421,7 +421,7 @@ namespace holovibes
       if (opts_.compute_desc.log_scale_enabled)
         opts_.compute_desc.contrast_max = log_max;
       else
-        opts_.compute_desc.contrast_max = pow(10.0, log_max);
+        opts_.compute_desc.contrast_max = static_cast<float>(pow(10.0, log_max));
       opts_.compute_desc.contrast_enabled = true;
     }
 
@@ -430,7 +430,7 @@ namespace holovibes
       const int vibrometry_q = vm_["vibrometry"].as<int>();
       if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
-      opts_.compute_desc.vibrometry_q = vibrometry_q;
+      opts_.compute_desc.vibrometry_q = static_cast<unsigned short>(vibrometry_q);
       opts_.compute_desc.vibrometry_enabled = true;
     }
   }

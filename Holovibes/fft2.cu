@@ -54,11 +54,11 @@ void fft_2(
   cudaDeviceSynchronize();
 
   cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
-  kernel_complex_divide<<<blocks, threads >>>(pframe, frame_resolution, n_frame_resolution);
+  kernel_complex_divide<<<blocks, threads >>>(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
   if (p != q)
   {
     cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
-    kernel_complex_divide <<<blocks, threads>>>(qframe, frame_resolution, n_frame_resolution);
+    kernel_complex_divide <<<blocks, threads>>>(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
   }
 
   cudaDeviceSynchronize();
