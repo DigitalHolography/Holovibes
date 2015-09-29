@@ -71,7 +71,7 @@ namespace gui
 
     QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
     phase_number->setValue(cd.nsamples);
-    
+
     QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
     p->setValue(cd.pindex);
     p->setMaximum(cd.nsamples - 1);
@@ -338,7 +338,7 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.lambda = static_cast<float>(value) * 1.0e-9f;
+      cd.lambda = static_cast<float>(value)* 1.0e-9f;
       pipeline.request_refresh();
     }
   }
@@ -438,7 +438,7 @@ namespace gui
       desc.autofocus_z_iter = z_iter;
 
       connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)),
-		  Qt::UniqueConnection);
+        Qt::UniqueConnection);
     }
     else
       display_error("z min has to be strictly inferior to z max");
@@ -457,14 +457,14 @@ namespace gui
 
   void MainWindow::request_autofocus_stop()
   {
-      try
-      {
-        holovibes_.get_pipeline().request_autofocus_stop();
-      }
-      catch (std::runtime_error& e)
-      {
-          std::cerr << e.what() << std::endl;
-      }
+    try
+    {
+      holovibes_.get_pipeline().request_autofocus_stop();
+    }
+    catch (std::runtime_error& e)
+    {
+      std::cerr << e.what() << std::endl;
+    }
   }
 
   void MainWindow::set_contrast_mode(bool value)
@@ -475,7 +475,6 @@ namespace gui
 
     if (!is_direct_mode_)
     {
-
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.contrast_enabled.exchange(value);
@@ -626,7 +625,7 @@ namespace gui
   }
 
   void MainWindow::set_average_graphic()
-  {    
+  {
     delete plot_window_;
     holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
     plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
@@ -782,7 +781,7 @@ namespace gui
     global_visibility(true);
     record_but_cancel_visible(true);
   }
-  
+
   void MainWindow::average_record()
   {
     if (plot_window_)
@@ -1018,83 +1017,83 @@ namespace gui
 
   void MainWindow::import_browse_file()
   {
-	  QString filename = QFileDialog::getOpenFileName(this,
-		  tr("import file"), "C://", tr("All files (*)"));
+    QString filename = QFileDialog::getOpenFileName(this,
+      tr("import file"), "C://", tr("All files (*)"));
 
-	  QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-	  import_line_edit->clear();
-	  import_line_edit->insert(filename);
+    QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+    import_line_edit->clear();
+    import_line_edit->insert(filename);
   }
 
   void MainWindow::import_file_stop(void)
   {
-	  change_camera(camera_type_);
+    change_camera(camera_type_);
   }
 
   void MainWindow::import_file()
   {
-	  QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-	  QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
-	  QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
-	  QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
-	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
-	  QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-	  QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
-	  QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
-	  QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+    QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+    QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
+    QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
+    QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
+    QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+    QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+    QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+    QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
+    QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
+    QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 
-	  std::string file_src = import_line_edit->text().toUtf8();
+    std::string file_src = import_line_edit->text().toUtf8();
 
-	  holovibes::ThreadReader::FrameDescriptor frame_desc({
-			  width_spinbox->value(),
-			  height_spinbox->value(),
-			  // 0:depth = 8, 1:depth = 16
-			  depth_spinbox->currentIndex() + 1,
-			  (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
-		  });
+    holovibes::ThreadReader::FrameDescriptor frame_desc({
+      width_spinbox->value(),
+      height_spinbox->value(),
+      // 0:depth = 8, 1:depth = 16
+      depth_spinbox->currentIndex() + 1,
+      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
+    });
 
-	  camera_visible(false);
-	  record_visible(false);
-	  global_visibility(false);
-	  delete gl_window_;
-	  gl_window_ = nullptr;
-	  holovibes_.dispose_compute();
-	  holovibes_.dispose_capture();
-	  holovibes_.set_import_mode(
-		  file_src,
-		  frame_desc,
-		  loop_checkbox->isChecked(),
-		  fps_spinbox->value(),
-		  start_spinbox->value(),
-		  end_spinbox->value(),
-		  q_max_size_);
-	  camera_visible(true);
-	  record_visible(true);
-	  set_image_mode(is_direct_mode_);
+    camera_visible(false);
+    record_visible(false);
+    global_visibility(false);
+    delete gl_window_;
+    gl_window_ = nullptr;
+    holovibes_.dispose_compute();
+    holovibes_.dispose_capture();
+    holovibes_.set_import_mode(
+      file_src,
+      frame_desc,
+      loop_checkbox->isChecked(),
+      fps_spinbox->value(),
+      start_spinbox->value(),
+      end_spinbox->value(),
+      q_max_size_);
+    camera_visible(true);
+    record_visible(true);
+    set_image_mode(is_direct_mode_);
   }
 
   void MainWindow::import_start_spinbox_update()
   {
-	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+    QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+    QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
 
-	  if (start_spinbox->value() > end_spinbox->value())
-		  end_spinbox->setValue(start_spinbox->value());
+    if (start_spinbox->value() > end_spinbox->value())
+      end_spinbox->setValue(start_spinbox->value());
   }
 
   void MainWindow::import_end_spinbox_update()
   {
-	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+    QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+    QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
 
-	  if (end_spinbox->value() < start_spinbox->value())
-		  start_spinbox->setValue(end_spinbox->value());
+    if (end_spinbox->value() < start_spinbox->value())
+      start_spinbox->setValue(end_spinbox->value());
   }
 
   void MainWindow::closeEvent(QCloseEvent* event)
   {
-	  (void)event;
+    (void)event;
     save_ini("holovibes.ini");
 
     if (gl_window_)
@@ -1249,6 +1248,9 @@ namespace gui
         record_visible(true);
         set_image_mode(is_direct_mode_);
         camera_type_ = camera_type;
+        QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
+        pixel_size->clear();
+        pixel_size->insert(QString::number(holovibes_.get_cam_frame_desc().pixel_size));
       }
       catch (camera::CameraException& e)
       {
@@ -1285,11 +1287,11 @@ namespace gui
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-	gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-	gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-	gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-	gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-	gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
 
     try
     {
@@ -1297,15 +1299,15 @@ namespace gui
     }
     catch (std::exception& e)
     {
-		std::cout << e.what() << std::endl;
+      std::cout << e.what() << std::endl;
     }
 
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
     if (!ptree.empty())
-	{
-	  // Queue max size
-	  q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
+    {
+      // Queue max size
+      q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
 
       // Camera type
       int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1313,10 +1315,10 @@ namespace gui
 
       // Frame timeout
       int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-	  camera::FRAME_TIMEOUT = frame_timeout;
+      camera::FRAME_TIMEOUT = frame_timeout;
 
-	  // Image rendering
-	  image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
+      // Image rendering
+      image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
       unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
@@ -1339,7 +1341,7 @@ namespace gui
       cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
 
       // View
-	  view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
+      view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
       int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
       cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
@@ -1360,7 +1362,7 @@ namespace gui
       cd.contrast_max = contrast_max;
 
       // Special
-	  special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
+      special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
       bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
       cd.vibrometry_enabled.exchange(image_ratio_enabled);
@@ -1371,27 +1373,27 @@ namespace gui
       bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
       is_enabled_average_ = average_enabled;
 
-	  // Record
-	  record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
+      // Record
+      record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
 
-	  // Import
-	  import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+      // Import
+      import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
     }
   }
 
   void MainWindow::save_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-	gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-	gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-	gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-	gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-	gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
 
     // Image rendering
-	ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
-	ptree.put("image_rendering.camera", camera_type_);
+    ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
+    ptree.put("image_rendering.camera", camera_type_);
     ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
     ptree.put("image_rendering.queue_size", q_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
@@ -1402,7 +1404,7 @@ namespace gui
     ptree.put("image_rendering.algorithm", cd.algorithm);
 
     // View
-	ptree.put("view.hidden", view_group_box->isHidden());
+    ptree.put("view.hidden", view_group_box->isHidden());
     ptree.put("view.view_mode", cd.view_mode);
     ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
     ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
@@ -1411,16 +1413,16 @@ namespace gui
     ptree.put("view.contrast_max", cd.contrast_max);
 
     // Special
-	ptree.put("special.hidden", special_group_box->isHidden());
+    ptree.put("special.hidden", special_group_box->isHidden());
     ptree.put("special.image_ratio_enabled", cd.vibrometry_enabled);
     ptree.put("special.image_ratio_q", cd.vibrometry_q);
     ptree.put("special.average_enabled", is_enabled_average_);
 
-	// Record
-	ptree.put("record.hidden", record_group_box->isHidden());
+    // Record
+    ptree.put("record.hidden", record_group_box->isHidden());
 
-	// Import
-	ptree.put("import.hidden", import_group_box->isHidden());
+    // Import
+    ptree.put("import.hidden", import_group_box->isHidden());
 
     boost::property_tree::write_ini(path, ptree);
   }
@@ -1438,7 +1440,7 @@ namespace gui
   {
     std::string file_index;
     std::ostringstream convert;
-    convert <<  std::setw(6) << std::setfill('0') << index;
+    convert << std::setw(6) << std::setfill('0') << index;
     file_index = convert.str();
 
     std::vector<std::string> path_tokens;

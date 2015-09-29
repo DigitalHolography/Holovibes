@@ -50,6 +50,7 @@ namespace holovibes
       camera_->start_acquisition();
 	  tcapture_.reset(new ThreadCapture(*camera_, *input_));
 	
+          std::cout << "pixel_size" << camera_->get_frame_descriptor().pixel_size << std::endl;
 	/*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
 		  , camera_->get_frame_descriptor()
 		  , true

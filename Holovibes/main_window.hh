@@ -27,6 +27,7 @@
 # include "thread_recorder.hh"
 # include "thread_csv_record.hh"
 # include "concurrent_deque.hh"
+# include <string>
 
 namespace gui
 {
@@ -36,12 +37,12 @@ namespace gui
   ** These slots are divided into several sections:
   **
   ** * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
-  ** * Image rendering: phase number, p, z, lambda ... 
+  ** * Image rendering: phase number, p, z, lambda ...
   ** * View: log scale, shifted corner, contrast ...
   ** * Special: image ratio, average/ROI plot ...
   ** * Record: record of raw frames, average/ROI file ...
   **
-  ** 
+  **
   */
   class MainWindow : public QMainWindow, public holovibes::Observer
   {
@@ -65,7 +66,7 @@ namespace gui
 
     void notify() override;
 
-  public slots:
+    public slots:
     /*! \{ \name Menu */
     /*! \brief Open holovibes configuration file */
     void configure_holovibes();
@@ -119,7 +120,7 @@ namespace gui
     ** \param value new phase number
     */
     void set_phase_number(int value);
-    /*! \brief Set p-th frame to be displayed in OpenGl window 
+    /*! \brief Set p-th frame to be displayed in OpenGl window
     ** \param value new p
     */
     void set_p(int value);
@@ -150,7 +151,7 @@ namespace gui
     /*! \} */
 
     /*! \{ \name View */
-    /*! \brief Set view mode 
+    /*! \brief Set view mode
     ** \param value view mode: "magnitude", "squarred magnitude" or "argument"
     */
     void set_view_mode(QString value);
@@ -219,7 +220,7 @@ namespace gui
     /*! \{ \name Record */
     /*! \brief Browse image record output file */
     void browse_file();
-    /*! \brief Launch image record 
+    /*! \brief Launch image record
     **
     ** A ThreadRecord is used for image recording in order not to block the
     ** GUI during recording time. When the record is done, it calls finished_image_record().
@@ -245,7 +246,7 @@ namespace gui
     void image_batch_record();
     /*! \brief Configure average/ROI batch record */
     void csv_batch_record();
-    /*! \brief Launch batch record 
+    /*! \brief Launch batch record
     **
     ** Checks for errors, select which Queue to record, format path, execute
     ** GPIB first block then connect to batch_next_record.
@@ -253,7 +254,7 @@ namespace gui
     ** \param path output mantissa
     */
     void batch_record(const std::string& path);
-    /*! \brief Execute next batch record 
+    /*! \brief Execute next batch record
     **
     ** Execute GPIB instruction and record thread alternatively until there is
     ** no more GPIB instructions.
@@ -266,17 +267,16 @@ namespace gui
     /*! \brief Stop average/ROI record */
     void stop_csv_record();
 
-	/*! \brief Set import file src */
-	void import_browse_file();
-	/*! \brief Run thread_reader */
-	void import_file();
-	/*! \brief Stop thread_reader, and launch thread_capture */
-	void import_file_stop();
-	/*! \brief Update end to start if start > end */
-	void import_start_spinbox_update();
-	/*! \brief Update start to end if start < end */
-	void import_end_spinbox_update();
-
+    /*! \brief Set import file src */
+    void import_browse_file();
+    /*! \brief Run thread_reader */
+    void import_file();
+    /*! \brief Stop thread_reader, and launch thread_capture */
+    void import_file_stop();
+    /*! \brief Update end to start if start > end */
+    void import_start_spinbox_update();
+    /*! \brief Update start to end if start < end */
+    void import_end_spinbox_update();
 
     /*! \} */
 
@@ -300,19 +300,19 @@ namespace gui
     void average_record_but_cancel_visible(bool value);
     /*! \} */
 
-    /*! \brief Change camera 
+    /*! \brief Change camera
     **
-    ** Delete real time OpenGL display window then destroy compute and 
+    ** Delete real time OpenGL display window then destroy compute and
     ** capture thread cleanly then change camera type to the given one.
     **
     ** \param camera_type new camera type
     */
     void change_camera(holovibes::Holovibes::camera_type camera_type);
-    /*! \brief Display error message 
+    /*! \brief Display error message
     ** \param msg error message
     */
     void display_error(std::string msg);
-    /*! \brief Display information message 
+    /*! \brief Display information message
     ** \param msg information message
     */
     void display_info(std::string msg);
@@ -333,7 +333,7 @@ namespace gui
     /*! \brief Format batch output file name
     **
     ** Example:
-    ** 
+    **
     ** * Path: test.txt
     ** * Index: 1
     ** * Result: test_000001.txt

@@ -10,7 +10,6 @@
 # include "pipeline.hh"
 # include "concurrent_deque.hh"
 
-
 # include <memory>
 
 namespace holovibes
@@ -33,8 +32,8 @@ namespace holovibes
      *
      * The non hardcoded-way would be to search for DLL and build a list of
      * available cameras. */
-		  enum camera_type
-		  {
+    enum camera_type
+    {
       NONE,
       EDGE,
       IDS,
@@ -48,7 +47,7 @@ namespace holovibes
     ~Holovibes();
 
     /*! \brief Open the camera and launch the ThreadCapture
-     * 
+     *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
     void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
@@ -102,40 +101,39 @@ namespace holovibes
     void init_compute();
     void dispose_compute();
 
-	const void set_import_mode(std::string &file_src
-		, holovibes::ThreadReader::FrameDescriptor frame_desc
-		, bool loop
-		, unsigned int fps
-		, unsigned int spanStart
-		, unsigned int spanEnd
-		, unsigned int q_max_size_)
-	{
-		camera_initialized_ = false;
-		
-		try
-		{
-			input_.reset(new Queue(frame_desc.desc, q_max_size_));
-			tcapture_.reset(
-				new ThreadReader(file_src
-				, frame_desc
-				, loop
-				, fps
-				, spanStart
-				, spanEnd
-				, *input_));
-			std::cout << "[CAPTURE] reader thread started" << std::endl;
-			camera_initialized_ = true;
-		}
-		catch (std::exception& e)
-		{
-			std::cout << e.what() << std::endl;
-			tcapture_.reset(nullptr);
-			input_.reset(nullptr);
+    const void set_import_mode(std::string &file_src
+      , holovibes::ThreadReader::FrameDescriptor frame_desc
+      , bool loop
+      , unsigned int fps
+      , unsigned int spanStart
+      , unsigned int spanEnd
+      , unsigned int q_max_size_)
+    {
+      camera_initialized_ = false;
 
-			throw;
-		}
-	}
+      try
+      {
+        input_.reset(new Queue(frame_desc.desc, q_max_size_));
+        tcapture_.reset(
+          new ThreadReader(file_src
+          , frame_desc
+          , loop
+          , fps
+          , spanStart
+          , spanEnd
+          , *input_));
+        std::cout << "[CAPTURE] reader thread started" << std::endl;
+        camera_initialized_ = true;
+      }
+      catch (std::exception& e)
+      {
+        std::cout << e.what() << std::endl;
+        tcapture_.reset(nullptr);
+        input_.reset(nullptr);
 
+        throw;
+      }
+    }
 
     /*! \{ \name Getters/Setters */
     Pipeline& get_pipeline()
@@ -172,6 +170,11 @@ namespace holovibes
       return average_queue_;
     }
     /*! \} */
+
+    const camera::FrameDescriptor& get_cam_frame_desc()
+    {
+      return camera_->get_frame_descriptor();
+    }
 
   private:
     /* Use shared pointers to ensure each ressources will freed. */

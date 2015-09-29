@@ -859,7 +859,7 @@
          <string>Boundary:</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="pathLineEdit_2">
+       <widget class="QLineEdit" name="pixelSize">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -869,7 +869,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>nan</string>
+         <string>0</string>
         </property>
         <property name="readOnly">
          <bool>true</bool>
@@ -917,27 +917,6 @@
          <string>μm</string>
         </property>
        </widget>
-       <zorder>directImageRadioButton</zorder>
-       <zorder>hologramRadioButton</zorder>
-       <zorder>phaseNumberSpinBox</zorder>
-       <zorder>PhaseNumberLabel</zorder>
-       <zorder>pSpinBox</zorder>
-       <zorder>pLabel</zorder>
-       <zorder>wavelengthLabel</zorder>
-       <zorder>wavelengthSpinBox</zorder>
-       <zorder>zLabel</zorder>
-       <zorder>zSpinBox</zorder>
-       <zorder>algorithmLabel</zorder>
-       <zorder>algorithmComboBox</zorder>
-       <zorder>zStepLabel</zorder>
-       <zorder>zStepDoubleSpinBox</zorder>
-       <zorder>algorithmLabel_2</zorder>
-       <zorder>algorithmLabel_3</zorder>
-       <zorder>pathLineEdit_2</zorder>
-       <zorder>pathLineEdit_3</zorder>
-       <zorder>algorithmLabel_4</zorder>
-       <zorder>zdivLabel_2</zorder>
-       <zorder>algorithmLabel_5</zorder>
       </widget>
      </item>
      <item row="0" column="4">
@@ -1591,21 +1570,6 @@
          <string>plot</string>
         </property>
        </widget>
-       <zorder>pLabelVibro</zorder>
-       <zorder>pSpinBoxVibro</zorder>
-       <zorder>qSpinBoxVibro</zorder>
-       <zorder>qLabelVibro</zorder>
-       <zorder>vibrometryCheckBox</zorder>
-       <zorder>averageCheckBox</zorder>
-       <zorder>ROIFileLabel</zorder>
-       <zorder>ROIBrowseButton</zorder>
-       <zorder>ROIFileLineEdit</zorder>
-       <zorder>saveROIPushButton</zorder>
-       <zorder>loadROIPushButton</zorder>
-       <zorder>label</zorder>
-       <zorder>label_2</zorder>
-       <zorder>pushButton</zorder>
-       <zorder>View</zorder>
       </widget>
      </item>
     </layout>
