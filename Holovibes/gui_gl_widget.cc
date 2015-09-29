@@ -176,16 +176,16 @@ namespace gui
 
   void GLWidget::mousePressEvent(QMouseEvent* e)
   {
-      if (e->button() == Qt::LeftButton)
-      {
-        is_selection_enabled_ = true;
-        selection_.top_left = holovibes::Point2D(
-          (e->x() * frame_desc_.width) / width(),
-          ( e->y() * frame_desc_.height) / height());
-      }
-      else
-        if (selection_mode_ == ZOOM)
-          dezoom();
+    if (e->button() == Qt::LeftButton)
+    {
+      is_selection_enabled_ = true;
+      selection_.top_left = holovibes::Point2D(
+        (e->x() * frame_desc_.width) / width(),
+        (e->y() * frame_desc_.height) / height());
+    }
+    else
+      if (selection_mode_ == ZOOM)
+        dezoom();
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -194,7 +194,7 @@ namespace gui
     {
       selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
-         (e->y() * frame_desc_.height) / height());
+        (e->y() * frame_desc_.height) / height());
 
       if (selection_mode_ == AVERAGE)
       {
@@ -212,11 +212,11 @@ namespace gui
     {
       selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
-         (e->y() * frame_desc_.height) / height());
+        (e->y() * frame_desc_.height) / height());
 
       selection_.bottom_left = holovibes::Point2D(
         selection_.top_left.x,
-         (e->y() * frame_desc_.height) / height());
+        (e->y() * frame_desc_.height) / height());
 
       selection_.top_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
@@ -263,10 +263,10 @@ namespace gui
     float xmax = frame_desc_.width;
     float ymax = frame_desc_.height;
 
-    float nstartx = (2.0f * (float)selection.top_left.x) / xmax - 1.0f;
-    float nstarty = -1.0f * ((2.0f * (float)selection.top_left.y) / ymax - 1.0f);
-    float nendx = (2.0f * (float)selection.bottom_right.x) / xmax - 1.0f;
-    float nendy = -1.0f * ((2.0f * (float)selection.bottom_right.y) / ymax - 1.0f);
+    float nstartx = (2.0f * static_cast<float>(selection.top_left.x)) / xmax - 1.0f;
+    float nstarty = -1.0f * ((2.0f * static_cast<float>(selection.top_left.y)) / ymax - 1.0f);
+    float nendx = (2.0f * static_cast<float>(selection.bottom_right.x)) / xmax - 1.0f;
+    float nendy = -1.0f * ((2.0f * static_cast<float>(selection.bottom_right.y) / ymax - 1.0f));
 
     nstartx -= px_;
     nstarty -= py_;
@@ -304,16 +304,16 @@ namespace gui
     int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
 
     // Normalizing source points to OpenGL coords
-    float nxsource = (2.0f * (float)xsource) / (float)frame_desc_.width - 1.0f;
-    float nysource = -1.0f * ((2.0f * (float)ysource) / (float)frame_desc_.height - 1.0f);
+    float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;
+    float nysource = -1.0f * ((2.0f * static_cast<float>(ysource)) / static_cast<float>(frame_desc_.height) - 1.0f);
 
     // Projection of the translation
     float px = xdest - nxsource;
     float py = ydest - nysource;
 
     // Zoom ratio
-    float xratio = (float)frame_desc_.width / ((float)selection.bottom_right.x - (float)selection.top_left.x);
-    float yratio = (float)frame_desc_.height / ((float)selection.bottom_right.y - (float)selection.top_left.y);
+    float xratio = static_cast<float>(frame_desc_.width) / (static_cast<float>(selection.bottom_right.x) - static_cast<float>(selection.top_left.x));
+    float yratio = static_cast<float>(frame_desc_.height) / (static_cast<float>(selection.bottom_right.y) - static_cast<float>(selection.top_left.y));
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     zoom_ratio_ *= min_ratio;
