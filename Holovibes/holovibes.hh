@@ -10,7 +10,6 @@
 # include "pipeline.hh"
 # include "concurrent_deque.hh"
 
-
 # include <memory>
 
 namespace holovibes
@@ -33,8 +32,8 @@ namespace holovibes
      *
      * The non hardcoded-way would be to search for DLL and build a list of
      * available cameras. */
-		  enum camera_type
-		  {
+    enum camera_type
+    {
       NONE,
       EDGE,
       IDS,
@@ -48,7 +47,7 @@ namespace holovibes
     ~Holovibes();
 
     /*! \brief Open the camera and launch the ThreadCapture
-     * 
+     *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
     void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
@@ -146,6 +145,11 @@ namespace holovibes
       return average_queue_;
     }
     /*! \} */
+
+    const camera::FrameDescriptor& get_cam_frame_desc()
+    {
+      return camera_->get_frame_descriptor();
+    }
 
   private:
     /* Use shared pointers to ensure each ressources will freed. */
