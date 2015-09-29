@@ -90,7 +90,7 @@ namespace camera
     ** Several converters allow for faster (parallelized) readout
     ** at the expense of worse linearity.
     */
-    WORD ad_converters_ = 1;
+    WORD ad_converters_;
 
     /* Timeout configurations
     ** The SDK handles this with an array of size 3.
@@ -109,10 +109,10 @@ namespace camera
     ** Each set of options for one I/O interface corresponds to
     ** a PCO_Signal (see sc2_SDKStructures.h) struct.
     */
+    PCO_Signal io_0_conf;
     PCO_Signal io_1_conf;
     PCO_Signal io_2_conf;
     PCO_Signal io_3_conf;
-    PCO_Signal io_4_conf;
   };
 }
 
