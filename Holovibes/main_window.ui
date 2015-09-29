@@ -875,7 +875,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QLineEdit" name="pathLineEdit_3">
+       <widget class="QLineEdit" name="boundary">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -885,7 +885,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>nan</string>
+         <string>0</string>
         </property>
         <property name="readOnly">
          <bool>true</bool>
