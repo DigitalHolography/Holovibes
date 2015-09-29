@@ -340,6 +340,11 @@ namespace gui
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.lambda = static_cast<float>(value)* 1.0e-9f;
       pipeline.request_refresh();
+
+      // Updating the GUI
+      QLineEdit* boundary = findChild<QLineEdit*>("boundary");
+      boundary->clear();
+      boundary->insert(QString::number(holovibes_.get_boundary()));
     }
   }
 
@@ -1248,9 +1253,15 @@ namespace gui
         record_visible(true);
         set_image_mode(is_direct_mode_);
         camera_type_ = camera_type;
+
+        // Changing the gui
         QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
         pixel_size->clear();
         pixel_size->insert(QString::number(holovibes_.get_cam_frame_desc().pixel_size));
+
+        QLineEdit* boundary = findChild<QLineEdit*>("boundary");
+        boundary->clear();
+        boundary->insert(QString::number(holovibes_.get_boundary()));
       }
       catch (camera::CameraException& e)
       {

@@ -48,26 +48,25 @@ namespace holovibes
       camera_->init_camera();
       input_.reset(new Queue(camera_->get_frame_descriptor(), buffer_nb_elts));
       camera_->start_acquisition();
-	  tcapture_.reset(new ThreadCapture(*camera_, *input_));
-	
-          std::cout << "pixel_size" << camera_->get_frame_descriptor().pixel_size << std::endl;
-	/*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
-		  , camera_->get_frame_descriptor()
-		  , true
-		  , 16
-		  , *input_));*/
-	  
+      tcapture_.reset(new ThreadCapture(*camera_, *input_));
+
+      /*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
+                , camera_->get_frame_descriptor()
+                , true
+                , 16
+                , *input_));*/
+
       std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
     }
     catch (std::exception& e)
     {
-		std::cout << e.what() << std::endl;
+      std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
-	  input_.reset(nullptr);
+      input_.reset(nullptr);
 
       throw;
-	}
+    }
   }
 
   void Holovibes::dispose_capture()
@@ -111,7 +110,7 @@ namespace holovibes
 
   void Holovibes::init_compute()
   {
-	assert(camera_initialized_ && "camera not initialized");
+    assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     assert(input_ && "input queue not initialized");
 
@@ -137,5 +136,17 @@ namespace holovibes
   {
     tcompute_.reset(nullptr);
     output_.reset(nullptr);
+  }
+
+  const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
+  {
+    return camera_->get_frame_descriptor();
+  }
+
+  const float Holovibes::get_boundary()
+  {
+    float n = static_cast<float>(get_cam_frame_desc().height);
+    float d = get_cam_frame_desc().pixel_size * 0.000001;
+    return (n * d * d) / compute_desc_.lambda;
   }
 }

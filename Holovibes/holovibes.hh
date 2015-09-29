@@ -171,10 +171,12 @@ namespace holovibes
     }
     /*! \} */
 
-    const camera::FrameDescriptor& get_cam_frame_desc()
-    {
-      return camera_->get_frame_descriptor();
-    }
+    const camera::FrameDescriptor& get_cam_frame_desc();
+
+    /* \brief Get zb = N d^2 / lambda
+        Is updated everytime the camera changes or lamdba changes
+        */
+    const float get_boundary();
 
   private:
     /* Use shared pointers to ensure each ressources will freed. */
