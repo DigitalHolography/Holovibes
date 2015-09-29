@@ -8,11 +8,11 @@
 #endif /* !_USE_MATH_DEFINES */
 #include <math.h>
 
-/*! \brief Compute a lens to apply to an image 
+/*! \brief Compute a lens to apply to an image
 *
 *
 * \param n output The lens computed by the function.
-* The output should have the same caracteristics of 
+* The output should have the same caracteristics of
 * of the images on wich the lens will be applied.
 * \param fd File descriptor of the images on wich the lens will be applied.
 */
@@ -31,8 +31,8 @@ __global__ void kernel_quadratic_lens(
   float dx = fd.pixel_size * 1.0e-6f;
   float dy = fd.pixel_size * 1.0e-6f;
 
-  float x = (i - ((float)fd.width / 2)) * dx;
-  float y = (j - ((float)fd.height / 2)) * dy;
+  float x = (i - (static_cast<float>(fd.width) / 2)) * dx;
+  float y = (j - (static_cast<float>(fd.height) / 2)) * dy;
 
   if (index < fd.width * fd.height)
   {
@@ -66,11 +66,11 @@ __global__ void kernel_spectral_lens(
   float dx = fd.pixel_size * 1.0e-6f;
   float dy = fd.pixel_size * 1.0e-6f;
 
-  float du = 1 / (((float)fd.width) * dx);
-  float dv = 1 / (((float)fd.height) * dy);
+  float du = 1 / ((static_cast<float>(fd.width)) * dx);
+  float dv = 1 / ((static_cast<float>(fd.height)) * dy);
 
-  float u = (i - (float)(lrintf((float)fd.width / 2))) * du;
-  float v = (j - (float)(lrintf((float)fd.height / 2))) * dv;
+  float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width) / 2))) * du;
+  float v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height) / 2))) * dv;
 
   if (index < fd.width * fd.height)
   {
