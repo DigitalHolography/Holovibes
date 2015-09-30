@@ -107,7 +107,7 @@ namespace camera
 
     pixel_rate_ = 110 * 1e6;
 
-    conversion_factor_ = 460;
+    conversion_factor_ = 46;
 
     timeouts_[0] = timeouts_[1] = timeouts_[2] = 50;
 
@@ -116,36 +116,12 @@ namespace camera
     initialize_pco_signal(io_2_conf, 2);
     initialize_pco_signal(io_3_conf, 3);
 
-    for (unsigned i = 0; i < 4; ++i)
-    {
-      // Printing current signal configuration to try to understand...
-      std::cout << "Pre-configuration of signal " << i << ":\n";
-      PCO_Signal sig_data;
-      sig_data.wSize = sizeof(PCO_Signal);
-      PCO_GetHWIOSignal(device_, i, &sig_data);
-
-      std::cout << "Port " << i << " : state[" << sig_data.wEnabled << "]\n" <<
-        "         type[" << sig_data.wType << "]\n" <<
-        "         polarity[" << sig_data.wPolarity << "]\n" <<
-        "         filter[" << sig_data.wFilterSetting << "]\n" <<
-        "         subindex[" << sig_data.wSelected << "]\n" <<
-        "         dwParameters[" << sig_data.dwParameter[0] << "," << sig_data.dwParameter[1] << "," <<
-        sig_data.dwParameter[2] << "," << sig_data.dwParameter[3] << "]\n" <<
-        "         dwSignalFunctionality[" << sig_data.dwSignalFunctionality[0] << "," <<
-        sig_data.dwSignalFunctionality[1] << "," << sig_data.dwSignalFunctionality[2] << "," <<
-        sig_data.dwSignalFunctionality[3] << std::endl;
-    }
-
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 6.45f;
-    desc_.width = CameraPCO::get_actual_res_x();
-    desc_.height = CameraPCO::get_actual_res_y();
-    // DEBUG
-    std::cout << "frame width = " << desc_.width << "\n" <<
-      "frame height = " << desc_.height << std::endl;
-    // ! DEBUG
+    desc_.width = 2048;
+    desc_.height = 2048;
   }
 
   void CameraPCOEdge::load_ini_params()
@@ -186,11 +162,93 @@ namespace camera
     int status = PCO_NOERROR;
     // DEBUG : remove me later
     std::ofstream ostr("test_edge_4.2.log");
-    assert(ostr.is_open());
+    if (!ostr.is_open())
+      std::cout << "Could not create log file!" << std::endl;
     // ! DEBUG
 
     status |= PCO_ResetSettingsToDefault(device_);
     soft_assert("PCO_ResetSettingsToDefault", status, ostr);
+    std::cout << "Resetted settings to default. Checking initial configuration...\n\n";
+
+    std::cout << "HWIO configurations :\n";
+    for (unsigned i = 0; i < 4; ++i)
+    {
+      // Printing current signal configuration to try to understand...
+      std::cout << "Pre-configuration of signal " << i << ":\n";
+      PCO_Signal sig_data;
+      sig_data.wSize = sizeof(PCO_Signal);
+      if (PCO_GetHWIOSignal(device_, i, &sig_data) != PCO_NOERROR)
+        continue;
+
+      std::cout << "Port " << i << " : state[" << sig_data.wEnabled << "]\n" <<
+        "         type[" << sig_data.wType << "]\n" <<
+        "         polarity[" << sig_data.wPolarity << "]\n" <<
+        "         filter[" << sig_data.wFilterSetting << "]\n" <<
+        "         subindex[" << sig_data.wSelected << "]\n" <<
+        "         dwParameters[" << sig_data.dwParameter[0] << "," << sig_data.dwParameter[1] << "," <<
+        sig_data.dwParameter[2] << "," << sig_data.dwParameter[3] << "]\n" <<
+        "         dwSignalFunctionality[" << sig_data.dwSignalFunctionality[0] << "," <<
+        sig_data.dwSignalFunctionality[1] << "," << sig_data.dwSignalFunctionality[2] << "," <<
+        sig_data.dwSignalFunctionality[3] << std::endl;
+    }
+
+    {
+      std::cout << "Calculating available range of convertion factor :\n";
+      const size_t size = 1e7;
+      WORD tries[size] = { 0 };
+
+      // Find the first accepted value.
+      auto i = 0;
+      do
+      {
+        tries[i] = PCO_SetConversionFactor(device_, i);
+        ++i;
+      } while (i < size && (tries[i - 1] != 0));
+
+      if (i >= size)
+        std::cout << "Could not find minimal value\n";
+      else
+      {
+        std::cout << "Minimal value is " << i - 1 << std::endl;
+
+        // Now find the max one.
+        i = size - 1;
+        do
+        {
+          tries[i] = PCO_SetConversionFactor(device_, i);
+          --i;
+        } while (i >= 0 && (tries[i + 1] != 0));
+
+        if (i < 0)
+          std::cout << "Could not find maximal value\n";
+        else
+          std::cout << "Maximal value is " << i + 1 << std::endl;
+      }
+    }
+
+    {
+      std::cout << "Checking initial frame rate\n";
+      WORD tmp_status;
+      DWORD tmp_fps;
+      DWORD tmp_exp_time;
+
+      PCO_GetFrameRate(device_, &tmp_status, &tmp_fps, &tmp_exp_time);
+
+      std::cout << "FPS = " << tmp_fps << "\texposure time = " << tmp_exp_time <<
+        "\nFPS status : " << tmp_status << std::endl;
+    }
+
+    {
+      std::cout << "Checking initial ROI :\n";
+      WORD p0_x, p0_y, p1_x, p1_y;
+
+      PCO_GetROI(device_, &p0_x, &p0_y, &p1_x, &p1_y);
+
+      std::cout << "Initial ROI : (" << p0_x << "," << p0_y << ") to (" <<
+        p1_x << "," << p1_y << ")" << std::endl;
+    }
+
+    std::cout << "\n--------------\n\nSetting parameters manually now...\n";
 
     status |= PCO_SetTimeouts(device_, timeouts_, 2);
     soft_assert("PCO_SetTimeouts", status, ostr);
@@ -228,6 +286,7 @@ namespace camera
       for (base_time = 0x0002; base_time > 0 && tmp_exp_time < 1.0f; --base_time)
         tmp_exp_time *= 1e3;
 
+      std::cout << "Exposure time :" << tmp_exp_time << std::endl;
       status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(tmp_exp_time), 0, base_time);
       soft_assert("PCO_SetDelayExposureTime", status, ostr);
     }
@@ -239,6 +298,7 @@ namespace camera
       status |= PCO_SetFrameRate(device_, &fps_change_status, framerate_mode_, &framerate_, &tmp_exp_time);
       soft_assert("PCO_SetFrameRate", status, ostr);
 
+      std::cout << "FPS status after change : " << fps_change_status << std::endl;
       exposure_time_ = static_cast<float>(tmp_exp_time)* 1e-9; // Convert back exp. time to seconds
     }
 
@@ -259,13 +319,13 @@ namespace camera
     ostr.close();
 
     // Display final configuration
-    std::cout << "Final configuration : \n" <<
+    std::cout << "\n\nFinal configuration : \n" <<
       "binning (h x v)   = " << hz_binning_ << "x" << vt_binning_ << "\n" <<
       "conversion factor = " << conversion_factor_ << "\n" <<
       "exposure time     = " << exposure_time_ << "\n" <<
       "trigger mode      = " << triggermode_ << "\n" <<
       "framerate         = " << framerate_ << "\n" <<
-      "framerate mode    = " << framerate_mode_ << "_n" <<
+      "framerate mode    = " << framerate_mode_ << "\n" <<
       "Port 1 : state[" << io_0_conf.wEnabled << "]\n" <<
       "         type[" << io_0_conf.wType << "]\n" <<
       "         polarity[" << io_0_conf.wPolarity << "]\n" <<
@@ -291,7 +351,6 @@ namespace camera
     if (status != PCO_NOERROR)
       throw CameraException(CameraException::CANT_SET_CONFIG);
     ** ! DEBUG */
-
   }
 
 }
