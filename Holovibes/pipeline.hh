@@ -100,6 +100,12 @@ namespace holovibes
 	/*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
 	void request_float_output_stop();
 
+	/*! \brief Return true while pipeline is recording float. */
+	bool is_requested_float_output() const
+	{
+		return (float_output_requested);
+	}
+
     /*! \brief Execute one iteration of the pipeline.
      *
      * * Checks the number of frames in input queue that must at least
@@ -167,7 +173,7 @@ namespace holovibes
     void refresh();
 
 	/*! \brief Record one frame in gpu_float_buf_ to file_. */
-	void Pipeline::record_float();
+	void record_float();
 
     /*! \{ \name Disable copy/assignments. */
     Pipeline& operator=(const Pipeline&) = delete;

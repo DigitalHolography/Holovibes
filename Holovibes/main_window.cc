@@ -755,6 +755,10 @@ namespace gui
 
 			global_visibility(true);
 			record_but_cancel_visible(true);
+
+			while (holovibes_.get_pipeline().is_requested_float_output())
+				std::this_thread::yield();
+			display_info("Record done");
 		}
 		else
 		{

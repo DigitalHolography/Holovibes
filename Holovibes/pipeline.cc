@@ -394,11 +394,11 @@ namespace holovibes
 		  float_output_nb_frame_ = nb_frame;
 		  float_output_requested = true;
 		  request_refresh();
-		  std::cout << "[PIPELINE]: record start." << std::endl;
+		  std::cout << "[PIPELINE]: float record start." << std::endl;
 	  }
 	  catch (std::exception& e)
 	  {
-		  std::cout << "[PIPELINE]: " << e.what() << std::endl;
+		  std::cout << "[PIPELINE]: float record: " << e.what() << std::endl;
 		  request_float_output_stop();
 	  }
   }
@@ -409,7 +409,7 @@ namespace holovibes
 		  float_output_file_.close();
 	  float_output_requested = false;
 	  request_refresh();
-	  std::cout << "[PIPELINE]: record done." << std::endl;
+	  std::cout << "[PIPELINE]: float record done." << std::endl;
   }
 
   void Pipeline::record_float()
@@ -417,6 +417,7 @@ namespace holovibes
 	  if (float_output_nb_frame_-- > 0)
 	  {
 		  unsigned int size = input_.get_pixels() * sizeof(float);
+		  // can be improve
 		  char *buf = new char[size];
 
 		  cudaMemcpy(buf, gpu_float_buffer_, size, cudaMemcpyDeviceToHost);
