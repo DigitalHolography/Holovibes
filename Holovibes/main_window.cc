@@ -749,7 +749,7 @@ namespace gui
 
     try
     {
-		if (float_output_checkbox->isChecked())
+		if (float_output_checkbox->isChecked() && !is_direct_mode_)
 		{
 			holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
 
