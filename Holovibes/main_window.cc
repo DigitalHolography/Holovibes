@@ -1163,6 +1163,15 @@ namespace gui
 
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
     algorithm->setDisabled(!value);
+
+	QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+	float_output_checkbox->setDisabled(!value);
+
+	QLineEdit* pixelSize = findChild<QLineEdit*>("pixelSize");
+	pixelSize->setDisabled(!value);
+
+	QLineEdit* boundary = findChild<QLineEdit*>("boundary");
+	boundary->setDisabled(!value);
   }
 
   void MainWindow::camera_visible(bool value)
