@@ -116,6 +116,26 @@ namespace camera
     initialize_pco_signal(io_2_conf, 2);
     initialize_pco_signal(io_3_conf, 3);
 
+    for (unsigned i = 0; i < 4; ++i)
+    {
+      // Printing current signal configuration to try to understand...
+      std::cout << "Pre-configuration of signal " << i << ":\n";
+      PCO_Signal sig_data;
+      sig_data.wSize = sizeof(PCO_Signal);
+      PCO_GetHWIOSignal(device_, i, &sig_data);
+
+      std::cout << "Port " << i << " : state[" << sig_data.wEnabled << "]\n" <<
+        "         type[" << sig_data.wType << "]\n" <<
+        "         polarity[" << sig_data.wPolarity << "]\n" <<
+        "         filter[" << sig_data.wFilterSetting << "]\n" <<
+        "         subindex[" << sig_data.wSelected << "]\n" <<
+        "         dwParameters[" << sig_data.dwParameter[0] << "," << sig_data.dwParameter[1] << "," <<
+        sig_data.dwParameter[2] << "," << sig_data.dwParameter[3] << "]\n" <<
+        "         dwSignalFunctionality[" << sig_data.dwSignalFunctionality[0] << "," <<
+        sig_data.dwSignalFunctionality[1] << "," << sig_data.dwSignalFunctionality[2] << "," <<
+        sig_data.dwSignalFunctionality[3] << std::endl;
+    }
+
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
     desc_.endianness = LITTLE_ENDIAN;
