@@ -57,10 +57,9 @@ namespace holovibes
     , file_()
     , stop_requested_(false)
   {
-	  /* BUG IN CLI MODE
-	  if (filepath.find('/'))
+	  if (filepath.find('/') != std::string::npos)
 		createFilePath(filepath);
-		*/
+
 #ifndef _DEBUG
     if (is_file_exist(filepath))
       throw std::exception("[RECORDER] error overwriting an existing file");
