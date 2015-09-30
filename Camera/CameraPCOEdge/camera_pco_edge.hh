@@ -85,13 +85,6 @@ namespace camera
     */
     WORD conversion_factor_;
 
-    /* Number of Analog to Digital Converters (ADC) to be used
-    ** when performing readout of sensors.
-    ** Several converters allow for faster (parallelized) readout
-    ** at the expense of worse linearity.
-    */
-    WORD ad_converters_;
-
     /* Timeout configurations
     ** The SDK handles this with an array of size 3.
     ** (the third parameter only concerns Firewire interfaces,
@@ -101,6 +94,8 @@ namespace camera
     **
     ** After x milliseconds without a response from the camera,
     ** abort command execution / image acquisition request.
+    ** Please note that in the .ini file durations are expressed
+    ** in seconds for commodity.
     */
     unsigned int timeouts_[3];
 

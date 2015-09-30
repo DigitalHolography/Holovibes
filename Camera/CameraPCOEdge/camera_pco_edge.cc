@@ -10,14 +10,24 @@
 
 namespace camera
 {
+  // DEBUG : remove these functions later
+
   static void soft_assert(char* func, int& status, std::ofstream& ostr)
   {
     if (status != PCO_NOERROR)
     {
       ostr << func << "() call failed : error " << status << std::endl;
-      status = 0;
+      std::cout << func << "() call failed : error " << status << std::endl;
     }
+    else
+    {
+      ostr << func << "() call succeeded!" << std::endl;
+      std::cout << func << "() call succeeded!" << std::endl;
+    }
+    status = PCO_NOERROR;
   }
+
+  // ! DEBUG
 
   static void initialize_pco_signal(PCO_Signal& sig, const WORD index)
   {
@@ -84,7 +94,7 @@ namespace camera
 
     triggermode_ = 0;
 
-    framerate_ = 30 * 10e3;
+    framerate_ = 30 * 1e3;
     framerate_mode_ = 1;
 
     hz_binning_ = 1;
@@ -92,16 +102,14 @@ namespace camera
 
     p0_x_ = 0;
     p0_y_ = 0;
-    p1_x_ = CameraPCO::get_actual_res_x();
-    p1_y_ = CameraPCO::get_actual_res_y();
+    p1_x_ = CameraPCO::get_actual_res_x() - 1;
+    p1_y_ = CameraPCO::get_actual_res_y() - 1;
 
-    pixel_rate_ = 12 * 10e6;
+    pixel_rate_ = 110 * 1e6;
 
     conversion_factor_ = 460;
 
-    ad_converters_ = 1;
-
-    timeouts_[0] = timeouts_[1] = timeouts_[2] =  50;
+    timeouts_[0] = timeouts_[1] = timeouts_[2] = 50;
 
     initialize_pco_signal(io_0_conf, 0);
     initialize_pco_signal(io_1_conf, 1);
@@ -112,8 +120,12 @@ namespace camera
     desc_.depth = 2;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 6.45f;
-    desc_.width = 2048;
-    desc_.height = 2048;
+    desc_.width = CameraPCO::get_actual_res_x();
+    desc_.height = CameraPCO::get_actual_res_y();
+    // DEBUG
+    std::cout << "frame width = " << desc_.width << "\n" <<
+      "frame height = " << desc_.height << std::endl;
+    // ! DEBUG
   }
 
   void CameraPCOEdge::load_ini_params()
@@ -123,11 +135,8 @@ namespace camera
     exposure_time_ = pt.get<float>("pco-edge.exposure_time", exposure_time_);
 
     triggermode_ = pt.get<WORD>("pco-edge.trigger_mode", triggermode_);
-    // TODO : Check if removing this solves the triggering problem!
-    //if (triggermode_ < 3)
-    //  triggermode_ = 0;
 
-    framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * 10e3;
+    framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * 1e3;
     framerate_mode_ = pt.get<WORD>("pco-edge.framerate_mode", framerate_mode_);
 
     hz_binning_ = pt.get<WORD>("pco-edge.binning_hz", hz_binning_);
@@ -138,15 +147,13 @@ namespace camera
     p1_x_ = pt.get<WORD>("pco-edge.p1_x", p1_x_);
     p1_y_ = pt.get<WORD>("pco-edge.p1_y", p1_y_);
 
-    pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 10e6;
+    pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 1e6;
 
     conversion_factor_ = static_cast<WORD>(
         pt.get<float>("pco-edge.conversion_factor", conversion_factor_) * 100);
 
-    ad_converters_ = pt.get<WORD>("pco-edge.adc", ad_converters_);
-
-    timeouts_[0] = pt.get<unsigned int>("pco-edge.timeout_command", timeouts_[0]);
-    timeouts_[1] = pt.get<unsigned int>("pco-edge.timeout_img_acq", timeouts_[1]);
+    timeouts_[0] = pt.get<unsigned int>("pco-edge.timeout_command", timeouts_[0]) * 1e3;
+    timeouts_[1] = pt.get<unsigned int>("pco-edge.timeout_img_acq", timeouts_[1]) * 1e3;
 
     load_pco_signal_params(pt, io_0_conf, 0);
     load_pco_signal_params(pt, io_1_conf, 1);
@@ -171,10 +178,7 @@ namespace camera
     status |= PCO_SetSensorFormat(device_, 0);
     soft_assert("PCO_SetSensorFormat", status, ostr);
 
-    status |= PCO_SetADCOperation(device_, ad_converters_);
-    soft_assert("PCO_SetADCOperation", status, ostr);
-
-    status |= PCO_SetConversionFactor(device_, ad_converters_);
+    status |= PCO_SetConversionFactor(device_, conversion_factor_);
     soft_assert("PCO_SetConversionFactor", status, ostr);
 
     status |= PCO_SetBinning(device_, hz_binning_, vt_binning_);
@@ -194,24 +198,28 @@ namespace camera
 
     {
       /* Convert exposure time in milliseconds. */
-      exposure_time_ *= 1e3;
+      float tmp_exp_time = exposure_time_;
+      tmp_exp_time *= 1e3;
 
       /* base_time : 0x0002 = ms, 0x0001 = us, 0x0000 = ns */
       WORD base_time;
 
-      for (base_time = 0x0002; base_time > 0 && exposure_time_ < 1.0f; --base_time)
-        exposure_time_ *= 1e3;
+      // Why doing this?
+      for (base_time = 0x0002; base_time > 0 && tmp_exp_time < 1.0f; --base_time)
+        tmp_exp_time *= 1e3;
 
-      status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(exposure_time_), 0, base_time);
+      status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(tmp_exp_time), 0, base_time);
       soft_assert("PCO_SetDelayExposureTime", status, ostr);
     }
 
     {
-      WORD fps_change_status;
-      DWORD exp_time = static_cast<DWORD>(exposure_time_ * 10e9);
-      status |= PCO_SetFrameRate(device_, &fps_change_status, 0, &framerate_, &exp_time);
+      WORD fps_change_status; // Knowing if some value was trimmed. Currently unused.
+      DWORD tmp_exp_time = static_cast<DWORD>(exposure_time_ * 1e9); // SDK requires exp. time in ns
+
+      status |= PCO_SetFrameRate(device_, &fps_change_status, framerate_mode_, &framerate_, &tmp_exp_time);
       soft_assert("PCO_SetFrameRate", status, ostr);
-      exposure_time_ = static_cast<float>(exp_time)* 10e-9; // Convert from nanoseconds
+
+      exposure_time_ = static_cast<float>(tmp_exp_time)* 1e-9; // Convert back exp. time to seconds
     }
 
     {
@@ -228,10 +236,42 @@ namespace camera
       soft_assert("[Port 4] PCO_SetHWIOSignal", status, ostr);
     }
 
+    ostr.close();
+
+    // Display final configuration
+    std::cout << "Final configuration : \n" <<
+      "binning (h x v)   = " << hz_binning_ << "x" << vt_binning_ << "\n" <<
+      "conversion factor = " << conversion_factor_ << "\n" <<
+      "exposure time     = " << exposure_time_ << "\n" <<
+      "trigger mode      = " << triggermode_ << "\n" <<
+      "framerate         = " << framerate_ << "\n" <<
+      "framerate mode    = " << framerate_mode_ << "_n" <<
+      "Port 1 : state[" << io_0_conf.wEnabled << "]\n" <<
+      "         type[" << io_0_conf.wType << "]\n" <<
+      "         polarity[" << io_0_conf.wPolarity << "]\n" <<
+      "         filter[" << io_0_conf.wFilterSetting << "]\n" <<
+      "         subindex[" << io_0_conf.wSelected << "]\n" <<
+      "Port 2 : state[" << io_1_conf.wEnabled << "]\n" <<
+      "         type[" << io_1_conf.wType << "]\n" <<
+      "         polarity[" << io_1_conf.wPolarity << "]\n" <<
+      "         filter[" << io_1_conf.wFilterSetting << "]\n" <<
+      "         subindex[" << io_1_conf.wSelected << "]\n" <<
+      "Port 3 : state[" << io_2_conf.wEnabled << "]\n" <<
+      "         type[" << io_2_conf.wType << "]\n" <<
+      "         polarity[" << io_2_conf.wPolarity << "]\n" <<
+      "         filter[" << io_2_conf.wFilterSetting << "]\n" <<
+      "         subindex[" << io_2_conf.wSelected << "]\n" <<
+      "Port 4 : state[" << io_3_conf.wEnabled << "]\n" <<
+      "         type[" << io_3_conf.wType << "]\n" <<
+      "         polarity[" << io_3_conf.wPolarity << "]\n" <<
+      "         filter[" << io_3_conf.wFilterSetting << "]\n" <<
+      "         subindex[" << io_3_conf.wSelected << "]" << std::endl;
+
     /* DEBUG : remove comments later
     if (status != PCO_NOERROR)
       throw CameraException(CameraException::CANT_SET_CONFIG);
     ** ! DEBUG */
+
   }
 
 }
