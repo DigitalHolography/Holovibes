@@ -22,23 +22,30 @@ __global__ void kernel_quadratic_lens(
   float lambda,
   float dist)
 {
-  unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
-  unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
-  unsigned int index = j * blockDim.x * gridDim.x + i;
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int size = fd.width * fd.height;
 
   float c = M_PI / (lambda * dist);
   float csquare;
   float dx = fd.pixel_size * 1.0e-6f;
   float dy = fd.pixel_size * 1.0e-6f;
 
-  float x = (i - (static_cast<float>(fd.width) / 2)) * dx;
-  float y = (j - (static_cast<float>(fd.height) / 2)) * dy;
+  float	x;
+  float	y;
+  unsigned int i;
+  unsigned int j;
 
-  if (index < fd.width * fd.height)
+  while (index < size)
   {
-    csquare = c * (x * x + y * y);
-    output[index].x = cosf(csquare);
-    output[index].y = sinf(csquare);
+	  i = index % fd.width;
+	  j = index / fd.height;
+	  x = (i - ((float)fd.width / 2)) * dx;
+	  y = (j - ((float)fd.height / 2)) * dy;
+
+	  csquare = c * (x * x + y * y);
+	  output[index].x = cosf(csquare);
+	  output[index].y = sinf(csquare);
+	  index += blockDim.x * gridDim.x;
   }
 }
 
