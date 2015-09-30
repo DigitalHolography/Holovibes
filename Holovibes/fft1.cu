@@ -13,11 +13,12 @@ void fft1_lens(
   float lambda,
   float z)
 {
-  unsigned int threads_2d = get_max_threads_2d();
-  dim3 lthreads(threads_2d, threads_2d);
-  dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
+  unsigned int threads = 128;
+  unsigned int blocks = (fd.frame_res() + threads - 1) / threads;
 
-  kernel_quadratic_lens<<<lblocks, lthreads>>>(lens, fd, lambda, z);
+  if (blocks > get_max_blocks())
+	  blocks = get_max_blocks();
+  kernel_quadratic_lens<<<blocks, threads>>>(lens, fd, lambda, z);
 }
 
 void fft_1(
@@ -29,7 +30,7 @@ void fft_1(
 {
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
-  unsigned int threads = 128;
+  unsigned int threads = get_max_threads_1d();
   unsigned int blocks = n_frame_resolution / threads;
 
   if (blocks > get_max_blocks())
