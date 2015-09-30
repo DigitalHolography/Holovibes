@@ -385,7 +385,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
+          <y>20</y>
           <width>121</width>
           <height>16</height>
          </rect>
@@ -397,9 +397,9 @@
        <widget class="QSpinBox" name="numberOfFramesSpinBox">
         <property name="geometry">
          <rect>
-          <x>120</x>
-          <y>30</y>
-          <width>61</width>
+          <x>110</x>
+          <y>20</y>
+          <width>71</width>
           <height>21</height>
          </rect>
         </property>
@@ -413,9 +413,9 @@
        <widget class="QPushButton" name="browsePushButton">
         <property name="geometry">
          <rect>
-          <x>100</x>
-          <y>60</y>
-          <width>81</width>
+          <x>110</x>
+          <y>50</y>
+          <width>71</width>
           <height>21</height>
          </rect>
         </property>
@@ -437,7 +437,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
+          <y>50</y>
           <width>91</width>
           <height>16</height>
          </rect>
@@ -600,6 +600,28 @@
         </property>
         <property name="text">
          <string>Batch</string>
+        </property>
+       </widget>
+       <widget class="QCheckBox" name="RecordFloatOutputCheckBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>121</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Float output: </string>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
         </property>
        </widget>
       </widget>
@@ -1581,7 +1603,7 @@
      <x>0</x>
      <y>0</y>
      <width>1014</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

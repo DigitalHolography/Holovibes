@@ -10,6 +10,8 @@
 # include "concurrent_deque.hh"
 # include "compute_descriptor.hh"
 
+# include <fstream>
+
 namespace holovibes
 {
   /*! \brief Pipeline is a class that applies treatments on input frames.
@@ -93,6 +95,11 @@ namespace holovibes
       unsigned int n);
     /*! \} */
 
+	/*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
+	void request_float_output(std::string& file_src, unsigned int nb_frame);
+	/*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
+	void request_float_output_stop();
+
     /*! \brief Execute one iteration of the pipeline.
      *
      * * Checks the number of frames in input queue that must at least
@@ -159,6 +166,9 @@ namespace holovibes
     /*! \brief Generate the pipeline vector. */
     void refresh();
 
+	/*! \brief Record one frame in gpu_float_buf_ to file_. */
+	void Pipeline::record_float();
+
     /*! \{ \name Disable copy/assignments. */
     Pipeline& operator=(const Pipeline&) = delete;
     Pipeline(const Pipeline&) = delete;
@@ -205,7 +215,13 @@ namespace holovibes
     bool update_n_requested_;
     bool average_requested_;
     bool average_record_requested;
+	bool float_output_requested;
     /*! \} */
+
+	/*! \brief Number of frame to record before request_float_output_stop. */
+	unsigned int float_output_nb_frame_;
+	/*! \brief Ofstream use by float_output_recorder. */
+	std::ofstream float_output_file_;
 
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;

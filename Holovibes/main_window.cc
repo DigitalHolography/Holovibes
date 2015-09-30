@@ -741,34 +741,46 @@ namespace gui
 
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+	QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+
 
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
 
     try
     {
-      if (is_direct_mode_)
-      {
-        record_thread_ = new ThreadRecorder(
-          holovibes_.get_capture_queue(),
-          path,
-          nb_of_frames,
-          this);
-      }
-      else
-      {
-        record_thread_ = new ThreadRecorder(
-          holovibes_.get_output_queue(),
-          path,
-          nb_of_frames,
-          this);
-      }
+		if (float_output_checkbox->isChecked())
+		{
+			holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
 
-      connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
-      record_thread_->start();
+			global_visibility(true);
+			record_but_cancel_visible(true);
+		}
+		else
+		{
+			if (is_direct_mode_)
+			{
+				record_thread_ = new ThreadRecorder(
+					holovibes_.get_capture_queue(),
+					path,
+					nb_of_frames,
+					this);
+			}
+			else
+			{
+				record_thread_ = new ThreadRecorder(
+					holovibes_.get_output_queue(),
+					path,
+					nb_of_frames,
+					this);
+			}
 
-      QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
-      cancel_button->setDisabled(false);
+			connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
+			record_thread_->start();
+
+			QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+			cancel_button->setDisabled(false);
+		}
     }
     catch (std::exception& e)
     {
