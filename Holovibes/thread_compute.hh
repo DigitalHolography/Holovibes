@@ -15,7 +15,10 @@ namespace holovibes
     ThreadCompute(
       ComputeDescriptor& desc,
       Queue& input,
-      Queue& output);
+	  Queue& output,
+	  bool is_float_output_enabled,
+	  std::string float_output_file_src,
+	  unsigned int float_output_nb_frame);
     ~ThreadCompute();
 
     Pipeline& get_pipeline()
@@ -43,7 +46,7 @@ namespace holovibes
       pipeline_->request_autocontrast();
     }
   private:
-    void thread_proc();
+	  void thread_proc(std::string float_output_file_src, unsigned int float_output_nb_frame);
 
   private:
     ComputeDescriptor& compute_desc_;
@@ -52,6 +55,7 @@ namespace holovibes
     Pipeline* pipeline_;
 
     bool compute_on_;
+	bool is_float_output_enabled_;
     std::condition_variable memory_cv_;
     std::thread thread_;
   };
