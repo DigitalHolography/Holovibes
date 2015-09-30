@@ -35,7 +35,8 @@ namespace holovibes
     , refresh_requested_(false)
     , update_n_requested_(false)
     , average_requested_(false)
-    , average_record_requested(false)
+	, average_record_requested(false)
+	, float_output_requested(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
@@ -341,11 +342,21 @@ namespace holovibes
         compute_desc_.contrast_max.load()));
     }
 
-    fn_vect_.push_back(std::bind(
-      float_to_ushort,
-      gpu_float_buffer_,
-      gpu_output_buffer_,
-      input_fd.frame_res()));
+	if (!float_output_requested)
+	{
+      fn_vect_.push_back(std::bind(
+        float_to_ushort,
+        gpu_float_buffer_,
+        gpu_output_buffer_,
+        input_fd.frame_res()));
+	}
+	else
+	{
+	  fn_vect_.push_back(std::bind(
+		&Pipeline::record_float,
+		this));
+	}
+
   }
 
   void Pipeline::exec()
@@ -357,9 +368,12 @@ namespace holovibes
         ++cit)
         (*cit)();
 
-      output_.enqueue(
-        gpu_output_buffer_,
-        cudaMemcpyDeviceToDevice);
+	  if (!float_output_requested)
+	  {
+		  output_.enqueue(
+			  gpu_output_buffer_,
+			  cudaMemcpyDeviceToDevice);
+	  }
       input_.dequeue();
 
       if (refresh_requested_)
@@ -370,6 +384,49 @@ namespace holovibes
   void Pipeline::request_refresh()
   {
     refresh_requested_ = true;
+  }
+
+  void Pipeline::request_float_output(std::string& float_output_file_src, unsigned int nb_frame)
+  {
+	  try
+	  {
+		  float_output_file_.open(float_output_file_src, std::ofstream::trunc | std::ofstream::binary);
+		  float_output_nb_frame_ = nb_frame;
+		  float_output_requested = true;
+		  request_refresh();
+		  std::cout << "[PIPELINE]: record start." << std::endl;
+	  }
+	  catch (std::exception& e)
+	  {
+		  std::cout << "[PIPELINE]: " << e.what() << std::endl;
+		  request_float_output_stop();
+	  }
+  }
+
+  void Pipeline::request_float_output_stop()
+  {
+	  if (float_output_file_.is_open())
+		  float_output_file_.close();
+	  float_output_requested = false;
+	  request_refresh();
+	  std::cout << "[PIPELINE]: record done." << std::endl;
+  }
+
+  void Pipeline::record_float()
+  {
+	  if (float_output_nb_frame_-- > 0)
+	  {
+		  unsigned int size = input_.get_pixels() * sizeof(float);
+		  char *buf = new char[size];
+
+		  cudaMemcpy(buf, gpu_float_buffer_, size, cudaMemcpyDeviceToHost);
+		  float_output_file_.write(buf, size);
+
+		  // can be improve
+		  delete[] buf;
+	  }
+	  else
+		  request_float_output_stop();
   }
 
   void Pipeline::request_autocontrast()
