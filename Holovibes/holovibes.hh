@@ -98,7 +98,10 @@ namespace holovibes
      * The pipeline is allocated and his allocation can take some times so that
      * the method contains a lock to avoid conflicts between threads that would
      * use the Pipeline before it finished the initialization. */
-    void init_compute();
+	void init_compute(
+		bool is_float_output_enabled = false,
+		std::string float_output_file_src = "",
+		unsigned int float_output_nb_frame = 0);
     void dispose_compute();
 
     void init_import_mode(std::string &file_src

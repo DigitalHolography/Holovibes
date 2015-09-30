@@ -49,6 +49,7 @@ namespace holovibes
   {
     /*! \brief Vector of procedures type */
     using FnVector = std::vector < std::function<void()> > ;
+	friend class ThreadCompute;
   public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      * \param input Input queue containing acquired frames.
@@ -57,7 +58,7 @@ namespace holovibes
     Pipeline(
       Queue& input,
       Queue& output,
-      ComputeDescriptor& desc);
+	  ComputeDescriptor& desc);
     virtual ~Pipeline();
 
     /*! \{ \name Pipeline request methods */

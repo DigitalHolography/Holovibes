@@ -27,7 +27,7 @@ namespace holovibes
 		  ("version", "Print the version number of Holovibes and exit.")
 		  ("help,h", "Print a summary of the command-line options to Holovibes and exit.")
 		  ("nogui", "Disable graphical user interface.")
-		  ("import,i", "Enable import file mode (Cannot be set with a camera).")
+		  ("import,i", "Enable import file mode (Overide a camera). Requires f, img-dim parameters.")
       ;
   }
 
@@ -93,6 +93,9 @@ namespace holovibes
 			"Record a sequence of images in the given path. "
 			"The first argument gives the number of images to record. "
 			"The second argument gives the filepath where frames will be recorded.")
+
+			("float-output,o",
+			"Set on float output, Requires compute mode.")
 			;
 	  if (!is_import_mode_enable)
 	  {
@@ -408,6 +411,7 @@ namespace holovibes
 		if (opts_.spanStart > opts_.spanEnd)
 			throw std::runtime_error("frame_start must be smaller than frame_end");
 	}
+	opts_.is_float_output_enabled = vm_.count("float-output");
 
   }
 

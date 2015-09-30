@@ -25,6 +25,7 @@ namespace holovibes
       , is_gl_window_enabled(false)
       , is_recorder_enabled(false)
       , is_compute_enabled(false)
+	  , is_float_output_enabled(false)
       , compute_desc()
     {}
 
@@ -64,6 +65,7 @@ namespace holovibes
     bool is_recorder_enabled;
     bool is_compute_enabled;
 	bool is_import_mode_enabled;
+	bool is_float_output_enabled;
     ComputeDescriptor compute_desc;
   };
 }

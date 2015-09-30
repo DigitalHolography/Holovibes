@@ -17,7 +17,7 @@ namespace holovibes
   Pipeline::Pipeline(
     Queue& input,
     Queue& output,
-    ComputeDescriptor& desc)
+	ComputeDescriptor& desc)
     : fn_vect_()
     , compute_desc_(desc)
     , input_(input)
@@ -36,7 +36,6 @@ namespace holovibes
     , update_n_requested_(false)
     , average_requested_(false)
 	, average_record_requested(false)
-	, float_output_requested(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
