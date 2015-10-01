@@ -1810,7 +1810,7 @@
   </action>
   <action name="actionEdge">
    <property name="text">
-    <string>Edge</string>
+    <string>Edge 4.2 LT</string>
    </property>
   </action>
   <action name="actionImport">
