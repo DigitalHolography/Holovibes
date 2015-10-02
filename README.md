@@ -268,4 +268,13 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * The autofocus has been improved a lot in terms of precision.
 * Some small performance changes.
 
+### v.1.0.2
+
+* The autofocus can now be done recursively, allowing it to be performed must faster.
+* Batch ouput can be done as float.
+* Zoom is properly working now.
+* The interface is responsive
+
+
+
 
