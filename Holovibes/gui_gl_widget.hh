@@ -3,6 +3,7 @@
 
 # include <array>
 # include <QGLWidget>
+# include <QShortcut.h>
 # include <QOpenGLFunctions.h>
 # include <QTimer>
 # include <QMouseEvent>
@@ -93,6 +94,14 @@ namespace gui
   public slots:
     void resizeFromWindow(int width, int height);
 
+	/*! \{ \name View Shortcut */
+	void view_move_down();
+	void view_move_left();
+	void view_move_right();
+	void view_move_up();
+	void view_zoom_in();
+	void view_zoom_out();
+	/*! \} */
   signals:
     /*! \brief Signal used to inform the main window that autofocus
     ** zone has been selected.
@@ -190,6 +199,15 @@ namespace gui
 
     /*! Previouses zoom ratios */
     float zoom_ratio_;
+
+	/*! \{ \name View Shortcut */
+	QShortcut	*num_2_shortcut;
+	QShortcut	*num_4_shortcut;
+	QShortcut	*num_6_shortcut;
+	QShortcut	*num_8_shortcut;
+	QShortcut	*zoom_in_shortcut;
+	QShortcut	*zoom_out_shortcut;
+    /*! \} */
 
     /*! \{ \name Window size hints */
     unsigned int width_;
