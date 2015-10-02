@@ -78,12 +78,7 @@ namespace camera
     }
 
     bind_params();
-
-    /* Retrieve frame resolution. */
-    status |= get_sensor_sizes();
-    /* Buffer memory allocation. */
-    status |= allocate_buffers();
-
+    
     if (status != PCO_NOERROR)
       throw CameraException(CameraException::NOT_INITIALIZED);
   }
@@ -92,8 +87,19 @@ namespace camera
   {
     int status = PCO_NOERROR;
 
+    /* Note : The SDK recommands the following setting order
+    ** when potentially using ROI and/or binning :
+    ** binning -> ROI -> arm camera -> getSizes -> allocate buffers
+    */
+
     status |= PCO_ArmCamera(device_);
     status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+
+    /* Retrieve frame resolution. */
+    status |= get_sensor_sizes();
+    /* Buffer memory allocation. */
+    status |= allocate_buffers();
+
 
     /* Add buffers into queue. */
     for (unsigned int i = 0;
@@ -151,6 +157,18 @@ namespace camera
         buffers_[buffer_index],
         buffer_size_,
         &buffers_driver_status_[buffer_index]);
+
+      // DEBUG
+      // Checking camera status regularly
+      {
+        DWORD warnings, errors, status;
+        PCO_GetCameraHealthStatus(device_, &warnings, &errors, &status);
+        if (warnings != PCO_NOERROR)
+          std::cout << "[WARNING] : " << warnings << std::endl;
+        if (errors != PCO_NOERROR)
+          std::cout << "[ERRORS] : " << errors << std::endl;
+      }
+      // ! DEBUG
 
       return buffers_[buffer_index];
     }
