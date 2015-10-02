@@ -89,7 +89,7 @@ namespace holovibes
     std::string& filepath,
     unsigned int rec_n_images)
   {
-	  assert(camera_initialized_ && "camera not initialized");
+    assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
@@ -109,9 +109,9 @@ namespace holovibes
   }
 
   void Holovibes::init_compute(
-	  bool is_float_output_enabled,
-	  std::string float_output_file_src,
-	  unsigned int float_output_nb_frame)
+    bool is_float_output_enabled,
+    std::string float_output_file_src,
+    unsigned int float_output_nb_frame)
   {
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
@@ -121,10 +121,10 @@ namespace holovibes
     output_frame_desc.depth = 2;
     output_.reset(new Queue(output_frame_desc, input_->get_max_elts()));
 
-	tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_,
-		is_float_output_enabled,
-		float_output_file_src,
-		float_output_nb_frame));
+    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_,
+      is_float_output_enabled,
+      float_output_file_src,
+      float_output_nb_frame));
     std::cout << "[CUDA] compute thread started" << std::endl;
 
     // A wait_for is necessary here in order for the pipeline to finish
@@ -152,41 +152,41 @@ namespace holovibes
   const float Holovibes::get_boundary()
   {
     float n = static_cast<float>(get_cam_frame_desc().height);
-    float d = get_cam_frame_desc().pixel_size * 0.000001;
+    float d = get_cam_frame_desc().pixel_size * static_cast<float>(0.000001);
     return (n * d * d) / compute_desc_.lambda;
   }
 
   void Holovibes::init_import_mode(std::string &file_src
-	  , holovibes::ThreadReader::FrameDescriptor frame_desc
-	  , bool loop
-	  , unsigned int fps
-	  , unsigned int spanStart
-	  , unsigned int spanEnd
-	  , unsigned int q_max_size_)
+    , holovibes::ThreadReader::FrameDescriptor frame_desc
+    , bool loop
+    , unsigned int fps
+    , unsigned int spanStart
+    , unsigned int spanEnd
+    , unsigned int q_max_size_)
   {
-	  camera_initialized_ = false;
+    camera_initialized_ = false;
 
-	  try
-	  {
-		  input_.reset(new Queue(frame_desc.desc, q_max_size_));
-		  tcapture_.reset(
-			  new ThreadReader(file_src
-			  , frame_desc
-			  , loop
-			  , fps
-			  , spanStart
-			  , spanEnd
-			  , *input_));
-		  std::cout << "[CAPTURE] reader thread started" << std::endl;
-		  camera_initialized_ = true;
-	  }
-	  catch (std::exception& e)
-	  {
-		  std::cout << e.what() << std::endl;
-		  tcapture_.reset(nullptr);
-		  input_.reset(nullptr);
+    try
+    {
+      input_.reset(new Queue(frame_desc.desc, q_max_size_));
+      tcapture_.reset(
+        new ThreadReader(file_src
+        , frame_desc
+        , loop
+        , fps
+        , spanStart
+        , spanEnd
+        , *input_));
+      std::cout << "[CAPTURE] reader thread started" << std::endl;
+      camera_initialized_ = true;
+    }
+    catch (std::exception& e)
+    {
+      std::cout << e.what() << std::endl;
+      tcapture_.reset(nullptr);
+      input_.reset(nullptr);
 
-		  throw;
-	  }
+      throw;
+    }
   }
 }
