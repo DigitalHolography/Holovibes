@@ -190,5 +190,4 @@ namespace holovibes
       throw;
     }
   }
->>>>>>> Fixed some ugly positions of buttons in GUI and some ugly code
 }
