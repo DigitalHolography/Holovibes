@@ -144,6 +144,10 @@ namespace holovibes
     output_.reset(nullptr);
   }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ed6157007d5a9c6453a602ce3f2b39247550e996
   const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
   {
     return camera_->get_frame_descriptor();

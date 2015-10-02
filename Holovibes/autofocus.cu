@@ -181,6 +181,7 @@ static float average_local_variance(
   cudaFree(input_complex);
   cudaFree(ke_gpu_frame);
 
+
   return average_local_variance;
 }
 
@@ -393,6 +394,8 @@ static float sobel_operator(
   // HEHEHEHEHEHEHEHEH
   return 1.0f / average_magnitude;
 }
+
+
 
 float focus_metric(
   float* input,
