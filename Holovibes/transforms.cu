@@ -40,12 +40,8 @@ __global__ void kernel_quadratic_lens(
 	  i = index % fd.width;
 	  j = index / fd.height;
   	  x = (i - (static_cast<float>(fd.width) / 2)) * dx;
-<<<<<<< HEAD
       y = (j - (static_cast<float>(fd.height) / 2)) * dy;
-=======
-     	  y = (j - (static_cast<float>(fd.height) / 2)) * dy;
 
->>>>>>> ed6157007d5a9c6453a602ce3f2b39247550e996
 	  csquare = c * (x * x + y * y);
 	  output[index].x = cosf(csquare);
 	  output[index].y = sinf(csquare);
