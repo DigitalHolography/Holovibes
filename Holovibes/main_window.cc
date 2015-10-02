@@ -209,14 +209,18 @@ namespace gui
 
   void MainWindow::credits()
   {
-    display_info("Holovibes v1.0.0\n\n"
+    display_info("Holovibes v1.0.2\n\n"
       "Scientists:\n"
       "Michael Atlan\n"
       "\n"
       "Developers:\n"
       "Jeffrey Bencteux\n"
       "Thomas Kostas\n"
-      "Pierre Pagnoux\n");
+      "Pierre Pagnoux\n"
+      "\n"
+      "Eric Delanghe\n"
+      "Arnaud Gaillard\n"
+      "Geoffrey Le Gourrierec\n");
   }
 
   void MainWindow::configure_camera()
