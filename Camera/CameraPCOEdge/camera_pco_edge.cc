@@ -89,10 +89,10 @@ namespace camera
     hz_binning_ = 1;
     vt_binning_ = 1;
 
-    p0_x_ = 0;
-    p0_y_ = 0;
-    p1_x_ = CameraPCO::get_actual_res_x() - 1;
-    p1_y_ = CameraPCO::get_actual_res_y() - 1;
+    p0_x_ = 1;
+    p0_y_ = 1;
+    p1_x_ = 2048;
+    p1_y_ = 2048;
 
     pixel_rate_ = 110 * 1e6;
 
@@ -126,11 +126,11 @@ namespace camera
 
     hz_binning_ = pt.get<WORD>("pco-edge.binning_hz", hz_binning_);
     vt_binning_ = pt.get<WORD>("pco-edge.binning_vt", vt_binning_);
-
-    p0_x_ = pt.get<WORD>("pco-edge.p0_x", p0_x_);
-    p0_y_ = pt.get<WORD>("pco-edge.p0_y", p0_y_);
-    p1_x_ = pt.get<WORD>("pco-edge.p1_x", p1_x_);
-    p1_y_ = pt.get<WORD>("pco-edge.p1_y", p1_y_);
+   
+    p0_x_ = pt.get<WORD>("pco-edge.roi_x", p0_x_);
+    p0_y_ = pt.get<WORD>("pco-edge.roi_y", p0_y_);
+    p1_x_ = pt.get<WORD>("pco-edge.roi_width", p1_x_) + p0_x_;
+    p1_y_ = pt.get<WORD>("pco-edge.roi_height", p1_y_) + p0_y_;
 
     pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 1e6;
 
