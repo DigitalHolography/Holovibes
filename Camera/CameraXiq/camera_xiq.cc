@@ -122,6 +122,10 @@ namespace camera
         roi_y_ = tmp_roi_y;
         roi_width_ = tmp_roi_width;
         roi_height_ = tmp_roi_height;
+
+        // Don't forget to update the frame descriptor!
+        desc_.width = roi_width_;
+        desc_.height = roi_height_;
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
