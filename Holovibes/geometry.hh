@@ -43,6 +43,11 @@ namespace holovibes
   /*! Rectangle used for selections */
   struct Rectangle
   {
+    /* Even though 4 points do not guarantee that a rectangle
+    is being represented, the ctor only takes two (top left and bot
+    right). These 2 points always represent a rectangle. The two
+    other points are built and the resulting structure will always
+    be a rectangle*/
     Point2D top_left;
     Point2D top_right;
     Point2D bottom_left;
@@ -58,17 +63,6 @@ namespace holovibes
       bottom_right = bottom_right_corner;
       top_right = Point2D(bottom_right_corner.x, top_left_corner.y);
       bottom_left = Point2D(top_left_corner.x, bottom_right_corner.y);
-    }
-
-    Rectangle(Point2D top_left_corner,
-      Point2D top_right_corner,
-      Point2D bottom_left_corner,
-      Point2D bottom_right_corner)
-    {
-      top_left = top_left_corner;
-      top_right = top_right_corner;
-      bottom_left = bottom_left_corner;
-      bottom_right = bottom_right_corner;
     }
 
     Rectangle(const Rectangle& rect)
@@ -88,6 +82,12 @@ namespace holovibes
       return *this;
     }
 
+    /*! \brief The two following functions will only be called in gui_gl_widget.cc
+    ** in order to 'correctly' represent a selection rectangle.
+    ** I.E. The first point clicked on during selection is considered as top
+    ** left, but isn't necessarily the top left hand corner. These functions
+    ** will readjust the rectangle so that the names are relevant.
+    **/
     void vertical_symetry()
     {
       Point2D tmp;
@@ -100,6 +100,12 @@ namespace holovibes
       bottom_right = tmp;
     }
 
+    /*! \brief The two following functions will only be called in gui_gl_widget.cc
+    ** in order to 'correctly' represent a selection rectangle.
+    ** I.E. The first point clicked on during selection is considered as top
+    ** left, but isn't necessarily the top left hand corner. These functions
+    ** will readjust the rectangle so that the names are relevant.
+    **/
     void horizontal_symetry()
     {
       Point2D tmp;
