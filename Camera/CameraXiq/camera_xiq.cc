@@ -113,9 +113,11 @@ namespace camera
       int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
       int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
 
-      if (tmp_roi_x < desc_.width ||
-        tmp_roi_y < desc_.height ||
-        tmp_roi_width <= desc_.width ||
+      if (tmp_roi_width > 0 &&
+        tmp_roi_height > 0 &&
+        tmp_roi_x < desc_.width &&
+        tmp_roi_y < desc_.height &&
+        tmp_roi_width <= desc_.width &&
         tmp_roi_height <= desc_.height)
       {
         roi_x_ = tmp_roi_x;
