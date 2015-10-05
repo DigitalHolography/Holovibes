@@ -237,10 +237,8 @@ namespace camera
           &buffers_[i],
           &buffers_events_[i]);
 
-        if (status != PCO_NOERROR)
         soft_assert("PCO_AllocateBuffer", status);
-        /*assert(buffer_nbr == static_cast<SHORT>(i));*/
-        std::cout << "Buffer number : " << buffer_nbr << "against " << i << std::endl;
+        assert(buffer_nbr == static_cast<SHORT>(i));
       }
     }
     catch (std::bad_alloc& ba)

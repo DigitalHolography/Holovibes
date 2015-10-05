@@ -126,11 +126,37 @@ namespace camera
 
     hz_binning_ = pt.get<WORD>("pco-edge.binning_hz", hz_binning_);
     vt_binning_ = pt.get<WORD>("pco-edge.binning_vt", vt_binning_);
-   
-    p0_x_ = pt.get<WORD>("pco-edge.roi_x", p0_x_);
-    p0_y_ = pt.get<WORD>("pco-edge.roi_y", p0_y_);
-    p1_x_ = pt.get<WORD>("pco-edge.roi_width", p1_x_) + p0_x_;
-    p1_y_ = pt.get<WORD>("pco-edge.roi_height", p1_y_) + p0_y_;
+    // Updating frame descriptor's dimensions accordingly.
+    desc_.width /= hz_binning_;
+    desc_.height /= vt_binning_;
+
+    {
+      // Making sure ROI settings are valid.
+
+      WORD tmp_p0_x = pt.get<WORD>("pco-edge.roi_x", p0_x_);
+      WORD tmp_p0_y = pt.get<WORD>("pco-edge.roi_y", p0_y_);
+      WORD tmp_p1_x = pt.get<WORD>("pco-edge.roi_width", p1_x_) + tmp_p0_x;
+      WORD tmp_p1_y = pt.get<WORD>("pco-edge.roi_height", p1_y_) + tmp_p0_y;
+
+      if (tmp_p0_x < tmp_p1_x &&
+        tmp_p0_y < tmp_p1_y &&
+        tmp_p0_x <= desc_.width &&
+        tmp_p0_y <= desc_.height &&
+        tmp_p1_x <= desc_.width &&
+        tmp_p1_y <= desc_.height)
+      {
+        p0_x_ = tmp_p0_x;
+        p0_y_ = tmp_p0_y;
+        p1_x_ = tmp_p1_x;
+        p1_y_ = tmp_p1_y;
+
+        // Don't forget to update frame descriptor
+        desc_.width = p1_x_ - p0_x_;
+        desc_.height = p1_y_ - p0_y_;
+      }
+      else
+        std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
+    }
 
     pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 1e6;
 
