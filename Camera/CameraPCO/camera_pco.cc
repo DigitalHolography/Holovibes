@@ -10,6 +10,17 @@
 
 namespace camera
 {
+  // DEBUG : remove these functions later
+
+  static void soft_assert(const char* func, int& status)
+  {
+    if (status != PCO_NOERROR)
+      std::cout << func << "() call failed : error " << status << std::endl;
+    status = PCO_NOERROR;
+  }
+
+  // ! DEBUG
+
   CameraPCO::CameraPCO(
     const std::string& ini_filepath,
     WORD camera_type)
@@ -93,13 +104,20 @@ namespace camera
     */
 
     status |= PCO_ArmCamera(device_);
-    status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
-
+    soft_assert("PCO_ArmCamera", status);
+    
     /* Retrieve frame resolution. */
     status |= get_sensor_sizes();
+    soft_assert("PCO_GetSizes", status);
+    std::cout << "Getting size : " << actual_res_x_ << "," << actual_res_y_ << std::endl;
+
     /* Buffer memory allocation. */
     status |= allocate_buffers();
+    soft_assert("PCO_AllocateBuffers", status);
 
+    /* Set recording state to [run] */
+    status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+    soft_assert("PCO_SetRecordingState", status);
 
     /* Add buffers into queue. */
     for (unsigned int i = 0;
@@ -113,6 +131,8 @@ namespace camera
         buffers_[i],
         buffer_size_,
         &buffers_driver_status_[i]);
+      if (status != PCO_NOERROR)
+        std::cout << "PCO_AddBufferExtern " << i << " failed" << std::endl;
     }
 
     if (status != PCO_NOERROR)
@@ -217,7 +237,10 @@ namespace camera
           &buffers_[i],
           &buffers_events_[i]);
 
-        assert(buffer_nbr == static_cast<SHORT>(i));
+        if (status != PCO_NOERROR)
+        soft_assert("PCO_AllocateBuffer", status);
+        /*assert(buffer_nbr == static_cast<SHORT>(i));*/
+        std::cout << "Buffer number : " << buffer_nbr << "against " << i << std::endl;
       }
     }
     catch (std::bad_alloc& ba)
