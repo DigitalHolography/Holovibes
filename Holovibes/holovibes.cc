@@ -51,10 +51,10 @@ namespace holovibes
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
 
       /*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
-                , camera_->get_frame_descriptor()
-                , true
-                , 16
-                , *input_));*/
+            , camera_->get_frame_descriptor()
+            , true
+            , 16
+            , *input_));*/
 
       std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
@@ -63,10 +63,10 @@ namespace holovibes
     {
       std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
-	  input_.reset(nullptr);
+      input_.reset(nullptr);
 
       throw;
-	}
+    }
   }
 
   void Holovibes::dispose_capture()
@@ -143,7 +143,6 @@ namespace holovibes
     tcompute_.reset(nullptr);
     output_.reset(nullptr);
   }
-
 
   const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
   {
