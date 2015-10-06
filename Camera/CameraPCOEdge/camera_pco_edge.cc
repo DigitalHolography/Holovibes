@@ -113,8 +113,8 @@ namespace camera
 
       WORD tmp_p0_x = pt.get<WORD>("pco-edge.roi_x", p0_x_);
       WORD tmp_p0_y = pt.get<WORD>("pco-edge.roi_y", p0_y_);
-      WORD tmp_p1_x = pt.get<WORD>("pco-edge.roi_width", p1_x_) + tmp_p0_x;
-      WORD tmp_p1_y = pt.get<WORD>("pco-edge.roi_height", p1_y_) + tmp_p0_y;
+      WORD tmp_p1_x = pt.get<WORD>("pco-edge.roi_width", p1_x_) + tmp_p0_x - 1;
+      WORD tmp_p1_y = pt.get<WORD>("pco-edge.roi_height", p1_y_) + tmp_p0_y - 1;
 
       if (tmp_p0_x < tmp_p1_x &&
         tmp_p0_y < tmp_p1_y &&
@@ -129,8 +129,8 @@ namespace camera
         p1_y_ = tmp_p1_y;
 
         // Don't forget to update frame descriptor
-        desc_.width = p1_x_ - p0_x_;
-        desc_.height = p1_y_ - p0_y_;
+        desc_.width = p1_x_ - p0_x_ + 1;
+        desc_.height = p1_y_ - p0_y_ + 1;
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
