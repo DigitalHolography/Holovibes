@@ -132,7 +132,7 @@ namespace camera
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
     }
-    
+
     str = pt.get<std::string>("xiq.format", "");
     if (str == "MONO8")
       img_format_ = XI_MONO8;
@@ -158,10 +158,32 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
     status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
     status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
-    status |= xiSetParamInt(device_, XI_PRM_AEAG_ROI_OFFSET_X, roi_x_);
-    status |= xiSetParamInt(device_, XI_PRM_AEAG_ROI_OFFSET_Y, roi_y_);
-    status |= xiSetParamInt(device_, XI_PRM_AEAG_ROI_WIDTH, roi_width_);
-    status |= xiSetParamInt(device_, XI_PRM_AEAG_ROI_HEIGHT, roi_height_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
+    status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
+    status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
+
+    int h_increment;
+    if (xiGetParamInt(device_, XI_PRM_HEIGHT XI_PRM_INFO_INCREMENT, &h_increment) != XI_OK)
+      std::cout << "Could not get minimum height increment." << std::endl;
+    else
+      std::cout << "Minimum height increment for ROI : " << h_increment << std::endl;
+    int v_increment;
+    if (xiGetParamInt(device_, XI_PRM_WIDTH XI_PRM_INFO_INCREMENT, &v_increment) != XI_OK)
+      std::cout << "Could not get minimum width increment." << std::endl;
+    else
+      std::cout << "Minimum width increment for ROI : " << v_increment << std::endl;
+
+    int x_increment;
+    if (xiGetParamInt(device_, XI_PRM_OFFSET_X XI_PRM_INFO_INCREMENT, &x_increment) != XI_OK)
+      std::cout << "Could not get minimum X increment." << std::endl;
+    else
+      std::cout << "Minimum X increment for ROI : " << x_increment << std::endl;
+    int y_increment;
+    if (xiGetParamInt(device_, XI_PRM_OFFSET_Y XI_PRM_INFO_INCREMENT, &y_increment) != XI_OK)
+      std::cout << "Could not get minimum Y increment." << std::endl;
+    else
+      std::cout << "Minimum Y increment for ROI : " << y_increment << std::endl;
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
