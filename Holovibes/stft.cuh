@@ -14,6 +14,7 @@ void stft(
   cufftComplex* input,
   cufftComplex* lens,
   cufftComplex* stft_buf,
+  cufftHandle   plan2d,
   unsigned int frame_resolution,
   unsigned int nframes);
 

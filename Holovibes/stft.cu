@@ -8,6 +8,7 @@ void stft(
   cufftComplex* input,
   cufftComplex* lens,
   cufftComplex* stft_buf,
+  cufftHandle   plan2d,
   unsigned int frame_resolution,
   unsigned int nframes)
 {
@@ -22,10 +23,11 @@ void stft(
   // Apply lens on multiple frames.
   kernel_apply_lens <<<blocks, threads >>>(input, n_frame_resolution, lens, frame_resolution);
 
-  //cudaDeviceSynchronize();
-  //
+
+  cudaDeviceSynchronize();
+  
   // FFT
-  //cufftExecC2C(plan, input, input, CUFFT_FORWARD);
-  //
-  //cudaDeviceSynchronize();
+  cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
+  
+  cudaDeviceSynchronize();
 }

@@ -271,7 +271,7 @@ namespace holovibes
         gpu_input_buffer_,
         gpu_lens_,
         gpu_stft_buffer_,
-        //plan3d_,
+        plan2d_,
         input_fd.frame_res(),
         compute_desc_.nsamples.load()));
     }
