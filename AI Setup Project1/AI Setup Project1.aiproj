@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">All</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>9947be2e-4bc1-4a96-af3e-02178b73292b</ProjectGuid>
+    <OutputType>msi</OutputType>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>AI Setup Project1.aip</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <IsWindowsApplication>True</IsWindowsApplication>
+    <AssemblyName>AI Setup Project1</AssemblyName>
+    <Name>AI Setup Project1</Name>
+    <RootNamespace>AI Setup Project1</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'All' ">
+    <DebugSymbols>false</DebugSymbols>
+    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'DefaultBuild' " />
+  <ItemGroup>
+    <Compile Include="AI Setup Project1.aip">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Camera\CameraIds\CameraIds.vcxproj">
+      <Name>CameraIds</Name>
+      <Project>{13e1532f-e09f-4de8-a431-410ddf1a7f9c}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Camera\CameraIxon\CameraIxon.vcxproj">
+      <Name>CameraIxon</Name>
+      <Project>{bd9d923d-7f70-48be-b385-6645b49e3b0b}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Camera\CameraPCOEdge\CameraPCOEdge.vcxproj">
+      <Name>CameraPCOEdge</Name>
+      <Project>{9a93db0f-1c4f-4c61-ae6a-f7a47c1cb46e}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Camera\CameraPCOPixelfly\CameraPCOPixelfly.vcxproj">
+      <Name>CameraPCOPixelfly</Name>
+      <Project>{d981b600-1444-4d9b-8124-45cc358ab8df}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Camera\CameraPike\CameraPike.vcxproj">
+      <Name>CameraPike</Name>
+      <Project>{47e0b11b-6ac0-4d69-80bb-bc6a92367b2e}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Camera\CameraXiq\CameraXiq.vcxproj">
+      <Name>CameraXiq</Name>
+      <Project>{41eb15e8-2da8-47c3-8938-92f28aa4e8de}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\GPIB\GPIB.vcxproj">
+      <Name>GPIB</Name>
+      <Project>{4945af2e-4e1f-4052-b8b6-5b0990d1e121}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Holovibes\Holovibes.vcxproj">
+      <Name>Holovibes</Name>
+      <Project>{ca75a564-8c60-4c3b-8778-996f1879bf65}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Caphyon\Advanced Installer\AdvInstExtTasks.Targets" />
+</Project>
