@@ -91,6 +91,8 @@ namespace gui
       algorithm->setCurrentIndex(0);
     else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
       algorithm->setCurrentIndex(1);
+    else if (cd.algorithm == holovibes::ComputeDescriptor::STFT)
+      algorithm->setCurrentIndex(2);
     else
       algorithm->setCurrentIndex(0);
 
@@ -398,12 +400,22 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+      QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
 
+      cd.nsamples = 2;
       if (value == "1FFT")
         cd.algorithm = holovibes::ComputeDescriptor::FFT1;
       else if (value == "2FFT")
         cd.algorithm = holovibes::ComputeDescriptor::FFT2;
+      else if (value == "STFT")
+      {
+        cd.nsamples = 128;
+        cd.algorithm = holovibes::ComputeDescriptor::STFT;
+      }
+      else
+        assert(!"Unknow Algorithm.");
 
+      phaseNumberSpinBox->setValue(cd.nsamples);
       pipeline.request_refresh();
     }
   }
