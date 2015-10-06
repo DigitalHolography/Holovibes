@@ -18,28 +18,7 @@ namespace camera
 
   // ! DEBUG
 
-  static void initialize_pco_signal(PCO_Signal& sig, const WORD index)
-  {
-    sig.wSize = sizeof(PCO_Signal);
-    sig.wSignalNum = index; // { 0, 1, 2, 3}
-    sig.wEnabled = 1; // on (activated)
-    sig.wType = 1; // signal type : TTL
-    sig.wPolarity = 1; // low level active
-    sig.wFilterSetting = 1; // no signal filter
-    sig.wSelected = 0; // standard signal
-
-    /* TODO : I did NOT understand those! */
-    sig.dwParameter[0] = 0;
-    sig.dwParameter[1] = 0;
-    sig.dwParameter[2] = 0;
-    sig.dwParameter[3] = 0;
-
-    sig.dwSignalFunctionality[0] = 0;
-    sig.dwSignalFunctionality[1] = 0;
-    sig.dwSignalFunctionality[2] = 0;
-    sig.dwSignalFunctionality[3] = 0;
-  }
-
+  /* Load PCO_Signal data from ini file. */
   static void load_pco_signal_params(const boost::property_tree::ptree& pt,
       PCO_Signal& sig, const WORD sig_index)
   {
@@ -52,9 +31,8 @@ namespace camera
     sig.wFilterSetting = pt.get<WORD>(prefix + "filter", sig.wFilterSetting);
     sig.wSelected = pt.get<WORD>(prefix + "subindex", sig.wSelected);
 
-    /* TODO : Understand timing parameters (dwParameters) and
-    ** signal functionalities (swSignalFunctionality) arrays.
-    ** For now, they keep their initial values : zero-filled.
+    /* The remaining dwParameter and dwSignalFunctionality are left untouched,
+    ** for tweaking them is not useful to us.
     */
   }
 
@@ -100,10 +78,10 @@ namespace camera
 
     timeouts_[0] = timeouts_[1] = timeouts_[2] = 50;
 
-    initialize_pco_signal(io_0_conf, 0);
-    initialize_pco_signal(io_1_conf, 1);
-    initialize_pco_signal(io_2_conf, 2);
-    initialize_pco_signal(io_3_conf, 3);
+    /* Hardware signals (io_1_conf, etc.) are not initialized manually, because
+    ** default settings are sufficient for the camera to work with them.
+    ** Only settings in the ini file shall be taken into account, later.
+    */
 
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
