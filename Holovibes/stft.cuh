@@ -10,6 +10,11 @@
  ** 3 : Do the fft1 on images
  ** TODO : Implement it, because for the moment it is empty...
  **/
-void stft();
+void stft(
+  cufftComplex* input,
+  cufftComplex* lens,
+  cufftComplex* stft_buf,
+  unsigned int frame_resolution,
+  unsigned int nframes);
 
 #endif
