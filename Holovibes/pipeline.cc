@@ -26,6 +26,7 @@ namespace holovibes
     , output_(output)
     , gpu_input_buffer_(nullptr)
     , gpu_output_buffer_(nullptr)
+    , gpu_stft_buffer_(nullptr)
     , gpu_float_buffer_(nullptr)
     , gpu_sqrt_vector_(nullptr)
     , gpu_lens_(nullptr)
@@ -50,6 +51,10 @@ namespace holovibes
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
       sizeof(unsigned short)* input_.get_pixels());
+
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex) * input_.get_pixels() * desc.nsamples); // TODO
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
@@ -103,6 +108,9 @@ namespace holovibes
 
     /* gpu_input_buffer */
     cudaFree(gpu_input_buffer_);
+
+    /* gpu_stft_buffer */
+    cudaFree(gpu_stft_buffer_);
   }
 
   void Pipeline::update_n_parameter(unsigned short n)
@@ -121,6 +129,14 @@ namespace holovibes
     gpu_input_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * n);
+
+
+    cudaFree(gpu_stft_buffer_);
+    gpu_stft_buffer_ = nullptr;
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex)* input_.get_pixels() * n); // TODO
+
   }
 
   void Pipeline::refresh()
@@ -242,7 +258,22 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
-      stft();
+      // Initialize FFT1 lens.
+      fft1_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance);
+
+      // Add FFT1.
+      fn_vect_.push_back(std::bind(
+        stft,
+        gpu_input_buffer_,
+        gpu_lens_,
+        gpu_stft_buffer_,
+        //plan3d_,
+        input_fd.frame_res(),
+        compute_desc_.nsamples.load()));
     }
     else
       assert(!"Impossible case.");
