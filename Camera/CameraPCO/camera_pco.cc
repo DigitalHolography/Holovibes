@@ -10,17 +10,6 @@
 
 namespace camera
 {
-  // DEBUG : remove these functions later
-
-  static void soft_assert(const char* func, int& status)
-  {
-    if (status != PCO_NOERROR)
-      std::cout << func << "() call failed : error " << status << std::endl;
-    status = PCO_NOERROR;
-  }
-
-  // ! DEBUG
-
   CameraPCO::CameraPCO(
     const std::string& ini_filepath,
     WORD camera_type)
@@ -74,7 +63,7 @@ namespace camera
     int status = PCO_NOERROR;
     if (PCO_OpenCamera(&device_, 0) != PCO_NOERROR)
       throw CameraException(CameraException::NOT_CONNECTED);
-    
+
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();
 
@@ -89,7 +78,7 @@ namespace camera
     }
 
     bind_params();
-    
+
     if (status != PCO_NOERROR)
       throw CameraException(CameraException::NOT_INITIALIZED);
   }
@@ -104,20 +93,15 @@ namespace camera
     */
 
     status |= PCO_ArmCamera(device_);
-    soft_assert("PCO_ArmCamera", status);
-    
+
     /* Retrieve frame resolution. */
     status |= get_sensor_sizes();
-    soft_assert("PCO_GetSizes", status);
-    std::cout << "Getting size : " << actual_res_x_ << "," << actual_res_y_ << std::endl;
 
     /* Buffer memory allocation. */
     status |= allocate_buffers();
-    soft_assert("PCO_AllocateBuffers", status);
 
     /* Set recording state to [run] */
     status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
-    soft_assert("PCO_SetRecordingState", status);
 
     /* Add buffers into queue. */
     for (unsigned int i = 0;
@@ -131,8 +115,6 @@ namespace camera
         buffers_[i],
         buffer_size_,
         &buffers_driver_status_[i]);
-      if (status != PCO_NOERROR)
-        std::cout << "PCO_AddBufferExtern " << i << " failed" << std::endl;
     }
 
     if (status != PCO_NOERROR)
@@ -178,18 +160,6 @@ namespace camera
         buffer_size_,
         &buffers_driver_status_[buffer_index]);
 
-      // DEBUG
-      // Checking camera status regularly
-      {
-        DWORD warnings, errors, status;
-        PCO_GetCameraHealthStatus(device_, &warnings, &errors, &status);
-        if (warnings != PCO_NOERROR)
-          std::cout << "[WARNING] : " << warnings << std::endl;
-        if (errors != PCO_NOERROR)
-          std::cout << "[ERRORS] : " << errors << std::endl;
-      }
-      // ! DEBUG
-
       return buffers_[buffer_index];
     }
 
@@ -207,13 +177,9 @@ namespace camera
       &ccdres_x,
       &ccdres_y);
 
-#if _DEBUG
-    std::cout << actual_res_x_ << ", " << actual_res_y_ << std::endl;
-#endif
-
     return status;
   }
-  
+
   int CameraPCO::allocate_buffers()
   {
     buffer_size_ = actual_res_x_ * actual_res_y_ * sizeof(WORD);
@@ -237,7 +203,6 @@ namespace camera
           &buffers_[i],
           &buffers_events_[i]);
 
-        soft_assert("PCO_AllocateBuffer", status);
         assert(buffer_nbr == static_cast<SHORT>(i));
       }
     }
