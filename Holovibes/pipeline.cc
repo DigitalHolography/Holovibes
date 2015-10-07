@@ -102,6 +102,9 @@ namespace holovibes
 
   Pipeline::~Pipeline()
   {
+    /* CUFFT plan1d */
+    cufftDestroy(plan1d_);
+
     /* CUFFT plan2d */
     cufftDestroy(plan2d_);
 
@@ -138,15 +141,24 @@ namespace holovibes
       input_.get_frame_desc().height, // NZ
       CUFFT_C2C);
 
+    /* CUFFT plan1d */
+    cufftDestroy(plan1d_);
+    cufftPlan1d(
+      &plan1d_,
+      n,
+      CUFFT_C2C,
+      r.area()
+      );
+
     /* gpu_input_buffer realloc */
-    cudaFree(gpu_input_buffer_);
-    gpu_input_buffer_ = nullptr;
     unsigned short input_length = n;
 
     /* if stft, we don't need to allocate more than one frame */
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
       input_length = 1;
 
+    cudaFree(gpu_input_buffer_);
+    gpu_input_buffer_ = nullptr;
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length);
