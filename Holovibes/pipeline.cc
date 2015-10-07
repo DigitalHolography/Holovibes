@@ -43,10 +43,15 @@ namespace holovibes
     , average_n_(0)
   {
     const unsigned short nsamples = desc.nsamples;
+    unsigned short input_length = nsamples;
+
+    /* if stft, we don't need to allocate more than one frame */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      input_length = 1;
 
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * nsamples);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length);
 
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
@@ -54,14 +59,14 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex) * input_.get_pixels() * desc.nsamples); // TODO
+      sizeof(cufftComplex)* input_.get_pixels() * nsamples); // TODO
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
       sizeof(float)* input_.get_pixels());
 
     /* Square root vector */
-    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65536);
+    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float)* 65536);
     make_sqrt_vect(gpu_sqrt_vector_, 65535);
 
     /* gpu_lens */
@@ -127,8 +132,15 @@ namespace holovibes
     /* gpu_input_buffer realloc */
     cudaFree(gpu_input_buffer_);
     gpu_input_buffer_ = nullptr;
+    unsigned short input_length = n;
+
+    /* if stft, we don't need to allocate more than one frame */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      input_length = 1;
+
+    /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * n);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length);
 
 
     cudaFree(gpu_stft_buffer_);
@@ -274,6 +286,9 @@ namespace holovibes
         plan2d_,
         input_fd.frame_res(),
         compute_desc_.nsamples.load()));
+
+      /* p frame pointer */
+      gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
     }
     else
       assert(!"Impossible case.");
