@@ -58,6 +58,32 @@ __global__ void kernel_bursting_roi(
   }
 }
 
+/*! \brief Reconstruct bursted pixel from input
+* into output
+* \param p which image out
+*/
+__global__ void kernel_reconstruct_roi(
+  cufftComplex* input,
+  cufftComplex* output,
+  unsigned int  input_width,
+  unsigned int  input_height,
+  unsigned int  output_width,
+  unsigned int  p,
+  unsigned int  nsample)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < input_height * input_width)
+  {
+    unsigned int x = index % input_width;
+    unsigned int y = index / input_width;
+
+    output[y * output_width + x] = input[index * nsample + p];
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
 /*! \brief  Permits to shift the corners of an image.
 *
 * This function shift zero-frequency component to center of spectrum

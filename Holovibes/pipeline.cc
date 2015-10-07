@@ -90,6 +90,13 @@ namespace holovibes
       input_.get_frame_desc().height,
       CUFFT_C2C);
 
+    /* CUFFT plan1d */
+    cufftPlan1d(
+      &plan1d_,
+      nsamples,
+      CUFFT_C2C,
+      r.area()
+      );
     refresh();
   }
 
@@ -144,13 +151,11 @@ namespace holovibes
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length);
 
-
     cudaFree(gpu_stft_buffer_);
     gpu_stft_buffer_ = nullptr;
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
       sizeof(cufftComplex)* r.area() * n);
-
   }
 
   void Pipeline::refresh()
@@ -279,7 +284,6 @@ namespace holovibes
         compute_desc_.lambda,
         compute_desc_.zdistance);
 
-
       curr_elt_stft_ = 0;
       // Add FFT1.
       fn_vect_.push_back(std::bind(
@@ -288,14 +292,15 @@ namespace holovibes
         gpu_lens_,
         gpu_stft_buffer_,
         plan2d_,
+        plan1d_,
         r,
         curr_elt_stft_,
-        input_fd.frame_res(),
-        compute_desc_.nsamples.load()));
+        input_fd,
+        compute_desc_.nsamples.load(),
+        compute_desc_.pindex.load()));
 
-      /* p frame pointer */
-      // TODO TODO
-      gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+      /* frame pointer */
+      gpu_input_frame_ptr_ = gpu_input_buffer_;
     }
     else
       assert(!"Impossible case.");

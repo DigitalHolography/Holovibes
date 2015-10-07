@@ -48,8 +48,8 @@ namespace holovibes
   class Pipeline
   {
     /*! \brief Vector of procedures type */
-    using FnVector = std::vector < std::function<void()> > ;
-	friend class ThreadCompute;
+    using FnVector = std::vector < std::function<void()> >;
+    friend class ThreadCompute;
   public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      * \param input Input queue containing acquired frames.
@@ -58,7 +58,7 @@ namespace holovibes
     Pipeline(
       Queue& input,
       Queue& output,
-	  ComputeDescriptor& desc);
+      ComputeDescriptor& desc);
     virtual ~Pipeline();
 
     /*! \{ \name Pipeline request methods */
@@ -96,16 +96,16 @@ namespace holovibes
       unsigned int n);
     /*! \} */
 
-	/*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
-	void request_float_output(std::string& file_src, unsigned int nb_frame);
-	/*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
-	void request_float_output_stop();
+    /*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
+    void request_float_output(std::string& file_src, unsigned int nb_frame);
+    /*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
+    void request_float_output_stop();
 
-	/*! \brief Return true while pipeline is recording float. */
-	bool is_requested_float_output() const
-	{
-		return (float_output_requested);
-	}
+    /*! \brief Return true while pipeline is recording float. */
+    bool is_requested_float_output() const
+    {
+      return (float_output_requested);
+    }
 
     /*! \brief Execute one iteration of the pipeline.
      *
@@ -173,8 +173,8 @@ namespace holovibes
     /*! \brief Generate the pipeline vector. */
     void refresh();
 
-	/*! \brief Record one frame in gpu_float_buf_ to file_. */
-	void record_float();
+    /*! \brief Record one frame in gpu_float_buf_ to file_. */
+    void record_float();
 
     /*! \{ \name Disable copy/assignments. */
     Pipeline& operator=(const Pipeline&) = delete;
@@ -211,6 +211,8 @@ namespace holovibes
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. */
     cufftHandle plan2d_;
+    /*! CUDA FFT Plan 1D. */
+    cufftHandle plan1d_;
     /*! \} */
 
     /*! Input frame pointer. */
@@ -224,15 +226,15 @@ namespace holovibes
     bool update_n_requested_;
     bool average_requested_;
     bool average_record_requested;
-	  bool float_output_requested;
+    bool float_output_requested;
     /*! \} */
 
-	/*! \brief Number of frame to record before request_float_output_stop. */
-	unsigned int float_output_nb_frame_;
-  /*! \brief index of current element trait in stft */
-  unsigned int curr_elt_stft_;
-	/*! \brief Ofstream use by float_output_recorder. */
-	std::ofstream float_output_file_;
+    /*! \brief Number of frame to record before request_float_output_stop. */
+    unsigned int float_output_nb_frame_;
+    /*! \brief index of current element trait in stft */
+    unsigned int curr_elt_stft_;
+    /*! \brief Ofstream use by float_output_recorder. */
+    std::ofstream float_output_file_;
 
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;

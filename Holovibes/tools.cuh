@@ -32,6 +32,14 @@ __global__ void kernel_bursting_roi(
   unsigned int nsamples,
   unsigned int width,
   cufftComplex *output);
+__global__ void kernel_reconstruct_roi(
+  cufftComplex* input,
+  cufftComplex* output,
+  unsigned int  input_width,
+  unsigned int  input_height,
+  unsigned int  output_width,
+  unsigned int  p,
+  unsigned int  nsample);
 // TODO: Explain what this does.
 __global__ void kernel_complex_divide(
   cufftComplex* image,
