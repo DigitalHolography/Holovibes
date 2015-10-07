@@ -82,11 +82,23 @@ namespace holovibes
       return *this;
     }
 
-    unsigned int area()
+    unsigned int area() const
     {
       unsigned int AB = top_right.x - top_left.x;
-      unsigned int AD = top_left.y - bottom_left.y;
+      unsigned int AD = bottom_left.y - top_left.y;
       return (AB * AD);
+    }
+
+    unsigned int get_width() const
+    {
+      unsigned int AB = top_right.x - top_left.x;
+      return (AB);
+    }
+
+    unsigned int get_height() const
+    {
+      unsigned int AD = bottom_left.y - top_left.y;
+      return (AD);
     }
 
     /*! \brief The two following functions will only be called in gui_gl_widget.cc
