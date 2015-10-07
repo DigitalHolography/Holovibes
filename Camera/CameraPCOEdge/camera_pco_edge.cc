@@ -157,66 +157,23 @@ namespace camera
   void CameraPCOEdge::bind_params()
   {
     int status = PCO_NOERROR;
-
     status |= PCO_ResetSettingsToDefault(device_);
-    soft_assert("PCO_ResetSettingsToDefault", status);
-    std::cout << "Resetted settings to default. Checking initial configuration...\n\n";
-
-    {
-      WORD h_binning, v_binning;
-
-      status |= PCO_GetBinning(device_, &h_binning, &v_binning);
-      soft_assert("(initial) PCO_GetBinning", status);
-      std::cout << "binning (h x v)   = " << h_binning << "x" << v_binning << std::endl;
-    }
-
-    for (unsigned i = 0; i < 4; ++i)
-    {
-      // Printing current signal configuration to try to understand...
-      std::cout << "Pre-configuration of signal " << i << ":\n";
-      PCO_Signal sig_data;
-      sig_data.wSize = sizeof(PCO_Signal);
-      status |= PCO_GetHWIOSignal(device_, i, &sig_data);
-      std::string msg("(initial) PCO_getHWIOSignal_"); msg += boost::lexical_cast<std::string>(i);
-      soft_assert(msg.c_str(), status);
-
-      std::cout << "Port " << i << " : state[" << sig_data.wEnabled << "]\n" <<
-        "         type[" << sig_data.wType << "]\n" <<
-        "         polarity[" << sig_data.wPolarity << "]\n" <<
-        "         filter[" << sig_data.wFilterSetting << "]\n" <<
-        "         subindex[" << sig_data.wSelected << "]\n" <<
-        "         dwParameters[" << sig_data.dwParameter[0] << "," << sig_data.dwParameter[1] << "," <<
-        sig_data.dwParameter[2] << "," << sig_data.dwParameter[3] << "]\n" <<
-        "         dwSignalFunctionality[" << sig_data.dwSignalFunctionality[0] << "," <<
-        sig_data.dwSignalFunctionality[1] << "," << sig_data.dwSignalFunctionality[2] << "," <<
-        sig_data.dwSignalFunctionality[3] << std::endl;
-    }
-
-    std::cout << "\n--------------\n\nSetting parameters manually now...\n";
 
     status |= PCO_SetTimeouts(device_, timeouts_, 2);
-    soft_assert("PCO_SetTimeouts", status);
 
     status |= PCO_SetSensorFormat(device_, 0);
-    soft_assert("PCO_SetSensorFormat", status);
 
     status |= PCO_SetConversionFactor(device_, conversion_factor_);
-    soft_assert("PCO_SetConversionFactor", status);
 
     status |= PCO_SetBinning(device_, hz_binning_, vt_binning_);
-    soft_assert("PCO_SetBinning", status);
 
     status |= PCO_SetROI(device_, p0_x_, p0_y_, p1_x_, p1_y_);
-    soft_assert("PCO_SetROI", status);
 
     status |= PCO_SetPixelRate(device_, pixel_rate_);
-    soft_assert("PCO_SetPixelRate", status);
 
     status |= PCO_SetTriggerMode(device_, triggermode_);
-    soft_assert("PCO_SetTriggerMode", status);
 
     status |= PCO_SetNoiseFilterMode(device_, 0);
-    soft_assert("PCO_SetNoiseFilterMode", status);
 
     {
       /* Convert exposure time in milliseconds. */
@@ -231,7 +188,6 @@ namespace camera
         tmp_exp_time *= 1e3;
 
       status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(tmp_exp_time), 0, base_time);
-      soft_assert("PCO_SetDelayExposureTime", status);
     }
 
     {
@@ -239,52 +195,18 @@ namespace camera
       DWORD tmp_exp_time = static_cast<DWORD>(exposure_time_ * 1e9); // SDK requires exp. time in ns
 
       status |= PCO_SetFrameRate(device_, &fps_change_status, framerate_mode_, &framerate_, &tmp_exp_time);
-      soft_assert("PCO_SetFrameRate", status);
 
       exposure_time_ = static_cast<float>(tmp_exp_time)* 1e-9; // Convert back exp. time to seconds
     }
 
     {
       status |= PCO_SetHWIOSignal(device_, 0, &io_0_conf);
-      soft_assert("[Port 1] PCO_SetHWIOSignal", status);
-
       status |= PCO_SetHWIOSignal(device_, 1, &io_1_conf);
-      soft_assert("[Port 2] PCO_SetHWIOSignal", status);
-
       status |= PCO_SetHWIOSignal(device_, 2, &io_2_conf);
-      soft_assert("[Port 3] PCO_SetHWIOSignal", status);
-
       status |= PCO_SetHWIOSignal(device_, 3, &io_3_conf);
-      soft_assert("[Port 4] PCO_SetHWIOSignal", status);
     }
 
-    // Display final configuration
-    std::cout << "\n\nFinal configuration : \n" <<
-      "binning (h x v)   = " << hz_binning_ << "x" << vt_binning_ << "\n" <<
-      "Port 1 : state[" << io_0_conf.wEnabled << "]\n" <<
-      "         type[" << io_0_conf.wType << "]\n" <<
-      "         polarity[" << io_0_conf.wPolarity << "]\n" <<
-      "         filter[" << io_0_conf.wFilterSetting << "]\n" <<
-      "         subindex[" << io_0_conf.wSelected << "]\n" <<
-      "Port 2 : state[" << io_1_conf.wEnabled << "]\n" <<
-      "         type[" << io_1_conf.wType << "]\n" <<
-      "         polarity[" << io_1_conf.wPolarity << "]\n" <<
-      "         filter[" << io_1_conf.wFilterSetting << "]\n" <<
-      "         subindex[" << io_1_conf.wSelected << "]\n" <<
-      "Port 3 : state[" << io_2_conf.wEnabled << "]\n" <<
-      "         type[" << io_2_conf.wType << "]\n" <<
-      "         polarity[" << io_2_conf.wPolarity << "]\n" <<
-      "         filter[" << io_2_conf.wFilterSetting << "]\n" <<
-      "         subindex[" << io_2_conf.wSelected << "]\n" <<
-      "Port 4 : state[" << io_3_conf.wEnabled << "]\n" <<
-      "         type[" << io_3_conf.wType << "]\n" <<
-      "         polarity[" << io_3_conf.wPolarity << "]\n" <<
-      "         filter[" << io_3_conf.wFilterSetting << "]\n" <<
-      "         subindex[" << io_3_conf.wSelected << std::endl;
-
-    /* DEBUG : remove comments later
     if (status != PCO_NOERROR)
-    throw CameraException(CameraException::CANT_SET_CONFIG);
-    ** ! DEBUG */
+      throw CameraException(CameraException::CANT_SET_CONFIG);
   }
 }
