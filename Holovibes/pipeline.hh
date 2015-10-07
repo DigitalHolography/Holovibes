@@ -224,11 +224,13 @@ namespace holovibes
     bool update_n_requested_;
     bool average_requested_;
     bool average_record_requested;
-	bool float_output_requested;
+	  bool float_output_requested;
     /*! \} */
 
 	/*! \brief Number of frame to record before request_float_output_stop. */
 	unsigned int float_output_nb_frame_;
+  /*! \brief index of current element trait in stft */
+  unsigned int curr_elt_stft_;
 	/*! \brief Ofstream use by float_output_recorder. */
 	std::ofstream float_output_file_;
 

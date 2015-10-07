@@ -16,6 +16,8 @@
 
 namespace holovibes
 {
+  Rectangle   r(Point2D(1024, 0), Point2D(2048, 1024));
+
   Pipeline::Pipeline(
     Queue& input,
     Queue& output,
@@ -59,7 +61,7 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * nsamples); // TODO
+      sizeof(cufftComplex)* r.area() * nsamples);
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
@@ -147,7 +149,7 @@ namespace holovibes
     gpu_stft_buffer_ = nullptr;
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * n); // TODO
+      sizeof(cufftComplex)* r.area() * n);
 
   }
 
@@ -277,6 +279,8 @@ namespace holovibes
         compute_desc_.lambda,
         compute_desc_.zdistance);
 
+
+      curr_elt_stft_ = 0;
       // Add FFT1.
       fn_vect_.push_back(std::bind(
         stft,
@@ -284,10 +288,13 @@ namespace holovibes
         gpu_lens_,
         gpu_stft_buffer_,
         plan2d_,
+        r,
+        curr_elt_stft_,
         input_fd.frame_res(),
         compute_desc_.nsamples.load()));
 
       /* p frame pointer */
+      // TODO TODO
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
     }
     else
