@@ -82,6 +82,10 @@ namespace camera
     ** default settings are sufficient for the camera to work with them.
     ** Only settings in the ini file shall be taken into account, later.
     */
+    io_0_conf.wSize = sizeof(PCO_Signal);
+    io_1_conf.wSize = sizeof(PCO_Signal);
+    io_2_conf.wSize = sizeof(PCO_Signal);
+    io_3_conf.wSize = sizeof(PCO_Signal);
 
     /* Fill frame descriptor const values. */
     desc_.depth = 2;
