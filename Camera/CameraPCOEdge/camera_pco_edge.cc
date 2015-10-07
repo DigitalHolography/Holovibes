@@ -20,10 +20,10 @@ namespace camera
 
   /* Load PCO_Signal data from ini file. */
   static void load_pco_signal_params(const boost::property_tree::ptree& pt,
-      PCO_Signal& sig, const WORD sig_index)
+    PCO_Signal& sig, const WORD sig_index)
   {
     // Field format for signal number X :   X_nameofthefield
-    std::string prefix = "pco-edge." + boost::lexical_cast<std::string>(sig_index) + '_';
+    std::string prefix = "pco-edge." + boost::lexical_cast<std::string>(sig_index)+'_';
 
     sig.wEnabled = pt.get<WORD>(prefix + "state", sig.wEnabled);
     sig.wType = pt.get<WORD>(prefix + "type", sig.wType);
@@ -139,7 +139,7 @@ namespace camera
     pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 1e6;
 
     conversion_factor_ = static_cast<WORD>(
-        pt.get<float>("pco-edge.conversion_factor", conversion_factor_) * 100);
+      pt.get<float>("pco-edge.conversion_factor", conversion_factor_) * 100);
 
     timeouts_[0] = pt.get<unsigned int>("pco-edge.timeout_command", timeouts_[0]) * 1e3;
     timeouts_[1] = pt.get<unsigned int>("pco-edge.timeout_img_acq", timeouts_[1]) * 1e3;
@@ -166,33 +166,6 @@ namespace camera
       std::cout << "binning (h x v)   = " << h_binning << "x" << v_binning << std::endl;
     }
 
-    {
-      WORD conv_f;
-
-      status |= PCO_GetConversionFactor(device_, &conv_f);
-      soft_assert("(initial) PCO_GetConversionFactor", status);
-      std::cout << "conversion factor = " << conv_f << std::endl;
-    }
-
-    {
-      DWORD delay, exposure;
-      WORD timebase_del, timebase_exp;
-      status |= PCO_GetDelayExposureTime(device_, &delay, &exposure, &timebase_del, &timebase_exp);
-      soft_assert("(initial) PCO_GetDelayExposureTime", status);
-      std::cout << "exposure time     = " << exposure << "[" << timebase_exp << "]\n" <<
-        "delay time        = " << delay << "[" << timebase_del << "]" << std::endl;
-    }
-
-    {
-      WORD tmp_status;
-      DWORD tmp_fps;
-      DWORD tmp_exp_time;
-
-      status |= PCO_GetFrameRate(device_, &tmp_status, &tmp_fps, &tmp_exp_time);
-      std::cout << "framerate         = " << tmp_fps << "\t{exposure time : " << tmp_exp_time <<
-        "ns; status : " << tmp_status << "}" << std::endl;
-    }
-
     for (unsigned i = 0; i < 4; ++i)
     {
       // Printing current signal configuration to try to understand...
@@ -214,7 +187,6 @@ namespace camera
         sig_data.dwSignalFunctionality[1] << "," << sig_data.dwSignalFunctionality[2] << "," <<
         sig_data.dwSignalFunctionality[3] << std::endl;
     }
-
 
     std::cout << "\n--------------\n\nSetting parameters manually now...\n";
 
@@ -254,7 +226,6 @@ namespace camera
       for (base_time = 0x0002; base_time > 0 && tmp_exp_time < 1.0f; --base_time)
         tmp_exp_time *= 1e3;
 
-      std::cout << "Exposure time :" << tmp_exp_time << std::endl;
       status |= PCO_SetDelayExposureTime(device_, 0, static_cast<DWORD>(tmp_exp_time), 0, base_time);
       soft_assert("PCO_SetDelayExposureTime", status);
     }
@@ -266,7 +237,6 @@ namespace camera
       status |= PCO_SetFrameRate(device_, &fps_change_status, framerate_mode_, &framerate_, &tmp_exp_time);
       soft_assert("PCO_SetFrameRate", status);
 
-      std::cout << "FPS status after change : " << fps_change_status << std::endl;
       exposure_time_ = static_cast<float>(tmp_exp_time)* 1e-9; // Convert back exp. time to seconds
     }
 
@@ -279,7 +249,7 @@ namespace camera
 
       status |= PCO_SetHWIOSignal(device_, 2, &io_2_conf);
       soft_assert("[Port 3] PCO_SetHWIOSignal", status);
-       
+
       status |= PCO_SetHWIOSignal(device_, 3, &io_3_conf);
       soft_assert("[Port 4] PCO_SetHWIOSignal", status);
     }
@@ -287,11 +257,6 @@ namespace camera
     // Display final configuration
     std::cout << "\n\nFinal configuration : \n" <<
       "binning (h x v)   = " << hz_binning_ << "x" << vt_binning_ << "\n" <<
-      "conversion factor = " << conversion_factor_ << "\n" <<
-      "exposure time     = " << exposure_time_ << "\n" <<
-      "trigger mode      = " << triggermode_ << "\n" <<
-      "framerate         = " << framerate_ << "\n" <<
-      "framerate mode    = " << framerate_mode_ << "\n" <<
       "Port 1 : state[" << io_0_conf.wEnabled << "]\n" <<
       "         type[" << io_0_conf.wType << "]\n" <<
       "         polarity[" << io_0_conf.wPolarity << "]\n" <<
@@ -311,15 +276,11 @@ namespace camera
       "         type[" << io_3_conf.wType << "]\n" <<
       "         polarity[" << io_3_conf.wPolarity << "]\n" <<
       "         filter[" << io_3_conf.wFilterSetting << "]\n" <<
-      "         subindex[" << io_3_conf.wSelected << "]\n" <<
-      "ROI               = (" << p0_x_ << "," << p0_y_ << ") to (" << p1_x_ << "," << p1_y_ << "\n" <<
-      "pixel rate        = " << pixel_rate_ << " Hz\n" <<
-      "timeout           = " << timeouts_[0] << "(command)" << timeouts_[1] << "(img. request)" << std::endl;
+      "         subindex[" << io_3_conf.wSelected << std::endl;
 
     /* DEBUG : remove comments later
     if (status != PCO_NOERROR)
-      throw CameraException(CameraException::CANT_SET_CONFIG);
+    throw CameraException(CameraException::CANT_SET_CONFIG);
     ** ! DEBUG */
   }
-
 }
