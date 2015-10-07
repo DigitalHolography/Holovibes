@@ -163,28 +163,6 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
     status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
 
-    int h_increment;
-    if (xiGetParamInt(device_, XI_PRM_HEIGHT XI_PRM_INFO_INCREMENT, &h_increment) != XI_OK)
-      std::cout << "Could not get minimum height increment." << std::endl;
-    else
-      std::cout << "Minimum height increment for ROI : " << h_increment << std::endl;
-    int v_increment;
-    if (xiGetParamInt(device_, XI_PRM_WIDTH XI_PRM_INFO_INCREMENT, &v_increment) != XI_OK)
-      std::cout << "Could not get minimum width increment." << std::endl;
-    else
-      std::cout << "Minimum width increment for ROI : " << v_increment << std::endl;
-
-    int x_increment;
-    if (xiGetParamInt(device_, XI_PRM_OFFSET_X XI_PRM_INFO_INCREMENT, &x_increment) != XI_OK)
-      std::cout << "Could not get minimum X increment." << std::endl;
-    else
-      std::cout << "Minimum X increment for ROI : " << x_increment << std::endl;
-    int y_increment;
-    if (xiGetParamInt(device_, XI_PRM_OFFSET_Y XI_PRM_INFO_INCREMENT, &y_increment) != XI_OK)
-      std::cout << "Could not get minimum Y increment." << std::endl;
-    else
-      std::cout << "Minimum Y increment for ROI : " << y_increment << std::endl;
-
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
     status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
