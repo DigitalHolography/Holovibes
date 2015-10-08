@@ -29,6 +29,7 @@ namespace holovibes
     , gpu_input_buffer_(nullptr)
     , gpu_output_buffer_(nullptr)
     , gpu_stft_buffer_(nullptr)
+    , gpu_stft_dup_buffer_(nullptr)
     , gpu_float_buffer_(nullptr)
     , gpu_sqrt_vector_(nullptr)
     , gpu_lens_(nullptr)
@@ -61,6 +62,10 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex)* r.area() * nsamples);
+
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
       sizeof(cufftComplex)* r.area() * nsamples);
 
     /* gpu_float_buffer */
@@ -128,6 +133,9 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
+
+    /* gpu_stft_dup_buffer */
+    cudaFree(gpu_stft_dup_buffer_);
   }
 
   void Pipeline::update_n_parameter(unsigned short n)
@@ -167,6 +175,12 @@ namespace holovibes
     gpu_stft_buffer_ = nullptr;
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex)* r.area() * n);
+
+    cudaFree(gpu_stft_dup_buffer_);
+    gpu_stft_dup_buffer_ = nullptr;
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
       sizeof(cufftComplex)* r.area() * n);
   }
 
@@ -303,6 +317,7 @@ namespace holovibes
         gpu_input_buffer_,
         gpu_lens_,
         gpu_stft_buffer_,
+        gpu_stft_dup_buffer_,
         plan2d_,
         plan1d_,
         r,

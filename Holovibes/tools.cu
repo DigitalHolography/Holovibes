@@ -48,8 +48,8 @@ __global__ void kernel_bursting_roi(
   while (index > tl_y * width && index < br_y * width
     && index % width > tl_x && index % width < br_x)
   {
-    unsigned int x = index / width;
-    unsigned int y = index % width;
+    unsigned int x = index % width - tl_x;
+    unsigned int y = index / width - tl_y;
     unsigned int index_roi = x + y * width_roi;
 
     output[index_roi * nsamples + curr_elt] = input[index];
