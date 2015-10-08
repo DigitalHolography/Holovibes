@@ -8,6 +8,7 @@ void stft(
   cufftComplex*                   input,
   cufftComplex*                   lens,
   cufftComplex*                   stft_buf,
+  cufftComplex*                   stft_dup_buf,
   cufftHandle                     plan2d,
   cufftHandle                     plan1d,
   const holovibes::Rectangle&     r,
@@ -44,21 +45,20 @@ void stft(
     stft_buf);
 
   // FFT 1D
-  if (curr_elt + 1 == nsamples)
-  {
-    cufftExecC2C(plan1d, stft_buf, stft_buf, CUFFT_FORWARD);
-    cudaDeviceSynchronize();
-    curr_elt = 0;
-  }
-  else
-    ++curr_elt;
+  cudaMemcpy(stft_dup_buf, stft_buf, sizeof(cufftComplex)* r.area() * nsamples, cudaMemcpyDeviceToDevice);
+  std::cout << curr_elt << std::endl;
+  cufftExecC2C(plan1d, stft_dup_buf, stft_dup_buf, CUFFT_FORWARD);
+  cudaDeviceSynchronize();
 
+  // Reconstruct Roi
   kernel_reconstruct_roi << <blocks, threads >> >(
-    stft_buf,
+    stft_dup_buf,
     input,
     r.get_width(),
     r.get_height(),
     desc.width,
     pindex,
     nsamples);
+
+  curr_elt = ++curr_elt % nsamples;
 }

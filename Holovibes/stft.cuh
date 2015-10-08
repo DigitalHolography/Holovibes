@@ -17,6 +17,7 @@ void stft(
   cufftComplex*                   input,
   cufftComplex*                   lens,
   cufftComplex*                   stft_buf,
+  cufftComplex*                   stft_dup_buf,
   cufftHandle                     plan2d,
   cufftHandle                     plan1d,
   const holovibes::Rectangle&     r,

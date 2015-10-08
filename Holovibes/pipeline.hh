@@ -199,6 +199,8 @@ namespace holovibes
     cufftComplex* gpu_input_buffer_;
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
+    /*! cufftComplex array containing save of n contiguous ROI of frames. */
+    cufftComplex* gpu_stft_dup_buffer_;
     /*! Output frame containing n frames ordered in frequency. */
     unsigned short* gpu_output_buffer_;
     /*! GPU float frame */
