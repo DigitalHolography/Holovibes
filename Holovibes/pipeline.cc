@@ -16,7 +16,7 @@
 
 namespace holovibes
 {
-  Rectangle   r(Point2D(1024, 0), Point2D(2048, 1024));
+  Rectangle   r(Point2D(200, 1200), Point2D(700, 1700));
 
   Pipeline::Pipeline(
     Queue& input,
@@ -162,7 +162,7 @@ namespace holovibes
     unsigned short input_length = n;
 
     /* if stft, we don't need to allocate more than one frame */
-    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    if (compute_desc_.algorithm.load() == ComputeDescriptor::STFT)
       input_length = 1;
 
     cudaFree(gpu_input_buffer_);
@@ -182,6 +182,7 @@ namespace holovibes
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
       sizeof(cufftComplex)* r.area() * n);
+
   }
 
   void Pipeline::refresh()

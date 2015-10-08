@@ -407,7 +407,7 @@ namespace gui
         cd.algorithm = holovibes::ComputeDescriptor::FFT2;
       else if (value == "STFT")
       {
-        cd.nsamples = 32;
+        cd.nsamples = 4;
         cd.algorithm = holovibes::ComputeDescriptor::STFT;
       }
       else

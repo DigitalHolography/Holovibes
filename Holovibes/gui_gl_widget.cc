@@ -34,31 +34,31 @@ namespace gui
     this->setObjectName("GLWidget");
     this->resize(QSize(width, height));
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
-	timer_.start(1000 / DISPLAY_FRAMERATE);
+    timer_.start(1000 / DISPLAY_FRAMERATE);
 
-	num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
-	num_2_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
+    num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
+    num_2_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
 
-	num_4_shortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
-	num_4_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_4_shortcut, SIGNAL(activated()), this, SLOT(view_move_left()));
+    num_4_shortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
+    num_4_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_4_shortcut, SIGNAL(activated()), this, SLOT(view_move_left()));
 
-	num_6_shortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
-	num_6_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_6_shortcut, SIGNAL(activated()), this, SLOT(view_move_right()));
+    num_6_shortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
+    num_6_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_6_shortcut, SIGNAL(activated()), this, SLOT(view_move_right()));
 
-	num_8_shortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
-	num_8_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
+    num_8_shortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
+    num_8_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
 
-	zoom_in_shortcut= new QShortcut(QKeySequence(Qt::Key_Plus), this);
-	zoom_in_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(zoom_in_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
+    zoom_in_shortcut = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    zoom_in_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(zoom_in_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
 
-	zoom_out_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-	zoom_out_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(zoom_out_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+    zoom_out_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    zoom_out_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(zoom_out_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
   }
 
   GLWidget::~GLWidget()
@@ -72,34 +72,34 @@ namespace gui
 
   void GLWidget::view_move_down()
   {
-	  py_ += 0.1f / zoom_ratio_;
+    py_ += 0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_left()
   {
-	  px_ += -0.1f / zoom_ratio_;
+    px_ += -0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_right()
   {
-	  px_ += 0.1f / zoom_ratio_;
+    px_ += 0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_up()
   {
-	  py_ += -0.1f / zoom_ratio_;
+    py_ += -0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_zoom_out()
   {
-	  zoom_ratio_ *= 1.1f;
-	  glScalef(1.1f, 1.1f, 1.0f);
+    zoom_ratio_ *= 1.1f;
+    glScalef(1.1f, 1.1f, 1.0f);
   }
 
   void GLWidget::view_zoom_in()
   {
-	  zoom_ratio_ *= 0.9f;
-	  glScalef(0.9f, 0.9f, 0.9f);
+    zoom_ratio_ *= 0.9f;
+    glScalef(0.9f, 0.9f, 0.9f);
   }
 
   QSize GLWidget::minimumSizeHint() const
@@ -171,8 +171,8 @@ namespace gui
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -195,10 +195,10 @@ namespace gui
 
     glBegin(GL_QUADS);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glTexCoord2d(0.0 + px_, 0.0 + py_); glVertex2d(-1.0, +1.0);
-	glTexCoord2d(1.0 + px_, 0.0 + py_); glVertex2d(+1.0, +1.0);
-	glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
-	glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
+    glTexCoord2d(0.0 + px_, 0.0 + py_); glVertex2d(-1.0, +1.0);
+    glTexCoord2d(1.0 + px_, 0.0 + py_); glVertex2d(+1.0, +1.0);
+    glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
+    glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
@@ -240,8 +240,8 @@ namespace gui
         (e->y() * frame_desc_.height) / height());
     }
     else
-      if (selection_mode_ == ZOOM)
-        dezoom();
+    if (selection_mode_ == ZOOM)
+      dezoom();
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -366,13 +366,13 @@ namespace gui
     float xratio = static_cast<float>(frame_desc_.width) / (static_cast<float>(selection.bottom_right.x) - static_cast<float>(selection.top_left.x));
     float yratio = static_cast<float>(frame_desc_.height) / (static_cast<float>(selection.bottom_right.y) - static_cast<float>(selection.top_left.y));
 
-	float min_ratio = xratio < yratio ? xratio : yratio;
-	px_ += -px / zoom_ratio_ / 2;
-	py_ += py / zoom_ratio_ / 2;
+    float min_ratio = xratio < yratio ? xratio : yratio;
+    px_ += -px / zoom_ratio_ / 2;
+    py_ += py / zoom_ratio_ / 2;
     zoom_ratio_ *= min_ratio;
 
     // Translation
-  //  glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
+    //  glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
 
     // Rescale
     glScalef(min_ratio, min_ratio, 1.0f);
