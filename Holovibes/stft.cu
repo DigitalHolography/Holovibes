@@ -46,7 +46,7 @@ void stft(
 
   // FFT 1D
   cudaMemcpy(stft_dup_buf, stft_buf, sizeof(cufftComplex)* r.area() * nsamples, cudaMemcpyDeviceToDevice);
-  std::cout << curr_elt << std::endl;
+  std::cout << nsamples << " : " << curr_elt << std::endl;
   cufftExecC2C(plan1d, stft_dup_buf, stft_dup_buf, CUFFT_FORWARD);
   cudaDeviceSynchronize();
 

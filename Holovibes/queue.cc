@@ -115,7 +115,6 @@ namespace holovibes
       mutex_.unlock();
       return false;
     }
-
     if (is_big_endian_)
       endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
 
