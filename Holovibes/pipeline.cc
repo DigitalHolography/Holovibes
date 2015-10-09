@@ -16,8 +16,6 @@
 
 namespace holovibes
 {
-  Rectangle   r(Point2D(300, 1300), Point2D(700, 1700));
-
   Pipeline::Pipeline(
     Queue& input,
     Queue& output,
@@ -65,11 +63,11 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* r.area() * nsamples);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
 
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-      sizeof(cufftComplex)* r.area() * nsamples);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
@@ -103,7 +101,7 @@ namespace holovibes
       &plan1d_,
       nsamples,
       CUFFT_C2C,
-      r.area()
+      compute_desc_.stft_roi_zone.load().area()
       );
     refresh();
   }
@@ -164,7 +162,7 @@ namespace holovibes
       &plan1d_,
       n,
       CUFFT_C2C,
-      r.area()
+      compute_desc_.stft_roi_zone.load().area()
       );
 
     cudaFree(gpu_input_buffer_);
@@ -177,13 +175,13 @@ namespace holovibes
     gpu_stft_buffer_ = nullptr;
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* r.area() * n);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n);
 
     cudaFree(gpu_stft_dup_buffer_);
     gpu_stft_dup_buffer_ = nullptr;
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-      sizeof(cufftComplex)* r.area() * n);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n);
   }
 
   void Pipeline::refresh()
@@ -322,7 +320,7 @@ namespace holovibes
         gpu_stft_dup_buffer_,
         plan2d_,
         plan1d_,
-        r,
+        compute_desc_.stft_roi_zone.load(),
         curr_elt_stft_,
         input_fd,
         compute_desc_.nsamples.load(),
@@ -525,6 +523,11 @@ namespace holovibes
   {
     autocontrast_requested_ = true;
     request_refresh();
+  }
+
+  void Pipeline::request_stft_roi()
+  {
+    request_update_n(compute_desc_.nsamples.load());
   }
 
   void Pipeline::request_autofocus()

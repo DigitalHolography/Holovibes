@@ -19,10 +19,10 @@ void stft(
 {
   unsigned int threads = 128;
   unsigned int blocks = desc.frame_res() / threads;
-  
+
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
-  
+
   // Apply lens on multiple frames.
   kernel_apply_lens << <blocks, threads >> >(input, desc.frame_res(), lens, desc.frame_res());
 
