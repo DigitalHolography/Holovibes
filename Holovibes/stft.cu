@@ -32,6 +32,13 @@ void stft(
   cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
 
   cudaDeviceSynchronize();
+
+  if (curr_elt == nsamples)
+  {
+    // Remove first element and move all element on left
+    cudaMemcpy(stft_buf, &(stft_buf[1]), sizeof(cufftComplex)* (nsamples * r.area() - 1), cudaMemcpyDeviceToDevice);
+    --curr_elt;
+  }
   // Do the ROI
   kernel_bursting_roi << <blocks, threads >> >(
     input,
@@ -43,6 +50,7 @@ void stft(
     nsamples,
     desc.width,
     stft_buf);
+  ++curr_elt;
 
   // FFT 1D
   cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
@@ -57,6 +65,4 @@ void stft(
     desc.width,
     pindex,
     nsamples);
-
-  curr_elt = ++curr_elt % nsamples;
 }
