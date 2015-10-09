@@ -12,29 +12,6 @@
 
 # include "geometry.hh"
 
-// CONVERSION FUNCTIONS
-__global__ void img8_to_complex(
-  cufftComplex* output,
-  unsigned char* input,
-  unsigned int size,
-  const float* sqrt_array);
-__global__ void img16_to_complex(
-  cufftComplex* output,
-  unsigned short* input,
-  unsigned int size,
-  const float* sqrt_array);
-void complex_to_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size);
-void complex_to_squared_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size);
-void complex_to_argument(
-  cufftComplex* input,
-  float* output,
-  unsigned int size);
 __global__ void kernel_apply_lens(
   cufftComplex *input,
   unsigned int input_size,
@@ -53,16 +30,8 @@ void shift_corners(
   float *input,
   unsigned int size_x,
   unsigned int size_y);
-void endianness_conversion(
-  unsigned short* input,
-  unsigned short* output,
-  unsigned int size);
 void apply_log10(
   float* input,
-  unsigned int size);
-void float_to_ushort(
-  float* input,
-  unsigned short* output,
   unsigned int size);
 
 __global__ void kernel_multiply_frames_complex(

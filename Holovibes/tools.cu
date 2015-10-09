@@ -3,183 +3,6 @@
 #include <device_launch_parameters.h>
 #include "hardware_limits.hh"
 
-// CONVERSION FUNCTIONS
-/*! \brief  This function permit to transform an 8 bit image to her complexe representation.
-*
-* The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
-* part of the complex output.
-* The input image is seen as unsigned char(8 bits data container) because of her bit depth.
-* The result is given in output.
-*/
-__global__ void img8_to_complex(
-  cufftComplex* output,
-  unsigned char* input,
-  unsigned int size,
-  const float* sqrt_array)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    unsigned int val = sqrt_array[input[index] * 257];
-    output[index].x = val;
-    output[index].y = val;
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  This function permit to transform an 16 bit image to her complexe representation
-*
-* The transformation is performed by putting the squareroot of the pixels value into the real an imagiginary
-* into the complex output.
-* The input image is seen as unsigned short(16 bits data container) because of her bitbytebytedepth.
-* The result is given in output.
-*/
-__global__ void img16_to_complex(
-  cufftComplex* output,
-  unsigned short* input,
-  unsigned int size,
-  const float* sqrt_array)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index].x = sqrt_array[input[index]];
-    output[index].y = sqrt_array[input[index]];
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-*/
-static __global__ void kernel_complex_to_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
-
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-void complex_to_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-
-  kernel_complex_to_modulus << <blocks, threads >> >(input, output, size);
-}
-
-/*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-*/
-static __global__ void kernel_complex_to_squared_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index] = input[index].x * input[index].x + input[index].y * input[index].y;
-
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-void complex_to_squared_modulus(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-
-  kernel_complex_to_squared_modulus << <blocks, threads >> >(input, output, size);
-}
-
-/*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-*/
-static __global__ void kernel_complex_to_argument(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  float pi_div_2 = M_PI / 2.0f;
-  float c = 65535.0f / M_PI;
-
-  while (index < size)
-  {
-    output[index] = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
-
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
-*
-* The image(s) to treat should be contigous into the input, the size is the total number of pixels to
-* treat with the function.
-* The result is given in output.
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-void complex_to_argument(
-  cufftComplex* input,
-  float* output,
-  unsigned int size)
-{
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-
-  kernel_complex_to_argument << <blocks, threads >> >(input, output, size);
-}
-
 /*! \brief  Apply a previously computed lens to image(s).
 *
 * The image(s) to treat, seen as input, should be contigous, the input_size is the total number of pixels to
@@ -263,48 +86,6 @@ void shift_corners(
   kernel_shift_corners << < lblocks, lthreads >> >(input, size_x, size_y);
 }
 
-/*! \brief  Convert the endianness of input image(s) from big endian to little endian.
-*
-* The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-*/
-static __global__ void kernel_endianness_conversion(
-  unsigned short* input,
-  unsigned short* output,
-  size_t size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index] = (input[index] << 8) | (input[index] >> 8);
-
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Convert the endianness of input image(s) from big endian to little endian.
-*
-* The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-void endianness_conversion(
-  unsigned short* input,
-  unsigned short* output,
-  unsigned int size)
-{
-  unsigned int threads = get_max_threads_1d();
-  unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks - 1;
-
-  kernel_endianness_conversion << <blocks, threads >> >(input, output, size);
-}
 
 /*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
 *
@@ -389,52 +170,6 @@ void apply_log10(
   kernel_log10 << <blocks, threads >> >(input, size);
 }
 
-/*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
-*
-* The image(s) to treat should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-*/
-static __global__ void kernel_float_to_ushort(
-  float* input,
-  unsigned short* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    if (input[index] > 65535.0f)
-      output[index] = 65535;
-    else if (input[index] < 0.0f)
-      output[index] = 0;
-    else
-      output[index] = static_cast<unsigned short>(input[index]);
-
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
-*
-* The image(s) to treat should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-void float_to_ushort(
-  float* input,
-  unsigned short* output,
-  unsigned int size)
-{
-  unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
-
-  kernel_float_to_ushort << <blocks, threads >> >(input, output, size);
-}
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
@@ -475,6 +210,23 @@ __global__ void kernel_multiply_frames_float(
   while (index < size)
   {
     output[index] = input1[index] * input2[index];
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+/*! \brief Kernel function used in convolution_operator
+*/
+static __global__ void kernel_complex_to_modulus(
+  cufftComplex* input,
+  float* output,
+  unsigned int size)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < size)
+  {
+    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+
     index += blockDim.x * gridDim.x;
   }
 }
@@ -533,7 +285,6 @@ void convolution_operator(
 * The result extracted image given is contained in output, the output should be preallocated.
 * Coordonates of the extracted area are specified into the zone.
 */
-#include <iostream>
 void frame_memcpy(
   const float* input,
   const holovibes::Rectangle& zone,

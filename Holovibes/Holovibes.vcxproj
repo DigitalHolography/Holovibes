@@ -217,6 +217,7 @@
     </CustomBuild>
     <ClInclude Include="thread_reader.hh" />
     <ClInclude Include="tools.cuh" />
+    <ClInclude Include="tools_conversion.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
     <CustomBuild Include="main_window.hh">
@@ -310,6 +311,7 @@
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fft1.cu" />
     <CudaCompile Include="tools.cu" />
+    <CudaCompile Include="tools_conversion.cu" />
     <CudaCompile Include="transforms.cu" />
     <CudaCompile Include="vibrometry.cu" />
   </ItemGroup>
