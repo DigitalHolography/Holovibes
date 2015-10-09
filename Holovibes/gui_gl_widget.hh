@@ -193,6 +193,8 @@ namespace gui
     holovibes::Rectangle signal_selection_;
     holovibes::Rectangle noise_selection_;
     holovibes::Rectangle stft_roi_selection_;
+    /*! Base view */
+    holovibes::Rectangle base_view_;
     QWidget* parent_;
 
     /*! /{ \name Previouses zoom translations */
