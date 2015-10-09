@@ -167,6 +167,10 @@ namespace gui
     ** \param zone selection zone for computation
     */
     void request_autofocus(holovibes::Rectangle zone);
+    /*! \brief Request stft roi action in pipeline
+    ** \param zone selection is region of interest
+    */
+    void request_stft_roi(holovibes::Rectangle zone);
     /*! \brief Request to stop the autofocus currently
     **  occuring.
     */

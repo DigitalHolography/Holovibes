@@ -260,6 +260,15 @@ namespace gui
       {
         holovibes_.init_compute();
         gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue());
+
+        if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+        {
+          GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+          gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+          connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+            Qt::UniqueConnection);
+        }
+
         is_direct_mode_ = false;
 
         global_visibility(true);
@@ -399,6 +408,8 @@ namespace gui
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
+      GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+      gl_widget->set_selection_mode(gui::eselection::ZOOM);
 
       cd.nsamples = 2;
       if (value == "1FFT")
@@ -407,7 +418,10 @@ namespace gui
         cd.algorithm = holovibes::ComputeDescriptor::FFT2;
       else if (value == "STFT")
       {
-        cd.nsamples = 4;
+        cd.nsamples = 16;
+        gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+        connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+          Qt::UniqueConnection);
         cd.algorithm = holovibes::ComputeDescriptor::STFT;
       }
       else
@@ -472,6 +486,17 @@ namespace gui
     desc.autofocus_zone = zone;
     pipeline.request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
+  }
+
+  void MainWindow::request_stft_roi(holovibes::Rectangle zone)
+  {
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+
+    desc.stft_roi_zone = zone;
+    pipeline.request_stft_roi();
+  //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_autofocus_stop()

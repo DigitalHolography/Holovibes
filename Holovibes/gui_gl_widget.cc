@@ -209,6 +209,7 @@ namespace gui
       float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
       float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
       float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
+      float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
 
       switch (selection_mode_)
       {
@@ -221,6 +222,9 @@ namespace gui
         break;
       case ZOOM:
         selection_rect(selection_, zoom_color);
+        break;
+      case STFT_ROI:
+        selection_rect(selection_, stft_roi_color);
         break;
       default:
         break;
@@ -306,6 +310,17 @@ namespace gui
         if (selection_.top_left != selection_.bottom_right)
           zoom(selection_);
         break;
+      case STFT_ROI:
+        if (e->button() == Qt::LeftButton)
+        {
+          stft_roi_selection_ = selection_;
+          emit stft_roi_zone_selected(stft_roi_selection_);
+        }
+        else
+        {
+          selection_mode_ = ZOOM;
+        }
+        break;
       default:
         break;
       }
@@ -371,13 +386,7 @@ namespace gui
     py_ += py / zoom_ratio_ / 2;
     zoom_ratio_ *= min_ratio;
 
-    // Translation
-    //  glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
-
-    // Rescale
     glScalef(min_ratio, min_ratio, 1.0f);
-
-
     parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
   }
 
