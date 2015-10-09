@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CA75A564-8C60-4C3B-8778-996F1879BF65}</ProjectGuid>
     <RootNamespace>Holovibes</RootNamespace>
-    <CudaToolkitCustomDir>$(CUDA_PATH_V6_5)</CudaToolkitCustomDir>
+    <CudaToolkitCustomDir>$(CUDA_PATH_V7_5)</CudaToolkitCustomDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
