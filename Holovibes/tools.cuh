@@ -25,17 +25,6 @@ void apply_log10(
   float* input,
   unsigned int size);
 
-__global__ void kernel_multiply_frames_complex(
-  const cufftComplex* input1,
-  const cufftComplex* input2,
-  cufftComplex* output,
-  unsigned int size);
-
-__global__ void kernel_multiply_frames_float(
-  const float* input1,
-  const float* input2,
-  float* output,
-  unsigned int size);
 
 /*! x, k, tmp_x, tmp_k and out shares the same resolution.
  * x, k remains unchanged.

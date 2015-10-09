@@ -1,4 +1,5 @@
 #include "tools.cuh"
+#include "tools_multiply.cuh"
 
 #include <device_launch_parameters.h>
 #include "hardware_limits.hh"
@@ -130,48 +131,6 @@ void apply_log10(
 }
 
 
-/*! \brief  Multiply the pixels value of 2 complexe input images
-*
-* The images to multiply should have the same size.
-* The result is given in output.
-* Output should have the same size of inputs.
-*/
-__global__ void kernel_multiply_frames_complex(
-  const cufftComplex* input1,
-  const cufftComplex* input2,
-  cufftComplex* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index].x = input1[index].x * input2[index].x;
-    output[index].y = input1[index].y * input2[index].y;
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Multiply the pixels value of 2 float input images
-*
-* The images to multiply should have the same size.
-* The result is given in output.
-* Output should have the same size of inputs.
-*/
-__global__ void kernel_multiply_frames_float(
-  const float* input1,
-  const float* input2,
-  float* output,
-  unsigned int size)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-  while (index < size)
-  {
-    output[index] = input1[index] * input2[index];
-    index += blockDim.x * gridDim.x;
-  }
-}
 
 /*! \brief Kernel function used in convolution_operator
 */
