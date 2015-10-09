@@ -1,5 +1,5 @@
 #include "queue.hh"
-#include "tools.cuh"
+#include "tools_conversion.cuh"
 
 namespace holovibes
 {

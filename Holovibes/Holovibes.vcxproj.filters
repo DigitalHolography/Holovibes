@@ -69,6 +69,9 @@
     <CudaCompile Include="autofocus.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="tools_conversion.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -279,6 +282,9 @@
     </ClInclude>
     <ClInclude Include="thread_reader.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_conversion.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
