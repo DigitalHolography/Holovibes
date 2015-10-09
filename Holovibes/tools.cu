@@ -87,47 +87,6 @@ void shift_corners(
 }
 
 
-/*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
-*
-* The image(s) to treat, seen as image, should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
-*/
-__global__ void kernel_complex_divide(
-  cufftComplex* image,
-  unsigned int size,
-  float divider)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size)
-  {
-    image[index].x = image[index].x / divider;
-    image[index].y = image[index].y / divider;
-    index += blockDim.x * gridDim.x;
-  }
-}
-
-/*! \brief  Divide all the pixels of input image(s) by the float divider.
-*
-* The image(s) to treat should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
-__global__ void kernel_float_divide(
-  float* input,
-  unsigned int size,
-  float divider)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  while (index < size)
-  {
-    input[index] /= divider;
-    index += blockDim.x * gridDim.x;
-  }
-}
 
 /*! \brief  compute the log of all the pixels of input image(s).
 *
