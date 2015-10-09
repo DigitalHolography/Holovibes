@@ -212,16 +212,17 @@ namespace holovibes
       return;
     }
 
-    // Fill input complex buffer.
-    fn_vect_.push_back(std::bind(
-      make_contiguous_complex,
-      std::ref(input_),
-      gpu_input_buffer_,
-      compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
+      // Fill input complex buffer.
+      fn_vect_.push_back(std::bind(
+        make_contiguous_complex,
+        std::ref(input_),
+        gpu_input_buffer_,
+        compute_desc_.nsamples.load(),
+        gpu_sqrt_vector_));
+
       // Initialize FFT1 lens.
       fft1_lens(
         gpu_lens_,
@@ -256,6 +257,14 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
+      // Fill input complex buffer.
+      fn_vect_.push_back(std::bind(
+        make_contiguous_complex,
+        std::ref(input_),
+        gpu_input_buffer_,
+        compute_desc_.nsamples.load(),
+        gpu_sqrt_vector_));
+
       fft2_lens(
         gpu_lens_,
         input_fd,
@@ -304,6 +313,14 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
+      // Fill input complex buffer.
+      fn_vect_.push_back(std::bind(
+        make_contiguous_complex,
+        std::ref(input_),
+        gpu_input_buffer_,
+        1,
+        gpu_sqrt_vector_));
+
       // Initialize FFT1 lens.
       fft1_lens(
         gpu_lens_,
