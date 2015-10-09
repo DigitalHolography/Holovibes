@@ -84,20 +84,20 @@ namespace holovibes
 
     unsigned int area() const
     {
-      unsigned int AB = top_right.x - top_left.x;
-      unsigned int AD = bottom_left.y - top_left.y;
+      unsigned int AB = bottom_right.x - top_left.x;
+      unsigned int AD = bottom_right.y - top_left.y;
       return (AB * AD);
     }
 
     unsigned int get_width() const
     {
-      unsigned int AB = top_right.x - top_left.x;
+      unsigned int AB = bottom_right.x - top_left.x;
       return (AB);
     }
 
     unsigned int get_height() const
     {
-      unsigned int AD = bottom_left.y - top_left.y;
+      unsigned int AD = bottom_right.y - top_left.y;
       return (AD);
     }
 

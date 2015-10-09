@@ -267,6 +267,16 @@ namespace gui
         else // Noise selection
           noise_selection_ = selection_;
       }
+      else if (selection_mode_ == STFT_ROI)
+      {
+        int max;
+        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
+          max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+
+        selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
+        selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+      }
     }
   }
 
@@ -277,6 +287,17 @@ namespace gui
       selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
         (e->y() * frame_desc_.height) / height());
+
+      if (selection_mode_ == STFT_ROI)
+      {
+        int max;
+        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
+          max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+
+        selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
+        selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+      }
 
       selection_.bottom_left = holovibes::Point2D(
         selection_.top_left.x,
@@ -326,6 +347,7 @@ namespace gui
             holovibes::Point2D(0, 0),
             holovibes::Point2D(stft_roi_selection_.get_width(), stft_roi_selection_.get_height()));
           selection_mode_ = ZOOM;
+          dezoom();
         }
         break;
       default:
