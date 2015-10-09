@@ -442,9 +442,13 @@ namespace gui
 
   void GLWidget::gl_error_checking()
   {
+    // Sometimes this will occur when opengl is having some
+    // trouble, and this will cause glGetString to return NULL.
+    // That's why we need to check it, in order to avoid crashes.
     GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-      std::cerr << "[GL] " << glGetString(error) << std::endl;
+    auto err_string = glGetString(error);
+    if (error != GL_NO_ERROR && err_string)
+      std::cerr << "[GL] " << err_string << std::endl;
   }
 
   void GLWidget::resizeFromWindow(int width, int height)
