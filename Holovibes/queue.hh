@@ -37,52 +37,22 @@ namespace holovibes
     ** images or a FrameDescriptor used for computations.
     ** \param elts Max number of elements that the queue can contain.
     **/
-    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
-      : frame_desc_(frame_desc)
-      , size_(frame_desc_.frame_size())
-      , pixels_(frame_desc_.frame_res())
-      , max_elts_(elts)
-      , curr_elts_(0)
-      , start_(0)
-      , is_big_endian_(frame_desc.depth == 2 &&
-      frame_desc.endianness == camera::BIG_ENDIAN)
-    {
-      if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
-        std::cerr << "Queue: couldn't allocate queue" << std::endl;
-
-      frame_desc_.endianness = camera::LITTLE_ENDIAN;
-    }
+    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts);
 
     /*! Queue destructor */
-    ~Queue()
-    {
-      if (cudaFree(buffer_) != CUDA_SUCCESS)
-        std::cerr << "Queue: couldn't free queue" << std::endl;
-    }
+    ~Queue();
 
     /*! \return the size of one frame (i-e element) of the Queue in bytes. */
-    size_t get_size() const
-    {
-      return size_;
-    }
+    size_t get_size() const;
 
     /*! \return pointer to internal buffer that contains data. */
-    void* get_buffer()
-    {
-      return buffer_;
-    }
+    void* get_buffer();
 
     /*! \return FrameDescriptor of the Queue */
-    const camera::FrameDescriptor& get_frame_desc() const
-    {
-      return frame_desc_;
-    }
+    const camera::FrameDescriptor& get_frame_desc() const;
 
     /*! \return the size of one frame (i-e element) of the Queue in pixels. */
-    int get_pixels()
-    {
-      return pixels_;
-    }
+    int get_pixels();
 
     /*! \return the number of elements the Queue currently contains. */
     size_t get_current_elts();
