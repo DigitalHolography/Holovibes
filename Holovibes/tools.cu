@@ -557,22 +557,24 @@ void frame_memcpy(
 }
 
 /*! \brief  Sum all the pixels of the input image.
-*
-* The result of the sumation is contained in the parameted sum,
-* The size parameter represent the number of pixels to sum,
-* it should be equal to the number of pixels of the image.
+**
+** The result of the summation is contained in the parameted sum,
+** The size parameter represent the number of pixels to sum,
+** it should be equal to the number of pixels of the image.
+** \param SpanSize Number of values to sum up serially before
+** calling atomicAdd.
 */
-static __global__ void kernel_sum(
-  const float* input,
-  float* sum,
-  unsigned int size)
+template <unsigned SpanSize>
+static __global__ void kernel_sum(const float* input, float* sum, size_t size)
 {
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  while (index < size)
+  if ((index + SpanSize - 1) < size && (index % SpanSize) == 0)
   {
-    atomicAdd(sum, input[index]);
-    index += blockDim.x * gridDim.x;
+    float tmp_reduce = 0.0f;
+    for (unsigned i = 0; i < SpanSize; ++i)
+      tmp_reduce += input[index + i];
+    atomicAdd(sum, tmp_reduce);
   }
 }
 
@@ -584,7 +586,7 @@ float average_operator(
   const float* input,
   const unsigned int size)
 {
-  const unsigned int threads = get_max_threads_1d();
+  const unsigned int threads = 128;
   const unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;
 
@@ -595,7 +597,8 @@ float average_operator(
   cudaMalloc<float>(&gpu_sum, sizeof(float));
   cudaMemset(gpu_sum, 0, sizeof(float));
 
-  kernel_sum << <blocks, threads >> >(
+  // SpanSize pf 4 has been determined to be an optimal choice here.
+  kernel_sum <4> << <blocks, threads >> >(
     input,
     gpu_sum,
     size);
