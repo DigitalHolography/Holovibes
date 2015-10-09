@@ -16,7 +16,7 @@
 
 namespace holovibes
 {
-  Rectangle   r(Point2D(200, 1200), Point2D(700, 1700));
+  Rectangle   r(Point2D(300, 1300), Point2D(700, 1700));
 
   Pipeline::Pipeline(
     Queue& input,
@@ -38,6 +38,8 @@ namespace holovibes
     , gpu_input_frame_ptr_(nullptr)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
+    , stft_roi_requested_(false)
+    , stft_roi_stop_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
     , average_requested_(false)
@@ -46,15 +48,16 @@ namespace holovibes
     , average_n_(0)
   {
     const unsigned short nsamples = desc.nsamples;
-    unsigned short input_length = nsamples;
 
     /* if stft, we don't need to allocate more than one frame */
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
-      input_length = 1;
+      input_length_ = 1;
+    else
+      input_length_ = nsamples;
 
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
 
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
@@ -83,7 +86,7 @@ namespace holovibes
     /* CUFFT plan3d */
     cufftPlan3d(
       &plan3d_,
-      nsamples,                       // NX
+      input_length_,                   // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
       CUFFT_C2C);
@@ -140,11 +143,17 @@ namespace holovibes
 
   void Pipeline::update_n_parameter(unsigned short n)
   {
+    /* if stft, we don't need to allocate more than one frame */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      input_length_ = 1;
+    else
+      input_length_ = n;
+
     /* CUFFT plan3d realloc */
     cufftDestroy(plan3d_);
     cufftPlan3d(
       &plan3d_,
-      n,                              // NX
+      input_length_,                  // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
       CUFFT_C2C);
@@ -158,18 +167,11 @@ namespace holovibes
       r.area()
       );
 
-    /* gpu_input_buffer realloc */
-    unsigned short input_length = n;
-
-    /* if stft, we don't need to allocate more than one frame */
-    if (compute_desc_.algorithm.load() == ComputeDescriptor::STFT)
-      input_length = 1;
-
     cudaFree(gpu_input_buffer_);
     gpu_input_buffer_ = nullptr;
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
 
     cudaFree(gpu_stft_buffer_);
     gpu_stft_buffer_ = nullptr;
@@ -182,7 +184,6 @@ namespace holovibes
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
       sizeof(cufftComplex)* r.area() * n);
-
   }
 
   void Pipeline::refresh()
@@ -212,17 +213,16 @@ namespace holovibes
       return;
     }
 
+    // Fill input complex buffer.
+    fn_vect_.push_back(std::bind(
+      make_contiguous_complex,
+      std::ref(input_),
+      gpu_input_buffer_,
+      input_length_,
+      gpu_sqrt_vector_));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
-      // Fill input complex buffer.
-      fn_vect_.push_back(std::bind(
-        make_contiguous_complex,
-        std::ref(input_),
-        gpu_input_buffer_,
-        compute_desc_.nsamples.load(),
-        gpu_sqrt_vector_));
-
       // Initialize FFT1 lens.
       fft1_lens(
         gpu_lens_,
@@ -257,14 +257,6 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
-      // Fill input complex buffer.
-      fn_vect_.push_back(std::bind(
-        make_contiguous_complex,
-        std::ref(input_),
-        gpu_input_buffer_,
-        compute_desc_.nsamples.load(),
-        gpu_sqrt_vector_));
-
       fft2_lens(
         gpu_lens_,
         input_fd,
@@ -313,14 +305,6 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
-      // Fill input complex buffer.
-      fn_vect_.push_back(std::bind(
-        make_contiguous_complex,
-        std::ref(input_),
-        gpu_input_buffer_,
-        1,
-        gpu_sqrt_vector_));
-
       // Initialize FFT1 lens.
       fft1_lens(
         gpu_lens_,
@@ -329,7 +313,7 @@ namespace holovibes
         compute_desc_.zdistance);
 
       curr_elt_stft_ = 0;
-      // Add FFT1.
+      // Add STFT.
       fn_vect_.push_back(std::bind(
         stft,
         gpu_input_buffer_,

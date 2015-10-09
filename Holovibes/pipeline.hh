@@ -223,6 +223,8 @@ namespace holovibes
     /*! \{ \name request flags */
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
+    bool stft_roi_requested_;
+    bool stft_roi_stop_requested_;
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
@@ -231,6 +233,8 @@ namespace holovibes
     bool float_output_requested;
     /*! \} */
 
+    /*! \brief Number of frame in input. */
+    unsigned int input_length_;
     /*! \brief Number of frame to record before request_float_output_stop. */
     unsigned int float_output_nb_frame_;
     /*! \brief index of current element trait in stft */
