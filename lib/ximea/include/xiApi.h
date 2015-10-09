@@ -42,6 +42,7 @@ extern "C" {
 #define  XI_PRM_DOWNSAMPLING_TYPE               "downsampling_type"       // Change image downsampling type. XI_DOWNSAMPLING_TYPE
 #define  XI_PRM_SHUTTER_TYPE                    "shutter_type"            // Change sensor shutter type(CMOS sensor). XI_SHUTTER_TYPE
 #define  XI_PRM_IMAGE_DATA_FORMAT               "imgdataformat"           // Output data format. XI_IMG_FORMAT
+#define  XI_PRM_IMAGE_PAYLOAD_SIZE              "imgpayloadsize"          // Buffer size in bytes sufficient for output image returned by xiGetImage 
 #define  XI_PRM_TRANSPORT_PIXEL_FORMAT          "transport_pixel_format"  // Current format of pixels on transport layer. XI_GenTL_Image_Format_e
 #define  XI_PRM_SENSOR_TAPS                     "sensor_taps"             // Number of taps 
 #define  XI_PRM_SENSOR_PIXEL_CLOCK_FREQ_HZ      "sensor_pixel_clock_freq_hz"// Sensor pixel clock frequency in Hz. 
@@ -72,6 +73,8 @@ extern "C" {
 #define  XI_PRM_GPO_MODE                        "gpo_mode"                // Defines GPO functionality XI_GPO_MODE
 #define  XI_PRM_LED_SELECTOR                    "led_selector"            // Selects LED 
 #define  XI_PRM_LED_MODE                        "led_mode"                // Defines LED functionality XI_LED_MODE
+#define  XI_PRM_TS_RST_MODE                     "ts_rst_mode"             // Defines how time stamp reset engine will be armed XI_TS_RST_MODE
+#define  XI_PRM_TS_RST_SOURCE                   "ts_rst_source"           // Defines which source will be used for timestamp reset. Writing this parameter will trigger settings of engine (arming) XI_TS_RST_SOURCE
 #define  XI_PRM_ACQ_FRAME_BURST_COUNT           "acq_frame_burst_count"   // Sets number of frames acquired by burst. This burst is used only if trigger is set to FrameBurstStart 
 // 
 #define  XI_PRM_IS_DEVICE_EXIST                 "isexist"                 // Returns 1 if camera connected and works properly. XI_SWITCH
@@ -224,6 +227,7 @@ typedef enum
 	XI_RESOURCE_OR_FUNCTION_LOCKED    =57, // Resource(device) or function locked by mutex
 	XI_BUFFER_SIZE_TOO_SMALL          =58, // Buffer provided by user is too small
 	XI_COULDNT_INIT_PROCESSOR         =59, // Couldn't initialize processor.
+	XI_NOT_INITIALIZED                =60, // The object/module/procedure/process being referred to has not been started.
 	XI_UNKNOWN_PARAM                  =100, // Unknown parameter
 	XI_WRONG_PARAM_VALUE              =101, // Wrong parameter value
 	XI_WRONG_PARAM_TYPE               =103, // Wrong parameter type
@@ -351,18 +355,56 @@ typedef enum
 // structure containing information about LED functionality
 typedef enum
 {
-	XI_LED_HEARTBEAT             =0, // set led to blink if link is ok, (led 1), heartbeat (led 2)
-	XI_LED_TRIGGER_ACTIVE        =1, // set led to blink if trigger detected
-	XI_LED_EXT_EVENT_ACTIVE      =2, // set led to blink if external signal detected
-	XI_LED_LINK                  =3, // set led to blink if link is ok
-	XI_LED_ACQUISITION           =4, // set led to blink if data streaming
-	XI_LED_EXPOSURE_ACTIVE       =5, // set led to blink if sensor integration time
-	XI_LED_FRAME_ACTIVE          =6, // set led to blink if device busy/not busy
-	XI_LED_OFF                   =7, // set led to zero
-	XI_LED_ON                    =8, // set led to one
-	XI_LED_BLINK                 =9, // set led to ~1Hz blink
+	XI_LED_HEARTBEAT             =0, // Blinking (1Hz) if all is OK (CURRERA-R only).
+	XI_LED_TRIGGER_ACTIVE        =1, // On if trigger detected (CURRERA-R only).
+	XI_LED_EXT_EVENT_ACTIVE      =2, // On if external signal detected (CURRERA-R only)
+	XI_LED_LINK                  =3, // On if link is OK (Currera-R only)
+	XI_LED_ACQUISITION           =4, // On if data streaming is on
+	XI_LED_EXPOSURE_ACTIVE       =5, // On if sensor is integrating
+	XI_LED_FRAME_ACTIVE          =6, // On if frame is active (exposure or readout)
+	XI_LED_OFF                   =7, // Off
+	XI_LED_ON                    =8, // On
+	XI_LED_BLINK                 =9, // Blinking (1Hz)
 	
 } XI_LED_MODE;
+
+// structure containing information about time stamp reset arming
+typedef enum
+{
+	XI_TS_RST_ARM_ONCE           =0, // TimeStamp reset is armed once, after execution engine is disabled
+	XI_TS_RST_ARM_PERSIST        =1, // TimeStamp reset is armed permanently if source is selected 
+	
+} XI_TS_RST_MODE;
+
+// structure containing information about possible timestamp reset sources
+typedef enum
+{
+	XI_TS_RST_OFF                =0, // No source selected, timestamp reset effectively disabled
+	XI_TS_RST_SRC_GPI_1          =1, // TimeStamp reset source selected GPI1 (after de bounce)
+	XI_TS_RST_SRC_GPI_2          =2, // TimeStamp reset source selected GPI2 (after de bounce)
+	XI_TS_RST_SRC_GPI_3          =3, // TimeStamp reset source selected GPI3 (after de bounce)
+	XI_TS_RST_SRC_GPI_4          =4, // TimeStamp reset source selected GPI4 (after de bounce)
+	XI_TS_RST_SRC_GPI_1_INV      =5, // TimeStamp reset source selected GPI1 inverted (after de bounce)
+	XI_TS_RST_SRC_GPI_2_INV      =6, // TimeStamp reset source selected GPI2 inverted (after de bounce)
+	XI_TS_RST_SRC_GPI_3_INV      =7, // TimeStamp reset source selected GPI3 inverted (after de bounce)
+	XI_TS_RST_SRC_GPI_4_INV      =8, // TimeStamp reset source selected GPI4 inverted (after de bounce)
+	XI_TS_RST_SRC_GPO_1          =9, // TimeStamp reset source selected GPO1 (after de bounce)
+	XI_TS_RST_SRC_GPO_2          =10, // TimeStamp reset source selected GPO2 (after de bounce)
+	XI_TS_RST_SRC_GPO_3          =11, // TimeStamp reset source selected GPO3 (after de bounce)
+	XI_TS_RST_SRC_GPO_4          =12, // TimeStamp reset source selected GPO4 (after de bounce)
+	XI_TS_RST_SRC_GPO_1_INV      =13, // TimeStamp reset source selected GPO1 inverted (after de bounce)
+	XI_TS_RST_SRC_GPO_2_INV      =14, // TimeStamp reset source selected GPO2 inverted (after de bounce)
+	XI_TS_RST_SRC_GPO_3_INV      =15, // TimeStamp reset source selected GPO3 inverted (after de bounce)
+	XI_TS_RST_SRC_GPO_4_INV      =16, // TimeStamp reset source selected GPO4 inverted (after de bounce)
+	XI_TS_RST_SRC_TRIGGER        =17, // TimeStamp reset source selected TRIGGER (signal for sensor)
+	XI_TS_RST_SRC_TRIGGER_INV    =18, // TimeStamp reset source selected TRIGGER (signal for sensor)
+	XI_TS_RST_SRC_SW             =19, // TimeStamp reset source selected software (has immediate effect and is self cleared)
+	XI_TS_RST_SRC_EXPACTIVE      =20, // TimeStamp reset source selected exposure active 
+	XI_TS_RST_SRC_EXPACTIVE_INV  =21, // TimeStamp reset source selected exposure active 
+	XI_TS_RST_SRC_FVAL           =22, // TimeStamp reset source selected frame valid signal from sensor
+	XI_TS_RST_SRC_FVAL_INV       =23, // TimeStamp reset source selected frame valid inverted signal from sensor
+	
+} XI_TS_RST_SOURCE;
 
 // structure containing information about parameters type
 typedef enum

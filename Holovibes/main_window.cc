@@ -745,50 +745,49 @@ namespace gui
 
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
-	QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-
+    QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
 
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
 
     try
     {
-		if (float_output_checkbox->isChecked() && !is_direct_mode_)
-		{
-			holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
+      if (float_output_checkbox->isChecked() && !is_direct_mode_)
+      {
+        holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
 
-			global_visibility(true);
-			record_but_cancel_visible(true);
+        global_visibility(true);
+        record_but_cancel_visible(true);
 
-			while (holovibes_.get_pipeline().is_requested_float_output())
-				std::this_thread::yield();
-			display_info("Record done");
-		}
-		else
-		{
-			if (is_direct_mode_)
-			{
-				record_thread_ = new ThreadRecorder(
-					holovibes_.get_capture_queue(),
-					path,
-					nb_of_frames,
-					this);
-			}
-			else
-			{
-				record_thread_ = new ThreadRecorder(
-					holovibes_.get_output_queue(),
-					path,
-					nb_of_frames,
-					this);
-			}
+        while (holovibes_.get_pipeline().is_requested_float_output())
+          std::this_thread::yield();
+        display_info("Record done");
+      }
+      else
+      {
+        if (is_direct_mode_)
+        {
+          record_thread_ = new ThreadRecorder(
+            holovibes_.get_capture_queue(),
+            path,
+            nb_of_frames,
+            this);
+        }
+        else
+        {
+          record_thread_ = new ThreadRecorder(
+            holovibes_.get_output_queue(),
+            path,
+            nb_of_frames,
+            this);
+        }
 
-			connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
-			record_thread_->start();
+        connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
+        record_thread_->start();
 
-			QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
-			cancel_button->setDisabled(false);
-		}
+        QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+        cancel_button->setDisabled(false);
+      }
     }
     catch (std::exception& e)
     {
@@ -803,7 +802,8 @@ namespace gui
     delete record_thread_;
     record_thread_ = nullptr;
     display_info("Record done");
-    global_visibility(true);
+    if (!is_direct_mode_)
+      global_visibility(true);
     record_but_cancel_visible(true);
   }
 
@@ -1057,45 +1057,45 @@ namespace gui
 
   void MainWindow::import_file()
   {
-	  QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-	  QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
-	  QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
-	  QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
-	  QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-	  QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
-	  QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-	  QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
-	  QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
-	  QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+    QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+    QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
+    QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
+    QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
+    QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
+    QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+    QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+    QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
+    QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
+    QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 
-	  std::string file_src = import_line_edit->text().toUtf8();
+    std::string file_src = import_line_edit->text().toUtf8();
 
-	  holovibes::ThreadReader::FrameDescriptor frame_desc({
-			  width_spinbox->value(),
-			  height_spinbox->value(),
-			  // 0:depth = 8, 1:depth = 16
-			  depth_spinbox->currentIndex() + 1,
-			  (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
-		  });
+    holovibes::ThreadReader::FrameDescriptor frame_desc({
+      width_spinbox->value(),
+      height_spinbox->value(),
+      // 0:depth = 8, 1:depth = 16
+      depth_spinbox->currentIndex() + 1,
+      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
+    });
 
-	  camera_visible(false);
-	  record_visible(false);
-	  global_visibility(false);
-	  delete gl_window_;
-	  gl_window_ = nullptr;
-	  holovibes_.dispose_compute();
-	  holovibes_.dispose_capture();
-	  holovibes_.init_import_mode(
-		  file_src,
-		  frame_desc,
-		  loop_checkbox->isChecked(),
-		  fps_spinbox->value(),
-		  start_spinbox->value(),
-		  end_spinbox->value(),
-		  q_max_size_);
-	  camera_visible(true);
-	  record_visible(true);
-	  set_image_mode(is_direct_mode_);
+    camera_visible(false);
+    record_visible(false);
+    global_visibility(false);
+    delete gl_window_;
+    gl_window_ = nullptr;
+    holovibes_.dispose_compute();
+    holovibes_.dispose_capture();
+    holovibes_.init_import_mode(
+      file_src,
+      frame_desc,
+      loop_checkbox->isChecked(),
+      fps_spinbox->value(),
+      start_spinbox->value(),
+      end_spinbox->value(),
+      q_max_size_);
+    camera_visible(true);
+    record_visible(true);
+    set_image_mode(is_direct_mode_);
   }
 
   void MainWindow::import_start_spinbox_update()
@@ -1172,14 +1172,14 @@ namespace gui
     QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
     algorithm->setDisabled(!value);
 
-	QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-	float_output_checkbox->setDisabled(!value);
+    QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+    float_output_checkbox->setDisabled(!value);
 
-	QLineEdit* pixelSize = findChild<QLineEdit*>("pixelSize");
-	pixelSize->setDisabled(!value);
+    QLineEdit* pixelSize = findChild<QLineEdit*>("pixelSize");
+    pixelSize->setDisabled(!value);
 
-	QLineEdit* boundary = findChild<QLineEdit*>("boundary");
-	boundary->setDisabled(!value);
+    QLineEdit* boundary = findChild<QLineEdit*>("boundary");
+    boundary->setDisabled(!value);
   }
 
   void MainWindow::camera_visible(bool value)

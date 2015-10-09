@@ -1,7 +1,7 @@
 #include "preprocessing.cuh"
 
 #include "hardware_limits.hh"
-#include "tools.cuh"
+#include "tools_conversion.cuh"
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
 * range 0 to n.

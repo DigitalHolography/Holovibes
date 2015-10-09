@@ -68,6 +68,20 @@ namespace camera
     ** XI_TRG_SOFTWARE: Capture is started with software trigger.
     */
     XI_TRG_SOURCE trigger_src_;
+    /*!
+    ** ROI offset
+    ** X and Y axis
+    ** Values start from 0.
+    */
+    int roi_x_;
+    int roi_y_;
+    /*!
+    ** ROI area size
+    ** Keep in mind that ROI area can't be larger than the
+    ** initial frame's area.
+    */
+    int roi_width_;
+    int roi_height_;
   };
 }
 

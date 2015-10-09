@@ -71,5 +71,6 @@ typedef int MM40_RETURN;
 #define MM40_RESOURCE_OR_FUNCTION_LOCKED  57 //!< Resource(device) or function locked by mutex
 #define MM40_BUFFER_SIZE_TOO_SMALL        58 //!< Buffer provided by user is too small
 #define MM40_COULDNT_INIT_PROCESSOR       59 //!< Couldn't initialize processor.
+#define MM40_NOT_INITIALIZED              60 //!< The object/module/procedure/process being referred to has not been started.
 /** @} */
 #endif // _ERROR_CODES_H_
