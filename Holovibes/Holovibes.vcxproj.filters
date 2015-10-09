@@ -72,6 +72,9 @@
     <CudaCompile Include="tools_conversion.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="tools_divide.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -284,6 +287,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools_conversion.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_divide.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
