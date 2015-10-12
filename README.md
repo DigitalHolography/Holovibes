@@ -1,4 +1,4 @@
-# Holovibes v1.0.0 #
+# Holovibes v1.1.0 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -272,7 +272,6 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * The autofocus has been improved a lot in terms of precision.
 * Some small performance changes.
 
-<<<<<<< HEAD
 ### v.1.0.2
 
 * The autofocus can now be done recursively, allowing it to be performed must faster.
