@@ -7,6 +7,7 @@
 # include <QThread>
 # include "concurrent_deque.hh"
 # include "pipeline.hh"
+# include "holovibes.hh"
 
 namespace gui
 {
@@ -32,7 +33,7 @@ namespace gui
     ** \param nb_frames number of frames i-e number of values to record
     ** \param parent Qt parent (default is null)
     */
-    ThreadCSVRecord(holovibes::Pipeline& pipeline,
+    ThreadCSVRecord(holovibes::Holovibes& holo,
       Deque& deque,
       std::string path,
       unsigned int nb_frames,
@@ -52,8 +53,8 @@ namespace gui
     void run() override;
 
   private:
-    /*! Program's pipeline */
-    holovibes::Pipeline& pipeline_;
+    /*! Program's entity holding a lots of informations */
+    holovibes::Holovibes& holo_;
     /*! Deque to record */
     Deque& deque_;
     /*! Output record path */
