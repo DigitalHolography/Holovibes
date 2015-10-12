@@ -33,6 +33,9 @@ void stft(
 
   cudaDeviceSynchronize();
 
+  if (!r.area())
+    return;
+
   if (curr_elt == nsamples)
   {
     // Remove first element and move all element on left

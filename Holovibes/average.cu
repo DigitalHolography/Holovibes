@@ -80,9 +80,9 @@ std::tuple<float, float, float> make_average_plot(
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
   unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
 
-  kernel_zone_sum <<<blocks, threads>>>(input, width, height, gpu_n,
+  kernel_zone_sum << <blocks, threads >> >(input, width, height, gpu_n,
     noise.top_left.x, noise.top_left.y, noise_width, noise_height);
-  kernel_zone_sum <<<blocks, threads>>>(input, width, height, gpu_s,
+  kernel_zone_sum << <blocks, threads >> >(input, width, height, gpu_s,
     signal.top_left.x, signal.top_left.y, signal_width, signal_height);
 
   float cpu_s;
@@ -91,8 +91,8 @@ std::tuple<float, float, float> make_average_plot(
   cudaMemcpy(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost);
 
-  cpu_s /=  float(signal_width * signal_height);
-  cpu_n /=  float(noise_width * noise_height);
+  cpu_s /= float(signal_width * signal_height);
+  cpu_n /= float(noise_width * noise_height);
 
   float moy = 10 * log10f(cpu_s / cpu_n);
 
@@ -105,6 +105,8 @@ std::tuple<float, float, float> make_average_plot(
 #include <iostream>
 
 std::tuple<float, float, float> make_average_stft_plot(
+  cufftComplex*         cbuf,
+  float*                fbuf,
   cufftComplex*         input,
   unsigned int          width,
   unsigned int          height,
@@ -113,8 +115,6 @@ std::tuple<float, float, float> make_average_stft_plot(
   unsigned int          pindex,
   unsigned int          nsamples)
 {
-  cufftComplex*   cbuf;
-  float*          fbuf;
   std::tuple<float, float, float> res;
 
   unsigned int size = width * height;
@@ -123,10 +123,8 @@ std::tuple<float, float, float> make_average_stft_plot(
 
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
-  cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex));
-  cudaMalloc<float>(&fbuf, width * height * sizeof(float));
 
-  kernel_reconstruct_roi<<<blocks, threads>>>(
+  kernel_reconstruct_roi << <blocks, threads >> >(
     input,
     cbuf,
     width,
@@ -138,16 +136,5 @@ std::tuple<float, float, float> make_average_stft_plot(
   complex_to_modulus(cbuf, fbuf, size);
 
   res = make_average_plot(fbuf, width, height, signal_zone, noise_zone);
-  cudaFree(cbuf);
-  cudaFree(fbuf);
-  //std::cout
-  //  << pindex
-  //  << "] >> "
-  //  << std::get<0>(res)
-  //  << " : "
-  //  << std::get<1>(res)
-  //  << " : "
-  //  << std::get<2>(res)
-  //  << std::endl;
   return res;
 }
