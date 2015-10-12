@@ -41,27 +41,13 @@ namespace camera
 
     BFRC status = CiSysBrdFind(type, number, entry);
     if (status != CI_OK)
-    {
       // No board was found.
-      std::cout << "Could not find board" << std::endl;
       throw CameraException(CameraException::NOT_CONNECTED);
-    }
-    else
-    {
-      std::cout << "Found board" << std::endl;
-    }
 
     status = CiBrdOpen(entry, &board_, CiSysInitialize);
     if (status != CI_OK)
-    {
       // Camera could not be opened.
-      std::cout << "Could not open camera" << std::endl;
       throw CameraException(CameraException::NOT_INITIALIZED);
-    }
-    else
-    {
-      std::cout << "Opened camera" << std::endl;
-    }
 
     bind_params();
   }
@@ -76,6 +62,7 @@ namespace camera
 
   void CameraAdimec::shutdown_camera()
   {
+    CiBrdClose(board_);
   }
 
   void* CameraAdimec::get_frame()
