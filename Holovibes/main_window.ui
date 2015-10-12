@@ -1627,6 +1627,7 @@
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionAdimec"/>
      <addaction name="actionEdge"/>
      <addaction name="actionIDS"/>
      <addaction name="actionIXon"/>
@@ -1830,6 +1831,11 @@
    </property>
    <property name="shortcut">
     <string>Alt+I</string>
+   </property>
+  </action>
+  <action name="actionAdimec">
+   <property name="text">
+    <string>Adimec</string>
    </property>
   </action>
  </widget>

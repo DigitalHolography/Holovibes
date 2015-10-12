@@ -22,7 +22,8 @@ namespace holovibes
   }
 
   Holovibes::~Holovibes()
-  {}
+  {
+  }
 
   void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
   {
@@ -30,7 +31,9 @@ namespace holovibes
 
     try
     {
-      if (c == EDGE)
+      if (c == ADIMEC)
+        camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
+      else if (c == EDGE)
         camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
       else if (c == IDS)
         camera_ = camera::CameraDLL::load_camera("CameraIds.dll");

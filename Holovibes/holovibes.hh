@@ -35,6 +35,7 @@ namespace holovibes
     enum camera_type
     {
       NONE,
+      ADIMEC,
       EDGE,
       IDS,
       IXON,
