@@ -329,7 +329,6 @@ namespace holovibes
       /* frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_;
 
-
       if (average_requested_)
       {
         fn_vect_.push_back(std::bind(
@@ -643,13 +642,21 @@ namespace holovibes
     Rectangle&       noise_zone,
     unsigned int     nsamples)
   {
-    unsigned int  i;
+    unsigned int    i;
+    cufftComplex*   cbuf;
+    float*          fbuf;
+
+    cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex));
+    cudaMalloc<float>(&fbuf, width * height * sizeof(float));
 
     average_output_->resize(nsamples);
     for (i = 0; i < nsamples; ++i)
     {
-      (*average_output_)[i] = (make_average_stft_plot(input, width, height, signal_zone, noise_zone, i, nsamples));
+      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, input, width, height, signal_zone, noise_zone, i, nsamples));
     }
+
+    cudaFree(cbuf);
+    cudaFree(fbuf);
   }
   /* Looks like the pipeline, but it searches for the right z value.
   The method choosen, iterates on the numbers of points given by the user
