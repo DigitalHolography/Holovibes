@@ -328,6 +328,21 @@ namespace holovibes
 
       /* frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_;
+
+
+      if (average_requested_)
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipeline::average_stft_caller,
+          this,
+          gpu_stft_dup_buffer_,
+          compute_desc_.stft_roi_zone.load().get_width(),
+          compute_desc_.stft_roi_zone.load().get_height(),
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load(),
+          compute_desc_.nsamples.load()));
+        average_requested_ = false;
+      }
     }
     else
       assert(!"Impossible case.");
@@ -620,6 +635,22 @@ namespace holovibes
     }
   }
 
+  void Pipeline::average_stft_caller(
+    cufftComplex*    input,
+    unsigned int     width,
+    unsigned int     height,
+    Rectangle&       signal_zone,
+    Rectangle&       noise_zone,
+    unsigned int     nsamples)
+  {
+    unsigned int  i;
+
+    average_output_->resize(nsamples);
+    for (i = 0; i < nsamples; ++i)
+    {
+      (*average_output_)[i] = (make_average_stft_plot(input, width, height, signal_zone, noise_zone, i, nsamples));
+    }
+  }
   /* Looks like the pipeline, but it searches for the right z value.
   The method choosen, iterates on the numbers of points given by the user
   between min and max, take the max and increase the precision to focus

@@ -3,6 +3,7 @@
 #include <device_launch_parameters.h>
 #include <cmath>
 
+#include "tools.cuh"
 #include "hardware_limits.hh"
 
 /*! \brief  Sume 2 zone of input image
@@ -99,4 +100,54 @@ std::tuple<float, float, float> make_average_plot(
   cudaFree(gpu_s);
 
   return std::tuple<float, float, float>{ cpu_s, cpu_n, moy };
+}
+
+#include <iostream>
+
+std::tuple<float, float, float> make_average_stft_plot(
+  cufftComplex*         input,
+  unsigned int          width,
+  unsigned int          height,
+  holovibes::Rectangle&  signal_zone,
+  holovibes::Rectangle&  noise_zone,
+  unsigned int          pindex,
+  unsigned int          nsamples)
+{
+  cufftComplex*   cbuf;
+  float*          fbuf;
+  std::tuple<float, float, float> res;
+
+  unsigned int size = width * height;
+  unsigned int threads = 128;
+  unsigned int blocks = size / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+  cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex));
+  cudaMalloc<float>(&fbuf, width * height * sizeof(float));
+
+  kernel_reconstruct_roi<<<blocks, threads>>>(
+    input,
+    cbuf,
+    width,
+    height,
+    width,
+    pindex,
+    nsamples);
+
+  complex_to_modulus(cbuf, fbuf, size);
+
+  res = make_average_plot(fbuf, width, height, signal_zone, noise_zone);
+  cudaFree(cbuf);
+  cudaFree(fbuf);
+  //std::cout
+  //  << pindex
+  //  << "] >> "
+  //  << std::get<0>(res)
+  //  << " : "
+  //  << std::get<1>(res)
+  //  << " : "
+  //  << std::get<2>(res)
+  //  << std::endl;
+  return res;
 }

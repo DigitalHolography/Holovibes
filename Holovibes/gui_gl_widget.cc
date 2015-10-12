@@ -320,12 +320,12 @@ namespace gui
         if (is_signal_selection_)
         {
           signal_selection_ = selection_;
-          h_.get_compute_desc().signal_zone = signal_selection_;
+          h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
         }
         else // Noise selection
         {
           noise_selection_ = selection_;
-          h_.get_compute_desc().noise_zone = noise_selection_;
+          h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
         }
         is_signal_selection_ = !is_signal_selection_;
         break;
@@ -385,6 +385,20 @@ namespace gui
     glEnd();
 
     glDisable(GL_BLEND);
+  }
+
+  holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection)
+  {
+    selection.top_left.x /= zoom_ratio_;
+    selection.bottom_left.x /= zoom_ratio_;
+    selection.top_left.y /= zoom_ratio_;
+    selection.top_right.y /= zoom_ratio_;
+
+    selection.top_right.x /= zoom_ratio_;
+    selection.bottom_right.x /= zoom_ratio_;
+    selection.bottom_left.y /= zoom_ratio_;
+    selection.bottom_right.y /= zoom_ratio_;
+    return (selection);
   }
 
   void GLWidget::zoom(const holovibes::Rectangle& selection)
