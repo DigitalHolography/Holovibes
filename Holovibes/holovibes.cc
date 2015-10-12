@@ -48,8 +48,11 @@ namespace holovibes
       else
         assert(!"Impossible case");
 
+      std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
       camera_->init_camera();
+      std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
       input_.reset(new Queue(camera_->get_frame_descriptor(), buffer_nb_elts));
+      std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
 

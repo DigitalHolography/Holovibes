@@ -189,6 +189,11 @@ namespace gui
     global_visibility(false);
   }
 
+  void MainWindow::camera_adimec()
+  {
+    change_camera(holovibes::Holovibes::ADIMEC);
+  }
+
   void MainWindow::camera_edge()
   {
     change_camera(holovibes::Holovibes::EDGE);

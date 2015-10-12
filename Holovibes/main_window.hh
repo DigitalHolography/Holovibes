@@ -78,6 +78,8 @@ namespace gui
     ** set visibility to false.
     */
     void camera_none();
+    /*! \brief Change camera to Adimec */
+    void camera_adimec();
     /*! \brief Change camera to EDGE */
     void camera_edge();
     /*! \brief Change camera to IDS */
