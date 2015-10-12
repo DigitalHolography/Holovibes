@@ -2,13 +2,13 @@
 
 namespace gui
 {
-    ThreadCSVRecord::ThreadCSVRecord(holovibes::Pipeline& pipeline,
+    ThreadCSVRecord::ThreadCSVRecord(holovibes::Holovibes& holo,
       Deque& deque,
       std::string path,
       unsigned int nb_frames,
       QObject* parent)
       : QThread(parent),
-      pipeline_(pipeline),
+      holo_(holo),
       deque_(deque),
       path_(path),
       nb_frames_(nb_frames),
@@ -28,11 +28,12 @@ namespace gui
     void ThreadCSVRecord::run()
     {
       deque_.clear();
-      pipeline_.request_average_record(&deque_, nb_frames_);
+      holo_.get_pipeline().request_average_record(&deque_, nb_frames_);
 
       while (deque_.size() < nb_frames_)
         continue;
 
+      std::cout << "CSV" << std::endl;
       std::cout << path_ << "\n";
       std::ofstream of(path_);
       
@@ -50,6 +51,6 @@ namespace gui
         ++i;
       }
 
-      pipeline_.request_refresh();
+      holo_.get_pipeline().request_refresh();
     }
 }
