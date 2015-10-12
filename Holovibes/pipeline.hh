@@ -163,6 +163,22 @@ namespace holovibes
       unsigned int height,
       Rectangle& signal,
       Rectangle& noise);
+    /*! \see request_average
+     * \brief For nsamples in input, reconstruct image,
+     * clear previous result, call the average algorithm and store each result
+     * \param input Input buf, contain nsamples bursting frame
+     * \param width Width of one frame
+     * \param height Height of one frame
+     * \param signal Signal zone
+     * \param noise Noise zone */
+    void average_stft_caller(
+      cufftComplex*    input,
+      unsigned int     width,
+      unsigned int     height,
+      Rectangle&       signal_zone,
+      Rectangle&       noise_zone,
+      unsigned int     nsamples
+      );
     /*! \see request_autofocus
      * \brief Autofocus caller looks like the pipeline refresh method.
      *

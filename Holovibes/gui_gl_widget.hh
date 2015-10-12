@@ -170,6 +170,8 @@ namespace gui
     /*! \brief Dezoom to default resolution */
     void dezoom();
 
+    /*! \brief Return resized rectangle using actual zoom */
+    holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection);
     /*! \brief Assure that the rectangle starts at topLeft and ends at bottomRight
     ** no matter what direction the user uses to select a zone.
     */
