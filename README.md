@@ -99,7 +99,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Jeffrey BENCTEUX <jeffrey.bencteux@epita.fr>
 * Thomas KOSTAS <thomas.kostas@epita.fr>
 * Pierre PAGNOUX <pierre.pagnoux@epita.fr>
-* Eric Delanghe <eric.delanghe@student.42.fr>
+* Eric Delanghe <edelangh@student.42.fr>
 * Arnaud GAILLARD <arnaud.gaillard@epita.fr>
 * Geoffrey LEGOURRIEREC <geoffrey.legourrierec@epita.fr>
 
