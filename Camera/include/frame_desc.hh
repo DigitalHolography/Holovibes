@@ -18,7 +18,7 @@ namespace camera
     /*! Height of the frame. */
     unsigned short         height;
     /*! Byte depth during acquisition. */
-    unsigned short         depth;
+    float         depth;
     /*! Size of pixels in micrometers. */
     float                pixel_size;
     /*! Endianness of bytes. */
