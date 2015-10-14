@@ -25,9 +25,9 @@ namespace camera
   , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
-    desc_.width = 2160;
-    desc_.height = 2160;
-    desc_.depth = 1;
+    desc_.width = 1440;
+    desc_.height = 1440;
+    desc_.depth = 1.5f;
     desc_.endianness = LITTLE_ENDIAN;
     // TODO : Find pixel size.
 
@@ -64,7 +64,7 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width));
+    const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * desc_.depth));
     buffer_ = new char[buffer_pitch * buffer_pitch];
     if (!buffer_)
     {
@@ -127,10 +127,10 @@ namespace camera
     if (status != CI_OK)
     {
       std::cerr << "[CAMERA] Could not get frame" << std::endl;
-      delete[] buffer_;
+      /*delete[] buffer_;
       CiAqCleanUp(board_, AqEngJ);
       shutdown_camera();
-      throw CameraException(CameraException::CANT_GET_FRAME);
+      throw CameraException(CameraException::CANT_GET_FRAME);*/
     }
     else // DEBUG : Remove me later
       std::cout << "\nAcquired image properly" << std::endl;
