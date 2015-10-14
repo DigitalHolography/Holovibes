@@ -1,5 +1,6 @@
 #include <CiApi.h>
 // DEBUG
+#include <R64Api.h>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -24,9 +25,9 @@ namespace camera
   , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
-    desc_.width = 1440;
-    desc_.height = 1440;
-    desc_.depth = 12;
+    desc_.width = 2160;
+    desc_.height = 2160;
+    desc_.depth = 1;
     desc_.endianness = LITTLE_ENDIAN;
     // TODO : Find pixel size.
 
@@ -63,10 +64,7 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    /* Remember that bit depth is in bits, not bytes; thus we have to divide
-    ** by 8 appropriately.
-    */
-    const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * (desc_.depth / 8.0f)));
+    const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width));
     buffer_ = new char[buffer_pitch * buffer_pitch];
     if (!buffer_)
     {
@@ -74,6 +72,10 @@ namespace camera
       throw CameraException(CameraException::MEMORY_PROBLEM);
     }
     memset(buffer_, 0, buffer_pitch * buffer_pitch);
+    // DEBUG
+    char* end = reinterpret_cast<char*>(buffer_)+((buffer_pitch * buffer_pitch) - 1);
+    std::cout << "Buffer ranges from " << buffer_ << " to " << (void*)end << std::endl;
+    // ! DEBUG
 
     BFRC status = CiAqSetup(board_,
       buffer_,
@@ -89,7 +91,7 @@ namespace camera
       );
     if (status != CI_OK)
     {
-      std::cerr << "[CAMERA] Could not setup board for acquisition." << std::endl;
+      std::cerr << "[CAMERA] Could not setup board for acquisition" << status << std::endl;
       delete[] buffer_;
       shutdown_camera();
       throw CameraException(CameraException::CANT_START_ACQUISITION);
