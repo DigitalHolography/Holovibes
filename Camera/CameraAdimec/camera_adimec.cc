@@ -68,7 +68,10 @@ namespace camera
     const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * (desc_.depth / 8.0f)));
     buffer_ = new char[buffer_pitch * buffer_pitch];
     if (!buffer_)
+    {
+      shutdown_camera();
       throw CameraException(CameraException::MEMORY_PROBLEM);
+    }
 
     BFRC status = CiAqSetup(board_,
       buffer_,
@@ -85,8 +88,8 @@ namespace camera
     if (status != CI_OK)
     {
       std::cerr << "[CAMERA] Could not setup board for acquisition." << std::endl;
-      delete buffer_;
-      CiBrdClose(board_);
+      delete[] buffer_;
+      shutdown_camera();
       throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
   }
@@ -96,11 +99,11 @@ namespace camera
     /* Free resources taken by CiAqSetup, in a single function call.
     ** However, the allocated buffer has to be freed manually.
     */
-    delete buffer_;
+    delete[] buffer_;
     if (CiAqCleanUp(board_, AqEngJ) != CI_OK)
     {
       std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
-      CiBrdClose(board_);
+      shutdown_camera();
       throw CameraException(CameraException::CANT_STOP_ACQUISITION);
     }
   }
