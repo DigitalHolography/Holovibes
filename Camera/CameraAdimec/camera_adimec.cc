@@ -2,6 +2,7 @@
 // DEBUG
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 #include "camera_adimec.hh"
 #include "camera_exception.hh"
@@ -72,6 +73,7 @@ namespace camera
       shutdown_camera();
       throw CameraException(CameraException::MEMORY_PROBLEM);
     }
+    memset(buffer_, 0, buffer_pitch * buffer_pitch);
 
     BFRC status = CiAqSetup(board_,
       buffer_,
