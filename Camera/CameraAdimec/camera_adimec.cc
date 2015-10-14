@@ -20,6 +20,7 @@ namespace camera
     : Camera("adimec.ini")
     , board_ { nullptr }
   , buffer_ { nullptr }
+  , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
     desc_.width = 1440;
@@ -74,11 +75,11 @@ namespace camera
       buffer_pitch * buffer_pitch,
       buffer_pitch,
       CiDMADataMem, // We don't care about this parameter, it is for another board.
-      CiLutBank0,
-      CiLut12Bit,
-      CiQTabBank0, // We use a single buffer, in a single bank.
-      true,
-      CiQTabModeOneBank, // We don't need to use several cameras at the same time.
+      CiLutBank1, /* TODO : Check that the Cyton board really does not care about this, */
+      CiLut12Bit, /* and that we can safely assume that LUTs parameters are ignored.    */
+      quad_bank_, // We use a single buffer, in a single bank.
+      TRUE,
+      CiQTabModeOneBank,
       AqEngJ // We dont' care about this parameter, it is for another board.
       );
     if (status != CI_OK)

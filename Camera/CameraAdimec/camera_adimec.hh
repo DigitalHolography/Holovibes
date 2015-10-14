@@ -37,6 +37,9 @@ namespace camera
 
     // Pointer to the allocated buffer used to receive images.
     PBFVOID buffer_;
+
+    // QTabBank used by the camera.
+    BFU8 quad_bank_;
   };
 }
 
