@@ -26,7 +26,7 @@ namespace camera
     desc_.height = 1440;
     desc_.depth = 12;
     desc_.endianness = LITTLE_ENDIAN;
-    // TODO : Give pixel size.
+    // TODO : Find pixel size.
 
     load_default_params();
     if (ini_file_is_open())
@@ -44,14 +44,14 @@ namespace camera
     */
     BFU32 type = CISYS_TYPE_ANY;
     BFU32 number = 0;
-    PBFENTRY entry = new _BFENTRY();
+    CiENTRY entry;
 
-    BFRC status = CiSysBrdFind(type, number, entry);
+    BFRC status = CiSysBrdFind(type, number, &entry);
     if (status != CI_OK)
       // No board was found.
       throw CameraException(CameraException::NOT_CONNECTED);
 
-    status = CiBrdOpen(entry, &board_, CiSysInitialize);
+    status = CiBrdOpen(&entry, &board_, CiSysInitialize);
     if (status != CI_OK)
       // Camera could not be opened.
       throw CameraException(CameraException::NOT_INITIALIZED);
