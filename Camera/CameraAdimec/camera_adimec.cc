@@ -115,6 +115,22 @@ namespace camera
 
   void* CameraAdimec::get_frame()
   {
+    BFRC status = CiAqCommand(board_,
+      CiConSnap,
+      CiConWait,
+      quad_bank_,
+      AqEngJ);
+    if (status != CI_OK)
+    {
+      std::cerr << "[CAMERA] Could not get frame" << std::endl;
+      delete[] buffer_;
+      CiAqCleanUp(board_, AqEngJ);
+      shutdown_camera();
+      throw CameraException(CameraException::CANT_GET_FRAME);
+    }
+    else // DEBUG : Remove me later
+      std::cout << "\nAcquired image properly" << std::endl;
+
     return buffer_;
   }
 
