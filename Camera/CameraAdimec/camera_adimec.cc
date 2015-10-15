@@ -10,6 +10,30 @@
 
 namespace camera
 {
+  // Anonymous namespace allows translation-unit visibility (like static).
+  namespace
+  {
+    /* The Adimec camera returns images with values on 12 bits, each pixel
+    ** being encoded on two bytes (16 bits). However, we need to shift each
+    ** value towards the 4 unused bits, otherwise the image is very dark.
+    ** Example : A pixel's value is : 0x0AF5
+    **           We should make it  : 0xAF50
+    */
+    void update_image(void* buffer)
+    {
+      const unsigned shift_step = 4;
+      short* it = reinterpret_cast<short*>(buffer);
+
+      for (unsigned y = 0; y < 1440; ++y)
+      {
+        for (unsigned x = 0; x < 1440; ++x)
+        {
+          it[x + y * 1440] <<= shift_step;
+        }
+      }
+    }
+  }
+
   ICamera* new_camera_device()
   {
     return new CameraAdimec();
@@ -28,7 +52,7 @@ namespace camera
     desc_.width = 1440;
     desc_.height = 1440;
     desc_.depth = 2.f;
-    desc_.endianness = BIG_ENDIAN;
+    desc_.endianness = LITTLE_ENDIAN;
     // TODO : Find pixel size.
 
     load_default_params();
@@ -66,21 +90,11 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    //const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * desc_.depth));
-    BFU32 size, width, xsize, bppix, format, ysize;
+    // We get the frame size (width * height * depth).
+    BFU32 size;
     CiBrdInquire(board_, CiCamInqFrameSize0, &size);
-    CiBrdInquire(board_, CiCamInqFrameWidth, &width);
-    CiBrdInquire(board_, CiCamInqXSize, &xsize);
-    CiBrdInquire(board_, CiCamInqBytesPerPix, &bppix);
-    CiBrdInquire(board_, CiCamInqFormat, &format);
-    CiBrdInquire(board_, CiCamInqYSize0, &ysize);
-    std::cout << "***\nImage size : " << size << "\n" <<
-      "Image width : " << width << "\n" <<
-      "X size : " << xsize << "\n" <<
-      "Bytes per pixel : " << bppix << "\n" <<
-      "Format : " << format << "\n" <<
-      "Y size : " << ysize << "\n***" << std::endl;
 
+    // Aligned allocation ensures fast memory transfers.
     buffer_ = _aligned_malloc(size, 4096);
     if (!buffer_)
     {
@@ -92,7 +106,7 @@ namespace camera
     BFRC status = CiAqSetup(board_,
       buffer_,
       size,
-      0,
+      0, // We let the SDK calculate the pitch itself.
       CiDMADataMem, // We don't care about this parameter, it is for another board.
       CiLutBypass, /* TODO : Check that the Cyton board really does not care about this, */
       CiLut12Bit, /* and that we can safely assume that LUTs parameters are ignored.    */
@@ -138,15 +152,15 @@ namespace camera
       AqEngJ);
     if (status != CI_OK)
     {
+      // TODO : Write a logger for missed images.
       std::cerr << "[CAMERA] Could not get frame" << std::endl;
       /*delete[] buffer_;
       CiAqCleanUp(board_, AqEngJ);
       shutdown_camera();
       throw CameraException(CameraException::CANT_GET_FRAME);*/
     }
-    else // DEBUG : Remove me later
-      std::cout << "\nAcquired image properly" << std::endl;
 
+    update_image(buffer_);
     return buffer_;
   }
 
