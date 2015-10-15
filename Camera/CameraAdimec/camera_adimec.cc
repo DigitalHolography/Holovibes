@@ -7,7 +7,6 @@
 #include <cstdlib>
 
 #include "camera_adimec.hh"
-#include "camera_exception.hh"
 
 namespace camera
 {
@@ -76,17 +75,15 @@ namespace camera
     BFU32 number = 0;
     CiENTRY entry;
 
-    BFRC status = CiSysBrdFind(type, number, &entry);
-    if (status != CI_OK)
-      // No board was found.
-      throw CameraException(CameraException::NOT_CONNECTED);
+    err_check(CiSysBrdFind(type, number, &entry),
+      "No board found.",
+      CameraException::NOT_CONNECTED,
+      CloseFlag::NO_BOARD);
 
-    status = CiBrdOpen(&entry, &board_, CiSysInitialize);
-    if (status != CI_OK)
-    {
-      // Camera could not be opened.
-      throw CameraException(CameraException::NOT_INITIALIZED);
-    }
+    err_check(CiBrdOpen(&entry, &board_, CiSysInitialize),
+      "Could not open board.",
+      CameraException::NOT_INITIALIZED,
+      CloseFlag::NO_BOARD);
 
     bind_params();
   }
@@ -97,43 +94,35 @@ namespace camera
     ** (the configuration file should be in
     ** BitFlow SDK 6.10\Config\Ctn\
     */
-    PCHAR config = "adimec_test_roi.bfml";
-    BFRC status = CiCamOpen(board_, config, &camera_);
-    if (status != CI_OK)
-    {
-      std::cerr << "[CAMERA] Could not open cam object\n";
-      CiBrdClose(board_);
-      throw CameraException(CameraException::CANT_START_ACQUISITION);
-    }
+    PCHAR config = "adimec_default.bfml";
+    err_check(CiCamOpen(board_, config, &camera_),
+      "Could not open cam object",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::BOARD);
 
-    status = CiBrdCamSetCur(board_, camera_, 0);
-    if (status != CI_OK)
-    {
-      std::cerr << "[CAMERA] Could not set cam object\n";
-      CiBrdClose(board_);
-      throw CameraException(CameraException::CANT_START_ACQUISITION);
-    }
+    err_check(CiBrdCamSetCur(board_, camera_, 0),
+      "Could not set cam object",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::BOARD | CloseFlag::CAM);
 
     /* Now, allocating buffer(s) for acquisition.
     */
     // We get the frame size (width * height * depth).
     BFU32 size;
-    if (CiBrdInquire(board_, CiCamInqFrameSize0, &size) != CI_OK)
-    {
-      std::cerr << "[CAMERA] Could not get frame size\n";
-      throw CameraException(CameraException::CANT_START_ACQUISITION);
-    }
+    err_check(CiBrdInquire(board_, CiCamInqFrameSize0, &size),
+      "Could not get frame size",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::BOARD | CloseFlag::CAM);
 
     // Aligned allocation ensures fast memory transfers.
     buffer_ = _aligned_malloc(size, 4096);
-    if (!buffer_)
-    {
-      shutdown_camera();
-      throw CameraException(CameraException::MEMORY_PROBLEM);
-    }
+    err_check(buffer_ == 0,
+      "Could not allocate buffer memory",
+      CameraException::MEMORY_PROBLEM,
+      CloseFlag::BOARD | CloseFlag::CAM);
     memset(buffer_, 0, size);
 
-    status = CiAqSetup(board_,
+    err_check(CiAqSetup(board_,
       buffer_,
       size,
       0, // We let the SDK calculate the pitch itself.
@@ -144,15 +133,10 @@ namespace camera
       TRUE,
       CiQTabModeOneBank,
       AqEngJ // We dont' care about this parameter, it is for another board.
-      );
-    if (status != CI_OK)
-    {
-      std::cerr << "[CAMERA] Could not setup board for acquisition" << status << std::endl;
-      _aligned_free(buffer_);
-      CiCamClose(board_, camera_);
-      shutdown_camera();
-      throw CameraException(CameraException::CANT_START_ACQUISITION);
-    }
+      ),
+      "Could not setup board for acquisition",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::ALL);
   }
 
   void CameraAdimec::stop_acquisition()
@@ -186,10 +170,6 @@ namespace camera
     {
       // TODO : Write a logger for missed images.
       std::cerr << "[CAMERA] Could not get frame" << std::endl;
-      /*delete[] buffer_;
-      CiAqCleanUp(board_, AqEngJ);
-      shutdown_camera();
-      throw CameraException(CameraException::CANT_GET_FRAME);*/
     }
 
     update_image(buffer_);
@@ -198,6 +178,23 @@ namespace camera
 
   /* Private methods
   */
+
+  void CameraAdimec::err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag)
+  {
+    if (status != CI_OK)
+    {
+      std::cerr << "[CAMERA] " << err_mess << "\n";
+
+      if (flag & 0x0F0)
+        CiCamClose(board_, camera_);
+      if (flag & 0xF00)
+        _aligned_free(buffer_);
+      if (flag & 0x00F)
+        CiBrdClose(board_);
+
+      throw cam_ex;
+    }
+  }
 
   void CameraAdimec::load_default_params()
   {
