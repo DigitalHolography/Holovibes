@@ -463,6 +463,12 @@ namespace gui
     unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
+    if (desc.algorithm == holovibes::ComputeDescriptor::STFT)
+    {
+      display_error("You can't call autofocus in stft mode.");
+      return;
+    }
+
     if (z_min < z_max)
     {
       desc.autofocus_z_min = z_min;
@@ -496,7 +502,7 @@ namespace gui
 
     desc.stft_roi_zone = zone;
     pipeline.request_stft_roi();
-  //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
+    //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_autofocus_stop()
