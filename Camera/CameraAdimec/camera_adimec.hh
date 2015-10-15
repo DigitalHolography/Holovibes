@@ -4,6 +4,7 @@
 #include <BFType.h>
 
 #include <camera.hh>
+#include "camera_exception.hh"
 
 namespace camera
 {
@@ -27,6 +28,19 @@ namespace camera
     virtual void* get_frame() override;
 
   private:
+    // Enum that will decide what we have to close when an error
+    // occurs. Binary masking is used here to add up flags.
+    enum CloseFlag
+    {
+      NO_BOARD = 0x000, // Nothing to close
+      BOARD = 0x00F,
+      CAM = 0x0F0,
+      BUFFER = 0xF00,
+      ALL = 0xFFF
+    };
+
+    void err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag);
+
     // Camera's camera-specific methods, used while initializion takes place.
     virtual void load_ini_params() override;
     virtual void load_default_params() override;
