@@ -1,7 +1,8 @@
 #include <CiApi.h>
+
 // DEBUG
-#include <R64Api.h>
 #include <iostream>
+// DEBUG
 #include <cmath>
 #include <cstdlib>
 
@@ -22,13 +23,13 @@ namespace camera
     void update_image(void* buffer)
     {
       const unsigned shift_step = 4;
-      short* it = reinterpret_cast<short*>(buffer);
+      size_t* it = reinterpret_cast<size_t*>(buffer);
 
       for (unsigned y = 0; y < 1440; ++y)
       {
-        for (unsigned x = 0; x < 1440; ++x)
+        for (unsigned x = 0; x < 360; ++x)
         {
-          it[x + y * 1440] <<= shift_step;
+          it[x + y * 360] <<= shift_step;
         }
       }
     }
