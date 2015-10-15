@@ -49,8 +49,12 @@ namespace camera
   , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
-    desc_.width = 512;
-    desc_.height = 512;
+    /* Dimensions are initialized as there were no ROI; they will be updated
+    ** later if needed.
+    */
+    desc_.width = 1440;
+    desc_.height = 1440;
+    // Technically the camera is 12-bits, but each pixel value is encoded on 16 bits.
     desc_.depth = 2.f;
     desc_.endianness = LITTLE_ENDIAN;
     // TODO : Find pixel size.
@@ -90,28 +94,6 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    /* First, configuring the camera through CiCamOpen
-    ** (the configuration file should be in
-    ** BitFlow SDK 6.10\Config\Ctn\
-    */
-    PCHAR config = "adimec_default.bfml";
-    err_check(CiCamOpen(board_, config, &camera_),
-      "Could not open cam object",
-      CameraException::CANT_START_ACQUISITION,
-      CloseFlag::BOARD);
-
-    err_check(CiBrdCamSetCur(board_, camera_, 0),
-      "Could not set cam object",
-      CameraException::CANT_START_ACQUISITION,
-      CloseFlag::BOARD | CloseFlag::CAM);
-
-    /* Setting ROI parameters.
-    */
-    err_check(CiAqROISet(board_, 0, 0, 512, 512, AqEngJ),
-      "Could not set ROI",
-      CameraException::CANT_SET_CONFIG,
-      CloseFlag::BOARD | CloseFlag::CAM);
-
     /* Now, allocating buffer(s) for acquisition.
     */
     // We get the frame size (width * height * depth).
@@ -180,7 +162,7 @@ namespace camera
       std::cerr << "[CAMERA] Could not get frame" << std::endl;
     }
 
-    update_image(buffer_, 512, 512);
+    update_image(buffer_, desc_.width, desc_.height);
     return buffer_;
   }
 
@@ -206,13 +188,63 @@ namespace camera
 
   void CameraAdimec::load_default_params()
   {
+    /* Values here are harcoded to avoid being dependent on a default file,
+    ** which may be modified accidentally. When possible, these default values,
+    ** where taken from the default mode for the Adimec-A2750 camera.
+    */
+    exposure_time_ = 0x0539;
+
+    roi_x_ = 0;
+    roi_y_ = 0;
+    roi_width_ = 1440;
+    roi_height_ = 1440;
   }
 
   void CameraAdimec::load_ini_params()
   {
+    const boost::property_tree::ptree& pt = get_ini_pt();
+
+    // Exposure time
+    exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
+
+    // ROI
+    roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
+    roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
+    roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
+    roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
   }
 
   void CameraAdimec::bind_params()
   {
+    /* We use a CoaXPress-specific register writing function to set parameters.
+    ** The address parameter is hardcoded but can be found in any Bitflow-provided
+    ** .bfml configuration file.
+    **
+    ** Whenever a parameter setting fails, setup fallbacks to default value.
+    */
+
+    // Exposure time
+    if (BFCXPWriteReg(board_, 0, 0x8258, exposure_time_) != BF_OK)
+      std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
+
+    // ROI
+    if (roi_x_ > desc_.width ||
+      roi_x_ < 0 ||
+      roi_y_ > desc_.height ||
+      roi_y_ < 0 ||
+      roi_width_ <= 0 ||
+      roi_height_ <= 0 ||
+      (roi_width_ + roi_x_) > desc_.width ||
+      (roi_height_ + roi_y_) > desc_.height ||
+      (CiAqROISet(board_, roi_x_, roi_y_, roi_width_, roi_height_, AqEngJ) != CI_OK))
+    {
+      std::cerr << "[CAMERA] Could not set ROI to (" << roi_x_ << ", " << roi_y_ <<
+        ") " << roi_width_ << " (w) " << roi_height_ << " (h)" << std::endl;
+    }
+    else
+    {
+      desc_.width = roi_width_;
+      desc_.height = roi_height_;
+    }
   }
 }

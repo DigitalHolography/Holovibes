@@ -57,6 +57,16 @@ namespace camera
 
     // QTabBank used by the camera.
     BFU8 quad_bank_;
+
+    /* Configuration parameters
+    */
+
+    BFU32 exposure_time_;
+
+    BFU32 roi_x_; // ROI origin's coordinates : (x, y)
+    BFU32 roi_y_;
+    BFU32 roi_width_; // ROI size
+    BFU32 roi_height_;
   };
 }
 
