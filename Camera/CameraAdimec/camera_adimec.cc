@@ -27,8 +27,8 @@ namespace camera
     name_ = "Adimec";
     desc_.width = 1440;
     desc_.height = 1440;
-    desc_.depth = 1.5f;
-    desc_.endianness = LITTLE_ENDIAN;
+    desc_.depth = 2.f;
+    desc_.endianness = BIG_ENDIAN;
     // TODO : Find pixel size.
 
     load_default_params();
@@ -38,6 +38,8 @@ namespace camera
 
   CameraAdimec::~CameraAdimec()
   {
+    // Make sure the camera is closed at program exit.
+    shutdown_camera();
   }
 
   void CameraAdimec::init_camera()
@@ -64,25 +66,35 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * desc_.depth));
-    buffer_ = new char[buffer_pitch * buffer_pitch];
+    //const unsigned buffer_pitch = static_cast<unsigned>(ceil(desc_.width * desc_.depth));
+    BFU32 size, width, xsize, bppix, format, ysize;
+    CiBrdInquire(board_, CiCamInqFrameSize0, &size);
+    CiBrdInquire(board_, CiCamInqFrameWidth, &width);
+    CiBrdInquire(board_, CiCamInqXSize, &xsize);
+    CiBrdInquire(board_, CiCamInqBytesPerPix, &bppix);
+    CiBrdInquire(board_, CiCamInqFormat, &format);
+    CiBrdInquire(board_, CiCamInqYSize0, &ysize);
+    std::cout << "***\nImage size : " << size << "\n" <<
+      "Image width : " << width << "\n" <<
+      "X size : " << xsize << "\n" <<
+      "Bytes per pixel : " << bppix << "\n" <<
+      "Format : " << format << "\n" <<
+      "Y size : " << ysize << "\n***" << std::endl;
+
+    buffer_ = _aligned_malloc(size, 4096);
     if (!buffer_)
     {
       shutdown_camera();
       throw CameraException(CameraException::MEMORY_PROBLEM);
     }
-    memset(buffer_, 0, buffer_pitch * buffer_pitch);
-    // DEBUG
-    char* end = reinterpret_cast<char*>(buffer_)+((buffer_pitch * buffer_pitch) - 1);
-    std::cout << "Buffer ranges from " << buffer_ << " to " << (void*)end << std::endl;
-    // ! DEBUG
+    memset(buffer_, 0, size);
 
     BFRC status = CiAqSetup(board_,
       buffer_,
-      buffer_pitch * buffer_pitch,
-      buffer_pitch,
+      size,
+      0,
       CiDMADataMem, // We don't care about this parameter, it is for another board.
-      CiLutBank1, /* TODO : Check that the Cyton board really does not care about this, */
+      CiLutBypass, /* TODO : Check that the Cyton board really does not care about this, */
       CiLut12Bit, /* and that we can safely assume that LUTs parameters are ignored.    */
       quad_bank_, // We use a single buffer, in a single bank.
       TRUE,
@@ -92,7 +104,7 @@ namespace camera
     if (status != CI_OK)
     {
       std::cerr << "[CAMERA] Could not setup board for acquisition" << status << std::endl;
-      delete[] buffer_;
+      _aligned_free(buffer_);
       shutdown_camera();
       throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
@@ -103,7 +115,7 @@ namespace camera
     /* Free resources taken by CiAqSetup, in a single function call.
     ** However, the allocated buffer has to be freed manually.
     */
-    delete[] buffer_;
+    _aligned_free(buffer_);
     if (CiAqCleanUp(board_, AqEngJ) != CI_OK)
     {
       std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
