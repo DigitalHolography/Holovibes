@@ -19,16 +19,16 @@ namespace camera
     ** Example : A pixel's value is : 0x0AF5
     **           We should make it  : 0xAF50
     */
-    void update_image(void* buffer)
+    void update_image(void* buffer, unsigned width, unsigned height)
     {
       const unsigned shift_step = 4;
       size_t* it = reinterpret_cast<size_t*>(buffer);
 
-      for (unsigned y = 0; y < 1440; ++y)
+      for (unsigned y = 0; y < width; ++y)
       {
-        for (unsigned x = 0; x < 360; ++x)
+        for (unsigned x = 0; x < height / 4; ++x)
         {
-          it[x + y * 360] <<= shift_step;
+          it[x + y * height / 4] <<= shift_step;
         }
       }
     }
@@ -49,8 +49,8 @@ namespace camera
   , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
-    desc_.width = 1440;
-    desc_.height = 1440;
+    desc_.width = 512;
+    desc_.height = 512;
     desc_.depth = 2.f;
     desc_.endianness = LITTLE_ENDIAN;
     // TODO : Find pixel size.
@@ -105,6 +105,13 @@ namespace camera
       CameraException::CANT_START_ACQUISITION,
       CloseFlag::BOARD | CloseFlag::CAM);
 
+    /* Setting ROI parameters.
+    */
+    err_check(CiAqROISet(board_, 0, 0, 512, 512, AqEngJ),
+      "Could not set ROI",
+      CameraException::CANT_SET_CONFIG,
+      CloseFlag::BOARD | CloseFlag::CAM);
+
     /* Now, allocating buffer(s) for acquisition.
     */
     // We get the frame size (width * height * depth).
@@ -113,6 +120,7 @@ namespace camera
       "Could not get frame size",
       CameraException::CANT_START_ACQUISITION,
       CloseFlag::BOARD | CloseFlag::CAM);
+    std::cout << "Frame size : " << size << std::endl;
 
     // Aligned allocation ensures fast memory transfers.
     buffer_ = _aligned_malloc(size, 4096);
@@ -172,7 +180,7 @@ namespace camera
       std::cerr << "[CAMERA] Could not get frame" << std::endl;
     }
 
-    update_image(buffer_);
+    update_image(buffer_, 512, 512);
     return buffer_;
   }
 
