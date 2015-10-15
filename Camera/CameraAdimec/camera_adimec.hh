@@ -35,6 +35,9 @@ namespace camera
     // Handle to the opened BitFlow board.
     Bd board_;
 
+    // Camera object, used to configure the camera.
+    PBFCNF camera_;
+
     // Pointer to the allocated buffer used to receive images.
     PBFVOID buffer_;
 

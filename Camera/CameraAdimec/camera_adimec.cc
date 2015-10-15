@@ -83,17 +83,46 @@ namespace camera
 
     status = CiBrdOpen(&entry, &board_, CiSysInitialize);
     if (status != CI_OK)
+    {
       // Camera could not be opened.
       throw CameraException(CameraException::NOT_INITIALIZED);
+    }
 
     bind_params();
   }
 
   void CameraAdimec::start_acquisition()
   {
+    /* First, configuring the camera through CiCamOpen
+    ** (the configuration file should be in
+    ** BitFlow SDK 6.10\Config\Ctn\
+    */
+    PCHAR config = "adimec_test_roi.bfml";
+    BFRC status = CiCamOpen(board_, config, &camera_);
+    if (status != CI_OK)
+    {
+      std::cerr << "[CAMERA] Could not open cam object\n";
+      CiBrdClose(board_);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
+    }
+
+    status = CiBrdCamSetCur(board_, camera_, 0);
+    if (status != CI_OK)
+    {
+      std::cerr << "[CAMERA] Could not set cam object\n";
+      CiBrdClose(board_);
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
+    }
+
+    /* Now, allocating buffer(s) for acquisition.
+    */
     // We get the frame size (width * height * depth).
     BFU32 size;
-    CiBrdInquire(board_, CiCamInqFrameSize0, &size);
+    if (CiBrdInquire(board_, CiCamInqFrameSize0, &size) != CI_OK)
+    {
+      std::cerr << "[CAMERA] Could not get frame size\n";
+      throw CameraException(CameraException::CANT_START_ACQUISITION);
+    }
 
     // Aligned allocation ensures fast memory transfers.
     buffer_ = _aligned_malloc(size, 4096);
@@ -104,7 +133,7 @@ namespace camera
     }
     memset(buffer_, 0, size);
 
-    BFRC status = CiAqSetup(board_,
+    status = CiAqSetup(board_,
       buffer_,
       size,
       0, // We let the SDK calculate the pitch itself.
@@ -120,6 +149,7 @@ namespace camera
     {
       std::cerr << "[CAMERA] Could not setup board for acquisition" << status << std::endl;
       _aligned_free(buffer_);
+      CiCamClose(board_, camera_);
       shutdown_camera();
       throw CameraException(CameraException::CANT_START_ACQUISITION);
     }
@@ -131,6 +161,7 @@ namespace camera
     ** However, the allocated buffer has to be freed manually.
     */
     _aligned_free(buffer_);
+    CiCamClose(board_, camera_);
     if (CiAqCleanUp(board_, AqEngJ) != CI_OK)
     {
       std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
