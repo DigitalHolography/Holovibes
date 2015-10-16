@@ -31,6 +31,7 @@ __global__ void kernel_bursting_roi(
   unsigned int curr_elt,
   unsigned int nsamples,
   unsigned int width,
+  unsigned int size,
   cufftComplex *output);
 __global__ void kernel_reconstruct_roi(
   cufftComplex* input,

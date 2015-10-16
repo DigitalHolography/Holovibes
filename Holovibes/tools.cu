@@ -39,21 +39,24 @@ __global__ void kernel_bursting_roi(
   unsigned int curr_elt,
   unsigned int nsamples,
   unsigned int width,
+  unsigned int size,
   cufftComplex *output)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int width_roi = br_x - tl_x;
 
   // In ROI
-  while (index > tl_y * width && index < br_y * width
-    && index % width > tl_x && index % width < br_x)
+  while (index < size)
   {
-    unsigned int x = index % width - tl_x;
-    unsigned int y = index / width - tl_y;
-    unsigned int index_roi = x + y * width_roi;
+    if (index >= tl_y * width && index < br_y * width
+      && index % width >= tl_x && index % width < br_x)
+    {
+      unsigned int x = index % width - tl_x;
+      unsigned int y = index / width - tl_y;
+      unsigned int index_roi = x + y * width_roi;
 
-    output[index_roi * nsamples + curr_elt] = input[index];
-
+      output[index_roi * nsamples + curr_elt] = input[index];
+    }
     index += blockDim.x * gridDim.x;
   }
 }
