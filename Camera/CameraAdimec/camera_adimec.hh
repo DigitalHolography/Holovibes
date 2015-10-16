@@ -39,6 +39,12 @@ namespace camera
       ALL = 0xFFF
     };
 
+    enum RegAdress
+    {
+      FRAME_PERIOD = 0x8220,
+      EXPOSURE_TIME = 0x8258
+    };
+
     void err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag);
 
     // Camera's camera-specific methods, used while initializion takes place.
@@ -62,6 +68,8 @@ namespace camera
     */
 
     BFU32 exposure_time_;
+
+    BFU32 frame_period_;
 
     BFU32 roi_x_; // ROI origin's coordinates : (x, y)
     BFU32 roi_y_;
