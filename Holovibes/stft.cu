@@ -53,7 +53,7 @@ void stft(
     curr_elt,
     nsamples,
     desc.width,
-   desc.width * desc.height,
+    desc.width * desc.height,
     stft_buf);
   ++curr_elt;
 
