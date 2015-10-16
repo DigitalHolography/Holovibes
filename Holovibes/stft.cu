@@ -42,6 +42,7 @@ void stft(
     cudaMemcpy(stft_buf, &(stft_buf[1]), sizeof(cufftComplex)* (nsamples * r.area() - 1), cudaMemcpyDeviceToDevice);
     --curr_elt;
   }
+
   // Do the ROI
   kernel_bursting_roi << <blocks, threads >> >(
     input,
@@ -52,6 +53,7 @@ void stft(
     curr_elt,
     nsamples,
     desc.width,
+   desc.width * desc.height,
     stft_buf);
   ++curr_elt;
 
