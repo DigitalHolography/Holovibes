@@ -104,7 +104,7 @@ namespace holovibes
 
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
-    int cuda_status = cudaMemcpy(new_elt_adress,
+    cudaError_t cuda_status = cudaMemcpy(new_elt_adress,
       elt,
       size_,
       cuda_kind);
