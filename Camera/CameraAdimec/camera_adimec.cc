@@ -27,9 +27,7 @@ namespace camera
       for (unsigned y = 0; y < width; ++y)
       {
         for (unsigned x = 0; x < height / 4; ++x)
-        {
           it[x + y * height / 4] <<= shift_step;
-        }
       }
     }
   }
@@ -194,6 +192,8 @@ namespace camera
     */
     exposure_time_ = 0x0539;
 
+    frame_period_ = 0x056C;
+
     roi_x_ = 0;
     roi_y_ = 0;
     roi_width_ = 1440;
@@ -206,6 +206,9 @@ namespace camera
 
     // Exposure time
     exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
+
+    // Frame period
+    frame_period_ = pt.get<BFU32>("adimec.frame_period", frame_period_);
 
     // ROI
     roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
@@ -223,8 +226,14 @@ namespace camera
     ** Whenever a parameter setting fails, setup fallbacks to default value.
     */
 
+    /* Frame period should be set before exposure time, because the latter
+    ** depends of the former.
+    */
+    if (BFCXPWriteReg(board_, 0, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
+      std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
+
     // Exposure time
-    if (BFCXPWriteReg(board_, 0, 0x8258, exposure_time_) != BF_OK)
+    if (BFCXPWriteReg(board_, 0, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
       std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
     // ROI
