@@ -33,6 +33,7 @@ namespace holovibes
     , gpu_lens_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
+    , plan1d_(0)
     , gpu_input_frame_ptr_(nullptr)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
@@ -151,9 +152,27 @@ namespace holovibes
     else
       input_length_ = n;
 
+    /*
+    ** plan1D have limit and if they are reach, GPU may crash
+    ** http://stackoverflow.com/questions/13187443/nvidia-cufft-limit-on-sizes-and-batches-for-fft-with-scikits-cuda
+    ** 48e6 is an arbitary value
+    */
+    if (compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n) > 48e6)
+    {
+      abort_construct_requested_ = true;
+      std::cout
+        << "[PREVENT_ERROR] pipeline l" << __LINE__ << " "
+        << "You will reach the hard limit of plan1d\n"
+        << compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n)
+        << " > "
+        << 48e6
+        << std::endl;
+      return;
+    }
+
     /* CUFFT plan3d realloc */
     if (plan3d_)
-      cufftDestroy(plan3d_) ? ++err_count:0;
+      cufftDestroy(plan3d_) ? ++err_count : 0;
     cufftPlan3d(
       &plan3d_,
       input_length_,                  // NX
@@ -176,28 +195,28 @@ namespace holovibes
       cudaFree(gpu_input_buffer_) ? ++err_count : 0;
     gpu_input_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
+      sizeof(cufftComplex) * input_.get_pixels() * input_length_) ? ++err_count : 0;
 
     /* gpu_stft_buffer */
     if (gpu_stft_buffer_)
       cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
     gpu_stft_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+      sizeof(cufftComplex) * compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
 
     /* gpu_stft_buffer */
     if (gpu_stft_dup_buffer_)
       cudaFree(gpu_stft_dup_buffer_) ? ++err_count : 0;
     gpu_stft_dup_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+      sizeof(cufftComplex) * compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
     if (err_count)
     {
       abort_construct_requested_ = true;
       std::cout
         << "[ERROR] pipeline l" << __LINE__
         << " err_count: " << err_count
-        <<" cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+        << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
         << std::endl;
     }
   }
