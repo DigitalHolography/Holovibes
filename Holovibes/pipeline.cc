@@ -103,7 +103,7 @@ namespace holovibes
       &plan1d_,
       nsamples,
       CUFFT_C2C,
-      compute_desc_.stft_roi_zone.load().area()
+      compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
       );
     refresh();
   }
@@ -162,7 +162,7 @@ namespace holovibes
       abort_construct_requested_ = true;
       std::cout
         << "[PREVENT_ERROR] pipeline l" << __LINE__ << " "
-        << "You will reach the hard limit of plan1d\n"
+        << "You will reach the hard limit of cufftPlan\n"
         << compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n)
         << " > "
         << 48e6
@@ -187,7 +187,7 @@ namespace holovibes
       &plan1d_,
       n,
       CUFFT_C2C,
-      compute_desc_.stft_roi_zone.load().area()
+      compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
       ) ? ++err_count : 0;
 
     /* gpu_input_buffer */
