@@ -41,7 +41,8 @@ namespace holovibes
     , refresh_requested_(false)
     , update_n_requested_(false)
     , average_requested_(false)
-    , average_record_requested(false)
+    , average_record_requested_(false)
+    , abort_construct_requested_(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
@@ -141,6 +142,9 @@ namespace holovibes
 
   void Pipeline::update_n_parameter(unsigned short n)
   {
+    unsigned int err_count = 0;
+    abort_construct_requested_ = false;
+
     /* if stft, we don't need to allocate more than one frame */
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
       input_length_ = 1;
@@ -148,40 +152,54 @@ namespace holovibes
       input_length_ = n;
 
     /* CUFFT plan3d realloc */
-    cufftDestroy(plan3d_);
+    if (plan3d_)
+      cufftDestroy(plan3d_) ? ++err_count:0;
     cufftPlan3d(
       &plan3d_,
       input_length_,                  // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
-      CUFFT_C2C);
+      CUFFT_C2C) ? ++err_count : 0;
 
     /* CUFFT plan1d */
-    cufftDestroy(plan1d_);
+    if (plan1d_)
+      cufftDestroy(plan1d_) ? ++err_count : 0;
     cufftPlan1d(
       &plan1d_,
       n,
       CUFFT_C2C,
       compute_desc_.stft_roi_zone.load().area()
-      );
+      ) ? ++err_count : 0;
 
-    cudaFree(gpu_input_buffer_);
-    gpu_input_buffer_ = nullptr;
     /* gpu_input_buffer */
+    if (gpu_input_buffer_)
+      cudaFree(gpu_input_buffer_) ? ++err_count : 0;
+    gpu_input_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
 
-    cudaFree(gpu_stft_buffer_);
+    /* gpu_stft_buffer */
+    if (gpu_stft_buffer_)
+      cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
     gpu_stft_buffer_ = nullptr;
-    /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
 
-    cudaFree(gpu_stft_dup_buffer_);
-    gpu_stft_dup_buffer_ = nullptr;
     /* gpu_stft_buffer */
+    if (gpu_stft_dup_buffer_)
+      cudaFree(gpu_stft_dup_buffer_) ? ++err_count : 0;
+    gpu_stft_dup_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n);
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+    if (err_count)
+    {
+      abort_construct_requested_ = true;
+      std::cout
+        << "[ERROR] pipeline l" << __LINE__
+        << " err_count: " << err_count
+        <<" cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+        << std::endl;
+    }
   }
 
   void Pipeline::refresh()
@@ -200,6 +218,9 @@ namespace holovibes
       update_n_requested_ = false;
       update_n_parameter(compute_desc_.nsamples);
     }
+
+    if (abort_construct_requested_)
+      return;
 
     if (autofocus_requested_)
     {
@@ -387,7 +408,7 @@ namespace holovibes
 
     if (average_requested_)
     {
-      if (average_record_requested)
+      if (average_record_requested_)
       {
         fn_vect_.push_back(std::bind(
           &Pipeline::average_record_caller,
@@ -398,7 +419,7 @@ namespace holovibes
           compute_desc_.signal_zone.load(),
           compute_desc_.noise_zone.load()));
 
-        average_record_requested = false;
+        average_record_requested_ = false;
       }
       else
       {
@@ -446,7 +467,7 @@ namespace holovibes
         compute_desc_.contrast_max.load()));
     }
 
-    if (!float_output_requested)
+    if (!float_output_requested_)
     {
       fn_vect_.push_back(std::bind(
         float_to_ushort,
@@ -471,7 +492,7 @@ namespace holovibes
         ++cit)
         (*cit)();
 
-      if (!float_output_requested)
+      if (!float_output_requested_)
       {
         output_.enqueue(
           gpu_output_buffer_,
@@ -495,7 +516,7 @@ namespace holovibes
     {
       float_output_file_.open(float_output_file_src, std::ofstream::trunc | std::ofstream::binary);
       float_output_nb_frame_ = nb_frame;
-      float_output_requested = true;
+      float_output_requested_ = true;
       request_refresh();
       std::cout << "[PIPELINE]: float record start." << std::endl;
     }
@@ -510,7 +531,7 @@ namespace holovibes
   {
     if (float_output_file_.is_open())
       float_output_file_.close();
-    float_output_requested = false;
+    float_output_requested_ = false;
     request_refresh();
     std::cout << "[PIPELINE]: float record done." << std::endl;
   }
@@ -585,7 +606,7 @@ namespace holovibes
     average_n_ = n;
 
     average_requested_ = true;
-    average_record_requested = true;
+    average_record_requested_ = true;
     request_refresh();
   }
 

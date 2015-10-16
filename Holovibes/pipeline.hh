@@ -106,7 +106,7 @@ namespace holovibes
     /*! \brief Return true while pipeline is recording float. */
     bool is_requested_float_output() const
     {
-      return (float_output_requested);
+      return (float_output_requested_);
     }
 
     /*! \brief Execute one iteration of the pipeline.
@@ -247,8 +247,9 @@ namespace holovibes
     bool refresh_requested_;
     bool update_n_requested_;
     bool average_requested_;
-    bool average_record_requested;
-    bool float_output_requested;
+    bool average_record_requested_;
+    bool float_output_requested_;
+    bool abort_construct_requested_;
     /*! \} */
 
     /*! \brief Number of frame in input. */
