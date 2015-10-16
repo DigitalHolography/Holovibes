@@ -8,6 +8,7 @@
 # include <fstream>
 # include <boost/property_tree/ini_parser.hpp>
 # include <boost/property_tree/ptree.hpp>
+# include <Windows.h>
 
 namespace camera
 {
@@ -19,7 +20,8 @@ namespace camera
   {
   public:
     virtual ~Camera()
-    {}
+    {
+    }
 
     const FrameDescriptor& get_frame_descriptor() const override
     {
@@ -41,6 +43,9 @@ namespace camera
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
+      , dll_instance_(nullptr)
+      , create_log_(nullptr)
+      , write_log_(nullptr)
       , ini_path_(ini_filepath)
       , ini_file_(ini_filepath, std::ifstream::in)
       , ini_pt_()
@@ -78,6 +83,26 @@ namespace camera
      * load_ini_params. Checks if parameters are valid. */
     virtual void bind_params() = 0;
 
+    // Loading all utilities functions in the CamUtils DLL.
+    void load_utils()
+    {
+      dll_instance_ = nullptr;
+
+      dll_instance_ = LoadLibrary("CameraUtils.dll");
+      if (!dll_instance_)
+        throw std::runtime_error("Unable to load CameraUtils DLL.");
+
+      /* FIXME : GetProcAddress returns NULL pointers. Find out why.
+      **
+      create_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "create_logfile"));
+      if (!create_log_)
+      throw std::runtime_error("Unable to fetch create_log functions.");
+      write_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "log_msg"));
+      if (!write_log_)
+      throw std::runtime_error("Unable to fetch write_log functions.");
+      */
+    }
+
   protected:
     /*! Frame descriptor updated by cameras. */
     FrameDescriptor          desc_;
@@ -89,6 +114,13 @@ namespace camera
     std::string              name_;
     /*! Exposure time of the camera. */
     float                    exposure_time_;
+
+    /* All CamUtils functions, and the DLL handle with it. */
+    HINSTANCE dll_instance_;
+
+    using FnUtil = void(*)(std::string);
+    FnUtil create_log_;
+    FnUtil write_log_;
 
   private:
     /*! INI configuration file path */
