@@ -44,8 +44,9 @@ namespace camera
       , name_("Unknown")
       , exposure_time_(0.0f)
       , dll_instance_(nullptr)
-      , create_log_(nullptr)
-      , write_log_(nullptr)
+      , create_logfile_(nullptr)
+      , log_msg_(nullptr)
+      , close_logfile_(nullptr)
       , ini_path_(ini_filepath)
       , ini_file_(ini_filepath, std::ifstream::in)
       , ini_pt_()
@@ -90,14 +91,14 @@ namespace camera
       if (!dll_instance_)
         throw std::runtime_error("Unable to load CameraUtils DLL.");
 
-      create_log_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "create_logfile"));
-      if (!create_log_)
+      create_logfile_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "create_logfile"));
+      if (!create_logfile_)
         throw std::runtime_error("Unable to fetch create_log function.");
-      write_log_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "log_msg"));
-      if (!write_log_)
+      log_msg_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "log_msg"));
+      if (!log_msg_)
         throw std::runtime_error("Unable to fetch write_log function.");
-      close_log_ = reinterpret_cast<FnUtilVoid>(GetProcAddress(dll_instance_, "close_logfile"));
-      if (!close_log_)
+      close_logfile_ = reinterpret_cast<FnUtilVoid>(GetProcAddress(dll_instance_, "close_logfile"));
+      if (!close_logfile_)
         throw std::runtime_error("Unable to fetch close_log function.");
     }
 
@@ -118,9 +119,9 @@ namespace camera
 
     using FnUtilStr = void(*)(std::string);
     using FnUtilVoid = void(*)();
-    FnUtilStr create_log_;
-    FnUtilStr write_log_;
-    FnUtilVoid close_log_;
+    FnUtilStr create_logfile_;
+    FnUtilStr log_msg_;
+    FnUtilVoid close_logfile_;
 
   private:
     /*! INI configuration file path */
