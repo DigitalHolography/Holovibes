@@ -90,12 +90,15 @@ namespace camera
       if (!dll_instance_)
         throw std::runtime_error("Unable to load CameraUtils DLL.");
 
-      create_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "create_logfile"));
+      create_log_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "create_logfile"));
       if (!create_log_)
-        throw std::runtime_error("Unable to fetch create_log functions.");
-      write_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "log_msg"));
+        throw std::runtime_error("Unable to fetch create_log function.");
+      write_log_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "log_msg"));
       if (!write_log_)
-        throw std::runtime_error("Unable to fetch write_log functions.");
+        throw std::runtime_error("Unable to fetch write_log function.");
+      close_log_ = reinterpret_cast<FnUtilVoid>(GetProcAddress(dll_instance_, "close_logfile"));
+      if (!close_log_)
+        throw std::runtime_error("Unable to fetch close_log function.");
     }
 
   protected:
@@ -113,9 +116,11 @@ namespace camera
     /* All CamUtils functions, and the DLL handle with it. */
     HINSTANCE dll_instance_;
 
-    using FnUtil = void(*)(std::string);
-    FnUtil create_log_;
-    FnUtil write_log_;
+    using FnUtilStr = void(*)(std::string);
+    using FnUtilVoid = void(*)();
+    FnUtilStr create_log_;
+    FnUtilStr write_log_;
+    FnUtilVoid close_log_;
 
   private:
     /*! INI configuration file path */

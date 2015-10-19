@@ -1,4 +1,6 @@
-#include <Windows.h>
+#include <direct.h>
+#include <cstdio>
+#include <iostream>
 #include <time.h>
 
 #include "utils.hh"
@@ -7,14 +9,12 @@ namespace camutils
 {
   void create_logfile(std::string name)
   {
-    // The 'L' here is a Windows macro used to pass a wide-char string.
     std::string folder = "log/";
-    LPCWSTR w_folder = L"log";
     time_t date = time(nullptr);
-    std::string filename(folder);
+    std::string file(folder);
 
     // If the "log" folder does not exist, create it.
-    CreateDirectory(w_folder, NULL);
+    _mkdir(folder.c_str());
 
     if (date != static_cast<time_t>(-1)) // If current date was successfully found
     {
@@ -25,16 +25,43 @@ namespace camutils
 
       strftime(today, size, "%y%m%d-%Hh%Mm%S_", &time_struct);
       // Appending current date to the file's name.
-      filename.append(today);
+      file.append(today);
     }
-    filename.append(name);
-    filename.append(".log");
+    file.append(name);
+    file.append(".log");
 
-    logfile.open(filename);
+    /* Opening with only ios::out flag first, so as to create
+    ** automatically the file.
+    */
+    logfile.open(file, std::ios::out);
+    logfile.close();
+
+    // ios::in is needed later, for close_logfile.
+    logfile.open(file, std::ios::in | std::ios::out);
+    if (true)
+    {
+      // Redirect the standard error stream.
+      logfile.copyfmt(std::cerr);
+      logfile.clear(std::cerr.rdstate());
+      logfile.basic_ios<char>::rdbuf(std::cerr.rdbuf());
+    }
+
+    filename = file;
   }
 
   void log_msg(std::string msg)
   {
     logfile << msg << std::endl;
+  }
+
+  void close_logfile()
+  {
+    logfile.seekg(std::ios::beg);
+    if (logfile.peek() == std::ios::traits_type::eof())
+    {
+      // File is empty, better erase it so as to avoid cluttering storage.
+      logfile.close();
+      remove(filename.c_str());
+    }
   }
 }

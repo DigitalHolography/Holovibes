@@ -12,13 +12,16 @@
 
 namespace camutils
 {
-  static std::ofstream logfile;
+  static std::fstream logfile;
+  static std::string filename;
 
   extern "C"
   {
     UTILS_API void create_logfile(std::string name);
 
     UTILS_API void log_msg(std::string msg);
+
+    UTILS_API void close_logfile();
   }
 }
 
