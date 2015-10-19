@@ -28,13 +28,11 @@ namespace camera
     load_utils();
 
     if (!create_log_)
-      std::cout << "Did not get create_log" << std::endl;
+      std::cerr << "[CAMLOG] Did not get create_log" << std::endl;
     else
       create_log_(name_);
     if (!write_log_)
-      std::cout << "Did not get write_log" << std::endl;
-    else
-      write_log_("Coucou, c'est Arnaud!");
+      std::cerr << "[CAMLOG] Did not get write_log" << std::endl;
   }
 
   CameraPCOPixelfly::~CameraPCOPixelfly()

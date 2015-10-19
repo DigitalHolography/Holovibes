@@ -16,9 +16,9 @@ namespace camutils
 
   extern "C"
   {
-    void create_logfile(std::string name);
+    UTILS_API void create_logfile(std::string name);
 
-    void log_msg(std::string msg);
+    UTILS_API void log_msg(std::string msg);
   }
 }
 
