@@ -86,21 +86,16 @@ namespace camera
     // Loading all utilities functions in the CamUtils DLL.
     void load_utils()
     {
-      dll_instance_ = nullptr;
-
       dll_instance_ = LoadLibrary("CameraUtils.dll");
       if (!dll_instance_)
         throw std::runtime_error("Unable to load CameraUtils DLL.");
 
-      /* FIXME : GetProcAddress returns NULL pointers. Find out why.
-      **
       create_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "create_logfile"));
       if (!create_log_)
-      throw std::runtime_error("Unable to fetch create_log functions.");
+        throw std::runtime_error("Unable to fetch create_log functions.");
       write_log_ = reinterpret_cast<FnUtil>(GetProcAddress(dll_instance_, "log_msg"));
       if (!write_log_)
-      throw std::runtime_error("Unable to fetch write_log functions.");
-      */
+        throw std::runtime_error("Unable to fetch write_log functions.");
     }
 
   protected:
