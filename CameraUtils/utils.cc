@@ -1,3 +1,4 @@
+#include <Windows.h>
 #include <time.h>
 
 #include "utils.hh"
@@ -6,8 +7,14 @@ namespace camutils
 {
   void create_logfile(std::string name)
   {
+    // The 'L' here is a Windows macro used to pass a wide-char string.
+    std::string folder = "log/";
+    LPCWSTR w_folder = L"log";
     time_t date = time(nullptr);
-    std::string filename("");
+    std::string filename(folder);
+
+    // If the "log" folder does not exist, create it.
+    CreateDirectory(w_folder, NULL);
 
     if (date != static_cast<time_t>(-1)) // If current date was successfully found
     {
