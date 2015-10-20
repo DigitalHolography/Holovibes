@@ -59,7 +59,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\boost_1_55_0;$(SolutionLibDir)\ximea\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\AMALFI\Documents\Visual Studio 2013\Projects\HoloVibes_2\holovibes\CameraUtils;C:\boost_1_55_0;$(SolutionLibDir)\ximea\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
