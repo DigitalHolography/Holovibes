@@ -170,7 +170,6 @@ namespace holovibes
         << " > "
         << 48e6
         << std::endl;
-      return;
     }
 
     /* CUFFT plan3d realloc */
