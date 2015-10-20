@@ -31,7 +31,7 @@
     <ROW Property="ProductCode" Value="1033:{1AECC70B-CA58-4C72-A853-C22F85CB41A9} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Holovibes"/>
-    <ROW Property="ProductVersion" Value="1.0.2" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{6C5908FA-5E26-4309-831D-2E7070E46C65}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -53,7 +53,7 @@
     <ROW Component="CameraPCOPixelfly_PrimaryOutput" ComponentId="{67F9592E-E5B2-4A49-84F5-BA02F4101DCE}" Directory_="APPDIR" Attributes="256" KeyPath="CameraPCOPixelfly.dll"/>
     <ROW Component="CameraPike_PrimaryOutput" ComponentId="{FC9D336A-8B78-44AF-B007-782271709B48}" Directory_="APPDIR" Attributes="256" KeyPath="CameraPike.dll"/>
     <ROW Component="CameraXiq_PrimaryOutput" ComponentId="{22FA12C5-E32D-4FBE-A8EB-B00167D07642}" Directory_="APPDIR" Attributes="256" KeyPath="CameraXiq.dll"/>
-    <ROW Component="GPIB_PrimaryOutput" ComponentId="{21BBFABF-370C-45F3-A584-76E663BAD92E}" Directory_="GPIB_Dir" Attributes="0" KeyPath="GPIB.lib" Type="0"/>
+    <ROW Component="GPIB_PrimaryOutput" ComponentId="{F3C76F7B-70A0-477C-81D7-495D5946DF72}" Directory_="GPIB_Dir" Attributes="0" KeyPath="GPIB.lib" Type="0"/>
     <ROW Component="Holovibes_PrimaryOutput" ComponentId="{018B15CF-447C-4756-A82B-FBDB7F9071F6}" Directory_="APPDIR" Attributes="256" KeyPath="Holovibes.exe"/>
     <ROW Component="ProductInformation" ComponentId="{7272788D-5E74-46ED-88BF-58B695392D8A}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="qwt.dll" ComponentId="{90344110-BFF5-4752-ACE0-DD4F7ACB85E7}" Directory_="APPDIR" Attributes="256" KeyPath="qwt.dll"/>
@@ -192,7 +192,7 @@
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
-    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
   </COMPONENT>
@@ -264,13 +264,15 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
-    <ROW PrereqKey="NVIDIAPackageLaunc" DisplayName="NVIDIA Package Launcher" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_windows.exe" Location="0" ExactSize="0" Win9xVersions="Windows 9x/ME" Operator="1" Options="i" TargetName="cuda_7.5.18_windows.exe"/>
-    <ROW PrereqKey="RequiredApplication" DisplayName="Qt" SetupFileUrl="..\..\..\..\..\Downloads\qt-unified-windows-x86-2.0.2-2-online.exe" Location="0" ExactSize="0" Win9xVersions="Windows 9x/ME" Operator="1" Options="i" TargetName="qt-unified-windows-x86-2.0.2-2-online.exe"/>
-    <ATTRIBUTE name="PrereqsOrder" value="NVIDIAPackageLaunc RequiredApplication"/>
+    <ROW PrereqKey="NVIDIAPackageLaunc" DisplayName="NVIDIA Package Launcher Win10" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_win10_network.exe" Location="0" ExactSize="0" WinNTVersions="Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2, Windows XP x86 Service Pack 3, Windows Server 2003 x86, Windows Server 2003 x86 Service Pack 1, Windows Server 2003 x86 Service Pack 2, Windows Vista x86, Windows Vista x86 Service Pack 1, Windows Vista x86 Service Pack 2, Windows Server 2008 x86, Windows 7 x86, Windows 7 x86 Service Pack 1, Windows 8 x86, Windows 8.1 x86" WinNT64Versions="Windows XP x64, Windows XP x64 Service Pack 1, Windows XP x64 Service Pack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service Pack 2, Windows Vista x64, Windows Vista x64 Service Pack 1, Windows Vista x64 Service Pack 2, Windows Server 2008 x64, Windows 7 x64, Windows 7 x64 Service Pack 1, Windows Server 2008 R2 x64, Windows Server 2008 R2 x64 Service Pack 1, Windows 8 x64, Windows Server 2012 x64, Windows 8.1 x64, Windows Server 2012 R2 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_win10_network.exe"/>
+    <ROW PrereqKey="NVIDIAPackageLaunc_1" DisplayName="NVIDIA Package Launcher" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_windows_network.exe" Location="0" ExactSize="0" WinNTVersions="Windows 10 x86" WinNT64Versions="Windows 10 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_windows_network.exe"/>
+    <ROW PrereqKey="RequiredApplication" DisplayName="Qt" SetupFileUrl="..\..\..\..\..\Downloads\qt-unified-windows-x86-2.0.2-2-online.exe" Location="0" ExactSize="0" Operator="1" Options="i" TargetName="qt-unified-windows-x86-2.0.2-2-online.exe"/>
+    <ATTRIBUTE name="PrereqsOrder" value="RequiredApplication NVIDIAPackageLaunc NVIDIAPackageLaunc_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="SystemFolderfile.dll" Prereq="NVIDIAPackageLaunc" SearchType="0" SearchString="[SystemFolder]file.dll" VerMin="1.0" Order="1" Property="PreReqSearch"/>
     <ROW SearchKey="SystemFolderfile.dll_1" Prereq="RequiredApplication" SearchType="0" SearchString="[SystemFolder]file.dll" VerMin="1.0" Order="1" Property="PreReqSearch_1"/>
+    <ROW SearchKey="SystemFolderfile.dll_2" Prereq="NVIDIAPackageLaunc_1" SearchType="0" SearchString="[SystemFolder]file.dll" VerMin="1.0" Order="1" Property="PreReqSearch_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.VsProjectComponent">
     <ROW Solution="Holovibes.sln" ProjectId="{13e1532f-e09f-4de8-a431-410ddf1a7f9c}" ProjectName="CameraIds" OutputGroup="PrimaryOutput" OutputFile="CameraIds.dll"/>
