@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "tools.cuh"
+#include "tools_conversion.cuh"
 #include "hardware_limits.hh"
 
 /*! \brief  Sume 2 zone of input image
