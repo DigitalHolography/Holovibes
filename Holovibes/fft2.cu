@@ -5,6 +5,7 @@
 #include "hardware_limits.hh"
 #include "transforms.cuh"
 #include "preprocessing.cuh"
+#include "tools_divide.cuh"
 #include "tools.cuh"
 
 void fft2_lens(

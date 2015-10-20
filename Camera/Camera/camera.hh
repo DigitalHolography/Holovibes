@@ -8,6 +8,7 @@
 # include <fstream>
 # include <boost/property_tree/ini_parser.hpp>
 # include <boost/property_tree/ptree.hpp>
+# include <Windows.h>
 
 namespace camera
 {
@@ -19,7 +20,8 @@ namespace camera
   {
   public:
     virtual ~Camera()
-    {}
+    {
+    }
 
     const FrameDescriptor& get_frame_descriptor() const override
     {
@@ -41,6 +43,10 @@ namespace camera
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
+      , dll_instance_(nullptr)
+      , create_logfile_(nullptr)
+      , log_msg_(nullptr)
+      , close_logfile_(nullptr)
       , ini_path_(ini_filepath)
       , ini_file_(ini_filepath, std::ifstream::in)
       , ini_pt_()
@@ -78,6 +84,24 @@ namespace camera
      * load_ini_params. Checks if parameters are valid. */
     virtual void bind_params() = 0;
 
+    // Loading all utilities functions in the CamUtils DLL.
+    void load_utils()
+    {
+      dll_instance_ = LoadLibrary("CameraUtils.dll");
+      if (!dll_instance_)
+        throw std::runtime_error("Unable to load CameraUtils DLL.");
+
+      create_logfile_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "create_logfile"));
+      if (!create_logfile_)
+        throw std::runtime_error("Unable to fetch create_log function.");
+      log_msg_ = reinterpret_cast<FnUtilStr>(GetProcAddress(dll_instance_, "log_msg"));
+      if (!log_msg_)
+        throw std::runtime_error("Unable to fetch write_log function.");
+      close_logfile_ = reinterpret_cast<FnUtilVoid>(GetProcAddress(dll_instance_, "close_logfile"));
+      if (!close_logfile_)
+        throw std::runtime_error("Unable to fetch close_log function.");
+    }
+
   protected:
     /*! Frame descriptor updated by cameras. */
     FrameDescriptor          desc_;
@@ -89,6 +113,15 @@ namespace camera
     std::string              name_;
     /*! Exposure time of the camera. */
     float                    exposure_time_;
+
+    /* All CamUtils functions, and the DLL handle with it. */
+    HINSTANCE dll_instance_;
+
+    using FnUtilStr = void(*)(std::string);
+    using FnUtilVoid = void(*)();
+    FnUtilStr create_logfile_;
+    FnUtilStr log_msg_;
+    FnUtilVoid close_logfile_;
 
   private:
     /*! INI configuration file path */

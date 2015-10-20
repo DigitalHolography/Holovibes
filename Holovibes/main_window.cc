@@ -822,7 +822,7 @@ namespace gui
     QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     std::string output_path = output_line_edit->text().toUtf8();
 
-    CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+    CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
       holovibes_.get_average_queue(),
       output_path,
       nb_frames_,
@@ -927,7 +927,7 @@ namespace gui
       }
       else
       {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
           holovibes_.get_average_queue(),
           formatted_path,
           frame_nb,
@@ -978,7 +978,7 @@ namespace gui
       }
       else
       {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_.get_pipeline(),
+        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
           holovibes_.get_average_queue(),
           output_filename,
           frame_nb,

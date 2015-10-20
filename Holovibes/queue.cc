@@ -1,8 +1,50 @@
 #include "queue.hh"
-#include "tools.cuh"
+#include "tools_conversion.cuh"
 
 namespace holovibes
 {
+  Queue::Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
+    : frame_desc_(frame_desc)
+    , size_(frame_desc_.frame_size())
+    , pixels_(frame_desc_.frame_res())
+    , max_elts_(elts)
+    , curr_elts_(0)
+    , start_(0)
+    , is_big_endian_(frame_desc.depth == 2 &&
+    frame_desc.endianness == camera::BIG_ENDIAN)
+  {
+    if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
+      std::cerr << "Queue: couldn't allocate queue" << std::endl;
+
+    frame_desc_.endianness = camera::LITTLE_ENDIAN;
+  }
+
+  Queue::~Queue()
+  {
+    if (cudaFree(buffer_) != CUDA_SUCCESS)
+      std::cerr << "Queue: couldn't free queue" << std::endl;
+  }
+
+  size_t Queue::get_size() const
+  {
+    return size_;
+  }
+
+  void* Queue::get_buffer()
+  {
+    return buffer_;
+  }
+
+  const camera::FrameDescriptor& Queue::get_frame_desc() const
+  {
+    return frame_desc_;
+  }
+
+  int Queue::get_pixels()
+  {
+    return pixels_;
+  }
+
   size_t Queue::get_current_elts()
   {
     mutex_.lock();
@@ -67,13 +109,13 @@ namespace holovibes
       size_,
       cuda_kind);
 
-	if (cuda_status != CUDA_SUCCESS)
-	{
-	  std::cerr << "Queue: couldn't enqueue" << std::endl;
-	  mutex_.unlock();
-	  return false;
-	}
-		
+    if (cuda_status != CUDA_SUCCESS)
+    {
+      std::cerr << "Queue: couldn't enqueue" << std::endl;
+      mutex_.unlock();
+      return false;
+    }
+
     if (is_big_endian_)
       endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
 

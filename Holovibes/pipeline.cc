@@ -6,6 +6,7 @@
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "tools.cuh"
+#include "tools_conversion.cuh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"

@@ -17,15 +17,19 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### CUDA ###
 
-* [CUDA 6.5 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 7.5 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Visual C++ redistributable ###
 
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
 
-### Qt 5.4 ###
+### Qt 5.5 ###
 
-* [Qt OpenSource Windows x64 MSVC OpenGL 5.4](http://download.qt-project.org/official_releases/qt/5.4/5.4.0/qt-opensource-windows-x86-msvc2013_64_opengl-5.4.0.exe)
+* [Qt OpenSource Windows x64 5.5](http://download.qt.io/official_releases/qt/5.5/5.5.0/)
+
+### AdvancedInstaller ###
+
+* [AdvancedInstaller for Visual Studio](http://www.advancedinstaller.com/download.html)
 
 ## Typical Usage ##
 
@@ -268,4 +272,35 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * The autofocus has been improved a lot in terms of precision.
 * Some small performance changes.
 
+<<<<<<< HEAD
+### v.1.0.2
+
+* The autofocus can now be done recursively, allowing it to be performed must faster.
+* Batch ouput can be done as float.
+* Zoom is properly working now.
+* The interface is responsive
+
+### v.1.1.0
+
+* The project works on CUDA 7.5
+* The project works on QT 5.5
+* Edge camera is now heavily handled
+* XIQ now supports ROI
+
+
+
+# Known problems :
+
+* Marshall.cxx / ole32.dll : No known fixes, try updating QT.
+* Camera not recognized in holovibes : Make sure your versions of .dll and .lib files are updated.
+* If the holograms do not work for a reason, try checking what gpu architecture you are compiling on (20, 30, 35...).
+
+
+
+
+
+
+
+=======
+>>>>>>> README.md edited online with Bitbucket
 

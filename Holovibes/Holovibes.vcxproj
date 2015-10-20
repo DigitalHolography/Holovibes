@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CA75A564-8C60-4C3B-8778-996F1879BF65}</ProjectGuid>
     <RootNamespace>Holovibes</RootNamespace>
+    <CudaToolkitCustomDir>$(CUDA_PATH_V7_5)</CudaToolkitCustomDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -41,7 +42,9 @@
     <Import Project="..\PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -52,6 +55,7 @@
       <AdditionalIncludeDirectories>C:\Qt\qwt-6.1.2\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(SolutionDir)GPIB\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,6 +81,9 @@
 </Command>
     </PostBuildEvent>
     <CudaCompile />
+    <CudaCompile>
+      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -210,6 +217,9 @@
     </CustomBuild>
     <ClInclude Include="thread_reader.hh" />
     <ClInclude Include="tools.cuh" />
+    <ClInclude Include="tools_conversion.cuh" />
+    <ClInclude Include="tools_divide.cuh" />
+    <ClInclude Include="tools_multiply.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
     <CustomBuild Include="main_window.hh">
@@ -303,6 +313,9 @@
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fft1.cu" />
     <CudaCompile Include="tools.cu" />
+    <CudaCompile Include="tools_conversion.cu" />
+    <CudaCompile Include="tools_divide.cu" />
+    <CudaCompile Include="tools_multiply.cu" />
     <CudaCompile Include="transforms.cu" />
     <CudaCompile Include="vibrometry.cu" />
   </ItemGroup>

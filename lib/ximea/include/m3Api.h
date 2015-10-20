@@ -544,6 +544,41 @@ typedef enum {
 } LED;
 
 /**
+ *\enum TS_RST_SRC
+ * \brief structure containing information time stamp reset sources
+ */
+typedef enum {
+	TS_RST_SRC_OFF			= 0x000,		//!< time stamp reset disabled
+	TS_RST_SRC_GPI			= 0x001,		//!< time stamp reset source set to GPI
+	TS_RST_SRC_GPO			= 0x002,		//!< time stamp reset source set to GPO
+	TS_RST_SRC_TRIGGER		= 0x003,		//!< time stamp reset source set to TRIGGER
+	TS_RST_SRC_SW			= 0x004,		//!< time stamp reset source set to SOFTWARE for async reset
+	TS_RST_SRC_EXPACTIVE	= 0x005,		//!< time stamp reset source set to exposure active
+	TS_RST_SRC_FVAL			= 0x006,		//!< time stamp reset source set to frame valid
+	// etc
+} TS_RST_SRC;
+
+/**
+ *\enum TS_RST_INV
+ * \brief structure containing information time stamp reset source inversion
+ */
+typedef enum {
+	TS_RST_POL_POS			= 0x000,		//!< time stamp reset source not inverted
+	TS_RST_POL_INV			= 0x001,		//!< time stamp reset source inverted
+	// etc
+} TS_RST_POL;
+
+/**
+ *\enum TS_RST_MODE
+ * \brief structure containing information time stamp reset arming mode
+ */
+typedef enum {
+	TS_RST_MODE_ONCE			= 0x000,		//!< time stamp reset is armed only once than disabled
+	TS_RST_MODE_PERSIST			= 0x001,		//!< time stamp reset is armed persistently until it is turned off
+	// etc
+} TS_RST_MODE;
+
+/**
  *\enum VERSIONS
  * \brief enumerator of versions
  */
@@ -969,6 +1004,15 @@ MM40_API MM40_RETURN __cdecl mmGetDeviceInstancePathById ( IN DWORD nIndex,	OUT 
    @return MM40_OK on success, error value otherwise.
  */
 MM40_API MM40_RETURN __cdecl mmGetHWN2				(IN HANDLE hDevice, OUT PDWORD pExten );
+
+/**
+  \brief Gets camera model ID.
+
+   @param[in] hDevice			???
+   @param[out] pModelID			???
+   @return MM40_OK on success, error value otherwise.
+ */
+MM40_API MM40_RETURN __cdecl mmGetModelID			(IN HANDLE hDevice, OUT PDWORD pModelID );
 
 /**
    \brief Gets serial number
@@ -2665,6 +2709,19 @@ MM40_API MM40_RETURN __cdecl mmGetGainVal		(IN HANDLE hDevice, IN float *fGain )
  */
 MM40_API MM40_RETURN __cdecl mmSetLED			(IN HANDLE hDevice, IN BYTE bLED, IN LED state );
 
+/**
+   \brief Sets Time Stamp reset engine
+
+	If camera supports reseting of time stamp this functions sets behavior
+
+   @param[in] hDevice			handle of the specified device
+   @param[in] source			??? which source is used ???
+   @param[in] polarity			??? sets inversion of source signal ???
+   @param[in] mode				??? sets mode of time stamps armig once/recurent ???
+   @param[in] dwGPIO			??? sets id of input or output is GPI, or GPO source is sellected ???
+   @return MM40_OK on success, error value otherwise.
+ */
+MM40_API MM40_RETURN __cdecl mmSetTS_RST			(IN HANDLE hDevice, IN TS_RST_SRC source, IN TS_RST_POL polarity,  IN TS_RST_MODE mode, IN DWORD dwGPIO);
 
 /**
    \brief Pings trigger
@@ -2983,6 +3040,18 @@ MM40_API MM40_RETURN __cdecl mmGetSYSVersion(
    @return MM40_OK on success, error value otherwise.
  */
 MM40_API MM40_RETURN __cdecl mmCheckPrivileges( IN HANDLE hDevice );
+
+
+/**
+   \brief Returns frames counters
+   
+   @param[in] hDevice			???
+   @param[out] frames_complete	Complete frames received(The number of images since the start of capture)
+   @param[out] frames_dropped_sw	Dropped by software(API)(The number of images since the start of capture)
+   @param[out] frames_dropped_hw	Dropped by hardware(device, cable, host..)(The number of images since the start of capture)
+   @return MM40_OK on success, error value otherwise.
+ */
+MM40_API MM40_RETURN __cdecl mmFramesCounters( IN HANDLE hDevice, DWORD * frames_complete, DWORD * frames_dropped_sw, DWORD * frames_dropped_hw );
 
 /**
    \brief Read camera register

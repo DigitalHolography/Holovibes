@@ -1,4 +1,5 @@
 #include "camera_xiq.hh"
+#include <utils.hh>
 #include <camera_exception.hh>
 
 namespace camera
@@ -20,6 +21,9 @@ namespace camera
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
+
+    // Load functions from CameraUtils.dll.
+    load_utils();
   }
 
   void CameraXiq::init_camera()
@@ -52,7 +56,7 @@ namespace camera
   void* CameraXiq::get_frame()
   {
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
-      throw CameraException(CameraException::CANT_GET_FRAME);
+      log_msg_("Could not get frame.");
 
 #if 0
     printf("[FRAME][NEW] %dx%d - %u\n",
@@ -73,6 +77,10 @@ namespace camera
     downsampling_type_ = XI_BINNING;
     img_format_ = XI_RAW8;
     buffer_policy_ = XI_BP_SAFE;
+    roi_x_ = 0;
+    roi_y_ = 0;
+    roi_width_ = 2048;
+    roi_height_ = 2048;
 
     /* Fill the frame descriptor. */
     desc_.width = 2048;
@@ -90,6 +98,9 @@ namespace camera
     exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
     gain_ = pt.get<float>("xiq.gain", gain_);
     downsampling_rate_ = pt.get<int>("xiq.downsampling_rate", downsampling_rate_);
+    /* Updating frame size, taking account downsampling. */
+    desc_.width = desc_.width / downsampling_rate_;
+    desc_.height = desc_.height / downsampling_rate_;
 
     std::string str;
 
@@ -98,6 +109,33 @@ namespace camera
       downsampling_type_ = XI_BINNING;
     else if (str == "SKIPPING")
       downsampling_type_ = XI_SKIPPING;
+
+    /* Making sure ROI settings are valid. */
+    {
+      int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
+      int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
+      int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
+      int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
+
+      if (tmp_roi_width > 0 &&
+        tmp_roi_height > 0 &&
+        tmp_roi_x < desc_.width &&
+        tmp_roi_y < desc_.height &&
+        tmp_roi_width <= desc_.width &&
+        tmp_roi_height <= desc_.height)
+      {
+        roi_x_ = tmp_roi_x;
+        roi_y_ = tmp_roi_y;
+        roi_width_ = tmp_roi_width;
+        roi_height_ = tmp_roi_height;
+
+        // Don't forget to update the frame descriptor!
+        desc_.width = roi_width_;
+        desc_.height = roi_height_;
+      }
+      else
+        std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
+    }
 
     str = pt.get<std::string>("xiq.format", "");
     if (str == "MONO8")
@@ -120,12 +158,21 @@ namespace camera
     char name[name_buffer_size];
 
     status |= xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
+
     status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
     status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
     status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
+    status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
+    status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
+    status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
+
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
+
     status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
+
     status |= xiSetParamInt(device_, XI_PRM_TRG_SOURCE, trigger_src_);
 
     if (status != XI_OK)

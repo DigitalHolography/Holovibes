@@ -4,6 +4,8 @@
 # include "device_launch_parameters.h"
 # include "hardware_limits.hh"
 # include "tools.cuh"
+# include "tools_multiply.cuh"
+# include "tools_divide.cuh"
 # include "average.cuh"
 # include <stdio.h>
 
