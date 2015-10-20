@@ -1,4 +1,5 @@
 #include "camera_xiq.hh"
+#include <utils.hh>
 #include <camera_exception.hh>
 
 namespace camera
@@ -20,6 +21,9 @@ namespace camera
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;
+
+    // Load functions from CameraUtils.dll.
+    load_utils();
   }
 
   void CameraXiq::init_camera()
@@ -52,7 +56,7 @@ namespace camera
   void* CameraXiq::get_frame()
   {
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
-      throw CameraException(CameraException::CANT_GET_FRAME);
+      log_msg_("Could not get frame.");
 
 #if 0
     printf("[FRAME][NEW] %dx%d - %u\n",

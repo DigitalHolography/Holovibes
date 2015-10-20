@@ -3,7 +3,6 @@
 
 #include <PCO_err.h>
 #include <sc2_defs.h>
-#include <utils.hh>
 
 namespace camera
 {
@@ -25,14 +24,7 @@ namespace camera
     for (unsigned int i = 0; i < 2048 * 2048; ++i)
       squared_buffer_[i] = 0;
 
-    load_utils();
-
-    if (!create_log_)
-      std::cerr << "[CAMLOG] Did not get create_log" << std::endl;
-    else
-      create_log_(name_);
-    if (!write_log_)
-      std::cerr << "[CAMLOG] Did not get write_log" << std::endl;
+    create_logfile_(name_);
   }
 
   CameraPCOPixelfly::~CameraPCOPixelfly()

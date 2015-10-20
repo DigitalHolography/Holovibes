@@ -12,7 +12,7 @@
 
 namespace camutils
 {
-  static std::fstream logfile;
+  std::fstream logfile;
   static std::string filename;
 
   extern "C"

@@ -1,4 +1,5 @@
 #include "camera_pco.hh"
+#include <utils.hh>
 #include <camera_exception.hh>
 #include <boost/lexical_cast.hpp>
 
@@ -34,6 +35,9 @@ namespace camera
     {
       buffers_[i] = nullptr;
     }
+
+    // Load functions from CameraUtils.dll
+    load_utils();
   }
 
   CameraPCO::~CameraPCO()
@@ -56,6 +60,8 @@ namespace camera
       delete[] buffers_[i];
       buffers_[i] = nullptr;
     }
+
+    close_logfile_();
   }
 
   void CameraPCO::init_camera()
@@ -85,6 +91,9 @@ namespace camera
 
   void CameraPCO::start_acquisition()
   {
+    // DEBUG
+    log_msg_("I am a very useful message!");
+
     int status = PCO_NOERROR;
 
     /* Note : The SDK recommands the following setting order
@@ -92,16 +101,24 @@ namespace camera
     ** binning -> ROI -> arm camera -> getSizes -> allocate buffers
     */
 
-    status |= PCO_ArmCamera(device_);
+    status = PCO_ArmCamera(device_);
+    if (status != PCO_NOERROR)
+      log_msg_("Could not arm camera.");
 
     /* Retrieve frame resolution. */
-    status |= get_sensor_sizes();
+    status = get_sensor_sizes();
+    if (status != PCO_NOERROR)
+      log_msg_("Could not get sensor width and height.");
 
     /* Buffer memory allocation. */
-    status |= allocate_buffers();
+    status = allocate_buffers();
+    if (status != PCO_NOERROR)
+      log_msg_("Could not allocate memory for camera buffers.");
 
     /* Set recording state to [run] */
-    status |= PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+    status = PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
+    if (status != PCO_NOERROR)
+      log_msg_("Could not enter acquisition mode.");
 
     /* Add buffers into queue. */
     for (unsigned int i = 0;
@@ -163,7 +180,7 @@ namespace camera
       return buffers_[buffer_index];
     }
 
-    throw CameraException(CameraException::CANT_GET_FRAME);
+    log_msg_("Could not get frame.");
   }
 
   int CameraPCO::get_sensor_sizes()

@@ -38,7 +38,7 @@ namespace camutils
 
     // ios::in is needed later, for close_logfile.
     logfile.open(file, std::ios::in | std::ios::out);
-    if (true)
+    if (!logfile.is_open())
     {
       // Redirect the standard error stream.
       logfile.copyfmt(std::cerr);

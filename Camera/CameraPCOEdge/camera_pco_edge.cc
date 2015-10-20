@@ -48,6 +48,8 @@ namespace camera
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
+
+    create_logfile_(name_);
   }
 
   CameraPCOEdge::~CameraPCOEdge()
