@@ -31,7 +31,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.5.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -82,7 +82,7 @@
     </PostBuildEvent>
     <CudaCompile />
     <CudaCompile>
-      <CodeGeneration>compute_30,sm_30</CodeGeneration>
+      <CodeGeneration>compute_20,sm_20</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -193,6 +193,7 @@
     <ClInclude Include="recorder.hh" />
     <ClInclude Include="fft1.cuh" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="stft.cuh" />
     <ClInclude Include="thread_compute.hh" />
     <ClInclude Include="thread_capture.hh" />
     <CustomBuild Include="thread_recorder.hh">
@@ -312,6 +313,7 @@
     <CudaCompile Include="hardware_limits.cc" />
     <CudaCompile Include="preprocessing.cu" />
     <CudaCompile Include="fft1.cu" />
+    <CudaCompile Include="stft.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="tools_conversion.cu" />
     <CudaCompile Include="tools_divide.cu" />
@@ -416,6 +418,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 7.5.targets" />
   </ImportGroup>
 </Project>

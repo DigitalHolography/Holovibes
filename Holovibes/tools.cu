@@ -20,7 +20,78 @@ __global__ void kernel_apply_lens(
   }
 }
 
-/*! \brief  Kernel helper for real function
+/*! \brief Will split the pixels of the original image
+ * into output respecting the ROI selected
+ * \param tl_x top left x coordinate of ROI
+ * \param tl_y top left y coordinate of ROI
+ * \param br_x bot right x coordinate of ROI
+ * \param br_y bot right y coordinate of ROI
+ * \param curr_elt which image out of nsamples we are doing the ROI on
+ * \param width total width of input
+ * \param output buffer containing all our pixels taken from the ROI
+ */
+__global__ void kernel_bursting_roi(
+  cufftComplex *input,
+  unsigned int tl_x,
+  unsigned int tl_y,
+  unsigned int br_x,
+  unsigned int br_y,
+  unsigned int curr_elt,
+  unsigned int nsamples,
+  unsigned int width,
+  unsigned int size,
+  cufftComplex *output)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int width_roi = br_x - tl_x;
+
+  // In ROI
+  while (index < size)
+  {
+    if (index >= tl_y * width && index < br_y * width
+      && index % width >= tl_x && index % width < br_x)
+    {
+      unsigned int x = index % width - tl_x;
+      unsigned int y = index / width - tl_y;
+      unsigned int index_roi = x + y * width_roi;
+
+      output[index_roi * nsamples + curr_elt] = input[index];
+    }
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+/*! \brief Reconstruct bursted pixel from input
+* into output
+* \param p which image out
+*/
+__global__ void kernel_reconstruct_roi(
+  cufftComplex* input,
+  cufftComplex* output,
+  unsigned int  input_width,
+  unsigned int  input_height,
+  unsigned int  output_width,
+  unsigned int  p,
+  unsigned int  nsample)
+{
+  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  while (index < input_height * input_width)
+  {
+    unsigned int x = index % input_width;
+    unsigned int y = index / input_width;
+
+    output[y * output_width + x] = input[index * nsample + p];
+
+    index += blockDim.x * gridDim.x;
+  }
+}
+
+/*! \brief  Permits to shift the corners of an image.
+*
+* This function shift zero-frequency component to center of spectrum
+* as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+* The transformation happens in-place.
 */
 static __global__ void kernel_shift_corners(
   float* input,

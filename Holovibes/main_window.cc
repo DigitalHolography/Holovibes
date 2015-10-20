@@ -91,6 +91,8 @@ namespace gui
       algorithm->setCurrentIndex(0);
     else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
       algorithm->setCurrentIndex(1);
+    else if (cd.algorithm == holovibes::ComputeDescriptor::STFT)
+      algorithm->setCurrentIndex(2);
     else
       algorithm->setCurrentIndex(0);
 
@@ -258,6 +260,15 @@ namespace gui
       {
         holovibes_.init_compute();
         gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue());
+
+        if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+        {
+          GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+          gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+          connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+            Qt::UniqueConnection);
+        }
+
         is_direct_mode_ = false;
 
         global_visibility(true);
@@ -272,9 +283,7 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      global_visibility(false);
       pipeline.request_update_n(value);
-      global_visibility(true);
       notify();
     }
   }
@@ -398,12 +407,27 @@ namespace gui
     {
       holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+      QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
+      GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+      gl_widget->set_selection_mode(gui::eselection::ZOOM);
 
+      cd.nsamples = 2;
       if (value == "1FFT")
         cd.algorithm = holovibes::ComputeDescriptor::FFT1;
       else if (value == "2FFT")
         cd.algorithm = holovibes::ComputeDescriptor::FFT2;
+      else if (value == "STFT")
+      {
+        cd.nsamples = 16;
+        gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+        connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+          Qt::UniqueConnection);
+        cd.algorithm = holovibes::ComputeDescriptor::STFT;
+      }
+      else
+        assert(!"Unknow Algorithm.");
 
+      phaseNumberSpinBox->setValue(cd.nsamples);
       pipeline.request_refresh();
     }
   }
@@ -439,6 +463,12 @@ namespace gui
     unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
+    if (desc.algorithm == holovibes::ComputeDescriptor::STFT)
+    {
+      display_error("You can't call autofocus in stft mode.");
+      return;
+    }
+
     if (z_min < z_max)
     {
       desc.autofocus_z_min = z_min;
@@ -462,6 +492,17 @@ namespace gui
     desc.autofocus_zone = zone;
     pipeline.request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
+  }
+
+  void MainWindow::request_stft_roi(holovibes::Rectangle zone)
+  {
+    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+
+    desc.stft_roi_zone = zone;
+    pipeline.request_stft_roi();
+    //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_autofocus_stop()

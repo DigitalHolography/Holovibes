@@ -22,10 +22,11 @@ namespace gui
   {
     AUTOFOCUS,
     AVERAGE,
-    ZOOM
+    ZOOM,
+    STFT_ROI,
   } eselection;
 
-  /*! \class GLWidget 
+  /*! \class GLWidget
   **
   ** OpenGL widget used to display frames contained in Queue(s).
   */
@@ -37,7 +38,7 @@ namespace gui
     const unsigned int DISPLAY_FRAMERATE = 30;
 
   public:
-    /* \brief GLWidget constructor 
+    /* \brief GLWidget constructor
     **
     ** Build the widget and start a display QTimer.
     **
@@ -91,22 +92,23 @@ namespace gui
       selection_mode_ = mode;
     }
 
-  public slots:
+    public slots:
     void resizeFromWindow(int width, int height);
 
-	/*! \{ \name View Shortcut */
-	void view_move_down();
-	void view_move_left();
-	void view_move_right();
-	void view_move_up();
-	void view_zoom_in();
-	void view_zoom_out();
-	/*! \} */
+    /*! \{ \name View Shortcut */
+    void view_move_down();
+    void view_move_left();
+    void view_move_right();
+    void view_move_up();
+    void view_zoom_in();
+    void view_zoom_out();
+    /*! \} */
   signals:
     /*! \brief Signal used to inform the main window that autofocus
     ** zone has been selected.
     */
     void autofocus_zone_selected(holovibes::Rectangle zone);
+    void stft_roi_zone_selected(holovibes::Rectangle zone);
 
   protected:
     /* \brief Initialize all OpenGL components needed */
@@ -141,7 +143,7 @@ namespace gui
     void mouseReleaseEvent(QMouseEvent* e) override;
 
   private:
-    /*! \brief Draw a selection zone 
+    /*! \brief Draw a selection zone
     **
     ** Coordinates are first converted to OpenGL ones then previous translations and scales
     ** due to zooms are respectively canceled in order for the zone to be at the user's coordinates.
@@ -150,7 +152,7 @@ namespace gui
     ** \param color color of the zone to draw in [red, green, blue, alpha] format
     */
     void selection_rect(const holovibes::Rectangle& selection, float color[4]);
-    /*! \brief Zoom to a given zone 
+    /*! \brief Zoom to a given zone
     **
     ** Selection coordinates are first converted to OpenGL ones.
     ** Then the center of the selection zone has to move to the center of the GLWidget,
@@ -168,6 +170,8 @@ namespace gui
     /*! \brief Dezoom to default resolution */
     void dezoom();
 
+    /*! \brief Return resized rectangle using actual zoom */
+    holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection);
     /*! \brief Assure that the rectangle starts at topLeft and ends at bottomRight
     ** no matter what direction the user uses to select a zone.
     */
@@ -190,6 +194,9 @@ namespace gui
     bool is_signal_selection_;
     holovibes::Rectangle signal_selection_;
     holovibes::Rectangle noise_selection_;
+    holovibes::Rectangle stft_roi_selection_;
+    /*! Base view */
+    holovibes::Rectangle base_view_;
     QWidget* parent_;
 
     /*! /{ \name Previouses zoom translations */
@@ -200,13 +207,13 @@ namespace gui
     /*! Previouses zoom ratios */
     float zoom_ratio_;
 
-	/*! \{ \name View Shortcut */
-	QShortcut	*num_2_shortcut;
-	QShortcut	*num_4_shortcut;
-	QShortcut	*num_6_shortcut;
-	QShortcut	*num_8_shortcut;
-	QShortcut	*zoom_in_shortcut;
-	QShortcut	*zoom_out_shortcut;
+    /*! \{ \name View Shortcut */
+    QShortcut	*num_2_shortcut;
+    QShortcut	*num_4_shortcut;
+    QShortcut	*num_6_shortcut;
+    QShortcut	*num_8_shortcut;
+    QShortcut	*zoom_in_shortcut;
+    QShortcut	*zoom_out_shortcut;
     /*! \} */
 
     /*! \{ \name Window size hints */

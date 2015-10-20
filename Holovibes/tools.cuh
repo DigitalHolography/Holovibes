@@ -22,6 +22,34 @@ __global__ void kernel_apply_lens(
   unsigned int input_size,
   cufftComplex *lens,
   unsigned int lens_size);
+__global__ void kernel_bursting_roi(
+  cufftComplex *input,
+  unsigned int tl_x,
+  unsigned int tl_y,
+  unsigned int br_x,
+  unsigned int br_y,
+  unsigned int curr_elt,
+  unsigned int nsamples,
+  unsigned int width,
+  unsigned int size,
+  cufftComplex *output);
+__global__ void kernel_reconstruct_roi(
+  cufftComplex* input,
+  cufftComplex* output,
+  unsigned int  input_width,
+  unsigned int  input_height,
+  unsigned int  output_width,
+  unsigned int  p,
+  unsigned int  nsample);
+// TODO: Explain what this does.
+__global__ void kernel_complex_divide(
+  cufftComplex* image,
+  unsigned int size,
+  float divider);
+__global__ void kernel_float_divide(
+  float* input,
+  unsigned int size,
+  float divider);
 
 /*! \brief  Permits to shift the corners of an image.
 *

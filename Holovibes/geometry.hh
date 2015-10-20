@@ -82,6 +82,25 @@ namespace holovibes
       return *this;
     }
 
+    unsigned int area() const
+    {
+      unsigned int AB = bottom_right.x - top_left.x;
+      unsigned int AD = bottom_right.y - top_left.y;
+      return (AB * AD);
+    }
+
+    unsigned int get_width() const
+    {
+      unsigned int AB = bottom_right.x - top_left.x;
+      return (AB);
+    }
+
+    unsigned int get_height() const
+    {
+      unsigned int AD = bottom_right.y - top_left.y;
+      return (AD);
+    }
+
     /*! \brief The two following functions will only be called in gui_gl_widget.cc
     ** in order to 'correctly' represent a selection rectangle.
     ** I.E. The first point clicked on during selection is considered as top

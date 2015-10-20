@@ -34,31 +34,35 @@ namespace gui
     this->setObjectName("GLWidget");
     this->resize(QSize(width, height));
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
-	timer_.start(1000 / DISPLAY_FRAMERATE);
+    timer_.start(1000 / DISPLAY_FRAMERATE);
 
-	num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
-	num_2_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
+    num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
+    num_2_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
 
-	num_4_shortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
-	num_4_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_4_shortcut, SIGNAL(activated()), this, SLOT(view_move_left()));
+    num_4_shortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
+    num_4_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_4_shortcut, SIGNAL(activated()), this, SLOT(view_move_left()));
 
-	num_6_shortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
-	num_6_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_6_shortcut, SIGNAL(activated()), this, SLOT(view_move_right()));
+    num_6_shortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
+    num_6_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_6_shortcut, SIGNAL(activated()), this, SLOT(view_move_right()));
 
-	num_8_shortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
-	num_8_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
+    num_8_shortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
+    num_8_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
 
-	zoom_in_shortcut= new QShortcut(QKeySequence(Qt::Key_Plus), this);
-	zoom_in_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(zoom_in_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
+    zoom_in_shortcut = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    zoom_in_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(zoom_in_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
 
-	zoom_out_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-	zoom_out_shortcut->setContext(Qt::ApplicationShortcut);
-	connect(zoom_out_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+    zoom_out_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    zoom_out_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(zoom_out_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+
+    base_view_ = holovibes::Rectangle(
+      holovibes::Point2D(0, 0),
+      holovibes::Point2D(frame_desc_.width, frame_desc_.height));
   }
 
   GLWidget::~GLWidget()
@@ -72,34 +76,34 @@ namespace gui
 
   void GLWidget::view_move_down()
   {
-	  py_ += 0.1f / zoom_ratio_;
+    py_ += 0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_left()
   {
-	  px_ += -0.1f / zoom_ratio_;
+    px_ += -0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_right()
   {
-	  px_ += 0.1f / zoom_ratio_;
+    px_ += 0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_move_up()
   {
-	  py_ += -0.1f / zoom_ratio_;
+    py_ += -0.1f / zoom_ratio_;
   }
 
   void GLWidget::view_zoom_out()
   {
-	  zoom_ratio_ *= 1.1f;
-	  glScalef(1.1f, 1.1f, 1.0f);
+    zoom_ratio_ *= 1.1f;
+    glScalef(1.1f, 1.1f, 1.0f);
   }
 
   void GLWidget::view_zoom_in()
   {
-	  zoom_ratio_ *= 0.9f;
-	  glScalef(0.9f, 0.9f, 0.9f);
+    zoom_ratio_ *= 0.9f;
+    glScalef(0.9f, 0.9f, 0.9f);
   }
 
   QSize GLWidget::minimumSizeHint() const
@@ -171,8 +175,8 @@ namespace gui
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -195,10 +199,10 @@ namespace gui
 
     glBegin(GL_QUADS);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	glTexCoord2d(0.0 + px_, 0.0 + py_); glVertex2d(-1.0, +1.0);
-	glTexCoord2d(1.0 + px_, 0.0 + py_); glVertex2d(+1.0, +1.0);
-	glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
-	glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
+    glTexCoord2d(0.0 + px_, 0.0 + py_); glVertex2d(-1.0, +1.0);
+    glTexCoord2d(1.0 + px_, 0.0 + py_); glVertex2d(+1.0, +1.0);
+    glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
+    glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
@@ -209,6 +213,7 @@ namespace gui
       float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
       float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
       float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
+      float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
 
       switch (selection_mode_)
       {
@@ -221,6 +226,9 @@ namespace gui
         break;
       case ZOOM:
         selection_rect(selection_, zoom_color);
+        break;
+      case STFT_ROI:
+        selection_rect(selection_, stft_roi_color);
         break;
       default:
         break;
@@ -240,8 +248,8 @@ namespace gui
         (e->y() * frame_desc_.height) / height());
     }
     else
-      if (selection_mode_ == ZOOM)
-        dezoom();
+    if (selection_mode_ == ZOOM)
+      dezoom();
   }
 
   void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -259,6 +267,16 @@ namespace gui
         else // Noise selection
           noise_selection_ = selection_;
       }
+      else if (selection_mode_ == STFT_ROI)
+      {
+        int max;
+        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
+          max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+
+        selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
+        selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+      }
     }
   }
 
@@ -269,6 +287,17 @@ namespace gui
       selection_.bottom_right = holovibes::Point2D(
         (e->x() * frame_desc_.width) / width(),
         (e->y() * frame_desc_.height) / height());
+
+      if (selection_mode_ == STFT_ROI)
+      {
+        int max;
+        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
+          max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+
+        selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
+        selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+      }
 
       selection_.bottom_left = holovibes::Point2D(
         selection_.top_left.x,
@@ -291,12 +320,12 @@ namespace gui
         if (is_signal_selection_)
         {
           signal_selection_ = selection_;
-          h_.get_compute_desc().signal_zone = signal_selection_;
+          h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
         }
         else // Noise selection
         {
           noise_selection_ = selection_;
-          h_.get_compute_desc().noise_zone = noise_selection_;
+          h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
         }
         is_signal_selection_ = !is_signal_selection_;
         break;
@@ -305,6 +334,21 @@ namespace gui
 
         if (selection_.top_left != selection_.bottom_right)
           zoom(selection_);
+        break;
+      case STFT_ROI:
+        if (e->button() == Qt::LeftButton)
+        {
+          stft_roi_selection_ = selection_;
+          emit stft_roi_zone_selected(stft_roi_selection_);
+        }
+        else
+        {
+          base_view_ = holovibes::Rectangle(
+            holovibes::Point2D(0, 0),
+            holovibes::Point2D(stft_roi_selection_.get_width(), stft_roi_selection_.get_height()));
+          selection_mode_ = ZOOM;
+          dezoom();
+        }
         break;
       default:
         break;
@@ -343,6 +387,20 @@ namespace gui
     glDisable(GL_BLEND);
   }
 
+  holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection)
+  {
+    selection.top_left.x /= zoom_ratio_;
+    selection.bottom_left.x /= zoom_ratio_;
+    selection.top_left.y /= zoom_ratio_;
+    selection.top_right.y /= zoom_ratio_;
+
+    selection.top_right.x /= zoom_ratio_;
+    selection.bottom_right.x /= zoom_ratio_;
+    selection.bottom_left.y /= zoom_ratio_;
+    selection.bottom_right.y /= zoom_ratio_;
+    return (selection);
+  }
+
   void GLWidget::zoom(const holovibes::Rectangle& selection)
   {
     // Translation
@@ -366,18 +424,12 @@ namespace gui
     float xratio = static_cast<float>(frame_desc_.width) / (static_cast<float>(selection.bottom_right.x) - static_cast<float>(selection.top_left.x));
     float yratio = static_cast<float>(frame_desc_.height) / (static_cast<float>(selection.bottom_right.y) - static_cast<float>(selection.top_left.y));
 
-	float min_ratio = xratio < yratio ? xratio : yratio;
-	px_ += -px / zoom_ratio_ / 2;
-	py_ += py / zoom_ratio_ / 2;
+    float min_ratio = xratio < yratio ? xratio : yratio;
+    px_ += -px / zoom_ratio_ / 2;
+    py_ += py / zoom_ratio_ / 2;
     zoom_ratio_ *= min_ratio;
 
-    // Translation
-  //  glTranslatef(px * min_ratio, py * min_ratio, 0.0f);
-
-    // Rescale
     glScalef(min_ratio, min_ratio, 1.0f);
-
-
     parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
   }
 
@@ -388,6 +440,8 @@ namespace gui
     px_ = 0.0f;
     py_ = 0.0f;
     parent_->setWindowTitle(QString("Real time display"));
+
+    zoom(base_view_);
   }
 
   void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
@@ -442,9 +496,13 @@ namespace gui
 
   void GLWidget::gl_error_checking()
   {
+    // Sometimes this will occur when opengl is having some
+    // trouble, and this will cause glGetString to return NULL.
+    // That's why we need to check it, in order to avoid crashes.
     GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-      std::cerr << "[GL] " << glGetString(error) << std::endl;
+    auto err_string = glGetString(error);
+    if (error != GL_NO_ERROR && err_string)
+      std::cerr << "[GL] " << err_string << std::endl;
   }
 
   void GLWidget::resizeFromWindow(int width, int height)

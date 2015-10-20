@@ -5,6 +5,7 @@
 
 #include "fft1.cuh"
 #include "fft2.cuh"
+#include "stft.cuh"
 #include "tools.cuh"
 #include "tools_conversion.cuh"
 #include "preprocessing.cuh"
@@ -25,37 +26,57 @@ namespace holovibes
     , output_(output)
     , gpu_input_buffer_(nullptr)
     , gpu_output_buffer_(nullptr)
+    , gpu_stft_buffer_(nullptr)
+    , gpu_stft_dup_buffer_(nullptr)
     , gpu_float_buffer_(nullptr)
     , gpu_sqrt_vector_(nullptr)
     , gpu_lens_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
+    , plan1d_(0)
     , gpu_input_frame_ptr_(nullptr)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
+    , stft_roi_requested_(false)
+    , stft_roi_stop_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
     , average_requested_(false)
-    , average_record_requested(false)
+    , average_record_requested_(false)
+    , abort_construct_requested_(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
     const unsigned short nsamples = desc.nsamples;
 
+    /* if stft, we don't need to allocate more than one frame */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      input_length_ = 1;
+    else
+      input_length_ = nsamples;
+
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex) * input_.get_pixels() * nsamples);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
 
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
-      sizeof(unsigned short) * input_.get_pixels());
+      sizeof(unsigned short)* input_.get_pixels());
+
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
+
+    /* gpu_stft_buffer */
+    cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
-      sizeof(float) * input_.get_pixels());
+      sizeof(float)* input_.get_pixels());
 
     /* Square root vector */
-    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65536);
+    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float)* 65536);
     make_sqrt_vect(gpu_sqrt_vector_, 65535);
 
     /* gpu_lens */
@@ -63,9 +84,11 @@ namespace holovibes
       input_.get_pixels() * sizeof(cufftComplex));
 
     /* CUFFT plan3d */
-    cufftPlan3d(
+    if (compute_desc_.algorithm == ComputeDescriptor::FFT1
+      || compute_desc_.algorithm == ComputeDescriptor::FFT2)
+      cufftPlan3d(
       &plan3d_,
-      nsamples,                       // NX
+      input_length_,                   // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
       CUFFT_C2C);
@@ -77,11 +100,22 @@ namespace holovibes
       input_.get_frame_desc().height,
       CUFFT_C2C);
 
+    /* CUFFT plan1d */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      cufftPlan1d(
+      &plan1d_,
+      nsamples,
+      CUFFT_C2C,
+      compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
+      );
     refresh();
   }
 
   Pipeline::~Pipeline()
   {
+    /* CUFFT plan1d */
+    cufftDestroy(plan1d_);
+
     /* CUFFT plan2d */
     cufftDestroy(plan2d_);
 
@@ -102,24 +136,100 @@ namespace holovibes
 
     /* gpu_input_buffer */
     cudaFree(gpu_input_buffer_);
+
+    /* gpu_stft_buffer */
+    cudaFree(gpu_stft_buffer_);
+
+    /* gpu_stft_dup_buffer */
+    cudaFree(gpu_stft_dup_buffer_);
   }
 
   void Pipeline::update_n_parameter(unsigned short n)
   {
+    unsigned int err_count = 0;
+    abort_construct_requested_ = false;
+
+    /* if stft, we don't need to allocate more than one frame */
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      input_length_ = 1;
+    else
+      input_length_ = n;
+
+    /*
+    ** plan1D have limit and if they are reach, GPU may crash
+    ** http://stackoverflow.com/questions/13187443/nvidia-cufft-limit-on-sizes-and-batches-for-fft-with-scikits-cuda
+    ** 48e6 is an arbitary value
+    */
+    if (compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n) > 48e6)
+    {
+      abort_construct_requested_ = true;
+      std::cout
+        << "[PREVENT_ERROR] pipeline l" << __LINE__ << " "
+        << "You will reach the hard limit of cufftPlan\n"
+        << compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n)
+        << " > "
+        << 48e6
+        << std::endl;
+    }
+
     /* CUFFT plan3d realloc */
-    cufftDestroy(plan3d_);
-    cufftPlan3d(
+    if (plan3d_)
+    {
+      cufftDestroy(plan3d_) ? ++err_count : 0;
+      plan3d_ = 0;
+    }
+    if (compute_desc_.algorithm == ComputeDescriptor::FFT1
+      || compute_desc_.algorithm == ComputeDescriptor::FFT2)
+      cufftPlan3d(
       &plan3d_,
-      n,                              // NX
+      input_length_,                  // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
-      CUFFT_C2C);
+      CUFFT_C2C) ? ++err_count : 0;
 
-    /* gpu_input_buffer realloc */
-    cudaFree(gpu_input_buffer_);
+    /* CUFFT plan1d realloc */
+    if (plan1d_)
+    {
+      cufftDestroy(plan1d_) ? ++err_count : 0;
+      plan1d_ = 0;
+    }
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      cufftPlan1d(
+      &plan1d_,
+      n,
+      CUFFT_C2C,
+      compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
+      ) ? ++err_count : 0;
+
+    /* gpu_input_buffer */
+    if (gpu_input_buffer_)
+      cudaFree(gpu_input_buffer_) ? ++err_count : 0;
     gpu_input_buffer_ = nullptr;
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-      sizeof(cufftComplex) * input_.get_pixels() * n);
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
+
+    /* gpu_stft_buffer */
+    if (gpu_stft_buffer_)
+      cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
+    gpu_stft_buffer_ = nullptr;
+    cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+
+    /* gpu_stft_buffer */
+    if (gpu_stft_dup_buffer_)
+      cudaFree(gpu_stft_dup_buffer_) ? ++err_count : 0;
+    gpu_stft_dup_buffer_ = nullptr;
+    cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
+      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+    if (err_count)
+    {
+      abort_construct_requested_ = true;
+      std::cout
+        << "[ERROR] pipeline l" << __LINE__
+        << " err_count: " << err_count
+        << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+        << std::endl;
+    }
   }
 
   void Pipeline::refresh()
@@ -139,6 +249,9 @@ namespace holovibes
       update_n_parameter(compute_desc_.nsamples);
     }
 
+    if (abort_construct_requested_)
+      return;
+
     if (autofocus_requested_)
     {
       fn_vect_.push_back(std::bind(
@@ -154,7 +267,7 @@ namespace holovibes
       make_contiguous_complex,
       std::ref(input_),
       gpu_input_buffer_,
-      compute_desc_.nsamples.load(),
+      input_length_,
       gpu_sqrt_vector_));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
@@ -239,6 +352,48 @@ namespace holovibes
           compute_desc_.pindex.load()));
       }
     }
+    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    {
+      // Initialize FFT1 lens.
+      fft1_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance);
+
+      curr_elt_stft_ = 0;
+      // Add STFT.
+      fn_vect_.push_back(std::bind(
+        stft,
+        gpu_input_buffer_,
+        gpu_lens_,
+        gpu_stft_buffer_,
+        gpu_stft_dup_buffer_,
+        plan2d_,
+        plan1d_,
+        compute_desc_.stft_roi_zone.load(),
+        curr_elt_stft_,
+        input_fd,
+        compute_desc_.nsamples.load(),
+        compute_desc_.pindex.load()));
+
+      /* frame pointer */
+      gpu_input_frame_ptr_ = gpu_input_buffer_;
+
+      if (average_requested_)
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipeline::average_stft_caller,
+          this,
+          gpu_stft_dup_buffer_,
+          compute_desc_.stft_roi_zone.load().get_width(),
+          compute_desc_.stft_roi_zone.load().get_height(),
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load(),
+          compute_desc_.nsamples.load()));
+        average_requested_ = false;
+      }
+    }
     else
       assert(!"Impossible case.");
 
@@ -283,7 +438,7 @@ namespace holovibes
 
     if (average_requested_)
     {
-      if (average_record_requested)
+      if (average_record_requested_)
       {
         fn_vect_.push_back(std::bind(
           &Pipeline::average_record_caller,
@@ -294,7 +449,7 @@ namespace holovibes
           compute_desc_.signal_zone.load(),
           compute_desc_.noise_zone.load()));
 
-        average_record_requested = false;
+        average_record_requested_ = false;
       }
       else
       {
@@ -342,7 +497,7 @@ namespace holovibes
         compute_desc_.contrast_max.load()));
     }
 
-    if (!float_output_requested)
+    if (!float_output_requested_)
     {
       fn_vect_.push_back(std::bind(
         float_to_ushort,
@@ -367,7 +522,7 @@ namespace holovibes
         ++cit)
         (*cit)();
 
-      if (!float_output_requested)
+      if (!float_output_requested_)
       {
         output_.enqueue(
           gpu_output_buffer_,
@@ -391,7 +546,7 @@ namespace holovibes
     {
       float_output_file_.open(float_output_file_src, std::ofstream::trunc | std::ofstream::binary);
       float_output_nb_frame_ = nb_frame;
-      float_output_requested = true;
+      float_output_requested_ = true;
       request_refresh();
       std::cout << "[PIPELINE]: float record start." << std::endl;
     }
@@ -406,7 +561,7 @@ namespace holovibes
   {
     if (float_output_file_.is_open())
       float_output_file_.close();
-    float_output_requested = false;
+    float_output_requested_ = false;
     request_refresh();
     std::cout << "[PIPELINE]: float record done." << std::endl;
   }
@@ -433,6 +588,11 @@ namespace holovibes
   {
     autocontrast_requested_ = true;
     request_refresh();
+  }
+
+  void Pipeline::request_stft_roi()
+  {
+    request_update_n(compute_desc_.nsamples.load());
   }
 
   void Pipeline::request_autofocus()
@@ -476,7 +636,7 @@ namespace holovibes
     average_n_ = n;
 
     average_requested_ = true;
-    average_record_requested = true;
+    average_record_requested_ = true;
     request_refresh();
   }
 
@@ -525,6 +685,30 @@ namespace holovibes
     }
   }
 
+  void Pipeline::average_stft_caller(
+    cufftComplex*    input,
+    unsigned int     width,
+    unsigned int     height,
+    Rectangle&       signal_zone,
+    Rectangle&       noise_zone,
+    unsigned int     nsamples)
+  {
+    unsigned int    i;
+    cufftComplex*   cbuf;
+    float*          fbuf;
+
+    cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex));
+    cudaMalloc<float>(&fbuf, width * height * sizeof(float));
+
+    average_output_->resize(nsamples);
+    for (i = 0; i < nsamples; ++i)
+    {
+      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, input, width, height, signal_zone, noise_zone, i, nsamples));
+    }
+
+    cudaFree(cbuf);
+    cudaFree(fbuf);
+  }
   /* Looks like the pipeline, but it searches for the right z value.
   The method choosen, iterates on the numbers of points given by the user
   between min and max, take the max and increase the precision to focus

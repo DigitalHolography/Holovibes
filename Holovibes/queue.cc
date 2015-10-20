@@ -104,7 +104,7 @@ namespace holovibes
 
     unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
-    int cuda_status = cudaMemcpy(new_elt_adress,
+    cudaError_t cuda_status = cudaMemcpy(new_elt_adress,
       elt,
       size_,
       cuda_kind);
@@ -115,7 +115,6 @@ namespace holovibes
       mutex_.unlock();
       return false;
     }
-
     if (is_big_endian_)
       endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
 

@@ -98,20 +98,19 @@ namespace holovibes
      * The pipeline is allocated and his allocation can take some times so that
      * the method contains a lock to avoid conflicts between threads that would
      * use the Pipeline before it finished the initialization. */
-	void init_compute(
-		bool is_float_output_enabled = false,
-		std::string float_output_file_src = "",
-		unsigned int float_output_nb_frame = 0);
+    void init_compute(
+      bool is_float_output_enabled = false,
+      std::string float_output_file_src = "",
+      unsigned int float_output_nb_frame = 0);
     void dispose_compute();
 
     void init_import_mode(std::string &file_src
-	, holovibes::ThreadReader::FrameDescriptor frame_desc
-	, bool loop
-	, unsigned int fps
-	, unsigned int spanStart
-	, unsigned int spanEnd
-	, unsigned int q_max_size_);
-
+      , holovibes::ThreadReader::FrameDescriptor frame_desc
+      , bool loop
+      , unsigned int fps
+      , unsigned int spanStart
+      , unsigned int spanEnd
+      , unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
     Pipeline& get_pipeline()
@@ -152,8 +151,8 @@ namespace holovibes
     const camera::FrameDescriptor& get_cam_frame_desc();
 
     /* \brief Get zb = N d^2 / lambda
-        Is updated everytime the camera changes or lamdba changes
-        */
+      Is updated everytime the camera changes or lamdba changes
+      */
     const float get_boundary();
 
   private:

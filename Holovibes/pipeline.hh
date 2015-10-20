@@ -48,8 +48,8 @@ namespace holovibes
   class Pipeline
   {
     /*! \brief Vector of procedures type */
-    using FnVector = std::vector < std::function<void()> > ;
-	friend class ThreadCompute;
+    using FnVector = std::vector < std::function<void()> >;
+    friend class ThreadCompute;
   public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      * \param input Input queue containing acquired frames.
@@ -58,7 +58,7 @@ namespace holovibes
     Pipeline(
       Queue& input,
       Queue& output,
-	  ComputeDescriptor& desc);
+      ComputeDescriptor& desc);
     virtual ~Pipeline();
 
     /*! \{ \name Pipeline request methods */
@@ -70,6 +70,8 @@ namespace holovibes
     void request_autofocus_stop();
     /*! \brief Request the pipeline to apply the autocontrast algorithm. */
     void request_autocontrast();
+    /*! \brief Request the pipeline to apply the stft algorithm. And call request_update_n */
+    void request_stft_roi();
     /*! \brief Request the pipeline to update the nsamples parameter.
      *
      * Use this method when the user has requested the nsamples parameter to be
@@ -96,16 +98,16 @@ namespace holovibes
       unsigned int n);
     /*! \} */
 
-	/*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
-	void request_float_output(std::string& file_src, unsigned int nb_frame);
-	/*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
-	void request_float_output_stop();
+    /*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
+    void request_float_output(std::string& file_src, unsigned int nb_frame);
+    /*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
+    void request_float_output_stop();
 
-	/*! \brief Return true while pipeline is recording float. */
-	bool is_requested_float_output() const
-	{
-		return (float_output_requested);
-	}
+    /*! \brief Return true while pipeline is recording float. */
+    bool is_requested_float_output() const
+    {
+      return (float_output_requested_);
+    }
 
     /*! \brief Execute one iteration of the pipeline.
      *
@@ -161,6 +163,22 @@ namespace holovibes
       unsigned int height,
       Rectangle& signal,
       Rectangle& noise);
+    /*! \see request_average
+     * \brief For nsamples in input, reconstruct image,
+     * clear previous result, call the average algorithm and store each result
+     * \param input Input buf, contain nsamples bursting frame
+     * \param width Width of one frame
+     * \param height Height of one frame
+     * \param signal Signal zone
+     * \param noise Noise zone */
+    void average_stft_caller(
+      cufftComplex*    input,
+      unsigned int     width,
+      unsigned int     height,
+      Rectangle&       signal_zone,
+      Rectangle&       noise_zone,
+      unsigned int     nsamples
+      );
     /*! \see request_autofocus
      * \brief Autofocus caller looks like the pipeline refresh method.
      *
@@ -173,8 +191,8 @@ namespace holovibes
     /*! \brief Generate the pipeline vector. */
     void refresh();
 
-	/*! \brief Record one frame in gpu_float_buf_ to file_. */
-	void record_float();
+    /*! \brief Record one frame in gpu_float_buf_ to file_. */
+    void record_float();
 
     /*! \{ \name Disable copy/assignments. */
     Pipeline& operator=(const Pipeline&) = delete;
@@ -197,6 +215,10 @@ namespace holovibes
      * * fields with cpu prefix are allocated in CPU memory */
     /*! cufftComplex array containing n contiguous frames. */
     cufftComplex* gpu_input_buffer_;
+    /*! cufftComplex array containing n contiguous ROI of frames. */
+    cufftComplex* gpu_stft_buffer_;
+    /*! cufftComplex array containing save of n contiguous ROI of frames. */
+    cufftComplex* gpu_stft_dup_buffer_;
     /*! Output frame containing n frames ordered in frequency. */
     unsigned short* gpu_output_buffer_;
     /*! GPU float frame */
@@ -209,6 +231,8 @@ namespace holovibes
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. */
     cufftHandle plan2d_;
+    /*! CUDA FFT Plan 1D. */
+    cufftHandle plan1d_;
     /*! \} */
 
     /*! Input frame pointer. */
@@ -217,18 +241,25 @@ namespace holovibes
     /*! \{ \name request flags */
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
+    bool stft_roi_requested_;
+    bool stft_roi_stop_requested_;
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
     bool average_requested_;
-    bool average_record_requested;
-	bool float_output_requested;
+    bool average_record_requested_;
+    bool float_output_requested_;
+    bool abort_construct_requested_;
     /*! \} */
 
-	/*! \brief Number of frame to record before request_float_output_stop. */
-	unsigned int float_output_nb_frame_;
-	/*! \brief Ofstream use by float_output_recorder. */
-	std::ofstream float_output_file_;
+    /*! \brief Number of frame in input. */
+    unsigned int input_length_;
+    /*! \brief Number of frame to record before request_float_output_stop. */
+    unsigned int float_output_nb_frame_;
+    /*! \brief index of current element trait in stft */
+    unsigned int curr_elt_stft_;
+    /*! \brief Ofstream use by float_output_recorder. */
+    std::ofstream float_output_file_;
 
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
