@@ -24,7 +24,14 @@ namespace camera
     for (unsigned int i = 0; i < 2048 * 2048; ++i)
       squared_buffer_[i] = 0;
 
-    create_logfile_(name_);
+    load_utils();
+
+    if (!create_logfile_)
+      std::cerr << "[CAMLOG] Did not get create_log" << std::endl;
+    else
+      create_logfile_(name_);
+    if (!log_msg_)
+      std::cerr << "[CAMLOG] Did not get write_log" << std::endl;
   }
 
   CameraPCOPixelfly::~CameraPCOPixelfly()
