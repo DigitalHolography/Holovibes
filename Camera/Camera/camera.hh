@@ -87,7 +87,7 @@ namespace camera
     // Loading all utilities functions in the CamUtils DLL.
     void load_utils()
     {
-      dll_instance_ = LoadLibrary("CameraUtils.dll");
+      dll_instance_ = LoadLibraryW(L"CameraUtils.dll");
       if (!dll_instance_)
         throw std::runtime_error("Unable to load CameraUtils DLL.");
 
