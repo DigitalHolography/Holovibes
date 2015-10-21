@@ -8,6 +8,8 @@
 
 namespace holovibes
 {
+  const static std::string version = "v1.1.0";
+
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipeline is refresh.
