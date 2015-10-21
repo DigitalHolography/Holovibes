@@ -841,6 +841,17 @@ namespace holovibes
         }
 
         float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
+
+        if (compute_desc_.contrast_enabled)
+        {
+          manual_contrast_correction(
+          gpu_float_buffer_,
+          input_fd.frame_res(),
+          65535,
+          compute_desc_.contrast_min.load(),
+          compute_desc_.contrast_max.load());
+        }
+
         output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
 
         frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
