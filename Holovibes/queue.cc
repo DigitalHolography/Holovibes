@@ -10,7 +10,7 @@ namespace holovibes
     , max_elts_(elts)
     , curr_elts_(0)
     , start_(0)
-    , is_big_endian_(frame_desc.depth == 2 &&
+    , is_big_endian_(frame_desc.depth >= 2 &&
     frame_desc.endianness == camera::BIG_ENDIAN)
   {
     if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
