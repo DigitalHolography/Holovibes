@@ -1,8 +1,5 @@
 #include <CiApi.h>
-
-// DEBUG
 #include <iostream>
-// DEBUG
 #include <cmath>
 #include <cstdlib>
 
@@ -21,9 +18,12 @@ namespace camera
     */
     void update_image(void* buffer, unsigned width, unsigned height)
     {
-      const unsigned shift_step = 4;
+      const unsigned shift_step = 4; // The shift distance, in bits.
       size_t* it = reinterpret_cast<size_t*>(buffer);
 
+      /* Iteration is done with a size_t, allowing to move values 4 by 4
+      ** (a size_t contains 4 shorts, each short encoding a pixel value).
+      */
       for (unsigned y = 0; y < width; ++y)
       {
         for (unsigned x = 0; x < height / 4; ++x)
@@ -42,9 +42,9 @@ namespace camera
 
   CameraAdimec::CameraAdimec()
     : Camera("adimec.ini")
-    , board_ { nullptr }
-  , buffer_ { nullptr }
-  , quad_bank_ { BFQTabBank0 }
+    , board_(nullptr)
+    , buffer_(nullptr)
+    , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
     /* Dimensions are initialized as there were no ROI; they will be updated
@@ -186,8 +186,8 @@ namespace camera
   void CameraAdimec::load_default_params()
   {
     /* Values here are harcoded to avoid being dependent on a default file,
-    ** which may be modified accidentally. When possible, these default values,
-    ** where taken from the default mode for the Adimec-A2750 camera.
+    ** which may be modified accidentally. When possible, these default values
+    ** were taken from the default mode for the Adimec-A2750 camera.
     */
     exposure_time_ = 0x0539;
 
@@ -219,8 +219,8 @@ namespace camera
   void CameraAdimec::bind_params()
   {
     /* We use a CoaXPress-specific register writing function to set parameters.
-    ** The address parameter is hardcoded but can be found in any Bitflow-provided
-    ** .bfml configuration file.
+    ** The register address parameter can be found in any .bfml configuration file provided
+    ** by Bitflow; here, it has been put into an enumeration for clarity.
     **
     ** Whenever a parameter setting fails, setup fallbacks to default value.
     */
