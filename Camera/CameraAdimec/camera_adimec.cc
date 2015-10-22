@@ -55,7 +55,7 @@ namespace camera
     // Technically the camera is 12-bits, but each pixel value is encoded on 16 bits.
     desc_.depth = 2.f;
     desc_.endianness = LITTLE_ENDIAN;
-    // TODO : Find pixel size.
+    desc_.pixel_size = 12;
 
     load_default_params();
     if (ini_file_is_open())
@@ -100,7 +100,6 @@ namespace camera
       "Could not get frame size",
       CameraException::CANT_START_ACQUISITION,
       CloseFlag::BOARD | CloseFlag::CAM);
-    std::cout << "Frame size : " << size << std::endl;
 
     // Aligned allocation ensures fast memory transfers.
     buffer_ = _aligned_malloc(size, 4096);
@@ -157,7 +156,7 @@ namespace camera
     if (status != CI_OK)
     {
       // TODO : Write a logger for missed images.
-      std::cerr << "[CAMERA] Could not get frame" << std::endl;
+      std::cerr << "[CAMERA] Could not get frame : ";
     }
 
     update_image(buffer_, desc_.width, desc_.height);
