@@ -39,12 +39,16 @@ namespace camera
       ALL = 0xFFF
     };
 
+    /* Contains the addresses of the Cyton board's registers
+    ** that we manually set to override some configuration data.
+    */
     enum RegAdress
     {
       FRAME_PERIOD = 0x8220,
       EXPOSURE_TIME = 0x8258
     };
 
+    // Private error checking and reporting method. TODO: Use CameraUtils' services in it.
     void err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag);
 
     // Camera's camera-specific methods, used while initializion takes place.
@@ -71,7 +75,7 @@ namespace camera
 
     BFU32 frame_period_;
 
-    BFU32 roi_x_; // ROI origin's coordinates : (x, y)
+    BFU32 roi_x_; // ROI's top-left coordinates : (x, y)
     BFU32 roi_y_;
     BFU32 roi_width_; // ROI size
     BFU32 roi_height_;
