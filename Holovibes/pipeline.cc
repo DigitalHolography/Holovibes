@@ -515,7 +515,7 @@ namespace holovibes
 
   void Pipeline::exec()
   {
-    if (input_.get_current_elts() >= compute_desc_.nsamples)
+    if (input_.get_current_elts() >= input_length_)
     {
       for (FnVector::const_iterator cit = fn_vect_.cbegin();
         cit != fn_vect_.cend();
