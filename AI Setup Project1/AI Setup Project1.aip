@@ -41,7 +41,9 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
     <ROW Directory="GPIB_Dir" Directory_Parent="APPDIR" DefaultDir="GPIB"/>
+    <ROW Directory="StartMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="STARTM~1|StartMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
@@ -78,6 +80,9 @@
   <COMPONENT cid="caphyon.advinst.custcomp.MsiEmbeddedUIComponent">
     <ROW MsiEmbeddedUI="embeddeduiproxy" FileName="embeddeduiproxy.dll" Attributes="3" MessageFilter="201359327" Data="&lt;AI_HOME&gt;bin\x86\embeddeduiproxy.dll"/>
     <ROW MsiEmbeddedUI="InstallerAnalytics" FileName="InstallerAnalytics.dll" Attributes="0" Data="&lt;AI_TEMPLATES&gt;PlaceHolder.dat"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.custcomp.MsiShortcutPropertyComponent">
+    <ROW MsiShortcutProperty="AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe0" Shortcut_="AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AiPersistentPropComponent">
     <ROW Property="AI_IA_ENABLE" Registry="AI_IA_ENABLE" HklmSearch="AI_IA_ENABLE" HkcuSearch="AI_IA_ENABLE_1" Hklm64Search="AI_IA_ENABLE_2" Hkcu64Search="AI_IA_ENABLE_3"/>
@@ -199,6 +204,122 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="icon1.exe" SourcePath="..\Holovibes\icon1.ico" Index="0"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIniFileComponent">
+    <ROW IniFile="_filter" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="0_filter" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_filter_1" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="1_filter" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_filter_2" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="2_filter" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_filter_3" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="3_filter" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_polarity" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="0_polarity" Value="4" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_polarity_1" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="1_polarity" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_polarity_2" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="2_polarity" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_polarity_3" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="3_polarity" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_state" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="0_state" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_state_1" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="1_state" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_state_2" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="2_state" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_state_3" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="3_state" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_subindex" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="0_subindex" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_subindex_1" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="1_subindex" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_subindex_2" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="2_subindex" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_subindex_3" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="3_subindex" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_type" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="0_type" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_type_1" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="1_type" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_type_2" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="2_type" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="_type_3" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="3_type" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="acquisition_mode" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="acquisition_mode" Value="5" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="algorithm" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="algorithm" Value="2" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="aoi_height" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="aoi_height" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="aoi_startx" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="aoi_startx" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="aoi_starty" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="aoi_starty" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="aoi_width" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="aoi_width" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="average_enabled" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="special" Key="average_enabled" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="binning" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="binning" Value="disabled" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="binning_1" FileName="pixelfly.ini" DirProperty="APPDIR" Section="pco-pixelfly" Key="binning" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="binning_hz" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="binning_hz" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="binning_vt" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="binning_vt" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="bit_depth" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="bit_depth" Value="8" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="brightness" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="brightness" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="camera" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="camera" Value="4" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="contrast_enabled" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="contrast_enabled" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="contrast_max" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="contrast_max" Value="794328" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="contrast_min" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="contrast_min" Value="1.77828" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="conversion_factor" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="conversion_factor" Value="0.46" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="downsampling_rate" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="downsampling_rate" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="downsampling_type" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="downsampling_type" Value="BINNING" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="exposure_time" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="exposure_time" Value="0.024" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="exposure_time_1" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="exposure_time" Value="0.0166" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="exposure_time_2" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="exposure_time" Value="49.91" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="exposure_time_3" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="exposure_time" Value="0.05" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="exposure_time_4" FileName="pixelfly.ini" DirProperty="APPDIR" Section="pco-pixelfly" Key="exposure_time" Value="0.005" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="extended_sensor_format" FileName="pixelfly.ini" DirProperty="APPDIR" Section="pco-pixelfly" Key="extended_sensor_format" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="format" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="format" Value="RAW8" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="frame_timeout" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="frame_timeout" Value="10000" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="framerate" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="framerate" Value="30" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="framerate_mode" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="framerate_mode" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="gain" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="gain" Value="0.0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="gain_1" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="gain" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="gain_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="gain" Value="0.0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="gain_mode" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="gain_mode" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="gamma" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="gamma" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="hidden" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="hidden" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="hidden_1" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="hidden" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="hidden_2" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="special" Key="hidden" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="hidden_3" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="record" Key="hidden" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="hidden_4" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="import" Key="hidden" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="horizontal_shift_speed" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="horizontal_shift_speed" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="image_format" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="image_format" Value="RAW8" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="image_ratio_enabled" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="special" Key="image_ratio_enabled" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="image_ratio_q" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="special" Key="image_ratio_q" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="kinetic_cycle_time" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="kinetic_cycle_time" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="lambda" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="lambda" Value="5.32e-007" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="log_scale_enabled" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="log_scale_enabled" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="p_index" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="p_index" Value="11" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="phase_number" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="phase_number" Value="512" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="pixel_rate" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="pixel_rate" Value="110" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="pixel_rate_1" FileName="pixelfly.ini" DirProperty="APPDIR" Section="pco-pixelfly" Key="pixel_rate" Value="12" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="queue_size" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="queue_size" Value="20" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="r_sensitivity" FileName="pixelfly.ini" DirProperty="APPDIR" Section="pco-pixelfly" Key="r_sensitivity" Value="false" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="read_mode" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="read_mode" Value="4" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_height" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="roi_height" Value="1024" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_height_1" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="roi_height" Value="1024" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_height_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="roi_height" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_startx" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="roi_startx" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_starty" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="roi_starty" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_width" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="roi_width" Value="1024" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_width_1" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="roi_width" Value="1024" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_width_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="roi_width" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_x" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="roi_x" Value="512" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_x_1" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="roi_x" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_y" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="roi_y" Value="512" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="roi_y_1" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="roi_y" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_height" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="sensor_height" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_height_1" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="sensor_height" Value="1002" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_height_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="sensor_height" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_width" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="sensor_width" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_width_1" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="sensor_width" Value="1002" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="sensor_width_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="sensor_width" Value="2048" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="shift_corners_enabled" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="shift_corners_enabled" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="shutter_close" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="shutter_close" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="shutter_mode" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="shutter_mode" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="shutter_open" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="shutter_open" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="shutter_time" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="shutter_time" Value="100" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="speed" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="speed" Value="800" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="subsampling" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="subsampling" Value="disabled" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="subsampling_1" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="subsampling" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="timeout_command" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="timeout_command" Value="0.05" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="timeout_img_acq" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="timeout_img_acq" Value="0.05" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger" FileName="ids.ini" DirProperty="APPDIR" Section="ids" Key="trigger" Value="off" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_mode" FileName="edge.ini" DirProperty="APPDIR" Section="pco-edge" Key="trigger_mode" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_mode_1" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="trigger_mode" Value="10" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_mode_2" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="trigger_mode" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_on" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="trigger_on" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_pol" FileName="pike.ini" DirProperty="APPDIR" Section="pike" Key="trigger_pol" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="trigger_src" FileName="xiq.ini" DirProperty="APPDIR" Section="xiq" Key="trigger_src" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="ttl" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="ttl" Value="1" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="vertical_shift_speed" FileName="ixon.ini" DirProperty="APPDIR" Section="ixon" Key="vertical_shift_speed" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="view_mode" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="view" Key="view_mode" Value="0" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="z_distance" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="z_distance" Value="0.02" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+    <ROW IniFile="z_step" FileName="HOLOVI~1.INI|holovibes.ini" DirProperty="APPDIR" Section="image_rendering" Key="z_step" Value="0.001" Action="0" Component_="CameraPCOEdge_PrimaryOutput"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
@@ -256,6 +377,10 @@
     <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe" Directory_="DesktopFolder" Name="HOLOVI~1.EXE|[|AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe]" Component_="Holovibes_PrimaryOutput" Target="[#Holovibes.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe_1" Directory_="StartMenuFolder" Name="HOLOVI~1.EXE|[|AI_PROPPATH_FILENAME_PERBUILD_Holovibes.exe]" Component_="Holovibes_PrimaryOutput" Target="[#Holovibes.exe]" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
   </COMPONENT>
@@ -264,9 +389,9 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
-    <ROW PrereqKey="NVIDIAPackageLaunc" DisplayName="NVIDIA Package Launcher Win10" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_win10_network.exe" Location="0" ExactSize="0" WinNTVersions="Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2, Windows XP x86 Service Pack 3, Windows Server 2003 x86, Windows Server 2003 x86 Service Pack 1, Windows Server 2003 x86 Service Pack 2, Windows Vista x86, Windows Vista x86 Service Pack 1, Windows Vista x86 Service Pack 2, Windows Server 2008 x86, Windows 7 x86, Windows 7 x86 Service Pack 1, Windows 8 x86, Windows 8.1 x86" WinNT64Versions="Windows XP x64, Windows XP x64 Service Pack 1, Windows XP x64 Service Pack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service Pack 2, Windows Vista x64, Windows Vista x64 Service Pack 1, Windows Vista x64 Service Pack 2, Windows Server 2008 x64, Windows 7 x64, Windows 7 x64 Service Pack 1, Windows Server 2008 R2 x64, Windows Server 2008 R2 x64 Service Pack 1, Windows 8 x64, Windows Server 2012 x64, Windows 8.1 x64, Windows Server 2012 R2 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_win10_network.exe"/>
-    <ROW PrereqKey="NVIDIAPackageLaunc_1" DisplayName="NVIDIA Package Launcher" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_windows_network.exe" Location="0" ExactSize="0" WinNTVersions="Windows 10 x86" WinNT64Versions="Windows 10 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_windows_network.exe"/>
-    <ROW PrereqKey="RequiredApplication" DisplayName="Qt" SetupFileUrl="..\..\..\..\..\Downloads\qt-unified-windows-x86-2.0.2-2-online.exe" Location="0" ExactSize="0" Operator="1" Options="i" TargetName="qt-unified-windows-x86-2.0.2-2-online.exe"/>
+    <ROW PrereqKey="NVIDIAPackageLaunc" DisplayName="NVIDIA Package Launcher Win10" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_win10.exe" Location="0" ExactSize="0" WinNTVersions="Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2, Windows XP x86 Service Pack 3, Windows Server 2003 x86, Windows Server 2003 x86 Service Pack 1, Windows Server 2003 x86 Service Pack 2, Windows Vista x86, Windows Vista x86 Service Pack 1, Windows Vista x86 Service Pack 2, Windows Server 2008 x86, Windows 7 x86, Windows 7 x86 Service Pack 1, Windows 8 x86, Windows 8.1 x86" WinNT64Versions="Windows XP x64, Windows XP x64 Service Pack 1, Windows XP x64 Service Pack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service Pack 2, Windows Vista x64, Windows Vista x64 Service Pack 1, Windows Vista x64 Service Pack 2, Windows Server 2008 x64, Windows 7 x64, Windows 7 x64 Service Pack 1, Windows Server 2008 R2 x64, Windows Server 2008 R2 x64 Service Pack 1, Windows 8 x64, Windows Server 2012 x64, Windows 8.1 x64, Windows Server 2012 R2 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_win10.exe"/>
+    <ROW PrereqKey="NVIDIAPackageLaunc_1" DisplayName="NVIDIA Package Launcher" VersionMin="1.0.5.0" SetupFileUrl="..\..\..\..\..\Downloads\cuda_7.5.18_windows.exe" Location="0" ExactSize="0" WinNTVersions="Windows 10 x86" WinNT64Versions="Windows 10 x64" Operator="1" Options="i" TargetName="cuda_7.5.18_windows.exe"/>
+    <ROW PrereqKey="RequiredApplication" DisplayName="Qt" SetupFileUrl="..\..\..\..\..\Downloads\qt-opensource-windows-x86-msvc2013_64-5.5.0.exe" Location="0" ExactSize="0" Operator="1" Options="i" TargetName="qt-opensource-windows-x86-msvc2013_64-5.5.0.exe"/>
     <ATTRIBUTE name="PrereqsOrder" value="RequiredApplication NVIDIAPackageLaunc NVIDIAPackageLaunc_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
