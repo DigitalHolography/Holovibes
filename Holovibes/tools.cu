@@ -71,18 +71,22 @@ __global__ void kernel_reconstruct_roi(
   unsigned int  input_width,
   unsigned int  input_height,
   unsigned int  output_width,
+  unsigned int  reconstruct_width,
+  unsigned int  reconstruct_height,
   unsigned int  p,
   unsigned int  nsample)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  while (index < input_height * input_width)
+  while (index < reconstruct_width * reconstruct_height)
   {
-    unsigned int x = index % input_width;
-    unsigned int y = index / input_width;
+    unsigned int x = index % reconstruct_width;
+    unsigned int y = index / reconstruct_width;
+    unsigned int x2 = x * input_width / reconstruct_width;
+    unsigned int y2 = y * input_height / reconstruct_height;
+    unsigned int pixel_index = y2 * input_width + x2;
 
-    output[y * output_width + x] = input[index * nsample + p];
-
+    output[y * output_width + x] = input[pixel_index * nsample + p];
     index += blockDim.x * gridDim.x;
   }
 }

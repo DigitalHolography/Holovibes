@@ -39,6 +39,8 @@ __global__ void kernel_reconstruct_roi(
   unsigned int  input_width,
   unsigned int  input_height,
   unsigned int  output_width,
+  unsigned int  reconstruct_width,
+  unsigned int  reconstruct_height,
   unsigned int  p,
   unsigned int  nsample);
 // TODO: Explain what this does.

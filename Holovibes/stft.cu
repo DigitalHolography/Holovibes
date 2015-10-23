@@ -13,9 +13,8 @@ void stft(
   cufftHandle                     plan1d,
   const holovibes::Rectangle&     r,
   unsigned int&                   curr_elt,
-  camera::FrameDescriptor&        desc,
-  unsigned int                    nsamples,
-  unsigned int                    pindex)
+  const camera::FrameDescriptor&  desc,
+  unsigned int                    nsamples)
 {
   unsigned int threads = 128;
   unsigned int blocks = desc.frame_res() / threads;
@@ -60,14 +59,35 @@ void stft(
   // FFT 1D
   cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
   cudaDeviceSynchronize();
+}
 
+void stft_recontruct(
+  cufftComplex*                   input,
+  cufftComplex*                   stft_dup_buf,
+  const holovibes::Rectangle&     r,
+  const camera::FrameDescriptor&  desc,
+  unsigned int                    reconstruct_width,
+  unsigned int                    reconstruct_height,
+  unsigned int                    pindex,
+  unsigned int                    nsamples)
+{
+  unsigned int threads = 128;
+  unsigned int blocks = desc.frame_res() / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  if (!r.area())
+    return;
   // Reconstruct Roi
-  kernel_reconstruct_roi << <blocks, threads >> >(
+  kernel_reconstruct_roi<<<blocks, threads>>>(
     stft_dup_buf,
     input,
     r.get_width(),
     r.get_height(),
     desc.width,
+    reconstruct_width,
+    reconstruct_height,
     pindex,
     nsamples);
 }
