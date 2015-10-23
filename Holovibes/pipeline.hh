@@ -70,8 +70,10 @@ namespace holovibes
     void request_autofocus_stop();
     /*! \brief Request the pipeline to apply the autocontrast algorithm. */
     void request_autocontrast();
-    /*! \brief Request the pipeline to apply the stft algorithm. And call request_update_n */
-    void request_stft_roi();
+    /*! \brief Request the pipeline to apply the stft algorithm in the border. And call request_update_n */
+    void request_stft_roi_update();
+    /*! \brief Request the pipeline to apply the stft algorithm in full window. And call request_update_n */
+    void request_stft_roi_end();
     /*! \brief Request the pipeline to update the nsamples parameter.
      *
      * Use this method when the user has requested the nsamples parameter to be
@@ -241,11 +243,10 @@ namespace holovibes
     /*! \{ \name request flags */
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
-    bool stft_roi_requested_;
-    bool stft_roi_stop_requested_;
     bool autocontrast_requested_;
     bool refresh_requested_;
     bool update_n_requested_;
+    bool stft_update_roi_requested_;
     bool average_requested_;
     bool average_record_requested_;
     bool float_output_requested_;

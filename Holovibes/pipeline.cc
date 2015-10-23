@@ -37,10 +37,9 @@ namespace holovibes
     , gpu_input_frame_ptr_(nullptr)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
-    , stft_roi_requested_(false)
-    , stft_roi_stop_requested_(false)
     , refresh_requested_(false)
     , update_n_requested_(false)
+    , stft_update_roi_requested_(false)
     , average_requested_(false)
     , average_record_requested_(false)
     , abort_construct_requested_(false)
@@ -374,8 +373,18 @@ namespace holovibes
         compute_desc_.stft_roi_zone.load(),
         curr_elt_stft_,
         input_fd,
-        compute_desc_.nsamples.load(),
-        compute_desc_.pindex.load()));
+        compute_desc_.nsamples.load()));
+
+      fn_vect_.push_back(std::bind(
+        stft_recontruct,
+        gpu_input_buffer_,
+        gpu_stft_dup_buffer_,
+        compute_desc_.stft_roi_zone.load(),
+        input_fd,
+        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+        compute_desc_.pindex.load(),
+        compute_desc_.nsamples.load()));
 
       /* frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_;
@@ -590,8 +599,15 @@ namespace holovibes
     request_refresh();
   }
 
-  void Pipeline::request_stft_roi()
+  void Pipeline::request_stft_roi_update()
   {
+    stft_update_roi_requested_ = true;
+    request_update_n(compute_desc_.nsamples.load());
+  }
+
+  void Pipeline::request_stft_roi_end()
+  {
+    stft_update_roi_requested_ = false;
     request_update_n(compute_desc_.nsamples.load());
   }
 
@@ -686,7 +702,7 @@ namespace holovibes
   }
 
   void Pipeline::average_stft_caller(
-    cufftComplex*    input,
+    cufftComplex*    stft_buffer,
     unsigned int     width,
     unsigned int     height,
     Rectangle&       signal_zone,
@@ -703,7 +719,7 @@ namespace holovibes
     average_output_->resize(nsamples);
     for (i = 0; i < nsamples; ++i)
     {
-      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, input, width, height, signal_zone, noise_zone, i, nsamples));
+      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, signal_zone, noise_zone, i, nsamples));
     }
 
     cudaFree(cbuf);

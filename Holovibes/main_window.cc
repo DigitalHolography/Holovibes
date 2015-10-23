@@ -264,8 +264,11 @@ namespace gui
         if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
         {
           GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+
           gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-          connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+          connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+            Qt::UniqueConnection);
+          connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
             Qt::UniqueConnection);
         }
 
@@ -420,7 +423,9 @@ namespace gui
       {
         cd.nsamples = 16;
         gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-        connect(gl_widget, SIGNAL(stft_roi_zone_selected(holovibes::Rectangle)), this, SLOT(request_stft_roi(holovibes::Rectangle)),
+        connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+          Qt::UniqueConnection);
+        connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
           Qt::UniqueConnection);
         cd.algorithm = holovibes::ComputeDescriptor::STFT;
       }
@@ -494,14 +499,21 @@ namespace gui
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
-  void MainWindow::request_stft_roi(holovibes::Rectangle zone)
+    void MainWindow::request_stft_roi_end()
+  {
+    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
+
+    pipeline.request_stft_roi_end();
+  }
+
+    void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
     holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
     desc.stft_roi_zone = zone;
-    pipeline.request_stft_roi();
+    pipeline.request_stft_roi_update();
     //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 

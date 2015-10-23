@@ -108,7 +108,8 @@ namespace gui
     ** zone has been selected.
     */
     void autofocus_zone_selected(holovibes::Rectangle zone);
-    void stft_roi_zone_selected(holovibes::Rectangle zone);
+    void stft_roi_zone_selected_update(holovibes::Rectangle zone);
+    void stft_roi_zone_selected_end();
 
   protected:
     /* \brief Initialize all OpenGL components needed */

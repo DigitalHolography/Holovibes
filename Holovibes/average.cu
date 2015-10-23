@@ -108,7 +108,7 @@ std::tuple<float, float, float> make_average_plot(
 std::tuple<float, float, float> make_average_stft_plot(
   cufftComplex*         cbuf,
   float*                fbuf,
-  cufftComplex*         input,
+  cufftComplex*         stft_buffer,
   unsigned int          width,
   unsigned int          height,
   holovibes::Rectangle&  signal_zone,
@@ -126,13 +126,27 @@ std::tuple<float, float, float> make_average_stft_plot(
     blocks = get_max_blocks();
 
   kernel_reconstruct_roi << <blocks, threads >> >(
-    input,
+    stft_buffer,
     cbuf,
     width,
     height,
     width,
+    width,
+    height,
     pindex,
     nsamples);
+
+  // Reconstruct Roi
+ /* kernel_reconstruct_roi << <blocks, threads >> >(
+    stft_buffer,
+    input,
+    r.get_width(),
+    r.get_height(),
+    desc.width,
+    reconstruct_width,
+    reconstruct_height,
+    pindex,
+    nsamples);*/
 
   complex_to_modulus(cbuf, fbuf, size);
 
