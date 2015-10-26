@@ -2,6 +2,7 @@
 # define CAMERA_ADIMEC_HH
 
 #include <BFType.h>
+#include <BiDef.h>
 
 #include <camera.hh>
 #include "camera_exception.hh"
@@ -34,9 +35,8 @@ namespace camera
     {
       NO_BOARD = 0x000, // Nothing to close
       BOARD = 0x00F,
-      CAM = 0x0F0,
       BUFFER = 0xF00,
-      ALL = 0xFFF
+      ALL = 0xF0F
     };
 
     /* Contains the addresses of the Cyton board's registers
@@ -59,11 +59,14 @@ namespace camera
     // Handle to the opened BitFlow board.
     Bd board_;
 
+    // Structure containing all kinds of data.
+    PBIBA info_;
+
+    // Index of last buffer that was used in the circular buffer set.
+    BFU32 last_buf;
+
     // Camera object, used to configure the camera.
     PBFCNF camera_;
-
-    // Pointer to the allocated buffer used to receive images.
-    PBFVOID buffer_;
 
     // QTabBank used by the camera.
     BFU8 quad_bank_;

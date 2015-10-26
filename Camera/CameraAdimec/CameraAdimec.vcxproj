@@ -115,7 +115,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\BitFlow SDK 6.10\Bin64;C:\BitFlow SDK 6.10\Lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\BitFlow SDK 6.10\Lib64\Cid.lib;C:\BitFlow SDK 6.10\Lib64\BFD.lib;C:\BitFlow SDK 6.10\Lib64\BFDiskIO.lib;C:\BitFlow SDK 6.10\Lib64\BFEr.lib;C:\BitFlow SDK 6.10\Lib64\BFOS.lib;C:\BitFlow SDK 6.10\Lib64\BFS.lib;C:\BitFlow SDK 6.10\Lib64\BufferInterface.lib;C:\BitFlow SDK 6.10\Lib64\Gn2d.lib;C:\BitFlow SDK 6.10\Lib64\R2d.lib;C:\BitFlow SDK 6.10\Lib64\R64d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\BitFlow SDK 6.10\Lib64\Cid.lib;C:\BitFlow SDK 6.10\Lib64\BFD.lib;C:\BitFlow SDK 6.10\Lib64\BFDiskIO.lib;C:\BitFlow SDK 6.10\Lib64\BFEr.lib;C:\BitFlow SDK 6.10\Lib64\BFOS.lib;C:\BitFlow SDK 6.10\Lib64\BFS.lib;C:\BitFlow SDK 6.10\Lib64\BufferInterface.lib;C:\BitFlow SDK 6.10\Lib64\Gn2d.lib;C:\BitFlow SDK 6.10\Lib64\R2d.lib;C:\BitFlow SDK 6.10\Lib64\R64d.lib;C:\BitFlow SDK 6.10\Lib64\Bid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
