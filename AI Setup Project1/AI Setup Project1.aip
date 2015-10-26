@@ -8,14 +8,14 @@
     <ROW Property="AI_FINDEXE_TITLE" Value="Select the installation package for [|ProductName]" ValueLocId="AI.Property.FindExeTitle"/>
     <ROW Property="AI_IA_APPLICATION_ID" Value="5614d444c16e5ab751c62b6f"/>
     <ROW Property="AI_IA_ENABLE" Value="0"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraIds.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraIxon.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPCOEdge.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPCOPixelfly.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPike.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraXiq.dll" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_GPIB.lib" Value="..\x64\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Holovibes.exe" Value="..\x64\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraIds.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraIxon.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPCOEdge.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPCOPixelfly.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraPike.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_CameraXiq.dll" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_GPIB.lib" Value="..\x64\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Holovibes.exe" Value="..\x64\Debug"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_CameraIds.dll" Value="CameraIds.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_CameraIxon.dll" Value="CameraIxon.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_CameraPCOEdge.dll" Value="CameraPCOEdge.dll"/>

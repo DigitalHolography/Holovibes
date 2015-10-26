@@ -339,15 +339,12 @@ namespace gui
         if (e->button() == Qt::LeftButton)
         {
           stft_roi_selection_ = selection_;
-          emit stft_roi_zone_selected(stft_roi_selection_);
+          emit stft_roi_zone_selected_update(stft_roi_selection_);
         }
         else
         {
-          base_view_ = holovibes::Rectangle(
-            holovibes::Point2D(0, 0),
-            holovibes::Point2D(stft_roi_selection_.get_width(), stft_roi_selection_.get_height()));
+          emit stft_roi_zone_selected_end();
           selection_mode_ = ZOOM;
-          dezoom();
         }
         break;
       default:

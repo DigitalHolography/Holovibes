@@ -44,6 +44,13 @@ namespace gui
     return QSize(WIDTH, HEIGHT);
   }
 
+  void CurvePlot::resize_plot(int size)
+  {
+    plot_.resize(QSize::QSize(size, 0));
+    points_nb_ = size;
+    average_vector_.resize(size);
+  }
+
   void CurvePlot::resizeEvent(QResizeEvent* e)
   {
     plot_.resize(e->size());
@@ -58,7 +65,7 @@ namespace gui
       size_t copied_elts_nb = data_vect_.fill_array(average_vector_, points_nb_);
 
       for (size_t i = 0; i < copied_elts_nb; ++i)
-        new_data << QPointF(i, std::get<2>(average_vector_[i]));
+        new_data << QPointF(i, std::get<1>(average_vector_[i]));
     }
 
     curve_.setSamples(new_data);

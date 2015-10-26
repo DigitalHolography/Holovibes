@@ -22,8 +22,16 @@ void stft(
   cufftHandle                     plan1d,
   const holovibes::Rectangle&     r,
   unsigned int&                   curr_elt,
-  camera::FrameDescriptor&        desc,
-  unsigned int                    nsamples,
-  unsigned int                    pindex);
+  const camera::FrameDescriptor&  desc,
+  unsigned int                    nsamples);
 
+void stft_recontruct(
+  cufftComplex*                   input,
+  cufftComplex*                   stft_dup_buf,
+  const holovibes::Rectangle&     r,
+  const camera::FrameDescriptor&  desc,
+  unsigned int                    reconstruct_width,
+  unsigned int                    reconstruct_height,
+  unsigned int                    pindex,
+  unsigned int                    nsamples);
 #endif
