@@ -1,12 +1,53 @@
+#include <BiApi.h>
 #include <CiApi.h>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
 
+//DEBUG
+#include <chrono>
+#include <vector>
+// ! DEBUG
+
 #include "camera_adimec.hh"
 
 namespace camera
 {
+  // DEBUG
+
+# define STAT_CNT 500
+  static int old_hash = 0;
+  static int new_hash = 0;
+  static int disp_stat_cnt = STAT_CNT;
+  static std::chrono::steady_clock cl;
+  static auto lap = cl.now();
+  static std::vector<long long> v;
+
+  static int hash(void* buf, size_t size)
+  {
+    char* ptr = reinterpret_cast<char*>(buf);
+    int hash = 0;
+
+    for (size_t i = 0; i < size; ++i)
+    {
+      hash += ptr[i];
+    }
+
+    return hash;
+  }
+
+  static long long average(const std::vector<long long>& vect)
+  {
+    long long av = 0;
+
+    for (auto it = vect.cbegin(); it != vect.cend(); ++it)
+      av += *it;
+
+    av /= vect.size();
+    return av;
+  }
+  // ! DEBUG
+
   // Anonymous namespace allows translation-unit visibility (like static).
   namespace
   {
@@ -18,7 +59,7 @@ namespace camera
     */
     void update_image(void* buffer, unsigned width, unsigned height)
     {
-      const unsigned shift_step = 4; // The shift distance, in bits.
+      const unsigned shift_step = 5; // The shift distance, in bits.
       size_t* it = reinterpret_cast<size_t*>(buffer);
 
       /* Iteration is done with a size_t, allowing to move values 4 by 4
@@ -43,7 +84,8 @@ namespace camera
   CameraAdimec::CameraAdimec()
     : Camera("adimec.ini")
     , board_(nullptr)
-    , buffer_(nullptr)
+    , info_(new BIBA())
+    , last_buf(0)
     , quad_bank_ { BFQTabBank0 }
   {
     name_ = "Adimec";
@@ -57,9 +99,11 @@ namespace camera
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 12;
 
+    /*
     load_default_params();
     if (ini_file_is_open())
-      load_ini_params();
+    load_ini_params();
+    */
   }
 
   CameraAdimec::~CameraAdimec()
@@ -73,21 +117,15 @@ namespace camera
     /* We don't want a specific type of board; there should not
     ** be more than one anyway.
     */
-    BFU32 type = CISYS_TYPE_ANY;
+    BFU32 type = BiTypeAny;
     BFU32 number = 0;
-    CiENTRY entry;
 
-    err_check(CiSysBrdFind(type, number, &entry),
-      "No board found.",
-      CameraException::NOT_CONNECTED,
-      CloseFlag::NO_BOARD);
-
-    err_check(CiBrdOpen(&entry, &board_, CiSysInitialize),
+    err_check(BiBrdOpen(type, number, &board_),
       "Could not open board.",
       CameraException::NOT_INITIALIZED,
       CloseFlag::NO_BOARD);
 
-    bind_params();
+    // bind_params();
   }
 
   void CameraAdimec::start_acquisition()
@@ -95,33 +133,36 @@ namespace camera
     /* Now, allocating buffer(s) for acquisition.
     */
     // We get the frame size (width * height * depth).
-    BFU32 size;
-    err_check(CiBrdInquire(board_, CiCamInqFrameSize0, &size),
+    BFU32 width;
+    err_check(BiBrdInquire(board_, BiCamInqXSize, &width),
       "Could not get frame size",
       CameraException::CANT_START_ACQUISITION,
-      CloseFlag::BOARD | CloseFlag::CAM);
+      CloseFlag::BOARD);
+    BFU32 depth;
+    err_check(BiBrdInquire(board_, BiCamInqBitsPerPix, &depth),
+      "Could not get frame depth",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::BOARD);
 
     // Aligned allocation ensures fast memory transfers.
-    buffer_ = _aligned_malloc(size, 4096);
-    err_check(buffer_ == 0,
+    err_check(BiBufferAllocAligned(board_, info_, width, width, depth, 4, 4096),
       "Could not allocate buffer memory",
       CameraException::MEMORY_PROBLEM,
-      CloseFlag::BOARD | CloseFlag::CAM);
-    memset(buffer_, 0, size);
+      CloseFlag::BOARD);
 
-    err_check(CiAqSetup(board_,
-      buffer_,
-      size,
-      0, // We let the SDK calculate the pitch itself.
-      CiDMADataMem, // We don't care about this parameter, it is for another board.
-      CiLutBypass, /* TODO : Check that the Cyton board really does not care about this, */
-      CiLut12Bit, /* and that we can safely assume that LUTs parameters are ignored.    */
-      quad_bank_, // We use a single buffer, in a single bank.
-      TRUE,
-      CiQTabModeOneBank,
-      AqEngJ // We dont' care about this parameter, it is for another board.
-      ),
+    BFU32 error_handling = CirErIgnore;
+    BFU32 options = BiAqEngJ;
+    err_check(BiCircAqSetup(board_,
+      info_,
+      error_handling,
+      options),
       "Could not setup board for acquisition",
+      CameraException::CANT_START_ACQUISITION,
+      CloseFlag::ALL);
+
+    options = BiWait;
+    err_check(BiCirControl(board_, info_, BISTART, options),
+      "Could not start acquisition",
       CameraException::CANT_START_ACQUISITION,
       CloseFlag::ALL);
   }
@@ -131,9 +172,8 @@ namespace camera
     /* Free resources taken by CiAqSetup, in a single function call.
     ** However, the allocated buffer has to be freed manually.
     */
-    _aligned_free(buffer_);
-    CiCamClose(board_, camera_);
-    if (CiAqCleanUp(board_, AqEngJ) != CI_OK)
+    BiBufferFree(board_, info_);
+    if (BiCircCleanUp(board_, info_) != BI_OK)
     {
       std::cerr << "[CAMERA] Could not stop acquisition cleanly." << std::endl;
       shutdown_camera();
@@ -143,24 +183,33 @@ namespace camera
 
   void CameraAdimec::shutdown_camera()
   {
-    CiBrdClose(board_);
+    BiBrdClose(board_);
   }
 
   void* CameraAdimec::get_frame()
   {
-    BFRC status = CiAqCommand(board_,
-      CiConSnap,
-      CiConWait,
-      quad_bank_,
-      AqEngJ);
-    if (status != CI_OK)
-    {
-      // TODO : Write a logger for missed images.
-      std::cerr << "[CAMERA] Could not get frame : ";
-    }
+    err_check(BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE),
+      "Could not set buffer status",
+      CameraException::CANT_SET_CONFIG,
+      CloseFlag::ALL);
 
-    update_image(buffer_, desc_.width, desc_.height);
-    return buffer_;
+    BiCirHandle hd;
+    err_check(BiCirWaitDoneFrame(board_, info_, INFINITE, &hd),
+      "Could not wait for next frame",
+      CameraException::CANT_GET_FRAME,
+      CloseFlag::ALL);
+
+    BFU32 status;
+    BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
+    if (status == BINEW)
+    {
+      update_image(hd.pBufData, desc_.width, desc_.height);
+      last_buf = hd.BufferNumber;
+    }
+    else
+      std::cerr << "Bad status : " << status << std::endl;
+
+    return hd.pBufData;
   }
 
   /* Private methods
@@ -170,14 +219,12 @@ namespace camera
   {
     if (status != CI_OK)
     {
-      std::cerr << "[CAMERA] " << err_mess << "\n";
+      std::cerr << "[CAMERA] " << err_mess << " : " << status << "\n";
 
-      if (flag & 0x0F0)
-        CiCamClose(board_, camera_);
       if (flag & 0xF00)
-        _aligned_free(buffer_);
+        BiBufferFree(board_, info_);
       if (flag & 0x00F)
-        CiBrdClose(board_);
+        BiBrdClose(board_);
 
       throw cam_ex;
     }
