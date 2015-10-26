@@ -44,6 +44,12 @@ namespace gui
     return QSize(WIDTH, HEIGHT);
   }
 
+  void CurvePlot::resize_plot(int size)
+  {
+    plot_.resize(QSize::QSize(600, 0));
+    points_nb_ = 600;
+  }
+
   void CurvePlot::resizeEvent(QResizeEvent* e)
   {
     plot_.resize(e->size());

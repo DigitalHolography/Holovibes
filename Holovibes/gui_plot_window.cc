@@ -12,6 +12,8 @@ namespace gui
     this->show();
 
     curve_plot_.move(0, 30);
+    if (data_vect.size() > 0)
+      curve_plot_.resize_plot(data_vect.size());
   }
 
   PlotWindow::~PlotWindow()

@@ -34,7 +34,7 @@ namespace gui
     void resizeEvent(QResizeEvent* e) override;
 
     /*! \brief Starts drawing the chart/plot.
-    ** 
+    **
     ** See CurvePLot::start()
     */
     void start_drawing();
@@ -45,9 +45,9 @@ namespace gui
     */
     void stop_drawing();
 
-  public slots:
+    public slots:
     /*! \brief Reajust the scale according to max and min values contained in deque.
-    ** 
+    **
     ** See CurvePLot::auto_scale()
     */
     void auto_scale();
