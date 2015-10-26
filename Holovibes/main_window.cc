@@ -499,14 +499,14 @@ namespace gui
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
-    void MainWindow::request_stft_roi_end()
+  void MainWindow::request_stft_roi_end()
   {
     holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
     pipeline.request_stft_roi_end();
   }
 
-    void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
+  void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();

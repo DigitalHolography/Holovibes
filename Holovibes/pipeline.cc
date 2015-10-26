@@ -395,6 +395,8 @@ namespace holovibes
           &Pipeline::average_stft_caller,
           this,
           gpu_stft_dup_buffer_,
+          input_fd.width,
+          input_fd.height,
           compute_desc_.stft_roi_zone.load().get_width(),
           compute_desc_.stft_roi_zone.load().get_height(),
           compute_desc_.signal_zone.load(),
@@ -635,6 +637,8 @@ namespace holovibes
   {
     assert(output != nullptr);
 
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+      output->resize(compute_desc_.nsamples.load());
     average_output_ = output;
 
     average_requested_ = true;
@@ -705,6 +709,8 @@ namespace holovibes
     cufftComplex*    stft_buffer,
     unsigned int     width,
     unsigned int     height,
+    unsigned int     width_roi,
+    unsigned int     height_roi,
     Rectangle&       signal_zone,
     Rectangle&       noise_zone,
     unsigned int     nsamples)
@@ -713,13 +719,22 @@ namespace holovibes
     cufftComplex*   cbuf;
     float*          fbuf;
 
-    cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex));
-    cudaMalloc<float>(&fbuf, width * height * sizeof(float));
+    if (cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex)))
+    {
+      std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
+      return;
+    }
+    if (cudaMalloc<float>(&fbuf, width * height * sizeof(float)))
+    {
+      cudaFree(cbuf);
+      std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
+      return;
+    }
 
-    average_output_->resize(nsamples);
+    //  nsamples = 512;
     for (i = 0; i < nsamples; ++i)
     {
-      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, signal_zone, noise_zone, i, nsamples));
+      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples));
     }
 
     cudaFree(cbuf);

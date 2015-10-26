@@ -177,6 +177,8 @@ namespace holovibes
       cufftComplex*    input,
       unsigned int     width,
       unsigned int     height,
+      unsigned int     width_roi,
+      unsigned int     height_roi,
       Rectangle&       signal_zone,
       Rectangle&       noise_zone,
       unsigned int     nsamples

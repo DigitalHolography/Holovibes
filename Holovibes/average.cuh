@@ -13,14 +13,16 @@ std::tuple<float, float, float> make_average_plot(
   holovibes::Rectangle& noise);
 
 std::tuple<float, float, float> make_average_stft_plot(
-  cufftComplex*         cbuf,
-  float*                fbuf,
-  cufftComplex*         input,
-  unsigned int          width,
-  unsigned int          height,
+  cufftComplex*          cbuf,
+  float*                 fbuf,
+  cufftComplex*          input,
+  unsigned int           width,
+  unsigned int           height,
+  unsigned int           width_roi,
+  unsigned int           height_roi,
   holovibes::Rectangle&  signal_zone,
   holovibes::Rectangle&  noise_zone,
-  unsigned int          pindex,
-  unsigned int          nsamples);
+  unsigned int           pindex,
+  unsigned int           nsamples);
 
 #endif /* !AVERAGE_CUH */

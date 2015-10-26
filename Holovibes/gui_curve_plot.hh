@@ -25,7 +25,7 @@ namespace gui
 
   public:
     /*! \brief CurvePlot constructor
-    ** 
+    **
     ** \param data_vect ConcurrentDeque containing average values to be display
     ** \param title title of the plot
     ** \param width width of the plot in pixels
@@ -43,6 +43,8 @@ namespace gui
 
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
+
+    void resize_plot(int size);
 
     void resizeEvent(QResizeEvent* e) override;
 
@@ -72,14 +74,14 @@ namespace gui
     */
     void stop();
 
-    /*! \brief Sets a new number of points for the plot 
+    /*! \brief Sets a new number of points for the plot
     **
     ** Stops the drawing then change the number of points and resize the vector then
     ** starts again.
     */
     void set_points_nb(unsigned int n);
 
-  public slots:
+    public slots:
     /*! \brief Updates the plot */
     void update();
 
