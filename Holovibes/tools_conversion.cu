@@ -75,7 +75,7 @@ static __global__ void kernel_complex_to_modulus(
 
   while (index < size)
   {
-    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+    output[index] = hypotf(input[index].x, input[index].y);
 
     index += blockDim.x * gridDim.x;
   }
