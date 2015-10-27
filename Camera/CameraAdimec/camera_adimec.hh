@@ -59,10 +59,10 @@ namespace camera
     // Handle to the opened BitFlow board.
     Bd board_;
 
-    // Structure containing all kinds of data.
+    // SDK-provided structure containing all kinds of data on acquisition over time.
     PBIBA info_;
 
-    // Index of last buffer that was used in the circular buffer set.
+    // Index of the last buffer that was read by Holovibes in the circular buffer set.
     BFU32 last_buf;
 
     // Camera object, used to configure the camera.

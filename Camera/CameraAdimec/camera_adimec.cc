@@ -4,50 +4,10 @@
 #include <cmath>
 #include <cstdlib>
 
-//DEBUG
-#include <chrono>
-#include <vector>
-// ! DEBUG
-
 #include "camera_adimec.hh"
 
 namespace camera
 {
-  // DEBUG
-
-# define STAT_CNT 500
-  static int old_hash = 0;
-  static int new_hash = 0;
-  static int disp_stat_cnt = STAT_CNT;
-  static std::chrono::steady_clock cl;
-  static auto lap = cl.now();
-  static std::vector<long long> v;
-
-  static int hash(void* buf, size_t size)
-  {
-    char* ptr = reinterpret_cast<char*>(buf);
-    int hash = 0;
-
-    for (size_t i = 0; i < size; ++i)
-    {
-      hash += ptr[i];
-    }
-
-    return hash;
-  }
-
-  static long long average(const std::vector<long long>& vect)
-  {
-    long long av = 0;
-
-    for (auto it = vect.cbegin(); it != vect.cend(); ++it)
-      av += *it;
-
-    av /= vect.size();
-    return av;
-  }
-  // ! DEBUG
-
   // Anonymous namespace allows translation-unit visibility (like static).
   namespace
   {
@@ -99,11 +59,9 @@ namespace camera
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 12;
 
-    /*
     load_default_params();
     if (ini_file_is_open())
-    load_ini_params();
-    */
+      load_ini_params();
   }
 
   CameraAdimec::~CameraAdimec()
@@ -125,7 +83,7 @@ namespace camera
       CameraException::NOT_INITIALIZED,
       CloseFlag::NO_BOARD);
 
-    // bind_params();
+    bind_params();
   }
 
   void CameraAdimec::start_acquisition()
@@ -150,6 +108,9 @@ namespace camera
       CameraException::MEMORY_PROBLEM,
       CloseFlag::BOARD);
 
+    /* If the board does not find any buffer marked AVAILABLE by the user,
+    ** it will overwrite them.
+    */
     BFU32 error_handling = CirErIgnore;
     BFU32 options = BiAqEngJ;
     err_check(BiCircAqSetup(board_,
@@ -169,8 +130,8 @@ namespace camera
 
   void CameraAdimec::stop_acquisition()
   {
-    /* Free resources taken by CiAqSetup, in a single function call.
-    ** However, the allocated buffer has to be freed manually.
+    /* Free resources taken by BiCircAqSetup, in a single function call.
+    ** Allocated memory is freed separately, through BiBufferFree.
     */
     BiBufferFree(board_, info_);
     if (BiCircCleanUp(board_, info_) != BI_OK)
@@ -183,31 +144,27 @@ namespace camera
 
   void CameraAdimec::shutdown_camera()
   {
+    // Make sure the camera is closed at program end.
     BiBrdClose(board_);
   }
 
   void* CameraAdimec::get_frame()
   {
-    err_check(BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE),
-      "Could not set buffer status",
-      CameraException::CANT_SET_CONFIG,
-      CloseFlag::ALL);
+    // Mark the previously read buffer as available for writing, for the board.
+    BiCirBufferStatusSet(board_, info_, last_buf, BIAVAILABLE);
 
+    // Wait for a freshly written image to be readable.
     BiCirHandle hd;
-    err_check(BiCirWaitDoneFrame(board_, info_, INFINITE, &hd),
-      "Could not wait for next frame",
-      CameraException::CANT_GET_FRAME,
-      CloseFlag::ALL);
+    BiCirWaitDoneFrame(board_, info_, INFINITE, &hd);
 
     BFU32 status;
     BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
+    // Checking buffer status is correct. TODO : Log error in other cases.
     if (status == BINEW)
     {
       update_image(hd.pBufData, desc_.width, desc_.height);
       last_buf = hd.BufferNumber;
     }
-    else
-      std::cerr << "Bad status : " << status << std::endl;
 
     return hd.pBufData;
   }
