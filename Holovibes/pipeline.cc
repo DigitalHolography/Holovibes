@@ -731,7 +731,6 @@ namespace holovibes
       return;
     }
 
-    //  nsamples = 512;
     for (i = 0; i < nsamples; ++i)
     {
       (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples));
