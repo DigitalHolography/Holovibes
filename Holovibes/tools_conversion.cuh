@@ -40,6 +40,13 @@ __global__ void img16_to_complex(
   unsigned int size,
   const float* sqrt_array);
 
+// TODO : Documentation
+__global__ void img12_to_complex(
+  cufftComplex* output,
+  unsigned char* input,
+  unsigned int size,
+  const float* sqrt_array);
+
 /*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
 *
 * The image(s) to treat should be contigous into the input, the size is the total number of pixels to
