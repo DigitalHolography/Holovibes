@@ -7,6 +7,8 @@
 #include "tools_conversion.cuh"
 #include "hardware_limits.hh"
 
+#define THREADS 256
+
 /*! \brief  Sume 2 zone of input image
 *
 * \param input The image from where zones should be summed.
@@ -17,29 +19,53 @@
 static __global__ void kernel_zone_sum(
   float* input,
   unsigned int width,
-  unsigned int height,
   float* output,
   unsigned int zone_start_x,
   unsigned int zone_start_y,
   unsigned int zone_width,
   unsigned int zone_height)
 {
-  unsigned int size = width * height;
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int size = zone_width * zone_height;
+  unsigned int tid = threadIdx.x;
+  unsigned int index = blockIdx.x * blockDim.x + tid;
+  extern __shared__ float  sdata[];
 
+  // INIT
+  sdata[tid] = 0.0f;
+
+  // SUM input in sdata
   while (index < size)
   {
-    int x = index % width;
-    int y = index / height;
+    int x = index % zone_width + zone_start_x;
+    int y = index / zone_width + zone_start_y;
+    int index2 = y * width + x;
 
-    if (x >= zone_start_x && x < zone_start_x + zone_width
-      && y >= zone_start_y && y < zone_start_y + zone_height)
-    {
-      atomicAdd(output, input[index]);
-    }
-
+    sdata[tid] += input[index2];
     index += blockDim.x * gridDim.x;
   }
+
+  // Sum sdata in sdata[0]
+  __syncthreads();
+  for (unsigned int s = blockDim.x / 2; s>32; s >>= 1)
+  {
+    if (tid < s)
+      sdata[tid] += sdata[tid + s];
+    __syncthreads();
+  }
+  if (tid < 32)
+  {
+    sdata[tid] += sdata[tid + 32];
+    sdata[tid] += sdata[tid + 16];
+    sdata[tid] += sdata[tid + 8];
+    sdata[tid] += sdata[tid + 4];
+    sdata[tid] += sdata[tid + 2];
+    sdata[tid] += sdata[tid + 1];
+  }
+
+  // Return result
+  __syncthreads();
+  if (tid == 0)
+    *output = sdata[0];
 }
 
 /*! \brief  Make the average plot on the 2 select zones
@@ -60,7 +86,7 @@ std::tuple<float, float, float> make_average_plot(
   holovibes::Rectangle& noise)
 {
   unsigned int size = width * height;
-  unsigned int threads = get_max_threads_1d();
+  unsigned int threads = THREADS;
   unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;
 
@@ -81,9 +107,9 @@ std::tuple<float, float, float> make_average_plot(
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
   unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
 
-  kernel_zone_sum << <blocks, threads >> >(input, width, height, gpu_n,
+  kernel_zone_sum << <1, threads, threads * sizeof(float) >> >(input, width, gpu_n,
     noise.top_left.x, noise.top_left.y, noise_width, noise_height);
-  kernel_zone_sum << <blocks, threads >> >(input, width, height, gpu_s,
+  kernel_zone_sum << <1, threads, threads * sizeof(float) >> >(input, width, gpu_s,
     signal.top_left.x, signal.top_left.y, signal_width, signal_height);
 
   float cpu_s;
@@ -127,6 +153,7 @@ std::tuple<float, float, float> make_average_stft_plot(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
+  // Reconstruct Roi
   kernel_reconstruct_roi << <blocks, threads >> >(
     stft_buffer,
     cbuf,
@@ -137,18 +164,6 @@ std::tuple<float, float, float> make_average_stft_plot(
     height,
     pindex,
     nsamples);
-
-  // Reconstruct Roi
-  /* kernel_reconstruct_roi << <blocks, threads >> >(
-     stft_buffer,
-     input,
-     r.get_width(),
-     r.get_height(),
-     desc.width,
-     reconstruct_width,
-     reconstruct_height,
-     pindex,
-     nsamples);*/
 
   complex_to_modulus(cbuf, fbuf, size);
 
