@@ -189,6 +189,11 @@ namespace gui
     global_visibility(false);
   }
 
+  void MainWindow::camera_adimec()
+  {
+    change_camera(holovibes::Holovibes::ADIMEC);
+  }
+
   void MainWindow::camera_edge()
   {
     change_camera(holovibes::Holovibes::EDGE);
@@ -1374,7 +1379,7 @@ namespace gui
 
   void MainWindow::open_file(const std::string& path)
   {
-    QDesktopServices::openUrl(QUrl(QString::fromUtf8(path.c_str())));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
   }
 
   void MainWindow::load_ini(const std::string& path)

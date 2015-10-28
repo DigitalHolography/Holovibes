@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1101</width>
-    <height>378</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1627,6 +1627,7 @@
       <string>&amp;Model</string>
      </property>
      <addaction name="actionNone"/>
+     <addaction name="actionAdimec"/>
      <addaction name="actionEdge"/>
      <addaction name="actionIDS"/>
      <addaction name="actionIXon"/>
@@ -1832,6 +1833,11 @@
     <string>Alt+I</string>
    </property>
   </action>
+  <action name="actionAdimec">
+   <property name="text">
+    <string>Adimec</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1853,8 +1859,8 @@
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>902</x>
-     <y>310</y>
+     <x>1009</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -1869,8 +1875,8 @@
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>955</x>
-     <y>314</y>
+     <x>1069</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -1981,8 +1987,8 @@
    <slot>set_phase_number(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>147</y>
+     <x>168</x>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -1997,8 +2003,8 @@
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>176</x>
-     <y>177</y>
+     <x>188</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2013,8 +2019,8 @@
    <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>207</y>
+     <x>186</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2029,8 +2035,8 @@
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>163</x>
-     <y>237</y>
+     <x>175</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2045,8 +2051,8 @@
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>145</x>
-     <y>305</y>
+     <x>157</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2061,8 +2067,8 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>153</y>
+     <x>379</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2077,8 +2083,8 @@
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>103</y>
+     <x>339</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2093,8 +2099,8 @@
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>342</x>
-     <y>123</y>
+     <x>359</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2157,8 +2163,8 @@
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>795</x>
-     <y>113</y>
+     <x>842</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -2173,8 +2179,8 @@
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>402</x>
-     <y>84</y>
+     <x>419</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -2189,8 +2195,8 @@
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>303</x>
-     <y>153</y>
+     <x>320</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -2301,8 +2307,8 @@
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>333</x>
-     <y>184</y>
+     <x>330</x>
+     <y>185</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -2317,8 +2323,8 @@
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>333</x>
-     <y>204</y>
+     <x>430</x>
+     <y>185</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -2365,8 +2371,8 @@
    <slot>set_z_step(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>172</x>
-     <y>267</y>
+     <x>184</x>
+     <y>235</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -2557,8 +2563,8 @@
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>759</x>
-     <y>196</y>
+     <x>842</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -2589,8 +2595,8 @@
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>727</x>
-     <y>163</y>
+     <x>782</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -2605,8 +2611,8 @@
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>724</x>
-     <y>314</y>
+     <x>782</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -2637,8 +2643,8 @@
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>784</x>
-     <y>316</y>
+     <x>842</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -2653,8 +2659,8 @@
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>952</x>
-     <y>67</y>
+     <x>1059</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>1011</x>
@@ -2669,8 +2675,8 @@
    <slot>import_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>132</y>
+     <x>969</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>1010</x>
@@ -2685,8 +2691,8 @@
    <slot>import_file_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>974</x>
-     <y>133</y>
+     <x>1059</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -2707,6 +2713,22 @@
     <hint type="destinationlabel">
      <x>912</x>
      <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdimec</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_adimec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -2765,5 +2787,6 @@
   <slot>import_file_stop()</slot>
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
+  <slot>camera_adimec()</slot>
  </slots>
 </ui>
