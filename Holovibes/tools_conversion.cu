@@ -86,7 +86,7 @@ void complex_to_modulus(
   float* output,
   unsigned int size)
 {
-  unsigned int threads = get_max_threads_1d();
+  unsigned int threads = 128;
   unsigned int blocks = (size + threads - 1) / threads;
 
   if (blocks > get_max_blocks())
