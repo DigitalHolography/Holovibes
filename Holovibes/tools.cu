@@ -14,8 +14,9 @@ __global__ void kernel_apply_lens(
 
   while (index < input_size)
   {
-    input[index].x = input[index].x * lens[index % lens_size].x;
-    input[index].y = input[index].y * lens[index % lens_size].y;
+    unsigned int index2 = index % lens_size;
+    input[index].x *= lens[index2].x;
+    input[index].y *= lens[index2].y;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -186,7 +187,7 @@ static __global__ void kernel_complex_to_modulus(
 
   while (index < size)
   {
-    output[index] = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+    output[index] = hypotf(input[index].x, input[index].y);
 
     index += blockDim.x * gridDim.x;
   }
