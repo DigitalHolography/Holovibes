@@ -239,24 +239,25 @@ namespace camera
     if (BFCXPWriteReg(board_, 0, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
       std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
-    // ROI
+    /* ROI : Find a software alternative in Bi or rely solely on .bfml files.
     if (roi_x_ > desc_.width ||
-      roi_x_ < 0 ||
-      roi_y_ > desc_.height ||
-      roi_y_ < 0 ||
-      roi_width_ <= 0 ||
-      roi_height_ <= 0 ||
-      (roi_width_ + roi_x_) > desc_.width ||
-      (roi_height_ + roi_y_) > desc_.height ||
-      (CiAqROISet(board_, roi_x_, roi_y_, roi_width_, roi_height_, AqEngJ) != CI_OK))
+    roi_x_ < 0 ||
+    roi_y_ > desc_.height ||
+    roi_y_ < 0 ||
+    roi_width_ <= 0 ||
+    roi_height_ <= 0 ||
+    (roi_width_ + roi_x_) > desc_.width ||
+    (roi_height_ + roi_y_) > desc_.height ||
+    (CiAqROISet(board_, roi_x_, roi_y_, roi_width_, roi_height_, AqEngJ) != CI_OK))
     {
-      std::cerr << "[CAMERA] Could not set ROI to (" << roi_x_ << ", " << roi_y_ <<
-        ") " << roi_width_ << " (w) " << roi_height_ << " (h)" << std::endl;
+    std::cerr << "[CAMERA] Could not set ROI to (" << roi_x_ << ", " << roi_y_ <<
+    ") " << roi_width_ << " (w) " << roi_height_ << " (h)" << std::endl;
     }
     else
     {
-      desc_.width = roi_width_;
-      desc_.height = roi_height_;
+    desc_.width = roi_width_;
+    desc_.height = roi_height_;
     }
+    */
   }
 }
