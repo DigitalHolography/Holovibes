@@ -100,6 +100,12 @@ namespace camera
       close_logfile_ = reinterpret_cast<FnUtilVoid>(GetProcAddress(dll_instance_, "close_logfile"));
       if (!close_logfile_)
         throw std::runtime_error("Unable to fetch close_log function.");
+      allocate_memory_ = reinterpret_cast<void(*)(void**, const std::size_t)>(GetProcAddress(dll_instance_, "allocate_memory"));
+      if (!allocate_memory_)
+        throw std::runtime_error("Unable to fetch allocate_memory function.");
+      free_memory_ = reinterpret_cast<void(*)(void*)>(GetProcAddress(dll_instance_, "free_memory"));
+      if (!free_memory_)
+        throw std::runtime_error("Unable to free allocated memory.");
     }
 
   protected:
@@ -122,6 +128,8 @@ namespace camera
     FnUtilStr create_logfile_;
     FnUtilStr log_msg_;
     FnUtilVoid close_logfile_;
+    void(*allocate_memory_)(void** buf, const std::size_t size);
+    void(*free_memory_)(void* buf);
 
   private:
     /*! INI configuration file path */

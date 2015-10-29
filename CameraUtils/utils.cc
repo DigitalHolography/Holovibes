@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 #include <time.h>
+#include <cuda_runtime.h>
 
 #include "utils.hh"
 
@@ -63,5 +64,16 @@ namespace camutils
       logfile.close();
       remove(filename.c_str());
     }
+  }
+
+  void allocate_memory(void** buf, const std::size_t size)
+  {
+    if (cudaHostAlloc(buf, size, cudaHostAllocDefault) != cudaSuccess)
+      *buf = nullptr;
+  }
+
+  void free_memory(void* buf)
+  {
+    cudaFreeHost(buf);
   }
 }
