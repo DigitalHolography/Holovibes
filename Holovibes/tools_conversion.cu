@@ -37,32 +37,6 @@ __global__ void img16_to_complex(
   }
 }
 
-__global__ void img12_to_complex(
-  cufftComplex* output,
-  unsigned char* input,
-  unsigned int size,
-  const float* sqrt_array)
-{
-  unsigned int index = blockDim.x * blockIdx.x + threadIdx.x;
-
-  while (index < size)
-  {
-    if ((index % 3) == 0)
-    {
-      // Image rescaling on 2^16 colors (655365 / 4095 ~= 16)
-      char shared_byte = input[index + 1];
-      short first = ((input[index] << 4) | (shared_byte & 0xF0)) * 16;
-      short second = (((shared_byte & 0x0F) << 8) | (input[index + 2])) * 16;
-
-      output[index].x = sqrt_array[first];
-      output[index].y = sqrt_array[first];
-      output[index + 1].x = sqrt_array[second];
-      output[index + 1].y = sqrt_array[second];
-    }
-    index += blockDim.x * gridDim.x;
-  }
-}
-
 /*! \brief Kernel function wrapped in complex_to_modulus, making
  ** the call easier
  **/
