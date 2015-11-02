@@ -1,4 +1,4 @@
-# Holovibes v1.0.0 #
+# Holovibes v1.2.0 #
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
@@ -14,6 +14,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
+* [Bitflow Cyton CXP4 driver](www.bitflow.com/downloads/bfsdk610.zip) Framegrabber for the adimec
 
 ### CUDA ###
 
@@ -74,6 +75,7 @@ This mode is useful to do batch computation (call holovibes from a script).
     * Pike
     * Pixelfly
     * XiQ
+    * Adimec
 * Cameras configuration using INI files
 * OpenGL realtime display
   * Zone selection (zoom, signal/noise averaging)
@@ -92,6 +94,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Autofocus
 * Average plot real-time display
 * Importing .raw images instead of taking the input from the camera.
+* Computing stft
 
 ## Authors ##
 
@@ -99,7 +102,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Jeffrey BENCTEUX <jeffrey.bencteux@epita.fr>
 * Thomas KOSTAS <thomas.kostas@epita.fr>
 * Pierre PAGNOUX <pierre.pagnoux@epita.fr>
-* Eric Delanghe <eric.delanghe@student.42.fr>
+* Eric Delanghe <edelangh@student.42.fr>
 * Arnaud GAILLARD <arnaud.gaillard@epita.fr>
 * Geoffrey LEGOURRIEREC <geoffrey.legourrierec@epita.fr>
 
@@ -272,7 +275,6 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * The autofocus has been improved a lot in terms of precision.
 * Some small performance changes.
 
-<<<<<<< HEAD
 ### v.1.0.2
 
 * The autofocus can now be done recursively, allowing it to be performed must faster.
@@ -287,6 +289,10 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * Edge camera is now heavily handled
 * XIQ now supports ROI
 
+### v.1.2.0
+
+* Adimec Quartz A2750 camera is now supported
+* Stft can be applied to the image (instead of fft1/fft2)
 
 
 # Known problems :
@@ -294,13 +300,3 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * Marshall.cxx / ole32.dll : No known fixes, try updating QT.
 * Camera not recognized in holovibes : Make sure your versions of .dll and .lib files are updated.
 * If the holograms do not work for a reason, try checking what gpu architecture you are compiling on (20, 30, 35...).
-
-
-
-
-
-
-
-=======
->>>>>>> README.md edited online with Bitbucket
-
