@@ -25,6 +25,7 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , gpu_input_buffer_(nullptr)
+    , gpu_complex_buffer_(nullptr)
     , gpu_output_buffer_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
@@ -56,6 +57,10 @@ namespace holovibes
 
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+
+    /* gpu_complex_buffer */
+    cudaMalloc<cufftComplex>(&gpu_complex_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
 
     /* gpu_output_buffer */
@@ -207,6 +212,12 @@ namespace holovibes
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
 
+    if (gpu_complex_buffer_)
+      cudaFree(gpu_complex_buffer_) ? ++err_count : 0;
+    gpu_complex_buffer_ = nullptr;
+    cudaMalloc<cufftComplex>(&gpu_complex_buffer_,
+      sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
+
     /* gpu_stft_buffer */
     if (gpu_stft_buffer_)
       cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
@@ -261,13 +272,20 @@ namespace holovibes
       return;
     }
 
-    // Fill input complex buffer.
+    // Fill input complex buffer, one frame at a time.
     fn_vect_.push_back(std::bind(
       make_contiguous_complex,
       std::ref(input_),
-      gpu_input_buffer_,
+      gpu_complex_buffer_,
       input_length_,
       gpu_sqrt_vector_));
+
+    // Copy complex data into modifiable buffer.
+    fn_vect_.push_back(std::bind(
+      copy_buffer,
+      gpu_complex_buffer_,
+      gpu_input_buffer_,
+      input_length_ * input_.get_pixels()));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {

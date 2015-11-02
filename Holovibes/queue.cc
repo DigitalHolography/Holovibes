@@ -50,9 +50,7 @@ namespace holovibes
   size_t Queue::get_current_elts()
   {
     guard guard(mutex_);
-
-    size_t curr_elts = curr_elts_;
-    return curr_elts;
+    return curr_elts_;
   }
 
   unsigned int Queue::get_max_elts() const

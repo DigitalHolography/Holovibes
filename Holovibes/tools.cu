@@ -301,3 +301,11 @@ float average_operator(
   cpu_sum /= float(size);
   return cpu_sum;
 }
+
+void copy_buffer(
+  cufftComplex* src,
+  cufftComplex* dst,
+  const size_t nb_elts)
+{
+  cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
+}

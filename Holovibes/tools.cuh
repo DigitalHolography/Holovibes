@@ -110,4 +110,13 @@ float average_operator(
   const float* input,
   const unsigned int size);
 
+/*! \brief Perform a device-to-device memory copy from src to dst.
+** \param nb_elts is the number of elements of type T to be copied.
+** There is no need to take into account sizeof(T) in nb_elts.
+*/
+void copy_buffer(
+  cufftComplex* src,
+  cufftComplex* dst,
+  const size_t nb_elts);
+
 #endif /* !TOOLS_CUH */

@@ -219,6 +219,10 @@ namespace holovibes
      * * fields with cpu prefix are allocated in CPU memory */
     /*! cufftComplex array containing n contiguous frames. */
     cufftComplex* gpu_input_buffer_;
+    /*! Intermediate buffer containing nsamples frames converted to complex;
+    **  shifted by one frame at each iteration, keeping nsamples - 1 already
+    **  converted frames. */
+    cufftComplex* gpu_complex_buffer_;
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
     /*! cufftComplex array containing save of n contiguous ROI of frames. */
