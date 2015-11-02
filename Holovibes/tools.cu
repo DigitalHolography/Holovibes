@@ -78,8 +78,9 @@ __global__ void kernel_reconstruct_roi(
   unsigned int  nsample)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  unsigned int size = reconstruct_width * reconstruct_height;
 
-  while (index < reconstruct_width * reconstruct_height)
+  while (index < size)
   {
     unsigned int x = index % reconstruct_width;
     unsigned int y = index / reconstruct_width;
