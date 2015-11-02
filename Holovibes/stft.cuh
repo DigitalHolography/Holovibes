@@ -7,10 +7,11 @@
 # include "compute_descriptor.hh"
 
 /*! Function handling the stft algorithm which steps are
- ** 1 : Do a fft2d (fresnel transform) on the input queue
- ** 2 : Take the ROI (i.e. 512x512px) and store it on complex queue
- ** 3 : Do the fft1 on images
- ** TODO : Implement it, because for the moment it is empty...
+ ** 1 : Aplly lens on the input queue
+ ** 2 : Do a fft2d (fresnel transform) on the input queue
+ ** 3 : Take the ROI (i.e. 512x512px) and store bursting way on a complex queue (stft_buf)
+ ** 4 : Do nsamples fft1d on the complex queue (stft_dup_buf)
+ ** This complex queue need to be reconstruct in order to get image
  **/
 
 void stft(
@@ -25,8 +26,12 @@ void stft(
   const camera::FrameDescriptor&  desc,
   unsigned int                    nsamples);
 
+/*! Reconstruct image from bursting complex queue (stft_dup_buf)
+ ** And rescale it to reconstruct width/height
+ **/
+
 void stft_recontruct(
-  cufftComplex*                   input,
+  cufftComplex*                   output,
   cufftComplex*                   stft_dup_buf,
   const holovibes::Rectangle&     r,
   const camera::FrameDescriptor&  desc,
