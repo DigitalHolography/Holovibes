@@ -225,7 +225,6 @@ Global
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|Win32.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|Win32.Build.0 = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|x64.ActiveCfg = DefaultBuild
-		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|x64.Build.0 = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.DefaultBuild|Mixed Platforms.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.DefaultBuild|Mixed Platforms.Build.0 = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.DefaultBuild|Win32.ActiveCfg = DefaultBuild
