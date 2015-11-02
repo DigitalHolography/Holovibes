@@ -55,7 +55,7 @@
       <AdditionalIncludeDirectories>C:\Qt\qwt-6.1.2\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;$(QWTDIR)\include;$(SolutionDir)GPIB\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
-      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/FS /D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

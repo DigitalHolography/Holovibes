@@ -8,7 +8,7 @@
 
 namespace holovibes
 {
-  const static std::string version = "v1.1.0";
+  const static std::string version = "v1.2.0";
 
 	/*! \brief Contains compute parameters.
 	 *
