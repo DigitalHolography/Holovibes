@@ -61,8 +61,6 @@ namespace gui
   {
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
-
-    delete gl_window_;
   }
 
   void MainWindow::notify()
@@ -179,8 +177,7 @@ namespace gui
 
   void MainWindow::camera_none()
   {
-    delete gl_window_;
-    gl_window_ = nullptr;
+    gl_window_.reset(nullptr);
     if (!is_direct_mode_)
       holovibes_.dispose_compute();
     holovibes_.dispose_capture();
@@ -251,12 +248,13 @@ namespace gui
         height = gl_window_->size().height();
       }
 
-      delete gl_window_;
+      if (gl_window_)
+        gl_window_.reset(nullptr);
 
       // If direct mode
       if (value)
       {
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue());
+        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
         is_direct_mode_ = true;
 
         global_visibility(false);
@@ -264,7 +262,7 @@ namespace gui
       else
       {
         holovibes_.init_compute();
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue());
+        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 
         if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
         {
@@ -1118,8 +1116,7 @@ namespace gui
     camera_visible(false);
     record_visible(false);
     global_visibility(false);
-    delete gl_window_;
-    gl_window_ = nullptr;
+    gl_window_.reset(nullptr);
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
     holovibes_.init_import_mode(
@@ -1310,8 +1307,7 @@ namespace gui
         camera_visible(false);
         record_visible(false);
         global_visibility(false);
-        delete gl_window_;
-        gl_window_ = nullptr;
+        gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
         holovibes_.init_capture(camera_type, q_max_size_);

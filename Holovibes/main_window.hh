@@ -359,7 +359,7 @@ namespace gui
     /*! Reference to Holovibes object */
     holovibes::Holovibes& holovibes_;
     /*! OpenGL window */
-    GuiGLWindow* gl_window_;
+    std::unique_ptr<GuiGLWindow> gl_window_;
     /*! true if in direct mode, false otherwise */
     bool is_direct_mode_;
     /*! true if a camera is loaded, false otherwise */
