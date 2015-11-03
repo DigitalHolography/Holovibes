@@ -105,6 +105,9 @@ namespace holovibes
     /*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
     void request_float_output_stop();
 
+    /*! \brief Ask for the end of the execution loop. */
+    void request_termination();
+
     /*! \brief Return true while pipeline is recording float. */
     bool is_requested_float_output() const
     {
@@ -257,6 +260,7 @@ namespace holovibes
     bool average_record_requested_;
     bool float_output_requested_;
     bool abort_construct_requested_;
+    bool termination_requested_;
     /*! \} */
 
     /*! \brief Number of frame in input. */

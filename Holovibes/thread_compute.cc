@@ -15,7 +15,6 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , pipeline_(nullptr)
-    , compute_on_(true)
     , memory_cv_()
     , is_float_output_enabled_(is_float_output_enabled)
     , thread_(&ThreadCompute::thread_proc, this, float_output_file_src, float_output_nb_frame)
@@ -24,7 +23,7 @@ namespace holovibes
 
   ThreadCompute::~ThreadCompute()
   {
-    compute_on_ = false;
+    pipeline_->request_termination();
 
     if (thread_.joinable())
       thread_.join();
@@ -44,7 +43,6 @@ namespace holovibes
 
     memory_cv_.notify_one();
 
-    while (compute_on_)
-      pipeline_->exec();
+    pipeline_->exec();
   }
 }

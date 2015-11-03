@@ -56,7 +56,6 @@ namespace holovibes
     Queue& output_;
     std::shared_ptr<Pipeline> pipeline_;
 
-    bool compute_on_;
     bool is_float_output_enabled_;
     std::condition_variable memory_cv_;
     std::thread thread_;

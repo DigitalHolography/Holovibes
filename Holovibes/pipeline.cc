@@ -44,6 +44,7 @@ namespace holovibes
     , average_requested_(false)
     , average_record_requested_(false)
     , abort_construct_requested_(false)
+    , termination_requested_(false)
     , average_output_(nullptr)
     , average_n_(0)
   {
@@ -545,23 +546,26 @@ namespace holovibes
 
   void Pipeline::exec()
   {
-    if (input_.get_current_elts() >= input_length_)
+    while (!termination_requested_)
     {
-      for (FnVector::const_iterator cit = fn_vect_.cbegin();
-        cit != fn_vect_.cend();
-        ++cit)
-        (*cit)();
-
-      if (!float_output_requested_)
+      if (input_.get_current_elts() >= input_length_)
       {
-        output_.enqueue(
-          gpu_output_buffer_,
-          cudaMemcpyDeviceToDevice);
-      }
-      input_.dequeue();
+        for (FnVector::const_iterator cit = fn_vect_.cbegin();
+          cit != fn_vect_.cend();
+          ++cit)
+          (*cit)();
 
-      if (refresh_requested_)
-        refresh();
+        if (!float_output_requested_)
+        {
+          output_.enqueue(
+            gpu_output_buffer_,
+            cudaMemcpyDeviceToDevice);
+        }
+        input_.dequeue();
+
+        if (refresh_requested_)
+          refresh();
+      }
     }
   }
 
@@ -594,6 +598,11 @@ namespace holovibes
     float_output_requested_ = false;
     request_refresh();
     std::cout << "[PIPELINE]: float record done." << std::endl;
+  }
+
+  void Pipeline::request_termination()
+  {
+    termination_requested_ = true;
   }
 
   void Pipeline::record_float()
