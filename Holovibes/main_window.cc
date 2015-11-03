@@ -227,7 +227,7 @@ namespace gui
       "\n"
       "Eric Delanghe\n"
       "Arnaud Gaillard\n"
-      "Geoffrey Le Gourrierec\n");
+      "Geoffrey Le Gourriérec\n");
   }
 
   void MainWindow::configure_camera()
@@ -290,8 +290,7 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      pipeline.request_update_n(value);
+      holovibes_.get_pipeline()->request_update_n(value);
       notify();
     }
   }
@@ -300,7 +299,6 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (value < (int)cd.nsamples)
@@ -310,7 +308,7 @@ namespace gui
         p_vibro->setValue(value);
 
         cd.pindex.exchange(value);
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n");
@@ -321,14 +319,13 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.pindex < cd.nsamples)
       {
         ++(cd.pindex);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");
@@ -339,14 +336,13 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.pindex >= 0)
       {
         --(cd.pindex);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");
@@ -357,10 +353,9 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.lambda = static_cast<float>(value)* 1.0e-9f;
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
 
       // Updating the GUI
       QLineEdit* boundary = findChild<QLineEdit*>("boundary");
@@ -373,10 +368,9 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.zdistance = static_cast<float>(value);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -413,7 +407,6 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
       GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -438,7 +431,7 @@ namespace gui
         assert(!"Unknow Algorithm.");
 
       phaseNumberSpinBox->setValue(cd.nsamples);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -446,7 +439,6 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (value == "magnitude")
@@ -458,7 +450,7 @@ namespace gui
       else
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -497,28 +489,24 @@ namespace gui
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
     desc.autofocus_zone = zone;
-    pipeline.request_autofocus();
+    holovibes_.get_pipeline()->request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_stft_roi_end()
   {
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-
-    pipeline.request_stft_roi_end();
+    holovibes_.get_pipeline()->request_stft_roi_end();
   }
 
   void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
     desc.stft_roi_zone = zone;
-    pipeline.request_stft_roi_update();
+    holovibes_.get_pipeline()->request_stft_roi_update();
     //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
@@ -526,7 +514,7 @@ namespace gui
   {
     try
     {
-      holovibes_.get_pipeline().request_autofocus_stop();
+      holovibes_.get_pipeline()->request_autofocus_stop();
     }
     catch (std::runtime_error& e)
     {
@@ -542,31 +530,26 @@ namespace gui
 
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.contrast_enabled.exchange(value);
 
       set_contrast_min(contrast_min->value());
       set_contrast_max(contrast_max->value());
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
   void MainWindow::set_auto_contrast()
   {
     if (!is_direct_mode_)
-    {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      pipeline.request_autocontrast();
-    }
+      holovibes_.get_pipeline()->request_autocontrast();
   }
 
   void MainWindow::set_contrast_min(double value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.contrast_enabled)
@@ -576,7 +559,7 @@ namespace gui
         else
           cd.contrast_min = pow(10, value);
 
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
     }
   }
@@ -585,7 +568,6 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.contrast_enabled)
@@ -595,7 +577,7 @@ namespace gui
         else
           cd.contrast_max = pow(10, value);
 
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
     }
   }
@@ -604,7 +586,6 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.log_scale_enabled.exchange(value);
 
@@ -616,7 +597,7 @@ namespace gui
         set_contrast_max(contrast_max->value());
       }
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -624,9 +605,8 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -634,12 +614,11 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       image_ratio_visible(value);
       cd.vibrometry_enabled.exchange(value);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -647,14 +626,13 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (value < (int)cd.nsamples && value >= 0)
       {
         cd.pindex.exchange(value);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");;
@@ -665,13 +643,12 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (value < (int)cd.nsamples && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("q param has to be between 0 and phase #");
@@ -694,7 +671,7 @@ namespace gui
   void MainWindow::set_average_graphic()
   {
     delete plot_window_;
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+    holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
     plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
   }
 
@@ -812,12 +789,14 @@ namespace gui
     {
       if (float_output_checkbox->isChecked() && !is_direct_mode_)
       {
-        holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
+        std::shared_ptr<holovibes::Pipeline> pipeline = holovibes_.get_pipeline();
+
+        pipeline->request_float_output(path, nb_of_frames);
 
         global_visibility(true);
         record_but_cancel_visible(true);
 
-        while (holovibes_.get_pipeline().is_requested_float_output())
+        while (pipeline->is_requested_float_output())
           std::this_thread::yield();
         display_info("Record done");
       }
@@ -872,7 +851,7 @@ namespace gui
       plot_window_->stop_drawing();
       delete plot_window_;
       plot_window_ = nullptr;
-      holovibes_.get_pipeline().request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
 
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -934,7 +913,7 @@ namespace gui
       plot_window_->stop_drawing();
       delete plot_window_;
       plot_window_ = nullptr;
-      holovibes_.get_pipeline().request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
 
     QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
@@ -1072,7 +1051,7 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+      holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
       plot_window_->start_drawing();
     }
   }

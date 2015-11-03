@@ -3,6 +3,8 @@
 
 # include <thread>
 # include <condition_variable>
+# include <memory>
+
 # include "queue.hh"
 # include "compute_descriptor.hh"
 # include "pipeline.hh"
@@ -15,15 +17,15 @@ namespace holovibes
     ThreadCompute(
       ComputeDescriptor& desc,
       Queue& input,
-	  Queue& output,
-	  bool is_float_output_enabled,
-	  std::string float_output_file_src,
-	  unsigned int float_output_nb_frame);
+      Queue& output,
+      bool is_float_output_enabled,
+      std::string float_output_file_src,
+      unsigned int float_output_nb_frame);
     ~ThreadCompute();
 
-    Pipeline& get_pipeline()
+    std::shared_ptr<Pipeline> get_pipeline()
     {
-      return *pipeline_;
+      return pipeline_;
     }
 
     std::condition_variable& get_memory_cv()
@@ -46,16 +48,16 @@ namespace holovibes
       pipeline_->request_autocontrast();
     }
   private:
-	  void thread_proc(std::string float_output_file_src, unsigned int float_output_nb_frame);
+    void thread_proc(std::string float_output_file_src, unsigned int float_output_nb_frame);
 
   private:
     ComputeDescriptor& compute_desc_;
     Queue& input_;
     Queue& output_;
-    Pipeline* pipeline_;
+    std::shared_ptr<Pipeline> pipeline_;
 
     bool compute_on_;
-	bool is_float_output_enabled_;
+    bool is_float_output_enabled_;
     std::condition_variable memory_cv_;
     std::thread thread_;
   };

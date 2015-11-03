@@ -114,7 +114,7 @@ namespace holovibes
       , unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
-    Pipeline& get_pipeline()
+    std::shared_ptr<Pipeline> get_pipeline()
     {
       if (tcompute_)
         return tcompute_->get_pipeline();
