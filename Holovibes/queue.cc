@@ -49,7 +49,6 @@ namespace holovibes
 
   size_t Queue::get_current_elts()
   {
-    guard guard(mutex_);
     return curr_elts_;
   }
 
@@ -66,7 +65,6 @@ namespace holovibes
 
   unsigned int Queue::get_start_index()
   {
-    guard guard(mutex_);
     return start_;
   }
 
