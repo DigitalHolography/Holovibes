@@ -391,7 +391,8 @@ namespace holovibes
 
       if (average_requested_)
       {
-        fn_vect_.push_back(std::bind(
+        if (compute_desc_.stft_roi_zone.load().area())
+          fn_vect_.push_back(std::bind(
           &Pipeline::average_stft_caller,
           this,
           gpu_stft_dup_buffer_,
@@ -873,11 +874,11 @@ namespace holovibes
         if (compute_desc_.contrast_enabled)
         {
           manual_contrast_correction(
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          65535,
-          compute_desc_.contrast_min.load(),
-          compute_desc_.contrast_max.load());
+            gpu_float_buffer_,
+            input_fd.frame_res(),
+            65535,
+            compute_desc_.contrast_min.load(),
+            compute_desc_.contrast_max.load());
         }
 
         float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
