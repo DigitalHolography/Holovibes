@@ -801,22 +801,22 @@ namespace gui
       {
         if (is_direct_mode_)
         {
-          record_thread_ = new ThreadRecorder(
+          record_thread_.reset(new ThreadRecorder(
             holovibes_.get_capture_queue(),
             path,
             nb_of_frames,
-            this);
+            this));
         }
         else
         {
-          record_thread_ = new ThreadRecorder(
+          record_thread_.reset(new ThreadRecorder(
             holovibes_.get_output_queue(),
             path,
             nb_of_frames,
-            this);
+            this));
         }
 
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
         record_thread_->start();
 
         QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
@@ -833,8 +833,7 @@ namespace gui
 
   void MainWindow::finished_image_record()
   {
-    delete record_thread_;
-    record_thread_ = nullptr;
+    record_thread_.reset(nullptr);
     display_info("Record done");
     if (!is_direct_mode_)
       global_visibility(true);
@@ -953,8 +952,8 @@ namespace gui
 
       if (is_batch_img_)
       {
-        record_thread_ = new ThreadRecorder(*q, formatted_path, frame_nb, this);
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+        record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         record_thread_->start();
       }
       else
@@ -976,7 +975,7 @@ namespace gui
   {
     if (!is_batch_interrupted_)
     {
-      delete record_thread_;
+      record_thread_.reset(nullptr);
 
       QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
       std::string path;
@@ -999,12 +998,12 @@ namespace gui
 
       if (is_batch_img_)
       {
-        record_thread_ = new ThreadRecorder(*q, output_filename, frame_nb, this);
+        record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
 
         if (execute_next_block())
-          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         else
-          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
 
         record_thread_->start();
       }
@@ -1034,8 +1033,7 @@ namespace gui
 
   void MainWindow::batch_finished_record()
   {
-    delete record_thread_;
-    record_thread_ = nullptr;
+    record_thread_.reset(nullptr);
     delete CSV_record_thread_;
     CSV_record_thread_ = nullptr;
     file_index_ = 1;

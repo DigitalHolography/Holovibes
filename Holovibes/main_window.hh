@@ -379,7 +379,7 @@ namespace gui
     std::unique_ptr<PlotWindow> plot_window_;
 
     /*! Image record thread */
-    ThreadRecorder* record_thread_;
+    std::unique_ptr<ThreadRecorder> record_thread_;
     /*! ROI/average record thread */
     ThreadCSVRecord* CSV_record_thread_;
     /*! Number of frames to record */
