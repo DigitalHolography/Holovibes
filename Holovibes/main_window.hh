@@ -376,7 +376,7 @@ namespace gui
     holovibes::Holovibes::camera_type camera_type_;
 
     /*! Plot/graphic window of average/ROI computations */
-    PlotWindow* plot_window_;
+    std::unique_ptr<PlotWindow> plot_window_;
 
     /*! Image record thread */
     ThreadRecorder* record_thread_;

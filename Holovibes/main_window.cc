@@ -668,9 +668,8 @@ namespace gui
 
   void MainWindow::set_average_graphic()
   {
-    delete plot_window_;
     holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
-    plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+    plot_window_.reset(new PlotWindow(holovibes_.get_average_queue(), "ROI Average"));
   }
 
   void MainWindow::browse_roi_file()
@@ -847,8 +846,7 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      delete plot_window_;
-      plot_window_ = nullptr;
+      plot_window_.reset(nullptr);
       holovibes_.get_pipeline()->request_refresh();
     }
 
@@ -909,8 +907,7 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      delete plot_window_;
-      plot_window_ = nullptr;
+      plot_window_.reset(nullptr);
       holovibes_.get_pipeline()->request_refresh();
     }
 
