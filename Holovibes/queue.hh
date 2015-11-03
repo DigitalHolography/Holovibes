@@ -54,8 +54,13 @@ namespace holovibes
     /*! \return the size of one frame (i-e element) of the Queue in pixels. */
     int get_pixels();
 
-    /*! \return the number of elements the Queue currently contains. */
-    size_t get_current_elts();
+    /*! \return the number of elements the Queue currently contains.
+    **  As this is the most used method, it is inlined here.
+    */
+    size_t get_current_elts() const
+    {
+      return curr_elts_;
+    }
 
     /*! \return the number of elements the Queue can contains at its maximum. */
     unsigned int get_max_elts() const;
@@ -75,7 +80,7 @@ namespace holovibes
     /*! \return index of the frame right after the last one containing data */
     unsigned int get_end_index();
 
-    /*! \brief Enqueue method 
+    /*! \brief Enqueue method
     **
     ** Copies the given elt according to cuda_kind cuda memory type, then convert
     ** to little endian if the camera is in big endian.

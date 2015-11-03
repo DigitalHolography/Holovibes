@@ -47,11 +47,6 @@ namespace holovibes
     return pixels_;
   }
 
-  size_t Queue::get_current_elts()
-  {
-    return curr_elts_;
-  }
-
   unsigned int Queue::get_max_elts() const
   {
     return max_elts_;
