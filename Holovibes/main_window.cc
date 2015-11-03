@@ -854,12 +854,12 @@ namespace gui
     QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     std::string output_path = output_line_edit->text().toUtf8();
 
-    CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
+    CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
       holovibes_.get_average_queue(),
       output_path,
       nb_frames_,
-      this);
-    connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(finished_average_record()));
+      this));
+    connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
     CSV_record_thread_->start();
 
     global_visibility(false);
@@ -871,8 +871,7 @@ namespace gui
 
   void MainWindow::finished_average_record()
   {
-    delete CSV_record_thread_;
-    CSV_record_thread_ = nullptr;
+    CSV_record_thread_.reset(nullptr);
     display_info("ROI record done");
 
     global_visibility(true);
@@ -958,12 +957,12 @@ namespace gui
       }
       else
       {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
+        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
           holovibes_.get_average_queue(),
           formatted_path,
           frame_nb,
-          this);
-        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+          this));
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         CSV_record_thread_->start();
       }
 
@@ -1009,16 +1008,16 @@ namespace gui
       }
       else
       {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
+        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
           holovibes_.get_average_queue(),
           output_filename,
           frame_nb,
-          this);
+          this));
 
         if (execute_next_block())
-          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         else
-          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
 
         CSV_record_thread_->start();
       }
@@ -1034,8 +1033,8 @@ namespace gui
   void MainWindow::batch_finished_record()
   {
     record_thread_.reset(nullptr);
-    delete CSV_record_thread_;
-    CSV_record_thread_ = nullptr;
+    CSV_record_thread_.reset(nullptr);
+
     file_index_ = 1;
     global_visibility(true);
     camera_visible(true);
