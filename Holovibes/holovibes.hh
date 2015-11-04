@@ -85,7 +85,7 @@ namespace holovibes
      *
      * - direct: use input_ queue
      * - hologram: use output_ queue. */
-    void init_recorder(
+    void recorder(
       std::string& filepath,
       unsigned int rec_n_images);
     /*! \brief Request the recorder thread to stop */
@@ -157,11 +157,13 @@ namespace holovibes
 
   private:
     /* Use shared pointers to ensure each ressources will freed. */
+    /*! \brief ICamera use to acquire image */
     std::shared_ptr<camera::ICamera> camera_;
     bool camera_initialized_;
+    /*! \brief IThread which acquiring continuously frames */
     std::unique_ptr<IThreadInput> tcapture_;
+    /*! \brief Thread which compute continuously frames */
     std::unique_ptr<ThreadCompute> tcompute_;
-    std::unique_ptr<Recorder> recorder_;
 
     /*! \{ \name Frames queue (GPU) */
     std::unique_ptr<Queue> input_;
@@ -172,6 +174,11 @@ namespace holovibes
      * Pipeline. */
     ComputeDescriptor compute_desc_;
 
+    /*! \brief Store average of zone signal/noise
+     *
+     * Average are computes in ThreadCompute and use in CurvePlot
+     * \note see void MainWindow::set_average_graphic() for example
+     */
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
   };
 }

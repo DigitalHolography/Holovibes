@@ -8,10 +8,7 @@
 
 namespace gui
 {
-  /*! \class PlotWindow
-  **
-  ** Qt main window class containing a plot of computed average values.
-  */
+  /*! \brief Qt main window class containing a plot of computed average values. */
   class PlotWindow : public QMainWindow
   {
     Q_OBJECT

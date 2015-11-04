@@ -91,27 +91,26 @@ namespace holovibes
     std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
 
-  void Holovibes::init_recorder(
+  void Holovibes::recorder(
     std::string& filepath,
     unsigned int rec_n_images)
   {
+    Recorder*  recorder;
+
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     if (tcompute_)
     {
-      recorder_.reset(new Recorder(*output_, filepath));
+      recorder = new Recorder(*output_, filepath);
     }
     else
     {
-      recorder_.reset(new Recorder(*input_, filepath));
+      recorder = new Recorder(*input_, filepath);
     }
-    std::cout << "[RECORDER] recorder initialized" << std::endl;
-    recorder_->record(rec_n_images);
-  }
-
-  void Holovibes::dispose_recorder()
-  {
-    recorder_.reset(nullptr);
+    std::cout << "[RECORDER] recorder Start" << std::endl;
+    recorder->record(rec_n_images);
+    delete recorder;
+    std::cout << "[RECORDER] recorder Stop" << std::endl;
   }
 
   void Holovibes::init_compute(

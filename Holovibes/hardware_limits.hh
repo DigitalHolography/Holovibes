@@ -1,6 +1,6 @@
 #pragma once
 
-/*! \brief Getter on max threads in one dimension 
+/*! \brief Getter on max threads in one dimension
 **
 ** Fetch the maximum number of threads available in one dimension
 ** for a kernel/CUDA computation. It asks directly the
