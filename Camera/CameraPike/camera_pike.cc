@@ -1,5 +1,6 @@
-#include "camera_pike.hh"
 #include <camera_exception.hh>
+
+#include "camera_pike.hh"
 
 #define MAXNAMELENGTH 64
 #define MAXCAMERAS 1
@@ -7,11 +8,6 @@
 
 namespace camera
 {
-  ICamera* new_camera_device()
-  {
-    return new CameraPike();
-  }
-
   void CameraPike::init_camera()
   {
     unsigned long result;
@@ -23,10 +19,9 @@ namespace camera
     if (FGInitModule(NULL) == FCE_NOERROR)
     {
       /* Retrieve list of connected nodes (cameras)
-      ** Ask for a maximum number of nodes info to fill (max_nodes)
-      ** and put them intos nodes_info. It also puts the number of nodes
-      ** effectively copied into copied_nodes.
-      */
+       * Ask for a maximum number of nodes info to fill (max_nodes)
+       * and put them intos nodes_info. It also puts the number of nodes
+       * effectively copied into copied_nodes. */
       result = FGGetNodeList(nodes_info, max_nodes, &copied_nodes);
 
       if (result == FCE_NOERROR && copied_nodes != 0)
@@ -72,7 +67,6 @@ namespace camera
     {
       // Put the frame back to DMA
       cam_.PutFrame(&fgframe_);
-
     }
 
     return fgframe_.pData;
@@ -103,14 +97,14 @@ namespace camera
     gamma_ = 0;
     speed_ = 800;
 
-    trigger_on_ = 0;
-    trigger_pol_ = 0;
-    trigger_mode_ = 0;
-
     roi_startx_ = 0;
     roi_starty_ = 0;
     roi_width_ = 2048;
     roi_height_ = 2048;
+
+    trigger_on_ = 0;
+    trigger_pol_ = 0;
+    trigger_mode_ = 0;
   }
 
   void CameraPike::load_ini_params()
@@ -120,21 +114,23 @@ namespace camera
     desc_.width = pt.get<unsigned short>("pike.sensor_width", desc_.width);
     desc_.height = pt.get<unsigned short>("pike.sensor_height", desc_.height);
     desc_.depth = (pt.get<unsigned short>("pike.bit_depth", 8) + 7) / 8;
+
     subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
     gain_ = pt.get<unsigned long>("pike.gain", gain_);
     brightness_ = pt.get<unsigned long>("pike.brightness", brightness_);
-    exposure_time_ = pt.get<float>("pike.shutter_time", exposure_time_);
     gamma_ = pt.get<unsigned long>("pike.gamma", gamma_);
     speed_ = pt.get<unsigned long>("pike.speed", speed_);
-
-    trigger_on_ = pt.get<unsigned long>("pike.trigger_on", trigger_on_);
-    trigger_pol_ = pt.get<unsigned long>("pike.trigger_pol", trigger_pol_);
-    trigger_mode_ = pt.get<unsigned long>("pike.trigger_mode", trigger_mode_);
 
     roi_startx_ = pt.get<int>("pike.roi_startx", roi_startx_);
     roi_starty_ = pt.get<int>("pike.roi_starty", roi_starty_);
     roi_width_ = pt.get<int>("pike.roi_width", roi_width_);
     roi_height_ = pt.get<int>("pike.roi_height", roi_height_);
+
+    trigger_on_ = pt.get<unsigned long>("pike.trigger_on", trigger_on_);
+    trigger_pol_ = pt.get<unsigned long>("pike.trigger_pol", trigger_pol_);
+    trigger_mode_ = pt.get<unsigned long>("pike.trigger_mode", trigger_mode_);
+
+    exposure_time_ = pt.get<float>("pike.shutter_time", exposure_time_);
   }
 
   void CameraPike::bind_params()
@@ -189,5 +185,10 @@ namespace camera
       return FG_PHYSPEED::PS_800MBIT;
     else
       return FG_PHYSPEED::PS_800MBIT;
+  }
+
+  ICamera* new_camera_device()
+  {
+    return new CameraPike();
   }
 }
