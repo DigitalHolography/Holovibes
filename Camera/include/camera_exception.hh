@@ -5,28 +5,32 @@
 
 namespace camera
 {
+  /*! A variety of exceptions for errors happening at different
+   * stages of a camera's operation. */
   class CameraException : public std::exception
   {
   public:
+    //!< The type of error encountered by the camera.
     enum camera_error
     {
-      NOT_CONNECTED,
-      NOT_INITIALIZED,
-      MEMORY_PROBLEM,
-      CANT_START_ACQUISITION,
-      CANT_STOP_ACQUISITION,
-      CANT_GET_FRAME,
-      CANT_SHUTDOWN,
-      CANT_SET_CONFIG,
+      NOT_CONNECTED, //!< Camera needs to be powered on.
+      NOT_INITIALIZED, //!< Startup failed.
+      MEMORY_PROBLEM, //!< Buffer allocation / deallocation.
+      CANT_START_ACQUISITION, //!< Acquisition setup failed.
+      CANT_STOP_ACQUISITION, //!< Acquisition halting failed.
+      CANT_GET_FRAME, //!< Current configuration is unusable or a frame was simply missed.
+      CANT_SHUTDOWN, //!< Camera cannot power off.
+      CANT_SET_CONFIG, //!< Some given configuration option is invalid.
     };
 
     CameraException(camera_error code)
-      : std::exception()
-      , code_(code)
-    {}
-    
+      : code_(code)
+    {
+    }
+
     virtual ~CameraException()
-    {}
+    {
+    }
 
     virtual const char* what() const override
     {
@@ -57,6 +61,9 @@ namespace camera
   private:
     const camera_error code_;
 
+    /*! Although we may need the copy constructor in order to pass to a function
+     * an exception to be thrown, assignation does not make sense.
+     */
     CameraException& operator=(const CameraException&) = delete;
   };
 }
