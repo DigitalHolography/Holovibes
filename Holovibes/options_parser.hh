@@ -93,3 +93,4 @@ namespace holovibes
 
     OptionsParser& operator=(const OptionsParser&) = delete;
   };
+}

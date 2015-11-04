@@ -94,3 +94,4 @@ namespace holovibes
 
     std::thread thread_;
   };
+}
