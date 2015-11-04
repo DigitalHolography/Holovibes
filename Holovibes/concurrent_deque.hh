@@ -6,6 +6,8 @@
 
 namespace holovibes
 {
+  using guard = std::lock_guard<std::mutex>;
+
   /*! \class Concurrent Deque
   **
   ** This class is a thread safe wrapper on std::deque.
@@ -32,75 +34,44 @@ namespace holovibes
 
     iterator begin()
     {
-      std::deque<T>::iterator it;
-
-      mutex_.lock();
-      it = deque_.begin();
-      mutex_.unlock();
-
-      return it;
+      guard guard(mutex_);
+      return deque_.begin();
     }
 
     iterator end()
     {
-      std::deque<T>::iterator it;
-
-      mutex_.lock();
-      it = deque_.end();
-      mutex_.unlock();
-
-      return it;
+      guard guard(mutex_);
+      return deque_.end();
     }
 
     reverse_iterator rbegin()
     {
-      std::deque<T>::reverse_iterator rit;
-
-      mutex_.lock();
-      rit = deque_.rbegin();
-      mutex_.unlock();
-
-      return rit;
+      guard guard(mutex_);
+      return deque_.rbegin();
     }
 
     reverse_iterator rend()
     {
-      std::deque<T>::reverse_iterator rit;
-
-      mutex_.lock();
-      rit = deque_.rend();
-      mutex_.unlock();
-
-      return rit;
+      guard guard(mutex_);
+      return deque_.rend();
     }
-    
+
     size_t size()
     {
-      size_t s;
-
-      mutex_.lock();
-      s = deque_.size();
-      mutex_.unlock();
-
-      return s;
+      guard guard(mutex_);
+      return deque_.size();
     }
 
     void resize(unsigned int new_size)
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.resize(new_size);
-      mutex_.unlock();
     }
 
     bool empty()
     {
-      bool is_empty;
-
-      mutex_.lock();
-      is_empty = deque_.empty();
-      mutex_.unlock();
-
-      return is_empty;
+      guard guard(mutex_);
+      return deque_.empty();
     }
 
     T& operator[](unsigned int index)
@@ -110,47 +81,42 @@ namespace holovibes
 
     void push_back(const T& elt)
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.push_back(elt);
-      mutex_.unlock();
     }
 
     void push_front(const T& elt)
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.push_front(elt);
-      mutex_.unlock();
     }
 
     void pop_back()
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.pop_back();
-      mutex_.unlock();
     }
 
     void pop_front()
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.pop_front();
-      mutex_.unlock();
     }
 
     void clear()
     {
-      mutex_.lock();
+      guard guard(mutex_);
       deque_.clear();
-      mutex_.unlock();
     }
 
     /*! \brief Fill a given vector with deque values
     **
-    ** \param vect vecto to fill
-    ** \param nb_elts number of elements to copy
+    ** \param vect Vector to fill
+    ** \param nb_elts Number of elements to copy
     */
     size_t fill_array(std::vector<T>& vect, size_t nb_elts)
     {
-      mutex_.lock();
+      guard guard(mutex_);
       unsigned int i = 0;
 
       for (auto it = deque_.rbegin(); it != deque_.rend() && i < nb_elts; ++it)
@@ -158,8 +124,6 @@ namespace holovibes
         vect[i] = *it;
         ++i;
       }
-      mutex_.unlock();
-
       return i;
     }
 

@@ -52,17 +52,13 @@ namespace gui
     num_8_shortcut->setContext(Qt::ApplicationShortcut);
     connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
 
-    zoom_in_shortcut = new QShortcut(QKeySequence(Qt::Key_Plus), this);
-    zoom_in_shortcut->setContext(Qt::ApplicationShortcut);
-    connect(zoom_in_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
+    key_plus_shortcut = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    key_plus_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(key_plus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
 
-    zoom_out_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-    zoom_out_shortcut->setContext(Qt::ApplicationShortcut);
-    connect(zoom_out_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
-
-    base_view_ = holovibes::Rectangle(
-      holovibes::Point2D(0, 0),
-      holovibes::Point2D(frame_desc_.width, frame_desc_.height));
+    key_minus_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    key_minus_shortcut->setContext(Qt::ApplicationShortcut);
+    connect(key_minus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
   }
 
   GLWidget::~GLWidget()
@@ -437,8 +433,6 @@ namespace gui
     px_ = 0.0f;
     py_ = 0.0f;
     parent_->setWindowTitle(QString("Real time display"));
-
-    zoom(base_view_);
   }
 
   void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)

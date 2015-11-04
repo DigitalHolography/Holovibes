@@ -14,10 +14,7 @@
 
 namespace gui
 {
-  /*! \class CurvePlot
-  **
-  ** Widget containing a QwtPlot. Used to display average/ROI computations.
-  */
+  /*! \brief Widget containing a QwtPlot. Used to display average/ROI computations. */
   class CurvePlot : public QWidget
   {
     Q_OBJECT
@@ -40,11 +37,15 @@ namespace gui
     /*! \brief CurvePlot destructor */
     ~CurvePlot();
 
+    /*! \brief This property holds the recommended minimum size for the widget. */
     QSize minimumSizeHint() const override;
+    /*! \brief This property holds the recommended size for the widget. */
     QSize sizeHint() const override;
 
+    /*! \brief Change the maximum number of points in the curve */
     void resize_plot(int size);
 
+    /*! \brief Call when windows is resize */
     void resizeEvent(QResizeEvent* e) override;
 
     /*! \brief Load data from Deque

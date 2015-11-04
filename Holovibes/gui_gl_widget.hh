@@ -25,10 +25,11 @@ namespace gui
     STFT_ROI,
   } eselection;
 
-  /*! \class GLWidget
-  **
-  ** OpenGL widget used to display frames contained in Queue(s).
-  */
+  /*! \brief OpenGL widget used to display frames contained in Queue(s).
+   *
+   * Users can select zone and move in display surf
+   * Selected zone with mouse will emit qt signals.
+   */
   class GLWidget : public QGLWidget, protected QOpenGLFunctions
   {
     Q_OBJECT
@@ -55,8 +56,12 @@ namespace gui
       QWidget* parent = 0);
 
     ~GLWidget();
-    QSize minimumSizeHint() const;
-    QSize sizeHint() const;
+
+    /*! \brief This property holds the recommended minimum size for the widget. */
+    QSize minimumSizeHint() const override;
+
+    /*! \brief This property holds the recommended size for the widget. */
+    QSize sizeHint() const override;
 
     /*! \brief enable selection mode */
     void enable_selection()
@@ -107,7 +112,15 @@ namespace gui
     ** zone has been selected.
     */
     void autofocus_zone_selected(holovibes::Rectangle zone);
+
+    /*! \brief Signal used to inform the main window that roi
+    ** zone has been selected but not definitely.
+    */
     void stft_roi_zone_selected_update(holovibes::Rectangle zone);
+
+    /*! \brief Signal used to inform the main window that roi
+    ** zone is definitely selected.
+    */
     void stft_roi_zone_selected_end();
 
   protected:
@@ -180,40 +193,47 @@ namespace gui
     /*! \brief Ensure that selection zone is in widget's bounds i-e camera's resolution */
     void bounds_check(holovibes::Rectangle& selection);
 
+    /*! \brief Check glError and print then
+     *
+     * Use only in debug mode, glGetError is slow on Android and should be avoided
+     */
     void gl_error_checking();
 
   private:
+    QWidget* parent_;
     holovibes::Holovibes& h_;
+    holovibes::Queue&     queue_;
+    const camera::FrameDescriptor&  frame_desc_;
 
-    /*! QTimer used to refresh the OpenGL widget */
+    /*! \brief QTimer used to refresh the OpenGL widget */
     QTimer timer_;
+
+    /*! \{ \name OpenGl graphique buffer */
+    GLuint  buffer_;
+    struct cudaGraphicsResource*  cuda_buffer_;
+    /*! \} */
+
+    /*! \{ \name Selection */
+    /*! \brief User is currently select zone ? */
     bool is_selection_enabled_;
-    holovibes::Rectangle selection_;
+    /*! \brief Color zone and signal emit depend of this */
     eselection selection_mode_;
-    /*! Boolean used to switch between signal and noise selection */
+    /*! \brief Boolean used to switch between signal and noise selection */
     bool is_signal_selection_;
+    /*! \} */
+
+    /*! \{ \name Selection */
+    /*! \brief Current selection */
+    holovibes::Rectangle selection_;
     holovibes::Rectangle signal_selection_;
     holovibes::Rectangle noise_selection_;
     holovibes::Rectangle stft_roi_selection_;
-    /*! Base view */
-    holovibes::Rectangle base_view_;
-    QWidget* parent_;
-
-    /*! /{ \name Previouses zoom translations */
-    float px_;
-    float py_;
     /*! \} */
 
-    /*! Previouses zoom ratios */
+    /*! \{ \name Previouses zoom translations */
+    float px_;
+    float py_;
     float zoom_ratio_;
-
-    /*! \{ \name View Shortcut */
-    QShortcut	*num_2_shortcut;
-    QShortcut	*num_4_shortcut;
-    QShortcut	*num_6_shortcut;
-    QShortcut	*num_8_shortcut;
-    QShortcut	*zoom_in_shortcut;
-    QShortcut	*zoom_out_shortcut;
     /*! \} */
 
     /*! \{ \name Window size hints */
@@ -221,9 +241,13 @@ namespace gui
     unsigned int height_;
     /*! \} */
 
-    holovibes::Queue& queue_;
-    const camera::FrameDescriptor& frame_desc_;
-    GLuint buffer_;
-    struct cudaGraphicsResource* cuda_buffer_;
+    /*! \{ \name Key shortcut */
+    QShortcut	*num_2_shortcut;
+    QShortcut	*num_4_shortcut;
+    QShortcut	*num_6_shortcut;
+    QShortcut	*num_8_shortcut;
+    QShortcut	*key_plus_shortcut;
+    QShortcut	*key_minus_shortcut;
+    /*! \} */
   };
 }
