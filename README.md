@@ -69,7 +69,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 ## Features ##
 
 * Command line options (for batch processing only)
-* Works with 6 cameras:
+* Works with 7 cameras:
     * Edge
     * iXon
     * IDS
