@@ -1,5 +1,4 @@
-#ifndef CAMERA_PIKE_HH
-# define CAMERA_PIKE_HH
+#pragma once
 
 # include <iostream>
 # include <string>
@@ -70,5 +69,3 @@ namespace camera
     unsigned long to_speed();
   };
 }
-
-#endif /* !CAMERA_PIKE_HH */

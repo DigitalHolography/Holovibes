@@ -1,5 +1,4 @@
-#ifndef CAMERA_PCO_PIXELFLY_HH
-# define CAMERA_PCO_PIXELFLY_HH
+#pragma once
 
 # include "../CameraPCO/camera_pco.hh"
 
@@ -55,5 +54,3 @@ namespace camera
     bool ir_sensitivity_;
   };
 }
-
-#endif /* !CAMERA_PCO_PIXELFLY_HH */

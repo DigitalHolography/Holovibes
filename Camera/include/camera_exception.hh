@@ -1,5 +1,4 @@
-#ifndef CAMERA_EXCEPTION_HH
-# define CAMERA_EXCEPTION_HH
+#pragma once
 
 # include <exception>
 
@@ -67,5 +66,3 @@ namespace camera
     CameraException& operator=(const CameraException&) = delete;
   };
 }
-
-#endif /* !CAMERA_EXCEPTION_HH */

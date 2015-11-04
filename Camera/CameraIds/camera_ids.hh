@@ -1,5 +1,4 @@
-#ifndef CAMERA_IDS_HH
-# define CAMERA_IDS_HH
+#pragma once
 
 # include <camera.hh>
 
@@ -89,5 +88,3 @@ namespace camera
     int get_trigger_mode(std::string ui);
   };
 }
-
-#endif /* !CAMERA_IDS_HH */

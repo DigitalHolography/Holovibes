@@ -1,5 +1,4 @@
-#ifndef CAMERA_IXON_HH
-# define CAMERA_IXON_HH
+#pragma once
 
 # include <camera.hh>
 
@@ -53,4 +52,3 @@ namespace camera
     int read_mode_;
   };
 }
-#endif /* !CAMERA_IXON_HH */

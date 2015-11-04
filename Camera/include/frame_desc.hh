@@ -1,5 +1,4 @@
-#ifndef FRAME_DESC_HH
-# define FRAME_DESC_HH
+#pragma once
 
 namespace camera
 {
@@ -39,5 +38,3 @@ namespace camera
     }
   };
 }
-
-#endif /* !FRAME_DESC_HH */

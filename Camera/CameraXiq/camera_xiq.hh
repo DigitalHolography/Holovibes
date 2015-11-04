@@ -1,5 +1,4 @@
-#ifndef CAMERA_XIQ_HH
-# define CAMERA_XIQ_HH
+#pragma once
 
 # include <Windows.h>
 # include <xiApi.h>
@@ -81,5 +80,3 @@ namespace camera
     int roi_height_; //!< In pixels.
   };
 }
-
-#endif /* !CAMERA_XIQ_HH */

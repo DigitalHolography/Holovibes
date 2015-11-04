@@ -1,5 +1,4 @@
-#ifndef ICAMERA_HH
-# define ICAMERA_HH
+#pragma once
 
 #ifdef CAMERA_EXPORTS
 # define CAMERA_API __declspec(dllexport)
@@ -109,5 +108,3 @@ namespace camera
 
   /** \} */ // End of Camera Interface group
 }
-
-#endif /* !ICAMERA_HH */
