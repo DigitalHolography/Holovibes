@@ -1,13 +1,9 @@
-#include "camera_ids.hh"
 #include <camera_exception.hh>
+
+#include "camera_ids.hh"
 
 namespace camera
 {
-  ICamera* new_camera_device()
-  {
-    return new CameraIds();
-  }
-
   void CameraIds::init_camera()
   {
     int cameras_nb = 0;
@@ -234,5 +230,10 @@ namespace camera
       return IS_SET_TRIGGER_LO_HI;
     else
       return IS_SET_TRIGGER_OFF;
+  }
+
+  ICamera* new_camera_device()
+  {
+    return new CameraIds();
   }
 }

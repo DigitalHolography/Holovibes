@@ -1,5 +1,4 @@
-#ifndef CAMERA_HH
-# define CAMERA_HH
+#pragma once
 
 # include <icamera.hh>
 # include <frame_desc.hh>
@@ -154,4 +153,3 @@ namespace camera
     boost::property_tree::ptree ini_pt_; //!< INI property tree, containing extracted data.
   };
 }
-#endif /* !CAMERA_HH */

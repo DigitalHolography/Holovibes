@@ -1,5 +1,4 @@
-#ifndef CAMERA_PCO_HH
-# define CAMERA_PCO_HH
+#pragma once
 
 # include <camera.hh>
 
@@ -50,5 +49,3 @@ namespace camera
     WORD actual_res_y_;
   };
 }
-
-#endif /* !CAMERA_PCO_HH */

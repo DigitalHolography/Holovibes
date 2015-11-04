@@ -1,5 +1,4 @@
-#ifndef CAMERA_ADIMEC_HH
-# define CAMERA_ADIMEC_HH
+#pragma once
 
 #include <BFType.h>
 #include <BiDef.h>
@@ -81,5 +80,3 @@ namespace camera
     BFU32 roi_height_; //!< ROI height in pixels.
   };
 }
-
-#endif /* !CAMERA_ADIMEC_HH */

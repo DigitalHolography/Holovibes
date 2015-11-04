@@ -1,5 +1,4 @@
-#ifndef UTILS_HH
-# define UTILS_HH
+#pragma once
 
 #ifdef UTILS_EXPORTS
 # define UTILS_API __declspec(dllexport)
@@ -41,5 +40,3 @@ namespace camutils
     UTILS_API void free_memory(void* buf);
   }
 }
-
-#endif /* !UTILS_HH */
