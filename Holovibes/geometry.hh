@@ -1,5 +1,4 @@
-#ifndef GEOMETRY_HH
-# define GEOMETRY_HH
+#pragma once
 
 namespace holovibes
 {
@@ -138,5 +137,3 @@ namespace holovibes
     }
   };
 }
-
-#endif /* !GEOMETRY_HH */

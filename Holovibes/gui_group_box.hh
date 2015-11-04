@@ -1,5 +1,4 @@
-#ifndef GUI_GROUP_BOX_HH_
-# define GUI_GROUP_BOX_HH_
+#pragma once
 
 # include <QGroupBox>
 
@@ -26,5 +25,3 @@ namespace gui
     void ShowOrHide();
   };
 }
-
-#endif /* !GUI_GROUP_BOX_HH_ */

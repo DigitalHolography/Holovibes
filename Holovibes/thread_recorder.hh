@@ -1,5 +1,4 @@
-#ifndef THREAD_RECORDER_HH
-# define THREAD_RECORDER_HH
+#pragma once
 
 # include <string>
 # include <QThread>
@@ -57,5 +56,3 @@ namespace gui
     unsigned int n_images_;
   };
 }
-
-#endif /* !THREAD_RECORDER_HH */

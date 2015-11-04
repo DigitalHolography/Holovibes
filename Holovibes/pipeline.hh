@@ -1,5 +1,4 @@
-#ifndef PIPELINE_HH
-# define PIPELINE_HH
+#pragma once
 
 # include <vector>
 # include <tuple>
@@ -278,5 +277,3 @@ namespace holovibes
     /*! \} */
   };
 }
-
-#endif /* !PIPELINE_HH */

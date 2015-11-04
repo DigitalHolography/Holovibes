@@ -1,5 +1,4 @@
-#ifndef GUI_PLOT_WINDOW_HH
-# define GUI_PLOT_WINDOW_HH
+#pragma once
 
 # include <QMainWindow>
 # include <QtWidgets>
@@ -65,5 +64,3 @@ namespace gui
     CurvePlot curve_plot_;
   };
 }
-
-#endif /* !GUI_PLOT_WINDOW_HH */

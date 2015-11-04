@@ -1,5 +1,4 @@
-#ifndef THREAD_CAPTURE_HH
-# define THREAD_CAPTURE_HH
+#pragma once
 
 # include <thread>
 
@@ -25,5 +24,3 @@ namespace holovibes
     std::thread thread_;
   };
 }
-
-#endif /* !THREAD_CAPTURE_HH */

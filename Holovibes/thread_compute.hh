@@ -1,5 +1,4 @@
-#ifndef THREAD_COMPUTE_HH_
-# define THREAD_COMPUTE_HH_
+#pragma once
 
 # include <thread>
 # include <condition_variable>
@@ -61,5 +60,3 @@ namespace holovibes
     std::thread thread_;
   };
 }
-
-#endif /* !THREAD_COMPUTE_HH_ */

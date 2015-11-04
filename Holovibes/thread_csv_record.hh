@@ -1,5 +1,4 @@
-#ifndef THREAD_CSV_RECORD_HH
-# define THREAD_CSV_RECORD_HH
+#pragma once
 
 # include <iostream>
 # include <iomanip>
@@ -65,5 +64,3 @@ namespace gui
     bool record_;
   };
 }
-
-#endif /* !THREAD_CSV_RECORD_HH */

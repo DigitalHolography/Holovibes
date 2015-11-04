@@ -1,5 +1,4 @@
-#ifndef COMPUTE_DESCRIPTOR_HH
-# define COMPUTE_DESCRIPTOR_HH
+#pragma once
 
 # include <atomic>
 
@@ -127,5 +126,3 @@ namespace holovibes
     std::atomic<Rectangle> stft_roi_zone;
 	};
 }
-
-#endif /* !COMPUTE_DESCRIPTOR_HH */

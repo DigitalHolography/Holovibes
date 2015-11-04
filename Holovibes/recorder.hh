@@ -1,5 +1,4 @@
-#ifndef RECORDER_HH
-# define RECORDER_HH
+#pragma once
 
 #include <fstream>
 
@@ -26,5 +25,3 @@ namespace holovibes
     bool stop_requested_;
   };
 }
-
-#endif /* !RECORDER_HH */

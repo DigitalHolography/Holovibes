@@ -1,5 +1,4 @@
-#ifndef QUEUE_HH
-# define QUEUE_HH
+#pragma once
 
 # include <iostream>
 # include <mutex>
@@ -141,5 +140,3 @@ namespace holovibes
     std::mutex mutex_;
   };
 }
-
-#endif /* !QUEUE_HH */

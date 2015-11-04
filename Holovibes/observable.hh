@@ -1,5 +1,4 @@
-#ifndef OBSERVABLE_HH
-# define OBSERVABLE_HH
+#pragma once
 
 # include <vector>
 
@@ -38,5 +37,3 @@ namespace holovibes
     std::vector<Observer*> observers_;
   };
 }
-
-#endif /* !OBSERVABLE_HH */

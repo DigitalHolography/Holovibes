@@ -1,5 +1,4 @@
-#ifndef GUI_CURVE_PLOT_HH
-# define GUI_CURVE_PLOT_HH
+#pragma once
 
 # include <QtWidgets>
 # include <QVector>
@@ -100,5 +99,3 @@ namespace gui
     std::vector<std::tuple<float, float, float>> average_vector_;
   };
 }
-
-#endif /* !GUI_CURVE_PLOT_HH */

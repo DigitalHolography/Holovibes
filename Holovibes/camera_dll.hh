@@ -1,5 +1,4 @@
-#ifndef CAMERA_DLL
-# define CAMERA_DLL
+#pragma once
 
 # include <Windows.h>
 # undef min
@@ -33,5 +32,3 @@ namespace camera
     using FnInit = ICamera* (*)();
   };
 }
-
-#endif /* !CAMERA_DLL */

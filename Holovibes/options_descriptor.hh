@@ -1,5 +1,4 @@
-#ifndef OPTIONS_DESCRIPTOR_HH
-# define OPTIONS_DESCRIPTOR_HH
+#pragma once
 
 # include <string>
 # include "holovibes.hh"
@@ -69,4 +68,3 @@ namespace holovibes
     ComputeDescriptor compute_desc;
   };
 }
-#endif /* !OPTIONS_DESCRIPTOR_HH */

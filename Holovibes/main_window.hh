@@ -1,5 +1,4 @@
-#ifndef MAIN_WINDOW_HH_
-# define MAIN_WINDOW_HH_
+#pragma once
 
 # include <cmath>
 # include <thread>
@@ -402,5 +401,3 @@ namespace gui
     /*! \} */
   };
 }
-
-#endif /* !MAIN_WINDOW_HH_ */

@@ -1,5 +1,4 @@
-#ifndef OPTIONS_PARSER_HH
-# define OPTIONS_PARSER_HH
+#pragma once
 
 # include <boost/tokenizer.hpp>
 # include <boost/program_options/options_description.hpp>
@@ -94,5 +93,3 @@ namespace holovibes
 
     OptionsParser& operator=(const OptionsParser&) = delete;
   };
-}
-#endif /* !OPTIONS_PARSER_HH */

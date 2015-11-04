@@ -1,5 +1,4 @@
-#ifndef CONCURRENT_DEQUE_HH
-# define CONCURRENT_DEQUE_HH
+#pragma once
 
 # include <deque>
 # include <mutex>
@@ -169,5 +168,3 @@ namespace holovibes
     std::mutex mutex_;
   };
 }
-
-#endif /* !CONCURRENT_DEQUE_HH */

@@ -1,6 +1,4 @@
-/*! \file */
-#ifndef HOLOVIBES_HH
-# define HOLOVIBES_HH
+#pragma once
 
 # include "camera_dll.hh"
 # include "thread_compute.hh"
@@ -177,5 +175,3 @@ namespace holovibes
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
   };
 }
-
-#endif /* !HOLOVIBES_HH */

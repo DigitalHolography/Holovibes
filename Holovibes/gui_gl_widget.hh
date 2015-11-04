@@ -1,5 +1,4 @@
-#ifndef GUI_GL_WIDGET_HH_
-# define GUI_GL_WIDGET_HH_
+#pragma once
 
 # include <array>
 # include <QGLWidget>
@@ -228,5 +227,3 @@ namespace gui
     struct cudaGraphicsResource* cuda_buffer_;
   };
 }
-
-#endif /* !GUI_GL_WIDGET_HH_ */

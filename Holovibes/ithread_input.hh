@@ -1,16 +1,13 @@
-
-#ifndef ITHREAD_INPUT_HH
-#define ITHREAD_INPUT_HH
+#pragma once
 
 namespace holovibes
 {
-	class IThreadInput
-	{
-	protected:
-		IThreadInput();
-	public:
-		virtual ~IThreadInput();
-		bool stop_requested_;
-	};
+  class IThreadInput
+  {
+  protected:
+    IThreadInput();
+  public:
+    virtual ~IThreadInput();
+    bool stop_requested_;
+  };
 }
-#endif

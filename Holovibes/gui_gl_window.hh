@@ -1,5 +1,4 @@
-#ifndef GUI_GL_WINDOW_HH_
-# define GUI_GL_WINDOW_HH_
+#pragma once
 
 # include <QMainWindow>
 # include <QResizeEvent>
@@ -64,5 +63,3 @@ namespace gui
     /*! \} */
   };
 }
-
-#endif /* !GUI_GL_WINDOW_HH_ */

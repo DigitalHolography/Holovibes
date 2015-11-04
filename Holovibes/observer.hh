@@ -1,5 +1,4 @@
-#ifndef OBSERVER_HH
-# define OBSERVER_HH
+#pragma once
 
 namespace holovibes
 {
@@ -23,5 +22,3 @@ namespace holovibes
     {}
   };
 }
-
-#endif /* !OBSERVER_HH */

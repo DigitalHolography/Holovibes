@@ -1,5 +1,4 @@
-#ifndef FRAME_FILE_LOADER_HH
-# define FRAME_FILE_LOADER_HH
+#pragma once
 
 # include <string>
 # include <fstream>
@@ -34,5 +33,3 @@ namespace holovibes
     Queue queue_;
   };
 }
-
-#endif /* !FRAME_FILE_LOADER_HH */

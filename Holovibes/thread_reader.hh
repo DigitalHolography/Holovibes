@@ -1,5 +1,4 @@
-#ifndef THREAD_READER_HH
-#define THREAD_READER_HH
+#pragma once
 
 # include <iostream>
 # include <thread>
@@ -95,5 +94,3 @@ namespace holovibes
 
     std::thread thread_;
   };
-}
-#endif
