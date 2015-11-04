@@ -1,5 +1,4 @@
 #include <BiApi.h>
-#include <CiApi.h>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -11,20 +10,18 @@ namespace camera
   // Anonymous namespace allows translation-unit visibility (like static).
   namespace
   {
-    /* The Adimec camera returns images with values on 12 bits, each pixel
-    ** being encoded on two bytes (16 bits). However, we need to shift each
-    ** value towards the 4 unused bits, otherwise the image is very dark.
-    ** Example : A pixel's value is : 0x0AF5
-    **           We should make it  : 0xAF50
-    */
+    /* The Adimec camera returns images with values on 11 bits, each pixel
+     * being encoded on two bytes (16 bits). However, we need to shift each
+     * value towards the unused bits, otherwise the image is very dark.
+     * Example : A pixel's value is : 0x0AF5
+     *           We should make it  : 0xAF50 */
     void update_image(void* buffer, unsigned width, unsigned height)
     {
       const unsigned shift_step = 5; // The shift distance, in bits.
       size_t* it = reinterpret_cast<size_t*>(buffer);
 
       /* Iteration is done with a size_t, allowing to move values 4 by 4
-      ** (a size_t contains 4 shorts, each short encoding a pixel value).
-      */
+       * (a size_t contains 4 shorts, each short encoding a pixel value). */
       for (unsigned y = 0; y < width; ++y)
       {
         for (unsigned x = 0; x < height / 4; ++x)
@@ -33,28 +30,19 @@ namespace camera
     }
   }
 
-  ICamera* new_camera_device()
-  {
-    return new CameraAdimec();
-  }
-
-  /* Public interface
-  */
-
   CameraAdimec::CameraAdimec()
     : Camera("adimec.ini")
     , board_(nullptr)
     , info_(new BIBA())
     , last_buf(0)
-    , quad_bank_ { BFQTabBank0 }
+    , quad_bank_(BFQTabBank0)
   {
     name_ = "Adimec";
     /* Dimensions are initialized as there were no ROI; they will be updated
-    ** later if needed.
-    */
+     * later if needed. */
     desc_.width = 1440;
     desc_.height = 1440;
-    // Technically the camera is 12-bits, but each pixel value is encoded on 16 bits.
+    // Technically the camera is 11-bits, but each pixel value is encoded on 16 bits.
     desc_.depth = 2.f;
     desc_.endianness = LITTLE_ENDIAN;
     desc_.pixel_size = 12;
@@ -73,8 +61,7 @@ namespace camera
   void CameraAdimec::init_camera()
   {
     /* We don't want a specific type of board; there should not
-    ** be more than one anyway.
-    */
+     * be more than one anyway. */
     BFU32 type = BiTypeAny;
     BFU32 number = 0;
 
@@ -88,9 +75,8 @@ namespace camera
 
   void CameraAdimec::start_acquisition()
   {
-    /* Now, allocating buffer(s) for acquisition.
-    */
-    // We get the frame size (width * height * depth).
+    /* Asking the frame size (width * height * depth) to the board.
+     * Such a method is more robust than hardcoding known values.*/
     BFU32 width;
     err_check(BiBrdInquire(board_, BiCamInqXSize, &width),
       "Could not get frame size",
@@ -103,14 +89,14 @@ namespace camera
       CloseFlag::BOARD);
 
     // Aligned allocation ensures fast memory transfers.
-    err_check(BiBufferAllocAligned(board_, info_, width, width, depth, 4, 4096),
+    const BFSIZET alignment = 4096;
+    err_check(BiBufferAllocAligned(board_, info_, width, width, depth, 4, alignment),
       "Could not allocate buffer memory",
       CameraException::MEMORY_PROBLEM,
       CloseFlag::BOARD);
 
     /* If the board does not find any buffer marked AVAILABLE by the user,
-    ** it will overwrite them.
-    */
+     * it will overwrite them. */
     BFU32 error_handling = CirErIgnore;
     BFU32 options = BiAqEngJ;
     err_check(BiCircAqSetup(board_,
@@ -121,6 +107,7 @@ namespace camera
       CameraException::CANT_START_ACQUISITION,
       CloseFlag::ALL);
 
+    /* Acquisition is started without interruption. */
     options = BiWait;
     err_check(BiCirControl(board_, info_, BISTART, options),
       "Could not start acquisition",
@@ -131,8 +118,7 @@ namespace camera
   void CameraAdimec::stop_acquisition()
   {
     /* Free resources taken by BiCircAqSetup, in a single function call.
-    ** Allocated memory is freed separately, through BiBufferFree.
-    */
+     * Allocated memory is freed separately, through BiBufferFree. */
     BiBufferFree(board_, info_);
     if (BiCircCleanUp(board_, info_) != BI_OK)
     {
@@ -169,18 +155,15 @@ namespace camera
     return hd.pBufData;
   }
 
-  /* Private methods
-  */
-
   void CameraAdimec::err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag)
   {
     if (status != CI_OK)
     {
       std::cerr << "[CAMERA] " << err_mess << " : " << status << "\n";
 
-      if (flag & 0xF00)
+      if (flag & CloseFlag::BUFFER)
         BiBufferFree(board_, info_);
-      if (flag & 0x00F)
+      if (flag & CloseFlag::BOARD)
         BiBrdClose(board_);
 
       throw cam_ex;
@@ -189,10 +172,10 @@ namespace camera
 
   void CameraAdimec::load_default_params()
   {
-    /* Values here are harcoded to avoid being dependent on a default file,
-    ** which may be modified accidentally. When possible, these default values
-    ** were taken from the default mode for the Adimec-A2750 camera.
-    */
+    /* Values here are hardcoded to avoid being dependent on a default .bfml file,
+     * which may be modified accidentally. When possible, these default values
+     * were taken from the default mode for the Adimec-A2750 camera. */
+
     exposure_time_ = 0x0539;
 
     frame_period_ = 0x056C;
@@ -207,13 +190,10 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    // Exposure time
     exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
 
-    // Frame period
     frame_period_ = pt.get<BFU32>("adimec.frame_period", frame_period_);
 
-    // ROI
     roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
     roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
     roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
@@ -223,41 +203,24 @@ namespace camera
   void CameraAdimec::bind_params()
   {
     /* We use a CoaXPress-specific register writing function to set parameters.
-    ** The register address parameter can be found in any .bfml configuration file provided
-    ** by Bitflow; here, it has been put into an enumeration for clarity.
-    **
-    ** Whenever a parameter setting fails, setup fallbacks to default value.
-    */
+     * The register address parameter can be found in any .bfml configuration file provided
+     * by Bitflow; here, it has been put into the RegAdress enum for clarity.
+     *
+     * Whenever a parameter setting fails, setup fallbacks to default value. */
 
     /* Frame period should be set before exposure time, because the latter
-    ** depends of the former.
-    */
+     * depends of the former. */
     if (BFCXPWriteReg(board_, 0, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
       std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
 
-    // Exposure time
     if (BFCXPWriteReg(board_, 0, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
       std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
-    /* ROI : Find a software alternative in Bi or rely solely on .bfml files.
-    if (roi_x_ > desc_.width ||
-    roi_x_ < 0 ||
-    roi_y_ > desc_.height ||
-    roi_y_ < 0 ||
-    roi_width_ <= 0 ||
-    roi_height_ <= 0 ||
-    (roi_width_ + roi_x_) > desc_.width ||
-    (roi_height_ + roi_y_) > desc_.height ||
-    (CiAqROISet(board_, roi_x_, roi_y_, roi_width_, roi_height_, AqEngJ) != CI_OK))
-    {
-    std::cerr << "[CAMERA] Could not set ROI to (" << roi_x_ << ", " << roi_y_ <<
-    ") " << roi_width_ << " (w) " << roi_height_ << " (h)" << std::endl;
-    }
-    else
-    {
-    desc_.width = roi_width_;
-    desc_.height = roi_height_;
-    }
-    */
+    /* ROI : Find a software alternative in Bi or rely solely on .bfml files. */
+  }
+
+  ICamera* new_camera_device()
+  {
+    return new CameraAdimec();
   }
 }
