@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef CONTRAST_CORRECTION_CUH
-# define CONTRAST_CORRECTION_CUH
+#pragma once
 
 /*! \brief Make the contrast of the image depending of the
 * maximum and minimum input given by the user.
@@ -35,5 +34,3 @@ void auto_contrast_correction(
   unsigned int size,
   float* min,
   float* max);
-
-#endif /* !CONTRAST_CORRECTION_CUH */

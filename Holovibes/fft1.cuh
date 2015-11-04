@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef FFT1_CUH
-# define FFT1_CUH
+#pragma once
 
 #include <cufft.h>
 #include "queue.hh"
@@ -27,5 +26,3 @@ void fft_1(
   cufftHandle plan,
   unsigned int frame_resolution,
   unsigned int nframes);
-
-#endif /* !FFT1_CUH */

@@ -1,7 +1,5 @@
 /*! \file */
-#ifndef VIBROMETRY_CUH
-# define VIBROMETRY_CUH
-
+#pragma once
 # include <cufft.h>
 
 /*! \brief For each pixel (P and Q) of the two images, this function
@@ -17,5 +15,3 @@ void frame_ratio(
   cufftComplex* frame_q,
   cufftComplex* output,
   unsigned int size);
-
-#endif /* !VIBROMETRY_CUH */

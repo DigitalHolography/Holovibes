@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef PREPROCESSING_CUH
-# define PREPROCESSING_CUH
+#pragma once
 
 # include <cufft.h>
 # include "queue.hh"
@@ -40,5 +39,3 @@ void make_contiguous_complex(
   cufftComplex* output,
   unsigned int n,
   const float* sqrt_array);
-
-#endif /* !PREPROCESSING_CUH */

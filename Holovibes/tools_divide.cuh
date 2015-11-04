@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef TOOLS_DIVIDE_CUH
-# define TOOLS_DIVIDE_CUH
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -37,5 +36,3 @@ __global__ void kernel_float_divide(
   float* input,
   unsigned int size,
   float divider);
-
-#endif /* !TOOLS_DIVIDE_CUH */

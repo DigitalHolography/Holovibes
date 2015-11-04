@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef TOOLS_MULTIPLY_CUH
-# define TOOLS_MULTIPLY_CUH
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -36,5 +35,3 @@ __global__ void kernel_multiply_frames_float(
   const float* input2,
   float* output,
   unsigned int size);
-
-#endif /* TOOLS_MULTIPLY.CUH */

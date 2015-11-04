@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef TOOLS_CUH
-# define TOOLS_CUH
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -141,5 +140,3 @@ void copy_buffer(
   cufftComplex* src,
   cufftComplex* dst,
   const size_t nb_elts);
-
-#endif /* !TOOLS_CUH */

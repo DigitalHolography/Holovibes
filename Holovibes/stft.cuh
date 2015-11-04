@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef STFT_CUH
-# define STFT_CUH
+#pragma once
 
 # include <cufft.h>
 # include "queue.hh"
@@ -65,4 +64,3 @@ void stft_recontruct(
   unsigned int                    reconstruct_height,
   unsigned int                    pindex,
   unsigned int                    nsamples);
-#endif

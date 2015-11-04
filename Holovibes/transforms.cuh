@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef TRANSFORMS_CUH_
-# define TRANSFORMS_CUH_
+#pragma once
 
 # include <cufft.h>
 # include <frame_desc.hh>
@@ -30,5 +29,3 @@ __global__ void kernel_spectral_lens(
   const camera::FrameDescriptor fd,
   float lambda,
   float distance);
-
-#endif /* !TRANSFORMS_CUH_ */

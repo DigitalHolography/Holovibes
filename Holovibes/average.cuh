@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef AVERAGE_CUH
-# define AVERAGE_CUH
+#pragma once
 
 # include <tuple>
 # include "geometry.hh"
@@ -39,5 +38,3 @@ std::tuple<float, float, float> make_average_stft_plot(
   holovibes::Rectangle&  noise_zone,
   unsigned int           pindex,
   unsigned int           nsamples);
-
-#endif /* !AVERAGE_CUH */

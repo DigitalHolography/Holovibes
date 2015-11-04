@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef FFT2_CUH
-# define FFT2_CUH
+#pragma once
 
 #include <cufft.h>
 #include "queue.hh"
@@ -27,5 +26,3 @@ void fft_2(
   unsigned int nframes,
   unsigned int p,
   unsigned int q);
-
-#endif

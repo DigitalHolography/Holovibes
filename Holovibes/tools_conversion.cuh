@@ -1,6 +1,5 @@
 /*! \file */
-#ifndef TOOLS_CONVERSION_CUH
-# define TOOLS_CONVERSION_CUH
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -100,5 +99,3 @@ void float_to_ushort(
   float* input,
   unsigned short* output,
   unsigned int size);
-
-#endif /* !TOOLS_CONVERSION_CUH */
