@@ -23,6 +23,17 @@ __global__ void kernel_apply_lens(
   unsigned int input_size,
   cufftComplex *lens,
   unsigned int lens_size);
+
+/*! \brief Will split the pixels of the original image
+ * into output respecting the ROI selected
+ * \param tl_x top left x coordinate of ROI
+ * \param tl_y top left y coordinate of ROI
+ * \param br_x bot right x coordinate of ROI
+ * \param br_y bot right y coordinate of ROI
+ * \param curr_elt which image out of nsamples we are doing the ROI on
+ * \param width total width of input
+ * \param output buffer containing all our pixels taken from the ROI
+ */
 __global__ void kernel_bursting_roi(
   cufftComplex *input,
   unsigned int tl_x,
@@ -34,6 +45,12 @@ __global__ void kernel_bursting_roi(
   unsigned int width,
   unsigned int size,
   cufftComplex *output);
+
+/*! \brief Reconstruct bursted pixel from input
+* into output
+* \param p which image we are on
+* \param nsample total number of images
+*/
 __global__ void kernel_reconstruct_roi(
   cufftComplex* input,
   cufftComplex* output,
@@ -44,11 +61,18 @@ __global__ void kernel_reconstruct_roi(
   unsigned int  reconstruct_height,
   unsigned int  p,
   unsigned int  nsample);
-// TODO: Explain what this does.
+
+/*! \brief Divide a complex image by a divider
+* the two coordinate of each point (complex) will
+* be divided
+*/
 __global__ void kernel_complex_divide(
   cufftComplex* image,
   unsigned int size,
   float divider);
+
+/*! \brief Divide a float image by a divider
+*/
 __global__ void kernel_float_divide(
   float* input,
   unsigned int size,
@@ -57,7 +81,7 @@ __global__ void kernel_float_divide(
 /*! \brief  Permits to shift the corners of an image.
 *
 * This function shift zero-frequency component to center of spectrum
-* as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+* as explained in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void shift_corners(
@@ -78,10 +102,11 @@ void apply_log10(
 
 /*! \brief  apply the convolution operator to 2 complex images (x,k).
 *
-* The 2 images should have the same size.
-* The result value is given is out.
-* The 2 used planes should be externally prepared (for performance reasons).
-* For further informations: Autofocus of holograms based on image sharpness.
+* \param x first matrix
+* \param k second matrix
+* \param out output result
+* \param plan2d_x externally prepared plan for x
+* \param plan2d_k externally prepared plan for k
 */
 void convolution_operator(
   const cufftComplex* x,
@@ -93,9 +118,7 @@ void convolution_operator(
 
 /*! \brief  Extract a part of the input image to the output.
 *
-* The exracted aera should be less Than the input image.
-* The result extracted image given is contained in output, the output should be preallocated.
-* Coordonates of the extracted area are specified into the zone.
+* \param zone the part of the image we want to extract
 */
 void frame_memcpy(
   const float* input,
@@ -105,7 +128,6 @@ void frame_memcpy(
   const unsigned int output_width);
 
 /*! \brief  Make the average of all pixels contained into the input image
-* The size parameter is the number of pixels of the input image
 */
 float average_operator(
   const float* input,

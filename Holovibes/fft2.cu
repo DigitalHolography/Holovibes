@@ -18,7 +18,7 @@ void fft2_lens(
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
-  kernel_spectral_lens<<<lblocks, lthreads>>>(lens, fd, lambda, z);
+  kernel_spectral_lens << <lblocks, lthreads >> >(lens, fd, lambda, z);
 }
 
 void fft_2(
@@ -46,7 +46,7 @@ void fft_2(
 
   cudaDeviceSynchronize();
 
-  kernel_apply_lens<<<blocks, threads>>>(
+  kernel_apply_lens << <blocks, threads >> >(
     input,
     n_frame_resolution,
     lens,
@@ -55,11 +55,11 @@ void fft_2(
   cudaDeviceSynchronize();
 
   cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
-  kernel_complex_divide<<<blocks, threads >>>(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
+  kernel_complex_divide << <blocks, threads >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
   if (p != q)
   {
     cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
-    kernel_complex_divide <<<blocks, threads>>>(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
+    kernel_complex_divide << <blocks, threads >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
   }
 
   cudaDeviceSynchronize();

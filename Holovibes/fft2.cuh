@@ -5,17 +5,18 @@
 #include <cufft.h>
 #include "queue.hh"
 
+/*! \brief Find the right threads and block to call spectral lens
+* with and call it
+*/
 void fft2_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   float lambda,
   float z);
 
-/*! FFT2 takes input complex buffer and computes a p frame that is stored
+/*! \brief takes input complex buffer and computes a p frame that is stored
  * at output pointer. The output pointer can be another complex buffer or the
  * same as input buffer.
- * -NOTE- It makes sense that this function should compute on all frames
- * (not only the p-th).
  */
 void fft_2(
   cufftComplex* input,

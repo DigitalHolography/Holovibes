@@ -46,7 +46,7 @@ static __global__ void kernel_zone_sum(
 
   // Sum sdata in sdata[0]
   __syncthreads();
-  for (unsigned int s = blockDim.x / 2; s>32; s >>= 1)
+  for (unsigned int s = blockDim.x / 2; s > 32; s >>= 1)
   {
     if (tid < s)
       sdata[tid] += sdata[tid + s];
@@ -68,16 +68,6 @@ static __global__ void kernel_zone_sum(
     *output = sdata[0];
 }
 
-/*! \brief  Make the average plot on the 2 select zones
-*
-* \param input The image from where zones should be ploted
-* \param width The width of the input image.
-* \param height The height of the input image.
-* \param signal Coordinates of the signal zone to use.
-* \param noise Coordinates of the noise zone to use.
-* \rerun A tupple of 3 floats <sum of signal zones pixels, sum of noise zone pixels, average>.
-*
-*/
 std::tuple<float, float, float> make_average_plot(
   float *input,
   const unsigned int width,
@@ -126,10 +116,8 @@ std::tuple<float, float, float> make_average_plot(
   cudaFree(gpu_n);
   cudaFree(gpu_s);
 
-  return std::tuple<float, float, float>{ cpu_s, cpu_n, moy };
+  return std::tuple < float, float, float > { cpu_s, cpu_n, moy };
 }
-
-#include <iostream>
 
 std::tuple<float, float, float> make_average_stft_plot(
   cufftComplex*          cbuf,

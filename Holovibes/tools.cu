@@ -21,16 +21,6 @@ __global__ void kernel_apply_lens(
   }
 }
 
-/*! \brief Will split the pixels of the original image
- * into output respecting the ROI selected
- * \param tl_x top left x coordinate of ROI
- * \param tl_y top left y coordinate of ROI
- * \param br_x bot right x coordinate of ROI
- * \param br_y bot right y coordinate of ROI
- * \param curr_elt which image out of nsamples we are doing the ROI on
- * \param width total width of input
- * \param output buffer containing all our pixels taken from the ROI
- */
 __global__ void kernel_bursting_roi(
   cufftComplex *input,
   unsigned int tl_x,
@@ -62,10 +52,6 @@ __global__ void kernel_bursting_roi(
   }
 }
 
-/*! \brief Reconstruct bursted pixel from input
-* into output
-* \param p which image out
-*/
 __global__ void kernel_reconstruct_roi(
   cufftComplex* input,
   cufftComplex* output,

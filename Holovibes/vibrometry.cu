@@ -43,5 +43,5 @@ void frame_ratio(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_frame_ratio <<<blocks, threads>>>(frame_p, frame_q, output, size);
+  kernel_frame_ratio << <blocks, threads >> >(frame_p, frame_q, output, size);
 }

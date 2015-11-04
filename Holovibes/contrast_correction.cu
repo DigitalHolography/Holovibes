@@ -33,15 +33,6 @@ static void find_min_max_img(
   }
 }
 
-/*! \brief Find the minimum pixel value of an image and the maximum one.
-*
-* \param input The image to correct correct contrast.
-* This image should be stored in device VideoRAM.
-* \param size Size of the image in number of pixels.
-* \param min Minimum pixel value found.
-* \param max Maximum pixel value found.
-*
-*/
 void auto_contrast_correction(
   float* input,
   unsigned int size,
@@ -74,21 +65,6 @@ static __global__ void apply_contrast(
   }
 }
 
-/*! \brief Make the contrast of the image depending of the
-* maximum an minimum input given by the user.
-*
-* The algortihm used is a contrast stretching, the
-* values min and max can be found thanks to the previous functions
-* or can be setted by the user in case of a particular use.
-* in case of autocontrast the same function is used but with found values on
-* the image.
-* This image should be stored in device VideoRAM.
-* \param input The image to correct correct contrast.
-* \param size Size of the image in number of pixels.
-* \param min Minimum pixel value of the input image.
-* \param max Maximum pixel value of the input image.
-*
-*/
 void manual_contrast_correction(
   float* input,
   unsigned int size,
@@ -103,5 +79,5 @@ void manual_contrast_correction(
     blocks = get_max_blocks();
 
   const float factor = static_cast<float>(dynamic_range) / (max - min);
-  apply_contrast<<<blocks, threads>>>(input, size, factor, min);
+  apply_contrast << <blocks, threads >> >(input, size, factor, min);
 }

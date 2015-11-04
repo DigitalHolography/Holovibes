@@ -17,8 +17,8 @@ void fft1_lens(
   unsigned int blocks = (fd.frame_res() + threads - 1) / threads;
 
   if (blocks > get_max_blocks())
-	  blocks = get_max_blocks();
-  kernel_quadratic_lens<<<blocks, threads>>>(lens, fd, lambda, z);
+    blocks = get_max_blocks();
+  kernel_quadratic_lens << <blocks, threads >> >(lens, fd, lambda, z);
 }
 
 void fft_1(
@@ -37,7 +37,7 @@ void fft_1(
     blocks = get_max_blocks();
 
   // Apply lens on multiple frames.
-  kernel_apply_lens <<<blocks, threads>>>(input, n_frame_resolution, lens, frame_resolution);
+  kernel_apply_lens << <blocks, threads >> >(input, n_frame_resolution, lens, frame_resolution);
 
   cudaDeviceSynchronize();
 
