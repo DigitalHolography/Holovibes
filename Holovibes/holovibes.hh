@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef HOLOVIBES_HH
 # define HOLOVIBES_HH
 

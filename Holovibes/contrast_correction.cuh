@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef CONTRAST_CORRECTION_CUH
 # define CONTRAST_CORRECTION_CUH
 

@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef AVERAGE_CUH
 # define AVERAGE_CUH
 

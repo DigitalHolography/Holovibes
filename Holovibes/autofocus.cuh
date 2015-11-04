@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef AUTOFOCUS_CUH
 # define AUTOFOCUS_CUH
 

@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef TOOLS_DIVIDE_CUH
 # define TOOLS_DIVIDE_CUH
 

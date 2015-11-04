@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef VIBROMETRY_CUH
 # define VIBROMETRY_CUH
 

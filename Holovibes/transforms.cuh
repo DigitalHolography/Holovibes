@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef TRANSFORMS_CUH_
 # define TRANSFORMS_CUH_
 

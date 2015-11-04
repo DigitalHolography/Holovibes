@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef PREPROCESSING_CUH
 # define PREPROCESSING_CUH
 

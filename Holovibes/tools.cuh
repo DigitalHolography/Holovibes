@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef TOOLS_CUH
 # define TOOLS_CUH
 

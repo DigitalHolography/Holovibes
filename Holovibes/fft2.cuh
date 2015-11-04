@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef FFT2_CUH
 # define FFT2_CUH
 

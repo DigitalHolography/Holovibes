@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef STFT_CUH
 # define STFT_CUH
 

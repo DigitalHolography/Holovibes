@@ -1,3 +1,4 @@
+/*! \file */
 #ifndef TOOLS_MULTIPLY_CUH
 # define TOOLS_MULTIPLY_CUH
 
