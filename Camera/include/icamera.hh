@@ -6,6 +6,7 @@
 # define CAMERA_API __declspec(dllimport)
 #endif
 
+/*! \brief Containt all function and structure reference to camera usage */
 namespace camera
 {
   struct FrameDescriptor;

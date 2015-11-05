@@ -16,7 +16,6 @@
 
 # include "options_descriptor.hh"
 
-/*! \brief Boost namespaces alias. */
 namespace po = boost::program_options;
 
 namespace holovibes

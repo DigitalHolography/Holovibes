@@ -11,6 +11,7 @@
 
 # include <memory>
 
+/*! \brief Containt all function and structure needed to computes data */
 namespace holovibes
 {
   /*! \brief Core class to use HoloVibes
