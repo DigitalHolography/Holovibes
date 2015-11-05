@@ -21,7 +21,7 @@ namespace gui
   {
     Q_OBJECT
 
-      typedef holovibes::ConcurrentDeque<std::tuple<float, float, float>> Deque;
+    typedef holovibes::ConcurrentDeque<std::tuple<float, float, float>> Deque;
 
   public:
     /*! \brief ThreadCSVRecord constructor
@@ -39,7 +39,7 @@ namespace gui
       QObject* parent = nullptr);
     ~ThreadCSVRecord();
 
-  public slots:
+    public slots:
     /*! Stops the record by setting a flag */
     void stop();
 

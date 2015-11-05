@@ -34,7 +34,6 @@ namespace holovibes
     size_t  length;
 
     unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
-    // char* buffer = new char[frame_size * NBR];
     char*   buffer;
     cudaMallocHost(&buffer, frame_size * NBR);
     unsigned int nbr_stored = 0;
@@ -86,7 +85,6 @@ namespace holovibes
     }
     stop_requested_ = true;
     cudaFreeHost(buffer);
-  //  delete[] buffer;
   }
 
   ThreadReader::~ThreadReader()

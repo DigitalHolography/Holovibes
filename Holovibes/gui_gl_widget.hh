@@ -195,7 +195,7 @@ namespace gui
 
     /*! \brief Check glError and print then
      *
-     * Use only in debug mode, glGetError is slow on Android and should be avoided
+     * Use only in debug mode, glGetError is slow and should be avoided
      */
     void gl_error_checking();
 

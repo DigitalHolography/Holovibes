@@ -111,7 +111,7 @@ namespace holovibes
 
   private:
     /*! FrameDescriptor of the Queue */
-    const camera::FrameDescriptor frame_desc_;
+    camera::FrameDescriptor frame_desc_;
 
     /*! Size of one element in bytes */
     const size_t size_;
