@@ -38,6 +38,31 @@ namespace camera
     virtual void bind_params() override;
 
   private:
+    /*! Format gain, it should be between 0 and 100 as it is a coefficient.
+    * \return 0 if gain < 0 or gain > 100; else returns gain. */
+    int format_gain();
+
+    /*! Retrieve subsampling mode code from a string.
+    * \return The corresponding API-defined code, or the subsampling-disabling code
+    * if the value is invalid. */
+    int get_subsampling_mode(std::string ui);
+
+    /*! Retrieve binning mode code from user input string.
+    * \return The corresponding API-defined code, or the binning-disabling code
+    * if the value is invalid. */
+    int get_binning_mode(std::string ui);
+
+    /*! Retrieve color mode code from user input string.
+    * \return The corresponding API-defined code, or the raw 8-bit format
+    * if the value is invalid. */
+    int get_color_mode(std::string ui);
+
+    /*! Retrieve trigger mode code from user input string.
+    * \return The corresponding API-defined code, or the trigger-disabling code
+    * if the value is invalid. */
+    int get_trigger_mode(std::string ui);
+
+  private:
     HIDS cam_; //!< camera handler
 
     char* frame_; //!< frame pointer
@@ -61,30 +86,5 @@ namespace camera
     int aoi_height_; //!< Area Of Interest (AOI) height
 
     int trigger_mode_; //!< Trigger mode
-
-  private:
-    /*! Format gain, it should be between 0 and 100 as it is a coefficient.
-     * \return 0 if gain < 0 or gain > 100; else returns gain. */
-    int format_gain();
-
-    /*! Retrieve subsampling mode code from a string.
-     * \return The corresponding API-defined code, or the subsampling-disabling code
-     * if the value is invalid. */
-    int get_subsampling_mode(std::string ui);
-
-    /*! Retrieve binning mode code from user input string.
-     * \return The corresponding API-defined code, or the binning-disabling code
-     * if the value is invalid. */
-    int get_binning_mode(std::string ui);
-
-    /*! Retrieve color mode code from user input string.
-     * \return The corresponding API-defined code, or the raw 8-bit format
-     * if the value is invalid. */
-    int get_color_mode(std::string ui);
-
-    /*! Retrieve trigger mode code from user input string.
-     * \return The corresponding API-defined code, or the trigger-disabling code
-     * if the value is invalid. */
-    int get_trigger_mode(std::string ui);
   };
 }

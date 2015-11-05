@@ -145,7 +145,6 @@ namespace camera
     void(*free_memory_)(void* buf);
 
   private:
-
     std::string ini_path_; //!< INI configuration file's absolute path.
 
     std::ifstream  ini_file_; //!< INI configuration file data stream.

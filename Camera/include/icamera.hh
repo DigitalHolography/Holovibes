@@ -42,6 +42,12 @@ namespace camera
     {
     }
 
+    /*! \brief A camera object is non assignable. */
+    ICamera& operator=(const ICamera&) = delete;
+
+    /*! \brief A camera object is non copyable. */
+    ICamera(const ICamera&) = delete;
+
     virtual ~ICamera()
     {
     }
@@ -86,13 +92,6 @@ namespace camera
      *
      * Getting a frame should not be longer than FRAME_TIMEOUT */
     virtual void* get_frame() = 0;
-
-  private:
-    /*! \brief A camera object is non assignable. */
-    ICamera& operator=(const ICamera&) = delete;
-
-    /*! \brief A camera object is non copyable. */
-    ICamera(const ICamera&) = delete;
   };
 
   /*! extern "C" is used to avoid C++ name mangling.

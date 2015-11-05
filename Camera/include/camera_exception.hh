@@ -27,6 +27,11 @@ namespace camera
     {
     }
 
+    /*! Although we may need the copy constructor in order to pass to a function
+    * an exception to be thrown, assignation does not make sense.
+    */
+    CameraException& operator=(const CameraException&) = delete;
+
     virtual ~CameraException()
     {
     }
@@ -59,10 +64,5 @@ namespace camera
 
   private:
     const camera_error code_;
-
-    /*! Although we may need the copy constructor in order to pass to a function
-     * an exception to be thrown, assignation does not make sense.
-     */
-    CameraException& operator=(const CameraException&) = delete;
   };
 }

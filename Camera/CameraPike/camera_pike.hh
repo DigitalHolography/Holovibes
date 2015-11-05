@@ -37,6 +37,19 @@ namespace camera
     virtual void* get_frame() override;
 
   private:
+    virtual void load_default_params() override;
+    virtual void load_ini_params() override;
+    virtual void bind_params() override;
+
+    //!< Retrieve camera name (vendor and model from the device API)
+    std::string get_name_from_device();
+
+    unsigned long to_dcam_format();
+
+    //!< Convert user input to speed parameter
+    unsigned long to_speed();
+
+  private:
     CFGCamera cam_;
     FGFRAME fgframe_;
 
@@ -54,18 +67,5 @@ namespace camera
     int roi_starty_;
     int roi_width_;
     int roi_height_;
-
-  private:
-    virtual void load_default_params() override;
-    virtual void load_ini_params() override;
-    virtual void bind_params() override;
-
-    //!< Retrieve camera name (vendor and model from the device API)
-    std::string get_name_from_device();
-
-    unsigned long to_dcam_format();
-
-    //!< Convert user input to speed parameter
-    unsigned long to_speed();
   };
 }

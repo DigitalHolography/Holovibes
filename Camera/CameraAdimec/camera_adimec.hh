@@ -42,6 +42,7 @@ namespace camera
      * \param flag See CloseFlag enum. */
     void err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag);
 
+  private:
     //! Selecting a component to release.
     /*! Enum that will decide what we have to close when an error
      * occurs. Binary masking is used here to add up flags. */

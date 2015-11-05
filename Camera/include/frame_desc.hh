@@ -15,17 +15,6 @@ namespace camera
   struct FrameDescriptor
   {
   public:
-    unsigned short width; //!< Width of the frame in pixels.
-
-    unsigned short height; //!< Height of the frame in pixels.
-
-    float depth; //!< Byte depth during acquisition.
-
-    float pixel_size; //!< Size of pixels in micrometers.
-
-    //!< To each camera software its endianness. Useful for 16-bit cameras.
-    e_endianness endianness;
-
     //!< Obtain the total frame size in bytes.
     unsigned int frame_size() const
     {
@@ -37,5 +26,17 @@ namespace camera
     {
       return width * height;
     }
+
+  public:
+    unsigned short width; //!< Width of the frame in pixels.
+
+    unsigned short height; //!< Height of the frame in pixels.
+
+    float depth; //!< Byte depth during acquisition.
+
+    float pixel_size; //!< Size of pixels in micrometers.
+
+    //!< To each camera software its endianness. Useful for 16-bit cameras.
+    e_endianness endianness;
   };
 }
