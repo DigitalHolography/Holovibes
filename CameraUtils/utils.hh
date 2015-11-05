@@ -29,10 +29,10 @@ namespace camutils
      *
      * The file will be created in a log/ directory in the current
      * working directory of the executable. */
-    UTILS_API void create_logfile(std::string name);
+    UTILS_API void create_logfile(const std::string name);
 
     /*! \brief Log a single message. */
-    UTILS_API void log_msg(std::string msg);
+    UTILS_API void log_msg(const std::string msg);
 
     /*! \brief The user of the logging service has to manually close the stream.
      *

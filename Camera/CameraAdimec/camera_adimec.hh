@@ -40,7 +40,10 @@ namespace camera
      * \param err_mess Error messaege to be printed on standard error.
      * \param cam_ex A CameraException type.
      * \param flag See CloseFlag enum. */
-    void err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag);
+    void err_check(const BFRC status,
+      const std::string err_mess,
+      const CameraException cam_ex,
+      const int flag);
 
   private:
     //! Selecting a component to release.

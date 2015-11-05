@@ -114,10 +114,10 @@ namespace camera
       img_format_ = XI_RAW16;
 
     {
-      int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
-      int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
-      int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
-      int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
+      const int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
+      const int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
+      const int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
+      const int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
 
       /* Making sure ROI settings are valid.
        * Keep in mind that ROI area can't be larger than the

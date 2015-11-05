@@ -12,7 +12,9 @@
 
 namespace camera
 {
-  const SHORT NBUFFERS = 2;
+  //!< Number of buffers to be handled by the camera.
+  static const SHORT NBUFFERS = 2;
+
   /*! This class factorizes a bit code for PCO cameras.
    * Note that it is useless by itself; further derived classes are used. */
   class CameraPCO : public Camera

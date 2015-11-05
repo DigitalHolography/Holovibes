@@ -153,7 +153,7 @@ namespace camera
       throw CameraException(CameraException::CANT_SET_CONFIG);
   }
 
-  unsigned long CameraPike::to_dcam_format()
+  unsigned long CameraPike::to_dcam_format() const
   {
     int mode = 0;
     int color_mode = desc_.depth == 2 ? CM_Y16 : CM_Y8;
@@ -173,7 +173,7 @@ namespace camera
     return MAKEDCAMFORMAT(7, mode, color_mode);
   }
 
-  unsigned long CameraPike::to_speed()
+  unsigned long CameraPike::to_speed() const
   {
     if (speed_ == 100)
       return FG_PHYSPEED::PS_100MBIT;

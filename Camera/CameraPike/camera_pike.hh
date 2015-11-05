@@ -44,10 +44,10 @@ namespace camera
     //!< Retrieve camera name (vendor and model from the device API)
     std::string get_name_from_device();
 
-    unsigned long to_dcam_format();
+    unsigned long to_dcam_format() const;
 
     //!< Convert user input to speed parameter
-    unsigned long to_speed();
+    unsigned long to_speed() const;
 
   private:
     CFGCamera cam_;

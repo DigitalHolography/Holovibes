@@ -22,7 +22,7 @@ namespace camera
       CANT_SET_CONFIG, //!< Some given configuration option is invalid.
     };
 
-    CameraException(camera_error code)
+    CameraException(const camera_error code)
       : code_(code)
     {
     }

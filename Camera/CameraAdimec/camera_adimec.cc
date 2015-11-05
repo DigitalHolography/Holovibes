@@ -155,7 +155,10 @@ namespace camera
     return hd.pBufData;
   }
 
-  void CameraAdimec::err_check(BFRC status, std::string err_mess, CameraException cam_ex, int flag)
+  void CameraAdimec::err_check(const BFRC status,
+    const std::string err_mess,
+    const CameraException cam_ex,
+    const int flag)
   {
     if (status != CI_OK)
     {

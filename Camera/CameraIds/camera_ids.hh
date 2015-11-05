@@ -40,27 +40,27 @@ namespace camera
   private:
     /*! Format gain, it should be between 0 and 100 as it is a coefficient.
     * \return 0 if gain < 0 or gain > 100; else returns gain. */
-    int format_gain();
+    int format_gain() const;
 
     /*! Retrieve subsampling mode code from a string.
     * \return The corresponding API-defined code, or the subsampling-disabling code
     * if the value is invalid. */
-    int get_subsampling_mode(std::string ui);
+    int get_subsampling_mode(const std::string ui) const;
 
     /*! Retrieve binning mode code from user input string.
     * \return The corresponding API-defined code, or the binning-disabling code
     * if the value is invalid. */
-    int get_binning_mode(std::string ui);
+    int get_binning_mode(const std::string ui) const;
 
     /*! Retrieve color mode code from user input string.
     * \return The corresponding API-defined code, or the raw 8-bit format
     * if the value is invalid. */
-    int get_color_mode(std::string ui);
+    int get_color_mode(const std::string ui);
 
     /*! Retrieve trigger mode code from user input string.
     * \return The corresponding API-defined code, or the trigger-disabling code
     * if the value is invalid. */
-    int get_trigger_mode(std::string ui);
+    int get_trigger_mode(const std::string ui) const;
 
   private:
     HIDS cam_; //!< camera handler
