@@ -30,7 +30,7 @@
 
 namespace gui
 {
-  /*! \class MainWindow
+  /*! \brief MainWindow
   **
   ** Main class of the GUI. It regroup most of the slots used for user actions.
   ** These slots are divided into several sections:
@@ -355,39 +355,39 @@ namespace gui
 
   private:
     Ui::MainWindow ui;
-    /*! Reference to Holovibes object */
+    /*! \brief Reference to Holovibes object */
     holovibes::Holovibes& holovibes_;
-    /*! OpenGL window */
+    /*! \brief OpenGL window */
     std::unique_ptr<GuiGLWindow> gl_window_;
-    /*! true if in direct mode, false otherwise */
+    /*! \brief true if in direct mode, false otherwise */
     bool is_direct_mode_;
-    /*! true if a camera is loaded, false otherwise */
+    /*! \brief true if a camera is loaded, false otherwise */
     bool is_enabled_camera_;
-    /*! true if average mode is enabled, false otherwise */
+    /*! \brief true if average mode is enabled, false otherwise */
     bool is_enabled_average_;
-    /*! true if batch record is an image batch record, false if it is an average/ROI record */
+    /*! \brief true if batch record is an image batch record, false if it is an average/ROI record */
     bool is_batch_img_;
-    /*! true if batch has been interrupted by user, false otherwise */
+    /*! \brief true if batch has been interrupted by user, false otherwise */
     bool is_batch_interrupted_;
-    /*! z step used for keyboard shortcuts */
+    /*! \brief z step used for keyboard shortcuts */
     double z_step_;
-    /*! current camera type */
+    /*! \brief current camera type */
     holovibes::Holovibes::camera_type camera_type_;
 
-    /*! Plot/graphic window of average/ROI computations */
+    /*! \brief Plot/graphic window of average/ROI computations */
     std::unique_ptr<PlotWindow> plot_window_;
 
-    /*! Image record thread */
+    /*! \brief Image record thread */
     std::unique_ptr<ThreadRecorder> record_thread_;
-    /*! ROI/average record thread */
+    /*! \brief ROI/average record thread */
     std::unique_ptr<ThreadCSVRecord> CSV_record_thread_;
-    /*! Number of frames to record */
+    /*! \brief Number of frames to record */
     unsigned int nb_frames_;
 
-    /*! File index used in batch recording */
+    /*! \brief File index used in batch recording */
     unsigned int file_index_;
 
-    /*! Queue max size */
+    /*! \brief Queue max size */
     unsigned int q_max_size_;
 
     /*! \{ \name Shortcuts */

@@ -126,6 +126,7 @@ namespace holovibes
      * refresh method is called. */
     void exec();
   private:
+    /*! \brief Realloc all buffer with the new nsamples and update pipeline */
     void update_n_parameter(unsigned short n);
 
     /*! \{ \name caller methods (helpers)
@@ -218,7 +219,8 @@ namespace holovibes
      * \brief Memory buffers pointers
      *
      * * fields with gpu prefix are allocated in GPU memory
-     * * fields with cpu prefix are allocated in CPU memory */
+     * * fields with cpu prefix are allocated in CPU memory
+     * * fields cufftHandle are allocated in GPU memory */
     /*! cufftComplex array containing n contiguous frames. */
     cufftComplex* gpu_input_buffer_;
     /*! Intermediate buffer containing nsamples frames converted to complex;

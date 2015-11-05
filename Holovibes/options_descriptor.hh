@@ -12,7 +12,7 @@ namespace holovibes
   struct OptionsDescriptor
   {
   public:
-    /*! The constructor sets default values. */
+    /*! \brief The constructor sets default values. */
     OptionsDescriptor()
       : recorder_n_img(0)
       , recorder_filepath("")
@@ -28,35 +28,36 @@ namespace holovibes
       , compute_desc()
     {}
 
-    /* Parameters */
-    /*! Number of images to record. */
-    unsigned int recorder_n_img;
-    /*! File path for recorder. */
-    std::string recorder_filepath;
-    /*! Size of the program queue in number of images. */
-    unsigned int queue_size;
-    /*! GL Window width. */
-    unsigned int gl_window_width;
-    /*! GL Window height. */
-    unsigned int gl_window_height;
-    /*! Selected camera */
+    /*! \{ \name Parameters */
+    /*! \brief Number of images to record. */
+    unsigned int  recorder_n_img;
+    /*! \brief File path for recorder. */
+    std::string   recorder_filepath;
+    /*! \brief Size of the program queue in number of images. */
+    unsigned int  queue_size;
+    /*! \brief GL Window width. */
+    unsigned int  gl_window_width;
+    /*! \brief GL Window height. */
+    unsigned int  gl_window_height;
+    /*! \brief Selected camera */
     Holovibes::camera_type camera;
-    /*! File path to import. */
-    std::string file_src;
-    /*! File image width. */
-    unsigned int file_image_width;
-    /*! File image height. */
-    unsigned int file_image_height;
-    /*! File image depth. */
-    unsigned int file_image_depth;
-    /*! File image is big endian. */
-    unsigned int file_is_big_endian;
-    /*! Frame imported per seconds. */
-    unsigned int fps;
-    /*! First frame id imported. */
-    unsigned int spanStart;
-    /*! Last frame id imported. */
-    unsigned int spanEnd;
+    /*! \brief File path to import. */
+    std::string		file_src;
+    /*! \brief File image width. */
+    unsigned int  file_image_width;
+    /*! \brief File image height. */
+    unsigned int  file_image_height;
+    /*! \brief File image depth. */
+    unsigned int  file_image_depth;
+    /*! \brief File image is big endian. */
+    unsigned int  file_is_big_endian;
+    /*! \brief Frame imported per seconds. */
+    unsigned int  fps;
+    /*! \brief First frame id imported. */
+    unsigned int  spanStart;
+    /*! \brief Last frame id imported. */
+    unsigned int  spanEnd;
+    /* \} */
 
     /*! \{ \name Enabled features */
     bool is_gui_enabled;

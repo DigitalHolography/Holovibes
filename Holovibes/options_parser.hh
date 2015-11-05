@@ -16,18 +16,21 @@
 
 # include "options_descriptor.hh"
 
-/* Boost namespaces alias. */
+/*! \brief Boost namespaces alias. */
 namespace po = boost::program_options;
 
 namespace holovibes
 {
+  /*! \brief Parse Argv gived to program */
   class OptionsParser
   {
+    /*! \{ \name const */
     const unsigned int default_queue_size = 20;
     const unsigned int display_size_min = 100;
     const unsigned int default_fps = 30;
     const unsigned int default_depth = 8;
-    const bool default_is_big_endian = 30;
+    const bool default_is_big_endian = true;
+    /*! \} */
 
   public:
     OptionsParser(OptionsDescriptor& opts);
@@ -39,56 +42,60 @@ namespace holovibes
     void parse(int argc, char* const argv[]);
 
   private:
-    /*! Parser initialization: loads options. */
+    /*! \{ \name Init options*/
+    /*! \brief Parser initialization: loads program options. */
     void init_general_options();
+    /*! \brief Parser initialization: loads features options. */
     void init_features_options(bool is_no_gui, bool is_import_mode_enable);
+    /*! \brief Parser initialization: loads compute options. */
     void init_compute_options();
-    /*! Build merge descriptor that contains
+    /*! \brief Build merge descriptor that contains
      * general/features/compute options. */
     void init_merge_options();
+    /*! \} */
 
-    /*! Parse the command line with general options
+    /*! \brief Parse the command line with general options
      * descriptor. */
     void parse_general_options(int argc, char* const argv[]);
-    /*! Is gui enabled regarding the nogui option. */
+    /*! \brief Is gui enabled regarding the nogui option. */
     bool get_is_gui_enabled();
 
-    /*! Is import mode enabled regarding the import option. */
+    /*! \brief Is import mode enabled regarding the import option. */
     bool get_is_import_mode();
 
     void parse_features_compute_options(int argc, char* const argv[]);
 
-    /*! Handle help/version options. */
+    /*! \brief Handle help/version options. */
     void proceed_help();
-    /*! Check features values and fill OptionsDescriptor.*/
+    /*! \brief Check features values and fill OptionsDescriptor.*/
     void proceed_features();
-    /*! Fill OptionsDescriptor with compute values. */
+    /*! \brief Fill OptionsDescriptor with compute values. */
     void proceed_compute();
 
-    /*! Checks DFT parameters. Each parameter is mandatory. */
+    /*! \brief Checks DFT parameters. Each parameter is mandatory. */
     void check_compute_params();
 
-    /*! Print the version & help message. */
+    /*! \brief Print the version & help message. */
     void print_help();
-    /*! Print the version message. */
+    /*! \brief Print the version message. */
     void print_version();
   private:
-    /* Contains all Holovibes' options. */
+    /*! \brief Contains all Holovibes' options. */
     OptionsDescriptor& opts_;
 
-    /* Empty positional options. */
+    /*! \brief Empty positional options. */
     const po::positional_options_description pos_desc_;
-    /*! Describes general program options. */
+    /*! \brief Describes general program options. */
     po::options_description general_opts_desc_;
-    /*! Describes import mode (what look file). */
+    /*! \brief Describes import mode (what look file). */
     po::options_description import_opts_desc_;
-    /*! Describes features (what to do) options of Holovibes. */
+    /*! \brief Describes features (what to do) options of Holovibes. */
     po::options_description features_opts_desc_;
-    /*! Describes compute (how to do) options (cuda, fft, ...) */
+    /*! \brief Describes compute (how to do) options (cuda, fft, ...) */
     po::options_description compute_opts_desc_;
-    /*! Contains general/features/compute options descriptors. */
+    /*! \brief Contains general/features/compute options descriptors. */
     po::options_description merge_opts_desc_;
-    /*! Stores all option values. */
+    /*! \brief Stores all option values. */
     po::variables_map vm_;
 
     OptionsParser& operator=(const OptionsParser&) = delete;
