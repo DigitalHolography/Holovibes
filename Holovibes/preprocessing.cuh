@@ -2,6 +2,7 @@
 #pragma once
 
 # include <cufft.h>
+
 # include "queue.hh"
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
@@ -11,7 +12,7 @@
 * \param output Array of the sqrt values form 0 to n - 1,
 * this array should have size greater or equal to n.
 */
-void make_sqrt_vect(float* out, unsigned short n);
+void make_sqrt_vect(float* out, const unsigned short n);
 
 /*! \brief Ensure the contiguity of images extracted from
  * the queue for any further processing.
@@ -37,5 +38,5 @@ void make_sqrt_vect(float* out, unsigned short n);
 void make_contiguous_complex(
   holovibes::Queue& input,
   cufftComplex* output,
-  unsigned int n,
+  const unsigned int n,
   const float* sqrt_array);

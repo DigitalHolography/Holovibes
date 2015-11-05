@@ -26,15 +26,18 @@ namespace holovibes
     Recorder(
       Queue& queue,
       const std::string& filepath);
+
     ~Recorder();
 
     /*! \brief record n_images to file
      *
      * Recorder is thread safe and you can stop this function by using stop
      */
-    void record(unsigned int n_images);
+    void record(const unsigned int n_images);
+
     /*! \brief Stop current record */
     void stop();
+
   private:
     bool is_file_exist(const std::string& filepath);
 

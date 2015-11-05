@@ -5,21 +5,21 @@
 namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
-    : QMainWindow(parent),
-    holovibes_(holovibes),
-    gl_window_(nullptr),
-    is_direct_mode_(true),
-    is_enabled_camera_(false),
-    is_enabled_average_(false),
-    is_batch_img_(true),
-    is_batch_interrupted_(false),
-    z_step_(0.1f),
-    camera_type_(holovibes::Holovibes::NONE),
-    plot_window_(nullptr),
-    record_thread_(nullptr),
-    CSV_record_thread_(nullptr),
-    file_index_(1),
-    q_max_size_(20)
+    : QMainWindow(parent)
+    , holovibes_(holovibes)
+    , gl_window_(nullptr)
+    , is_direct_mode_(true)
+    , is_enabled_camera_(false)
+    , is_enabled_average_(false)
+    , is_batch_img_(true)
+    , is_batch_interrupted_(false)
+    , z_step_(0.1f)
+    , camera_type_(holovibes::Holovibes::NONE)
+    , plot_window_(nullptr)
+    , record_thread_(nullptr)
+    , CSV_record_thread_(nullptr)
+    , file_index_(1)
+    , q_max_size_(20)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -232,7 +232,7 @@ namespace gui
     open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
   }
 
-  void MainWindow::set_image_mode(bool value)
+  void MainWindow::set_image_mode(const bool value)
   {
     if (is_enabled_camera_)
     {
@@ -284,7 +284,7 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_phase_number(int value)
+  void  MainWindow::set_phase_number(const int value)
   {
     if (!is_direct_mode_)
     {
@@ -293,13 +293,13 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_p(int value)
+  void  MainWindow::set_p(const int value)
   {
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples)
+      if (value < static_cast<int>(cd.nsamples))
       {
         // Synchronize with p_vibro
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
@@ -347,7 +347,7 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_wavelength(double value)
+  void  MainWindow::set_wavelength(const double value)
   {
     if (!is_direct_mode_)
     {
@@ -362,7 +362,7 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_z(double value)
+  void  MainWindow::set_z(const double value)
   {
     if (!is_direct_mode_)
     {
@@ -394,14 +394,14 @@ namespace gui
     }
   }
 
-  void MainWindow::set_z_step(double value)
+  void MainWindow::set_z_step(const double value)
   {
     z_step_ = value;
     QDoubleSpinBox* z_spinbox = findChild<QDoubleSpinBox*>("zSpinBox");
     z_spinbox->setSingleStep(value);
   }
 
-  void  MainWindow::set_algorithm(QString value)
+  void  MainWindow::set_algorithm(const QString value)
   {
     if (!is_direct_mode_)
     {
@@ -433,7 +433,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_view_mode(QString value)
+  void MainWindow::set_view_mode(const QString value)
   {
     if (!is_direct_mode_)
     {
@@ -457,10 +457,10 @@ namespace gui
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
 
-    float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
-    float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
-    unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
-    unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
+    const float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
+    const float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
+    const unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
+    const unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
     if (desc.algorithm == holovibes::ComputeDescriptor::STFT)
@@ -544,7 +544,7 @@ namespace gui
       holovibes_.get_pipeline()->request_autocontrast();
   }
 
-  void MainWindow::set_contrast_min(double value)
+  void MainWindow::set_contrast_min(const double value)
   {
     if (!is_direct_mode_)
     {
@@ -562,7 +562,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_contrast_max(double value)
+  void MainWindow::set_contrast_max(const double value)
   {
     if (!is_direct_mode_)
     {
@@ -580,7 +580,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_log_scale(bool value)
+  void MainWindow::set_log_scale(const bool value)
   {
     if (!is_direct_mode_)
     {
@@ -599,7 +599,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_shifted_corners(bool value)
+  void MainWindow::set_shifted_corners(const bool value)
   {
     if (!is_direct_mode_)
     {
@@ -608,7 +608,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_vibro_mode(bool value)
+  void MainWindow::set_vibro_mode(const bool value)
   {
     if (!is_direct_mode_)
     {
@@ -620,7 +620,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_p_vibro(int value)
+  void MainWindow::set_p_vibro(const int value)
   {
     if (!is_direct_mode_)
     {
@@ -637,7 +637,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_q_vibro(int value)
+  void MainWindow::set_q_vibro(const int value)
   {
     if (!is_direct_mode_)
     {
@@ -653,7 +653,7 @@ namespace gui
     }
   }
 
-  void MainWindow::set_average_mode(bool value)
+  void MainWindow::set_average_mode(const bool value)
   {
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     if (value)
@@ -724,7 +724,7 @@ namespace gui
   void MainWindow::load_roi()
   {
     QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
-    std::string path = path_line_edit->text().toUtf8();
+    const std::string path = path_line_edit->text().toUtf8();
     boost::property_tree::ptree ptree;
     GLWidget& gl_widget = gl_window_->get_gl_widget();
 
@@ -923,11 +923,11 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
-    std::string input_path = batch_input_line_edit->text().toUtf8();
-    unsigned int frame_nb = frame_nb_spin_box->value();
+    const std::string input_path = batch_input_line_edit->text().toUtf8();
+    const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    int status = load_batch_file(input_path.c_str());
-    std::string formatted_path = format_batch_output(path, file_index_);
+    const int status = load_batch_file(input_path.c_str());
+    const std::string formatted_path = format_batch_output(path, file_index_);
 
     if (status != 0)
       display_error("Couldn't load batch input file.");
@@ -984,17 +984,14 @@ namespace gui
       else
         path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
 
-      unsigned int frame_nb = frame_nb_spin_box->value();
-
       holovibes::Queue* q;
-
       if (is_direct_mode_)
         q = &holovibes_.get_capture_queue();
       else
         q = &holovibes_.get_output_queue();
 
       std::string output_filename = format_batch_output(path, file_index_);
-
+      const unsigned int frame_nb = frame_nb_spin_box->value();
       if (is_batch_img_)
       {
         record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
@@ -1022,7 +1019,7 @@ namespace gui
         CSV_record_thread_->start();
       }
 
-      file_index_++;
+      ++file_index_;
     }
     else
     {
@@ -1156,7 +1153,7 @@ namespace gui
       plot_window_->close();
   }
 
-  void MainWindow::global_visibility(bool value)
+  void MainWindow::global_visibility(const bool value)
   {
     GroupBox* view = findChild<GroupBox*>("View");
     view->setDisabled(!value);
@@ -1210,7 +1207,7 @@ namespace gui
     boundary->setDisabled(!value);
   }
 
-  void MainWindow::camera_visible(bool value)
+  void MainWindow::camera_visible(const bool value)
   {
     is_enabled_camera_ = value;
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
@@ -1219,7 +1216,7 @@ namespace gui
     settings->setDisabled(!value);
   }
 
-  void MainWindow::contrast_visible(bool value)
+  void MainWindow::contrast_visible(const bool value)
   {
     QLabel* min_label = findChild<QLabel*>("minLabel");
     QLabel* max_label = findChild<QLabel*>("maxLabel");
@@ -1232,13 +1229,13 @@ namespace gui
     contrast_max->setDisabled(!value);
   }
 
-  void MainWindow::record_visible(bool value)
+  void MainWindow::record_visible(const bool value)
   {
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
     image_rendering->setDisabled(!value);
   }
 
-  void MainWindow::record_but_cancel_visible(bool value)
+  void MainWindow::record_but_cancel_visible(const bool value)
   {
     QLabel* nb_of_frames_label = findChild<QLabel*>("numberOfFramesLabel");
     nb_of_frames_label->setDisabled(!value);
@@ -1254,7 +1251,7 @@ namespace gui
     record_button->setDisabled(!value);
   }
 
-  void MainWindow::image_ratio_visible(bool value)
+  void MainWindow::image_ratio_visible(const bool value)
   {
     QLabel* p_label_vibro = findChild<QLabel*>("pLabelVibro");
     p_label_vibro->setDisabled(!value);
@@ -1266,7 +1263,7 @@ namespace gui
     q_vibro->setDisabled(!value);
   }
 
-  void MainWindow::average_visible(bool value)
+  void MainWindow::average_visible(const bool value)
   {
     QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
     roi_file_label->setDisabled(!value);
@@ -1280,7 +1277,7 @@ namespace gui
     load_roi_button->setDisabled(!value);
   }
 
-  void MainWindow::average_record_but_cancel_visible(bool value)
+  void MainWindow::average_record_but_cancel_visible(const bool value)
   {
     QLabel* roi_output_file_label = findChild<QLabel*>("ROIOutputFileLabel");
     roi_output_file_label->setDisabled(!value);
@@ -1292,7 +1289,7 @@ namespace gui
     roi_push_button->setDisabled(!value);
   }
 
-  void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
+  void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
     if (camera_type != holovibes::Holovibes::NONE)
     {
@@ -1330,7 +1327,7 @@ namespace gui
     }
   }
 
-  void MainWindow::display_error(std::string msg)
+  void MainWindow::display_error(const std::string msg)
   {
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
@@ -1338,7 +1335,7 @@ namespace gui
     msg_box.exec();
   }
 
-  void MainWindow::display_info(std::string msg)
+  void MainWindow::display_info(const std::string msg)
   {
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
@@ -1377,67 +1374,67 @@ namespace gui
       q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
 
       // Camera type
-      int camera_type = ptree.get<int>("image_rendering.camera", 0);
+      const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
+      const int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
       camera::FRAME_TIMEOUT = frame_timeout;
 
       // Image rendering
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-      unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
+      const unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
       cd.nsamples = phase_number;
 
-      unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
+      const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex.exchange(p_index);
 
-      float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
+      const float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
       cd.lambda = lambda;
 
-      float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
+      const float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
       cd.zdistance = z_distance;
 
-      float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
+      const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
       if (z_step > 0.0f)
         z_step_ = z_step;
 
-      int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
+      const int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
       cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
 
       // View
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-      int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
+      const int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
       cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
 
-      bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
+      const bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
       cd.log_scale_enabled.exchange(log_scale_enabled);
 
-      bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
+      const bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
       cd.shift_corners_enabled.exchange(shift_corners_enabled);
 
-      bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
+      const bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
       cd.contrast_enabled.exchange(contrast_enabled);
 
-      float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
+      const float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
       cd.contrast_min = contrast_min;
 
-      float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
+      const float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
       cd.contrast_max = contrast_max;
 
       // Special
       special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
-      bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
+      const bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
       cd.vibrometry_enabled.exchange(image_ratio_enabled);
 
-      int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
+      const int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
       cd.vibrometry_q.exchange(q_vibro);
 
-      bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
+      const bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
       is_enabled_average_ = average_enabled;
 
       // Record
@@ -1494,7 +1491,7 @@ namespace gui
     boost::property_tree::write_ini(path, ptree);
   }
 
-  void MainWindow::split_string(const std::string& str, char delim, std::vector<std::string>& elts)
+  void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
   {
     std::stringstream ss(str);
     std::string item;
@@ -1503,7 +1500,7 @@ namespace gui
       elts.push_back(item);
   }
 
-  std::string MainWindow::format_batch_output(const std::string& path, unsigned int index)
+  std::string MainWindow::format_batch_output(const std::string& path, const unsigned int index)
   {
     std::string file_index;
     std::ostringstream convert;

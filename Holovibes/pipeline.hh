@@ -4,12 +4,11 @@
 # include <tuple>
 # include <functional>
 # include <cufft.h>
+# include <fstream>
 
 # include "queue.hh"
 # include "concurrent_deque.hh"
 # include "compute_descriptor.hh"
-
-# include <fstream>
 
 namespace holovibes
 {
@@ -48,7 +47,9 @@ namespace holovibes
   {
     /*! \brief Vector of procedures type */
     using FnVector = std::vector < std::function<void()> >;
+
     friend class ThreadCompute;
+
   public:
     /*! \brief Allocate CPU/GPU ressources for computation.
      * \param input Input queue containing acquired frames.
@@ -58,27 +59,35 @@ namespace holovibes
       Queue& input,
       Queue& output,
       ComputeDescriptor& desc);
+
     virtual ~Pipeline();
 
     /*! \{ \name Pipeline request methods */
     /*! \brief Request the pipeline to refresh. */
     void request_refresh();
+
     /*! \brief Request the pipeline to apply the autofocus algorithm. */
     void request_autofocus();
+
     /*! \brief Request the pipeline to stop the occuring autofocus. */
     void request_autofocus_stop();
+
     /*! \brief Request the pipeline to apply the autocontrast algorithm. */
     void request_autocontrast();
+
     /*! \brief Request the pipeline to apply the stft algorithm in the border. And call request_update_n */
     void request_stft_roi_update();
+
     /*! \brief Request the pipeline to apply the stft algorithm in full window. And call request_update_n */
     void request_stft_roi_end();
+
     /*! \brief Request the pipeline to update the nsamples parameter.
      *
      * Use this method when the user has requested the nsamples parameter to be
      * updated. The pipeline will automatically resize FFT buffers to contains
      * nsamples frames. */
-    void request_update_n(unsigned short n);
+    void request_update_n(const unsigned short n);
+
     /*! \brief Request the pipeline to fill the output vector.
      *
      * \param output std::vector to fill with (average_signal, average_noise,
@@ -96,16 +105,17 @@ namespace holovibes
      * refresh the pipeline. */
     void request_average_record(
       ConcurrentDeque<std::tuple<float, float, float>>* output,
-      unsigned int n);
-    /*! \} */
+      const unsigned int n);
 
     /*! \brief Request the pipeline to start record gpu_float_buf_ (Stop output). */
-    void request_float_output(std::string& file_src, unsigned int nb_frame);
+    void request_float_output(std::string& file_src, const unsigned int nb_frame);
+
     /*! \brief Request the pipeline to stop the record gpu_float_buf_ (Relaunch output). */
     void request_float_output_stop();
 
     /*! \brief Ask for the end of the execution loop. */
     void request_termination();
+    /*! \} */ // End of requests group.
 
     /*! \brief Return true while pipeline is recording float. */
     bool is_requested_float_output() const
@@ -125,6 +135,7 @@ namespace holovibes
      * The pipeline can not be interrupted for parameters changes until the
      * refresh method is called. */
     void exec();
+
   private:
     /*! \brief Realloc all buffer with the new nsamples and update pipeline */
     void update_n_parameter(unsigned short n);
@@ -138,7 +149,7 @@ namespace holovibes
      * descriptor. */
     static void autocontrast_caller(
       float* input,
-      unsigned int size,
+      const unsigned int size,
       ComputeDescriptor& compute_desc);
 
     /*! \see request_average
@@ -150,10 +161,11 @@ namespace holovibes
      * \param noise Noise zone */
     void average_caller(
       float* input,
-      unsigned int width,
-      unsigned int height,
-      Rectangle& signal,
-      Rectangle& noise);
+      const unsigned int width,
+      const unsigned int height,
+      const Rectangle& signal,
+      const Rectangle& noise);
+
     /*! \see request_average_record
      * \brief Call the average algorithm, store the result and count n
      * iterations. Request the pipeline to refresh when record is over.
@@ -164,10 +176,11 @@ namespace holovibes
      * \param noise Noise zone */
     void average_record_caller(
       float* input,
-      unsigned int width,
-      unsigned int height,
-      Rectangle& signal,
-      Rectangle& noise);
+      const unsigned int width,
+      const unsigned int height,
+      const Rectangle& signal,
+      const Rectangle& noise);
+
     /*! \see request_average
      * \brief For nsamples in input, reconstruct image,
      * clear previous result, call the average algorithm and store each result
@@ -177,15 +190,15 @@ namespace holovibes
      * \param signal Signal zone
      * \param noise Noise zone */
     void average_stft_caller(
-      cufftComplex*    input,
-      unsigned int     width,
-      unsigned int     height,
-      unsigned int     width_roi,
-      unsigned int     height_roi,
-      Rectangle&       signal_zone,
-      Rectangle&       noise_zone,
-      unsigned int     nsamples
-      );
+      cufftComplex* input,
+      const unsigned int width,
+      const unsigned int height,
+      const unsigned int width_roi,
+      const unsigned int height_roi,
+      Rectangle& signal_zone,
+      Rectangle& noise_zone,
+      const unsigned int nsamples);
+
     /*! \see request_autofocus
      * \brief Autofocus caller looks like the pipeline refresh method.
      *
@@ -193,7 +206,7 @@ namespace holovibes
      * same image set. Computes the focus_metric on each hologram and sets the
      * proper value of z in ComputeDescriptor. */
     void autofocus_caller();
-    /*! \} */
+    /*! \} */ // End of callers group
 
     /*! \brief Generate the pipeline vector. */
     void refresh();
@@ -205,6 +218,7 @@ namespace holovibes
     Pipeline& operator=(const Pipeline&) = delete;
     Pipeline(const Pipeline&) = delete;
     /*! \} */
+
   private:
     /*! \brief Core of the pipeline */
     FnVector fn_vect_;

@@ -18,14 +18,14 @@
 */
 static __global__ void kernel_zone_sum(
   float* input,
-  unsigned int width,
+  const unsigned int width,
   float* output,
-  unsigned int zone_start_x,
-  unsigned int zone_start_y,
-  unsigned int zone_width,
-  unsigned int zone_height)
+  const unsigned int zone_start_x,
+  const unsigned int zone_start_y,
+  const unsigned int zone_width,
+  const unsigned int zone_height)
 {
-  unsigned int size = zone_width * zone_height;
+  const unsigned int size = zone_width * zone_height;
   unsigned int tid = threadIdx.x;
   unsigned int index = blockIdx.x * blockDim.x + tid;
   extern __shared__ float  sdata[];
@@ -72,12 +72,12 @@ std::tuple<float, float, float> make_average_plot(
   float *input,
   const unsigned int width,
   const unsigned int height,
-  holovibes::Rectangle& signal,
-  holovibes::Rectangle& noise)
+  const holovibes::Rectangle& signal,
+  const holovibes::Rectangle& noise)
 {
-  unsigned int size = width * height;
+  const unsigned int size = width * height;
   unsigned int threads = THREADS;
-  unsigned int max_blocks = get_max_blocks();
+  const unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;
 
   if (blocks > max_blocks)
@@ -123,18 +123,18 @@ std::tuple<float, float, float> make_average_stft_plot(
   cufftComplex*          cbuf,
   float*                 fbuf,
   cufftComplex*          stft_buffer,
-  unsigned int           width,
-  unsigned int           height,
-  unsigned int           width_roi,
-  unsigned int           height_roi,
+  const unsigned int     width,
+  const unsigned int     height,
+  const unsigned int     width_roi,
+  const unsigned int     height_roi,
   holovibes::Rectangle&  signal_zone,
   holovibes::Rectangle&  noise_zone,
-  unsigned int           pindex,
-  unsigned int           nsamples)
+  const unsigned int     pindex,
+  const unsigned int     nsamples)
 {
   std::tuple<float, float, float> res;
 
-  unsigned int size = width * height;
+  const unsigned int size = width * height;
   unsigned int threads = 128;
   unsigned int blocks = size / threads;
 

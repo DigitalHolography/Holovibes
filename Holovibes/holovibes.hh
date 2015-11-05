@@ -45,13 +45,16 @@ namespace holovibes
     };
 
     Holovibes();
+
     ~Holovibes();
 
     /*! \brief Open the camera and launch the ThreadCapture
      *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
-    void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
+    void init_capture(const enum camera_type c,
+      const unsigned int buffer_nb_elts);
+
     /*! \brief Request the capture thread to stop - Free ressources. */
     void dispose_capture();
 
@@ -87,8 +90,9 @@ namespace holovibes
      * - direct: use input_ queue
      * - hologram: use output_ queue. */
     void recorder(
-      std::string& filepath,
-      unsigned int rec_n_images);
+      const std::string& filepath,
+      const unsigned int rec_n_images);
+
     /*! \brief Request the recorder thread to stop */
     void dispose_recorder();
 
@@ -100,18 +104,19 @@ namespace holovibes
      * the method contains a lock to avoid conflicts between threads that would
      * use the Pipeline before it finished the initialization. */
     void init_compute(
-      bool is_float_output_enabled = false,
-      std::string float_output_file_src = "",
-      unsigned int float_output_nb_frame = 0);
+      const bool is_float_output_enabled = false,
+      const std::string float_output_file_src = "",
+      const unsigned int float_output_nb_frame = 0);
+
     void dispose_compute();
 
-    void init_import_mode(std::string &file_src
-      , holovibes::ThreadReader::FrameDescriptor frame_desc
-      , bool loop
-      , unsigned int fps
-      , unsigned int spanStart
-      , unsigned int spanEnd
-      , unsigned int q_max_size_);
+    void init_import_mode(std::string &file_src,
+      holovibes::ThreadReader::FrameDescriptor frame_desc,
+      bool loop,
+      unsigned int fps,
+      unsigned int spanStart,
+      unsigned int spanEnd,
+      unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
     std::shared_ptr<Pipeline> get_pipeline()
@@ -132,7 +137,7 @@ namespace holovibes
      * \param compute_desc ComputeDescriptor to load
      *
      * Used when options are loaded from an INI file. */
-    void set_compute_desc(ComputeDescriptor& compute_desc)
+    void set_compute_desc(const ComputeDescriptor& compute_desc)
     {
       compute_desc_ = compute_desc;
     }

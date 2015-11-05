@@ -18,7 +18,7 @@
 */
 static void find_min_max_img(
   float *img_cpu,
-  unsigned int size,
+  const unsigned int size,
   float *min,
   float *max)
 {
@@ -33,28 +33,11 @@ static void find_min_max_img(
   }
 }
 
-void auto_contrast_correction(
-  float* input,
-  unsigned int size,
-  float* min,
-  float* max)
-{
-  float* frame_cpu = new float[size]();
-  cudaMemcpy(frame_cpu, input, sizeof(float) * size, cudaMemcpyDeviceToHost);
-  find_min_max_img(frame_cpu, size, min, max);
-  delete[] frame_cpu;
-
-  if (*min < 1.0f)
-    *min = 1.0f;
-  if (*max < 1.0f)
-    *max = 1.0f;
-}
-
 static __global__ void apply_contrast(
   float* input,
-  unsigned int size,
-  float factor,
-  float min)
+  const unsigned int size,
+  const float factor,
+  const float min)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -67,10 +50,10 @@ static __global__ void apply_contrast(
 
 void manual_contrast_correction(
   float* input,
-  unsigned int size,
-  unsigned short dynamic_range,
-  float min,
-  float max)
+  const unsigned int size,
+  const unsigned short dynamic_range,
+  const float min,
+  const float max)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -80,4 +63,21 @@ void manual_contrast_correction(
 
   const float factor = static_cast<float>(dynamic_range) / (max - min);
   apply_contrast << <blocks, threads >> >(input, size, factor, min);
+}
+
+void auto_contrast_correction(
+  float* input,
+  const unsigned int size,
+  float* min,
+  float* max)
+{
+  float* frame_cpu = new float[size]();
+  cudaMemcpy(frame_cpu, input, sizeof(float)* size, cudaMemcpyDeviceToHost);
+  find_min_max_img(frame_cpu, size, min, max);
+  delete[] frame_cpu;
+
+  if (*min < 1.0f)
+    *min = 1.0f;
+  if (*max < 1.0f)
+    *max = 1.0f;
 }

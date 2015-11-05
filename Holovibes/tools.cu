@@ -6,9 +6,9 @@
 
 __global__ void kernel_apply_lens(
   cufftComplex *input,
-  unsigned int input_size,
-  cufftComplex *lens,
-  unsigned int lens_size)
+  const unsigned int input_size,
+  const cufftComplex *lens,
+  const unsigned int lens_size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -22,15 +22,15 @@ __global__ void kernel_apply_lens(
 }
 
 __global__ void kernel_bursting_roi(
-  cufftComplex *input,
-  unsigned int tl_x,
-  unsigned int tl_y,
-  unsigned int br_x,
-  unsigned int br_y,
-  unsigned int curr_elt,
-  unsigned int nsamples,
-  unsigned int width,
-  unsigned int size,
+  const cufftComplex *input,
+  const unsigned int tl_x,
+  const unsigned int tl_y,
+  const unsigned int br_x,
+  const unsigned int br_y,
+  const unsigned int curr_elt,
+  const unsigned int nsamples,
+  const unsigned int width,
+  const unsigned int size,
   cufftComplex *output)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -53,15 +53,15 @@ __global__ void kernel_bursting_roi(
 }
 
 __global__ void kernel_reconstruct_roi(
-  cufftComplex* input,
+  const cufftComplex* input,
   cufftComplex* output,
-  unsigned int  input_width,
-  unsigned int  input_height,
-  unsigned int  output_width,
-  unsigned int  reconstruct_width,
-  unsigned int  reconstruct_height,
-  unsigned int  p,
-  unsigned int  nsample)
+  const unsigned int  input_width,
+  const unsigned int  input_height,
+  const unsigned int  output_width,
+  const unsigned int  reconstruct_width,
+  const unsigned int  reconstruct_height,
+  const unsigned int  p,
+  const unsigned int  nsample)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int size = reconstruct_width * reconstruct_height;
@@ -87,8 +87,8 @@ __global__ void kernel_reconstruct_roi(
 */
 static __global__ void kernel_shift_corners(
   float* input,
-  unsigned int size_x,
-  unsigned int size_y)
+  const unsigned int size_x,
+  const unsigned int size_y)
 {
   unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -124,8 +124,8 @@ static __global__ void kernel_shift_corners(
 
 void shift_corners(
   float* input,
-  unsigned int size_x,
-  unsigned int size_y)
+  const unsigned int size_x,
+  const unsigned int size_y)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
@@ -138,7 +138,7 @@ void shift_corners(
 */
 static __global__ void kernel_log10(
   float* input,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -152,7 +152,7 @@ static __global__ void kernel_log10(
 
 void apply_log10(
   float* input,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -166,9 +166,9 @@ void apply_log10(
 /*! \brief Kernel function used in convolution_operator
 */
 static __global__ void kernel_complex_to_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -184,9 +184,9 @@ void convolution_operator(
   const cufftComplex* x,
   const cufftComplex* k,
   float* out,
-  unsigned int size,
-  cufftHandle plan2d_x,
-  cufftHandle plan2d_k)
+  const unsigned int size,
+  const cufftHandle plan2d_x,
+  const cufftHandle plan2d_k)
 {
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
@@ -246,7 +246,7 @@ void frame_memcpy(
 /*! \brief  Kernel helper for average
 */
 template <unsigned SpanSize>
-static __global__ void kernel_sum(const float* input, float* sum, size_t size)
+static __global__ void kernel_sum(const float* input, float* sum, const size_t size)
 {
   unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
 

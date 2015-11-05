@@ -2,7 +2,7 @@
 
 # include <iostream>
 # include <thread>
-#include <string>
+# include <string>
 
 # include "queue.hh"
 # include "ithread_input.hh"
@@ -27,18 +27,12 @@ namespace holovibes
     struct FrameDescriptor
     {
     public:
-      /*! FrameDescriptor use by holovibes */
-      camera::FrameDescriptor desc;
-      /*! Width of the image. != frame width */
-      unsigned short         img_width;
-      /*! Height of the image. != frame height */
-      unsigned short         img_height;
-
       /* \brief check if x is power of two
        * http://www.exploringbinary.com/ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c
        * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
        */
       inline bool isPowerOfTwo(unsigned int x) const
+
       {
         return ((x != 0) && ((x & (~x + 1)) == x));
       }
@@ -46,13 +40,13 @@ namespace holovibes
       /*! \brief Return the next power of two */
       inline unsigned int nextHightestPowerOf2(unsigned int x) const
       {
-        x--;
+        --x;
         x |= x >> 1;
         x |= x >> 2;
         x |= x >> 4;
         x |= x >> 8;
         x |= x >> 16;
-        x++;
+        ++x;
         return (x);
       }
 
@@ -80,6 +74,12 @@ namespace holovibes
       {
         this->compute_sqared_image();
       }
+
+      camera::FrameDescriptor desc;
+      /*! Width of the image. != frame width */
+      unsigned short         img_width;
+      /*! Height of the image. != frame height */
+      unsigned short         img_height;
     };
 
     /*! \brief Constructor */
@@ -90,6 +90,7 @@ namespace holovibes
       , unsigned int spanStart
       , unsigned int spanEnd
       , Queue& input);
+
     /*! \brief Destructor */
     virtual ~ThreadReader();
 

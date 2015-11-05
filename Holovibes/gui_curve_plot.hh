@@ -29,10 +29,10 @@ namespace gui
     ** \param parent Qt parent
     */
     CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-      QString title,
-      unsigned int width,
-      unsigned int height,
-      QWidget* parent = 0);
+      const QString title,
+      const unsigned int width,
+      const unsigned int height,
+      QWidget* parent = nullptr);
 
     /*! \brief CurvePlot destructor */
     ~CurvePlot();
@@ -43,7 +43,7 @@ namespace gui
     QSize sizeHint() const override;
 
     /*! \brief Change the maximum number of points in the curve */
-    void resize_plot(int size);
+    void resize_plot(const int size);
 
     /*! \brief Call when windows is resize */
     void resizeEvent(QResizeEvent* e) override;
@@ -79,7 +79,7 @@ namespace gui
     ** Stops the drawing then change the number of points and resize the vector then
     ** starts again.
     */
-    void set_points_nb(unsigned int n);
+    void set_points_nb(const unsigned int n);
 
     public slots:
     /*! \brief Updates the plot */

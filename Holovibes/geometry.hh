@@ -10,7 +10,7 @@ namespace holovibes
 
     Point2D();
     Point2D(const Point2D& p);
-    Point2D(int xcoord, int ycoord);
+    Point2D(const int xcoord, const int ycoord);
 
     Point2D& operator=(const Point2D& p);
     bool operator!=(const Point2D& p);
@@ -32,7 +32,7 @@ namespace holovibes
     Point2D bottom_right;
 
     Rectangle();
-    Rectangle(Point2D top_left_corner, Point2D bottom_right_corner);
+    Rectangle(const Point2D top_left_corner, const Point2D bottom_right_corner);
     Rectangle(const Rectangle& rect);
 
     Rectangle& operator=(const Rectangle& rect);

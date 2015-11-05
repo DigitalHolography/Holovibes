@@ -31,7 +31,7 @@ namespace holovibes
       ;
   }
 
-  void OptionsParser::init_features_options(bool is_no_gui, bool is_import_mode_enable)
+  void OptionsParser::init_features_options(const bool is_no_gui, const bool is_import_mode_enable)
   {
     features_opts_desc_.add_options()
       ("queuesize,q",
@@ -342,7 +342,7 @@ namespace holovibes
       }
       else
       {
-        /* This case should not append. */
+        /* This case should not happen. */
         assert(!"Display vector<int> is empty");
       }
 

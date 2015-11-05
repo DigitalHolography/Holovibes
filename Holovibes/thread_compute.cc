@@ -9,8 +9,8 @@ namespace holovibes
     Queue& input,
     Queue& output,
     bool is_float_output_enabled,
-    std::string float_output_file_src,
-    unsigned int float_output_nb_frame)
+    const std::string float_output_file_src,
+    const unsigned int float_output_nb_frame)
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
@@ -29,9 +29,8 @@ namespace holovibes
       thread_.join();
   }
 
-  void ThreadCompute::thread_proc(
-    std::string float_output_file_src,
-    unsigned int float_output_nb_frame)
+  void ThreadCompute::thread_proc(std::string float_output_file_src,
+    const unsigned int float_output_nb_frame)
   {
     pipeline_ = std::shared_ptr<Pipeline>(new Pipeline(input_, output_, compute_desc_));
 

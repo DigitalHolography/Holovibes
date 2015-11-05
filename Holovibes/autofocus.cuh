@@ -7,4 +7,4 @@
  */
 float focus_metric(
   float* input,
-  unsigned int square_size);
+  const unsigned int square_size);

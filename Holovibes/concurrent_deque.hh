@@ -55,7 +55,7 @@ namespace holovibes
       return deque_.rend();
     }
 
-    size_t size()
+    size_t size() const
     {
       guard guard(mutex_);
       return deque_.size();
@@ -67,7 +67,7 @@ namespace holovibes
       deque_.resize(new_size);
     }
 
-    bool empty()
+    bool empty() const
     {
       guard guard(mutex_);
       return deque_.empty();
@@ -128,6 +128,6 @@ namespace holovibes
 
   private:
     std::deque<T> deque_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
   };
 }

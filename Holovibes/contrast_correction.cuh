@@ -16,10 +16,10 @@
 */
 void manual_contrast_correction(
   float* input,
-  unsigned int size,
-  unsigned short dynamic_range,
-  float min,
-  float max);
+  const unsigned int size,
+  const unsigned short dynamic_range,
+  const float min,
+  const float max);
 
 /*! \brief Find the minimum pixel value of an image and the maximum one.
 *
@@ -31,6 +31,6 @@ void manual_contrast_correction(
 */
 void auto_contrast_correction(
   float* input,
-  unsigned int size,
+  const unsigned int size,
   float* min,
   float* max);

@@ -29,14 +29,15 @@ namespace gui
     ThreadRecorder(
       holovibes::Queue& queue,
       const std::string& filepath,
-      unsigned int n_images,
+      const unsigned int n_images,
       QObject* parent = nullptr);
 
     virtual ~ThreadRecorder();
 
-  public slots:
+    public slots:
     /*! Stops the record by setting a flag */
     void stop();
+
   private:
     /*! \brief Overrided QThread run method, recording method
     **

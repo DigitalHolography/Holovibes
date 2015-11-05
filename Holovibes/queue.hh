@@ -35,7 +35,7 @@ namespace holovibes
     ** images or a FrameDescriptor used for computations.
     ** \param elts Max number of elements that the queue can contain.
     **/
-    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts);
+    Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts);
 
     /*! \brief Queue destructor */
     ~Queue();
@@ -73,7 +73,7 @@ namespace holovibes
     void* get_end();
 
     /*! \return pointer to end_index - n frame */
-    void* get_last_images(int n);
+    void* get_last_images(const unsigned n);
 
     /*! \return index of the frame right after the last one containing data */
     unsigned int get_end_index();

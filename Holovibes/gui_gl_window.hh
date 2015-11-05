@@ -24,12 +24,12 @@ namespace gui
     ** \param q Queue from where to grab frames to display
     ** \param parent Qt parent
     */
-    GuiGLWindow(QPoint& pos,
-      unsigned int width,
-      unsigned int height,
+    GuiGLWindow(const QPoint& pos,
+      const unsigned int width,
+      const unsigned int height,
       holovibes::Holovibes& h,
       holovibes::Queue& q,
-      QWidget* parent = 0);
+      QWidget* parent = nullptr);
 
     /* \brief GuiGLWindow destructor */
     ~GuiGLWindow();

@@ -24,7 +24,8 @@ namespace holovibes
   {
   }
 
-  void Holovibes::init_capture(enum camera_type c, unsigned int buffer_nb_elts)
+  void Holovibes::init_capture(const enum camera_type c,
+    const unsigned int buffer_nb_elts)
   {
     camera_initialized_ = false;
 
@@ -54,12 +55,6 @@ namespace holovibes
       std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
-
-      /*  tcapture_.reset(new ThreadReader("D:\\150908_ReconstructionMire\\1\\img.raw"
-            , camera_->get_frame_descriptor()
-            , true
-            , 16
-            , *input_));*/
 
       std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
@@ -91,21 +86,19 @@ namespace holovibes
   }
 
   void Holovibes::recorder(
-    std::string& filepath,
-    unsigned int rec_n_images)
+    const std::string& filepath,
+    const unsigned int rec_n_images)
   {
-    Recorder*  recorder;
+    Recorder* recorder;
 
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
+
     if (tcompute_)
-    {
       recorder = new Recorder(*output_, filepath);
-    }
     else
-    {
       recorder = new Recorder(*input_, filepath);
-    }
+
     std::cout << "[RECORDER] recorder Start" << std::endl;
     recorder->record(rec_n_images);
     delete recorder;
@@ -113,9 +106,9 @@ namespace holovibes
   }
 
   void Holovibes::init_compute(
-    bool is_float_output_enabled,
-    std::string float_output_file_src,
-    unsigned int float_output_nb_frame)
+    const bool is_float_output_enabled,
+    const std::string float_output_file_src,
+    const unsigned int float_output_nb_frame)
   {
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
@@ -155,18 +148,18 @@ namespace holovibes
 
   const float Holovibes::get_boundary()
   {
-    float n = static_cast<float>(get_cam_frame_desc().height);
-    float d = get_cam_frame_desc().pixel_size * static_cast<float>(0.000001);
+    const float n = static_cast<float>(get_cam_frame_desc().height);
+    const float d = get_cam_frame_desc().pixel_size * static_cast<float>(0.000001);
     return (n * d * d) / compute_desc_.lambda;
   }
 
-  void Holovibes::init_import_mode(std::string &file_src
-    , holovibes::ThreadReader::FrameDescriptor frame_desc
-    , bool loop
-    , unsigned int fps
-    , unsigned int spanStart
-    , unsigned int spanEnd
-    , unsigned int q_max_size_)
+  void Holovibes::init_import_mode(std::string &file_src,
+    holovibes::ThreadReader::FrameDescriptor frame_desc,
+    bool loop,
+    unsigned int fps,
+    unsigned int spanStart,
+    unsigned int spanEnd,
+    unsigned int q_max_size_)
   {
     camera_initialized_ = false;
 

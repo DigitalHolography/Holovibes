@@ -2,12 +2,12 @@
 #pragma once
 
 # include <tuple>
-# include "geometry.hh"
 # include <cufft.h>
+
+# include "geometry.hh"
 
 /*! \brief  Make the average plot on the 2 select zones
 *
-* \param input The image from where zones should be ploted
 * \param width The width of the input image.
 * \param height The height of the input image.
 * \param signal Coordinates of the signal zone to use.
@@ -16,11 +16,11 @@
 *
 */
 std::tuple<float, float, float> make_average_plot(
-  float *input,
+  float* input,
   const unsigned int width,
   const unsigned int height,
-  holovibes::Rectangle& signal,
-  holovibes::Rectangle& noise);
+  const holovibes::Rectangle& signal,
+  const holovibes::Rectangle& noise);
 
 /*! \brief  Make the average plot on the 2 select zones
 * but first it will call the reconstruct roi after having
@@ -30,11 +30,11 @@ std::tuple<float, float, float> make_average_stft_plot(
   cufftComplex*          cbuf,
   float*                 fbuf,
   cufftComplex*          input,
-  unsigned int           width,
-  unsigned int           height,
-  unsigned int           width_roi,
-  unsigned int           height_roi,
+  const unsigned int     width,
+  const unsigned int     height,
+  const unsigned int     width_roi,
+  const unsigned int     height_roi,
   holovibes::Rectangle&  signal_zone,
   holovibes::Rectangle&  noise_zone,
-  unsigned int           pindex,
-  unsigned int           nsamples);
+  const unsigned int     pindex,
+  const unsigned int     nsamples);

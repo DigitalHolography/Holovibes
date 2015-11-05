@@ -5,8 +5,8 @@
 
 __global__ void img8_to_complex(
   cufftComplex* output,
-  unsigned char* input,
-  unsigned int size,
+  const unsigned char* input,
+  const unsigned int size,
   const float* sqrt_array)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -23,8 +23,8 @@ __global__ void img8_to_complex(
 
 __global__ void img16_to_complex(
   cufftComplex* output,
-  unsigned short* input,
-  unsigned int size,
+  const unsigned short* input,
+  const unsigned int size,
   const float* sqrt_array)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -41,9 +41,9 @@ __global__ void img16_to_complex(
  ** the call easier
  **/
 static __global__ void kernel_complex_to_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -56,9 +56,9 @@ static __global__ void kernel_complex_to_modulus(
 }
 
 void complex_to_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = 128;
   unsigned int blocks = (size + threads - 1) / threads;
@@ -73,9 +73,9 @@ void complex_to_modulus(
  ** the call easier
  **/
 static __global__ void kernel_complex_to_squared_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -88,9 +88,9 @@ static __global__ void kernel_complex_to_squared_modulus(
 }
 
 void complex_to_squared_modulus(
-  cufftComplex* input,
+  const  cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -105,9 +105,9 @@ void complex_to_squared_modulus(
  ** the call easier
  **/
 static __global__ void kernel_complex_to_argument(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   float pi_div_2 = M_PI / 2.0f;
@@ -122,9 +122,9 @@ static __global__ void kernel_complex_to_argument(
 }
 
 void complex_to_argument(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -139,9 +139,9 @@ void complex_to_argument(
  ** the call easier
  **/
 static __global__ void kernel_endianness_conversion(
-  unsigned short* input,
+  const unsigned short* input,
   unsigned short* output,
-  size_t size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -154,9 +154,9 @@ static __global__ void kernel_endianness_conversion(
 }
 
 void endianness_conversion(
-  unsigned short* input,
+  const unsigned short* input,
   unsigned short* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int max_blocks = get_max_blocks();
@@ -172,9 +172,9 @@ void endianness_conversion(
  ** the call easier
  **/
 static __global__ void kernel_float_to_ushort(
-  float* input,
+  const float* input,
   unsigned short* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -192,9 +192,9 @@ static __global__ void kernel_float_to_ushort(
 }
 
 void float_to_ushort(
-  float* input,
+  const float* input,
   unsigned short* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;

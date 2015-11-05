@@ -11,7 +11,7 @@
 * \param frame_q the denominator image
 */
 void frame_ratio(
-  cufftComplex* frame_p,
-  cufftComplex* frame_q,
+  const cufftComplex* frame_p,
+  const cufftComplex* frame_q,
   cufftComplex* output,
-  unsigned int size);
+  const unsigned int size);

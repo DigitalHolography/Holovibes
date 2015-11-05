@@ -34,8 +34,8 @@ namespace gui
   {
     Q_OBJECT
 
-      /*! Frame rate of the display in Hertz (Frame.s-1) */
-      const unsigned int DISPLAY_FRAMERATE = 30;
+    /*! Frame rate of the display in Hertz (Frame.s-1) */
+    const unsigned int DISPLAY_FRAMERATE = 30;
 
   public:
     /* \brief GLWidget constructor
@@ -51,8 +51,8 @@ namespace gui
     GLWidget(
       holovibes::Holovibes& h,
       holovibes::Queue& q,
-      unsigned int width,
-      unsigned int height,
+      const unsigned int width,
+      const unsigned int height,
       QWidget* parent = 0);
 
     ~GLWidget();
@@ -91,13 +91,13 @@ namespace gui
       h_.get_compute_desc().noise_zone = noise_selection_;
     }
 
-    void set_selection_mode(eselection mode)
+    void set_selection_mode(const eselection mode)
     {
       selection_mode_ = mode;
     }
 
     public slots:
-    void resizeFromWindow(int width, int height);
+    void resizeFromWindow(const int width, const int height);
 
     /*! \{ \name View Shortcut */
     void view_move_down();
@@ -107,7 +107,8 @@ namespace gui
     void view_zoom_in();
     void view_zoom_out();
     /*! \} */
-  signals:
+
+signals:
     /*! \brief Signal used to inform the main window that autofocus
     ** zone has been selected.
     */
@@ -126,8 +127,10 @@ namespace gui
   protected:
     /* \brief Initialize all OpenGL components needed */
     void initializeGL() override;
+
     /*! \brief Called whenever the OpenGL widget is resized */
     void resizeGL(int width, int height) override;
+
     /*! \brief Paint the scene and the selection zone(s) according to selection_mode_
     **
     ** Scene is painted directly from GPU. It avoid several back and forths memory transfers.
@@ -141,8 +144,10 @@ namespace gui
     ** mous button is pressed then dezoom occured.
     */
     void mousePressEvent(QMouseEvent* e) override;
+
     /*! \brief Change selection rectangle bottom right corner */
     void mouseMoveEvent(QMouseEvent* e) override;
+
     /*! \brief Ends selection
     **
     ** Whenever mouse is released, selection bottom right corner is set to current
@@ -164,7 +169,8 @@ namespace gui
     ** \param selection zone to draw
     ** \param color color of the zone to draw in [red, green, blue, alpha] format
     */
-    void selection_rect(const holovibes::Rectangle& selection, float color[4]);
+    void selection_rect(const holovibes::Rectangle& selection, const float color[4]);
+
     /*! \brief Zoom to a given zone
     **
     ** Selection coordinates are first converted to OpenGL ones.
@@ -180,11 +186,13 @@ namespace gui
     ** \param selection zone where to zoom
     */
     void zoom(const holovibes::Rectangle& selection);
+
     /*! \brief Dezoom to default resolution */
     void dezoom();
 
     /*! \brief Return resized rectangle using actual zoom */
     holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection);
+
     /*! \brief Assure that the rectangle starts at topLeft and ends at bottomRight
     ** no matter what direction the user uses to select a zone.
     */
@@ -237,8 +245,8 @@ namespace gui
     /*! \} */
 
     /*! \{ \name Window size hints */
-    unsigned int width_;
-    unsigned int height_;
+    const unsigned int width_;
+    const unsigned int height_;
     /*! \} */
 
     /*! \{ \name Key shortcut */

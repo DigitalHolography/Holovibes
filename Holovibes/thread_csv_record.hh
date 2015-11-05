@@ -4,6 +4,7 @@
 # include <iomanip>
 # include <fstream>
 # include <QThread>
+
 # include "concurrent_deque.hh"
 # include "pipeline.hh"
 # include "holovibes.hh"
@@ -32,8 +33,8 @@ namespace gui
     */
     ThreadCSVRecord(holovibes::Holovibes& holo,
       Deque& deque,
-      std::string path,
-      unsigned int nb_frames,
+      const std::string path,
+      const unsigned int nb_frames,
       QObject* parent = nullptr);
     ~ThreadCSVRecord();
 

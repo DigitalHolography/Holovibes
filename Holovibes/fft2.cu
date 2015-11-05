@@ -11,8 +11,8 @@
 void fft2_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
-  float lambda,
-  float z)
+  const float lambda,
+  const float z)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
@@ -23,13 +23,13 @@ void fft2_lens(
 
 void fft_2(
   cufftComplex* input,
-  cufftComplex* lens,
-  cufftHandle plan3d,
-  cufftHandle plan2d,
-  unsigned int frame_resolution,
-  unsigned int nframes,
-  unsigned int p,
-  unsigned int q)
+  const cufftComplex* lens,
+  const cufftHandle plan3d,
+  const cufftHandle plan2d,
+  const unsigned int frame_resolution,
+  const unsigned int nframes,
+  const unsigned int p,
+  const unsigned int q)
 {
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 

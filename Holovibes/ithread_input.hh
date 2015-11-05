@@ -8,11 +8,14 @@ namespace holovibes
    */
   class IThreadInput
   {
-  protected:
-    IThreadInput();
   public:
     virtual ~IThreadInput();
+
+  public:
     /*! \brief Stop thread and join it */
     bool stop_requested_;
+
+  protected:
+    IThreadInput();
   };
 }

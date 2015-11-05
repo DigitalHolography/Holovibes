@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cufft.h>
+
 #include "queue.hh"
 #include <frame_desc.hh>
 
@@ -11,8 +12,8 @@
 void fft1_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
-  float lambda,
-  float z);
+  const float lambda,
+  const float z);
 
 /*! \brief Apply a lens and call an fft1 on the image
 *
@@ -22,7 +23,7 @@ void fft1_lens(
 */
 void fft_1(
   cufftComplex* input,
-  cufftComplex* lens,
-  cufftHandle plan,
-  unsigned int frame_resolution,
-  unsigned int nframes);
+  const cufftComplex* lens,
+  const cufftHandle plan,
+  const unsigned int frame_resolution,
+  const unsigned int nframes);

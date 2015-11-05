@@ -19,9 +19,9 @@
 */
 __global__ void kernel_apply_lens(
   cufftComplex *input,
-  unsigned int input_size,
-  cufftComplex *lens,
-  unsigned int lens_size);
+  const unsigned int input_size,
+  const cufftComplex *lens,
+  const unsigned int lens_size);
 
 /*! \brief Will split the pixels of the original image
  * into output respecting the ROI selected
@@ -34,15 +34,15 @@ __global__ void kernel_apply_lens(
  * \param output buffer containing all our pixels taken from the ROI
  */
 __global__ void kernel_bursting_roi(
-  cufftComplex *input,
-  unsigned int tl_x,
-  unsigned int tl_y,
-  unsigned int br_x,
-  unsigned int br_y,
-  unsigned int curr_elt,
-  unsigned int nsamples,
-  unsigned int width,
-  unsigned int size,
+  const cufftComplex *input,
+  const unsigned int tl_x,
+  const unsigned int tl_y,
+  const unsigned int br_x,
+  const unsigned int br_y,
+  const unsigned int curr_elt,
+  const unsigned int nsamples,
+  const unsigned int width,
+  const unsigned int size,
   cufftComplex *output);
 
 /*! \brief Reconstruct bursted pixel from input
@@ -51,31 +51,15 @@ __global__ void kernel_bursting_roi(
 * \param nsample total number of images
 */
 __global__ void kernel_reconstruct_roi(
-  cufftComplex* input,
-  cufftComplex* output,
-  unsigned int  input_width,
-  unsigned int  input_height,
-  unsigned int  output_width,
-  unsigned int  reconstruct_width,
-  unsigned int  reconstruct_height,
-  unsigned int  p,
-  unsigned int  nsample);
-
-/*! \brief Divide a complex image by a divider
-* the two coordinate of each point (complex) will
-* be divided
-*/
-__global__ void kernel_complex_divide(
-  cufftComplex* image,
-  unsigned int size,
-  float divider);
-
-/*! \brief Divide a float image by a divider
-*/
-__global__ void kernel_float_divide(
-  float* input,
-  unsigned int size,
-  float divider);
+  const cufftComplex* input,
+  cufftComplex*       output,
+  const unsigned int  input_width,
+  const unsigned int  input_height,
+  const unsigned int  output_width,
+  const unsigned int  reconstruct_width,
+  const unsigned int  reconstruct_height,
+  const unsigned int  p,
+  const unsigned int  nsample);
 
 /*! \brief  Permits to shift the corners of an image.
 *
@@ -85,8 +69,8 @@ __global__ void kernel_float_divide(
 */
 void shift_corners(
   float *input,
-  unsigned int size_x,
-  unsigned int size_y);
+  const unsigned int size_x,
+  const unsigned int size_y);
 
 /*! \brief  compute the log of all the pixels of input image(s).
 *
@@ -97,7 +81,7 @@ void shift_corners(
 */
 void apply_log10(
   float* input,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  apply the convolution operator to 2 complex images (x,k).
 *
@@ -111,9 +95,9 @@ void convolution_operator(
   const cufftComplex* x,
   const cufftComplex* k,
   float* out,
-  unsigned int size,
-  cufftHandle plan2d_x,
-  cufftHandle plan2d_k);
+  const unsigned int size,
+  const cufftHandle plan2d_x,
+  const cufftHandle plan2d_k);
 
 /*! \brief  Extract a part of the input image to the output.
 *

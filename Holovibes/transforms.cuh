@@ -14,8 +14,8 @@
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
-  float lambda,
-  float dist);
+  const float lambda,
+  const float dist);
 
 /*! \brief Compute a lens to apply to an image used by the fft2
 *
@@ -27,5 +27,5 @@ __global__ void kernel_quadratic_lens(
 __global__ void kernel_spectral_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
-  float lambda,
-  float distance);
+  const float lambda,
+  const float distance);

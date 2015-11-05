@@ -25,9 +25,10 @@ namespace holovibes
       ComputeDescriptor& desc,
       Queue& input,
       Queue& output,
-      bool is_float_output_enabled,
-      std::string float_output_file_src,
-      unsigned int float_output_nb_frame);
+      const bool is_float_output_enabled,
+      const std::string float_output_file_src,
+      const unsigned int float_output_nb_frame);
+
     ~ThreadCompute();
 
     /*! \return the running pipeline */
@@ -59,18 +60,23 @@ namespace holovibes
     {
       pipeline_->request_autocontrast();
     }
+
   private:
     /*! Execute pipeline while is running */
-    void thread_proc(std::string float_output_file_src, unsigned int float_output_nb_frame);
+    void thread_proc(std::string float_output_file_src,
+      const unsigned int float_output_nb_frame);
 
   private:
     ComputeDescriptor& compute_desc_;
+
     Queue& input_;
     Queue& output_;
+
     std::shared_ptr<Pipeline> pipeline_;
 
     /*! \brief Stored for the pipeline constructor*/
     bool is_float_output_enabled_;
+
     /*! \brief Is notify when pipeline is ready */
     std::condition_variable memory_cv_;
     std::thread thread_;

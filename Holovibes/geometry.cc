@@ -16,7 +16,7 @@ namespace holovibes
     y = p.y;
   }
 
-  Point2D::Point2D(int xcoord, int ycoord)
+  Point2D::Point2D(const int xcoord, const int ycoord)
   {
     x = xcoord;
     y = ycoord;
@@ -38,7 +38,7 @@ namespace holovibes
   {
   }
 
-  Rectangle::Rectangle(Point2D top_left_corner, Point2D bottom_right_corner)
+  Rectangle::Rectangle(const Point2D top_left_corner, const Point2D bottom_right_corner)
   {
     top_left = top_left_corner;
     bottom_right = bottom_right_corner;
@@ -65,20 +65,20 @@ namespace holovibes
 
   unsigned int Rectangle::area() const
   {
-    unsigned int AB = bottom_right.x - top_left.x;
-    unsigned int AD = bottom_right.y - top_left.y;
+    const unsigned int AB = bottom_right.x - top_left.x;
+    const unsigned int AD = bottom_right.y - top_left.y;
     return (AB * AD);
   }
 
   unsigned int Rectangle::get_width() const
   {
-    unsigned int AB = bottom_right.x - top_left.x;
+    const unsigned int AB = bottom_right.x - top_left.x;
     return (AB);
   }
 
   unsigned int Rectangle::get_height() const
   {
-    unsigned int AD = bottom_right.y - top_left.y;
+    const unsigned int AD = bottom_right.y - top_left.y;
     return (AD);
   }
 

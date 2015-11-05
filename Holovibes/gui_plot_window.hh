@@ -23,8 +23,9 @@ namespace gui
     ** \param parent Qt parent
     */
     PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-      QString title,
-      QWidget* parent = 0);
+      const QString title,
+      QWidget* parent = nullptr);
+
     ~PlotWindow();
 
     void resizeEvent(QResizeEvent* e) override;

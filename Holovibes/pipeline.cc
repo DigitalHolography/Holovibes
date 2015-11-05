@@ -574,11 +574,11 @@ namespace holovibes
     refresh_requested_ = true;
   }
 
-  void Pipeline::request_float_output(std::string& float_output_file_src, unsigned int nb_frame)
+  void Pipeline::request_float_output(std::string& file_src, const unsigned int nb_frame)
   {
     try
     {
-      float_output_file_.open(float_output_file_src, std::ofstream::trunc | std::ofstream::binary);
+      float_output_file_.open(file_src, std::ofstream::trunc | std::ofstream::binary);
       float_output_nb_frame_ = nb_frame;
       float_output_requested_ = true;
       request_refresh();
@@ -609,7 +609,7 @@ namespace holovibes
   {
     if (float_output_nb_frame_-- > 0)
     {
-      unsigned int size = input_.get_pixels() * sizeof(float);
+      const unsigned int size = input_.get_pixels() * sizeof(float);
       // can be improve
       char *buf = new char[size];
 
@@ -653,7 +653,7 @@ namespace holovibes
     autofocus_stop_requested_ = true;
   }
 
-  void Pipeline::request_update_n(unsigned short n)
+  void Pipeline::request_update_n(const unsigned short n)
   {
     update_n_requested_ = true;
     compute_desc_.nsamples.exchange(n);
@@ -675,7 +675,7 @@ namespace holovibes
 
   void Pipeline::request_average_record(
     ConcurrentDeque<std::tuple<float, float, float>>* output,
-    unsigned int n)
+    const unsigned int n)
   {
     assert(output != nullptr);
     assert(n != 0);
@@ -690,7 +690,7 @@ namespace holovibes
 
   void Pipeline::autocontrast_caller(
     float* input,
-    unsigned int size,
+    const unsigned int size,
     ComputeDescriptor& compute_desc)
   {
     float min = 0.0f;
@@ -705,20 +705,20 @@ namespace holovibes
 
   void Pipeline::average_caller(
     float* input,
-    unsigned int width,
-    unsigned int height,
-    Rectangle& signal,
-    Rectangle& noise)
+    const unsigned int width,
+    const unsigned int height,
+    const Rectangle& signal,
+    const Rectangle& noise)
   {
     average_output_->push_back(make_average_plot(input, width, height, signal, noise));
   }
 
   void Pipeline::average_record_caller(
     float* input,
-    unsigned int width,
-    unsigned int height,
-    Rectangle& signal,
-    Rectangle& noise)
+    const unsigned int width,
+    const unsigned int height,
+    const Rectangle& signal,
+    const Rectangle& noise)
   {
     if (average_n_ > 0)
     {
@@ -734,16 +734,15 @@ namespace holovibes
   }
 
   void Pipeline::average_stft_caller(
-    cufftComplex*    stft_buffer,
-    unsigned int     width,
-    unsigned int     height,
-    unsigned int     width_roi,
-    unsigned int     height_roi,
-    Rectangle&       signal_zone,
-    Rectangle&       noise_zone,
-    unsigned int     nsamples)
+    cufftComplex* stft_buffer,
+    const unsigned int width,
+    const unsigned int height,
+    const unsigned int width_roi,
+    const unsigned int height_roi,
+    Rectangle& signal_zone,
+    Rectangle& noise_zone,
+    const unsigned int nsamples)
   {
-    unsigned int    i;
     cufftComplex*   cbuf;
     float*          fbuf;
 
@@ -759,7 +758,7 @@ namespace holovibes
       return;
     }
 
-    for (i = 0; i < nsamples; ++i)
+    for (unsigned i = 0; i < nsamples; ++i)
     {
       (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples));
     }
@@ -767,6 +766,7 @@ namespace holovibes
     cudaFree(cbuf);
     cudaFree(fbuf);
   }
+
   /* Looks like the pipeline, but it searches for the right z value.
   The method choosen, iterates on the numbers of points given by the user
   between min and max, take the max and increase the precision to focus
@@ -779,15 +779,6 @@ namespace holovibes
   */
   void Pipeline::autofocus_caller()
   {
-    float z_min = compute_desc_.autofocus_z_min;
-    float z_max = compute_desc_.autofocus_z_max;
-    const unsigned int z_div = compute_desc_.autofocus_z_div;
-    const unsigned int z_iter = compute_desc_.autofocus_z_iter;
-
-    Rectangle zone = compute_desc_.autofocus_zone;
-
-    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-
     /* Fill gpu_input complex buffer. */
     make_contiguous_complex(
       input_,
@@ -795,14 +786,17 @@ namespace holovibes
       compute_desc_.nsamples,
       gpu_sqrt_vector_);
 
+    float z_min = compute_desc_.autofocus_z_min;
+    float z_max = compute_desc_.autofocus_z_max;
+    const float z_div = static_cast<float>(compute_desc_.autofocus_z_div);
+    Rectangle zone = compute_desc_.autofocus_zone;
+
     /* Autofocus needs to work on the same images.
      * It will computes on copies. */
     cufftComplex* gpu_input_buffer_tmp;
     const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
     cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
-    float z_step = (z_max - z_min) / float(z_div);
-
-    std::vector<float> focus_metric_values;
+    float z_step = (z_max - z_min) / z_div;
 
     /* Compute square af zone. */
     float* gpu_float_buffer_af_zone;
@@ -818,11 +812,16 @@ namespace holovibes
 
     /// The main loop that calculates all z, and find the max one
     // z_step will decrease and zmin and zmax will merge into
-    // the best autofocus_value
-
+    // the best autofocus_value.
     float af_z = 0.0f;
+
+    std::vector<float> focus_metric_values;
     auto biggest = focus_metric_values.begin();
+
+    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+
     unsigned int max_pos = 0;
+    const unsigned int z_iter = compute_desc_.autofocus_z_iter;
 
     for (unsigned i = 0; i < z_iter; ++i)
     {
@@ -935,7 +934,7 @@ namespace holovibes
       z_min = af_z - z_step;
       z_max = af_z + z_step;
 
-      z_step = (z_max - z_min) / float(z_div);
+      z_step = (z_max - z_min) / z_div;
       focus_metric_values.clear();
     }
 

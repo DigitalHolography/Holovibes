@@ -10,8 +10,8 @@ namespace gui
   GLWidget::GLWidget(
     holovibes::Holovibes& h,
     holovibes::Queue& q,
-    unsigned int width,
-    unsigned int height,
+    const unsigned int width,
+    const unsigned int height,
     QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
     , QOpenGLFunctions()
@@ -205,11 +205,11 @@ namespace gui
 
     if (is_selection_enabled_)
     {
-      float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
-      float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
-      float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
-      float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
-      float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
+      const float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
+      const float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
+      const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
+      const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
+      const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
 
       switch (selection_mode_)
       {
@@ -265,8 +265,7 @@ namespace gui
       }
       else if (selection_mode_ == STFT_ROI)
       {
-        int max;
-        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
         if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
           max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
 
@@ -286,8 +285,7 @@ namespace gui
 
       if (selection_mode_ == STFT_ROI)
       {
-        int max;
-        max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
+        int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
         if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
           max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
 
@@ -351,10 +349,10 @@ namespace gui
     }
   }
 
-  void GLWidget::selection_rect(const holovibes::Rectangle& selection, float color[4])
+  void GLWidget::selection_rect(const holovibes::Rectangle& selection, const float color[4])
   {
-    float xmax = frame_desc_.width;
-    float ymax = frame_desc_.height;
+    const float xmax = frame_desc_.width;
+    const float ymax = frame_desc_.height;
 
     float nstartx = (2.0f * static_cast<float>(selection.top_left.x)) / xmax - 1.0f;
     float nstarty = -1.0f * ((2.0f * static_cast<float>(selection.top_left.y)) / ymax - 1.0f);
@@ -398,24 +396,28 @@ namespace gui
   {
     // Translation
     // Destination point is center of the window (OpenGL coords)
-    float xdest = 0.0f;
-    float ydest = 0.0f;
+    const float xdest = 0.0f;
+    const float ydest = 0.0f;
 
     // Source point is center of the selection zone (normal coords)
-    int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
-    int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
+    const int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
+    const int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
 
     // Normalizing source points to OpenGL coords
-    float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;
-    float nysource = -1.0f * ((2.0f * static_cast<float>(ysource)) / static_cast<float>(frame_desc_.height) - 1.0f);
+    const float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;
+    const float nysource = -1.0f * ((2.0f * static_cast<float>(ysource)) / static_cast<float>(frame_desc_.height) - 1.0f);
 
     // Projection of the translation
-    float px = xdest - nxsource;
-    float py = ydest - nysource;
+    const float px = xdest - nxsource;
+    const float py = ydest - nysource;
 
     // Zoom ratio
-    float xratio = static_cast<float>(frame_desc_.width) / (static_cast<float>(selection.bottom_right.x) - static_cast<float>(selection.top_left.x));
-    float yratio = static_cast<float>(frame_desc_.height) / (static_cast<float>(selection.bottom_right.y) - static_cast<float>(selection.top_left.y));
+    const float xratio = static_cast<float>(frame_desc_.width) /
+      (static_cast<float>(selection.bottom_right.x) -
+      static_cast<float>(selection.top_left.x));
+    const float yratio = static_cast<float>(frame_desc_.height) /
+      (static_cast<float>(selection.bottom_right.y) -
+      static_cast<float>(selection.top_left.y));
 
     float min_ratio = xratio < yratio ? xratio : yratio;
     px_ += -px / zoom_ratio_ / 2;
@@ -437,10 +439,10 @@ namespace gui
 
   void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
   {
-    int x_top_left = selection.top_left.x;
-    int y_top_left = selection.top_left.y;
-    int x_bottom_right = selection.bottom_right.x;
-    int y_bottom_rigth = selection.bottom_right.y;
+    const int x_top_left = selection.top_left.x;
+    const int y_top_left = selection.top_left.y;
+    const int x_bottom_right = selection.bottom_right.x;
+    const int y_bottom_rigth = selection.bottom_right.y;
 
     QPoint tmp;
 
@@ -496,7 +498,7 @@ namespace gui
       std::cerr << "[GL] " << err_string << std::endl;
   }
 
-  void GLWidget::resizeFromWindow(int width, int height)
+  void GLWidget::resizeFromWindow(const int width, const int height)
   {
     resizeGL(width, height);
     resize(QSize(width, height));

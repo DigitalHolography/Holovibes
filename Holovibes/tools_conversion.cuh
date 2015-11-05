@@ -23,8 +23,8 @@
 */
 __global__ void img8_to_complex(
   cufftComplex* output,
-  unsigned char* input,
-  unsigned int size,
+  const unsigned char* input,
+  const unsigned int size,
   const float* sqrt_array);
 
 /*! \brief  This function permit to transform an 16 bit image to her complexe representation
@@ -36,8 +36,8 @@ __global__ void img8_to_complex(
 */
 __global__ void img16_to_complex(
   cufftComplex* output,
-  unsigned short* input,
-  unsigned int size,
+  const unsigned short* input,
+  const unsigned int size,
   const float* sqrt_array);
 
 /*! \brief  Compute the modulus of complexe image(s) in each pixel of this.
@@ -48,9 +48,9 @@ __global__ void img16_to_complex(
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
 *
@@ -60,9 +60,9 @@ void complex_to_modulus(
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_squared_modulus(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
 *
@@ -72,9 +72,9 @@ void complex_to_squared_modulus(
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void complex_to_argument(
-  cufftComplex* input,
+  const cufftComplex* input,
   float* output,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  Convert the endianness of input image(s) from big endian to little endian.
 *
@@ -84,9 +84,9 @@ void complex_to_argument(
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void endianness_conversion(
-  unsigned short* input,
+  const unsigned short* input,
   unsigned short* output,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
 *
@@ -96,6 +96,6 @@ void endianness_conversion(
 * This function makes the Kernel call for the user in order to make the usage of the previous function easier.
 */
 void float_to_ushort(
-  float* input,
+  const float* input,
   unsigned short* output,
-  unsigned int size);
+  const unsigned int size);

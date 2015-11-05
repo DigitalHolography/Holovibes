@@ -13,7 +13,7 @@ namespace gui
     /*! \brief GroupBox constructor
     ** \param parent Qt parent
     */
-    GroupBox(QWidget* parent = 0);
+    GroupBox(QWidget* parent = nullptr);
     /*! \brief GroupBox destructor */
     ~GroupBox();
 
