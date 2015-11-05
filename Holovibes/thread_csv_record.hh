@@ -10,9 +10,7 @@
 
 namespace gui
 {
-  /*! \class ThreadCSVRecord
-  **
-  ** Thread class used to record CSV files of ROI/average computations.
+  /*! \brief Thread class used to record CSV files of ROI/average computations.
   **
   ** It inherits QThread because it is the GUI that needs to launch the record and it has
   ** to know when it is finished (signal/slots system).

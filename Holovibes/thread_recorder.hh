@@ -9,9 +9,7 @@
 
 namespace gui
 {
-  /*! \class ThreadRecorder
-  **
-  ** Thread class used to record raw images.
+  /*! \brief Thread class used to record raw images.
   **
   ** It inherits QThread because it is the GUI that needs to launch the record and it has
   ** to know when it is finished (signal/slots system).

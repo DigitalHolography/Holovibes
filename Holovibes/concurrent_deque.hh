@@ -8,12 +8,11 @@ namespace holovibes
 {
   using guard = std::lock_guard<std::mutex>;
 
-  /*! \class Concurrent Deque
-  **
-  ** This class is a thread safe wrapper on std::deque.
-  ** It is used mainly to store average/ROI values.
-  ** Every method locks a mutex, do the action and delocks the mutex.
-  */
+  /*! \brief This class is a thread safe wrapper on std::deque.
+   *
+   * It is used mainly to store average/ROI values.
+   * Every method locks a mutex, do the action and delocks the mutex.
+   */
   template <class T> class ConcurrentDeque
   {
   public:
