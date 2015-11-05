@@ -13,7 +13,6 @@ namespace holovibes
     , camera_initialized_(false)
     , tcapture_()
     , tcompute_()
-    , recorder_()
     , input_()
     , output_()
     , compute_desc_()
