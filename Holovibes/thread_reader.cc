@@ -27,7 +27,7 @@ namespace holovibes
   {
   }
 
-  void	ThreadReader::thread_proc()
+  void ThreadReader::thread_proc()
   {
     FILE*   file = nullptr;
     fpos_t  pos;

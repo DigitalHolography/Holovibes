@@ -34,8 +34,8 @@ namespace gui
   {
     Q_OBJECT
 
-    /*! Frame rate of the display in Hertz (Frame.s-1) */
-    const unsigned int DISPLAY_FRAMERATE = 30;
+      /*! Frame rate of the display in Hertz (Frame.s-1) */
+      const unsigned int DISPLAY_FRAMERATE = 30;
 
   public:
     /* \brief GLWidget constructor
@@ -242,12 +242,12 @@ namespace gui
     /*! \} */
 
     /*! \{ \name Key shortcut */
-    QShortcut	*num_2_shortcut;
-    QShortcut	*num_4_shortcut;
-    QShortcut	*num_6_shortcut;
-    QShortcut	*num_8_shortcut;
-    QShortcut	*key_plus_shortcut;
-    QShortcut	*key_minus_shortcut;
+    QShortcut *num_2_shortcut;
+    QShortcut *num_4_shortcut;
+    QShortcut *num_6_shortcut;
+    QShortcut *num_8_shortcut;
+    QShortcut *key_plus_shortcut;
+    QShortcut *key_minus_shortcut;
     /*! \} */
   };
 }

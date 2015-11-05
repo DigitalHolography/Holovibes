@@ -21,7 +21,7 @@ namespace holovibes
     struct FrameDescriptor
     {
     public:
-      camera::FrameDescriptor	desc;
+      camera::FrameDescriptor desc;
       /*! Width of the image. != frame width */
       unsigned short         img_width;
       /*! Height of the image. != frame height */
@@ -48,9 +48,9 @@ namespace holovibes
         return (x);
       }
 
-      void		compute_sqared_image(void)
+      void compute_sqared_image(void)
       {
-        unsigned short	biggestBorder = (desc.width > desc.height ? desc.width : desc.height);
+        unsigned short biggestBorder = (desc.width > desc.height ? desc.width : desc.height);
 
         img_width = desc.width;
         img_height = desc.height;
@@ -86,7 +86,7 @@ namespace holovibes
     bool loop_;
     unsigned int fps_;
     camera::FrameDescriptor frame_desc_;
-    holovibes::ThreadReader::FrameDescriptor	desc_;
+    holovibes::ThreadReader::FrameDescriptor desc_;
     unsigned int frameId_;
     unsigned int spanStart_;
     unsigned int spanEnd_;

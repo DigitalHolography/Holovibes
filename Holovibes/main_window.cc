@@ -1354,11 +1354,11 @@ namespace gui
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
     try
     {
@@ -1452,11 +1452,11 @@ namespace gui
   {
     boost::property_tree::ptree ptree;
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());

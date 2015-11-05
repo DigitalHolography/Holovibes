@@ -1,15 +1,13 @@
 #pragma once
 
 # include <thread>
-
 # include <icamera.hh>
 # include "queue.hh"
-
 # include "ithread_input.hh"
 
 namespace holovibes
 {
-	class ThreadCapture : public IThreadInput
+class ThreadCapture : public IThreadInput
   {
   public:
     ThreadCapture(camera::ICamera& camera, Queue& input);

@@ -10,7 +10,7 @@
 
 namespace holovibes
 {
-  void	createFilePath(const std::string folderName)
+  void createFilePath(const std::string folderName)
   {
     std::list<std::string> folderLevels;
     std::string startPath = boost::filesystem::current_path().string();
