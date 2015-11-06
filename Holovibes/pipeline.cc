@@ -25,7 +25,6 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , gpu_input_buffer_(nullptr)
-    , gpu_complex_buffer_(nullptr)
     , gpu_output_buffer_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
@@ -59,11 +58,6 @@ namespace holovibes
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-
-    /* gpu_complex_buffer */
-    cudaMalloc<cufftComplex>(&gpu_complex_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
       sizeof(unsigned short)* input_.get_pixels());
@@ -213,12 +207,6 @@ namespace holovibes
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
 
-    if (gpu_complex_buffer_)
-      cudaFree(gpu_complex_buffer_) ? ++err_count : 0;
-    gpu_complex_buffer_ = nullptr;
-    cudaMalloc<cufftComplex>(&gpu_complex_buffer_,
-      sizeof(cufftComplex)* input_.get_pixels() * input_length_) ? ++err_count : 0;
-
     /* gpu_stft_buffer */
     if (gpu_stft_buffer_)
       cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
@@ -277,16 +265,9 @@ namespace holovibes
     fn_vect_.push_back(std::bind(
       make_contiguous_complex,
       std::ref(input_),
-      gpu_complex_buffer_,
+      gpu_input_buffer_,
       input_length_,
       gpu_sqrt_vector_));
-
-    // Copy complex data into modifiable buffer.
-    fn_vect_.push_back(std::bind(
-      copy_buffer,
-      gpu_complex_buffer_,
-      gpu_input_buffer_,
-      input_length_ * input_.get_pixels()));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -777,6 +758,7 @@ namespace holovibes
   in order to have a new (more accurate) zmin and zmax. And 10 more images
   will be produced, giving a better zmax
   */
+
   void Pipeline::autofocus_caller()
   {
     float z_min = compute_desc_.autofocus_z_min;
@@ -792,7 +774,7 @@ namespace holovibes
     make_contiguous_complex(
       input_,
       gpu_input_buffer_,
-      compute_desc_.nsamples,
+      compute_desc_.nsamples.load(),
       gpu_sqrt_vector_);
 
     /* Autofocus needs to work on the same images.
