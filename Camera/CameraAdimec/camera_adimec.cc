@@ -18,7 +18,7 @@ namespace camera
     void update_image(void* buffer, unsigned width, unsigned height)
     {
       const unsigned shift_step = 5; // The shift distance, in bits.
-      size_t* it = reinterpret_cast<size_t*>(buffer);
+      size_t* it = static_cast<size_t*>(buffer);
 
       /* Iteration is done with a size_t, allowing to move values 4 by 4
        * (a size_t contains 4 shorts, each short encoding a pixel value). */
