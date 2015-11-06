@@ -6,13 +6,13 @@
 
 namespace holovibes
 {
-  ThreadReader::ThreadReader(std::string file_src
-    , ThreadReader::FrameDescriptor frame_desc
-    , bool loop
-    , unsigned int fps
-    , unsigned int spanStart
-    , unsigned int spanEnd
-    , Queue& input)
+  ThreadReader::ThreadReader(std::string file_src,
+    ThreadReader::FrameDescriptor frame_desc,
+    bool loop,
+    unsigned int fps,
+    unsigned int spanStart,
+    unsigned int spanEnd,
+    Queue& input)
     : IThreadInput()
     , file_src_(file_src)
     , frame_desc_(frame_desc.desc)
@@ -27,14 +27,12 @@ namespace holovibes
   {
   }
 
-  void	ThreadReader::thread_proc()
+  void ThreadReader::thread_proc()
   {
     FILE*   file = nullptr;
     fpos_t  pos;
-    size_t  length;
 
     unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
-    // char* buffer = new char[frame_size * NBR];
     char*   buffer;
     cudaMallocHost(&buffer, frame_size * NBR);
     unsigned int nbr_stored = 0;
@@ -45,6 +43,7 @@ namespace holovibes
       fopen_s(&file, file_src_.c_str(), "rb");
       if (!file)
         throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
+
       while (++frameId_ < spanStart_)
         std::fread(buffer, 1, frame_size, file);
       std::fgetpos(file, &pos);
@@ -55,7 +54,7 @@ namespace holovibes
         {
           if (act_frame >= nbr_stored)
           {
-            length = std::fread(buffer, 1, frame_size * NBR, file);
+            size_t length = std::fread(buffer, 1, frame_size * NBR, file);
             nbr_stored = length / frame_size;
             act_frame = 0;
           }
@@ -79,6 +78,7 @@ namespace holovibes
     {
       std::cout << e.what() << std::endl;
     }
+
     if (file)
     {
       std::fclose(file);
@@ -86,12 +86,12 @@ namespace holovibes
     }
     stop_requested_ = true;
     cudaFreeHost(buffer);
-  //  delete[] buffer;
   }
 
   ThreadReader::~ThreadReader()
   {
     stop_requested_ = true;
+
     if (thread_.joinable())
       thread_.join();
   }

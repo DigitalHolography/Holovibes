@@ -10,9 +10,9 @@ namespace holovibes
   OptionsParser::OptionsParser(OptionsDescriptor& opts)
     : opts_(opts)
     , pos_desc_()
-	, general_opts_desc_("General")
-	, import_opts_desc_("Import")
-	, features_opts_desc_("Features")
+    , general_opts_desc_("General")
+    , import_opts_desc_("Import")
+    , features_opts_desc_("Features")
     , compute_opts_desc_("Computation options")
     , merge_opts_desc_()
     , vm_()
@@ -23,15 +23,15 @@ namespace holovibes
 
   void OptionsParser::init_general_options()
   {
-	  general_opts_desc_.add_options()
-		  ("version", "Print the version number of Holovibes and exit.")
-		  ("help,h", "Print a summary of the command-line options to Holovibes and exit.")
-		  ("nogui", "Disable graphical user interface.")
-		  ("import,i", "Enable import file mode (Overide a camera). Requires f, img-dim parameters.")
+    general_opts_desc_.add_options()
+      ("version", "Print the version number of Holovibes and exit.")
+      ("help,h", "Print a summary of the command-line options to Holovibes and exit.")
+      ("nogui", "Disable graphical user interface.")
+      ("import,i", "Enable import file mode (Overide a camera). Requires f, img-dim parameters.")
       ;
   }
 
-  void OptionsParser::init_features_options(bool is_no_gui, bool is_import_mode_enable)
+  void OptionsParser::init_features_options(const bool is_no_gui, const bool is_import_mode_enable)
   {
     features_opts_desc_.add_options()
       ("queuesize,q",
@@ -40,72 +40,72 @@ namespace holovibes
       "Size of queue arg in number of images")
       ;
 
-	if (is_import_mode_enable)
-	{
-		import_opts_desc_.add_options()
-			("file,f",
-			po::value<std::string>()
-			->required(),
-			"File path used by import mode. (Requierd in import mode).")
-
-			("img-dim",
-			po::value<std::vector<unsigned int>>()
-			->multitoken()
-			->required(),
-			"Set sizes of imported file (Requierd in import mode)."
-			"The first argument gives the with. "
-			"The second argument gives the height.")
-
-			("fps",
-			po::value<unsigned int>()
-			->default_value(default_fps),
-			"Set frame imported per seconds. (Useless with nogui arg)")
-
-			("depth",
-			po::value<unsigned int>()
-			->default_value(default_depth),
-			"Set depth of imported file.")
-
-			("big-endian",
-			po::value<bool>()
-			->default_value(default_is_big_endian),
-			"Set big endian mode of imported file.")
-
-			("frame_start",
-			po::value<unsigned int>()
-			->default_value(1),
-			"Set first frame id imported.")
-
-			("frame_end",
-			po::value<unsigned int>()
-			->default_value(65536),
-			"Set the max frame id imported.")
-			;
-	}
-
-	if (is_no_gui)
+    if (is_import_mode_enable)
     {
-		features_opts_desc_.add_options()
-			("write,w",
-			po::value<std::vector<std::string>>()
-			->multitoken()
-			->required(),
-			"Record a sequence of images in the given path. "
-			"The first argument gives the number of images to record. "
-			"The second argument gives the filepath where frames will be recorded.")
+      import_opts_desc_.add_options()
+        ("file,f",
+        po::value<std::string>()
+        ->required(),
+        "File path used by import mode. (Requierd in import mode).")
 
-			("float-output,o",
-			"Set on float output, Requires compute mode.")
-			;
-	  if (!is_import_mode_enable)
-	  {
-		  features_opts_desc_.add_options()
-		  ("cameramodel,c",
-			  po::value<std::string>()
-			  ->required(),
-			  "Set the camera to use: pike/xiq/ids/pixelfly/ixon/edge.")
-			  ;
-	  }
+        ("img-dim",
+        po::value<std::vector<unsigned int>>()
+        ->multitoken()
+        ->required(),
+        "Set sizes of imported file (Requierd in import mode)."
+        "The first argument gives the with. "
+        "The second argument gives the height.")
+
+        ("fps",
+        po::value<unsigned int>()
+        ->default_value(default_fps),
+        "Set frame imported per seconds. (Useless with nogui arg)")
+
+        ("depth",
+        po::value<unsigned int>()
+        ->default_value(default_depth),
+        "Set depth of imported file.")
+
+        ("big-endian",
+        po::value<bool>()
+        ->default_value(default_is_big_endian),
+        "Set big endian mode of imported file.")
+
+        ("frame_start",
+        po::value<unsigned int>()
+        ->default_value(1),
+        "Set first frame id imported.")
+
+        ("frame_end",
+        po::value<unsigned int>()
+        ->default_value(65536),
+        "Set the max frame id imported.")
+        ;
+    }
+
+    if (is_no_gui)
+    {
+      features_opts_desc_.add_options()
+        ("write,w",
+        po::value<std::vector<std::string>>()
+        ->multitoken()
+        ->required(),
+        "Record a sequence of images in the given path. "
+        "The first argument gives the number of images to record. "
+        "The second argument gives the filepath where frames will be recorded.")
+
+        ("float-output,o",
+        "Set on float output, Requires compute mode.")
+        ;
+      if (!is_import_mode_enable)
+      {
+        features_opts_desc_.add_options()
+          ("cameramodel,c",
+          po::value<std::string>()
+          ->required(),
+          "Set the camera to use: pike/xiq/ids/pixelfly/ixon/edge.")
+          ;
+      }
     }
     else
     {
@@ -130,11 +130,11 @@ namespace holovibes
       "Enable the 2-FFT method: Angular spectrum propagation approache. Requires n, p, l, z parameters.")
 
       ("nsamples,n",
-	  po::value<unsigned short>(),
+      po::value<unsigned short>(),
       "Number of samples N.")
 
       ("pindex,p",
-	  po::value<unsigned short>(),
+      po::value<unsigned short>(),
       "Select the p-th component of the DFT, p must be defined in {0, ..., N - 1}.")
 
       ("lambda,l",
@@ -173,9 +173,9 @@ namespace holovibes
 
   void OptionsParser::init_merge_options()
   {
-	  merge_opts_desc_.add(general_opts_desc_);
-	  merge_opts_desc_.add(import_opts_desc_);
-	  merge_opts_desc_.add(features_opts_desc_);
+    merge_opts_desc_.add(general_opts_desc_);
+    merge_opts_desc_.add(import_opts_desc_);
+    merge_opts_desc_.add(features_opts_desc_);
     merge_opts_desc_.add(compute_opts_desc_);
   }
 
@@ -191,12 +191,12 @@ namespace holovibes
 
   bool OptionsParser::get_is_gui_enabled()
   {
-	  return !vm_.count("nogui");
+    return !vm_.count("nogui");
   }
 
   bool OptionsParser::get_is_import_mode()
   {
-	  return vm_.count("import");
+    return vm_.count("import");
   }
 
   void OptionsParser::parse_features_compute_options(int argc, char* const argv[])
@@ -217,10 +217,10 @@ namespace holovibes
     {
       parse_general_options(argc, argv);
 
-	  opts_.is_gui_enabled = get_is_gui_enabled();
-	  opts_.is_import_mode_enabled = get_is_import_mode();
+      opts_.is_gui_enabled = get_is_gui_enabled();
+      opts_.is_import_mode_enabled = get_is_import_mode();
 
-	  init_features_options(!opts_.is_gui_enabled, opts_.is_import_mode_enabled);
+      init_features_options(!opts_.is_gui_enabled, opts_.is_import_mode_enabled);
       init_merge_options();
 
       /* May exit here. */
@@ -323,7 +323,7 @@ namespace holovibes
     if (vm_.count("display"))
     {
       const std::vector<unsigned int>& display_size =
-		  vm_["display"].as<std::vector<unsigned int>>();
+        vm_["display"].as<std::vector<unsigned int>>();
 
       if (!display_size.empty())
       {
@@ -342,7 +342,7 @@ namespace holovibes
       }
       else
       {
-        /* This case should not append. */
+        /* This case should not happen. */
         assert(!"Display vector<int> is empty");
       }
 
@@ -387,32 +387,30 @@ namespace holovibes
       opts_.is_recorder_enabled = true;
     }
 
+    if (opts_.is_import_mode_enabled)
+    {
+      /*! TODO:
+              Protect this code
+              */
+      opts_.file_src = vm_["file"].as<std::string>();
 
-	if (opts_.is_import_mode_enabled)
-	{
-		/*! TODO:
-			Protect this code
-		*/
-		opts_.file_src = vm_["file"].as<std::string>();
+      opts_.file_image_width = vm_["img-dim"].as<std::vector<unsigned int>>()[0];
 
-		opts_.file_image_width = vm_["img-dim"].as<std::vector<unsigned int>>()[0];
+      opts_.file_image_height = vm_["img-dim"].as<std::vector<unsigned int>>()[1];
 
-		opts_.file_image_height = vm_["img-dim"].as<std::vector<unsigned int>>()[1];
+      opts_.file_image_depth = vm_["depth"].as<unsigned int>();
 
-		opts_.file_image_depth = vm_["depth"].as<unsigned int>();
+      opts_.file_is_big_endian = vm_["big-endian"].as<bool>();
 
-		opts_.file_is_big_endian = vm_["big-endian"].as<bool>();
+      opts_.fps = vm_["fps"].as<unsigned int>();
 
-		opts_.fps = vm_["fps"].as<unsigned int>();
+      opts_.spanStart = vm_["frame_start"].as<unsigned int>();
 
-		opts_.spanStart = vm_["frame_start"].as<unsigned int>();
-
-		opts_.spanEnd = vm_["frame_end"].as<unsigned int>();
-		if (opts_.spanStart > opts_.spanEnd)
-			throw std::runtime_error("frame_start must be smaller than frame_end");
-	}
-	opts_.is_float_output_enabled = vm_.count("float-output");
-
+      opts_.spanEnd = vm_["frame_end"].as<unsigned int>();
+      if (opts_.spanStart > opts_.spanEnd)
+        throw std::runtime_error("frame_start must be smaller than frame_end");
+    }
+    opts_.is_float_output_enabled = vm_.count("float-output");
   }
 
   void OptionsParser::proceed_compute()
@@ -434,7 +432,7 @@ namespace holovibes
 
     if (vm_.count("nsamples"))
     {
-		const unsigned short nsamples = vm_["nsamples"].as<unsigned short>();
+      const unsigned short nsamples = vm_["nsamples"].as<unsigned short>();
       if (nsamples <= 0)
         throw std::runtime_error("--nsamples parameter must be strictly positive");
 
@@ -446,7 +444,7 @@ namespace holovibes
 
     if (vm_.count("pindex"))
     {
-		const unsigned short pindex = vm_["pindex"].as<unsigned short>();
+      const unsigned short pindex = vm_["pindex"].as<unsigned short>();
       if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
         throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
       opts_.compute_desc.pindex = pindex;
@@ -485,7 +483,7 @@ namespace holovibes
 
     if (vm_.count("contrastmin"))
     {
-		const double log_min = vm_["contrastmin"].as<double>();
+      const double log_min = vm_["contrastmin"].as<double>();
 
       if (log_min < -100.0f || log_min > 100.0f)
         throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");

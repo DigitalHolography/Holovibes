@@ -1,5 +1,4 @@
-#ifndef HOLOVIBES_HH
-# define HOLOVIBES_HH
+#pragma once
 
 # include "camera_dll.hh"
 # include "thread_compute.hh"
@@ -12,6 +11,7 @@
 
 # include <memory>
 
+/*! \brief Containt all function and structure needed to computes data */
 namespace holovibes
 {
   /*! \brief Core class to use HoloVibes
@@ -45,13 +45,16 @@ namespace holovibes
     };
 
     Holovibes();
+
     ~Holovibes();
 
     /*! \brief Open the camera and launch the ThreadCapture
      *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
-    void init_capture(enum camera_type c, unsigned int buffer_nb_elts);
+    void init_capture(const enum camera_type c,
+      const unsigned int buffer_nb_elts);
+
     /*! \brief Request the capture thread to stop - Free ressources. */
     void dispose_capture();
 
@@ -86,9 +89,10 @@ namespace holovibes
      *
      * - direct: use input_ queue
      * - hologram: use output_ queue. */
-    void init_recorder(
-      std::string& filepath,
-      unsigned int rec_n_images);
+    void recorder(
+      const std::string& filepath,
+      const unsigned int rec_n_images);
+
     /*! \brief Request the recorder thread to stop */
     void dispose_recorder();
 
@@ -100,18 +104,19 @@ namespace holovibes
      * the method contains a lock to avoid conflicts between threads that would
      * use the Pipeline before it finished the initialization. */
     void init_compute(
-      bool is_float_output_enabled = false,
-      std::string float_output_file_src = "",
-      unsigned int float_output_nb_frame = 0);
+      const bool is_float_output_enabled = false,
+      const std::string float_output_file_src = "",
+      const unsigned int float_output_nb_frame = 0);
+
     void dispose_compute();
 
-    void init_import_mode(std::string &file_src
-      , holovibes::ThreadReader::FrameDescriptor frame_desc
-      , bool loop
-      , unsigned int fps
-      , unsigned int spanStart
-      , unsigned int spanEnd
-      , unsigned int q_max_size_);
+    void init_import_mode(std::string &file_src,
+      holovibes::ThreadReader::FrameDescriptor frame_desc,
+      bool loop,
+      unsigned int fps,
+      unsigned int spanStart,
+      unsigned int spanEnd,
+      unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
     std::shared_ptr<Pipeline> get_pipeline()
@@ -132,7 +137,7 @@ namespace holovibes
      * \param compute_desc ComputeDescriptor to load
      *
      * Used when options are loaded from an INI file. */
-    void set_compute_desc(ComputeDescriptor& compute_desc)
+    void set_compute_desc(const ComputeDescriptor& compute_desc)
     {
       compute_desc_ = compute_desc;
     }
@@ -158,11 +163,13 @@ namespace holovibes
 
   private:
     /* Use shared pointers to ensure each ressources will freed. */
+    /*! \brief ICamera use to acquire image */
     std::shared_ptr<camera::ICamera> camera_;
     bool camera_initialized_;
+    /*! \brief IThread which acquiring continuously frames */
     std::unique_ptr<IThreadInput> tcapture_;
+    /*! \brief Thread which compute continuously frames */
     std::unique_ptr<ThreadCompute> tcompute_;
-    std::unique_ptr<Recorder> recorder_;
 
     /*! \{ \name Frames queue (GPU) */
     std::unique_ptr<Queue> input_;
@@ -173,8 +180,11 @@ namespace holovibes
      * Pipeline. */
     ComputeDescriptor compute_desc_;
 
+    /*! \brief Store average of zone signal/noise
+     *
+     * Average are computes in ThreadCompute and use in CurvePlot
+     * \note see void MainWindow::set_average_graphic() for example
+     */
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
   };
 }
-
-#endif /* !HOLOVIBES_HH */

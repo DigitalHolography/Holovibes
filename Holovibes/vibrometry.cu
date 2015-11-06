@@ -6,10 +6,10 @@
 #include "hardware_limits.hh"
 
 static __global__ void kernel_frame_ratio(
-  cufftComplex* frame_p,
-  cufftComplex* frame_q,
+  const cufftComplex* frame_p,
+  const cufftComplex* frame_q,
   cufftComplex* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size)
@@ -32,10 +32,10 @@ static __global__ void kernel_frame_ratio(
 }
 
 void frame_ratio(
-  cufftComplex* frame_p,
-  cufftComplex* frame_q,
+  const cufftComplex* frame_p,
+  const cufftComplex* frame_q,
   cufftComplex* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -43,5 +43,5 @@ void frame_ratio(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_frame_ratio <<<blocks, threads>>>(frame_p, frame_q, output, size);
+  kernel_frame_ratio << <blocks, threads >> >(frame_p, frame_q, output, size);
 }

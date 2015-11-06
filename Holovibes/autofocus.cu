@@ -1,19 +1,21 @@
-#include "autofocus.cuh"
+/*! \file */
 
+# include <stdio.h>
 # include <cuda_runtime.h>
+
+# include "autofocus.cuh"
 # include "device_launch_parameters.h"
 # include "hardware_limits.hh"
 # include "tools.cuh"
 # include "tools_multiply.cuh"
 # include "tools_divide.cuh"
 # include "average.cuh"
-# include <stdio.h>
 
 static __global__ void kernel_minus_operator(
   const float* input_left,
   const float* input_right,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -26,7 +28,7 @@ static __global__ void kernel_minus_operator(
 
 static float global_variance_intensity(
   const float* input,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
@@ -42,7 +44,7 @@ static float global_variance_intensity(
   float* matrix_average;
   cudaMalloc(&matrix_average, size * sizeof(float));
 
-  float* cpu_average_matrix = (float *)malloc(sizeof(float) * size);
+  float* cpu_average_matrix = (float *)malloc(sizeof(float)* size);
   for (unsigned int i = 0; i < size; ++i)
     cpu_average_matrix[i] = average_input;
 
@@ -65,7 +67,7 @@ static float global_variance_intensity(
 static __global__ void kernel_float_to_complex(
   const float* input,
   cufftComplex* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -81,7 +83,7 @@ static float average_local_variance(
   const float* input,
   const unsigned int square_size)
 {
-  unsigned int size = square_size * square_size;
+  const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -183,7 +185,6 @@ static float average_local_variance(
   cudaFree(input_complex);
   cudaFree(ke_gpu_frame);
 
-
   return average_local_variance;
 }
 
@@ -191,7 +192,7 @@ static __global__ void kernel_plus_operator(
   const float* input_left,
   const float* input_right,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -205,7 +206,7 @@ static __global__ void kernel_plus_operator(
 static __global__ void kernel_sqrt_operator(
   const float* input,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -218,9 +219,9 @@ static __global__ void kernel_sqrt_operator(
 
 static float sobel_operator(
   const float* input,
-  unsigned int square_size)
+  const unsigned int square_size)
 {
-  unsigned int size = square_size * square_size;
+  const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -397,13 +398,11 @@ static float sobel_operator(
   return 1.0f / average_magnitude;
 }
 
-
-
 float focus_metric(
   float* input,
-  unsigned int square_size)
+  const unsigned int square_size)
 {
-  unsigned int size = square_size * square_size;
+  const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
   unsigned int blocks = (size + threads - 1) / threads;

@@ -1,21 +1,29 @@
-#ifndef FFT1_CUH
-# define FFT1_CUH
+/*! \file */
+#pragma once
 
 #include <cufft.h>
+
 #include "queue.hh"
 #include <frame_desc.hh>
 
-/*! \param lens Lens is externally allocated. */
+/*! \brief Find the right threads and block to call quadratic lens
+* with and call it
+*/
 void fft1_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
-  float lambda,
-  float z);
+  const float lambda,
+  const float z);
+
+/*! \brief Apply a lens and call an fft1 on the image
+*
+* \param lens the lens that will be applied to the image
+* \param plan the first paramater of cufftExecC2C that will be called
+* on the image
+*/
 void fft_1(
   cufftComplex* input,
-  cufftComplex* lens,
-  cufftHandle plan,
-  unsigned int frame_resolution,
-  unsigned int nframes);
-
-#endif /* !FFT1_CUH */
+  const cufftComplex* lens,
+  const cufftHandle plan,
+  const unsigned int frame_resolution,
+  const unsigned int nframes);

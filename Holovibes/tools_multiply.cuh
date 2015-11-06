@@ -1,5 +1,5 @@
-#ifndef TOOLS_MULTIPLY_CUH
-# define TOOLS_MULTIPLY_CUH
+/*! \file */
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -22,7 +22,7 @@ __global__ void kernel_multiply_frames_complex(
   const cufftComplex* input1,
   const cufftComplex* input2,
   cufftComplex* output,
-  unsigned int size);
+  const unsigned int size);
 
 /*! \brief  Multiply the pixels value of 2 float input images
 *
@@ -34,6 +34,4 @@ __global__ void kernel_multiply_frames_float(
   const float* input1,
   const float* input2,
   float* output,
-  unsigned int size);
-
-#endif /* TOOLS_MULTIPLY.CUH */
+  const unsigned int size);

@@ -1,5 +1,4 @@
-#ifndef QUEUE_HH
-# define QUEUE_HH
+#pragma once
 
 # include <iostream>
 # include <mutex>
@@ -10,8 +9,7 @@
 
 namespace holovibes
 {
-  /*! \class Queue
-  ** Queue class is a custom circular FIFO data structure. It can handle
+  /*! \brief Queue class is a custom circular FIFO data structure. It can handle
   ** CPU or GPU data. This class is used to store the raw images, provided
   ** by the camera, and holograms.
   **
@@ -37,9 +35,9 @@ namespace holovibes
     ** images or a FrameDescriptor used for computations.
     ** \param elts Max number of elements that the queue can contain.
     **/
-    Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts);
+    Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts);
 
-    /*! Queue destructor */
+    /*! \brief Queue destructor */
     ~Queue();
 
     /*! \return the size of one frame (i-e element) of the Queue in bytes. */
@@ -75,7 +73,7 @@ namespace holovibes
     void* get_end();
 
     /*! \return pointer to end_index - n frame */
-    void* get_last_images(int n);
+    void* get_last_images(const unsigned n);
 
     /*! \return index of the frame right after the last one containing data */
     unsigned int get_end_index();
@@ -116,14 +114,14 @@ namespace holovibes
     camera::FrameDescriptor frame_desc_;
 
     /*! Size of one element in bytes */
-    size_t size_;
+    const size_t size_;
 
-    // TODO: Shall be remove and use frame_desc_.frame_res() instead.
-    /*! Size of one element in pixels */
-    int pixels_;
+    /*! TODO: Shall be remove and use frame_desc_.frame_res() instead.
+     * Size of one element in pixels */
+    const int pixels_;
 
     /*! Maximum elements number */
-    unsigned int max_elts_;
+    const unsigned int max_elts_;
 
     /*! Current elements number */
     size_t curr_elts_;
@@ -141,5 +139,3 @@ namespace holovibes
     std::mutex mutex_;
   };
 }
-
-#endif /* !QUEUE_HH */

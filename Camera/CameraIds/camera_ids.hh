@@ -1,5 +1,4 @@
-#ifndef CAMERA_IDS_HH
-# define CAMERA_IDS_HH
+#pragma once
 
 # include <camera.hh>
 
@@ -10,6 +9,7 @@
 
 namespace camera
 {
+  //!< IDS camera.
   class CameraIds : public Camera
   {
   public:
@@ -38,58 +38,53 @@ namespace camera
     virtual void bind_params() override;
 
   private:
-    /*! camera handler */
-    HIDS cam_;
+    /*! Format gain, it should be between 0 and 100 as it is a coefficient.
+    * \return 0 if gain < 0 or gain > 100; else returns gain. */
+    int format_gain() const;
 
-    /*! frame pointer */
-    char* frame_;
+    /*! Retrieve subsampling mode code from a string.
+    * \return The corresponding API-defined code, or the subsampling-disabling code
+    * if the value is invalid. */
+    int get_subsampling_mode(const std::string ui) const;
 
-    /*! frame associated memory */
-    int frame_mem_pid_;
+    /*! Retrieve binning mode code from user input string.
+    * \return The corresponding API-defined code, or the binning-disabling code
+    * if the value is invalid. */
+    int get_binning_mode(const std::string ui) const;
 
-    /*! Gain */
-    unsigned int gain_;
+    /*! Retrieve color mode code from user input string.
+    * \return The corresponding API-defined code, or the raw 8-bit format
+    * if the value is invalid. */
+    int get_color_mode(const std::string ui);
 
-    /*! Subsampling value (2x2, 4x4 ...) */
-    int subsampling_;
-
-    /*! Binning value (2x2, 4x4 ...) */
-    int binning_;
-
-    /*! Image format (also called color mode) */
-    int color_mode_;
-
-    /*! Area Of Interest (AOI) x */
-    int aoi_x_;
-
-    /*! Area Of Interest (AOI) y */
-    int aoi_y_;
-
-    /*! Area Of Interest (AOI) width */
-    int aoi_width_;
-
-    /*! Area Of Interest (AOI) height */
-    int aoi_height_;
-
-    /*! Trigger mode */
-    int trigger_mode_;
+    /*! Retrieve trigger mode code from user input string.
+    * \return The corresponding API-defined code, or the trigger-disabling code
+    * if the value is invalid. */
+    int get_trigger_mode(const std::string ui) const;
 
   private:
-    /*! Format gain, it should be between 0 and 100 as it is a coefficient */
-    int format_gain();
+    HIDS cam_; //!< camera handler
 
-    /*! Retreive subsampling mode code from user input string */
-    int get_subsampling_mode(std::string ui);
+    char* frame_; //!< frame pointer
 
-    /*! Retreive binning mode code from user input string */
-    int get_binning_mode(std::string ui);
+    int frame_mem_pid_; //!< frame associated memory
 
-    /*! Retreive color mode code from user input string */
-    int get_color_mode(std::string ui);
+    unsigned int gain_; //!< Gain
 
-    /*! Retreive trigger mode code from user input string */
-    int get_trigger_mode(std::string ui);
+    int subsampling_; //!< Subsampling value (2x2, 4x4 ...)
+
+    int binning_; //!< Binning value (2x2, 4x4 ...)
+
+    int color_mode_; //!< Image format (also called color mode)
+
+    int aoi_x_; //!< Area Of Interest (AOI) x
+
+    int aoi_y_; //!< Area Of Interest (AOI) y
+
+    int aoi_width_; //!< Area Of Interest (AOI) width
+
+    int aoi_height_; //!< Area Of Interest (AOI) height
+
+    int trigger_mode_; //!< Trigger mode
   };
 }
-
-#endif /* !CAMERA_IDS_HH */

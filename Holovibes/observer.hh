@@ -1,5 +1,4 @@
-#ifndef OBSERVER_HH
-# define OBSERVER_HH
+#pragma once
 
 namespace holovibes
 {
@@ -15,13 +14,14 @@ namespace holovibes
      * state.
      */
     virtual void notify() = 0;
+
   protected:
     Observer()
-    {}
+    {
+    }
 
     virtual ~Observer()
-    {}
+    {
+    }
   };
 }
-
-#endif /* !OBSERVER_HH */
