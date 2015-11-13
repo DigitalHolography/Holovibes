@@ -5,10 +5,12 @@
     <ClInclude Include="gpib_controller.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="device_init.h" />
+    <ClInclude Include="gpib_controller.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gpib_controller.c" />
     <ClCompile Include="parser.c" />
     <ClCompile Include="device_init.c" />
+    <ClCompile Include="gpib_controller.cc" />
   </ItemGroup>
 </Project>
