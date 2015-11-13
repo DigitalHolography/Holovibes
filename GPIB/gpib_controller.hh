@@ -1,22 +1,19 @@
 #pragma once
 
-# include "visa.h"
 # include <vector>
+# include <deque>
 # include <exception>
 # include <utility>
 # include <iostream>
 
 # define BUF_SIZE 200
 
-//!< A connection is composed of a VISA session and a device address.
-using instrument = std::pair<ViSession, unsigned>;
-
 /*! Contains all elements needed to establish
  * a connection to a device through the VISA interface. */
 class VisaInterface
 {
 public:
-  VisaInterface();
+  VisaInterface(const std::string& path);
 
   ~VisaInterface();
 
@@ -25,6 +22,9 @@ public:
 
   /*! Closing the connection with a given instrument, knowing its address. */
   void close_instr(const unsigned address);
+
+  /*! Launch the commands extracted previously from the input file. */
+  int execute_next_block();
 
 private:
   /*! Setting up the VISA driver to enable future connections.
@@ -36,11 +36,10 @@ private:
   void close_line();
 
 private:
-  ViStatus status_; //!< Error status
+  struct VisaPimpl;
+  VisaPimpl* pimpl_;
 
-  ViSession default_rm_; //!< Session used to open/close the VISA driver.
-  std::vector<std::pair<ViSession, unsigned>> sessions_; //!< Active connections.
-
-  ViPUInt32 ret_count_; //!< Counting the number of characters returned by a read.
-  ViPByte buffer_; //!< Buffer used for writing/reading.
+  /*! Lines obtained from the batch input file are stored
+   * here as separate strings. */
+  std::deque<std::string> batch_cmds_;
 };
