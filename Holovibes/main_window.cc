@@ -1,4 +1,5 @@
 #include "main_window.hh"
+#include "../GPIB/gpib_controller.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -920,9 +921,11 @@ namespace gui
     const std::string input_path = batch_input_line_edit->text().toUtf8();
     const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    const int status = load_batch_file(input_path.c_str());
+    //const int status = load_batch_file(input_path.c_str());
+    VisaInterface inter(path);
     const std::string formatted_path = format_batch_output(path, file_index_);
 
+    int status = 0;
     if (status != 0)
       display_error("Couldn't load batch input file.");
     else if (path == "")
@@ -941,12 +944,12 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      execute_next_block();
+      inter.execute_next_block();
 
       if (is_batch_img_)
       {
         record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)));
         record_thread_->start();
       }
       else
@@ -956,7 +959,7 @@ namespace gui
           formatted_path,
           frame_nb,
           this));
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)));
         CSV_record_thread_->start();
       }
 
@@ -964,7 +967,7 @@ namespace gui
     }
   }
 
-  void MainWindow::batch_next_record()
+  void MainWindow::batch_next_record(VisaInterface& inter)
   {
     if (!is_batch_interrupted_)
     {
@@ -990,7 +993,7 @@ namespace gui
       {
         record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
 
-        if (execute_next_block())
+        if (inter.execute_next_block())
           connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         else
           connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
@@ -1005,7 +1008,7 @@ namespace gui
           frame_nb,
           this));
 
-        if (execute_next_block())
+        if (inter.execute_next_block())
           connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
         else
           connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));

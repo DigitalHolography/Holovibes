@@ -11,13 +11,13 @@
 # include <boost/filesystem.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
-# include <gpib.h>
-# include <camera_exception.hh>
 # include <cstring>
 # include <vector>
 # include <sys/stat.h>
 # include <string>
 
+# include "camera_exception.hh"
+# include "../GPIB/gpib_controller.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -323,7 +323,7 @@ namespace gui
     ** Execute GPIB instruction and record thread alternatively until there is
     ** no more GPIB instructions.
     */
-    void batch_next_record();
+    void batch_next_record(VisaInterface& inter);
 
     /*! \brief Destroy batch record threads cleanly */
     void batch_finished_record();
