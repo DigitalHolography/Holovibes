@@ -1,5 +1,6 @@
 #include "main_window.hh"
 #include "../GPIB/gpib_controller.hh"
+#include "../GPIB/gpib_exceptions.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -918,22 +919,25 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
+    // Getting the path to the input batch file, and the number of frames to record.
     const std::string input_path = batch_input_line_edit->text().toUtf8();
     const unsigned int frame_nb = frame_nb_spin_box->value();
 
     //const int status = load_batch_file(input_path.c_str());
-    VisaInterface inter(path);
-    const std::string formatted_path = format_batch_output(path, file_index_);
 
-    int status = 0;
-    if (status != 0)
-      display_error("Couldn't load batch input file.");
-    else if (path == "")
-      display_error("Please provide an output file path.");
-    else if (stat(formatted_path.c_str(), &buff) == 0)
-      display_error("File: " + path + " already exists.");
-    else
+    try
     {
+      gpib::VisaInterface inter(path);
+      const std::string formatted_path = format_batch_output(path, file_index_);
+
+      /*! All checks are performed by the GPIB module, except for this one,
+       * because only Holovibes should known the filename format. */
+      if (stat(formatted_path.c_str(), &buff) == 0)
+      {
+        display_error("File: " + path + " already exists.");
+        return;
+      }
+
       global_visibility(false);
       camera_visible(false);
 
@@ -965,9 +969,25 @@ namespace gui
 
       ++file_index_;
     }
+    catch (const gpib::GpibBadAlloc& e)
+    {
+      std::cerr << "[GPIB] Could not allocate buffer.\n";
+    }
+    catch (const gpib::GpibSetupError& e)
+    {
+      std::cerr << "[GPIB] Could not set up VISA communication.\n";
+    }
+    catch (const gpib::GpibNoFilepath& e)
+    {
+      std::cerr << "[GPIB] Please provide a file path.\n";
+    }
+    catch (const gpib::GpibInvalidPath& e)
+    {
+      std::cerr << "[GPIB] Could not open file " << path << "\n";
+    }
   }
 
-  void MainWindow::batch_next_record(VisaInterface& inter)
+  void MainWindow::batch_next_record(gpib::VisaInterface& inter)
   {
     if (!is_batch_interrupted_)
     {

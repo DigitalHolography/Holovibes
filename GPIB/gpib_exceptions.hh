@@ -18,6 +18,42 @@ namespace gpib
     }
   };
 
+  class GpibInvalidPath : public std::exception
+  {
+  public:
+    GpibInvalidPath(const std::string& path)
+      : path_ { path }
+    {
+    }
+
+    virtual ~GpibInvalidPath()
+    {
+    }
+
+    virtual const char* what() const override
+    {
+      std::string msg("could not open file : ");
+      msg.append(path_);
+      return msg.c_str();
+    }
+
+  private:
+    const std::string path_;
+  };
+
+  class GpibNoFilepath : public std::exception
+  {
+  public:
+    virtual ~GpibNoFilepath()
+    {
+    }
+
+    virtual const char* what() const override
+    {
+      return "no filepath provided";
+    }
+  };
+
   class GpibParseError : public std::exception
   {
   public:
@@ -32,7 +68,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      std::string msg("could not open batch file : ");
+      std::string msg("bad command format");
       msg.append(path_);
       return msg.c_str();
     }
@@ -70,7 +106,7 @@ namespace gpib
     {
       std::string msg("could not setup connexion at address ");
       msg.append(address_);
-      return msg.c_str;
+      return msg.c_str();
     }
 
   private:

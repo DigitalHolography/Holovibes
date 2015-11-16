@@ -323,7 +323,7 @@ namespace gui
     ** Execute GPIB instruction and record thread alternatively until there is
     ** no more GPIB instructions.
     */
-    void batch_next_record(VisaInterface& inter);
+    void batch_next_record(gpib::VisaInterface& inter);
 
     /*! \brief Destroy batch record threads cleanly */
     void batch_finished_record();
