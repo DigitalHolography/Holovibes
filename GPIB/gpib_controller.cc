@@ -138,7 +138,7 @@ namespace gpib
       [&cmd](instrument& instr)
     {
       return instr.second == cmd.address;
-    }) != pimpl_->sessions_.end())
+    }) == pimpl_->sessions_.end())
     {
       initialize_instr(cmd.address);
     }
@@ -151,16 +151,19 @@ namespace gpib
       return instr.second == cmd.address;
     });
     // TODO : Convert to ViBuf in the parsing stage.
-    viWrite(ses->first, (ViBuf)cmd.command.c_str(), cmd.command.size(), pimpl_->ret_count_);
+    viWrite(ses->first,
+      (ViBuf)cmd.command.c_str(),
+      cmd.command.size(),
+      pimpl_->ret_count_);
 
     // Wait a bit, GPIB is old and slow.
     std::this_thread::sleep_for(std::chrono::milliseconds(cmd.wait));
 
     batch_cmds_.pop_back();
     if (batch_cmds_.empty())
-      return true;
-    else
       return false;
+    else
+      return true;
   }
 
   void VisaInterface::initialize_line()
@@ -199,12 +202,13 @@ namespace gpib
 
       // Parsing the instrument address.
       in >> line;
-      if (line.substr(0, 18).compare("#InstrumentAddress") != 0)
+      if (line.compare("#InstrumentAddress") != 0)
         throw GpibParseError(boost::lexical_cast<std::string>(line_num),
         GpibParseError::NoAddress);
       try
       {
-        unsigned address = boost::lexical_cast<unsigned>(line.substr(19, line.size()));
+        in >> line;
+        unsigned address = boost::lexical_cast<unsigned>(line);
         cmd.address = address;
       }
       catch (const boost::bad_lexical_cast& e)
@@ -215,18 +219,22 @@ namespace gpib
       ++line_num;
 
       // Getting the raw string to be sent to the instrument.
+      in >> cmd.command;
       in >> line;
-      cmd.command = line;
+      cmd.command.append(" ");
+      cmd.command.append(line);
+      cmd.command.append("\n"); // Don't forget the end-of-command character.
       ++line_num;
 
       // Getting the waiting time in milliseconds.
       in >> line;
-      if (line.substr(0, 5).compare("#WAIT") != 0)
+      if (line.compare("#WAIT") != 0)
         throw GpibParseError(boost::lexical_cast<std::string>(line_num),
         GpibParseError::NoWait);
       try
       {
-        unsigned wait = boost::lexical_cast<unsigned>(line.substr(6, line.size()));
+        in >> line;
+        unsigned wait = boost::lexical_cast<unsigned>(line);
         cmd.wait = wait;
       }
       catch (const boost::bad_lexical_cast& e)

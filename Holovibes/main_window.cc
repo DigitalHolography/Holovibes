@@ -21,6 +21,7 @@ namespace gui
     , record_thread_(nullptr)
     , CSV_record_thread_(nullptr)
     , file_index_(1)
+    , gpib_interface_(nullptr)
     , q_max_size_(20)
   {
     ui.setupUi(this);
@@ -927,7 +928,7 @@ namespace gui
 
     try
     {
-      gpib::VisaInterface inter(path);
+      gpib_interface_.reset(new gpib::VisaInterface(input_path));
       const std::string formatted_path = format_batch_output(path, file_index_);
 
       /*! All checks are performed by the GPIB module, except for this one,
@@ -948,12 +949,16 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      inter.execute_next_block();
+      gpib_interface_->execute_next_block();
 
       if (is_batch_img_)
       {
         record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)), Qt::UniqueConnection);
+        connect(record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_next_record()),
+          Qt::UniqueConnection);
         record_thread_->start();
       }
       else
@@ -963,7 +968,11 @@ namespace gui
           formatted_path,
           frame_nb,
           this));
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)), Qt::UniqueConnection);
+        connect(CSV_record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_next_record()),
+          Qt::UniqueConnection);
         CSV_record_thread_->start();
       }
 
@@ -971,27 +980,32 @@ namespace gui
     }
     catch (const gpib::GpibBadAlloc& e)
     {
-      std::cerr << "[GPIB] Could not allocate buffer.\n";
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
     catch (const gpib::GpibSetupError& e)
     {
-      std::cerr << "[GPIB] Could not set up VISA communication.\n";
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
     catch (const gpib::GpibNoFilepath& e)
     {
-      std::cerr << "[GPIB] Please provide a file path.\n";
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
     catch (const gpib::GpibInvalidPath& e)
     {
-      std::cerr << "[GPIB] Could not open file " << path << "\n";
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
     catch (const gpib::GpibParseError& e)
     {
-      std::cerr << "[GPIB] Parse error : " << e.what() << "\n";
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
   }
 
-  void MainWindow::batch_next_record(gpib::VisaInterface& inter)
+  void MainWindow::batch_next_record()
   {
     if (is_batch_interrupted_)
     {
@@ -1022,7 +1036,7 @@ namespace gui
     {
       record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
 
-      if (inter.execute_next_block())
+      if (gpib_interface_->execute_next_block())
         connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
       else
         connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
@@ -1037,7 +1051,7 @@ namespace gui
         frame_nb,
         this));
 
-      if (inter.execute_next_block())
+      if (gpib_interface_->execute_next_block())
         connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
       else
         connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
@@ -1053,6 +1067,7 @@ namespace gui
     disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
+    gpib_interface_.reset(nullptr);
 
     file_index_ = 1;
     global_visibility(true);

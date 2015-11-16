@@ -323,7 +323,7 @@ namespace gui
     ** Execute GPIB instruction and record thread alternatively until there is
     ** no more GPIB instructions.
     */
-    void batch_next_record(gpib::VisaInterface& inter);
+    void batch_next_record();
 
     /*! \brief Destroy batch record threads cleanly */
     void batch_finished_record();
@@ -463,6 +463,8 @@ namespace gui
 
     /*! \brief File index used in batch recording */
     unsigned int file_index_;
+
+    std::unique_ptr<gpib::VisaInterface> gpib_interface_;
 
     /*! \brief Queue max size */
     unsigned int q_max_size_;
