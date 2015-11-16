@@ -1,6 +1,7 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <thread>
 #include <boost/lexical_cast.hpp>
 #include "visa.h"
 
@@ -126,11 +127,40 @@ namespace gpib
     }
   }
 
-  int VisaInterface::execute_next_block()
+  bool VisaInterface::execute_next_block()
   {
-    auto cmd = pimpl_->sessions_.back();
+    Command& cmd = batch_cmds_.back();
 
-    return 0;
+    /*! If a connexion to this instrumnet address is not opened,
+     * do it and register the new session. */
+    if (std::find_if(pimpl_->sessions_.begin(),
+      pimpl_->sessions_.end(),
+      [&cmd](instrument& instr)
+    {
+      return instr.second == cmd.address;
+    }) != pimpl_->sessions_.end())
+    {
+      initialize_instr(cmd.address);
+    }
+
+    // Get the session and send it the command through VISA.
+    auto ses = std::find_if(pimpl_->sessions_.begin(),
+      pimpl_->sessions_.end(),
+      [&cmd](instrument& instr)
+    {
+      return instr.second == cmd.address;
+    });
+    // TODO : Convert to ViBuf in the parsing stage.
+    viWrite(ses->first, (ViBuf)cmd.command.c_str(), cmd.command.size(), pimpl_->ret_count_);
+
+    // Wait a bit, GPIB is old and slow.
+    std::this_thread::sleep_for(std::chrono::milliseconds(cmd.wait));
+
+    batch_cmds_.pop_back();
+    if (batch_cmds_.empty())
+      return true;
+    else
+      return false;
   }
 
   void VisaInterface::initialize_line()
@@ -189,6 +219,7 @@ namespace gpib
       cmd.command = line;
       ++line_num;
 
+      // Getting the waiting time in milliseconds.
       in >> line;
       if (line.substr(0, 5).compare("#WAIT") != 0)
         throw GpibParseError(boost::lexical_cast<std::string>(line_num),

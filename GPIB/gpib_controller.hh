@@ -28,8 +28,9 @@ namespace gpib
     /*! Closing the connection with a given instrument, knowing its address. */
     void close_instr(const unsigned address);
 
-    /*! Launch the commands extracted previously from the input file. */
-    int execute_next_block();
+    /*! Launch the commands extracted previously from the input file.
+     * \return True if there are more commands to issue. */
+    bool execute_next_block();
 
   private:
     /*! Setting up the VISA driver to enable future connections.
