@@ -57,8 +57,16 @@ namespace gpib
   class GpibParseError : public std::exception
   {
   public:
-    GpibParseError(const std::string& path)
-      : path_ { path }
+    enum ErrorType
+    {
+      NoBlock,
+      NoAddress,
+      NoWait
+    };
+
+    GpibParseError(const std::string& line, const ErrorType type)
+      : line_ { line }
+    , type_ { type }
     {
     }
 
@@ -68,13 +76,22 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      std::string msg("bad command format");
-      msg.append(path_);
+      std::string msg("bad format at line ");
+      msg.append(line_);
+
+      if (type_ == NoBlock)
+        msg.append(" : no #Block");
+      if (type_ == NoAddress)
+        msg.append(" : no valid instrument address");
+      if (type_ == NoWait)
+        msg.append(" : no valid wait status");
+
       return msg.c_str();
     }
 
   private:
-    const std::string path_;
+    const std::string line_;
+    const ErrorType type_;
   };
 
   class GpibSetupError : public std::exception
