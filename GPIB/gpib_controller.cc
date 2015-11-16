@@ -59,9 +59,15 @@ namespace gpib
       throw GpibInvalidPath(path);
     }
 
-    std::string line;
-    while (in >> line)
-      batch_cmds_.push_front(line);
+    try
+    {
+      parse_file(in);
+    }
+    catch (const GpibParseError& e)
+    {
+      throw;
+    }
+
     in.close();
   }
 
@@ -143,5 +149,61 @@ namespace gpib
   {
     if (viClose(pimpl_->default_rm_))
       std::cerr << "[GPIB] Could not close connection to VISA driver.\n";
+  }
+
+  void VisaInterface::parse_file(std::ifstream& in)
+  {
+    std::string line;
+    unsigned line_num = 0;
+
+    while (in >> line)
+    {
+      batch_cmds_.push_front(Command());
+      Command& cmd = batch_cmds_.front();
+
+      // Just the preamble #Block.
+      if (line.compare("#Block") != 0)
+        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+        GpibParseError::NoBlock);
+      ++line_num;
+
+      // Parsing the instrument address.
+      in >> line;
+      if (line.substr(0, 18).compare("#InstrumentAddress") != 0)
+        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+        GpibParseError::NoAddress);
+      try
+      {
+        unsigned address = boost::lexical_cast<unsigned>(line.substr(19, line.size()));
+        cmd.address = address;
+      }
+      catch (const boost::bad_lexical_cast& e)
+      {
+        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+          GpibParseError::NoAddress);
+      }
+      ++line_num;
+
+      // Getting the raw string to be sent to the instrument.
+      in >> line;
+      cmd.command = line;
+      ++line_num;
+
+      in >> line;
+      if (line.substr(0, 5).compare("#WAIT") != 0)
+        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+        GpibParseError::NoWait);
+      try
+      {
+        unsigned wait = boost::lexical_cast<unsigned>(line.substr(6, line.size()));
+        cmd.wait = wait;
+      }
+      catch (const boost::bad_lexical_cast& e)
+      {
+        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+          GpibParseError::NoWait);
+      }
+      ++line_num;
+    }
   }
 }

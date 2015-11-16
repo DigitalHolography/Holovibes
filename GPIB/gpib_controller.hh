@@ -40,6 +40,9 @@ namespace gpib
      * Automatically called by the destructor. */
     void close_line();
 
+    /*! Parse the file and report any error in the format. */
+    void parse_file(std::ifstream& in);
+
   private:
     /*! To decouple dependencies between the GPIB controller and Holovibes,
      * a kind of Pimpl idiom is used. In this case, we do not use an intermediate
@@ -50,8 +53,19 @@ namespace gpib
     struct VisaPimpl;
     VisaPimpl* pimpl_;
 
+    /*! Each command is formed of an instrument address,
+     * a proper command sent as a string through the VISA interface,
+     * and a number of milliseconds to wait for until next command
+     * is issued. */
+    struct Command
+    {
+      unsigned address;
+      std::string command;
+      unsigned wait;
+    };
+
     /*! Lines obtained from the batch input file are stored
      * here as separate strings. */
-    std::deque<std::string> batch_cmds_;
+    std::deque<Command> batch_cmds_;
   };
 }
