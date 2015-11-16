@@ -71,7 +71,7 @@
     </Lib>
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
