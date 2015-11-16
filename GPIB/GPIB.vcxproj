@@ -14,6 +14,7 @@
     <ClInclude Include="device_init.h" />
     <ClInclude Include="gpib_controller.h" />
     <ClInclude Include="gpib_controller.hh" />
+    <ClInclude Include="gpib_exceptions.hh" />
     <ClInclude Include="include\gpib.h" />
     <ClInclude Include="parser.h" />
   </ItemGroup>
