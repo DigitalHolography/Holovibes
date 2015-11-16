@@ -953,7 +953,7 @@ namespace gui
       if (is_batch_img_)
       {
         record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)));
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)), Qt::UniqueConnection);
         record_thread_->start();
       }
       else
@@ -963,7 +963,7 @@ namespace gui
           formatted_path,
           frame_nb,
           this));
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)));
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record(inter)), Qt::UniqueConnection);
         CSV_record_thread_->start();
       }
 
@@ -991,6 +991,7 @@ namespace gui
   {
     if (!is_batch_interrupted_)
     {
+      disconnect(SIGNAL(finished()), this);
       record_thread_.reset(nullptr);
 
       QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -1014,9 +1015,9 @@ namespace gui
         record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
 
         if (inter.execute_next_block())
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
         else
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
         record_thread_->start();
       }
@@ -1029,9 +1030,9 @@ namespace gui
           this));
 
         if (inter.execute_next_block())
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
         else
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
         CSV_record_thread_->start();
       }
@@ -1046,6 +1047,7 @@ namespace gui
 
   void MainWindow::batch_finished_record()
   {
+    disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
 
