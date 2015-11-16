@@ -55,9 +55,9 @@ namespace gpib
     VisaPimpl* pimpl_;
 
     /*! Each command is formed of an instrument address,
-     * a proper command sent as a string through the VISA interface,
-     * and a number of milliseconds to wait for until next command
-     * is issued. */
+    * a proper command sent as a string through the VISA interface,
+    * and a number of milliseconds to wait for until next command
+    * is issued. */
     struct Command
     {
       unsigned address;
