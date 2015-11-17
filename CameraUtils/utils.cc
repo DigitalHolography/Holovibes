@@ -8,7 +8,7 @@
 
 namespace camutils
 {
-  void create_logfile(std::string name)
+  void create_logfile(const std::string name)
   {
     std::string folder = "log/";
     time_t date = time(nullptr);
@@ -50,7 +50,7 @@ namespace camutils
     filename = file;
   }
 
-  void log_msg(std::string msg)
+  void log_msg(const std::string msg)
   {
     logfile << msg << std::endl;
   }

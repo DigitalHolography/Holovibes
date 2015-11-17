@@ -1,5 +1,4 @@
-#ifndef OBSERVABLE_HH
-# define OBSERVABLE_HH
+#pragma once
 
 # include <vector>
 
@@ -14,11 +13,13 @@ namespace holovibes
   class Observable
   {
   public:
+    /*! \brief add Observer in list*/
     void register_observer(Observer& o)
     {
       observers_.push_back(&o);
     }
 
+    /*! \brief notify all Observer in list */
     void notify_observers()
     {
       for (std::vector<Observer*>::iterator it = observers_.begin();
@@ -38,5 +39,3 @@ namespace holovibes
     std::vector<Observer*> observers_;
   };
 }
-
-#endif /* !OBSERVABLE_HH */

@@ -6,11 +6,11 @@
 
 void stft(
   cufftComplex*                   input,
-  cufftComplex*                   lens,
+  const cufftComplex*             lens,
   cufftComplex*                   stft_buf,
   cufftComplex*                   stft_dup_buf,
-  cufftHandle                     plan2d,
-  cufftHandle                     plan1d,
+  const cufftHandle               plan2d,
+  const cufftHandle               plan1d,
   const holovibes::Rectangle&     r,
   unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
@@ -65,10 +65,10 @@ void stft_recontruct(
   cufftComplex*                   stft_dup_buf,
   const holovibes::Rectangle&     r,
   const camera::FrameDescriptor&  desc,
-  unsigned int                    reconstruct_width,
-  unsigned int                    reconstruct_height,
-  unsigned int                    pindex,
-  unsigned int                    nsamples)
+  const unsigned int              reconstruct_width,
+  const unsigned int              reconstruct_height,
+  const unsigned int              pindex,
+  const unsigned int              nsamples)
 {
   unsigned int threads = 128;
   unsigned int blocks = desc.frame_res() / threads;

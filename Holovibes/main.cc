@@ -71,10 +71,7 @@ int main(int argc, char* argv[])
           std::this_thread::yield();
       }
       if (!opts.is_float_output_enabled)
-      {
-        h.init_recorder(opts.recorder_filepath, opts.recorder_n_img);
-        h.dispose_recorder();
-      }
+        h.recorder(opts.recorder_filepath, opts.recorder_n_img);
       h.dispose_compute();
       h.dispose_capture();
     }

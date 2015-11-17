@@ -1,5 +1,4 @@
-#ifndef THREAD_RECORDER_HH
-# define THREAD_RECORDER_HH
+#pragma once
 
 # include <string>
 # include <QThread>
@@ -10,9 +9,7 @@
 
 namespace gui
 {
-  /*! \class ThreadRecorder
-  **
-  ** Thread class used to record raw images.
+  /*! \brief Thread class used to record raw images.
   **
   ** It inherits QThread because it is the GUI that needs to launch the record and it has
   ** to know when it is finished (signal/slots system).
@@ -32,14 +29,15 @@ namespace gui
     ThreadRecorder(
       holovibes::Queue& queue,
       const std::string& filepath,
-      unsigned int n_images,
+      const unsigned int n_images,
       QObject* parent = nullptr);
 
     virtual ~ThreadRecorder();
 
-  public slots:
+    public slots:
     /*! Stops the record by setting a flag */
     void stop();
+
   private:
     /*! \brief Overrided QThread run method, recording method
     **
@@ -57,5 +55,3 @@ namespace gui
     unsigned int n_images_;
   };
 }
-
-#endif /* !THREAD_RECORDER_HH */

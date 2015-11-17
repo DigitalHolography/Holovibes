@@ -5,7 +5,7 @@ namespace holovibes
 {
   using guard = std::lock_guard<std::mutex>;
 
-  Queue::Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
+  Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts)
     : frame_desc_(frame_desc)
     , size_(frame_desc_.frame_size())
     , pixels_(frame_desc_.frame_res())
@@ -69,7 +69,7 @@ namespace holovibes
     return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
   }
 
-  void* Queue::get_last_images(int n)
+  void* Queue::get_last_images(const unsigned n)
   {
     guard guard(mutex_);
     return buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
@@ -85,7 +85,7 @@ namespace holovibes
   {
     guard guard(mutex_);
 
-    unsigned int end_ = (start_ + curr_elts_) % max_elts_;
+    const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
     cudaError_t cuda_status = cudaMemcpy(new_elt_adress,
       elt,

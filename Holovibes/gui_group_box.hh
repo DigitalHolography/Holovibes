@@ -1,30 +1,24 @@
-#ifndef GUI_GROUP_BOX_HH_
-# define GUI_GROUP_BOX_HH_
+#pragma once
 
 # include <QGroupBox>
 
 namespace gui
 {
-  /*! \class GroupBox
-  **
-  ** QGroupBox overload, used to hide and show parts of the GUI.
-  */
+  /*! \brief QGroupBox overload, used to hide and show parts of the GUI. */
   class GroupBox : public QGroupBox
   {
     Q_OBJECT
 
   public:
     /*! \brief GroupBox constructor
-    ** \param parent Qt parent 
+    ** \param parent Qt parent
     */
-    GroupBox(QWidget* parent = 0);
+    GroupBox(QWidget* parent = nullptr);
     /*! \brief GroupBox destructor */
     ~GroupBox();
 
-  public slots:
+    public slots:
     /*! \brief Show or hide GroupBox */
     void ShowOrHide();
   };
 }
-
-#endif /* !GUI_GROUP_BOX_HH_ */
