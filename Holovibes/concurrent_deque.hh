@@ -116,14 +116,17 @@ namespace holovibes
     size_t fill_array(std::vector<T>& vect, size_t nb_elts)
     {
       guard guard(mutex_);
-      unsigned int i = 0;
 
-      for (auto it = deque_.rbegin(); it != deque_.rend() && i < nb_elts; ++it)
-      {
-        vect[i] = *it;
-        ++i;
-      }
-      return i;
+      reverse_iterator q_end = deque_.rbegin();
+      unsigned limit = std::min(nb_elts, deque_.size());
+      std::advance(q_end, limit);
+
+      std::transform(deque_.rbegin(),
+        q_end,
+        vect.begin(),
+        [](T& elt) { return elt; });
+
+      return limit;
     }
 
   private:

@@ -74,24 +74,22 @@ namespace gui
 
   void CurvePlot::auto_scale()
   {
-    std::vector<std::tuple<float, float, float>> tmp = average_vector_;
+    using elt_t = std::tuple<float, float, float>;
+    std::vector<elt_t> tmp = average_vector_;
 
-    float min = FLT_MAX;
-    float max = FLT_MIN;
     float curr = 0.0f;
 
-    for (auto it = tmp.begin(); it != tmp.end(); ++it)
+    auto minmax = std::minmax_element(tmp.cbegin(),
+      tmp.cend(),
+      [](const elt_t& lhs, const elt_t& rhs)
     {
-      curr = std::get<2>(*it);
+      return std::get<2>(lhs) < std::get<2>(rhs);
+    });
 
-      if (curr < min)
-        min = curr;
-
-      if (curr > max)
-        max = curr;
-    }
-
-    plot_.setAxisScale(0, min - 1.0, max + 1.0, 2.0);
+    plot_.setAxisScale(0,
+      std::get<2>(*(minmax.first)) - 1.0,
+      std::get<2>(*(minmax.second)) + 1.0,
+      2.0);
     plot_.replot();
   }
 
