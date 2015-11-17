@@ -17,6 +17,9 @@ namespace gui
   {
     Q_OBJECT
 
+  signals :
+    void closed();
+
   public:
     /*! \brief PlotWindow constructor
     **
@@ -58,6 +61,8 @@ namespace gui
     */
     void change_points_nb(int n);
 
+    /*! \brief emit signal closed on window is closed */
+    void closeEvent(QCloseEvent *event);
   private:
     Ui::PlotWindow ui;
 

@@ -219,6 +219,9 @@ namespace gui
     void set_average_mode(bool value);
     /*! \brief Plot average/ROI computations */
     void set_average_graphic();
+    /*! \brief Dispose average/ROI computations */
+    void dispose_average_graphic();
+
     /*! \brief Browse average/ROI zone file for load/save */
     void browse_roi_file();
     /*! \brief Save ROI zone to file */
