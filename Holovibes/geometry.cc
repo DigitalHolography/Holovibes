@@ -5,21 +5,21 @@ namespace holovibes
   /*! Point in 2D */
 
   Point2D::Point2D()
+    : x(0)
+    , y(0)
   {
-    x = 0;
-    y = 0;
   }
 
   Point2D::Point2D(const Point2D& p)
+    : x(p.x)
+    , y(p.y)
   {
-    x = p.x;
-    y = p.y;
   }
 
   Point2D::Point2D(const int xcoord, const int ycoord)
+    : x(xcoord)
+    , y(ycoord)
   {
-    x = xcoord;
-    y = ycoord;
   }
 
   Point2D& Point2D::operator=(const Point2D& p)
@@ -38,20 +38,20 @@ namespace holovibes
   {
   }
 
-  Rectangle::Rectangle(const Point2D top_left_corner, const Point2D bottom_right_corner)
+  Rectangle::Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner)
+    : top_left(top_left_corner)
+    , top_right(bottom_right_corner.x, top_left_corner.y)
+    , bottom_left(top_left_corner.x, bottom_right_corner.y)
+    , bottom_right(bottom_right_corner)
   {
-    top_left = top_left_corner;
-    bottom_right = bottom_right_corner;
-    top_right = Point2D(bottom_right_corner.x, top_left_corner.y);
-    bottom_left = Point2D(top_left_corner.x, bottom_right_corner.y);
   }
 
   Rectangle::Rectangle(const Rectangle& rect)
+    : top_left(rect.top_left)
+    , top_right(rect.top_right)
+    , bottom_left(rect.bottom_left)
+    , bottom_right(rect.bottom_right)
   {
-    top_left = rect.top_left;
-    top_right = rect.top_right;
-    bottom_left = rect.bottom_left;
-    bottom_right = rect.bottom_right;
   }
 
   Rectangle& Rectangle::operator=(const Rectangle& rect)
@@ -72,20 +72,17 @@ namespace holovibes
 
   unsigned int Rectangle::get_width() const
   {
-    const unsigned int AB = bottom_right.x - top_left.x;
-    return (AB);
+    return bottom_right.x - top_left.x;
   }
 
   unsigned int Rectangle::get_height() const
   {
-    const unsigned int AD = bottom_right.y - top_left.y;
-    return (AD);
+    return bottom_right.y - top_left.y;
   }
 
   void Rectangle::vertical_symetry()
   {
-    Point2D tmp;
-    tmp = top_left;
+    Point2D tmp(top_left);
     top_left = top_right;
     top_right = tmp;
 
@@ -96,8 +93,7 @@ namespace holovibes
 
   void Rectangle::horizontal_symetry()
   {
-    Point2D tmp;
-    tmp = top_left;
+    Point2D tmp(top_left);
     top_left = bottom_left;
     bottom_left = tmp;
 
