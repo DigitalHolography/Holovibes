@@ -6,6 +6,7 @@
     <ClInclude Include="parser.h" />
     <ClInclude Include="device_init.h" />
     <ClInclude Include="gpib_controller.hh" />
+    <ClInclude Include="gpib_exceptions.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gpib_controller.c" />
