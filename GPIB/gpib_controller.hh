@@ -20,7 +20,13 @@ namespace gpib
      * images recording using GPIB-driven components. */
     VisaInterface(const std::string& path);
 
+    /*! Making sure all opened connections are closed,
+     * and freeing allocated memory. */
     ~VisaInterface();
+
+    VisaInterface(const VisaInterface& other) = delete;
+
+    VisaInterface& operator=(const VisaInterface& other) = delete;
 
     /*! Setting up the connection with an instrument at a given address. */
     void initialize_instr(const unsigned address);
