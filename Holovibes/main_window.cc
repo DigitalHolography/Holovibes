@@ -665,8 +665,16 @@ namespace gui
 
   void MainWindow::set_average_graphic()
   {
+    PlotWindow* plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+
+    connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
     holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
-    plot_window_.reset(new PlotWindow(holovibes_.get_average_queue(), "ROI Average"));
+    plot_window_.reset(plot_window);
+  }
+
+  void MainWindow::dispose_average_graphic()
+  {
+    plot_window_.reset(nullptr);
   }
 
   void MainWindow::browse_roi_file()
