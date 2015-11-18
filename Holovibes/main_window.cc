@@ -366,8 +366,7 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.zdistance = static_cast<float>(value);
+      holovibes_.get_compute_desc().zdistance = static_cast<float>(value);
       holovibes_.get_pipeline()->request_refresh();
     }
   }
@@ -486,9 +485,8 @@ namespace gui
   void MainWindow::request_autofocus(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    desc.autofocus_zone = zone;
+    holovibes_.get_compute_desc().autofocus_zone = zone;
     holovibes_.get_pipeline()->request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
@@ -501,9 +499,8 @@ namespace gui
   void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    desc.stft_roi_zone = zone;
+    holovibes_.get_compute_desc().stft_roi_zone = zone;
     holovibes_.get_pipeline()->request_stft_roi_update();
     //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
@@ -528,8 +525,7 @@ namespace gui
 
     if (!is_direct_mode_)
     {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.contrast_enabled.exchange(value);
+      holovibes_.get_compute_desc().contrast_enabled.exchange(value);
 
       set_contrast_min(contrast_min->value());
       set_contrast_max(contrast_max->value());
@@ -612,10 +608,8 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
+      holovibes_.get_compute_desc().vibrometry_enabled.exchange(value);
       image_ratio_visible(value);
-      cd.vibrometry_enabled.exchange(value);
       holovibes_.get_pipeline()->request_refresh();
     }
   }
@@ -626,7 +620,7 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         cd.pindex.exchange(value);
         notify();
@@ -643,7 +637,7 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
         holovibes_.get_pipeline()->request_refresh();
@@ -1378,64 +1372,57 @@ namespace gui
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      const int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-      camera::FRAME_TIMEOUT = frame_timeout;
+      camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-      const unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
-      cd.nsamples = phase_number;
+      cd.nsamples = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
 
       const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex.exchange(p_index);
 
-      const float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
-      cd.lambda = lambda;
+      cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
-      const float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
-      cd.zdistance = z_distance;
+      cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
 
       const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
       if (z_step > 0.0f)
         z_step_ = z_step;
 
-      const int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
-      cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
+      cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
+        ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
       // View
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-      const int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
-      cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
+      cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
+        ptree.get<int>("view.view_mode", cd.view_mode));
 
-      const bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
-      cd.log_scale_enabled.exchange(log_scale_enabled);
+      cd.log_scale_enabled.exchange(
+        ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled));
 
-      const bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
-      cd.shift_corners_enabled.exchange(shift_corners_enabled);
+      cd.shift_corners_enabled.exchange(
+        ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled));
 
-      const bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
-      cd.contrast_enabled.exchange(contrast_enabled);
+      cd.contrast_enabled.exchange(
+        ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled));
 
-      const float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
-      cd.contrast_min = contrast_min;
+      cd.contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
 
-      const float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
-      cd.contrast_max = contrast_max;
+      cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
       // Special
       special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
-      const bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
-      cd.vibrometry_enabled.exchange(image_ratio_enabled);
+      cd.vibrometry_enabled.exchange(
+        ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled));
 
-      const int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
-      cd.vibrometry_q.exchange(q_vibro);
+      cd.vibrometry_q.exchange(
+        ptree.get<int>("special.image_ratio_q", cd.vibrometry_q));
 
-      const bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
-      is_enabled_average_ = average_enabled;
+      is_enabled_average_ = ptree.get<bool>("special.average_enabled", is_enabled_average_);
 
       // Record
       record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
