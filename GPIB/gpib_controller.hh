@@ -66,6 +66,15 @@ namespace gpib
     * is issued. */
     struct Command
     {
+      enum type_e
+      {
+        BLOCK,
+        COMMAND,
+        WAIT
+      };
+
+      type_e type;
+
       unsigned address;
       std::string command;
       unsigned wait;
