@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <thread>
 #include <boost/lexical_cast.hpp>
+// DEBUG
+#include <iostream>
 #include "visa.h"
 
 #include "gpib_controller.hh"
@@ -74,6 +76,8 @@ namespace gpib
 
   VisaInterface::~VisaInterface()
   {
+    std::cout << "****Calling destructor\n****\n";
+
     delete[] pimpl_->buffer_;
 
     std::for_each(pimpl_->sessions_.begin(),
@@ -131,39 +135,45 @@ namespace gpib
   {
     Command& cmd = batch_cmds_.back();
 
-    /*! If a connexion to this instrumnet address is not opened,
-     * do it and register the new session. */
-    if (std::find_if(pimpl_->sessions_.begin(),
-      pimpl_->sessions_.end(),
-      [&cmd](instrument& instr)
+    do
     {
-      return instr.second == cmd.address;
-    }) == pimpl_->sessions_.end())
-    {
-      initialize_instr(cmd.address);
-    }
+      if (cmd.type == Command::COMMAND)
+      {
+        /*! If a connexion to this instrument address is not opened,
+        * do it and register the new session. */
+        if (std::find_if(pimpl_->sessions_.begin(),
+          pimpl_->sessions_.end(),
+          [&cmd](instrument& instr)
+        {
+          return instr.second == cmd.address;
+        }) == pimpl_->sessions_.end())
+        {
+          initialize_instr(cmd.address);
+        }
 
-    // Get the session and send it the command through VISA.
-    auto ses = std::find_if(pimpl_->sessions_.begin(),
-      pimpl_->sessions_.end(),
-      [&cmd](instrument& instr)
-    {
-      return instr.second == cmd.address;
-    });
-    // TODO : Convert to ViBuf in the parsing stage.
-    viWrite(ses->first,
-      (ViBuf)cmd.command.c_str(),
-      cmd.command.size(),
-      pimpl_->ret_count_);
+        // Get the session and send it the command through VISA.
+        auto ses = std::find_if(pimpl_->sessions_.begin(),
+          pimpl_->sessions_.end(),
+          [&cmd](instrument& instr)
+        {
+          return instr.second == cmd.address;
+        });
+        viWrite(ses->first,
+          (ViBuf)cmd.command.c_str(),
+          cmd.command.size(),
+          pimpl_->ret_count_);
+      }
+      else if (cmd.type == Command::WAIT)
+        std::this_thread::sleep_for(std::chrono::milliseconds(cmd.wait));
 
-    // Wait a bit, GPIB is old and slow.
-    std::this_thread::sleep_for(std::chrono::milliseconds(cmd.wait));
+      batch_cmds_.pop_back();
+      if (!batch_cmds_.empty())
+        cmd = batch_cmds_.back();
+      else
+        return false;
+    } while (cmd.type != Command::BLOCK);
 
-    batch_cmds_.pop_back();
-    if (batch_cmds_.empty())
-      return false;
-    else
-      return true;
+    return true;
   }
 
   void VisaInterface::initialize_line()
