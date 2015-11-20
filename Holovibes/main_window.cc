@@ -957,31 +957,59 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      gpib_interface_->execute_next_block();
-
-      if (is_batch_img_)
+      if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
       {
-        record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_next_record()),
-          Qt::UniqueConnection);
-        record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
-      else
+      else // There was only one block, so no need to record any further.
       {
-        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          formatted_path,
-          frame_nb,
-          this));
-        connect(CSV_record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_next_record()),
-          Qt::UniqueConnection);
-        CSV_record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
 
       ++file_index_;
