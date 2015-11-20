@@ -188,60 +188,71 @@ namespace gpib
   {
     std::string line;
     unsigned line_num = 0;
+    unsigned cur_address = 0;
 
     while (in >> line)
     {
       batch_cmds_.push_front(Command());
       Command& cmd = batch_cmds_.front();
 
-      // Just the preamble #Block.
-      if (line.compare("#Block") != 0)
-        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-        GpibParseError::NoBlock);
-      ++line_num;
+      if (line.compare("#Block") == 0)
+      {
+        // Just the preamble #Block.
+        cmd.type = Command::BLOCK;
+        cmd.address = 0;
+        cmd.command = "";
+        cmd.wait = 0;
+      }
+      else if (line.compare("#InstrumentAddress") == 0)
+      {
+        // We change the address currently used for commands.
+        try
+        {
+          in >> line;
+          unsigned address = boost::lexical_cast<unsigned>(line);
+          cur_address = address;
+          batch_cmds_.pop_front();
+        }
+        catch (const boost::bad_lexical_cast& e)
+        {
+          throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+            GpibParseError::NoAddress);
+        }
+      }
+      else if (line.compare("#WAIT") == 0)
+      {
+        // We insert a waiting action in the block.
+        try
+        {
+          in >> line;
+          unsigned wait = boost::lexical_cast<unsigned>(line);
 
-      // Parsing the instrument address.
-      in >> line;
-      if (line.compare("#InstrumentAddress") != 0)
-        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-        GpibParseError::NoAddress);
-      try
-      {
-        in >> line;
-        unsigned address = boost::lexical_cast<unsigned>(line);
-        cmd.address = address;
+          cmd.type = Command::WAIT;
+          cmd.address = 0;
+          cmd.command = "";
+          cmd.wait = wait;
+        }
+        catch (const boost::bad_lexical_cast& e)
+        {
+          throw GpibParseError(boost::lexical_cast<std::string>(line_num),
+            GpibParseError::NoWait);
+        }
       }
-      catch (const boost::bad_lexical_cast& e)
+      else
       {
-        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-          GpibParseError::NoAddress);
-      }
-      ++line_num;
+        /* A command string, the validity of which can not be tested because of
+         * the multiple interfaces to various existing instruments. */
+        for (unsigned i = 0; i < line.size(); ++i)
+          in.unget();
+        std::getline(in, line, '\n');
+        line.append("\n"); // Don't forget the end-of-command character for VISA.
 
-      // Getting the raw string to be sent to the instrument.
-      in >> cmd.command;
-      in >> line;
-      cmd.command.append(" ");
-      cmd.command.append(line);
-      cmd.command.append("\n"); // Don't forget the end-of-command character.
-      ++line_num;
+        cmd.type = Command::COMMAND;
+        cmd.address = cur_address;
+        cmd.command = line;
+        cmd.wait = 0;
+      }
 
-      // Getting the waiting time in milliseconds.
-      in >> line;
-      if (line.compare("#WAIT") != 0)
-        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-        GpibParseError::NoWait);
-      try
-      {
-        in >> line;
-        unsigned wait = boost::lexical_cast<unsigned>(line);
-        cmd.wait = wait;
-      }
-      catch (const boost::bad_lexical_cast& e)
-      {
-        throw GpibParseError(boost::lexical_cast<std::string>(line_num),
-          GpibParseError::NoWait);
-      }
       ++line_num;
     }
   }
