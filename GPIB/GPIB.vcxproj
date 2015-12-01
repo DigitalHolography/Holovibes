@@ -13,12 +13,15 @@
   <ItemGroup>
     <ClInclude Include="device_init.h" />
     <ClInclude Include="gpib_controller.h" />
+    <ClInclude Include="gpib_controller.hh" />
+    <ClInclude Include="gpib_exceptions.hh" />
     <ClInclude Include="include\gpib.h" />
     <ClInclude Include="parser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="device_init.c" />
     <ClCompile Include="gpib_controller.c" />
+    <ClCompile Include="gpib_controller.cc" />
     <ClCompile Include="parser.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -62,14 +65,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>ni4882.lib</AdditionalDependencies>
+      <AdditionalDependencies>ni4882.lib;nivisa64.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ClCompile>
-      <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>

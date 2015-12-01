@@ -1,4 +1,6 @@
 #include "main_window.hh"
+#include "../GPIB/gpib_controller.hh"
+#include "../GPIB/gpib_exceptions.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -19,6 +21,7 @@ namespace gui
     , record_thread_(nullptr)
     , CSV_record_thread_(nullptr)
     , file_index_(1)
+    , gpib_interface_(nullptr)
     , q_max_size_(20)
   {
     ui.setupUi(this);
@@ -931,20 +934,25 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
+    // Getting the path to the input batch file, and the number of frames to record.
     const std::string input_path = batch_input_line_edit->text().toUtf8();
     const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    const int status = load_batch_file(input_path.c_str());
-    const std::string formatted_path = format_batch_output(path, file_index_);
+    //const int status = load_batch_file(input_path.c_str());
 
-    if (status != 0)
-      display_error("Couldn't load batch input file.");
-    else if (path == "")
-      display_error("Please provide an output file path.");
-    else if (stat(formatted_path.c_str(), &buff) == 0)
-      display_error("File: " + path + " already exists.");
-    else
+    try
     {
+      gpib_interface_.reset(new gpib::VisaInterface(input_path));
+      const std::string formatted_path = format_batch_output(path, file_index_);
+
+      /*! All checks are performed by the GPIB module, except for this one,
+       * because only Holovibes should known the filename format. */
+      if (stat(formatted_path.c_str(), &buff) == 0)
+      {
+        display_error("File: " + path + " already exists.");
+        return;
+      }
+
       global_visibility(false);
       camera_visible(false);
 
@@ -955,90 +963,153 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      execute_next_block();
-
-      if (is_batch_img_)
+      if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
       {
-        record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
-      else
+      else // There was only one block, so no need to record any further.
       {
-        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          formatted_path,
-          frame_nb,
-          this));
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        CSV_record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
 
       ++file_index_;
+    }
+    catch (const gpib::GpibBadAlloc& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibSetupError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibNoFilepath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibInvalidPath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibParseError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
   }
 
   void MainWindow::batch_next_record()
   {
-    if (!is_batch_interrupted_)
+    if (is_batch_interrupted_)
     {
-      record_thread_.reset(nullptr);
+      batch_finished_record();
+      return;
+    }
 
-      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-      std::string path;
+    disconnect(SIGNAL(finished()), this);
+    record_thread_.reset(nullptr);
 
-      if (is_batch_img_)
-        path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    std::string path;
+
+    if (is_batch_img_)
+      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    else
+      path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+
+    holovibes::Queue* q;
+    if (is_direct_mode_)
+      q = &holovibes_.get_capture_queue();
+    else
+      q = &holovibes_.get_output_queue();
+
+    std::string output_filename = format_batch_output(path, file_index_);
+    const unsigned int frame_nb = frame_nb_spin_box->value();
+    if (is_batch_img_)
+    {
+      record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
       else
-        path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
-      holovibes::Queue* q;
-      if (is_direct_mode_)
-        q = &holovibes_.get_capture_queue();
-      else
-        q = &holovibes_.get_output_queue();
-
-      std::string output_filename = format_batch_output(path, file_index_);
-      const unsigned int frame_nb = frame_nb_spin_box->value();
-      if (is_batch_img_)
-      {
-        record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
-
-        if (execute_next_block())
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        record_thread_->start();
-      }
-      else
-      {
-        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          output_filename,
-          frame_nb,
-          this));
-
-        if (execute_next_block())
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        CSV_record_thread_->start();
-      }
-
-      ++file_index_;
+      record_thread_->start();
     }
     else
     {
-      batch_finished_record();
+      CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+        holovibes_.get_average_queue(),
+        output_filename,
+        frame_nb,
+        this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+      else
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+
+      CSV_record_thread_->start();
     }
+
+    ++file_index_;
   }
 
   void MainWindow::batch_finished_record()
   {
+    disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
+    gpib_interface_.reset(nullptr);
 
     file_index_ = 1;
     global_visibility(true);
