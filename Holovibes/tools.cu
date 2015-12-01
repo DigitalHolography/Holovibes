@@ -205,18 +205,13 @@ void convolution_operator(
   cufftExecC2C(plan2d_x, const_cast<cufftComplex*>(x), tmp_x, CUFFT_FORWARD);
   cufftExecC2C(plan2d_k, const_cast<cufftComplex*>(k), tmp_k, CUFFT_FORWARD);
 
-  cudaDeviceSynchronize();
-
   kernel_multiply_frames_complex << <blocks, threads >> >(tmp_x, tmp_k, tmp_x, size);
-
-  cudaDeviceSynchronize();
 
   cufftExecC2C(plan2d_x, tmp_x, tmp_x, CUFFT_INVERSE);
 
-  cudaDeviceSynchronize();
-
   kernel_complex_to_modulus << <blocks, threads >> >(tmp_x, out, size);
 
+  cudaDeviceSynchronize();
   cudaFree(tmp_x);
   cudaFree(tmp_k);
 }
@@ -244,6 +239,7 @@ void frame_memcpy(
 }
 
 /*! \brief  Kernel helper for average
+** \param sum The accumulator which will hold the sum. Its value should be 0.f.
 */
 template <unsigned SpanSize>
 static __global__ void kernel_sum(const float* input, float* sum, const size_t size)
@@ -284,14 +280,6 @@ float average_operator(
   cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
 
   cudaFree(gpu_sum);
-  cpu_sum /= float(size);
+  cpu_sum /= static_cast<float>(size);
   return cpu_sum;
-}
-
-void copy_buffer(
-  cufftComplex* src,
-  cufftComplex* dst,
-  const size_t nb_elts)
-{
-  cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
 }

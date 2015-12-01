@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "tools_conversion.cuh"
 
 #include <device_launch_parameters.h>
@@ -110,8 +112,8 @@ static __global__ void kernel_complex_to_argument(
   const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  float pi_div_2 = M_PI / 2.0f;
-  float c = 65535.0f / M_PI;
+  const float pi_div_2 = M_PI / 2.0f;
+  const float c = 65535.0f / M_PI;
 
   while (index < size)
   {

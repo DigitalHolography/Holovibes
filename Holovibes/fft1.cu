@@ -37,9 +37,6 @@ void fft_1(
 
   // Apply lens on multiple frames.
   kernel_apply_lens << <blocks, threads >> >(input, n_frame_resolution, lens, frame_resolution);
-
-  cudaDeviceSynchronize();
-
   // FFT
   cufftExecC2C(plan, input, input, CUFFT_FORWARD);
 
