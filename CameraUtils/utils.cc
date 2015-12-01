@@ -10,7 +10,7 @@ namespace camutils
 {
   void create_logfile(const std::string name)
   {
-    std::string folder = "log/";
+    std::string folder = "../log/";
     time_t date = time(nullptr);
     std::string file(folder);
 

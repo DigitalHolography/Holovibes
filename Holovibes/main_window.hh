@@ -13,10 +13,12 @@
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
 # include <gpib.h>
-# include <camera_exception.hh>
 # include <cstring>
 # include <vector>
 # include <sys/stat.h>
+
+# include <camera_exception.hh>
+# include "../GPIB/gpib_controller.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -390,6 +392,8 @@ namespace gui
 
     /*! File index used in batch recording */
     unsigned int file_index_;
+
+    std::unique_ptr<gpib::VisaInterface> gpib_interface_;
 
     /*! Queue max size */
     unsigned int q_max_size_;

@@ -54,12 +54,12 @@ static __global__ void kernel_zone_sum(
   }
   if (tid < 32)
   {
-    sdata[tid] += sdata[tid + 32];
-    sdata[tid] += sdata[tid + 16];
-    sdata[tid] += sdata[tid + 8];
-    sdata[tid] += sdata[tid + 4];
-    sdata[tid] += sdata[tid + 2];
-    sdata[tid] += sdata[tid + 1];
+    sdata[tid] += sdata[tid + 32] +
+      sdata[tid + 16] +
+      sdata[tid + 8] +
+      sdata[tid + 4] +
+      sdata[tid + 2] +
+      sdata[tid + 1];
   }
 
   // Return result
@@ -89,9 +89,6 @@ std::tuple<float, float, float> make_average_plot(
   cudaMalloc(&gpu_s, sizeof(float));
   cudaMalloc(&gpu_n, sizeof(float));
 
-  cudaMemset(gpu_s, 0, sizeof(float));
-  cudaMemset(gpu_n, 0, sizeof(float));
-
   unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
   unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
@@ -108,8 +105,8 @@ std::tuple<float, float, float> make_average_plot(
   cudaMemcpy(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost);
 
-  cpu_s /= float(signal_width * signal_height);
-  cpu_n /= float(noise_width * noise_height);
+  cpu_s /= static_cast<float>(signal_width * signal_height);
+  cpu_n /= static_cast<float>(noise_width * noise_height);
 
   float moy = 10 * log10f(cpu_s / cpu_n);
 
