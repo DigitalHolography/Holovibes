@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <thread>
 #include <boost/lexical_cast.hpp>
-// DEBUG
-#include <iostream>
+
 #include "visa.h"
 
 #include "gpib_controller.hh"
@@ -76,15 +75,13 @@ namespace gpib
 
   VisaInterface::~VisaInterface()
   {
-    std::cout << "****Calling destructor\n****\n";
-
     delete[] pimpl_->buffer_;
 
     std::for_each(pimpl_->sessions_.begin(),
       pimpl_->sessions_.end(),
       [this](instrument& instr)
     {
-      close_instr(instr.first);
+      close_instr(instr.second);
     });
 
     close_line();
@@ -102,7 +99,7 @@ namespace gpib
 
     pimpl_->sessions_.push_back(instrument(0, address));
     pimpl_->status_ = viOpen(pimpl_->default_rm_,
-      (ViString)(address_msg.c_str()), // TODO : Try to replace with a C++-cast
+      (ViString)(address_msg.c_str()),
       VI_NULL,
       VI_NULL,
       &(pimpl_->sessions_.back().first));
@@ -126,8 +123,10 @@ namespace gpib
 
     if (it != pimpl_->sessions_.end())
     {
+      // Closing the session, and removing the session from the sessions vector.
       pimpl_->status_ = viClose(it->first);
-      pimpl_->sessions_.erase(it);
+      if (pimpl_->status_ == VI_SUCCESS)
+        pimpl_->sessions_.erase(it);
     }
   }
 
@@ -190,7 +189,7 @@ namespace gpib
 
   void VisaInterface::close_line()
   {
-    if (viClose(pimpl_->default_rm_))
+    if (viClose(pimpl_->default_rm_) != VI_SUCCESS)
       std::cerr << "[GPIB] Could not close connection to VISA driver.\n";
   }
 
