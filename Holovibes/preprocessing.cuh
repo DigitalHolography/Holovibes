@@ -29,7 +29,7 @@ void make_sqrt_vect(float* out, const unsigned short n);
  *
  *
  *\note This function can be improved by specifying
- * img8_to_complex or img16_to_complex in the pipeline to avoid
+ * img8_to_complex or img16_to_complex in the pipe to avoid
  * branch conditions. But it is no big deal.
  * Otherwise, the convert function are not called outside because
  * this function would need an unsigned short buffer that is unused

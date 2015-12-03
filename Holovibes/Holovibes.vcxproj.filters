@@ -116,9 +116,6 @@
     <ClCompile Include="gui_group_box.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pipeline.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="compute_descriptor.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -200,6 +197,12 @@
     <ClCompile Include="geometry.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pipe.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -259,9 +262,6 @@
     <ClInclude Include="observer.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vibrometry.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
@@ -300,6 +300,15 @@
     </ClInclude>
     <ClInclude Include="stft.cuh">
       <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline_utils.hh">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@
 # include "thread_reader.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
-# include "pipeline.hh"
+# include "pipe.hh"
 # include "concurrent_deque.hh"
 
 # include <memory>
@@ -19,7 +19,7 @@ namespace holovibes
    * This class does not depends on the user interface (classes under the
    * holovibes namespace can be seen as a library).
    *
-   * It contains high-level ressources (Pipeline, Camera, Recorder ...). These
+   * It contains high-level ressources (Pipe, Camera, Recorder ...). These
    * ressources are shared between threads and should be allocated in threads
    * themselves. */
   class Holovibes
@@ -98,11 +98,11 @@ namespace holovibes
 
     /*! \brief Launch the ThreadCompute
      * \see ThreadCompute
-     * \see Pipeline
+     * \see Pipe
      *
-     * The pipeline is allocated and his allocation can take some times so that
+     * The pipe is allocated and his allocation can take some times so that
      * the method contains a lock to avoid conflicts between threads that would
-     * use the Pipeline before it finished the initialization. */
+     * use the Pipe before it finished the initialization. */
     void init_compute(
       const bool is_float_output_enabled = false,
       const std::string float_output_file_src = "",
@@ -119,11 +119,11 @@ namespace holovibes
       unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
-    std::shared_ptr<Pipeline> get_pipeline()
+    std::shared_ptr<Pipe> get_pipe()
     {
       if (tcompute_)
-        return tcompute_->get_pipeline();
-      throw std::runtime_error("cannot get pipeline, no compute thread");
+        return tcompute_->get_pipe();
+      throw std::runtime_error("cannot get pipe, no compute thread");
     }
 
     /*! \return Common ComputeDescriptor */
@@ -177,7 +177,7 @@ namespace holovibes
     /*! \} */
 
     /*! \brief Common compute descriptor shared between CLI/GUI and the
-     * Pipeline. */
+     * Pipe. */
     ComputeDescriptor compute_desc_;
 
     /*! \brief Store average of zone signal/noise

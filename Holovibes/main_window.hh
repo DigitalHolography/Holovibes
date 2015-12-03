@@ -20,7 +20,7 @@
 
 # include "ui_main_window.h"
 # include "holovibes.hh"
-# include "pipeline.hh"
+# include "pipe.hh"
 # include "compute_descriptor.hh"
 # include "observer.hh"
 # include "gui_gl_window.hh"
@@ -118,11 +118,11 @@ namespace gui
     **
     ** Lots of these methods stick to the following scheme:
     **
-    ** * Get pipeline
+    ** * Get pipe
     ** * Set visibility to false
     ** * Check if value is correct/into slot specific bounds
     ** * Update a value in FrameDescriptor of the holovibes object
-    ** * Request a pipeline refresh
+    ** * Request a pipe refresh
     ** * Set visibility to true
     */
     /*! \brief Set image mode either to direct or hologram mode
@@ -193,7 +193,7 @@ namespace gui
     */
     void set_autofocus_mode();
 
-    /*! \brief Request autofocus action in pipeline
+    /*! \brief Request autofocus action in pipe
     ** \param zone selection zone for computation
     */
     void request_autofocus(holovibes::Rectangle zone);
@@ -218,7 +218,7 @@ namespace gui
     */
     void set_contrast_mode(bool value);
 
-    /*! \brief Request autocontrast action in pipeline
+    /*! \brief Request autocontrast action in pipe
     **
     ** It will automatically fill contrast minimum and maximum values.
     */

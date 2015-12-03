@@ -1,5 +1,5 @@
 #include "thread_compute.hh"
-#include "pipeline.hh"
+#include "pipe.hh"
 #include <cassert>
 
 namespace holovibes
@@ -14,7 +14,7 @@ namespace holovibes
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
-    , pipeline_(nullptr)
+    , pipe_(nullptr)
     , memory_cv_()
     , is_float_output_enabled_(is_float_output_enabled)
     , thread_(&ThreadCompute::thread_proc, this, float_output_file_src, float_output_nb_frame)
@@ -23,7 +23,7 @@ namespace holovibes
 
   ThreadCompute::~ThreadCompute()
   {
-    pipeline_->request_termination();
+    pipe_->request_termination();
 
     if (thread_.joinable())
       thread_.join();
@@ -32,16 +32,16 @@ namespace holovibes
   void ThreadCompute::thread_proc(std::string float_output_file_src,
     const unsigned int float_output_nb_frame)
   {
-    pipeline_ = std::shared_ptr<Pipeline>(new Pipeline(input_, output_, compute_desc_));
+    pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
 
     if (is_float_output_enabled_)
     {
-      pipeline_->request_float_output(float_output_file_src, float_output_nb_frame);
-      pipeline_->refresh();
+      pipe_->request_float_output(float_output_file_src, float_output_nb_frame);
+      pipe_->refresh();
     }
 
     memory_cv_.notify_one();
 
-    pipeline_->exec();
+    pipe_->exec();
   }
 }

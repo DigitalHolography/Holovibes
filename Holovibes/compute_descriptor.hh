@@ -11,7 +11,7 @@ namespace holovibes
 
   /*! \brief Contains compute parameters.
    *
-   * Theses parameters will be used when the pipeline is refresh.
+   * Theses parameters will be used when the pipe is refresh.
    * It defines parameters for FFT, lens (Fresnel transforms ...),
    * post-processing (contrast, shift_corners, log scale).
    *
@@ -21,7 +21,7 @@ namespace holovibes
    * reusable.
    *
    * This class contains std::atomic fields to avoid concurrent access between
-   * the pipeline and the GUI.
+   * the pipe and the GUI.
    */
   struct ComputeDescriptor : public Observable
   {
