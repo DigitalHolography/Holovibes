@@ -59,7 +59,7 @@ namespace holovibes
       Queue& output,
       ComputeDescriptor& desc);
 
-    ~Pipe();
+    virtual ~Pipe();
 
     /*! \{ \name Pipe request methods */
     /*! \brief Request the pipe to refresh. */
