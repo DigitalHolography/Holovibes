@@ -184,7 +184,9 @@
     </CustomBuild>
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
+    <ClInclude Include="icompute.hh" />
     <ClInclude Include="ithread_input.hh" />
+    <ClInclude Include="module.hh" />
     <ClInclude Include="observable.hh" />
     <ClInclude Include="observer.hh" />
     <ClInclude Include="options_descriptor.hh" />
@@ -298,8 +300,10 @@
     <ClCompile Include="gui_group_box.cc" />
     <ClCompile Include="gui_plot_window.cc" />
     <ClCompile Include="holovibes.cc" />
+    <ClCompile Include="icompute.cc" />
     <ClCompile Include="ithread_input.cc" />
     <ClCompile Include="main.cc" />
+    <ClCompile Include="module.cc" />
     <ClCompile Include="options_parser.cc" />
     <ClCompile Include="pipe.cc" />
     <ClCompile Include="pipeline.cc" />

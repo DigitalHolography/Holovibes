@@ -6,7 +6,6 @@
 # include "thread_reader.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
-# include "pipe.hh"
 # include "concurrent_deque.hh"
 
 # include <memory>
@@ -119,7 +118,7 @@ namespace holovibes
       unsigned int q_max_size_);
 
     /*! \{ \name Getters/Setters */
-    std::shared_ptr<Pipe> get_pipe()
+    std::shared_ptr<ICompute> get_pipe()
     {
       if (tcompute_)
         return tcompute_->get_pipe();

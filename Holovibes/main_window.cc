@@ -794,7 +794,7 @@ namespace gui
     {
       if (float_output_checkbox->isChecked() && !is_direct_mode_)
       {
-        std::shared_ptr<holovibes::Pipe> pipe = holovibes_.get_pipe();
+        std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
 
         pipe->request_float_output(path, nb_of_frames);
 

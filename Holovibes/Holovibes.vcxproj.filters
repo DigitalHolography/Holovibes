@@ -203,6 +203,12 @@
     <ClCompile Include="pipeline.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="module.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="icompute.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -308,6 +314,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pipeline_utils.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="module.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="icompute.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
