@@ -1,4 +1,3 @@
-
 #include "icompute.hh"
 # include <cufft.h>
 
@@ -45,7 +44,7 @@ namespace holovibes
       input_length_ = 1;
     else
       input_length_ = nsamples;
-    
+
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
       sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
@@ -53,7 +52,7 @@ namespace holovibes
     /* gpu_stft_buffer */
     cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
       sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);
-    
+
     /* Square root vector */
     cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float)* 65536);
     make_sqrt_vect(gpu_sqrt_vector_, 65535);

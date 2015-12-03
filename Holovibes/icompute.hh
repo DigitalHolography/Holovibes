@@ -178,49 +178,49 @@ namespace holovibes
     ICompute(const ICompute&) = delete;
     /*! \} */
 
-    protected:
-      /*! \brief Shared (GUI/CLI) ComputeDescriptor */
-      ComputeDescriptor& compute_desc_;
-      /*! \brief Input frame queue : 16-bit frames. */
-      Queue& input_;
-      /*! \brief Output frame queue : 16-bit frames. */
-      Queue& output_;
+  protected:
+    /*! \brief Shared (GUI/CLI) ComputeDescriptor */
+    ComputeDescriptor& compute_desc_;
+    /*! \brief Input frame queue : 16-bit frames. */
+    Queue& input_;
+    /*! \brief Output frame queue : 16-bit frames. */
+    Queue& output_;
 
-      /*! Vector filled with sqrtf values. */
-      float* gpu_sqrt_vector_;
-      /*! cufftComplex array containing n contiguous ROI of frames. */
-      cufftComplex* gpu_stft_buffer_;
-      /*! cufftComplex array containing save of n contiguous ROI of frames. */
-      cufftComplex* gpu_stft_dup_buffer_;
-      /*! cufftComplex array containing lens. */
-      cufftComplex* gpu_lens_;
-      /*! CUDA FFT Plan 3D. */
-      cufftHandle plan3d_;
-      /*! CUDA FFT Plan 2D. */
-      cufftHandle plan2d_;
-      /*! CUDA FFT Plan 1D. */
-      cufftHandle plan1d_;
-      /*! \} */
-      /*! \{ \name request flags */
-      bool autofocus_requested_;
-      bool autofocus_stop_requested_;
-      bool autocontrast_requested_;
-      bool refresh_requested_;
-      bool update_n_requested_;
-      bool stft_update_roi_requested_;
-      bool average_requested_;
-      bool average_record_requested_;
-      bool float_output_requested_;
-      bool abort_construct_requested_;
-      bool termination_requested_;
-      /*! \} */
+    /*! Vector filled with sqrtf values. */
+    float* gpu_sqrt_vector_;
+    /*! cufftComplex array containing n contiguous ROI of frames. */
+    cufftComplex* gpu_stft_buffer_;
+    /*! cufftComplex array containing save of n contiguous ROI of frames. */
+    cufftComplex* gpu_stft_dup_buffer_;
+    /*! cufftComplex array containing lens. */
+    cufftComplex* gpu_lens_;
+    /*! CUDA FFT Plan 3D. */
+    cufftHandle plan3d_;
+    /*! CUDA FFT Plan 2D. */
+    cufftHandle plan2d_;
+    /*! CUDA FFT Plan 1D. */
+    cufftHandle plan1d_;
+    /*! \} */
+    /*! \{ \name request flags */
+    bool autofocus_requested_;
+    bool autofocus_stop_requested_;
+    bool autocontrast_requested_;
+    bool refresh_requested_;
+    bool update_n_requested_;
+    bool stft_update_roi_requested_;
+    bool average_requested_;
+    bool average_record_requested_;
+    bool float_output_requested_;
+    bool abort_construct_requested_;
+    bool termination_requested_;
+    /*! \} */
 
-      /*! \brief Number of frame in input. */
-      unsigned int input_length_;
-      /*! \brief Number of frame to record before request_float_output_stop. */
-      unsigned int float_output_nb_frame_;
-      /*! \brief index of current element trait in stft */
-      unsigned int curr_elt_stft_;
+    /*! \brief Number of frame in input. */
+    unsigned int input_length_;
+    /*! \brief Number of frame to record before request_float_output_stop. */
+    unsigned int float_output_nb_frame_;
+    /*! \brief index of current element trait in stft */
+    unsigned int curr_elt_stft_;
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
