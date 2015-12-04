@@ -22,11 +22,16 @@ namespace holovibes
   {
     // TODO : Initialize modules by binding resources to std::functions.
     //        Allocate is_finished_ and set every value to false.
+    /* gpu_output_buffer */
+    cudaMalloc<unsigned short>(&gpu_short_buffer_,
+      sizeof(unsigned short)* input_.get_pixels());
     refresh();
   }
 
   Pipeline::~Pipeline()
   {
+    /* gpu_output_buffer */
+    cudaFree(gpu_short_buffer_);
     stop_pipeline();
   }
 
@@ -95,7 +100,7 @@ namespace holovibes
   }
 
   template <class T>
-  Module* Pipeline::create_module(std::vector<T*>& gpu_buffers, size_t buf_size)
+  Module* Pipeline::create_module(std::list<T*>& gpu_buffers, size_t buf_size)
   {
     Module  *module = nullptr;
     T       *buffer = nullptr;
@@ -108,6 +113,7 @@ namespace holovibes
     cudaStreamCreate(&(streams_.back()));
 
     is_finished_.push_back(new bool(true));
+    *is_finished_.back() = true; // TODO: Zarb, mais jai des bug
 
     module = new Module(is_finished_.back());
     return (module);
@@ -120,21 +126,55 @@ namespace holovibes
     update_n_parameter(compute_desc_.nsamples);
 
     Module* module = nullptr;
+    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+    const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
+
 
     module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
 
+    std::cout << &(gpu_complex_buffers_.front()) << std::endl;
     // TODO: ERIC: Module add worker
     module->add_worker(std::bind(
       make_contiguous_complex,
       std::ref(input_),
-      gpu_complex_buffers_[0],
+      std::ref(gpu_complex_buffers_.front()),
       compute_desc_.nsamples.load(),
       gpu_sqrt_vector_,
       streams_.back()
       ));
 
+    // Initialize FFT1 lens.
+    fft1_lens(
+      gpu_lens_,
+      input_fd,
+      compute_desc_.lambda,
+      compute_desc_.zdistance);
+    module->add_worker(std::bind(std::bind(
+      fft_1,
+      std::ref(gpu_complex_buffers_.front()),
+      gpu_lens_,
+      plan3d_,
+      input_fd.frame_res(),
+      compute_desc_.nsamples.load(),
+      streams_.back())
+      ));
+    
+    module->add_worker(std::bind(std::bind(
+      fft_1,
+      std::ref(gpu_complex_buffers_.front()),
+      gpu_lens_,
+      plan3d_,
+      input_fd.frame_res(),
+      compute_desc_.nsamples.load(),
+      streams_.back())
+      ));
+    
+    Module *eric = module;
+    
+
     modules_.push_back(module);
     module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
+    std::cout << &(gpu_complex_buffers_.front()) << std::endl;
     // make_contiguous_complex
     // gen fft1_lens
     // fft_1
@@ -146,25 +186,42 @@ namespace holovibes
 
     // TODO: ERIC: Module add worker
     // float_to_ushort
-
+    
+    module->add_worker(std::bind(std::bind(
+      float_to_ushort,
+      std::ref(gpu_float_buffers_.front()),
+      gpu_short_buffer_,
+      input_fd.frame_res(),
+      streams_.back())));
+    
     modules_.push_back(module);
 
     module = create_module<float>(gpu_float_buffers_, input_.get_pixels());
     modules_.push_back(module);
+
+    eric->add_worker(std::bind(std::bind(
+      complex_to_modulus,
+      std::ref(gpu_complex_buffers_.front()),
+      std::ref(gpu_float_buffers_.back()),
+      input_fd.frame_res(),
+      streams_.back())
+      ));
   }
 
   void Pipeline::step_forward()
   {
+    
     if (gpu_float_buffers_.size() > 1)
     {
-      std::rotate(gpu_float_buffers_.begin(),
+      std::swap(gpu_float_buffers_.front(), gpu_float_buffers_.back());
+  /*    std::rotate(gpu_float_buffers_.begin(),
         gpu_float_buffers_.begin() + 1,
         gpu_float_buffers_.end());
-    }
-
+    */}
+    
     if (gpu_complex_buffers_.size() > 1)
     {
-      std::swap(gpu_complex_buffers_.begin(), gpu_complex_buffers_.begin() + 1);
+      std::swap(gpu_complex_buffers_.front(), gpu_complex_buffers_.back());
     }
       /*
       std::rotate(gpu_complex_buffers_.begin(),

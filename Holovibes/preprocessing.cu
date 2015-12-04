@@ -23,6 +23,7 @@ void make_contiguous_complex(
   const float* sqrt_array,
   cudaStream_t stream)
 {
+  std::cout << "contiguous: " << output << std::endl;
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (input.get_pixels() * n + threads - 1) / threads;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 # include <vector>
+# include <list>
 # include <cuda_runtime.h>
 # include <cufft.h>
 
@@ -34,7 +35,7 @@ namespace holovibes
     virtual void record_float() override;
 
     template <class T>
-    Module* create_module(std::vector<T*>& gpu_buffers, size_t buf_size);
+    Module* create_module(std::list<T*>& gpu_buffers, size_t buf_size);
   private:
     void step_forward();
 
@@ -46,11 +47,11 @@ namespace holovibes
     std::vector<cudaStream_t>   streams_;
 
     //!< Working sets of 'nsamples' frames of complex data.
-    std::vector<float*>         gpu_float_buffers_;
+    std::list<float*>         gpu_float_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of float data.
-    std::vector<cufftComplex*>  gpu_complex_buffers_;
+    std::list<cufftComplex*>  gpu_complex_buffers_;
     // A single frame containing 16-bit pixel values, used for display.
-    short*                      gpu_short_buffer_;
+    unsigned short            *gpu_short_buffer_;
 
     /*! A table the same size as modules_.size(). Each Module indicates here wether
      * its current task is done or not, so the Pipeline can manage everyone. */
