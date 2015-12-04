@@ -17,6 +17,13 @@ namespace holovibes
   class ThreadCompute
   {
   public:
+
+    enum PipeType
+    {
+      PIPE,
+      PIPELINE,
+    };
+
     /*! \brief Constructor
      *
      * params are gived to pipe
@@ -25,6 +32,7 @@ namespace holovibes
       ComputeDescriptor& desc,
       Queue& input,
       Queue& output,
+      const PipeType pipetype,
       const bool is_float_output_enabled,
       const std::string float_output_file_src,
       const unsigned int float_output_nb_frame);
@@ -71,6 +79,7 @@ namespace holovibes
 
     Queue& input_;
     Queue& output_;
+    const PipeType pipetype_;
 
     std::shared_ptr<ICompute> pipe_;
 

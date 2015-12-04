@@ -261,7 +261,13 @@ namespace gui
       }
       else
       {
-        holovibes_.init_compute();
+        QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+
+        if (pipeline_checkbox->isChecked())
+          holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
+        else
+          holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+
         gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 
         if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)

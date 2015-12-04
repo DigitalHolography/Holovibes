@@ -106,6 +106,7 @@ namespace holovibes
   }
 
   void Holovibes::init_compute(
+    const ThreadCompute::PipeType pipetype,
     const bool is_float_output_enabled,
     const std::string float_output_file_src,
     const unsigned int float_output_nb_frame)
@@ -118,7 +119,7 @@ namespace holovibes
     output_frame_desc.depth = 2;
     output_.reset(new Queue(output_frame_desc, input_->get_max_elts()));
 
-    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_,
+    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype,
       is_float_output_enabled,
       float_output_file_src,
       float_output_nb_frame));

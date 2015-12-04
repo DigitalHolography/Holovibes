@@ -1,5 +1,6 @@
 #include "thread_compute.hh"
 #include "pipe.hh"
+#include "pipeline.hh"
 #include <cassert>
 
 namespace holovibes
@@ -8,12 +9,14 @@ namespace holovibes
     ComputeDescriptor& desc,
     Queue& input,
     Queue& output,
-    bool is_float_output_enabled,
+    const PipeType pipetype,
+    const bool is_float_output_enabled,
     const std::string float_output_file_src,
     const unsigned int float_output_nb_frame)
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
+    , pipetype_(pipetype)
     , pipe_(nullptr)
     , memory_cv_()
     , is_float_output_enabled_(is_float_output_enabled)
@@ -32,7 +35,10 @@ namespace holovibes
   void ThreadCompute::thread_proc(std::string float_output_file_src,
     const unsigned int float_output_nb_frame)
   {
-    pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
+    if (pipetype_ == PipeType::PIPE)
+      pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
+    else
+      pipe_ = std::shared_ptr<ICompute>(new Pipeline(input_, output_, compute_desc_));
 
     if (is_float_output_enabled_)
     {
