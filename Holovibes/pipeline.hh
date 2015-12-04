@@ -22,6 +22,8 @@ namespace holovibes
 
     virtual ~Pipeline();
 
+    void stop_pipeline();
+
     virtual void exec() override;
 
   protected:
@@ -31,6 +33,8 @@ namespace holovibes
 
     virtual void record_float() override;
 
+    template <class T>
+    Module* create_module(std::vector<T*>& gpu_buffers, size_t buf_size);
   private:
     void step_forward();
 
@@ -50,6 +54,7 @@ namespace holovibes
 
     /*! A table the same size as modules_.size(). Each Module indicates here wether
      * its current task is done or not, so the Pipeline can manage everyone. */
-    bool*                       is_finished_;
+    std::vector<bool*>           is_finished_;
+    bool                        stop_threads_;
   };
 }
