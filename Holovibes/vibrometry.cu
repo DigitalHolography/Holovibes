@@ -35,7 +35,8 @@ void frame_ratio(
   const cufftComplex* frame_p,
   const cufftComplex* frame_q,
   cufftComplex* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -43,5 +44,5 @@ void frame_ratio(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_frame_ratio << <blocks, threads >> >(frame_p, frame_q, output, size);
+  kernel_frame_ratio << <blocks, threads, 0, stream >> >(frame_p, frame_q, output, size);
 }

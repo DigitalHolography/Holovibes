@@ -53,7 +53,8 @@ void manual_contrast_correction(
   const unsigned int size,
   const unsigned short dynamic_range,
   const float min,
-  const float max)
+  const float max,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -62,18 +63,22 @@ void manual_contrast_correction(
     blocks = get_max_blocks();
 
   const float factor = static_cast<float>(dynamic_range) / (max - min);
-  apply_contrast << <blocks, threads >> >(input, size, factor, min);
+  apply_contrast << <blocks, threads, 0, stream >> >(input, size, factor, min);
 }
 
 void auto_contrast_correction(
   float* input,
   const unsigned int size,
   float* min,
-  float* max)
+  float* max,
+  cudaStream_t stream)
 {
   float* frame_cpu = new float[size]();
-  cudaMemcpy(frame_cpu, input, sizeof(float)* size, cudaMemcpyDeviceToHost);
+  cudaMemcpyAsync(frame_cpu, input, sizeof(float)* size, cudaMemcpyDeviceToHost);
+  cudaStreamSynchronize(stream);
+
   find_min_max_img(frame_cpu, size, min, max);
+
   delete[] frame_cpu;
 
   if (*min < 1.0f)

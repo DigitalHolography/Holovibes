@@ -14,7 +14,8 @@ void stft(
   const holovibes::Rectangle&     r,
   unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
-  unsigned int                    nsamples)
+  unsigned int                    nsamples,
+  cudaStream_t stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = desc.frame_res() / threads;
@@ -23,13 +24,13 @@ void stft(
     blocks = get_max_blocks();
 
   // Apply lens on multiple frames.
-  kernel_apply_lens << <blocks, threads >> >(input, desc.frame_res(), lens, desc.frame_res());
+  kernel_apply_lens << <blocks, threads, 0, stream >> >(input, desc.frame_res(), lens, desc.frame_res());
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
   // FFT 2D
   cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
   if (!r.area())
     return;
@@ -37,12 +38,16 @@ void stft(
   if (curr_elt == nsamples)
   {
     // Remove first element and move all element on left
-    cudaMemcpy(stft_buf, &(stft_buf[1]), sizeof(cufftComplex)* (nsamples * r.area() - 1), cudaMemcpyDeviceToDevice);
+    cudaMemcpyAsync(stft_buf,
+      &(stft_buf[1]),
+      sizeof(cufftComplex)* (nsamples * r.area() - 1),
+      cudaMemcpyDeviceToDevice,
+      stream);
     --curr_elt;
   }
 
   // Do the ROI
-  kernel_bursting_roi << <blocks, threads >> >(
+  kernel_bursting_roi << <blocks, threads, 0, stream >> >(
     input,
     r.top_left.x,
     r.top_left.y,
@@ -57,7 +62,7 @@ void stft(
 
   // FFT 1D
   cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 }
 
 void stft_recontruct(
@@ -68,7 +73,8 @@ void stft_recontruct(
   const unsigned int              reconstruct_width,
   const unsigned int              reconstruct_height,
   const unsigned int              pindex,
-  const unsigned int              nsamples)
+  const unsigned int              nsamples,
+  cudaStream_t stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = desc.frame_res() / threads;
@@ -79,7 +85,7 @@ void stft_recontruct(
   if (!r.area())
     return;
   // Reconstruct Roi
-  kernel_reconstruct_roi << <blocks, threads >> >(
+  kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
     stft_dup_buf,
     output,
     r.get_width(),

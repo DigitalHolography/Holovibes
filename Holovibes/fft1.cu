@@ -10,14 +10,15 @@ void fft1_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   const float lambda,
-  const float z)
+  const float z,
+  cudaStream_t stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = (fd.frame_res() + threads - 1) / threads;
 
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
-  kernel_quadratic_lens << <blocks, threads >> >(lens, fd, lambda, z);
+  kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z);
 }
 
 void fft_1(
@@ -25,7 +26,8 @@ void fft_1(
   const cufftComplex* lens,
   const cufftHandle plan,
   const unsigned int frame_resolution,
-  const unsigned int nframes)
+  const unsigned int nframes,
+  cudaStream_t stream)
 {
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
@@ -36,12 +38,12 @@ void fft_1(
     blocks = get_max_blocks();
 
   // Apply lens on multiple frames.
-  kernel_apply_lens << <blocks, threads >> >(input, n_frame_resolution, lens, frame_resolution);
+  kernel_apply_lens << <blocks, threads, 0, stream >> >(input, n_frame_resolution, lens, frame_resolution);
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
   // FFT
   cufftExecC2C(plan, input, input, CUFFT_FORWARD);
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 }

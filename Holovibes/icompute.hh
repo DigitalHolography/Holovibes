@@ -194,11 +194,11 @@ namespace holovibes
     cufftComplex* gpu_stft_dup_buffer_;
     /*! cufftComplex array containing lens. */
     cufftComplex* gpu_lens_;
-    /*! CUDA FFT Plan 3D. */
+    /*! CUDA FFT Plan 3D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan3d_;
-    /*! CUDA FFT Plan 2D. */
+    /*! CUDA FFT Plan 2D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan2d_;
-    /*! CUDA FFT Plan 1D. */
+    /*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan1d_;
     /*! \} */
     /*! \{ \name request flags */

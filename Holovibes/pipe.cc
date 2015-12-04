@@ -39,6 +39,11 @@ namespace holovibes
     cudaMalloc<float>(&gpu_float_buffer_,
       sizeof(float)* input_.get_pixels());
 
+    // Setting the cufft plans to work on the default stream.
+    cufftSetStream(plan1d_, static_cast<cudaStream_t>(0));
+    cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
+    cufftSetStream(plan3d_, static_cast<cudaStream_t>(0));
+
     refresh();
   }
 
@@ -68,6 +73,11 @@ namespace holovibes
 
   void Pipe::refresh()
   {
+    /* As the Pipe uses a single CUDA stream for its computations,
+     * we have to explicitly use the default stream (0).
+     * Because std::bind does not allow optional parameters to be
+     * deduced and bound, we have to use static_cast<cudaStream_t>(0) systematically. */
+
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
@@ -99,7 +109,8 @@ namespace holovibes
       std::ref(input_),
       gpu_input_buffer_,
       input_length_,
-      gpu_sqrt_vector_));
+      gpu_sqrt_vector_,
+      static_cast<cudaStream_t>(0)));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -117,7 +128,8 @@ namespace holovibes
         gpu_lens_,
         plan3d_,
         input_fd.frame_res(),
-        compute_desc_.nsamples.load()));
+        compute_desc_.nsamples.load(),
+        static_cast<cudaStream_t>(0)));
 
       /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
@@ -132,7 +144,8 @@ namespace holovibes
           gpu_input_frame_ptr_,
           q,
           gpu_input_frame_ptr_,
-          input_fd.frame_res()));
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
       }
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
@@ -157,7 +170,8 @@ namespace holovibes
           input_fd.frame_res(),
           compute_desc_.nsamples.load(),
           compute_desc_.pindex.load(),
-          compute_desc_.vibrometry_q.load()));
+          compute_desc_.vibrometry_q.load(),
+          static_cast<cudaStream_t>(0)));
 
         /* q frame pointer */
         cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
@@ -167,7 +181,8 @@ namespace holovibes
           gpu_input_frame_ptr_,
           q,
           gpu_input_frame_ptr_,
-          input_fd.frame_res()));
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
       }
       else
       {
@@ -180,7 +195,8 @@ namespace holovibes
           input_fd.frame_res(),
           compute_desc_.nsamples.load(),
           compute_desc_.pindex.load(),
-          compute_desc_.pindex.load()));
+          compute_desc_.pindex.load(),
+          static_cast<cudaStream_t>(0)));
       }
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
@@ -205,7 +221,8 @@ namespace holovibes
         compute_desc_.stft_roi_zone.load(),
         curr_elt_stft_,
         input_fd,
-        compute_desc_.nsamples.load()));
+        compute_desc_.nsamples.load(),
+        static_cast<cudaStream_t>(0)));
 
       fn_vect_.push_back(std::bind(
         stft_recontruct,
@@ -216,7 +233,8 @@ namespace holovibes
         (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
         (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
         compute_desc_.pindex.load(),
-        compute_desc_.nsamples.load()));
+        compute_desc_.nsamples.load(),
+        static_cast<cudaStream_t>(0)));
 
       /* frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_;
@@ -248,7 +266,8 @@ namespace holovibes
         complex_to_modulus,
         gpu_input_frame_ptr_,
         gpu_float_buffer_,
-        input_fd.frame_res()));
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
     {
@@ -256,7 +275,8 @@ namespace holovibes
         complex_to_squared_modulus,
         gpu_input_frame_ptr_,
         gpu_float_buffer_,
-        input_fd.frame_res()));
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
     {
@@ -264,7 +284,8 @@ namespace holovibes
         complex_to_argument,
         gpu_input_frame_ptr_,
         gpu_float_buffer_,
-        input_fd.frame_res()));
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
     }
     else
       assert(!"Impossible case.");
@@ -277,7 +298,8 @@ namespace holovibes
         shift_corners,
         gpu_float_buffer_,
         output_fd.width,
-        output_fd.height));
+        output_fd.height,
+        static_cast<cudaStream_t>(0)));
     }
 
     if (average_requested_)
@@ -315,7 +337,8 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         apply_log10,
         gpu_float_buffer_,
-        input_fd.frame_res()));
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
     }
 
     if (autocontrast_requested_)
@@ -338,7 +361,8 @@ namespace holovibes
         input_fd.frame_res(),
         65535,
         compute_desc_.contrast_min.load(),
-        compute_desc_.contrast_max.load()));
+        compute_desc_.contrast_max.load(),
+        static_cast<cudaStream_t>(0)));
     }
 
     if (!float_output_requested_)
@@ -347,7 +371,8 @@ namespace holovibes
         float_to_ushort,
         gpu_float_buffer_,
         gpu_output_buffer_,
-        input_fd.frame_res()));
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
     }
     else
     {

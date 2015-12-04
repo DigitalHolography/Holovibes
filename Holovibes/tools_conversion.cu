@@ -58,7 +58,8 @@ static __global__ void kernel_complex_to_modulus(
 void complex_to_modulus(
   const cufftComplex* input,
   float* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = (size + threads - 1) / threads;
@@ -66,7 +67,7 @@ void complex_to_modulus(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_modulus << <blocks, threads >> >(input, output, size);
+  kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
 /*! \brief Kernel function wrapped in complex_to_squared_modulus, making
@@ -90,7 +91,8 @@ static __global__ void kernel_complex_to_squared_modulus(
 void complex_to_squared_modulus(
   const  cufftComplex* input,
   float* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -98,7 +100,7 @@ void complex_to_squared_modulus(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_squared_modulus << <blocks, threads >> >(input, output, size);
+  kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
 /*! \brief Kernel function wrapped in complex_to_argument, making
@@ -124,7 +126,8 @@ static __global__ void kernel_complex_to_argument(
 void complex_to_argument(
   const cufftComplex* input,
   float* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -132,7 +135,7 @@ void complex_to_argument(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_argument << <blocks, threads >> >(input, output, size);
+  kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
@@ -156,7 +159,8 @@ static __global__ void kernel_endianness_conversion(
 void endianness_conversion(
   const unsigned short* input,
   unsigned short* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int max_blocks = get_max_blocks();
@@ -165,7 +169,7 @@ void endianness_conversion(
   if (blocks > max_blocks)
     blocks = max_blocks - 1;
 
-  kernel_endianness_conversion << <blocks, threads >> >(input, output, size);
+  kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
 /*! \brief Kernel function wrapped in float_to_ushort, making
@@ -194,7 +198,8 @@ static __global__ void kernel_float_to_ushort(
 void float_to_ushort(
   const float* input,
   unsigned short* output,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -202,5 +207,5 @@ void float_to_ushort(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_float_to_ushort << <blocks, threads >> >(input, output, size);
+  kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }

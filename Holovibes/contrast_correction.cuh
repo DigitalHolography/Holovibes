@@ -1,6 +1,8 @@
 /*! \file */
 #pragma once
 
+# include <cuda_runtime.h>
+
 /*! \brief Make the contrast of the image depending of the
 * maximum and minimum input given by the user.
 *
@@ -19,7 +21,8 @@ void manual_contrast_correction(
   const unsigned int size,
   const unsigned short dynamic_range,
   const float min,
-  const float max);
+  const float max,
+  cudaStream_t stream = 0);
 
 /*! \brief Find the minimum pixel value of an image and the maximum one.
 *
@@ -33,4 +36,5 @@ void auto_contrast_correction(
   float* input,
   const unsigned int size,
   float* min,
-  float* max);
+  float* max,
+  cudaStream_t stream = 0);

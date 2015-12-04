@@ -125,13 +125,14 @@ static __global__ void kernel_shift_corners(
 void shift_corners(
   float* input,
   const unsigned int size_x,
-  const unsigned int size_y)
+  const unsigned int size_y,
+  cudaStream_t stream)
 {
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
 
-  kernel_shift_corners << < lblocks, lthreads >> >(input, size_x, size_y);
+  kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
 }
 
 /*! \brief  Kernel helper for real function
@@ -152,7 +153,8 @@ static __global__ void kernel_log10(
 
 void apply_log10(
   float* input,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = (size + threads - 1) / threads;
@@ -160,7 +162,7 @@ void apply_log10(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_log10 << <blocks, threads >> >(input, size);
+  kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
 }
 
 /*! \brief Kernel function used in convolution_operator
@@ -186,7 +188,8 @@ void convolution_operator(
   float* out,
   const unsigned int size,
   const cufftHandle plan2d_x,
-  const cufftHandle plan2d_k)
+  const cufftHandle plan2d_k,
+  cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
   const unsigned int max_blocks = get_max_blocks();
@@ -205,17 +208,17 @@ void convolution_operator(
   cufftExecC2C(plan2d_x, const_cast<cufftComplex*>(x), tmp_x, CUFFT_FORWARD);
   cufftExecC2C(plan2d_k, const_cast<cufftComplex*>(k), tmp_k, CUFFT_FORWARD);
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
-  kernel_multiply_frames_complex << <blocks, threads >> >(tmp_x, tmp_k, tmp_x, size);
+  kernel_multiply_frames_complex << <blocks, threads, 0, stream >> >(tmp_x, tmp_k, tmp_x, size);
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
   cufftExecC2C(plan2d_x, tmp_x, tmp_x, CUFFT_INVERSE);
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(stream);
 
-  kernel_complex_to_modulus << <blocks, threads >> >(tmp_x, out, size);
+  kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(tmp_x, out, size);
 
   cudaFree(tmp_x);
   cudaFree(tmp_k);
@@ -226,21 +229,24 @@ void frame_memcpy(
   const holovibes::Rectangle& zone,
   const unsigned int input_width,
   float* output,
-  const unsigned int output_width)
+  const unsigned int output_width,
+  cudaStream_t stream)
 {
   const unsigned int zone_width = abs(zone.top_right.x - zone.top_left.x);
   const unsigned int zone_height = abs(zone.bottom_left.y - zone.top_left.y);
 
   const float* zone_ptr = input + (zone.top_left.y * input_width + zone.top_left.x);
 
-  cudaMemcpy2D(
+  cudaMemcpy2DAsync(
     output,
     output_width * sizeof(float),
     zone_ptr,
     input_width * sizeof(float),
     zone_width * sizeof(float),
     zone_height,
-    cudaMemcpyDeviceToDevice);
+    cudaMemcpyDeviceToDevice,
+    stream);
+  cudaStreamSynchronize(stream);
 }
 
 /*! \brief  Kernel helper for average
@@ -261,7 +267,8 @@ static __global__ void kernel_sum(const float* input, float* sum, const size_t s
 
 float average_operator(
   const float* input,
-  const unsigned int size)
+  const unsigned int size,
+  cudaStream_t stream)
 {
   const unsigned int threads = 128;
   const unsigned int max_blocks = get_max_blocks();
@@ -272,20 +279,22 @@ float average_operator(
 
   float* gpu_sum;
   cudaMalloc<float>(&gpu_sum, sizeof(float));
-  cudaMemset(gpu_sum, 0, sizeof(float));
+  cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
+  cudaStreamSynchronize(stream);
 
   // SpanSize pf 4 has been determined to be an optimal choice here.
-  kernel_sum <4> << <blocks, threads >> >(
+  kernel_sum <4> << <blocks, threads, 0, stream >> >(
     input,
     gpu_sum,
     size);
 
   float cpu_sum = 0.0f;
-  cudaMemcpy(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
+  cudaStreamSynchronize(stream);
 
   cudaFree(gpu_sum);
-  cpu_sum /= float(size);
-  return cpu_sum;
+
+  return cpu_sum /= static_cast<float>(size);
 }
 
 void copy_buffer(

@@ -70,7 +70,8 @@ __global__ void kernel_reconstruct_roi(
 void shift_corners(
   float *input,
   const unsigned int size_x,
-  const unsigned int size_y);
+  const unsigned int size_y,
+  cudaStream_t stream = 0);
 
 /*! \brief  compute the log of all the pixels of input image(s).
 *
@@ -81,7 +82,8 @@ void shift_corners(
 */
 void apply_log10(
   float* input,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief  apply the convolution operator to 2 complex images (x,k).
 *
@@ -97,7 +99,8 @@ void convolution_operator(
   float* out,
   const unsigned int size,
   const cufftHandle plan2d_x,
-  const cufftHandle plan2d_k);
+  const cufftHandle plan2d_k,
+  cudaStream_t stream = 0);
 
 /*! \brief  Extract a part of the input image to the output.
 *
@@ -108,13 +111,15 @@ void frame_memcpy(
   const holovibes::Rectangle& zone,
   const unsigned int input_width,
   float* output,
-  const unsigned int output_width);
+  const unsigned int output_width,
+  cudaStream_t stream = 0);
 
 /*! \brief  Make the average of all pixels contained into the input image
 */
 float average_operator(
   const float* input,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief Perform a device-to-device memory copy from src to dst.
 ** \param nb_elts is the number of elements of type T to be copied.
@@ -123,4 +128,5 @@ float average_operator(
 void copy_buffer(
   cufftComplex* src,
   cufftComplex* dst,
-  const size_t nb_elts);
+  const size_t nb_elts,
+  cudaStream_t stream = 0);

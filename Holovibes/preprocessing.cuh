@@ -12,7 +12,9 @@
 * \param output Array of the sqrt values form 0 to n - 1,
 * this array should have size greater or equal to n.
 */
-void make_sqrt_vect(float* out, const unsigned short n);
+void make_sqrt_vect(float* out,
+  const unsigned short n,
+  cudaStream_t stream = 0);
 
 /*! \brief Ensure the contiguity of images extracted from
  * the queue for any further processing.
@@ -39,4 +41,5 @@ void make_contiguous_complex(
   holovibes::Queue& input,
   cufftComplex* output,
   const unsigned int n,
-  const float* sqrt_array);
+  const float* sqrt_array,
+  cudaStream_t stream = 0);

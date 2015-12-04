@@ -20,7 +20,8 @@ std::tuple<float, float, float> make_average_plot(
   const unsigned int width,
   const unsigned int height,
   const holovibes::Rectangle& signal,
-  const holovibes::Rectangle& noise);
+  const holovibes::Rectangle& noise,
+  cudaStream_t stream = 0);
 
 /*! \brief  Make the average plot on the 2 select zones
 * but first it will call the reconstruct roi after having
@@ -37,4 +38,5 @@ std::tuple<float, float, float> make_average_stft_plot(
   holovibes::Rectangle&  signal_zone,
   holovibes::Rectangle&  noise_zone,
   const unsigned int     pindex,
-  const unsigned int     nsamples);
+  const unsigned int     nsamples,
+  cudaStream_t stream = 0);
