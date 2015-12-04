@@ -66,17 +66,25 @@ namespace holovibes
   {
     while (!termination_requested_)
     {
-      std::for_each(is_finished_.begin(),
-        is_finished_.end(),
-        [](bool* is_finish) { is_finish = false; });
-
-      while (std::any_of(is_finished_.begin(),
-        is_finished_.end(),
-        [](bool finish) { return !finish; }))
+      if (input_.get_current_elts() >= input_length_)
       {
-        continue;
+        std::for_each(is_finished_.begin(),
+          is_finished_.end(),
+          [](bool* is_finish) { *is_finish = false; });
+
+        while (std::any_of(is_finished_.begin(),
+          is_finished_.end(),
+          [](bool finish) { return !finish; }))
+        {
+          continue;
+        }
+        step_forward();
+
+        input_.dequeue();
+
+        if (refresh_requested_)
+          refresh();
       }
-      step_forward();
     }
   }
 
@@ -113,17 +121,20 @@ namespace holovibes
 
     Module* module = nullptr;
 
-    module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * compute_desc_.nsamples);
+    module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
 
     // TODO: ERIC: Module add worker
     module->add_worker(std::bind(
       make_contiguous_complex,
       std::ref(input_),
-      std::ref(gpu_complex_buffers_.back()),
+      gpu_complex_buffers_[0],
       compute_desc_.nsamples.load(),
       gpu_sqrt_vector_,
-      std::ref(streams_.back())
+      streams_.back()
       ));
+
+    modules_.push_back(module);
+    module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
     // make_contiguous_complex
     // gen fft1_lens
     // fft_1
@@ -145,14 +156,21 @@ namespace holovibes
   void Pipeline::step_forward()
   {
     if (gpu_float_buffers_.size() > 1)
+    {
       std::rotate(gpu_float_buffers_.begin(),
-      gpu_float_buffers_.begin() + 1,
-      gpu_float_buffers_.end());
+        gpu_float_buffers_.begin() + 1,
+        gpu_float_buffers_.end());
+    }
 
     if (gpu_complex_buffers_.size() > 1)
+    {
+      std::swap(gpu_complex_buffers_.begin(), gpu_complex_buffers_.begin() + 1);
+    }
+      /*
       std::rotate(gpu_complex_buffers_.begin(),
       gpu_complex_buffers_.begin() + 1,
       gpu_complex_buffers_.end());
+      */
   }
 
   void Pipeline::record_float()

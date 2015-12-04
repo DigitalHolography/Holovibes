@@ -29,6 +29,10 @@ namespace holovibes
     {
       while (!stop_requested_ && *finish_)
         continue;
+
+      for (FnType& w : workers_) w();
+
+      *finish_ = true;
     }
   }
 }
