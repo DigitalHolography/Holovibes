@@ -9,7 +9,7 @@ namespace holovibes
     Queue& output,
     ComputeDescriptor& desc)
     : ICompute(input, output, desc)
-    , is_finished_{ nullptr }
+    , is_finished_ { nullptr }
   {
     // TODO : Initialize modules by binding resources to std::functions.
     //        Allocate is_finished_ and set every value to false.
@@ -42,6 +42,7 @@ namespace holovibes
 
   void Pipeline::update_n_parameter(unsigned short n)
   {
+    ICompute::update_n_parameter(n);
     // TODO
   }
 
@@ -52,7 +53,12 @@ namespace holovibes
 
   void Pipeline::step_forward()
   {
-    // TODO
+    std::rotate(gpu_float_buffers_.begin(),
+      gpu_float_buffers_.begin() + 1,
+      gpu_float_buffers_.end());
+    std::rotate(gpu_complex_buffers_.begin(),
+      gpu_complex_buffers_.begin() + 1,
+      gpu_complex_buffers_.end());
   }
 
   void Pipeline::record_float()
