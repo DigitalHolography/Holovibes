@@ -531,10 +531,12 @@ namespace holovibes
     {
       if (input_.get_current_elts() >= input_length_)
       {
-        for (FnVector::const_iterator cit = fn_vect_.cbegin();
-          cit != fn_vect_.cend();
-          ++cit)
-          (*cit)();
+        std::for_each(fn_vect_.cbegin(),
+          fn_vect_.cend(),
+          [](const std::function<void()>& fn)
+        {
+          fn();
+        });
 
         if (!float_output_requested_)
         {
