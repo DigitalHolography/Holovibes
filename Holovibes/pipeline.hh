@@ -47,15 +47,15 @@ namespace holovibes
     std::vector<cudaStream_t>   streams_;
 
     //!< Working sets of 'nsamples' frames of complex data.
-    std::list<float*>         gpu_float_buffers_;
+    std::list<float*>           gpu_float_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of float data.
-    std::list<cufftComplex*>  gpu_complex_buffers_;
+    std::list<cufftComplex*>    gpu_complex_buffers_;
     // A single frame containing 16-bit pixel values, used for display.
-    unsigned short            *gpu_short_buffer_;
+    unsigned short              *gpu_short_buffer_;
 
     /*! A table the same size as modules_.size(). Each Module indicates here wether
      * its current task is done or not, so the Pipeline can manage everyone. */
-    std::vector<bool*>           is_finished_;
+    std::list<bool*>            is_finished_;
     bool                        stop_threads_;
   };
 }
