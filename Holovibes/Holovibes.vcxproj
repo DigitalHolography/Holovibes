@@ -224,6 +224,7 @@
     </CustomBuild>
     <ClInclude Include="thread_reader.hh" />
     <ClInclude Include="tools.cuh" />
+    <ClInclude Include="tools.hh" />
     <ClInclude Include="tools_conversion.cuh" />
     <ClInclude Include="tools_divide.cuh" />
     <ClInclude Include="tools_multiply.cuh" />
@@ -315,6 +316,7 @@
     <ClCompile Include="thread_csv_record.cc" />
     <ClCompile Include="thread_reader.cc" />
     <ClCompile Include="thread_recorder.cc" />
+    <ClCompile Include="tools.cc" />
     <CudaCompile Include="autofocus.cu" />
     <CudaCompile Include="average.cu" />
     <CudaCompile Include="contrast_correction.cu" />

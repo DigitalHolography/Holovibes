@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "tools.hh"
 
 #include "pipeline.hh"
 
@@ -22,7 +23,6 @@ namespace holovibes
   {
     // TODO : Initialize modules by binding resources to std::functions.
     //        Allocate is_finished_ and set every value to false.
-    /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_short_buffer_,
       sizeof(unsigned short)* input_.get_pixels());
     refresh();
@@ -30,39 +30,17 @@ namespace holovibes
 
   Pipeline::~Pipeline()
   {
-    /* gpu_output_buffer */
     stop_pipeline();
     cudaFree(gpu_short_buffer_);
   }
 
   void Pipeline::stop_pipeline()
   {
-    // TODO: ERIC: euh, il faudrait pas stopper les threads avant ?
-
-    std::for_each(modules_.begin(),
-      modules_.end(),
-      [](Module* module) { delete module; });
-    modules_.clear();
-
-    std::for_each(streams_.begin(),
-      streams_.end(),
-      [](cudaStream_t& stream) { cudaStreamDestroy(stream); });
-    streams_.clear();
-
-    std::for_each(is_finished_.begin(),
-      is_finished_.end(),
-      [](bool* is_finish) { delete is_finish; });
-    is_finished_.clear();
-
-    std::for_each(gpu_float_buffers_.begin(),
-      gpu_float_buffers_.end(),
-      [](float* buffer) { cudaFree(buffer); });
-    gpu_float_buffers_.clear();
-
-    std::for_each(gpu_complex_buffers_.begin(),
-      gpu_complex_buffers_.end(),
-      [](cufftComplex* buffer) { cudaFree(buffer); });
-    gpu_complex_buffers_.clear();
+    delete_them(modules_);
+    delete_them(streams_);
+    delete_them(is_finished_);
+    delete_them(gpu_float_buffers_);
+    delete_them(gpu_complex_buffers_);
   }
 
   void Pipeline::exec()
@@ -84,11 +62,10 @@ namespace holovibes
 
         step_forward();
 
+        input_.dequeue();
         output_.enqueue(
           gpu_short_buffer_,
           cudaMemcpyDeviceToDevice);
-
-        input_.dequeue();
 
         if (refresh_requested_)
           refresh();
@@ -105,8 +82,7 @@ namespace holovibes
   template <class T>
   Module* Pipeline::create_module(std::list<T*>& gpu_buffers, size_t buf_size)
   {
-    Module  *module = nullptr;
-    T       *buffer = nullptr;
+    T             *buffer = nullptr;
     cudaStream_t  stream;
 
     cudaMalloc(&buffer, sizeof(T)* buf_size);
@@ -117,8 +93,7 @@ namespace holovibes
 
     is_finished_.push_back(new bool(true));
 
-    module = new Module(is_finished_.back());
-    return (module);
+    return (new Module(is_finished_.back()));
   }
 
   void Pipeline::refresh()
@@ -130,7 +105,6 @@ namespace holovibes
     Module* module = nullptr;
     Module *moduleTmp = nullptr;
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-    const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
     module = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
     // make_contiguous_complex
@@ -159,8 +133,8 @@ namespace holovibes
       plan3d_,
       input_fd.frame_res(),
       compute_desc_.nsamples.load(),
-      streams_.back())
-      );
+      streams_.back()
+      ));
 
     modules_.push_back(module);
     moduleTmp = create_module<cufftComplex>(gpu_complex_buffers_, input_.get_pixels() * input_length_);
@@ -171,24 +145,25 @@ namespace holovibes
     module = create_module<float>(gpu_float_buffers_, input_.get_pixels());
     // float_to_ushort
 
-    module->add_worker(std::bind(std::bind(
+    module->add_worker(std::bind(
       float_to_ushort,
       std::ref(gpu_float_buffers_.back()),
       gpu_short_buffer_,
       input_fd.frame_res(),
-      streams_.back())));
+      streams_.back()
+      ));
 
     modules_.push_back(module);
 
     module = create_module<float>(gpu_float_buffers_, input_.get_pixels());
     modules_.push_back(module);
 
-    moduleTmp->add_worker(std::bind(std::bind(
+    moduleTmp->add_worker(std::bind(
       complex_to_modulus,
       std::ref(gpu_complex_buffers_.back()),
       std::ref(gpu_float_buffers_.back()),
       input_fd.frame_res(),
-      streams_.back())
+      streams_.back()
       ));
   }
 
