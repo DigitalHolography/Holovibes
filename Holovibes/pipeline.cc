@@ -31,9 +31,7 @@ namespace holovibes
   Pipeline::~Pipeline()
   {
     /* gpu_output_buffer */
-    cudaFree(gpu_short_buffer_);
     stop_pipeline();
-
     cudaFree(gpu_short_buffer_);
   }
 
