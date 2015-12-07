@@ -1,10 +1,10 @@
 
 #pragma once
 
-template<typename Container>
-void delete_them(Container& c) {
+template<typename Container, typename Functor>
+void delete_them(Container& c, const Functor& f) {
   std::for_each(c.begin(),
     c.end(),
-    [](Container::value_type module) { delete module; });
+    f);
   c.clear();
 }

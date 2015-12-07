@@ -36,11 +36,11 @@ namespace holovibes
 
   void Pipeline::stop_pipeline()
   {
-    delete_them(modules_);
-    delete_them(streams_);
-    delete_them(is_finished_);
-    delete_them(gpu_float_buffers_);
-    delete_them(gpu_complex_buffers_);
+    delete_them(modules_, [](Module* module) { delete module; });
+    delete_them(streams_, [](cudaStream_t& stream) { cudaStreamDestroy(stream); });
+    delete_them(is_finished_, [](bool* is_finish) { delete is_finish; });
+    delete_them(gpu_float_buffers_, [](float* buffer) { cudaFree(buffer); });
+    delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
   }
 
   void Pipeline::exec()
