@@ -21,10 +21,11 @@ namespace holovibes
     ComputeDescriptor& desc)
     : ICompute(input, output, desc)
   {
-    // TODO : Initialize modules by binding resources to std::functions.
-    //        Allocate is_finished_ and set every value to false.
+    /* The 16-bit buffer is allocated (and deallocated) separately,
+     as no Module is associated directly to it. */
     cudaMalloc<unsigned short>(&gpu_short_buffer_,
       sizeof(unsigned short)* input_.get_pixels());
+
     refresh();
   }
 
@@ -49,6 +50,7 @@ namespace holovibes
     {
       if (input_.get_current_elts() >= compute_desc_.nsamples.load())
       {
+        // Say to each Module that there is work to be done.
         std::for_each(is_finished_.begin(),
           is_finished_.end(),
           [](bool* is_finish) { *is_finish = false; });
@@ -60,6 +62,7 @@ namespace holovibes
           continue;
         }
 
+        // Now that everyone is finished, rotate datasets as seen by the Modules.
         step_forward();
 
         input_.dequeue();
@@ -71,12 +74,6 @@ namespace holovibes
           refresh();
       }
     }
-  }
-
-  void Pipeline::update_n_parameter(unsigned short n)
-  {
-    ICompute::update_n_parameter(n);
-    // TODO
   }
 
   template <class T>
