@@ -59,19 +59,12 @@ namespace holovibes
   private:
     //!< All Modules regrouping all tasks to be carried out, in order.
     std::vector<Module*>        modules_;
-    /*! Each Module needs to be bound to a stream at initialization.
-    * Hence, the stream cannot be stored in the Module class. */
-    std::vector<cudaStream_t>   streams_;
 
     //!< Working sets of 'nsamples' frames of complex data.
-    std::list<float*>           gpu_float_buffers_;
+    std::vector<float*>         gpu_float_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of float data.
-    std::list<cufftComplex*>    gpu_complex_buffers_;
+    std::vector<cufftComplex*>  gpu_complex_buffers_;
     //!< A single frame containing 16-bit pixel values, used for display.
     unsigned short              *gpu_short_buffer_;
-
-    /*! A table the same size as modules_.size(). Each Module indicates here wether
-     * its current task is done or not, so the Pipeline can manage everyone. */
-    std::list<bool*>            is_finished_;
   };
 }

@@ -4,11 +4,12 @@
 
 namespace holovibes
 {
-  Module::Module(bool *finish)
-    : finish_(finish)
+  Module::Module()
+    : task_done_(true)
     , stop_requested_(false)
     , thread_(&Module::thread_proc, this)
   {
+    cudaStreamCreate(&stream_);
   }
 
   Module::~Module()
@@ -29,12 +30,12 @@ namespace holovibes
   {
     while (!stop_requested_)
     {
-      while (!stop_requested_ && *finish_)
+      while (!stop_requested_ && task_done_)
         continue;
 
       for (FnType& w : workers_) w();
 
-      *finish_ = true;
+      task_done_ = true;
     }
   }
 }

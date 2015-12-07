@@ -1,6 +1,7 @@
 #pragma once
 
 # include <thread>
+# include <cuda_runtime.h>
 
 # include "pipeline_utils.hh"
 
@@ -17,7 +18,7 @@ namespace holovibes
   public:
     /*! Initialize a module with no tasks, and the address
      to a boolean value managing its activity. */
-    Module(bool *finish);
+    Module();
 
     //!< Join the thread before exiting.
     ~Module();
@@ -28,9 +29,12 @@ namespace holovibes
     //!< The function used by the created thread.
     void  thread_proc();
 
+  public:
+    //!< Boolean managing activity/waiting.
+    bool          task_done_;
+    //!< Each Modules need stream given to their worker
+    cudaStream_t  stream_;
   private:
-    //!< Pointer to the boolean managing activity/waiting.
-    bool*       finish_;
     //!< Set to true by the Module to stop and join its thread, when asked to stop.
     bool        stop_requested_;
     //!< All tasks are carried out sequentially, in growing index order.
