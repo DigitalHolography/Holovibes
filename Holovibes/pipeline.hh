@@ -13,6 +13,17 @@
 
 namespace holovibes
 {
+  /*! The Pipeline is a parallel computing model,
+   * grouping tasks in parallel modules.
+   *
+   * Whereas the Pipe executes sequentially its operations
+   * at each iteration, the Pipeline handles a set of Modules,
+   * each containing some defined tasks. The Pipeline orders the
+   * Modules to work synchronously on independent data sets,
+   * moving at each iteration the target data set of each Module.
+   * This model allows for enhanced performances but consumes vast
+   * amounts of memory on the GPU; its usage is limited to calculations
+   * on small block sizes (nsamples). */
   class Pipeline : public ICompute
   {
   public:
@@ -21,41 +32,46 @@ namespace holovibes
       Queue& output,
       ComputeDescriptor& desc);
 
+    //!< Stop the Modules and free all resources.
     virtual ~Pipeline();
 
+    //!< Stop Modules, clear them, and free resources.
     void stop_pipeline();
 
+    //!< The computing loop.
     virtual void exec() override;
 
-  protected:
-    virtual void update_n_parameter(unsigned short n) override;
-
+  private:
+    //!< Clear the contents of the Pipeline and fetch new computations to use.
     virtual void refresh() override;
 
     virtual void record_float() override;
 
+    /*! Create a module, allocate its data set, and create its CUDA stream.
+     * \param gpu_buffers The container in which the data set.
+     * \param buf_size The number of elements of type T to allocate. */
     template <class T>
     Module* create_module(std::list<T*>& gpu_buffers, size_t buf_size);
-  private:
+
+    //!< For each Module, advance the dataset being worked on.
     void step_forward();
 
   private:
     //!< All Modules regrouping all tasks to be carried out, in order.
     std::vector<Module*>        modules_;
     /*! Each Module needs to be bound to a stream at initialization.
-     * Hence, the stream cannot be stored in the Module class. */
+    * Hence, the stream cannot be stored in the Module class. */
     std::vector<cudaStream_t>   streams_;
 
     //!< Working sets of 'nsamples' frames of complex data.
     std::list<float*>           gpu_float_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of float data.
     std::list<cufftComplex*>    gpu_complex_buffers_;
-    // A single frame containing 16-bit pixel values, used for display.
+    //!< A single frame containing 16-bit pixel values, used for display.
     unsigned short              *gpu_short_buffer_;
 
     /*! A table the same size as modules_.size(). Each Module indicates here wether
      * its current task is done or not, so the Pipeline can manage everyone. */
     std::list<bool*>            is_finished_;
-    bool                        stop_threads_;
   };
 }

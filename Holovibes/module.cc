@@ -5,9 +5,11 @@
 namespace holovibes
 {
   Module::Module(bool *finish)
-    : finish_(finish), stop_requested_(false)
+    : finish_(finish)
+    , stop_requested_(false)
     , thread_(&Module::thread_proc, this)
-  {}
+  {
+  }
 
   Module::~Module()
   {
