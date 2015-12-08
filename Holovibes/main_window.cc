@@ -22,7 +22,7 @@ namespace gui
     , CSV_record_thread_(nullptr)
     , file_index_(1)
     , gpib_interface_(nullptr)
-    , q_max_size_(20)
+    , q_max_size_(100)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
