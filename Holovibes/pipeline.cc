@@ -89,7 +89,8 @@ namespace holovibes
   {
     cufftComplex                  *gpu_complex_buffer = nullptr;
     float                         *gpu_float_buffer = nullptr;
-    const camera::FrameDescriptor &input_fd = input_.get_frame_desc();
+    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+    const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
     refresh_requested_ = false;
     stop_pipeline();
@@ -132,7 +133,7 @@ namespace holovibes
       make_contiguous_complex,
       std::ref(input_),
       std::ref(gpu_complex_buffers_[0]),
-      compute_desc_.nsamples.load(),
+      input_length_,
       gpu_sqrt_vector_,
       modules_[0]->stream_
       ));
@@ -156,8 +157,140 @@ namespace holovibes
         compute_desc_.nsamples.load(),
         modules_[0]->stream_
         ));
-    }
 
+      if (compute_desc_.vibrometry_enabled)
+      {
+        /*
+        // q frame pointer
+        cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+
+        fn_vect_.push_back(std::bind(
+        frame_ratio,
+        gpu_input_frame_ptr_,
+        q,
+        gpu_input_frame_ptr_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+        */
+      }
+    }
+    else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+    {
+      fft2_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance);
+
+      if (compute_desc_.vibrometry_enabled)
+      {
+        /*
+        fn_vect_.push_back(std::bind(
+          fft_2,
+          gpu_input_buffer_,
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.vibrometry_q.load(),
+          static_cast<cudaStream_t>(0)));
+
+        // q frame pointer
+        cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
+
+        fn_vect_.push_back(std::bind(
+          frame_ratio,
+          gpu_input_frame_ptr_,
+          q,
+          gpu_input_frame_ptr_,
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
+        */
+      }
+      else
+      {
+        modules_[0]->add_worker(std::bind(
+          fft_2,
+          std::ref(gpu_complex_buffers_[0]),
+          gpu_lens_,
+          plan3d_,
+          plan2d_,
+          input_fd.frame_res(),
+          compute_desc_.nsamples.load(),
+          compute_desc_.pindex.load(),
+          compute_desc_.pindex.load(),
+          modules_[0]->stream_
+          ));
+      }
+    }
+    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    {
+      // Initialize FFT1 lens.
+      fft1_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance);
+
+      curr_elt_stft_ = 0;
+      // Add STFT.
+      modules_[0]->add_worker(std::bind(
+        stft,
+        std::ref(gpu_complex_buffers_[0]),
+        gpu_lens_,
+        gpu_stft_buffer_,
+        gpu_stft_dup_buffer_,
+        plan2d_,
+        plan1d_,
+        compute_desc_.stft_roi_zone.load(),
+        curr_elt_stft_,
+        input_fd,
+        compute_desc_.nsamples.load(),
+        modules_[0]->stream_
+        ));
+
+      modules_[0]->add_worker(std::bind(
+        stft_recontruct,
+        std::ref(gpu_complex_buffers_[0]),
+        gpu_stft_dup_buffer_,
+        compute_desc_.stft_roi_zone.load(),
+        input_fd,
+        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+        compute_desc_.pindex.load(),
+        compute_desc_.nsamples.load(),
+        modules_[0]->stream_
+        ));
+
+      gpu_pindex_buffers_ = gpu_complex_buffers_;
+
+      if (average_requested_)
+      {
+        /*
+        if (compute_desc_.stft_roi_zone.load().area())
+          modules_[1]->add_worker(std::bind(
+          &Pipe::average_stft_caller,
+          this,
+          gpu_stft_dup_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.stft_roi_zone.load().get_width(),
+          compute_desc_.stft_roi_zone.load().get_height(),
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load(),
+          compute_desc_.nsamples.load()));
+          */
+        average_requested_ = false;
+      }
+    }
+    else
+      assert(!"Impossible case.");
+
+    /* Apply conversion to unsigned short. */
+    if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+    {
     modules_[1]->add_worker(std::bind(
       complex_to_modulus,
       std::ref(gpu_pindex_buffers_[1]),
@@ -165,14 +298,131 @@ namespace holovibes
       input_fd.frame_res(),
       modules_[1]->stream_
       ));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+    {
+      modules_[1]->add_worker(std::bind(
+        complex_to_squared_modulus,
+        std::ref(gpu_pindex_buffers_[1]),
+        std::ref(gpu_float_buffers_[0]),
+        input_fd.frame_res(),
+        modules_[1]->stream_
+        ));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+    {
+      modules_[1]->add_worker(std::bind(
+        complex_to_argument,
+        std::ref(gpu_pindex_buffers_[1]),
+        std::ref(gpu_float_buffers_[0]),
+        input_fd.frame_res(),
+        modules_[1]->stream_
+        ));
+    }
+    else
+      assert(!"Impossible case.");
 
-    modules_[2]->add_worker(std::bind(
-      float_to_ushort,
-      std::ref(gpu_float_buffers_[1]),
-      gpu_short_buffer_,
-      input_fd.frame_res(),
-      modules_[2]->stream_
-      ));
+    /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
+
+    if (compute_desc_.shift_corners_enabled)
+    {
+      modules_[2]->add_worker(std::bind(
+        shift_corners,
+        std::ref(gpu_float_buffers_[1]),
+        output_fd.width,
+        output_fd.height,
+        modules_[2]->stream_
+        ));
+    }
+
+    if (average_requested_)
+    {
+      /*
+      if (average_record_requested_)
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipe::average_record_caller,
+          this,
+          gpu_float_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load()));
+
+        average_record_requested_ = false;
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          &Pipe::average_caller,
+          this,
+          gpu_float_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load()));
+      }
+      */
+      average_requested_ = false;
+    }
+
+    if (compute_desc_.log_scale_enabled)
+    {
+      modules_[2]->add_worker(std::bind(
+        apply_log10,
+        std::ref(gpu_float_buffers_[1]),
+        input_fd.frame_res(),
+        modules_[2]->stream_
+        ));
+    }
+
+    if (autocontrast_requested_)
+    {
+      /*
+      modules_[2]->add_worker(std::bind(
+        autocontrast_caller,
+        std::ref(gpu_float_buffers_[1]),
+        input_fd.frame_res(),
+        std::ref(compute_desc_),
+        modules_[2]->stream_
+        ));
+
+      request_refresh();
+      */
+      autocontrast_requested_ = false;
+    }
+
+    if (compute_desc_.contrast_enabled)
+    {
+      modules_[2]->add_worker(std::bind(
+        manual_contrast_correction,
+        std::ref(gpu_float_buffers_[1]),
+        input_fd.frame_res(),
+        65535,
+        compute_desc_.contrast_min.load(),
+        compute_desc_.contrast_max.load(),
+        modules_[2]->stream_
+        ));
+    }
+
+    if (!float_output_requested_)
+    {
+      modules_[2]->add_worker(std::bind(
+        float_to_ushort,
+        std::ref(gpu_float_buffers_[1]),
+        gpu_short_buffer_,
+        input_fd.frame_res(),
+        modules_[2]->stream_
+        ));
+    }
+    else
+    {
+      /*
+      modules_[2]->add_worker(std::bind(
+        &Pipe::record_float,
+        this));
+        */
+    }
   }
 
   void Pipeline::step_forward()

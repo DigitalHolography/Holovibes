@@ -348,7 +348,8 @@ namespace holovibes
         autocontrast_caller,
         gpu_float_buffer_,
         input_fd.frame_res(),
-        std::ref(compute_desc_)));
+        std::ref(compute_desc_),
+        static_cast<cudaStream_t>(0)));
 
       autocontrast_requested_ = false;
       request_refresh();

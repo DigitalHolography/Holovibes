@@ -109,7 +109,8 @@ namespace holovibes
     static void autocontrast_caller(
       float* input,
       const unsigned int size,
-      ComputeDescriptor& compute_desc);
+      ComputeDescriptor& compute_desc,
+      cudaStream_t stream);
 
     /*! \see request_average
     * \brief Call the average algorithm and store the result in the vector.
