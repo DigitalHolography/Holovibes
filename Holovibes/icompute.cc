@@ -161,27 +161,31 @@ namespace holovibes
       cufftDestroy(plan1d_) ? ++err_count : 0;
       plan1d_ = 0;
     }
-    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
-      cufftPlan1d(
-      &plan1d_,
-      n,
-      CUFFT_C2C,
-      compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
-      ) ? ++err_count : 0;
-
     /* gpu_stft_buffer */
     if (gpu_stft_buffer_)
       cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
     gpu_stft_buffer_ = nullptr;
-    cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
-
     /* gpu_stft_buffer */
     if (gpu_stft_dup_buffer_)
       cudaFree(gpu_stft_dup_buffer_) ? ++err_count : 0;
     gpu_stft_dup_buffer_ = nullptr;
-    cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-      sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    {
+      cufftPlan1d(
+        &plan1d_,
+        n,
+        CUFFT_C2C,
+        compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
+        ) ? ++err_count : 0;
+
+      /* gpu_stft_buffer */
+      cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+        sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+
+      /* gpu_stft_buffer */
+      cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
+        sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+    }
     if (err_count)
     {
       abort_construct_requested_ = true;
