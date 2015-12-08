@@ -38,8 +38,9 @@ namespace holovibes
   void Pipeline::stop_pipeline()
   {
     delete_them(modules_, [](Module* module) { delete module; });
-    delete_them(gpu_float_buffers_, [](float* buffer) { cudaFree(buffer); });
     delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
+    delete_them(gpu_float_buffers_, [](float* buffer) { cudaFree(buffer); });
+    gpu_pindex_buffers_.clear();
   }
 
   void Pipeline::exec()
@@ -118,6 +119,9 @@ namespace holovibes
     cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
     gpu_float_buffers_.push_back(gpu_float_buffer);
 
+    std::for_each(gpu_complex_buffers_.begin(),
+      gpu_complex_buffers_.end(),
+      [&](cufftComplex* buf) { gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_fd.frame_res()); });
 
     if (autofocus_requested_)
     {
@@ -156,7 +160,7 @@ namespace holovibes
 
     modules_[1]->add_worker(std::bind(
       complex_to_modulus,
-      std::ref(gpu_complex_buffers_[1]),
+      std::ref(gpu_pindex_buffers_[1]),
       std::ref(gpu_float_buffers_[0]),
       input_fd.frame_res(),
       modules_[1]->stream_
@@ -173,6 +177,13 @@ namespace holovibes
 
   void Pipeline::step_forward()
   {
+    if (gpu_complex_buffers_.size() > 1)
+    {
+      std::rotate(gpu_complex_buffers_.begin(),
+        gpu_complex_buffers_.begin() + 1,
+        gpu_complex_buffers_.end());
+    }
+
     if (gpu_float_buffers_.size() > 1)
     {
       std::rotate(gpu_float_buffers_.begin(),
@@ -180,11 +191,11 @@ namespace holovibes
         gpu_float_buffers_.end());
     }
 
-    if (gpu_complex_buffers_.size() > 1)
+    if (gpu_pindex_buffers_.size() > 1)
     {
-      std::rotate(gpu_complex_buffers_.begin(),
-        gpu_complex_buffers_.begin() + 1,
-        gpu_complex_buffers_.end());
+      std::rotate(gpu_pindex_buffers_.begin(),
+        gpu_pindex_buffers_.begin() + 1,
+        gpu_pindex_buffers_.end());
     }
   }
 
