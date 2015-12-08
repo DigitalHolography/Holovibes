@@ -89,6 +89,8 @@ namespace holovibes
     cufftComplex                  *gpu_complex_buffer = nullptr;
     float                         *gpu_float_buffer = nullptr;
     const camera::FrameDescriptor &input_fd = input_.get_frame_desc();
+
+    refresh_requested_ = false;
     stop_pipeline();
 
     if (update_n_requested_)
@@ -98,11 +100,9 @@ namespace holovibes
     }
 
     if (abort_construct_requested_)
-      return;
-
-    if (autofocus_requested_)
     {
-      // Lol
+      std::cout << "[PIPELINE] abort_construct_requested" << std::endl;
+      return;
     }
 
     modules_.push_back(new Module()); // C1
@@ -117,6 +117,12 @@ namespace holovibes
     gpu_float_buffers_.push_back(gpu_float_buffer);
     cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
     gpu_float_buffers_.push_back(gpu_float_buffer);
+
+
+    if (autofocus_requested_)
+    {
+      // LOL ...
+    }
 
     modules_[0]->add_worker(std::bind(
       make_contiguous_complex,

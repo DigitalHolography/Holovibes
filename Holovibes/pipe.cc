@@ -81,6 +81,7 @@ namespace holovibes
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
+    refresh_requested_ = false;
     /* Clean current vector. */
     fn_vect_.clear();
 
