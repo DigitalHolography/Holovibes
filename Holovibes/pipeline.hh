@@ -45,8 +45,6 @@ namespace holovibes
     //!< Clear the contents of the Pipeline and fetch new computations to use.
     virtual void refresh() override;
 
-    virtual void record_float() override;
-
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
 

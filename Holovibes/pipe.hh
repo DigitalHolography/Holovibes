@@ -68,7 +68,6 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec();
 
-    virtual void record_float();
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
 

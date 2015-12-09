@@ -314,6 +314,24 @@ namespace holovibes
     compute_desc.notify_observers();
   }
 
+  void ICompute::record_float(float *input_buffer)
+  {
+    if (float_output_nb_frame_-- > 0)
+    {
+      const unsigned int size = input_.get_pixels() * sizeof(float);
+      // TODO: can be improve
+      char *buf = new char[size];
+
+      cudaMemcpy(buf, input_buffer, size, cudaMemcpyDeviceToHost);
+      float_output_file_.write(buf, size);
+
+      // TODO: can be improve
+      delete[] buf;
+    }
+    else
+      request_float_output_stop();
+  }
+
   void ICompute::average_caller(
     float* input,
     const unsigned int width,

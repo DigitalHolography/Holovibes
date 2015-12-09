@@ -419,24 +419,22 @@ namespace holovibes
         ));
     }
 
-    if (!float_output_requested_)
+    if (float_output_requested_)
     {
       modules_[2]->push_back_worker(std::bind(
-        float_to_ushort,
-        std::ref(gpu_float_buffers_[1]),
-        gpu_short_buffer_,
-        input_fd.frame_res(),
-        modules_[2]->stream_
+        &Pipeline::record_float,
+        this,
+        std::ref(gpu_float_buffers_[1])
         ));
     }
-    else
-    {
-      /*
-      modules_[2]->push_back_worker(std::bind(
-      &Pipe::record_float,
-      this));
-      */
-    }
+
+    modules_[2]->push_back_worker(std::bind(
+      float_to_ushort,
+      std::ref(gpu_float_buffers_[1]),
+      gpu_short_buffer_,
+      input_fd.frame_res(),
+      modules_[2]->stream_
+      ));
   }
 
   void Pipeline::step_forward()
@@ -462,10 +460,5 @@ namespace holovibes
         gpu_float_buffers_.begin() + 1,
         gpu_float_buffers_.end());
     }
-  }
-
-  void Pipeline::record_float()
-  {
-    // TODO
   }
 }

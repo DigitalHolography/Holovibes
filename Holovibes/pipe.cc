@@ -370,21 +370,20 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
     }
 
-    if (!float_output_requested_)
-    {
-      fn_vect_.push_back(std::bind(
-        float_to_ushort,
-        gpu_float_buffer_,
-        gpu_output_buffer_,
-        input_fd.frame_res(),
-        static_cast<cudaStream_t>(0)));
-    }
-    else
+    if (float_output_requested_)
     {
       fn_vect_.push_back(std::bind(
         &Pipe::record_float,
-        this));
+        this,
+        gpu_float_buffer_));
     }
+
+    fn_vect_.push_back(std::bind(
+      float_to_ushort,
+      gpu_float_buffer_,
+      gpu_output_buffer_,
+      input_fd.frame_res(),
+      static_cast<cudaStream_t>(0)));
   }
 
   void Pipe::exec()
@@ -395,36 +394,15 @@ namespace holovibes
       {
         for (FnType& f : fn_vect_) f();
 
-        if (!float_output_requested_)
-        {
-          output_.enqueue(
-            gpu_output_buffer_,
-            cudaMemcpyDeviceToDevice);
-        }
+        output_.enqueue(
+          gpu_output_buffer_,
+          cudaMemcpyDeviceToDevice);
         input_.dequeue();
 
         if (refresh_requested_)
           refresh();
       }
     }
-  }
-
-  void Pipe::record_float()
-  {
-    if (float_output_nb_frame_-- > 0)
-    {
-      const unsigned int size = input_.get_pixels() * sizeof(float);
-      // can be improve
-      char *buf = new char[size];
-
-      cudaMemcpy(buf, gpu_float_buffer_, size, cudaMemcpyDeviceToHost);
-      float_output_file_.write(buf, size);
-
-      // can be improve
-      delete[] buf;
-    }
-    else
-      request_float_output_stop();
   }
 
   void Pipe::autofocus_caller()

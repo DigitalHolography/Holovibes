@@ -175,7 +175,7 @@ namespace holovibes
     virtual void refresh() = 0;
 
     /*! \brief Record one frame in gpu_float_buf_ to file_. */
-    virtual void record_float() = 0;
+    virtual void record_float(float *input_buffer);
 
     /*! \{ \name Disable copy/assignments. */
     ICompute& operator=(const ICompute&) = delete;
