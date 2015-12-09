@@ -129,7 +129,7 @@ namespace holovibes
       // LOL ...
     }
 
-    modules_[0]->add_worker(std::bind(
+    modules_[0]->push_back_worker(std::bind(
       make_contiguous_complex,
       std::ref(input_),
       std::ref(gpu_complex_buffers_[0]),
@@ -148,14 +148,14 @@ namespace holovibes
         compute_desc_.zdistance);
 
       // Add FFT1.
-      modules_[0]->add_worker(std::bind(
+      modules_[1]->push_back_worker(std::bind(
         fft_1,
-        std::ref(gpu_complex_buffers_[0]),
+        std::ref(gpu_complex_buffers_[1]),
         gpu_lens_,
         plan3d_,
         input_fd.frame_res(),
         compute_desc_.nsamples.load(),
-        modules_[0]->stream_
+        modules_[1]->stream_
         ));
 
       if (compute_desc_.vibrometry_enabled)
@@ -186,34 +186,34 @@ namespace holovibes
       {
         /*
         fn_vect_.push_back(std::bind(
-          fft_2,
-          gpu_input_buffer_,
-          gpu_lens_,
-          plan3d_,
-          plan2d_,
-          input_fd.frame_res(),
-          compute_desc_.nsamples.load(),
-          compute_desc_.pindex.load(),
-          compute_desc_.vibrometry_q.load(),
-          static_cast<cudaStream_t>(0)));
+        fft_2,
+        gpu_input_buffer_,
+        gpu_lens_,
+        plan3d_,
+        plan2d_,
+        input_fd.frame_res(),
+        compute_desc_.nsamples.load(),
+        compute_desc_.pindex.load(),
+        compute_desc_.vibrometry_q.load(),
+        static_cast<cudaStream_t>(0)));
 
         // q frame pointer
         cufftComplex* q = gpu_input_buffer_ + compute_desc_.vibrometry_q * input_fd.frame_res();
 
         fn_vect_.push_back(std::bind(
-          frame_ratio,
-          gpu_input_frame_ptr_,
-          q,
-          gpu_input_frame_ptr_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
+        frame_ratio,
+        gpu_input_frame_ptr_,
+        q,
+        gpu_input_frame_ptr_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
         */
       }
       else
       {
-        modules_[0]->add_worker(std::bind(
+        modules_[1]->push_back_worker(std::bind(
           fft_2,
-          std::ref(gpu_complex_buffers_[0]),
+          std::ref(gpu_complex_buffers_[1]),
           gpu_lens_,
           plan3d_,
           plan2d_,
@@ -221,7 +221,7 @@ namespace holovibes
           compute_desc_.nsamples.load(),
           compute_desc_.pindex.load(),
           compute_desc_.pindex.load(),
-          modules_[0]->stream_
+          modules_[1]->stream_
           ));
       }
     }
@@ -236,9 +236,9 @@ namespace holovibes
 
       curr_elt_stft_ = 0;
       // Add STFT.
-      modules_[0]->add_worker(std::bind(
+      modules_[1]->push_back_worker(std::bind(
         stft,
-        std::ref(gpu_complex_buffers_[0]),
+        std::ref(gpu_complex_buffers_[1]),
         gpu_lens_,
         gpu_stft_buffer_,
         gpu_stft_dup_buffer_,
@@ -248,12 +248,12 @@ namespace holovibes
         curr_elt_stft_,
         input_fd,
         compute_desc_.nsamples.load(),
-        modules_[0]->stream_
+        modules_[1]->stream_
         ));
 
-      modules_[0]->add_worker(std::bind(
+      modules_[1]->push_back_worker(std::bind(
         stft_recontruct,
-        std::ref(gpu_complex_buffers_[0]),
+        std::ref(gpu_complex_buffers_[1]),
         gpu_stft_dup_buffer_,
         compute_desc_.stft_roi_zone.load(),
         input_fd,
@@ -261,7 +261,7 @@ namespace holovibes
         (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
         compute_desc_.pindex.load(),
         compute_desc_.nsamples.load(),
-        modules_[0]->stream_
+        modules_[1]->stream_
         ));
 
       gpu_pindex_buffers_ = gpu_complex_buffers_;
@@ -270,18 +270,18 @@ namespace holovibes
       {
         /*
         if (compute_desc_.stft_roi_zone.load().area())
-          modules_[1]->add_worker(std::bind(
-          &Pipe::average_stft_caller,
-          this,
-          gpu_stft_dup_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.stft_roi_zone.load().get_width(),
-          compute_desc_.stft_roi_zone.load().get_height(),
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          compute_desc_.nsamples.load()));
-          */
+        modules_[1]->push_back_worker(std::bind(
+        &Pipe::average_stft_caller,
+        this,
+        gpu_stft_dup_buffer_,
+        input_fd.width,
+        input_fd.height,
+        compute_desc_.stft_roi_zone.load().get_width(),
+        compute_desc_.stft_roi_zone.load().get_height(),
+        compute_desc_.signal_zone.load(),
+        compute_desc_.noise_zone.load(),
+        compute_desc_.nsamples.load()));
+        */
         average_requested_ = false;
       }
     }
@@ -291,32 +291,32 @@ namespace holovibes
     /* Apply conversion to unsigned short. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {
-    modules_[1]->add_worker(std::bind(
-      complex_to_modulus,
-      std::ref(gpu_pindex_buffers_[1]),
-      std::ref(gpu_float_buffers_[0]),
-      input_fd.frame_res(),
-      modules_[1]->stream_
-      ));
+      modules_[0]->push_front_worker(std::bind(
+        complex_to_modulus,
+        std::ref(gpu_pindex_buffers_[0]),
+        std::ref(gpu_float_buffers_[0]),
+        input_fd.frame_res(),
+        modules_[0]->stream_
+        ));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
     {
-      modules_[1]->add_worker(std::bind(
+      modules_[0]->push_front_worker(std::bind(
         complex_to_squared_modulus,
-        std::ref(gpu_pindex_buffers_[1]),
+        std::ref(gpu_pindex_buffers_[0]),
         std::ref(gpu_float_buffers_[0]),
         input_fd.frame_res(),
-        modules_[1]->stream_
+        modules_[0]->stream_
         ));
     }
     else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
     {
-      modules_[1]->add_worker(std::bind(
+      modules_[0]->push_front_worker(std::bind(
         complex_to_argument,
-        std::ref(gpu_pindex_buffers_[1]),
+        std::ref(gpu_pindex_buffers_[0]),
         std::ref(gpu_float_buffers_[0]),
         input_fd.frame_res(),
-        modules_[1]->stream_
+        modules_[0]->stream_
         ));
     }
     else
@@ -326,7 +326,7 @@ namespace holovibes
 
     if (compute_desc_.shift_corners_enabled)
     {
-      modules_[2]->add_worker(std::bind(
+      modules_[2]->push_back_worker(std::bind(
         shift_corners,
         std::ref(gpu_float_buffers_[1]),
         output_fd.width,
@@ -340,27 +340,27 @@ namespace holovibes
       /*
       if (average_record_requested_)
       {
-        fn_vect_.push_back(std::bind(
-          &Pipe::average_record_caller,
-          this,
-          gpu_float_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load()));
+      fn_vect_.push_back(std::bind(
+      &Pipe::average_record_caller,
+      this,
+      gpu_float_buffer_,
+      input_fd.width,
+      input_fd.height,
+      compute_desc_.signal_zone.load(),
+      compute_desc_.noise_zone.load()));
 
-        average_record_requested_ = false;
+      average_record_requested_ = false;
       }
       else
       {
-        fn_vect_.push_back(std::bind(
-          &Pipe::average_caller,
-          this,
-          gpu_float_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load()));
+      fn_vect_.push_back(std::bind(
+      &Pipe::average_caller,
+      this,
+      gpu_float_buffer_,
+      input_fd.width,
+      input_fd.height,
+      compute_desc_.signal_zone.load(),
+      compute_desc_.noise_zone.load()));
       }
       */
       average_requested_ = false;
@@ -368,7 +368,7 @@ namespace holovibes
 
     if (compute_desc_.log_scale_enabled)
     {
-      modules_[2]->add_worker(std::bind(
+      modules_[2]->push_back_worker(std::bind(
         apply_log10,
         std::ref(gpu_float_buffers_[1]),
         input_fd.frame_res(),
@@ -379,13 +379,13 @@ namespace holovibes
     if (autocontrast_requested_)
     {
       /*
-      modules_[2]->add_worker(std::bind(
-        autocontrast_caller,
-        std::ref(gpu_float_buffers_[1]),
-        input_fd.frame_res(),
-        std::ref(compute_desc_),
-        modules_[2]->stream_
-        ));
+      modules_[2]->push_back_worker(std::bind(
+      autocontrast_caller,
+      std::ref(gpu_float_buffers_[1]),
+      input_fd.frame_res(),
+      std::ref(compute_desc_),
+      modules_[2]->stream_
+      ));
 
       request_refresh();
       */
@@ -394,7 +394,7 @@ namespace holovibes
 
     if (compute_desc_.contrast_enabled)
     {
-      modules_[2]->add_worker(std::bind(
+      modules_[2]->push_back_worker(std::bind(
         manual_contrast_correction,
         std::ref(gpu_float_buffers_[1]),
         input_fd.frame_res(),
@@ -407,7 +407,7 @@ namespace holovibes
 
     if (!float_output_requested_)
     {
-      modules_[2]->add_worker(std::bind(
+      modules_[2]->push_back_worker(std::bind(
         float_to_ushort,
         std::ref(gpu_float_buffers_[1]),
         gpu_short_buffer_,
@@ -418,10 +418,10 @@ namespace holovibes
     else
     {
       /*
-      modules_[2]->add_worker(std::bind(
-        &Pipe::record_float,
-        this));
-        */
+      modules_[2]->push_back_worker(std::bind(
+      &Pipe::record_float,
+      this));
+      */
     }
   }
 

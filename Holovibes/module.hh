@@ -23,8 +23,10 @@ namespace holovibes
     //!< Join the thread before exiting.
     ~Module();
 
-    //!< Add an extra task to carry at each iteration.
-    void  add_worker(FnType worker);
+    //!< Add an extra task after other to carry at each iteration.
+    void  push_back_worker(FnType worker);
+    //!< Add an extra task before other task to carry at each iteration.
+    void  push_front_worker(FnType worker);
 
     //!< The function used by the created thread.
     void  thread_proc();
@@ -38,7 +40,7 @@ namespace holovibes
     //!< Set to true by the Module to stop and join its thread, when asked to stop.
     bool        stop_requested_;
     //!< All tasks are carried out sequentially, in growing index order.
-    FnVector    workers_;
+    FnDeque     workers_;
     std::thread thread_;
   };
 }

@@ -21,9 +21,14 @@ namespace holovibes
     thread_.join();
   }
 
-  void  Module::add_worker(FnType worker)
+  void  Module::push_back_worker(FnType worker)
   {
     workers_.push_back(worker);
+  }
+
+  void  Module::push_front_worker(FnType worker)
+  {
+    workers_.push_front(worker);
   }
 
   void  Module::thread_proc()
