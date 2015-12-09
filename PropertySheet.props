@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
-    <QTDIR>C:\Qt\Qt5.4.0\5.4\msvc2013_64_opengl</QTDIR>
+    <QTDIR>C:\Qt\Qt5.5.0\5.5\msvc2013_64</QTDIR>
     <SolutionLibDir>$(SolutionDir)lib</SolutionLibDir>
     <QWTDIR>C:\qwt-6.1.2</QWTDIR>
   </PropertyGroup>
