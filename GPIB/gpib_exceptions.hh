@@ -22,7 +22,7 @@ namespace gpib
   {
   public:
     GpibInvalidPath(const std::string& path)
-      : path_ { path }
+      : path_ ( path )
     {
     }
 
@@ -65,7 +65,7 @@ namespace gpib
     };
 
     GpibParseError(const std::string& line, const ErrorType type)
-      : line_ { line }
+      : line_(line)
     , type_ { type }
     {
     }
@@ -111,7 +111,7 @@ namespace gpib
   {
   public:
     GpibInstrError(const std::string& address)
-      : address_ { address }
+      : address_ ( address )
     {
     }
 
