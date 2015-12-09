@@ -71,6 +71,8 @@ namespace holovibes
     std::vector<cufftComplex*>  gpu_complex_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of complex data.
     std::vector<cufftComplex*>  gpu_pindex_buffers_;
+    //!< Working sets of a single frame (the q'th Fourier component) of complex data.
+    std::vector<cufftComplex*>  gpu_vibro_buffers_;
     //!< Working sets of a single frame (the p'th Fourier component) of float data.
     std::vector<float*>         gpu_float_buffers_;
     //!< A single frame containing 16-bit pixel values, used for display.
