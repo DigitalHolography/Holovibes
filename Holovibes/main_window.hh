@@ -223,9 +223,6 @@ namespace gui
     /*! \brief Dispose average/ROI computations */
     void dispose_average_graphic();
 
-    /*! \brief Dispose average/ROI computations */
-    void dispose_average_graphic();
-
     /*! \brief Browse average/ROI zone file for load/save */
     void browse_roi_file();
     /*! \brief Save ROI zone to file */
