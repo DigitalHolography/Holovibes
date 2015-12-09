@@ -124,7 +124,8 @@ namespace holovibes
       const unsigned int width,
       const unsigned int height,
       const Rectangle& signal,
-      const Rectangle& noise);
+      const Rectangle& noise,
+      cudaStream_t stream);
 
     /*! \see request_average_record
     * \brief Call the average algorithm, store the result and count n
@@ -139,7 +140,8 @@ namespace holovibes
       const unsigned int width,
       const unsigned int height,
       const Rectangle& signal,
-      const Rectangle& noise);
+      const Rectangle& noise,
+      cudaStream_t stream);
 
     /*! \see request_average
     * \brief For nsamples in input, reconstruct image,
@@ -157,7 +159,8 @@ namespace holovibes
       const unsigned int height_roi,
       Rectangle& signal_zone,
       Rectangle& noise_zone,
-      const unsigned int nsamples);
+      const unsigned int nsamples,
+      cudaStream_t stream);
 
     /*! \see request_autofocus
     * \brief Autofocus caller looks like the ICompute refresh method.

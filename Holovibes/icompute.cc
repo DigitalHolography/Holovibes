@@ -319,9 +319,10 @@ namespace holovibes
     const unsigned int width,
     const unsigned int height,
     const Rectangle& signal,
-    const Rectangle& noise)
+    const Rectangle& noise,
+    cudaStream_t stream)
   {
-    average_output_->push_back(make_average_plot(input, width, height, signal, noise));
+    average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
   }
 
   void ICompute::average_record_caller(
@@ -329,11 +330,12 @@ namespace holovibes
     const unsigned int width,
     const unsigned int height,
     const Rectangle& signal,
-    const Rectangle& noise)
+    const Rectangle& noise,
+    cudaStream_t stream)
   {
     if (average_n_ > 0)
     {
-      average_output_->push_back(make_average_plot(input, width, height, signal, noise));
+      average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
       average_n_--;
     }
     else
@@ -352,7 +354,8 @@ namespace holovibes
     const unsigned int height_roi,
     Rectangle& signal_zone,
     Rectangle& noise_zone,
-    const unsigned int nsamples)
+    const unsigned int nsamples,
+    cudaStream_t stream)
   {
     cufftComplex*   cbuf;
     float*          fbuf;
@@ -371,7 +374,7 @@ namespace holovibes
 
     for (unsigned i = 0; i < nsamples; ++i)
     {
-      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples));
+      (*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples, stream));
     }
 
     cudaFree(cbuf);

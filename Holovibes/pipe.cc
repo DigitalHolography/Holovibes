@@ -253,7 +253,8 @@ namespace holovibes
           compute_desc_.stft_roi_zone.load().get_height(),
           compute_desc_.signal_zone.load(),
           compute_desc_.noise_zone.load(),
-          compute_desc_.nsamples.load()));
+          compute_desc_.nsamples.load(),
+          static_cast<cudaStream_t>(0)));
         average_requested_ = false;
       }
     }
@@ -314,7 +315,8 @@ namespace holovibes
           input_fd.width,
           input_fd.height,
           compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load()));
+          compute_desc_.noise_zone.load(),
+          static_cast<cudaStream_t>(0)));
 
         average_record_requested_ = false;
       }
@@ -327,7 +329,8 @@ namespace holovibes
           input_fd.width,
           input_fd.height,
           compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load()));
+          compute_desc_.noise_zone.load(),
+          static_cast<cudaStream_t>(0)));
       }
 
       average_requested_ = false;
