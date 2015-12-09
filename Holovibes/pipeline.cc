@@ -20,6 +20,7 @@ namespace holovibes
     Queue& output,
     ComputeDescriptor& desc)
     : ICompute(input, output, desc)
+    , step_count_before_refresh_(0)
   {
     /* The 16-bit buffer is allocated (and deallocated) separately,
      as no Module is associated directly to it. */
@@ -69,8 +70,11 @@ namespace holovibes
           gpu_short_buffer_,
           cudaMemcpyDeviceToDevice);
 
-        if (refresh_requested_)
+        if (refresh_requested_
+          && (step_count_before_refresh_ == 0 || --step_count_before_refresh_ == 0))
+        {
           refresh();
+        }
       }
     }
   }
@@ -378,17 +382,16 @@ namespace holovibes
 
     if (autocontrast_requested_)
     {
-      /*
       modules_[2]->push_back_worker(std::bind(
-      autocontrast_caller,
-      std::ref(gpu_float_buffers_[1]),
-      input_fd.frame_res(),
-      std::ref(compute_desc_),
-      modules_[2]->stream_
-      ));
+        autocontrast_caller,
+        std::ref(gpu_float_buffers_[1]),
+        input_fd.frame_res(),
+        std::ref(compute_desc_),
+        modules_[2]->stream_
+        ));
 
+      step_count_before_refresh_ = modules_.size() + 1;
       request_refresh();
-      */
       autocontrast_requested_ = false;
     }
 
