@@ -65,7 +65,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>ni4882.lib;nivisa64.lib</AdditionalDependencies>
+      <AdditionalDependencies>nivisa64.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -79,8 +79,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -88,7 +88,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>ni4882.lib</AdditionalDependencies>
+      <AdditionalDependencies>nivisa64.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
