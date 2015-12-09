@@ -22,11 +22,19 @@ namespace holovibes
     : ICompute(input, output, desc)
     , step_count_before_refresh_(0)
   {
+    float                         *gpu_float_buffer = nullptr;
+
     /* The 16-bit buffer is allocated (and deallocated) separately,
      as no Module is associated directly to it. */
     cudaMalloc<unsigned short>(&gpu_short_buffer_,
       sizeof(unsigned short)* input_.get_pixels());
 
+    cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
+    gpu_float_buffers_.push_back(gpu_float_buffer);
+    cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
+    gpu_float_buffers_.push_back(gpu_float_buffer);
+
+    update_n_parameter(compute_desc_.nsamples);
     refresh();
   }
 
@@ -34,14 +42,13 @@ namespace holovibes
   {
     stop_pipeline();
     cudaFree(gpu_short_buffer_);
+    delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
+    delete_them(gpu_float_buffers_, [](float* buffer) { cudaFree(buffer); });
   }
 
   void Pipeline::stop_pipeline()
   {
     delete_them(modules_, [](Module* module) { delete module; });
-    delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
-    delete_them(gpu_float_buffers_, [](float* buffer) { cudaFree(buffer); });
-    gpu_pindex_buffers_.clear();
   }
 
   void Pipeline::exec()
@@ -89,10 +96,27 @@ namespace holovibes
     return ();
   }
 
+  void Pipeline::update_n_parameter(unsigned short n)
+  {
+    ICompute::update_n_parameter(n);
+
+    cufftComplex                  *gpu_complex_buffer = nullptr;
+
+    delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
+    cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+    gpu_complex_buffers_.push_back(gpu_complex_buffer);
+    cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+    gpu_complex_buffers_.push_back(gpu_complex_buffer);
+
+    if (gpu_pindex_buffers_.size())
+      gpu_pindex_buffers_.clear();
+    std::for_each(gpu_complex_buffers_.begin(),
+      gpu_complex_buffers_.end(),
+      [&](cufftComplex* buf) { gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_.get_frame_desc().frame_res()); });
+  }
+
   void Pipeline::refresh()
   {
-    cufftComplex                  *gpu_complex_buffer = nullptr;
-    float                         *gpu_float_buffer = nullptr;
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
@@ -114,19 +138,6 @@ namespace holovibes
     modules_.push_back(new Module()); // C1
     modules_.push_back(new Module()); // C2
     modules_.push_back(new Module()); // F1
-
-    cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-    gpu_complex_buffers_.push_back(gpu_complex_buffer);
-    cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-    gpu_complex_buffers_.push_back(gpu_complex_buffer);
-    cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
-    gpu_float_buffers_.push_back(gpu_float_buffer);
-    cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
-    gpu_float_buffers_.push_back(gpu_float_buffer);
-
-    std::for_each(gpu_complex_buffers_.begin(),
-      gpu_complex_buffers_.end(),
-      [&](cufftComplex* buf) { gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_fd.frame_res()); });
 
     if (autofocus_requested_)
     {

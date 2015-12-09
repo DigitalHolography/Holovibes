@@ -47,6 +47,9 @@ namespace holovibes
 
     virtual void record_float() override;
 
+    /*! \brief Realloc all buffer with the new nsamples and update ICompute */
+    virtual void update_n_parameter(unsigned short n);
+
     /*! Create a module, allocate its data set, and create its CUDA stream.
      * \param gpu_buffers The container in which the data set.
      * \param buf_size The number of elements of type T to allocate. */
