@@ -5,8 +5,8 @@
 
 __global__ void kernel_complex_divide(
   cufftComplex* image,
-  unsigned int size,
-  float divider)
+  const unsigned int size,
+  const float divider)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size)
@@ -19,8 +19,8 @@ __global__ void kernel_complex_divide(
 
 __global__ void kernel_float_divide(
   float* input,
-  unsigned int size,
-  float divider)
+  const unsigned int size,
+  const float divider)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size)

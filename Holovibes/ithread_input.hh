@@ -1,16 +1,21 @@
-
-#ifndef ITHREAD_INPUT_HH
-#define ITHREAD_INPUT_HH
+#pragma once
 
 namespace holovibes
 {
-	class IThreadInput
-	{
-	protected:
-		IThreadInput();
-	public:
-		virtual ~IThreadInput();
-		bool stop_requested_;
-	};
+  /*! \brief Interface between ThreadCapture and ThreadReader
+   *
+   * Both adds frame to queue
+   */
+  class IThreadInput
+  {
+  public:
+    virtual ~IThreadInput();
+
+  public:
+    /*! \brief Stop thread and join it */
+    bool stop_requested_;
+
+  protected:
+    IThreadInput();
+  };
 }
-#endif

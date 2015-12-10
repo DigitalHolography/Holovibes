@@ -1,19 +1,16 @@
-#include "camera_xiq.hh"
 #include <utils.hh>
 #include <camera_exception.hh>
 
+#include "camera_xiq.hh"
+
 namespace camera
 {
-  ICamera* new_camera_device()
-  {
-    return new CameraXiq();
-  }
-
   CameraXiq::CameraXiq()
     : Camera("xiq.ini")
     , device_(nullptr)
   {
     name_ = "xiq";
+
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
@@ -58,65 +55,73 @@ namespace camera
     if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
       log_msg_("Could not get frame.");
 
-#if 0
-    printf("[FRAME][NEW] %dx%d - %u\n",
-      frame_.width,
-      frame_.height,
-      frame_.nframe);
-#endif
-
     return frame_.bp;
   }
 
   void CameraXiq::load_default_params()
   {
-    exposure_time_ = 0.005f;
-    /* Custom parameters. */
-    gain_ = 0.f;
-    downsampling_rate_ = 1;
-    downsampling_type_ = XI_BINNING;
-    img_format_ = XI_RAW8;
-    buffer_policy_ = XI_BP_SAFE;
-    roi_x_ = 0;
-    roi_y_ = 0;
-    roi_width_ = 2048;
-    roi_height_ = 2048;
-
     /* Fill the frame descriptor. */
     desc_.width = 2048;
     desc_.height = 2048;
     desc_.pixel_size = 5.5f;
     desc_.depth = 1;
     desc_.endianness = BIG_ENDIAN;
+
+    /* Custom parameters. */
+    gain_ = 0.f;
+
+    downsampling_rate_ = 1;
+    downsampling_type_ = XI_BINNING;
+
+    img_format_ = XI_RAW8;
+
+    buffer_policy_ = XI_BP_SAFE;
+
+    roi_x_ = 0;
+    roi_y_ = 0;
+    roi_width_ = 2048;
+    roi_height_ = 2048;
+
+    exposure_time_ = 0.005f;
   }
 
   void CameraXiq::load_ini_params()
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    /* Use the default value in case of fail. */
-    exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
     gain_ = pt.get<float>("xiq.gain", gain_);
+
     downsampling_rate_ = pt.get<int>("xiq.downsampling_rate", downsampling_rate_);
-    /* Updating frame size, taking account downsampling. */
+    // Updating frame size, taking account downsampling.
     desc_.width = desc_.width / downsampling_rate_;
     desc_.height = desc_.height / downsampling_rate_;
 
     std::string str;
-
     str = pt.get<std::string>("xiq.downsampling_type", "");
     if (str == "BINNING")
       downsampling_type_ = XI_BINNING;
     else if (str == "SKIPPING")
       downsampling_type_ = XI_SKIPPING;
 
-    /* Making sure ROI settings are valid. */
-    {
-      int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
-      int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
-      int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
-      int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
+    str = pt.get<std::string>("xiq.format", "");
+    if (str == "MONO8")
+      img_format_ = XI_MONO8;
+    else if (str == "MONO16")
+      img_format_ = XI_MONO16;
+    else if (str == "RAW8")
+      img_format_ = XI_RAW8;
+    else if (str == "RAW16")
+      img_format_ = XI_RAW16;
 
+    {
+      const int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
+      const int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
+      const int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
+      const int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
+
+      /* Making sure ROI settings are valid.
+       * Keep in mind that ROI area can't be larger than the
+       * initial frame's area (after downsampling!). */
       if (tmp_roi_width > 0 &&
         tmp_roi_height > 0 &&
         tmp_roi_x < desc_.width &&
@@ -137,17 +142,9 @@ namespace camera
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
     }
 
-    str = pt.get<std::string>("xiq.format", "");
-    if (str == "MONO8")
-      img_format_ = XI_MONO8;
-    else if (str == "MONO16")
-      img_format_ = XI_MONO16;
-    else if (str == "RAW8")
-      img_format_ = XI_RAW8;
-    else if (str == "RAW16")
-      img_format_ = XI_RAW16;
-
     trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);
+
+    exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
   }
 
   void CameraXiq::bind_params()
@@ -183,5 +180,10 @@ namespace camera
       desc_.depth = 2;
 
     name_ = std::string(name);
+  }
+
+  ICamera* new_camera_device()
+  {
+    return new CameraXiq();
   }
 }

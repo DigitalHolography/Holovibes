@@ -1,5 +1,6 @@
 # Holovibes v1.2.0 #
 
+
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
 ## User dependencies ##
@@ -31,6 +32,10 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 ### AdvancedInstaller ###
 
 * [AdvancedInstaller for Visual Studio](http://www.advancedinstaller.com/download.html)
+
+### VISA ###
+
+* [VISA Drivers](https://www.ni.com/visa/)
 
 ## Typical Usage ##
 
@@ -295,6 +300,11 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 
 * Adimec Quartz A2750 camera is now supported
 * Stft can be applied to the image (instead of fft1/fft2)
+
+### v.1.3.0
+
+* GPIB is now working with VISA, handling several instructions per blocks
+* Minor changes
 
 
 # Known problems :

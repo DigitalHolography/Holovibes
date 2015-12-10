@@ -1,13 +1,9 @@
-#include "camera_ids.hh"
 #include <camera_exception.hh>
+
+#include "camera_ids.hh"
 
 namespace camera
 {
-  ICamera* new_camera_device()
-  {
-    return new CameraIds();
-  }
-
   void CameraIds::init_camera()
   {
     int cameras_nb = 0;
@@ -151,14 +147,14 @@ namespace camera
       throw CameraException(CameraException::CANT_SET_CONFIG);
   }
 
-  int CameraIds::format_gain()
+  int CameraIds::format_gain() const
   {
     if (gain_ < 0 || gain_ > 100)
       return 0;
     return gain_;
   }
 
-  int CameraIds::get_subsampling_mode(std::string ui)
+  int CameraIds::get_subsampling_mode(const std::string ui) const
   {
     if (ui == "2x2")
       return IS_SUBSAMPLING_2X_VERTICAL | IS_SUBSAMPLING_2X_HORIZONTAL;
@@ -178,7 +174,7 @@ namespace camera
       return IS_SUBSAMPLING_DISABLE;
   }
 
-  int CameraIds::get_binning_mode(std::string ui)
+  int CameraIds::get_binning_mode(const std::string ui) const
   {
     if (ui == "2x2")
       return IS_BINNING_2X_VERTICAL | IS_BINNING_2X_HORIZONTAL;
@@ -198,7 +194,7 @@ namespace camera
       return IS_BINNING_DISABLE;
   }
 
-  int CameraIds::get_color_mode(std::string ui)
+  int CameraIds::get_color_mode(const std::string ui)
   {
     desc_.depth = 1;
     if (ui == "RAW8")
@@ -224,7 +220,7 @@ namespace camera
     return IS_CM_SENSOR_RAW8;
   }
 
-  int CameraIds::get_trigger_mode(std::string ui)
+  int CameraIds::get_trigger_mode(const std::string ui) const
   {
     if (ui == "Software")
       return IS_SET_TRIGGER_SOFTWARE;
@@ -234,5 +230,10 @@ namespace camera
       return IS_SET_TRIGGER_LO_HI;
     else
       return IS_SET_TRIGGER_OFF;
+  }
+
+  ICamera* new_camera_device()
+  {
+    return new CameraIds();
   }
 }

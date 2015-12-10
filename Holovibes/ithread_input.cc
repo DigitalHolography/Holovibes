@@ -2,12 +2,12 @@
 
 namespace holovibes
 {
-	IThreadInput::IThreadInput()
-		: stop_requested_(false)
-	{
-	}
+  IThreadInput::IThreadInput()
+    : stop_requested_(false)
+  {
+  }
 
-	IThreadInput::~IThreadInput()
-	{
-	}
+  IThreadInput::~IThreadInput()
+  {
+  }
 }

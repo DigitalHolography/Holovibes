@@ -1,10 +1,8 @@
-#include "camera_pco.hh"
-#include <utils.hh>
-#include <camera_exception.hh>
 #include <boost/lexical_cast.hpp>
 
-#include <PCO_err.h>
-#include <PCO_errt.h>
+#include <camera_exception.hh>
+#include <utils.hh>
+#include "camera_pco.hh"
 
 #define PCO_RECSTATE_RUN 0x0001
 #define PCO_RECSTATE_STOP 0x0000
@@ -36,7 +34,6 @@ namespace camera
       buffers_[i] = nullptr;
     }
 
-    // Load functions from CameraUtils.dll
     load_utils();
   }
 
@@ -83,17 +80,14 @@ namespace camera
       throw CameraException(CameraException::NOT_CONNECTED);
     }
 
-    bind_params();
-
     if (status != PCO_NOERROR)
       throw CameraException(CameraException::NOT_INITIALIZED);
+
+    bind_params();
   }
 
   void CameraPCO::start_acquisition()
   {
-    // DEBUG
-    log_msg_("I am a very useful message!");
-
     int status = PCO_NOERROR;
 
     /* Note : The SDK recommands the following setting order
@@ -105,12 +99,10 @@ namespace camera
     if (status != PCO_NOERROR)
       log_msg_("Could not arm camera.");
 
-    /* Retrieve frame resolution. */
     status = get_sensor_sizes();
     if (status != PCO_NOERROR)
       log_msg_("Could not get sensor width and height.");
 
-    /* Buffer memory allocation. */
     status = allocate_buffers();
     if (status != PCO_NOERROR)
       log_msg_("Could not allocate memory for camera buffers.");
@@ -161,14 +153,16 @@ namespace camera
 
   void* CameraPCO::get_frame()
   {
-    DWORD event_status;
-    if ((event_status = WaitForMultipleObjects(
+    DWORD event_status = WaitForMultipleObjects(
       static_cast<DWORD>(buffers_events_.size()),
       buffers_events_._Elems,
       FALSE,
-      FRAME_TIMEOUT)) < WAIT_ABANDONED_0)
+      FRAME_TIMEOUT);
+
+    if (event_status < WAIT_ABANDONED_0)
     {
       DWORD buffer_index = event_status - WAIT_OBJECT_0;
+
       PCO_AddBufferExtern(
         device_,
         buffers_events_[buffer_index],
@@ -185,6 +179,8 @@ namespace camera
 
   int CameraPCO::get_sensor_sizes()
   {
+    /* Those two are required by the API function, but we deliberately
+     ignore them afterwards. */
     WORD ccdres_x, ccdres_y;
 
     int status = PCO_GetSizes(
@@ -202,7 +198,6 @@ namespace camera
     buffer_size_ = actual_res_x_ * actual_res_y_ * sizeof(WORD);
     int status = PCO_NOERROR;
 
-    /* TODO: Error checking new operator -> try/catch. */
     try
     {
       for (unsigned int i = 0;

@@ -4,15 +4,15 @@ namespace gui
 {
   ThreadCSVRecord::ThreadCSVRecord(holovibes::Holovibes& holo,
     Deque& deque,
-    std::string path,
-    unsigned int nb_frames,
+    const std::string path,
+    const unsigned int nb_frames,
     QObject* parent)
-    : QThread(parent),
-    holo_(holo),
-    deque_(deque),
-    path_(path),
-    nb_frames_(nb_frames),
-    record_(true)
+    : QThread(parent)
+    , holo_(holo)
+    , deque_(deque)
+    , path_(path)
+    , nb_frames_(nb_frames)
+    , record_(true)
   {
   }
 
@@ -28,7 +28,7 @@ namespace gui
   void ThreadCSVRecord::run()
   {
     deque_.clear();
-    holo_.get_pipeline().request_average_record(&deque_, nb_frames_);
+    holo_.get_pipeline()->request_average_record(&deque_, nb_frames_);
 
     while (deque_.size() < nb_frames_)
       continue;
@@ -45,8 +45,8 @@ namespace gui
 
     of << "[Column 1 : signal, Column 2 : noise, Column 3 : average]" << std::endl;
 
+    const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
     unsigned int i = 0;
-    unsigned int deque_size = static_cast<unsigned int>(deque_.size());
     while (i < deque_size && record_)
     {
       std::tuple<float, float, float>& tuple = deque_[i];
@@ -57,6 +57,6 @@ namespace gui
       ++i;
     }
 
-    holo_.get_pipeline().request_refresh();
+    holo_.get_pipeline()->request_refresh();
   }
 }

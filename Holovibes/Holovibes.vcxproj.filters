@@ -116,9 +116,6 @@
     <ClCompile Include="gui_group_box.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="frame_file_loader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="pipeline.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -200,6 +197,9 @@
     <ClCompile Include="thread_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="geometry.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -251,9 +251,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_main_window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="frame_file_loader.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="observable.hh">

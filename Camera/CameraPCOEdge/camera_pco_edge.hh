@@ -1,5 +1,4 @@
-#ifndef CAMERA_PCO_EDGE_HH
-# define CAMERA_PCO_EDGE_HH
+#pragma once
 
 # include "../CameraPCO/camera_pco.hh"
 
@@ -22,7 +21,7 @@ namespace camera
 
   private:
     /* Custom camera parameters. */
-    
+
     /*! * 0x0000: auto trigger.
      *  * 0x0001: software trigger.
      *  * 0x0002: extern exposure & software trigger.
@@ -33,7 +32,7 @@ namespace camera
     /* Number of images recorded per millisecond.
     ** Please note that in the .ini file, fps are expressed
     ** in frames per second (less awkward).
-    */ 
+    */
     DWORD framerate_;
     // Computation mode (adjusting between exposure time and fps)
     WORD framerate_mode_;
@@ -110,5 +109,3 @@ namespace camera
     PCO_Signal io_3_conf;
   };
 }
-
-#endif /* !CAMERA_PCO_EDGE_HH */

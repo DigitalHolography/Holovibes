@@ -8,16 +8,16 @@
 namespace gui
 {
   CurvePlot::CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-    QString title,
-    unsigned int width,
-    unsigned int height,
+    const QString title,
+    const unsigned int width,
+    const unsigned int height,
     QWidget* parent)
-    : QWidget(parent),
-    data_vect_(data_vect),
-    plot_(title, this),
-    curve_("First curve"),
-    points_nb_(POINTS),
-    timer_(this)
+    : QWidget(parent)
+    , data_vect_(data_vect)
+    , plot_(title, this)
+    , curve_("First curve")
+    , points_nb_(POINTS)
+    , timer_(this)
   {
     this->setMinimumSize(width, height);
     plot_.setMinimumSize(width, height);
@@ -44,7 +44,7 @@ namespace gui
     return QSize(WIDTH, HEIGHT);
   }
 
-  void CurvePlot::resize_plot(int size)
+  void CurvePlot::resize_plot(const int size)
   {
     plot_.resize(QSize::QSize(size, 0));
     points_nb_ = size;
@@ -74,24 +74,22 @@ namespace gui
 
   void CurvePlot::auto_scale()
   {
-    std::vector<std::tuple<float, float, float>> tmp = average_vector_;
+    using elt_t = std::tuple<float, float, float>;
+    std::vector<elt_t> tmp = average_vector_;
 
-    float min = FLT_MAX;
-    float max = FLT_MIN;
     float curr = 0.0f;
 
-    for (auto it = tmp.begin(); it != tmp.end(); ++it)
+    auto minmax = std::minmax_element(tmp.cbegin(),
+      tmp.cend(),
+      [](const elt_t& lhs, const elt_t& rhs)
     {
-      curr = std::get<2>(*it);
+      return std::get<2>(lhs) < std::get<2>(rhs);
+    });
 
-      if (curr < min)
-        min = curr;
-
-      if (curr > max)
-        max = curr;
-    }
-
-    plot_.setAxisScale(0, min - 1.0, max + 1.0, 2.0);
+    plot_.setAxisScale(0,
+      std::get<2>(*(minmax.first)) - 1.0,
+      std::get<2>(*(minmax.second)) + 1.0,
+      2.0);
     plot_.replot();
   }
 
@@ -106,7 +104,7 @@ namespace gui
       timer_.stop();
   }
 
-  void CurvePlot::set_points_nb(unsigned int n)
+  void CurvePlot::set_points_nb(const unsigned int n)
   {
     stop();
     points_nb_ = n;

@@ -2,14 +2,15 @@
 #include <cstdio>
 #include <iostream>
 #include <time.h>
+#include <cuda_runtime.h>
 
 #include "utils.hh"
 
 namespace camutils
 {
-  void create_logfile(std::string name)
+  void create_logfile(const std::string name)
   {
-    std::string folder = "log/";
+    std::string folder = "../log/";
     time_t date = time(nullptr);
     std::string file(folder);
 
@@ -49,7 +50,7 @@ namespace camutils
     filename = file;
   }
 
-  void log_msg(std::string msg)
+  void log_msg(const std::string msg)
   {
     logfile << msg << std::endl;
   }
@@ -63,5 +64,16 @@ namespace camutils
       logfile.close();
       remove(filename.c_str());
     }
+  }
+
+  void allocate_memory(void** buf, const std::size_t size)
+  {
+    if (cudaHostAlloc(buf, size, cudaHostAllocDefault) != cudaSuccess)
+      *buf = nullptr;
+  }
+
+  void free_memory(void* buf)
+  {
+    cudaFreeHost(buf);
   }
 }

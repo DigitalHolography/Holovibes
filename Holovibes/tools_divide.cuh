@@ -1,5 +1,5 @@
-#ifndef TOOLS_DIVIDE_CUH
-# define TOOLS_DIVIDE_CUH
+/*! \file */
+#pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
@@ -21,8 +21,8 @@
 */
 __global__ void kernel_complex_divide(
   cufftComplex* image,
-  unsigned int size,
-  float divider);
+  const unsigned int size,
+  const float divider);
 
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
@@ -34,7 +34,5 @@ __global__ void kernel_complex_divide(
 */
 __global__ void kernel_float_divide(
   float* input,
-  unsigned int size,
-  float divider);
-
-#endif /* !TOOLS_DIVIDE_CUH */
+  const unsigned int size,
+  const float divider);

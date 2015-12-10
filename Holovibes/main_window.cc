@@ -1,25 +1,28 @@
 #include "main_window.hh"
+#include "../GPIB/gpib_controller.hh"
+#include "../GPIB/gpib_exceptions.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
 namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
-    : QMainWindow(parent),
-    holovibes_(holovibes),
-    gl_window_(nullptr),
-    is_direct_mode_(true),
-    is_enabled_camera_(false),
-    is_enabled_average_(false),
-    is_batch_img_(true),
-    is_batch_interrupted_(false),
-    z_step_(0.1f),
-    camera_type_(holovibes::Holovibes::NONE),
-    plot_window_(nullptr),
-    record_thread_(nullptr),
-    CSV_record_thread_(nullptr),
-    file_index_(1),
-    q_max_size_(20)
+    : QMainWindow(parent)
+    , holovibes_(holovibes)
+    , gl_window_(nullptr)
+    , is_direct_mode_(true)
+    , is_enabled_camera_(false)
+    , is_enabled_average_(false)
+    , is_batch_img_(true)
+    , is_batch_interrupted_(false)
+    , z_step_(0.1f)
+    , camera_type_(holovibes::Holovibes::NONE)
+    , plot_window_(nullptr)
+    , record_thread_(nullptr)
+    , CSV_record_thread_(nullptr)
+    , file_index_(1)
+    , gpib_interface_(nullptr)
+    , q_max_size_(100)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -61,8 +64,6 @@ namespace gui
   {
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
-
-    delete gl_window_;
   }
 
   void MainWindow::notify()
@@ -179,8 +180,7 @@ namespace gui
 
   void MainWindow::camera_none()
   {
-    delete gl_window_;
-    gl_window_ = nullptr;
+    gl_window_.reset(nullptr);
     if (!is_direct_mode_)
       holovibes_.dispose_compute();
     holovibes_.dispose_capture();
@@ -227,7 +227,7 @@ namespace gui
       "\n"
       "Eric Delanghe\n"
       "Arnaud Gaillard\n"
-      "Geoffrey Le Gourrierec\n");
+      "Geoffrey Le Gourriérec\n");
   }
 
   void MainWindow::configure_camera()
@@ -235,7 +235,7 @@ namespace gui
     open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
   }
 
-  void MainWindow::set_image_mode(bool value)
+  void MainWindow::set_image_mode(const bool value)
   {
     if (is_enabled_camera_)
     {
@@ -251,12 +251,13 @@ namespace gui
         height = gl_window_->size().height();
       }
 
-      delete gl_window_;
+      if (gl_window_)
+        gl_window_.reset(nullptr);
 
       // If direct mode
       if (value)
       {
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue());
+        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
         is_direct_mode_ = true;
 
         global_visibility(false);
@@ -264,7 +265,7 @@ namespace gui
       else
       {
         holovibes_.init_compute();
-        gl_window_ = new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue());
+        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 
         if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
         {
@@ -286,31 +287,29 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_phase_number(int value)
+  void  MainWindow::set_phase_number(const int value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      pipeline.request_update_n(value);
+      holovibes_.get_pipeline()->request_update_n(value);
       notify();
     }
   }
 
-  void  MainWindow::set_p(int value)
+  void  MainWindow::set_p(const int value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples)
+      if (value < static_cast<int>(cd.nsamples))
       {
         // Synchronize with p_vibro
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
         p_vibro->setValue(value);
 
         cd.pindex.exchange(value);
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n");
@@ -321,14 +320,13 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.pindex < cd.nsamples)
       {
         ++(cd.pindex);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");
@@ -339,28 +337,26 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.pindex >= 0)
       {
         --(cd.pindex);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");
     }
   }
 
-  void  MainWindow::set_wavelength(double value)
+  void  MainWindow::set_wavelength(const double value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.lambda = static_cast<float>(value)* 1.0e-9f;
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
 
       // Updating the GUI
       QLineEdit* boundary = findChild<QLineEdit*>("boundary");
@@ -369,14 +365,12 @@ namespace gui
     }
   }
 
-  void  MainWindow::set_z(double value)
+  void  MainWindow::set_z(const double value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.zdistance = static_cast<float>(value);
-      pipeline.request_refresh();
+      holovibes_.get_compute_desc().zdistance = static_cast<float>(value);
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -402,18 +396,17 @@ namespace gui
     }
   }
 
-  void MainWindow::set_z_step(double value)
+  void MainWindow::set_z_step(const double value)
   {
     z_step_ = value;
     QDoubleSpinBox* z_spinbox = findChild<QDoubleSpinBox*>("zSpinBox");
     z_spinbox->setSingleStep(value);
   }
 
-  void  MainWindow::set_algorithm(QString value)
+  void  MainWindow::set_algorithm(const QString value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
       GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -438,15 +431,14 @@ namespace gui
         assert(!"Unknow Algorithm.");
 
       phaseNumberSpinBox->setValue(cd.nsamples);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
-  void MainWindow::set_view_mode(QString value)
+  void MainWindow::set_view_mode(const QString value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (value == "magnitude")
@@ -458,7 +450,7 @@ namespace gui
       else
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
@@ -467,10 +459,10 @@ namespace gui
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
 
-    float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
-    float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
-    unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
-    unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
+    const float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
+    const float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
+    const unsigned int z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
+    const unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
     if (desc.algorithm == holovibes::ComputeDescriptor::STFT)
@@ -496,29 +488,23 @@ namespace gui
   void MainWindow::request_autofocus(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
-    desc.autofocus_zone = zone;
-    pipeline.request_autofocus();
+    holovibes_.get_compute_desc().autofocus_zone = zone;
+    holovibes_.get_pipeline()->request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_stft_roi_end()
   {
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-
-    pipeline.request_stft_roi_end();
+    holovibes_.get_pipeline()->request_stft_roi_end();
   }
 
   void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
-    holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
 
-    desc.stft_roi_zone = zone;
-    pipeline.request_stft_roi_update();
+    holovibes_.get_compute_desc().stft_roi_zone = zone;
+    holovibes_.get_pipeline()->request_stft_roi_update();
     //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
@@ -526,7 +512,7 @@ namespace gui
   {
     try
     {
-      holovibes_.get_pipeline().request_autofocus_stop();
+      holovibes_.get_pipeline()->request_autofocus_stop();
     }
     catch (std::runtime_error& e)
     {
@@ -542,31 +528,25 @@ namespace gui
 
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.contrast_enabled.exchange(value);
+      holovibes_.get_compute_desc().contrast_enabled.exchange(value);
 
       set_contrast_min(contrast_min->value());
       set_contrast_max(contrast_max->value());
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
   void MainWindow::set_auto_contrast()
   {
     if (!is_direct_mode_)
-    {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      pipeline.request_autocontrast();
-    }
+      holovibes_.get_pipeline()->request_autocontrast();
   }
 
-  void MainWindow::set_contrast_min(double value)
+  void MainWindow::set_contrast_min(const double value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.contrast_enabled)
@@ -576,16 +556,15 @@ namespace gui
         else
           cd.contrast_min = pow(10, value);
 
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
     }
   }
 
-  void MainWindow::set_contrast_max(double value)
+  void MainWindow::set_contrast_max(const double value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
       if (cd.contrast_enabled)
@@ -595,16 +574,15 @@ namespace gui
         else
           cd.contrast_max = pow(10, value);
 
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
     }
   }
 
-  void MainWindow::set_log_scale(bool value)
+  void MainWindow::set_log_scale(const bool value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.log_scale_enabled.exchange(value);
 
@@ -616,69 +594,63 @@ namespace gui
         set_contrast_max(contrast_max->value());
       }
 
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
-  void MainWindow::set_shifted_corners(bool value)
+  void MainWindow::set_shifted_corners(const bool value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
-  void MainWindow::set_vibro_mode(bool value)
+  void MainWindow::set_vibro_mode(const bool value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
+      holovibes_.get_compute_desc().vibrometry_enabled.exchange(value);
       image_ratio_visible(value);
-      cd.vibrometry_enabled.exchange(value);
-      pipeline.request_refresh();
+      holovibes_.get_pipeline()->request_refresh();
     }
   }
 
-  void MainWindow::set_p_vibro(int value)
+  void MainWindow::set_p_vibro(const int value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         cd.pindex.exchange(value);
         notify();
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("p param has to be between 0 and n - 1");;
     }
   }
 
-  void MainWindow::set_q_vibro(int value)
+  void MainWindow::set_q_vibro(const int value)
   {
     if (!is_direct_mode_)
     {
-      holovibes::Pipeline& pipeline = holovibes_.get_pipeline();
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
-        pipeline.request_refresh();
+        holovibes_.get_pipeline()->request_refresh();
       }
       else
         display_error("q param has to be between 0 and phase #");
     }
   }
 
-  void MainWindow::set_average_mode(bool value)
+  void MainWindow::set_average_mode(const bool value)
   {
     GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     if (value)
@@ -693,9 +665,16 @@ namespace gui
 
   void MainWindow::set_average_graphic()
   {
-    delete plot_window_;
-    holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
-    plot_window_ = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+    PlotWindow* plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+
+    connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
+    holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
+    plot_window_.reset(plot_window);
+  }
+
+  void MainWindow::dispose_average_graphic()
+  {
+    plot_window_.reset(nullptr);
   }
 
   void MainWindow::browse_roi_file()
@@ -750,7 +729,7 @@ namespace gui
   void MainWindow::load_roi()
   {
     QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
-    std::string path = path_line_edit->text().toUtf8();
+    const std::string path = path_line_edit->text().toUtf8();
     boost::property_tree::ptree ptree;
     GLWidget& gl_widget = gl_window_->get_gl_widget();
 
@@ -812,12 +791,14 @@ namespace gui
     {
       if (float_output_checkbox->isChecked() && !is_direct_mode_)
       {
-        holovibes_.get_pipeline().request_float_output(path, nb_of_frames);
+        std::shared_ptr<holovibes::Pipeline> pipeline = holovibes_.get_pipeline();
+
+        pipeline->request_float_output(path, nb_of_frames);
 
         global_visibility(true);
         record_but_cancel_visible(true);
 
-        while (holovibes_.get_pipeline().is_requested_float_output())
+        while (pipeline->is_requested_float_output())
           std::this_thread::yield();
         display_info("Record done");
       }
@@ -825,22 +806,22 @@ namespace gui
       {
         if (is_direct_mode_)
         {
-          record_thread_ = new ThreadRecorder(
+          record_thread_.reset(new ThreadRecorder(
             holovibes_.get_capture_queue(),
             path,
             nb_of_frames,
-            this);
+            this));
         }
         else
         {
-          record_thread_ = new ThreadRecorder(
+          record_thread_.reset(new ThreadRecorder(
             holovibes_.get_output_queue(),
             path,
             nb_of_frames,
-            this);
+            this));
         }
 
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(finished_image_record()));
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
         record_thread_->start();
 
         QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
@@ -857,8 +838,7 @@ namespace gui
 
   void MainWindow::finished_image_record()
   {
-    delete record_thread_;
-    record_thread_ = nullptr;
+    record_thread_.reset(nullptr);
     display_info("Record done");
     if (!is_direct_mode_)
       global_visibility(true);
@@ -870,9 +850,8 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      delete plot_window_;
-      plot_window_ = nullptr;
-      holovibes_.get_pipeline().request_refresh();
+      plot_window_.reset(nullptr);
+      holovibes_.get_pipeline()->request_refresh();
     }
 
     QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -880,12 +859,12 @@ namespace gui
     QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     std::string output_path = output_line_edit->text().toUtf8();
 
-    CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
+    CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
       holovibes_.get_average_queue(),
       output_path,
       nb_frames_,
-      this);
-    connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(finished_average_record()));
+      this));
+    connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
     CSV_record_thread_->start();
 
     global_visibility(false);
@@ -897,8 +876,7 @@ namespace gui
 
   void MainWindow::finished_average_record()
   {
-    delete CSV_record_thread_;
-    CSV_record_thread_ = nullptr;
+    CSV_record_thread_.reset(nullptr);
     display_info("ROI record done");
 
     global_visibility(true);
@@ -932,9 +910,8 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      delete plot_window_;
-      plot_window_ = nullptr;
-      holovibes_.get_pipeline().request_refresh();
+      plot_window_.reset(nullptr);
+      holovibes_.get_pipeline()->request_refresh();
     }
 
     QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
@@ -951,20 +928,25 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
-    std::string input_path = batch_input_line_edit->text().toUtf8();
-    unsigned int frame_nb = frame_nb_spin_box->value();
+    // Getting the path to the input batch file, and the number of frames to record.
+    const std::string input_path = batch_input_line_edit->text().toUtf8();
+    const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    int status = load_batch_file(input_path.c_str());
-    std::string formatted_path = format_batch_output(path, file_index_);
+    //const int status = load_batch_file(input_path.c_str());
 
-    if (status != 0)
-      display_error("Couldn't load batch input file.");
-    else if (path == "")
-      display_error("Please provide an output file path.");
-    else if (stat(formatted_path.c_str(), &buff) == 0)
-      display_error("File: " + path + " already exists.");
-    else
+    try
     {
+      gpib_interface_.reset(new gpib::VisaInterface(input_path));
+      const std::string formatted_path = format_batch_output(path, file_index_);
+
+      /*! All checks are performed by the GPIB module, except for this one,
+       * because only Holovibes should known the filename format. */
+      if (stat(formatted_path.c_str(), &buff) == 0)
+      {
+        display_error("File: " + path + " already exists.");
+        return;
+      }
+
       global_visibility(false);
       camera_visible(false);
 
@@ -975,95 +957,154 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      execute_next_block();
-
-      if (is_batch_img_)
+      if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
       {
-        record_thread_ = new ThreadRecorder(*q, formatted_path, frame_nb, this);
-        connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-        record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
-      else
+      else // There was only one block, so no need to record any further.
       {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          formatted_path,
-          frame_nb,
-          this);
-        connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-        CSV_record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
 
       ++file_index_;
+    }
+    catch (const gpib::GpibBadAlloc& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibSetupError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibNoFilepath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibInvalidPath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibParseError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
   }
 
   void MainWindow::batch_next_record()
   {
-    if (!is_batch_interrupted_)
+    if (is_batch_interrupted_)
     {
-      delete record_thread_;
+      batch_finished_record();
+      return;
+    }
 
-      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-      std::string path;
+    disconnect(SIGNAL(finished()), this);
+    record_thread_.reset(nullptr);
 
-      if (is_batch_img_)
-        path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    std::string path;
+
+    if (is_batch_img_)
+      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    else
+      path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+
+    holovibes::Queue* q;
+    if (is_direct_mode_)
+      q = &holovibes_.get_capture_queue();
+    else
+      q = &holovibes_.get_output_queue();
+
+    std::string output_filename = format_batch_output(path, file_index_);
+    const unsigned int frame_nb = frame_nb_spin_box->value();
+    if (is_batch_img_)
+    {
+      record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
       else
-        path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
-      unsigned int frame_nb = frame_nb_spin_box->value();
-
-      holovibes::Queue* q;
-
-      if (is_direct_mode_)
-        q = &holovibes_.get_capture_queue();
-      else
-        q = &holovibes_.get_output_queue();
-
-      std::string output_filename = format_batch_output(path, file_index_);
-
-      if (is_batch_img_)
-      {
-        record_thread_ = new ThreadRecorder(*q, output_filename, frame_nb, this);
-
-        if (execute_next_block())
-          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        record_thread_->start();
-      }
-      else
-      {
-        CSV_record_thread_ = new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          output_filename,
-          frame_nb,
-          this);
-
-        if (execute_next_block())
-          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(CSV_record_thread_, SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        CSV_record_thread_->start();
-      }
-
-      file_index_++;
+      record_thread_->start();
     }
     else
     {
-      batch_finished_record();
+      CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+        holovibes_.get_average_queue(),
+        output_filename,
+        frame_nb,
+        this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+      else
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+
+      CSV_record_thread_->start();
     }
+
+    ++file_index_;
   }
 
   void MainWindow::batch_finished_record()
   {
-    delete record_thread_;
-    record_thread_ = nullptr;
-    delete CSV_record_thread_;
-    CSV_record_thread_ = nullptr;
+    disconnect(SIGNAL(finished()), this);
+    record_thread_.reset(nullptr);
+    CSV_record_thread_.reset(nullptr);
+    gpib_interface_.reset(nullptr);
+
     file_index_ = 1;
     global_visibility(true);
     camera_visible(true);
@@ -1072,7 +1113,7 @@ namespace gui
     if (plot_window_)
     {
       plot_window_->stop_drawing();
-      holovibes_.get_pipeline().request_average(&holovibes_.get_average_queue());
+      holovibes_.get_pipeline()->request_average(&holovibes_.get_average_queue());
       plot_window_->start_drawing();
     }
   }
@@ -1139,8 +1180,7 @@ namespace gui
     camera_visible(false);
     record_visible(false);
     global_visibility(false);
-    delete gl_window_;
-    gl_window_ = nullptr;
+    gl_window_.reset(nullptr);
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
     holovibes_.init_import_mode(
@@ -1186,7 +1226,7 @@ namespace gui
       plot_window_->close();
   }
 
-  void MainWindow::global_visibility(bool value)
+  void MainWindow::global_visibility(const bool value)
   {
     GroupBox* view = findChild<GroupBox*>("View");
     view->setDisabled(!value);
@@ -1240,7 +1280,7 @@ namespace gui
     boundary->setDisabled(!value);
   }
 
-  void MainWindow::camera_visible(bool value)
+  void MainWindow::camera_visible(const bool value)
   {
     is_enabled_camera_ = value;
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
@@ -1249,7 +1289,7 @@ namespace gui
     settings->setDisabled(!value);
   }
 
-  void MainWindow::contrast_visible(bool value)
+  void MainWindow::contrast_visible(const bool value)
   {
     QLabel* min_label = findChild<QLabel*>("minLabel");
     QLabel* max_label = findChild<QLabel*>("maxLabel");
@@ -1262,13 +1302,13 @@ namespace gui
     contrast_max->setDisabled(!value);
   }
 
-  void MainWindow::record_visible(bool value)
+  void MainWindow::record_visible(const bool value)
   {
     gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("Record");
     image_rendering->setDisabled(!value);
   }
 
-  void MainWindow::record_but_cancel_visible(bool value)
+  void MainWindow::record_but_cancel_visible(const bool value)
   {
     QLabel* nb_of_frames_label = findChild<QLabel*>("numberOfFramesLabel");
     nb_of_frames_label->setDisabled(!value);
@@ -1284,7 +1324,7 @@ namespace gui
     record_button->setDisabled(!value);
   }
 
-  void MainWindow::image_ratio_visible(bool value)
+  void MainWindow::image_ratio_visible(const bool value)
   {
     QLabel* p_label_vibro = findChild<QLabel*>("pLabelVibro");
     p_label_vibro->setDisabled(!value);
@@ -1296,7 +1336,7 @@ namespace gui
     q_vibro->setDisabled(!value);
   }
 
-  void MainWindow::average_visible(bool value)
+  void MainWindow::average_visible(const bool value)
   {
     QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
     roi_file_label->setDisabled(!value);
@@ -1310,7 +1350,7 @@ namespace gui
     load_roi_button->setDisabled(!value);
   }
 
-  void MainWindow::average_record_but_cancel_visible(bool value)
+  void MainWindow::average_record_but_cancel_visible(const bool value)
   {
     QLabel* roi_output_file_label = findChild<QLabel*>("ROIOutputFileLabel");
     roi_output_file_label->setDisabled(!value);
@@ -1322,7 +1362,7 @@ namespace gui
     roi_push_button->setDisabled(!value);
   }
 
-  void MainWindow::change_camera(holovibes::Holovibes::camera_type camera_type)
+  void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
     if (camera_type != holovibes::Holovibes::NONE)
     {
@@ -1331,8 +1371,7 @@ namespace gui
         camera_visible(false);
         record_visible(false);
         global_visibility(false);
-        delete gl_window_;
-        gl_window_ = nullptr;
+        gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
         holovibes_.init_capture(camera_type, q_max_size_);
@@ -1361,7 +1400,7 @@ namespace gui
     }
   }
 
-  void MainWindow::display_error(std::string msg)
+  void MainWindow::display_error(const std::string msg)
   {
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
@@ -1369,7 +1408,7 @@ namespace gui
     msg_box.exec();
   }
 
-  void MainWindow::display_info(std::string msg)
+  void MainWindow::display_info(const std::string msg)
   {
     QMessageBox msg_box;
     msg_box.setText(QString::fromUtf8(msg.c_str()));
@@ -1385,11 +1424,11 @@ namespace gui
   void MainWindow::load_ini(const std::string& path)
   {
     boost::property_tree::ptree ptree;
-    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
     try
     {
@@ -1408,68 +1447,61 @@ namespace gui
       q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
 
       // Camera type
-      int camera_type = ptree.get<int>("image_rendering.camera", 0);
+      const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-      camera::FRAME_TIMEOUT = frame_timeout;
+      camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-      unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
-      cd.nsamples = phase_number;
+      cd.nsamples = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
 
-      unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
+      const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex.exchange(p_index);
 
-      float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
-      cd.lambda = lambda;
+      cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
-      float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
-      cd.zdistance = z_distance;
+      cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
 
-      float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
+      const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
       if (z_step > 0.0f)
         z_step_ = z_step;
 
-      int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
-      cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
+      cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
+        ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
       // View
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-      int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
-      cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
+      cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
+        ptree.get<int>("view.view_mode", cd.view_mode));
 
-      bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
-      cd.log_scale_enabled.exchange(log_scale_enabled);
+      cd.log_scale_enabled.exchange(
+        ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled));
 
-      bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
-      cd.shift_corners_enabled.exchange(shift_corners_enabled);
+      cd.shift_corners_enabled.exchange(
+        ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled));
 
-      bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
-      cd.contrast_enabled.exchange(contrast_enabled);
+      cd.contrast_enabled.exchange(
+        ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled));
 
-      float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
-      cd.contrast_min = contrast_min;
+      cd.contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
 
-      float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
-      cd.contrast_max = contrast_max;
+      cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
       // Special
       special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
-      bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
-      cd.vibrometry_enabled.exchange(image_ratio_enabled);
+      cd.vibrometry_enabled.exchange(
+        ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled));
 
-      int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
-      cd.vibrometry_q.exchange(q_vibro);
+      cd.vibrometry_q.exchange(
+        ptree.get<int>("special.image_ratio_q", cd.vibrometry_q));
 
-      bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
-      is_enabled_average_ = average_enabled;
+      is_enabled_average_ = ptree.get<bool>("special.average_enabled", is_enabled_average_);
 
       // Record
       record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
@@ -1483,11 +1515,11 @@ namespace gui
   {
     boost::property_tree::ptree ptree;
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-    gui::GroupBox	*image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
-    gui::GroupBox	*view_group_box = findChild<gui::GroupBox*>("View");
-    gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-    gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
-    gui::GroupBox	*import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -1525,7 +1557,7 @@ namespace gui
     boost::property_tree::write_ini(path, ptree);
   }
 
-  void MainWindow::split_string(const std::string& str, char delim, std::vector<std::string>& elts)
+  void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
   {
     std::stringstream ss(str);
     std::string item;
@@ -1534,7 +1566,7 @@ namespace gui
       elts.push_back(item);
   }
 
-  std::string MainWindow::format_batch_output(const std::string& path, unsigned int index)
+  std::string MainWindow::format_batch_output(const std::string& path, const unsigned int index)
   {
     std::string file_index;
     std::ostringstream convert;

@@ -8,77 +8,62 @@
 #endif /* !_USE_MATH_DEFINES */
 #include <math.h>
 
-/*! \brief Compute a lens to apply to an image
-*
-*
-* \param n output The lens computed by the function.
-* The output should have the same caracteristics of
-* of the images on wich the lens will be applied.
-* \param fd File descriptor of the images on wich the lens will be applied.
-*/
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
-  float lambda,
-  float dist)
+  const float lambda,
+  const float dist)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int size = fd.width * fd.height;
 
-  float c = M_PI / (lambda * dist);
-  float csquare;
-  float dx = fd.pixel_size * 1.0e-6f;
-  float dy = fd.pixel_size * 1.0e-6f;
+  const float c = M_PI / (lambda * dist);
+
+  const float dx = fd.pixel_size * 1.0e-6f;
+  const float dy = fd.pixel_size * 1.0e-6f;
 
   float	x;
   float	y;
   unsigned int i;
   unsigned int j;
+  float csquare;
 
   while (index < size)
   {
-	  i = index % fd.width;
-	  j = index / fd.height;
-  	  x = (i - (static_cast<float>(fd.width) / 2)) * dx;
-      y = (j - (static_cast<float>(fd.height) / 2)) * dy;
+    i = index % fd.width;
+    j = index / fd.height;
+    x = (i - (static_cast<float>(fd.width) / 2)) * dx;
+    y = (j - (static_cast<float>(fd.height) / 2)) * dy;
 
-	  csquare = c * (x * x + y * y);
-	  output[index].x = cosf(csquare);
-	  output[index].y = sinf(csquare);
-	  index += blockDim.x * gridDim.x;
+    csquare = c * (x * x + y * y);
+    output[index].x = cosf(csquare);
+    output[index].y = sinf(csquare);
+    index += blockDim.x * gridDim.x;
   }
 }
 
-/*! \brief Compute a lens to apply to an image
-*
-*
-* \param n output The lens computed by the function.
-* The output should have the same caracteristics of
-* of the images on wich the lens will be applied.
-* \param fd File descriptor of the images on wich the lens will be applied.
-*/
 __global__ void kernel_spectral_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
-  float lambda,
-  float distance)
+  const float lambda,
+  const float distance)
 {
   unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
   unsigned int index = j * blockDim.x * gridDim.x + i;
 
-  float c = 2 * M_PI * distance / lambda;
+  const float c = 2 * M_PI * distance / lambda;
+
+  const float dx = fd.pixel_size * 1.0e-6f;
+  const float dy = fd.pixel_size * 1.0e-6f;
+
+  const float du = 1 / ((static_cast<float>(fd.width)) * dx);
+  const float dv = 1 / ((static_cast<float>(fd.height)) * dy);
+
+  const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width) / 2))) * du;
+  const float v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height) / 2))) * dv;
+
   float csquare;
-
-  float dx = fd.pixel_size * 1.0e-6f;
-  float dy = fd.pixel_size * 1.0e-6f;
-
-  float du = 1 / ((static_cast<float>(fd.width)) * dx);
-  float dv = 1 / ((static_cast<float>(fd.height)) * dy);
-
-  float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width) / 2))) * du;
-  float v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height) / 2))) * dv;
-
   if (index < fd.width * fd.height)
   {
     csquare = c * sqrtf(1.0f - lambda * lambda * u * u - lambda * lambda * v * v);

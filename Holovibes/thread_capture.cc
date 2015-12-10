@@ -15,6 +15,7 @@ namespace holovibes
   ThreadCapture::~ThreadCapture()
   {
     stop_requested_ = true;
+
     if (thread_.joinable())
       thread_.join();
   }

@@ -1,5 +1,4 @@
-#ifndef CAMERA_DLL
-# define CAMERA_DLL
+#pragma once
 
 # include <Windows.h>
 # undef min
@@ -17,13 +16,21 @@ namespace camera
   class CameraDLL
   {
   public:
+    /*! \brief Return an specialize instance of ICamera contained in dll file.
+     *  \param dll_filepath Path to the dll file.
+     *  \return shared_ptr on ICamera who FreeLibrary on reset().
+     */
     static std::shared_ptr<ICamera> load_camera(const std::string& dll_filepath);
   private:
-    /* Custom deleter that will delete the camera and the DLL handle. */
+    /*! \brief Custom deleter that will delete the camera and the DLL handle. */
     class DeleterDLL
     {
     public:
       DeleterDLL(HINSTANCE dll_handle);
+      /*! \brief Free camera and dll_handle_ 
+       *
+       * It will be call when releasing shared_ptr return by load_camera.
+      */
       void operator()(ICamera* camera);
     private:
       HINSTANCE dll_handle_;
@@ -33,5 +40,3 @@ namespace camera
     using FnInit = ICamera* (*)();
   };
 }
-
-#endif /* !CAMERA_DLL */

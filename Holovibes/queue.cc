@@ -3,7 +3,9 @@
 
 namespace holovibes
 {
-  Queue::Queue(const camera::FrameDescriptor& frame_desc, unsigned int elts)
+  using guard = std::lock_guard<std::mutex>;
+
+  Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts)
     : frame_desc_(frame_desc)
     , size_(frame_desc_.frame_size())
     , pixels_(frame_desc_.frame_res())
@@ -45,14 +47,6 @@ namespace holovibes
     return pixels_;
   }
 
-  size_t Queue::get_current_elts()
-  {
-    mutex_.lock();
-    size_t curr_elts = curr_elts_;
-    mutex_.unlock();
-    return curr_elts;
-  }
-
   unsigned int Queue::get_max_elts() const
   {
     return max_elts_;
@@ -60,49 +54,38 @@ namespace holovibes
 
   void* Queue::get_start()
   {
-    mutex_.lock();
-    void* start_ptr = buffer_ + start_ * size_;
-    mutex_.unlock();
-    return start_ptr;
+    guard guard(mutex_);
+    return buffer_ + start_ * size_;
   }
 
   unsigned int Queue::get_start_index()
   {
-    mutex_.lock();
-    unsigned int start_index = start_;
-    mutex_.unlock();
-    return start_index;
+    return start_;
   }
 
   void* Queue::get_end()
   {
-    mutex_.lock();
-    void* end_ptr = buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
-    mutex_.unlock();
-    return end_ptr;
+    guard guard(mutex_);
+    return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
   }
 
-  void* Queue::get_last_images(int n)
+  void* Queue::get_last_images(const unsigned n)
   {
-    mutex_.lock();
-    void* end_ptr = buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
-    mutex_.unlock();
-    return end_ptr;
+    guard guard(mutex_);
+    return buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
   }
 
   unsigned int Queue::get_end_index()
   {
-    mutex_.lock();
-    unsigned int end_index = (start_ + curr_elts_) % max_elts_;
-    mutex_.unlock();
-    return end_index;
+    guard guard(mutex_);
+    return (start_ + curr_elts_) % max_elts_;
   }
 
   bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
   {
-    mutex_.lock();
+    guard guard(mutex_);
 
-    unsigned int end_ = (start_ + curr_elts_) % max_elts_;
+    const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
     cudaError_t cuda_status = cudaMemcpy(new_elt_adress,
       elt,
@@ -112,7 +95,6 @@ namespace holovibes
     if (cuda_status != CUDA_SUCCESS)
     {
       std::cerr << "Queue: couldn't enqueue" << std::endl;
-      mutex_.unlock();
       return false;
     }
     if (is_big_endian_)
@@ -123,39 +105,38 @@ namespace holovibes
     else
       start_ = (start_ + 1) % max_elts_;
 
-    mutex_.unlock();
     return true;
   }
 
   void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
   {
-    mutex_.lock();
+    guard guard(mutex_);
+
     if (curr_elts_ > 0)
     {
       void* first_img = buffer_ + start_ * size_;
       cudaMemcpy(dest, first_img, size_, cuda_kind);
       start_ = (start_ + 1) % max_elts_;
-      curr_elts_--;
+      --curr_elts_;
     }
-    mutex_.unlock();
   }
 
   void Queue::dequeue()
   {
-    mutex_.lock();
+    guard guard(mutex_);
+
     if (curr_elts_ > 0)
     {
       start_ = (start_ + 1) % max_elts_;
-      curr_elts_ -= 1;
+      --curr_elts_;
     }
-    mutex_.unlock();
   }
 
   void Queue::flush()
   {
-    mutex_.lock();
+    guard guard(mutex_);
+
     curr_elts_ = 0;
     start_ = 0;
-    mutex_.unlock();
   }
 }

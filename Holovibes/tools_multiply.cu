@@ -7,7 +7,7 @@ __global__ void kernel_multiply_frames_complex(
   const cufftComplex* input1,
   const cufftComplex* input2,
   cufftComplex* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -23,7 +23,7 @@ __global__ void kernel_multiply_frames_float(
   const float* input1,
   const float* input2,
   float* output,
-  unsigned int size)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 

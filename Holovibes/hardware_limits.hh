@@ -1,7 +1,6 @@
-#ifndef HARDWARE_LIMITS_HH
-# define HARDWARE_LIMITS_HH
+#pragma once
 
-/*! \brief Getter on max threads in one dimension 
+/*! \brief Getter on max threads in one dimension
 **
 ** Fetch the maximum number of threads available in one dimension
 ** for a kernel/CUDA computation. It asks directly the
@@ -27,5 +26,3 @@ unsigned int get_max_threads_2d();
 ** will only ask once the hardware.
 */
 unsigned int get_max_blocks();
-
-#endif /* !HARDWARE_LIMITS_HH */

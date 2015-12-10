@@ -6,16 +6,18 @@ namespace gui
   ThreadRecorder::ThreadRecorder(
     holovibes::Queue& queue,
     const std::string& filepath,
-    unsigned int n_images,
+    const unsigned int n_images,
     QObject* parent)
     : QThread(parent)
     , queue_(queue)
     , recorder_(queue, filepath)
     , n_images_(n_images)
-  {}
+  {
+  }
 
   ThreadRecorder::~ThreadRecorder()
-  {}
+  {
+  }
 
   void ThreadRecorder::stop()
   {

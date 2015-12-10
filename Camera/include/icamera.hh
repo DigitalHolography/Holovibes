@@ -1,5 +1,4 @@
-#ifndef ICAMERA_HH
-# define ICAMERA_HH
+#pragma once
 
 #ifdef CAMERA_EXPORTS
 # define CAMERA_API __declspec(dllexport)
@@ -7,18 +6,24 @@
 # define CAMERA_API __declspec(dllimport)
 #endif
 
+/*! \brief Containt all function and structure reference to camera usage */
 namespace camera
 {
   struct FrameDescriptor;
 
+  /*! \defgroup CameraInterface Camera Interface
+   * This small module is the entry point to using all existing cameras DLLs. It regroups :
+   * * The ICamera interface.
+   * * The new_camera_device hook function, used to grab a camera object from a DLL.
+   * * A general timeout value for all cameras.
+   * \{
+   */
+
   /*! Timeout value for a camera to get a frame. */
   static int FRAME_TIMEOUT = 10000;
 
-  /*! \class ICamera
-   *
-   * \brief ICamera interface
-   *
-   * # Interface
+  //! Abstract interface for all cameras.
+  /*! # Interface
    *
    * In C++, an interface is a class that must contains only pure virtual
    * methods. No data fields is allowed. Whatever the camera model, each must
@@ -35,18 +40,29 @@ namespace camera
   {
   public:
     ICamera()
-    {}
+    {
+    }
+
+    /*! \brief A camera object is non assignable. */
+    ICamera& operator=(const ICamera&) = delete;
+
+    /*! \brief A camera object is non copyable. */
+    ICamera(const ICamera&) = delete;
+
     virtual ~ICamera()
-    {}
+    {
+    }
 
     /*! \brief Get the frame descriptor (frame format) */
     virtual const FrameDescriptor& get_frame_descriptor() const = 0;
+
     /*! \brief Get the name of the camera */
     virtual const char* get_name() const = 0;
+
     /*! \brief Get the default path of the INI configuration file. */
     virtual const char* get_ini_path() const = 0;
 
-    /*! \brief Open the camera and initialize it
+    /*! \brief Open the camera and initialize it.
      *
      * * Open the camera and retrieve the handler
      * * Call the bind parameters method to configure the camera API
@@ -54,7 +70,8 @@ namespace camera
      * needs)
      * * Retrieves informations about the camera model */
     virtual void init_camera() = 0;
-    /*! \brief Set the camera in image acquisition mode
+
+    /*! \brief Set the camera in image acquisition mode.
      *
      * Depends on the camera API, but in most cases :
      *
@@ -62,8 +79,10 @@ namespace camera
      * * Set the camera to record/acquisition state
      * * Load buffers to store images */
     virtual void start_acquisition() = 0;
-    /*! \brief Stop the camera acquisition mode */
+
+    /*! \brief Stop the camera acquisition mode. */
     virtual void stop_acquisition() = 0;
+
     /*! \brief Shutdown the camera
      *
      * * Free ressources
@@ -72,25 +91,20 @@ namespace camera
     virtual void shutdown_camera() = 0;
     /*! \brief Request the camera to get a frame
      *
-     * Get a frame should not be longer than FRAME_TIMEOUT */
+     * Getting a frame should not be longer than FRAME_TIMEOUT */
     virtual void* get_frame() = 0;
-  private:
-    // Object is non copyable
-    ICamera& operator=(const ICamera&) = delete;
-    ICamera(const ICamera&) = delete;
   };
 
+  /*! extern "C" is used to avoid C++ name mangling.
+   * Without it, each camera DLL would provide a different symbol for the
+   * new_camera_device function, thus preventing Holovibes from using it. */
   extern "C"
   {
-    /*!\fn new_camera_device 
-     * \brief Return a pointer to the ICamera object
+    /*! \brief Ask the DLL to allocate a new camera, and get a handle to it.
      *
-     * * Call the new operator on the camera constructor.
-     * 
-     * \note extern "C" is used to avoid C++ name mangling. It is useful for the
-     * dynamic DLL loading when it looking for the function symbol in the DLL. */
+     * \return A pointer to the new camera object. */
     CAMERA_API ICamera* new_camera_device();
   }
-}
 
-#endif /* !ICAMERA_HH */
+  /** \} */ // End of Camera Interface group
+}

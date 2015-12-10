@@ -1,5 +1,4 @@
-#ifndef GUI_PLOT_WINDOW_HH
-# define GUI_PLOT_WINDOW_HH
+#pragma once
 
 # include <QMainWindow>
 # include <QtWidgets>
@@ -9,13 +8,13 @@
 
 namespace gui
 {
-  /*! \class PlotWindow
-  **
-  ** Qt main window class containing a plot of computed average values.
-  */
+  /*! \brief Qt main window class containing a plot of computed average values. */
   class PlotWindow : public QMainWindow
   {
     Q_OBJECT
+
+  signals :
+    void closed();
 
   public:
     /*! \brief PlotWindow constructor
@@ -27,8 +26,9 @@ namespace gui
     ** \param parent Qt parent
     */
     PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-      QString title,
-      QWidget* parent = 0);
+      const QString title,
+      QWidget* parent = nullptr);
+
     ~PlotWindow();
 
     void resizeEvent(QResizeEvent* e) override;
@@ -58,6 +58,8 @@ namespace gui
     */
     void change_points_nb(int n);
 
+    /*! \brief emit signal closed on window is closed */
+    void closeEvent(QCloseEvent *event);
   private:
     Ui::PlotWindow ui;
 
@@ -65,5 +67,3 @@ namespace gui
     CurvePlot curve_plot_;
   };
 }
-
-#endif /* !GUI_PLOT_WINDOW_HH */

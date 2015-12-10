@@ -1,5 +1,4 @@
-#ifndef GUI_CURVE_PLOT_HH
-# define GUI_CURVE_PLOT_HH
+#pragma once
 
 # include <QtWidgets>
 # include <QVector>
@@ -15,10 +14,7 @@
 
 namespace gui
 {
-  /*! \class CurvePlot
-  **
-  ** Widget containing a QwtPlot. Used to display average/ROI computations.
-  */
+  /*! \brief Widget containing a QwtPlot. Used to display average/ROI computations. */
   class CurvePlot : public QWidget
   {
     Q_OBJECT
@@ -33,19 +29,23 @@ namespace gui
     ** \param parent Qt parent
     */
     CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-      QString title,
-      unsigned int width,
-      unsigned int height,
-      QWidget* parent = 0);
+      const QString title,
+      const unsigned int width,
+      const unsigned int height,
+      QWidget* parent = nullptr);
 
     /*! \brief CurvePlot destructor */
     ~CurvePlot();
 
+    /*! \brief This property holds the recommended minimum size for the widget. */
     QSize minimumSizeHint() const override;
+    /*! \brief This property holds the recommended size for the widget. */
     QSize sizeHint() const override;
 
-    void resize_plot(int size);
+    /*! \brief Change the maximum number of points in the curve */
+    void resize_plot(const int size);
 
+    /*! \brief Call when windows is resize */
     void resizeEvent(QResizeEvent* e) override;
 
     /*! \brief Load data from Deque
@@ -79,7 +79,7 @@ namespace gui
     ** Stops the drawing then change the number of points and resize the vector then
     ** starts again.
     */
-    void set_points_nb(unsigned int n);
+    void set_points_nb(const unsigned int n);
 
     public slots:
     /*! \brief Updates the plot */
@@ -100,5 +100,3 @@ namespace gui
     std::vector<std::tuple<float, float, float>> average_vector_;
   };
 }
-
-#endif /* !GUI_CURVE_PLOT_HH */

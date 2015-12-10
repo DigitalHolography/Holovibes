@@ -4,16 +4,16 @@
 
 namespace gui
 {
-      GuiGLWindow::GuiGLWindow(QPoint& pos,
-      unsigned int width,
-      unsigned int height,
-      holovibes::Holovibes& h,
-      holovibes::Queue& q,
-      QWidget* parent)
-    : QMainWindow(parent),
-    gl_widget_(nullptr),
-    full_screen_(nullptr),
-    maximized_screen_(nullptr)
+  GuiGLWindow::GuiGLWindow(const QPoint& pos,
+    const unsigned int width,
+    const unsigned int height,
+    holovibes::Holovibes& h,
+    holovibes::Queue& q,
+    QWidget* parent)
+    : QMainWindow(parent)
+    , gl_widget_(nullptr)
+    , full_screen_(nullptr)
+    , maximized_screen_(nullptr)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -37,7 +37,7 @@ namespace gui
     gl_widget_ = new GLWidget(h, q, width, height, this);
     gl_widget_->show();
   }
-  
+
   GuiGLWindow::~GuiGLWindow()
   {
     delete gl_widget_;
@@ -45,9 +45,7 @@ namespace gui
 
   void GuiGLWindow::resizeEvent(QResizeEvent* e)
   {
-    unsigned int min_dim;
-
-    min_dim = e->size().width() < e->size().height() ? e->size().width() : e->size().height();
+    unsigned int min_dim = e->size().width() < e->size().height() ? e->size().width() : e->size().height();
 
     if (gl_widget_)
     {

@@ -3,10 +3,10 @@
 namespace gui
 {
   PlotWindow::PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
-    QString title,
+    const QString title,
     QWidget* parent)
-    : QMainWindow(parent),
-    curve_plot_(data_vect, title, 580, 250, this)
+    : QMainWindow(parent)
+    , curve_plot_(data_vect, title, 580, 250, this)
   {
     ui.setupUi(this);
     this->show();
@@ -18,6 +18,11 @@ namespace gui
 
   PlotWindow::~PlotWindow()
   {
+  }
+
+  void PlotWindow::closeEvent(QCloseEvent *event)
+  {
+    emit closed();
   }
 
   void PlotWindow::resizeEvent(QResizeEvent* e)

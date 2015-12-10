@@ -12,11 +12,12 @@
 # include <boost/filesystem.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
-# include <gpib.h>
-# include <camera_exception.hh>
 # include <cstring>
 # include <vector>
 # include <sys/stat.h>
+
+# include "camera_exception.hh"
+# include "../GPIB/gpib_controller.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "pipeline.hh"
@@ -219,6 +220,9 @@ namespace gui
     void set_average_mode(bool value);
     /*! \brief Plot average/ROI computations */
     void set_average_graphic();
+    /*! \brief Dispose average/ROI computations */
+    void dispose_average_graphic();
+
     /*! \brief Browse average/ROI zone file for load/save */
     void browse_roi_file();
     /*! \brief Save ROI zone to file */
@@ -359,7 +363,7 @@ namespace gui
     /*! Reference to Holovibes object */
     holovibes::Holovibes& holovibes_;
     /*! OpenGL window */
-    GuiGLWindow* gl_window_;
+    std::unique_ptr<GuiGLWindow> gl_window_;
     /*! true if in direct mode, false otherwise */
     bool is_direct_mode_;
     /*! true if a camera is loaded, false otherwise */
@@ -376,19 +380,21 @@ namespace gui
     holovibes::Holovibes::camera_type camera_type_;
 
     /*! Plot/graphic window of average/ROI computations */
-    PlotWindow* plot_window_;
+    std::unique_ptr<PlotWindow> plot_window_;
 
     /*! Image record thread */
-    ThreadRecorder* record_thread_;
+    std::unique_ptr<ThreadRecorder> record_thread_;
     /*! ROI/average record thread */
-    ThreadCSVRecord* CSV_record_thread_;
+    std::unique_ptr<ThreadCSVRecord> CSV_record_thread_;
     /*! Number of frames to record */
     unsigned int nb_frames_;
 
     /*! File index used in batch recording */
     unsigned int file_index_;
 
-    /*! Queue max size */
+    std::unique_ptr<gpib::VisaInterface> gpib_interface_;
+
+    /*! \brief Queue max size */
     unsigned int q_max_size_;
 
     /*! \{ \name Shortcuts */
