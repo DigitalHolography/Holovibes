@@ -401,7 +401,7 @@ namespace holovibes
         modules_[2]->stream_
         ));
 
-      step_count_before_refresh_ = modules_.size() + 1;
+      step_count_before_refresh_ = unsigned int(modules_.size() + 1);
       request_refresh();
       autocontrast_requested_ = false;
     }

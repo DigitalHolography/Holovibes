@@ -225,16 +225,13 @@ void convolution_operator(
 }
 
 void frame_memcpy(
-  const float* input,
+  float* input,
   const holovibes::Rectangle& zone,
   const unsigned int input_width,
   float* output,
   const unsigned int output_width,
   cudaStream_t stream)
 {
-  const unsigned int zone_width = abs(zone.top_right.x - zone.top_left.x);
-  const unsigned int zone_height = abs(zone.bottom_left.y - zone.top_left.y);
-
   const float* zone_ptr = input + (zone.top_left.y * input_width + zone.top_left.x);
 
   cudaMemcpy2DAsync(
@@ -242,8 +239,8 @@ void frame_memcpy(
     output_width * sizeof(float),
     zone_ptr,
     input_width * sizeof(float),
-    zone_width * sizeof(float),
-    zone_height,
+    output_width * sizeof(float),
+    output_width,
     cudaMemcpyDeviceToDevice,
     stream);
   cudaStreamSynchronize(stream);

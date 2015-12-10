@@ -6,6 +6,7 @@
 
 # include "queue.hh"
 # include "ithread_input.hh"
+# include "power_of_two.hh"
 
 /*! Max number of frames read each time
  ** Use in order to limit disc usage
@@ -27,28 +28,6 @@ namespace holovibes
     struct FrameDescriptor
     {
     public:
-      /* \brief check if x is power of two
-       * http://www.exploringbinary.com/ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c
-       * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-       */
-      inline bool isPowerOfTwo(unsigned int x) const
-
-      {
-        return ((x != 0) && ((x & (~x + 1)) == x));
-      }
-
-      /*! \brief Return the next power of two */
-      inline unsigned int nextHightestPowerOf2(unsigned int x) const
-      {
-        --x;
-        x |= x >> 1;
-        x |= x >> 2;
-        x |= x >> 4;
-        x |= x >> 8;
-        x |= x >> 16;
-        ++x;
-        return (x);
-      }
 
       /*! \brief compute sqared FrameDescriptor with power of 2 border size */
       void compute_sqared_image(void)
@@ -62,7 +41,7 @@ namespace holovibes
           desc.width = desc.height = biggestBorder;
 
         if (!isPowerOfTwo(biggestBorder))
-          desc.width = desc.height = static_cast<unsigned short>(nextHightestPowerOf2(biggestBorder));
+          desc.width = desc.height = static_cast<unsigned short>(nextPowerOf2(biggestBorder));
       }
 
       /*! \brief Contructor

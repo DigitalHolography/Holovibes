@@ -194,6 +194,7 @@
     <ClInclude Include="pipe.hh" />
     <ClInclude Include="pipeline.hh" />
     <ClInclude Include="pipeline_utils.hh" />
+    <ClInclude Include="power_of_two.hh" />
     <ClInclude Include="preprocessing.cuh" />
     <ClInclude Include="queue.hh" />
     <ClInclude Include="recorder.hh" />
@@ -308,6 +309,7 @@
     <ClCompile Include="options_parser.cc" />
     <ClCompile Include="pipe.cc" />
     <ClCompile Include="pipeline.cc" />
+    <ClCompile Include="power_of_two.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
     <ClCompile Include="thread_capture.cc" />

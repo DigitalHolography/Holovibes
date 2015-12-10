@@ -15,6 +15,24 @@ namespace holovibes
     friend class ThreadCompute;
   public:
 
+    struct af_env
+    {
+      float           z;
+      float           z_min;
+      float           z_max;
+      float           z_step;
+      unsigned int    z_iter;
+      float           af_z;
+      std::vector<float> focus_metric_values;
+      Rectangle       zone;
+      float*          gpu_float_buffer_af_zone;
+      cufftComplex*   gpu_input_buffer_tmp;
+      size_t          gpu_input_size;
+      unsigned int    af_square_size;
+    };
+    void autofocus_init();
+    void cudaMemcpy(void* dst, const void* src, size_t size, cudaMemcpyKind kind);
+
     ICompute(
       Queue& input,
       Queue& output,
@@ -168,7 +186,7 @@ namespace holovibes
     * The autofocus caller generates multiple holograms (with variable z) on the
     * same image set. Computes the focus_metric on each hologram and sets the
     * proper value of z in ComputeDescriptor. */
-    virtual void autofocus_caller();
+    virtual void autofocus_caller(float* input, cudaStream_t stream);
     /*! \} */ // End of callers group
 
     /*! \brief Generate the pipeline vector. */
@@ -229,6 +247,8 @@ namespace holovibes
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
     /*! \} */
+    /*! \brief containt all var needed by auto_focus */
+    af_env    af_env_;
     /*! \brief Ofstream use by float_output_recorder. */
     std::ofstream float_output_file_;
   };

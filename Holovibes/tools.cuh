@@ -107,7 +107,7 @@ void convolution_operator(
 * \param zone the part of the image we want to extract
 */
 void frame_memcpy(
-  const float* input,
+  float* input,
   const holovibes::Rectangle& zone,
   const unsigned int input_width,
   float* output,

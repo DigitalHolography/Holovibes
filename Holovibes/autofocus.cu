@@ -400,7 +400,8 @@ static float sobel_operator(
 
 float focus_metric(
   float* input,
-  const unsigned int square_size)
+  const unsigned int square_size,
+  cudaStream_t stream)
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
@@ -411,7 +412,7 @@ float focus_metric(
     blocks = max_blocks;
 
   /* Divide each pixels to avoid higher values than float can contains. */
-  kernel_float_divide << <blocks, threads >> >(input, size, static_cast<float>(size));
+  kernel_float_divide << <blocks, threads, 0, stream >> >(input, size, static_cast<float>(size));
 
   const float global_variance = global_variance_intensity(input, size);
   const float avr_local_variance = average_local_variance(input, square_size);

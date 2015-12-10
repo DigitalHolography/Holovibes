@@ -212,6 +212,9 @@
     <ClCompile Include="tools.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="power_of_two.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -326,6 +329,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="power_of_two.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
