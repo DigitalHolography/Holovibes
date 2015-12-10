@@ -35,7 +35,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### VISA ###
 
-* [VISA Drivers](http://search.ni.com/nisearch/app/main/p/bot/no/ap/tech/lang/fr/pg/1/sn/catnav:du,n8:3.1637,ssnav:sup/)
+* [VISA Drivers](https://www.ni.com/visa/)
 
 ## Typical Usage ##
 
