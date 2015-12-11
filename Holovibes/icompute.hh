@@ -31,7 +31,7 @@ namespace holovibes
       unsigned int    af_square_size;
     };
     void autofocus_init();
-    void cudaMemcpy(void* dst, const void* src, size_t size, cudaMemcpyKind kind);
+    void cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind);
 
     ICompute(
       Queue& input,

@@ -35,12 +35,12 @@ namespace holovibes
   {
     while (!stop_requested_)
     {
-      while (!stop_requested_ && task_done_)
-        continue;
+      if (!task_done_)
+      {
+        for (FnType& w : workers_) w();
 
-      for (FnType& w : workers_) w();
-
-      task_done_ = true;
+        task_done_ = true;
+      }
     }
   }
 }

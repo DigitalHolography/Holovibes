@@ -63,7 +63,7 @@ namespace holovibes
 
     /*! \brief Number of step before exec call refresh
     * \note Implemented for auto contrast, it need pipeline initialized */
-    unsigned int step_count_before_refresh_;
+    unsigned int                step_count_before_refresh_;
 
     //!< Working sets of 'nsamples' frames of complex data.
     std::vector<cufftComplex*>  gpu_complex_buffers_;

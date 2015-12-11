@@ -145,28 +145,52 @@ namespace holovibes
     modules_.push_back(new Module()); // C2
     modules_.push_back(new Module()); // F1
 
-    if (autofocus_requested_)
+    if (!autofocus_requested_)
     {
-      // LOL ...
+      modules_[0]->push_back_worker(std::bind(
+        make_contiguous_complex,
+        std::ref(input_),
+        std::ref(gpu_complex_buffers_[0]),
+        input_length_,
+        gpu_sqrt_vector_,
+        modules_[0]->stream_
+        ));
     }
-
-    modules_[0]->push_back_worker(std::bind(
-      make_contiguous_complex,
-      std::ref(input_),
-      std::ref(gpu_complex_buffers_[0]),
-      input_length_,
-      gpu_sqrt_vector_,
-      modules_[0]->stream_
-      ));
+    else
+    {
+      autofocus_init();
+      modules_[0]->push_back_worker(std::bind(
+        &Pipeline::cudaMemcpyNoReturn,
+        this,
+        std::ref(gpu_complex_buffers_[0]),
+        af_env_.gpu_input_buffer_tmp,
+        af_env_.gpu_input_size,
+        cudaMemcpyDeviceToDevice
+        ));
+    }
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
+      if (!autofocus_requested_)
+      {
+        fft1_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        modules_[1]->push_back_worker(std::bind(
+          fft1_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          modules_[1]->stream_));
+      }
 
       // Add FFT1.
       modules_[1]->push_back_worker(std::bind(
@@ -192,11 +216,26 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
-      fft2_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
+      // Initialize FFT1 lens.
+      if (!autofocus_requested_)
+      {
+        fft2_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        modules_[1]->push_back_worker(std::bind(
+          fft2_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          modules_[1]->stream_));
+      }
 
       if (compute_desc_.vibrometry_enabled)
       {
@@ -241,11 +280,25 @@ namespace holovibes
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
       // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
+      if (!autofocus_requested_)
+      {
+        fft1_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        modules_[1]->push_back_worker(std::bind(
+          fft1_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          modules_[1]->stream_));
+      }
 
       curr_elt_stft_ = 0;
       // Add STFT.
@@ -426,6 +479,17 @@ namespace holovibes
         this,
         std::ref(gpu_float_buffers_[1])
         ));
+    }
+
+    if (autofocus_requested_)
+    {
+      modules_[2]->push_back_worker(std::bind(
+        &Pipeline::autofocus_caller,
+        this,
+        std::ref(gpu_float_buffers_[1]),
+        modules_[2]->stream_
+        ));
+      autofocus_requested_ = false;
     }
 
     modules_[2]->push_back_worker(std::bind(

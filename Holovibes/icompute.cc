@@ -419,9 +419,9 @@ namespace holovibes
   will be produced, giving a better zmax
   */
 
-  void ICompute::cudaMemcpy(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
+  void ICompute::cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
   {
-    cudaMemcpy(dst, src, size, kind);
+    ::cudaMemcpy(dst, src, size, kind);
   }
 
   void ICompute::autofocus_init()
@@ -448,8 +448,7 @@ namespace holovibes
     const unsigned int zone_width = af_env_.zone.get_width();
     const unsigned int zone_height = af_env_.zone.get_height();
 
-    af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width)
-     : float(zone_height)))));
+    af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
     //af_env_.af_square_size = nextPowerOf2(zone_width | zone_height);
     while (af_env_.zone.top_right.x + af_env_.af_square_size > input_.get_frame_desc().width)
       af_env_.af_square_size = prevPowerOf2(af_env_.af_square_size);
@@ -488,33 +487,6 @@ namespace holovibes
 
     af_env_.z += af_env_.z_step;
 
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
-    {
-      // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        af_env_.z);
-    }
-    else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-    {
-      fft2_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        af_env_.z);
-    }
-    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
-    {
-      // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        af_env_.z);
-    }
-
     if (autofocus_stop_requested_ || af_env_.z > af_env_.z_max)
     {
       // Find max z
@@ -547,6 +519,8 @@ namespace holovibes
       compute_desc_.zdistance = af_env_.af_z;
       compute_desc_.notify_observers();
 
+      // TODO: this can crash in pipeline
+      // if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
       cudaFree(af_env_.gpu_float_buffer_af_zone);
       af_env_.gpu_float_buffer_af_zone = nullptr;
       cudaFree(af_env_.gpu_input_buffer_tmp);

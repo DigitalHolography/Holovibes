@@ -107,7 +107,7 @@ namespace holovibes
       autofocus_init();
       
       fn_vect_.push_back(std::bind(
-        &Pipe::cudaMemcpy,
+        &Pipe::cudaMemcpyNoReturn,
         this,
         gpu_input_buffer_,
         af_env_.gpu_input_buffer_tmp,
@@ -118,11 +118,25 @@ namespace holovibes
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
+      if (!autofocus_requested_)
+      {
+        fft1_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          fft1_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          static_cast<cudaStream_t>(0)));
+      }
 
       // Add FFT1.
       fn_vect_.push_back(std::bind(
@@ -153,12 +167,26 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
-      fft2_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
-
+      // Initialize FFT1 lens.
+      if (!autofocus_requested_)
+      {
+        fft2_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          fft2_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          static_cast<cudaStream_t>(0)));
+      }
       /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 
@@ -205,11 +233,25 @@ namespace holovibes
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
       // Initialize FFT1 lens.
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance);
+      if (!autofocus_requested_)
+      {
+        fft1_lens(
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda,
+          compute_desc_.zdistance,
+          static_cast<cudaStream_t>(0));
+      }
+      else
+      {
+        fn_vect_.push_back(std::bind(
+          fft1_lens,
+          gpu_lens_,
+          input_fd,
+          compute_desc_.lambda.load(),
+          std::ref(af_env_.z),
+          static_cast<cudaStream_t>(0)));
+      }
 
       curr_elt_stft_ = 0;
       // Add STFT.
