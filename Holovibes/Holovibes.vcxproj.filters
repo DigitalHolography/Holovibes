@@ -332,6 +332,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="power_of_two.hh">
+	  <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_gl_widget_mono.hh">.
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
