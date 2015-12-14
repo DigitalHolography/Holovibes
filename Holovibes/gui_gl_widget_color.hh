@@ -1,13 +1,13 @@
 #pragma once
 
-#include "gui_gl_widget.hh"
+# include "gui_gl_widget.hh"
 
 namespace gui
 {
-  class GLWidgetMono : public GLWidget
+  class GLWidgetColor : public GLWidget
   {
   public:
-    GLWidgetMono(
+    GLWidgetColor(
       holovibes::Holovibes& holovibes,
       holovibes::Queue& queue,
       const unsigned width,
@@ -17,7 +17,7 @@ namespace gui
     {
     }
 
-    virtual ~GLWidgetMono()
+    virtual ~GLWidgetColor()
     {
     }
 
@@ -26,17 +26,13 @@ namespace gui
     {
       glTexImage2D(
         GL_TEXTURE_2D,
-        /* Base image level. */
         0,
-        GL_LUMINANCE,
+        GL_RGB, // Classic RGBA pixels, with alpha component preset to 1 (opaque).
         frame_desc_.width,
         frame_desc_.height,
-        /* border: This value must be 0. */
         0,
-        GL_LUMINANCE,
-        /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
+        GL_RGB,
         frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
-        /* Pointer to image data in memory. */
         nullptr);
     }
   };
