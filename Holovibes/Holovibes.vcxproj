@@ -188,6 +188,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
     </CustomBuild>
+    <ClInclude Include="gui_gl_widget_color.hh" />
     <ClInclude Include="gui_gl_widget_mono.hh" />
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
