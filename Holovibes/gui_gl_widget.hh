@@ -184,6 +184,7 @@ signals:
     /*! \{ \name OpenGl graphique buffer */
     GLuint  buffer_;
     struct cudaGraphicsResource*  cuda_buffer_;
+    cudaStream_t cuda_stream_; //!< Drawing operates on a individual stream.
     /*! \} */
 
     /*! \{ \name Selection */
