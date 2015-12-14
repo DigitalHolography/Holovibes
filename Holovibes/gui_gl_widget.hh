@@ -55,7 +55,7 @@ namespace gui
       const unsigned int height,
       QWidget* parent = 0);
 
-    ~GLWidget();
+    virtual ~GLWidget();
 
     /*! \brief This property holds the recommended minimum size for the widget. */
     QSize minimumSizeHint() const override;
@@ -131,9 +131,20 @@ signals:
     /*! \brief Called whenever the OpenGL widget is resized */
     void resizeGL(int width, int height) override;
 
-    /*! \brief Paint the scene and the selection zone(s) according to selection_mode_
+    /*! Call glTexImage2D with specific arguments.
     **
-    ** Scene is painted directly from GPU. It avoid several back and forths memory transfers.
+    ** This method should be overriden by further classes to provide
+    ** different kinds of output formats. This is a usage of the NVI idiom,
+    ** the wrapper method being paintGL().
+    */
+    virtual void set_texture_format() = 0;
+
+    /*! \brief Paint the scene and the selection zone(s) according to selection_mode_.
+    **
+    ** The image is painted directly from the GPU, avoiding several
+    ** back and forths memory transfers.
+    ** This method uses the NVI idiom with set_texture_format by wrapping it
+    ** with common boilerplate code.
     */
     void paintGL() override;
 
@@ -159,6 +170,58 @@ signals:
     ** In ZOOM mode, its check that the selection is not a point.
     */
     void mouseReleaseEvent(QMouseEvent* e) override;
+
+  protected:
+    QWidget* parent_;
+    holovibes::Holovibes& h_;
+    holovibes::Queue&     queue_;
+    //!< Metadata on the images received for display.
+    const camera::FrameDescriptor&  frame_desc_;
+
+    /*! \brief QTimer used to refresh the OpenGL widget */
+    QTimer timer_;
+
+    /*! \{ \name OpenGl graphique buffer */
+    GLuint  buffer_;
+    struct cudaGraphicsResource*  cuda_buffer_;
+    /*! \} */
+
+    /*! \{ \name Selection */
+    /*! \brief User is currently select zone ? */
+    bool is_selection_enabled_;
+    /*! \brief Color zone and signal emit depend of this */
+    eselection selection_mode_;
+    /*! \brief Boolean used to switch between signal and noise selection */
+    bool is_signal_selection_;
+    /*! \} */
+
+    /*! \{ \name Selection */
+    /*! \brief Current selection */
+    holovibes::Rectangle selection_;
+    holovibes::Rectangle signal_selection_;
+    holovibes::Rectangle noise_selection_;
+    holovibes::Rectangle stft_roi_selection_;
+    /*! \} */
+
+    /*! \{ \name Previouses zoom translations */
+    float px_;
+    float py_;
+    float zoom_ratio_;
+    /*! \} */
+
+    /*! \{ \name Window size hints */
+    const unsigned int width_;
+    const unsigned int height_;
+    /*! \} */
+
+    /*! \{ \name Key shortcut */
+    QShortcut *num_2_shortcut;
+    QShortcut *num_4_shortcut;
+    QShortcut *num_6_shortcut;
+    QShortcut *num_8_shortcut;
+    QShortcut *key_plus_shortcut;
+    QShortcut *key_minus_shortcut;
+    /*! \} */
 
   private:
     /*! \brief Draw a selection zone
@@ -206,56 +269,5 @@ signals:
      * Use only in debug mode, glGetError is slow and should be avoided
      */
     void gl_error_checking();
-
-  private:
-    QWidget* parent_;
-    holovibes::Holovibes& h_;
-    holovibes::Queue&     queue_;
-    const camera::FrameDescriptor&  frame_desc_;
-
-    /*! \brief QTimer used to refresh the OpenGL widget */
-    QTimer timer_;
-
-    /*! \{ \name OpenGl graphique buffer */
-    GLuint  buffer_;
-    struct cudaGraphicsResource*  cuda_buffer_;
-    /*! \} */
-
-    /*! \{ \name Selection */
-    /*! \brief User is currently select zone ? */
-    bool is_selection_enabled_;
-    /*! \brief Color zone and signal emit depend of this */
-    eselection selection_mode_;
-    /*! \brief Boolean used to switch between signal and noise selection */
-    bool is_signal_selection_;
-    /*! \} */
-
-    /*! \{ \name Selection */
-    /*! \brief Current selection */
-    holovibes::Rectangle selection_;
-    holovibes::Rectangle signal_selection_;
-    holovibes::Rectangle noise_selection_;
-    holovibes::Rectangle stft_roi_selection_;
-    /*! \} */
-
-    /*! \{ \name Previouses zoom translations */
-    float px_;
-    float py_;
-    float zoom_ratio_;
-    /*! \} */
-
-    /*! \{ \name Window size hints */
-    const unsigned int width_;
-    const unsigned int height_;
-    /*! \} */
-
-    /*! \{ \name Key shortcut */
-    QShortcut *num_2_shortcut;
-    QShortcut *num_4_shortcut;
-    QShortcut *num_6_shortcut;
-    QShortcut *num_8_shortcut;
-    QShortcut *key_plus_shortcut;
-    QShortcut *key_minus_shortcut;
-    /*! \} */
   };
 }
