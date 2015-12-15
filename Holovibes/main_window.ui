@@ -306,6 +306,19 @@
           <string>plot</string>
          </property>
         </widget>
+        <widget class="QCheckBox" name="unwrapCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>300</y>
+           <width>82</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Unwrap</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item row="0" column="1">
@@ -647,27 +660,6 @@
           <number>1</number>
          </property>
         </widget>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>zdivLabel_2</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item row="0" column="4">
@@ -1648,7 +1640,7 @@
      <x>0</x>
      <y>0</y>
      <width>1101</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2772,6 +2764,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>unwrapCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrap(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>496</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -2828,5 +2836,6 @@
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
+  <slot>set_unwrap(bool)</slot>
  </slots>
 </ui>
