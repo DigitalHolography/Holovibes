@@ -497,7 +497,7 @@ namespace gui
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    desc.stft_roi_zone = zone;
+    desc.autofocus_zone = zone;
     holovibes_.get_pipe()->request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
