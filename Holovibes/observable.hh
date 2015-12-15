@@ -1,6 +1,7 @@
 #pragma once
 
 # include <vector>
+# include <algorithm>
 
 # include "observer.hh"
 
@@ -22,18 +23,19 @@ namespace holovibes
     /*! \brief notify all Observer in list */
     void notify_observers()
     {
-      for (std::vector<Observer*>::iterator it = observers_.begin();
-        it != observers_.end();
-        ++it)
-        (*it)->notify();
+      std::for_each(observers_.begin(),
+        observers_.end(),
+        [](Observer* observer) { observer->notify(); });
     }
 
   protected:
     Observable()
-    {}
+    {
+    }
 
     virtual ~Observable()
-    {}
+    {
+    }
 
   private:
     std::vector<Observer*> observers_;

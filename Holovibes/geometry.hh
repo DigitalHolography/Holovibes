@@ -32,7 +32,7 @@ namespace holovibes
     Point2D bottom_right;
 
     Rectangle();
-    Rectangle(const Point2D top_left_corner, const Point2D bottom_right_corner);
+    Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner);
     Rectangle(const Rectangle& rect);
 
     Rectangle& operator=(const Rectangle& rect);

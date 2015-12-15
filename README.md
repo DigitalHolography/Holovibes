@@ -15,7 +15,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
-* [Bitflow Cyton CXP4 driver](www.bitflow.com/downloads/bfsdk610.zip) Framegrabber for the adimec
+* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk610.zip) Framegrabber for the adimec
 
 ### CUDA ###
 
@@ -32,6 +32,10 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 ### AdvancedInstaller ###
 
 * [AdvancedInstaller for Visual Studio](http://www.advancedinstaller.com/download.html)
+
+### VISA ###
+
+* [VISA Drivers](https://www.ni.com/visa/)
 
 ## Typical Usage ##
 
@@ -69,7 +73,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 ## Features ##
 
 * Command line options (for batch processing only)
-* Works with 6 cameras:
+* Works with 7 cameras:
     * Edge
     * iXon
     * IDS
@@ -106,6 +110,8 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Eric Delanghe <edelangh@student.42.fr>
 * Arnaud GAILLARD <arnaud.gaillard@epita.fr>
 * Geoffrey LEGOURRIEREC <geoffrey.legourrierec@epita.fr>
+* Antoine Dillée <antoined_78@hotmail.fr>
+* Romain Cancilliere <romain.cancilliere@gmail.com>
 
 ## Changelog ##
 
@@ -294,6 +300,11 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 
 * Adimec Quartz A2750 camera is now supported
 * Stft can be applied to the image (instead of fft1/fft2)
+
+### v.1.3.0
+
+* GPIB is now working with VISA, handling several instructions per blocks
+* Minor changes
 
 
 # Known problems :

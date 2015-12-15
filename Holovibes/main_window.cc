@@ -1,4 +1,6 @@
 #include "main_window.hh"
+#include "../GPIB/gpib_controller.hh"
+#include "../GPIB/gpib_exceptions.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -19,7 +21,8 @@ namespace gui
     , record_thread_(nullptr)
     , CSV_record_thread_(nullptr)
     , file_index_(1)
-    , q_max_size_(20)
+    , gpib_interface_(nullptr)
+    , q_max_size_(100)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -494,7 +497,7 @@ namespace gui
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    desc.autofocus_zone = zone;
+    desc.stft_roi_zone = zone;
     holovibes_.get_pipe()->request_autofocus();
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
@@ -534,8 +537,7 @@ namespace gui
 
     if (!is_direct_mode_)
     {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      cd.contrast_enabled.exchange(value);
+      holovibes_.get_compute_desc().contrast_enabled.exchange(value);
 
       set_contrast_min(contrast_min->value());
       set_contrast_max(contrast_max->value());
@@ -632,7 +634,7 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         cd.pindex.exchange(value);
         notify();
@@ -649,7 +651,7 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < (int)cd.nsamples && value >= 0)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
         holovibes_.get_pipe()->request_refresh();
@@ -937,20 +939,25 @@ namespace gui
     QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
+    // Getting the path to the input batch file, and the number of frames to record.
     const std::string input_path = batch_input_line_edit->text().toUtf8();
     const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    const int status = load_batch_file(input_path.c_str());
-    const std::string formatted_path = format_batch_output(path, file_index_);
+    //const int status = load_batch_file(input_path.c_str());
 
-    if (status != 0)
-      display_error("Couldn't load batch input file.");
-    else if (path == "")
-      display_error("Please provide an output file path.");
-    else if (stat(formatted_path.c_str(), &buff) == 0)
-      display_error("File: " + path + " already exists.");
-    else
+    try
     {
+      gpib_interface_.reset(new gpib::VisaInterface(input_path));
+      const std::string formatted_path = format_batch_output(path, file_index_);
+
+      /*! All checks are performed by the GPIB module, except for this one,
+       * because only Holovibes should known the filename format. */
+      if (stat(formatted_path.c_str(), &buff) == 0)
+      {
+        display_error("File: " + path + " already exists.");
+        return;
+      }
+
       global_visibility(false);
       camera_visible(false);
 
@@ -961,90 +968,153 @@ namespace gui
       else
         q = &holovibes_.get_output_queue();
 
-      execute_next_block();
-
-      if (is_batch_img_)
+      if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
       {
-        record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
-      else
+      else // There was only one block, so no need to record any further.
       {
-        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          formatted_path,
-          frame_nb,
-          this));
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        CSV_record_thread_->start();
+        if (is_batch_img_)
+        {
+          record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          record_thread_->start();
+        }
+        else
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            formatted_path,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_finished_record()),
+            Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
       }
 
       ++file_index_;
+    }
+    catch (const gpib::GpibBadAlloc& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibSetupError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibNoFilepath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibInvalidPath& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
+    }
+    catch (const gpib::GpibParseError& e)
+    {
+      std::cerr << "[GPIB] " << e.what() << "\n";
+      gpib_interface_.reset(nullptr);
     }
   }
 
   void MainWindow::batch_next_record()
   {
-    if (!is_batch_interrupted_)
+    if (is_batch_interrupted_)
     {
-      record_thread_.reset(nullptr);
+      batch_finished_record();
+      return;
+    }
 
-      QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
-      std::string path;
+    disconnect(SIGNAL(finished()), this);
+    record_thread_.reset(nullptr);
 
-      if (is_batch_img_)
-        path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    std::string path;
+
+    if (is_batch_img_)
+      path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+    else
+      path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+
+    holovibes::Queue* q;
+    if (is_direct_mode_)
+      q = &holovibes_.get_capture_queue();
+    else
+      q = &holovibes_.get_output_queue();
+
+    std::string output_filename = format_batch_output(path, file_index_);
+    const unsigned int frame_nb = frame_nb_spin_box->value();
+    if (is_batch_img_)
+    {
+      record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
       else
-        path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
-      holovibes::Queue* q;
-      if (is_direct_mode_)
-        q = &holovibes_.get_capture_queue();
-      else
-        q = &holovibes_.get_output_queue();
-
-      std::string output_filename = format_batch_output(path, file_index_);
-      const unsigned int frame_nb = frame_nb_spin_box->value();
-      if (is_batch_img_)
-      {
-        record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
-
-        if (execute_next_block())
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        record_thread_->start();
-      }
-      else
-      {
-        CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-          holovibes_.get_average_queue(),
-          output_filename,
-          frame_nb,
-          this));
-
-        if (execute_next_block())
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()));
-        else
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()));
-
-        CSV_record_thread_->start();
-      }
-
-      ++file_index_;
+      record_thread_->start();
     }
     else
     {
-      batch_finished_record();
+      CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+        holovibes_.get_average_queue(),
+        output_filename,
+        frame_nb,
+        this));
+
+      if (gpib_interface_->execute_next_block())
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+      else
+        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+
+      CSV_record_thread_->start();
     }
+
+    ++file_index_;
   }
 
   void MainWindow::batch_finished_record()
   {
+    disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
+    gpib_interface_.reset(nullptr);
 
     file_index_ = 1;
     global_visibility(true);
@@ -1392,64 +1462,57 @@ namespace gui
       change_camera((holovibes::Holovibes::camera_type)camera_type);
 
       // Frame timeout
-      const int frame_timeout = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-      camera::FRAME_TIMEOUT = frame_timeout;
+      camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-      const unsigned short phase_number = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
-      cd.nsamples = phase_number;
+      cd.nsamples = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
 
       const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
         cd.pindex.exchange(p_index);
 
-      const float lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
-      cd.lambda = lambda;
+      cd.lambda = ptree.get<float>("image_rendering.lambda", cd.lambda);
 
-      const float z_distance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
-      cd.zdistance = z_distance;
+      cd.zdistance = ptree.get<float>("image_rendering.z_distance", cd.zdistance);
 
       const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
       if (z_step > 0.0f)
         z_step_ = z_step;
 
-      const int algorithm = ptree.get<int>("image_rendering.algorithm", cd.algorithm);
-      cd.algorithm = (holovibes::ComputeDescriptor::fft_algorithm)algorithm;
+      cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
+        ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
       // View
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-      const int view_mode = ptree.get<int>("view.view_mode", cd.view_mode);
-      cd.view_mode = (holovibes::ComputeDescriptor::complex_view_mode)view_mode;
+      cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
+        ptree.get<int>("view.view_mode", cd.view_mode));
 
-      const bool log_scale_enabled = ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled);
-      cd.log_scale_enabled.exchange(log_scale_enabled);
+      cd.log_scale_enabled.exchange(
+        ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled));
 
-      const bool shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
-      cd.shift_corners_enabled.exchange(shift_corners_enabled);
+      cd.shift_corners_enabled.exchange(
+        ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled));
 
-      const bool contrast_enabled = ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled);
-      cd.contrast_enabled.exchange(contrast_enabled);
+      cd.contrast_enabled.exchange(
+        ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled));
 
-      const float contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
-      cd.contrast_min = contrast_min;
+      cd.contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
 
-      const float contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
-      cd.contrast_max = contrast_max;
+      cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
       // Special
       special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
-      const bool image_ratio_enabled = ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled);
-      cd.vibrometry_enabled.exchange(image_ratio_enabled);
+      cd.vibrometry_enabled.exchange(
+        ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled));
 
-      const int q_vibro = ptree.get<int>("special.image_ratio_q", cd.vibrometry_q);
-      cd.vibrometry_q.exchange(q_vibro);
+      cd.vibrometry_q.exchange(
+        ptree.get<int>("special.image_ratio_q", cd.vibrometry_q));
 
-      const bool average_enabled = ptree.get<bool>("special.average_enabled", is_enabled_average_);
-      is_enabled_average_ = average_enabled;
+      is_enabled_average_ = ptree.get<bool>("special.average_enabled", is_enabled_average_);
 
       // Record
       record_group_box->setHidden(ptree.get<bool>("record.hidden", false));

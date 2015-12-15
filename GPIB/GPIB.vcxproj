@@ -11,15 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="device_init.h" />
-    <ClInclude Include="gpib_controller.h" />
-    <ClInclude Include="include\gpib.h" />
-    <ClInclude Include="parser.h" />
+    <ClInclude Include="gpib_controller.hh" />
+    <ClInclude Include="gpib_exceptions.hh" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="device_init.c" />
-    <ClCompile Include="gpib_controller.c" />
-    <ClCompile Include="parser.c" />
+    <ClCompile Include="gpib_controller.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4945AF2E-4E1F-4052-B8B6-5B0990D1E121}</ProjectGuid>
@@ -62,22 +58,22 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>ni4882.lib</AdditionalDependencies>
+      <AdditionalDependencies>nivisa64.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ClCompile>
-      <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -85,7 +81,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>ni4882.lib</AdditionalDependencies>
+      <AdditionalDependencies>nivisa64.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionLibDir)\ni_gpib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
