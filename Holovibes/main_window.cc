@@ -776,6 +776,16 @@ namespace gui
     }
   }
 
+  void MainWindow::set_unwrap(const bool value)
+  {
+    if (!is_direct_mode_)
+    {
+      holovibes_.get_compute_desc().unwrapping_enabled.exchange(value);
+      // TODO : Ask for a colored output + Ask for the unwrapping step.
+      holovibes_.get_pipe()->request_refresh();
+    }
+  }
+
   void MainWindow::browse_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,

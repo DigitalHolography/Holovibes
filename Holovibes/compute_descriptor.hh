@@ -57,6 +57,7 @@ namespace holovibes
       , view_mode(MODULUS)
       , log_scale_enabled(false)
       , shift_corners_enabled(true)
+      , unwrapping_enabled(false)
       , contrast_enabled(false)
       , vibrometry_enabled(false)
       , contrast_min(1)
@@ -94,6 +95,9 @@ namespace holovibes
 
     /*! Is FFT shift corners post-processing enabled. */
     std::atomic<bool> shift_corners_enabled;
+
+    /* Is phase unwrapping (and colored output) enabled ?*/
+    std::atomic<bool> unwrapping_enabled;
 
     /*! Is manual contrast post-processing enabled. */
     std::atomic<bool> contrast_enabled;
