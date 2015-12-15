@@ -1,4 +1,4 @@
-# Holovibes v1.2.0 #
+# Holovibes v1.4.0 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -305,6 +305,10 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 
 * GPIB is now working with VISA, handling several instructions per blocks
 * Minor changes
+
+### v.1.4.0
+
+* Pipeline has been renamed to Pipe, and Pipeline now refers to a another way to treat buffers, with several actions being done at the same time by workers
 
 
 # Known problems :
