@@ -234,8 +234,6 @@ namespace holovibes
       if (!opts_.is_gui_enabled && opts_.is_compute_enabled)
         check_compute_params();
 
-      opts_.compute_desc.sanity_check();
-
       succeed = true;
     }
     catch (po::unknown_option& e)
@@ -389,10 +387,10 @@ namespace holovibes
 
     if (opts_.is_import_mode_enabled)
     {
-      /*! TODO:
-              Protect this code
-              */
       opts_.file_src = vm_["file"].as<std::string>();
+
+      if (vm_["img-dim"].as<std::vector<unsigned int>>().size() != 2)
+        throw std::runtime_error("img-dim request 2 integer");
 
       opts_.file_image_width = vm_["img-dim"].as<std::vector<unsigned int>>()[0];
 

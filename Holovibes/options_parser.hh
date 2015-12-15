@@ -38,8 +38,7 @@ namespace holovibes
 
     /*! \brief Parse the command line given by the user and
      * fill the options descriptor. Will automatically call
-     * help/version print and exit.
-     * ComputeDescriptor::sanity_check is called. */
+     * help/version print and exit. */
     void parse(int argc, char* const argv[]);
 
   private:

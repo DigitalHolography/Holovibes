@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
 
       if (opts.is_compute_enabled)
       {
-        h.init_compute(opts.is_float_output_enabled, opts.recorder_filepath, opts.recorder_n_img);
-        while (h.get_pipeline()->is_requested_float_output())
+        h.init_compute(holovibes::ThreadCompute::PipeType::PIPE, opts.is_float_output_enabled, opts.recorder_filepath, opts.recorder_n_img);
+        while (h.get_pipe()->is_requested_float_output())
           std::this_thread::yield();
       }
       if (!opts.is_float_output_enabled)

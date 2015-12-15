@@ -3,6 +3,7 @@
 # include <deque>
 # include <mutex>
 # include <array>
+# include <vector>
 
 namespace holovibes
 {

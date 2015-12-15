@@ -28,7 +28,7 @@ namespace gui
   void ThreadCSVRecord::run()
   {
     deque_.clear();
-    holo_.get_pipeline()->request_average_record(&deque_, nb_frames_);
+    holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
 
     while (deque_.size() < nb_frames_)
       continue;
@@ -57,6 +57,6 @@ namespace gui
       ++i;
     }
 
-    holo_.get_pipeline()->request_refresh();
+    holo_.get_pipe()->request_refresh();
   }
 }

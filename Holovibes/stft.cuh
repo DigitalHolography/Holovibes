@@ -46,7 +46,8 @@ void stft(
   const holovibes::Rectangle&     r,
   unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
-  unsigned int                    nsamples);
+  unsigned int                    nsamples,
+  cudaStream_t stream = 0);
 
 /*! \brief Reconstruct image from bursting complex queue (stft_dup_buf)
 * and rescale it to reconstruct width/height
@@ -63,4 +64,5 @@ void stft_recontruct(
   const unsigned int              reconstruct_width,
   const unsigned int              reconstruct_height,
   const unsigned int              pindex,
-  const unsigned int              nsamples);
+  const unsigned int              nsamples,
+  cudaStream_t stream = 0);

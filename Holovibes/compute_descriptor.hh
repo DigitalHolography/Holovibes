@@ -7,11 +7,11 @@
 
 namespace holovibes
 {
-  const static std::string version = "v1.2.0"; /*!< Current version of this project. */
+  const static std::string version = "v1.4.0"; /*!< Current version of this project. */
 
   /*! \brief Contains compute parameters.
    *
-   * Theses parameters will be used when the pipeline is refresh.
+   * Theses parameters will be used when the pipe is refresh.
    * It defines parameters for FFT, lens (Fresnel transforms ...),
    * post-processing (contrast, shift_corners, log scale).
    *
@@ -21,7 +21,7 @@ namespace holovibes
    * reusable.
    *
    * This class contains std::atomic fields to avoid concurrent access between
-   * the pipeline and the GUI.
+   * the pipe and the GUI.
    */
   struct ComputeDescriptor : public Observable
   {
@@ -72,13 +72,6 @@ namespace holovibes
      * The assignment operator is explicitely defined because std::atomic type
      * does not allow to generate assignments operator automatically. */
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
-
-    /*! \brief Check is parameters are consistent.
-     *
-     * \note This method is unused because CLI/GUI already implements the
-     * checking. But it could be a good idea to finally implement it, to make
-     * the checking method in common. */
-    void sanity_check();
 
     /*! Hologram algorithm. */
     std::atomic<enum fft_algorithm> algorithm;

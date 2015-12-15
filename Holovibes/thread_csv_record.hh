@@ -6,7 +6,7 @@
 # include <QThread>
 
 # include "concurrent_deque.hh"
-# include "pipeline.hh"
+# include "pipe.hh"
 # include "holovibes.hh"
 
 namespace gui
@@ -25,7 +25,7 @@ namespace gui
   public:
     /*! \brief ThreadCSVRecord constructor
     **
-    ** \param pipeline pipeline of the program, see holovibes::Holovibes::get_pipeline()
+    ** \param pipe pipe of the program, see holovibes::Holovibes::get_pipe()
     ** \param deque concurrent Deque containing the average values to record
     ** \param path string containing output path of record
     ** \param nb_frames number of frames i-e number of values to record

@@ -6,35 +6,43 @@
 
 # include "queue.hh"
 # include "compute_descriptor.hh"
-# include "pipeline.hh"
+# include "icompute.hh"
 
 namespace holovibes
 {
-  /*! \brief Thread managing pipeline
+  /*! \brief Thread managing pipe
    *
-   * While is running execute the pipeline
+   * While is running execute the pipe
    */
   class ThreadCompute
   {
   public:
+
+    enum PipeType
+    {
+      PIPE,
+      PIPELINE,
+    };
+
     /*! \brief Constructor
      *
-     * params are gived to pipeline
+     * params are gived to pipe
      */
     ThreadCompute(
       ComputeDescriptor& desc,
       Queue& input,
       Queue& output,
+      const PipeType pipetype,
       const bool is_float_output_enabled,
       const std::string float_output_file_src,
       const unsigned int float_output_nb_frame);
 
     ~ThreadCompute();
 
-    /*! \return the running pipeline */
-    std::shared_ptr<Pipeline> get_pipeline()
+    /*! \return the running pipe */
+    std::shared_ptr<ICompute> get_pipe()
     {
-      return pipeline_;
+      return pipe_;
     }
 
     /*! \return condition_variable */
@@ -43,26 +51,26 @@ namespace holovibes
       return memory_cv_;
     }
 
-    /*! request pipeline refresh */
+    /*! request pipe refresh */
     void request_refresh()
     {
-      pipeline_->request_refresh();
+      pipe_->request_refresh();
     }
 
-    /*! request pipeline autofocus */
+    /*! request pipe autofocus */
     void request_autofocus()
     {
-      pipeline_->request_autofocus();
+      pipe_->request_autofocus();
     }
 
-    /*! request pipeline autocontrast */
+    /*! request pipe autocontrast */
     void request_autocontrast()
     {
-      pipeline_->request_autocontrast();
+      pipe_->request_autocontrast();
     }
 
   private:
-    /*! Execute pipeline while is running */
+    /*! Execute pipe while is running */
     void thread_proc(std::string float_output_file_src,
       const unsigned int float_output_nb_frame);
 
@@ -71,13 +79,14 @@ namespace holovibes
 
     Queue& input_;
     Queue& output_;
+    const PipeType pipetype_;
 
-    std::shared_ptr<Pipeline> pipeline_;
+    std::shared_ptr<ICompute> pipe_;
 
-    /*! \brief Stored for the pipeline constructor*/
+    /*! \brief Stored for the pipe constructor*/
     bool is_float_output_enabled_;
 
-    /*! \brief Is notify when pipeline is ready */
+    /*! \brief Is notify when pipe is ready */
     std::condition_variable memory_cv_;
     std::thread thread_;
   };

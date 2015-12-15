@@ -13,7 +13,8 @@ void fft1_lens(
   cufftComplex* lens,
   const camera::FrameDescriptor& fd,
   const float lambda,
-  const float z);
+  const float z,
+  cudaStream_t stream = 0);
 
 /*! \brief Apply a lens and call an fft1 on the image
 *
@@ -26,4 +27,5 @@ void fft_1(
   const cufftComplex* lens,
   const cufftHandle plan,
   const unsigned int frame_resolution,
-  const unsigned int nframes);
+  const unsigned int nframes,
+  cudaStream_t stream = 0);

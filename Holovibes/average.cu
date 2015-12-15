@@ -54,12 +54,12 @@ static __global__ void kernel_zone_sum(
   }
   if (tid < 32)
   {
-    sdata[tid] += sdata[tid + 32] +
-      sdata[tid + 16] +
-      sdata[tid + 8] +
-      sdata[tid + 4] +
-      sdata[tid + 2] +
-      sdata[tid + 1];
+    sdata[tid] += sdata[tid + 32];
+    sdata[tid] += sdata[tid + 16];
+    sdata[tid] += sdata[tid + 8];
+    sdata[tid] += sdata[tid + 4];
+    sdata[tid] += sdata[tid + 2];
+    sdata[tid] += sdata[tid + 1];
   }
 
   // Return result
@@ -73,7 +73,8 @@ std::tuple<float, float, float> make_average_plot(
   const unsigned int width,
   const unsigned int height,
   const holovibes::Rectangle& signal,
-  const holovibes::Rectangle& noise)
+  const holovibes::Rectangle& noise,
+  cudaStream_t stream)
 {
   const unsigned int size = width * height;
   unsigned int threads = THREADS;
@@ -89,24 +90,27 @@ std::tuple<float, float, float> make_average_plot(
   cudaMalloc(&gpu_s, sizeof(float));
   cudaMalloc(&gpu_n, sizeof(float));
 
+  cudaMemsetAsync(gpu_s, 0, sizeof(float), stream);
+  cudaMemsetAsync(gpu_n, 0, sizeof(float), stream);
+
   unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
   unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
   unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
   unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
 
-  kernel_zone_sum << <1, threads, threads * sizeof(float) >> >(input, width, gpu_n,
+  kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
     noise.top_left.x, noise.top_left.y, noise_width, noise_height);
-  kernel_zone_sum << <1, threads, threads * sizeof(float) >> >(input, width, gpu_s,
+  kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_s,
     signal.top_left.x, signal.top_left.y, signal_width, signal_height);
 
   float cpu_s;
   float cpu_n;
 
-  cudaMemcpy(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost);
-  cudaMemcpy(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpyAsync(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost, stream);
+  cudaMemcpyAsync(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
-  cpu_s /= static_cast<float>(signal_width * signal_height);
-  cpu_n /= static_cast<float>(noise_width * noise_height);
+  cpu_s /= float(signal_width * signal_height);
+  cpu_n /= float(noise_width * noise_height);
 
   float moy = 10 * log10f(cpu_s / cpu_n);
 
@@ -127,7 +131,8 @@ std::tuple<float, float, float> make_average_stft_plot(
   holovibes::Rectangle&  signal_zone,
   holovibes::Rectangle&  noise_zone,
   const unsigned int     pindex,
-  const unsigned int     nsamples)
+  const unsigned int     nsamples,
+  cudaStream_t stream)
 {
   std::tuple<float, float, float> res;
 
@@ -139,7 +144,7 @@ std::tuple<float, float, float> make_average_stft_plot(
     blocks = get_max_blocks();
 
   // Reconstruct Roi
-  kernel_reconstruct_roi << <blocks, threads >> >(
+  kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
     stft_buffer,
     cbuf,
     width_roi,
@@ -150,8 +155,7 @@ std::tuple<float, float, float> make_average_stft_plot(
     pindex,
     nsamples);
 
-  complex_to_modulus(cbuf, fbuf, size);
+  complex_to_modulus(cbuf, fbuf, size, stream);
 
-  res = make_average_plot(fbuf, width, height, signal_zone, noise_zone);
-  return res;
+  return make_average_plot(fbuf, width, height, signal_zone, noise_zone, stream);
 }

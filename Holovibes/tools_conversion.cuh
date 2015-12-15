@@ -50,7 +50,8 @@ __global__ void img16_to_complex(
 void complex_to_modulus(
   const cufftComplex* input,
   float* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief  Compute the squared modulus of complexe image(s) in each pixel of this.
 *
@@ -62,7 +63,8 @@ void complex_to_modulus(
 void complex_to_squared_modulus(
   const cufftComplex* input,
   float* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief  Compute the arguments of complexe image(s) in each pixel of this.
 *
@@ -74,7 +76,8 @@ void complex_to_squared_modulus(
 void complex_to_argument(
   const cufftComplex* input,
   float* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief  Convert the endianness of input image(s) from big endian to little endian.
 *
@@ -86,7 +89,8 @@ void complex_to_argument(
 void endianness_conversion(
   const unsigned short* input,
   unsigned short* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
 
 /*! \brief  Convert all the pixels of input image(s) into unsigned short datatype.
 *
@@ -98,4 +102,5 @@ void endianness_conversion(
 void float_to_ushort(
   const float* input,
   unsigned short* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);

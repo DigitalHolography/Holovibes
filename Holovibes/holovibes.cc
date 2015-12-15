@@ -106,6 +106,7 @@ namespace holovibes
   }
 
   void Holovibes::init_compute(
+    const ThreadCompute::PipeType pipetype,
     const bool is_float_output_enabled,
     const std::string float_output_file_src,
     const unsigned int float_output_nb_frame)
@@ -118,18 +119,18 @@ namespace holovibes
     output_frame_desc.depth = 2;
     output_.reset(new Queue(output_frame_desc, input_->get_max_elts()));
 
-    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_,
+    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype,
       is_float_output_enabled,
       float_output_file_src,
       float_output_nb_frame));
     std::cout << "[CUDA] compute thread started" << std::endl;
 
-    // A wait_for is necessary here in order for the pipeline to finish
+    // A wait_for is necessary here in order for the pipe to finish
     // its allocations before getting it.
     std::mutex mutex;
     std::unique_lock<std::mutex> lck(mutex);
 
-    std::cout << "Pipeline is initializing ";
+    std::cout << "Pipe is initializing ";
     while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
       std::cout << ".";
     std::cout << "\n";

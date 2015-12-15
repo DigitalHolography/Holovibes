@@ -16,8 +16,9 @@ namespace holovibes
   {
     stop_requested_ = true;
 
-    if (thread_.joinable())
-      thread_.join();
+    while (!thread_.joinable())
+      continue;
+    thread_.join();
   }
 
   void ThreadCapture::thread_proc()

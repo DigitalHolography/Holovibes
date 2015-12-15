@@ -11,18 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="device_init.h" />
-    <ClInclude Include="gpib_controller.h" />
     <ClInclude Include="gpib_controller.hh" />
     <ClInclude Include="gpib_exceptions.hh" />
-    <ClInclude Include="include\gpib.h" />
-    <ClInclude Include="parser.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="device_init.c" />
-    <ClCompile Include="gpib_controller.c" />
     <ClCompile Include="gpib_controller.cc" />
-    <ClCompile Include="parser.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4945AF2E-4E1F-4052-B8B6-5B0990D1E121}</ProjectGuid>

@@ -14,4 +14,5 @@ void frame_ratio(
   const cufftComplex* frame_p,
   const cufftComplex* frame_q,
   cufftComplex* output,
-  const unsigned int size);
+  const unsigned int size,
+  cudaStream_t stream = 0);
