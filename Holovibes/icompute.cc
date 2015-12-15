@@ -39,6 +39,8 @@ namespace holovibes
     , termination_requested_(false)
     , average_output_(nullptr)
     , average_n_(0)
+    , af_env_({ 0 })
+    , cpu_float_buffer_(nullptr)
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -215,6 +217,9 @@ namespace holovibes
   {
     try
     {
+      const unsigned int size = input_.get_pixels();
+
+      cpu_float_buffer_ = new float[size];
       float_output_file_.open(file_src, std::ofstream::trunc | std::ofstream::binary);
       float_output_nb_frame_ = nb_frame;
       float_output_requested_ = true;
@@ -232,6 +237,9 @@ namespace holovibes
   {
     if (float_output_file_.is_open())
       float_output_file_.close();
+    if (cpu_float_buffer_)
+      delete[] cpu_float_buffer_;
+    cpu_float_buffer_ = nullptr;
     float_output_requested_ = false;
     request_refresh();
     std::cout << "[ICompute]: float record done." << std::endl;
@@ -328,14 +336,9 @@ namespace holovibes
     if (float_output_nb_frame_-- > 0)
     {
       const unsigned int size = input_.get_pixels() * sizeof(float);
-      // TODO: can be improve
-      char *buf = new char[size];
 
-      cudaMemcpy(buf, input_buffer, size, cudaMemcpyDeviceToHost);
-      float_output_file_.write(buf, size);
-
-      // TODO: can be improve
-      delete[] buf;
+      cudaMemcpy(cpu_float_buffer_, input_buffer, size, cudaMemcpyDeviceToHost);
+      float_output_file_.write(reinterpret_cast<char*>(cpu_float_buffer_), size);
     }
     else
       request_float_output_stop();
@@ -426,13 +429,14 @@ namespace holovibes
 
   void ICompute::autofocus_init()
   {
-    // TODO: gpu memory can leak if init is call twice
-
     // Autofocus needs to work on the same images. It will computes on copies.
     af_env_.gpu_input_size = sizeof(cufftComplex)* input_.get_pixels() * input_length_;
+    if (af_env_.gpu_input_buffer_tmp)
+      cudaFree(af_env_.gpu_input_buffer_tmp);
+    af_env_.gpu_input_buffer_tmp = nullptr;
     cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size);
 
-    // TODO: maybe find best solution
+    // Wait input_length_ images in queue input_, before call make_contiguous_complex
     while (input_.get_current_elts() < input_length_)
       continue;
 
@@ -449,12 +453,14 @@ namespace holovibes
     const unsigned int zone_height = af_env_.zone.get_height();
 
     af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
-    //af_env_.af_square_size = nextPowerOf2(zone_width | zone_height);
     while (af_env_.zone.top_right.x + af_env_.af_square_size > input_.get_frame_desc().width)
       af_env_.af_square_size = prevPowerOf2(af_env_.af_square_size);
 
     const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 
+    if (af_env_.gpu_float_buffer_af_zone)
+      cudaFree(af_env_.gpu_float_buffer_af_zone);
+    af_env_.gpu_float_buffer_af_zone = nullptr;
     cudaMalloc(&af_env_.gpu_float_buffer_af_zone, af_size * sizeof(float));
 
     /* Initialize z_*  */
@@ -519,7 +525,6 @@ namespace holovibes
       compute_desc_.zdistance = af_env_.af_z;
       compute_desc_.notify_observers();
 
-      // TODO: this can crash in pipeline
       // if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
       cudaFree(af_env_.gpu_float_buffer_af_zone);
       af_env_.gpu_float_buffer_af_zone = nullptr;

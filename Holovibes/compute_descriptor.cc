@@ -20,9 +20,4 @@ namespace holovibes
 
     return *this;
   }
-
-  void ComputeDescriptor::sanity_check()
-  {
-    // TODO
-  }
 }

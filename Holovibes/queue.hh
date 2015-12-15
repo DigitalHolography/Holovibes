@@ -116,8 +116,7 @@ namespace holovibes
     /*! Size of one element in bytes */
     const size_t size_;
 
-    /*! TODO: Shall be remove and use frame_desc_.frame_res() instead.
-     * Size of one element in pixels */
+    /*! Size of one element in pixels */
     const int pixels_;
 
     /*! Maximum elements number */

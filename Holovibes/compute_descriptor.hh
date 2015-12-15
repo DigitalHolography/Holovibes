@@ -73,13 +73,6 @@ namespace holovibes
      * does not allow to generate assignments operator automatically. */
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
-    /*! \brief Check is parameters are consistent.
-     *
-     * \note This method is unused because CLI/GUI already implements the
-     * checking. But it could be a good idea to finally implement it, to make
-     * the checking method in common. */
-    void sanity_check();
-
     /*! Hologram algorithm. */
     std::atomic<enum fft_algorithm> algorithm;
 

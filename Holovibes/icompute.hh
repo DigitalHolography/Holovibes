@@ -248,7 +248,9 @@ namespace holovibes
     unsigned int average_n_;
     /*! \} */
     /*! \brief containt all var needed by auto_focus */
-    af_env    af_env_;
+    af_env        af_env_;
+    /*! \brief Buffer use to read gpu buffer and write it to float_output_file_*/
+    float*        cpu_float_buffer_;
     /*! \brief Ofstream use by float_output_recorder. */
     std::ofstream float_output_file_;
   };
