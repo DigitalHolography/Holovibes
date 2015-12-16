@@ -1,6 +1,7 @@
+#include <cmath>
+
 #include "tools.cuh"
 #include "tools_multiply.cuh"
-
 #include <device_launch_parameters.h>
 #include "hardware_limits.hh"
 
@@ -300,4 +301,86 @@ void copy_buffer(
   const size_t nb_elts)
 {
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
+}
+
+/*! Converting cartesian data to polar data.
+ * \param data An array of complex values (each being a struct
+ * of two floats). The module will be stored first, then the angle.
+ */
+static void to_polar(cufftComplex* data, const size_t size)
+{
+  for (auto i = 0; i < size; ++i)
+  {
+    float dist = std::hypotf(data[i].x, data[i].y);
+    float angle = std::atan(data[i].y / data[i].x);
+    data[i].x = dist;
+    data[i].y = angle;
+  }
+}
+
+/*! Converting polar data to cartesian data.
+ * \param data An array of complex values (each being a struct
+ * of two floats). The abscissa will be stored first, then the ordinate.
+ */
+static void to_cartesian(cufftComplex* data, const size_t size)
+{
+  for (auto i = 0; i < size; ++i)
+  {
+    float x = std::cos(data[i].y) * data[i].x;
+    float y = std::sin(data[i].y) * data[i].x;
+    data[i].x = x;
+    data[i].y = y;
+  }
+}
+
+void unwrap(
+  cufftComplex* input,
+  const unsigned width,
+  const unsigned height)
+{
+  const float pi = 3.14159265358979323846f;
+  const size_t size = width * height;
+
+  // TODO : CUDA version! Here we have to work on the host.
+  cufftComplex* host_copy = new cufftComplex[size];
+  cudaMemcpy(host_copy, input, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
+  // Convert to polar notation in order to work on angles.
+  to_polar(host_copy, size);
+
+  float* local_diff = new float[height - 1];
+  float* local_adjust = new float[height - 1];
+  for (auto col = 0; col < width; ++col)
+  {
+    // Two-by-two diff
+    for (auto line = 0; line < height - 1; ++line)
+      local_diff[line] = host_copy[width * (line + 1) + col].y - host_copy[width * line + col].y;
+
+    // Adjustements
+    for (auto line = 0; line < height - 1; ++line)
+    {
+      // Equivalent phase variations in [-pi; pi)
+      local_adjust[line] = std::fmod(local_diff[line] + pi, 2.f * pi) - pi;
+      // We preserve the variation sign for pi and -pi.
+      const float epsilon = 1.e-5f;
+      if ((local_diff[line] > 0.f) && (local_adjust[line] - pi > epsilon))
+        local_adjust[line] = pi;
+
+      if (std::abs(local_diff[line]) > pi)
+        local_adjust[line] -= local_diff[line];
+      else
+        local_adjust[line] = 0.f;
+    }
+
+    // Cumulative sum of the adjustments
+    for (auto line = 1; line < height - 1; ++line)
+      local_adjust[line] += local_adjust[line - 1];
+
+    // Applying the final adjustement values to the original column.
+    for (auto line = 1; line < height; ++line)
+      host_copy[width * line + col].y += local_adjust[line - 1];
+  }
+  delete[] local_diff;
+  delete[] local_adjust;
+
+  cudaMemcpy(input, host_copy, sizeof(cufftComplex)* size, cudaMemcpyHostToDevice);
 }
