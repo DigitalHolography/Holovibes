@@ -1,5 +1,3 @@
-#include <iostream>
-// DEBUG
 #include <algorithm>
 
 #include "tools_conversion.cuh"
@@ -223,7 +221,7 @@ static void rescale(float* data,
   float max = *minmax.second;
 
   for (auto i = 0; i < size; ++i)
-    data[i] = (data[i] + min) * new_max / max;
+    data[i] = (data[i] + std::abs(min)) * new_max / (std::abs(max) + std::abs(min));
 }
 
 void complex_to_angle(
