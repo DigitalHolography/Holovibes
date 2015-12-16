@@ -140,6 +140,34 @@ void complex_to_argument(
   kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
+/* Kernel wrapped by complex_to_angle. */
+__global__ void kernel_complex_to_angle(
+  const cufftComplex* input,
+  float* output,
+  const unsigned int size)
+{
+  unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index > size)
+    return;
+
+  output[index] = input[index].y;
+}
+
+void complex_to_angle(
+  const cufftComplex* input,
+  float* output,
+  const unsigned int size,
+  cudaStream_t stream)
+{
+  const unsigned threads = 128;
+  unsigned blocks = size / threads;
+
+  if (blocks > get_max_blocks())
+    blocks = get_max_blocks();
+
+  kernel_complex_to_angle << <blocks, threads, 0, stream >> >(input, output, size);
+}
+
 /*! \brief Kernel function wrapped in endianness_conversion, making
  ** the call easier
  **/
