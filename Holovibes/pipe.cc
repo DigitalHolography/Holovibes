@@ -335,14 +335,14 @@ namespace holovibes
       // Phase unwrapping
       fn_vect_.push_back(std::bind(
         unwrap,
-        gpu_input_buffer_,
+        gpu_input_frame_ptr_,
         input_fd.width,
         input_fd.height));
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
         complex_to_angle,
-        gpu_input_buffer_,
+        gpu_input_frame_ptr_,
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
