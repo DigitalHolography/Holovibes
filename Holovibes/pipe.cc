@@ -310,9 +310,10 @@ namespace holovibes
       // Phase unwrapping
       fn_vect_.push_back(std::bind(
         unwrap,
-        gpu_input_frame_ptr_,
+        gpu_input_buffer_,
         input_fd.width,
-        input_fd.height));
+        input_fd.height,
+        compute_desc_.nsamples.load()));
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
