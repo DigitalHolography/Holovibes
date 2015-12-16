@@ -343,7 +343,7 @@ void unwrap(
   const size_t size = width * height;
 
   // TODO : CUDA version! Here we have to work on the host.
-  cufftComplex* host_copy = new cufftComplex[size];
+  cufftComplex* host_copy = new cufftComplex[size * nb_phases];
   cudaMemcpy(host_copy, input, sizeof(cufftComplex)* size * nb_phases, cudaMemcpyDeviceToHost);
   // Convert to polar notation in order to work on angles.
   to_polar(host_copy, size * nb_phases);
@@ -368,7 +368,7 @@ void unwrap(
         local_adjust[phase] = std::fmod(local_diff[phase] + pi, 2.f * pi) - pi;
         // We preserve the variation sign for pi and -pi.
         const float epsilon = 1.e-5f;
-        if ((local_diff[phase] > 0.f) && (local_adjust[phase] - pi > epsilon))
+        if ((local_diff[phase] > 0.f) && (std::abs(local_adjust[phase] - pi) < epsilon))
           local_adjust[phase] = pi;
 
         if (std::abs(local_diff[phase]) > pi)
