@@ -1,4 +1,6 @@
 #include <iostream>
+// DEBUG
+#include <algorithm>
 
 #include "tools_conversion.cuh"
 
@@ -140,8 +142,67 @@ void complex_to_argument(
   kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
+/* Find the minimum and the maximum of a floating-point array.
+ *
+ * The minimum and maximum can't be computed directly, because blocks
+ * cannot communicate. Hence we compute local minima and maxima and
+ * put them in two arrays.
+ *
+ * \param Size Number of threads in a block for this kernel.
+ * Also, it's the size of min and max.
+ * \param min Array of Size floats, which will contain local minima.
+ * \param max Array of Size floats, which will contain local maxima.
+ */
+template <unsigned Size>
+static __global__ void kernel_minmax(
+  const float* data,
+  const size_t size,
+  float* min,
+  float* max)
+{
+  __shared__ float local_min[Size];
+  __shared__ float local_max[Size];
+
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index > size)
+    return;
+  local_min[threadIdx.x] = data[index];
+  local_max[threadIdx.x] = data[index];
+
+  __syncthreads();
+
+  if (threadIdx.x == 0)
+  {
+    /* Accumulate the results of the neighbors, computing min-max values,
+     * and store them in the first element of local arrays. */
+    for (auto i = 1; i < Size; ++i)
+    {
+      if (local_min[i] < local_min[0])
+        local_min[0] = local_min[i];
+      if (local_max[i] > local_max[0])
+        local_max[0] = local_max[i];
+    }
+    min[blockIdx.x] = local_min[0];
+    max[blockIdx.x] = local_max[0];
+  }
+}
+
+template <typename T>
+static __global__ void kernel_rescale(T* data,
+  const size_t size,
+  const T min,
+  const T max,
+  const T new_max)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index > size)
+    return;
+
+  data[index] = (data[index] + min) * new_max / max;
+}
+
 /* Kernel wrapped by complex_to_angle. */
-__global__ void kernel_complex_to_angle(
+static __global__ void kernel_complex_to_angle(
   const cufftComplex* input,
   float* output,
   const unsigned int size)
@@ -150,6 +211,7 @@ __global__ void kernel_complex_to_angle(
   if (index > size)
     return;
 
+  //output[index] = (input[index].y + M_PI) * 65535 / 2 * M_PI;
   output[index] = input[index].y;
 }
 
@@ -165,7 +227,40 @@ void complex_to_angle(
   if (blocks > get_max_blocks())
     blocks = get_max_blocks();
 
-  kernel_complex_to_angle << <blocks, threads, 0, stream >> >(input, output, size);
+  // Taking the angle values.
+  kernel_complex_to_angle << <blocks, threads, 0, stream >> >(
+    input,
+    output,
+    size);
+
+  // Computing minimum and maximum values, in order to rescale properly.
+  float* gpu_local_mins;
+  float* gpu_local_maxs;
+  cudaMalloc(&gpu_local_mins, sizeof(float)* blocks);
+  cudaMalloc(&gpu_local_maxs, sizeof(float)* blocks);
+
+  const unsigned nb_blocks = blocks;
+  /* We have to hardcode the template parameter, unfortunately.
+   * It must be equal to the number of threads per block. */
+  kernel_minmax <128> << <nb_blocks, threads, 0, stream >> > (output,
+    size,
+    gpu_local_mins,
+    gpu_local_maxs);
+
+  float* cpu_local_mins = new float[blocks];
+  float* cpu_local_maxs = new float[blocks];
+  cudaMemcpy(cpu_local_mins, gpu_local_mins, sizeof(float)* blocks, cudaMemcpyDeviceToHost);
+  cudaMemcpy(cpu_local_maxs, gpu_local_maxs, sizeof(float)*blocks, cudaMemcpyDeviceToHost);
+
+  kernel_rescale << <blocks, threads, 0, stream >> >(
+    output,
+    size,
+    *(std::min_element(cpu_local_mins, cpu_local_mins + 128)),
+    *(std::max_element(cpu_local_maxs, cpu_local_maxs + 128)),
+    65535.f);
+
+  delete[] cpu_local_mins;
+  delete[] cpu_local_maxs;
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
