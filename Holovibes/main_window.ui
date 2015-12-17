@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1101</width>
-    <height>395</height>
+    <height>355</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -32,6 +32,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="2">
@@ -647,27 +659,6 @@
           <number>1</number>
          </property>
         </widget>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>zdivLabel_2</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item row="0" column="4">
