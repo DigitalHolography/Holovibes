@@ -161,6 +161,10 @@ namespace holovibes
       */
     const float get_boundary();
 
+    /* \brief Getter onto launch_path
+    */
+    const std::string get_launch_path();
+
   private:
     /* Use shared pointers to ensure each ressources will freed. */
     /*! \brief ICamera use to acquire image */
@@ -186,5 +190,11 @@ namespace holovibes
      * \note see void MainWindow::set_average_graphic() for example
      */
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
+
+    /* \brief Store the path of holovibes when it is launched.
+       so that holovibes.ini is saved at the right place. The problem
+       is that QT's functions actually change the current directory so
+       saving holovibes.ini in "$PWD" isn't working*/
+    std::string launch_path;
   };
 }

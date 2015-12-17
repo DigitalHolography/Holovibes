@@ -157,7 +157,7 @@ namespace gui
 
   void MainWindow::configure_holovibes()
   {
-    open_file(boost::filesystem::current_path().generic_string() + "/" + GLOBAL_INI_PATH);
+    open_file(holovibes_.get_launch_path() +"/" + GLOBAL_INI_PATH);
   }
 
   void MainWindow::gl_full_screen()
@@ -1565,7 +1565,7 @@ namespace gui
     // Import
     ptree.put("import.hidden", import_group_box->isHidden());
 
-    boost::property_tree::write_ini(path, ptree);
+    boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
 
   void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
