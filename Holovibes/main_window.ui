@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1101</width>
-    <height>395</height>
+    <height>355</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -32,6 +32,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_2">
+    <property name="leftMargin">
+     <number>6</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="2">
