@@ -416,8 +416,8 @@
         <widget class="QPushButton" name="autoPushButton">
          <property name="geometry">
           <rect>
-           <x>90</x>
-           <y>100</y>
+           <x>140</x>
+           <y>80</y>
            <width>61</width>
            <height>21</height>
           </rect>
