@@ -343,6 +343,7 @@ void unwrap(
   const size_t size = width * height;
 
   // TODO : CUDA version! Here we have to work on the host.
+
   cufftComplex* host_copy = new cufftComplex[size * nb_phases];
   cudaMemcpy(host_copy, input, sizeof(cufftComplex)* size * nb_phases, cudaMemcpyDeviceToHost);
   // Convert to polar notation in order to work on angles.
@@ -354,11 +355,11 @@ void unwrap(
   {
     for (auto col = 0; col < width; ++col)
     {
-      // Two-by-two diff
-      for (auto phase = 0; phase < nb_phases - 1; ++phase)
+      // Two-by-two diff, starting from the oldest data
+      for (auto phase = nb_phases - 2; phase > 0; --phase)
       {
-        local_diff[phase] = host_copy[size * (phase + 1) + width * line + col].y -
-          host_copy[size * phase + width * line + col].y;
+        local_diff[phase] = host_copy[size * phase + width * line + col].y -
+          host_copy[size * (phase + 1) + width * line + col].y;
       }
 
       // Adjustements
@@ -382,8 +383,8 @@ void unwrap(
         local_adjust[phase] += local_adjust[phase - 1];
 
       // Applying the final adjustement values to the original column.
-      for (auto phase = 1; phase < nb_phases; ++phase)
-        host_copy[size * phase + width * line + col].y += local_adjust[phase - 1];
+      for (auto phase = nb_phases - 2; phase > 0; --phase)
+        host_copy[size * phase + width * line + col].y += local_adjust[nb_phases - 2 - phase];
     }
   }
   delete[] local_diff;
