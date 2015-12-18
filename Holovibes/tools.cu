@@ -318,21 +318,6 @@ static void to_polar(cufftComplex* data, const size_t size)
   }
 }
 
-/*! Converting polar data to cartesian data.
- * \param data An array of complex values (each being a struct
- * of two floats). The abscissa will be stored first, then the ordinate.
- */
-static void to_cartesian(cufftComplex* data, const size_t size)
-{
-  for (auto i = 0; i < size; ++i)
-  {
-    float x = std::cos(data[i].y) * data[i].x;
-    float y = std::sin(data[i].y) * data[i].x;
-    data[i].x = x;
-    data[i].y = y;
-  }
-}
-
 void unwrap(
   cufftComplex* input,
   const unsigned width,
