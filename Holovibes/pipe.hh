@@ -70,6 +70,9 @@ namespace holovibes
 
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
+
+    /*! \brief Doing the ol'dirty way that was working */
+    void autofocus_caller(float* input, cudaStream_t stream) override;
   private:
     /*! \brief Core of the pipe */
     FnVector fn_vect_;
