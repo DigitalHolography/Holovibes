@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     try
     {
       if (!opts.is_import_mode_enabled)
-        h.init_capture(opts.camera, opts.queue_size);
+        h.init_capture(opts.camera, opts.input_max_queue_size, opts.output_max_queue_size);
       else
       {
         h.init_import_mode(
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         opts.fps,
         opts.spanStart,
         opts.spanEnd,
-        opts.queue_size);
+        opts.input_max_queue_size);
       }
 
       if (opts.is_compute_enabled)

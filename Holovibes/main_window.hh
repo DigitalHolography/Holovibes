@@ -394,8 +394,10 @@ namespace gui
 
     std::unique_ptr<gpib::VisaInterface> gpib_interface_;
 
-    /*! \brief Queue max size */
-    unsigned int q_max_size_;
+    /*! \brief Max input queue size */
+    unsigned int input_queue_max_size_;
+    /*! \brief Max output queue size */
+    unsigned int output_queue_max_size_;
 
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;

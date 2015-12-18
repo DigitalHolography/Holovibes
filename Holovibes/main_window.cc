@@ -22,7 +22,8 @@ namespace gui
     , CSV_record_thread_(nullptr)
     , file_index_(1)
     , gpib_interface_(nullptr)
-    , q_max_size_(100)
+    , input_queue_max_size_(100)
+    , output_queue_max_size_(20)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -1201,7 +1202,7 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      q_max_size_);
+      input_queue_max_size_);
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
@@ -1385,7 +1386,7 @@ namespace gui
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
-        holovibes_.init_capture(camera_type, q_max_size_);
+        holovibes_.init_capture(camera_type, input_queue_max_size_, output_queue_max_size_);
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
@@ -1455,7 +1456,8 @@ namespace gui
     if (!ptree.empty())
     {
       // Queue max size
-      q_max_size_ = ptree.get<int>("image_rendering.queue_size", q_max_size_);
+      input_queue_max_size_ = ptree.get<int>("image_rendering.input_queue_max_size", input_queue_max_size_);
+      output_queue_max_size_ = ptree.get<int>("image_rendering.output_queue_max_size", output_queue_max_size_);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1536,7 +1538,8 @@ namespace gui
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);
     ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-    ptree.put("image_rendering.queue_size", q_max_size_);
+    ptree.put("image_rendering.input_queue_max_size", input_queue_max_size_);
+    ptree.put("image_rendering.output_queue_max_size", output_queue_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
     ptree.put("image_rendering.p_index", cd.pindex);
     ptree.put("image_rendering.lambda", cd.lambda);

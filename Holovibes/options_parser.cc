@@ -37,7 +37,7 @@ namespace holovibes
       ("queuesize,q",
       po::value<int>()
       ->default_value(default_queue_size),
-      "Size of queue arg in number of images")
+      "Size of both queues arg in number of images")
       ;
 
     if (is_import_mode_enable)
@@ -352,7 +352,10 @@ namespace holovibes
       const int queue_size = vm_["queuesize"].as<int>();
 
       if (queue_size > 0)
-        opts_.queue_size = queue_size;
+      {
+        opts_.input_max_queue_size = queue_size;
+        opts_.output_max_queue_size = queue_size;
+      }
       else
         throw std::runtime_error("queue size is too small");
     }
@@ -436,8 +439,8 @@ namespace holovibes
 
       opts_.compute_desc.nsamples = nsamples;
 
-      if (opts_.compute_desc.nsamples >= opts_.queue_size)
-        throw std::runtime_error("--nsamples can not be greater than the queue size");
+      if (opts_.compute_desc.nsamples >= opts_.input_max_queue_size)
+        throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
     }
 
     if (vm_.count("pindex"))

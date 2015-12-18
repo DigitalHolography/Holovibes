@@ -51,8 +51,9 @@ namespace holovibes
      *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
-    void init_capture(const enum camera_type c,
-      const unsigned int buffer_nb_elts);
+    void Holovibes::init_capture(const enum camera_type c,
+      const unsigned int input_max_elts_,
+      const unsigned int output_max_elts_);
 
     /*! \brief Request the capture thread to stop - Free ressources. */
     void dispose_capture();
@@ -186,5 +187,10 @@ namespace holovibes
      * \note see void MainWindow::set_average_graphic() for example
      */
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
+
+    /*! \brief Max input queue size */
+    unsigned int input_max_elts_;
+    /*! \brief Max output queue size */
+    unsigned int output_max_elts_;
   };
 }

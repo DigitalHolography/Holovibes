@@ -17,6 +17,8 @@ namespace holovibes
     , output_()
     , compute_desc_()
     , average_queue_()
+    , input_max_elts_(0)
+    , output_max_elts_(0)
   {
   }
 
@@ -25,10 +27,12 @@ namespace holovibes
   }
 
   void Holovibes::init_capture(const enum camera_type c,
-    const unsigned int buffer_nb_elts)
+    const unsigned int input_max_elts,
+    const unsigned int output_max_elts)
   {
     camera_initialized_ = false;
-
+    input_max_elts_ = input_max_elts;
+    output_max_elts_ = output_max_elts;
     try
     {
       if (c == ADIMEC)
@@ -51,7 +55,7 @@ namespace holovibes
       std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
       camera_->init_camera();
       std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
-      input_.reset(new Queue(camera_->get_frame_descriptor(), buffer_nb_elts));
+      input_.reset(new Queue(camera_->get_frame_descriptor(), input_max_elts_));
       std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
@@ -117,7 +121,7 @@ namespace holovibes
 
     camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
     output_frame_desc.depth = 2;
-    output_.reset(new Queue(output_frame_desc, input_->get_max_elts()));
+    output_.reset(new Queue(output_frame_desc, output_max_elts_));
 
     tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype,
       is_float_output_enabled,
