@@ -318,22 +318,6 @@
           <string>plot</string>
          </property>
         </widget>
-        <zorder>pLabelVibro</zorder>
-        <zorder>pSpinBoxVibro</zorder>
-        <zorder>qSpinBoxVibro</zorder>
-        <zorder>qLabelVibro</zorder>
-        <zorder>vibrometryCheckBox</zorder>
-        <zorder>averageCheckBox</zorder>
-        <zorder>ROIFileLabel</zorder>
-        <zorder>ROIBrowseButton</zorder>
-        <zorder>ROIFileLineEdit</zorder>
-        <zorder>saveROIPushButton</zorder>
-        <zorder>loadROIPushButton</zorder>
-        <zorder>label</zorder>
-        <zorder>label_2</zorder>
-        <zorder>pushButton</zorder>
-        <zorder>View</zorder>
-        <zorder>View</zorder>
        </widget>
       </item>
       <item row="0" column="4">
@@ -2853,6 +2837,5 @@
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
-  <slot>set_unwrap(bool)</slot>
  </slots>
 </ui>
