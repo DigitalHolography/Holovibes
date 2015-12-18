@@ -2,6 +2,7 @@
 
 #include "tools.cuh"
 #include "tools_multiply.cuh"
+#include "tools.hh"
 #include <device_launch_parameters.h>
 #include "hardware_limits.hh"
 
@@ -301,21 +302,6 @@ void copy_buffer(
   const size_t nb_elts)
 {
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
-}
-
-/*! Converting cartesian data to polar data.
- * \param data An array of complex values (each being a struct
- * of two floats). The module will be stored first, then the angle.
- */
-static void to_polar(cufftComplex* data, const size_t size)
-{
-  for (auto i = 0; i < size; ++i)
-  {
-    float dist = std::hypotf(data[i].x, data[i].y);
-    float angle = std::atan(data[i].y / data[i].x);
-    data[i].x = dist;
-    data[i].y = angle;
-  }
 }
 
 void unwrap(
