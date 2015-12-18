@@ -331,12 +331,40 @@ namespace holovibes
     else
       assert(!"Impossible case.");
 
-    if (compute_desc_.unwrapping_enabled)
+    /* Apply conversion to floating-point respresentation. */
+    if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_modulus,
+        gpu_input_frame_ptr_,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_squared_modulus,
+        gpu_input_frame_ptr_,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+    {
+      fn_vect_.push_back(std::bind(
+        complex_to_argument,
+        gpu_input_frame_ptr_,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+    }
+    else if (compute_desc_.view_mode == ComputeDescriptor::UNWRAPPED_ARGUMENT)
     {
       /* Phase unwrapping requires a reference. We shall copy the first frame
-       * obtained right here into cpu_unwrap_buffer, for initialization.
-       * The first iteration will have no effect, because the frame will be
-       * compared to itself. */
+      * obtained right here into cpu_unwrap_buffer, for initialization.
+      * The first iteration will have no effect, because the frame will be
+      * compared to itself. */
       cpu_unwrap_buffer_ = new float[input_.get_pixels()];
       cufftComplex* reference = new cufftComplex[input_.get_pixels()];
       cudaMemcpy(reference, gpu_input_frame_ptr_, sizeof(cufftComplex)* input_.get_pixels(), cudaMemcpyDeviceToHost);
@@ -360,135 +388,114 @@ namespace holovibes
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
+
+      // For now at least, phase unwrapping is a process on its own.
+      // TODO : Try and see if post-processing could work with it.
+      fn_vect_.push_back(std::bind(
+        float_to_ushort,
+        gpu_float_buffer_,
+        gpu_output_buffer_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+      return;
     }
     else
+      assert(!"Impossible case.");
+
+    /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
+
+    if (compute_desc_.shift_corners_enabled)
     {
-      /* Apply conversion to unsigned short. */
-      if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+      fn_vect_.push_back(std::bind(
+        shift_corners,
+        gpu_float_buffer_,
+        output_fd.width,
+        output_fd.height,
+        static_cast<cudaStream_t>(0)));
+    }
+
+    if (average_requested_)
+    {
+      if (average_record_requested_)
       {
         fn_vect_.push_back(std::bind(
-          complex_to_modulus,
-          gpu_input_frame_ptr_,
+          &Pipe::average_record_caller,
+          this,
           gpu_float_buffer_,
-          input_fd.frame_res(),
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load(),
           static_cast<cudaStream_t>(0)));
-      }
-      else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
-      {
-        fn_vect_.push_back(std::bind(
-          complex_to_squared_modulus,
-          gpu_input_frame_ptr_,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
-      }
-      else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
-      {
-        fn_vect_.push_back(std::bind(
-          complex_to_argument,
-          gpu_input_frame_ptr_,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
+
+        average_record_requested_ = false;
       }
       else
-        assert(!"Impossible case.");
-
-      /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
-
-      if (compute_desc_.shift_corners_enabled)
       {
         fn_vect_.push_back(std::bind(
-          shift_corners,
-          gpu_float_buffer_,
-          output_fd.width,
-          output_fd.height,
-          static_cast<cudaStream_t>(0)));
-      }
-
-      if (average_requested_)
-      {
-        if (average_record_requested_)
-        {
-          fn_vect_.push_back(std::bind(
-            &Pipe::average_record_caller,
-            this,
-            gpu_float_buffer_,
-            input_fd.width,
-            input_fd.height,
-            compute_desc_.signal_zone.load(),
-            compute_desc_.noise_zone.load(),
-            static_cast<cudaStream_t>(0)));
-
-          average_record_requested_ = false;
-        }
-        else
-        {
-          fn_vect_.push_back(std::bind(
-            &Pipe::average_caller,
-            this,
-            gpu_float_buffer_,
-            input_fd.width,
-            input_fd.height,
-            compute_desc_.signal_zone.load(),
-            compute_desc_.noise_zone.load(),
-            static_cast<cudaStream_t>(0)));
-        }
-
-        average_requested_ = false;
-      }
-
-      if (compute_desc_.log_scale_enabled)
-      {
-        fn_vect_.push_back(std::bind(
-          apply_log10,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
-      }
-
-      if (autocontrast_requested_)
-      {
-        fn_vect_.push_back(std::bind(
-          autocontrast_caller,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          std::ref(compute_desc_),
-          static_cast<cudaStream_t>(0)));
-
-        autocontrast_requested_ = false;
-        request_refresh();
-      }
-
-      if (compute_desc_.contrast_enabled)
-      {
-        fn_vect_.push_back(std::bind(
-          manual_contrast_correction,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          65535,
-          compute_desc_.contrast_min.load(),
-          compute_desc_.contrast_max.load(),
-          static_cast<cudaStream_t>(0)));
-      }
-
-      if (float_output_requested_)
-      {
-        fn_vect_.push_back(std::bind(
-          &Pipe::record_float,
-          this,
-          gpu_float_buffer_));
-      }
-
-      if (autofocus_requested_)
-      {
-        fn_vect_.push_back(std::bind(
-          &Pipe::autofocus_caller,
+          &Pipe::average_caller,
           this,
           gpu_float_buffer_,
+          input_fd.width,
+          input_fd.height,
+          compute_desc_.signal_zone.load(),
+          compute_desc_.noise_zone.load(),
           static_cast<cudaStream_t>(0)));
-        autofocus_requested_ = false;
       }
+
+      average_requested_ = false;
+    }
+
+    if (compute_desc_.log_scale_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        apply_log10,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        static_cast<cudaStream_t>(0)));
+    }
+
+    if (autocontrast_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        autocontrast_caller,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        std::ref(compute_desc_),
+        static_cast<cudaStream_t>(0)));
+
+      autocontrast_requested_ = false;
+      request_refresh();
+    }
+
+    if (compute_desc_.contrast_enabled)
+    {
+      fn_vect_.push_back(std::bind(
+        manual_contrast_correction,
+        gpu_float_buffer_,
+        input_fd.frame_res(),
+        65535,
+        compute_desc_.contrast_min.load(),
+        compute_desc_.contrast_max.load(),
+        static_cast<cudaStream_t>(0)));
+    }
+
+    if (float_output_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        &Pipe::record_float,
+        this,
+        gpu_float_buffer_));
+    }
+
+    if (autofocus_requested_)
+    {
+      fn_vect_.push_back(std::bind(
+        &Pipe::autofocus_caller,
+        this,
+        gpu_float_buffer_,
+        static_cast<cudaStream_t>(0)));
+      autofocus_requested_ = false;
     }
 
     fn_vect_.push_back(std::bind(

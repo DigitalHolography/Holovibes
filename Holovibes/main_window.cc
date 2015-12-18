@@ -455,6 +455,8 @@ namespace gui
         cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
       else if (value == "argument")
         cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+      else if (value == "unwrapped argument")
+        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
       else
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
@@ -774,16 +776,6 @@ namespace gui
     catch (std::exception& e)
     {
       display_error("Couldn't load ini file\n" + std::string(e.what()));
-    }
-  }
-
-  void MainWindow::set_unwrap(const bool value)
-  {
-    if (!is_direct_mode_)
-    {
-      holovibes_.get_compute_desc().unwrapping_enabled.exchange(value);
-      // TODO : Ask for a colored output + Ask for the unwrapping step.
-      holovibes_.get_pipe()->request_refresh();
     }
   }
 

@@ -231,9 +231,6 @@ namespace gui
     void load_roi();
     /*! \} */
 
-    /*! Phase unwrapping + colored output. */
-    void set_unwrap(bool value);
-
     /*! \{ \name Record */
     /*! \brief Browse image record output file */
     void browse_file();
