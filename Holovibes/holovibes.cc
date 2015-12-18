@@ -5,6 +5,7 @@
 #include <cassert>
 #include <memory>
 #include <icamera.hh>
+#include <boost/filesystem.hpp>
 
 namespace holovibes
 {
@@ -19,6 +20,7 @@ namespace holovibes
     , average_queue_()
     , input_max_elts_(0)
     , output_max_elts_(0)
+    , launch_path(boost::filesystem::current_path().generic_string())
   {
   }
 
@@ -190,5 +192,10 @@ namespace holovibes
 
       throw;
     }
+  }
+
+  const std::string Holovibes::get_launch_path()
+  {
+    return launch_path;
   }
 }
