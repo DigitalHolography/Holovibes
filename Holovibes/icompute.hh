@@ -210,6 +210,10 @@ namespace holovibes
 
     /*! Vector filled with sqrtf values. */
     float* gpu_sqrt_vector_;
+    /*! Buffer used to compute phase adjustments, before they can be
+     * applied back in phase unwrapping. Phase being an angle, it is one
+     * part of a complex information, and can be stored in a float. */
+    float* cpu_unwrap_buffer_;
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
     /*! cufftComplex array containing save of n contiguous ROI of frames. */

@@ -145,6 +145,7 @@ void copy_buffer(
  */
 void unwrap(
   cufftComplex* input,
+  float* predecessor,
   const unsigned width,
   const unsigned height,
   const size_t nb_phases);

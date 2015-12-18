@@ -8,6 +8,7 @@
 #include "stft.cuh"
 #include "tools.cuh"
 #include "tools_conversion.cuh"
+#include "tools.hh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
 #include "vibrometry.cuh"
@@ -307,10 +308,22 @@ namespace holovibes
 
     if (compute_desc_.unwrapping_enabled)
     {
+      /* Phase unwrapping requires a reference. We shall copy the first frame
+       * obtained right here into cpu_unwrap_buffer, for initialization.
+       * The first iteration will have no effect, because the frame will be
+       * compared to itself. */
+      cpu_unwrap_buffer_ = new float[input_.get_pixels()];
+      cufftComplex* reference = new cufftComplex[input_.get_pixels()];
+      cudaMemcpy(reference, gpu_input_frame_ptr_, sizeof(cufftComplex)* input_.get_pixels(), cudaMemcpyDeviceToHost);
+      to_polar(reference, input_.get_pixels());
+      for (auto i = 0; i < input_.get_pixels(); ++i)
+        cpu_unwrap_buffer_[i] = reference[i].y;
+
       // Phase unwrapping
       fn_vect_.push_back(std::bind(
         unwrap,
-        gpu_input_buffer_,
+        gpu_input_frame_ptr_,
+        cpu_unwrap_buffer_,
         input_fd.width,
         input_fd.height,
         compute_desc_.nsamples.load()));
