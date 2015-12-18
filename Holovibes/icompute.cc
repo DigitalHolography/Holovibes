@@ -21,10 +21,10 @@ namespace holovibes
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
+    , gpu_sqrt_vector_(nullptr)
+    , cpu_unwrap_buffer_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
-    , q_gpu_stft_buffer_(nullptr)
-    , gpu_sqrt_vector_(nullptr)
     , gpu_lens_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
@@ -38,6 +38,7 @@ namespace holovibes
     , average_record_requested_(false)
     , abort_construct_requested_(false)
     , termination_requested_(false)
+    , q_gpu_stft_buffer_(nullptr)
     , average_output_(nullptr)
     , average_n_(0)
     , af_env_({ 0 })
@@ -110,6 +111,9 @@ namespace holovibes
 
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
+
+    if (cpu_unwrap_buffer_)
+      delete cpu_unwrap_buffer_;
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
