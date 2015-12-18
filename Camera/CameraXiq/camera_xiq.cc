@@ -3,6 +3,8 @@
 
 #include "camera_xiq.hh"
 
+#include <chrono>
+
 namespace camera
 {
   CameraXiq::CameraXiq()
@@ -75,14 +77,14 @@ namespace camera
 
     img_format_ = XI_RAW8;
 
-    buffer_policy_ = XI_BP_SAFE;
+    buffer_policy_ = XI_BP_UNSAFE;
 
     roi_x_ = 0;
     roi_y_ = 0;
     roi_width_ = 2048;
     roi_height_ = 2048;
 
-    exposure_time_ = 0.005f;
+    exposure_time_ = 1.0f / 60;
   }
 
   void CameraXiq::load_ini_params()

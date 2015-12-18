@@ -16,6 +16,7 @@ namespace holovibes
   {
     stop_requested_ = true;
 
+    cudaStreamDestroy(stream_);
     while (!thread_.joinable())
       continue;
     thread_.join();

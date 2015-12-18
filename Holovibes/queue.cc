@@ -19,12 +19,14 @@ namespace holovibes
       std::cerr << "Queue: couldn't allocate queue" << std::endl;
 
     frame_desc_.endianness = camera::LITTLE_ENDIAN;
+    cudaStreamCreate(&stream_);
   }
 
   Queue::~Queue()
   {
     if (cudaFree(buffer_) != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't free queue" << std::endl;
+    cudaStreamDestroy(stream_);
   }
 
   size_t Queue::get_size() const
@@ -87,10 +89,11 @@ namespace holovibes
 
     const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
     char* new_elt_adress = buffer_ + (end_ * size_);
-    cudaError_t cuda_status = cudaMemcpy(new_elt_adress,
+    cudaError_t cuda_status = cudaMemcpyAsync(new_elt_adress,
       elt,
       size_,
-      cuda_kind);
+      cuda_kind,
+      stream_);
 
     if (cuda_status != CUDA_SUCCESS)
     {
@@ -98,13 +101,12 @@ namespace holovibes
       return false;
     }
     if (is_big_endian_)
-      endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res());
+      endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res(), stream_);
 
     if (curr_elts_ < max_elts_)
       ++curr_elts_;
     else
       start_ = (start_ + 1) % max_elts_;
-
     return true;
   }
 
@@ -115,7 +117,7 @@ namespace holovibes
     if (curr_elts_ > 0)
     {
       void* first_img = buffer_ + start_ * size_;
-      cudaMemcpy(dest, first_img, size_, cuda_kind);
+      cudaMemcpyAsync(dest, first_img, size_, cuda_kind, stream_);
       start_ = (start_ + 1) % max_elts_;
       --curr_elts_;
     }

@@ -136,5 +136,7 @@ namespace holovibes
 
     /*! Mutex for critical code sections (threads safety) */
     std::mutex mutex_;
+
+    cudaStream_t  stream_;
   };
 }
