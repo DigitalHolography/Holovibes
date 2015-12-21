@@ -105,7 +105,7 @@ namespace holovibes
     else
     {
       autofocus_init();
-      
+
       fn_vect_.push_back(std::bind(
         &Pipe::cudaMemcpyNoReturn,
         this,
@@ -421,7 +421,7 @@ namespace holovibes
         this,
         gpu_float_buffer_));
     }
-    
+
     if (autofocus_requested_)
     {
       fn_vect_.push_back(std::bind(
@@ -442,6 +442,7 @@ namespace holovibes
 
   void Pipe::exec()
   {
+    input_.flush();
     while (!termination_requested_)
     {
       if (input_.get_current_elts() >= input_length_)

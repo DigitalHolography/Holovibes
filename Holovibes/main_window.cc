@@ -158,7 +158,7 @@ namespace gui
 
   void MainWindow::configure_holovibes()
   {
-    open_file(holovibes_.get_launch_path() +"/" + GLOBAL_INI_PATH);
+    open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
   }
 
   void MainWindow::gl_full_screen()
