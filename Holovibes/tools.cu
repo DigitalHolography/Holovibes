@@ -160,10 +160,7 @@ void apply_log10(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
 }
@@ -195,11 +192,7 @@ void convolution_operator(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* The convolution operator is used only when using autofocus feature.
    * It could be optimized but it's useless since it will be used sometimes. */
@@ -271,11 +264,7 @@ float average_operator(
   cudaStream_t stream)
 {
   const unsigned int threads = 128;
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   float* gpu_sum;
   cudaMalloc<float>(&gpu_sum, sizeof(float));
@@ -373,8 +362,7 @@ void unwrap(
   const size_t size = width * height;
 
   const unsigned threads = 128;
-  const unsigned blocks = static_cast<unsigned>(
-    std::ceil(static_cast<double>(size) / static_cast<double>(threads)));
+  const unsigned blocks = map_blocks_to_problem(size, threads);
 
   // Convert to polar notation in order to work on angles.
   kernel_to_polar << <blocks, threads >> >(pred, size);

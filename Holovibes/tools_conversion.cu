@@ -65,10 +65,7 @@ void complex_to_modulus(
   cudaStream_t stream)
 {
   unsigned int threads = 128;
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -98,10 +95,7 @@ void complex_to_squared_modulus(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -133,10 +127,7 @@ void complex_to_argument(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -280,11 +271,7 @@ void endianness_conversion(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks - 1;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -319,10 +306,7 @@ void float_to_ushort(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }

@@ -1,5 +1,6 @@
 #include "preprocessing.cuh"
 #include "hardware_limits.hh"
+#include "tools.hh"
 #include "tools_conversion.cuh"
 
 void make_sqrt_vect(float* out,
@@ -24,10 +25,7 @@ void make_contiguous_complex(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (input.get_pixels() * n + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(input.get_pixels() * n, threads);
 
   const unsigned int frame_resolution = input.get_pixels();
   const camera::FrameDescriptor& frame_desc = input.get_frame_desc();
