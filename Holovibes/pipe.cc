@@ -337,19 +337,22 @@ namespace holovibes
     else if (compute_desc_.view_mode == ComputeDescriptor::UNWRAPPED_ARGUMENT)
     {
       /* Phase unwrapping requires a reference. We shall copy the first frame
-      * obtained right here into cpu_unwrap_buffer, for initialization.
+      * obtained right here into gpu_predecessor_, for initialization.
       * The first iteration will have no effect, because the frame will be
-      * compared to itself. */
+      * compared to itself.
+      * Also, cumulative phase adjustments in cpu_unwrap_buffer are reset. */
       cpu_unwrap_buffer_ = new float[input_.get_pixels()];
-      cufftComplex* reference = new cufftComplex[input_.get_pixels()];
-      cudaMemcpy(reference, gpu_input_frame_ptr_, sizeof(cufftComplex)* input_.get_pixels(), cudaMemcpyDeviceToHost);
-      to_polar(reference, input_.get_pixels());
       for (auto i = 0; i < input_.get_pixels(); ++i)
-        cpu_unwrap_buffer_[i] = reference[i].y;
+        cpu_unwrap_buffer_[i] = 0.f;
+      cudaMemcpy(gpu_predecessor_,
+        gpu_input_frame_ptr_,
+        sizeof(cufftComplex)* input_.get_pixels(),
+        cudaMemcpyDeviceToDevice);
 
       // Phase unwrapping
       fn_vect_.push_back(std::bind(
         unwrap,
+        gpu_predecessor_,
         gpu_input_frame_ptr_,
         cpu_unwrap_buffer_,
         input_fd.width,

@@ -144,8 +144,9 @@ void copy_buffer(
  * After the call to unwrap, data will have switched to polar form.
  */
 void unwrap(
-  cufftComplex* input,
-  float* predecessor,
+  cufftComplex* pred,
+  cufftComplex* cur,
+  float* adjustments,
   const unsigned width,
   const unsigned height,
   const size_t nb_phases);
