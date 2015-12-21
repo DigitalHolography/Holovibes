@@ -368,6 +368,7 @@ namespace holovibes
       * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
       cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
       cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
+      cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex)* input_.get_pixels());
       cudaMemcpy(gpu_predecessor_,
         gpu_input_frame_ptr_,
         sizeof(cufftComplex)* input_.get_pixels(),

@@ -370,7 +370,6 @@ void unwrap(
   const unsigned height,
   const size_t nb_phases)
 {
-  const float pi = M_PI;
   const size_t size = width * height;
 
   const unsigned threads = 128;
