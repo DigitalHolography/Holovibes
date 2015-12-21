@@ -352,6 +352,8 @@ void unwrap(
       adjustments[width * line + col] += local_adjust;
     }
   }
+  // Updating predecessor
+  cudaMemcpy(pred, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToDevice);
   // Applying the cumulated adjustements to the current frame.
   for (auto i = 0; i < size; ++i)
     cur_copy[i].y += adjustments[i];
