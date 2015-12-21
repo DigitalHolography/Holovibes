@@ -70,6 +70,7 @@ namespace holovibes
 
   void Pipe::refresh()
   {
+    ICompute::refresh();
     /* As the Pipe uses a single CUDA stream for its computations,
      * we have to explicitly use the default stream (0).
      * Because std::bind does not allow optional parameters to be
@@ -283,6 +284,32 @@ namespace holovibes
 
       /* frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_;
+
+      if (compute_desc_.vibrometry_enabled)
+      {
+        /* q frame pointer */
+        cufftComplex* q = q_gpu_stft_buffer_;
+
+        fn_vect_.push_back(std::bind(
+          stft_recontruct,
+          q,
+          gpu_stft_dup_buffer_,
+          compute_desc_.stft_roi_zone.load(),
+          input_fd,
+          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+          compute_desc_.vibrometry_q.load(),
+          compute_desc_.nsamples.load(),
+          static_cast<cudaStream_t>(0)));
+
+        fn_vect_.push_back(std::bind(
+          frame_ratio,
+          gpu_input_frame_ptr_,
+          q,
+          gpu_input_frame_ptr_,
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
+      }
 
       if (average_requested_)
       {

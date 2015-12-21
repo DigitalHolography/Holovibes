@@ -124,6 +124,7 @@ namespace holovibes
 
   void Pipeline::refresh()
   {
+    ICompute::refresh();
     const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
     const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
@@ -332,6 +333,34 @@ namespace holovibes
         ));
 
       gpu_pindex_buffers_ = gpu_complex_buffers_;
+
+      if (compute_desc_.vibrometry_enabled)
+      {
+        /* q frame pointer */
+        cufftComplex* q = q_gpu_stft_buffer_;
+
+        modules_[1]->push_back_worker(std::bind(
+          stft_recontruct,
+          q,
+          gpu_stft_dup_buffer_,
+          compute_desc_.stft_roi_zone.load(),
+          input_fd,
+          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+          compute_desc_.vibrometry_q.load(),
+          compute_desc_.nsamples.load(),
+          modules_[1]->stream_
+          ));
+
+        modules_[1]->push_back_worker(std::bind(
+          frame_ratio,
+          std::ref(gpu_complex_buffers_[1]),
+          q,
+          std::ref(gpu_complex_buffers_[1]),
+          input_fd.frame_res(),
+          modules_[1]->stream_
+          ));
+      }
 
       if (average_requested_)
       {

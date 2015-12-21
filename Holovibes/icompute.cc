@@ -23,6 +23,7 @@ namespace holovibes
     , output_(output)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
+    , q_gpu_stft_buffer_(nullptr)
     , gpu_sqrt_vector_(nullptr)
     , gpu_lens_(nullptr)
     , plan3d_(0)
@@ -205,6 +206,22 @@ namespace holovibes
         << " err_count: " << err_count
         << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
         << std::endl;
+    }
+  }
+
+  void ICompute::refresh()
+  {
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT
+      && compute_desc_.vibrometry_enabled)
+    {
+      cudaMalloc<cufftComplex>(&q_gpu_stft_buffer_,
+        sizeof(cufftComplex)* input_.get_pixels());
+    }
+    else
+    {
+      if (q_gpu_stft_buffer_)
+        cudaFree(q_gpu_stft_buffer_);
+      q_gpu_stft_buffer_ = 0;
     }
   }
 

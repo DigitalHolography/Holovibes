@@ -114,6 +114,9 @@ namespace holovibes
     virtual void exec() = 0;
 
   protected:
+    /*! \brief Generate the ICompute vector. */
+    virtual void refresh();
+
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
 
@@ -189,9 +192,6 @@ namespace holovibes
     virtual void autofocus_caller(float* input, cudaStream_t stream);
     /*! \} */ // End of callers group
 
-    /*! \brief Generate the pipeline vector. */
-    virtual void refresh() = 0;
-
     /*! \brief Record one frame in gpu_float_buf_ to file_. */
     virtual void record_float(float *input_buffer);
 
@@ -243,6 +243,11 @@ namespace holovibes
     unsigned int float_output_nb_frame_;
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
+    /*! \brief Containt q image for vibrometry in stft mode
+    *
+    * Is only allocated if stft mode and vibrometry is enable */
+    cufftComplex* q_gpu_stft_buffer_;
+
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
