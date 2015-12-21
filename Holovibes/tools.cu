@@ -1,10 +1,10 @@
 #include <cmath>
 #include <algorithm>
+#include <device_launch_parameters.h>
 
 #include "tools.cuh"
 #include "tools_multiply.cuh"
 #include "tools.hh"
-#include <device_launch_parameters.h>
 #include "hardware_limits.hh"
 
 __global__ void kernel_apply_lens(
@@ -305,6 +305,63 @@ void copy_buffer(
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
 }
 
+static __global__ void kernel_to_polar(
+  cufftComplex* data,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  float dist = std::hypotf(data[index].x, data[index].y);
+  float angle = std::atan(data[index].y / data[index].x);
+  data[index].x = dist;
+  data[index].y = angle;
+}
+
+static __global__ void kernel_unwrap(
+  cufftComplex* pred,
+  cufftComplex* cur,
+  float* adjustments,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+  const float pi = M_PI;
+
+  // Two-by-two diff, starting from the oldest data //
+  float local_diff = cur[index].y - pred[index].y;
+
+  // Adjustements //
+  // Equivalent phase variations in [-pi; pi)
+  float local_adjust = fmodf(local_diff + pi, 2.f * pi) - pi;
+  // We preserve the variation sign for pi and -pi.
+  const float epsilon = 1.e-5f;
+  if ((local_diff > 0.f) && (fabsf(local_adjust - pi) < epsilon))
+    local_adjust = pi;
+
+  if (fabsf(local_diff) > pi)
+    local_adjust -= local_diff;
+  else
+    local_adjust = 0.f;
+
+  // Cumulating the adjustement with precedent ones //
+  adjustments[index] += local_adjust;
+}
+
+static __global__ void kernel_map_to_angle(
+  cufftComplex* data,
+  const float* values,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  data[index].y += values[index];
+}
+
 void unwrap(
   cufftComplex* pred,
   cufftComplex* cur,
@@ -316,49 +373,18 @@ void unwrap(
   const float pi = M_PI;
   const size_t size = width * height;
 
-  // TODO : CUDA version! Here we have to work on the host.
+  const unsigned threads = 128;
+  const unsigned blocks = static_cast<unsigned>(
+    std::ceil(static_cast<double>(size) / static_cast<double>(threads)));
 
-  cufftComplex* pred_copy = new cufftComplex[size];
-  cudaMemcpy(pred_copy, pred, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
-  cufftComplex* cur_copy = new cufftComplex[size];
-  cudaMemcpy(cur_copy, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
   // Convert to polar notation in order to work on angles.
-  to_polar(pred_copy, size);
-  to_polar(cur_copy, size);
+  kernel_to_polar << <blocks, threads >> >(pred, size);
+  kernel_to_polar << <blocks, threads >> >(cur, size);
 
-  float local_diff;
-  float local_adjust;
-  for (auto line = 0; line < height; ++line)
-  {
-    for (auto col = 0; col < width; ++col)
-    {
-      // Two-by-two diff, starting from the oldest data //
-      local_diff = cur_copy[width * line + col].y - pred_copy[width * line + col].y;
+  kernel_unwrap << < blocks, threads >> >(pred, cur, adjustments, size);
 
-      // Adjustements //
-      // Equivalent phase variations in [-pi; pi)
-      local_adjust = std::fmod(local_diff + pi, 2.f * pi) - pi;
-      // We preserve the variation sign for pi and -pi.
-      const float epsilon = 1.e-5f;
-      if ((local_diff > 0.f) && (std::abs(local_adjust - pi) < epsilon))
-        local_adjust = pi;
-
-      if (std::abs(local_diff) > pi)
-        local_adjust -= local_diff;
-      else
-        local_adjust = 0.f;
-
-      // Cumulating the adjustement with precedent ones //
-      adjustments[width * line + col] += local_adjust;
-    }
-  }
   // Updating predecessor
   cudaMemcpy(pred, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToDevice);
-  // Applying the cumulated adjustements to the current frame.
-  for (auto i = 0; i < size; ++i)
-    cur_copy[i].y += adjustments[i];
-  cudaMemcpy(cur, cur_copy, sizeof(cufftComplex)* size, cudaMemcpyHostToDevice);
 
-  delete[] pred_copy;
-  delete[] cur_copy;
+  kernel_map_to_angle << <blocks, threads >> >(cur, adjustments, size);
 }

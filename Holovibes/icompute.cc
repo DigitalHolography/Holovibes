@@ -22,7 +22,7 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
-    , cpu_unwrap_buffer_(nullptr)
+    , gpu_unwrap_buffer_(nullptr)
     , gpu_predecessor_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
@@ -112,8 +112,8 @@ namespace holovibes
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
 
-    if (cpu_unwrap_buffer_)
-      delete cpu_unwrap_buffer_;
+    if (gpu_unwrap_buffer_)
+      cudaFree(gpu_unwrap_buffer_);
     if (gpu_predecessor_)
       cudaFree(gpu_predecessor_);
 
