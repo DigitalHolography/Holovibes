@@ -365,10 +365,9 @@ namespace holovibes
       * obtained right here into gpu_predecessor_, for initialization.
       * The first iteration will have no effect, because the frame will be
       * compared to itself.
-      * Also, cumulative phase adjustments in cpu_unwrap_buffer are reset. */
-      cpu_unwrap_buffer_ = new float[input_.get_pixels()];
-      for (auto i = 0; i < input_.get_pixels(); ++i)
-        cpu_unwrap_buffer_[i] = 0.f;
+      * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
+      cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
+      cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
       cudaMemcpy(gpu_predecessor_,
         gpu_input_frame_ptr_,
         sizeof(cufftComplex)* input_.get_pixels(),
@@ -379,7 +378,7 @@ namespace holovibes
         unwrap,
         gpu_predecessor_,
         gpu_input_frame_ptr_,
-        cpu_unwrap_buffer_,
+        gpu_unwrap_buffer_,
         input_fd.width,
         input_fd.height,
         compute_desc_.nsamples.load()));

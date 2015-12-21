@@ -214,7 +214,7 @@ namespace holovibes
     /*! Buffer used to compute phase adjustments, before they can be
      * applied back in phase unwrapping. Phase being an angle, it is one
      * part of a complex information, and can be stored in a float. */
-    float* cpu_unwrap_buffer_;
+    float* gpu_unwrap_buffer_;
     /*! Copy of the previous frame, useful for unwrapping. */
     cufftComplex* gpu_predecessor_;
 
