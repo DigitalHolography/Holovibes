@@ -106,6 +106,8 @@ namespace gui
       view_mode->setCurrentIndex(1);
     else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
       view_mode->setCurrentIndex(2);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+      view_mode->setCurrentIndex(3);
     else
       view_mode->setCurrentIndex(0);
 
