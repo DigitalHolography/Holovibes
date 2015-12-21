@@ -1,5 +1,6 @@
 #pragma once
 
+# include <algorithm>
 # include <cmath>
 
 # include "hardware_limits.hh"
