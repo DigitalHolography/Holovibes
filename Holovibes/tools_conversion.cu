@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "tools.hh"
 #include "tools_conversion.cuh"
 
 #include <device_launch_parameters.h>
@@ -196,7 +197,7 @@ static __global__ void kernel_rescale(T* data,
   if (index > size)
     return;
 
-  data[index] = (data[index] + min) * new_max / max;
+  data[index] = (data[index] + fabsf(min)) * new_max / (fabsf(max) + fabsf(min));
 }
 
 /* Kernel wrapped by complex_to_angle. */
@@ -212,18 +213,6 @@ static __global__ void kernel_complex_to_angle(
   output[index] = input[index].y;
 }
 
-static void rescale(float* data,
-  const size_t size,
-  const float new_max)
-{
-  auto minmax = std::minmax_element(data, data + size);
-  float min = *minmax.first;
-  float max = *minmax.second;
-
-  for (auto i = 0; i < size; ++i)
-    data[i] = (data[i] + std::abs(min)) * new_max / (std::abs(max) + std::abs(min));
-}
-
 void complex_to_angle(
   const cufftComplex* input,
   float* output,
@@ -231,10 +220,7 @@ void complex_to_angle(
   cudaStream_t stream)
 {
   const unsigned threads = 128;
-  unsigned blocks = size / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned blocks = map_blocks_to_problem(size, threads);
 
   // Taking the angle values.
   kernel_complex_to_angle << <blocks, threads, 0, stream >> >(
@@ -242,42 +228,31 @@ void complex_to_angle(
     output,
     size);
 
-  //// Computing minimum and maximum values, in order to rescale properly.
-  //float* gpu_local_mins;
-  //float* gpu_local_maxs;
-  //cudaMalloc(&gpu_local_mins, sizeof(float)* blocks);
-  //cudaMalloc(&gpu_local_maxs, sizeof(float)* blocks);
+  // Computing minimum and maximum values, in order to rescale properly.
+  float* gpu_local_mins;
+  float* gpu_local_maxs;
+  cudaMalloc(&gpu_local_mins, sizeof(float)* blocks);
+  cudaMalloc(&gpu_local_maxs, sizeof(float)* blocks);
 
-  //const unsigned nb_blocks = blocks;
-  ///* We have to hardcode the template parameter, unfortunately.
-  // * It must be equal to the number of threads per block. */
-  //kernel_minmax <128> << <nb_blocks, threads, 0, stream >> > (output,
-  //  size,
-  //  gpu_local_mins,
-  //  gpu_local_maxs);
+  /* We have to hardcode the template parameter, unfortunately.
+   * It must be equal to the number of threads per block. */
+  kernel_minmax <128> << <blocks, threads, threads * 2, stream >> > (output,
+    size,
+    gpu_local_mins,
+    gpu_local_maxs);
 
-  //float* cpu_local_mins = new float[blocks];
-  //float* cpu_local_maxs = new float[blocks];
-  //cudaMemcpy(cpu_local_mins, gpu_local_mins, sizeof(float)* blocks, cudaMemcpyDeviceToHost);
-  //cudaMemcpy(cpu_local_maxs, gpu_local_maxs, sizeof(float)*blocks, cudaMemcpyDeviceToHost);
+  float* cpu_local_mins = new float[blocks];
+  float* cpu_local_maxs = new float[blocks];
+  cudaMemcpy(cpu_local_mins, gpu_local_mins, sizeof(float)* blocks, cudaMemcpyDeviceToHost);
+  cudaMemcpy(cpu_local_maxs, gpu_local_maxs, sizeof(float)* blocks, cudaMemcpyDeviceToHost);
 
-  //kernel_rescale << <blocks, threads, 0, stream >> >(
-  //  output,
-  //  size,
-  //  *(std::min_element(cpu_local_mins, cpu_local_mins + 128)),
-  //  *(std::max_element(cpu_local_maxs, cpu_local_maxs + 128)),
-  //  65535.f);
-
-  //delete[] cpu_local_mins;
-  //delete[] cpu_local_maxs;
-
-  float* cpu_copy = new float[size];
-  cudaMemcpy(cpu_copy, output, sizeof(float)* size, cudaMemcpyDeviceToHost);
-
-  rescale(cpu_copy, size, 65535.f);
-
-  cudaMemcpy(output, cpu_copy, sizeof(float)* size, cudaMemcpyHostToDevice);
-  delete[] cpu_copy;
+  const float max_intensity = 65535.f;
+  kernel_rescale << <blocks, threads, 0, stream >> >(
+    output,
+    size,
+    *(std::min_element(cpu_local_mins, cpu_local_mins + threads)),
+    *(std::max_element(cpu_local_maxs, cpu_local_maxs + threads)),
+    max_intensity);
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
