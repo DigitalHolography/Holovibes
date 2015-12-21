@@ -153,11 +153,8 @@ namespace holovibes
     }
 
     /* CUFFT plan3d realloc */
-    if (plan3d_)
-    {
-      cufftDestroy(plan3d_) ? ++err_count : 0;
-      plan3d_ = 0;
-    }
+    cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;
+
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1
       || compute_desc_.algorithm == ComputeDescriptor::FFT2)
       cufftPlan3d(
@@ -168,19 +165,14 @@ namespace holovibes
       CUFFT_C2C) ? ++err_count : 0;
 
     /* CUFFT plan1d realloc */
-    if (plan1d_)
-    {
-      cufftDestroy(plan1d_) ? ++err_count : 0;
-      plan1d_ = 0;
-    }
+    cudaDestroy<cufftResult>(&plan1d_) ? ++err_count : 0;
+
     /* gpu_stft_buffer */
-    if (gpu_stft_buffer_)
-      cudaFree(gpu_stft_buffer_) ? ++err_count : 0;
-    gpu_stft_buffer_ = nullptr;
+    cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
+
     /* gpu_stft_buffer */
-    if (gpu_stft_dup_buffer_)
-      cudaFree(gpu_stft_dup_buffer_) ? ++err_count : 0;
-    gpu_stft_dup_buffer_ = nullptr;
+    cudaDestroy<cudaError_t>(&gpu_stft_dup_buffer_) ? ++err_count : 0;
+
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
       cufftPlan1d(
@@ -191,11 +183,11 @@ namespace holovibes
         ) ? ++err_count : 0;
 
       /* gpu_stft_buffer */
-      cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
+      cudaMalloc(&gpu_stft_buffer_,
         sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
 
       /* gpu_stft_buffer */
-      cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
+      cudaMalloc(&gpu_stft_dup_buffer_,
         sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
     }
     if (err_count)
@@ -218,11 +210,7 @@ namespace holovibes
         sizeof(cufftComplex)* input_.get_pixels());
     }
     else
-    {
-      if (q_gpu_stft_buffer_)
-        cudaFree(q_gpu_stft_buffer_);
-      q_gpu_stft_buffer_ = 0;
-    }
+      cudaDestroy<cudaError_t>(&q_gpu_stft_buffer_);
   }
 
   void ICompute::request_refresh()
@@ -448,9 +436,7 @@ namespace holovibes
   {
     // Autofocus needs to work on the same images. It will computes on copies.
     af_env_.gpu_input_size = sizeof(cufftComplex)* input_.get_pixels() * input_length_;
-    if (af_env_.gpu_input_buffer_tmp)
-      cudaFree(af_env_.gpu_input_buffer_tmp);
-    af_env_.gpu_input_buffer_tmp = nullptr;
+    cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
     cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size);
 
     // Wait input_length_ images in queue input_, before call make_contiguous_complex
@@ -475,9 +461,7 @@ namespace holovibes
 
     const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 
-    if (af_env_.gpu_float_buffer_af_zone)
-      cudaFree(af_env_.gpu_float_buffer_af_zone);
-    af_env_.gpu_float_buffer_af_zone = nullptr;
+    cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
     cudaMalloc(&af_env_.gpu_float_buffer_af_zone, af_size * sizeof(float));
 
     /* Initialize z_*  */
@@ -543,10 +527,8 @@ namespace holovibes
       compute_desc_.notify_observers();
 
       // if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
-      cudaFree(af_env_.gpu_float_buffer_af_zone);
-      af_env_.gpu_float_buffer_af_zone = nullptr;
-      cudaFree(af_env_.gpu_input_buffer_tmp);
-      af_env_.gpu_input_buffer_tmp = nullptr;
+      cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
+      cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
       af_env_.focus_metric_values.clear();
     }
   }

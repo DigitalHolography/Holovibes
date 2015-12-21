@@ -3,6 +3,7 @@
 # include <functional>
 # include <vector>
 # include <deque>
+# include <cufft.h>
 
 namespace holovibes
 {
@@ -10,4 +11,37 @@ namespace holovibes
   using FnType = std::function<void()>;
   using FnVector = std::vector<FnType>;
   using FnDeque = std::deque<FnType>;
+}
+
+template <class X, class Res, class Y>
+Res cudaDestroy(X* addr_buf, Res(__stdcall*f)(Y))
+{
+  Res res = static_cast<Res>(0);
+
+  if (*addr_buf)
+    res = (*f)(*addr_buf);
+  *addr_buf = 0;
+  return (res);
+}
+
+# include <cuda_runtime.h>
+
+# include "pipeline_utils.hh"
+
+template <class Res>
+Res cudaDestroy(cufftComplex** addr_buf)
+{
+  return (cudaDestroy<cufftComplex*, Res, void*>(addr_buf, &cudaFree));
+}
+
+template <class Res>
+Res cudaDestroy(float** addr_buf)
+{
+  return (cudaDestroy<float*, Res, void*>(addr_buf, &cudaFree));
+}
+
+template <class Res>
+Res cudaDestroy(cufftHandle* addr_buf)
+{
+  return (cudaDestroy<cufftHandle, Res, cufftHandle>(addr_buf, &cufftDestroy));
 }

@@ -61,9 +61,7 @@ namespace holovibes
     ICompute::update_n_parameter(n);
 
     /* gpu_input_buffer */
-    if (gpu_input_buffer_)
-      cudaFree(gpu_input_buffer_);
-    gpu_input_buffer_ = nullptr;
+    cudaDestroy<cudaError_t>(&(gpu_input_buffer_));
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
   }
