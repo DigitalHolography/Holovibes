@@ -1442,6 +1442,12 @@ namespace gui
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
+    QAction*      image_rendering_action = findChild<QAction*>("actionImage_rendering");
+    QAction*      view_action = findChild<QAction*>("actionView");
+    QAction*      special_action = findChild<QAction*>("actionSpecial");
+    QAction*      record_action = findChild<QAction*>("actionRecord");
+    QAction*      import_action = findChild<QAction*>("actionImport");
+
     try
     {
       boost::property_tree::ini_parser::read_ini(path, ptree);
@@ -1467,6 +1473,7 @@ namespace gui
       camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
+      image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
       cd.nsamples = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
@@ -1487,6 +1494,7 @@ namespace gui
         ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
       // View
+      view_action->setChecked(!ptree.get<bool>("view.hidden", false));
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
       cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
@@ -1506,6 +1514,7 @@ namespace gui
       cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
       // Special
+      special_action->setChecked(!ptree.get<bool>("special.hidden", false));
       special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
 
       cd.vibrometry_enabled.exchange(
@@ -1517,9 +1526,11 @@ namespace gui
       is_enabled_average_ = ptree.get<bool>("special.average_enabled", is_enabled_average_);
 
       // Record
+      record_action->setChecked(!ptree.get<bool>("record.hidden", false));
       record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
 
       // Import
+      import_action->setChecked(!ptree.get<bool>("import.hidden", false));
       import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
     }
   }
