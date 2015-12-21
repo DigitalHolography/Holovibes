@@ -7,6 +7,7 @@
 # include "device_launch_parameters.h"
 # include "hardware_limits.hh"
 # include "tools.cuh"
+# include "tools.hh"
 # include "tools_multiply.cuh"
 # include "tools_divide.cuh"
 # include "average.cuh"
@@ -31,11 +32,7 @@ static float global_variance_intensity(
   const unsigned int size)
 {
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   // <I>
   const float average_input = average_operator(input, size);
@@ -85,11 +82,7 @@ static float average_local_variance(
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* ke matrix with same size than input */
   cufftComplex* ke_gpu_frame;
@@ -223,11 +216,7 @@ static float sobel_operator(
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* ks matrix with same size than input */
   cufftComplex* ks_gpu_frame;
@@ -405,11 +394,7 @@ float focus_metric(
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* Divide each pixels to avoid higher values than float can contains. */
   kernel_float_divide << <blocks, threads, 0, stream >> >(input, size, static_cast<float>(size));

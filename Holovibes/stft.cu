@@ -1,7 +1,8 @@
-# include "stft.cuh"
-
 # include <cuda_runtime.h>
+
+# include "stft.cuh"
 # include "hardware_limits.hh"
+# include "tools.hh"
 # include "tools.cuh"
 
 void stft(
@@ -18,10 +19,7 @@ void stft(
   cudaStream_t stream)
 {
   unsigned int threads = 128;
-  unsigned int blocks = desc.frame_res() / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(desc.frame_res(), threads);
 
   // Apply lens on multiple frames.
   kernel_apply_lens << <blocks, threads, 0, stream >> >(input, desc.frame_res(), lens, desc.frame_res());
@@ -77,10 +75,7 @@ void stft_recontruct(
   cudaStream_t stream)
 {
   unsigned int threads = 128;
-  unsigned int blocks = desc.frame_res() / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(desc.frame_res(), threads);
 
   if (!r.area())
     return;

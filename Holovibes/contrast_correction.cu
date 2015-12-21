@@ -1,11 +1,11 @@
-#include "contrast_correction.cuh"
-
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <float.h>
 #include <iostream>
 
+#include "contrast_correction.cuh"
 #include "hardware_limits.hh"
+#include "tools.hh"
 
 /*! \brief  Find the minimum pixel value of an image and the maximum one.
 *
@@ -57,10 +57,7 @@ void manual_contrast_correction(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   const float factor = static_cast<float>(dynamic_range) / (max - min);
   apply_contrast << <blocks, threads, 0, stream >> >(input, size, factor, min);

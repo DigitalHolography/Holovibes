@@ -2,6 +2,7 @@
 
 #include "fft1.cuh"
 #include "hardware_limits.hh"
+#include "tools.hh"
 #include "tools.cuh"
 #include "preprocessing.cuh"
 #include "transforms.cuh"
@@ -14,10 +15,8 @@ void fft1_lens(
   cudaStream_t stream)
 {
   unsigned int threads = 128;
-  unsigned int blocks = (fd.frame_res() + threads - 1) / threads;
+  unsigned int blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
   kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z);
 }
 
@@ -32,10 +31,7 @@ void fft_1(
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = n_frame_resolution / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
   // Apply lens on multiple frames.
   kernel_apply_lens << <blocks, threads, 0, stream >> >(input, n_frame_resolution, lens, frame_resolution);
