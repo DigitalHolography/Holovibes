@@ -1,6 +1,8 @@
 #pragma once
 
-# include <cufft.h>
+# include <cmath>
+
+# include "hardware_limits.hh"
 
 template<typename Container, typename Functor>
 void delete_them(Container& c, const Functor& f)
@@ -11,8 +13,17 @@ void delete_them(Container& c, const Functor& f)
   c.clear();
 }
 
-/*! Converting cartesian data to polar data.
-* \param data An array of complex values (each being a struct
-* of two floats). The module will be stored first, then the angle.
-*/
-void to_polar(cufftComplex* data, const size_t size);
+/*! Given a data of *size* elements, compute the lowest number of
+ * blocks needed to fill a compute grid.
+ * \param nb_threads Number of threads per block. */
+inline unsigned map_blocks_to_problem(const size_t problem_size,
+  const unsigned nb_threads)
+{
+  unsigned nb_blocks = static_cast<unsigned>(
+    std::ceil(static_cast<float>(problem_size) / static_cast<float>(nb_threads)));
+
+  if (nb_blocks > get_max_blocks())
+    nb_blocks = get_max_blocks();
+
+  return nb_blocks;
+}
