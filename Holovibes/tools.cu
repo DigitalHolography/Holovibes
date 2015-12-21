@@ -306,8 +306,9 @@ void copy_buffer(
 }
 
 void unwrap(
-  cufftComplex* input,
-  float* predecessor,
+  cufftComplex* pred,
+  cufftComplex* cur,
+  float* adjustments,
   const unsigned width,
   const unsigned height,
   const size_t nb_phases)
@@ -317,10 +318,13 @@ void unwrap(
 
   // TODO : CUDA version! Here we have to work on the host.
 
-  cufftComplex* host_copy = new cufftComplex[size];
-  cudaMemcpy(host_copy, input, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
+  cufftComplex* pred_copy = new cufftComplex[size];
+  cudaMemcpy(pred_copy, pred, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
+  cufftComplex* cur_copy = new cufftComplex[size];
+  cudaMemcpy(cur_copy, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
   // Convert to polar notation in order to work on angles.
-  to_polar(host_copy, size);
+  to_polar(pred_copy, size);
+  to_polar(cur_copy, size);
 
   float local_diff;
   float local_adjust;
@@ -329,8 +333,7 @@ void unwrap(
     for (auto col = 0; col < width; ++col)
     {
       // Two-by-two diff, starting from the oldest data //
-      local_diff = host_copy[width * line + col].y -
-        predecessor[width * line + col];
+      local_diff = cur_copy[width * line + col].y - pred_copy[width * line + col].y;
 
       // Adjustements //
       // Equivalent phase variations in [-pi; pi)
@@ -345,13 +348,15 @@ void unwrap(
       else
         local_adjust = 0.f;
 
-      // Applying the final adjustement to the original angle.
-      host_copy[width * line + col].y += local_adjust;
+      // Cumulating the adjustement with precedent ones //
+      adjustments[width * line + col] += local_adjust;
     }
   }
-  // Updating the predecessor for the next iteration.
+  // Applying the cumulated adjustements to the current frame.
   for (auto i = 0; i < size; ++i)
-    predecessor[i] = host_copy[i].y;
+    cur_copy[i].y += adjustments[i];
+  cudaMemcpy(cur, cur_copy, sizeof(cufftComplex)* size, cudaMemcpyHostToDevice);
 
-  cudaMemcpy(input, host_copy, sizeof(cufftComplex)* size, cudaMemcpyHostToDevice);
+  delete[] pred_copy;
+  delete[] cur_copy;
 }

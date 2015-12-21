@@ -23,6 +23,7 @@ namespace holovibes
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
     , cpu_unwrap_buffer_(nullptr)
+    , gpu_predecessor_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
@@ -114,6 +115,8 @@ namespace holovibes
 
     if (cpu_unwrap_buffer_)
       delete cpu_unwrap_buffer_;
+    if (gpu_predecessor_)
+      cudaFree(gpu_predecessor_);
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
