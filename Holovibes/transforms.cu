@@ -1,7 +1,5 @@
 #include "transforms.cuh"
 
-#include <device_launch_parameters.h>
-
 #ifndef _USE_MATH_DEFINES
 /* Enables math constants. */
 # define _USE_MATH_DEFINES
