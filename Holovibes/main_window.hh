@@ -155,7 +155,8 @@ namespace gui
 
     /*! \{ \name View */
     /*! \brief Set view mode
-    ** \param value view mode: "magnitude", "squarred magnitude" or "argument"
+    ** \param value view mode: "magnitude", "squared magnitude", "argument",
+    ** "unwrapped argument", or "unwrapped argument 2".
     */
     void set_view_mode(QString value);
     /*! \brief Set autofocus mode on

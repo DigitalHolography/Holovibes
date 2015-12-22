@@ -108,7 +108,9 @@ namespace gui
       view_mode->setCurrentIndex(2);
     else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       view_mode->setCurrentIndex(3);
-    else
+    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+      view_mode->setCurrentIndex(4);
+    else // Fallback on Modulus
       view_mode->setCurrentIndex(0);
 
     QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
@@ -311,6 +313,9 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+        return; // Phase number is fixed to 1 in this case
+
       if (value < static_cast<int>(cd.nsamples))
       {
         // Synchronize with p_vibro
@@ -331,6 +336,9 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+        return; // Phase number is fixed to 1 in this case
+
       if (cd.pindex < cd.nsamples)
       {
         ++(cd.pindex);
@@ -347,6 +355,9 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+        return; // Phase number is fixed to 1 in this case
 
       if (cd.pindex >= 0)
       {
@@ -451,16 +462,42 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value == "magnitude")
-        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-      else if (value == "squared magnitude")
-        cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
-      else if (value == "argument")
-        cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-      else if (value == "unwrapped argument")
-        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+      if (value == "unwrapped argument 2")
+      {
+        // This mode constraints the phase number to 1.
+        cd.nsamples = 1;
+        cd.pindex = 0;
+        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
+
+        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+        phase_number->setValue(cd.nsamples);
+        phase_number->setEnabled(false);
+
+        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+        p->setValue(cd.pindex);
+        p->setMaximum(cd.nsamples - 1);
+        p->setEnabled(false);
+      }
       else
-        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+      {
+        // Reenabling phase number and p adjustments.
+        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+        phase_number->setEnabled(true);
+
+        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+        p->setEnabled(true);
+
+        if (value == "magnitude")
+          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+        else if (value == "squared magnitude")
+          cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+        else if (value == "argument")
+          cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+        else if (value == "unwrapped argument")
+          cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+        else
+          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+      }
 
       holovibes_.get_pipe()->request_refresh();
     }

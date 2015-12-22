@@ -359,7 +359,7 @@ namespace holovibes
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
     }
-    else if (compute_desc_.view_mode == ComputeDescriptor::UNWRAPPED_ARGUMENT)
+    else
     {
       /* Phase unwrapping requires a reference. We shall copy the first frame
       * obtained right here into gpu_predecessor_, for initialization.
@@ -376,14 +376,29 @@ namespace holovibes
         sizeof(cufftComplex)* input_.get_pixels(),
         cudaMemcpyDeviceToDevice);
 
-      // Phase unwrapping
-      fn_vect_.push_back(std::bind(
-        unwrap,
-        gpu_predecessor_,
-        gpu_input_frame_ptr_,
-        gpu_unwrap_buffer_,
-        input_fd.width,
-        input_fd.height));
+      if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+      {
+        // Phase unwrapping
+        fn_vect_.push_back(std::bind(
+          unwrap,
+          gpu_predecessor_,
+          gpu_input_frame_ptr_,
+          gpu_unwrap_buffer_,
+          input_fd.width,
+          input_fd.height));
+      }
+      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+      {
+        // TODO
+        fn_vect_.push_back(std::bind(
+          complex_to_modulus,
+          gpu_input_frame_ptr_,
+          gpu_float_buffer_,
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
+      }
+      else
+        assert(!"Unknown contrast type.");
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
@@ -403,8 +418,6 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
       return;
     }
-    else
-      assert(!"Impossible case.");
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
