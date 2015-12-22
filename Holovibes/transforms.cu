@@ -69,3 +69,14 @@ __global__ void kernel_spectral_lens(
     output[index].y = sinf(csquare);
   }
 }
+
+__global__ void kernel_conjugate(
+  cufftComplex* input,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  input[index].y *= -1.f;
+}

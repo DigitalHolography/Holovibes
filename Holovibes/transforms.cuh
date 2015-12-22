@@ -51,3 +51,9 @@ __global__ void kernel_transpose(
 
   output[column * height + line] = input[line * width + column];
 }
+
+/*! Change in-place the input matrix to its conjugate form.
+ * The complex data contained in the matrix should be in cartesian form. */
+__global__ void kernel_conjugate(
+  cufftComplex* input,
+  const size_t size);
