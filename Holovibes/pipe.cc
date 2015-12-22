@@ -366,9 +366,11 @@ namespace holovibes
       * The first iteration will have no effect, because the frame will be
       * compared to itself.
       * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-      cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
+      if (!gpu_unwrap_buffer_)
+        cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
       cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
-      cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex)* input_.get_pixels());
+      if (!gpu_predecessor_)
+        cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex)* input_.get_pixels());
       cudaMemcpy(gpu_predecessor_,
         gpu_input_frame_ptr_,
         sizeof(cufftComplex)* input_.get_pixels(),
@@ -381,8 +383,7 @@ namespace holovibes
         gpu_input_frame_ptr_,
         gpu_unwrap_buffer_,
         input_fd.width,
-        input_fd.height,
-        compute_desc_.nsamples.load()));
+        input_fd.height));
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
