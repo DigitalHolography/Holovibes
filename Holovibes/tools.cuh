@@ -148,5 +148,4 @@ void unwrap(
   cufftComplex* cur,
   float* adjustments,
   const unsigned width,
-  const unsigned height,
-  const size_t nb_phases);
+  const unsigned height);
