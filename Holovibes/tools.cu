@@ -324,16 +324,23 @@ static __global__ void kernel_unwrap(
   // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] - pred[index];
 
-  // Adjustements //
-  // Equivalent phase variations in[-pi; pi)
-  float local_adjust = fmodf(local_diff + pi, 2.f * pi) - pi;
-  // We preserve the variation sign for pi and -pi.
-  const float epsilon = 1.e-5f;
-  if ((local_diff > 0.f) && (fabsf(local_adjust - pi) < epsilon))
-    local_adjust = pi;
+  //// Adjustements //
+  //// Equivalent phase variations in[-pi; pi)
+  //float local_adjust = fmodf(local_diff + pi, 2.f * pi) - pi;
+  //// We preserve the variation sign for pi and -pi.
+  //const float epsilon = 1.e-5f;
+  //if ((local_diff > 0.f) && (fabsf(local_adjust - pi) < epsilon))
+  //  local_adjust = pi;
 
-  if (fabsf(local_diff) > pi)
-    local_adjust -= local_diff;
+  //if (fabsf(local_diff) > pi)
+  //  local_adjust -= local_diff;
+  //else
+  //  local_adjust = 0.f;
+  float local_adjust;
+  if (local_diff > pi)
+    local_adjust = -2.f * pi;
+  else if (local_diff < -pi)
+    local_adjust = 2.f * pi;
   else
     local_adjust = 0.f;
 
