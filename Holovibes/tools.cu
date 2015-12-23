@@ -307,7 +307,7 @@ static __global__ void kernel_extract_angle(
   if (index >= size)
     return;
 
-  output[index] = std::atan(input[index].y / input[index].x);
+  output[index] = std::atan2(input[index].y, input[index].x);
 }
 
 static __global__ void kernel_unwrap(
