@@ -369,16 +369,19 @@ namespace holovibes
       if (!gpu_unwrap_buffer_)
         cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
       cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
-      if (!gpu_predecessor_)
-        cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex)* input_.get_pixels());
+      if (!gpu_angle_predecessor_)
+        cudaMalloc(&gpu_angle_predecessor_, sizeof(float)* input_.get_pixels());
+      if (!gpu_angle_current_)
+        cudaMalloc(&gpu_angle_current_, sizeof(float)* input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
         // Phase unwrapping
         fn_vect_.push_back(std::bind(
           unwrap,
-          gpu_predecessor_,
           gpu_input_frame_ptr_,
+          gpu_angle_predecessor_,
+          gpu_angle_current_,
           gpu_unwrap_buffer_,
           input_fd.width,
           input_fd.height));
@@ -398,8 +401,8 @@ namespace holovibes
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
-        complex_to_angle,
-        gpu_input_frame_ptr_,
+        rescale_float,
+        gpu_angle_current_,
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));

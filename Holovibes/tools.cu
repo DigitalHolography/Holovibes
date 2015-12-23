@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 #include <device_launch_parameters.h>
+#include <iostream> // DEBUG
 
 #include "tools.cuh"
 #include "tools_multiply.cuh"
@@ -294,23 +295,24 @@ void copy_buffer(
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
 }
 
-static __global__ void kernel_to_polar(
-  cufftComplex* data,
+/* Take complex data in cartesian form, and use conversion to polar
+ * form to take the angle value of each element and store it
+ * in a floating-point matrix. */
+static __global__ void kernel_extract_angle(
+  const cufftComplex* input,
+  float* output,
   const size_t size)
 {
   const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
   if (index >= size)
     return;
 
-  float dist = std::hypotf(data[index].x, data[index].y);
-  float angle = std::atan(data[index].y / data[index].x);
-  data[index].x = dist;
-  data[index].y = angle;
+  output[index] = std::atan(input[index].y / input[index].x);
 }
 
 static __global__ void kernel_unwrap(
-  cufftComplex* pred,
-  cufftComplex* cur,
+  float* pred,
+  float* cur,
   float* adjustments,
   const size_t size)
 {
@@ -320,7 +322,7 @@ static __global__ void kernel_unwrap(
   const float pi = M_PI;
 
   // Two-by-two diff, starting from the oldest data //
-  float local_diff = cur[index].y - pred[index].y;
+  float local_diff = cur[index] - pred[index];
 
   // Adjustements //
   // Equivalent phase variations in[-pi; pi)
@@ -339,8 +341,8 @@ static __global__ void kernel_unwrap(
   adjustments[index] += local_adjust;
 }
 
-static __global__ void kernel_map_to_angle(
-  cufftComplex* data,
+static __global__ void kernel_correct_angles(
+  float* data,
   const float* values,
   const size_t size)
 {
@@ -348,12 +350,13 @@ static __global__ void kernel_map_to_angle(
   if (index >= size)
     return;
 
-  data[index].y += values[index];
+  data[index] += values[index];
 }
 
 void unwrap(
-  cufftComplex* pred,
-  cufftComplex* cur,
+  const cufftComplex* cur,
+  float* pred_angles,
+  float* cur_angles,
   float* adjustments,
   const unsigned width,
   const unsigned height)
@@ -368,18 +371,38 @@ void unwrap(
   static bool first_time = true;
   if (first_time)
   {
-    cudaMemcpy(pred, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToDevice);
+    kernel_extract_angle << <blocks, threads >> >(cur, pred_angles, size);
     first_time = false;
   }
 
   // Convert to polar notation in order to work on angles.
-  kernel_to_polar << <blocks, threads >> >(pred, size);
-  kernel_to_polar << <blocks, threads >> >(cur, size);
+  kernel_extract_angle << <blocks, threads >> >(cur, cur_angles, size);
 
-  kernel_unwrap << < blocks, threads >> >(pred, cur, adjustments, size);
+  kernel_unwrap << < blocks, threads >> >(pred_angles, cur_angles, adjustments, size);
 
   // Updating predecessor
-  cudaMemcpy(pred, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToDevice);
+  cudaMemcpy(pred_angles, cur_angles, sizeof(float)* size, cudaMemcpyDeviceToDevice);
 
-  kernel_map_to_angle << <blocks, threads >> >(cur, adjustments, size);
+  // DEBUG
+  /*cufftComplex* pred_cpy = new cufftComplex[size];
+  cufftComplex* cur_cpy = new cufftComplex[size];
+  cudaMemcpy(pred_cpy, pred, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
+  cudaMemcpy(cur_cpy, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
+
+  long count = 0;
+  for (auto i = 0; i < size; ++i)
+  {
+  if (pred_cpy[i].x != cur_cpy[i].x ||
+  pred_cpy[i].y != cur_cpy[i].y)
+  {
+  ++count;
+  }
+  }
+  std::cout << count << " elements differ.\n";
+
+  delete[] pred_cpy;
+  delete[] cur_cpy;*/
+  // ! DEBUG
+
+  kernel_correct_angles << <blocks, threads >> >(cur_angles, adjustments, size);
 }

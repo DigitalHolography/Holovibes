@@ -138,14 +138,11 @@ void copy_buffer(
  * by a cutoff value (which is here fixed to pi). Unwrapping seeks
  * two-by-two differences that exceed this cutoff value and performs
  * cumulative adjustments in order to 'smooth' the signal.
- * The algorithm works column-wise on any matrix.
- *
- * \param input Array of complex-valued data, in cartesian form.
- * After the call to unwrap, data will have switched to polar form.
  */
 void unwrap(
-  cufftComplex* pred,
-  cufftComplex* cur,
+  const cufftComplex* cur,
+  float* pred_angles,
+  float* cur_angles,
   float* adjustments,
   const unsigned width,
   const unsigned height);

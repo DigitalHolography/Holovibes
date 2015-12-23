@@ -204,8 +204,8 @@ static __global__ void kernel_complex_to_angle(
   output[index] = input[index].y;
 }
 
-void complex_to_angle(
-  const cufftComplex* input,
+void rescale_float(
+  const float* input,
   float* output,
   const unsigned int size,
   cudaStream_t stream)
@@ -213,11 +213,8 @@ void complex_to_angle(
   const unsigned threads = 128;
   unsigned blocks = map_blocks_to_problem(size, threads);
 
-  // Taking the angle values.
-  kernel_complex_to_angle << <blocks, threads, 0, stream >> >(
-    input,
-    output,
-    size);
+  // TODO : See if gpu_float_buffer_ could be used directly.
+  cudaMemcpy(output, input, sizeof(float)* size, cudaMemcpyDeviceToDevice);
 
   // Computing minimum and maximum values, in order to rescale properly.
   float* gpu_local_mins;

@@ -87,11 +87,11 @@ void complex_to_argument(
  *
  * \param input Complex-valued (in polar form) data.
  */
-void complex_to_angle(
-  const cufftComplex* input,
+void rescale_float(
+  const float* input,
   float* output,
   const unsigned int size,
-  cudaStream_t stream = 0);
+  cudaStream_t stream);
 
 /*! \brief  Convert the endianness of input image(s) from big endian to little endian.
 *
