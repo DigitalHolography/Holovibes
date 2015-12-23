@@ -141,6 +141,7 @@ namespace camera
 
     // Wait for a freshly written image to be readable.
     BiCirHandle hd;
+	//TODO: Use timeout of global config
     BiCirWaitDoneFrame(board_, info_, INFINITE, &hd);
 
     BFU32 status;
@@ -151,6 +152,9 @@ namespace camera
       update_image(hd.pBufData, desc_.width, desc_.height);
       last_buf = hd.BufferNumber;
     }
+
+	if (hd.pBufData == reinterpret_cast<void*>(0xcccccccccccccccc))
+		return (get_frame());
 
     return hd.pBufData;
   }
