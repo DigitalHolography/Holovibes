@@ -334,6 +334,9 @@
     <ClInclude Include="power_of_two.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="config.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.hh">

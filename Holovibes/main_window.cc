@@ -22,8 +22,7 @@ namespace gui
     , CSV_record_thread_(nullptr)
     , file_index_(1)
     , gpib_interface_(nullptr)
-    , input_queue_max_size_(100)
-    , output_queue_max_size_(20)
+    , config_()
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -1202,7 +1201,7 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      input_queue_max_size_);
+      config_.input_queue_max_size);
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
@@ -1386,7 +1385,7 @@ namespace gui
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
-        holovibes_.init_capture(camera_type, input_queue_max_size_, output_queue_max_size_);
+        holovibes_.init_capture(camera_type, config_);
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
@@ -1461,16 +1460,15 @@ namespace gui
 
     if (!ptree.empty())
     {
-      // Queue max size
-      input_queue_max_size_ = ptree.get<int>("image_rendering.input_queue_max_size", input_queue_max_size_);
-      output_queue_max_size_ = ptree.get<int>("image_rendering.output_queue_max_size", output_queue_max_size_);
+      // Config
+      config_.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config_.input_queue_max_size);
+      config_.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config_.output_queue_max_size);
+      config_.frame_timeout = ptree.get<int>("config.frame_timeout", config_.frame_timeout);
+      config_.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config_.flush_on_refresh);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
-
-      // Frame timeout
-      camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
       image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
@@ -1545,12 +1543,15 @@ namespace gui
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 
+    // Config
+    ptree.put("config.input_queue_max_size", config_.input_queue_max_size);
+    ptree.put("config.output_queue_max_size", config_.output_queue_max_size);
+    ptree.put("config.frame_timeout", config_.frame_timeout);
+    ptree.put("config.flush_on_refresh", config_.flush_on_refresh);
+
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);
-    ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-    ptree.put("image_rendering.input_queue_max_size", input_queue_max_size_);
-    ptree.put("image_rendering.output_queue_max_size", output_queue_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
     ptree.put("image_rendering.p_index", cd.pindex);
     ptree.put("image_rendering.lambda", cd.lambda);

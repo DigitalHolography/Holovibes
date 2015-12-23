@@ -7,6 +7,7 @@
 #include <QtWidgets>
 
 #include "main_window.hh"
+#include "config.hh"
 
 int main(int argc, char* argv[])
 {
@@ -45,7 +46,7 @@ int main(int argc, char* argv[])
     try
     {
       if (!opts.is_import_mode_enabled)
-        h.init_capture(opts.camera, opts.input_max_queue_size, opts.output_max_queue_size);
+        h.init_capture(opts.camera, holovibes::Config());
       else
       {
         h.init_import_mode(
@@ -61,7 +62,7 @@ int main(int argc, char* argv[])
         opts.fps,
         opts.spanStart,
         opts.spanEnd,
-        opts.input_max_queue_size);
+        holovibes::Config().input_queue_max_size);
       }
 
       if (opts.is_compute_enabled)
