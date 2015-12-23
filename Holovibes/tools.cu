@@ -323,7 +323,7 @@ static __global__ void kernel_unwrap(
   float local_diff = cur[index].y - pred[index].y;
 
   // Adjustements //
-  // Equivalent phase variations in [-pi; pi)
+  // Equivalent phase variations in[-pi; pi)
   float local_adjust = fmodf(local_diff + pi, 2.f * pi) - pi;
   // We preserve the variation sign for pi and -pi.
   const float epsilon = 1.e-5f;
@@ -362,6 +362,15 @@ void unwrap(
 
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(size, threads);
+
+  /* TODO : Find a BETTER method of handling this. Besides, here it does
+   * not work for any unwrapped_argument launch after the first one. */
+  static bool first_time = true;
+  if (first_time)
+  {
+    cudaMemcpy(pred, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToDevice);
+    first_time = false;
+  }
 
   // Convert to polar notation in order to work on angles.
   kernel_to_polar << <blocks, threads >> >(pred, size);
