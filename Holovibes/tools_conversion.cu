@@ -191,19 +191,6 @@ static __global__ void kernel_rescale(T* data,
   data[index] = (data[index] + fabsf(min)) * new_max / (fabsf(max) + fabsf(min));
 }
 
-/* Kernel wrapped by complex_to_angle. */
-static __global__ void kernel_complex_to_angle(
-  const cufftComplex* input,
-  float* output,
-  const unsigned int size)
-{
-  unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index > size)
-    return;
-
-  output[index] = input[index].y;
-}
-
 void rescale_float(
   const float* input,
   float* output,
