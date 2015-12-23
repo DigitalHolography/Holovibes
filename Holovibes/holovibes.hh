@@ -8,7 +8,6 @@
 # include "compute_descriptor.hh"
 # include "concurrent_deque.hh"
 
-# include "config.hh"
 # include <memory>
 
 /*! \brief Containt all function and structure needed to computes data */
@@ -52,7 +51,7 @@ namespace holovibes
      *
      * Launch the capture thread to continuously acquire frames in input
      * buffer. */
-    void Holovibes::init_capture(const enum camera_type c, Config& config);
+    void Holovibes::init_capture(const enum camera_type c);
 
     /*! \brief Request the capture thread to stop - Free ressources. */
     void dispose_capture();
@@ -190,9 +189,6 @@ namespace holovibes
      * \note see void MainWindow::set_average_graphic() for example
      */
     ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
-
-    /*! \brief Containt all config value */
-    Config    config_;
 
     /* \brief Store the path of holovibes when it is launched.
        so that holovibes.ini is saved at the right place. The problem

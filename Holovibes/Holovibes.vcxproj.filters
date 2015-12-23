@@ -215,6 +215,9 @@
     <ClCompile Include="power_of_two.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="config.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">

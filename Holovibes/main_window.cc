@@ -4,6 +4,8 @@
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
+#include "config.hh"
+
 namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
@@ -22,7 +24,6 @@ namespace gui
     , CSV_record_thread_(nullptr)
     , file_index_(1)
     , gpib_interface_(nullptr)
-    , config_()
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -1201,7 +1202,7 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      config_.input_queue_max_size);
+      Global::global_config.input_queue_max_size);
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
@@ -1385,7 +1386,7 @@ namespace gui
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
-        holovibes_.init_capture(camera_type, config_);
+        holovibes_.init_capture(camera_type);
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
@@ -1460,11 +1461,12 @@ namespace gui
 
     if (!ptree.empty())
     {
+      holovibes::Config& config = Global::global_config;
       // Config
-      config_.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config_.input_queue_max_size);
-      config_.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config_.output_queue_max_size);
-      config_.frame_timeout = ptree.get<int>("config.frame_timeout", config_.frame_timeout);
-      config_.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config_.flush_on_refresh);
+      config.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config.input_queue_max_size);
+      config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
+      config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
+      config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1542,12 +1544,13 @@ namespace gui
     gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
+    holovibes::Config& config = Global::global_config;
 
     // Config
-    ptree.put("config.input_queue_max_size", config_.input_queue_max_size);
-    ptree.put("config.output_queue_max_size", config_.output_queue_max_size);
-    ptree.put("config.frame_timeout", config_.frame_timeout);
-    ptree.put("config.flush_on_refresh", config_.flush_on_refresh);
+    ptree.put("config.input_queue_max_size", config.input_queue_max_size);
+    ptree.put("config.output_queue_max_size", config.output_queue_max_size);
+    ptree.put("config.frame_timeout", config.frame_timeout);
+    ptree.put("config.flush_on_refresh", config.flush_on_refresh);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());

@@ -252,6 +252,7 @@
   <ItemGroup>
     <ClCompile Include="camera_dll.cc" />
     <ClCompile Include="compute_descriptor.cc" />
+    <ClCompile Include="config.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>

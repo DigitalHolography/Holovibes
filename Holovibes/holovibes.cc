@@ -20,7 +20,6 @@ namespace holovibes
     , output_()
     , compute_desc_()
     , average_queue_()
-    , config_()
     , launch_path(boost::filesystem::current_path().generic_string())
   {
   }
@@ -29,9 +28,8 @@ namespace holovibes
   {
   }
 
-  void Holovibes::init_capture(const enum camera_type c, Config& config)
+  void Holovibes::init_capture(const enum camera_type c)
   {
-    config_ = config;
     camera_initialized_ = false;
     try
     {
@@ -55,7 +53,7 @@ namespace holovibes
       std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
       camera_->init_camera();
       std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
-      input_.reset(new Queue(camera_->get_frame_descriptor(), config_.input_queue_max_size));
+      input_.reset(new Queue(camera_->get_frame_descriptor(), Global::global_config.input_queue_max_size));
       std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
@@ -121,7 +119,7 @@ namespace holovibes
 
     camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
     output_frame_desc.depth = 2;
-    output_.reset(new Queue(output_frame_desc, config_.output_queue_max_size));
+    output_.reset(new Queue(output_frame_desc, Global::global_config.output_queue_max_size));
 
     tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype,
       is_float_output_enabled,

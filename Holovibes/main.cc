@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     try
     {
       if (!opts.is_import_mode_enabled)
-        h.init_capture(opts.camera, holovibes::Config());
+        h.init_capture(opts.camera);
       else
       {
         h.init_import_mode(
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         opts.fps,
         opts.spanStart,
         opts.spanEnd,
-        holovibes::Config().input_queue_max_size);
+        Global::global_config.input_queue_max_size);
       }
 
       if (opts.is_compute_enabled)

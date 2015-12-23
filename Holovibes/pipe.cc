@@ -1,7 +1,8 @@
-#include "pipe.hh"
-
 #include <cassert>
 #include <algorithm>
+
+#include "pipe.hh"
+#include "config.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -467,7 +468,8 @@ namespace holovibes
 
   void Pipe::exec()
   {
-    input_.flush();
+    if (Global::global_config.flush_on_refresh)
+      input_.flush();
     while (!termination_requested_)
     {
       if (input_.get_current_elts() >= input_length_)

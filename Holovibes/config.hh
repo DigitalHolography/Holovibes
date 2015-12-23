@@ -1,4 +1,3 @@
-
 #pragma once
 
 namespace holovibes
@@ -33,4 +32,9 @@ namespace holovibes
     /*! \brief Max size of output queue in number of images. */
     unsigned int output_queue_max_size;
   };
+}
+
+namespace Global
+{
+  extern holovibes::Config global_config;
 }

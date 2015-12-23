@@ -4,6 +4,7 @@
 #include <boost\lexical_cast.hpp>
 
 #include <cassert>
+#include "config.hh"
 
 namespace holovibes
 {
@@ -441,7 +442,7 @@ namespace holovibes
 
       opts_.compute_desc.nsamples = nsamples;
 
-      if (opts_.compute_desc.nsamples >= Config().input_queue_max_size)
+      if (opts_.compute_desc.nsamples >= Global::global_config.input_queue_max_size)
         throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
     }
 

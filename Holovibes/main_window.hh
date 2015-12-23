@@ -29,7 +29,6 @@
 # include "thread_csv_record.hh"
 # include "concurrent_deque.hh"
 # include <string>
-# include "config.hh"
 
 namespace gui
 {
@@ -394,9 +393,6 @@ namespace gui
     unsigned int file_index_;
 
     std::unique_ptr<gpib::VisaInterface> gpib_interface_;
-
-    /*! \brief Containt generale config */
-    holovibes::Config config_;
 
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;
