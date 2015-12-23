@@ -1,7 +1,11 @@
 #include <cmath>
 #include <algorithm>
 #include <device_launch_parameters.h>
-#include <iostream> // DEBUG
+// DEBUG
+#include <iostream>
+#include <thread>
+#include <chrono>
+// ! DEBUG
 
 #include "tools.cuh"
 #include "tools_multiply.cuh"
@@ -324,18 +328,7 @@ static __global__ void kernel_unwrap(
   // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] - pred[index];
 
-  //// Adjustements //
-  //// Equivalent phase variations in[-pi; pi)
-  //float local_adjust = fmodf(local_diff + pi, 2.f * pi) - pi;
-  //// We preserve the variation sign for pi and -pi.
-  //const float epsilon = 1.e-5f;
-  //if ((local_diff > 0.f) && (fabsf(local_adjust - pi) < epsilon))
-  //  local_adjust = pi;
-
-  //if (fabsf(local_diff) > pi)
-  //  local_adjust -= local_diff;
-  //else
-  //  local_adjust = 0.f;
+  // Adjustements //
   float local_adjust;
   if (local_diff > pi)
     local_adjust = -2.f * pi;
@@ -389,27 +382,6 @@ void unwrap(
 
   // Updating predecessor
   cudaMemcpy(pred_angles, cur_angles, sizeof(float)* size, cudaMemcpyDeviceToDevice);
-
-  // DEBUG
-  /*cufftComplex* pred_cpy = new cufftComplex[size];
-  cufftComplex* cur_cpy = new cufftComplex[size];
-  cudaMemcpy(pred_cpy, pred, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
-  cudaMemcpy(cur_cpy, cur, sizeof(cufftComplex)* size, cudaMemcpyDeviceToHost);
-
-  long count = 0;
-  for (auto i = 0; i < size; ++i)
-  {
-  if (pred_cpy[i].x != cur_cpy[i].x ||
-  pred_cpy[i].y != cur_cpy[i].y)
-  {
-  ++count;
-  }
-  }
-  std::cout << count << " elements differ.\n";
-
-  delete[] pred_cpy;
-  delete[] cur_cpy;*/
-  // ! DEBUG
 
   kernel_correct_angles << <blocks, threads >> >(cur_angles, adjustments, size);
 }
