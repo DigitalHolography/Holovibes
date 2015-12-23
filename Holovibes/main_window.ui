@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1101</width>
-    <height>355</height>
+    <width>1010</width>
+    <height>362</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -117,7 +117,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>131</width>
+           <width>171</width>
            <height>21</height>
           </rect>
          </property>
@@ -130,7 +130,7 @@
           <rect>
            <x>10</x>
            <y>160</y>
-           <width>101</width>
+           <width>111</width>
            <height>20</height>
           </rect>
          </property>
@@ -143,7 +143,7 @@
           <rect>
            <x>10</x>
            <y>210</y>
-           <width>53</width>
+           <width>101</width>
            <height>21</height>
           </rect>
          </property>
@@ -161,7 +161,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>browse</string>
+          <string>ROI file</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="ROIFileLineEdit">
@@ -390,7 +390,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>130</y>
            <width>31</width>
            <height>16</height>
@@ -403,7 +403,7 @@
         <widget class="QPushButton" name="autoPushButton">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>120</x>
            <y>80</y>
            <width>61</width>
            <height>21</height>
@@ -416,7 +416,7 @@
         <widget class="QComboBox" name="viewModeComboBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>90</x>
            <y>20</y>
            <width>91</width>
            <height>22</height>
@@ -459,7 +459,7 @@
           <rect>
            <x>40</x>
            <y>130</y>
-           <width>62</width>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -479,9 +479,9 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>130</x>
            <y>130</y>
-           <width>62</width>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -537,7 +537,7 @@
         <widget class="QDoubleSpinBox" name="zmaxDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>190</y>
            <width>81</width>
            <height>21</height>
@@ -559,7 +559,7 @@
         <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>220</y>
            <width>81</width>
            <height>21</height>
@@ -604,7 +604,7 @@
         <widget class="QSpinBox" name="zdivSpinBox">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>250</y>
            <width>81</width>
            <height>22</height>
@@ -620,7 +620,7 @@
         <widget class="QPushButton" name="autofocusPushButton">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>160</y>
            <width>81</width>
            <height>21</height>
@@ -646,7 +646,7 @@
         <widget class="QSpinBox" name="ziterSpinBox">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>280</y>
            <width>81</width>
            <height>22</height>
@@ -702,7 +702,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Image input:</string>
+          <string>Img. input:</string>
          </property>
         </widget>
         <widget class="QPushButton" name="ImportPushButton">
@@ -908,7 +908,7 @@
         <widget class="QComboBox" name="ImportEndianModeComboBox">
          <property name="geometry">
           <rect>
-           <x>60</x>
+           <x>70</x>
            <y>240</y>
            <width>111</width>
            <height>22</height>
@@ -935,7 +935,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Endian:</string>
+          <string>Type:</string>
          </property>
         </widget>
         <widget class="QLabel" name="ImportDepthLabelVibro">
@@ -989,7 +989,7 @@
           <rect>
            <x>70</x>
            <y>270</y>
-           <width>61</width>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -1006,7 +1006,7 @@
         <widget class="QSpinBox" name="ImportEndSpinBox">
          <property name="geometry">
           <rect>
-           <x>130</x>
+           <x>120</x>
            <y>270</y>
            <width>61</width>
            <height>22</height>
@@ -1042,6 +1042,12 @@
       </item>
       <item row="0" column="3">
        <widget class="gui::GroupBox" name="Record">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="title">
          <string>Record</string>
         </property>
@@ -1081,7 +1087,7 @@
          <property name="geometry">
           <rect>
            <x>110</x>
-           <y>50</y>
+           <y>80</y>
            <width>71</width>
            <height>21</height>
           </rect>
@@ -1094,7 +1100,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>90</y>
+           <y>110</y>
            <width>171</width>
            <height>22</height>
           </rect>
@@ -1104,20 +1110,20 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>50</y>
+           <y>80</y>
            <width>91</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>Image output:</string>
+          <string>Img. output:</string>
          </property>
         </widget>
         <widget class="QPushButton" name="recPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>140</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1133,7 +1139,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>120</y>
+           <y>140</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1146,7 +1152,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>210</y>
+           <y>230</y>
            <width>101</width>
            <height>21</height>
           </rect>
@@ -1159,7 +1165,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>210</y>
+           <y>230</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1172,7 +1178,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>240</y>
+           <y>260</y>
            <width>171</width>
            <height>22</height>
           </rect>
@@ -1182,7 +1188,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>270</y>
+           <y>290</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1198,7 +1204,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>270</y>
+           <y>290</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1211,7 +1217,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>180</y>
+           <y>200</y>
            <width>171</width>
            <height>22</height>
           </rect>
@@ -1221,7 +1227,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>150</y>
+           <y>170</y>
            <width>91</width>
            <height>16</height>
           </rect>
@@ -1234,7 +1240,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>150</y>
+           <y>170</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1247,7 +1253,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>120</y>
+           <y>140</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1260,7 +1266,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>270</y>
+           <y>290</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1273,19 +1279,22 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>70</y>
+           <y>50</y>
            <width>121</width>
            <height>21</height>
           </rect>
          </property>
          <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
+          <enum>Qt::LeftToRight</enum>
          </property>
          <property name="autoFillBackground">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Float output: </string>
+          <string>Float output</string>
+         </property>
+         <property name="shortcut">
+          <string notr="true"/>
          </property>
          <property name="tristate">
           <bool>false</bool>
@@ -1295,6 +1304,24 @@
       </item>
       <item row="0" column="0">
        <widget class="gui::GroupBox" name="ImageRendering">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -1310,7 +1337,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>30</y>
+           <y>20</y>
            <width>95</width>
            <height>21</height>
           </rect>
@@ -1325,9 +1352,9 @@
         <widget class="QRadioButton" name="hologramRadioButton">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>30</y>
-           <width>81</width>
+           <x>90</x>
+           <y>20</y>
+           <width>91</width>
            <height>21</height>
           </rect>
          </property>
@@ -1339,7 +1366,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>60</y>
+           <y>70</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1355,8 +1382,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
-           <width>53</width>
+           <y>70</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -1368,7 +1395,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>90</y>
+           <y>100</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1378,8 +1405,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>90</y>
-           <width>53</width>
+           <y>100</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -1391,8 +1418,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
-           <width>111</width>
+           <y>130</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -1404,7 +1431,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>120</y>
+           <y>130</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1426,20 +1453,20 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>150</y>
-           <width>53</width>
+           <y>160</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>z:</string>
+          <string>z (m):</string>
          </property>
         </widget>
         <widget class="QDoubleSpinBox" name="zSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>150</y>
+           <y>160</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1461,7 +1488,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>210</y>
+           <y>220</y>
            <width>81</width>
            <height>16</height>
           </rect>
@@ -1474,7 +1501,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>210</y>
+           <y>220</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1499,20 +1526,20 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>180</y>
-           <width>53</width>
+           <y>190</y>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>z step:</string>
+          <string>z step (m):</string>
          </property>
         </widget>
         <widget class="QDoubleSpinBox" name="zStepDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>180</y>
+           <y>190</y>
            <width>81</width>
            <height>22</height>
           </rect>
@@ -1531,33 +1558,33 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>240</y>
-           <width>81</width>
+           <y>250</y>
+           <width>101</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>Pixel size:</string>
+          <string>Pixel size (μm):</string>
          </property>
         </widget>
         <widget class="QLabel" name="algorithmLabel_3">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>270</y>
-           <width>81</width>
+           <y>280</y>
+           <width>101</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>Boundary:</string>
+          <string>Boundary (m):</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="pixelSize">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>240</y>
+           <x>120</x>
+           <y>250</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1572,8 +1599,8 @@
         <widget class="QLineEdit" name="boundary">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>270</y>
+           <x>120</x>
+           <y>280</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1585,43 +1612,17 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="algorithmLabel_4">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>270</y>
-           <width>20</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>m</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="algorithmLabel_5">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>240</y>
-           <width>20</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>μm</string>
-         </property>
-        </widget>
         <widget class="QCheckBox" name="PipelineCheckBox">
          <property name="geometry">
           <rect>
-           <x>130</x>
-           <y>10</y>
-           <width>71</width>
-           <height>18</height>
+           <x>10</x>
+           <y>40</y>
+           <width>171</width>
+           <height>20</height>
           </rect>
          </property>
          <property name="text">
-          <string>Pipeline</string>
+          <string>Parallel pipeline</string>
          </property>
          <property name="checked">
           <bool>false</bool>
@@ -1638,8 +1639,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1101</width>
-     <height>18</height>
+     <width>1010</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -1890,8 +1891,8 @@
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1009</x>
-     <y>325</y>
+     <x>1011</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -1906,8 +1907,8 @@
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1069</x>
-     <y>325</y>
+     <x>1071</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -2002,8 +2003,8 @@
    <slot>set_image_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>78</y>
+     <x>62</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2018,8 +2019,8 @@
    <slot>set_phase_number(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>115</y>
+     <x>175</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2034,8 +2035,8 @@
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>188</x>
-     <y>145</y>
+     <x>187</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2050,8 +2051,8 @@
    <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>186</x>
-     <y>175</y>
+     <x>187</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2066,8 +2067,8 @@
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>205</y>
+     <x>182</x>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2082,8 +2083,8 @@
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>265</y>
+     <x>164</x>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2098,8 +2099,8 @@
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>379</x>
-     <y>154</y>
+     <x>426</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2114,8 +2115,8 @@
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
-     <y>94</y>
+     <x>336</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2130,8 +2131,8 @@
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>114</y>
+     <x>356</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2146,8 +2147,8 @@
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>493</x>
-     <y>124</y>
+     <x>524</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -2162,8 +2163,8 @@
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>493</x>
-     <y>154</y>
+     <x>524</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -2178,8 +2179,8 @@
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>675</x>
-     <y>173</y>
+     <x>723</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -2194,8 +2195,8 @@
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>104</y>
+     <x>843</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -2210,8 +2211,8 @@
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>75</y>
+     <x>416</x>
+     <y>66</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -2226,8 +2227,8 @@
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>134</y>
+     <x>317</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -2338,8 +2339,8 @@
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>185</y>
+     <x>327</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -2354,8 +2355,8 @@
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>185</y>
+     <x>427</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -2402,8 +2403,8 @@
    <slot>set_z_step(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>235</y>
+     <x>187</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -2450,8 +2451,8 @@
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>212</y>
+     <x>554</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -2498,8 +2499,8 @@
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>795</x>
-     <y>263</y>
+     <x>843</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>589</x>
@@ -2514,8 +2515,8 @@
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>263</y>
+     <x>624</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>619</x>
@@ -2530,8 +2531,8 @@
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>503</x>
-     <y>323</y>
+     <x>534</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2546,8 +2547,8 @@
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>323</y>
+     <x>624</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -2562,8 +2563,8 @@
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>675</x>
-     <y>323</y>
+     <x>723</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -2578,8 +2579,8 @@
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>213</y>
+     <x>624</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -2594,8 +2595,8 @@
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>204</y>
+     <x>843</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>879</x>
@@ -2610,8 +2611,8 @@
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>213</y>
+     <x>416</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -2626,8 +2627,8 @@
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
-     <y>174</y>
+     <x>783</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -2642,8 +2643,8 @@
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
-     <y>324</y>
+     <x>783</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -2658,8 +2659,8 @@
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>795</x>
-     <y>173</y>
+     <x>843</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -2674,8 +2675,8 @@
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>324</y>
+     <x>843</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -2690,8 +2691,8 @@
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1059</x>
-     <y>84</y>
+     <x>1061</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>1011</x>
@@ -2706,8 +2707,8 @@
    <slot>import_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>969</x>
-     <y>144</y>
+     <x>971</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>1010</x>
@@ -2722,8 +2723,8 @@
    <slot>import_file_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1059</x>
-     <y>144</y>
+     <x>1061</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -2760,6 +2761,86 @@
     <hint type="destinationlabel">
      <x>550</x>
      <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImage_rendering</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRecord</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImport</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSpecial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionView</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -2819,5 +2900,6 @@
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
+  <slot>layout_toggled(bool)</slot>
  </slots>
 </ui>

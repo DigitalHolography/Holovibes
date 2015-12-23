@@ -69,6 +69,8 @@ namespace gui
 
     public slots:
     /*! \{ \name Menu */
+    /*! \brief Resize if one layout is toggled. */
+    void layout_toggled(bool b);
     /*! \brief Open holovibes configuration file */
     void configure_holovibes();
     /*! \brief Call child OpenGL widget fullscreen method */

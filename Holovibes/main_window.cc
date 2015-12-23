@@ -156,6 +156,25 @@ namespace gui
     average_visible(is_enabled_average_);
   }
 
+  void MainWindow::layout_toggled(bool b)
+  {
+    unsigned int childCount = 0;
+    gui::GroupBox* image_rendering_groupe_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox* view_groupe_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox* vibrometry_groupe_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox* record_groupe_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox* import_groupe_box = findChild<gui::GroupBox*>("Import");
+
+    childCount += image_rendering_groupe_box->isVisible();
+    childCount += view_groupe_box->isVisible();
+    childCount += vibrometry_groupe_box->isVisible();
+    childCount += record_groupe_box->isVisible();
+    childCount += import_groupe_box->isVisible();
+
+    if (childCount > 0)
+      this->resize(QSize(childCount * 195, 362));
+  }
+
   void MainWindow::configure_holovibes()
   {
     open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
