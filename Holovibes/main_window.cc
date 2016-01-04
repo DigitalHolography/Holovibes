@@ -64,18 +64,6 @@ namespace gui
     notify();
   }
 
-  void MainWindow::hide_endianess()
-  {
-    QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-    QString curr_value = depth_cbox->currentText();
-
-    QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
-    if (curr_value == "8")
-      imp_cbox->setEnabled(false);
-    if (curr_value == "16")
-      imp_cbox->setEnabled(true);
-  }
-
   MainWindow::~MainWindow()
   {
     holovibes_.dispose_compute();
@@ -1681,5 +1669,17 @@ namespace gui
     split_string(path, '.', path_tokens);
 
     return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
+  }
+
+  void MainWindow::hide_endianess()
+  {
+    QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+    QString curr_value = depth_cbox->currentText();
+
+    QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+    if (curr_value == "8")
+      imp_cbox->setEnabled(false);
+    if (curr_value == "16")
+      imp_cbox->setEnabled(true);
   }
 }
