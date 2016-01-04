@@ -22,9 +22,7 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
-    , gpu_unwrap_buffer_(nullptr)
-    , gpu_angle_predecessor_(nullptr)
-    , gpu_angle_current_(nullptr)
+    , unwrap_res_()
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
@@ -113,13 +111,6 @@ namespace holovibes
 
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
-
-    if (gpu_unwrap_buffer_)
-      cudaFree(gpu_unwrap_buffer_);
-    if (gpu_angle_predecessor_)
-      cudaFree(gpu_angle_predecessor_);
-    if (gpu_angle_current_)
-      cudaFree(gpu_angle_current_);
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
