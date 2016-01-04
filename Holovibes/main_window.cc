@@ -1383,7 +1383,7 @@ namespace gui
     nb_of_frames_label->setDisabled(!value);
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_of_frames_spinbox->setDisabled(!value);
-    QPushButton* browse_button = findChild<QPushButton*>("browsePushButton");
+    QToolButton* browse_button = findChild<QToolButton*>("ImageOutputBrowsePushButton");
     browse_button->setDisabled(!value);
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
     path_line_edit->setDisabled(!value);
@@ -1407,7 +1407,7 @@ namespace gui
   {
     QLabel* roi_file_label = findChild<QLabel*>("ROIFileLabel");
     roi_file_label->setDisabled(!value);
-    QPushButton* roi_browse_button = findChild<QPushButton*>("ROIBrowseButton");
+    QToolButton* roi_browse_button = findChild<QToolButton*>("ROIFileBrowseToolButton");
     roi_browse_button->setDisabled(!value);
     QLineEdit* roi_file_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
     roi_file_line_edit->setDisabled(!value);
@@ -1419,9 +1419,9 @@ namespace gui
 
   void MainWindow::average_record_but_cancel_visible(const bool value)
   {
-    QLabel* roi_output_file_label = findChild<QLabel*>("ROIOutputFileLabel");
+    QLabel* roi_output_file_label = findChild<QLabel*>("ROIOuputLabel");
     roi_output_file_label->setDisabled(!value);
-    QPushButton* roi_output_push_button = findChild<QPushButton*>("ROIOutputPushButton");
+    QToolButton* roi_output_push_button = findChild<QToolButton*>("ROIOutputToolButton");
     roi_output_push_button->setDisabled(!value);
     QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
     roi_output_line_edit->setDisabled(!value);
