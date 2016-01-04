@@ -32,6 +32,7 @@ namespace gui
     record_visible(false);
 
     load_ini("holovibes.ini");
+    layout_toggled(false);
 
     // Keyboard shortcuts
     z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -159,20 +160,21 @@ namespace gui
   void MainWindow::layout_toggled(bool b)
   {
     unsigned int childCount = 0;
-    gui::GroupBox* image_rendering_groupe_box = findChild<gui::GroupBox*>("ImageRendering");
-    gui::GroupBox* view_groupe_box = findChild<gui::GroupBox*>("View");
-    gui::GroupBox* vibrometry_groupe_box = findChild<gui::GroupBox*>("Vibrometry");
-    gui::GroupBox* record_groupe_box = findChild<gui::GroupBox*>("Record");
-    gui::GroupBox* import_groupe_box = findChild<gui::GroupBox*>("Import");
+    std::vector<gui::GroupBox*> v;
 
-    childCount += image_rendering_groupe_box->isVisible();
-    childCount += view_groupe_box->isVisible();
-    childCount += vibrometry_groupe_box->isVisible();
-    childCount += record_groupe_box->isVisible();
-    childCount += import_groupe_box->isVisible();
+    v.push_back(findChild<gui::GroupBox*>("ImageRendering"));
+    v.push_back(findChild<gui::GroupBox*>("View"));
+    v.push_back(findChild<gui::GroupBox*>("Vibrometry"));
+    v.push_back(findChild<gui::GroupBox*>("Record"));
+    v.push_back(findChild<gui::GroupBox*>("Import"));
+
+    for each (gui::GroupBox* var in v)
+      childCount += !var->isHidden();
 
     if (childCount > 0)
       this->resize(QSize(childCount * 195, 362));
+    else
+      this->resize(QSize(195, 60));
   }
 
   void MainWindow::configure_holovibes()

@@ -69,7 +69,10 @@ namespace gui
 
     public slots:
     /*! \{ \name Menu */
-    /*! \brief Resize if one layout is toggled. */
+    /*! \brief Resize windows if one layout is toggled. 
+    **
+    ** b is unused
+    */
     void layout_toggled(bool b);
     /*! \brief Open holovibes configuration file */
     void configure_holovibes();
