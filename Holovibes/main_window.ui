@@ -351,19 +351,6 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLabel" name="inputFileLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="QPushButton" name="ImportPushButton">
          <property name="geometry">
           <rect>
