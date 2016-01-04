@@ -215,6 +215,9 @@
     <ClCompile Include="power_of_two.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="config.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -338,6 +341,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui_gl_widget_color.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

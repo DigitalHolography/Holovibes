@@ -4,6 +4,8 @@
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
+#include "config.hh"
+
 namespace gui
 {
   MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
@@ -22,8 +24,6 @@ namespace gui
     , CSV_record_thread_(nullptr)
     , file_index_(1)
     , gpib_interface_(nullptr)
-    , input_queue_max_size_(100)
-    , output_queue_max_size_(20)
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
@@ -158,6 +158,25 @@ namespace gui
       gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 
     average_visible(is_enabled_average_);
+  }
+
+  void MainWindow::layout_toggled(bool b)
+  {
+    unsigned int childCount = 0;
+    gui::GroupBox* image_rendering_groupe_box = findChild<gui::GroupBox*>("ImageRendering");
+    gui::GroupBox* view_groupe_box = findChild<gui::GroupBox*>("View");
+    gui::GroupBox* vibrometry_groupe_box = findChild<gui::GroupBox*>("Vibrometry");
+    gui::GroupBox* record_groupe_box = findChild<gui::GroupBox*>("Record");
+    gui::GroupBox* import_groupe_box = findChild<gui::GroupBox*>("Import");
+
+    childCount += image_rendering_groupe_box->isVisible();
+    childCount += view_groupe_box->isVisible();
+    childCount += vibrometry_groupe_box->isVisible();
+    childCount += record_groupe_box->isVisible();
+    childCount += import_groupe_box->isVisible();
+
+    if (childCount > 0)
+      this->resize(QSize(childCount * 195, 362));
   }
 
   void MainWindow::configure_holovibes()
@@ -1243,7 +1262,7 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      input_queue_max_size_);
+      Global::global_config.input_queue_max_size);
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
@@ -1427,7 +1446,7 @@ namespace gui
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
         holovibes_.dispose_capture();
-        holovibes_.init_capture(camera_type, input_queue_max_size_, output_queue_max_size_);
+        holovibes_.init_capture(camera_type);
         camera_visible(true);
         record_visible(true);
         set_image_mode(is_direct_mode_);
@@ -1502,16 +1521,16 @@ namespace gui
 
     if (!ptree.empty())
     {
-      // Queue max size
-      input_queue_max_size_ = ptree.get<int>("image_rendering.input_queue_max_size", input_queue_max_size_);
-      output_queue_max_size_ = ptree.get<int>("image_rendering.output_queue_max_size", output_queue_max_size_);
+      holovibes::Config& config = Global::global_config;
+      // Config
+      config.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config.input_queue_max_size);
+      config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
+      config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
+      config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
-
-      // Frame timeout
-      camera::FRAME_TIMEOUT = ptree.get<int>("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
 
       // Image rendering
       image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
@@ -1585,13 +1604,17 @@ namespace gui
     gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
+    holovibes::Config& config = Global::global_config;
+
+    // Config
+    ptree.put("config.input_queue_max_size", config.input_queue_max_size);
+    ptree.put("config.output_queue_max_size", config.output_queue_max_size);
+    ptree.put("config.frame_timeout", config.frame_timeout);
+    ptree.put("config.flush_on_refresh", config.flush_on_refresh);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);
-    ptree.put("image_rendering.frame_timeout", camera::FRAME_TIMEOUT);
-    ptree.put("image_rendering.input_queue_max_size", input_queue_max_size_);
-    ptree.put("image_rendering.output_queue_max_size", output_queue_max_size_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
     ptree.put("image_rendering.p_index", cd.pindex);
     ptree.put("image_rendering.lambda", cd.lambda);

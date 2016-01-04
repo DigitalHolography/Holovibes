@@ -1,12 +1,14 @@
-#include "pipe.hh"
-
 #include <cassert>
 #include <algorithm>
+
+#include "pipe.hh"
+#include "config.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
 #include "tools.cuh"
+#include "autofocus.cuh"
 #include "tools_conversion.cuh"
 #include "tools.hh"
 #include "preprocessing.cuh"
@@ -91,52 +93,35 @@ namespace holovibes
     if (abort_construct_requested_)
       return;
 
-    if (!autofocus_requested_)
+    if (autofocus_requested_)
     {
-      // Fill input complex buffer, one frame at a time.
       fn_vect_.push_back(std::bind(
-        make_contiguous_complex,
-        std::ref(input_),
-        gpu_input_buffer_,
-        input_length_,
-        gpu_sqrt_vector_,
-        static_cast<cudaStream_t>(0)));
-    }
-    else
-    {
-      autofocus_init();
-
-      fn_vect_.push_back(std::bind(
-        &Pipe::cudaMemcpyNoReturn,
+        &Pipe::autofocus_caller,
         this,
-        gpu_input_buffer_,
-        af_env_.gpu_input_buffer_tmp,
-        af_env_.gpu_input_size,
-        cudaMemcpyDeviceToDevice));
+        gpu_float_buffer_,
+        static_cast<cudaStream_t>(0)));
+      autofocus_requested_ = false;
+      request_refresh();
+      return;
     }
+
+    // Fill input complex buffer, one frame at a time.
+    fn_vect_.push_back(std::bind(
+      make_contiguous_complex,
+      std::ref(input_),
+      gpu_input_buffer_,
+      input_length_,
+      gpu_sqrt_vector_,
+      static_cast<cudaStream_t>(0)));
 
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
-      // Initialize FFT1 lens.
-      if (!autofocus_requested_)
-      {
-        fft1_lens(
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda,
-          compute_desc_.zdistance,
-          static_cast<cudaStream_t>(0));
-      }
-      else
-      {
-        fn_vect_.push_back(std::bind(
-          fft1_lens,
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda.load(),
-          std::ref(af_env_.z),
-          static_cast<cudaStream_t>(0)));
-      }
+      fft1_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance,
+        static_cast<cudaStream_t>(0));
 
       // Add FFT1.
       fn_vect_.push_back(std::bind(
@@ -167,26 +152,13 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
-      // Initialize FFT1 lens.
-      if (!autofocus_requested_)
-      {
-        fft2_lens(
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda,
-          compute_desc_.zdistance,
-          static_cast<cudaStream_t>(0));
-      }
-      else
-      {
-        fn_vect_.push_back(std::bind(
-          fft2_lens,
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda.load(),
-          std::ref(af_env_.z),
-          static_cast<cudaStream_t>(0)));
-      }
+      fft2_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance,
+        static_cast<cudaStream_t>(0));
+
       /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 
@@ -232,26 +204,12 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
-      // Initialize FFT1 lens.
-      if (!autofocus_requested_)
-      {
-        fft1_lens(
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda,
-          compute_desc_.zdistance,
-          static_cast<cudaStream_t>(0));
-      }
-      else
-      {
-        fn_vect_.push_back(std::bind(
-          fft1_lens,
-          gpu_lens_,
-          input_fd,
-          compute_desc_.lambda.load(),
-          std::ref(af_env_.z),
-          static_cast<cudaStream_t>(0)));
-      }
+      fft1_lens(
+        gpu_lens_,
+        input_fd,
+        compute_desc_.lambda,
+        compute_desc_.zdistance,
+        static_cast<cudaStream_t>(0));
 
       curr_elt_stft_ = 0;
       // Add STFT.
@@ -504,16 +462,6 @@ namespace holovibes
         gpu_float_buffer_));
     }
 
-    if (autofocus_requested_)
-    {
-      fn_vect_.push_back(std::bind(
-        &Pipe::autofocus_caller,
-        this,
-        gpu_float_buffer_,
-        static_cast<cudaStream_t>(0)));
-      autofocus_requested_ = false;
-    }
-
     fn_vect_.push_back(std::bind(
       float_to_ushort,
       gpu_float_buffer_,
@@ -522,9 +470,182 @@ namespace holovibes
       static_cast<cudaStream_t>(0)));
   }
 
+
+  void Pipe::autofocus_caller(float* input, cudaStream_t stream)
+  {
+    /* Fill gpu_input complex buffer. */
+    make_contiguous_complex(
+      input_,
+      gpu_input_buffer_,
+      compute_desc_.nsamples.load(),
+      gpu_sqrt_vector_);
+
+    float z_min = compute_desc_.autofocus_z_min;
+    float z_max = compute_desc_.autofocus_z_max;
+    const float z_div = static_cast<float>(compute_desc_.autofocus_z_div);
+    Rectangle zone = compute_desc_.autofocus_zone;
+
+    /* Autofocus needs to work on the same images.
+    * It will computes on copies. */
+    cufftComplex* gpu_input_buffer_tmp;
+    const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
+    cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
+    float z_step = (z_max - z_min) / z_div;
+
+    /* Compute square af zone. */
+    float* gpu_float_buffer_af_zone;
+    const unsigned int zone_width = zone.top_right.x - zone.top_left.x;
+    const unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
+
+    const unsigned int af_square_size =
+      static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
+    const unsigned int af_size = af_square_size * af_square_size;
+
+    cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
+    cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
+
+    /// The main loop that calculates all z, and find the max one
+    // z_step will decrease and zmin and zmax will merge into
+    // the best autofocus_value.
+    float af_z = 0.0f;
+
+    std::vector<float> focus_metric_values;
+    auto biggest = focus_metric_values.begin();
+
+    const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+
+    unsigned int max_pos = 0;
+    const unsigned int z_iter = compute_desc_.autofocus_z_iter;
+
+    for (unsigned i = 0; i < z_iter; ++i)
+    {
+      for (float z = z_min; !autofocus_stop_requested_ && z < z_max; z += z_step)
+      {
+        /* Make input frames copies. */
+        cudaMemcpy(
+          gpu_input_buffer_tmp,
+          gpu_input_buffer_,
+          gpu_input_buffer_size,
+          cudaMemcpyDeviceToDevice);
+
+        if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+        {
+          fft1_lens(
+            gpu_lens_,
+            input_fd,
+            compute_desc_.lambda,
+            z);
+
+          fft_1(
+            gpu_input_buffer_tmp,
+            gpu_lens_,
+            plan3d_,
+            input_fd.frame_res(),
+            compute_desc_.nsamples);
+
+          gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+        }
+        else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+        {
+          fft2_lens(
+            gpu_lens_,
+            input_fd,
+            compute_desc_.lambda,
+            z);
+
+          gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+
+          fft_2(
+            gpu_input_buffer_tmp,
+            gpu_lens_,
+            plan3d_,
+            plan2d_,
+            input_fd.frame_res(),
+            compute_desc_.nsamples,
+            compute_desc_.pindex,
+            compute_desc_.pindex);
+        }
+        else
+          assert(!"Impossible case");
+
+        if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+        {
+          complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+        }
+        else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+        {
+          complex_to_squared_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+        }
+        else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+        {
+          complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
+        }
+        else
+          assert(!"Impossible case");
+
+        if (compute_desc_.shift_corners_enabled)
+        {
+          shift_corners(
+            gpu_float_buffer_,
+            output_.get_frame_desc().width,
+            output_.get_frame_desc().height);
+        }
+
+        if (compute_desc_.contrast_enabled)
+        {
+          manual_contrast_correction(
+            gpu_float_buffer_,
+            input_fd.frame_res(),
+            65535,
+            compute_desc_.contrast_min.load(),
+            compute_desc_.contrast_max.load());
+        }
+
+        float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
+        output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
+
+        frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
+
+        const float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size, stream);
+
+        if (!std::isnan(focus_metric_value))
+          focus_metric_values.push_back(focus_metric_value);
+        else
+          focus_metric_values.push_back(0);
+      }
+      /* Find max z */
+      biggest = std::max_element(focus_metric_values.begin(), focus_metric_values.end());
+
+      /* Case the max has not been found. */
+      if (biggest == focus_metric_values.end())
+        biggest = focus_metric_values.begin();
+      max_pos = std::distance(focus_metric_values.begin(), biggest);
+
+      // This is our temp max
+      af_z = z_min + max_pos * z_step;
+
+      // Calculation of the new max/min, taking the old step
+      z_min = af_z - z_step;
+      z_max = af_z + z_step;
+
+      z_step = (z_max - z_min) / z_div;
+      focus_metric_values.clear();
+    }
+
+    /// End of the loop, free resources and notify the new z
+
+    compute_desc_.zdistance = af_z;
+    compute_desc_.notify_observers();
+
+    cudaFree(gpu_float_buffer_af_zone);
+    cudaFree(gpu_input_buffer_tmp);
+
+  }
+
   void Pipe::exec()
   {
-    input_.flush();
+    if (Global::global_config.flush_on_refresh)
+      input_.flush();
     while (!termination_requested_)
     {
       if (input_.get_current_elts() >= input_length_)

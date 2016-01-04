@@ -2,6 +2,7 @@
 #include "tools.hh"
 
 #include "pipeline.hh"
+#include "config.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -53,7 +54,8 @@ namespace holovibes
 
   void Pipeline::exec()
   {
-    input_.flush();
+    if (Global::global_config.flush_on_refresh)
+      input_.flush();
     while (!termination_requested_)
     {
       if (input_.get_current_elts() >= compute_desc_.nsamples.load())

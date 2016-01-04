@@ -466,8 +466,6 @@ namespace holovibes
     const unsigned int zone_height = af_env_.zone.get_height();
 
     af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
-    while (af_env_.zone.top_right.x + af_env_.af_square_size > input_.get_frame_desc().width)
-      af_env_.af_square_size = prevPowerOf2(af_env_.af_square_size);
 
     const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 
@@ -523,16 +521,17 @@ namespace holovibes
       af_env_.z_max = af_env_.af_z + af_env_.z_step;
 
       // prepare next iter
-      --af_env_.z_iter;
-      af_env_.z = af_env_.z_min;
-      af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
-      af_env_.focus_metric_values.clear();
+      if (--af_env_.z_iter > 0)
+      {
+        af_env_.z = af_env_.z_min;
+        af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
+        af_env_.focus_metric_values.clear();
+      }
     }
 
     // End of the loop, free resources and notify the new z
     if (autofocus_stop_requested_ || af_env_.z_iter <= 0)
     {
-      request_refresh();
       compute_desc_.zdistance = af_env_.af_z;
       compute_desc_.notify_observers();
 
@@ -540,6 +539,7 @@ namespace holovibes
       cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
       cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
       af_env_.focus_metric_values.clear();
+      request_refresh();
     }
   }
 }

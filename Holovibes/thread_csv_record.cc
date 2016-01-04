@@ -43,7 +43,7 @@ namespace gui
       << ", z : " << holo_.get_compute_desc().zdistance
       << "]" << std::endl;
 
-    of << "[Column 1 : signal, Column 2 : noise, Column 3 : average]" << std::endl;
+    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
 
     const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
     unsigned int i = 0;

@@ -69,6 +69,8 @@ namespace gui
 
     public slots:
     /*! \{ \name Menu */
+    /*! \brief Resize if one layout is toggled. */
+    void layout_toggled(bool b);
     /*! \brief Open holovibes configuration file */
     void configure_holovibes();
     /*! \brief Call child OpenGL widget fullscreen method */
@@ -394,11 +396,6 @@ namespace gui
     unsigned int file_index_;
 
     std::unique_ptr<gpib::VisaInterface> gpib_interface_;
-
-    /*! \brief Max input queue size */
-    unsigned int input_queue_max_size_;
-    /*! \brief Max output queue size */
-    unsigned int output_queue_max_size_;
 
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;

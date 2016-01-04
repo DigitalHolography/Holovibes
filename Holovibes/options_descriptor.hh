@@ -17,8 +17,6 @@ namespace holovibes
     OptionsDescriptor()
       : recorder_n_img(0)
       , recorder_filepath("")
-      , input_max_queue_size(0)
-      , output_max_queue_size(0)
       , gl_window_width(0)
       , gl_window_height(0)
       , camera()
@@ -36,12 +34,6 @@ namespace holovibes
     unsigned int  recorder_n_img;
     /*! \brief File path for recorder. */
     std::string   recorder_filepath;
-
-    /*! \brief Max size of input queue in number of images. */
-    unsigned int input_max_queue_size;
-
-    /*! \brief Max size of output queue in number of images. */
-    unsigned int output_max_queue_size;
 
     /*! \brief GL Window width. */
     unsigned int  gl_window_width;

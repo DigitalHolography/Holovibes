@@ -4,6 +4,7 @@
 #include <boost\lexical_cast.hpp>
 
 #include <cassert>
+#include "config.hh"
 
 namespace holovibes
 {
@@ -353,8 +354,10 @@ namespace holovibes
 
       if (queue_size > 0)
       {
-        opts_.input_max_queue_size = queue_size;
-        opts_.output_max_queue_size = queue_size;
+        // TODO: set queue size in Config
+        // Old code:
+        // opts_.input_max_queue_size = queue_size;
+        // opts_.output_max_queue_size = queue_size;
       }
       else
         throw std::runtime_error("queue size is too small");
@@ -439,7 +442,7 @@ namespace holovibes
 
       opts_.compute_desc.nsamples = nsamples;
 
-      if (opts_.compute_desc.nsamples >= opts_.input_max_queue_size)
+      if (opts_.compute_desc.nsamples >= Global::global_config.input_queue_max_size)
         throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
     }
 
