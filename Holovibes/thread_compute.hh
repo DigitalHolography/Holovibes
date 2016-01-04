@@ -32,10 +32,7 @@ namespace holovibes
       ComputeDescriptor& desc,
       Queue& input,
       Queue& output,
-      const PipeType pipetype,
-      const bool is_float_output_enabled,
-      const std::string float_output_file_src,
-      const unsigned int float_output_nb_frame);
+      const PipeType pipetype);
 
     ~ThreadCompute();
 
@@ -71,8 +68,7 @@ namespace holovibes
 
   private:
     /*! Execute pipe while is running */
-    void thread_proc(std::string float_output_file_src,
-      const unsigned int float_output_nb_frame);
+    void thread_proc();
 
   private:
     ComputeDescriptor& compute_desc_;
@@ -82,9 +78,6 @@ namespace holovibes
     const PipeType pipetype_;
 
     std::shared_ptr<ICompute> pipe_;
-
-    /*! \brief Stored for the pipe constructor*/
-    bool is_float_output_enabled_;
 
     /*! \brief Is notify when pipe is ready */
     std::condition_variable memory_cv_;

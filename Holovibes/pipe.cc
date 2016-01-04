@@ -402,7 +402,8 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
         &Pipe::record_float,
         this,
-        gpu_float_buffer_));
+        gpu_float_buffer_,
+        static_cast<cudaStream_t>(0)));
     }
 
     fn_vect_.push_back(std::bind(
@@ -412,7 +413,6 @@ namespace holovibes
       input_fd.frame_res(),
       static_cast<cudaStream_t>(0)));
   }
-
 
   void Pipe::autofocus_caller(float* input, cudaStream_t stream)
   {
@@ -582,7 +582,6 @@ namespace holovibes
 
     cudaFree(gpu_float_buffer_af_zone);
     cudaFree(gpu_input_buffer_tmp);
-
   }
 
   void Pipe::exec()

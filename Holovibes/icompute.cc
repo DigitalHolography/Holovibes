@@ -211,6 +211,12 @@ namespace holovibes
     }
     else
       cudaDestroy<cudaError_t>(&q_gpu_stft_buffer_);
+
+    if (!float_output_requested_ && fqueue_)
+    {
+      delete fqueue_;
+      fqueue_ = nullptr;
+    }
   }
 
   void ICompute::request_refresh()
@@ -218,36 +224,17 @@ namespace holovibes
     refresh_requested_ = true;
   }
 
-  void ICompute::request_float_output(std::string& file_src, const unsigned int nb_frame)
+  void ICompute::request_float_output(Queue* fqueue)
   {
-    try
-    {
-      const unsigned int size = input_.get_pixels();
-
-      cpu_float_buffer_ = new float[size];
-      float_output_file_.open(file_src, std::ofstream::trunc | std::ofstream::binary);
-      float_output_nb_frame_ = nb_frame;
-      float_output_requested_ = true;
-      request_refresh();
-      std::cout << "[ICompute]: float record start." << std::endl;
-    }
-    catch (std::exception& e)
-    {
-      std::cout << "[ICompute]: float record: " << e.what() << std::endl;
-      request_float_output_stop();
-    }
+    fqueue_ = fqueue;
+    float_output_requested_ = true;
+    request_refresh();
   }
 
   void ICompute::request_float_output_stop()
   {
-    if (float_output_file_.is_open())
-      float_output_file_.close();
-    if (cpu_float_buffer_)
-      delete[] cpu_float_buffer_;
-    cpu_float_buffer_ = nullptr;
     float_output_requested_ = false;
     request_refresh();
-    std::cout << "[ICompute]: float record done." << std::endl;
   }
 
   void ICompute::request_termination()
@@ -336,17 +323,10 @@ namespace holovibes
     compute_desc.notify_observers();
   }
 
-  void ICompute::record_float(float *input_buffer)
+  void ICompute::record_float(float* float_output, cudaStream_t stream)
   {
-    if (float_output_nb_frame_-- > 0)
-    {
-      const unsigned int size = input_.get_pixels() * sizeof(float);
-
-      cudaMemcpy(cpu_float_buffer_, input_buffer, size, cudaMemcpyDeviceToHost);
-      float_output_file_.write(reinterpret_cast<char*>(cpu_float_buffer_), size);
-    }
-    else
-      request_float_output_stop();
+    // TODO: use stream in enqueue
+    fqueue_->enqueue(float_output, cudaMemcpyDeviceToDevice);
   }
 
   void ICompute::average_caller(

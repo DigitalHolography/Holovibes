@@ -85,7 +85,7 @@ namespace holovibes
       const unsigned int n);
 
     /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
-    void request_float_output(std::string& file_src, const unsigned int nb_frame);
+    void request_float_output(Queue* fqueue);
 
     /*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
     void request_float_output_stop();
@@ -192,8 +192,8 @@ namespace holovibes
     virtual void autofocus_caller(float* input, cudaStream_t stream);
     /*! \} */ // End of callers group
 
-    /*! \brief Record one frame in gpu_float_buf_ to file_. */
-    virtual void record_float(float *input_buffer);
+    /*! \brief Add frame in fqueue_. */
+    void record_float(float* float_output, cudaStream_t stream);
 
     /*! \{ \name Disable copy/assignments. */
     ICompute& operator=(const ICompute&) = delete;
@@ -239,8 +239,8 @@ namespace holovibes
 
     /*! \brief Number of frame in input. */
     unsigned int input_length_;
-    /*! \brief Number of frame to record before request_float_output_stop. */
-    unsigned int float_output_nb_frame_;
+    /*! \brief Float queue for float record */
+    Queue*       fqueue_;
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
     /*! \brief Containt q image for vibrometry in stft mode

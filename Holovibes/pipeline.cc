@@ -509,7 +509,8 @@ namespace holovibes
       modules_[2]->push_back_worker(std::bind(
         &Pipeline::record_float,
         this,
-        std::ref(gpu_float_buffers_[1])
+        std::ref(gpu_float_buffers_[1]),
+        modules_[2]->stream_
         ));
     }
 

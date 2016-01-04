@@ -107,11 +107,7 @@ namespace holovibes
     std::cout << "[RECORDER] recorder Stop" << std::endl;
   }
 
-  void Holovibes::init_compute(
-    const ThreadCompute::PipeType pipetype,
-    const bool is_float_output_enabled,
-    const std::string float_output_file_src,
-    const unsigned int float_output_nb_frame)
+  void Holovibes::init_compute(const ThreadCompute::PipeType pipetype)
   {
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
@@ -121,10 +117,7 @@ namespace holovibes
     output_frame_desc.depth = 2;
     output_.reset(new Queue(output_frame_desc, Global::global_config.output_queue_max_size));
 
-    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype,
-      is_float_output_enabled,
-      float_output_file_src,
-      float_output_nb_frame));
+    tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
     std::cout << "[CUDA] compute thread started" << std::endl;
 
     // A wait_for is necessary here in order for the pipe to finish

@@ -813,53 +813,41 @@ namespace gui
     global_visibility(false);
     record_but_cancel_visible(false);
 
-    QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
+    QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
 
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
+    holovibes::Queue* queue;
 
     try
     {
       if (float_output_checkbox->isChecked() && !is_direct_mode_)
       {
         std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
+        camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
-        pipe->request_float_output(path, nb_of_frames);
-
-        global_visibility(true);
-        record_but_cancel_visible(true);
-
-        while (pipe->is_requested_float_output())
-          std::this_thread::yield();
-        display_info("Record done");
+        frame_desc.depth = sizeof(float);
+        queue = new holovibes::Queue(frame_desc, 20);
+        pipe->request_float_output(queue);
       }
+      else if (is_direct_mode_)
+        queue = &holovibes_.get_capture_queue();
       else
-      {
-        if (is_direct_mode_)
-        {
-          record_thread_.reset(new ThreadRecorder(
-            holovibes_.get_capture_queue(),
-            path,
-            nb_of_frames,
-            this));
-        }
-        else
-        {
-          record_thread_.reset(new ThreadRecorder(
-            holovibes_.get_output_queue(),
-            path,
-            nb_of_frames,
-            this));
-        }
+        queue = &holovibes_.get_output_queue();
 
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
-        record_thread_->start();
+      record_thread_.reset(new ThreadRecorder(
+        *queue,
+        path,
+        nb_of_frames,
+        this));
 
-        QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
-        cancel_button->setDisabled(false);
-      }
+      connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
+      record_thread_->start();
+
+      QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+      cancel_button->setDisabled(false);
     }
     catch (std::exception& e)
     {
@@ -871,8 +859,12 @@ namespace gui
 
   void MainWindow::finished_image_record()
   {
+    QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+
     record_thread_.reset(nullptr);
     display_info("Record done");
+    if (float_output_checkbox->isChecked() && !is_direct_mode_)
+      holovibes_.get_pipe()->request_float_output_stop();
     if (!is_direct_mode_)
       global_visibility(true);
     record_but_cancel_visible(true);
