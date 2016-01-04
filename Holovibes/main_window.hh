@@ -295,6 +295,9 @@ namespace gui
     /*! \brief Update start to end if start < end */
     void import_end_spinbox_update();
 
+    /*! \brief Hide endianess choice depending on 8/16 bit is selected*/
+    void hide_endianess();
+
     /*! \} */
 
   protected:
