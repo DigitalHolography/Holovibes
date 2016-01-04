@@ -3,6 +3,8 @@
 # include <QMainWindow>
 # include <QResizeEvent>
 # include <QShortcut>
+# include <memory>
+
 # include "ui_gl_window.h"
 # include "gui_gl_widget.hh"
 # include "holovibes.hh"
@@ -53,7 +55,7 @@ namespace gui
   private:
     Ui::GLWindow ui;
     /*! GL widget, it updates itself */
-    GLWidget* gl_widget_;
+    std::unique_ptr<GLWidget> gl_widget_;
 
     /*! \{ \name Screen modes keyboard shortcuts */
     QShortcut* full_screen_;

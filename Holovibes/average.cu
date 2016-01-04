@@ -1,8 +1,9 @@
-#include "average.cuh"
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <cmath>
 
+#include "average.cuh"
+#include "tools.hh"
 #include "tools.cuh"
 #include "tools_conversion.cuh"
 #include "hardware_limits.hh"
@@ -78,11 +79,7 @@ std::tuple<float, float, float> make_average_plot(
 {
   const unsigned int size = width * height;
   unsigned int threads = THREADS;
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   float* gpu_s;
   float* gpu_n;
@@ -138,10 +135,7 @@ std::tuple<float, float, float> make_average_stft_plot(
 
   const unsigned int size = width * height;
   unsigned int threads = 128;
-  unsigned int blocks = size / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   // Reconstruct Roi
   kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(

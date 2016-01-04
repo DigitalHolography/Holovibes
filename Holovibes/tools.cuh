@@ -130,3 +130,19 @@ void copy_buffer(
   cufftComplex* dst,
   const size_t nb_elts,
   cudaStream_t stream = 0);
+
+/*! Wrapper for CUDA-executed in-place phase unwrapping on complex data
+ * (phase angles).
+ *
+ * Phase unwrapping adjusts phase angles encoded in complex data,
+ * by a cutoff value (which is here fixed to pi). Unwrapping seeks
+ * two-by-two differences that exceed this cutoff value and performs
+ * cumulative adjustments in order to 'smooth' the signal.
+ */
+void unwrap(
+  const cufftComplex* cur,
+  float* pred_angles,
+  float* cur_angles,
+  float* adjustments,
+  const unsigned width,
+  const unsigned height);

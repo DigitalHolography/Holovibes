@@ -42,6 +42,8 @@ namespace holovibes
       MODULUS,
       SQUARED_MODULUS,
       ARGUMENT,
+      UNWRAPPED_ARGUMENT,
+      UNWRAPPED_ARGUMENT_2
     };
 
     /*! \brief ComputeDescriptor constructor

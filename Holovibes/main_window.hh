@@ -160,7 +160,8 @@ namespace gui
 
     /*! \{ \name View */
     /*! \brief Set view mode
-    ** \param value view mode: "magnitude", "squarred magnitude" or "argument"
+    ** \param value view mode: "magnitude", "squared magnitude", "argument",
+    ** "unwrapped argument", or "unwrapped argument 2".
     */
     void set_view_mode(QString value);
     /*! \brief Set autofocus mode on
@@ -296,6 +297,9 @@ namespace gui
     void import_start_spinbox_update();
     /*! \brief Update start to end if start < end */
     void import_end_spinbox_update();
+
+    /*! \brief Hide endianess choice depending on 8/16 bit is selected*/
+    void hide_endianess();
 
     /*! \} */
 

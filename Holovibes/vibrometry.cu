@@ -1,9 +1,10 @@
-#include "vibrometry.cuh"
 #include <device_launch_parameters.h>
 #include <cfloat>
 #include <cuda_runtime.h>
 
+#include "vibrometry.cuh"
 #include "hardware_limits.hh"
+#include "tools.hh"
 
 static __global__ void kernel_frame_ratio(
   const cufftComplex* frame_p,
@@ -39,10 +40,7 @@ void frame_ratio(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_frame_ratio << <blocks, threads, 0, stream >> >(frame_p, frame_q, output, size);
 }

@@ -79,6 +79,20 @@ void complex_to_argument(
   const unsigned int size,
   cudaStream_t stream = 0);
 
+/*! Copy the angle value of each element of the input.
+ *
+ * The input image should contain complex data in polar form.
+ * Hence it simply copies the angle off each element to put it
+ * to the output.
+ *
+ * \param input Complex-valued (in polar form) data.
+ */
+void rescale_float(
+  const float* input,
+  float* output,
+  const unsigned int size,
+  cudaStream_t stream);
+
 /*! \brief  Convert the endianness of input image(s) from big endian to little endian.
 *
 * The image(s) to treat, seen as input, should be contigous, the size is the total number of pixels to

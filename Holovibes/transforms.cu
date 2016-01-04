@@ -1,7 +1,5 @@
 #include "transforms.cuh"
 
-#include <device_launch_parameters.h>
-
 #ifndef _USE_MATH_DEFINES
 /* Enables math constants. */
 # define _USE_MATH_DEFINES
@@ -70,4 +68,15 @@ __global__ void kernel_spectral_lens(
     output[index].x = cosf(csquare);
     output[index].y = sinf(csquare);
   }
+}
+
+__global__ void kernel_conjugate(
+  cufftComplex* input,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  input[index].y *= -1.f;
 }

@@ -1,4 +1,5 @@
 #include "gui_gl_window.hh"
+#include "gui_gl_widget_mono.hh"
 
 #define DEFAULT_GLWIDGET_SIZE 600
 
@@ -34,13 +35,15 @@ namespace gui
     this->move(pos);
     this->resize(QSize(width, height));
     this->show();
-    gl_widget_ = new GLWidget(h, q, width, height, this);
+
+    // Default displaying format is 16-bits, monochrome.
+    gl_widget_.reset(new GLWidgetMono(h, q, width, height, this));
     gl_widget_->show();
   }
 
   GuiGLWindow::~GuiGLWindow()
   {
-    delete gl_widget_;
+    gl_widget_.reset(nullptr);
   }
 
   void GuiGLWindow::resizeEvent(QResizeEvent* e)

@@ -36,6 +36,10 @@ namespace gui
     connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
     timer_.start(1000 / DISPLAY_FRAMERATE);
 
+    // Create a new computation stream on the graphics card.
+    if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
+      cuda_stream_ = 0; // Use default stream as a fallback
+
     num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
     num_2_shortcut->setContext(Qt::ApplicationShortcut);
     connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
@@ -65,6 +69,8 @@ namespace gui
   {
     /* Unregister buffer for access by CUDA. */
     cudaGraphicsUnregisterResource(cuda_buffer_);
+    /* Free the associated computation stream. */
+    cudaStreamDestroy(cuda_stream_);
     /* Destroy buffer name. */
     glDeleteBuffers(1, &buffer_);
     glDisable(GL_TEXTURE_2D);
@@ -123,6 +129,9 @@ namespace gui
 
     /* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
     glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
+
+    frame_desc_.frame_size();
+
     /* Creates and initialize a buffer object's data store. */
     glBufferData(
       GL_TEXTURE_BUFFER,
@@ -153,14 +162,14 @@ namespace gui
     const void* frame = queue_.get_last_images(1);
 
     /* Map the buffer for access by CUDA. */
-    cudaGraphicsMapResources(1, &cuda_buffer_);
+    cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
     size_t buffer_size;
     void* buffer_ptr;
     cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
     /* CUDA memcpy of the frame to opengl buffer. */
     cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
     /* Unmap the buffer for access by CUDA. */
-    cudaGraphicsUnmapResources(1, &cuda_buffer_);
+    cudaGraphicsUnmapResources(1, &cuda_buffer_, cuda_stream_);
 
     /* Bind the buffer object to the target GL_PIXEL_UNPACK_BUFFER.
      * This affects glTexImage2D command. */
@@ -176,20 +185,8 @@ namespace gui
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      /* Base image level. */
-      0,
-      GL_LUMINANCE,
-      frame_desc_.width,
-      frame_desc_.height,
-      /* border: This value must be 0. */
-      0,
-      GL_LUMINANCE,
-      /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
-      /* Pointer to image data in memory. */
-      NULL);
+    // Class-specific method, allowing different output formats.
+    set_texture_format();
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 

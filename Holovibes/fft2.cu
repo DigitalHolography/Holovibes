@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 
 #include "hardware_limits.hh"
+#include "tools.hh"
 #include "transforms.cuh"
 #include "preprocessing.cuh"
 #include "tools_divide.cuh"
@@ -36,10 +37,7 @@ void fft_2(
   const unsigned int n_frame_resolution = frame_resolution * nframes;
 
   unsigned int threads = 128;
-  unsigned int blocks = n_frame_resolution / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
   cufftExecC2C(plan3d, input, input, CUFFT_FORWARD);
 

@@ -1,7 +1,15 @@
+#include <cmath>
+#include <algorithm>
+#include <device_launch_parameters.h>
+// DEBUG
+#include <iostream>
+#include <thread>
+#include <chrono>
+// ! DEBUG
+
 #include "tools.cuh"
 #include "tools_multiply.cuh"
-
-#include <device_launch_parameters.h>
+#include "tools.hh"
 #include "hardware_limits.hh"
 
 __global__ void kernel_apply_lens(
@@ -157,10 +165,7 @@ void apply_log10(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > get_max_blocks())
-    blocks = get_max_blocks();
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
 }
@@ -192,11 +197,7 @@ void convolution_operator(
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* The convolution operator is used only when using autofocus feature.
    * It could be optimized but it's useless since it will be used sometimes. */
@@ -268,11 +269,7 @@ float average_operator(
   cudaStream_t stream)
 {
   const unsigned int threads = 128;
-  const unsigned int max_blocks = get_max_blocks();
-  unsigned int blocks = (size + threads - 1) / threads;
-
-  if (blocks > max_blocks)
-    blocks = max_blocks;
+  unsigned int blocks = map_blocks_to_problem(size, threads);
 
   float* gpu_sum;
   cudaMalloc<float>(&gpu_sum, sizeof(float));
@@ -300,4 +297,91 @@ void copy_buffer(
   const size_t nb_elts)
 {
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
+}
+
+/* Take complex data in cartesian form, and use conversion to polar
+ * form to take the angle value of each element and store it
+ * in a floating-point matrix. */
+static __global__ void kernel_extract_angle(
+  const cufftComplex* input,
+  float* output,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  output[index] = std::atan2(input[index].y, input[index].x);
+}
+
+static __global__ void kernel_unwrap(
+  float* pred,
+  float* cur,
+  float* adjustments,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+  const float pi = M_PI;
+
+  // Two-by-two diff, starting from the oldest data //
+  float local_diff = cur[index] - pred[index];
+
+  // Adjustements //
+  float local_adjust;
+  if (local_diff > pi)
+    local_adjust = -2.f * pi;
+  else if (local_diff < -pi)
+    local_adjust = 2.f * pi;
+  else
+    local_adjust = 0.f;
+
+  // Cumulating the adjustement with precedent ones //
+  adjustments[index] += local_adjust;
+}
+
+static __global__ void kernel_correct_angles(
+  float* data,
+  const float* values,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  data[index] += values[index];
+}
+
+void unwrap(
+  const cufftComplex* cur,
+  float* pred_angles,
+  float* cur_angles,
+  float* adjustments,
+  const unsigned width,
+  const unsigned height)
+{
+  const size_t size = width * height;
+
+  const unsigned threads = 128;
+  const unsigned blocks = map_blocks_to_problem(size, threads);
+
+  /* TODO : Find a BETTER method of handling this. Besides, here it does
+   * not work for any unwrapped_argument launch after the first one. */
+  static bool first_time = true;
+  if (first_time)
+  {
+    kernel_extract_angle << <blocks, threads >> >(cur, pred_angles, size);
+    first_time = false;
+  }
+
+  // Convert to polar notation in order to work on angles.
+  kernel_extract_angle << <blocks, threads >> >(cur, cur_angles, size);
+
+  kernel_unwrap << < blocks, threads >> >(pred_angles, cur_angles, adjustments, size);
+
+  // Updating predecessor
+  cudaMemcpy(pred_angles, cur_angles, sizeof(float)* size, cudaMemcpyDeviceToDevice);
+
+  kernel_correct_angles << <blocks, threads >> >(cur_angles, adjustments, size);
 }
