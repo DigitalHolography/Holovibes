@@ -707,14 +707,14 @@
         <widget class="QPushButton" name="browsePushButton">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>10</x>
            <y>80</y>
-           <width>71</width>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>browse</string>
+          <string>Img. output</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="pathLineEdit">
@@ -725,19 +725,6 @@
            <width>171</width>
            <height>22</height>
           </rect>
-         </property>
-        </widget>
-        <widget class="QLabel" name="outputFileLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>80</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Img. output:</string>
          </property>
         </widget>
         <widget class="QPushButton" name="recPushButton">
@@ -769,30 +756,17 @@
           <string>Stop</string>
          </property>
         </widget>
-        <widget class="QLabel" name="ROIOutputFileLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>230</y>
-           <width>101</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>ROI output:</string>
-         </property>
-        </widget>
         <widget class="QPushButton" name="ROIOutputPushButton">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>10</x>
            <y>230</y>
            <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>browse</string>
+          <string>ROI output</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="ROIOutputLineEdit">
@@ -844,30 +818,17 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLabel" name="batchInputLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>170</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Batch input:</string>
-         </property>
-        </widget>
         <widget class="QPushButton" name="batchInputBrowsePushButton">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>10</x>
            <y>170</y>
            <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>browse</string>
+          <string>Batch input</string>
          </property>
         </widget>
         <widget class="QPushButton" name="pushButton_2">
@@ -925,21 +886,17 @@
         <zorder>numberOfFramesSpinBox</zorder>
         <zorder>browsePushButton</zorder>
         <zorder>pathLineEdit</zorder>
-        <zorder>outputFileLabel</zorder>
         <zorder>recPushButton</zorder>
         <zorder>cancelPushButton</zorder>
-        <zorder>ROIOutputFileLabel</zorder>
         <zorder>ROIOutputPushButton</zorder>
         <zorder>ROIOutputLineEdit</zorder>
         <zorder>ROIPushButton</zorder>
         <zorder>ROIStopPushButton</zorder>
         <zorder>batchInputLineEdit</zorder>
-        <zorder>batchInputLabel</zorder>
         <zorder>batchInputBrowsePushButton</zorder>
         <zorder>pushButton_2</zorder>
         <zorder>ROIBatchPushButton</zorder>
         <zorder>RecordFloatOutputCheckBox</zorder>
-        <zorder>Import</zorder>
         <zorder>Import</zorder>
        </widget>
       </item>
@@ -1282,14 +1239,14 @@
         <widget class="QPushButton" name="InputBrowsePushButton">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>10</x>
            <y>30</y>
            <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
-          <string>browse</string>
+          <string>Img. input</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="ImportPathLineEdit">
@@ -1300,19 +1257,6 @@
            <width>171</width>
            <height>22</height>
           </rect>
-         </property>
-        </widget>
-        <widget class="QLabel" name="inputFileLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Img. input:</string>
          </property>
         </widget>
         <widget class="QPushButton" name="ImportPushButton">
@@ -1638,9 +1582,9 @@
         <widget class="QCheckBox" name="ImportLoopCheckBox">
          <property name="geometry">
           <rect>
-           <x>140</x>
-           <y>120</y>
-           <width>82</width>
+           <x>110</x>
+           <y>30</y>
+           <width>51</width>
            <height>21</height>
           </rect>
          </property>
