@@ -54,11 +54,26 @@ namespace gui
     autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
     connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
+    QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+    connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
+
     if (is_direct_mode_)
       global_visibility(false);
 
     // Display default values
     notify();
+  }
+
+  void MainWindow::hide_endianess()
+  {
+    QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+    QString curr_value = depth_cbox->currentText();
+
+    QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+    if (curr_value == "8")
+      imp_cbox->setEnabled(false);
+    if (curr_value == "16")
+      imp_cbox->setEnabled(true);
   }
 
   MainWindow::~MainWindow()
