@@ -1667,11 +1667,9 @@ namespace gui
   {
     QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
     QString curr_value = depth_cbox->currentText();
-
     QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
-    if (curr_value == "8")
-      imp_cbox->setEnabled(false);
-    if (curr_value == "16")
-      imp_cbox->setEnabled(true);
+
+    // Changing the endianess when depth = 8 makes no sense
+    imp_cbox->setEnabled(curr_value != "8");
   }
 }

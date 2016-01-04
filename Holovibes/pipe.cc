@@ -348,11 +348,13 @@ namespace holovibes
       {
         // TODO
         fn_vect_.push_back(std::bind(
-          complex_to_modulus,
+          unwrap,
           gpu_input_frame_ptr_,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
+          gpu_angle_predecessor_,
+          gpu_angle_current_,
+          gpu_unwrap_buffer_,
+          input_fd.width,
+          input_fd.height));
       }
       else
         assert(!"Unknown contrast type.");
