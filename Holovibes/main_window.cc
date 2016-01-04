@@ -1083,30 +1083,10 @@ namespace gui
 
       ++file_index_;
     }
-    catch (const gpib::GpibBadAlloc& e)
+    catch (const std::exception& e)
     {
-      std::cerr << "[GPIB] " << e.what() << "\n";
-      gpib_interface_.reset(nullptr);
-    }
-    catch (const gpib::GpibSetupError& e)
-    {
-      std::cerr << "[GPIB] " << e.what() << "\n";
-      gpib_interface_.reset(nullptr);
-    }
-    catch (const gpib::GpibNoFilepath& e)
-    {
-      std::cerr << "[GPIB] " << e.what() << "\n";
-      gpib_interface_.reset(nullptr);
-    }
-    catch (const gpib::GpibInvalidPath& e)
-    {
-      std::cerr << "[GPIB] " << e.what() << "\n";
-      gpib_interface_.reset(nullptr);
-    }
-    catch (const gpib::GpibParseError& e)
-    {
-      std::cerr << "[GPIB] " << e.what() << "\n";
-      gpib_interface_.reset(nullptr);
+      std::cout << "[GPIB] " << e.what() << "\n";
+      batch_finished_record();
     }
   }
 
@@ -1141,12 +1121,20 @@ namespace gui
     {
       record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
 
-      if (gpib_interface_->execute_next_block())
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
-      else
-        connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+      try
+      {
+        if (gpib_interface_->execute_next_block())
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+        else
+          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
-      record_thread_->start();
+        record_thread_->start();
+      }
+      catch (const gpib::GpibInstrError& e)
+      {
+        std::cerr << "[GPIB] " << e.what() << "\n";
+        batch_finished_record();
+      }
     }
     else
     {
@@ -1156,12 +1144,20 @@ namespace gui
         frame_nb,
         this));
 
-      if (gpib_interface_->execute_next_block())
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
-      else
-        connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+      try
+      {
+        if (gpib_interface_->execute_next_block())
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+        else
+          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
 
-      CSV_record_thread_->start();
+        CSV_record_thread_->start();
+      }
+      catch (const gpib::GpibInstrError& e)
+      {
+        std::cerr << "[GPIB] " << e.what() << "\n";
+        batch_finished_record();
+      }
     }
 
     ++file_index_;
