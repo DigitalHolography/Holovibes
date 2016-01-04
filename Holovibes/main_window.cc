@@ -1383,8 +1383,6 @@ namespace gui
     nb_of_frames_label->setDisabled(!value);
     QSpinBox* nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     nb_of_frames_spinbox->setDisabled(!value);
-    QLabel* output_file_label = findChild<QLabel*>("outputFileLabel");
-    output_file_label->setDisabled(!value);
     QPushButton* browse_button = findChild<QPushButton*>("browsePushButton");
     browse_button->setDisabled(!value);
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
