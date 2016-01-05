@@ -355,16 +355,6 @@ namespace holovibes
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
-
-      // For now at least, phase unwrapping is a process on its own.
-      // TODO : Try and see if post-processing could work with it.
-      fn_vect_.push_back(std::bind(
-        float_to_ushort,
-        gpu_float_buffer_,
-        gpu_output_buffer_,
-        input_fd.frame_res(),
-        static_cast<cudaStream_t>(0)));
-      return;
     }
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
