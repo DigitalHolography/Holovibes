@@ -338,6 +338,33 @@ static __global__ void kernel_unwrap(
   adjustments[index] = local_adjust;
 }
 
+static __global__ void kernel_unwrap_2(
+  float* pred,
+  float* cur,
+  float* adjustments,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+  const float pi = M_PI;
+
+  // Two-by-two diff, starting from the oldest data //
+  float local_diff = cur[index] * (-1.f * pred[index]);
+
+  // Adjustements //
+  float local_adjust;
+  if (local_diff > pi)
+    local_adjust = -2.f * pi;
+  else if (local_diff < -pi)
+    local_adjust = 2.f * pi;
+  else
+    local_adjust = 0.f;
+
+  // Cumulating the adjustement with precedent ones //
+  adjustments[index] = local_adjust;
+}
+
 /* Iterate over saved phase corrections and apply them to an image.
  *
  * \param data The image to be corrected.
@@ -393,6 +420,56 @@ void unwrap(
    * The buffer is handled as a circular buffer. */
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
   kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    next_unwrap,
+    image_size);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
+
+  // Updating predecessor
+  cudaMemcpy(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  kernel_correct_angles << <blocks, threads >> >(resources->gpu_angle_current_,
+    resources->gpu_unwrap_buffer_,
+    image_size,
+    resources->capacity_);
+}
+
+void unwrap_2(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const unsigned width,
+  const unsigned height)
+{
+  const size_t image_size = width * height;
+
+  const unsigned threads = 128;
+  const unsigned blocks = map_blocks_to_problem(image_size, threads);
+
+  /* TODO : Find a BETTER method of handling this. Besides, here it does
+  * not work for any unwrapped_argument launch after the first one. */
+  static bool first_time = true;
+  if (first_time)
+  {
+    kernel_extract_angle << <blocks, threads >> >(cur,
+      resources->gpu_angle_predecessor_,
+      image_size);
+    first_time = false;
+  }
+
+  // Convert to polar notation in order to work on angles.
+  kernel_extract_angle << <blocks, threads >> >(cur,
+    resources->gpu_angle_current_,
+    image_size);
+
+  /* Store the new unwrapped phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  kernel_unwrap_2 << < blocks, threads >> >(resources->gpu_angle_predecessor_,
     resources->gpu_angle_current_,
     next_unwrap,
     image_size);

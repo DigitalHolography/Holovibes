@@ -327,7 +327,7 @@ namespace holovibes
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
-        // Phase unwrapping
+        // Phase unwrapping, subtraction method
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
@@ -337,9 +337,9 @@ namespace holovibes
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
-        // TODO
+        // Phase unwrapping, multiply-with-conjugate method
         fn_vect_.push_back(std::bind(
-          unwrap,
+          unwrap_2,
           gpu_input_frame_ptr_,
           unwrap_res_,
           input_fd.width,

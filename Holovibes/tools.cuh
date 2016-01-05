@@ -150,3 +150,9 @@ void unwrap(
   holovibes::UnwrappingResources* resources,
   const unsigned width,
   const unsigned height);
+
+void unwrap_2(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const unsigned width,
+  const unsigned height);
