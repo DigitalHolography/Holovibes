@@ -174,6 +174,7 @@ namespace gui
     v.push_back(findChild<gui::GroupBox*>("Vibrometry"));
     v.push_back(findChild<gui::GroupBox*>("Record"));
     v.push_back(findChild<gui::GroupBox*>("Import"));
+    v.push_back(findChild<gui::GroupBox*>("Info"));
 
     for each (gui::GroupBox* var in v)
       childCount += !var->isHidden();
@@ -1492,12 +1493,14 @@ namespace gui
     gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
 
     QAction*      image_rendering_action = findChild<QAction*>("actionImage_rendering");
     QAction*      view_action = findChild<QAction*>("actionView");
     QAction*      special_action = findChild<QAction*>("actionSpecial");
     QAction*      record_action = findChild<QAction*>("actionRecord");
     QAction*      import_action = findChild<QAction*>("actionImport");
+    QAction*      info_action = findChild<QAction*>("actionInfo");
 
     try
     {
@@ -1583,6 +1586,10 @@ namespace gui
       // Import
       import_action->setChecked(!ptree.get<bool>("import.hidden", false));
       import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+
+      // Info
+      info_action->setChecked(!ptree.get<bool>("info.hidden", false));
+      info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
     }
   }
 
@@ -1595,6 +1602,7 @@ namespace gui
     gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
+    gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
     holovibes::Config& config = Global::global_config;
 
     // Config
@@ -1633,6 +1641,9 @@ namespace gui
 
     // Import
     ptree.put("import.hidden", import_group_box->isHidden());
+
+    // Info
+    ptree.put("info.hidden", info_group_box->isHidden());
 
     boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
