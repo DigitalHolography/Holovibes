@@ -12,6 +12,12 @@
 
 # include "geometry.hh"
 
+/* Forward declarations. */
+namespace holovibes
+{
+  struct UnwrappingResources;
+}
+
 /*! \brief  Apply a previously computed lens to image(s).
 *
 * The image(s) to treat, seen as input, should be contigous, the input_size is the total number of pixels to
@@ -131,7 +137,7 @@ void copy_buffer(
   const size_t nb_elts,
   cudaStream_t stream = 0);
 
-/*! Wrapper for CUDA-executed in-place phase unwrapping on complex data
+/*! Wrapper for CUDA-executed phase unwrapping on complex data
  * (phase angles).
  *
  * Phase unwrapping adjusts phase angles encoded in complex data,
@@ -141,8 +147,6 @@ void copy_buffer(
  */
 void unwrap(
   const cufftComplex* cur,
-  float* pred_angles,
-  float* cur_angles,
-  float* adjustments,
+  holovibes::UnwrappingResources* resources,
   const unsigned width,
   const unsigned height);

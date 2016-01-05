@@ -4,6 +4,7 @@
 #include "pipe.hh"
 #include "config.hh"
 
+#include "compute_bundles.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -319,18 +320,10 @@ namespace holovibes
     }
     else
     {
-      /* Phase unwrapping requires a reference. We shall copy the first frame
-      * obtained into gpu_predecessor_, for initialization. This is done in
-      * the unwrap function. The first iteration will have no effect, because
-      * the frame will be compared to itself.
-      * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-      if (!unwrap_res_.gpu_unwrap_buffer_)
-        cudaMalloc(&unwrap_res_.gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
-      cudaMemset(unwrap_res_.gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
-      if (!unwrap_res_.gpu_angle_predecessor_)
-        cudaMalloc(&unwrap_res_.gpu_angle_predecessor_, sizeof(float)* input_.get_pixels());
-      if (!unwrap_res_.gpu_angle_current_)
-        cudaMalloc(&unwrap_res_.gpu_angle_current_, sizeof(float)* input_.get_pixels());
+      if (!unwrap_res_)
+        unwrap_res_ = new UnwrappingResources();
+
+      unwrap_res_->allocate(input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
@@ -338,9 +331,7 @@ namespace holovibes
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
-          unwrap_res_.gpu_angle_predecessor_,
-          unwrap_res_.gpu_angle_current_,
-          unwrap_res_.gpu_unwrap_buffer_,
+          unwrap_res_,
           input_fd.width,
           input_fd.height));
       }
@@ -350,9 +341,7 @@ namespace holovibes
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
-          unwrap_res_.gpu_angle_predecessor_,
-          unwrap_res_.gpu_angle_current_,
-          unwrap_res_.gpu_unwrap_buffer_,
+          unwrap_res_,
           input_fd.width,
           input_fd.height));
       }
@@ -362,7 +351,7 @@ namespace holovibes
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
         rescale_float,
-        unwrap_res_.gpu_angle_current_,
+        unwrap_res_->gpu_angle_current_,
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
