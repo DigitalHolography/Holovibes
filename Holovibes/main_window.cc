@@ -5,6 +5,7 @@
 #define GLOBAL_INI_PATH "holovibes.ini"
 
 #include "config.hh"
+#include "info_manager.hh"
 
 namespace gui
 {
@@ -63,6 +64,7 @@ namespace gui
 
     // Display default values
     notify();
+    InfoManager::get_manager(this->findChild<gui::GroupBox*>("Info"));
   }
 
   MainWindow::~MainWindow()
@@ -1256,7 +1258,7 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      Global::global_config.input_queue_max_size);
+      global::global_config.input_queue_max_size);
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
@@ -1515,7 +1517,7 @@ namespace gui
 
     if (!ptree.empty())
     {
-      holovibes::Config& config = Global::global_config;
+      holovibes::Config& config = global::global_config;
       // Config
       config.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config.input_queue_max_size);
       config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
@@ -1603,7 +1605,7 @@ namespace gui
     gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
     gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
     gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
-    holovibes::Config& config = Global::global_config;
+    holovibes::Config& config = global::global_config;
 
     // Config
     ptree.put("config.input_queue_max_size", config.input_queue_max_size);

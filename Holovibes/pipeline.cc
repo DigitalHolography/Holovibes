@@ -3,6 +3,7 @@
 
 #include "pipeline.hh"
 #include "config.hh"
+#include "info_manager.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -54,7 +55,7 @@ namespace holovibes
 
   void Pipeline::exec()
   {
-    if (Global::global_config.flush_on_refresh)
+    if (global::global_config.flush_on_refresh)
       input_.flush();
     while (!termination_requested_)
     {
@@ -524,6 +525,12 @@ namespace holovibes
         ));
       autofocus_requested_ = false;
     }
+
+    if (gui::InfoManager::get_manager())
+    modules_[2]->push_back_worker(std::bind(
+      &Pipeline::fps_count,
+      this
+      ));
 
     modules_[2]->push_back_worker(std::bind(
       float_to_ushort,

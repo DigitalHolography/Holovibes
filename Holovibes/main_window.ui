@@ -994,21 +994,6 @@
           <string>ROI file:</string>
          </property>
         </widget>
-        <zorder>pLabelVibro</zorder>
-        <zorder>pSpinBoxVibro</zorder>
-        <zorder>qSpinBoxVibro</zorder>
-        <zorder>qLabelVibro</zorder>
-        <zorder>vibrometryCheckBox</zorder>
-        <zorder>averageCheckBox</zorder>
-        <zorder>ROIFileLineEdit</zorder>
-        <zorder>saveROIPushButton</zorder>
-        <zorder>loadROIPushButton</zorder>
-        <zorder>label</zorder>
-        <zorder>label_2</zorder>
-        <zorder>pushButton</zorder>
-        <zorder>ROIFileBrowseToolButton</zorder>
-        <zorder>ROIFileLabel</zorder>
-        <zorder>View</zorder>
        </widget>
       </item>
       <item>
@@ -1666,7 +1651,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QTextBrowser" name="textBrowser">
+        <widget class="QTextEdit" name="infoTextEdit">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1674,6 +1659,9 @@
            <width>161</width>
            <height>121</height>
           </rect>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
          </property>
          <property name="html">
           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1684,29 +1672,35 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
-        <widget class="QProgressBar" name="progressBar">
+        <widget class="QProgressBar" name="infoProgressBar">
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>150</y>
            <width>161</width>
-           <height>23</height>
+           <height>21</height>
           </rect>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>1</number>
+         </property>
          <property name="value">
-          <number>24</number>
+          <number>1</number>
          </property>
          <property name="textVisible">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="textDirection">
           <enum>QProgressBar::TopToBottom</enum>
          </property>
          <property name="format">
-          <string>%p%</string>
+          <string>%v/%m</string>
          </property>
         </widget>
        </widget>

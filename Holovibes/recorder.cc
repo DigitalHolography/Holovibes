@@ -88,13 +88,14 @@ namespace holovibes
     std::cout << "[RECORDER] started recording " <<
       n_images << " frames" << std::endl;
 
-    for (unsigned int i = 0; !stop_requested_ && i < n_images; ++i)
+    for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
     {
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
       queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
       file_.write(buffer, size);
+      emit value_change(i);
     }
 
     std::cout << "[RECORDER] recording has been stopped" << std::endl;

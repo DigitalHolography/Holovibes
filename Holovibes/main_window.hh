@@ -1,5 +1,4 @@
-#ifndef MAIN_WINDOW_HH_
-# define MAIN_WINDOW_HH_
+#pragma once
 
 # include <cmath>
 # include <thread>
@@ -69,7 +68,7 @@ namespace gui
 
     public slots:
     /*! \{ \name Menu */
-    /*! \brief Resize windows if one layout is toggled. 
+    /*! \brief Resize windows if one layout is toggled.
     **
     ** b is unused
     */
@@ -414,5 +413,3 @@ namespace gui
     /*! \} */
   };
 }
-
-#endif /* !MAIN_WINDOW_HH_ */

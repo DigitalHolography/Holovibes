@@ -34,7 +34,7 @@ namespace holovibes
   };
 }
 
-namespace Global
+namespace global
 {
   extern holovibes::Config global_config;
 }

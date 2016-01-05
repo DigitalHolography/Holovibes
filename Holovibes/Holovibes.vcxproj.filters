@@ -218,6 +218,18 @@
     <ClCompile Include="config.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="info_manager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_recorder.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_recorder.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_info_manager.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -239,9 +251,6 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="queue.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="recorder.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fft1.cuh">
@@ -340,6 +349,12 @@
     <ClInclude Include="config.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui_gl_widget_color.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_gl_widget_mono.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.hh">
@@ -382,6 +397,12 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="thread_csv_record.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="recorder.hh">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="info_manager.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

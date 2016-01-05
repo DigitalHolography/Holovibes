@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
         opts.fps,
         opts.spanStart,
         opts.spanEnd,
-        Global::global_config.input_queue_max_size);
+        global::global_config.input_queue_max_size);
       }
 
       if (opts.is_compute_enabled)

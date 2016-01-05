@@ -1,6 +1,8 @@
 #include "thread_recorder.hh"
 #include "recorder.hh"
 
+#include "info_manager.hh"
+
 namespace gui
 {
   ThreadRecorder::ThreadRecorder(
@@ -26,7 +28,11 @@ namespace gui
 
   void ThreadRecorder::run()
   {
+    QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+
     queue_.flush();
+    progress_bar->setMaximum(n_images_);
+    connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
     recorder_.record(n_images_);
   }
 }

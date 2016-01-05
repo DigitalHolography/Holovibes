@@ -11,6 +11,7 @@
 #include "average.cuh"
 
 #include "power_of_two.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -404,6 +405,24 @@ namespace holovibes
 
     cudaFree(cbuf);
     cudaFree(fbuf);
+  }
+
+  void ICompute::fps_count()
+  {
+    if (++frame_count_ >= 100)
+    {
+      auto time = std::chrono::high_resolution_clock::now();
+      auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
+      auto manager = gui::InfoManager::get_manager();
+
+      if (diff)
+      {
+        auto fps = frame_count_ * 1000 / diff;
+        manager->update_info(std::string("Rendering"), std::to_string(fps) + std::string(" fps"));
+      }
+      past_time_ = time;
+      frame_count_ = 0;
+    }
   }
 
   /* Looks like the ICompute, but it searches for the right z value.
