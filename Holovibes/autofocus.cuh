@@ -8,4 +8,5 @@
 float focus_metric(
   float* input,
   const unsigned int square_size,
-  cudaStream_t stream);
+  cudaStream_t stream,
+  const unsigned int local_var_size);

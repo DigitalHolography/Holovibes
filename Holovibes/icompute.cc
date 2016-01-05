@@ -475,7 +475,7 @@ namespace holovibes
 
     frame_memcpy(input, af_env_.zone, input_fd.width, af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
 
-    const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
+    const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream, compute_desc_.autofocus_size);
 
     if (!std::isnan(focus_metric_value))
       af_env_.focus_metric_values.push_back(focus_metric_value);

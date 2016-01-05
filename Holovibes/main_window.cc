@@ -1583,6 +1583,10 @@ namespace gui
       // Import
       import_action->setChecked(!ptree.get<bool>("import.hidden", false));
       import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+
+      // Autofocus
+      cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
+
     }
   }
 
@@ -1633,6 +1637,9 @@ namespace gui
 
     // Import
     ptree.put("import.hidden", import_group_box->isHidden());
+
+    // Autofocus
+    ptree.put("autofocus.size", cd.autofocus_size);
 
     boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
