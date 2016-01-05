@@ -1,4 +1,6 @@
 #include "thread_csv_record.hh"
+#include "concurrent_deque.hh"
+#include "holovibes.hh"
 
 namespace gui
 {

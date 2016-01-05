@@ -1,6 +1,6 @@
-#include "icompute.hh"
-# include <cufft.h>
+#include <cufft.h>
 
+#include "icompute.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -9,7 +9,9 @@
 #include "preprocessing.cuh"
 #include "autofocus.cuh"
 #include "average.cuh"
-
+#include "queue.hh"
+#include "concurrent_deque.hh"
+#include "compute_descriptor.hh"
 #include "power_of_two.hh"
 
 namespace holovibes

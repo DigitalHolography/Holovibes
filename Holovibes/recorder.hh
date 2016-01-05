@@ -2,7 +2,11 @@
 
 #include <fstream>
 
-#include "queue.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace holovibes
 {

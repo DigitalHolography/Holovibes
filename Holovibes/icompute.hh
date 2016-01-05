@@ -3,10 +3,18 @@
 # include <fstream>
 # include <cufft.h>
 
-# include "concurrent_deque.hh"
+# include "config.hh"
 # include "pipeline_utils.hh"
-# include "queue.hh"
-# include "compute_descriptor.hh"
+# include "geometry.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  struct UnwrappingResources;
+  class Queue;
+  template <class T> class ConcurrentDeque;
+  class ComputeDescriptor;
+}
 
 namespace holovibes
 {

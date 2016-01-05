@@ -1,8 +1,9 @@
-# include "thread_reader.hh"
-# include <fstream>
-# include <Windows.h>
-
+#include <fstream>
+#include <Windows.h>
 #include <chrono>
+
+#include "thread_reader.hh"
+#include "queue.hh"
 
 namespace holovibes
 {

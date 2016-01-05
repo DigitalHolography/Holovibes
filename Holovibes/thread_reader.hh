@@ -4,7 +4,7 @@
 # include <thread>
 # include <string>
 
-# include "queue.hh"
+# include "frame_desc.hh"
 # include "ithread_input.hh"
 # include "power_of_two.hh"
 
@@ -12,6 +12,12 @@
  ** Use in order to limit disc usage
  */
 #define NBR 5
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace holovibes
 {

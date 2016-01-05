@@ -1,4 +1,5 @@
 #include "gui_curve_plot.hh"
+#include "concurrent_deque.hh"
 
 #define WIDTH 600
 #define HEIGHT 300

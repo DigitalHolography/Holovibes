@@ -5,9 +5,14 @@
 # include <fstream>
 # include <QThread>
 
-# include "concurrent_deque.hh"
 # include "pipe.hh"
-# include "holovibes.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  class Holovibes;
+  template <class T> class ConcurrentDeque;
+}
 
 namespace gui
 {

@@ -1,4 +1,5 @@
 #include "gui_plot_window.hh"
+#include "concurrent_deque.hh"
 
 namespace gui
 {

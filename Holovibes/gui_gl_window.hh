@@ -7,7 +7,13 @@
 
 # include "ui_gl_window.h"
 # include "gui_gl_widget.hh"
-# include "holovibes.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  class Holovibes;
+  class Queue;
+}
 
 namespace gui
 {

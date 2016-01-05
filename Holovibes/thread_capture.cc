@@ -1,4 +1,6 @@
 #include "thread_capture.hh"
+#include "icamera.hh"
+#include "queue.hh"
 
 namespace holovibes
 {

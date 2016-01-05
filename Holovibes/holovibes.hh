@@ -1,14 +1,20 @@
 #pragma once
 
-# include "camera_dll.hh"
+# include <memory>
+
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "thread_reader.hh"
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "concurrent_deque.hh"
+# include "icamera.hh"
 
-# include <memory>
+namespace holovibes
+{
+  template <class T> class ConcurrentDeque;
+  class Queue;
+}
 
 /*! \brief Containt all function and structure needed to computes data */
 namespace holovibes

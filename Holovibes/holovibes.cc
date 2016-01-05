@@ -1,13 +1,14 @@
-#include "holovibes.hh"
-#include <frame_desc.hh>
-
 #include <exception>
 #include <cassert>
 #include <memory>
-#include <icamera.hh>
 #include <boost/filesystem.hpp>
 
+#include "holovibes.hh"
+#include "frame_desc.hh"
+#include "queue.hh"
+#include "icamera.hh"
 #include "config.hh"
+#include "camera_dll.hh"
 
 namespace holovibes
 {

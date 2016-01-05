@@ -2,9 +2,17 @@
 
 # include <thread>
 
-# include <icamera.hh>
-# include "queue.hh"
 # include "ithread_input.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  class Queue;
+}
+namespace camera
+{
+  class ICamera;
+}
 
 namespace holovibes
 {

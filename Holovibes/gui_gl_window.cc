@@ -1,5 +1,6 @@
 #include "gui_gl_window.hh"
 #include "gui_gl_widget_mono.hh"
+#include "holovibes.hh"
 
 #define DEFAULT_GLWIDGET_SIZE 600
 

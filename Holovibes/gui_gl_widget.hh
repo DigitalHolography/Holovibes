@@ -9,10 +9,15 @@
 
 # include <cuda_gl_interop.h>
 
-# include "queue.hh"
-# include <frame_desc.hh>
+# include "frame_desc.hh"
 # include "geometry.hh"
 # include "holovibes.hh"
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace gui
 {
