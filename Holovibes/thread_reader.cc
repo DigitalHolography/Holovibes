@@ -1,8 +1,9 @@
 # include "thread_reader.hh"
 # include <fstream>
 # include <Windows.h>
+# include <chrono>
 
-#include <chrono>
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -25,6 +26,7 @@ namespace holovibes
     , queue_(input)
     , thread_(&ThreadReader::thread_proc, this)
   {
+    gui::InfoManager::get_manager()->update_info("ImgSource", "File");
   }
 
   void ThreadReader::thread_proc()
@@ -94,5 +96,6 @@ namespace holovibes
 
     if (thread_.joinable())
       thread_.join();
+    gui::InfoManager::get_manager()->update_info("ImgSource", "none");
   }
 }

@@ -1,7 +1,5 @@
 #include "info_manager.hh"
 
-#include <iostream>
-
 namespace gui
 {
   InfoManager* InfoManager::instance = nullptr;
@@ -25,33 +23,34 @@ namespace gui
 
   InfoManager::~InfoManager() {}
 
-  void InfoManager::add_info(std::string& key, std::string& value)
-  {
-    infos_.insert(std::make_pair(key, value));
-  }
-
-  void InfoManager::update_info(std::string& key, std::string& value)
+  void InfoManager::draw()
   {
     std::string str = "";
 
-    infos_[key] = value;
+    auto ite = infos_.end();
+    for (auto it = infos_.begin(); it != ite; ++it)
+      str += it->first + ": " + it->second + "\n";
 
-      auto ite = infos_.end();
-      for (auto it = infos_.begin(); it != ite; ++it)
-        str += it->first + ": " + it->second;
-
-      const QString qstr = str.c_str();
-      emit update_text(qstr);
+    const QString qstr = str.c_str();
+    emit update_text(qstr);
   }
 
-  void InfoManager::remove_info(std::string& key)
+  void InfoManager::update_info(const std::string& key, const std::string& value)
+  {
+    infos_[key] = value;
+    draw();
+  }
+
+  void InfoManager::remove_info(const std::string& key)
   {
     infos_.erase(key);
+    draw();
   }
 
   void InfoManager::clear_info()
   {
     infos_.clear();
+    draw();
   }
 
   QProgressBar* InfoManager::get_progress_bar()

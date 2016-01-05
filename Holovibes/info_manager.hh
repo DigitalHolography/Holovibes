@@ -24,9 +24,9 @@ namespace gui
   public:
     static InfoManager* get_manager(gui::GroupBox *ui = nullptr);
 
-    void add_info(std::string& key, std::string& value);
-    void update_info(std::string& key, std::string& value);
-    void remove_info(std::string& key);
+    void draw();
+    void update_info(const std::string& key, const std::string& value);
+    void remove_info(const std::string& key);
     void clear_info();
 
     QProgressBar* get_progress_bar();

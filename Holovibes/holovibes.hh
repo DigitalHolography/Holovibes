@@ -61,6 +61,12 @@ namespace holovibes
       return camera_.operator bool();
     }
 
+    const std::string& get_camera_name()
+    {
+      assert(camera_initialized_ && "camera not initialized");
+      return camera_.get()->get_name();
+    }
+
     /*! \{ \name Queue getters
      *
      * Used to display/record frames */

@@ -1,4 +1,5 @@
 #include "thread_capture.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -10,6 +11,7 @@ namespace holovibes
     , queue_(input)
     , thread_(&ThreadCapture::thread_proc, this)
   {
+    gui::InfoManager::get_manager()->update_info("ImgSource", camera_.get_name());
   }
 
   ThreadCapture::~ThreadCapture()
@@ -19,6 +21,7 @@ namespace holovibes
     while (!thread_.joinable())
       continue;
     thread_.join();
+    gui::InfoManager::get_manager()->update_info("ImgSource", "none");
   }
 
   void ThreadCapture::thread_proc()

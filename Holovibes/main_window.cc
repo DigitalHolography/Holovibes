@@ -28,6 +28,7 @@ namespace gui
   {
     ui.setupUi(this);
     this->setWindowIcon(QIcon("icon1.ico"));
+    InfoManager::get_manager(this->findChild<gui::GroupBox*>("Info"));
 
     camera_visible(false);
     record_visible(false);
@@ -64,7 +65,6 @@ namespace gui
 
     // Display default values
     notify();
-    InfoManager::get_manager(this->findChild<gui::GroupBox*>("Info"));
   }
 
   MainWindow::~MainWindow()
