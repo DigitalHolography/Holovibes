@@ -400,8 +400,6 @@ void unwrap(
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
-  /* TODO : Find a BETTER method of handling this. Besides, here it does
-   * not work for any unwrapped_argument launch after the first one. */
   static bool first_time = true;
   if (first_time)
   {
@@ -450,8 +448,6 @@ void unwrap_2(
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
-  /* TODO : Find a BETTER method of handling this. Besides, here it does
-  * not work for any unwrapped_argument launch after the first one. */
   static bool first_time = true;
   if (first_time)
   {
