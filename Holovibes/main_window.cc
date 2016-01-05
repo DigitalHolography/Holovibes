@@ -1518,6 +1518,7 @@ namespace gui
       config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
+      config.unwrap_history_size = ptree.get<int>("config.unwrap_history_size", config.unwrap_history_size);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1602,6 +1603,7 @@ namespace gui
     ptree.put("config.output_queue_max_size", config.output_queue_max_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
+    ptree.put("config.unwrap_history_size", config.unwrap_history_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
