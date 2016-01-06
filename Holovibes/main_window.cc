@@ -876,7 +876,7 @@ namespace gui
         camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
         frame_desc.depth = sizeof(float);
-        queue = new holovibes::Queue(frame_desc, 20);
+        queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size);
         pipe->request_float_output(queue);
       }
       else if (is_direct_mode_)
@@ -1521,9 +1521,11 @@ namespace gui
       // Config
       config.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config.input_queue_max_size);
       config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
+      config.float_queue_max_size = ptree.get<int>("config.float_queue_max_size", config.float_queue_max_size);
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-
+      config.reader_buf_max_size = ptree.get<int>("config.reader_buf_max_size", config.reader_buf_max_size);
+      
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
@@ -1610,9 +1612,11 @@ namespace gui
     // Config
     ptree.put("config.input_queue_max_size", config.input_queue_max_size);
     ptree.put("config.output_queue_max_size", config.output_queue_max_size);
+    ptree.put("config.float_queue_max_size", config.float_queue_max_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
-
+    ptree.put("config.reader_buf_max_size", config.reader_buf_max_size);
+    
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);
