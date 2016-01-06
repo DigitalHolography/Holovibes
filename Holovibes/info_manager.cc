@@ -14,6 +14,18 @@ namespace gui
       throw InfoManager::ManagerNotInstantiate();
   }
 
+  void InfoManager::update_info_safe(const std::string& key, const std::string& value)
+  {
+    if (instance)
+      instance->update_info(key, value);
+  }
+
+  void InfoManager::remove_info_safe(const std::string& key)
+  {
+    if (instance)
+      instance->remove_info(key);
+  }
+
   InfoManager::InfoManager(gui::GroupBox *ui) : ui_(ui), progressBar_(ui->findChild<QProgressBar*>("infoProgressBar"))
   {
     progressBar_ = ui->findChild<QProgressBar*>("infoProgressBar");

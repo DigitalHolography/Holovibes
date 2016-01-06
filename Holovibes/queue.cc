@@ -1,9 +1,12 @@
 #include "queue.hh"
 #include "tools_conversion.cuh"
 
+#include "info_manager.hh"
+
 namespace holovibes
 {
   using guard = std::lock_guard<std::mutex>;
+  unsigned int Queue::count_ = 0;
 
   Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts)
     : frame_desc_(frame_desc)
@@ -15,6 +18,7 @@ namespace holovibes
     , is_big_endian_(frame_desc.depth >= 2 &&
     frame_desc.endianness == camera::BIG_ENDIAN)
   {
+    id_ = ++Queue::count_;
     if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't allocate queue" << std::endl;
 
@@ -24,6 +28,8 @@ namespace holovibes
 
   Queue::~Queue()
   {
+    --Queue::count_;
+    gui::InfoManager::remove_info_safe(std::string("Queue-") + std::to_string(id_));
     if (cudaFree(buffer_) != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't free queue" << std::endl;
     cudaStreamDestroy(stream_);
@@ -107,6 +113,8 @@ namespace holovibes
       ++curr_elts_;
     else
       start_ = (start_ + 1) % max_elts_;
+    gui::InfoManager::update_info_safe(std::string("Queue-") + std::to_string(id_),
+      std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     return true;
   }
 
@@ -120,6 +128,8 @@ namespace holovibes
       cudaMemcpyAsync(dest, first_img, size_, cuda_kind, stream_);
       start_ = (start_ + 1) % max_elts_;
       --curr_elts_;
+      gui::InfoManager::update_info_safe(std::string("Queue-") + std::to_string(id_),
+        std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     }
   }
 

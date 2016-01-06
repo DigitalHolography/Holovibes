@@ -11,7 +11,7 @@ namespace gui
   class InfoManager : public QObject
   {
     Q_OBJECT
-  signals:
+  signals :
     void update_text(const QString);
   private:
     class ManagerNotInstantiate : std::exception
@@ -23,6 +23,8 @@ namespace gui
 
   public:
     static InfoManager* get_manager(gui::GroupBox *ui = nullptr);
+    static void update_info_safe(const std::string& key, const std::string& value);
+    static void remove_info_safe(const std::string& key);
 
     void draw();
     void update_info(const std::string& key, const std::string& value);

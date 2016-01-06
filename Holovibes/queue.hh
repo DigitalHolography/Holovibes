@@ -110,6 +110,12 @@ namespace holovibes
     void flush();
 
   private:
+    /*! The number of queue instantiate actualy */
+    static unsigned int count_;
+
+    /*! The id of queue */
+    unsigned int id_;
+
     /*! FrameDescriptor of the Queue */
     camera::FrameDescriptor frame_desc_;
 
@@ -137,6 +143,7 @@ namespace holovibes
     /*! Mutex for critical code sections (threads safety) */
     std::mutex mutex_;
 
+    /*! Stream id use by cuda */
     cudaStream_t  stream_;
   };
 }
