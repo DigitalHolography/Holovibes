@@ -24,11 +24,7 @@ namespace holovibes
 
   void UnwrappingResources::allocate(const size_t image_size)
   {
-    /* Phase unwrapping requires a reference. We shall copy the first frame
-    * obtained into gpu_angle_predecessor_, for initialization. This is done in
-    * the unwrap function. The first iteration will have no effect, because
-    * the frame will be compared to itself.
-    * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
+    /* Cumulative phase adjustments in gpu_unwrap_buffer are reset. */
     auto nb_unwrap_elts = image_size * capacity_;
     if (gpu_unwrap_buffer_)
       cudaFree(gpu_unwrap_buffer_);

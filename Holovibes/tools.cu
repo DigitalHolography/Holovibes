@@ -297,7 +297,8 @@ void copy_buffer(
 
 /* Take complex data in cartesian form, and use conversion to polar
  * form to take the angle value of each element and store it
- * in a floating-point matrix. */
+ * in a floating-point matrix.
+ * The resulting angles' values are bound in [-pi; pi]. */
 static __global__ void kernel_extract_angle(
   const cufftComplex* input,
   float* output,
@@ -307,6 +308,7 @@ static __global__ void kernel_extract_angle(
   if (index >= size)
     return;
 
+  // We use std::atan2 in order to obtain results in [-pi; pi].
   output[index] = std::atan2(input[index].y, input[index].x);
 }
 
@@ -325,7 +327,7 @@ static __global__ void kernel_unwrap(
   // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] - pred[index];
 
-  // Adjustements //
+  // Unwrapping //
   float local_adjust;
   if (local_diff > pi)
     local_adjust = -2.f * pi;
@@ -334,7 +336,7 @@ static __global__ void kernel_unwrap(
   else
     local_adjust = 0.f;
 
-  // Cumulating the adjustement with precedent ones //
+  // Cumulating the phase correction with precedent ones //
   adjustments[index] = local_adjust;
 }
 
@@ -352,7 +354,7 @@ static __global__ void kernel_unwrap_2(
   // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] * (-1.f * pred[index]);
 
-  // Adjustements //
+  // Unwrapping //
   float local_adjust;
   if (local_diff > pi)
     local_adjust = -2.f * pi;
@@ -361,7 +363,7 @@ static __global__ void kernel_unwrap_2(
   else
     local_adjust = 0.f;
 
-  // Cumulating the adjustement with precedent ones //
+  // Cumulating the unwrapped phase with precedent ones //
   adjustments[index] = local_adjust;
 }
 
@@ -400,6 +402,10 @@ void unwrap(
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
+  /* TODO : Find a better way to do this.
+   * Unwrapping needs a reference, in the form of a start image.
+   * Thus, the first time unwrapping is called, the predecessor image is set
+   * to the current image. */
   static bool first_time = true;
   if (first_time)
   {
@@ -431,10 +437,11 @@ void unwrap(
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
+  // Applying unwrapping history to the current image.
   kernel_correct_angles << <blocks, threads >> >(resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
-    resources->capacity_);
+    resources->size_);
 }
 
 void unwrap_2(
@@ -479,8 +486,9 @@ void unwrap_2(
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
+  // Applying unwrapping history to the current image.
   kernel_correct_angles << <blocks, threads >> >(resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
-    resources->capacity_);
+    resources->size_);
 }
