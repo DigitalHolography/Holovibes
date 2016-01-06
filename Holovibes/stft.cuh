@@ -1,11 +1,18 @@
 /*! \file */
 #pragma once
 
+# include <cuda_runtime.h>
 # include <cufft.h>
 
-# include "queue.hh"
-# include "geometry.hh"
-# include "compute_descriptor.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  class Rectangle;
+}
+namespace camera
+{
+  struct FrameDescriptor;
+}
 
 /*! \brief Function handling the stft algorithm which steps are \n
  * 1 : Aplly lens on the input queue \n

@@ -10,8 +10,6 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-# include "geometry.hh"
-
 /*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
 *
 * The image(s) to treat, seen as image, should be contigous, the size is the total number of pixels to

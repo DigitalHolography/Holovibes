@@ -1,10 +1,14 @@
 /*! \file */
 #pragma once
 
+#include <cuda_runtime.h>
 #include <cufft.h>
 
-#include "queue.hh"
-#include <frame_desc.hh>
+/* Forward declaration. */
+namespace camera
+{
+  struct FrameDescriptor;
+}
 
 /*! \brief Find the right threads and block to call quadratic lens
 * with and call it

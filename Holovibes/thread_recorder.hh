@@ -4,8 +4,12 @@
 # include <QThread>
 # include <QObject>
 
-# include "queue.hh"
 # include "recorder.hh"
+
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace gui
 {

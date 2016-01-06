@@ -1,6 +1,6 @@
-#include "tools_divide.cuh"
-
 #include <device_launch_parameters.h>
+
+#include "tools_divide.cuh"
 #include "hardware_limits.hh"
 
 __global__ void kernel_complex_divide(

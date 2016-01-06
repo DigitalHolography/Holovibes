@@ -3,7 +3,8 @@
 
 #include "pipe.hh"
 #include "config.hh"
-
+#include "compute_descriptor.hh"
+#include "queue.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"

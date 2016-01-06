@@ -1,9 +1,14 @@
 /*! \file */
 #pragma once
 
+#include <cuda_runtime.h>
 #include <cufft.h>
 
-#include "queue.hh"
+/* Forward declaration. */
+namespace camera
+{
+  struct FrameDescriptor;
+}
 
 /*! \brief Find the right threads and block to call spectral lens
 * with and call it

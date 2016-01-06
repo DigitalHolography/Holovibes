@@ -1,9 +1,8 @@
 #include <algorithm>
-
-#include "tools.hh"
-#include "tools_conversion.cuh"
-
 #include <device_launch_parameters.h>
+
+#include "tools_conversion.cuh"
+#include "tools.hh"
 #include "hardware_limits.hh"
 
 __global__ void img8_to_complex(

@@ -1,8 +1,8 @@
-#include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <cmath>
 
 #include "average.cuh"
+#include "geometry.hh"
 #include "tools.hh"
 #include "tools.cuh"
 #include "tools_conversion.cuh"
