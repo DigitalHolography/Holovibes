@@ -3,6 +3,7 @@
   <ItemGroup>
     <ClInclude Include="gpib_controller.hh" />
     <ClInclude Include="gpib_exceptions.hh" />
+    <ClInclude Include="IVisaInterface.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gpib_controller.cc" />

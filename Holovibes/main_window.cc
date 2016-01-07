@@ -5,6 +5,7 @@
 #include "thread_recorder.hh"
 #include "thread_csv_record.hh"
 #include "compute_descriptor.hh"
+#include "gpib_dll.hh"
 #include "../GPIB/gpib_controller.hh"
 #include "../GPIB/gpib_exceptions.hh"
 #include "camera_exception.hh"
@@ -1011,7 +1012,9 @@ namespace gui
 
     try
     {
-      gpib_interface_.reset(new gpib::VisaInterface(input_path));
+      // Only loading the dll at runtime
+      gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+
       const std::string formatted_path = format_batch_output(path, file_index_);
 
       /*! All checks are performed by the GPIB module, except for this one,
@@ -1174,7 +1177,7 @@ namespace gui
     disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
-    gpib_interface_.reset(nullptr);
+    gpib_interface_.reset();
 
     file_index_ = 1;
     global_visibility(true);

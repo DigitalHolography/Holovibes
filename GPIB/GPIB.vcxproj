@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="gpib_controller.hh" />
     <ClInclude Include="gpib_exceptions.hh" />
+    <ClInclude Include="IVisaInterface.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gpib_controller.cc" />
@@ -24,7 +25,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -56,6 +57,7 @@
     <ClCompile />
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionLibDir)\ni_gpib\nivisa64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>nivisa64.lib</AdditionalDependencies>

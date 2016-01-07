@@ -265,4 +265,9 @@ namespace gpib
       ++line_num;
     }
   }
+
+  IVisaInterface* new_gpib_controller(const std::string path)
+  {
+    return new VisaInterface(path);
+  }
 }
