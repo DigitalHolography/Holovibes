@@ -1,6 +1,7 @@
 #pragma once
 
 # include <cuda_runtime.h>
+# include <cufft.h>
 
 # include "config.hh"
 
@@ -29,6 +30,11 @@ namespace holovibes
     * applied back in phase unwrapping. Phase being an angle, it is one
     * part of a complex information, and can be stored in a float. */
     float* gpu_unwrap_buffer_;
+
+    cufftComplex* gpu_predecessor_;
+    cufftComplex* gpu_diff_predecessor_;
+    cufftComplex* gpu_diff_;
+    cufftComplex* gpu_global_diff_;
 
     /*! Copy of the previous frame's angle values. Updated over unwrapping. */
     float* gpu_angle_predecessor_;
