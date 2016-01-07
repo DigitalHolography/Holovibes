@@ -2,9 +2,14 @@
 #pragma once
 
 # include <tuple>
+# include <cuda_runtime.h>
 # include <cufft.h>
 
-# include "geometry.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  class Rectangle;
+}
 
 /*! \brief  Make the average plot on the 2 select zones
 *

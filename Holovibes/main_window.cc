@@ -1,10 +1,16 @@
 #include "main_window.hh"
+#include "gui_gl_window.hh"
+#include "gui_plot_window.hh"
+#include "queue.hh"
+#include "thread_recorder.hh"
+#include "thread_csv_record.hh"
+#include "compute_descriptor.hh"
 #include "../GPIB/gpib_controller.hh"
 #include "../GPIB/gpib_exceptions.hh"
+#include "camera_exception.hh"
+#include "config.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
-
-#include "config.hh"
 
 namespace gui
 {
@@ -1586,7 +1592,6 @@ namespace gui
 
       // Autofocus
       cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
-
     }
   }
 

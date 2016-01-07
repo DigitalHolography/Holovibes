@@ -14,9 +14,13 @@
 # include <boost/program_options/value_semantic.hpp>
 # include <boost/program_options/version.hpp>
 
-# include "options_descriptor.hh"
-
 namespace po = boost::program_options;
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class OptionsDescriptor;
+}
 
 namespace holovibes
 {

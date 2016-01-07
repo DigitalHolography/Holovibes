@@ -4,8 +4,13 @@
 # include <QThread>
 # include <QObject>
 
-# include "queue.hh"
 # include "recorder.hh"
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace gui
 {

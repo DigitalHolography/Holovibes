@@ -1,9 +1,9 @@
-# include <cuda_runtime.h>
-
-# include "stft.cuh"
-# include "hardware_limits.hh"
-# include "tools.hh"
-# include "tools.cuh"
+#include "stft.cuh"
+#include "hardware_limits.hh"
+#include "geometry.hh"
+#include "frame_desc.hh"
+#include "tools.hh"
+#include "tools.cuh"
 
 void stft(
   cufftComplex*                   input,

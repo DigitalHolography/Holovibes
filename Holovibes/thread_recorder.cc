@@ -1,5 +1,6 @@
 #include "thread_recorder.hh"
 #include "recorder.hh"
+#include "queue.hh"
 
 namespace gui
 {

@@ -1,6 +1,5 @@
 #include <device_launch_parameters.h>
 #include <cfloat>
-#include <cuda_runtime.h>
 
 #include "vibrometry.cuh"
 #include "hardware_limits.hh"

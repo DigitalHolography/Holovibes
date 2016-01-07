@@ -1,10 +1,11 @@
-#include "transforms.cuh"
-
 #ifndef _USE_MATH_DEFINES
 /* Enables math constants. */
 # define _USE_MATH_DEFINES
 #endif /* !_USE_MATH_DEFINES */
 #include <math.h>
+
+#include "transforms.cuh"
+#include "frame_desc.hh"
 
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,

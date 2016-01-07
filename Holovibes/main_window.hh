@@ -15,20 +15,30 @@
 # include <cstring>
 # include <vector>
 # include <sys/stat.h>
+# include <string>
 
-# include "camera_exception.hh"
-# include "../GPIB/gpib_controller.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
-# include "pipe.hh"
-# include "compute_descriptor.hh"
 # include "observer.hh"
-# include "gui_gl_window.hh"
-# include "gui_plot_window.hh"
-# include "thread_recorder.hh"
-# include "thread_csv_record.hh"
-# include "concurrent_deque.hh"
-# include <string>
+
+/* Forward declarations. */
+namespace gui
+{
+  class GuiGLWindow;
+  class PlotWindow;
+  class ThreadRecorder;
+  class ThreadCSVRecord;
+}
+
+namespace camera
+{
+  class CameraException;
+}
+
+namespace gpib
+{
+  class VisaInterface;
+}
 
 namespace gui
 {
@@ -69,7 +79,7 @@ namespace gui
 
     public slots:
     /*! \{ \name Menu */
-    /*! \brief Resize windows if one layout is toggled. 
+    /*! \brief Resize windows if one layout is toggled.
     **
     ** b is unused
     */

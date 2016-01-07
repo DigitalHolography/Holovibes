@@ -1,5 +1,7 @@
 /*! \file */
 #pragma once
+
+# include <cuda_runtime.h>
 # include <cufft.h>
 
 /*! \brief For each pixel (P and Q) of the two images, this function

@@ -6,10 +6,14 @@
 # include <cufft.h>
 
 # include "icompute.hh"
-# include "pipeline_utils.hh"
-# include "module.hh"
-# include "queue.hh"
-# include "compute_descriptor.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  class Module;
+  class Queue;
+  class ComputeDescriptor;
+}
 
 namespace holovibes
 {

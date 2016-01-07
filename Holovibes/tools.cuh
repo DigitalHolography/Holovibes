@@ -10,7 +10,11 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-# include "geometry.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  class Rectangle;
+}
 
 /*! \brief  Apply a previously computed lens to image(s).
 *

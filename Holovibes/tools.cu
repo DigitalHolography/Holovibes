@@ -1,15 +1,11 @@
 #include <cmath>
 #include <algorithm>
 #include <device_launch_parameters.h>
-// DEBUG
-#include <iostream>
-#include <thread>
-#include <chrono>
-// ! DEBUG
 
 #include "tools.cuh"
 #include "tools_multiply.cuh"
 #include "tools.hh"
+#include "geometry.hh"
 #include "hardware_limits.hh"
 
 __global__ void kernel_apply_lens(
