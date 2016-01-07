@@ -298,27 +298,32 @@ namespace gui
       {
         QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
 
-        if (pipeline_checkbox->isChecked())
-          holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
-        else
-          holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-
-        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-
-        if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+        try
         {
-          GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+          if (pipeline_checkbox->isChecked())
+            holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
+          else
+            holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 
-          gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-          connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-            Qt::UniqueConnection);
-          connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-            Qt::UniqueConnection);
+          gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+          if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+          {
+            GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+
+            gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+            connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+              Qt::UniqueConnection);
+            connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+              Qt::UniqueConnection);
+          }
+
+          is_direct_mode_ = false;
+          global_visibility(true);
         }
-
-        is_direct_mode_ = false;
-
-        global_visibility(true);
+        catch (std::exception& e)
+        {
+          display_error(e.what());
+        }
       }
 
       notify();
@@ -876,7 +881,7 @@ namespace gui
         camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
         frame_desc.depth = sizeof(float);
-        queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size);
+        queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
         pipe->request_float_output(queue);
       }
       else if (is_direct_mode_)
@@ -1525,7 +1530,7 @@ namespace gui
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
       config.reader_buf_max_size = ptree.get<int>("config.reader_buf_max_size", config.reader_buf_max_size);
-      
+
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
@@ -1616,7 +1621,7 @@ namespace gui
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put("config.reader_buf_max_size", config.reader_buf_max_size);
-    
+
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);

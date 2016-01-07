@@ -53,7 +53,7 @@ namespace holovibes
       std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
       camera_->init_camera();
       std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
-      input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size));
+      input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
       std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
@@ -115,7 +115,7 @@ namespace holovibes
 
     camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
     output_frame_desc.depth = 2;
-    output_.reset(new Queue(output_frame_desc, global::global_config.output_queue_max_size));
+    output_.reset(new Queue(output_frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
 
     tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
     std::cout << "[CUDA] compute thread started" << std::endl;
@@ -161,7 +161,7 @@ namespace holovibes
 
     try
     {
-      input_.reset(new Queue(frame_desc.desc, q_max_size_));
+      input_.reset(new Queue(frame_desc.desc, q_max_size_, "InputQueue"));
       tcapture_.reset(
         new ThreadReader(file_src
         , frame_desc
