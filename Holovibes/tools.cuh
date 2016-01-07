@@ -148,11 +148,14 @@ void copy_buffer(
 void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const unsigned width,
-  const unsigned height);
+  const size_t image_size);
 
-void unwrap_2(
+void unwrap_mult(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const unsigned width,
-  const unsigned height);
+  const size_t image_size);
+
+void unwrap_diff(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size);

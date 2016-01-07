@@ -332,18 +332,16 @@ namespace holovibes
           unwrap,
           gpu_input_frame_ptr_,
           unwrap_res_,
-          input_fd.width,
-          input_fd.height));
+          input_fd.frame_res()));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
         // Phase unwrapping, multiply-with-conjugate method
         fn_vect_.push_back(std::bind(
-          unwrap_2,
+          unwrap_diff,
           gpu_input_frame_ptr_,
           unwrap_res_,
-          input_fd.width,
-          input_fd.height));
+          input_fd.frame_res()));
       }
       else
         assert(!"Unknown contrast type.");

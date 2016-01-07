@@ -324,9 +324,7 @@ static __global__ void kernel_unwrap(
     return;
   const float pi = M_PI;
 
-  // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] - pred[index];
-
   // Unwrapping //
   float local_adjust;
   if (local_diff > pi)
@@ -340,7 +338,7 @@ static __global__ void kernel_unwrap(
   adjustments[index] = local_adjust;
 }
 
-static __global__ void kernel_compute_angle_2(
+static __global__ void kernel_compute_angle_mult(
   const cufftComplex* pred,
   const cufftComplex* cur,
   float* output,
@@ -358,29 +356,22 @@ static __global__ void kernel_compute_angle_2(
   output[index] = std::atan2(diff.y, diff.x);
 }
 
-static __global__ void kernel_unwrap_2(
-  const float* pred,
-  const float* cur,
-  float* adjustments,
+static __global__ void kernel_compute_angle_diff(
+  const cufftComplex* pred,
+  const cufftComplex* cur,
+  float* output,
   const size_t size)
 {
   const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
   if (index >= size)
     return;
-  const float pi = M_PI;
 
-  // Unwrapping //
-  float local_diff = cur[index] - pred[index];
-  float local_adjust;
-  if (local_diff > pi)
-    local_adjust = -2.f * pi;
-  else if (local_diff < -pi)
-    local_adjust = 2.f * pi;
-  else
-    local_adjust = 0.f;
+  cufftComplex diff;
+  diff = cur[index];
+  diff.x -= pred[index].x;
+  diff.y -= pred[index].y;
 
-  // Cumulating the phase correction with precedent ones //
-  adjustments[index] = local_adjust;
+  output[index] = std::atan2(diff.y, diff.x);
 }
 
 /* Iterate over saved phase corrections and apply them to an image.
@@ -410,18 +401,11 @@ static __global__ void kernel_correct_angles(
 void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const unsigned width,
-  const unsigned height)
+  const size_t image_size)
 {
-  const size_t image_size = width * height;
-
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
-  /* TODO : Find a better way to do this.
-   * Unwrapping needs a reference, in the form of a start image.
-   * Thus, the first time unwrapping is called, the predecessor image is set
-   * to the current image. */
   static bool first_time = true;
   if (first_time)
   {
@@ -454,34 +438,33 @@ void unwrap(
     cudaMemcpyDeviceToDevice);
 
   // Applying unwrapping history to the current image.
-  kernel_correct_angles << <blocks, threads >> >(resources->gpu_angle_current_,
+  kernel_correct_angles << <blocks, threads >> >(
+    resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
     resources->size_);
 }
 
-void unwrap_2(
+void unwrap_mult(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const unsigned width,
-  const unsigned height)
+  const size_t image_size)
 {
-  const size_t image_size = width * height;
-
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
   static bool first_time = true;
   if (first_time)
   {
-    kernel_extract_angle << <blocks, threads >> >(cur,
-      resources->gpu_angle_predecessor_,
-      image_size);
+    cudaMemcpy(resources->gpu_predecessor_,
+      cur,
+      sizeof(cufftComplex)* image_size,
+      cudaMemcpyDeviceToDevice);
     first_time = false;
   }
 
   /* Compute the newest phase image, not unwrapped yet. */
-  kernel_compute_angle_2 << <blocks, threads >> >(
+  kernel_compute_angle_mult << <blocks, threads >> >(
     resources->gpu_predecessor_,
     cur,
     resources->gpu_angle_current_,
@@ -490,7 +473,7 @@ void unwrap_2(
   /* Store the new unwrapped phase image in the next buffer position.
   * The buffer is handled as a circular buffer. */
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap_2 << < blocks, threads >> >(
+  kernel_unwrap << < blocks, threads >> >(
     resources->gpu_angle_predecessor_,
     resources->gpu_angle_current_,
     next_unwrap,
@@ -509,7 +492,62 @@ void unwrap_2(
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
-  // Applying unwrapping history on the lastest phase image //
+  // Applying unwrapping history on the latest phase image //
+  kernel_correct_angles << <blocks, threads >> >(
+    resources->gpu_angle_current_,
+    resources->gpu_unwrap_buffer_,
+    image_size,
+    resources->size_);
+}
+
+void unwrap_diff(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size)
+{
+  const unsigned threads = 128;
+  const unsigned blocks = map_blocks_to_problem(image_size, threads);
+
+  static bool first_time = true;
+  if (first_time)
+  {
+    cudaMemcpy(resources->gpu_predecessor_,
+      cur,
+      sizeof(cufftComplex)* image_size,
+      cudaMemcpyDeviceToDevice);
+    first_time = false;
+  }
+
+  /* Compute the newest phase image, not unwrapped yet. */
+  kernel_compute_angle_diff << <blocks, threads >> >(
+    resources->gpu_predecessor_,
+    cur,
+    resources->gpu_angle_current_,
+    image_size);
+
+  /* Store the new unwrapped phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  kernel_unwrap << < blocks, threads >> >(
+    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    next_unwrap,
+    image_size);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
+
+  // Updating predecessors : complex image + multiply-with-conjugate angle
+  cudaMemcpy(resources->gpu_predecessor_,
+    cur,
+    sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+  cudaMemcpy(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Applying unwrapping history on the latest phase image //
   kernel_correct_angles << <blocks, threads >> >(
     resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
