@@ -23,6 +23,14 @@ namespace holovibes
     * \param image_size The number of pixels in an image. */
     void allocate(const size_t image_size);
 
+    /*! Modify the maximum number of phase adjustments stored : the history size.
+     *
+     * Should the reallocation fail, the preceding capacity value will be used
+     * to try to reclaim a memory buffer as before. Failure of this attempt
+     * as well is not handled.
+     * \return True if reallocation succeeded. */
+    bool change_capacity(size_t capacity);
+
     size_t capacity_; //!< Maximum number of matrices kept in history.
     size_t size_; //!< Current number of matrices kept in history.
     unsigned next_index_; //!< Index of the next matrix to be overriden (the oldest).
@@ -32,9 +40,7 @@ namespace holovibes
     float* gpu_unwrap_buffer_;
 
     cufftComplex* gpu_predecessor_;
-    cufftComplex* gpu_diff_predecessor_;
     cufftComplex* gpu_diff_;
-    cufftComplex* gpu_global_diff_;
 
     /*! Copy of the previous frame's angle values. Updated over unwrapping. */
     float* gpu_angle_predecessor_;
