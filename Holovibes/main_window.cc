@@ -28,6 +28,7 @@ namespace gui
     , is_batch_interrupted_(false)
     , z_step_(0.1f)
     , camera_type_(holovibes::Holovibes::NONE)
+    , last_contrast_type_("magnitude")
     , plot_window_(nullptr)
     , record_thread_(nullptr)
     , CSV_record_thread_(nullptr)
@@ -502,20 +503,44 @@ namespace gui
       QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
       p->setEnabled(true);
 
+      QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+      bool pipeline_checked = pipeline_checkbox->isChecked();
+
       if (value == "magnitude")
+      {
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+        last_contrast_type_ = value;
+      }
       else if (value == "squared magnitude")
+      {
         cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+        last_contrast_type_ = value;
+      }
       else if (value == "argument")
+      {
         cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-      else if (value == "phase 1")
-        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-      else if (value == "phase 2")
-        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
-      else if (value == "phase 3")
-        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3;
+        last_contrast_type_ = value;
+      }
       else
-        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+      {
+        if (pipeline_checked)
+        {
+          // For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
+          display_error("Unwrapping is not available with the Pipeline.");
+          QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
+          // last_contrast_type_ exists for this sole purpose...
+          contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
+        }
+        else
+        {
+          if (value == "phase 1")
+            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+          else if (value == "phase 2")
+            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
+          else if (value == "phase 3")
+            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3;
+        }
+      }
 
       holovibes_.get_pipe()->request_refresh();
     }

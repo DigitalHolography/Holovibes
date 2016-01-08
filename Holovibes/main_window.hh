@@ -399,6 +399,9 @@ namespace gui
     /*! current camera type */
     holovibes::Holovibes::camera_type camera_type_;
 
+    /*! Index of the last contrast type chosen in the affiliated QComboBox. */
+    QString last_contrast_type_;
+
     /*! Plot/graphic window of average/ROI computations */
     std::unique_ptr<PlotWindow> plot_window_;
 
