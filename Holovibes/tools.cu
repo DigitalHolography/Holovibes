@@ -312,7 +312,7 @@ static __global__ void kernel_extract_angle(
   output[index] = std::atan2(input[index].y, input[index].x);
 }
 
-/* Perform element_wise phase adjustment on a pixel matrix. */
+/* Perform element-wise phase adjustment on a pixel matrix. */
 static __global__ void kernel_unwrap(
   float* pred,
   float* cur,
