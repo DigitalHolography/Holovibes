@@ -58,6 +58,7 @@ namespace holovibes
       , lambda(532e-9f)
       , zdistance(1.50f)
       , view_mode(MODULUS)
+      , unwrap_history_size(10)
       , log_scale_enabled(false)
       , shift_corners_enabled(true)
       , contrast_enabled(false)
@@ -92,6 +93,9 @@ namespace holovibes
 
     /*! Complex to float method. */
     std::atomic<enum complex_view_mode> view_mode;
+
+    /*! TODO */
+    std::atomic<int> unwrap_history_size;
 
     /*! Is log scale post-processing enabled. */
     std::atomic<bool> log_scale_enabled;

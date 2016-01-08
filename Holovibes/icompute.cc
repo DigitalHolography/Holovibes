@@ -290,6 +290,12 @@ namespace holovibes
     request_refresh();
   }
 
+  void ICompute::request_update_unwrap_size(const unsigned size)
+  {
+    compute_desc_.unwrap_history_size.exchange(size);
+    request_refresh();
+  }
+
   void ICompute::request_average(
     ConcurrentDeque<std::tuple<float, float, float>>* output)
   {

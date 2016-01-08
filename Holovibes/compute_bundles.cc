@@ -2,8 +2,8 @@
 
 namespace holovibes
 {
-  UnwrappingResources::UnwrappingResources()
-    : capacity_(global::global_config.unwrap_history_size)
+  UnwrappingResources::UnwrappingResources(const unsigned capacity)
+    : capacity_(capacity)
     , size_(0)
     , next_index_(0)
     , gpu_unwrap_buffer_(nullptr)
@@ -54,17 +54,8 @@ namespace holovibes
     cudaMalloc(&gpu_diff_, sizeof(cufftComplex)* image_size);
   }
 
-  bool UnwrappingResources::change_capacity(size_t capacity)
+  void UnwrappingResources::change_capacity(const size_t capacity)
   {
-    cudaFree(gpu_unwrap_buffer_);
-    if (cudaMalloc(&gpu_unwrap_buffer_,
-      sizeof(float)* capacity) != cudaSuccess)
-    {
-      // Try to retake the precedent capacity, and return the "error" state.
-      cudaMalloc(&gpu_predecessor_, sizeof(float)* capacity_);
-      return false;
-    }
     capacity_ = capacity;
-    return true;
   }
 }

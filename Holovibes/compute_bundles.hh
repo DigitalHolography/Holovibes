@@ -11,9 +11,9 @@ namespace holovibes
   * Takes care of initialization and destruction. */
   struct UnwrappingResources
   {
-    /*! Initialize the capacity from Global configuration,
+    /*! Initialize the capacity from history_size,
      * set size and next_index to zero, and buffers pointers to null pointers. */
-    UnwrappingResources();
+    UnwrappingResources(const unsigned capacity);
 
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources();
@@ -23,13 +23,8 @@ namespace holovibes
     * \param image_size The number of pixels in an image. */
     void allocate(const size_t image_size);
 
-    /*! Modify the maximum number of phase adjustments stored : the history size.
-     *
-     * Should the reallocation fail, the preceding capacity value will be used
-     * to try to reclaim a memory buffer as before. Failure of this attempt
-     * as well is not handled.
-     * \return True if reallocation succeeded. */
-    bool change_capacity(size_t capacity);
+    /*! Simple setter for capacity_. Does not cause reallocation. */
+    void change_capacity(const size_t capacity);
 
     size_t capacity_; //!< Maximum number of matrices kept in history.
     size_t size_; //!< Current number of matrices kept in history.

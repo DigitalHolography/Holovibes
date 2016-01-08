@@ -324,8 +324,9 @@ namespace holovibes
     else
     {
       if (!unwrap_res_)
-        unwrap_res_ = new UnwrappingResources();
+        unwrap_res_ = new UnwrappingResources(compute_desc_.unwrap_history_size);
 
+      unwrap_res_->change_capacity(compute_desc_.unwrap_history_size);
       unwrap_res_->allocate(input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)

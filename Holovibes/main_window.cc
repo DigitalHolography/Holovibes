@@ -130,6 +130,9 @@ namespace gui
     else // Fallback on Modulus
       view_mode->setCurrentIndex(0);
 
+    QSpinBox* unwrap_history_size = findChild<QSpinBox*>("unwrapSpinBox");
+    unwrap_history_size->setValue(cd.unwrap_history_size);
+
     QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
     log_scale->setChecked(cd.log_scale_enabled);
 
@@ -543,6 +546,17 @@ namespace gui
       }
 
       holovibes_.get_pipe()->request_refresh();
+    }
+  }
+
+  void MainWindow::set_unwrap_history_size(int value)
+  {
+    if (!is_direct_mode_)
+    {
+      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+      cd.unwrap_history_size = value;
+      holovibes_.get_pipe()->request_update_unwrap_size(value);
     }
   }
 
@@ -1577,6 +1591,8 @@ namespace gui
 
       cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
         ptree.get<int>("view.view_mode", cd.view_mode));
+
+      cd.unwrap_history_size = config.unwrap_history_size;
 
       cd.log_scale_enabled.exchange(
         ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled));

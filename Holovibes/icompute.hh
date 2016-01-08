@@ -80,6 +80,9 @@ namespace holovibes
     * nsamples frames. */
     void request_update_n(const unsigned short n);
 
+    /*! TODO */
+    void request_update_unwrap_size(const unsigned size);
+
     /*! \brief Request the ICompute to fill the output vector.
     *
     * \param output std::vector to fill with (average_signal, average_noise,

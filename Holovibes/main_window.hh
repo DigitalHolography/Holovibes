@@ -182,6 +182,9 @@ namespace gui
     ** selection signal of OpenGl widget to request_autofocus() slot. Then whenever the
     ** user has finished its selection, the request will be called.
     */
+    /*! TODO
+    */
+    void set_unwrap_history_size(int value);
     void set_autofocus_mode();
     /*! \brief Request autofocus action in pipeline
     ** \param zone selection zone for computation
