@@ -233,6 +233,12 @@
     <ClCompile Include="gpib_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="compute_bundles.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -359,6 +365,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gpib_dll.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_bundles.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

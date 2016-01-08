@@ -29,12 +29,6 @@ namespace camera
       load_ini_params();
   }
 
-  CameraAdimec::~CameraAdimec()
-  {
-    // Make sure the camera is closed at program exit.
-    shutdown_camera();
-  }
-
   void CameraAdimec::init_camera()
   {
     /* We don't want a specific type of board; there should not
@@ -119,7 +113,7 @@ namespace camera
     // Wait for a freshly written image to be readable.
     BiCirHandle hd;
 	//TODO: Use timeout of global config
-	BiCirWaitDoneFrame(board_, info_, camera::FRAME_TIMEOUT, &hd);
+	BiCirWaitDoneFrame(board_, info_, static_cast<BFU32>(camera::FRAME_TIMEOUT), &hd);
 
     BFU32 status;
     BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
