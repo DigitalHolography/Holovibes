@@ -2,9 +2,16 @@
 
 # include <QMainWindow>
 # include <QtWidgets>
+
 # include "ui_plot_window.h"
 # include "gui_curve_plot.hh"
-# include "concurrent_deque.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  template <class T>
+  class ConcurrentDeque;
+}
 
 namespace gui
 {
@@ -13,7 +20,7 @@ namespace gui
   {
     Q_OBJECT
 
-  signals :
+signals :
     void closed();
 
   public:

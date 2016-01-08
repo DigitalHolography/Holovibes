@@ -10,8 +10,6 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-# include "geometry.hh"
-
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
 * The images to multiply should have the same size.

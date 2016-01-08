@@ -1,9 +1,13 @@
 #pragma once
 
 #include <fstream>
-
-#include "queue.hh"
 #include <QObject>
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace holovibes
 {

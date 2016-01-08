@@ -3,7 +3,12 @@
 
 # include <device_launch_parameters.h>
 # include <cufft.h>
-# include <frame_desc.hh>
+
+/* Forward declaration. */
+namespace camera
+{
+  struct FrameDescriptor;
+}
 
 /*! \brief Compute a lens to apply to an image used by the fft1
 *

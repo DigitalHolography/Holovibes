@@ -1,7 +1,8 @@
+#include <Windows.h>
 #include "thread_capture.hh"
 #include "info_manager.hh"
-
-#include <Windows.h>
+#include "icamera.hh"
+#include "queue.hh"
 
 namespace holovibes
 {

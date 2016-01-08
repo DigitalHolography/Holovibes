@@ -10,7 +10,12 @@
 # include <array>
 # include <float.h>
 
-# include "concurrent_deque.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  template <class T>
+  class ConcurrentDeque;
+}
 
 namespace gui
 {

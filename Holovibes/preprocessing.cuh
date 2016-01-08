@@ -1,9 +1,14 @@
 /*! \file */
 #pragma once
 
+# include <cuda_runtime.h>
 # include <cufft.h>
 
-# include "queue.hh"
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
 * range 0 to n.

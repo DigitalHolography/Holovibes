@@ -230,6 +230,9 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_info_manager.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="gpib_dll.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -353,6 +356,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui_gl_widget_mono.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gpib_dll.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

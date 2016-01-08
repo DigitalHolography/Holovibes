@@ -1,9 +1,12 @@
 #include <algorithm>
-#include "tools.hh"
 
 #include "pipeline.hh"
 #include "config.hh"
 #include "info_manager.hh"
+#include "compute_descriptor.hh"
+#include "module.hh"
+#include "queue.hh"
+#include "tools.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"

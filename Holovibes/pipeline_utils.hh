@@ -3,6 +3,7 @@
 # include <functional>
 # include <vector>
 # include <deque>
+# include <cuda_runtime.h>
 # include <cufft.h>
 
 namespace holovibes
@@ -14,7 +15,7 @@ namespace holovibes
 }
 
 template <class X, class Res, class Y>
-Res cudaDestroy(X* addr_buf, Res(__stdcall*f)(Y))
+Res cudaDestroy(X* addr_buf, Res(*f)(Y))
 {
   Res res = static_cast<Res>(0);
 
@@ -23,10 +24,6 @@ Res cudaDestroy(X* addr_buf, Res(__stdcall*f)(Y))
   *addr_buf = 0;
   return (res);
 }
-
-# include <cuda_runtime.h>
-
-# include "pipeline_utils.hh"
 
 template <class Res>
 Res cudaDestroy(cufftComplex** addr_buf)

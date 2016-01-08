@@ -2,11 +2,26 @@
 
 # include <fstream>
 # include <cufft.h>
+# include <chrono>
 
-# include "concurrent_deque.hh"
+# include "config.hh"
 # include "pipeline_utils.hh"
-# include "queue.hh"
-# include "compute_descriptor.hh"
+# include "geometry.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  struct UnwrappingResources;
+  class Queue;
+  template <class T> class ConcurrentDeque;
+  class ComputeDescriptor;
+}
+
+/* Forward declarations. */
+namespace holovibes
+{
+  struct UnwrappingResources;
+}
 
 namespace holovibes
 {
@@ -216,14 +231,8 @@ namespace holovibes
     /*! Vector filled with sqrtf values. */
     float* gpu_sqrt_vector_;
 
-    /*! Buffer used to cumulate phase adjustments, before they can be
-     * applied back in phase unwrapping. Phase being an angle, it is one
-     * part of a complex information, and can be stored in a float. */
-    float* gpu_unwrap_buffer_;
-    /*! Copy of the previous frame's angle values. Updated over unwrapping. */
-    float* gpu_angle_predecessor_;
-    /*! Copy of the current frame's angle values. Used locally in unwrapping. */
-    float* gpu_angle_current_;
+    /*! All buffers needed for phase unwrapping are here. */
+    UnwrappingResources* unwrap_res_;
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;

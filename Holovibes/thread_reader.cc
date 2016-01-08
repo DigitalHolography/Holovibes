@@ -1,10 +1,11 @@
-# include "thread_reader.hh"
 # include <fstream>
 # include <Windows.h>
 # include <chrono>
 
 #include "info_manager.hh"
 #include "config.hh"
+#include "thread_reader.hh"
+#include "queue.hh"
 
 namespace holovibes
 {

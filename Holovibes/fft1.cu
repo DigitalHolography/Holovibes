@@ -1,7 +1,6 @@
-#include <cuda_runtime.h>
-
 #include "fft1.cuh"
 #include "hardware_limits.hh"
+#include "frame_desc.hh"
 #include "tools.hh"
 #include "tools.cuh"
 #include "preprocessing.cuh"

@@ -14,20 +14,32 @@
 # include <cstring>
 # include <vector>
 # include <sys/stat.h>
+# include <string>
 
 # include "camera_exception.hh"
-# include "../GPIB/gpib_controller.hh"
+# include "../GPIB/IVisaInterface.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
-# include "pipe.hh"
-# include "compute_descriptor.hh"
 # include "observer.hh"
-# include "gui_gl_window.hh"
-# include "gui_plot_window.hh"
-# include "thread_recorder.hh"
-# include "thread_csv_record.hh"
-# include "concurrent_deque.hh"
-# include <string>
+
+/* Forward declarations. */
+namespace gui
+{
+  class GuiGLWindow;
+  class PlotWindow;
+  class ThreadRecorder;
+  class ThreadCSVRecord;
+}
+
+namespace camera
+{
+  class CameraException;
+}
+
+namespace gpib
+{
+  class VisaInterface;
+}
 
 namespace gui
 {
@@ -400,7 +412,7 @@ namespace gui
     /*! File index used in batch recording */
     unsigned int file_index_;
 
-    std::unique_ptr<gpib::VisaInterface> gpib_interface_;
+    std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
 
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;

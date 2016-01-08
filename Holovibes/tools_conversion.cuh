@@ -10,8 +10,6 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-# include "geometry.hh"
-
 /* CONVERSION FUNCTIONS */
 
 /*! \brief  This function permit to transform an 8 bit image to her complexe representation.

@@ -1,10 +1,10 @@
-#include "options_parser.hh"
-
 #include <boost\algorithm\string.hpp>
 #include <boost\lexical_cast.hpp>
-
 #include <cassert>
+
+#include "options_parser.hh"
 #include "config.hh"
+#include "options_descriptor.hh"
 
 namespace holovibes
 {

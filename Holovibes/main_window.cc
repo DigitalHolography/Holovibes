@@ -1,11 +1,19 @@
 #include "main_window.hh"
+#include "gui_gl_window.hh"
+#include "gui_plot_window.hh"
+#include "queue.hh"
+#include "thread_recorder.hh"
+#include "thread_csv_record.hh"
+#include "compute_descriptor.hh"
+#include "gpib_dll.hh"
 #include "../GPIB/gpib_controller.hh"
 #include "../GPIB/gpib_exceptions.hh"
-
-#define GLOBAL_INI_PATH "holovibes.ini"
-
+#include "camera_exception.hh"
+#include "config.hh"
 #include "config.hh"
 #include "info_manager.hh"
+
+#define GLOBAL_INI_PATH "holovibes.ini"
 
 namespace gui
 {
@@ -345,9 +353,6 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
-
       if (value < static_cast<int>(cd.nsamples))
       {
         // Synchronize with p_vibro
@@ -368,9 +373,6 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
-
       if (cd.pindex < cd.nsamples)
       {
         ++(cd.pindex);
@@ -387,9 +389,6 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
 
       if (cd.pindex >= 0)
       {
@@ -494,45 +493,30 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value == "unwrapped argument 2")
-      {
-        // This mode constraints the phase number to 1.
-        cd.nsamples = 1;
-        cd.pindex = 0;
+      // Reenabling phase number and p adjustments.
+      QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+      phase_number->setEnabled(true);
+
+      QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+      p->setEnabled(true);
+
+      if (value == "magnitude")
+        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+      else if (value == "squared magnitude")
+        cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+      else if (value == "argument")
+        cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+      else if (value == "unwrapped argument")
+        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+      else if (value == "unwrapped argument 2")
         cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
-
-        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-        phase_number->setValue(cd.nsamples);
-        phase_number->setEnabled(false);
-
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setValue(cd.pindex);
-        p->setMaximum(cd.nsamples - 1);
-        p->setEnabled(false);
-      }
       else
-      {
-        // Reenabling phase number and p adjustments.
-        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-        phase_number->setEnabled(true);
-
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setEnabled(true);
-
-        if (value == "magnitude")
-          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-        else if (value == "squared magnitude")
-          cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
-        else if (value == "argument")
-          cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-        else if (value == "unwrapped argument")
-          cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-        else
-          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-      }
+        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
       holovibes_.get_pipe()->request_refresh();
     }
+
+    
   }
 
   void MainWindow::set_autofocus_mode()
@@ -1013,7 +997,9 @@ namespace gui
 
     try
     {
-      gpib_interface_.reset(new gpib::VisaInterface(input_path));
+      // Only loading the dll at runtime
+      gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+
       const std::string formatted_path = format_batch_output(path, file_index_);
 
       /*! All checks are performed by the GPIB module, except for this one,
@@ -1176,7 +1162,7 @@ namespace gui
     disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
-    gpib_interface_.reset(nullptr);
+    gpib_interface_.reset();
 
     file_index_ = 1;
     global_visibility(true);
@@ -1530,6 +1516,7 @@ namespace gui
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
       config.reader_buf_max_size = ptree.get<int>("config.reader_buf_max_size", config.reader_buf_max_size);
+      config.unwrap_history_size = ptree.get<int>("config.unwrap_history_size", config.unwrap_history_size);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1599,6 +1586,9 @@ namespace gui
       // Info
       info_action->setChecked(!ptree.get<bool>("info.hidden", false));
       info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
+
+      // Autofocus
+      cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
     }
   }
 
@@ -1621,6 +1611,7 @@ namespace gui
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put("config.reader_buf_max_size", config.reader_buf_max_size);
+    ptree.put("config.unwrap_history_size", config.unwrap_history_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -1655,6 +1646,9 @@ namespace gui
 
     // Info
     ptree.put("info.hidden", info_group_box->isHidden());
+
+    // Autofocus
+    ptree.put("autofocus.size", cd.autofocus_size);
 
     boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }

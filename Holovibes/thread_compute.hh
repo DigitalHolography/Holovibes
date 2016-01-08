@@ -4,9 +4,14 @@
 # include <condition_variable>
 # include <memory>
 
-# include "queue.hh"
-# include "compute_descriptor.hh"
 # include "icompute.hh"
+
+/* Forward declarations. */
+namespace holovibes
+{
+  struct ComputeDescriptor;
+  class Queue;
+}
 
 namespace holovibes
 {

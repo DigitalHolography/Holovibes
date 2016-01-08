@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "gui_gl_widget.hh"
+#include "queue.hh"
 
 namespace gui
 {

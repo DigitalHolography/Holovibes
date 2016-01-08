@@ -1,5 +1,3 @@
-#include "recorder.hh"
-
 #include <exception>
 #include <cassert>
 #include <thread>
@@ -7,6 +5,9 @@
 #include <list>
 #include <boost/filesystem.hpp>
 #include <direct.h>
+
+#include "recorder.hh"
+#include "queue.hh"
 
 namespace holovibes
 {

@@ -4,9 +4,15 @@
 # include <thread>
 # include <string>
 
-# include "queue.hh"
+# include "frame_desc.hh"
 # include "ithread_input.hh"
 # include "power_of_two.hh"
+
+/* Forward declaration. */
+namespace holovibes
+{
+  class Queue;
+}
 
 namespace holovibes
 {

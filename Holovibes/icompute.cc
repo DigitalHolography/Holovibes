@@ -1,6 +1,6 @@
-#include "icompute.hh"
-# include <cufft.h>
+#include <cufft.h>
 
+#include "icompute.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -9,7 +9,9 @@
 #include "preprocessing.cuh"
 #include "autofocus.cuh"
 #include "average.cuh"
-
+#include "queue.hh"
+#include "concurrent_deque.hh"
+#include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "info_manager.hh"
 
@@ -23,9 +25,7 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
-    , gpu_unwrap_buffer_(nullptr)
-    , gpu_angle_predecessor_(nullptr)
-    , gpu_angle_current_(nullptr)
+    , unwrap_res_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
@@ -116,12 +116,8 @@ namespace holovibes
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
 
-    if (gpu_unwrap_buffer_)
-      cudaFree(gpu_unwrap_buffer_);
-    if (gpu_angle_predecessor_)
-      cudaFree(gpu_angle_predecessor_);
-    if (gpu_angle_current_)
-      cudaFree(gpu_angle_current_);
+    if (unwrap_res_)
+      delete unwrap_res_;
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
@@ -496,7 +492,7 @@ namespace holovibes
 
     frame_memcpy(input, af_env_.zone, input_fd.width, af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
 
-    const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
+    const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream, compute_desc_.autofocus_size);
 
     if (!std::isnan(focus_metric_value))
       af_env_.focus_metric_values.push_back(focus_metric_value);

@@ -76,9 +76,11 @@ static __global__ void kernel_float_to_complex(
   }
 }
 
+#include <iostream>
 static float average_local_variance(
   const float* input,
-  const unsigned int square_size)
+  const unsigned int square_size,
+  const unsigned int mat_size)
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
@@ -101,19 +103,12 @@ static float average_local_variance(
     square_size);
 
   {
-    /* Build the 3x3 matrix */
-    float ke_cpu[9] =
+    const unsigned square_mat_size = mat_size * mat_size;
+    cufftComplex* ke_complex_cpu = (cufftComplex*) malloc(sizeof(cufftComplex) * square_mat_size);
+    for (int i = 0; i < square_mat_size; ++i)
     {
-      1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f
-    };
-
-    cufftComplex ke_complex_cpu[9];
-    for (int i = 0; i < 9; ++i)
-    {
-      ke_complex_cpu[i].x = ke_cpu[i];
-      ke_complex_cpu[i].y = ke_cpu[i];
+      ke_complex_cpu[i].x = 1 / square_mat_size;
+      ke_complex_cpu[i].y = 1 / square_mat_size;
     }
 
     /* Copy the ke matrix to ke_gpu_frame. */
@@ -121,10 +116,12 @@ static float average_local_variance(
       ke_gpu_frame,
       ke_gpu_frame_pitch,
       ke_complex_cpu,
-      3 * sizeof(cufftComplex),
-      3 * sizeof(cufftComplex),
-      3,
+      mat_size * sizeof(cufftComplex),
+      mat_size * sizeof(cufftComplex),
+      mat_size,
       cudaMemcpyHostToDevice);
+
+    free(ke_complex_cpu);
   }
 
   cufftComplex* input_complex;
@@ -390,7 +387,8 @@ static float sobel_operator(
 float focus_metric(
   float* input,
   const unsigned int square_size,
-  cudaStream_t stream)
+  cudaStream_t stream,
+  const unsigned int local_var_size)
 {
   const unsigned int size = square_size * square_size;
   unsigned int threads = get_max_threads_1d();
@@ -400,7 +398,7 @@ float focus_metric(
   kernel_float_divide << <blocks, threads, 0, stream >> >(input, size, static_cast<float>(size));
 
   const float global_variance = global_variance_intensity(input, size);
-  const float avr_local_variance = average_local_variance(input, square_size);
+  const float avr_local_variance = average_local_variance(input, square_size, local_var_size);
   const float avr_magnitude = sobel_operator(input, square_size);
 
   return global_variance * avr_local_variance * avr_magnitude;

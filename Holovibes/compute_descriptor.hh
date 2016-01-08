@@ -64,6 +64,7 @@ namespace holovibes
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q()
+      , autofocus_size(3)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -123,6 +124,8 @@ namespace holovibes
     std::atomic<unsigned int> autofocus_z_iter;
     /*! Selected zone in which apply the autofocus algorithm. */
     std::atomic<Rectangle> autofocus_zone;
+    /*! Height of the matrix used inside the autofocus calculus. */
+    std::atomic<unsigned int> autofocus_size;
 
     /*! Selected zone in which apply the stft algorithm. */
     std::atomic<Rectangle> stft_roi_zone;

@@ -8,6 +8,8 @@
 
 #include "main_window.hh"
 #include "config.hh"
+#include "camera_exception.hh"
+#include "options_descriptor.hh"
 
 int main(int argc, char* argv[])
 {

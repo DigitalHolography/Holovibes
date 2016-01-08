@@ -2,6 +2,7 @@
 #include "hardware_limits.hh"
 #include "tools.hh"
 #include "tools_conversion.cuh"
+#include "queue.hh"
 
 void make_sqrt_vect(float* out,
   const unsigned short n,
