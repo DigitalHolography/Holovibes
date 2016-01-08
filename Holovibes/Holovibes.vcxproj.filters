@@ -81,6 +81,9 @@
     <CudaCompile Include="stft.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="tools_unwrap.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -233,6 +236,9 @@
     <ClCompile Include="gpib_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="compute_bundles.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -360,6 +366,12 @@
     </ClInclude>
     <ClInclude Include="gpib_dll.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_bundles.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_unwrap.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
