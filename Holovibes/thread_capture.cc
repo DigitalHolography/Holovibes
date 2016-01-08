@@ -1,6 +1,8 @@
 #include "thread_capture.hh"
 #include "info_manager.hh"
 
+#include <Windows.h>
+
 namespace holovibes
 {
   ThreadCapture::ThreadCapture(
@@ -26,6 +28,7 @@ namespace holovibes
 
   void ThreadCapture::thread_proc()
   {
+	  SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
     while (!stop_requested_)
       queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
   }

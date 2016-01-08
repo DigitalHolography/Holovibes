@@ -41,7 +41,7 @@ namespace gui
 
     auto ite = infos_.end();
     for (auto it = infos_.begin(); it != ite; ++it)
-      str += it->first + ": " + it->second + "\n";
+      str += it->first + ":\n  " + it->second + "\n";
 
     const QString qstr = str.c_str();
     emit update_text(qstr);

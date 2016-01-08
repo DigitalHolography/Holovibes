@@ -74,6 +74,8 @@ namespace camera
 
     BFU8 quad_bank_; //!< QTabBank used by the camera.
 
+	BFU32 queue_size_; //!< Queue size of bitflow frame grabber
+
     BFU32 exposure_time_;
 
     BFU32 frame_period_;
