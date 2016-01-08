@@ -344,9 +344,6 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
-
       if (value < static_cast<int>(cd.nsamples))
       {
         // Synchronize with p_vibro
@@ -367,9 +364,6 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
-
       if (cd.pindex < cd.nsamples)
       {
         ++(cd.pindex);
@@ -386,9 +380,6 @@ namespace gui
     if (!is_direct_mode_)
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-      if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-        return; // Phase number is fixed to 1 in this case
 
       if (cd.pindex >= 0)
       {
@@ -493,45 +484,30 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value == "unwrapped argument 2")
-      {
-        // This mode constraints the phase number to 1.
-        cd.nsamples = 1;
-        cd.pindex = 0;
+      // Reenabling phase number and p adjustments.
+      QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+      phase_number->setEnabled(true);
+
+      QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+      p->setEnabled(true);
+
+      if (value == "magnitude")
+        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+      else if (value == "squared magnitude")
+        cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+      else if (value == "argument")
+        cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+      else if (value == "unwrapped argument")
+        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+      else if (value == "unwrapped argument 2")
         cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
-
-        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-        phase_number->setValue(cd.nsamples);
-        phase_number->setEnabled(false);
-
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setValue(cd.pindex);
-        p->setMaximum(cd.nsamples - 1);
-        p->setEnabled(false);
-      }
       else
-      {
-        // Reenabling phase number and p adjustments.
-        QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-        phase_number->setEnabled(true);
-
-        QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-        p->setEnabled(true);
-
-        if (value == "magnitude")
-          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-        else if (value == "squared magnitude")
-          cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
-        else if (value == "argument")
-          cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-        else if (value == "unwrapped argument")
-          cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-        else
-          cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-      }
+        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
       holovibes_.get_pipe()->request_refresh();
     }
+
+    
   }
 
   void MainWindow::set_autofocus_mode()
@@ -1527,6 +1503,7 @@ namespace gui
       config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
+      config.unwrap_history_size = ptree.get<int>("config.unwrap_history_size", config.unwrap_history_size);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -1614,6 +1591,7 @@ namespace gui
     ptree.put("config.output_queue_max_size", config.output_queue_max_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
+    ptree.put("config.unwrap_history_size", config.unwrap_history_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
