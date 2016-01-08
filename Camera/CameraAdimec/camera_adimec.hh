@@ -20,7 +20,11 @@ namespace camera
   public:
     CameraAdimec();
 
-    virtual ~CameraAdimec();
+	virtual ~CameraAdimec()
+	{
+		// Make sure the camera is closed at program exit.
+		shutdown_camera();
+	}
 
     virtual void init_camera() override;
     virtual void start_acquisition() override;
