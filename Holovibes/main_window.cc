@@ -124,6 +124,8 @@ namespace gui
       view_mode->setCurrentIndex(3);
     else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       view_mode->setCurrentIndex(4);
+    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
+      view_mode->setCurrentIndex(5);
     else // Fallback on Modulus
       view_mode->setCurrentIndex(0);
 
@@ -506,17 +508,17 @@ namespace gui
         cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
       else if (value == "argument")
         cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-      else if (value == "unwrapped argument")
+      else if (value == "phase 1")
         cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-      else if (value == "unwrapped argument 2")
+      else if (value == "phase 2")
         cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
+      else if (value == "phase 3")
+        cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3;
       else
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 
       holovibes_.get_pipe()->request_refresh();
     }
-
-    
   }
 
   void MainWindow::set_autofocus_mode()

@@ -330,7 +330,7 @@ namespace holovibes
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
-        // Phase unwrapping, subtraction method
+        // Phase unwrapping, float subtraction method
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
@@ -339,9 +339,18 @@ namespace holovibes
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
-        // Phase unwrapping, multiply-with-conjugate method
+        // Phase unwrapping, complex subtraction method
         fn_vect_.push_back(std::bind(
           unwrap_diff,
+          gpu_input_frame_ptr_,
+          unwrap_res_,
+          input_fd.frame_res()));
+      }
+      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
+      {
+        // Phase unwrapping, complex multiply-with-conjugate method
+        fn_vect_.push_back(std::bind(
+          unwrap_mult,
           gpu_input_frame_ptr_,
           unwrap_res_,
           input_fd.frame_res()));
