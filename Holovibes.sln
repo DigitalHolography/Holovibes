@@ -234,6 +234,7 @@ Global
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Release|Win32.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Release|Win32.Build.0 = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Release|x64.ActiveCfg = DefaultBuild
+		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Release|x64.Build.0 = DefaultBuild
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
