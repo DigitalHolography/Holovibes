@@ -356,7 +356,15 @@ namespace holovibes
           input_fd.frame_res()));
       }
       else
-        assert(!"Unknown contrast type.");
+      {
+        // Fallback on modulus mode.
+        fn_vect_.push_back(std::bind(
+          complex_to_modulus,
+          gpu_input_frame_ptr_,
+          gpu_float_buffer_,
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
+      };
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
@@ -456,8 +464,8 @@ namespace holovibes
 
     if (gui::InfoManager::get_manager())
       fn_vect_.push_back(std::bind(
-        &Pipe::fps_count,
-        this));
+      &Pipe::fps_count,
+      this));
 
     fn_vect_.push_back(std::bind(
       float_to_ushort,

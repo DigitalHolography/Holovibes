@@ -422,7 +422,16 @@ namespace holovibes
         ));
     }
     else
-      assert(!"Impossible case.");
+    {
+      // Falling back on modulus mode.
+      modules_[0]->push_front_worker(std::bind(
+        complex_to_modulus,
+        std::ref(gpu_pindex_buffers_[0]),
+        std::ref(gpu_float_buffers_[0]),
+        input_fd.frame_res(),
+        modules_[0]->stream_
+        ));
+    }
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
@@ -530,7 +539,7 @@ namespace holovibes
     }
 
     if (gui::InfoManager::get_manager())
-    modules_[2]->push_back_worker(std::bind(
+      modules_[2]->push_back_worker(std::bind(
       &Pipeline::fps_count,
       this
       ));
