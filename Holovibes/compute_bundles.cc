@@ -3,7 +3,7 @@
 namespace holovibes
 {
   UnwrappingResources::UnwrappingResources()
-    : capacity_(Global::global_config.unwrap_history_size)
+    : capacity_(global::global_config.unwrap_history_size)
     , size_(0)
     , next_index_(0)
     , gpu_unwrap_buffer_(nullptr)

@@ -1,7 +1,9 @@
-#include <fstream>
-#include <Windows.h>
-#include <chrono>
+# include <fstream>
+# include <Windows.h>
+# include <chrono>
 
+#include "info_manager.hh"
+#include "config.hh"
 #include "thread_reader.hh"
 #include "queue.hh"
 
@@ -20,24 +22,25 @@ namespace holovibes
     , desc_(frame_desc)
     , loop_(loop)
     , fps_(fps)
-    , frameId_(0)
+    , frameId_(spanStart)
     , spanStart_(spanStart)
     , spanEnd_(spanEnd)
     , queue_(input)
     , thread_(&ThreadReader::thread_proc, this)
   {
+    gui::InfoManager::get_manager()->update_info("ImgSource", "File");
   }
 
   void ThreadReader::thread_proc()
   {
-    FILE*   file = nullptr;
-    fpos_t  pos;
-
     unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
-    char*   buffer;
-    cudaMallocHost(&buffer, frame_size * NBR);
+    unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
+    char*        buffer;
+    cudaMallocHost(&buffer, frame_size * elts_max_nbr);
     unsigned int nbr_stored = 0;
     unsigned int act_frame = 0;
+    FILE*   file = nullptr;
+    fpos_t  pos = frame_size * (spanStart_ - 1);
 
     try
     {
@@ -45,9 +48,7 @@ namespace holovibes
       if (!file)
         throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 
-      while (++frameId_ < spanStart_)
-        std::fread(buffer, 1, frame_size, file);
-      std::fgetpos(file, &pos);
+      std::fsetpos(file, &pos);
 
       while (!stop_requested_)
       {
@@ -55,7 +56,7 @@ namespace holovibes
         {
           if (act_frame >= nbr_stored)
           {
-            size_t length = std::fread(buffer, 1, frame_size * NBR, file);
+            size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
             nbr_stored = length / frame_size;
             act_frame = 0;
           }
@@ -95,5 +96,6 @@ namespace holovibes
 
     if (thread_.joinable())
       thread_.join();
+    gui::InfoManager::get_manager()->update_info("ImgSource", "none");
   }
 }

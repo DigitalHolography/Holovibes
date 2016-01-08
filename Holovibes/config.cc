@@ -1,7 +1,7 @@
 
 #include "config.hh"
 
-namespace Global
+namespace global
 {
   holovibes::Config global_config;
 }

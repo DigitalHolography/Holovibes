@@ -13,6 +13,7 @@
 #include "concurrent_deque.hh"
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -45,6 +46,7 @@ namespace holovibes
     , average_n_(0)
     , af_env_({ 0 })
     , cpu_float_buffer_(nullptr)
+    , past_time_(std::chrono::high_resolution_clock::now())
   {
     const unsigned short nsamples = desc.nsamples;
 
@@ -128,6 +130,9 @@ namespace holovibes
 
     /* gpu_input_buffer_tmp */
     cudaFree(af_env_.gpu_input_buffer_tmp);
+
+    if (gui::InfoManager::get_manager())
+      gui::InfoManager::get_manager()->remove_info("Rendering");
   }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -400,6 +405,24 @@ namespace holovibes
 
     cudaFree(cbuf);
     cudaFree(fbuf);
+  }
+
+  void ICompute::fps_count()
+  {
+    if (++frame_count_ >= 100)
+    {
+      auto time = std::chrono::high_resolution_clock::now();
+      auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
+      auto manager = gui::InfoManager::get_manager();
+
+      if (diff)
+      {
+        auto fps = frame_count_ * 1000 / diff;
+        manager->update_info("Rendering", std::to_string(fps) + std::string(" fps"));
+      }
+      past_time_ = time;
+      frame_count_ = 0;
+    }
   }
 
   /* Looks like the ICompute, but it searches for the right z value.

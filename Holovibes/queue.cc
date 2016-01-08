@@ -1,11 +1,14 @@
 #include "queue.hh"
 #include "tools_conversion.cuh"
 
+#include "info_manager.hh"
+#include <stdexcept>
+
 namespace holovibes
 {
   using guard = std::lock_guard<std::mutex>;
 
-  Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts)
+  Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)
     : frame_desc_(frame_desc)
     , size_(frame_desc_.frame_size())
     , pixels_(frame_desc_.frame_res())
@@ -14,9 +17,13 @@ namespace holovibes
     , start_(0)
     , is_big_endian_(frame_desc.depth >= 2 &&
     frame_desc.endianness == camera::BIG_ENDIAN)
+    , name_(name)
   {
     if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
+    {
       std::cerr << "Queue: couldn't allocate queue" << std::endl;
+      throw std::logic_error(name_ + ": couldn't allocate queue");
+    }
 
     frame_desc_.endianness = camera::LITTLE_ENDIAN;
     cudaStreamCreate(&stream_);
@@ -24,6 +31,7 @@ namespace holovibes
 
   Queue::~Queue()
   {
+    gui::InfoManager::remove_info_safe(name_);
     if (cudaFree(buffer_) != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't free queue" << std::endl;
     cudaStreamDestroy(stream_);
@@ -98,6 +106,7 @@ namespace holovibes
     if (cuda_status != CUDA_SUCCESS)
     {
       std::cerr << "Queue: couldn't enqueue" << std::endl;
+      gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
       return false;
     }
     if (is_big_endian_)
@@ -107,6 +116,8 @@ namespace holovibes
       ++curr_elts_;
     else
       start_ = (start_ + 1) % max_elts_;
+    gui::InfoManager::update_info_safe(name_,
+      std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     return true;
   }
 
@@ -120,6 +131,8 @@ namespace holovibes
       cudaMemcpyAsync(dest, first_img, size_, cuda_kind, stream_);
       start_ = (start_ + 1) % max_elts_;
       --curr_elts_;
+      gui::InfoManager::update_info_safe(name_,
+        std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     }
   }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <QObject>
 
 /* Forward declaration. */
 namespace holovibes
@@ -20,8 +21,15 @@ namespace holovibes
    * * Use record to record n_images any times you need it
    * * delete Recorder
    */
-  class Recorder
+  class Recorder : public QObject
   {
+    Q_OBJECT
+
+  signals :
+    /*! \brief inform, that one frame have been recorded
+    **
+    ** value is number of frames recorded*/
+    void value_change(int value);
   public:
     /*! \brief Constructor
      *

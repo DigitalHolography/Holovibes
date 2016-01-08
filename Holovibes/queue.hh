@@ -35,7 +35,7 @@ namespace holovibes
     ** images or a FrameDescriptor used for computations.
     ** \param elts Max number of elements that the queue can contain.
     **/
-    Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts);
+    Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name);
 
     /*! \brief Queue destructor */
     ~Queue();
@@ -110,6 +110,9 @@ namespace holovibes
     void flush();
 
   private:
+    /*! The name of queue */
+    std::string name_;
+
     /*! FrameDescriptor of the Queue */
     camera::FrameDescriptor frame_desc_;
 
@@ -137,6 +140,7 @@ namespace holovibes
     /*! Mutex for critical code sections (threads safety) */
     std::mutex mutex_;
 
+    /*! Stream id use by cuda */
     cudaStream_t  stream_;
   };
 }

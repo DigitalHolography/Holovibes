@@ -2,6 +2,7 @@
 
 # include <fstream>
 # include <cufft.h>
+# include <chrono>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
@@ -209,6 +210,11 @@ namespace holovibes
     /*! \brief Add frame in fqueue_. */
     void record_float(float* float_output, cudaStream_t stream);
 
+    /*! \brief Print fps each 100 frames
+    **
+    ** Use InfoManager */
+    void fps_count();
+
     /*! \{ \name Disable copy/assignments. */
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
@@ -269,6 +275,10 @@ namespace holovibes
     /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
     unsigned int average_n_;
+    /*! \} */
+    /*! \{ \name fps_count */
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration> past_time_;
+    unsigned int frame_count_;
     /*! \} */
     /*! \brief containt all var needed by auto_focus */
     af_env        af_env_;

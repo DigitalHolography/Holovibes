@@ -3,9 +3,11 @@
 
 #include "pipe.hh"
 #include "config.hh"
+#include "info_manager.hh"
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
+
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -443,6 +445,11 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
     }
 
+    if (gui::InfoManager::get_manager())
+      fn_vect_.push_back(std::bind(
+        &Pipe::fps_count,
+        this));
+
     fn_vect_.push_back(std::bind(
       float_to_ushort,
       gpu_float_buffer_,
@@ -623,7 +630,7 @@ namespace holovibes
 
   void Pipe::exec()
   {
-    if (Global::global_config.flush_on_refresh)
+    if (global::global_config.flush_on_refresh)
       input_.flush();
     while (!termination_requested_)
     {

@@ -442,7 +442,7 @@ namespace holovibes
 
       opts_.compute_desc.nsamples = nsamples;
 
-      if (opts_.compute_desc.nsamples >= Global::global_config.input_queue_max_size)
+      if (opts_.compute_desc.nsamples >= global::global_config.input_queue_max_size)
         throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
     }
 

@@ -8,11 +8,6 @@
 # include "ithread_input.hh"
 # include "power_of_two.hh"
 
-/*! Max number of frames read each time
- ** Use in order to limit disc usage
- */
-#define NBR 5
-
 /* Forward declaration. */
 namespace holovibes
 {

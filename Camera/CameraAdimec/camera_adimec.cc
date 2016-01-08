@@ -7,29 +7,6 @@
 
 namespace camera
 {
-  // Anonymous namespace allows translation-unit visibility (like static).
-  namespace
-  {
-    /* The Adimec camera returns images with values on 11 bits, each pixel
-     * being encoded on two bytes (16 bits). However, we need to shift each
-     * value towards the unused bits, otherwise the image is very dark.
-     * Example : A pixel's value is : 0x0AF5
-     *           We should make it  : 0xAF50 */
-    void update_image(void* buffer, unsigned width, unsigned height)
-    {
-      const unsigned shift_step = 5; // The shift distance, in bits.
-      size_t* it = static_cast<size_t*>(buffer);
-
-      /* Iteration is done with a size_t, allowing to move values 4 by 4
-       * (a size_t contains 4 shorts, each short encoding a pixel value). */
-      for (unsigned y = 0; y < width; ++y)
-      {
-        for (unsigned x = 0; x < height / 4; ++x)
-          it[x + y * height / 4] <<= shift_step;
-      }
-    }
-  }
-
   CameraAdimec::CameraAdimec()
     : Camera("adimec.ini")
     , board_(nullptr)
@@ -37,7 +14,7 @@ namespace camera
     , last_buf(0)
     , quad_bank_(BFQTabBank0)
   {
-    name_ = "Adimec";
+    name_ = "Adimec Quartz-2A750 M";
     /* Dimensions are initialized as there were no ROI; they will be updated
      * later if needed. */
     desc_.width = 1440;
@@ -90,7 +67,7 @@ namespace camera
 
     // Aligned allocation ensures fast memory transfers.
     const BFSIZET alignment = 4096;
-    err_check(BiBufferAllocAligned(board_, info_, width, width, depth, 4, alignment),
+	err_check(BiBufferAllocAligned(board_, info_, width, width, depth, queue_size_, alignment),
       "Could not allocate buffer memory",
       CameraException::MEMORY_PROBLEM,
       CloseFlag::BOARD);
@@ -142,16 +119,16 @@ namespace camera
     // Wait for a freshly written image to be readable.
     BiCirHandle hd;
 	//TODO: Use timeout of global config
-    BiCirWaitDoneFrame(board_, info_, INFINITE, &hd);
+	BiCirWaitDoneFrame(board_, info_, camera::FRAME_TIMEOUT, &hd);
 
     BFU32 status;
     BiCirBufferStatusGet(board_, info_, hd.BufferNumber, &status);
     // Checking buffer status is correct. TODO : Log error in other cases.
-    if (status == BINEW)
-    {
-      update_image(hd.pBufData, desc_.width, desc_.height);
-      last_buf = hd.BufferNumber;
-    }
+	if (status == BINEW)
+	{
+		last_buf = hd.BufferNumber;
+		BiCirBufferStatusSet(board_, info_, last_buf, BIHOLD);
+	}
 
 	if (hd.pBufData == reinterpret_cast<void*>(0xcccccccccccccccc))
 		return (get_frame());
@@ -183,6 +160,7 @@ namespace camera
      * which may be modified accidentally. When possible, these default values
      * were taken from the default mode for the Adimec-A2750 camera. */
 
+	  queue_size_ = 64;
     exposure_time_ = 0x0539;
 
     frame_period_ = 0x056C;
@@ -197,7 +175,9 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
+	queue_size_ = pt.get<BFU32>("bitflow.queue_size", queue_size_);
+
+	exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
 
     frame_period_ = pt.get<BFU32>("adimec.frame_period", frame_period_);
 
