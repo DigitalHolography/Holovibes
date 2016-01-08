@@ -219,9 +219,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gpib_dll.cc">
-	  <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_bundles.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -352,11 +349,7 @@
     <ClInclude Include="gui_gl_widget_mono.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="gpib_dll.hh">
-=======
-    <ClInclude Include="compute_bundles.hh">
->>>>>>> unwrap
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
