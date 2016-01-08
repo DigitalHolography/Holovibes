@@ -744,6 +744,7 @@ namespace gui
   void MainWindow::dispose_average_graphic()
   {
     plot_window_.reset(nullptr);
+    holovibes_.get_pipe()->request_refresh();
   }
 
   void MainWindow::browse_roi_file()
