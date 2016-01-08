@@ -9,7 +9,7 @@
 
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,
-  const camera::FrameDescriptor& fd,
+  const camera::FrameDescriptor fd,
   const float lambda,
   const float dist)
 {
