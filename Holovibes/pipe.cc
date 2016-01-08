@@ -5,6 +5,7 @@
 #include "config.hh"
 #include "compute_descriptor.hh"
 #include "queue.hh"
+#include "compute_bundles.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
@@ -320,42 +321,28 @@ namespace holovibes
     }
     else
     {
-      /* Phase unwrapping requires a reference. We shall copy the first frame
-      * obtained into gpu_predecessor_, for initialization. This is done in
-      * the unwrap function. The first iteration will have no effect, because
-      * the frame will be compared to itself.
-      * Also, cumulative phase adjustments in gpu_unwrap_buffer are reset. */
-      if (!gpu_unwrap_buffer_)
-        cudaMalloc(&gpu_unwrap_buffer_, sizeof(float)* input_.get_pixels());
-      cudaMemset(gpu_unwrap_buffer_, 0, sizeof(float)* input_.get_pixels());
-      if (!gpu_angle_predecessor_)
-        cudaMalloc(&gpu_angle_predecessor_, sizeof(float)* input_.get_pixels());
-      if (!gpu_angle_current_)
-        cudaMalloc(&gpu_angle_current_, sizeof(float)* input_.get_pixels());
+      if (!unwrap_res_)
+        unwrap_res_ = new UnwrappingResources();
+
+      unwrap_res_->allocate(input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
-        // Phase unwrapping
+        // Phase unwrapping, subtraction method
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
-          gpu_angle_predecessor_,
-          gpu_angle_current_,
-          gpu_unwrap_buffer_,
-          input_fd.width,
-          input_fd.height));
+          unwrap_res_,
+          input_fd.frame_res()));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
-        // TODO
+        // Phase unwrapping, multiply-with-conjugate method
         fn_vect_.push_back(std::bind(
-          unwrap,
+          unwrap_diff,
           gpu_input_frame_ptr_,
-          gpu_angle_predecessor_,
-          gpu_angle_current_,
-          gpu_unwrap_buffer_,
-          input_fd.width,
-          input_fd.height));
+          unwrap_res_,
+          input_fd.frame_res()));
       }
       else
         assert(!"Unknown contrast type.");
@@ -363,20 +350,10 @@ namespace holovibes
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
         rescale_float,
-        gpu_angle_current_,
+        unwrap_res_->gpu_angle_current_,
         gpu_float_buffer_,
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
-
-      // For now at least, phase unwrapping is a process on its own.
-      // TODO : Try and see if post-processing could work with it.
-      fn_vect_.push_back(std::bind(
-        float_to_ushort,
-        gpu_float_buffer_,
-        gpu_output_buffer_,
-        input_fd.frame_res(),
-        static_cast<cudaStream_t>(0)));
-      return;
     }
 
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */

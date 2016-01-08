@@ -4,6 +4,7 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 
+/* Forward declaration. */
 namespace holovibes
 {
   class Queue;

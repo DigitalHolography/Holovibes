@@ -17,6 +17,8 @@
 # include <sys/stat.h>
 # include <string>
 
+# include "camera_exception.hh"
+# include "../GPIB/IVisaInterface.hh"
 # include "ui_main_window.h"
 # include "holovibes.hh"
 # include "observer.hh"
@@ -29,10 +31,12 @@ namespace gui
   class ThreadRecorder;
   class ThreadCSVRecord;
 }
+
 namespace camera
 {
   class CameraException;
 }
+
 namespace gpib
 {
   class VisaInterface;
@@ -409,7 +413,7 @@ namespace gui
     /*! File index used in batch recording */
     unsigned int file_index_;
 
-    std::unique_ptr<gpib::VisaInterface> gpib_interface_;
+    std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
 
     /*! \{ \name Shortcuts */
     QShortcut* z_up_shortcut_;

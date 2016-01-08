@@ -4,7 +4,7 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 
-/* Forward declaration. */
+/* Forward declarations. */
 namespace holovibes
 {
   class Rectangle;

@@ -2,8 +2,8 @@
 #include <device_launch_parameters.h>
 
 #include "tools_conversion.cuh"
-#include "tools.hh"
 #include "hardware_limits.hh"
+#include "tools.hh"
 
 __global__ void img8_to_complex(
   cufftComplex* output,

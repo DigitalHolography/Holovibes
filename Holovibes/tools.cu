@@ -7,6 +7,7 @@
 #include "tools.hh"
 #include "geometry.hh"
 #include "hardware_limits.hh"
+#include "compute_bundles.hh"
 
 __global__ void kernel_apply_lens(
   cufftComplex *input,
@@ -297,7 +298,8 @@ void copy_buffer(
 
 /* Take complex data in cartesian form, and use conversion to polar
  * form to take the angle value of each element and store it
- * in a floating-point matrix. */
+ * in a floating-point matrix.
+ * The resulting angles' values are bound in [-pi; pi]. */
 static __global__ void kernel_extract_angle(
   const cufftComplex* input,
   float* output,
@@ -307,9 +309,11 @@ static __global__ void kernel_extract_angle(
   if (index >= size)
     return;
 
+  // We use std::atan2 in order to obtain results in [-pi; pi].
   output[index] = std::atan2(input[index].y, input[index].x);
 }
 
+/* Perform element-wise phase adjustment on a pixel matrix. */
 static __global__ void kernel_unwrap(
   float* pred,
   float* cur,
@@ -321,10 +325,8 @@ static __global__ void kernel_unwrap(
     return;
   const float pi = M_PI;
 
-  // Two-by-two diff, starting from the oldest data //
   float local_diff = cur[index] - pred[index];
-
-  // Adjustements //
+  // Unwrapping //
   float local_adjust;
   if (local_diff > pi)
     local_adjust = -2.f * pi;
@@ -333,51 +335,223 @@ static __global__ void kernel_unwrap(
   else
     local_adjust = 0.f;
 
-  // Cumulating the adjustement with precedent ones //
-  adjustments[index] += local_adjust;
+  // Cumulating the phase correction with precedent ones //
+  adjustments[index] = local_adjust;
 }
 
-static __global__ void kernel_correct_angles(
-  float* data,
-  const float* values,
+static __global__ void kernel_compute_angle_mult(
+  const cufftComplex* pred,
+  const cufftComplex* cur,
+  float* output,
   const size_t size)
 {
   const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
   if (index >= size)
     return;
 
-  data[index] += values[index];
+  cufftComplex diff;
+  diff = cur[index];
+  diff.x *= pred[index].x;
+  diff.y *= -1.f * pred[index].y;
+
+  output[index] = std::atan2(diff.y, diff.x);
+}
+
+static __global__ void kernel_compute_angle_diff(
+  const cufftComplex* pred,
+  const cufftComplex* cur,
+  float* output,
+  const size_t size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= size)
+    return;
+
+  cufftComplex diff;
+  diff = cur[index];
+  diff.x -= pred[index].x;
+  diff.y -= pred[index].y;
+
+  output[index] = std::atan2(diff.y, diff.x);
+}
+
+/* Iterate over saved phase corrections and apply them to an image.
+ *
+ * \param data The image to be corrected.
+ * \param corrections Pointer to the beginning of the phase corrections buffer.
+ * \param image_size The number of pixels in a single image.
+ * \param history_size The number of past phase corrections used. */
+static __global__ void kernel_correct_angles(
+  float* data,
+  const float* corrections,
+  const size_t image_size,
+  const size_t history_size)
+{
+  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+  if (index >= image_size)
+    return;
+
+  for (auto correction_idx = index;
+    correction_idx < history_size * image_size;
+    correction_idx += image_size)
+  {
+    data[index] += corrections[correction_idx];
+  }
 }
 
 void unwrap(
   const cufftComplex* cur,
-  float* pred_angles,
-  float* cur_angles,
-  float* adjustments,
-  const unsigned width,
-  const unsigned height)
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size)
 {
-  const size_t size = width * height;
-
   const unsigned threads = 128;
-  const unsigned blocks = map_blocks_to_problem(size, threads);
+  const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
-  /* TODO : Find a BETTER method of handling this. Besides, here it does
-   * not work for any unwrapped_argument launch after the first one. */
   static bool first_time = true;
   if (first_time)
   {
-    kernel_extract_angle << <blocks, threads >> >(cur, pred_angles, size);
+    kernel_extract_angle << <blocks, threads >> >(cur,
+      resources->gpu_angle_predecessor_,
+      image_size);
     first_time = false;
   }
 
   // Convert to polar notation in order to work on angles.
-  kernel_extract_angle << <blocks, threads >> >(cur, cur_angles, size);
+  kernel_extract_angle << <blocks, threads >> >(cur,
+    resources->gpu_angle_current_,
+    image_size);
 
-  kernel_unwrap << < blocks, threads >> >(pred_angles, cur_angles, adjustments, size);
+  /* Store the new unwrapped phase image in the next buffer position.
+   * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    next_unwrap,
+    image_size);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 
   // Updating predecessor
-  cudaMemcpy(pred_angles, cur_angles, sizeof(float)* size, cudaMemcpyDeviceToDevice);
+  cudaMemcpy(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
 
-  kernel_correct_angles << <blocks, threads >> >(cur_angles, adjustments, size);
+  // Applying unwrapping history to the current image.
+  kernel_correct_angles << <blocks, threads >> >(
+    resources->gpu_angle_current_,
+    resources->gpu_unwrap_buffer_,
+    image_size,
+    resources->size_);
+}
+
+void unwrap_mult(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size)
+{
+  const unsigned threads = 128;
+  const unsigned blocks = map_blocks_to_problem(image_size, threads);
+
+  static bool first_time = true;
+  if (first_time)
+  {
+    cudaMemcpy(resources->gpu_predecessor_,
+      cur,
+      sizeof(cufftComplex)* image_size,
+      cudaMemcpyDeviceToDevice);
+    first_time = false;
+  }
+
+  /* Compute the newest phase image, not unwrapped yet. */
+  kernel_compute_angle_mult << <blocks, threads >> >(
+    resources->gpu_predecessor_,
+    cur,
+    resources->gpu_angle_current_,
+    image_size);
+
+  /* Store the new unwrapped phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  kernel_unwrap << < blocks, threads >> >(
+    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    next_unwrap,
+    image_size);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
+
+  // Updating predecessors : complex image + multiply-with-conjugate angle
+  cudaMemcpy(resources->gpu_predecessor_,
+    cur,
+    sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+  cudaMemcpy(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Applying unwrapping history on the latest phase image //
+  kernel_correct_angles << <blocks, threads >> >(
+    resources->gpu_angle_current_,
+    resources->gpu_unwrap_buffer_,
+    image_size,
+    resources->size_);
+}
+
+void unwrap_diff(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size)
+{
+  const unsigned threads = 128;
+  const unsigned blocks = map_blocks_to_problem(image_size, threads);
+
+  static bool first_time = true;
+  if (first_time)
+  {
+    cudaMemcpy(resources->gpu_predecessor_,
+      cur,
+      sizeof(cufftComplex)* image_size,
+      cudaMemcpyDeviceToDevice);
+    first_time = false;
+  }
+
+  /* Compute the newest phase image, not unwrapped yet. */
+  kernel_compute_angle_diff << <blocks, threads >> >(
+    resources->gpu_predecessor_,
+    cur,
+    resources->gpu_angle_current_,
+    image_size);
+
+  /* Store the new unwrapped phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  kernel_unwrap << < blocks, threads >> >(
+    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    next_unwrap,
+    image_size);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
+
+  // Updating predecessors : complex image + multiply-with-conjugate angle
+  cudaMemcpy(resources->gpu_predecessor_,
+    cur,
+    sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+  cudaMemcpy(resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Applying unwrapping history on the latest phase image //
+  kernel_correct_angles << <blocks, threads >> >(
+    resources->gpu_angle_current_,
+    resources->gpu_unwrap_buffer_,
+    image_size,
+    resources->size_);
 }

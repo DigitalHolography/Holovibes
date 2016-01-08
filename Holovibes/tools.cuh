@@ -16,6 +16,12 @@ namespace holovibes
   class Rectangle;
 }
 
+/* Forward declarations. */
+namespace holovibes
+{
+  struct UnwrappingResources;
+}
+
 /*! \brief  Apply a previously computed lens to image(s).
 *
 * The image(s) to treat, seen as input, should be contigous, the input_size is the total number of pixels to
@@ -135,8 +141,9 @@ void copy_buffer(
   const size_t nb_elts,
   cudaStream_t stream = 0);
 
-/*! Wrapper for CUDA-executed in-place phase unwrapping on complex data
- * (phase angles).
+/*! Let H be the lastest complex image, and H-t the one preceding it.
+ * This version computes : arg(H) - arg(H-t)
+ * and unwraps the result.
  *
  * Phase unwrapping adjusts phase angles encoded in complex data,
  * by a cutoff value (which is here fixed to pi). Unwrapping seeks
@@ -145,8 +152,36 @@ void copy_buffer(
  */
 void unwrap(
   const cufftComplex* cur,
-  float* pred_angles,
-  float* cur_angles,
-  float* adjustments,
-  const unsigned width,
-  const unsigned height);
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size);
+
+/*! Let H be the lastest complex image, H-t the conjugate matrix of
+* the one preceding it, and .* the element-to-element matrix
+* multiplication operation.
+* This version computes : arg(H .* H-t)
+* and unwraps the result.
+*
+* Phase unwrapping adjusts phase angles encoded in complex data,
+* by a cutoff value (which is here fixed to pi). Unwrapping seeks
+* two-by-two differences that exceed this cutoff value and performs
+* cumulative adjustments in order to 'smooth' the signal.
+*/
+void unwrap_mult(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size);
+
+/*! Let H be the lastest complex image, and H-t the conjugate matrix of
+* the one preceding it.
+* This version computes : arg(H - H-t)
+* and unwraps the result.
+*
+* Phase unwrapping adjusts phase angles encoded in complex data,
+* by a cutoff value (which is here fixed to pi). Unwrapping seeks
+* two-by-two differences that exceed this cutoff value and performs
+* cumulative adjustments in order to 'smooth' the signal.
+*/
+void unwrap_diff(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size);

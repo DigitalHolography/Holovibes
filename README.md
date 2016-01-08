@@ -1,4 +1,4 @@
-# Holovibes v1.4.0 #
+# Holovibes v1.5.0 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -309,6 +309,16 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 ### v.1.4.0
 
 * Pipeline has been renamed to Pipe, and Pipeline now refers to a another way to treat buffers, with several actions being done at the same time by workers
+
+### v.1.5.0
+
+* Camera Adimec can now run up to 300Hz (instead of the previous 60Hz)
+* Holovibes can still be launched if visa.dll is not installed as it is now loaded only when needed
+* Holovibes can unwrap in 6 different ways the images
+* New part in the GUI, displaying information like the framerate
+* Dependencies are now handled in a smarter way (not including things where they should not be)
+* Ini file is now more dense and can configure more parameters
+
 
 
 # Known problems :

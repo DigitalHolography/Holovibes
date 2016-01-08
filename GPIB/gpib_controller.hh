@@ -1,5 +1,7 @@
 #pragma once
 
+# include "IVisaInterface.hh"
+
 # include <vector>
 # include <deque>
 # include <exception>
@@ -12,7 +14,7 @@ namespace gpib
 {
   /*! Contains all elements needed to establish
    * a connection to a device through the VISA interface. */
-  class VisaInterface
+  class VisaInterface : public IVisaInterface
   {
   public:
     /*! Build an interface to the GPIB driver using the VISA standard.
@@ -22,7 +24,7 @@ namespace gpib
 
     /*! Making sure all opened connections are closed,
      * and freeing allocated memory. */
-    ~VisaInterface();
+    virtual ~VisaInterface();
 
     VisaInterface(const VisaInterface& other) = delete;
 
@@ -36,7 +38,7 @@ namespace gpib
 
     /*! Launch the commands extracted previously from the input file.
      * \return True if there are more commands to issue. */
-    bool execute_next_block();
+    virtual bool execute_next_block();
 
   private:
     /*! Setting up the VISA driver to enable future connections.

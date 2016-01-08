@@ -1,5 +1,3 @@
-#include <cuda_runtime.h>
-
 #include "stft.cuh"
 #include "hardware_limits.hh"
 #include "geometry.hh"
