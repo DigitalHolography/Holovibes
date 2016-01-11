@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Thread encapsulation for obtaining images from a camera. */
 #pragma once
 
 # include <thread>
@@ -16,20 +19,20 @@ namespace camera
 
 namespace holovibes
 {
-  /*! \brief Thead, add frame from camera to queue
-   *
-   * While thread is running, thread get_frame from camera
-   * and enqueue then in queue
-   */
+  /*! \brief Thread encapsulation for obtaining images from a camera. */
   class ThreadCapture : public IThreadInput
   {
   public:
-    /*! \param camera must be initialize */
+    /*! \brief Set a capture thread from a given camera and a destination queue.
+     * \param The camera must be initialized
+     * \param Destination queue */
     ThreadCapture(camera::ICamera& camera, Queue& input);
 
     ~ThreadCapture();
 
   private:
+    /*! While the thread is running, the get_frame() function (see ICamera
+     * interface) is called with the current camera. Images sent are enqueued. */
     void thread_proc();
 
   private:

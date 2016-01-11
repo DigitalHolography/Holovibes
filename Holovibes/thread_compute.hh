@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * Thread encapsulation for managing all the processing performed
+ * in hologram rendering mode. */
 #pragma once
 
 # include <thread>
@@ -15,23 +19,27 @@ namespace holovibes
 
 namespace holovibes
 {
-  /*! \brief Thread managing pipe
+  /*! \brief Thread encapsulation for managing all the processing performed
+   * in hologram rendering mode.
    *
-   * While is running execute the pipe
+   * Executes in a loop an instance of the ICompute class, and handles its
+   * stopping and destruction.
    */
   class ThreadCompute
   {
   public:
 
+    /*! All types of ICompute-based classes are associated with a flag. */
     enum PipeType
     {
       PIPE,
       PIPELINE,
     };
 
-    /*! \brief Constructor
+    /*! \brief Build an ICompute instance between two queues.
      *
-     * params are gived to pipe
+     * \param desc The Compute Descriptor which will be used and modified
+     * by the ICompute instance.
      */
     ThreadCompute(
       ComputeDescriptor& desc,
@@ -76,15 +84,17 @@ namespace holovibes
     void thread_proc();
 
   private:
+    /*! ComputeDescriptor used by the ICompute object.  */
     ComputeDescriptor& compute_desc_;
 
     Queue& input_;
     Queue& output_;
+    /*! The current type of ICompute object used. */
     const PipeType pipetype_;
 
     std::shared_ptr<ICompute> pipe_;
 
-    /*! \brief Is notify when pipe is ready */
+    /*! \brief Is notified when the ICompute object is ready */
     std::condition_variable memory_cv_;
     std::thread thread_;
   };

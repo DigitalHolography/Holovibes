@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Store frames of a given queue in a file. */
 #pragma once
 
 #include <fstream>
@@ -13,8 +16,8 @@ namespace holovibes
 {
   /*! \brief Store frames of given queue in file
    *
-   * Image are stored in raw format at the given file path
-   * Recorder is thread safe and you can stop record at anytime
+   * Image are stored in raw format at the given file path.
+   * Recorder is thread safe and you can stop record anytime.
    *
    * Usage:
    * * Create Recorder
@@ -25,15 +28,17 @@ namespace holovibes
   {
     Q_OBJECT
 
-  signals :
-    /*! \brief inform, that one frame have been recorded
+signals :
+    /*! \brief Inform that one frame has been recorded
     **
     ** value is number of frames recorded*/
     void value_change(int value);
+
   public:
-    /*! \brief Constructor
+    /*! \brief Open the given filepath.
      *
-     * Open given filepath
+     * \param queue The source queue.
+     * \param filepath The absolute path to the destination file.
      */
     Recorder(
       Queue& queue,
@@ -43,7 +48,8 @@ namespace holovibes
 
     /*! \brief record n_images to file
      *
-     * Recorder is thread safe and you can stop this function by using stop
+     * Recorder is thread safe and you can stop this function anytime
+     * by using the "stop" button.
      */
     void record(const unsigned int n_images);
 
