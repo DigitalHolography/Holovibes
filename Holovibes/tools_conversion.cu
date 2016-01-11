@@ -227,6 +227,9 @@ void rescale_float(
     *(std::min_element(cpu_local_mins, cpu_local_mins + threads)),
     *(std::max_element(cpu_local_maxs, cpu_local_maxs + threads)),
     max_intensity);
+
+  cudaFree(gpu_local_mins);
+  cudaFree(gpu_local_maxs);
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
