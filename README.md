@@ -9,9 +9,9 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### Cameras drivers ###
 
-* [XiAPI](http://www.ximea.com/support/wiki/apis/XiAPI) XiQ Camera XIMEA API V4.01.80
+* [XiAPI](http://www.ximea.com/support/wiki/apis/XIMEA_API_Software_Package) XiQ Camera XIMEA API V4.01.80
 * [Driver IDS](http://en.ids-imaging.com) V4.41
-* [AVT Vimba](http://www.alliedvisiontec.com/us/products/legacy.html) V1.3
+* [AVT Vimba](https://www.alliedvision.com/fileadmin/content/software/software/Vimba/Vimba_v1.4_Windows.exe) V1.4
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
