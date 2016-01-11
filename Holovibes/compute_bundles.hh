@@ -1,3 +1,7 @@
+/* \file compute_bundles.hh
+ *
+ * Regroup all resources used for phase unwrapping.
+ */
 #pragma once
 
 # include <cuda_runtime.h>

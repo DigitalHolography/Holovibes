@@ -1,10 +1,17 @@
+/* \file config.hh
+ *
+ * Store some information that need to be accessed globally.
+ */
 #pragma once
 
 namespace holovibes
 {
+  /*! \brief Store some information that need to be accessed globally.
+   */
   class Config
   {
   public:
+    /*! \brief Construct the config with most commonly used values.*/
     Config()
     {
       this->input_queue_max_size = 100;
@@ -16,11 +23,13 @@ namespace holovibes
       this->unwrap_history_size = 20;
     }
 
+    /*! \brief Copy constructor.*/
     Config(const Config& o)
     {
       *this = o;
     }
 
+    /*! \brief Assignement operator.*/
     Config& operator=(const Config& o)
     {
       this->flush_on_refresh = o.flush_on_refresh;

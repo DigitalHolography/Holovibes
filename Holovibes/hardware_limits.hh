@@ -1,3 +1,7 @@
+/*! \file hardware_limits.hh
+ *
+ * Getters of the GPU's specs so that calculations are optimized.
+ */
 #pragma once
 
 /*! \brief Getter on max threads in one dimension

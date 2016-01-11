@@ -1,3 +1,7 @@
+/* \file compute_descriptor.hh
+ *
+ * Contains compute parameters.
+ */
 #pragma once
 
 # include <atomic>

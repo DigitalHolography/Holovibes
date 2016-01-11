@@ -440,17 +440,6 @@ namespace holovibes
     }
   }
 
-  /* Looks like the ICompute, but it searches for the right z value.
-  The method choosen, iterates on the numbers of points given by the user
-  between min and max, take the max and increase the precision to focus
-  around the max more and more according to the number of iterations
-  choosen.
-  If the users chooses 2 iterations, a max will be choosen out of 10 images
-  done between min and max. This max will be added and substracted a value
-  in order to have a new (more accurate) zmin and zmax. And 10 more images
-  will be produced, giving a better zmax
-  */
-
   void ICompute::cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
   {
     ::cudaMemcpy(dst, src, size, kind);

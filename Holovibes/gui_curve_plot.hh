@@ -1,3 +1,7 @@
+/*! \file gui_curve_plot.hh 
+ *
+ * Widget containing a QwtPlot. Used to display average/ROI computations.
+ */
 #pragma once
 
 # include <QtWidgets>

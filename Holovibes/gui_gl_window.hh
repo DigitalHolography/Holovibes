@@ -1,3 +1,7 @@
+/*! \file gui_gl_window.hh
+ *
+ * QMainWindow overload used to display the real time OpenGL frame.
+ */
 #pragma once
 
 # include <QMainWindow>
@@ -45,6 +49,7 @@ namespace gui
     /*! \brief Call when windows is resize */
     void resizeEvent(QResizeEvent* e) override;
 
+    /*! \brief Returns a reference to a GLWidget object. */
     GLWidget& get_gl_widget() const
     {
       return *gl_widget_;
