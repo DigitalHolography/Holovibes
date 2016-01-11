@@ -553,10 +553,19 @@ namespace gui
   {
     if (!is_direct_mode_)
     {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-      cd.unwrap_history_size = value;
+      holovibes_.get_compute_desc().unwrap_history_size = value;
       holovibes_.get_pipe()->request_update_unwrap_size(value);
+    }
+  }
+
+  void MainWindow::set_unwrapping(const bool value)
+  {
+    if (!is_direct_mode_)
+    {
+      auto pipe = holovibes_.get_pipe();
+
+      pipe->request_unwrapping(value);
+      pipe->request_refresh();
     }
   }
 

@@ -300,7 +300,8 @@ void copy_buffer(
 void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size)
+  const size_t image_size,
+  const bool with_unwrap)
 {
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
@@ -318,6 +319,9 @@ void unwrap(
   kernel_extract_angle << <blocks, threads >> >(cur,
     resources->gpu_angle_current_,
     image_size);
+
+  if (!with_unwrap)
+    return;
 
   /* Store the new unwrapped phase image in the next buffer position.
    * The buffer is handled as a circular buffer. */
@@ -347,7 +351,8 @@ void unwrap(
 void unwrap_mult(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size)
+  const size_t image_size,
+  const bool with_unwrap)
 {
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
@@ -368,6 +373,9 @@ void unwrap_mult(
     cur,
     resources->gpu_angle_current_,
     image_size);
+
+  if (!with_unwrap)
+    return;
 
   /* Store the new unwrapped phase image in the next buffer position.
   * The buffer is handled as a circular buffer. */
@@ -402,7 +410,8 @@ void unwrap_mult(
 void unwrap_diff(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size)
+  const size_t image_size,
+  const bool with_unwrap)
 {
   const unsigned threads = 128;
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
@@ -423,6 +432,9 @@ void unwrap_diff(
     cur,
     resources->gpu_angle_current_,
     image_size);
+
+  if (!with_unwrap)
+    return;
 
   /* Store the new unwrapped phase image in the next buffer position.
   * The buffer is handled as a circular buffer. */

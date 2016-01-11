@@ -33,6 +33,7 @@ namespace holovibes
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
+    , unwrap_requested_(true)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
     , refresh_requested_(false)
@@ -292,6 +293,11 @@ namespace holovibes
   {
     compute_desc_.unwrap_history_size.exchange(size);
     request_refresh();
+  }
+
+  void ICompute::request_unwrapping(const bool value)
+  {
+    unwrap_requested_ = value;
   }
 
   void ICompute::request_average(

@@ -81,8 +81,12 @@ namespace holovibes
     * nsamples frames. */
     void request_update_n(const unsigned short n);
 
-    /*! TODO */
+    /*! Set the size of the unwrapping history window. */
     void request_update_unwrap_size(const unsigned size);
+
+    /*! The boolean will determine activation/deactivation of the unwrapping phase
+     * in the unwrap() function. */
+    void request_unwrapping(const bool value);
 
     /*! \brief Request the ICompute to fill the output vector.
     *
@@ -252,6 +256,7 @@ namespace holovibes
     cufftHandle plan1d_;
     /*! \} */
     /*! \{ \name request flags */
+    bool unwrap_requested_;
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
     bool autocontrast_requested_;

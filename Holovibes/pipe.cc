@@ -339,7 +339,8 @@ namespace holovibes
           unwrap,
           gpu_input_frame_ptr_,
           unwrap_res_.get(),
-          input_fd.frame_res()));
+          input_fd.frame_res(),
+          unwrap_requested_));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
@@ -348,7 +349,8 @@ namespace holovibes
           unwrap_diff,
           gpu_input_frame_ptr_,
           unwrap_res_.get(),
-          input_fd.frame_res()));
+          input_fd.frame_res(),
+          unwrap_requested_));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
       {
@@ -357,7 +359,8 @@ namespace holovibes
           unwrap_mult,
           gpu_input_frame_ptr_,
           unwrap_res_.get(),
-          input_fd.frame_res()));
+          input_fd.frame_res(),
+          unwrap_requested_));
       }
       else
       {

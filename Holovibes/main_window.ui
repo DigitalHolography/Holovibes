@@ -1034,21 +1034,6 @@
           <string>ROI file:</string>
          </property>
         </widget>
-        <zorder>pLabelVibro</zorder>
-        <zorder>pSpinBoxVibro</zorder>
-        <zorder>qSpinBoxVibro</zorder>
-        <zorder>qLabelVibro</zorder>
-        <zorder>vibrometryCheckBox</zorder>
-        <zorder>averageCheckBox</zorder>
-        <zorder>ROIFileLineEdit</zorder>
-        <zorder>saveROIPushButton</zorder>
-        <zorder>loadROIPushButton</zorder>
-        <zorder>label</zorder>
-        <zorder>label_2</zorder>
-        <zorder>pushButton</zorder>
-        <zorder>ROIFileBrowseToolButton</zorder>
-        <zorder>ROIFileLabel</zorder>
-        <zorder>View</zorder>
        </widget>
       </item>
       <item>
@@ -3036,6 +3021,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>unwrapCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrapping(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3094,5 +3095,6 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>layout_toggled(bool)</slot>
   <slot>set_unwrap_history_size(int)</slot>
+  <slot>set_unwrapping(bool)</slot>
  </slots>
 </ui>
