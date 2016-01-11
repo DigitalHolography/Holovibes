@@ -13,7 +13,7 @@ namespace holovibes
   {
     /*! Initialize the capacity from history_size,
      * set size and next_index to zero, and buffers pointers to null pointers. */
-    UnwrappingResources(const unsigned capacity);
+    UnwrappingResources(const unsigned capacity, const size_t image_size);
 
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources();
@@ -21,11 +21,15 @@ namespace holovibes
     /*! Allocates all buffers based on the new image size. Forces reallocation.
     *
     * \param image_size The number of pixels in an image. */
-    void allocate(const size_t image_size);
+    void reallocate(const size_t image_size);
 
     /*! Simple setter for capacity_. Does not cause reallocation. */
     void change_capacity(const size_t capacity);
 
+    /*! The real number of matrices reserved in memory.
+     * Not all may be used. The purpose is to avoid requesting too much memory
+     * operations to the graphics card, which causes crashes. */
+    size_t total_memory_;
     size_t capacity_; //!< Maximum number of matrices kept in history.
     size_t size_; //!< Current number of matrices kept in history.
     unsigned next_index_; //!< Index of the next matrix to be overriden (the oldest).
