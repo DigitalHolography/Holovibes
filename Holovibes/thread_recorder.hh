@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Specialised QThread used for video recording. */
 #pragma once
 
 # include <string>
@@ -14,10 +17,10 @@ namespace holovibes
 
 namespace gui
 {
-  /*! \brief Thread class used to record raw images.
+  /*! \brief Thread class used to record images in direct or hologram mode.
   **
   ** It inherits QThread because it is the GUI that needs to launch the record and it has
-  ** to know when it is finished (signal/slots system).
+  ** to know when it is finished (signals/slots system).
   */
   class ThreadRecorder : public QThread
   {
