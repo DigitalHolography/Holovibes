@@ -24,7 +24,7 @@ namespace holovibes
     void reallocate(const size_t image_size);
 
     /*! Simple setter for capacity_. Does not cause reallocation. */
-    void change_capacity(const size_t capacity);
+    void reset(const size_t capacity);
 
     /*! The real number of matrices reserved in memory.
      * Not all may be used. The purpose is to avoid requesting too much memory

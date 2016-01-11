@@ -76,8 +76,10 @@ namespace holovibes
     cudaMalloc(&gpu_angle_current_, sizeof(float)* image_size);
   }
 
-  void UnwrappingResources::change_capacity(const size_t capacity)
+  void UnwrappingResources::reset(const size_t capacity)
   {
     capacity_ = capacity;
+    size_ = 0;
+    next_index_ = 0;
   }
 }

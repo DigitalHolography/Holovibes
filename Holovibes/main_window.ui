@@ -498,11 +498,6 @@
            <string>phase 2</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>phase 3</string>
-          </property>
-         </item>
         </widget>
         <widget class="QCheckBox" name="contrastCheckBox">
          <property name="geometry">

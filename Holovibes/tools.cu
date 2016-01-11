@@ -320,16 +320,16 @@ void unwrap(
     resources->gpu_angle_current_,
     image_size);
 
-  if (!with_unwrap)
-    return;
-
   /* Store the new unwrapped phase image in the next buffer position.
    * The buffer is handled as a circular buffer. */
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
+  if (with_unwrap)
+  {
+    kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      next_unwrap,
+      image_size);
+  }
   if (resources->size_ < resources->capacity_)
     ++resources->size_;
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
@@ -374,17 +374,17 @@ void unwrap_mult(
     resources->gpu_angle_current_,
     image_size);
 
-  if (!with_unwrap)
-    return;
-
   /* Store the new unwrapped phase image in the next buffer position.
   * The buffer is handled as a circular buffer. */
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
+  if (with_unwrap)
+  {
+    kernel_unwrap << < blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      next_unwrap,
+      image_size);
+  }
   if (resources->size_ < resources->capacity_)
     ++resources->size_;
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
@@ -433,17 +433,17 @@ void unwrap_diff(
     resources->gpu_angle_current_,
     image_size);
 
-  if (!with_unwrap)
-    return;
-
   /* Store the new unwrapped phase image in the next buffer position.
   * The buffer is handled as a circular buffer. */
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
+  if (with_unwrap)
+  {
+    kernel_unwrap << < blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      next_unwrap,
+      image_size);
+  }
   if (resources->size_ < resources->capacity_)
     ++resources->size_;
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
