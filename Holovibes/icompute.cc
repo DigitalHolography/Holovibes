@@ -14,6 +14,7 @@
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "info_manager.hh"
+# include "compute_bundles.hh"
 
 namespace holovibes
 {
@@ -115,9 +116,6 @@ namespace holovibes
 
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
-
-    if (unwrap_res_)
-      delete unwrap_res_;
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);

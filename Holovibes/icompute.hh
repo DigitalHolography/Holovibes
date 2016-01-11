@@ -3,6 +3,7 @@
 # include <fstream>
 # include <cufft.h>
 # include <chrono>
+# include <memory>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
@@ -235,7 +236,7 @@ namespace holovibes
     float* gpu_sqrt_vector_;
 
     /*! All buffers needed for phase unwrapping are here. */
-    UnwrappingResources* unwrap_res_;
+    std::shared_ptr<UnwrappingResources> unwrap_res_;
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;

@@ -324,7 +324,7 @@ namespace holovibes
     else
     {
       if (!unwrap_res_)
-        unwrap_res_ = new UnwrappingResources(compute_desc_.unwrap_history_size);
+        unwrap_res_.reset(new UnwrappingResources(compute_desc_.unwrap_history_size));
 
       unwrap_res_->change_capacity(compute_desc_.unwrap_history_size);
       unwrap_res_->allocate(input_.get_pixels());
@@ -335,7 +335,7 @@ namespace holovibes
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
-          unwrap_res_,
+          unwrap_res_.get(),
           input_fd.frame_res()));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
@@ -344,7 +344,7 @@ namespace holovibes
         fn_vect_.push_back(std::bind(
           unwrap_diff,
           gpu_input_frame_ptr_,
-          unwrap_res_,
+          unwrap_res_.get(),
           input_fd.frame_res()));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
@@ -353,7 +353,7 @@ namespace holovibes
         fn_vect_.push_back(std::bind(
           unwrap_mult,
           gpu_input_frame_ptr_,
-          unwrap_res_,
+          unwrap_res_.get(),
           input_fd.frame_res()));
       }
       else
