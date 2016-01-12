@@ -25,7 +25,7 @@ namespace gui
   {
     Q_OBJECT
 
-    typedef holovibes::ConcurrentDeque<std::tuple<float, float, float>> Deque;
+    typedef holovibes::ConcurrentDeque<std::tuple<float, float, float, float>> Deque;
 
   public:
     /*! \brief ThreadCSVRecord constructor

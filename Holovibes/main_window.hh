@@ -175,6 +175,12 @@ namespace gui
     ** "unwrapped argument", or "unwrapped argument 2".
     */
     void set_view_mode(QString value);
+    /*! Set the size of the unwrapping history window.
+    */
+    void set_unwrap_history_size(int value);
+    /*! Activate / Deactivate phase unwrapping.
+    */
+    void set_unwrapping(const bool value);
     /*! \brief Set autofocus mode on
     **
     ** Set GLWidget selection mode to AUTOFOCUS.
@@ -398,6 +404,9 @@ namespace gui
     double z_step_;
     /*! current camera type */
     holovibes::Holovibes::camera_type camera_type_;
+
+    /*! Index of the last contrast type chosen in the affiliated QComboBox. */
+    QString last_contrast_type_;
 
     /*! Plot/graphic window of average/ROI computations */
     std::unique_ptr<PlotWindow> plot_window_;

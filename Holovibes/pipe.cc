@@ -324,30 +324,54 @@ namespace holovibes
     else
     {
       if (!unwrap_res_)
-        unwrap_res_ = new UnwrappingResources();
-
-      unwrap_res_->allocate(input_.get_pixels());
+      {
+        unwrap_res_.reset(new UnwrappingResources(
+          compute_desc_.unwrap_history_size,
+          input_.get_pixels()));
+      }
+      unwrap_res_->change_capacity(compute_desc_.unwrap_history_size);
+      unwrap_res_->reallocate(input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
-        // Phase unwrapping, subtraction method
+        // Phase unwrapping, float subtraction method
         fn_vect_.push_back(std::bind(
           unwrap,
           gpu_input_frame_ptr_,
-          unwrap_res_,
-          input_fd.frame_res()));
+          unwrap_res_.get(),
+          input_fd.frame_res(),
+          unwrap_requested_));
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
-        // Phase unwrapping, multiply-with-conjugate method
+        // Phase unwrapping, complex subtraction method
         fn_vect_.push_back(std::bind(
           unwrap_diff,
           gpu_input_frame_ptr_,
-          unwrap_res_,
-          input_fd.frame_res()));
+          unwrap_res_.get(),
+          input_fd.frame_res(),
+          unwrap_requested_));
+      }
+      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
+      {
+        // Phase unwrapping, complex multiply-with-conjugate method
+        fn_vect_.push_back(std::bind(
+          unwrap_mult,
+          gpu_input_frame_ptr_,
+          unwrap_res_.get(),
+          input_fd.frame_res(),
+          unwrap_requested_));
       }
       else
-        assert(!"Unknown contrast type.");
+      {
+        // Fallback on modulus mode.
+        fn_vect_.push_back(std::bind(
+          complex_to_modulus,
+          gpu_input_frame_ptr_,
+          gpu_float_buffer_,
+          input_fd.frame_res(),
+          static_cast<cudaStream_t>(0)));
+      };
 
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
@@ -447,8 +471,8 @@ namespace holovibes
 
     if (gui::InfoManager::get_manager())
       fn_vect_.push_back(std::bind(
-        &Pipe::fps_count,
-        this));
+      &Pipe::fps_count,
+      this));
 
     fn_vect_.push_back(std::bind(
       float_to_ushort,

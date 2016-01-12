@@ -14,6 +14,7 @@
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "info_manager.hh"
+# include "compute_bundles.hh"
 
 namespace holovibes
 {
@@ -32,6 +33,7 @@ namespace holovibes
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
+    , unwrap_requested_(true)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
     , refresh_requested_(false)
@@ -115,9 +117,6 @@ namespace holovibes
 
     /* Square root vector */
     cudaFree(gpu_sqrt_vector_);
-
-    if (unwrap_res_)
-      delete unwrap_res_;
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
@@ -290,8 +289,19 @@ namespace holovibes
     request_refresh();
   }
 
+  void ICompute::request_update_unwrap_size(const unsigned size)
+  {
+    compute_desc_.unwrap_history_size.exchange(size);
+    request_refresh();
+  }
+
+  void ICompute::request_unwrapping(const bool value)
+  {
+    unwrap_requested_ = value;
+  }
+
   void ICompute::request_average(
-    ConcurrentDeque<std::tuple<float, float, float>>* output)
+    ConcurrentDeque<std::tuple<float, float, float, float>>* output)
   {
     assert(output != nullptr);
 
@@ -304,7 +314,7 @@ namespace holovibes
   }
 
   void ICompute::request_average_record(
-    ConcurrentDeque<std::tuple<float, float, float>>* output,
+    ConcurrentDeque<std::tuple<float, float, float, float>>* output,
     const unsigned int n)
   {
     assert(output != nullptr);

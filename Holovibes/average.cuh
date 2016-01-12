@@ -20,7 +20,7 @@ namespace holovibes
 * \rerun A tupple of 3 floats <sum of signal zones pixels, sum of noise zone pixels, average>.
 *
 */
-std::tuple<float, float, float> make_average_plot(
+std::tuple<float, float, float, float> make_average_plot(
   float* input,
   const unsigned int width,
   const unsigned int height,
@@ -32,7 +32,7 @@ std::tuple<float, float, float> make_average_plot(
 * but first it will call the reconstruct roi after having
 * splitted the image for the stft.
 */
-std::tuple<float, float, float> make_average_stft_plot(
+std::tuple<float, float, float, float> make_average_stft_plot(
   cufftComplex*          cbuf,
   float*                 fbuf,
   cufftComplex*          input,

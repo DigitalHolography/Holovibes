@@ -6,19 +6,26 @@
 #define TIMER_FREQ 40
 #define POINTS 200
 
+# define CURVE_GET(X) float curve_get_ ## X(const std::tuple<float, float, float, float>& a) { return std::get<X>(a); }
+CURVE_GET(0)
+CURVE_GET(1)
+CURVE_GET(2)
+CURVE_GET(3)
+
 namespace gui
 {
-  CurvePlot::CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
+  CurvePlot::CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
     const QString title,
     const unsigned int width,
     const unsigned int height,
     QWidget* parent)
     : QWidget(parent)
     , data_vect_(data_vect)
-    , plot_(title, this)
+    , plot_(QString::fromLocal8Bit(""), this)
     , curve_("First curve")
     , points_nb_(POINTS)
     , timer_(this)
+    , curve_get_(curve_get_3)
   {
     this->setMinimumSize(width, height);
     plot_.setMinimumSize(width, height);
@@ -33,6 +40,29 @@ namespace gui
 
   CurvePlot::~CurvePlot()
   {
+  }
+
+  void CurvePlot::change_curve(int curve_to_plot)
+  {
+    std::cout << curve_to_plot << std::endl;
+
+    switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
+    {
+    case CurvePlot::CurveName::CURVE_SIGNAL:
+      curve_get_ = curve_get_0;
+      break;
+    case CurvePlot::CurveName::CURVE_NOISE:
+      curve_get_ = curve_get_1;
+      break;
+    case CurvePlot::CurveName::CURVE_LOG:
+      curve_get_ = curve_get_2;
+      break;
+    case CurvePlot::CurveName::CURVE_LOG10:
+      curve_get_ = curve_get_3;
+      break;
+    default:
+      abort();
+    }
   }
 
   QSize CurvePlot::minimumSizeHint() const
@@ -66,30 +96,29 @@ namespace gui
       size_t copied_elts_nb = data_vect_.fill_array(average_vector_, points_nb_);
 
       for (size_t i = 0; i < copied_elts_nb; ++i)
-        new_data << QPointF(i, std::get<2>(average_vector_[i]));
+        new_data << QPointF(i, curve_get_(average_vector_[i]));
     }
-
     curve_.setSamples(new_data);
     curve_.attach(&plot_);
   }
 
   void CurvePlot::auto_scale()
   {
-    using elt_t = std::tuple<float, float, float>;
+    using elt_t = std::tuple<float, float, float, float>;
     std::vector<elt_t> tmp = average_vector_;
 
     float curr = 0.0f;
 
     auto minmax = std::minmax_element(tmp.cbegin(),
       tmp.cend(),
-      [](const elt_t& lhs, const elt_t& rhs)
+      [&](const elt_t& lhs, const elt_t& rhs)
     {
-      return std::get<2>(lhs) < std::get<2>(rhs);
+      return curve_get_(lhs) < curve_get_(rhs);
     });
 
     plot_.setAxisScale(0,
-      std::get<2>(*(minmax.first)) - 1.0,
-      std::get<2>(*(minmax.second)) + 1.0,
+      curve_get_(*(minmax.first)) - 1.0,
+      curve_get_(*(minmax.second)) + 1.0,
       2.0);
     plot_.replot();
   }

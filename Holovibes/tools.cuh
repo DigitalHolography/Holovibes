@@ -153,7 +153,8 @@ void copy_buffer(
 void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size);
+  const size_t image_size,
+  const bool with_unwrap);
 
 /*! Let H be the lastest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
@@ -169,7 +170,8 @@ void unwrap(
 void unwrap_mult(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size);
+  const size_t image_size,
+  const bool with_unwrap);
 
 /*! Let H be the lastest complex image, and H-t the conjugate matrix of
 * the one preceding it.
@@ -184,4 +186,5 @@ void unwrap_mult(
 void unwrap_diff(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size);
+  const size_t image_size,
+  const bool with_unwrap);

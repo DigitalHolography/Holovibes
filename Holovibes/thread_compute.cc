@@ -35,7 +35,6 @@ namespace holovibes
 
   void ThreadCompute::thread_proc()
   {
-	  SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
     if (pipetype_ == PipeType::PIPE)
       pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
     else

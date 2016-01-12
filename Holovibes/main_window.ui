@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1168</width>
-    <height>362</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -227,7 +227,7 @@
           <rect>
            <x>10</x>
            <y>220</y>
-           <width>51</width>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -265,7 +265,7 @@
           <rect>
            <x>10</x>
            <y>190</y>
-           <width>53</width>
+           <width>81</width>
            <height>16</height>
           </rect>
          </property>
@@ -297,7 +297,7 @@
           <rect>
            <x>10</x>
            <y>250</y>
-           <width>81</width>
+           <width>101</width>
            <height>16</height>
           </rect>
          </property>
@@ -310,7 +310,7 @@
           <rect>
            <x>10</x>
            <y>280</y>
-           <width>81</width>
+           <width>101</width>
            <height>16</height>
           </rect>
          </property>
@@ -389,7 +389,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>90</y>
            <width>71</width>
            <height>31</height>
           </rect>
@@ -400,20 +400,20 @@
           </font>
          </property>
          <property name="text">
-          <string>Log scale</string>
+          <string>Log</string>
          </property>
         </widget>
         <widget class="QCheckBox" name="shiftCornersCheckBox">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>140</y>
-           <width>101</width>
+           <x>100</x>
+           <y>90</y>
+           <width>81</width>
            <height>31</height>
           </rect>
          </property>
          <property name="text">
-          <string>Shifted corners</string>
+          <string>FFT shift</string>
          </property>
         </widget>
         <widget class="QLabel" name="minLabel">
@@ -423,7 +423,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>100</y>
+           <y>150</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -439,7 +439,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>70</y>
+           <y>120</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -452,7 +452,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>100</y>
+           <y>150</y>
            <width>61</width>
            <height>21</height>
           </rect>
@@ -490,12 +490,17 @@
          </item>
          <item>
           <property name="text">
-           <string>unwrapped argument</string>
+           <string>phase 1</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>unwrapped argument 2</string>
+           <string>phase 2</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>phase 3</string>
           </property>
          </item>
         </widget>
@@ -503,7 +508,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>70</y>
+           <y>120</y>
            <width>82</width>
            <height>21</height>
           </rect>
@@ -519,7 +524,7 @@
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>100</y>
+           <y>150</y>
            <width>62</width>
            <height>22</height>
           </rect>
@@ -541,7 +546,7 @@
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>70</y>
+           <y>120</y>
            <width>62</width>
            <height>22</height>
           </rect>
@@ -573,7 +578,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>170</y>
+           <y>180</y>
            <width>61</width>
            <height>21</height>
           </rect>
@@ -586,7 +591,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>200</y>
+           <y>240</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -598,9 +603,9 @@
         <widget class="QDoubleSpinBox" name="zmaxDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>200</y>
-           <width>81</width>
+           <x>120</x>
+           <y>240</y>
+           <width>61</width>
            <height>21</height>
           </rect>
          </property>
@@ -620,9 +625,9 @@
         <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>230</y>
-           <width>81</width>
+           <x>120</x>
+           <y>210</y>
+           <width>61</width>
            <height>21</height>
           </rect>
          </property>
@@ -640,8 +645,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>230</y>
-           <width>41</width>
+           <y>210</y>
+           <width>71</width>
            <height>16</height>
           </rect>
          </property>
@@ -653,21 +658,21 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>260</y>
-           <width>41</width>
+           <y>270</y>
+           <width>71</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>Points:</string>
+          <string>Steps/loops:</string>
          </property>
         </widget>
         <widget class="QSpinBox" name="zdivSpinBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>260</y>
-           <width>81</width>
+           <x>90</x>
+           <y>270</y>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -682,7 +687,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>170</y>
+           <y>180</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -691,25 +696,12 @@
           <string>AF</string>
          </property>
         </widget>
-        <widget class="QLabel" name="zdivLabel_2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>290</y>
-           <width>71</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Recursions:</string>
-         </property>
-        </widget>
         <widget class="QSpinBox" name="ziterSpinBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>290</y>
-           <width>81</width>
+           <x>140</x>
+           <y>270</y>
+           <width>41</width>
            <height>22</height>
           </rect>
          </property>
@@ -718,6 +710,54 @@
          </property>
          <property name="value">
           <number>1</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="unwrapSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>70</y>
+           <width>44</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="unwrapCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>70</y>
+           <width>61</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Unwrap</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_3">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>61</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Phase h.:</string>
          </property>
         </widget>
        </widget>
@@ -1714,7 +1754,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1168</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2965,6 +3005,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>unwrapSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrap_history_size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>unwrapCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrapping(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3022,5 +3094,7 @@ p, li { white-space: pre-wrap; }
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
   <slot>layout_toggled(bool)</slot>
+  <slot>set_unwrap_history_size(int)</slot>
+  <slot>set_unwrapping(bool)</slot>
  </slots>
 </ui>

@@ -259,6 +259,7 @@
     <ClInclude Include="tools_conversion.cuh" />
     <ClInclude Include="tools_divide.cuh" />
     <ClInclude Include="tools_multiply.cuh" />
+    <ClInclude Include="tools_unwrap.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
     <CustomBuild Include="main_window.hh">
@@ -375,6 +376,7 @@
     <CudaCompile Include="tools_conversion.cu" />
     <CudaCompile Include="tools_divide.cu" />
     <CudaCompile Include="tools_multiply.cu" />
+    <CudaCompile Include="tools_unwrap.cu" />
     <CudaCompile Include="transforms.cu" />
     <CudaCompile Include="vibrometry.cu" />
   </ItemGroup>

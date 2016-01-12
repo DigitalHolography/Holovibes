@@ -3,6 +3,7 @@
 # include <fstream>
 # include <cufft.h>
 # include <chrono>
+# include <memory>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
@@ -80,13 +81,20 @@ namespace holovibes
     * nsamples frames. */
     void request_update_n(const unsigned short n);
 
+    /*! Set the size of the unwrapping history window. */
+    void request_update_unwrap_size(const unsigned size);
+
+    /*! The boolean will determine activation/deactivation of the unwrapping phase
+     * in the unwrap() function. */
+    void request_unwrapping(const bool value);
+
     /*! \brief Request the ICompute to fill the output vector.
     *
     * \param output std::vector to fill with (average_signal, average_noise,
     * average_ratio).
     * \note This method is only used by the GUI to draw the average graph. */
     void request_average(
-      ConcurrentDeque<std::tuple<float, float, float>>* output);
+      ConcurrentDeque<std::tuple<float, float, float, float>>* output);
 
     /*! \brief Request the ICompute to fill the output vector with n samples.
     *
@@ -96,7 +104,7 @@ namespace holovibes
     * \note This method is used to record n samples and then automatically
     * refresh the ICompute. */
     void request_average_record(
-      ConcurrentDeque<std::tuple<float, float, float>>* output,
+      ConcurrentDeque<std::tuple<float, float, float, float>>* output,
       const unsigned int n);
 
     /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
@@ -232,7 +240,7 @@ namespace holovibes
     float* gpu_sqrt_vector_;
 
     /*! All buffers needed for phase unwrapping are here. */
-    UnwrappingResources* unwrap_res_;
+    std::shared_ptr<UnwrappingResources> unwrap_res_;
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
@@ -248,6 +256,7 @@ namespace holovibes
     cufftHandle plan1d_;
     /*! \} */
     /*! \{ \name request flags */
+    bool unwrap_requested_;
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
     bool autocontrast_requested_;
@@ -273,7 +282,7 @@ namespace holovibes
     cufftComplex* q_gpu_stft_buffer_;
 
     /*! \{ \name average plot */
-    ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
+    ConcurrentDeque<std::tuple<float, float, float, float>>* average_output_;
     unsigned int average_n_;
     /*! \} */
     /*! \{ \name fps_count */

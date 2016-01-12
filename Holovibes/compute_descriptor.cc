@@ -10,6 +10,7 @@ namespace holovibes
     lambda = cd.lambda.load();
     zdistance = cd.zdistance.load();
     view_mode = cd.view_mode.load();
+    unwrap_history_size = cd.unwrap_history_size.load();
     log_scale_enabled = cd.log_scale_enabled.load();
     shift_corners_enabled = cd.shift_corners_enabled.load();
     contrast_enabled = cd.contrast_enabled.load();
