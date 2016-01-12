@@ -20,7 +20,7 @@ namespace gui
   {
     Q_OBJECT
 
-signals :
+  signals :
     void closed();
 
   public:
@@ -32,7 +32,7 @@ signals :
     ** \param title title of the window
     ** \param parent Qt parent
     */
-    PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
+    PlotWindow(holovibes::ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
       const QString title,
       QWidget* parent = nullptr);
 
@@ -67,6 +67,11 @@ signals :
 
     /*! \brief emit signal closed on window is closed */
     void closeEvent(QCloseEvent *event);
+
+    void change_curve(int curve_to_plot)
+    {
+      curve_plot_.change_curve(curve_to_plot);
+    }
   private:
     Ui::PlotWindow ui;
 

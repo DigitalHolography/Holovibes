@@ -65,6 +65,39 @@
      <string>Points nb:</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="CurveNameComboBox">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>10</y>
+      <width>151</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="currentText">
+     <string>10log10(Signal/Noise)</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>Signal</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Signal/Noise</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10log10(Signal/Noise)</string>
+     </property>
+    </item>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -72,7 +105,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>26</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
@@ -112,9 +145,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CurveNameComboBox</sender>
+   <signal>activated(int)</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>change_curve(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>335</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>auto_scale()</slot>
   <slot>change_points_nb(int)</slot>
+  <slot>change_curve(int)</slot>
  </slots>
 </ui>

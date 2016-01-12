@@ -69,7 +69,7 @@ static __global__ void kernel_zone_sum(
     *output = sdata[0];
 }
 
-std::tuple<float, float, float> make_average_plot(
+std::tuple<float, float, float, float> make_average_plot(
   float *input,
   const unsigned int width,
   const unsigned int height,
@@ -109,15 +109,15 @@ std::tuple<float, float, float> make_average_plot(
   cpu_s /= float(signal_width * signal_height);
   cpu_n /= float(noise_width * noise_height);
 
-  float moy = 10 * log10f(cpu_s / cpu_n);
+  float moy = cpu_s / cpu_n;
 
   cudaFree(gpu_n);
   cudaFree(gpu_s);
 
-  return std::tuple < float, float, float > { cpu_s, cpu_n, moy };
+  return std::tuple < float, float, float, float > { cpu_s, cpu_n, moy, 10 * log10f(moy)};
 }
 
-std::tuple<float, float, float> make_average_stft_plot(
+std::tuple<float, float, float, float> make_average_stft_plot(
   cufftComplex*          cbuf,
   float*                 fbuf,
   cufftComplex*          stft_buffer,
@@ -131,7 +131,7 @@ std::tuple<float, float, float> make_average_stft_plot(
   const unsigned int     nsamples,
   cudaStream_t stream)
 {
-  std::tuple<float, float, float> res;
+  std::tuple<float, float, float, float> res;
 
   const unsigned int size = width * height;
   unsigned int threads = 128;
