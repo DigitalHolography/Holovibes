@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Implementation of the Observable design pattern. */
 #pragma once
 
 # include <vector>
@@ -7,7 +10,7 @@
 
 namespace holovibes
 {
-  /*! \brief *Observer* design pattern.
+  /*! \brief Implementation of the Observable design pattern.
    *
    * Set a child class to be Observable and contains a list of Observer that
    * will be notified when the Observable class is modified. */

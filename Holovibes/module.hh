@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * Regroups one or several predefined tasks,  which shall work
+ * sequentially on a single data buffer. */
 #pragma once
 
 # include <thread>
@@ -7,25 +11,28 @@
 
 namespace holovibes
 {
-  /*! Regroups one or several predefined tasks,
-   * which shall work on a unique data buffer.
+  /*! Regroups one or several predefined tasks,  which shall work
+   * sequentially on a single data buffer.
    *
-   * A module uses a thread to work on these tasks.
+   * A Module uses its own thread to work on these tasks.
    * A Module needs to be handled by a upper level manager,
    * without which it will not synchronize with other Modules. */
   class Module
   {
   public:
     /*! Initialize a module with no tasks, and the address
-     to a boolean value managing its activity. */
+     * to a boolean value managing its activity.
+     *
+     * The newly created Module automatically creates a new CUDA stream
+     * to use for itself. */
     Module();
 
     //!< Join the thread before exiting.
     ~Module();
 
-    //!< Add an extra task after other to carry at each iteration.
+    //!< Add an extra task after others tasks, to carry at each iteration.
     void  push_back_worker(FnType worker);
-    //!< Add an extra task before other task to carry at each iteration.
+    //!< Add an extra task before others tasks, to carry at each iteration.
     void  push_front_worker(FnType worker);
 
     //!< The function used by the created thread.

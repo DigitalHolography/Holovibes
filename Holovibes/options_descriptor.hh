@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * The aim of this structure is to contain user
+ * parameters entered with the CLI or GUI. */
 #pragma once
 
 # include <string>
@@ -12,20 +16,19 @@ namespace holovibes
   **/
   struct OptionsDescriptor
   {
-  public:
     /*! \brief The constructor sets default values. */
     OptionsDescriptor()
-      : recorder_n_img(0)
-      , recorder_filepath("")
-      , gl_window_width(0)
-      , gl_window_height(0)
-      , camera()
-      , is_gui_enabled(true)
-      , is_gl_window_enabled(false)
-      , is_recorder_enabled(false)
-      , is_compute_enabled(false)
-      , is_float_output_enabled(false)
-      , compute_desc()
+    : recorder_n_img(0)
+    , recorder_filepath("")
+    , gl_window_width(0)
+    , gl_window_height(0)
+    , camera()
+    , is_gui_enabled(true)
+    , is_gl_window_enabled(false)
+    , is_recorder_enabled(false)
+    , is_compute_enabled(false)
+    , is_float_output_enabled(false)
+    , compute_desc()
     {
     }
 
