@@ -50,7 +50,7 @@ namespace gpib
     }
 
     // Batch input file parsing
-    if (path.compare("==") == 0)
+    if (path.compare("") == 0)
       throw GpibNoFilepath();
 
     std::ifstream in;
