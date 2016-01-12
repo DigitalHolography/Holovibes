@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file
+ *
+ * Functions that run the fft2 and the computation of the fft2 lens.
+ */
 #pragma once
 
 #include <cuda_runtime.h>

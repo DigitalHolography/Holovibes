@@ -1,4 +1,6 @@
-/*! \file */
+/*! \file 
+ *
+ * Function related to the autofocus computation. */
 #pragma once
 
 /*! \brief This function calculates the focus_metric value of a

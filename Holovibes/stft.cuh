@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file 
+ *
+ * Functions that will be used to compute the stft.
+ */
 #pragma once
 
 # include <cuda_runtime.h>

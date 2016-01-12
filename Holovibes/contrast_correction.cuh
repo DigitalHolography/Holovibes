@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file
+ * 
+ * Functions that will adjust the constrast automatically
+ */
 #pragma once
 
 # include <cuda_runtime.h>

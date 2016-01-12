@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file
+ *
+ * Functions that will compute the calculation of the average.
+ */
 #pragma once
 
 # include <tuple>
@@ -11,13 +14,13 @@ namespace holovibes
   class Rectangle;
 }
 
-/*! \brief  Make the average plot on the 2 select zones
+/*! \brief  Make the average plot on the 2 selected zones
 *
 * \param width The width of the input image.
 * \param height The height of the input image.
 * \param signal Coordinates of the signal zone to use.
 * \param noise Coordinates of the noise zone to use.
-* \rerun A tupple of 3 floats <sum of signal zones pixels, sum of noise zone pixels, average>.
+* \return A tupple of 3 floats <sum of signal zones pixels, sum of noise zone pixels, average>.
 *
 */
 std::tuple<float, float, float, float> make_average_plot(
