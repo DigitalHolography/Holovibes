@@ -1053,14 +1053,6 @@ namespace gui
 
       const std::string formatted_path = format_batch_output(path, file_index_);
 
-      /*! All checks are performed by the GPIB module, except for this one,
-       * because only Holovibes should known the filename format. */
-      if (stat(formatted_path.c_str(), &buff) == 0)
-      {
-        display_error("File: " + path + " already exists.");
-        return;
-      }
-
       global_visibility(false);
       camera_visible(false);
 
