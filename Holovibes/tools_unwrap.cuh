@@ -1,12 +1,17 @@
+/*! \file
+ *
+ * Kernels used by the unwrap* functions. */
 #pragma once
 
 # include <cuda_runtime.h>
 # include <cufft.h>
 
-/*! Take complex data in cartesian form, and use conversion to polar
-* form to take the angle value of each element and store it
-* in a floating-point matrix.
-* The resulting angles' values are bound in [-pi; pi]. */
+/*! \brief Convert complex values to floating-point angles in [-pi; pi].
+ *
+ * Take complex data in cartesian form, and use conversion to polar
+ * form to take the angle value of each element and store it
+ * in a floating-point matrix. The resulting angles' values are bound
+ * in [-pi; pi]. */
 __global__ void kernel_extract_angle(
   const cufftComplex* input,
   float* output,
@@ -27,8 +32,8 @@ __global__ void kernel_unwrap(
 /*! Use the multiply-with-conjugate method to fill a float (angles) matrix.
  *
  * Computes cur .* conjugate(pred),
- * where .* is the element-wise multiplication operation. The angles of the
- * resulting complex matrix are stored in output.
+ * where .* is the element-wise complex-valued multiplication operation.
+ * The angles of the resulting complex matrix are stored in output.
  * \param pred Predecessor complex image.
  * \param cur Latest complex image.
  * \param output The matrix which shall store ther resulting angles.
