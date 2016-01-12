@@ -41,8 +41,7 @@ namespace gpib
     virtual bool execute_next_block();
 
   private:
-    /*! Setting up the VISA driver to enable future connections.
-     * Automatically called by the constructor. */
+    /*! Setting up the VISA driver to enable future connections. */
     void initialize_line();
 
     /*! Closing the connection to the VISA driver.
