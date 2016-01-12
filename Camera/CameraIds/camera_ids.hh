@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera IDS */
 #pragma once
 
 # include <camera.hh>

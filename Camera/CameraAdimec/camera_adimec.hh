@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera Adimec Quartz-A2750 */
 #pragma once
 
 #include <BFType.h>
@@ -78,11 +81,11 @@ namespace camera
 
     BFU8 quad_bank_; //!< QTabBank used by the camera.
 
-	BFU32 queue_size_; //!< Queue size of bitflow frame grabber
+    BFU32 queue_size_; //!< Queue size of bitflow frame grabber
 
-    BFU32 exposure_time_;
+    BFU32 exposure_time_; //!< Exposure time of the camera
 
-    BFU32 frame_period_;
+    BFU32 frame_period_; //!< Frame period of the camera
 
     BFU32 roi_x_; //!< ROI top-left corner X-coordinate.
     BFU32 roi_y_; //!< ROI top-left corner Y-coordinate.

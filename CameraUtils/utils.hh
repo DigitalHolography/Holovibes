@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Functionnalities to log what happens inside the camera. */
 #pragma once
 
 #ifdef UTILS_EXPORTS

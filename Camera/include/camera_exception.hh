@@ -1,3 +1,7 @@
+/*! \file camera_exception.hh
+ *
+ * Various set of exceptions related to the camera's operation.
+ */
 #pragma once
 
 # include <exception>
@@ -22,6 +26,7 @@ namespace camera
       CANT_SET_CONFIG, //!< Some given configuration option is invalid.
     };
 
+    /* \brief Copy constructor. */
     CameraException(const camera_error code)
       : code_(code)
     {
@@ -32,10 +37,12 @@ namespace camera
     */
     CameraException& operator=(const CameraException&) = delete;
 
+    /* Destruct the exception. */
     virtual ~CameraException()
     {
     }
 
+    /* \brief Return a string corresponding to the enum value. */
     virtual const char* what() const override
     {
       switch (code_)
@@ -63,6 +70,7 @@ namespace camera
     }
 
   private:
+    /* \brief Return code of the camera (enum). */
     const camera_error code_;
   };
 }

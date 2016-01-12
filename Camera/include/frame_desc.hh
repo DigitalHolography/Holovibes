@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Image format stored as a structure. */
 #pragma once
 
 namespace camera

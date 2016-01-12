@@ -1,3 +1,6 @@
+/*! \file 
+ *
+ * Interface for all cameras.*/
 #pragma once
 
 #ifdef CAMERA_EXPORTS
@@ -49,6 +52,7 @@ namespace camera
     /*! \brief A camera object is non copyable. */
     ICamera(const ICamera&) = delete;
 
+    /*! \brief Destruct the ICamera object. */
     virtual ~ICamera()
     {
     }

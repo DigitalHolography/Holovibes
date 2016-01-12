@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera Pike */
 #pragma once
 
 # include <iostream>

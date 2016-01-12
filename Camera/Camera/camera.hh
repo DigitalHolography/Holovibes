@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Common functionalities to all cameras.*/
 #pragma once
 
 # include <icamera.hh>

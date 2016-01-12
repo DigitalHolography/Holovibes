@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera XIQ's. */
 #pragma once
 
 # include <Windows.h>
