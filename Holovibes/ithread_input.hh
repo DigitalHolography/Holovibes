@@ -1,10 +1,13 @@
+/*! \file
+ *
+ * Interface for a thread encapsulation class that
+ * grabs images from a source. */
 #pragma once
 
 namespace holovibes
 {
-  /*! \brief Interface between ThreadCapture and ThreadReader
-   *
-   * Both adds frame to queue
+  /*! \brief Interface for a thread encapsulation class that
+   * grabs images from a source.
    */
   class IThreadInput
   {
