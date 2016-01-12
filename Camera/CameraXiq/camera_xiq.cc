@@ -11,7 +11,7 @@ namespace camera
     : Camera("xiq.ini")
     , device_(nullptr)
   {
-    name_ = "xiq";
+    name_ = "XIQ MQ042MG-CM";
 
     load_default_params();
     if (ini_file_is_open())
