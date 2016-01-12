@@ -1098,7 +1098,7 @@ namespace gui
           connect(record_thread_.get(),
             SIGNAL(finished()),
             this,
-            SLOT(batch_finished_record()),
+            SLOT(batch_finished_record(true)),
             Qt::UniqueConnection);
           record_thread_->start();
         }
@@ -1112,7 +1112,7 @@ namespace gui
           connect(CSV_record_thread_.get(),
             SIGNAL(finished()),
             this,
-            SLOT(batch_finished_record()),
+            SLOT(batch_finished_record(true)),
             Qt::UniqueConnection);
           CSV_record_thread_->start();
         }
@@ -1123,8 +1123,8 @@ namespace gui
     }
     catch (const std::exception& e)
     {
-      std::cout << "[GPIB] " << e.what() << "\n";
-      batch_finished_record();
+      display_error(e.what());
+      batch_finished_record(false);
     }
   }
 
@@ -1132,7 +1132,7 @@ namespace gui
   {
     if (is_batch_interrupted_)
     {
-      batch_finished_record();
+      batch_finished_record(false);
       return;
     }
 
@@ -1162,16 +1162,22 @@ namespace gui
       try
       {
         if (gpib_interface_->execute_next_block())
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+          connect(record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_next_record()), Qt::UniqueConnection);
         else
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+          connect(record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_finished_record()), Qt::UniqueConnection);
 
         record_thread_->start();
       }
       catch (const gpib::GpibInstrError& e)
       {
-        std::cerr << "[GPIB] " << e.what() << "\n";
-        batch_finished_record();
+        display_error(e.what());
+        batch_finished_record(false);
       }
     }
     else
@@ -1185,16 +1191,22 @@ namespace gui
       try
       {
         if (gpib_interface_->execute_next_block())
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+          connect(CSV_record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_next_record()), Qt::UniqueConnection);
         else
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
+          connect(CSV_record_thread_.get(),
+          SIGNAL(finished()),
+          this,
+          SLOT(batch_finished_record(true)), Qt::UniqueConnection);
 
         CSV_record_thread_->start();
       }
       catch (const gpib::GpibInstrError& e)
       {
-        std::cerr << "[GPIB] " << e.what() << "\n";
-        batch_finished_record();
+        display_error(e.what());
+        batch_finished_record(false);
       }
     }
 
@@ -1202,7 +1214,7 @@ namespace gui
     ++file_index_;
   }
 
-  void MainWindow::batch_finished_record()
+  void MainWindow::batch_finished_record(const bool no_error)
   {
     disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
@@ -1213,7 +1225,8 @@ namespace gui
     if (!is_direct_mode_)
       global_visibility(true);
     camera_visible(true);
-    display_info("Batch record done");
+    if (no_error)
+      display_info("Batch record done");
 
     if (plot_window_)
     {

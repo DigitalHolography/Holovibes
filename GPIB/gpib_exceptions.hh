@@ -14,7 +14,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      return "failed to allocate memory for VISA interface";
+      return "Failed to allocate memory for VISA interface";
     }
   };
 
@@ -32,7 +32,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      std::string msg("could not open file : ");
+      std::string msg("Could not open file : ");
       msg.append(path_);
       return msg.c_str();
     }
@@ -50,7 +50,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      return "no filepath provided";
+      return "No filepath provided";
     }
   };
 
@@ -76,7 +76,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      std::string msg("bad format at line ");
+      std::string msg("Bad format at line ");
       msg.append(line_);
 
       if (type_ == NoBlock)
@@ -103,7 +103,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      return "could not setup VISA driver";
+      return "Could not setup VISA driver";
     }
   };
 
@@ -121,7 +121,7 @@ namespace gpib
 
     virtual const char* what() const override
     {
-      std::string msg("could not setup connexion at address ");
+      std::string msg("Could not setup connexion at address ");
       msg.append(address_);
       return msg.c_str();
     }
