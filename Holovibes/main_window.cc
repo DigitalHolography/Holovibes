@@ -1210,7 +1210,8 @@ namespace gui
     gpib_interface_.reset();
 
     file_index_ = 1;
-    global_visibility(true);
+    if (!is_direct_mode_)
+      global_visibility(true);
     camera_visible(true);
     display_info("Batch record done");
 
