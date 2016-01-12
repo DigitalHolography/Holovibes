@@ -1,7 +1,6 @@
-/* \file concurrent_deque.hh
+/*! \file 
  *
- * A thread safe wrapper on std::deque.
- */
+ * A thread safe wrapper on std::deque. */
 #pragma once
 
 # include <deque>

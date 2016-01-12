@@ -1,7 +1,6 @@
-/* \file config.hh
+/*! \file 
  *
- * Store some information that need to be accessed globally.
- */
+ * Store some information that need to be accessed globally. */
 #pragma once
 
 namespace holovibes

@@ -1,7 +1,6 @@
-/*! \file gpib_dll.hh
+/*! \file 
  *
- * Encapsulate a GPIB DLL ressource.
- */
+ * Encapsulate a GPIB DLL ressource  */
 #pragma once
 
 # include <Windows.h>

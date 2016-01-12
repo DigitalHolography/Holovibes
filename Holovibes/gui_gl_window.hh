@@ -1,7 +1,6 @@
-/*! \file gui_gl_window.hh
+/*! \file 
  *
- * QMainWindow overload used to display the real time OpenGL frame.
- */
+ * QMainWindow overload used to display the real time OpenGL frame  */
 #pragma once
 
 # include <QMainWindow>

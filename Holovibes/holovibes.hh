@@ -1,7 +1,6 @@
-/*! \file holovibes.hh
+/*! \file 
  *
- * Core class to use HoloVibes
- */
+ * Core class to use HoloVibe  */
 #pragma once
 
 # include <memory>

@@ -1,7 +1,6 @@
-/*! \file gui_plot_window.hh
+/*! \file 
  * 
- * Qt main window class containing a plot of computed average values.
- */
+ * Qt main window class containing a plot of computed average values  */
 #pragma once
 
 # include <QMainWindow>

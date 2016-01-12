@@ -1,7 +1,6 @@
-/*! \file geometry.hh
+/*! \file 
  *
- * Store the 'Point' and the 'Rectangle' structures.
- */
+ * Store the 'Point' and the 'Rectangle' structures. */
 #pragma once
 
 namespace holovibes

@@ -1,7 +1,6 @@
-/*! \file icompute.hh
+/*! \file 
  * 
- * Stores functions helping the editing of the images.
- */
+ * Stores functions helping the editing of the images. */
 #pragma once
 
 # include <fstream>
