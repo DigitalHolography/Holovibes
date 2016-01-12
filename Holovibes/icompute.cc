@@ -301,7 +301,7 @@ namespace holovibes
   }
 
   void ICompute::request_average(
-    ConcurrentDeque<std::tuple<float, float, float>>* output)
+    ConcurrentDeque<std::tuple<float, float, float, float>>* output)
   {
     assert(output != nullptr);
 
@@ -314,7 +314,7 @@ namespace holovibes
   }
 
   void ICompute::request_average_record(
-    ConcurrentDeque<std::tuple<float, float, float>>* output,
+    ConcurrentDeque<std::tuple<float, float, float, float>>* output,
     const unsigned int n)
   {
     assert(output != nullptr);

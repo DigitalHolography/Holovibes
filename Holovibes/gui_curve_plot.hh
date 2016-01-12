@@ -33,7 +33,7 @@ namespace gui
     ** \param height height of the plot in pixels
     ** \param parent Qt parent
     */
-    CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect,
+    CurvePlot(holovibes::ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
       const QString title,
       const unsigned int width,
       const unsigned int height,
@@ -41,6 +41,15 @@ namespace gui
 
     /*! \brief CurvePlot destructor */
     ~CurvePlot();
+
+    /*! \brief Link curve name with tuple case */
+    enum CurveName
+    {
+      CURVE_SIGNAL = 0,
+      CURVE_NOISE = 1,
+      CURVE_LOG = 2,
+      CURVE_LOG10 = 3
+    };
 
     /*! \brief This property holds the recommended minimum size for the widget. */
     QSize minimumSizeHint() const override;
@@ -90,9 +99,12 @@ namespace gui
     /*! \brief Updates the plot */
     void update();
 
+    /*! \brief Updates the curve ploted */
+    void change_curve(int curve_to_plot);
+
   private:
     /*! Reference to Deque containing average/ROI data */
-    holovibes::ConcurrentDeque<std::tuple<float, float, float>>& data_vect_;
+    holovibes::ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect_;
     /*! QwtPlot */
     QwtPlot plot_;
     /*! Plot's curve */
@@ -101,7 +113,9 @@ namespace gui
     unsigned int points_nb_;
     /*! QTimer used to draw every TIMER_FREQ milliseconds */
     QTimer timer_;
+    /*! Ptr to function who get value in tuple */
+    float(*curve_get_)(const std::tuple<float, float, float, float>&);
     /*! Local copy of data_vect data */
-    std::vector<std::tuple<float, float, float>> average_vector_;
+    std::vector<std::tuple<float, float, float, float>> average_vector_;
   };
 }

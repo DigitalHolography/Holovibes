@@ -155,7 +155,7 @@ namespace holovibes
       return camera_->get_ini_path();
     }
 
-    ConcurrentDeque<std::tuple<float, float, float>>& get_average_queue()
+    ConcurrentDeque<std::tuple<float, float, float, float>>& get_average_queue()
     {
       return average_queue_;
     }
@@ -196,7 +196,7 @@ namespace holovibes
      * Average are computes in ThreadCompute and use in CurvePlot
      * \note see void MainWindow::set_average_graphic() for example
      */
-    ConcurrentDeque<std::tuple<float, float, float>> average_queue_;
+    ConcurrentDeque<std::tuple<float, float, float, float>> average_queue_;
 
     /* \brief Store the path of holovibes when it is launched.
        so that holovibes.ini is saved at the right place. The problem

@@ -94,7 +94,7 @@ namespace holovibes
     * average_ratio).
     * \note This method is only used by the GUI to draw the average graph. */
     void request_average(
-      ConcurrentDeque<std::tuple<float, float, float>>* output);
+      ConcurrentDeque<std::tuple<float, float, float, float>>* output);
 
     /*! \brief Request the ICompute to fill the output vector with n samples.
     *
@@ -104,7 +104,7 @@ namespace holovibes
     * \note This method is used to record n samples and then automatically
     * refresh the ICompute. */
     void request_average_record(
-      ConcurrentDeque<std::tuple<float, float, float>>* output,
+      ConcurrentDeque<std::tuple<float, float, float, float>>* output,
       const unsigned int n);
 
     /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
@@ -282,7 +282,7 @@ namespace holovibes
     cufftComplex* q_gpu_stft_buffer_;
 
     /*! \{ \name average plot */
-    ConcurrentDeque<std::tuple<float, float, float>>* average_output_;
+    ConcurrentDeque<std::tuple<float, float, float, float>>* average_output_;
     unsigned int average_n_;
     /*! \} */
     /*! \{ \name fps_count */
