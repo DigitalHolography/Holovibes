@@ -102,6 +102,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Average plot real-time display
 * Importing .raw images instead of taking the input from the camera
 * Various runtime informations on the program's state
+* Easy to use installer for the software
 
 ## Authors ##
 
