@@ -74,32 +74,34 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * Command line options (for batch processing only)
 * Works with 7 cameras:
-    * Edge
-    * iXon
-    * IDS
-    * Pike
-    * Pixelfly
-    * XiQ
-    * Adimec
+    * PCO Edge 4.2 LT
+    * Andor iXon +885
+    * IDS imaging CMOSIS CMV 4000 
+    * AVT Pike Kodak KAI 4022 F-421 
+    * PCO Pixelfly
+    * Ximea CMOSIS CMV 4000
+    * Adimec Quartz-A2750 (with Bitflow Cyton-CXP4 framegrabber)
 * Cameras configuration using INI files
 * OpenGL realtime display
   * Zone selection (zoom, signal/noise averaging)
 * Record frames
-* Hologram computation using the FFT1/FFT2 algorithms.
+* Hologram computation using the FFT1/FFT2/STFT algorithms
 * Logarithm filter
 * Manual contrast (logarithmic scale values)
 * Auto-contrast
-* Three view modes : *magnitude*, *squared magnitude* and *argument*.
+* Various view modes : *magnitude*, *squared magnitude*, *argument*, *unwrapped phase*
 * Graphical user interface
   * Change parameters on the fly
   * Shortcuts for convenience
-* Vibrometry analysis.
-* Settings auto saving.
+* Vibrometry analysis
+* Choice between two modes of computation : sequential and parallel
+* Settings are automatically saved upon closure of the program
 * Batch savings (CSV)
+* Batch output as raw images, controlling instruments with GPIB interface
 * Autofocus
 * Average plot real-time display
-* Importing .raw images instead of taking the input from the camera.
-* Computing stft
+* Importing .raw images instead of taking the input from the camera
+* Various runtime informations on the program's state
 
 ## Authors ##
 
