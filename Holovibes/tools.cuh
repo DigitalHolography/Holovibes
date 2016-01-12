@@ -1,4 +1,6 @@
-/*! \file */
+/*! \file
+ *
+ * Various functions used most notably in the View panel. */
 #pragma once
 
 # include <cuda_runtime.h>
@@ -10,23 +12,27 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-/* Forward declaration. */
+/* Forward declarations. */
 namespace holovibes
 {
   class Rectangle;
 }
-
-/* Forward declarations. */
 namespace holovibes
 {
   struct UnwrappingResources;
 }
 
 /*! \brief  Apply a previously computed lens to image(s).
-*
-* The image(s) to treat, seen as input, should be contigous, the input_size is the total number of pixels to
-* treat with the function.
-*/
+ *
+ * The input data is multiplied element-wise with each corresponding
+ * lens coefficient.
+ *
+ * \param input The input data to process in-place.
+ * \param input_size Total number of elements to process. Should be a multiple
+ * of lens_size.
+ * \param lens The precomputed lens to apply.
+ * \param lens_size The number of elements in the lens matrix.
+ */
 __global__ void kernel_apply_lens(
   cufftComplex *input,
   const unsigned int input_size,
@@ -56,10 +62,10 @@ __global__ void kernel_bursting_roi(
   cufftComplex *output);
 
 /*! \brief Reconstruct bursted pixel from input
-* into output
-* \param p which image we are on
-* \param nsample total number of images
-*/
+ * into output
+ * \param p which image we are on
+ * \param nsample total number of images
+ */
 __global__ void kernel_reconstruct_roi(
   const cufftComplex* input,
   cufftComplex*       output,
@@ -71,37 +77,43 @@ __global__ void kernel_reconstruct_roi(
   const unsigned int  p,
   const unsigned int  nsample);
 
-/*! \brief  Permits to shift the corners of an image.
-*
-* This function shift zero-frequency component to center of spectrum
-* as explained in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
-*/
+/*! \brief Shifts in-place the corners of an image.
+ *
+ * This function shifts zero-frequency components to the center
+ * of the spectrum (and vice-versa), as explained in the matlab documentation
+ * (http://fr.mathworks.com/help/matlab/ref/fftshift.html).
+ *
+ * \param input The image to modify in-place.
+ * \param size_x The width of data, in pixels.
+ * \param size_y The height of data, in pixels.
+ * \param stream The CUDA stream on which to launch the operation.
+ */
 void shift_corners(
   float *input,
   const unsigned int size_x,
   const unsigned int size_y,
   cudaStream_t stream = 0);
 
-/*! \brief  compute the log of all the pixels of input image(s).
+/*! \brief Compute the log base-10 of every element of the input.
 *
-* The image(s) to treat should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The value of pixels is replaced by their log10 value
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
+* \param input The image to modify in-place.
+* \param size The number of elements to process.
+* \param stream The CUDA stream on which to launch the operation.
 */
 void apply_log10(
   float* input,
   const unsigned int size,
   cudaStream_t stream = 0);
 
-/*! \brief  apply the convolution operator to 2 complex images (x,k).
+/*! \brief Apply the convolution operator to 2 complex matrices.
 *
-* \param x first matrix
-* \param k second matrix
-* \param out output result
-* \param plan2d_x externally prepared plan for x
-* \param plan2d_k externally prepared plan for k
+* \param First input matrix
+* \param Second input matrix
+* \param out Output matrix storing the result of the operation
+* \param The number of elements in each matrix
+* \param plan2d_x Externally prepared plan for x
+* \param plan2d_k Externally prepared plan for k
+* \param stream The CUDA stream on which to launch the operation.
 */
 void convolution_operator(
   const cufftComplex* x,
@@ -112,9 +124,14 @@ void convolution_operator(
   const cufftHandle plan2d_k,
   cudaStream_t stream = 0);
 
-/*! \brief  Extract a part of the input image to the output.
+/*! \brief Extract a part of the input image to the output.
 *
+* \param input The full input image
 * \param zone the part of the image we want to extract
+* \param In pixels, the original width of the image
+* \param Where to store the cropped image
+* \param output_width In pixels, the desired width of the cropped image
+* \param stream The CUDA stream on which to launch the operation.
 */
 void frame_memcpy(
   float* input,
@@ -124,24 +141,35 @@ void frame_memcpy(
   const unsigned int output_width,
   cudaStream_t stream = 0);
 
-/*! \brief  Make the average of all pixels contained into the input image
-*/
+/*! \brief Make the average of every element contained in the input.
+ *
+ * \param input The input data to average.
+ * \param size The number of elements to process.
+ * \param stream The CUDA stream on which to launch the operation.
+ *
+ * \return The average value of the *size* first elements.
+ */
 float average_operator(
   const float* input,
   const unsigned int size,
   cudaStream_t stream = 0);
 
-/*! \brief Perform a device-to-device memory copy from src to dst.
-** \param nb_elts is the number of elements of type T to be copied.
-** There is no need to take into account sizeof(T) in nb_elts.
-*/
-void copy_buffer(
-  cufftComplex* src,
-  cufftComplex* dst,
-  const size_t nb_elts,
-  cudaStream_t stream = 0);
+/*! Let H be the latest complex image, and H-t the one preceding it.
+ * This version computes : arg(H) - arg(H-t)
+ * and unwraps the result.
+ *
+ * Phase unwrapping adjusts phase angles encoded in complex data,
+ * by a cutoff value (which is here fixed to pi). Unwrapping seeks
+ * two-by-two differences that exceed this cutoff value and performs
+ * cumulative adjustments in order to 'smooth' the signal.
+ */
+void unwrap(
+  const cufftComplex* cur,
+  holovibes::UnwrappingResources* resources,
+  const size_t image_size,
+  const bool with_unwrap);
 
-/*! Let H be the lastest complex image, H-t the conjugate matrix of
+/*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.
 * This version computes : arg(H .* H-t)
@@ -158,7 +186,7 @@ void unwrap_mult(
   const size_t image_size,
   const bool with_unwrap);
 
-/*! Let H be the lastest complex image, and H-t the conjugate matrix of
+/*! Let H be the latest complex image, and H-t the conjugate matrix of
 * the one preceding it.
 * This version computes : arg(H - H-t)
 * and unwraps the result.
