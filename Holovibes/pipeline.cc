@@ -79,10 +79,10 @@ namespace holovibes
         // Now that everyone is finished, rotate datasets as seen by the Modules.
         step_forward();
 
-        input_.dequeue();
         output_.enqueue(
           gpu_short_buffer_,
           cudaMemcpyDeviceToDevice);
+        input_.dequeue();
 
         if (refresh_requested_
           && (step_count_before_refresh_ == 0 || --step_count_before_refresh_ == 0))
@@ -91,16 +91,6 @@ namespace holovibes
         }
       }
     }
-  }
-
-  template <class T>
-  Module* Pipeline::create_module(std::list<T*>& gpu_buffers, size_t buf_size)
-  {
-    T             *buffer = nullptr;
-
-    cudaMalloc(&buffer, sizeof(T)* buf_size); gpu_buffers.push_back(buffer);
-
-    return ();
   }
 
   void Pipeline::update_n_parameter(unsigned short n)
@@ -115,17 +105,25 @@ namespace holovibes
     cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
     gpu_complex_buffers_.push_back(gpu_complex_buffer);
 
-    if (gpu_pindex_buffers_.size())
+    /* Remember that we don't need to deallocate these buffers : they're simply
+     * offsets on gpu_complex_buffers_ data. */
+    if (!gpu_pindex_buffers_.empty())
       gpu_pindex_buffers_.clear();
     std::for_each(gpu_complex_buffers_.begin(),
       gpu_complex_buffers_.end(),
-      [&](cufftComplex* buf) { gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_.get_frame_desc().frame_res()); });
+      [&](cufftComplex* buf)
+    {
+      gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_.get_frame_desc().frame_res());
+    });
 
-    if (gpu_vibro_buffers_.size())
+    if (!gpu_vibro_buffers_.empty())
       gpu_vibro_buffers_.clear();
     std::for_each(gpu_complex_buffers_.begin(),
       gpu_complex_buffers_.end(),
-      [&](cufftComplex* buf) { gpu_vibro_buffers_.push_back(buf + compute_desc_.vibrometry_q * input_.get_frame_desc().frame_res()); });
+      [&](cufftComplex* buf)
+    {
+      gpu_vibro_buffers_.push_back(buf + compute_desc_.vibrometry_q * input_.get_frame_desc().frame_res());
+    });
   }
 
   void Pipeline::refresh()
@@ -224,7 +222,7 @@ namespace holovibes
     }
     else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
     {
-      // Initialize FFT1 lens.
+      // Initialize FFT2 lens.
       if (!autofocus_requested_)
       {
         fft2_lens(
@@ -420,6 +418,7 @@ namespace holovibes
         modules_[0]->stream_
         ));
     }
+    /* Note that no forms of Unwrap are supported in the Pipeline for now. */
     else
     {
       // Falling back on modulus mode.
