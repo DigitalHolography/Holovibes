@@ -1,4 +1,6 @@
-/*! \file */
+/*! \file
+ *
+ * Matrix multiplication functions on different types. */
 #pragma once
 
 # include <cuda_runtime.h>
