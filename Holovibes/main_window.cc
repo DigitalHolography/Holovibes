@@ -267,13 +267,16 @@ namespace gui
       "Michael Atlan\n"
       "\n"
       "Developers:\n"
+      "Eric Delanghe\n"
+      "Arnaud Gaillard\n"
+      "Geoffrey Le Gourriérec\n"
+      "\n"
       "Jeffrey Bencteux\n"
       "Thomas Kostas\n"
       "Pierre Pagnoux\n"
       "\n"
-      "Eric Delanghe\n"
-      "Arnaud Gaillard\n"
-      "Geoffrey Le Gourriérec\n");
+      "Antoine Dillée\n"
+      "Romain Cancillière\n");
   }
 
   void MainWindow::configure_camera()
@@ -622,7 +625,6 @@ namespace gui
 
     desc.stft_roi_zone = zone;
     holovibes_.get_pipe()->request_stft_roi_update();
-    //  gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
   void MainWindow::request_autofocus_stop()
@@ -778,7 +780,6 @@ namespace gui
       gl_widget->set_selection_mode(gui::eselection::ZOOM);
     is_enabled_average_ = value;
 
-    // TODO
     average_visible(value);
   }
 
@@ -1045,8 +1046,6 @@ namespace gui
     const std::string input_path = batch_input_line_edit->text().toUtf8();
     const unsigned int frame_nb = frame_nb_spin_box->value();
 
-    //const int status = load_batch_file(input_path.c_str());
-
     try
     {
       // Only loading the dll at runtime
@@ -1127,6 +1126,7 @@ namespace gui
         }
       }
 
+      // Update the index to concatenate to the name of the next created file.
       ++file_index_;
     }
     catch (const std::exception& e)
@@ -1206,6 +1206,7 @@ namespace gui
       }
     }
 
+    // Update the index to concatenate to the name of the next created file.
     ++file_index_;
   }
 
@@ -1285,7 +1286,8 @@ namespace gui
       height_spinbox->value(),
       // 0:depth = 8, 1:depth = 16
       depth_spinbox->currentIndex() + 1,
-      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
+      5.42f, // There's no way to find this...
+      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN)
     });
 
     camera_visible(false);
@@ -1327,7 +1329,8 @@ namespace gui
 
   void MainWindow::closeEvent(QCloseEvent* event)
   {
-    (void)event;
+    // Avoiding "unused variable" warning.
+    static_cast<void>(event);
     save_ini("holovibes.ini");
 
     if (gl_window_)
