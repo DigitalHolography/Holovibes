@@ -15,7 +15,7 @@ namespace gui
     QWidget* parent)
     : QWidget(parent)
     , data_vect_(data_vect)
-    , plot_(title, this)
+    , plot_(QString::fromLocal8Bit(""), this)
     , curve_("First curve")
     , points_nb_(POINTS)
     , timer_(this)
