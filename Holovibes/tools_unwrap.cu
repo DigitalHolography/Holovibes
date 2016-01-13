@@ -41,7 +41,7 @@ __global__ void kernel_unwrap(
   else
     local_adjust = 0.f;
 
-  // Cumulating the phase correction with precedent ones //
+  // Cumulating each angle with its correction
   output[index] = cur[index] + local_adjust;
 }
 

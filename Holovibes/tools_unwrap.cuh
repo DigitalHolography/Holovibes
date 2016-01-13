@@ -12,7 +12,7 @@ __global__ void kernel_extract_angle(
   float* output,
   const size_t size);
 
-/*! Perform in-place element-wise phase adjustment on a pixel matrix.
+/*! Perform element-wise phase adjustment on a pixel matrix.
  *
  * \param pred Predecessor phase image.
  * \param cur Latest phase image.

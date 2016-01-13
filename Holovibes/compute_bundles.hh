@@ -18,12 +18,20 @@ namespace holovibes
     /*! If buffers were allocated, deallocate them. */
     ~UnwrappingResources();
 
-    /*! Allocates all buffers based on the new image size. Forces reallocation.
-    *
-    * \param image_size The number of pixels in an image. */
+    /*! Allocates all buffers based on the new image size.
+     *
+     * Reallocation is carried out only if the total amount of images
+     * that can be stored in gpu_unwrap_buffer_ is inferior to
+     * the capacity requested (in capacity_).
+     *
+     * \param image_size The number of pixels in an image. */
     void reallocate(const size_t image_size);
 
-    /*! Simple setter for capacity_. Does not cause reallocation. */
+    /*! Update history size without causing reallocation.
+     *
+     * If you wish to rearrange memory, you should call reallocate().
+     * This function simply changes the capacity and resets the size
+     * of the buffer to zero, effectively losing track of previous data. */
     void reset(const size_t capacity);
 
     /*! The real number of matrices reserved in memory.
@@ -32,10 +40,12 @@ namespace holovibes
     size_t total_memory_;
     size_t capacity_; //!< Maximum number of matrices kept in history.
     size_t size_; //!< Current number of matrices kept in history.
+
     unsigned next_index_; //!< Index of the next matrix to be overriden (the oldest).
-    /*! Buffer used to cumulate phase adjustments, before they can be
-    * applied back in phase unwrapping. Phase being an angle, it is one
-    * part of a complex information, and can be stored in a float. */
+    /*! Buffer used to cumulate phase images. Phase being an angle, it is one
+    * part of a complex information, and can be stored in a float.
+    * Phase images stored here are summed up together at each iteration and
+    * added to the latest phase image. */
     float* gpu_unwrap_buffer_;
 
     /*! Copy of the previous complex (untouched) image. */
