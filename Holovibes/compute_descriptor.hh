@@ -1,3 +1,6 @@
+/*! \file 
+ *
+ * Contains compute parameters. */
 #pragma once
 
 # include <atomic>

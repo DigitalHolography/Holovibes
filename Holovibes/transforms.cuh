@@ -1,4 +1,6 @@
-/*! \file */
+/*! \file
+ *
+ * Various matrix transformations. */
 #pragma once
 
 # include <device_launch_parameters.h>
@@ -35,30 +37,3 @@ __global__ void kernel_spectral_lens(
   const camera::FrameDescriptor& fd,
   const float lambda,
   const float distance);
-
-/*! Perform a matrix transpose on a rectangular or square matrix,
- * and store the result in an output matrix.
- * \param width Number of columns of the input matrix.
- * \param height Number of rows of the input matrix. */
-template <typename Type>
-__global__ void kernel_transpose(
-  Type* input,
-  Type* output,
-  const unsigned width,
-  const unsigned height)
-{
-  const unsigned index = blockDim.x * blockIdx.x * threadIdx.x;
-  if (index >= width * height)
-    return;
-
-  const unsigned line = index / width;
-  const unsigned column = index % width;
-
-  output[column * height + line] = input[line * width + column];
-}
-
-/*! Change in-place the input matrix to its conjugate form.
- * The complex data contained in the matrix should be in cartesian form. */
-__global__ void kernel_conjugate(
-  cufftComplex* input,
-  const size_t size);

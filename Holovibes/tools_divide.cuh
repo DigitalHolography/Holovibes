@@ -1,4 +1,6 @@
-/*! \file */
+/*! \file
+ *
+ * Matrix division functions on different types. */
 #pragma once
 
 # include <cuda_runtime.h>
@@ -10,12 +12,11 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
-/*! \brief  Divide all the pixels of input image(s) in complex representation by the float divider.
+/*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
-* The image(s) to treat, seen as image, should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
+* \param image The image(s) to process. Should be contiguous memory.
+* \param size Number of elements to process.
+* \param divider Divider value for all elements.
 */
 __global__ void kernel_complex_divide(
   cufftComplex* image,
@@ -24,11 +25,9 @@ __global__ void kernel_complex_divide(
 
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
-* The image(s) to treat should be contigous, the size is the total number of pixels to
-* convert with the function.
-* The result is given in output.
-* NB: doesn't work on architechture 2.5 in debug mod on GTX 470 graphic card
-* This function makes the Kernel call for the user in order to make the usage of the previous function easier.
+* \param image The image(s) to process. Should be contiguous memory.
+* \param size Number of elements to process.
+* \param divider Divider value for all elements.
 */
 __global__ void kernel_float_divide(
   float* input,

@@ -1,3 +1,6 @@
+/*! \file 
+ *
+ * Core class to use HoloVibe  */
 #pragma once
 
 # include <memory>
@@ -49,8 +52,10 @@ namespace holovibes
       XIQ,
     };
 
+    /*! \brief Construct the holovibes object. */
     Holovibes();
 
+    /*! \brief Destroy the holovibes object. */
     ~Holovibes();
 
     /*! \brief Open the camera and launch the ThreadCapture
@@ -62,11 +67,13 @@ namespace holovibes
     /*! \brief Request the capture thread to stop - Free ressources. */
     void dispose_capture();
 
+    /*! \brief Check if camera is initialized. */
     bool is_camera_initialized()
     {
       return camera_.operator bool();
     }
 
+    /*! \brief Returns the camera name. */
     const std::string& get_camera_name()
     {
       assert(camera_initialized_ && "camera not initialized");
@@ -75,12 +82,13 @@ namespace holovibes
 
     /*! \{ \name Queue getters
      *
-     * Used to display/record frames */
+     * Used to record frames */
     Queue& get_capture_queue()
     {
       return *input_;
     }
 
+     /*! Used to display frames */
     Queue& get_output_queue()
     {
       return *output_;
@@ -115,8 +123,10 @@ namespace holovibes
      * use the Pipe before it finished the initialization. */
     void init_compute(const ThreadCompute::PipeType pipetype = ThreadCompute::PipeType::PIPE);
 
+    /*! \brief Request the computing thread to stop */
     void dispose_compute();
 
+    /*! \brief Fetch all the necessary information before importing a file. */
     void init_import_mode(std::string &file_src,
       holovibes::ThreadReader::FrameDescriptor frame_desc,
       bool loop,

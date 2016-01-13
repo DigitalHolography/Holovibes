@@ -1,3 +1,6 @@
+/*! \file tools.hh
+ *
+ * Generic, widely usable functions. */
 #pragma once
 
 # include <algorithm>
@@ -5,6 +8,7 @@
 
 # include "hardware_limits.hh"
 
+/*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>
 void delete_them(Container& c, const Functor& f)
 {
@@ -14,8 +18,9 @@ void delete_them(Container& c, const Functor& f)
   c.clear();
 }
 
-/*! Given a data of *size* elements, compute the lowest number of
+/*! \function Given a problem of *size* elements, compute the lowest number of
  * blocks needed to fill a compute grid.
+ *
  * \param nb_threads Number of threads per block. */
 inline unsigned map_blocks_to_problem(const size_t problem_size,
   const unsigned nb_threads)

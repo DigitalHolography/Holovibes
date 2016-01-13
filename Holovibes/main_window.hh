@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Main class of the GUI. It regroup most of the Qt slots used for user actions. */
 #pragma once
 
 # include <cmath>
@@ -30,12 +33,10 @@ namespace gui
   class ThreadRecorder;
   class ThreadCSVRecord;
 }
-
 namespace camera
 {
   class CameraException;
 }
-
 namespace gpib
 {
   class VisaInterface;
@@ -45,7 +46,7 @@ namespace gui
 {
   /*! \class MainWindow
   **
-  ** Main class of the GUI. It regroup most of the slots used for user actions.
+  ** Main class of the GUI. It regroup most of the Qt slots used for user actions.
   ** These slots are divided into several sections:
   **
   ** * Menu: every action in the menu (e-g: configuration of .ini, camera selection ...).
@@ -53,17 +54,15 @@ namespace gui
   ** * View: log scale, shifted corner, contrast ...
   ** * Special: image ratio, average/ROI plot ...
   ** * Record: record of raw frames, average/ROI file ...
-  **
-  **
+  ** * Import : making a file of raw data the image source
+  ** * Info : Various runtime informations on the program's state
   */
   class MainWindow : public QMainWindow, public holovibes::Observer
   {
     Q_OBJECT
 
   public:
-    /*! \brief MainWindow constructor
-    **
-    ** Set keyboard shortcuts, set visibility and load default values for the fields.
+    /*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
     **
     ** \param holovibes holovibes object
     ** \param parent Qt parent (should be null as it is the GUI hierarchy top class)

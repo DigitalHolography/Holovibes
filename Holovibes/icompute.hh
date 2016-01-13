@@ -1,3 +1,6 @@
+/*! \file 
+ * 
+ * Stores functions helping the editing of the images. */
 #pragma once
 
 # include <fstream>
@@ -26,11 +29,18 @@ namespace holovibes
 
 namespace holovibes
 {
+/* \brief Stores functions helping the editing of the images.
+ *
+ * Stores all the functions that will be used before doing
+ * any sort of editing to the image (i.e. refresh functions
+ * or caller).
+ */
   class ICompute
   {
     friend class ThreadCompute;
   public:
 
+    /*! \brief Contains all the information related to the autofocus. */
     struct af_env
     {
       float           z;
@@ -46,15 +56,22 @@ namespace holovibes
       size_t          gpu_input_size;
       unsigned int    af_square_size;
     };
+
+    /* \brief Pre-allocation needed ressources for the autofocus to work. */
     void autofocus_init();
+
+    /* \brief Simple wrapper around cudaMemcpy. */
     void cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind);
 
+    /*! \brief Construct the ICompute object with 2 queues and 1 compute desc. */
     ICompute(
       Queue& input,
       Queue& output,
       ComputeDescriptor& desc);
 
+    /*! \brief Destroy the ICompute object. */
     virtual ~ICompute();
+
     /*! \{ \name ICompute request methods */
     /*! \brief Request the ICompute to refresh. */
     void request_refresh();

@@ -1,4 +1,7 @@
-/*! \file */
+/*! \file
+ *
+ * Functions that are called before any editing is done on the images.
+ */
 #pragma once
 
 # include <cuda_runtime.h>

@@ -23,7 +23,7 @@ __global__ void kernel_extract_angle(
 __global__ void kernel_unwrap(
   float* pred,
   float* cur,
-  float* adjustments,
+  float* output,
   const size_t size)
 {
   const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
@@ -41,8 +41,8 @@ __global__ void kernel_unwrap(
   else
     local_adjust = 0.f;
 
-  // Cumulating the phase correction with precedent ones //
-  adjustments[index] = local_adjust;
+  // Cumulating each angle with its correction
+  output[index] = cur[index] + local_adjust;
 }
 
 __global__ void kernel_compute_angle_mult(
@@ -55,12 +55,16 @@ __global__ void kernel_compute_angle_mult(
   if (index >= size)
     return;
 
-  cufftComplex diff;
-  diff = cur[index];
-  diff.x *= pred[index].x;
-  diff.y *= -1.f * pred[index].y;
+  cufftComplex conj_prod;
+  conj_prod = cur[index];
 
-  output[index] = std::atan2(diff.y, diff.x);
+  conj_prod.x *= pred[index].x;
+  conj_prod.x += cur[index].y * pred[index].y;
+
+  conj_prod.y *= pred[index].x;
+  conj_prod.y -= cur[index].x * pred[index].y;
+
+  output[index] = std::atan2(conj_prod.y, conj_prod.x);
 }
 
 __global__ void kernel_compute_angle_diff(

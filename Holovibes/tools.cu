@@ -85,12 +85,6 @@ __global__ void kernel_reconstruct_roi(
   }
 }
 
-/*! \brief  Permits to shift the corners of an image.
-*
-* This function shift zero-frequency component to center of spectrum
-* as explaines in the matlab documentation(http://fr.mathworks.com/help/matlab/ref/fftshift.html).
-* The transformation happens in-place.
-*/
 static __global__ void kernel_shift_corners(
   float* input,
   const unsigned int size_x,
@@ -141,8 +135,7 @@ void shift_corners(
   kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
 }
 
-/*! \brief  Kernel helper for real function
-*/
+/* Kernel used in apply_log10 */
 static __global__ void kernel_log10(
   float* input,
   const unsigned int size)
@@ -168,8 +161,7 @@ void apply_log10(
   kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
 }
 
-/*! \brief Kernel function used in convolution_operator
-*/
+/* Kernel used in convolution_operator */
 static __global__ void kernel_complex_to_modulus(
   const cufftComplex* input,
   float* output,
@@ -198,7 +190,7 @@ void convolution_operator(
   unsigned int blocks = map_blocks_to_problem(size, threads);
 
   /* The convolution operator is used only when using autofocus feature.
-   * It could be optimized but it's useless since it will be used sometimes. */
+   * It could be optimized but it's useless since it will be used occasionnally. */
   cufftComplex* tmp_x;
   cufftComplex* tmp_k;
   cudaMalloc<cufftComplex>(&tmp_x, size * sizeof(cufftComplex));
@@ -245,8 +237,14 @@ void frame_memcpy(
   cudaStreamSynchronize(stream);
 }
 
-/*! \brief  Kernel helper for average
-*/
+/* Kernel helper used in average.
+ *
+ * Sums up the *size* first elements of input and stores the result in sum.
+ *
+ * SpanSize is the number of elements processed by a single thread.
+ * This way of doing things comes from the empirical fact that (at the point
+ * of this writing) loop unrolling in CUDA kernels may prove more efficient,
+ * when the operation is really small. */
 template <unsigned SpanSize>
 static __global__ void kernel_sum(const float* input, float* sum, const size_t size)
 {
@@ -257,6 +255,7 @@ static __global__ void kernel_sum(const float* input, float* sum, const size_t s
     float tmp_reduce = 0.0f;
     for (unsigned i = 0; i < SpanSize; ++i)
       tmp_reduce += input[index + i];
+    // Atomic operation is needed here to guarantee a correct value.
     atomicAdd(sum, tmp_reduce);
   }
 }
@@ -274,7 +273,7 @@ float average_operator(
   cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
   cudaStreamSynchronize(stream);
 
-  // SpanSize pf 4 has been determined to be an optimal choice here.
+  // A SpanSize of 4 has been determined to be an optimal choice here.
   kernel_sum <4> << <blocks, threads, 0, stream >> >(
     input,
     gpu_sum,
@@ -287,14 +286,6 @@ float average_operator(
   cudaFree(gpu_sum);
 
   return cpu_sum /= static_cast<float>(size);
-}
-
-void copy_buffer(
-  cufftComplex* src,
-  cufftComplex* dst,
-  const size_t nb_elts)
-{
-  cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
 }
 
 void unwrap(
@@ -367,44 +358,66 @@ void unwrap_mult(
     first_time = false;
   }
 
-  /* Compute the newest phase image, not unwrapped yet. */
+  // Compute the newest phase image, not unwrapped yet
   kernel_compute_angle_mult << <blocks, threads >> >(
     resources->gpu_predecessor_,
     cur,
     resources->gpu_angle_current_,
     image_size);
-
-  if (!with_unwrap)
-    return;
-
-  /* Store the new unwrapped phase image in the next buffer position.
-  * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessors : complex image + multiply-with-conjugate angle
+  // Updating predecessor (complex image) for the next iteration
   cudaMemcpy(resources->gpu_predecessor_,
     cur,
     sizeof(cufftComplex)* image_size,
     cudaMemcpyDeviceToDevice);
-  cudaMemcpy(resources->gpu_angle_predecessor_,
+
+  // Optional unwrapping
+  if (with_unwrap)
+  {
+    kernel_unwrap << <blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      image_size);
+    // Updating the unwrapped angle for the next iteration.
+    cudaMemcpy(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+    // Updating gpu_angle_current_ for the rest of the function.
+    cudaMemcpy(
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+  }
+
+  /* Copying in order to later enqueue the (not summed up with values
+   * in gpu_unwrap_buffer_) phase image. */
+  cudaMemcpy(
+    resources->gpu_angle_copy_,
     resources->gpu_angle_current_,
-    sizeof(float)* image_size,
+    sizeof (float)* image_size,
     cudaMemcpyDeviceToDevice);
 
-  // Applying unwrapping history on the latest phase image //
+  // Applying history on the latest phase image
   kernel_correct_angles << <blocks, threads >> >(
     resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
     resources->size_);
+
+  /* Store the new phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  cudaMemcpy(
+    next_unwrap,
+    resources->gpu_angle_copy_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
 
 void unwrap_diff(
@@ -426,42 +439,64 @@ void unwrap_diff(
     first_time = false;
   }
 
-  /* Compute the newest phase image, not unwrapped yet. */
+  // Compute the newest phase image, not unwrapped yet
   kernel_compute_angle_diff << <blocks, threads >> >(
     resources->gpu_predecessor_,
     cur,
     resources->gpu_angle_current_,
     image_size);
-
-  if (!with_unwrap)
-    return;
-
-  /* Store the new unwrapped phase image in the next buffer position.
-  * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessors : complex image + multiply-with-conjugate angle
+  //  Updating predecessor (complex image) for the next iteration
   cudaMemcpy(resources->gpu_predecessor_,
     cur,
     sizeof(cufftComplex)* image_size,
     cudaMemcpyDeviceToDevice);
-  cudaMemcpy(resources->gpu_angle_predecessor_,
+
+  // Optional unwrapping
+  if (with_unwrap)
+  {
+    kernel_unwrap << <blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      image_size);
+    // Updating the unwrapped angle for the next iteration.
+    cudaMemcpy(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+    // Updating gpu_angle_current_ for the rest of the function.
+    cudaMemcpy(
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+  }
+
+  /* Copying in order to later enqueue the (not summed up with values
+  * in gpu_unwrap_buffer_) phase image. */
+  cudaMemcpy(
+    resources->gpu_angle_copy_,
     resources->gpu_angle_current_,
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
-  // Applying unwrapping history on the latest phase image //
+  // Applying history on the latest phase image
   kernel_correct_angles << <blocks, threads >> >(
     resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
     resources->size_);
+
+  /* Store the new phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  cudaMemcpy(
+    next_unwrap,
+    resources->gpu_angle_copy_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }

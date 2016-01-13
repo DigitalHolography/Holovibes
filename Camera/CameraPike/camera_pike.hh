@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera Pike */
 #pragma once
 
 # include <iostream>
@@ -19,7 +22,7 @@ namespace camera
     CameraPike()
       : Camera("pike.ini")
     {
-      name_ = "pike";
+      name_ = "Pike Kodak KAI 4022 F-421";
       load_default_params();
       if (ini_file_is_open())
         load_ini_params();

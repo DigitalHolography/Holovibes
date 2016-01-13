@@ -1,3 +1,6 @@
+/*! \file 
+ * 
+ * Qt main window class containing a plot of computed average values  */
 #pragma once
 
 # include <QMainWindow>
@@ -36,8 +39,10 @@ namespace gui
       const QString title,
       QWidget* parent = nullptr);
 
+    /*! \brief Destroy the plotwindow object. */
     ~PlotWindow();
 
+    /*! \brief Resize the plotwindow. */
     void resizeEvent(QResizeEvent* e) override;
 
     /*! \brief Starts drawing the chart/plot.

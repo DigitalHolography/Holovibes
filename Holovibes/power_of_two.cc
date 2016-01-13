@@ -1,4 +1,3 @@
-
 #include "power_of_two.hh"
 
 bool isPowerOfTwo(unsigned int x)

@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera Pixelfly from PCO. */
 #pragma once
 
 # include "../CameraPCO/camera_pco.hh"

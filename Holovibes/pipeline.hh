@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * The Pipeline is a parallel computing model, grouping tasks in parallel modules. */
 #pragma once
 
 # include <vector>
@@ -17,7 +20,7 @@ namespace holovibes
 
 namespace holovibes
 {
-  /*! The Pipeline is a parallel computing model,
+  /*! \brief The Pipeline is a parallel computing model,
    * grouping tasks in parallel modules.
    *
    * Whereas the Pipe executes sequentially its operations
@@ -42,21 +45,20 @@ namespace holovibes
     //!< Stop Modules, clear them, and free resources.
     void stop_pipeline();
 
-    //!< The computing loop.
+    //!< Execute one processing iteration.
     virtual void exec() override;
 
   private:
-    //!< Clear the contents of the Pipeline and fetch new computations to use.
+    /*! Clear the contents of the Pipeline and rebuild with updated set of functions.
+     *
+     * Please note that (for now at least) the Pipeline is built statically :
+     * there is no variation on how Modules are organized or what they contain.
+     * A truly effective implementation should be able to adapt to the graphics card
+     * available resources. */
     virtual void refresh() override;
 
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
-
-    /*! Create a module, allocate its data set, and create its CUDA stream.
-     * \param gpu_buffers The container in which the data set.
-     * \param buf_size The number of elements of type T to allocate. */
-    template <class T>
-    Module* create_module(std::list<T*>& gpu_buffers, size_t buf_size);
 
     //!< For each Module, advance the dataset being worked on.
     void step_forward();

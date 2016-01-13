@@ -1,3 +1,6 @@
+/*! \file 
+ *
+ * Encapsulate a camera DLL ressource. */
 #pragma once
 
 # include <Windows.h>

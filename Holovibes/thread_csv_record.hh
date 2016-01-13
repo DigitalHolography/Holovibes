@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Thread class used to record CSV files of ROI/average computations. */
 #pragma once
 
 # include <iostream>
@@ -19,7 +22,7 @@ namespace gui
   /*! \brief Thread class used to record CSV files of ROI/average computations.
   **
   ** It inherits QThread because it is the GUI that needs to launch the record and it has
-  ** to know when it is finished (signal/slots system).
+  ** to know when it is finished (signals/slots system).
   */
   class ThreadCSVRecord : public QThread
   {
@@ -41,6 +44,7 @@ namespace gui
       const std::string path,
       const unsigned int nb_frames,
       QObject* parent = nullptr);
+
     ~ThreadCSVRecord();
 
     public slots:
@@ -56,13 +60,13 @@ namespace gui
     void run() override;
 
   private:
-    /*! Program's entity holding a lots of informations */
+    /*! Reference to the core class of the program. */
     holovibes::Holovibes& holo_;
-    /*! Deque to record */
+    /*! Deque storing recorded data. */
     Deque& deque_;
     /*! Output record path */
     std::string path_;
-    /*! nb_frames number of frames i-e number of values to record */
+    /*! Number of frames i-e number of values to record */
     unsigned int nb_frames_;
     /*! Flag used to stop recording */
     bool record_;

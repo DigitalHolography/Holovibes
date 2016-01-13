@@ -1,3 +1,7 @@
+/*! \file
+ *
+ * The Pipe is a sequential computing model, storing procedures
+ * in a single container. */
 #pragma once
 
 # include <tuple>
@@ -6,16 +10,16 @@
 
 namespace holovibes
 {
-  /*! \brief Pipe is a class that applies treatments on input frames.
+  /*! \brief Pipe is a class that applies processing on input frames.
    *
    * # Why doing this way ?
    *
    * The goal of the pipe is to build a vector filled with functions to
    * apply on frames. This way it avoids to have a monolithic method plenty of
-   * if/else following what the user wants to do. In most cases, the treatment
+   * if/else following what the user wants to do. In most cases, the processing
    * remains the same at runtime, most jump conditions will always be the same.
    *
-   * When the pipe is refreshing, the vector is updated with last user
+   * When the pipe is refreshed, the vector is updated with last user
    * parameters. Keep in mind that the software is incredibly faster than user
    * inputs in GUI, so treatments are always applied with the same parameters.
    *
@@ -55,11 +59,11 @@ namespace holovibes
     /*! \brief Generate the ICompute vector. */
     virtual void refresh();
 
-    /*! \brief Execute one iteration of the ICompute.
+    /*! \brief Execute one processing iteration.
     *
-    * * Checks the number of frames in input queue that must at least
-    * nsamples*.
-    * * Call each function of the ICompute.
+    * * Checks the number of frames in input queue, that must at least
+    * be nsamples.
+    * * Call each function stored in the FnVector.
     * * Enqueue the output frame contained in gpu_output_buffer.
     * * Dequeue one frame of the input queue.
     * * Check if a ICompute refresh has been requested.
@@ -77,12 +81,13 @@ namespace holovibes
     /*! \brief Core of the pipe */
     FnVector fn_vect_;
 
-    /*! \{ \name Memory buffers
-     * \brief Memory buffers pointers
+    /*! \{ \name Memory buffers pointers
+
      *
      * * fields with gpu prefix are allocated in GPU memory
      * * fields with cpu prefix are allocated in CPU memory
-     * * fields cufftHandle are allocated in GPU memory */
+     * * fields cufftHandle are allocated in GPU memory
+     */
     /*! cufftComplex array containing n contiguous frames. */
     cufftComplex* gpu_input_buffer_;
     /*! Output frame containing n frames ordered in frequency. */
@@ -92,5 +97,6 @@ namespace holovibes
 
     /*! Input frame pointer. */
     cufftComplex* gpu_input_frame_ptr_;
+    /*! \} */
   };
 }

@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera IDS */
 #pragma once
 
 # include <camera.hh>
@@ -16,7 +19,7 @@ namespace camera
     CameraIds()
       : Camera("ids.ini")
     {
-      name_ = "ids";
+      name_ = "IDS CMOSIS CMV 4000";
       load_default_params();
       if (ini_file_is_open())
         load_ini_params();

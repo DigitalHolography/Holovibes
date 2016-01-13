@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * This class factorizes a bit code for PCO cameras. */
 #pragma once
 
 # include <iostream>
@@ -34,11 +37,13 @@ namespace camera
     virtual void* get_frame() override;
 
   protected:
+    /* \brief Returns the actual x resolution. */
     WORD get_actual_res_x()
     {
       return actual_res_x_;
     }
 
+    /* \brief Returns the actual y resolution. */
     WORD get_actual_res_y()
     {
       return actual_res_y_;

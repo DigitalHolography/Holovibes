@@ -9,7 +9,7 @@ namespace camera
   CameraIxon::CameraIxon()
     : Camera("ixon.ini")
   {
-    name_ = "ixon";
+    name_ = "Ixon + 885";
 
     load_default_params();
 

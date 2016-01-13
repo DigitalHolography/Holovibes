@@ -69,11 +69,6 @@ namespace holovibes
     if (filepath.find('/') != std::string::npos)
       createFilePath(filepath);
 
-#ifndef _DEBUG
-    if (is_file_exist(filepath))
-      throw std::exception("[RECORDER] error overwriting an existing file");
-#endif /* Overwrite is useful while debugging. */
-
     file_.open(filepath, std::ios::binary | std::ios::trunc);
   }
 

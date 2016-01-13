@@ -39,9 +39,7 @@ __global__ void img16_to_complex(
   }
 }
 
-/*! \brief Kernel function wrapped in complex_to_modulus, making
- ** the call easier
- **/
+/* Kernel function wrapped by complex_to_modulus. */
 static __global__ void kernel_complex_to_modulus(
   const cufftComplex* input,
   float* output,
@@ -69,9 +67,7 @@ void complex_to_modulus(
   kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
-/*! \brief Kernel function wrapped in complex_to_squared_modulus, making
- ** the call easier
- **/
+/* Kernel function wrapped in complex_to_squared_modulus. */
 static __global__ void kernel_complex_to_squared_modulus(
   const cufftComplex* input,
   float* output,
@@ -99,9 +95,7 @@ void complex_to_squared_modulus(
   kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
-/*! \brief Kernel function wrapped in complex_to_argument, making
- ** the call easier
- **/
+/* Kernel function wrapped in complex_to_argument. */
 static __global__ void kernel_complex_to_argument(
   const cufftComplex* input,
   float* output,

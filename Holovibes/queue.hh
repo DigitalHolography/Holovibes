@@ -1,3 +1,8 @@
+/*! \file
+ *
+ * Queue class is a custom circular FIFO data structure. It can handle
+ * CPU or GPU data. This class is used to store the raw images, provided
+ * by the camera, and holograms. */
 #pragma once
 
 # include <iostream>
@@ -17,8 +22,7 @@ namespace holovibes
   ** As well as it is impossible to get a value from the class getters while another
   ** object is enqueuing or dequeuing.
   **
-  ** The Queue ensure that all elements it contains are written in little endian endianness.
-  **
+  ** The Queue ensures that all elements it contains are written in little endian.
   */
   class Queue
   {
@@ -106,11 +110,11 @@ namespace holovibes
     */
     void dequeue();
 
-    /*! Flushes the Queue */
+    /*! Empties the Queue. */
     void flush();
 
   private:
-    /*! The name of queue */
+    /*! The name of the queue */
     std::string name_;
 
     /*! FrameDescriptor of the Queue */
@@ -131,7 +135,7 @@ namespace holovibes
     /*! Start index */
     unsigned int start_;
 
-    /*! Boolean used to know if camera is writing frames in big endian endianness */
+    /*! Boolean used to know if camera is writing frames in big endian */
     const bool is_big_endian_;
 
     /*! Data buffer */

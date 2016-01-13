@@ -1,3 +1,7 @@
+/* \file
+ *
+ * Encapsulation of a thread used to import raw data from a file,
+ * and use it as the source for the input queue. */
 #pragma once
 
 # include <iostream>
@@ -16,7 +20,11 @@ namespace holovibes
 
 namespace holovibes
 {
-  /*! \brief Thread add frames to queue from file */
+  /*! \brief Thread encapsulation for reading data from a file.
+  *
+  * Reads raw data from a file, and interpret it as images of a specified format.
+  * The data is transferred to the input queue, and so can be processed as regular
+  * images recorded from a camera. */
   class ThreadReader : public IThreadInput
   {
   public:
@@ -30,7 +38,7 @@ namespace holovibes
     {
     public:
 
-      /*! \brief compute sqared FrameDescriptor with power of 2 border size */
+      /*! \brief compute squared FrameDescriptor with power of 2 border size */
       void compute_sqared_image(void)
       {
         unsigned short biggestBorder = (desc.width > desc.height ? desc.width : desc.height);
@@ -45,8 +53,7 @@ namespace holovibes
           desc.width = desc.height = static_cast<unsigned short>(nextPowerOf2(biggestBorder));
       }
 
-      /*! \brief Contructor
-       * Construct ThreadReader::FrameDescriptor and compute camera::FrameDescriptor */
+      /*! \brief Adjust a camera::FrameDescriptor and store it. */
       FrameDescriptor(camera::FrameDescriptor d)
         : desc(d)
         , img_width(d.width)
@@ -62,7 +69,7 @@ namespace holovibes
       unsigned short         img_height;
     };
 
-    /*! \brief Constructor */
+    /*! \brief Create a preconfigured ThreadReader. */
     ThreadReader(std::string file_src
       , holovibes::ThreadReader::FrameDescriptor frame_desc
       , bool loop
@@ -71,39 +78,32 @@ namespace holovibes
       , unsigned int spanEnd
       , Queue& input);
 
-    /*! \brief Destructor */
     virtual ~ThreadReader();
 
   private:
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
 
-    /*! File source */
+    /*! \brief Source file */
     std::string file_src_;
-    /*! \brief Does it read file in loop */
+    /*! \brief If true, the reading will start over when meeting the end of the file. */
     bool loop_;
-    /*! Fps readed*/
+    /*! \brief Frames Per Second to be displayed. */
     unsigned int fps_;
-    /*! \brief desc of returned frames */
+    /*! \brief Describes the image format used by the camera. */
     camera::FrameDescriptor& frame_desc_;
-    /*! \brief desc of readed frames*/
+    /*! \brief Describes the image format used for reading. */
     holovibes::ThreadReader::FrameDescriptor desc_;
-    /*! \brief current frame id in file */
+    /*! \brief Current frame id in file. */
     unsigned int frameId_;
-    /*! \brief id of the first frame to read */
+    /*! \brief Id of the first frame to read. */
     unsigned int spanStart_;
-    /*! \brief id of the last frame to read */
+    /*! \brief Id of the last frame to read. */
     unsigned int spanEnd_;
+    /*! \brief The destination Queue. */
     Queue& queue_;
 
+    /*! The thread which shall run thread_proc(). */
     std::thread thread_;
-
-    /*! \var unsigned int frameId_
-    * Begin at 1.*/
-    /*! \var unsigned int spanStart_
-    * Begin at 1.*/
-    /*! \var unsigned int spanEnd_
-    * Begin at 1.
-    * Use last frames of file if spanEnd_ is larger. */
   };
 }

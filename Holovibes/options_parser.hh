@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Options parser for the command-line. */
 #pragma once
 
 # include <boost/tokenizer.hpp>
@@ -24,17 +27,9 @@ namespace holovibes
 
 namespace holovibes
 {
-  /*! \brief Parse Argv gived to program */
+  /*! \brief Options parser for the command-line. */
   class OptionsParser
   {
-    /*! \{ \name const */
-    const unsigned int default_queue_size = 20;
-    const unsigned int display_size_min = 100;
-    const unsigned int default_fps = 30;
-    const unsigned int default_depth = 8;
-    const bool default_is_big_endian = true;
-    /*! \} */
-
   public:
     OptionsParser(OptionsDescriptor& opts);
 
@@ -110,5 +105,12 @@ namespace holovibes
 
     /*! \brief Stores all option values. */
     po::variables_map vm_;
+
+    /* Default values. */
+    const unsigned int default_queue_size = 20;
+    const unsigned int display_size_min = 100;
+    const unsigned int default_fps = 30;
+    const unsigned int default_depth = 8;
+    const bool default_is_big_endian = true;
   };
 }

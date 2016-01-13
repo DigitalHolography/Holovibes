@@ -1,3 +1,6 @@
+/*! \file
+ *
+ * Camera Ixon */
 #pragma once
 
 # include <camera.hh>

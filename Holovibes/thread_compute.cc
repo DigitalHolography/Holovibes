@@ -1,10 +1,8 @@
-#include <cassert>
-
 #include "thread_compute.hh"
 #include "pipe.hh"
 #include "pipeline.hh"
-# include "queue.hh"
-# include "compute_descriptor.hh"
+#include "queue.hh"
+#include "compute_descriptor.hh"
 
 #include <Windows.h>
 
