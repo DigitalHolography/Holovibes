@@ -68,10 +68,9 @@ namespace gui
     /*! \brief emit signal closed on window is closed */
     void closeEvent(QCloseEvent *event);
 
-    void change_curve(int curve_to_plot)
-    {
-      curve_plot_.change_curve(curve_to_plot);
-    }
+    /*! Ask curve_plot_ to change ploted curve */
+    void change_curve(int curve_to_plot);
+
   private:
     Ui::PlotWindow ui;
 
