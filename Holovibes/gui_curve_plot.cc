@@ -6,6 +6,9 @@
 #define TIMER_FREQ 40
 #define POINTS 200
 
+/*! \brief CURVE_GET is a macro generating curve_get_X function whoose return std::get<X> of tuple give 
+**
+** This macro is use to instance 4 function curve_get_{0-3} in order to create ptr on */
 # define CURVE_GET(X) float curve_get_ ## X(const std::tuple<float, float, float, float>& a) { return std::get<X>(a); }
 CURVE_GET(0)
 CURVE_GET(1)

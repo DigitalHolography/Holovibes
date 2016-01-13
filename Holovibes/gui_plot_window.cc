@@ -50,4 +50,9 @@ namespace gui
   {
     curve_plot_.set_points_nb(n);
   }
+
+  void PlotWindow::change_curve(int curve_to_plot)
+  {
+    curve_plot_.change_curve(curve_to_plot);
+  }
 }

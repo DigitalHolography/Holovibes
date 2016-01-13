@@ -99,7 +99,7 @@ namespace gui
     /*! \brief Updates the plot */
     void update();
 
-    /*! \brief Updates the curve ploted */
+    /*! \brief Change the curve ploted by changing curve_get_ */
     void change_curve(int curve_to_plot);
 
   private:
@@ -113,7 +113,7 @@ namespace gui
     unsigned int points_nb_;
     /*! QTimer used to draw every TIMER_FREQ milliseconds */
     QTimer timer_;
-    /*! Ptr to function who get value in tuple */
+    /*! Ptr to function (curve_get_X) who get value of curve in tuple */
     float(*curve_get_)(const std::tuple<float, float, float, float>&);
     /*! Local copy of data_vect data */
     std::vector<std::tuple<float, float, float, float>> average_vector_;
