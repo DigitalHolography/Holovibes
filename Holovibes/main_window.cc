@@ -1156,23 +1156,21 @@ namespace gui
     const unsigned int frame_nb = frame_nb_spin_box->value();
     if (is_batch_img_)
     {
-      record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
-
       try
       {
         if (gpib_interface_->execute_next_block())
+        {
+          record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
           connect(record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_next_record()), Qt::UniqueConnection);
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()), Qt::UniqueConnection);
+          record_thread_->start();
+        }
         else
-          connect(record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_finished_record()), Qt::UniqueConnection);
-
-        std::cout << "RECORD THREAD START\n";
-        record_thread_->start();
+        {
+          batch_finished_record(true);
+        }
       }
       catch (const gpib::GpibInstrError& e)
       {
@@ -1182,27 +1180,23 @@ namespace gui
     }
     else
     {
-      CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-        holovibes_.get_average_queue(),
-        output_filename,
-        frame_nb,
-        this));
-
       try
       {
         if (gpib_interface_->execute_next_block())
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            output_filename,
+            frame_nb,
+            this));
           connect(CSV_record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_next_record()), Qt::UniqueConnection);
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()), Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
         else
-          connect(CSV_record_thread_.get(),
-          SIGNAL(finished()),
-          this,
-          SLOT(batch_finished_record()), Qt::UniqueConnection);
-
-        std::cout << "RECORD_CSV THREAD START\n";
-        CSV_record_thread_->start();
+          batch_finished_record(true);
       }
       catch (const gpib::GpibInstrError& e)
       {

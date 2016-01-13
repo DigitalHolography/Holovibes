@@ -167,7 +167,7 @@ namespace gpib
         cmd = batch_cmds_.back();
       else
         return false;
-    } while (cmd.type != Command::BLOCK);
+    } while (cmd.type != Command::CAPTURE);
 
     return true;
   }
@@ -205,11 +205,8 @@ namespace gpib
 
       if (line.compare("#Block") == 0)
       {
-        // Just the preamble #Block.
-        cmd.type = Command::BLOCK;
-        cmd.address = 0;
-        cmd.command = "";
-        cmd.wait = 0;
+        // Just a #Block : no special meaning.
+        batch_cmds_.pop_front();
       }
       else if (line.compare("#InstrumentAddress") == 0)
       {
@@ -245,6 +242,13 @@ namespace gpib
           throw GpibParseError(boost::lexical_cast<std::string>(line_num),
             GpibParseError::NoWait);
         }
+      }
+      else if (line.compare("#Capture") == 0)
+      {
+        cmd.type = Command::CAPTURE;
+        cmd.address = 0;
+        cmd.command = "";
+        cmd.wait = 0;
       }
       else
       {

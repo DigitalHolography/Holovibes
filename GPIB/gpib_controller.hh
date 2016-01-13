@@ -69,9 +69,10 @@ namespace gpib
     {
       enum type_e
       {
-        BLOCK,
-        COMMAND,
-        WAIT
+        BLOCK,   // #Block   : ignored, just for clarity
+        CAPTURE, // #Capture : Stop issuing commands and acquire a frame
+        COMMAND, // *        : Sent to an instrument as is in a message buffer
+        WAIT     // #WAIT n  : Put the thread to sleep n milliseconds
       };
 
       type_e type;
