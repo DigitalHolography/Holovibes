@@ -328,20 +328,10 @@ namespace holovibes
           compute_desc_.unwrap_history_size,
           input_.get_pixels()));
       }
-      unwrap_res_->change_capacity(compute_desc_.unwrap_history_size);
+      unwrap_res_->reset(compute_desc_.unwrap_history_size);
       unwrap_res_->reallocate(input_.get_pixels());
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-      {
-        // Phase unwrapping, float subtraction method
-        fn_vect_.push_back(std::bind(
-          unwrap,
-          gpu_input_frame_ptr_,
-          unwrap_res_.get(),
-          input_fd.frame_res(),
-          unwrap_requested_));
-      }
-      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
         // Phase unwrapping, complex subtraction method
         fn_vect_.push_back(std::bind(
@@ -351,7 +341,7 @@ namespace holovibes
           input_fd.frame_res(),
           unwrap_requested_));
       }
-      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
+      else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
         // Phase unwrapping, complex multiply-with-conjugate method
         fn_vect_.push_back(std::bind(
