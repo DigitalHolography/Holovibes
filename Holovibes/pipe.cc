@@ -334,7 +334,7 @@ namespace holovibes
 
       if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
       {
-        // Phase unwrapping, float subtraction method
+        // Phase unwrapping, complex subtraction method
         fn_vect_.push_back(std::bind(
           unwrap_diff,
           gpu_input_frame_ptr_,
@@ -344,7 +344,7 @@ namespace holovibes
       }
       else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
       {
-        // Phase unwrapping, complex subtraction method
+        // Phase unwrapping, complex multiply-with-conjugate method
         fn_vect_.push_back(std::bind(
           unwrap_mult,
           gpu_input_frame_ptr_,
@@ -352,16 +352,6 @@ namespace holovibes
           input_fd.frame_res(),
           unwrap_requested_));
       }
-      //else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
-      //{
-      //  // Phase unwrapping, complex multiply-with-conjugate method
-      //  fn_vect_.push_back(std::bind(
-      //    unwrap_mult,
-      //    gpu_input_frame_ptr_,
-      //    unwrap_res_.get(),
-      //    input_fd.frame_res(),
-      //    unwrap_requested_));
-      //}
       else
       {
         // Fallback on modulus mode.

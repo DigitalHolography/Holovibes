@@ -141,21 +141,6 @@ void copy_buffer(
   const size_t nb_elts,
   cudaStream_t stream = 0);
 
-/*! Let H be the lastest complex image, and H-t the one preceding it.
- * This version computes : arg(H) - arg(H-t)
- * and unwraps the result.
- *
- * Phase unwrapping adjusts phase angles encoded in complex data,
- * by a cutoff value (which is here fixed to pi). Unwrapping seeks
- * two-by-two differences that exceed this cutoff value and performs
- * cumulative adjustments in order to 'smooth' the signal.
- */
-void unwrap(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap);
-
 /*! Let H be the lastest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.

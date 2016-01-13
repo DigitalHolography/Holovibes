@@ -297,57 +297,6 @@ void copy_buffer(
   cudaMemcpy(dst, src, sizeof(cufftComplex)* nb_elts, cudaMemcpyDeviceToDevice);
 }
 
-void unwrap(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap)
-{
-  const unsigned threads = 128;
-  const unsigned blocks = map_blocks_to_problem(image_size, threads);
-
-  static bool first_time = true;
-  if (first_time)
-  {
-    kernel_extract_angle << <blocks, threads >> >(cur,
-      resources->gpu_angle_predecessor_,
-      image_size);
-    first_time = false;
-  }
-
-  // Convert to polar notation in order to work on angles.
-  kernel_extract_angle << <blocks, threads >> >(cur,
-    resources->gpu_angle_current_,
-    image_size);
-
-  /* Store the new unwrapped phase image in the next buffer position.
-   * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  if (with_unwrap)
-  {
-    kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      next_unwrap,
-      image_size);
-  }
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessor
-  cudaMemcpy(resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
-
-  // Applying unwrapping history to the current image.
-  kernel_correct_angles << <blocks, threads >> >(
-    resources->gpu_angle_current_,
-    resources->gpu_unwrap_buffer_,
-    image_size,
-    resources->size_);
-}
-
 void unwrap_mult(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
@@ -367,44 +316,43 @@ void unwrap_mult(
     first_time = false;
   }
 
-  /* Compute the newest phase image, not unwrapped yet. */
+  // Compute the newest phase image, not unwrapped yet
   kernel_compute_angle_mult << <blocks, threads >> >(
     resources->gpu_predecessor_,
     cur,
     resources->gpu_angle_current_,
     image_size);
+  // Copying in order to enqueue the untouched angle
+  cudaMemcpy(
+    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_current_,
+    sizeof (float)* image_size,
+    cudaMemcpyDeviceToDevice);
 
-  /* Store the new unwrapped phase image in the next buffer position.
-  * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  if (with_unwrap)
-  {
-    kernel_unwrap << < blocks, threads >> >(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      next_unwrap,
-      image_size);
-  }
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessors : complex image + multiply-with-conjugate angle
+  // Updating predecessor (complex image) for the next iteration
   cudaMemcpy(resources->gpu_predecessor_,
     cur,
     sizeof(cufftComplex)* image_size,
     cudaMemcpyDeviceToDevice);
-  cudaMemcpy(resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
 
-  // Applying unwrapping history on the latest phase image //
+  // Applying history on the latest phase image
   kernel_correct_angles << <blocks, threads >> >(
     resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
     resources->size_);
+
+  /* Store the new phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  cudaMemcpy(
+    next_unwrap,
+    resources->gpu_angle_predecessor_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
 
 void unwrap_diff(
@@ -432,36 +380,35 @@ void unwrap_diff(
     cur,
     resources->gpu_angle_current_,
     image_size);
-
-  /* Store the new unwrapped phase image in the next buffer position.
-  * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  if (with_unwrap)
-  {
-    kernel_unwrap << < blocks, threads >> >(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      next_unwrap,
-      image_size);
-  }
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessors : complex image + multiply-with-conjugate angle
-  cudaMemcpy(resources->gpu_predecessor_,
-    cur,
-    sizeof(cufftComplex)* image_size,
-    cudaMemcpyDeviceToDevice);
-  cudaMemcpy(resources->gpu_angle_predecessor_,
+  // Copying  in order to enqueue the untouched angle
+  cudaMemcpy(
+    resources->gpu_angle_predecessor_,
     resources->gpu_angle_current_,
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
-  // Applying unwrapping history on the latest phase image //
+  //  Updating predecessor (complex image) for the next iteration
+  cudaMemcpy(resources->gpu_predecessor_,
+    cur,
+    sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Applying history on the latest phase image
   kernel_correct_angles << <blocks, threads >> >(
     resources->gpu_angle_current_,
     resources->gpu_unwrap_buffer_,
     image_size,
     resources->size_);
+
+  /* Store the new phase image in the next buffer position.
+  * The buffer is handled as a circular buffer. */
+  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
+  cudaMemcpy(
+    next_unwrap,
+    resources->gpu_angle_predecessor_,
+    sizeof(float)* image_size,
+    cudaMemcpyDeviceToDevice);
+  if (resources->size_ < resources->capacity_)
+    ++resources->size_;
+  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
