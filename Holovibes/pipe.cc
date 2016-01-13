@@ -578,8 +578,13 @@ namespace holovibes
         {
           complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
         }
+        // TODO: Pop a window to warn the user
         else
-          assert(!"Impossible case");
+        {
+          cudaFree(gpu_float_buffer_af_zone);
+          cudaFree(gpu_input_buffer_tmp);
+          return;
+        }
 
         if (compute_desc_.shift_corners_enabled)
         {
