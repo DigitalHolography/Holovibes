@@ -322,17 +322,40 @@ void unwrap_mult(
     cur,
     resources->gpu_angle_current_,
     image_size);
-  // Copying in order to enqueue the untouched angle
-  cudaMemcpy(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    sizeof (float)* image_size,
-    cudaMemcpyDeviceToDevice);
-
   // Updating predecessor (complex image) for the next iteration
   cudaMemcpy(resources->gpu_predecessor_,
     cur,
     sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Optional unwrapping
+  if (with_unwrap)
+  {
+    kernel_unwrap << <blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      image_size);
+    // Updating the unwrapped angle for the next iteration.
+    cudaMemcpy(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+    // Updating gpu_angle_current_ for the rest of the function.
+    cudaMemcpy(
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+  }
+
+  /* Copying in order to later enqueue the (not summed up with values
+   * in gpu_unwrap_buffer_) phase image. */
+  cudaMemcpy(
+    resources->gpu_angle_copy_,
+    resources->gpu_angle_current_,
+    sizeof (float)* image_size,
     cudaMemcpyDeviceToDevice);
 
   // Applying history on the latest phase image
@@ -347,7 +370,7 @@ void unwrap_mult(
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
   cudaMemcpy(
     next_unwrap,
-    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_copy_,
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
   if (resources->size_ < resources->capacity_)
@@ -374,23 +397,46 @@ void unwrap_diff(
     first_time = false;
   }
 
-  /* Compute the newest phase image, not unwrapped yet. */
+  // Compute the newest phase image, not unwrapped yet
   kernel_compute_angle_diff << <blocks, threads >> >(
     resources->gpu_predecessor_,
     cur,
     resources->gpu_angle_current_,
     image_size);
-  // Copying  in order to enqueue the untouched angle
-  cudaMemcpy(
-    resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
-
   //  Updating predecessor (complex image) for the next iteration
   cudaMemcpy(resources->gpu_predecessor_,
     cur,
     sizeof(cufftComplex)* image_size,
+    cudaMemcpyDeviceToDevice);
+
+  // Optional unwrapping
+  if (with_unwrap)
+  {
+    kernel_unwrap << <blocks, threads >> >(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      image_size);
+    // Updating the unwrapped angle for the next iteration.
+    cudaMemcpy(
+      resources->gpu_angle_predecessor_,
+      resources->gpu_angle_current_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+    // Updating gpu_angle_current_ for the rest of the function.
+    cudaMemcpy(
+      resources->gpu_angle_current_,
+      resources->gpu_unwrapped_angle_,
+      sizeof(float)* image_size,
+      cudaMemcpyDeviceToDevice);
+  }
+
+  /* Copying in order to later enqueue the (not summed up with values
+  * in gpu_unwrap_buffer_) phase image. */
+  cudaMemcpy(
+    resources->gpu_angle_copy_,
+    resources->gpu_angle_current_,
+    sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
 
   // Applying history on the latest phase image
@@ -405,7 +451,7 @@ void unwrap_diff(
   float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
   cudaMemcpy(
     next_unwrap,
-    resources->gpu_angle_predecessor_,
+    resources->gpu_angle_copy_,
     sizeof(float)* image_size,
     cudaMemcpyDeviceToDevice);
   if (resources->size_ < resources->capacity_)

@@ -12,17 +12,16 @@ __global__ void kernel_extract_angle(
   float* output,
   const size_t size);
 
-/*! Perform element-wise phase adjustment on a pixel matrix.
+/*! Perform in-place element-wise phase adjustment on a pixel matrix.
  *
- * \param pred Predecessor angles matrix.
- * \param cur Latest angles matrix.
- * \param adjustments Storage for the resulting phase jumps to apply
- * if needed, for each pixel of the image.
+ * \param pred Predecessor phase image.
+ * \param cur Latest phase image.
+ * \param output Where to store the unwrapped version of cur.
  * \param size Size of an image in pixels. */
 __global__ void kernel_unwrap(
   float* pred,
   float* cur,
-  float* adjustments,
+  float* output,
   const size_t size);
 
 /*! Use the multiply-with-conjugate method to fill a float (angles) matrix.

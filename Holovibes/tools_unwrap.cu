@@ -23,7 +23,7 @@ __global__ void kernel_extract_angle(
 __global__ void kernel_unwrap(
   float* pred,
   float* cur,
-  float* adjustments,
+  float* output,
   const size_t size)
 {
   const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
@@ -42,7 +42,7 @@ __global__ void kernel_unwrap(
     local_adjust = 0.f;
 
   // Cumulating the phase correction with precedent ones //
-  adjustments[index] = local_adjust;
+  output[index] = cur[index] + local_adjust;
 }
 
 __global__ void kernel_compute_angle_mult(

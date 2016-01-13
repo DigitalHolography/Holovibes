@@ -38,12 +38,17 @@ namespace holovibes
     * part of a complex information, and can be stored in a float. */
     float* gpu_unwrap_buffer_;
 
+    /*! Copy of the previous complex (untouched) image. */
     cufftComplex* gpu_predecessor_;
-    cufftComplex* gpu_diff_;
-
     /*! Copy of the previous frame's angle values. Updated over unwrapping. */
     float* gpu_angle_predecessor_;
-    /*! Copy of the current frame's angle values. Used locally in unwrapping. */
+    /*! Copy of the current frame's angle values.
+     * Target of the gpu_unwrap_buffer summed elements. */
     float* gpu_angle_current_;
+    /*! Copy of the current frame's angle values, before it is summed
+     * to gpu_unwrap_buffer's elements. */
+    float* gpu_angle_copy_;
+    /*! Current phase image after unwrapping. */
+    float* gpu_unwrapped_angle_;
   };
 }
