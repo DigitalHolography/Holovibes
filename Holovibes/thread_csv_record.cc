@@ -20,6 +20,7 @@ namespace gui
 
   ThreadCSVRecord::~ThreadCSVRecord()
   {
+    this->stop();
   }
 
   void ThreadCSVRecord::stop()
@@ -32,7 +33,7 @@ namespace gui
     deque_.clear();
     holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
 
-    while (deque_.size() < nb_frames_)
+    while (deque_.size() < nb_frames_ && record_)
       continue;
 
     std::cout << path_ << "\n";
@@ -59,6 +60,6 @@ namespace gui
       ++i;
     }
 
-    holo_.get_pipe()->request_refresh();
+    holo_.get_pipe()->request_average_stop();
   }
 }
