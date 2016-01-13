@@ -1098,7 +1098,7 @@ namespace gui
           connect(record_thread_.get(),
             SIGNAL(finished()),
             this,
-            SLOT(batch_finished_record(true)),
+            SLOT(batch_finished_record()),
             Qt::UniqueConnection);
           record_thread_->start();
         }
@@ -1112,7 +1112,7 @@ namespace gui
           connect(CSV_record_thread_.get(),
             SIGNAL(finished()),
             this,
-            SLOT(batch_finished_record(true)),
+            SLOT(batch_finished_record()),
             Qt::UniqueConnection);
           CSV_record_thread_->start();
         }
@@ -1136,7 +1136,6 @@ namespace gui
       return;
     }
 
-    disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
 
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -1170,8 +1169,9 @@ namespace gui
           connect(record_thread_.get(),
           SIGNAL(finished()),
           this,
-          SLOT(batch_finished_record(true)), Qt::UniqueConnection);
+          SLOT(batch_finished_record()), Qt::UniqueConnection);
 
+        std::cout << "RECORD THREAD START\n";
         record_thread_->start();
       }
       catch (const gpib::GpibInstrError& e)
@@ -1199,8 +1199,9 @@ namespace gui
           connect(CSV_record_thread_.get(),
           SIGNAL(finished()),
           this,
-          SLOT(batch_finished_record(true)), Qt::UniqueConnection);
+          SLOT(batch_finished_record()), Qt::UniqueConnection);
 
+        std::cout << "RECORD_CSV THREAD START\n";
         CSV_record_thread_->start();
       }
       catch (const gpib::GpibInstrError& e)
@@ -1214,9 +1215,13 @@ namespace gui
     ++file_index_;
   }
 
-  void MainWindow::batch_finished_record(const bool no_error)
+  void MainWindow::batch_finished_record()
   {
-    disconnect(SIGNAL(finished()), this);
+    batch_finished_record(true);
+  }
+
+  void MainWindow::batch_finished_record(bool no_error)
+  {
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
     gpib_interface_.reset();

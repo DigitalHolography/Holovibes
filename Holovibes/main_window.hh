@@ -297,9 +297,13 @@ namespace gui
     */
     void batch_next_record();
     /*! \brief Destroy batch record threads cleanly.
+     * Allows Qt to make the connection to the correct slot
+     * (with/without pop-up message). */
+    void batch_finished_record();
+    /*! \brief Destroy batch record threads cleanly.
      *
      * \param no_error When false, the regular pop-up message is not displayed. */
-    void batch_finished_record(const bool no_error);
+    void batch_finished_record(bool no_error);
     /*! \brief Stop image record */
     void stop_image_record();
     /*! \brief Stop average/ROI record */
