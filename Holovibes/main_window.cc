@@ -1170,7 +1170,7 @@ namespace gui
           connect(record_thread_.get(),
           SIGNAL(finished()),
           this,
-          SLOT(batch_finished_record()), Qt::UniqueConnection);
+          SLOT(batch_finished_record(true)), Qt::UniqueConnection);
 
         record_thread_->start();
       }
