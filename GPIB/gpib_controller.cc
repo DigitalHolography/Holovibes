@@ -35,37 +35,20 @@ namespace gpib
   VisaInterface::VisaInterface(const std::string& path)
     : pimpl_ { new VisaPimpl() }
   {
-    // Basic initializations
-    try
-    {
-      initialize_line();
-    }
-    catch (const GpibBadAlloc& e)
-    {
-      throw;
-    }
-    catch (const GpibSetupError& e)
-    {
-      throw;
-    }
-
     // Batch input file parsing
-    if (path.compare("==") == 0)
+    if (path.compare("") == 0)
       throw GpibNoFilepath();
 
     std::ifstream in;
     in.open(path);
     if (!in.is_open())
-    {
-      delete[] pimpl_->buffer_;
       throw GpibInvalidPath(path);
-    }
 
     try
     {
       parse_file(in);
     }
-    catch (const GpibParseError& e)
+    catch (const std::exception& e)
     {
       throw;
     }
@@ -75,7 +58,8 @@ namespace gpib
 
   VisaInterface::~VisaInterface()
   {
-    delete[] pimpl_->buffer_;
+    if (pimpl_->buffer_)
+      delete[] pimpl_->buffer_;
 
     std::for_each(pimpl_->sessions_.begin(),
       pimpl_->sessions_.end(),
@@ -138,7 +122,20 @@ namespace gpib
     {
       if (cmd.type == Command::COMMAND)
       {
-        /*! If a connexion to this instrument address is not opened,
+        /* If this is the first time a command is issued, the connexion
+         * with the VISA interface must be set up. */
+        if (!pimpl_->buffer_)
+        {
+          try
+          {
+            initialize_line();
+          }
+          catch (const std::exception& e)
+          {
+            throw;
+          }
+        }
+        /* If a connexion to this instrument address is not opened,
         * do it and register the new session. */
         if (std::find_if(pimpl_->sessions_.begin(),
           pimpl_->sessions_.end(),
@@ -170,7 +167,7 @@ namespace gpib
         cmd = batch_cmds_.back();
       else
         return false;
-    } while (cmd.type != Command::BLOCK);
+    } while (cmd.type != Command::CAPTURE);
 
     return true;
   }
@@ -189,7 +186,9 @@ namespace gpib
 
   void VisaInterface::close_line()
   {
-    if (viClose(pimpl_->default_rm_) != VI_SUCCESS)
+    /* VisaPimpl's buffer's allocation assures Visa has been used,
+     * and so that a connection was set up. */
+    if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
       std::cerr << "[GPIB] Could not close connection to VISA driver.\n";
   }
 
@@ -206,11 +205,8 @@ namespace gpib
 
       if (line.compare("#Block") == 0)
       {
-        // Just the preamble #Block.
-        cmd.type = Command::BLOCK;
-        cmd.address = 0;
-        cmd.command = "";
-        cmd.wait = 0;
+        // Just a #Block : no special meaning.
+        batch_cmds_.pop_front();
       }
       else if (line.compare("#InstrumentAddress") == 0)
       {
@@ -247,6 +243,13 @@ namespace gpib
             GpibParseError::NoWait);
         }
       }
+      else if (line.compare("#Capture") == 0)
+      {
+        cmd.type = Command::CAPTURE;
+        cmd.address = 0;
+        cmd.command = "";
+        cmd.wait = 0;
+      }
       else
       {
         /* A command string, the validity of which can not be tested because of
@@ -263,6 +266,12 @@ namespace gpib
       }
 
       ++line_num;
+    }
+
+    if (line_num == 0)
+    {
+      // We just read a blank file...
+      throw GpibBlankFileError();
     }
   }
 

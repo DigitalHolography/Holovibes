@@ -74,6 +74,8 @@ namespace holovibes
 
   Recorder::~Recorder()
   {
+    if (file_.is_open())
+      file_.close();
   }
 
   void Recorder::record(const unsigned int n_images)
