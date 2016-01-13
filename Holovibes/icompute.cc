@@ -312,6 +312,11 @@ namespace holovibes
     average_requested_ = true;
     request_refresh();
   }
+  void ICompute::request_average_stop()
+  {
+    average_requested_ = false;
+    request_refresh();
+  }
 
   void ICompute::request_average_record(
     ConcurrentDeque<std::tuple<float, float, float, float>>* output,

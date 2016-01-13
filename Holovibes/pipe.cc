@@ -287,7 +287,6 @@ namespace holovibes
           compute_desc_.noise_zone.load(),
           compute_desc_.nsamples.load(),
           static_cast<cudaStream_t>(0)));
-        average_requested_ = false;
       }
     }
     else
@@ -412,8 +411,6 @@ namespace holovibes
           compute_desc_.noise_zone.load(),
           static_cast<cudaStream_t>(0)));
       }
-
-      average_requested_ = false;
     }
 
     if (compute_desc_.log_scale_enabled)

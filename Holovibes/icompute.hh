@@ -95,6 +95,8 @@ namespace holovibes
     * \note This method is only used by the GUI to draw the average graph. */
     void request_average(
       ConcurrentDeque<std::tuple<float, float, float, float>>* output);
+    /*! \brief Request the ICompute to stop the average compute. */
+    void request_average_stop();
 
     /*! \brief Request the ICompute to fill the output vector with n samples.
     *

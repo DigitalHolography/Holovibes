@@ -384,7 +384,6 @@ namespace holovibes
           compute_desc_.nsamples.load(),
           modules_[1]->stream_
           ));
-        average_requested_ = false;
       }
     }
     else
@@ -476,7 +475,6 @@ namespace holovibes
           modules_[2]->stream_
           ));
       }
-      average_requested_ = false;
     }
 
     if (compute_desc_.log_scale_enabled)

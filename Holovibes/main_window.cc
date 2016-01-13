@@ -794,7 +794,8 @@ namespace gui
   void MainWindow::dispose_average_graphic()
   {
     plot_window_.reset(nullptr);
-    holovibes_.get_pipe()->request_refresh();
+    if (!is_direct_mode_)
+      holovibes_.get_pipe()->request_average_stop();
   }
 
   void MainWindow::browse_roi_file()
