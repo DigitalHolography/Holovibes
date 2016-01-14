@@ -10,7 +10,7 @@
 namespace holovibes
 {
   ThreadReader::ThreadReader(std::string file_src,
-    ThreadReader::FrameDescriptor frame_desc,
+    camera::FrameDescriptor& frame_desc,
     bool loop,
     unsigned int fps,
     unsigned int spanStart,
@@ -18,8 +18,7 @@ namespace holovibes
     Queue& input)
     : IThreadInput()
     , file_src_(file_src)
-    , frame_desc_(frame_desc.desc)
-    , desc_(frame_desc)
+    , frame_desc_(frame_desc)
     , loop_(loop)
     , fps_(fps)
     , frameId_(spanStart)
@@ -36,12 +35,12 @@ namespace holovibes
     unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
     unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
     char*        buffer;
-    cudaMallocHost(&buffer, frame_size * elts_max_nbr);
     unsigned int nbr_stored = 0;
     unsigned int act_frame = 0;
     FILE*   file = nullptr;
     fpos_t  pos = frame_size * (spanStart_ - 1);
 
+    cudaMallocHost(&buffer, frame_size * elts_max_nbr);
     try
     {
       fopen_s(&file, file_src_.c_str(), "rb");

@@ -28,50 +28,10 @@ namespace holovibes
   class ThreadReader : public IThreadInput
   {
   public:
-    /*! This structure contains everything related to the format of the images
-    * stored in file.
-    * Used by ThreadReader to read frames.
-    * ThreadReader::FrameDescriptor fill camera::FrameDescriptor
-    * in order that holovibes use ThreadReader as ThreadCapture.
-    */
-    struct FrameDescriptor
-    {
-    public:
-
-      /*! \brief compute squared FrameDescriptor with power of 2 border size */
-      void compute_sqared_image(void)
-      {
-        unsigned short biggestBorder = (desc.width > desc.height ? desc.width : desc.height);
-
-        img_width = desc.width;
-        img_height = desc.height;
-
-        if (desc.width != desc.height)
-          desc.width = desc.height = biggestBorder;
-
-        if (!isPowerOfTwo(biggestBorder))
-          desc.width = desc.height = static_cast<unsigned short>(nextPowerOf2(biggestBorder));
-      }
-
-      /*! \brief Adjust a camera::FrameDescriptor and store it. */
-      FrameDescriptor(camera::FrameDescriptor d)
-        : desc(d)
-        , img_width(d.width)
-        , img_height(d.height)
-      {
-        this->compute_sqared_image();
-      }
-
-      camera::FrameDescriptor desc;
-      /*! Width of the image. != frame width */
-      unsigned short         img_width;
-      /*! Height of the image. != frame height */
-      unsigned short         img_height;
-    };
 
     /*! \brief Create a preconfigured ThreadReader. */
     ThreadReader(std::string file_src
-      , holovibes::ThreadReader::FrameDescriptor frame_desc
+      , camera::FrameDescriptor& frame_desc
       , bool loop
       , unsigned int fps
       , unsigned int spanStart
@@ -90,10 +50,8 @@ namespace holovibes
     bool loop_;
     /*! \brief Frames Per Second to be displayed. */
     unsigned int fps_;
-    /*! \brief Describes the image format used by the camera. */
-    camera::FrameDescriptor& frame_desc_;
-    /*! \brief Describes the image format used for reading. */
-    holovibes::ThreadReader::FrameDescriptor desc_;
+    /*! \brief Describes the image format read by thread_reader. */
+    camera::FrameDescriptor frame_desc_;
     /*! \brief Current frame id in file. */
     unsigned int frameId_;
     /*! \brief Id of the first frame to read. */

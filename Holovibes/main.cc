@@ -53,18 +53,17 @@ int main(int argc, char* argv[])
       {
         h.init_import_mode(
           opts.file_src,
-          holovibes::ThreadReader::FrameDescriptor({
+          {
           opts.file_image_width,
           opts.file_image_height,
           opts.file_image_depth / 8,
-          0.0f,
-          (opts.file_is_big_endian ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN),
-        }),
-        false,
-        opts.fps,
-        opts.spanStart,
-        opts.spanEnd,
-        global::global_config.input_queue_max_size);
+          5.42f,
+          (opts.file_is_big_endian ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) },
+          false,
+          opts.fps,
+          opts.spanStart,
+          opts.spanEnd,
+          global::global_config.input_queue_max_size);
       }
 
       if (opts.is_compute_enabled)

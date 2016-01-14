@@ -1273,14 +1273,13 @@ namespace gui
 
     std::string file_src = import_line_edit->text().toUtf8();
 
-    holovibes::ThreadReader::FrameDescriptor frame_desc({
+    camera::FrameDescriptor frame_desc = {
       width_spinbox->value(),
       height_spinbox->value(),
       // 0:depth = 8, 1:depth = 16
       depth_spinbox->currentIndex() + 1,
       5.42f, // There's no way to find this...
-      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN)
-    });
+      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
     camera_visible(false);
     record_visible(false);

@@ -1,4 +1,4 @@
-/*! \file 
+/*! \file
  *
  * Core class to use HoloVibe  */
 #pragma once
@@ -88,7 +88,7 @@ namespace holovibes
       return *input_;
     }
 
-     /*! Used to display frames */
+    /*! Used to display frames */
     Queue& get_output_queue()
     {
       return *output_;
@@ -128,7 +128,7 @@ namespace holovibes
 
     /*! \brief Fetch all the necessary information before importing a file. */
     void init_import_mode(std::string &file_src,
-      holovibes::ThreadReader::FrameDescriptor frame_desc,
+      camera::FrameDescriptor frame_desc,
       bool loop,
       unsigned int fps,
       unsigned int spanStart,

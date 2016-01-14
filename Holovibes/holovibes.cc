@@ -151,7 +151,7 @@ namespace holovibes
   }
 
   void Holovibes::init_import_mode(std::string &file_src,
-    holovibes::ThreadReader::FrameDescriptor frame_desc,
+    camera::FrameDescriptor frame_desc,
     bool loop,
     unsigned int fps,
     unsigned int spanStart,
@@ -162,7 +162,7 @@ namespace holovibes
 
     try
     {
-      input_.reset(new Queue(frame_desc.desc, q_max_size_, "InputQueue"));
+      input_.reset(new Queue(frame_desc, q_max_size_, "InputQueue"));
       tcapture_.reset(
         new ThreadReader(file_src
         , frame_desc
