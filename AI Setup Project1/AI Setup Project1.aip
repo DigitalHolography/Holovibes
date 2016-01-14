@@ -31,7 +31,7 @@
     <ROW Property="ProductCode" Value="1033:{1AECC70B-CA58-4C72-A853-C22F85CB41A9} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Holovibes"/>
-    <ROW Property="ProductVersion" Value="1.5.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="2.0.0" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{6C5908FA-5E26-4309-831D-2E7070E46C65}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
