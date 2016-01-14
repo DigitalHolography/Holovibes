@@ -136,14 +136,6 @@ signals:
     /*! \brief Called whenever the OpenGL widget is resized */
     void resizeGL(int width, int height) override;
 
-    /*! Call glTexImage2D with specific arguments.
-    **
-    ** This method should be overriden by further classes to provide
-    ** different kinds of output formats. This is a usage of the NVI idiom,
-    ** the wrapper method being paintGL().
-    */
-    virtual void set_texture_format() = 0;
-
     /*! \brief Paint the scene and the selection zone(s) according to selection_mode_.
     **
     ** The image is painted directly from the GPU, avoiding several
