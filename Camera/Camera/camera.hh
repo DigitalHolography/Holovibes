@@ -104,7 +104,10 @@ namespace camera
      * Validity checking for any parameter is enclosed in this method. */
     virtual void bind_params() = 0;
 
-    // Loading all utilities functions in the CamUtils DLL.
+    /*! Loading all utilities functions from the CamUtils DLL into function pointers.
+     *
+     * This method may be called at initialization by any camera DLL wishing
+     * to make use of its services. */
     void load_utils()
     {
       dll_instance_ = LoadLibraryW(L"CameraUtils.dll");
@@ -141,11 +144,13 @@ namespace camera
 
     HINSTANCE dll_instance_; //!< Handle to the CamUtils DLL.
 
+    /*! \{ \name CameraUtils pointers */
     void(*create_logfile_)(std::string);
     void(*log_msg_)(std::string);
     void(*close_logfile_)();
     void(*allocate_memory_)(void** buf, const std::size_t size);
     void(*free_memory_)(void* buf);
+    /*! \} */
 
   private:
     std::string ini_path_; //!< INI configuration file's absolute path.

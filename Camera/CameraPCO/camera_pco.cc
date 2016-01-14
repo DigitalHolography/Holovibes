@@ -33,8 +33,6 @@ namespace camera
     {
       buffers_[i] = nullptr;
     }
-
-    load_utils();
   }
 
   CameraPCO::~CameraPCO()
@@ -57,8 +55,6 @@ namespace camera
       delete[] buffers_[i];
       buffers_[i] = nullptr;
     }
-
-    close_logfile_();
   }
 
   void CameraPCO::init_camera()
@@ -96,21 +92,13 @@ namespace camera
     */
 
     status = PCO_ArmCamera(device_);
-    if (status != PCO_NOERROR)
-      log_msg_("Could not arm camera.");
 
     status = get_sensor_sizes();
-    if (status != PCO_NOERROR)
-      log_msg_("Could not get sensor width and height.");
 
     status = allocate_buffers();
-    if (status != PCO_NOERROR)
-      log_msg_("Could not allocate memory for camera buffers.");
 
     /* Set recording state to [run] */
     status = PCO_SetRecordingState(device_, PCO_RECSTATE_RUN);
-    if (status != PCO_NOERROR)
-      log_msg_("Could not enter acquisition mode.");
 
     /* Add buffers into queue. */
     for (unsigned int i = 0;
@@ -173,8 +161,6 @@ namespace camera
 
       return buffers_[buffer_index];
     }
-
-    log_msg_("Could not get frame.");
   }
 
   int CameraPCO::get_sensor_sizes()

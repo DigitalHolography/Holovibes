@@ -54,8 +54,7 @@ namespace camera
 
   void* CameraXiq::get_frame()
   {
-    if (xiGetImage(device_, FRAME_TIMEOUT, &frame_) != XI_OK)
-      log_msg_("Could not get frame.");
+    xiGetImage(device_, FRAME_TIMEOUT, &frame_);
 
     return frame_.bp;
   }

@@ -7,17 +7,6 @@
 
 namespace camera
 {
-  // DEBUG : remove these functions later
-
-  static void soft_assert(const char* func, int& status)
-  {
-    if (status != PCO_NOERROR)
-      std::cout << func << "() call failed : error " << status << std::endl;
-    status = PCO_NOERROR;
-  }
-
-  // ! DEBUG
-
   /* Load PCO_Signal data from ini file. */
   static void load_pco_signal_params(const boost::property_tree::ptree& pt,
     PCO_Signal& sig, const WORD sig_index)
@@ -48,8 +37,6 @@ namespace camera
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
-
-    create_logfile_(name_);
   }
 
   CameraPCOEdge::~CameraPCOEdge()
