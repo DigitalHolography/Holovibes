@@ -480,7 +480,7 @@
          </item>
          <item>
           <property name="text">
-           <string>magnitude²</string>
+           <string>squared magnitude</string>
           </property>
          </item>
          <item>
@@ -1285,25 +1285,6 @@
           <string>ROI output:</string>
          </property>
         </widget>
-        <zorder>numberOfFramesLabel</zorder>
-        <zorder>numberOfFramesSpinBox</zorder>
-        <zorder>pathLineEdit</zorder>
-        <zorder>recPushButton</zorder>
-        <zorder>cancelPushButton</zorder>
-        <zorder>ROIOutputLineEdit</zorder>
-        <zorder>ROIPushButton</zorder>
-        <zorder>ROIStopPushButton</zorder>
-        <zorder>batchInputLineEdit</zorder>
-        <zorder>pushButton_2</zorder>
-        <zorder>ROIBatchPushButton</zorder>
-        <zorder>RecordFloatOutputCheckBox</zorder>
-        <zorder>ImageOutpuLabel</zorder>
-        <zorder>ImageOutputBrowsePushButton</zorder>
-        <zorder>batchInputBrowseToolButton</zorder>
-        <zorder>ROIOutputToolButton</zorder>
-        <zorder>BatchInputLabel</zorder>
-        <zorder>ROIOuputLabel</zorder>
-        <zorder>Vibrometry</zorder>
        </widget>
       </item>
       <item>
@@ -1699,28 +1680,6 @@
           <string>End:</string>
          </property>
         </widget>
-        <zorder>ImportPathLineEdit</zorder>
-        <zorder>ImportPushButton</zorder>
-        <zorder>ClosePushButton</zorder>
-        <zorder>pLabel_2</zorder>
-        <zorder>ImportWidthSpinBox</zorder>
-        <zorder>Record_3</zorder>
-        <zorder>HeightLabel</zorder>
-        <zorder>ImportHeightSpinBox</zorder>
-        <zorder>ImportFpsSpinBox</zorder>
-        <zorder>FpsLabel</zorder>
-        <zorder>ImportEndianModeComboBox</zorder>
-        <zorder>ImportEndianneTypeLabel</zorder>
-        <zorder>ImportDepthLabelVibro</zorder>
-        <zorder>ImportDepthModeComboBox</zorder>
-        <zorder>ImportSpanLabelVibro</zorder>
-        <zorder>ImportStartSpinBox</zorder>
-        <zorder>ImportEndSpinBox</zorder>
-        <zorder>ImportLoopCheckBox</zorder>
-        <zorder>InputBrowseToolButton</zorder>
-        <zorder>ImageInputLabel</zorder>
-        <zorder>ImportSpanLabelVibro_2</zorder>
-        <zorder>Record</zorder>
        </widget>
       </item>
       <item>

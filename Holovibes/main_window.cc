@@ -511,6 +511,8 @@ namespace gui
       QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
       bool pipeline_checked = pipeline_checkbox->isChecked();
 
+      std::cout << "Value = " << value.toUtf8().constData() << std::endl;
+
       if (value == "magnitude")
       {
         cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
@@ -542,8 +544,6 @@ namespace gui
             cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
           else if (value == "phase 2")
             cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
-          else if (value == "phase 3")
-            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3;
         }
       }
 
