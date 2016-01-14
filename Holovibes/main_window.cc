@@ -10,7 +10,6 @@
 #include "../GPIB/gpib_exceptions.hh"
 #include "camera_exception.hh"
 #include "config.hh"
-#include "config.hh"
 #include "info_manager.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
@@ -1291,7 +1290,7 @@ namespace gui
       height_spinbox->value(),
       // 0:depth = 8, 1:depth = 16
       depth_spinbox->currentIndex() + 1,
-      5.42f, // There's no way to find this...
+      global::global_config.import_pixel_size,
       (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
     camera_visible(false);
@@ -1308,9 +1307,19 @@ namespace gui
       start_spinbox->value(),
       end_spinbox->value(),
       global::global_config.input_queue_max_size);
+
     camera_visible(true);
     record_visible(true);
     set_image_mode(is_direct_mode_);
+
+    // Changing the gui
+    QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
+    pixel_size->clear();
+    pixel_size->insert(QString::number(holovibes_.get_cam_frame_desc().pixel_size));
+
+    QLineEdit* boundary = findChild<QLineEdit*>("boundary");
+    boundary->clear();
+    boundary->insert(QString::number(holovibes_.get_boundary()));
   }
 
   void MainWindow::import_start_spinbox_update()
@@ -1643,6 +1652,7 @@ namespace gui
       // Import
       import_action->setChecked(!ptree.get<bool>("import.hidden", false));
       import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+      config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
 
       // Info
       info_action->setChecked(!ptree.get<bool>("info.hidden", false));
@@ -1704,6 +1714,7 @@ namespace gui
 
     // Import
     ptree.put("import.hidden", import_group_box->isHidden());
+    ptree.put("import.pixel_size", config.import_pixel_size);
 
     // Info
     ptree.put("info.hidden", info_group_box->isHidden());

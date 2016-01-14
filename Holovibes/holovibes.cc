@@ -140,7 +140,7 @@ namespace holovibes
 
   const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
   {
-    return camera_->get_frame_descriptor();
+    return (tcapture_.get()->get_frame_descriptor());
   }
 
   const float Holovibes::get_boundary()

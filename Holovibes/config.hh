@@ -20,6 +20,7 @@ namespace holovibes
       this->frame_timeout = 1e5;
       this->reader_buf_max_size = 20;
       this->unwrap_history_size = 20;
+      this->import_pixel_size = 5.42f;
     }
 
     /*! \brief Copy constructor.*/
@@ -55,6 +56,8 @@ namespace holovibes
      * Determines how far, meaning how many iterations back, phase corrections
      * are taken in order to be applied to the current phase image. */
     unsigned int unwrap_history_size;
+    /*! \brief default import pixel size, can't be found in .raw*/
+    float        import_pixel_size;
   };
 }
 

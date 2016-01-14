@@ -30,6 +30,7 @@ namespace holovibes
 
     ~ThreadCapture();
 
+    const camera::FrameDescriptor& get_frame_descriptor() const;
   private:
     /*! While the thread is running, the get_frame() function (see ICamera
      * interface) is called with the current camera. Images sent are enqueued. */

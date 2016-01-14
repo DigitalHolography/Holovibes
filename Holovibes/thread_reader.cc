@@ -97,4 +97,9 @@ namespace holovibes
       thread_.join();
     gui::InfoManager::get_manager()->update_info("ImgSource", "none");
   }
+
+  const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
+  {
+    return frame_desc_;
+  }
 }

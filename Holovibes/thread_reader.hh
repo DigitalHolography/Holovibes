@@ -40,6 +40,7 @@ namespace holovibes
 
     virtual ~ThreadReader();
 
+    const camera::FrameDescriptor& get_frame_descriptor() const;
   private:
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
