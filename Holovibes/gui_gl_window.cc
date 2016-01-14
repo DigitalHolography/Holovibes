@@ -1,5 +1,4 @@
 #include "gui_gl_window.hh"
-#include "gui_gl_widget_mono.hh"
 #include "holovibes.hh"
 
 #define DEFAULT_GLWIDGET_SIZE 600
@@ -38,7 +37,7 @@ namespace gui
     this->show();
 
     // Default displaying format is 16-bits, monochrome.
-    gl_widget_.reset(new GLWidgetMono(h, q, width, height, this));
+    gl_widget_.reset(new GLWidget(h, q, width, height, this));
     gl_widget_->show();
   }
 

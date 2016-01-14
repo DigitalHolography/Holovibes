@@ -81,6 +81,9 @@
     <CudaCompile Include="stft.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="tools_unwrap.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -108,9 +111,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui_gl_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_widget.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui_group_box.cc">
@@ -239,6 +239,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="gui_gl_widget.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -358,17 +361,14 @@
     <ClInclude Include="config.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui_gl_widget_color.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui_gl_widget_mono.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gpib_dll.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="compute_bundles.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_unwrap.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

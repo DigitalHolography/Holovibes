@@ -1123,8 +1123,8 @@ namespace gui
     }
     catch (const std::exception& e)
     {
-      std::cout << "[GPIB] " << e.what() << "\n";
-      batch_finished_record();
+      display_error(e.what());
+      batch_finished_record(false);
     }
   }
 
@@ -1132,11 +1132,10 @@ namespace gui
   {
     if (is_batch_interrupted_)
     {
-      batch_finished_record();
+      batch_finished_record(false);
       return;
     }
 
-    disconnect(SIGNAL(finished()), this);
     record_thread_.reset(nullptr);
 
     QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
@@ -1157,44 +1156,52 @@ namespace gui
     const unsigned int frame_nb = frame_nb_spin_box->value();
     if (is_batch_img_)
     {
-      record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
-
       try
       {
         if (gpib_interface_->execute_next_block())
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+        {
+          record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
+          connect(record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()), Qt::UniqueConnection);
+          record_thread_->start();
+        }
         else
-          connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
-
-        record_thread_->start();
+        {
+          batch_finished_record(true);
+        }
       }
       catch (const gpib::GpibInstrError& e)
       {
-        std::cerr << "[GPIB] " << e.what() << "\n";
-        batch_finished_record();
+        display_error(e.what());
+        batch_finished_record(false);
       }
     }
     else
     {
-      CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-        holovibes_.get_average_queue(),
-        output_filename,
-        frame_nb,
-        this));
-
       try
       {
         if (gpib_interface_->execute_next_block())
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_next_record()), Qt::UniqueConnection);
+        {
+          CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+            holovibes_.get_average_queue(),
+            output_filename,
+            frame_nb,
+            this));
+          connect(CSV_record_thread_.get(),
+            SIGNAL(finished()),
+            this,
+            SLOT(batch_next_record()), Qt::UniqueConnection);
+          CSV_record_thread_->start();
+        }
         else
-          connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(batch_finished_record()), Qt::UniqueConnection);
-
-        CSV_record_thread_->start();
+          batch_finished_record(true);
       }
       catch (const gpib::GpibInstrError& e)
       {
-        std::cerr << "[GPIB] " << e.what() << "\n";
-        batch_finished_record();
+        display_error(e.what());
+        batch_finished_record(false);
       }
     }
 
@@ -1204,15 +1211,21 @@ namespace gui
 
   void MainWindow::batch_finished_record()
   {
-    disconnect(SIGNAL(finished()), this);
+    batch_finished_record(true);
+  }
+
+  void MainWindow::batch_finished_record(bool no_error)
+  {
     record_thread_.reset(nullptr);
     CSV_record_thread_.reset(nullptr);
     gpib_interface_.reset();
 
     file_index_ = 1;
-    global_visibility(true);
+    if (!is_direct_mode_)
+      global_visibility(true);
     camera_visible(true);
-    display_info("Batch record done");
+    if (no_error)
+      display_info("Batch record done");
 
     if (plot_window_)
     {
