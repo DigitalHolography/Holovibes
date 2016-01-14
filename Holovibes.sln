@@ -250,4 +250,10 @@ Global
 		{D981B600-1444-4D9B-8124-45CC358AB8DF} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
 	EndGlobalSection
+<<<<<<< HEAD
+=======
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		Qt5Version = msvc2013_64
+	EndGlobalSection
+>>>>>>> Fixed Qt path issue and disabled QVector-related warning.
 EndGlobal
