@@ -196,7 +196,7 @@ namespace gui
       childCount += !var->isHidden();
 
     if (childCount > 0)
-      this->resize(QSize(childCount * 195, 362));
+      this->resize(QSize(childCount * 195, 385));
     else
       this->resize(QSize(195, 60));
   }
