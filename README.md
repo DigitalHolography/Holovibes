@@ -322,7 +322,13 @@ Eric, Arnaud and Geoffrey are now working on the project until January 2016.
 * Dependencies are now handled in a smarter way (not including things where they should not be)
 * Ini file is now more dense and can configure more parameters
 
+## September 2016 -- January 2017 ##
 
+Cyril, Clément are now working on the project until January 2017.
+
+### v.2.0.1
+
+* Several bugs fixed
 
 # Known problems :
 
