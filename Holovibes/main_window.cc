@@ -25,7 +25,7 @@ namespace gui
     , is_enabled_average_(false)
     , is_batch_img_(true)
     , is_batch_interrupted_(false)
-    , z_step_(0.1f)
+    , z_step_(0.01f)
     , camera_type_(holovibes::Holovibes::NONE)
     , last_contrast_type_("magnitude")
     , plot_window_(nullptr)
