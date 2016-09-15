@@ -351,10 +351,21 @@ namespace gui
 
   void  MainWindow::set_phase_number(const int value)
   {
+	holovibes::Queue* input;
+
     if (!is_direct_mode_)
     {
-      holovibes_.get_pipe()->request_update_n(value);
-      notify();
+		input = &holovibes_.get_capture_queue();
+		if (value <= input->get_max_elts())
+		{
+			holovibes_.get_pipe()->request_update_n(value);
+			notify();
+		}
+		else
+		{
+			QSpinBox* p_nphase = findChild<QSpinBox*>("phaseNumberSpinBox");
+			p_nphase->setValue(value - 1);
+		}
     }
   }
 
@@ -1597,7 +1608,13 @@ namespace gui
       image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
       image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-      cd.nsamples = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
+	  const unsigned short p_nsample = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
+	  if (p_nsample < 1)
+		cd.nsamples.exchange(1);
+	  else if (p_nsample > config.input_queue_max_size)
+		cd.nsamples.exchange(config.input_queue_max_size);
+	  else
+		cd.nsamples.exchange(p_nsample);
 
       const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
       if (p_index >= 0 && p_index < cd.nsamples)
