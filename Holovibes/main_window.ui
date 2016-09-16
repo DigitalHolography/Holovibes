@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1190</width>
-    <height>390</height>
+    <width>1330</width>
+    <height>498</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -358,15 +358,28 @@
           <rect>
            <x>10</x>
            <y>60</y>
-           <width>161</width>
+           <width>61</width>
            <height>16</height>
           </rect>
          </property>
          <property name="text">
-          <string>Parallel pipeline</string>
+          <string>Parallel</string>
          </property>
          <property name="checked">
           <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="Reset_button">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>60</y>
+           <width>61</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Reset</string>
          </property>
         </widget>
        </widget>
@@ -1767,7 +1780,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1190</width>
+     <width>1330</width>
      <height>21</height>
     </rect>
    </property>
@@ -2022,6 +2035,7 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
    <slots>
     <slot>ShowOrHide()</slot>
+    <slot>reset()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -2034,8 +2048,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1009</x>
-     <y>325</y>
+     <x>983</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -2050,8 +2064,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1069</x>
-     <y>325</y>
+     <x>983</x>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -2146,8 +2160,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_image_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>78</y>
+     <x>62</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2178,8 +2192,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>188</x>
-     <y>145</y>
+     <x>187</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2242,8 +2256,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>379</x>
-     <y>154</y>
+     <x>272</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2258,8 +2272,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
-     <y>94</y>
+     <x>282</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2274,8 +2288,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>359</x>
-     <y>114</y>
+     <x>382</x>
+     <y>139</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2290,8 +2304,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>493</x>
-     <y>124</y>
+     <x>486</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -2306,8 +2320,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>493</x>
-     <y>154</y>
+     <x>486</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -2322,8 +2336,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>675</x>
-     <y>173</y>
+     <x>680</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -2338,8 +2352,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>75</y>
+     <x>382</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -2354,8 +2368,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>134</y>
+     <x>293</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -2466,8 +2480,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>185</y>
+     <x>383</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -2482,8 +2496,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>185</y>
+     <x>383</x>
+     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -2578,8 +2592,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>212</y>
+     <x>576</x>
+     <y>204</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -2626,8 +2640,8 @@ p, li { white-space: pre-wrap; }
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>503</x>
-     <y>323</y>
+     <x>486</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -2642,8 +2656,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>323</y>
+     <x>576</x>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -2658,8 +2672,8 @@ p, li { white-space: pre-wrap; }
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>675</x>
-     <y>323</y>
+     <x>680</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -2674,8 +2688,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>593</x>
-     <y>213</y>
+     <x>576</x>
+     <y>235</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -2690,8 +2704,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>213</y>
+     <x>382</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -2706,8 +2720,8 @@ p, li { white-space: pre-wrap; }
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
-     <y>174</y>
+     <x>740</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -2722,8 +2736,8 @@ p, li { white-space: pre-wrap; }
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>782</x>
-     <y>324</y>
+     <x>740</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -2738,8 +2752,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>795</x>
-     <y>173</y>
+     <x>800</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -2754,8 +2768,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>842</x>
-     <y>324</y>
+     <x>800</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -2770,8 +2784,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>969</x>
-     <y>144</y>
+     <x>902</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>1010</x>
@@ -2786,8 +2800,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1059</x>
-     <y>144</y>
+     <x>992</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -2914,8 +2928,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>766</x>
-     <y>272</y>
+     <x>831</x>
+     <y>255</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -2930,7 +2944,7 @@ p, li { white-space: pre-wrap; }
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>961</x>
+     <x>1052</x>
      <y>82</y>
     </hint>
     <hint type="destinationlabel">
@@ -2946,8 +2960,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>570</x>
-     <y>272</y>
+     <x>609</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -2962,8 +2976,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>766</x>
-     <y>212</y>
+     <x>831</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -2978,8 +2992,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>766</x>
-     <y>112</y>
+     <x>830</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -2998,7 +3012,7 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1067</x>
+     <x>1113</x>
      <y>182</y>
     </hint>
    </hints>
@@ -3026,7 +3040,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_unwrap_history_size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>291</x>
+     <x>382</x>
      <y>106</y>
     </hint>
     <hint type="destinationlabel">
@@ -3048,6 +3062,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>583</x>
      <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Reset_button</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>272</y>
     </hint>
    </hints>
   </connection>
@@ -3110,5 +3140,6 @@ p, li { white-space: pre-wrap; }
   <slot>layout_toggled(bool)</slot>
   <slot>set_unwrap_history_size(int)</slot>
   <slot>set_unwrapping(bool)</slot>
+  <slot>reset()</slot>
  </slots>
 </ui>

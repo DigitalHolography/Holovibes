@@ -79,6 +79,7 @@ namespace gui
   {
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
+	
   }
 
   void MainWindow::notify()
@@ -229,6 +230,8 @@ namespace gui
     if (!is_direct_mode_)
       holovibes_.dispose_compute();
     holovibes_.dispose_capture();
+	cudaDeviceSynchronize();
+	cudaDeviceReset();
     camera_visible(false);
     record_visible(false);
     global_visibility(false);
@@ -347,6 +350,21 @@ namespace gui
 
       notify();
     }
+  }
+
+  void MainWindow::reset()
+  {
+	  gl_window_.reset(nullptr);
+	  if (!is_direct_mode_)
+		  holovibes_.dispose_compute();
+	  holovibes_.dispose_capture();
+	  camera_visible(false);
+	  record_visible(false);
+	  global_visibility(false);
+	  cudaDeviceSynchronize();
+	  cudaDeviceReset();
+	  change_camera(camera_type_);
+
   }
 
   void  MainWindow::set_phase_number(const int value)
@@ -1497,7 +1515,7 @@ namespace gui
       try
       {
         camera_visible(false);
-        record_visible(false);
+        record_visible(false); 
         global_visibility(false);
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();

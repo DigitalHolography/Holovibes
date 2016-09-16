@@ -22,8 +22,10 @@
 # include "camera_exception.hh"
 # include "../GPIB/IVisaInterface.hh"
 # include "ui_main_window.h"
+# include "options_parser.hh"
 # include "holovibes.hh"
 # include "observer.hh"
+#include "options_descriptor.hh"
 
 /* Forward declarations. */
 namespace gui
@@ -134,6 +136,8 @@ namespace gui
     ** \param value true for direct mode, false for hologram mode.
     */
     void set_image_mode(bool value);
+	/*! \brief Reset the program */
+	void reset();
     /*! \brief Set phase number (also called 'n' in papers)
     ** \param value new phase number
     */
@@ -319,7 +323,6 @@ namespace gui
     void import_start_spinbox_update();
     /*! \brief Update start to end if start < end */
     void import_end_spinbox_update();
-
     /*! \brief Hide endianess choice depending on 8/16 bit is selected*/
     void hide_endianess();
 
