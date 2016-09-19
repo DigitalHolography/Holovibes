@@ -639,6 +639,8 @@ namespace gui
 
   void MainWindow::request_autofocus(holovibes::Rectangle zone)
   {
+	 auto manager = gui::InfoManager::get_manager();
+	  manager->update_info("Status", "Autofocus processing...");
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 

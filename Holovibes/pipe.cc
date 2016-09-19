@@ -634,10 +634,11 @@ namespace holovibes
       z_step = (z_max - z_min) / z_div;
       focus_metric_values.clear();
     }
-
+	auto manager = gui::InfoManager::get_manager();
+	manager->remove_info("Status");
     /// End of the loop, free resources and notify the new z
-
-    compute_desc_.zdistance = af_z;
+	if (af_z != 0)
+		compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();
 
     cudaFree(gpu_float_buffer_af_zone);
