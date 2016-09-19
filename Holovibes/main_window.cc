@@ -354,6 +354,7 @@ namespace gui
   {
 	  holovibes::Config&	config = global::global_config;
 	  int					device = 0;
+
 	  global_visibility(false);
 	  auto manager = gui::InfoManager::get_manager();
 	  manager->update_info("Status", "Resetting...");
@@ -368,7 +369,10 @@ namespace gui
 	  if (config.set_cuda_device == 1)
 	  {
 		  if (config.auto_device_number == 1)
+		  {
 			  cudaGetDevice(&device);
+			  config.device_number = device;
+		  }
 		  else
 			  device = config.device_number;
 		  cudaSetDevice(device);
@@ -1716,9 +1720,9 @@ namespace gui
       cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
 
 	  // Reset button
-	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", true);
-	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", true);
-	  config.device_number = ptree.get<int>("reset.device_number", 1);
+	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
+	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
+	  config.device_number = ptree.get<int>("reset.device_number", config.device_number);
     }
   }
 
@@ -1784,7 +1788,7 @@ namespace gui
 	//Reset
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);
 	ptree.put("reset.auto_device_number", config.auto_device_number);
-	ptree.put("reset.cuda_device", config.device_number);
+	ptree.put("reset.device_number", config.device_number);
 
 	boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
