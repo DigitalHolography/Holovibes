@@ -79,6 +79,7 @@ namespace gui
   {
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
+	
   }
 
   void MainWindow::notify()
@@ -347,6 +348,37 @@ namespace gui
 
       notify();
     }
+  }
+
+  void MainWindow::reset()
+  {
+	  holovibes::Config&	config = global::global_config;
+	  int					device = 0;
+	  global_visibility(false);
+	  auto manager = gui::InfoManager::get_manager();
+	  manager->update_info("Status", "Resetting...");
+	  qApp->processEvents();
+	  gl_window_.reset(nullptr);
+	  if (!is_direct_mode_)
+		  holovibes_.dispose_compute();
+	  holovibes_.dispose_capture();
+	  camera_visible(false);
+	  record_visible(false);
+	  global_visibility(false);
+	  if (config.set_cuda_device == 1)
+	  {
+		  if (config.auto_device_number == 1)
+			  cudaGetDevice(&device);
+		  else
+			  device = config.device_number;
+		  cudaSetDevice(device);
+	  }
+	  cudaDeviceSynchronize();
+	  cudaDeviceReset();
+	  change_camera(camera_type_);
+	  manager->remove_info("Status");
+	  global_visibility(true);
+
   }
 
   void  MainWindow::set_phase_number(const int value)
@@ -618,6 +650,8 @@ namespace gui
 
   void MainWindow::request_autofocus(holovibes::Rectangle zone)
   {
+	 auto manager = gui::InfoManager::get_manager();
+	  manager->update_info("Status", "Autofocus processing...");
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
@@ -1508,7 +1542,7 @@ namespace gui
       try
       {
         camera_visible(false);
-        record_visible(false);
+        record_visible(false); 
         global_visibility(false);
         gl_window_.reset(nullptr);
         holovibes_.dispose_compute();
@@ -1680,6 +1714,11 @@ namespace gui
 
       // Autofocus
       cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
+
+	  // Reset button
+	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", true);
+	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", true);
+	  config.device_number = ptree.get<int>("reset.device_number", 1);
     }
   }
 
@@ -1742,7 +1781,12 @@ namespace gui
     // Autofocus
     ptree.put("autofocus.size", cd.autofocus_size);
 
-    boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
+	//Reset
+	ptree.put("reset.set_cuda_device", config.set_cuda_device);
+	ptree.put("reset.auto_device_number", config.auto_device_number);
+	ptree.put("reset.cuda_device", config.device_number);
+
+	boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
 
   void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
