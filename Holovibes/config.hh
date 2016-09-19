@@ -21,6 +21,9 @@ namespace holovibes
       this->reader_buf_max_size = 20;
       this->unwrap_history_size = 20;
       this->import_pixel_size = 5.42f;
+	  this->set_cuda_device = 1;
+	  this->auto_device_number = 0;
+	  this->device_number = 0;
     }
 
     /*! \brief Copy constructor.*/
@@ -37,6 +40,9 @@ namespace holovibes
       this->input_queue_max_size = o.input_queue_max_size;
       this->output_queue_max_size = o.output_queue_max_size;
       this->unwrap_history_size = o.unwrap_history_size;
+	  this->set_cuda_device = o.set_cuda_device;
+	  this->auto_device_number = o.auto_device_number;
+	  this->device_number = o.device_number;
       return (*this);
     }
 
@@ -58,6 +64,12 @@ namespace holovibes
     unsigned int unwrap_history_size;
     /*! \brief default import pixel size, can't be found in .raw*/
     float        import_pixel_size;
+	/* \brief Determines if Cuda device has to be set*/
+	bool		set_cuda_device;
+	/* \brief Determines if Cuda device number is automaticly set*/
+	bool		auto_device_number;
+	/* \brief Determines if Cuda device number is set manually*/
+	unsigned int device_number;
   };
 }
 

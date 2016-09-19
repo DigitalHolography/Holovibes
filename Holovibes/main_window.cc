@@ -352,6 +352,9 @@ namespace gui
 
   void MainWindow::reset()
   {
+	  holovibes::Config&	config = global::global_config;
+	  int					device = 0;
+
 	  gl_window_.reset(nullptr);
 	  if (!is_direct_mode_)
 		  holovibes_.dispose_compute();
@@ -359,7 +362,14 @@ namespace gui
 	  camera_visible(false);
 	  record_visible(false);
 	  global_visibility(false);
-	  cudaSetDevice(0);
+	  if (config.set_cuda_device == 1)
+	  {
+		  if (config.auto_device_number == 1)
+			  cudaGetDevice(&device);
+		  else
+			  device = config.device_number;
+		  cudaSetDevice(device);
+	  }
 	  cudaDeviceSynchronize();
 	  cudaDeviceReset();
 	  change_camera(camera_type_);
@@ -1680,6 +1690,11 @@ namespace gui
 
       // Autofocus
       cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
+
+	  // Reset button
+	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", true);
+	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", true);
+	  config.device_number = ptree.get<int>("reset.device_number", 1);
     }
   }
 
@@ -1742,7 +1757,12 @@ namespace gui
     // Autofocus
     ptree.put("autofocus.size", cd.autofocus_size);
 
-    boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
+	//Reset
+	ptree.put("reset.set_cuda_device", config.set_cuda_device);
+	ptree.put("reset.auto_device_number", config.auto_device_number);
+	ptree.put("reset.cuda_device", config.device_number);
+
+	boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
 
   void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
