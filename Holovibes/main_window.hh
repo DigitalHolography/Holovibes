@@ -136,7 +136,7 @@ namespace gui
     ** \param value true for direct mode, false for hologram mode.
     */
     void set_image_mode(bool value);
-	/*! \brief Reset the program */
+	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
     /*! \brief Set phase number (also called 'n' in papers)
     ** \param value new phase number

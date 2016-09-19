@@ -354,7 +354,10 @@ namespace gui
   {
 	  holovibes::Config&	config = global::global_config;
 	  int					device = 0;
-
+	  global_visibility(false);
+	  auto manager = gui::InfoManager::get_manager();
+	  manager->update_info("Status", "Resetting...");
+	  qApp->processEvents();
 	  gl_window_.reset(nullptr);
 	  if (!is_direct_mode_)
 		  holovibes_.dispose_compute();
@@ -373,6 +376,8 @@ namespace gui
 	  cudaDeviceSynchronize();
 	  cudaDeviceReset();
 	  change_camera(camera_type_);
+	  manager->remove_info("Status");
+	  global_visibility(true);
 
   }
 
