@@ -36,6 +36,13 @@ namespace holovibes
       STFT,
     };
 
+	/*! \brief select which mode the pipe will be using*/
+	enum compute_mode
+	{
+		DEMODULATION,
+		HOLOGRAM
+	};
+
     /*! \brief Complex to float methods.
      *
      * Select the method to apply to transform a complex hologram frame to a
@@ -56,6 +63,7 @@ namespace holovibes
     ComputeDescriptor()
       : Observable()
       , algorithm(FFT1)
+	  , compute_mode(HOLOGRAM)
       , nsamples(2)
       , pindex()
       , lambda(532e-9f)
@@ -81,8 +89,11 @@ namespace holovibes
      * does not allow to generate assignments operator automatically. */
     ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
+
     /*! Hologram algorithm. */
     std::atomic<enum fft_algorithm> algorithm;
+	/*! Computing mode used by the pipe */
+	std::atomic<enum compute_mode> compute_mode;
 
     /*! Number of samples in which apply the fft on. */
     std::atomic<unsigned short> nsamples;

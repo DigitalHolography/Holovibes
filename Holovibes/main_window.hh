@@ -116,6 +116,9 @@ namespace gui
     void credits();
     /* \} */
 
+	/*! \brief init the holovibes whenever changing rendering mode */
+	void MainWindow::init_image_mode(QPoint& pos, unsigned int& width, unsigned int& height);
+
     /*! \{ \name Image rendering
     **
     ** Lots of these methods stick to the following scheme:
@@ -135,10 +138,16 @@ namespace gui
     **
     ** \param value true for direct mode, false for hologram mode.
     */
+
     void set_image_mode(bool value);
 
-	/*! \brief Called by set_image_mode if direct_mode enabled */
-	void direct_mode(const QPoint& pos, const unsigned int& width, const unsigned int& height);
+	/*! \brief Called by set_image_mode if direct button is enabled  */
+	void direct_mode();
+
+	/*! \brief Called by set_image_mode if hologram button is clicked  */
+	/* */
+	void holographic_mode();
+
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
     /*! \brief Set phase number (also called 'n' in papers)

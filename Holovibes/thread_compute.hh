@@ -54,7 +54,6 @@ namespace holovibes
     {
       return pipe_;
     }
-
     /*! \return condition_variable */
     std::condition_variable& get_memory_cv()
     {

@@ -16,341 +16,399 @@
 
 namespace gui
 {
-  MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
-    : QMainWindow(parent)
-    , holovibes_(holovibes)
-    , gl_window_(nullptr)
-    , is_direct_mode_(true)
-    , is_enabled_camera_(false)
-    , is_enabled_average_(false)
-    , is_batch_img_(true)
-    , is_batch_interrupted_(false)
-    , z_step_(0.01f)
-    , camera_type_(holovibes::Holovibes::NONE)
-    , last_contrast_type_("magnitude")
-    , plot_window_(nullptr)
-    , record_thread_(nullptr)
-    , CSV_record_thread_(nullptr)
-    , file_index_(1)
-    , gpib_interface_(nullptr)
-  {
-    ui.setupUi(this);
-    this->setWindowIcon(QIcon("icon1.ico"));
-    InfoManager::get_manager(this->findChild<gui::GroupBox*>("Info"));
+	MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
+		: QMainWindow(parent)
+		, holovibes_(holovibes)
+		, gl_window_(nullptr)
+		, is_direct_mode_(true)
+		, is_enabled_camera_(false)
+		, is_enabled_average_(false)
+		, is_batch_img_(true)
+		, is_batch_interrupted_(false)
+		, z_step_(0.01f)
+		, camera_type_(holovibes::Holovibes::NONE)
+		, last_contrast_type_("magnitude")
+		, plot_window_(nullptr)
+		, record_thread_(nullptr)
+		, CSV_record_thread_(nullptr)
+		, file_index_(1)
+		, gpib_interface_(nullptr)
+	{
+		ui.setupUi(this);
+		this->setWindowIcon(QIcon("icon1.ico"));
+		InfoManager::get_manager(this->findChild<gui::GroupBox*>("Info"));
 
-    camera_visible(false);
-    record_visible(false);
+		camera_visible(false);
+		record_visible(false);
 
-    load_ini("holovibes.ini");
-    layout_toggled(false);
+		load_ini("holovibes.ini");
+		layout_toggled(false);
 
-    // Keyboard shortcuts
-    z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
-    z_up_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
+		// Keyboard shortcuts
+		z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
+		z_up_shortcut_->setContext(Qt::ApplicationShortcut);
+		connect(z_up_shortcut_, SIGNAL(activated()), this, SLOT(increment_z()));
 
-    z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
-    z_down_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
+		z_down_shortcut_ = new QShortcut(QKeySequence("Down"), this);
+		z_down_shortcut_->setContext(Qt::ApplicationShortcut);
+		connect(z_down_shortcut_, SIGNAL(activated()), this, SLOT(decrement_z()));
 
-    p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
-    p_left_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
+		p_left_shortcut_ = new QShortcut(QKeySequence("Left"), this);
+		p_left_shortcut_->setContext(Qt::ApplicationShortcut);
+		connect(p_left_shortcut_, SIGNAL(activated()), this, SLOT(decrement_p()));
 
-    p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
-    p_right_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
+		p_right_shortcut_ = new QShortcut(QKeySequence("Right"), this);
+		p_right_shortcut_->setContext(Qt::ApplicationShortcut);
+		connect(p_right_shortcut_, SIGNAL(activated()), this, SLOT(increment_p()));
 
-    autofocus_ctrl_c_shortcut_ = new QShortcut(tr("Ctrl+C"), this);
-    autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
-    connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
+		autofocus_ctrl_c_shortcut_ = new QShortcut(tr("Ctrl+C"), this);
+		autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
+		connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
-    QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-    connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
+		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
 
-    if (is_direct_mode_)
-      global_visibility(false);
+		if (is_direct_mode_)
+			global_visibility(false);
 
-    // Display default values
-    notify();
+		// Display default values
+		notify();
+	}
+
+	MainWindow::~MainWindow()
+	{
+		holovibes_.dispose_compute();
+		holovibes_.dispose_capture();
+
+	}
+
+	void MainWindow::notify()
+	{
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+		QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+		phase_number->setValue(cd.nsamples);
+
+		QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+		p->setValue(cd.pindex);
+		p->setMaximum(cd.nsamples - 1);
+
+		QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
+		lambda->setValue(cd.lambda * 1.0e9f);
+
+		QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+		z->setValue(cd.zdistance);
+
+		QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
+		z_step->setValue(z_step_);
+
+		QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+
+		if (cd.algorithm == holovibes::ComputeDescriptor::FFT1)
+			algorithm->setCurrentIndex(0);
+		else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
+			algorithm->setCurrentIndex(1);
+		else if (cd.algorithm == holovibes::ComputeDescriptor::STFT)
+			algorithm->setCurrentIndex(2);
+		else
+			algorithm->setCurrentIndex(0);
+
+		QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
+
+		if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
+			view_mode->setCurrentIndex(0);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::SQUARED_MODULUS)
+			view_mode->setCurrentIndex(1);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
+			view_mode->setCurrentIndex(2);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+			view_mode->setCurrentIndex(3);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+			view_mode->setCurrentIndex(4);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
+			view_mode->setCurrentIndex(5);
+		else // Fallback on Modulus
+			view_mode->setCurrentIndex(0);
+
+		QSpinBox* unwrap_history_size = findChild<QSpinBox*>("unwrapSpinBox");
+		unwrap_history_size->setValue(cd.unwrap_history_size);
+
+		QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
+		log_scale->setChecked(cd.log_scale_enabled);
+
+		QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
+		shift_corners->setChecked(cd.shift_corners_enabled);
+
+		contrast_visible(cd.contrast_enabled);
+
+		QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
+		contrast->setChecked(cd.contrast_enabled);
+
+		QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+		/* Autocontrast values depends on log_scale option. */
+		if (cd.log_scale_enabled)
+			contrast_min->setValue(cd.contrast_min);
+		else
+			contrast_min->setValue(log10(cd.contrast_min));
+
+		QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+		if (cd.log_scale_enabled)
+			contrast_max->setValue(cd.contrast_max);
+		else
+			contrast_max->setValue(log10(cd.contrast_max));
+
+		QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
+		vibro->setChecked(cd.vibrometry_enabled);
+
+		image_ratio_visible(cd.vibrometry_enabled);
+
+		QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
+		p_vibro->setValue(cd.pindex);
+		p_vibro->setMaximum(cd.nsamples - 1);
+
+		QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
+		q_vibro->setValue(cd.vibrometry_q);
+		q_vibro->setMaximum(cd.nsamples - 1);
+
+		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
+		average->setChecked(is_enabled_average_);
+
+		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		if (gl_widget && is_enabled_average_)
+			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+
+		average_visible(is_enabled_average_);
+	}
+
+	void MainWindow::layout_toggled(bool b)
+	{
+		unsigned int childCount = 0;
+		std::vector<gui::GroupBox*> v;
+
+		v.push_back(findChild<gui::GroupBox*>("ImageRendering"));
+		v.push_back(findChild<gui::GroupBox*>("View"));
+		v.push_back(findChild<gui::GroupBox*>("Vibrometry"));
+		v.push_back(findChild<gui::GroupBox*>("Record"));
+		v.push_back(findChild<gui::GroupBox*>("Import"));
+		v.push_back(findChild<gui::GroupBox*>("Info"));
+
+		for each (gui::GroupBox* var in v)
+			childCount += !var->isHidden();
+
+		if (childCount > 0)
+			this->resize(QSize(childCount * 195, 385));
+		else
+			this->resize(QSize(195, 60));
+	}
+
+	void MainWindow::configure_holovibes()
+	{
+		open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
+	}
+
+	void MainWindow::gl_full_screen()
+	{
+		if (gl_window_)
+			gl_window_->full_screen();
+		else
+			display_error("No camera selected");
+	}
+
+	void MainWindow::camera_ids()
+	{
+		change_camera(holovibes::Holovibes::IDS);
+	}
+
+	void MainWindow::camera_ixon()
+	{
+		change_camera(holovibes::Holovibes::IXON);
+	}
+
+	void MainWindow::camera_none()
+	{
+		gl_window_.reset(nullptr);
+		if (!is_direct_mode_)
+			holovibes_.dispose_compute();
+		holovibes_.dispose_capture();
+		camera_visible(false);
+		record_visible(false);
+		global_visibility(false);
+	}
+
+	void MainWindow::camera_adimec()
+	{
+		change_camera(holovibes::Holovibes::ADIMEC);
+	}
+
+	void MainWindow::camera_edge()
+	{
+		change_camera(holovibes::Holovibes::EDGE);
+	}
+
+	void MainWindow::camera_pike()
+	{
+		change_camera(holovibes::Holovibes::PIKE);
+	}
+
+	void MainWindow::camera_pixelfly()
+	{
+		change_camera(holovibes::Holovibes::PIXELFLY);
+	}
+
+	void MainWindow::camera_xiq()
+	{
+		change_camera(holovibes::Holovibes::XIQ);
+	}
+
+	void MainWindow::credits()
+	{
+		display_info("Holovibes " + holovibes::version + "\n\n"
+			"Scientists:\n"
+			"Michael Atlan\n"
+			"\n"
+			"Developers:\n"
+			"Cyril Cetre\n"
+			"Clément Ledant\n"
+			"\n"
+			"Eric Delanghe\n"
+			"Arnaud Gaillard\n"
+			"Geoffrey Le Gourriérec\n"
+			"\n"
+			"Jeffrey Bencteux\n"
+			"Thomas Kostas\n"
+			"Pierre Pagnoux\n"
+			"\n"
+			"Antoine Dillée\n"
+			"Romain Cancillière\n");
+	}
+
+	void MainWindow::configure_camera()
+	{
+		open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
+	}
+
+	void MainWindow::init_image_mode(QPoint& pos, unsigned int& width, unsigned int& height)
+	{
+		holovibes_.dispose_compute();
+
+		if (gl_window_)
+		{
+			pos = gl_window_->pos();
+			width = gl_window_->size().width();
+			height = gl_window_->size().height();
+		}
+
+		if (gl_window_)
+			gl_window_.reset(nullptr);
+	}
+
+	void MainWindow::set_image_mode(const bool value)
+	{
+		/*if (is_enabled_camera_)
+		{
+			holovibes_.dispose_compute();
+			QPoint pos(0, 0);
+			unsigned int width = 512;
+			unsigned int height = 512;
+
+			if (gl_window_)
+			{
+				pos = gl_window_->pos();
+				width = gl_window_->size().width();
+				height = gl_window_->size().height();
+			}
+
+			if (gl_window_)
+				gl_window_.reset(nullptr);
+
+			// If direct mode
+			if (value)
+				direct_mode(pos, width, height);
+			else
+			{
+				//QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+
+				try
+				{
+					// if (pipeline_checkbox->isChecked())
+					//    holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
+					//  else
+					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+
+					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+					if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+					{
+						GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+
+						gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+						connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+							Qt::UniqueConnection);
+						connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+							Qt::UniqueConnection);
+					}
+
+					is_direct_mode_ = false;
+					global_visibility(true);
+				}
+				catch (std::exception& e)
+				{
+					display_error(e.what());
+				}
+			}
+
+			notify();
+		}*/
+	}
+
+	void MainWindow::direct_mode()
+	{
+		if (is_enabled_camera_)
+		{
+			QPoint pos(0, 0);
+			unsigned int width = 512;
+			unsigned int height = 512;
+			init_image_mode(pos, width, height);
+			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
+			is_direct_mode_ = true;
+			global_visibility(false);
+			notify();
+		}
   }
 
-  MainWindow::~MainWindow()
-  {
-    holovibes_.dispose_compute();
-    holovibes_.dispose_capture();
-	
-  }
+	void MainWindow::holographic_mode()
+	{
+		if (is_enabled_camera_)
+		{
+			QPoint pos(0, 0);
+			unsigned int width = 512;
+			unsigned int height = 512;
+			init_image_mode(pos, width, height);
+			try
+			{
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 
-  void MainWindow::notify()
-  {
-    holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+				{
+					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 
-    QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-    phase_number->setValue(cd.nsamples);
+					gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+					connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+						Qt::UniqueConnection);
+					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+						Qt::UniqueConnection);
+				}
 
-    QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-    p->setValue(cd.pindex);
-    p->setMaximum(cd.nsamples - 1);
-
-    QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
-    lambda->setValue(cd.lambda * 1.0e9f);
-
-    QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
-    z->setValue(cd.zdistance);
-
-    QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
-    z_step->setValue(z_step_);
-
-    QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-
-    if (cd.algorithm == holovibes::ComputeDescriptor::FFT1)
-      algorithm->setCurrentIndex(0);
-    else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
-      algorithm->setCurrentIndex(1);
-    else if (cd.algorithm == holovibes::ComputeDescriptor::STFT)
-      algorithm->setCurrentIndex(2);
-    else
-      algorithm->setCurrentIndex(0);
-
-    QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
-
-    if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
-      view_mode->setCurrentIndex(0);
-    else if (cd.view_mode == holovibes::ComputeDescriptor::SQUARED_MODULUS)
-      view_mode->setCurrentIndex(1);
-    else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
-      view_mode->setCurrentIndex(2);
-    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-      view_mode->setCurrentIndex(3);
-    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-      view_mode->setCurrentIndex(4);
-    else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
-      view_mode->setCurrentIndex(5);
-    else // Fallback on Modulus
-      view_mode->setCurrentIndex(0);
-
-    QSpinBox* unwrap_history_size = findChild<QSpinBox*>("unwrapSpinBox");
-    unwrap_history_size->setValue(cd.unwrap_history_size);
-
-    QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
-    log_scale->setChecked(cd.log_scale_enabled);
-
-    QCheckBox* shift_corners = findChild<QCheckBox*>("shiftCornersCheckBox");
-    shift_corners->setChecked(cd.shift_corners_enabled);
-
-    contrast_visible(cd.contrast_enabled);
-
-    QCheckBox* contrast = findChild<QCheckBox*>("contrastCheckBox");
-    contrast->setChecked(cd.contrast_enabled);
-
-    QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
-    /* Autocontrast values depends on log_scale option. */
-    if (cd.log_scale_enabled)
-      contrast_min->setValue(cd.contrast_min);
-    else
-      contrast_min->setValue(log10(cd.contrast_min));
-
-    QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
-    if (cd.log_scale_enabled)
-      contrast_max->setValue(cd.contrast_max);
-    else
-      contrast_max->setValue(log10(cd.contrast_max));
-
-    QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
-    vibro->setChecked(cd.vibrometry_enabled);
-
-    image_ratio_visible(cd.vibrometry_enabled);
-
-    QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
-    p_vibro->setValue(cd.pindex);
-    p_vibro->setMaximum(cd.nsamples - 1);
-
-    QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
-    q_vibro->setValue(cd.vibrometry_q);
-    q_vibro->setMaximum(cd.nsamples - 1);
-
-    QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
-    average->setChecked(is_enabled_average_);
-
-    GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-    if (gl_widget && is_enabled_average_)
-      gl_widget->set_selection_mode(gui::eselection::AVERAGE);
-
-    average_visible(is_enabled_average_);
-  }
-
-  void MainWindow::layout_toggled(bool b)
-  {
-    unsigned int childCount = 0;
-    std::vector<gui::GroupBox*> v;
-
-    v.push_back(findChild<gui::GroupBox*>("ImageRendering"));
-    v.push_back(findChild<gui::GroupBox*>("View"));
-    v.push_back(findChild<gui::GroupBox*>("Vibrometry"));
-    v.push_back(findChild<gui::GroupBox*>("Record"));
-    v.push_back(findChild<gui::GroupBox*>("Import"));
-    v.push_back(findChild<gui::GroupBox*>("Info"));
-
-    for each (gui::GroupBox* var in v)
-      childCount += !var->isHidden();
-
-    if (childCount > 0)
-      this->resize(QSize(childCount * 195, 385));
-    else
-      this->resize(QSize(195, 60));
-  }
-
-  void MainWindow::configure_holovibes()
-  {
-    open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
-  }
-
-  void MainWindow::gl_full_screen()
-  {
-    if (gl_window_)
-      gl_window_->full_screen();
-    else
-      display_error("No camera selected");
-  }
-
-  void MainWindow::camera_ids()
-  {
-    change_camera(holovibes::Holovibes::IDS);
-  }
-
-  void MainWindow::camera_ixon()
-  {
-    change_camera(holovibes::Holovibes::IXON);
-  }
-
-  void MainWindow::camera_none()
-  {
-    gl_window_.reset(nullptr);
-    if (!is_direct_mode_)
-      holovibes_.dispose_compute();
-    holovibes_.dispose_capture();
-    camera_visible(false);
-    record_visible(false);
-    global_visibility(false);
-  }
-
-  void MainWindow::camera_adimec()
-  {
-    change_camera(holovibes::Holovibes::ADIMEC);
-  }
-
-  void MainWindow::camera_edge()
-  {
-    change_camera(holovibes::Holovibes::EDGE);
-  }
-
-  void MainWindow::camera_pike()
-  {
-    change_camera(holovibes::Holovibes::PIKE);
-  }
-
-  void MainWindow::camera_pixelfly()
-  {
-    change_camera(holovibes::Holovibes::PIXELFLY);
-  }
-
-  void MainWindow::camera_xiq()
-  {
-    change_camera(holovibes::Holovibes::XIQ);
-  }
-
-  void MainWindow::credits()
-  {
-    display_info("Holovibes " + holovibes::version + "\n\n"
-      "Scientists:\n"
-      "Michael Atlan\n"
-      "\n"
-      "Developers:\n"
-	  "Cyril Cetre\n"
-	  "Clément Ledant\n"
-	  "\n"
-      "Eric Delanghe\n"
-      "Arnaud Gaillard\n"
-      "Geoffrey Le Gourriérec\n"
-      "\n"
-      "Jeffrey Bencteux\n"
-      "Thomas Kostas\n"
-      "Pierre Pagnoux\n"
-      "\n"
-      "Antoine Dillée\n"
-      "Romain Cancillière\n");
-  }
-
-  void MainWindow::configure_camera()
-  {
-    open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
-  }
-
-  void MainWindow::set_image_mode(const bool value)
-  {
-    if (is_enabled_camera_)
-    {
-      holovibes_.dispose_compute();
-      QPoint pos(0, 0);
-      unsigned int width = 512;
-      unsigned int height = 512;
-
-      if (gl_window_)
-      {
-        pos = gl_window_->pos();
-        width = gl_window_->size().width();
-        height = gl_window_->size().height();
-      }
-
-      if (gl_window_)
-        gl_window_.reset(nullptr);
-
-      // If direct mode
-	  if (value)
-	   direct_mode(pos, width, height);
-      else
-      {
-        //QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
-
-        try
-        {
-         // if (pipeline_checkbox->isChecked())
-        //    holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
-        //  else
-            holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-
-          gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-          if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
-          {
-            GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-
-            gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-            connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-              Qt::UniqueConnection);
-            connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-              Qt::UniqueConnection);
-          }
-
-          is_direct_mode_ = false;
-          global_visibility(true);
-        }
-        catch (std::exception& e)
-        {
-          display_error(e.what());
-        }
-      }
-
-      notify();
-    }
-  }
-
-  void MainWindow::direct_mode(const QPoint& pos, const unsigned int& width, const unsigned int& height)
-  {
-	  gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
-	  is_direct_mode_ = true;
-	  global_visibility(false);
-  }
+				is_direct_mode_ = false;
+				global_visibility(true);
+			}
+			catch (std::exception& e)
+			{
+				display_error(e.what());
+			}
+			notify();
+		}
+	}
 
   void MainWindow::reset()
   {
