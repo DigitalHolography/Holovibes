@@ -307,22 +307,17 @@ namespace gui
         gl_window_.reset(nullptr);
 
       // If direct mode
-      if (value)
-      {
-        gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
-        is_direct_mode_ = true;
-
-        global_visibility(false);
-      }
+	  if (value)
+	   direct_mode(pos, width, height);
       else
       {
-        QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+        //QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
 
         try
         {
-          if (pipeline_checkbox->isChecked())
-            holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
-          else
+         // if (pipeline_checkbox->isChecked())
+        //    holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
+        //  else
             holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 
           gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
@@ -348,6 +343,27 @@ namespace gui
 
       notify();
     }
+  }
+
+  void MainWindow::direct_mode(const QPoint& pos, const unsigned int& width, const unsigned int& height)
+  {
+	  gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
+	  is_direct_mode_ = true;
+	  global_visibility(false);
+	  //global_visibility(false);
+	 /* holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+	  gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+	  if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+	  {
+		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+
+		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+			  Qt::UniqueConnection);
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+			  Qt::UniqueConnection);
+	  }*/
+
   }
 
   void MainWindow::reset()

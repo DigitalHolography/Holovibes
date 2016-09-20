@@ -136,6 +136,9 @@ namespace gui
     ** \param value true for direct mode, false for hologram mode.
     */
     void set_image_mode(bool value);
+
+	/*! \brief Called by set_image_mode if direct_mode enabled */
+	void direct_mode(const QPoint& pos, const unsigned int& width, const unsigned int& height);
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
     /*! \brief Set phase number (also called 'n' in papers)
