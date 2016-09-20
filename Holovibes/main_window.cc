@@ -20,7 +20,6 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		, is_direct_mode_(true)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -302,64 +301,6 @@ namespace gui
 			gl_window_.reset(nullptr);
 	}
 
-	/*void MainWindow::set_image_mode(const bool value)
-	{
-		/*if (is_enabled_camera_)
-		{
-			holovibes_.dispose_compute();
-			QPoint pos(0, 0);
-			unsigned int width = 512;
-			unsigned int height = 512;
-
-			if (gl_window_)
-			{
-				pos = gl_window_->pos();
-				width = gl_window_->size().width();
-				height = gl_window_->size().height();
-			}
-
-			if (gl_window_)
-				gl_window_.reset(nullptr);
-
-			// If direct mode
-			if (value)
-				direct_mode(pos, width, height);
-			else
-			{
-				//QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
-
-				try
-				{
-					// if (pipeline_checkbox->isChecked())
-					//    holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPELINE);
-					//  else
-					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-
-					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-					if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
-					{
-						GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-
-						gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-						connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-							Qt::UniqueConnection);
-						connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-							Qt::UniqueConnection);
-					}
-
-					is_direct_mode_ = false;
-					global_visibility(true);
-				}
-				catch (std::exception& e)
-				{
-					display_error(e.what());
-				}
-			}
-
-			notify();
-		}
-	}
-	*/
 	void MainWindow::set_direct_mode()
 	{
 		if (is_enabled_camera_)
@@ -369,7 +310,6 @@ namespace gui
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
-			is_direct_mode_ = true;
 			global_visibility(false);
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
 			notify();
@@ -399,8 +339,6 @@ namespace gui
 					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 						Qt::UniqueConnection);
 				}
-
-				is_direct_mode_ = false;
 				global_visibility(true);
 			}
 			catch (std::exception& e)
