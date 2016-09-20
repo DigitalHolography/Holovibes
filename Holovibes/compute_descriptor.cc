@@ -4,6 +4,7 @@ namespace holovibes
 {
   ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
   {
+	compute_mode = cd.compute_mode.load();
     algorithm = cd.algorithm.load();
     nsamples = cd.nsamples.load();
     pindex = cd.pindex.load();

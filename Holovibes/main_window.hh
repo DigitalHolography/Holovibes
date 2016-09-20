@@ -139,14 +139,17 @@ namespace gui
     ** \param value true for direct mode, false for hologram mode.
     */
 
-    void set_image_mode(bool value);
+    void set_image_mode();
 
 	/*! \brief Called by set_image_mode if direct button is enabled  */
-	void direct_mode();
-
+	void set_direct_mode();
+	
 	/*! \brief Called by set_image_mode if hologram button is clicked  */
 	/* */
-	void holographic_mode();
+	void set_holographic_mode();
+
+	/*! \brief Check if direct button is enabled  */
+	bool is_direct_mode();
 
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();

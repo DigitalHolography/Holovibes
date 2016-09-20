@@ -68,7 +68,7 @@ namespace gui
 		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
 		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
 
-		if (is_direct_mode_)
+		if (is_direct_mode())
 			global_visibility(false);
 
 		// Display default values
@@ -227,7 +227,7 @@ namespace gui
 	void MainWindow::camera_none()
 	{
 		gl_window_.reset(nullptr);
-		if (!is_direct_mode_)
+		if (!is_direct_mode())
 			holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		camera_visible(false);
@@ -302,7 +302,7 @@ namespace gui
 			gl_window_.reset(nullptr);
 	}
 
-	void MainWindow::set_image_mode(const bool value)
+	/*void MainWindow::set_image_mode(const bool value)
 	{
 		/*if (is_enabled_camera_)
 		{
@@ -357,10 +357,10 @@ namespace gui
 			}
 
 			notify();
-		}*/
+		}
 	}
-
-	void MainWindow::direct_mode()
+	*/
+	void MainWindow::set_direct_mode()
 	{
 		if (is_enabled_camera_)
 		{
@@ -371,11 +371,12 @@ namespace gui
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
 			is_direct_mode_ = true;
 			global_visibility(false);
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
 			notify();
 		}
   }
 
-	void MainWindow::holographic_mode()
+	void MainWindow::set_holographic_mode()
 	{
 		if (is_enabled_camera_)
 		{
@@ -406,8 +407,24 @@ namespace gui
 			{
 				display_error(e.what());
 			}
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			notify();
 		}
+	}
+
+	bool MainWindow::is_direct_mode()
+	{
+		return holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT;
+	}
+
+	void MainWindow::set_image_mode()
+	{
+		if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+			set_direct_mode();
+		if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+			set_holographic_mode();
+		if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DEMODULATION)
+			set_direct_mode();
 	}
 
   void MainWindow::reset()
@@ -420,7 +437,7 @@ namespace gui
 	  manager->update_info("Status", "Resetting...");
 	  qApp->processEvents();
 	  gl_window_.reset(nullptr);
-	  if (!is_direct_mode_)
+	  if (!is_direct_mode())
 		  holovibes_.dispose_compute();
 	  holovibes_.dispose_capture();
 	  camera_visible(false);
@@ -449,7 +466,7 @@ namespace gui
   {
 	holovibes::Queue* input;
 
-    if (!is_direct_mode_)
+	if (!is_direct_mode())
     {
 		input = &holovibes_.get_capture_queue();
 		if (value <= input->get_max_elts())
@@ -467,7 +484,7 @@ namespace gui
 
   void  MainWindow::set_p(const int value)
   {
-    if (!is_direct_mode_)
+	  if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -487,7 +504,7 @@ namespace gui
 
   void MainWindow::increment_p()
   {
-    if (!is_direct_mode_)
+	  if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -504,7 +521,7 @@ namespace gui
 
   void MainWindow::decrement_p()
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -521,7 +538,7 @@ namespace gui
 
   void  MainWindow::set_wavelength(const double value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.lambda = static_cast<float>(value)* 1.0e-9f;
@@ -536,7 +553,7 @@ namespace gui
 
   void  MainWindow::set_z(const double value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.zdistance = static_cast<float>(value);
@@ -546,7 +563,7 @@ namespace gui
 
   void MainWindow::increment_z()
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       set_z(cd.zdistance + z_step_);
@@ -557,7 +574,7 @@ namespace gui
 
   void MainWindow::decrement_z()
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       set_z(cd.zdistance - z_step_);
@@ -575,7 +592,7 @@ namespace gui
 
   void  MainWindow::set_algorithm(const QString value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
@@ -607,7 +624,7 @@ namespace gui
 
   void MainWindow::set_view_mode(const QString value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -663,7 +680,7 @@ namespace gui
 
   void MainWindow::set_unwrap_history_size(int value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes_.get_compute_desc().unwrap_history_size = value;
       holovibes_.get_pipe()->request_update_unwrap_size(value);
@@ -672,7 +689,7 @@ namespace gui
 
   void MainWindow::set_unwrapping(const bool value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       auto pipe = holovibes_.get_pipe();
 
@@ -756,7 +773,7 @@ namespace gui
     QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
     contrast_visible(value);
 
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes_.get_compute_desc().contrast_enabled.exchange(value);
 
@@ -769,13 +786,13 @@ namespace gui
 
   void MainWindow::set_auto_contrast()
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
       holovibes_.get_pipe()->request_autocontrast();
   }
 
   void MainWindow::set_contrast_min(const double value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -793,7 +810,7 @@ namespace gui
 
   void MainWindow::set_contrast_max(const double value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -811,7 +828,7 @@ namespace gui
 
   void MainWindow::set_log_scale(const bool value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
       cd.log_scale_enabled.exchange(value);
@@ -830,7 +847,7 @@ namespace gui
 
   void MainWindow::set_shifted_corners(const bool value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
       holovibes_.get_pipe()->request_refresh();
@@ -839,7 +856,7 @@ namespace gui
 
   void MainWindow::set_vibro_mode(const bool value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -851,7 +868,7 @@ namespace gui
 
   void MainWindow::set_p_vibro(const int value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -868,7 +885,7 @@ namespace gui
 
   void MainWindow::set_q_vibro(const int value)
   {
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -906,7 +923,7 @@ namespace gui
   void MainWindow::dispose_average_graphic()
   {
     plot_window_.reset(nullptr);
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
       holovibes_.get_pipe()->request_average_stop();
   }
 
@@ -1023,7 +1040,7 @@ namespace gui
 
     try
     {
-      if (float_output_checkbox->isChecked() && !is_direct_mode_)
+      if (float_output_checkbox->isChecked() && !is_direct_mode())
       {
         std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
         camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
@@ -1032,7 +1049,7 @@ namespace gui
         queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
         pipe->request_float_output(queue);
       }
-      else if (is_direct_mode_)
+      else if (is_direct_mode())
         queue = &holovibes_.get_capture_queue();
       else
         queue = &holovibes_.get_output_queue();
@@ -1063,9 +1080,9 @@ namespace gui
 
     record_thread_.reset(nullptr);
     display_info("Record done");
-    if (float_output_checkbox->isChecked() && !is_direct_mode_)
+    if (float_output_checkbox->isChecked() && !is_direct_mode())
       holovibes_.get_pipe()->request_float_output_stop();
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
       global_visibility(true);
     record_but_cancel_visible(true);
   }
@@ -1169,7 +1186,7 @@ namespace gui
 
       holovibes::Queue* q;
 
-      if (is_direct_mode_)
+      if (is_direct_mode())
         q = &holovibes_.get_capture_queue();
       else
         q = &holovibes_.get_output_queue();
@@ -1258,7 +1275,7 @@ namespace gui
       path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
 
     holovibes::Queue* q;
-    if (is_direct_mode_)
+    if (is_direct_mode())
       q = &holovibes_.get_capture_queue();
     else
       q = &holovibes_.get_output_queue();
@@ -1332,7 +1349,7 @@ namespace gui
     gpib_interface_.reset();
 
     file_index_ = 1;
-    if (!is_direct_mode_)
+    if (!is_direct_mode())
       global_visibility(true);
     camera_visible(true);
     if (no_error)
@@ -1422,7 +1439,7 @@ namespace gui
 
     camera_visible(true);
     record_visible(true);
-    set_image_mode(is_direct_mode_);
+    set_image_mode();
 
     // Changing the gui
     QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
@@ -1614,7 +1631,7 @@ namespace gui
         holovibes_.init_capture(camera_type);
         camera_visible(true);
         record_visible(true);
-        set_image_mode(is_direct_mode_);
+        set_image_mode();
         camera_type_ = camera_type;
 
         // Changing the gui

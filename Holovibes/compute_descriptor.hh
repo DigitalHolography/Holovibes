@@ -39,8 +39,10 @@ namespace holovibes
 	/*! \brief select which mode the pipe will be using*/
 	enum compute_mode
 	{
-		DEMODULATION,
-		HOLOGRAM
+		DIRECT,
+		HOLOGRAM,
+		DEMODULATION
+		
 	};
 
     /*! \brief Complex to float methods.
@@ -63,7 +65,7 @@ namespace holovibes
     ComputeDescriptor()
       : Observable()
       , algorithm(FFT1)
-	  , compute_mode(HOLOGRAM)
+	  , compute_mode(DIRECT)
       , nsamples(2)
       , pindex()
       , lambda(532e-9f)
