@@ -22,7 +22,7 @@ namespace holovibes
       this->unwrap_history_size = 20;
       this->import_pixel_size = 5.42f;
 	  this->set_cuda_device = 1;
-	  this->auto_device_number = 0;
+	  this->auto_device_number = 1;
 	  this->device_number = 0;
     }
 
