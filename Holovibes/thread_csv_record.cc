@@ -1,6 +1,7 @@
 #include "thread_csv_record.hh"
 #include "concurrent_deque.hh"
 #include "holovibes.hh"
+#include "info_manager.hh"
 
 namespace gui
 {
@@ -15,8 +16,7 @@ namespace gui
     , path_(path)
     , nb_frames_(nb_frames)
     , record_(true)
-  {
-  }
+  { }
 
   ThreadCSVRecord::~ThreadCSVRecord()
   {
@@ -31,11 +31,18 @@ namespace gui
   void ThreadCSVRecord::run()
   {
     deque_.clear();
+    QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+	connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
+	progress_bar->setMaximum(nb_frames_);
     holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
 
-    while (deque_.size() < nb_frames_ && record_)
-      continue;
-
+	while (deque_.size() < nb_frames_ && record_)
+	{
+		if (deque_.size() <= nb_frames_)
+		emit value_change(deque_.size());
+		continue;
+	}
+	emit value_change(nb_frames_);
     std::cout << path_ << "\n";
     std::ofstream of(path_);
 

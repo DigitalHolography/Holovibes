@@ -30,6 +30,10 @@ namespace gui
 
     typedef holovibes::ConcurrentDeque<std::tuple<float, float, float, float>> Deque;
 
+signals :
+	
+	void value_change(int value);
+
   public:
     /*! \brief ThreadCSVRecord constructor
     **
