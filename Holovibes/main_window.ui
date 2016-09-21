@@ -3512,6 +3512,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>DemodulationRadioButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_demodulation_mode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>87</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3574,5 +3590,6 @@ p, li { white-space: pre-wrap; }
   <slot>reset()</slot>
   <slot>set_direct_mode()</slot>
   <slot>set_holographic_mode()</slot>
+  <slot>set_demodulation_mode()</slot>
  </slots>
 </ui>

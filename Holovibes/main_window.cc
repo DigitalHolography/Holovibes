@@ -350,6 +350,41 @@ namespace gui
 		}
 	}
 
+	void MainWindow::set_demodulation_mode()
+	{
+		if (is_enabled_camera_)
+		{
+			QPoint pos(0, 0);
+			unsigned int width = 512;
+			unsigned int height = 512;
+			init_image_mode(pos, width, height);
+			try
+			{
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+				{
+					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+
+					gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+					connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+						Qt::UniqueConnection);
+					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+						Qt::UniqueConnection);
+				}
+				global_visibility(true);
+			}
+			catch (std::exception& e)
+			{
+				display_error(e.what());
+			}
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
+			notify();
+		}
+	}
+
+
 	bool MainWindow::is_direct_mode()
 	{
 		return holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT;

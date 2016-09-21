@@ -147,6 +147,10 @@ namespace gui
 	/*! \brief Called by set_image_mode if hologram button is clicked  */
 	/* */
 	void set_holographic_mode();
+	
+	/*! \brief Called by set_image_mode if demodulation button is clicked  */
+	/* */
+	void set_demodulation_mode();
 
 	/*! \brief Check if direct button is enabled  */
 	bool is_direct_mode();
