@@ -36,3 +36,15 @@ void fft_1(
   const unsigned int frame_resolution,
   const unsigned int nframes,
   cudaStream_t stream = 0);
+
+/*! \brief Call an fft1 1D on the image
+*
+* \param plan the first paramater of cufftExecC2C that will be called
+* on the image
+*/
+void fft_1_1D(
+	cufftComplex* input,
+	const cufftHandle plan,
+	const unsigned int frame_resolution,
+	const unsigned int nframes,
+	cudaStream_t stream = 0);

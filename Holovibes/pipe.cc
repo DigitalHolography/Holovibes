@@ -118,6 +118,21 @@ namespace holovibes
       gpu_sqrt_vector_,
       static_cast<cudaStream_t>(0)));
 
+	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
+	{
+		// Add FFT1 1D.
+		fn_vect_.push_back(std::bind(
+			fft_1_1D,
+			gpu_input_buffer_,
+			plan1d_,
+			input_fd.frame_res(),
+			compute_desc_.nsamples.load(),
+			static_cast<cudaStream_t>(0)));
+
+		/* p frame pointer */
+		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+	}
+
     if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       fft1_lens(
