@@ -94,11 +94,28 @@ namespace holovibes
     /* CUFFT plan1d */
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
       cufftPlan1d(
-      &plan1d_,
+      &plan3d_,
       nsamples,
       CUFFT_C2C,
       compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
       );
+
+	if (compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)
+	{
+		cufftPlan1d(
+			&plan1d_,
+			input_length_,
+			CUFFT_C2C,
+			1
+			);
+		
+		cufftPlan3d(
+			&plan3d_,
+			input_length_,      // NX
+			1,                  // NY
+			1,                 // NZ
+			CUFFT_C2C);		
+	}
   }
 
   ICompute::~ICompute()

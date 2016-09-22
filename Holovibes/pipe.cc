@@ -121,7 +121,7 @@ namespace holovibes
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		// Add FFT1 1D.
-		fn_vect_.push_back(std::bind(
+	fn_vect_.push_back(std::bind(
 			fft_1_1D,
 			gpu_input_buffer_,
 			plan1d_,
@@ -133,7 +133,7 @@ namespace holovibes
 		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 	}
 
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+	else if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       fft1_lens(
         gpu_lens_,

@@ -305,13 +305,13 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
 			global_visibility(false);
-			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
 			notify();
 		}
   }
@@ -320,6 +320,7 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
 			unsigned int height = 512;
@@ -345,7 +346,6 @@ namespace gui
 			{
 				display_error(e.what());
 			}
-			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			notify();
 		}
 	}
@@ -354,6 +354,7 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
 			unsigned int height = 512;
@@ -379,7 +380,6 @@ namespace gui
 			{
 				display_error(e.what());
 			}
-			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
 			notify();
 		}
 	}
@@ -608,8 +608,8 @@ namespace gui
       QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
       p->setEnabled(true);
 
-      QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
-      bool pipeline_checked = pipeline_checkbox->isChecked();
+     // QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+	  bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
       std::cout << "Value = " << value.toUtf8().constData() << std::endl;
 
