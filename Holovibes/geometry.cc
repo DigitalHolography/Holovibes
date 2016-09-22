@@ -54,6 +54,15 @@ namespace holovibes
   {
   }
 
+  Rectangle::Rectangle(const unsigned int width, const unsigned height)
+	: top_left(0, 0)
+	, top_right(width, 0)
+	, bottom_left(0, height)
+	, bottom_right(width, height)
+  {
+  }
+
+
   Rectangle& Rectangle::operator=(const Rectangle& rect)
   {
     top_left = rect.top_left;

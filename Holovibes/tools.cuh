@@ -39,6 +39,13 @@ __global__ void kernel_apply_lens(
   const cufftComplex *lens,
   const unsigned int lens_size);
 
+// TODO 
+__global__ void kernel_bursting(
+	const cufftComplex *input,
+	const unsigned int frame_resolution,
+	const unsigned int nsamples,
+	cufftComplex *output
+	);
 /*! \brief Will split the pixels of the original image
  * into output respecting the ROI selected
  * \param tl_x top left x coordinate of ROI

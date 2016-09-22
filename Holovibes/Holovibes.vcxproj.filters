@@ -84,6 +84,9 @@
     <CudaCompile Include="tools_unwrap.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="demodulation.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -368,6 +371,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools_unwrap.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="demodulation.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,6 +11,7 @@
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
+#include "demodulation.cuh"
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
@@ -121,18 +122,31 @@ namespace holovibes
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		// Add FFT1 1D.
-	fn_vect_.push_back(std::bind(
-			fft_1_1D,
+		fn_vect_.push_back(std::bind(
+			demodulation,
 			gpu_input_buffer_,
+			gpu_stft_buffer_,
+			gpu_stft_dup_buffer_,
 			plan1d_,
 			input_fd.frame_res(),
 			compute_desc_.nsamples.load(),
 			static_cast<cudaStream_t>(0)));
 
-		/* p frame pointer */
-		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
-	}
+		fn_vect_.push_back(std::bind(
+			stft_recontruct,
+			gpu_input_buffer_,
+			gpu_stft_dup_buffer_,
+			get_rectangle(input_.get_frame_desc()),
+			input_fd,
+			input_.get_frame_desc().width,
+			input_.get_frame_desc().height,
+			compute_desc_.pindex.load(),
+			compute_desc_.nsamples.load(),
+			static_cast<cudaStream_t>(0)));
 
+		/* frame pointer */
+		gpu_input_frame_ptr_ = gpu_input_buffer_;
+	}
 	else if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
       fft1_lens(

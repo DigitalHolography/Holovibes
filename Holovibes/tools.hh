@@ -6,7 +6,9 @@
 # include <algorithm>
 # include <cmath>
 
+# include "geometry.hh"
 # include "hardware_limits.hh"
+# include "frame_desc.hh"
 
 /*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>
@@ -32,4 +34,11 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
     nb_blocks = get_max_blocks();
 
   return nb_blocks;
+}
+
+
+/*! \brief cast a framedescriptor into a Rectangle */
+inline holovibes::Rectangle get_rectangle(const camera::FrameDescriptor& a)
+{
+	return holovibes::Rectangle(a.width, a.height);
 }

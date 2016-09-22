@@ -41,9 +41,11 @@ namespace holovibes
     /*! Construct a Rectangle. */
     Rectangle();
     /*! Construct a Rectangle with two points. */
-    Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner);
-    /*! Construct a Rectangle with another Rectangle. */
-    Rectangle(const Rectangle& rect);
+	Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner);
+	/*! Construct a Rectangle with another Rectangle. */
+	Rectangle(const Rectangle& rect);
+	/*! Construct a Rectangle with width and height. */
+	Rectangle(const unsigned int width, const unsigned int height);
 
     /*! Assignement operator. */
     Rectangle& operator=(const Rectangle& rect);

@@ -66,7 +66,7 @@ void stft(
 void stft_recontruct(
   cufftComplex*                   output,
   cufftComplex*                   stft_dup_buf,
-  const holovibes::Rectangle&     r,
+  const holovibes::Rectangle      r,
   const camera::FrameDescriptor&  desc,
   const unsigned int              reconstruct_width,
   const unsigned int              reconstruct_height,

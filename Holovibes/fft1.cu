@@ -42,21 +42,3 @@ void fft_1(
 
   cudaStreamSynchronize(stream);
 }
-
-void fft_1_1D(
-	cufftComplex* input,
-	const cufftHandle plan,
-	const unsigned int frame_resolution,
-	const unsigned int nframes,
-	cudaStream_t stream)
-{
-	const unsigned int n_frame_resolution = frame_resolution * nframes;
-
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
-	
-	// FFT
-	cufftResult res = cufftExecC2C(plan, input, input, CUFFT_FORWARD);
-
-	cudaStreamSynchronize(stream);
-}
