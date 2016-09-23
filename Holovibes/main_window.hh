@@ -152,6 +152,11 @@ namespace gui
 	/* */
 	void set_demodulation_mode();
 
+	/*! \brief Called by set_image_mode if Flowgraphy button is clicked  */
+	/* */
+	void set_flowgraphy_mode();
+
+
 	/*! \brief Check if direct button is enabled  */
 	bool is_direct_mode();
 

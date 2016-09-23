@@ -235,7 +235,7 @@ namespace holovibes
           static_cast<cudaStream_t>(0)));
       }
     }
-    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+	else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
       fft1_lens(
         gpu_lens_,

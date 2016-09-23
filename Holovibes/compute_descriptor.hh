@@ -41,7 +41,8 @@ namespace holovibes
 	{
 		DIRECT,
 		HOLOGRAM,
-		DEMODULATION
+		DEMODULATION,
+		FLOWGRAPHY
 		
 	};
 
