@@ -45,7 +45,7 @@ namespace holovibes
     , bottom_right(bottom_right_corner)
   {
   }
-
+  
   Rectangle::Rectangle(const Rectangle& rect)
     : top_left(rect.top_left)
     , top_right(rect.top_right)

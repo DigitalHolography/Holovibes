@@ -42,7 +42,6 @@ namespace holovibes
 		DIRECT,
 		HOLOGRAM,
 		DEMODULATION,
-		FLOWGRAPHY
 		
 	};
 
@@ -111,8 +110,11 @@ namespace holovibes
     /*! Complex to float method. */
     std::atomic<enum complex_view_mode> view_mode;
 
-    /*! TODO */
+    /*! TODO: */
     std::atomic<int> unwrap_history_size;
+
+	/*! Is convolution processing enabled. */
+	std::atomic<bool> convolution_enabled;
 
     /*! Is log scale post-processing enabled. */
     std::atomic<bool> log_scale_enabled;

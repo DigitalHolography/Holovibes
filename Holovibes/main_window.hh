@@ -154,7 +154,7 @@ namespace gui
 
 	/*! \brief Called by set_image_mode if Flowgraphy button is clicked  */
 	/* */
-	void set_flowgraphy_mode();
+	void set_flowgraphy_mode(const bool enable);
 
 
 	/*! \brief Check if direct button is enabled  */
