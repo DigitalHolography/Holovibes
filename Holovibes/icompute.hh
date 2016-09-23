@@ -264,9 +264,13 @@ namespace holovibes
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
     /*! cufftComplex array containing save of n contiguous ROI of frames. */
-    cufftComplex* gpu_stft_dup_buffer_;
-    /*! cufftComplex array containing lens. */
-    cufftComplex* gpu_lens_;
+	cufftComplex* gpu_stft_dup_buffer_;
+	/*! cufftComplex array containing lens. */
+	cufftComplex* gpu_lens_;
+	/*! cufftComplex array containing kernel. */
+	cufftComplex* gpu_kernel_buffer_;
+	/*! cufftComplex array containing tmp input. */
+	cufftComplex* gpu_tmp_input_;
     /*! CUDA FFT Plan 3D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. Set to a specific CUDA stream in Pipe and Pipeline. */

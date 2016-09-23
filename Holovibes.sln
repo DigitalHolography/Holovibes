@@ -222,7 +222,6 @@ Global
 		{411732AF-DD66-42FE-97A9-6365A8CEE675}.Release|x64.Build.0 = Release|x64
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|Mixed Platforms.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|Win32.ActiveCfg = DefaultBuild
-		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|Win32.Build.0 = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.Debug|x64.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.DefaultBuild|Mixed Platforms.ActiveCfg = DefaultBuild
 		{9947BE2E-4BC1-4A96-AF3E-02178B73292B}.DefaultBuild|Mixed Platforms.Build.0 = DefaultBuild
@@ -250,10 +249,7 @@ Global
 		{D981B600-1444-4D9B-8124-45CC358AB8DF} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E} = {D45B9D31-7307-47C9-BBC1-69822B48DBD7}
 	EndGlobalSection
-<<<<<<< HEAD
-=======
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		Qt5Version = msvc2013_64
 	EndGlobalSection
->>>>>>> Fixed Qt path issue and disabled QVector-related warning.
 EndGlobal

@@ -12,6 +12,7 @@
 #include "fft2.cuh"
 #include "stft.cuh"
 #include "demodulation.cuh"
+#include "convolution.cuh"
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
@@ -320,6 +321,22 @@ namespace holovibes
     }
     else
       assert(!"Impossible case.");
+
+	if (compute_desc_.convolution_enabled)
+	{
+		fn_vect_.push_back(std::bind(
+			convolution_kernel,
+			gpu_input_frame_ptr_,
+			gpu_tmp_input_,
+			input_fd.frame_res(),
+			input_fd.width,
+			compute_desc_.nsamples.load(),
+			gpu_kernel_buffer_,
+			3,
+			3,
+			3,
+			static_cast<cudaStream_t>(0)));
+	}
 
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)

@@ -30,6 +30,7 @@ namespace holovibes
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
+	, gpu_kernel_buffer_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
@@ -116,6 +117,35 @@ namespace holovibes
 		CUFFT_C2C,
 		input_.get_pixels()
 		);
+
+	if (compute_desc_.convolution_enabled)
+	{
+		/* gpu_tmp_input */
+		cudaFree(gpu_tmp_input_);
+		/* gpu_tmp_input */
+		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
+			sizeof(cufftComplex)* input_.get_pixels());
+
+		/* gpu_kernel_buffer */
+		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
+			sizeof(cufftComplex)* (3 * 3 * 3));
+
+		/* Build the kst 3x3 matrix */
+		float kernel_cpu[9] =
+		{
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f
+		};
+
+		cufftComplex kst_complex_cpu[9];
+		for (int i = 0; i < 9; ++i)
+		{
+			kst_complex_cpu[i].x = kernel_cpu[i];
+			kst_complex_cpu[i].y = 0;
+		}
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
+	}
   }
 
   ICompute::~ICompute()
@@ -149,6 +179,9 @@ namespace holovibes
 
     if (gui::InfoManager::get_manager())
       gui::InfoManager::get_manager()->remove_info("Rendering");
+
+	/* gpu_kernel_buffer */
+	cudaFree(gpu_kernel_buffer_);
   }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -262,6 +295,37 @@ namespace holovibes
       delete fqueue_;
       fqueue_ = nullptr;
     }
+
+	if (compute_desc_.convolution_enabled)
+	{
+		/* gpu_tmp_input */
+		cudaFree(gpu_tmp_input_);
+		/* gpu_tmp_input */
+		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
+			sizeof(cufftComplex)* input_.get_pixels());
+
+		/* gpu_kernel_buffer */
+		cudaFree(gpu_kernel_buffer_);
+		/* gpu_kernel_buffer */
+		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
+			sizeof(cufftComplex)* (3 * 3 * 3));
+
+		/* Build the kst 3x3 matrix */
+		float kernel_cpu[9] =
+		{
+			2.0f, 2.0f, 2.0f,
+			0.0f, 0.0f, 0.0f,
+			-2.0f, -2.0f, -2.0f
+		};
+
+		cufftComplex kst_complex_cpu[9];
+		for (int i = 0; i < 9; ++i)
+		{
+			kst_complex_cpu[i].x = kernel_cpu[i];
+			kst_complex_cpu[i].y = 0;
+		}
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
+	}
   }
 
   void ICompute::request_refresh()
