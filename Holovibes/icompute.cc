@@ -125,26 +125,35 @@ namespace holovibes
 		cudaFree(gpu_tmp_input_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-			sizeof(cufftComplex)* input_.get_pixels());
+			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
 
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
 			sizeof(cufftComplex)* (3 * 3 * 3));
 
 		/* Build the kst 3x3 matrix */
-		float kernel_cpu[9] =
+		float (kernel_cpu)[27] =
 		{
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, 8.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f
+
+			0.0f, -1.0f, 0.0f,
+			-1.0f, 5.0f, -1.0f,
+			0.0f, -1.0f, 0.0f,
+
+			0.0f, -1.0f, 0.0f,
+			-1.0f, 5.0f, -1.0f,
+			0.0f, -1.0f, 0.0f,
+
+			0.0f, -1.0f, 0.0f,
+			-1.0f, 5.0f, -1.0f,
+			0.0f, -1.0f, 0.0f
 		};
 
-		cufftComplex kst_complex_cpu[9];
-		for (int i = 0; i < 9; ++i)
-		{
-			kst_complex_cpu[i].x = kernel_cpu[i];
-			kst_complex_cpu[i].y = 0;
-		}
+		cufftComplex kst_complex_cpu[27];
+			for (int i = 0; i < 9; ++i)
+			{
+				kst_complex_cpu[i].x = kernel_cpu[i];
+				kst_complex_cpu[i].y = 0;
+			}
 		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
 	}
   }
@@ -303,24 +312,34 @@ namespace holovibes
 		cudaFree(gpu_tmp_input_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-			sizeof(cufftComplex)* input_.get_pixels());
+			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
 
 		/* gpu_kernel_buffer */
 		cudaFree(gpu_kernel_buffer_);
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
-			sizeof(cufftComplex)* (3 * 3 * 3));
+			sizeof(cufftComplex) * (3 * 3 * 3));
 
 		/* Build the kst 3x3 matrix */
-		float kernel_cpu[9] =
-		{
-			2.0f, 2.0f, 2.0f,
-			0.0f, 0.0f, 0.0f,
-			-2.0f, -2.0f, -2.0f
-		};
 
-		cufftComplex kst_complex_cpu[9];
-		for (int i = 0; i < 9; ++i)
+		float kernel_cpu[27] =
+		{
+			-2.0f, -1.0f, 0.0f,
+			-1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 2.0f,
+
+			-2.0f, -1.0f, 0.0f,
+			-1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 2.0f,
+
+			-2.0f, -1.0f, 0.0f,
+			-1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 2.0f
+
+		};
+		
+		cufftComplex kst_complex_cpu[27];
+		for (int i = 0; i < 27; ++i)
 		{
 			kst_complex_cpu[i].x = kernel_cpu[i];
 			kst_complex_cpu[i].y = 0;

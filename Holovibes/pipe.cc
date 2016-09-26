@@ -334,7 +334,7 @@ namespace holovibes
 			gpu_kernel_buffer_,
 			3,
 			3,
-			3,
+			compute_desc_.nsamples.load(),
 			static_cast<cudaStream_t>(0)));
 	}
 
