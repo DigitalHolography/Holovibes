@@ -320,12 +320,6 @@ namespace holovibes
 			sizeof(cufftComplex) * (3 * 3 * 3));
 
 		/* Build the kst 3x3 matrix */
-		/*float kernel_cpu[9] =
-		{
-			0.0f, -1.0f, 0.0f,
-			-1.0f, 5.0f, -1.0f,
-			0.0f, -1.0f, 0.0f
-		};*/
 
 		float kernel_cpu[27] =
 		{

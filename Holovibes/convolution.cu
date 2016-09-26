@@ -47,7 +47,7 @@ void convolution_kernel(
 	const unsigned int nframes,
 	const cufftComplex* kernel,
 	const unsigned int k_width,
-	const unsigned int k_heigth,
+	const unsigned int k_height,
 	const unsigned int k_z,
 	cudaStream_t stream)
 {
@@ -68,7 +68,7 @@ void convolution_kernel(
 		frame_width,
 		kernel,
 		k_width,
-		k_heigth,
+		k_height,
 		k_z
 		);
 
