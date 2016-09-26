@@ -16,6 +16,7 @@
 #include "info_manager.hh"
 # include "compute_bundles.hh"
 
+
 namespace holovibes
 {
   ICompute::ICompute(

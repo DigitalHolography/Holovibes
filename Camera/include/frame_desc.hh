@@ -24,6 +24,7 @@ namespace camera
       return width * height * depth;
     }
 
+
     //!< \brief Return the frame resolution (number of pixels).
     unsigned int frame_res() const
     {
