@@ -1215,7 +1215,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>70</y>
+           <y>40</y>
            <width>31</width>
            <height>21</height>
           </rect>
@@ -1228,7 +1228,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>70</y>
+           <y>40</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1238,7 +1238,7 @@
          <property name="geometry">
           <rect>
            <x>30</x>
-           <y>100</y>
+           <y>70</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1248,7 +1248,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>100</y>
+           <y>70</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1261,7 +1261,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>30</y>
+           <y>20</y>
            <width>171</width>
            <height>21</height>
           </rect>
@@ -1274,7 +1274,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>160</y>
+           <y>200</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -1323,7 +1323,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>190</y>
+           <y>230</y>
            <width>51</width>
            <height>16</height>
           </rect>
@@ -1378,7 +1378,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>190</y>
+           <y>230</y>
            <width>41</width>
            <height>16</height>
           </rect>
@@ -1428,7 +1428,7 @@
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>190</y>
+           <y>230</y>
            <width>61</width>
            <height>21</height>
           </rect>
@@ -1467,13 +1467,62 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>140</y>
+           <y>180</y>
            <width>171</width>
            <height>20</height>
           </rect>
          </property>
          <property name="text">
           <string>Convolution</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ConvoMatrixLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>171</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Convolution matrix file :</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ConvoMatrixLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>120</y>
+           <width>151</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="ConvoMatrixBrowseButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>120</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="loadConvoMatrixPushButton">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>150</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Load Matrix</string>
          </property>
         </widget>
        </widget>
@@ -2716,8 +2765,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>116</y>
+     <x>538</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -2732,8 +2781,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>146</y>
+     <x>538</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -2796,8 +2845,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_vibro_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>477</x>
-     <y>70</y>
+     <x>628</x>
+     <y>65</y>
     </hint>
     <hint type="destinationlabel">
      <x>470</x>
@@ -3004,8 +3053,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>204</y>
+     <x>628</x>
+     <y>244</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3100,8 +3149,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>235</y>
+     <x>628</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -3548,12 +3597,44 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>171</y>
+     <x>628</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
      <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadConvoMatrixPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>load_convo_matrix()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>512</x>
+     <y>192</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ConvoMatrixBrowseButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_convo_matrix_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>617</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>665</x>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -3622,5 +3703,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_demodulation_mode()</slot>
   <slot>set_flowgraphy_mode()</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
+  <slot>load_convo_matrix()</slot>
+  <slot>browse_convo_matrix_file()</slot>
  </slots>
 </ui>

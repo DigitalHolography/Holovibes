@@ -97,6 +97,15 @@ namespace holovibes
 	/*! Computing mode used by the pipe */
 	std::atomic<enum compute_mode> compute_mode;
 
+	/*! Convolution matrix length. */
+	std::atomic<unsigned int> convo_matrix_length;
+	/*! Convolution matrix width. */
+	std::atomic<unsigned int> convo_matrix_width;
+	/*! Convolution matrix z. */
+	std::atomic<unsigned int> convo_matrix_z;
+	/*! Computing mode used by the pipe */
+	std::vector<float> convo_matrix;
+
     /*! Number of samples in which apply the fft on. */
     std::atomic<unsigned short> nsamples;
     /*! p-th output component to show. */

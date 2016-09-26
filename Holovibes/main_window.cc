@@ -11,6 +11,8 @@
 #include "camera_exception.hh"
 #include "config.hh"
 #include "info_manager.hh"
+#include <fstream>
+#include <boost/algorithm/string.hpp>
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -918,6 +920,16 @@ namespace gui
     roi_output_line_edit->insert(filename);
   }
 
+  void MainWindow::browse_convo_matrix_file()
+  {
+	  QString filename = QFileDialog::getOpenFileName(this,
+		  tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
+
+	  QLineEdit* matrix_output_line_edit = findChild<QLineEdit*>("ConvoMatrixLineEdit");
+	  matrix_output_line_edit->clear();
+	  matrix_output_line_edit->insert(filename);
+  }
+
   void MainWindow::browse_roi_output_file()
   {
     QString filename = QFileDialog::getSaveFileName(this,
@@ -994,6 +1006,64 @@ namespace gui
     {
       display_error("Couldn't load ini file\n" + std::string(e.what()));
     }
+  }
+
+  void MainWindow::load_convo_matrix()
+  {
+	  QLineEdit* path_line_edit = findChild<QLineEdit*>("ConvoMatrixLineEdit");
+	  const std::string path = path_line_edit->text().toUtf8();
+	  boost::property_tree::ptree ptree;
+	  GLWidget& gl_widget = gl_window_->get_gl_widget();
+	  holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
+	  desc.convo_matrix.clear();
+
+	  try
+	  {
+		  std::ifstream file(path);
+		  std::stringstream strStream;
+		  std::string str;
+		  std::vector<std::string> v_str;
+		  std::string delims = " \f\n\r\t\v";
+		  std::vector<std::string> matrix_size;
+		  std::vector<std::string> matrix;
+		  unsigned int c = 0;
+
+		  strStream << file.rdbuf();
+		  file.close();
+		  str = strStream.str();
+		  boost::split(v_str, str, boost::is_any_of(";"));
+		  if (v_str.size() != 2)
+		  {
+			  display_error("Couldn't load file");
+			  return ;
+		  }
+		  boost::split(matrix_size, v_str[0], boost::is_any_of(delims));
+		  if (matrix_size.size() != 3)
+		  {
+			  display_error("Couldn't load file");
+			  return;
+		  }
+		  boost::split(matrix, v_str[1], boost::is_any_of(delims));
+		  desc.convo_matrix_length = std::stoi(matrix_size[0]);
+		  desc.convo_matrix_width = std::stoi(matrix_size[1]);
+		  desc.convo_matrix_z = std::stoi(matrix_size[2]);
+		  while (c < matrix.size())
+		  {
+			  if (matrix[c] != "")
+				desc.convo_matrix.push_back(std::stof(matrix[c]));
+			  c++;
+		  }
+	  }
+	  catch (std::exception& e)
+	  {
+		  unsigned int e_c = 0;
+
+		  desc.convo_matrix_length = 0;
+		  desc.convo_matrix_width = 0;
+		  desc.convo_matrix_z = 0;
+		  desc.convo_matrix.clear();
+		  display_error("Couldn't load file\n" + std::string(e.what()));
+	  }
   }
 
   void MainWindow::browse_file()

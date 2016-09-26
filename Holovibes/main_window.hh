@@ -18,6 +18,9 @@
 # include <vector>
 # include <sys/stat.h>
 # include <string>
+# include <fstream>
+# include <iostream>
+#include <boost/algorithm/string.hpp>
 
 # include "camera_exception.hh"
 # include "../GPIB/IVisaInterface.hh"
@@ -280,6 +283,11 @@ namespace gui
     /*! \brief Load ROI zone from file */
     void load_roi();
     /*! \} */
+
+	/*! \brief Browse Convolution Matrix file for load */
+	void browse_convo_matrix_file();
+	/*! \brief Load Convolution Matrix from file */
+	void load_convo_matrix();
 
     /*! \{ \name Record */
     /*! \brief Browse image record output file */

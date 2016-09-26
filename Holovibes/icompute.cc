@@ -134,9 +134,9 @@ namespace holovibes
 		/* Build the kst 3x3 matrix */
 		float kernel_cpu[9] =
 		{
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 8.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f
 		};
 
 		cufftComplex kst_complex_cpu[9];
