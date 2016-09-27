@@ -76,6 +76,8 @@ namespace holovibes
       , shift_corners_enabled(true)
       , contrast_enabled(false)
       , vibrometry_enabled(false)
+	  , convolution_enabled(false)
+	  , flowgraphy_enabled(false)
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q()
@@ -127,6 +129,9 @@ namespace holovibes
 
 	/*! Is convolution processing enabled. */
 	std::atomic<bool> convolution_enabled;
+
+	/*! Is convolution processing enabled. */
+	std::atomic<bool> flowgraphy_enabled;
 
     /*! Is log scale post-processing enabled. */
     std::atomic<bool> log_scale_enabled;

@@ -401,6 +401,13 @@ namespace gui
 		}
 	}
 
+	void MainWindow::set_flowgraphy_mode(const bool value)
+	{
+		holovibes_.get_compute_desc().flowgraphy_enabled = value;
+		if (!is_direct_mode())
+			holovibes_.get_pipe()->request_refresh();
+	}
+
 	bool MainWindow::is_direct_mode()
 	{
 		return holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT;

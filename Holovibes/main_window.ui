@@ -1189,6 +1189,29 @@
           <string>Phase cumulation:</string>
          </property>
         </widget>
+        <zorder>logScaleCheckBox</zorder>
+        <zorder>shiftCornersCheckBox</zorder>
+        <zorder>minLabel</zorder>
+        <zorder>maxLabel</zorder>
+        <zorder>autoPushButton</zorder>
+        <zorder>viewModeComboBox</zorder>
+        <zorder>contrastCheckBox</zorder>
+        <zorder>contrastMinDoubleSpinBox</zorder>
+        <zorder>contrastMaxDoubleSpinBox</zorder>
+        <zorder>contrastTypeLabel</zorder>
+        <zorder>autofocusLabel</zorder>
+        <zorder>zmaxLabel</zorder>
+        <zorder>zmaxDoubleSpinBox</zorder>
+        <zorder>zminDoubleSpinBox</zorder>
+        <zorder>zminLabel</zorder>
+        <zorder>zdivLabel</zorder>
+        <zorder>zdivSpinBox</zorder>
+        <zorder>autofocusPushButton</zorder>
+        <zorder>ziterSpinBox</zorder>
+        <zorder>unwrapSpinBox</zorder>
+        <zorder>unwrapCheckBox</zorder>
+        <zorder>label_3</zorder>
+        <zorder>Vibrometry</zorder>
        </widget>
       </item>
       <item>
@@ -1237,8 +1260,8 @@
         <widget class="QSpinBox" name="qSpinBoxVibro">
          <property name="geometry">
           <rect>
-           <x>30</x>
-           <y>70</y>
+           <x>130</x>
+           <y>40</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1247,8 +1270,8 @@
         <widget class="QLabel" name="qLabelVibro">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>70</y>
+           <x>110</x>
+           <y>40</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1466,9 +1489,9 @@
         <widget class="QCheckBox" name="convolution_checkbox">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>180</y>
-           <width>171</width>
+           <x>100</x>
+           <y>120</y>
+           <width>81</width>
            <height>20</height>
           </rect>
          </property>
@@ -1480,7 +1503,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>100</y>
+           <y>70</y>
            <width>171</width>
            <height>16</height>
           </rect>
@@ -1493,7 +1516,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>90</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1502,8 +1525,8 @@
         <widget class="QToolButton" name="ConvoMatrixBrowseButton">
          <property name="geometry">
           <rect>
-           <x>160</x>
-           <y>120</y>
+           <x>170</x>
+           <y>90</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1515,14 +1538,27 @@
         <widget class="QPushButton" name="loadConvoMatrixPushButton">
          <property name="geometry">
           <rect>
-           <x>50</x>
-           <y>150</y>
+           <x>10</x>
+           <y>120</y>
            <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>Load Matrix</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="flowgraphy_checkbox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>160</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Flowgraphy</string>
          </property>
         </widget>
        </widget>
@@ -1778,6 +1814,25 @@
           <string>ROI output:</string>
          </property>
         </widget>
+        <zorder>numberOfFramesLabel</zorder>
+        <zorder>numberOfFramesSpinBox</zorder>
+        <zorder>pathLineEdit</zorder>
+        <zorder>recPushButton</zorder>
+        <zorder>cancelPushButton</zorder>
+        <zorder>ROIOutputLineEdit</zorder>
+        <zorder>ROIPushButton</zorder>
+        <zorder>ROIStopPushButton</zorder>
+        <zorder>batchInputLineEdit</zorder>
+        <zorder>pushButton_2</zorder>
+        <zorder>ROIBatchPushButton</zorder>
+        <zorder>RecordFloatOutputCheckBox</zorder>
+        <zorder>ImageOutpuLabel</zorder>
+        <zorder>ImageOutputBrowsePushButton</zorder>
+        <zorder>batchInputBrowseToolButton</zorder>
+        <zorder>ROIOutputToolButton</zorder>
+        <zorder>BatchInputLabel</zorder>
+        <zorder>ROIOuputLabel</zorder>
+        <zorder>Vibrometry</zorder>
        </widget>
       </item>
       <item>
@@ -2781,8 +2836,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>116</y>
+     <x>638</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -3597,8 +3652,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_convo_matrix()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>512</x>
-     <y>192</y>
+     <x>538</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3613,8 +3668,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>617</x>
-     <y>155</y>
+     <x>638</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3629,12 +3684,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_convolution_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>207</y>
+     <x>628</x>
+     <y>164</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
      <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>flowgraphy_checkbox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_flowgraphy_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>521</x>
+     <y>197</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>199</y>
     </hint>
    </hints>
   </connection>
@@ -3701,9 +3772,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_direct_mode()</slot>
   <slot>set_holographic_mode()</slot>
   <slot>set_demodulation_mode()</slot>
-  <slot>set_flowgraphy_mode()</slot>
   <slot>load_convo_matrix()</slot>
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
+  <slot>set_flowgraphy_mode(bool)</slot>
  </slots>
 </ui>

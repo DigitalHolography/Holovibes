@@ -155,9 +155,13 @@ namespace gui
 	/* */
 	void set_demodulation_mode();
 
-	/*! \brief Called by set_image_mode if Flowgraphy button is clicked  */
+	/*! \brief Called by set_image_mode if Convolution button is clicked  */
 	/* */
 	void set_convolution_mode(const bool enable);
+
+	/*! \brief Called by set_image_mode if Flowgraphy button is clicked  */
+	/* */
+	void set_flowgraphy_mode(const bool enable);
 
 
 	/*! \brief Check if direct button is enabled  */
