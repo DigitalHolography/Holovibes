@@ -80,7 +80,7 @@ namespace holovibes
       , contrast_max(65535)
       , vibrometry_q()
       , autofocus_size(3)
-	  , convo_matrix_length(0)
+	  , convo_matrix_width(0)
 	  , convo_matrix_height(0)
 	  , convo_matrix_z(0)
     {
@@ -101,7 +101,7 @@ namespace holovibes
 	std::atomic<enum compute_mode> compute_mode;
 
 	/*! Convolution matrix length. */
-	std::atomic<unsigned int> convo_matrix_length;
+	std::atomic<unsigned int> convo_matrix_width;
 	/*! Convolution matrix height. */
 	std::atomic<unsigned int> convo_matrix_height;
 	/*! Convolution matrix z. */

@@ -140,7 +140,7 @@ namespace holovibes
 
   void Holovibes::reset_convolution_matrix()
   {
-	  compute_desc_.convo_matrix_length = 0;
+	  compute_desc_.convo_matrix_width = 0;
 	  compute_desc_.convo_matrix_height = 0;
 	  compute_desc_.convo_matrix_z = 0;
 	  compute_desc_.convo_matrix.clear();

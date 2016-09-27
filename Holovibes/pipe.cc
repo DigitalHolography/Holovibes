@@ -332,8 +332,8 @@ namespace holovibes
 			input_fd.width,
 			compute_desc_.nsamples.load(),
 			gpu_kernel_buffer_,
-			compute_desc_.convo_matrix_length.load(),
 			compute_desc_.convo_matrix_width.load(),
+			compute_desc_.convo_matrix_height.load(),
 			compute_desc_.nsamples.load(),
 			static_cast<cudaStream_t>(0)));
 	}
