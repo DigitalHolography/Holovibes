@@ -138,6 +138,14 @@ namespace holovibes
     output_.reset(nullptr);
   }
 
+  void Holovibes::reset_convolution_matrix()
+  {
+	  compute_desc_.convo_matrix_length = 0;
+	  compute_desc_.convo_matrix_width = 0;
+	  compute_desc_.convo_matrix_z = 0;
+	  compute_desc_.convo_matrix.clear();
+  }
+
   const camera::FrameDescriptor& Holovibes::get_cam_frame_desc()
   {
     return (tcapture_.get()->get_frame_descriptor());

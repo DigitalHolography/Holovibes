@@ -1015,17 +1015,17 @@ namespace gui
 	  boost::property_tree::ptree ptree;
 	  GLWidget& gl_widget = gl_window_->get_gl_widget();
 	  holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
-	  desc.convo_matrix.clear();
+	  std::stringstream strStream;
+	  std::string str;
+	  std::string delims = " \f\n\r\t\v";
+	  std::vector<std::string> v_str;
+	  std::vector<std::string> matrix_size;
+	  std::vector<std::string> matrix;
+	  holovibes_.reset_convolution_matrix();
 
 	  try
 	  {
 		  std::ifstream file(path);
-		  std::stringstream strStream;
-		  std::string str;
-		  std::vector<std::string> v_str;
-		  std::string delims = " \f\n\r\t\v";
-		  std::vector<std::string> matrix_size;
-		  std::vector<std::string> matrix;
 		  unsigned int c = 0;
 
 		  strStream << file.rdbuf();
@@ -1034,34 +1034,36 @@ namespace gui
 		  boost::split(v_str, str, boost::is_any_of(";"));
 		  if (v_str.size() != 2)
 		  {
-			  display_error("Couldn't load file");
+			  display_error("Couldn't load file : too much or to little separator\n");
 			  return ;
 		  }
-		  boost::split(matrix_size, v_str[0], boost::is_any_of(delims));
+		  boost::trim(v_str[0]);
+		  boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
 		  if (matrix_size.size() != 3)
 		  {
-			  display_error("Couldn't load file");
+			  display_error("Couldn't load file : too much or too little arguments for size\n");
 			  return;
 		  }
-		  boost::split(matrix, v_str[1], boost::is_any_of(delims));
 		  desc.convo_matrix_length = std::stoi(matrix_size[0]);
 		  desc.convo_matrix_width = std::stoi(matrix_size[1]);
 		  desc.convo_matrix_z = std::stoi(matrix_size[2]);
+		  boost::trim(v_str[1]);
+		  boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
 		  while (c < matrix.size())
 		  {
 			  if (matrix[c] != "")
 				desc.convo_matrix.push_back(std::stof(matrix[c]));
 			  c++;
 		  }
+		  if ((desc.convo_matrix_length * desc.convo_matrix_width * desc.convo_matrix_z) != matrix.size())
+		  {
+			  holovibes_.reset_convolution_matrix();
+			  display_error("Couldn't load file : invalid file\n");
+		  }
 	  }
 	  catch (std::exception& e)
 	  {
-		  unsigned int e_c = 0;
-
-		  desc.convo_matrix_length = 0;
-		  desc.convo_matrix_width = 0;
-		  desc.convo_matrix_z = 0;
-		  desc.convo_matrix.clear();
+		  holovibes_.reset_convolution_matrix();
 		  display_error("Couldn't load file\n" + std::string(e.what()));
 	  }
   }

@@ -80,6 +80,9 @@ namespace holovibes
       , contrast_max(65535)
       , vibrometry_q()
       , autofocus_size(3)
+	  , convo_matrix_length(0)
+	  , convo_matrix_width(0)
+	  , convo_matrix_z(0)
     {
       pindex = 0;
       vibrometry_q = 0;

@@ -149,6 +149,9 @@ namespace holovibes
       return compute_desc_;
     }
 
+	/*! \brief Reset values related to convolution matrix */
+	void reset_convolution_matrix();
+
     /*! \brief Set ComputeDescriptor options
      *
      * \param compute_desc ComputeDescriptor to load
