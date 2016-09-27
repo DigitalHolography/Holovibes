@@ -3591,22 +3591,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>convolution_checkbox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_flowgraphy_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>628</x>
-     <y>224</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>665</x>
-     <y>173</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>loadConvoMatrixPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -3635,6 +3619,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>665</x>
      <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>convolution_checkbox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_convolution_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>487</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
@@ -3702,8 +3702,8 @@ p, li { white-space: pre-wrap; }
   <slot>set_holographic_mode()</slot>
   <slot>set_demodulation_mode()</slot>
   <slot>set_flowgraphy_mode()</slot>
-  <slot>set_flowgraphy_mode(bool)</slot>
   <slot>load_convo_matrix()</slot>
   <slot>browse_convo_matrix_file()</slot>
+  <slot>set_convolution_mode(bool)</slot>
  </slots>
 </ui>

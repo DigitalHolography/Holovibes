@@ -242,7 +242,7 @@ static float sobel_operator(
     for (int i = 0; i < 9; ++i)
     {
       ks_complex_cpu[i].x = ks_cpu[i];
-      ks_complex_cpu[i].y = ks_cpu[i];
+	  ks_complex_cpu[i].y = 0;//ks_cpu[i];
     }
 
     /* Copy the ks matrix to ks_gpu_frame. */

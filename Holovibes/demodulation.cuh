@@ -8,10 +8,18 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 
-/*! \brief Call an fft1 1D on the image
-*
-* \param plan the first paramater of cufftExecC2C that will be called
-* on the image
+/*! \brief Allows demodulation in real time. Considering that we need (exactly like
+*   an STFT) put every pixel in a particular order to apply an FFT and then reconstruct
+*   the frame, please consider that this computation is very costly.
+ 
+* !!! An explanation of how the computation is given in stft.cuh !!!
+
+* \param input input buffer is where frames are taken for computation
+* \param stft_buf the buffer which will be exploded
+* \param stft_dup_buf the buffer that will receive the plan1d transforms
+* \parem frame_resolution number of pixels in one frame.
+* \param nsamples number of frames that will be used.
+
 */
 void demodulation(
 	cufftComplex* input,

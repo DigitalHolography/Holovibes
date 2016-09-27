@@ -308,6 +308,8 @@ namespace holovibes
 
 	if (compute_desc_.convolution_enabled)
 	{
+		/* kst_size */
+		int size = compute_desc_.convo_matrix.size();
 		/* gpu_tmp_input */
 		cudaFree(gpu_tmp_input_);
 		/* gpu_tmp_input */
@@ -318,10 +320,13 @@ namespace holovibes
 		cudaFree(gpu_kernel_buffer_);
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
-			sizeof(cufftComplex) * (3 * 3 * 3));
+			sizeof(cufftComplex) * (size));
 
 		/* Build the kst 3x3 matrix */
-
+		
+	
+		
+		/*
 		float kernel_cpu[27] =
 		{
 			-2.0f, -1.0f, 0.0f,
@@ -337,14 +342,14 @@ namespace holovibes
 			0.0f, 1.0f, 2.0f
 
 		};
-		
-		cufftComplex kst_complex_cpu[27];
-		for (int i = 0; i < 27; ++i)
+		*/
+		cufftComplex* kst_complex_cpu = (cufftComplex *) malloc(sizeof  (cufftComplex) * size);
+		for (int i = 0; i < size; ++i)
 		{
-			kst_complex_cpu[i].x = kernel_cpu[i];
+			kst_complex_cpu[i].x = compute_desc_.convo_matrix[i];
 			kst_complex_cpu[i].y = 0;
 		}
-		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (cufftComplex) * size, cudaMemcpyHostToDevice);
 	}
   }
 

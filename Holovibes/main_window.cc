@@ -386,12 +386,18 @@ namespace gui
 		}
 	}
 
-	void MainWindow::set_flowgraphy_mode(const bool value)
+	void MainWindow::set_convolution_mode(const bool value)
 	{
-		holovibes_.get_compute_desc().convolution_enabled = value;
-		if (!is_direct_mode())
+		if (value == true && holovibes_.get_compute_desc().convo_matrix.empty())
 		{
-			holovibes_.get_pipe()->request_refresh();
+			display_error("No valid kernel has been given");
+			holovibes_.get_compute_desc().convolution_enabled = false;
+		}
+		else
+		{
+			holovibes_.get_compute_desc().convolution_enabled = value;
+			if (!is_direct_mode())
+				holovibes_.get_pipe()->request_refresh();
 		}
 	}
 
