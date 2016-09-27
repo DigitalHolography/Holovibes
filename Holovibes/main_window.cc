@@ -1045,7 +1045,7 @@ namespace gui
 			  return;
 		  }
 		  desc.convo_matrix_length = std::stoi(matrix_size[0]);
-		  desc.convo_matrix_width = std::stoi(matrix_size[1]);
+		  desc.convo_matrix_height = std::stoi(matrix_size[1]);
 		  desc.convo_matrix_z = std::stoi(matrix_size[2]);
 		  boost::trim(v_str[1]);
 		  boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
@@ -1055,7 +1055,7 @@ namespace gui
 				desc.convo_matrix.push_back(std::stof(matrix[c]));
 			  c++;
 		  }
-		  if ((desc.convo_matrix_length * desc.convo_matrix_width * desc.convo_matrix_z) != matrix.size())
+		  if ((desc.convo_matrix_length * desc.convo_matrix_height * desc.convo_matrix_z) != matrix.size())
 		  {
 			  holovibes_.reset_convolution_matrix();
 			  display_error("Couldn't load file : invalid file\n");

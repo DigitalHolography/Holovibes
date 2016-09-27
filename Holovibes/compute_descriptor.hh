@@ -81,7 +81,7 @@ namespace holovibes
       , vibrometry_q()
       , autofocus_size(3)
 	  , convo_matrix_length(0)
-	  , convo_matrix_width(0)
+	  , convo_matrix_height(0)
 	  , convo_matrix_z(0)
     {
       pindex = 0;
@@ -102,8 +102,8 @@ namespace holovibes
 
 	/*! Convolution matrix length. */
 	std::atomic<unsigned int> convo_matrix_length;
-	/*! Convolution matrix width. */
-	std::atomic<unsigned int> convo_matrix_width;
+	/*! Convolution matrix height. */
+	std::atomic<unsigned int> convo_matrix_height;
 	/*! Convolution matrix z. */
 	std::atomic<unsigned int> convo_matrix_z;
 	/*! Computing mode used by the pipe */
