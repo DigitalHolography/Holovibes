@@ -90,6 +90,9 @@
     <CudaCompile Include="convolution.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="flowgraphy.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="holovibes.cc">
@@ -380,6 +383,9 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="convolution.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="flowgraphy.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>

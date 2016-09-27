@@ -13,6 +13,7 @@
 #include "stft.cuh"
 #include "demodulation.cuh"
 #include "convolution.cuh"
+#include "flowgraphy.cuh"
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
@@ -337,7 +338,17 @@ namespace holovibes
 			compute_desc_.nsamples.load(),
 			static_cast<cudaStream_t>(0)));
 	}
-
+	if (compute_desc_.flowgraphy_enabled)
+	{
+		fn_vect_.push_back(std::bind(
+			convolution_flowgraphy,
+			gpu_input_frame_ptr_,
+			gpu_tmp_input_,
+			input_fd.frame_res(),
+			input_fd.width,
+			3,
+			static_cast<cudaStream_t>(0)));
+	}
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {

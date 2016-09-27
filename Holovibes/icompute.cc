@@ -320,36 +320,24 @@ namespace holovibes
 		cudaFree(gpu_kernel_buffer_);
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
-			sizeof(cufftComplex) * (size));
+			sizeof(cufftComplex)* (size));
 
 		/* Build the kst 3x3 matrix */
-		
-	
-		
-		/*
-		float kernel_cpu[27] =
-		{
-			-2.0f, -1.0f, 0.0f,
-			-1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 2.0f,
 
-			-2.0f, -1.0f, 0.0f,
-			-1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 2.0f,
 
-			-2.0f, -1.0f, 0.0f,
-			-1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 2.0f
-
-		};
-		*/
-		cufftComplex* kst_complex_cpu = (cufftComplex *) malloc(sizeof  (cufftComplex) * size);
+		cufftComplex* kst_complex_cpu = (cufftComplex *)malloc(sizeof  (cufftComplex)* size);
 		for (int i = 0; i < size; ++i)
 		{
 			kst_complex_cpu[i].x = compute_desc_.convo_matrix[i];
 			kst_complex_cpu[i].y = 0;
 		}
-		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (cufftComplex) * size, cudaMemcpyHostToDevice);
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (cufftComplex)* size, cudaMemcpyHostToDevice);
+	}
+	if (compute_desc_.flowgraphy_enabled)
+	{
+		cudaFree(gpu_tmp_input_);
+		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
+			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
 	}
   }
 

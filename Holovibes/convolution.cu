@@ -17,7 +17,6 @@ __global__ void kernel_multiply_kernel(
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int n, m, z;
 	unsigned int size = frame_width * nsamples;
-	// augmenter size, changer a et b 
 	while (index < size)
 	{
 		cufftComplex sum;
