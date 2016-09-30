@@ -19,10 +19,7 @@ __global__ void kernel_multiply_kernel(
 	unsigned int size = frame_width * nsamples;
 	while (index < size)
 	{
-		cufftComplex sum;
-
-		sum.x = 0;
-		sum.y = 0;
+		cufftComplex sum = make_cuComplex(0, 0);
 		for (z = 0; z < nsamples; ++z)
 		for (m = 0; m < k_width; ++m)
 		for (n = 0; n < k_height; ++n) {

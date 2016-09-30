@@ -13,12 +13,10 @@ __global__ void kernel_multiply_kernel(
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int size = frame_resolution * nsamples;
-	// TODO: commentaires du soir juste pour le lendemain
 	while (index < frame_resolution)
 	{
 		cufftComplex M = make_cuComplex(0, 0);
 		cufftComplex D = make_cuComplex(0, 0);
-		/* b est en fait I(n, m, t) dans le papier du jap */
 		cufftComplex b = tmp_input[(index + 1 + i_width + frame_resolution)];
 		for (int k = 0; k < 3; ++k)
 		for (int j = 0; j < 3; ++j)

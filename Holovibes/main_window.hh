@@ -375,6 +375,7 @@ namespace gui
     ** computations or without having no camera.
     */
     void global_visibility(bool value);
+	void phase_num_visible(bool value);
     void camera_visible(bool value);
     void contrast_visible(bool value);
     void record_visible(bool value);

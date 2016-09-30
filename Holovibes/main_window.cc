@@ -403,9 +403,15 @@ namespace gui
 
 	void MainWindow::set_flowgraphy_mode(const bool value)
 	{
+		phase_num_visible(!value);
 		holovibes_.get_compute_desc().flowgraphy_enabled = value;
 		if (!is_direct_mode())
+		{
 			holovibes_.get_pipe()->request_refresh();
+			if (value)
+				holovibes_.get_pipe()->request_update_n(3);
+			notify();
+		}
 	}
 
 	bool MainWindow::is_direct_mode()
@@ -1600,6 +1606,12 @@ namespace gui
 
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);
+  }
+
+  void MainWindow::phase_num_visible(const bool value)
+  {
+	  QSpinBox* phase_num = findChild<QSpinBox*>("phaseNumberSpinBox");
+	  phase_num->setDisabled(!value);
   }
 
   void MainWindow::camera_visible(const bool value)
