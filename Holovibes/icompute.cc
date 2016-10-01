@@ -166,7 +166,7 @@ namespace holovibes
 		cudaFree(gpu_special_queue_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_special_queue_,
-			sizeof(cufftComplex)* input_.get_pixels() * 60); // TODO: 20
+			sizeof(cufftComplex)* input_.get_pixels() * 5); // TODO: 20
 	}
   }
 
@@ -355,7 +355,7 @@ namespace holovibes
 		cudaFree(gpu_special_queue_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_special_queue_,
-			sizeof(cufftComplex)* input_.get_pixels() * 60); // TODO: 20
+			sizeof(cufftComplex)* input_.get_pixels() * 5); // TODO: 20
 	}
   }
 

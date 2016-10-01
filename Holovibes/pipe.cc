@@ -342,7 +342,7 @@ namespace holovibes
 	if (compute_desc_.flowgraphy_enabled)
 	{
 		gpu_special_queue_start_index = 0;
-		gpu_special_queue_max_index = 33;
+		gpu_special_queue_max_index = 5;
 
 		fn_vect_.push_back(std::bind(
 			convolution_flowgraphy,

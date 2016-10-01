@@ -9,6 +9,8 @@ __global__ void kernel_flowgraphy(
 	const cufftComplex* gpu_special_queue,
 	const unsigned int gpu_special_queue_buffer_length,
 	const cufftComplex* gpu_special_queue_end,
+	const unsigned int start_index,
+	const unsigned int max_index,
 	const unsigned int frame_resolution,
 	const unsigned int i_width,
 	const unsigned int nsamples,
@@ -21,18 +23,18 @@ __global__ void kernel_flowgraphy(
 	{
 		cufftComplex M = make_cuComplex(0, 0);
 		cufftComplex D = make_cuComplex(0, 0);
-		int deplacement = index + (1 + i_width + frame_resolution) * (nsamples / 2);
-		if (gpu_special_queue + deplacement >= gpu_special_queue_end)
-			deplacement = deplacement - gpu_special_queue_buffer_length;
+		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nsamples / 2)) % gpu_special_queue_buffer_length;
+		//	if (gpu_special_queue + deplacement >= gpu_special_queue_end)
+  	//	deplacement = deplacement - gpu_special_queue_buffer_length;
 		cufftComplex b = gpu_special_queue[deplacement];
 
 		for (int k = 0; k < nsamples; ++k)
 		for (int j = 0; j < nsamples; ++j)
 		for (int i = 0; i < nsamples; ++i)
 		{
-			deplacement = (index + i + (j * i_width) + (k * frame_resolution)) % size; // while x while y, on peut virer le modulo
-			if (gpu_special_queue + deplacement >= gpu_special_queue_end)
-				deplacement = deplacement - gpu_special_queue_buffer_length;
+			deplacement = (index + i + (j * i_width) + (((k + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length; // while x while y, on peut virer le modulo
+			//if (gpu_special_queue + deplacement >= gpu_special_queue_end)
+				//deplacement = deplacement - gpu_special_queue_buffer_length;
 			cufftComplex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
@@ -45,7 +47,7 @@ __global__ void kernel_flowgraphy(
 		M.x = pow(M.x, 2);
 		M.y = pow(M.y, 2);
 
-		input[index] = b;
+		input[index] = M;
 		index += blockDim.x * gridDim.x;
 	}
 }
@@ -75,7 +77,7 @@ void convolution_flowgraphy(
 	cudaMemcpy(
 		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,
-		sizeof(cufftComplex)* frame_resolution,
+		sizeof(cufftComplex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 
 	unsigned int n = pow(nframes, 3) - 3;
@@ -87,6 +89,8 @@ void convolution_flowgraphy(
 		gpu_special_queue,
 		gpu_special_queue_buffer_length,
 		gpu_special_queue_end,
+		gpu_special_queue_start_index,
+		gpu_special_queue_max_index,
 		frame_resolution,
 		frame_width,
 		nframes,
