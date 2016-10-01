@@ -32,6 +32,7 @@ namespace holovibes
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
 	, gpu_kernel_buffer_(nullptr)
+	, gpu_special_queue_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
@@ -91,7 +92,7 @@ namespace holovibes
       || compute_desc_.algorithm == ComputeDescriptor::FFT2)
       cufftPlan3d(
       &plan3d_,
-      input_length_,                   // NX
+      input_length_,                  // NX
       input_.get_frame_desc().width,  // NY
       input_.get_frame_desc().height, // NZ
       CUFFT_C2C);
@@ -119,14 +120,17 @@ namespace holovibes
 		input_.get_pixels()
 		);
 
-	if (compute_desc_.convolution_enabled)
+	if (compute_desc_.convolution_enabled
+		|| compute_desc_.flowgraphy_enabled)
 	{
 		/* gpu_tmp_input */
 		cudaFree(gpu_tmp_input_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
-
+			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
+	}
+	if (compute_desc_.convolution_enabled)
+	{
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
 			sizeof(cufftComplex)* (3 * 3 * 3));
@@ -156,6 +160,14 @@ namespace holovibes
 			}
 		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
 	}
+	if (compute_desc_.flowgraphy_enabled)
+	{
+		/* gpu_tmp_input */
+		cudaFree(gpu_special_queue_);
+		/* gpu_tmp_input */
+		cudaMalloc<cufftComplex>(&gpu_special_queue_,
+			sizeof(cufftComplex)* input_.get_pixels() * 60); // TODO: 20
+	}
   }
 
   ICompute::~ICompute()
@@ -179,7 +191,10 @@ namespace holovibes
     cudaFree(gpu_stft_buffer_);
 
     /* gpu_stft_dup_buffer */
-    cudaFree(gpu_stft_dup_buffer_);
+	cudaFree(gpu_stft_dup_buffer_);
+
+	/* gpu_special_queue */
+	cudaFree(gpu_special_queue_);
 
     /* gpu_float_buffer_af_zone */
     cudaFree(af_env_.gpu_float_buffer_af_zone);
@@ -200,7 +215,8 @@ namespace holovibes
     abort_construct_requested_ = false;
 
     /* if stft, we don't need to allocate more than one frame */
-    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+	if (compute_desc_.algorithm == ComputeDescriptor::STFT
+		|| compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)
       input_length_ = 1;
     else
       input_length_ = n;
@@ -306,25 +322,25 @@ namespace holovibes
       fqueue_ = nullptr;
     }
 
-	if (compute_desc_.convolution_enabled)
+	if (compute_desc_.convolution_enabled
+		|| compute_desc_.flowgraphy_enabled)
 	{
-		/* kst_size */
-		int size = compute_desc_.convo_matrix.size();
 		/* gpu_tmp_input */
 		cudaFree(gpu_tmp_input_);
 		/* gpu_tmp_input */
 		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
 			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
-
+	}
+	if (compute_desc_.convolution_enabled)
+	{
+		/* kst_size */
+		int size = compute_desc_.convo_matrix.size();
 		/* gpu_kernel_buffer */
 		cudaFree(gpu_kernel_buffer_);
 		/* gpu_kernel_buffer */
 		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
 			sizeof(cufftComplex)* (size));
-
 		/* Build the kst 3x3 matrix */
-
-
 		cufftComplex* kst_complex_cpu = (cufftComplex *)malloc(sizeof  (cufftComplex)* size);
 		for (int i = 0; i < size; ++i)
 		{
@@ -335,9 +351,11 @@ namespace holovibes
 	}
 	if (compute_desc_.flowgraphy_enabled)
 	{
-		cudaFree(gpu_tmp_input_);
-		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
+		/* gpu_tmp_input */
+		cudaFree(gpu_special_queue_);
+		/* gpu_tmp_input */
+		cudaMalloc<cufftComplex>(&gpu_special_queue_,
+			sizeof(cufftComplex)* input_.get_pixels() * 60); // TODO: 20
 	}
   }
 

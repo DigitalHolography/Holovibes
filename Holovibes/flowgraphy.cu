@@ -4,65 +4,93 @@
 #include "hardware_limits.hh"
 #include "tools.hh"
 
-__global__ void kernel_multiply_kernel(
+__global__ void kernel_flowgraphy(
 	cufftComplex* input,
-	cufftComplex* tmp_input,
+	const cufftComplex* gpu_special_queue,
+	const unsigned int gpu_special_queue_buffer_length,
+	const cufftComplex* gpu_special_queue_end,
 	const unsigned int frame_resolution,
 	const unsigned int i_width,
-	const unsigned int nsamples)
+	const unsigned int nsamples,
+	const unsigned int n_i)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int size = frame_resolution * nsamples;
+
 	while (index < frame_resolution)
 	{
 		cufftComplex M = make_cuComplex(0, 0);
 		cufftComplex D = make_cuComplex(0, 0);
-		cufftComplex b = tmp_input[(index + 1 + i_width + frame_resolution)];
-		for (int k = 0; k < 3; ++k)
-		for (int j = 0; j < 3; ++j)
-		for (int i = 0; i < 3; ++i)
+		int deplacement = index + (1 + i_width + frame_resolution) * (nsamples / 2);
+		if (gpu_special_queue + deplacement >= gpu_special_queue_end)
+			deplacement = deplacement - gpu_special_queue_buffer_length;
+		cufftComplex b = gpu_special_queue[deplacement];
+
+		for (int k = 0; k < nsamples; ++k)
+		for (int j = 0; j < nsamples; ++j)
+		for (int i = 0; i < nsamples; ++i)
 		{
-			cufftComplex a = tmp_input[(index + i + (j * i_width) + (k * frame_resolution)) % size];
+			deplacement = (index + i + (j * i_width) + (k * frame_resolution)) % size; // while x while y, on peut virer le modulo
+			if (gpu_special_queue + deplacement >= gpu_special_queue_end)
+				deplacement = deplacement - gpu_special_queue_buffer_length;
+			cufftComplex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
-			D.x += std::sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2));
-			D.y = 0;
+			D.x += std::sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2)); // |a - b|
 		}
-		M.x += (24 * b.x);
-		M.y += (24 * b.y);
+		M.x += (n_i * b.x);
+		M.y += (n_i * b.y);
 		M.x /= D.x;
 		M.y /= D.x;
 		M.x = pow(M.x, 2);
 		M.y = pow(M.y, 2);
-		input[index] = M;
+
+		input[index] = b;
 		index += blockDim.x * gridDim.x;
 	}
 }
 
+
 void convolution_flowgraphy(
 	cufftComplex* input,
-	cufftComplex* tmp_input,
+	cufftComplex* gpu_special_queue,
+	unsigned int &gpu_special_queue_start_index,
+	const unsigned int gpu_special_queue_max_index,
 	const unsigned int frame_resolution,
 	const unsigned int frame_width,
 	const unsigned int nframes,
 	cudaStream_t stream)
 {
 	// const unsigned int n_frame_resolution = frame_resolution * nframes;
-
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
 
 	cudaStreamSynchronize(stream);
 
-	cudaMemcpy(tmp_input, input, sizeof(cufftComplex)* frame_resolution * nframes, cudaMemcpyDeviceToDevice);
-
-	kernel_multiply_kernel << <blocks, threads, 0, stream >> >(
+	if (gpu_special_queue_start_index == 0)
+		gpu_special_queue_start_index = gpu_special_queue_max_index - 1;
+	else
+		--gpu_special_queue_start_index;
+	cudaMemcpy(
+		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,
-		tmp_input,
+		sizeof(cufftComplex)* frame_resolution,
+		cudaMemcpyDeviceToDevice);
+
+	unsigned int n = pow(nframes, 3) - 3;
+	unsigned int  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
+	cufftComplex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
+
+	kernel_flowgraphy << <blocks, threads, 0, stream >> >(
+		input,
+		gpu_special_queue,
+		gpu_special_queue_buffer_length,
+		gpu_special_queue_end,
 		frame_resolution,
 		frame_width,
-		nframes
+		nframes,
+		n
 		);
 
 	cudaStreamSynchronize(stream);

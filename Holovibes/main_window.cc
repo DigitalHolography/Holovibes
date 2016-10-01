@@ -403,15 +403,9 @@ namespace gui
 
 	void MainWindow::set_flowgraphy_mode(const bool value)
 	{
-		phase_num_visible(!value);
 		holovibes_.get_compute_desc().flowgraphy_enabled = value;
 		if (!is_direct_mode())
-		{
 			holovibes_.get_pipe()->request_refresh();
-			if (value)
-				holovibes_.get_pipe()->request_update_n(3);
-			notify();
-		}
 	}
 
 	bool MainWindow::is_direct_mode()

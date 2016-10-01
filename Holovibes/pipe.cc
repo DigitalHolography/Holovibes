@@ -338,17 +338,24 @@ namespace holovibes
 			compute_desc_.nsamples.load(),
 			static_cast<cudaStream_t>(0)));
 	}
+
 	if (compute_desc_.flowgraphy_enabled)
 	{
+		gpu_special_queue_start_index = 0;
+		gpu_special_queue_max_index = 33;
+
 		fn_vect_.push_back(std::bind(
 			convolution_flowgraphy,
 			gpu_input_frame_ptr_,
-			gpu_tmp_input_,
+			gpu_special_queue_,
+			std::ref(gpu_special_queue_start_index),
+			gpu_special_queue_max_index,
 			input_fd.frame_res(),
 			input_fd.width,
-			3,
+			3, // TODO: #img 2
 			static_cast<cudaStream_t>(0)));
 	}
+
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {

@@ -271,6 +271,10 @@ namespace holovibes
 	cufftComplex* gpu_kernel_buffer_;
 	/*! cufftComplex array containing tmp input. */
 	cufftComplex* gpu_tmp_input_;
+	/*! cufftComplex queue */
+	cufftComplex* gpu_special_queue_;
+	unsigned int  gpu_special_queue_start_index;
+	unsigned int  gpu_special_queue_max_index;
     /*! CUDA FFT Plan 3D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan3d_;
     /*! CUDA FFT Plan 2D. Set to a specific CUDA stream in Pipe and Pipeline. */

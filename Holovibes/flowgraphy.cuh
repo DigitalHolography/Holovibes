@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cuda_runtime.h>
+#include <iostream>
 #include <cufft.h>
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
@@ -20,7 +21,9 @@
 */
 void convolution_flowgraphy(
 	cufftComplex* input,
-	cufftComplex* tmp_input,
+	cufftComplex* gpu_special_queue,
+	unsigned int &gpu_special_queue_start_index,
+	const unsigned int gpu_special_queue_max_index,
 	const unsigned int frame_resolution,
 	const unsigned int frame_width,
 	const unsigned int nframes,

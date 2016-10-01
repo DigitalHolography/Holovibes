@@ -20,6 +20,7 @@ __global__ void kernel_multiply_kernel(
 	while (index < size)
 	{
 		cufftComplex sum = make_cuComplex(0, 0);
+
 		for (z = 0; z < nsamples; ++z)
 		for (m = 0; m < k_width; ++m)
 		for (n = 0; n < k_height; ++n) {
