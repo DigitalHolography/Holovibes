@@ -3749,6 +3749,20 @@ p, li { white-space: pre-wrap; }
      <y>316</y>
     </hint>
    </hints>
+   <sender>SpecialBufferSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_special_buffer_size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>599</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>51</y>
+    </hint>
+   </hints>
   </connection>
  </connections>
  <slots>
@@ -3818,5 +3832,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
   <slot>set_flography_level()</slot>
+  <slot>set_special_buffer_size(int)</slot>
  </slots>
 </ui>
