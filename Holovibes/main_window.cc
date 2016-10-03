@@ -161,6 +161,12 @@ namespace gui
 		QCheckBox* vibro = findChild<QCheckBox*>("vibrometryCheckBox");
 		vibro->setChecked(cd.vibrometry_enabled);
 
+		QCheckBox* convolution = findChild<QCheckBox*>("convolution_checkbox");
+		if (cd.convo_matrix.size() == 0)
+			convolution->setEnabled(false);
+		else
+			convolution->setEnabled(true);
+
 		image_ratio_visible(cd.vibrometry_enabled);
 
 		QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
@@ -393,6 +399,7 @@ namespace gui
 		{
 			display_error("No valid kernel has been given");
 			holovibes_.get_compute_desc().convolution_enabled = false;
+
 		}
 		else
 		{
@@ -1056,6 +1063,9 @@ namespace gui
 	  std::vector<std::string> v_str;
 	  std::vector<std::string> matrix_size;
 	  std::vector<std::string> matrix;
+	  QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
+	  convo->setChecked(false);
+	  set_convolution_mode(false);
 	  holovibes_.reset_convolution_matrix();
 
 	  try
@@ -1070,6 +1080,7 @@ namespace gui
 		  if (v_str.size() != 2)
 		  {
 			  display_error("Couldn't load file : too much or to little separator\n");
+			  notify();
 			  return ;
 		  }
 		  boost::trim(v_str[0]);
@@ -1077,6 +1088,7 @@ namespace gui
 		  if (matrix_size.size() != 3)
 		  {
 			  display_error("Couldn't load file : too much or too little arguments for size\n");
+			  notify();
 			  return;
 		  }
 		  desc.convo_matrix_width = std::stoi(matrix_size[0]);
@@ -1101,6 +1113,8 @@ namespace gui
 		  holovibes_.reset_convolution_matrix();
 		  display_error("Couldn't load file\n" + std::string(e.what()));
 	  }
+	  convo->setChecked(true);
+	  notify();
   }
 
   void MainWindow::browse_file()
