@@ -342,8 +342,8 @@ namespace holovibes
 	if (compute_desc_.flowgraphy_enabled)
 	{
 		gpu_special_queue_start_index = 0;
-		gpu_special_queue_max_index = 5;
-
+		gpu_special_queue_max_index = compute_desc_.special_buffer_size.load();
+		std::cout << gpu_special_queue_max_index << std::endl;
 		fn_vect_.push_back(std::bind(
 			convolution_flowgraphy,
 			gpu_input_frame_ptr_,

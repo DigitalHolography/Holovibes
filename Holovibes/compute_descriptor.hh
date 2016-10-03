@@ -72,6 +72,7 @@ namespace holovibes
       , zdistance(1.50f)
       , view_mode(MODULUS)
       , unwrap_history_size(10)
+	  , special_buffer_size(5)
       , log_scale_enabled(false)
       , shift_corners_enabled(true)
       , contrast_enabled(false)
@@ -126,6 +127,10 @@ namespace holovibes
 
     /*! TODO: */
     std::atomic<int> unwrap_history_size;
+
+	/*! Special buffer size*/
+
+	std::atomic<int> special_buffer_size;
 
 	/*! Is convolution processing enabled. */
 	std::atomic<bool> convolution_enabled;

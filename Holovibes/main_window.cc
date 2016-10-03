@@ -478,6 +478,16 @@ namespace gui
     }
   }
 
+  void MainWindow::set_special_buffer_size(int value)
+  { 
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.special_buffer_size.exchange(value);
+		  holovibes_.get_pipe()->request_refresh();
+	  }
+  }
+
   void  MainWindow::set_p(const int value)
   {
 	  if (!is_direct_mode())

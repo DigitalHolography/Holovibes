@@ -173,6 +173,12 @@ namespace gui
     ** \param value new phase number
     */
     void set_phase_number(int value);
+
+	/*! \brief Set special buffer size
+	** \param value new buffer size
+	*/
+	void set_special_buffer_size(int value);
+
     /*! \brief Set p-th frame to be displayed in OpenGl window
     ** \param value new p
     */

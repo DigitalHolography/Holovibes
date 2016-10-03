@@ -2906,7 +2906,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>638</x>
+     <x>628</x>
      <y>86</y>
     </hint>
     <hint type="destinationlabel">
@@ -3546,8 +3546,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>297</y>
+     <x>628</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3723,7 +3723,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>538</x>
-     <y>165</y>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3738,8 +3738,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>638</x>
-     <y>135</y>
+     <x>628</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3755,7 +3755,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>628</x>
-     <y>164</y>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3770,12 +3770,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>521</x>
-     <y>197</y>
+     <x>538</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
      <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpecialBufferSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_special_buffer_size(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>599</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>51</y>
     </hint>
    </hints>
   </connection>
@@ -3846,5 +3862,6 @@ p, li { white-space: pre-wrap; }
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
+  <slot>set_special_buffer_size(int)</slot>
  </slots>
 </ui>
