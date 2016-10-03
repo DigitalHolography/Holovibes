@@ -352,7 +352,7 @@ namespace holovibes
 			gpu_special_queue_max_index,
 			input_fd.frame_res(),
 			input_fd.width,
-			3, // TODO: #img 2
+			compute_desc_.flowgraphy_level.load(),
 			static_cast<cudaStream_t>(0)));
 	}
 

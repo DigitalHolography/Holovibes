@@ -177,6 +177,8 @@ namespace gui
     ** \param value new p
     */
     void set_p(int value);
+	/*! \brief Increment flography level */
+	void set_flowgraphy_level(const int value);
     /*! \brief Increment p (useful for keyboard shortcuts) */
     void increment_p();
     /*! \brief Decrement p (useful for keyboard shortcuts) */

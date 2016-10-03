@@ -85,6 +85,7 @@ namespace holovibes
 	  , convo_matrix_width(0)
 	  , convo_matrix_height(0)
 	  , convo_matrix_z(0)
+	  , flowgraphy_level(3)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -115,6 +116,9 @@ namespace holovibes
     std::atomic<unsigned short> nsamples;
     /*! p-th output component to show. */
     std::atomic_ushort pindex;
+
+	/*! Set Flowgraphy level: */
+	std::atomic<unsigned int> flowgraphy_level;
 
     /*! Lambda in meters. */
     std::atomic<float> lambda;

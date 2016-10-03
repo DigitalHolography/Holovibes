@@ -1189,29 +1189,6 @@
           <string>Phase cumulation:</string>
          </property>
         </widget>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>unwrapSpinBox</zorder>
-        <zorder>unwrapCheckBox</zorder>
-        <zorder>label_3</zorder>
-        <zorder>Vibrometry</zorder>
        </widget>
       </item>
       <item>
@@ -1881,28 +1858,6 @@
           <string>ROI output:</string>
          </property>
         </widget>
-        <zorder>numberOfFramesLabel</zorder>
-        <zorder>numberOfFramesSpinBox</zorder>
-        <zorder>pathLineEdit</zorder>
-        <zorder>recPushButton</zorder>
-        <zorder>cancelPushButton</zorder>
-        <zorder>ROIOutputLineEdit</zorder>
-        <zorder>ROIPushButton</zorder>
-        <zorder>ROIStopPushButton</zorder>
-        <zorder>batchInputLineEdit</zorder>
-        <zorder>pushButton_2</zorder>
-        <zorder>ROIBatchPushButton</zorder>
-        <zorder>RecordFloatOutputCheckBox</zorder>
-        <zorder>ImageOutpuLabel</zorder>
-        <zorder>ImageOutputBrowsePushButton</zorder>
-        <zorder>batchInputBrowseToolButton</zorder>
-        <zorder>ROIOutputToolButton</zorder>
-        <zorder>BatchInputLabel</zorder>
-        <zorder>ROIOuputLabel</zorder>
-        <zorder>Vibrometry</zorder>
-        <zorder>Vibrometry</zorder>
-        <zorder>Vibrometry</zorder>
-        <zorder>Vibrometry</zorder>
        </widget>
       </item>
       <item>
@@ -2906,7 +2861,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>638</x>
+     <x>628</x>
      <y>86</y>
     </hint>
     <hint type="destinationlabel">
@@ -3546,8 +3501,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>609</x>
-     <y>297</y>
+     <x>628</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3723,7 +3678,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>538</x>
-     <y>165</y>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3738,8 +3693,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>638</x>
-     <y>135</y>
+     <x>628</x>
+     <y>160</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3755,7 +3710,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>628</x>
-     <y>164</y>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3770,12 +3725,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>521</x>
-     <y>197</y>
+     <x>538</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
      <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FlowgraphySpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_flography_level()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>612</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>316</y>
     </hint>
    </hints>
   </connection>
@@ -3846,5 +3817,6 @@ p, li { white-space: pre-wrap; }
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
+  <slot>set_flography_level()</slot>
  </slots>
 </ui>
