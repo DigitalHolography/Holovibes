@@ -24,8 +24,6 @@ __global__ void kernel_flowgraphy(
 		cufftComplex M = make_cuComplex(0, 0);
 		cufftComplex D = make_cuComplex(0, 0);
 		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nsamples / 2)) % gpu_special_queue_buffer_length;
-		//	if (gpu_special_queue + deplacement >= gpu_special_queue_end)
-  	//	deplacement = deplacement - gpu_special_queue_buffer_length;
 		cufftComplex b = gpu_special_queue[deplacement];
 
 		for (int k = 0; k < nsamples; ++k)
@@ -33,8 +31,6 @@ __global__ void kernel_flowgraphy(
 		for (int i = 0; i < nsamples; ++i)
 		{
 			deplacement = (index + i + (j * i_width) + (((k + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length; // while x while y, on peut virer le modulo
-			//if (gpu_special_queue + deplacement >= gpu_special_queue_end)
-				//deplacement = deplacement - gpu_special_queue_buffer_length;
 			cufftComplex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
