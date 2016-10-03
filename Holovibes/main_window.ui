@@ -3735,32 +3735,34 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>FlowgraphySpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_flography_level()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>612</x>
-     <y>221</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>316</y>
-    </hint>
-   </hints>
    <sender>SpecialBufferSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_special_buffer_size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>599</x>
-     <y>110</y>
+     <x>603</x>
+     <y>101</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
-     <y>51</y>
+     <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>FlowgraphySpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_flowgraphy_level(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>616</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>663</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -3831,7 +3833,7 @@ p, li { white-space: pre-wrap; }
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
-  <slot>set_flography_level()</slot>
+  <slot>set_flowgraphy_level(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
  </slots>
 </ui>

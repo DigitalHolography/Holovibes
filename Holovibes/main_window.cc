@@ -513,11 +513,11 @@ namespace gui
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 	  if (value % 2 == 0)
-		  cd.flowgraphy_level = value + 1;
+		  cd.flowgraphy_level.exchange(value + 1);
 	  else
-		  cd.flowgraphy_level = value;
-	  QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("FlowgraphySpinBox");
-	  z->setValue(cd.flowgraphy_level);
+		  cd.flowgraphy_level.exchange(value);
+	  QSpinBox* z = findChild<QSpinBox*>("FlowgraphySpinBox");
+	  z->setValue(cd.flowgraphy_level.load());
 	  notify();
 	  holovibes_.get_pipe()->request_refresh();
   }
