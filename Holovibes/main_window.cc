@@ -377,6 +377,7 @@ namespace gui
 						Qt::UniqueConnection);
 				}
 				global_visibility(true);
+				demodulation_visibility(false);
 			}
 			catch (std::exception& e)
 			{
@@ -438,7 +439,6 @@ namespace gui
 	  holovibes_.dispose_capture();
 	  camera_visible(false);
 	  record_visible(false);
-	  global_visibility(false);
 	  if (config.set_cuda_device == 1)
 	  {
 		  if (config.auto_device_number == 1)
@@ -454,8 +454,6 @@ namespace gui
 	  cudaDeviceReset();
 	  change_camera(camera_type_);
 	  manager->remove_info("Status");
-	  global_visibility(true);
-
   }
 
   void  MainWindow::set_phase_number(const int value)
@@ -1630,6 +1628,33 @@ namespace gui
   {
 	  QSpinBox* phase_num = findChild<QSpinBox*>("phaseNumberSpinBox");
 	  phase_num->setDisabled(!value);
+  }
+
+  void MainWindow::demodulation_visibility(const bool value)
+  {
+	  QLabel* wavelength_label = findChild<QLabel*>("wavelengthLabel");
+	  wavelength_label->setDisabled(!value);
+
+	  QDoubleSpinBox* wavelength = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
+	  wavelength->setDisabled(!value);
+
+	  QLabel* z_label = findChild<QLabel*>("zLabel");
+	  z_label->setDisabled(!value);
+
+	  QDoubleSpinBox* z = findChild<QDoubleSpinBox*>("zSpinBox");
+	  z->setDisabled(!value);
+
+	  QLabel* z_step_label = findChild<QLabel*>("zStepLabel");
+	  z_step_label->setDisabled(!value);
+
+	  QDoubleSpinBox* z_step = findChild<QDoubleSpinBox*>("zStepDoubleSpinBox");
+	  z_step->setDisabled(!value);
+
+	  QLabel* algorithm_label = findChild<QLabel*>("algorithmLabel");
+	  algorithm_label->setDisabled(!value);
+
+	  QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+	  algorithm->setDisabled(!value);
   }
 
   void MainWindow::camera_visible(const bool value)

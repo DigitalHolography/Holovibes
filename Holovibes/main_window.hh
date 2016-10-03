@@ -386,6 +386,7 @@ namespace gui
 	void phase_num_visible(bool value);
     void camera_visible(bool value);
     void contrast_visible(bool value);
+	void demodulation_visibility(bool value);
     void record_visible(bool value);
     void record_but_cancel_visible(bool value);
     void image_ratio_visible(bool value);
