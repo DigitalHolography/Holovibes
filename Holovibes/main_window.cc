@@ -319,6 +319,7 @@ namespace gui
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
+			set_average_mode(false);
 			global_visibility(false);
 			notify();
 		}
