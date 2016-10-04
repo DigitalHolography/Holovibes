@@ -38,16 +38,17 @@ __global__ void kernel_flowgraphy(
 		}
 		M.x += (n_i * b.x);
 		M.y += (n_i * b.y);
-		//M.x /= D.x;
-		//M.y /= D.x;
-		//D.x /= M.x;
-		D.x = pow(D.x, 2) + pow(D.y, 2);
-		D.x /= pow(M.x, 2) + pow(M.y, 2);
-		//D.y /= M.x;
-		//D.x = pow(D.x, 2);
-		//D.y = pow(D.y, 2);
-
-		input[index] = D;
+		M.x /= D.x;
+		M.y /= D.x;
+		M.x = pow(M.x, 2);
+		M.y = pow(M.y, 2);
+	/*	float tmp = pow(M.x, 2) + pow(M.y, 2);
+		M.x = (M.x * D.x) / tmp;
+		M.y = (M.y * D.x) / tmp;
+		tmp = M.x;
+		M.x = pow(M.x, 2) - pow(M.y, 2);
+		M.y = 2 * tmp * M.y;*/
+		input[index] = M;
 		index += blockDim.x * gridDim.x;
 	}
 }
