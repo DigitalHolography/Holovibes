@@ -320,6 +320,7 @@ namespace gui
 			init_image_mode(pos, width, height);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
 			set_average_mode(false);
+			set_convolution_mode(false);
 			global_visibility(false);
 			notify();
 		}
@@ -396,14 +397,18 @@ namespace gui
 
 	void MainWindow::set_convolution_mode(const bool value)
 	{
+		QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
+
 		if (value == true && holovibes_.get_compute_desc().convo_matrix.empty())
 		{
+			convo->setChecked(false);
 			display_error("No valid kernel has been given");
 			holovibes_.get_compute_desc().convolution_enabled = false;
 
 		}
 		else
 		{
+			convo->setChecked(value);
 			holovibes_.get_compute_desc().convolution_enabled = value;
 			if (!is_direct_mode())
 				holovibes_.get_pipe()->request_refresh();
@@ -1065,7 +1070,6 @@ namespace gui
 	  std::vector<std::string> matrix_size;
 	  std::vector<std::string> matrix;
 	  QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
-	  convo->setChecked(false);
 	  set_convolution_mode(false);
 	  holovibes_.reset_convolution_matrix();
 
@@ -1114,7 +1118,6 @@ namespace gui
 		  holovibes_.reset_convolution_matrix();
 		  display_error("Couldn't load file\n" + std::string(e.what()));
 	  }
-	  convo->setChecked(true);
 	  notify();
   }
 
