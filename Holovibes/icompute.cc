@@ -131,34 +131,21 @@ namespace holovibes
 	}
 	if (compute_desc_.convolution_enabled)
 	{
+		/* kst_size */
+		int size = compute_desc_.convo_matrix.size();
 		/* gpu_kernel_buffer */
-		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
-			sizeof(cufftComplex)* (3 * 3 * 3));
-
+		cudaFree(gpu_kernel_buffer_);
+		/* gpu_kernel_buffer */
+		cudaMalloc<float>(&gpu_kernel_buffer_,
+			sizeof (float)* (size));
 		/* Build the kst 3x3 matrix */
-		float (kernel_cpu)[27] =
+		float* kst_complex_cpu = (float *) malloc(sizeof (float) * size);
+		for (int i = 0; i < size; ++i)
 		{
-
-			0.0f, -1.0f, 0.0f,
-			-1.0f, 5.0f, -1.0f,
-			0.0f, -1.0f, 0.0f,
-
-			0.0f, -1.0f, 0.0f,
-			-1.0f, 5.0f, -1.0f,
-			0.0f, -1.0f, 0.0f,
-
-			0.0f, -1.0f, 0.0f,
-			-1.0f, 5.0f, -1.0f,
-			0.0f, -1.0f, 0.0f
-		};
-
-		cufftComplex kst_complex_cpu[27];
-			for (int i = 0; i < 9; ++i)
-			{
-				kst_complex_cpu[i].x = kernel_cpu[i];
-				kst_complex_cpu[i].y = 0;
-			}
-		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(kst_complex_cpu), cudaMemcpyHostToDevice);
+			kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
+			//kst_complex_cpu[i].y = 0;
+		}
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size, cudaMemcpyHostToDevice);
 	}
 	if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
 	{
@@ -338,16 +325,16 @@ namespace holovibes
 		/* gpu_kernel_buffer */
 		cudaFree(gpu_kernel_buffer_);
 		/* gpu_kernel_buffer */
-		cudaMalloc<cufftComplex>(&gpu_kernel_buffer_,
-			sizeof(cufftComplex)* (size));
+		cudaMalloc<float>(&gpu_kernel_buffer_,
+			sizeof (float) * (size));
 		/* Build the kst 3x3 matrix */
-		cufftComplex* kst_complex_cpu = (cufftComplex *) malloc(sizeof  (cufftComplex) * size);
+		float* kst_complex_cpu = (float *) malloc(sizeof (float) * size);
 		for (int i = 0; i < size; ++i)
 		{
-			kst_complex_cpu[i].x = compute_desc_.convo_matrix[i];
-			kst_complex_cpu[i].y = 0;
+			kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
+			//kst_complex_cpu[i].y = 0;
 		}
-		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (cufftComplex)* size, cudaMemcpyHostToDevice);
+		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size, cudaMemcpyHostToDevice);
 	}
 	if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
 	{

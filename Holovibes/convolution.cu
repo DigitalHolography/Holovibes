@@ -10,7 +10,7 @@ __global__ void kernel_multiply_kernel(
 	const unsigned int gpu_special_queue_buffer_length,
 	const unsigned int frame_resolution,
 	const unsigned int i_width,
-	const cufftComplex* kernel,
+	const float* kernel,
 	const unsigned int k_width,
 	const unsigned int k_height,
 	const unsigned int nsamples,
@@ -21,7 +21,7 @@ __global__ void kernel_multiply_kernel(
 	unsigned int n, m, z;
 	unsigned int size = frame_resolution * nsamples;
 	unsigned int k_size = k_width * k_height;
-	while (index < size)
+	while (index < frame_resolution)
 	{
 		cufftComplex sum = make_cuComplex(0, 0);
 
@@ -29,9 +29,9 @@ __global__ void kernel_multiply_kernel(
 		for (m = 0; m < k_width; ++m)
 		for (n = 0; n < k_height; ++n) {
 			cufftComplex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
-			cufftComplex b = kernel[m + n * k_width + (z * k_size)];
-			sum.x += a.x * b.x - a.y * b.y;
-			sum.y += a.y * b.x + a.x * b.y;
+			float b = kernel[m + n * k_width + (z * k_size)];
+			sum.x += a.x * b;// - a.y * b.y;
+			sum.y += a.y * b;// + a.x * b.y;
 			sum.x /= nsamples * k_width * k_height;
 		}
 		input[index] = sum;
@@ -44,7 +44,7 @@ void convolution_kernel(
 	cufftComplex* gpu_special_queue,
 	const unsigned int frame_resolution,
 	const unsigned int frame_width,
-	const cufftComplex* kernel,
+	const float* kernel,
 	const unsigned int k_width,
 	const unsigned int k_height,
 	const unsigned int k_z,

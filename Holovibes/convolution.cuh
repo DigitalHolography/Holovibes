@@ -24,7 +24,7 @@ void convolution_kernel(
 	cufftComplex* gpu_special_queue,
 	const unsigned int frame_resolution,
 	const unsigned int frame_width,
-	const cufftComplex* kernel,
+	const float* kernel,
 	const unsigned int k_width,
 	const unsigned int k_height,
 	const unsigned int k_z,

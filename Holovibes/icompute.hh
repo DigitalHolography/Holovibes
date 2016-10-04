@@ -268,7 +268,7 @@ namespace holovibes
 	/*! cufftComplex array containing lens. */
 	cufftComplex* gpu_lens_;
 	/*! cufftComplex array containing kernel. */
-	cufftComplex* gpu_kernel_buffer_;
+	float* gpu_kernel_buffer_;
 	/*! cufftComplex array containing tmp input. */
 	cufftComplex* gpu_tmp_input_;
 	/*! cufftComplex queue */
