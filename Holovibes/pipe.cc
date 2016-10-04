@@ -325,17 +325,20 @@ namespace holovibes
 
 	if (compute_desc_.convolution_enabled)
 	{
+		gpu_special_queue_start_index = 0;
+		gpu_special_queue_max_index = compute_desc_.special_buffer_size.load();
 		fn_vect_.push_back(std::bind(
 			convolution_kernel,
 			gpu_input_frame_ptr_,
-			gpu_tmp_input_,
+			gpu_special_queue_,
 			input_fd.frame_res(),
 			input_fd.width,
-			compute_desc_.nsamples.load(),
 			gpu_kernel_buffer_,
 			compute_desc_.convo_matrix_width.load(),
 			compute_desc_.convo_matrix_height.load(),
-			compute_desc_.nsamples.load(),
+			compute_desc_.convo_matrix_z.load(),
+			gpu_special_queue_start_index,
+			gpu_special_queue_max_index,
 			static_cast<cudaStream_t>(0)));
 	}
 
@@ -343,8 +346,6 @@ namespace holovibes
 	{
 		gpu_special_queue_start_index = 0;
 		gpu_special_queue_max_index = compute_desc_.special_buffer_size.load();
-		std::cout << gpu_special_queue_max_index << std::endl;
-		std::cout << compute_desc_.flowgraphy_level.load() << std:: endl; 
 		fn_vect_.push_back(std::bind(
 			convolution_flowgraphy,
 			gpu_input_frame_ptr_,

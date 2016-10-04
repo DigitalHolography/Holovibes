@@ -21,12 +21,13 @@
 */
 void convolution_kernel(
 	cufftComplex* input,
-	cufftComplex* tmp_input,
+	cufftComplex* gpu_special_queue,
 	const unsigned int frame_resolution,
 	const unsigned int frame_width,
-	const unsigned int nframes,
 	const cufftComplex* kernel,
 	const unsigned int k_width,
 	const unsigned int k_height,
 	const unsigned int k_z,
+	unsigned int& gpu_special_queue_start_index,
+	const unsigned int& gpu_special_queue_max_index,
 	cudaStream_t stream);
