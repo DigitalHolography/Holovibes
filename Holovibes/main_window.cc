@@ -177,6 +177,18 @@ namespace gui
 		q_vibro->setValue(cd.vibrometry_q);
 		q_vibro->setMaximum(cd.nsamples - 1);
 
+		QDoubleSpinBox* z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox");
+		z_max->setValue(cd.autofocus_z_max);
+
+		QDoubleSpinBox* z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox");
+		z_min->setValue(cd.autofocus_z_min);
+
+		QSpinBox* z_div = findChild<QSpinBox*>("zdivSpinBox");
+		z_div->setValue(cd.autofocus_z_div);
+
+		QSpinBox*  z_iter = findChild<QSpinBox*>("ziterSpinBox");
+		z_iter->setValue(cd.autofocus_z_iter);
+
 		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
 		average->setChecked(is_enabled_average_);
 
@@ -728,7 +740,43 @@ namespace gui
       pipe->request_refresh();
     }
   }
- 
+
+  void  MainWindow::set_z_min(const double value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.autofocus_z_min = value;
+	  }
+  }
+
+  void  MainWindow::set_z_max(const double value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.autofocus_z_max = value;
+	  }
+  }
+
+  void  MainWindow::set_z_iter(const int value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.autofocus_z_iter = value;
+	  }
+  }
+
+  void  MainWindow::set_z_div(const int value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.autofocus_z_div = value;
+	  }
+  }
+
   void MainWindow::set_autofocus_mode()
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -1933,7 +1981,11 @@ namespace gui
       info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
 
       // Autofocus
-      cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size));
+      cd.autofocus_size = ptree.get<int>("autofocus.size", cd.autofocus_size);
+	  cd.autofocus_z_min = ptree.get<float>("autofocus.z_min", cd.autofocus_z_min);
+	  cd.autofocus_z_max = ptree.get<float>("autofocus.z_max", cd.autofocus_z_max);
+	  cd.autofocus_z_div = ptree.get<unsigned int>("autofocus.steps", cd.autofocus_z_div);
+	  cd.autofocus_z_iter = ptree.get<unsigned int>("autofocus.loops", cd.autofocus_z_iter);
 
 	  // Reset button
 	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
@@ -2000,6 +2052,10 @@ namespace gui
 
     // Autofocus
     ptree.put("autofocus.size", cd.autofocus_size);
+	ptree.put("autofocus.z_min", cd.autofocus_z_min);
+	ptree.put("autofocus.z_max", cd.autofocus_z_max);
+	ptree.put("autofocus.steps", cd.autofocus_z_div);
+	ptree.put("autofocus.loops", cd.autofocus_z_iter);
 
 	//Reset
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);

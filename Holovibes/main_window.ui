@@ -2146,6 +2146,11 @@
            <string>16</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>32</string>
+          </property>
+         </item>
         </widget>
         <widget class="QLabel" name="ImportSpanLabelVibro">
          <property name="geometry">
@@ -3766,6 +3771,70 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>zminDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_min(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zmaxDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_max(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>355</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>431</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>zdivSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_div(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>337</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>469</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ziterSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_z_iter(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>379</x>
+     <y>338</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>445</x>
+     <y>446</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3835,5 +3904,9 @@ p, li { white-space: pre-wrap; }
   <slot>set_flowgraphy_mode(bool)</slot>
   <slot>set_flowgraphy_level(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
+  <slot>set_z_min(double)</slot>
+  <slot>set_z_max(double)</slot>
+  <slot>set_z_div(int)</slot>
+  <slot>set_z_iter(int)</slot>
  </slots>
 </ui>
