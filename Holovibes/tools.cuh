@@ -46,6 +46,15 @@ __global__ void kernel_bursting(
 	const unsigned int nsamples,
 	cufftComplex *output
 	);
+
+// TODO:
+__global__ void kernel_reconstruct(
+	const cufftComplex* input,
+	cufftComplex* output,
+	const unsigned int p,
+	const unsigned int nframes,
+	const unsigned int frame_resolution);
+
 /*! \brief Will split the pixels of the original image
  * into output respecting the ROI selected
  * \param tl_x top left x coordinate of ROI

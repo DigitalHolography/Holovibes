@@ -27,4 +27,5 @@ void demodulation(
 	const cufftHandle plan,
 	const unsigned int frame_resolution,
 	const unsigned int nsamples,
+	const unsigned int pindex,
 	cudaStream_t stream = 0);

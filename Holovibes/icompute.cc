@@ -56,8 +56,8 @@ namespace holovibes
     const unsigned short nsamples = desc.nsamples;
 
     /* if stft, we don't need to allocate more than one frame */
-    if (compute_desc_.algorithm == ComputeDescriptor::STFT
-		|| compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)
+    if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+		//|| compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)
       input_length_ = 1;
     else
       input_length_ = nsamples;
@@ -202,8 +202,8 @@ namespace holovibes
     abort_construct_requested_ = false;
 
     /* if stft, we don't need to allocate more than one frame */
-	if (compute_desc_.algorithm == ComputeDescriptor::STFT
-		|| compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)
+	if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+		/*|| compute_desc_.algorithm == ComputeDescriptor::DEMODULATION)*/
       input_length_ = 1;
     else
       input_length_ = n;
@@ -245,7 +245,7 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaDestroy<cudaError_t>(&gpu_stft_dup_buffer_) ? ++err_count : 0;
-
+	
     if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
       cufftPlan1d(
@@ -263,7 +263,7 @@ namespace holovibes
       cudaMalloc(&gpu_stft_dup_buffer_,
         sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
     }
-
+	
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		cufftPlan1d(

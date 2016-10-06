@@ -132,9 +132,10 @@ namespace holovibes
 			plan1d_,
 			input_fd.frame_res(),
 			compute_desc_.nsamples.load(),
+			compute_desc_.pindex.load(),
 			static_cast<cudaStream_t>(0)));
 
-		fn_vect_.push_back(std::bind(
+	   /* fn_vect_.push_back(std::bind(
 			stft_recontruct,
 			gpu_input_buffer_,
 			gpu_stft_dup_buffer_,
@@ -144,7 +145,7 @@ namespace holovibes
 			input_.get_frame_desc().height,
 			compute_desc_.pindex.load(),
 			compute_desc_.nsamples.load(),
-			static_cast<cudaStream_t>(0)));
+			static_cast<cudaStream_t>(0)));*/
 
 		/* frame pointer */
 		gpu_input_frame_ptr_ = gpu_input_buffer_;

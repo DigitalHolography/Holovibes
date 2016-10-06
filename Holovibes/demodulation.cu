@@ -11,16 +11,11 @@ void demodulation(
 	const cufftHandle  plan1d,
 	const unsigned int frame_resolution,
 	const unsigned int nframes,
+	const unsigned int pindex,
 	cudaStream_t stream)
 {
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
-
-	cudaMemcpyAsync(stft_buf,
-		&(stft_buf[1]),
-		sizeof(cufftComplex)* (nframes * frame_resolution - 1),
-		cudaMemcpyDeviceToDevice,
-		stream);
 
 	// Do the ROI
 	kernel_bursting << <blocks, threads, 0, stream >> >(
@@ -33,4 +28,15 @@ void demodulation(
 	// FFT 1D
 	cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
 	cudaStreamSynchronize(stream);
+
+	kernel_reconstruct << <blocks, threads, 0, stream >> >(
+		stft_dup_buf,
+		input,
+		pindex,
+		nframes,
+		frame_resolution
+		);
+
+	cudaStreamSynchronize(stream);
+
 }

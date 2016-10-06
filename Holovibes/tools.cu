@@ -27,6 +27,8 @@ __global__ void kernel_apply_lens(
   }
 }
 
+
+
 __global__ void kernel_bursting(
 	const cufftComplex *input,
 	const unsigned int frame_resolution,
@@ -35,13 +37,16 @@ __global__ void kernel_bursting(
 	)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int width_roi = nsamples;
-	unsigned int size = frame_resolution;
+	unsigned int size = frame_resolution * nsamples;
 
-	while (index < size)
+	while (index < frame_resolution)
 	{
-		unsigned int index2 = index * nsamples;
-		output[index2] = input[index];
+		for (unsigned int i = 0; i < nsamples; i++)
+		{
+			unsigned int output_index = index * nsamples + i;
+			unsigned int input_index = index + (i * frame_resolution);
+			output[output_index] = input[input_index];
+		}
 		index += blockDim.x * gridDim.x;
 	}
 }
@@ -73,6 +78,26 @@ __global__ void kernel_bursting_roi(
 
 			output[index_roi * nsamples + curr_elt] = input[index];
 		}
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void kernel_reconstruct(
+	const cufftComplex* input,
+	cufftComplex* output,
+	const unsigned int p,
+	const unsigned int nframes,
+	const unsigned int frame_resolution)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int size = frame_resolution * nframes;
+	while (index < frame_resolution)
+	{
+		output[index] = input[index * nframes + p];
+		// These divisions are done for demodulation and has nothing to do
+		// with reconstruction TODO: better explanation
+		output[index].x /= nframes;
+		output[index].y /= nframes;
 		index += blockDim.x * gridDim.x;
 	}
 }
