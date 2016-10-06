@@ -197,6 +197,10 @@ namespace gui
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 
 		average_visible(is_enabled_average_);
+
+		QSpinBox*  special_buffer_size = findChild<QSpinBox*>("SpecialBufferSpinBox");
+		special_buffer_size->setValue(cd.special_buffer_size);
+
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -1987,6 +1991,9 @@ namespace gui
 	  cd.autofocus_z_div = ptree.get<unsigned int>("autofocus.steps", cd.autofocus_z_div);
 	  cd.autofocus_z_iter = ptree.get<unsigned int>("autofocus.loops", cd.autofocus_z_iter);
 
+	  //Special buffer
+	  cd.special_buffer_size = ptree.get<int>("special_buffer.size", cd.special_buffer_size);
+
 	  // Reset button
 	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
 	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
@@ -2056,6 +2063,9 @@ namespace gui
 	ptree.put("autofocus.z_max", cd.autofocus_z_max);
 	ptree.put("autofocus.steps", cd.autofocus_z_div);
 	ptree.put("autofocus.loops", cd.autofocus_z_iter);
+
+	//special buffer
+	ptree.put("special_buffer.size", cd.special_buffer_size);
 
 	//Reset
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);

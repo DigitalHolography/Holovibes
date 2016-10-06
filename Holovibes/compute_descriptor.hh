@@ -137,7 +137,6 @@ namespace holovibes
     std::atomic<int> unwrap_history_size;
 
 	/*! Special buffer size*/
-
 	std::atomic<int> special_buffer_size;
 
 	/*! Is convolution processing enabled. */
