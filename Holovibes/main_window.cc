@@ -91,8 +91,8 @@ namespace gui
 		phase_number->setValue(cd.nsamples);
 
 		QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-		p->setValue(cd.pindex);
-		p->setMaximum(cd.nsamples - 1);
+		p->setValue(cd.pindex + 1);
+		p->setMaximum(cd.nsamples);
 
 		QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
 		lambda->setValue(cd.lambda * 1.0e9f);
@@ -170,12 +170,12 @@ namespace gui
 		image_ratio_visible(cd.vibrometry_enabled);
 
 		QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
-		p_vibro->setValue(cd.pindex);
-		p_vibro->setMaximum(cd.nsamples - 1);
+		p_vibro->setValue(cd.pindex + 1);
+		p_vibro->setMaximum(cd.nsamples);
 
 		QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
-		q_vibro->setValue(cd.vibrometry_q);
-		q_vibro->setMaximum(cd.nsamples - 1);
+		q_vibro->setValue(cd.vibrometry_q + 1);
+		q_vibro->setMaximum(cd.nsamples);
 
 		QDoubleSpinBox* z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox");
 		z_max->setValue(cd.autofocus_z_max);
@@ -515,8 +515,9 @@ namespace gui
 	  }
   }
 
-  void  MainWindow::set_p(const int value)
+  void  MainWindow::set_p(int value)
   {
+	  value--;
 	  if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -525,7 +526,7 @@ namespace gui
       {
         // Synchronize with p_vibro
         QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
-        p_vibro->setValue(value);
+        p_vibro->setValue(value + 1);
 
         cd.pindex.exchange(value);
         holovibes_.get_pipe()->request_refresh();
@@ -562,7 +563,7 @@ namespace gui
         holovibes_.get_pipe()->request_refresh();
       }
       else
-        display_error("p param has to be between 0 and n - 1");
+        display_error("p param has to be between 1 and n");
     }
   }
 
@@ -572,14 +573,14 @@ namespace gui
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (cd.pindex >= 0)
+      if (cd.pindex > 0)
       {
         --(cd.pindex);
         notify();
         holovibes_.get_pipe()->request_refresh();
       }
       else
-        display_error("p param has to be between 0 and n - 1");
+        display_error("p param has to be between 1 and n");
     }
   }
 
@@ -949,8 +950,9 @@ namespace gui
     }
   }
 
-  void MainWindow::set_p_vibro(const int value)
+  void MainWindow::set_p_vibro(int value)
   {
+	  value--;
     if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -962,12 +964,13 @@ namespace gui
         holovibes_.get_pipe()->request_refresh();
       }
       else
-        display_error("p param has to be between 0 and n - 1");;
+        display_error("p param has to be between 1 and n");;
     }
   }
 
-  void MainWindow::set_q_vibro(const int value)
+  void MainWindow::set_q_vibro(int value)
   {
+	  value--;
     if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
