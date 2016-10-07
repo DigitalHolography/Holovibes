@@ -203,6 +203,9 @@ namespace gui
 
 		QSpinBox* flowgraphy_level = findChild<QSpinBox*>("FlowgraphySpinBox");
 		flowgraphy_level->setValue(cd.flowgraphy_level.load());
+
+		QCheckBox* flowgraphy_enable = findChild<QCheckBox*>("flowgraphy_checkbox");
+		flowgraphy_enable->setChecked(cd.flowgraphy_enabled);
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -2005,6 +2008,7 @@ namespace gui
 	  if (flowgraphy_level % 2 == 0)
 		  flowgraphy_level++;
 	  cd.flowgraphy_level.exchange(flowgraphy_level);
+	  cd.flowgraphy_enabled = ptree.get<bool>("flowgraphy.enable", cd.flowgraphy_enabled);
 
 	  // Reset button
 	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
@@ -2081,6 +2085,7 @@ namespace gui
 
 	//flowgraphy
 	ptree.put("flowgraphy.level", cd.flowgraphy_level);
+	ptree.put("flowgraphy.enable", cd.flowgraphy_enabled);
 
 	//Reset
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);
