@@ -193,7 +193,7 @@ namespace gui
 		average->setChecked(is_enabled_average_);
 
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		if (gl_widget && is_enabled_average_)
+		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 
 		average_visible(is_enabled_average_);
@@ -340,7 +340,6 @@ namespace gui
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
-			set_average_mode(false);
 			set_convolution_mode(false);
 			global_visibility(false);
 			notify();
