@@ -198,9 +198,11 @@ namespace gui
 
 		average_visible(is_enabled_average_);
 
-		QSpinBox*  special_buffer_size = findChild<QSpinBox*>("SpecialBufferSpinBox");
-		special_buffer_size->setValue(cd.special_buffer_size);
+		QSpinBox* special_buffer_size = findChild<QSpinBox*>("SpecialBufferSpinBox");
+		special_buffer_size->setValue(cd.special_buffer_size.load());
 
+		QSpinBox* flowgraphy_level = findChild<QSpinBox*>("FlowgraphySpinBox");
+		flowgraphy_level->setValue(cd.flowgraphy_level.load());
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -539,14 +541,15 @@ namespace gui
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-	  if (value % 2 == 0)
-		  cd.flowgraphy_level.exchange(value + 1);
-	  else
-		  cd.flowgraphy_level.exchange(value);
-	  QSpinBox* z = findChild<QSpinBox*>("FlowgraphySpinBox");
-	  z->setValue(cd.flowgraphy_level.load());
-	  notify();
-	  holovibes_.get_pipe()->request_refresh();
+	  if (!is_direct_mode())
+	  {
+		if (value % 2 == 0)
+			cd.flowgraphy_level.exchange(value + 1);
+		else
+			cd.flowgraphy_level.exchange(value);
+		notify();
+		holovibes_.get_pipe()->request_refresh();
+	  }
   }
 
   void MainWindow::increment_p()
@@ -1992,7 +1995,13 @@ namespace gui
 	  cd.autofocus_z_iter = ptree.get<unsigned int>("autofocus.loops", cd.autofocus_z_iter);
 
 	  //Special buffer
-	  cd.special_buffer_size = ptree.get<int>("special_buffer.size", cd.special_buffer_size);
+	  cd.special_buffer_size.exchange(ptree.get<int>("special_buffer.size", cd.special_buffer_size));
+
+	  //flowgraphy
+	  unsigned int flowgraphy_level = ptree.get<unsigned int>("flowgraphy.level", cd.flowgraphy_level);
+	  if (flowgraphy_level % 2 == 0)
+		  flowgraphy_level++;
+	  cd.flowgraphy_level.exchange(flowgraphy_level);
 
 	  // Reset button
 	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
@@ -2066,6 +2075,9 @@ namespace gui
 
 	//special buffer
 	ptree.put("special_buffer.size", cd.special_buffer_size);
+
+	//flowgraphy
+	ptree.put("flowgraphy.level", cd.flowgraphy_level);
 
 	//Reset
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);
