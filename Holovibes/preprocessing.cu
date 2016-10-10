@@ -4,6 +4,7 @@
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
+
 void make_sqrt_vect(float* out,
   const unsigned short n,
   cudaStream_t stream)
@@ -23,6 +24,7 @@ void make_contiguous_complex(
   cufftComplex* output,
   const unsigned int n,
   const float* sqrt_array,
+  bool is_demodulation,
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
@@ -37,19 +39,33 @@ void make_contiguous_complex(
     /* Contiguous case. */
     if (frame_desc.depth > 1)
     {
-      img16_to_complex << <blocks, threads, 0, stream >> >(
-        output,
-        static_cast<unsigned short*>(input.get_start()),
-        n_frame_resolution,
-        sqrt_array);
+		if (!is_demodulation)
+			img16_to_complex << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<unsigned short*>(input.get_start()),
+			n_frame_resolution,
+			sqrt_array);
+		else
+			img16_to_complex_demod << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<unsigned short*>(input.get_start()),
+			n_frame_resolution,
+			sqrt_array);
     }
     else
     {
-      img8_to_complex << <blocks, threads, 0, stream >> >(
-        output,
-        static_cast<unsigned char*>(input.get_start()),
-        n_frame_resolution,
-        sqrt_array);
+		if (!is_demodulation)
+			img8_to_complex << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<unsigned char*>(input.get_start()),
+			n_frame_resolution,
+			sqrt_array);
+		else
+			img8_to_complex_demod << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<unsigned char*>(input.get_start()),
+			n_frame_resolution,
+			sqrt_array);
     }
   }
   else

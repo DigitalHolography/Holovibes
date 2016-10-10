@@ -113,12 +113,19 @@ namespace holovibes
     }
 
     // Fill input complex buffer, one frame at a time.
+	// TODO: this is just dirty!!!
+	bool b = false;
+	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
+		b = true;
+
+
     fn_vect_.push_back(std::bind(
       make_contiguous_complex,
       std::ref(input_),
       gpu_input_buffer_,
       input_length_,
       gpu_sqrt_vector_,
+	  b,
       static_cast<cudaStream_t>(0)));
 
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
@@ -527,11 +534,15 @@ namespace holovibes
   void Pipe::autofocus_caller(float* input, cudaStream_t stream)
   {
     /* Fill gpu_input complex buffer. */
+	  bool b = false;
+	  if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
+		  b = true;
     make_contiguous_complex(
       input_,
       gpu_input_buffer_,
       compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_);
+      gpu_sqrt_vector_,
+	  b);
 
     float z_min = compute_desc_.autofocus_z_min;
     float z_max = compute_desc_.autofocus_z_max;

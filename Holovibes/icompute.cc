@@ -573,12 +573,16 @@ namespace holovibes
     while (input_.get_current_elts() < input_length_)
       continue;
 
+	bool b = false;
+	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
+		b = true;
     // Fill gpu_input complex tmp buffer.
     make_contiguous_complex(
       input_,
       af_env_.gpu_input_buffer_tmp,
       compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_);
+      gpu_sqrt_vector_,
+	  b);
 
     af_env_.zone = compute_desc_.autofocus_zone;
     /* Compute square af zone. */

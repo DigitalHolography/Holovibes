@@ -6,6 +6,7 @@
 
 # include <cuda_runtime.h>
 # include <cufft.h>
+#include "compute_descriptor.hh"
 
 /* Forward declaration. */
 namespace holovibes
@@ -50,4 +51,5 @@ void make_contiguous_complex(
   cufftComplex* output,
   const unsigned int n,
   const float* sqrt_array,
+  bool is_demodulation,
   cudaStream_t stream = 0);
