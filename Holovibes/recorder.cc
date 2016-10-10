@@ -9,6 +9,11 @@
 #include "recorder.hh"
 #include "queue.hh"
 
+# include "gui_group_box.hh"
+# include "info_manager.hh"
+# include <QProgressBar>
+# include <QTextBrowser>
+
 namespace holovibes
 {
   // Helper functions
@@ -82,6 +87,8 @@ namespace holovibes
   {
     const size_t size = queue_.get_size();
     char* buffer = new char[size]();
+	size_t cur_size = queue_.get_current_elts();
+	const size_t max_size = queue_.get_max_elts();
 
     std::cout << "[RECORDER] started recording " <<
       n_images << " frames" << std::endl;
@@ -91,13 +98,20 @@ namespace holovibes
       while (queue_.get_current_elts() < 1)
         std::this_thread::yield();
 
+	  cur_size = queue_.get_current_elts();
+	  if (cur_size > (max_size * 80 / 100))
+		  gui::InfoManager::update_info_safe("Recording", "Queue is nearly full !");
+	  else if (cur_size == max_size)
+		  gui::InfoManager::update_info_safe("Recording", "Queue is full, data will be lost !");
+	  else
+		  gui::InfoManager::remove_info_safe("Recording");
       queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
       file_.write(buffer, size);
       emit value_change(i);
     }
 
     std::cout << "[RECORDER] recording has been stopped" << std::endl;
-
+	gui::InfoManager::remove_info_safe("Recording");
     delete[] buffer;
   }
 

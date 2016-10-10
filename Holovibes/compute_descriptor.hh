@@ -42,7 +42,6 @@ namespace holovibes
 		DIRECT,
 		HOLOGRAM,
 		DEMODULATION,
-		
 	};
 
     /*! \brief Complex to float methods.
