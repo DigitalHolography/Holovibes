@@ -87,8 +87,8 @@ namespace holovibes
 	  , convo_matrix_z(0)
 	  , autofocus_z_min(0.f)
 	  , autofocus_z_max(1.f)
-	  , autofocus_z_div(100)
-	  , autofocus_z_iter(1)
+	  , autofocus_z_div(10)
+	  , autofocus_z_iter(3)
 	  , flowgraphy_level(3)
     {
       pindex = 0;
