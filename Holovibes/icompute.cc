@@ -80,8 +80,10 @@ namespace holovibes
 			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
 	}
     /* Square root vector */
-    cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float)* 65536);
-    make_sqrt_vect(gpu_sqrt_vector_, 65535);
+	/* TODO: not used anymore because square root of 65535 is not initialized */
+	/* need to benchmark with & without this vector to know if it was useful */
+   // cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65536);
+    //make_sqrt_vect(gpu_sqrt_vector_, 65535);
 
     /* gpu_lens */
     cudaMalloc(&gpu_lens_,
@@ -573,16 +575,12 @@ namespace holovibes
     while (input_.get_current_elts() < input_length_)
       continue;
 
-	bool b = false;
-	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
-		b = true;
     // Fill gpu_input complex tmp buffer.
     make_contiguous_complex(
       input_,
       af_env_.gpu_input_buffer_tmp,
       compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_,
-	  b);
+      gpu_sqrt_vector_);
 
     af_env_.zone = compute_desc_.autofocus_zone;
     /* Compute square af zone. */

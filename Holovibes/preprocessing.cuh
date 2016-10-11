@@ -51,5 +51,4 @@ void make_contiguous_complex(
   cufftComplex* output,
   const unsigned int n,
   const float* sqrt_array,
-  bool is_demodulation,
   cudaStream_t stream = 0);

@@ -94,8 +94,8 @@ __global__ void kernel_reconstruct(
 	while (index < frame_resolution)
 	{
 		output[index] = input[index * nframes + p];
-		// These divisions are done for demodulation and has nothing to do
-		// with reconstruction TODO: better explanation
+		// These divisions are done for demodulation and therefore this
+		// function is not reusable as it is currently
 		output[index].x /= nframes;
 		output[index].y /= nframes;
 		index += blockDim.x * gridDim.x;

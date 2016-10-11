@@ -4,6 +4,7 @@
 #include "tools_conversion.cuh"
 #include "hardware_limits.hh"
 #include "tools.hh"
+#include <iostream>
 
 __global__ void img8_to_complex(
   cufftComplex* output,
@@ -16,31 +17,15 @@ __global__ void img8_to_complex(
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    unsigned int val = sqrt_array[input[index] * 257];
+    float val  = sqrt(static_cast<float>(input[index] * 257));
     output[index].x = val;
     output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
 
-__global__ void img8_to_complex_demod(
-	cufftComplex* output,
-	const unsigned char* input,
-	const unsigned int size,
-	const float* sqrt_array)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	while (index < size)
-	{
-		// Image rescaling on 2^16 colors (65535 / 255 = 257)
-		unsigned int val = sqrt_array[input[index] * 257];
-		output[index].x = val;
-		output[index].y = val;
-		index += blockDim.x * gridDim.x;
-	}
-}
-
+//TODO:   removed the sqrt_array from computation and it seems more effective without.
+//        need to do proper benchmarks.
 
 __global__ void img16_to_complex(
   cufftComplex* output,
@@ -52,31 +37,12 @@ __global__ void img16_to_complex(
 
   while (index < size)
   {
-    output[index].x = sqrt_array[input[index]];
-    output[index].y = sqrt_array[input[index]];
+	  float val = sqrt(static_cast<float>(input[index]));
+	  output[index].x = val;//sqrt_array[input[index]];
+	  output[index].y = val;//sqrt_array[input[index]];
     index += blockDim.x * gridDim.x;
   }
 }
-
-
-__global__ void img16_to_complex_demod(
-	cufftComplex* output,
-	const unsigned short* input,
-	const unsigned int size,
-	const float* sqrt_array)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	while (index < size)
-	{
-		output[index].x = sqrt_array[input[index]];
-		output[index].y = sqrt_array[input[index]];
-		//output[index].x = static_cast<float>(input[index]);
-		//output[index].y = 0;
-		index += blockDim.x * gridDim.x;
-	}
-}
-
 
 /* Kernel function wrapped by complex_to_modulus. */
 static __global__ void kernel_complex_to_modulus(
