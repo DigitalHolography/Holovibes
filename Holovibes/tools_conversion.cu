@@ -17,9 +17,9 @@ __global__ void img8_to_complex(
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    float val  = sqrt(static_cast<float>(input[index] * 257));
-    output[index].x = val;
-    output[index].y = val;
+    //float val  = sqrt(static_cast<float>(input[index] * 257));
+    output[index].x = static_cast<float>(input[index] * 257);
+    output[index].y = 0;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -37,9 +37,9 @@ __global__ void img16_to_complex(
 
   while (index < size)
   {
-	  float val = sqrt(static_cast<float>(input[index]));
-	  output[index].x = val;//sqrt_array[input[index]];
-	  output[index].y = val;//sqrt_array[input[index]];
+	 // float val = sqrt(static_cast<float>(input[index]));
+	  output[index].x = static_cast<float>(input[index]);
+	  output[index].y = 0;
     index += blockDim.x * gridDim.x;
   }
 }

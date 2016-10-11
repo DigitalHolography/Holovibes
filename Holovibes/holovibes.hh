@@ -141,7 +141,7 @@ namespace holovibes
       if (tcompute_)
         return tcompute_->get_pipe();
       throw std::runtime_error("cannot get pipe, no compute thread");
-    }
+  }
 
     /*! \return Common ComputeDescriptor */
     ComputeDescriptor& get_compute_desc()
