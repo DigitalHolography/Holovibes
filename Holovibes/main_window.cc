@@ -384,6 +384,9 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
+			algorithm->setCurrentIndex(0);
+			holovibes_.get_compute_desc().algorithm = holovibes::ComputeDescriptor::FFT1;
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
@@ -394,16 +397,6 @@ namespace gui
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
-				{
-					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-
-					gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-					connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-						Qt::UniqueConnection);
-					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-						Qt::UniqueConnection);
-				}
 				global_visibility(true);
 				demodulation_visibility(false);
 			}
