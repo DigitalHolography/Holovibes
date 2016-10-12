@@ -42,6 +42,7 @@ namespace holovibes
     unsigned int act_frame = 0;
     FILE*   file = nullptr;
 	fpos_t  pos;
+	size_t  length = 0;
 
 	if (is_cine_file_ == false)
 	{
@@ -63,17 +64,28 @@ namespace holovibes
 
 	  while (!stop_requested_)
 	  {
-		  if (is_cine_file_ == false)
-		  {
 			  if (!std::feof(file) && frameId_ <= spanEnd_)
 			  {
-				  if (act_frame >= nbr_stored)
+				  if (is_cine_file_ == false)
 				  {
-					  size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
-					  nbr_stored = length / frame_size;
-					  act_frame = 0;
+					  if (act_frame >= nbr_stored)
+					  {
+						  length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
+						  nbr_stored = length / frame_size;
+						  act_frame = 0;
+					  }
+					  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
 				  }
-				  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  else
+				  {
+					  if (act_frame >= nbr_stored)
+					  {
+						  length = std::fread(buffer, 1, (frame_size + 8) * elts_max_nbr, file);
+						  nbr_stored = length / (frame_size + 8);
+						  act_frame = 0;
+					  }
+					  queue_.enqueue(buffer + 8 * (act_frame + 1) + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  }
 				  ++frameId_;
 				  ++act_frame;
 				  Sleep(1000 / fps_);
@@ -87,32 +99,6 @@ namespace holovibes
 			  }
 			  else
 				  stop_requested_ = true;
-		  }
-		  else
-		  {
-			  if (!std::feof(file) && frameId_ <= spanEnd_)
-			  {
-				  if (act_frame >= nbr_stored)
-				  {
-					  size_t length = std::fread(buffer, 1, (frame_size + 8) * elts_max_nbr, file);
-					  nbr_stored = length / (frame_size + 8);
-					  act_frame = 0;
-				  }
-				  queue_.enqueue(buffer + 8 * (act_frame + 1) + act_frame * frame_size ,cudaMemcpyHostToDevice);
-				  ++frameId_;
-				  ++act_frame;
-				  Sleep(1000 / fps_);
-			  }
-			  else if (loop_)
-			  {
-				  std::clearerr(file);
-				  std::fsetpos(file, &pos);
-				  frameId_ = spanStart_;
-				  act_frame = 0;
-			  }
-			  else
-				  stop_requested_ = true;
-		  }
 	  }
     }
     catch (std::runtime_error& e)

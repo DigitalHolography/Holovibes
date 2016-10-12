@@ -1581,7 +1581,7 @@ namespace gui
       global::global_config.import_pixel_size,
       (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
-    camera_visible(false);
+	camera_visible(false);
     record_visible(false);
     global_visibility(false);
     gl_window_.reset(nullptr);
