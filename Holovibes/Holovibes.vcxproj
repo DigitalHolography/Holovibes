@@ -65,6 +65,7 @@
       <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;qwt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -82,6 +83,7 @@
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <CudaCompile />
@@ -120,6 +122,8 @@
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
 
         copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"
+
 </Command>
     </PostBuildEvent>
     <CudaCompile />
@@ -475,7 +479,11 @@
     <ResourceCompile Include="Holovibes.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="holovibes_logo.png" />
+    <Image Include="holovibes_logo.png">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+    </Image>
     <Image Include="icon1.ico">
       <DeploymentContent>false</DeploymentContent>
     </Image>

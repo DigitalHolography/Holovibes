@@ -5,7 +5,8 @@
 
 #undef min
 #include <QtWidgets>
-
+#include <thread>
+#include <chrono>
 #include "main_window.hh"
 #include "config.hh"
 #include "camera_exception.hh"
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
     /* Hides the console window. */
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif /* !_DEBUG */
-
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     gui::MainWindow w(h);
     w.show();
 	splash.finish(&w);
