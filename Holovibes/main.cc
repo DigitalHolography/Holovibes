@@ -25,6 +25,9 @@ int main(int argc, char* argv[])
   {
     /* --- GUI mode --- */
     QApplication a(argc, argv);
+	QPixmap pixmap ("holovibes_logo.png");
+	QSplashScreen splash(pixmap);
+	splash.show();
 #ifndef _DEBUG
     /* Hides the console window. */
     ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -32,6 +35,7 @@ int main(int argc, char* argv[])
 
     gui::MainWindow w(h);
     w.show();
+	splash.finish(&w);
     h.get_compute_desc().register_observer(w);
 
     int status = a.exec();

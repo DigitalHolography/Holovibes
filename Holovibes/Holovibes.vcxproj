@@ -475,6 +475,7 @@
     <ResourceCompile Include="Holovibes.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="holovibes_logo.png" />
     <Image Include="icon1.ico">
       <DeploymentContent>false</DeploymentContent>
     </Image>
