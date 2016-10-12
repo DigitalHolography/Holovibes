@@ -178,7 +178,8 @@ namespace holovibes
         , fps
         , spanStart
         , spanEnd
-        , *input_));
+        , *input_
+		, compute_desc_.is_cine_file.load()));
       std::cout << "[CAPTURE] reader thread started" << std::endl;
       camera_initialized_ = true;
     }

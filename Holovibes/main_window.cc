@@ -2118,4 +2118,13 @@ namespace gui
     // Changing the endianess when depth = 8 makes no sense
     imp_cbox->setEnabled(curr_value != "8");
   }
+
+  void MainWindow::set_import_cine_file(bool value)
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+
+	  cd.is_cine_file.exchange(value);
+	  cine->setChecked(value);
+  }
 }

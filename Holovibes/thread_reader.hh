@@ -11,6 +11,7 @@
 # include "frame_desc.hh"
 # include "ithread_input.hh"
 # include "power_of_two.hh"
+# include "holovibes.hh"
 
 /* Forward declaration. */
 namespace holovibes
@@ -36,7 +37,8 @@ namespace holovibes
       , unsigned int fps
       , unsigned int spanStart
       , unsigned int spanEnd
-      , Queue& input);
+      , Queue& input
+	  , bool is_cine_file);
 
     virtual ~ThreadReader();
 
@@ -61,6 +63,8 @@ namespace holovibes
     unsigned int spanEnd_;
     /*! \brief The destination Queue. */
     Queue& queue_;
+	/*! \brief Reading a cine file */
+	bool is_cine_file_;
 
     /*! The thread which shall run thread_proc(). */
     std::thread thread_;

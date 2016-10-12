@@ -2,10 +2,11 @@
 # include <Windows.h>
 # include <chrono>
 
-#include "info_manager.hh"
-#include "config.hh"
-#include "thread_reader.hh"
-#include "queue.hh"
+# include "info_manager.hh"
+# include "config.hh"
+# include "thread_reader.hh"
+# include "queue.hh"
+# include "holovibes.hh"
 
 namespace holovibes
 {
@@ -15,7 +16,8 @@ namespace holovibes
     unsigned int fps,
     unsigned int spanStart,
     unsigned int spanEnd,
-    Queue& input)
+    Queue& input,
+	bool is_cine_file)
     : IThreadInput()
     , file_src_(file_src)
     , frame_desc_(frame_desc)
@@ -25,6 +27,7 @@ namespace holovibes
     , spanStart_(spanStart)
     , spanEnd_(spanEnd)
     , queue_(input)
+	, is_cine_file_(is_cine_file)
     , thread_(&ThreadReader::thread_proc, this)
   {
     gui::InfoManager::get_manager()->update_info("ImgSource", "File");
@@ -38,9 +41,18 @@ namespace holovibes
     unsigned int nbr_stored = 0;
     unsigned int act_frame = 0;
     FILE*   file = nullptr;
-    fpos_t  pos = frame_size * (spanStart_ - 1);
+	fpos_t  pos;
 
-    cudaMallocHost(&buffer, frame_size * elts_max_nbr);
+	if (is_cine_file_ == false)
+	{
+		pos = frame_size * (spanStart_ - 1);
+		cudaMallocHost(&buffer, frame_size * elts_max_nbr);
+	}
+	else
+	{
+		pos = 81760 + (frame_size + 8) * (spanStart_ - 1);
+		cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
+	}
     try
     {
       fopen_s(&file, file_src_.c_str(), "rb");
@@ -49,31 +61,59 @@ namespace holovibes
 
       std::fsetpos(file, &pos);
 
-      while (!stop_requested_)
-      {
-        if (!std::feof(file) && frameId_ <= spanEnd_)
-        {
-          if (act_frame >= nbr_stored)
-          {
-            size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
-            nbr_stored = length / frame_size;
-            act_frame = 0;
-          }
-          queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
-          ++frameId_;
-          ++act_frame;
-          Sleep(1000 / fps_);
-        }
-        else if (loop_)
-        {
-          std::clearerr(file);
-          std::fsetpos(file, &pos);
-          frameId_ = spanStart_;
-          act_frame = 0;
-        }
-        else
-          stop_requested_ = true;
-      }
+	  while (!stop_requested_)
+	  {
+		  if (is_cine_file_ == false)
+		  {
+			  if (!std::feof(file) && frameId_ <= spanEnd_)
+			  {
+				  if (act_frame >= nbr_stored)
+				  {
+					  size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
+					  nbr_stored = length / frame_size;
+					  act_frame = 0;
+				  }
+				  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  ++frameId_;
+				  ++act_frame;
+				  Sleep(1000 / fps_);
+			  }
+			  else if (loop_)
+			  {
+				  std::clearerr(file);
+				  std::fsetpos(file, &pos);
+				  frameId_ = spanStart_;
+				  act_frame = 0;
+			  }
+			  else
+				  stop_requested_ = true;
+		  }
+		  else
+		  {
+			  if (!std::feof(file) && frameId_ <= spanEnd_)
+			  {
+				  if (act_frame >= nbr_stored)
+				  {
+					  size_t length = std::fread(buffer, 1, (frame_size + 8) * elts_max_nbr, file);
+					  nbr_stored = length / (frame_size + 8);
+					  act_frame = 0;
+				  }
+				  queue_.enqueue(buffer + 8 * (act_frame + 1) + act_frame * frame_size ,cudaMemcpyHostToDevice);
+				  ++frameId_;
+				  ++act_frame;
+				  Sleep(1000 / fps_);
+			  }
+			  else if (loop_)
+			  {
+				  std::clearerr(file);
+				  std::fsetpos(file, &pos);
+				  frameId_ = spanStart_;
+				  act_frame = 0;
+			  }
+			  else
+				  stop_requested_ = true;
+		  }
+	  }
     }
     catch (std::runtime_error& e)
     {
