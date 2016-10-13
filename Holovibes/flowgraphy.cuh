@@ -4,20 +4,20 @@
 #include <iostream>
 #include <cufft.h>
 
-/*! \brief This function allows us to apply a convolution (with a kernel) to frames
+/*! \brief This function allows us to apply a flowgraphy algorithm to a given amount
+*   of frames. For every pixel of a frame, we take a given number of pixels around in 3 dimension
+*   (time included) and then apply the formula given in Laser Speckle Flowgraphy optical
+*   review of Naoki Konishi published in May 8, 2002.
 
-* This algorithm is currently VERY ressource consuming and need to be improved.
+* 
 *
 * \param input Buffer on which the convolution will be applied
-* \param tmp_input As the input buffer is going to be modified, we need a copy of it to
-*  apply convolution.
-* \param frame_resolution Resolution of one frame.
+* \param gpu_special_queue Queue that stores n frames to allow the time dimension computation
+* \param gpu_special_queue_start_index Start index of the special queue.
+* \param frame_resolution number of pixel of a frame
 * \param frame_width Width of one frame
-* \param nframes Number of frame
-* \param kernel Array of complex which is the convolution's kernel
-* \param k_width kernel's width
-* \param k_height kernel's height
-* \param k_z kernel's depth
+* \param nframes Number of frames 
+* 
 */
 void convolution_flowgraphy(
 	cufftComplex* input,
