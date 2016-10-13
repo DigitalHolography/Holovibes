@@ -46,6 +46,8 @@ namespace holovibes
   private:
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
+	/*! \brief Seek the offset to attain the .cine file first image */
+	long int  offset_cine_first_image(FILE *file);
 
     /*! \brief Source file */
     std::string file_src_;

@@ -41,24 +41,29 @@ namespace holovibes
     unsigned int nbr_stored = 0;
     unsigned int act_frame = 0;
     FILE*   file = nullptr;
-	fpos_t  pos;
+	fpos_t  pos = 0;
 	size_t  length = 0;
+	size_t offset = 3251668;
 
 	if (is_cine_file_ == false)
-	{
-		pos = frame_size * (spanStart_ - 1);
 		cudaMallocHost(&buffer, frame_size * elts_max_nbr);
-	}
 	else
-	{
-		pos = 81760 + (frame_size + 8) * (spanStart_ - 1);
 		cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
-	}
     try
     {
       fopen_s(&file, file_src_.c_str(), "rb");
       if (!file)
         throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
+
+	  if (is_cine_file_ == false)
+	  {
+		  pos = frame_size * (spanStart_ - 1);
+	  }
+	  else
+	  {
+		  offset = offset_cine_first_image(file);
+		  pos = offset + (frame_size + 8) * (spanStart_ - 1);
+	  }
 
       std::fsetpos(file, &pos);
 
@@ -127,5 +132,23 @@ namespace holovibes
   const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
   {
     return frame_desc_;
+  }
+
+  long int ThreadReader::offset_cine_first_image(FILE *file)
+  {
+	  long int		length = 0;
+	  char			buffer[44];
+	  unsigned int	offset_to_ptr = 0;
+	  fpos_t		off = 0;
+	  long int		offset_to_image = 0;
+
+	  if ((length = std::fread(buffer, 1, 44, file)) =! 44)
+		  return (0);
+	  std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
+	  off = offset_to_ptr;
+	  std::fsetpos(file, &off);
+	  if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) =! sizeof(long int))
+		  return (0);
+	  return (offset_to_image);
   }
 }
