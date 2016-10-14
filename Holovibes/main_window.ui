@@ -1647,7 +1647,7 @@
           </rect>
          </property>
          <property name="toolTip">
-          <string>n level of flowgraphy</string>
+          <string>n flowgraphy level (can't be higher than special queue)</string>
          </property>
          <property name="minimum">
           <number>3</number>
@@ -1688,13 +1688,13 @@
           <string>buffer used to apply convolution &amp; flowgraphy</string>
          </property>
          <property name="minimum">
-          <number>3</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>2048</number>
          </property>
          <property name="value">
-          <number>10</number>
+          <number>5</number>
          </property>
         </widget>
         <widget class="QLabel" name="SpecialBufferLabel">
