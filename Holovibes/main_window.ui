@@ -2017,7 +2017,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>130</y>
+           <y>100</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2030,7 +2030,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>130</y>
+           <y>100</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2127,7 +2127,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>160</y>
+           <y>130</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2140,7 +2140,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>160</y>
+           <y>130</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2159,7 +2159,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>190</y>
+           <y>160</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2181,7 +2181,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>190</y>
+           <y>160</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2197,7 +2197,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>250</y>
+           <y>220</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2217,7 +2217,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>250</y>
+           <y>220</y>
            <width>81</width>
            <height>16</height>
           </rect>
@@ -2230,7 +2230,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>220</y>
+           <y>190</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2243,7 +2243,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>220</y>
+           <y>190</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2322,7 +2322,7 @@
         <widget class="QCheckBox" name="ImportLoopCheckBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>80</x>
            <y>20</y>
            <width>71</width>
            <height>21</height>
@@ -2380,9 +2380,9 @@
         <widget class="QCheckBox" name="CineFileCheckBox">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>100</y>
-           <width>171</width>
+           <x>130</x>
+           <y>20</y>
+           <width>71</width>
            <height>21</height>
           </rect>
          </property>
@@ -2403,6 +2403,47 @@
          </property>
          <property name="tristate">
           <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImportPixelSize">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>250</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Pixel Size (µm):</string>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="ImportPixelSizeDoubleSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>250</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>step between each modification of z</string>
+         </property>
+         <property name="decimals">
+          <number>4</number>
+         </property>
+         <property name="minimum">
+          <double>0.000100000000000</double>
+         </property>
+         <property name="maximum">
+          <double>99999999999.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>5.420000000000000</double>
          </property>
         </widget>
        </widget>
@@ -3989,12 +4030,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_import_cine_file(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>935</x>
-     <y>133</y>
+     <x>1092</x>
+     <y>62</y>
     </hint>
     <hint type="destinationlabel">
      <x>885</x>
      <y>377</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportPixelSizeDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_import_pixel_size(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1049</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>889</x>
+     <y>437</y>
     </hint>
    </hints>
   </connection>
@@ -4072,5 +4129,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_div(int)</slot>
   <slot>set_z_iter(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
+  <slot>set_import_pixel_size(double)</slot>
  </slots>
 </ui>

@@ -262,6 +262,11 @@ namespace gui
     /*! \brief Enable or disable contrast mode
     ** \param value true to enable coontrast, false otherwise.
     */
+
+	void set_import_pixel_size(const double value);
+	/*! \brief Set import_pixel_size for autofocus
+	*/
+
     void set_contrast_mode(bool value);
     /*! \brief Request autocontrast action in pipe
     **

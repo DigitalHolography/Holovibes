@@ -192,6 +192,9 @@ namespace gui
 		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
 		average->setChecked(is_enabled_average_);
 
+		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
+		import_pixel_size->setValue(cd.import_pixel_size);
+
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
@@ -782,6 +785,13 @@ namespace gui
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.autofocus_z_max = value;
 	  }
+  }
+
+  void  MainWindow::set_import_pixel_size(const double value)
+  {
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		cd.import_pixel_size = value;
+		notify();
   }
 
   void  MainWindow::set_z_iter(const int value)
@@ -1582,6 +1592,7 @@ namespace gui
 
   void MainWindow::import_file()
   {
+	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
     QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
     QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
     QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
@@ -1600,7 +1611,7 @@ namespace gui
       height_spinbox->value(),
       // 0:depth = 8, 1:depth = 16
       depth_spinbox->currentIndex() + 1,
-      global::global_config.import_pixel_size,
+      cd.import_pixel_size,
       (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
 	camera_visible(false);
@@ -2002,6 +2013,7 @@ namespace gui
       import_action->setChecked(!ptree.get<bool>("import.hidden", false));
       import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
       config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
+	  cd.import_pixel_size = config.import_pixel_size;
 
       // Info
       info_action->setChecked(!ptree.get<bool>("info.hidden", false));
@@ -2082,7 +2094,7 @@ namespace gui
 
     // Import
     ptree.put("import.hidden", import_group_box->isHidden());
-    ptree.put("import.pixel_size", config.import_pixel_size);
+    ptree.put("import.pixel_size", cd.import_pixel_size);
 
     // Info
     ptree.put("info.hidden", info_group_box->isHidden());

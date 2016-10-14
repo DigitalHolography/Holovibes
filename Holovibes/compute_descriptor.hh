@@ -91,6 +91,7 @@ namespace holovibes
 	  , autofocus_z_iter(3)
 	  , flowgraphy_level(3)
 	  , is_cine_file(false)
+	  , import_pixel_size(5.42)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -185,5 +186,8 @@ namespace holovibes
 
 	/*! Is read file a .cine file. */
 	std::atomic<bool> is_cine_file;
+
+	/*! Pixel Size used when importing a file */
+	std::atomic<float> import_pixel_size;
   };
 }
