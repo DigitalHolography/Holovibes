@@ -508,6 +508,14 @@ namespace gui
 	  {
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.special_buffer_size.exchange(value);
+		  if (cd.special_buffer_size < cd.flowgraphy_level)
+		  {
+			  if (cd.special_buffer_size % 2 == 0)
+				  cd.flowgraphy_level = cd.special_buffer_size - 1;
+			  else
+				  cd.flowgraphy_level = cd.special_buffer_size;
+		  }
+		  notify();
 		  holovibes_.get_pipe()->request_refresh();
 	  }
   }
@@ -536,15 +544,29 @@ namespace gui
   void  MainWindow::set_flowgraphy_level(const int value)
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  int flag = 0;
 
 	  if (!is_direct_mode())
 	  {
-		if (value % 2 == 0)
-			cd.flowgraphy_level.exchange(value + 1);
-		else
-			cd.flowgraphy_level.exchange(value);
-		notify();
-		holovibes_.get_pipe()->request_refresh();
+		  if (value % 2 == 0)
+		  {
+			  if (value + 1 <= cd.special_buffer_size)
+			  {
+				  cd.flowgraphy_level.exchange(value + 1);
+				  flag = 1;
+			  }
+		  }
+		  else
+		  {
+			  if (value <= cd.special_buffer_size)
+			  {
+				  cd.flowgraphy_level.exchange(value);
+				  flag = 1;
+			  }
+		  }
+		  notify();
+		  if (flag == 1)
+			holovibes_.get_pipe()->request_refresh();
 	  }
   }
 
