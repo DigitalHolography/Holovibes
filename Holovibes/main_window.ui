@@ -284,11 +284,6 @@
            <string>2FFT</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>STFT</string>
-          </property>
-         </item>
         </widget>
         <widget class="QLabel" name="zStepLabel">
          <property name="geometry">
@@ -1688,13 +1683,13 @@
           <string>buffer used to apply convolution &amp; flowgraphy</string>
          </property>
          <property name="minimum">
-          <number>1</number>
+          <number>3</number>
          </property>
          <property name="maximum">
           <number>2048</number>
          </property>
          <property name="value">
-          <number>5</number>
+          <number>10</number>
          </property>
         </widget>
         <widget class="QLabel" name="SpecialBufferLabel">
@@ -2495,7 +2490,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
