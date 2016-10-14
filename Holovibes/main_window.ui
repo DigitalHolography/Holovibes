@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1330</width>
+    <width>1335</width>
     <height>498</height>
    </rect>
   </property>
@@ -80,6 +80,9 @@
            <height>16</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="text">
           <string>Direct</string>
          </property>
@@ -96,6 +99,12 @@
            <height>16</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="toolTipDuration">
+          <number>-3</number>
+         </property>
          <property name="text">
           <string>Hologram</string>
          </property>
@@ -111,6 +120,9 @@
            <width>81</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string># of images picked at each iteration</string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -140,6 +152,9 @@
            <width>81</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>index of the image displayed</string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -180,6 +195,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>Wavelength of light used to record interferograms</string>
+         </property>
          <property name="decimals">
           <number>4</number>
          </property>
@@ -215,6 +233,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>reconstruction distance of the hologram</string>
+         </property>
          <property name="decimals">
           <number>4</number>
          </property>
@@ -249,6 +270,9 @@
            <width>81</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>select the rendering mode for Hologram</string>
          </property>
          <item>
           <property name="text">
@@ -287,6 +311,9 @@
            <width>81</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>step between each modification of z</string>
          </property>
          <property name="decimals">
           <number>4</number>
@@ -333,6 +360,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="text">
           <string>0</string>
          </property>
@@ -349,6 +379,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>Edge value of z to switch between FFT1/2 </string>
+         </property>
          <property name="text">
           <string>0</string>
          </property>
@@ -364,6 +397,9 @@
            <width>75</width>
            <height>23</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>Reset the program</string>
          </property>
          <property name="text">
           <string>Reset</string>
@@ -793,6 +829,9 @@
            </disabled>
           </palette>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="text">
           <string>Demodulation</string>
          </property>
@@ -834,13 +873,7 @@
           </font>
          </property>
          <property name="toolTip">
-          <string>tata</string>
-         </property>
-         <property name="whatsThis">
-          <string>toto</string>
-         </property>
-         <property name="accessibleDescription">
-          <string>tutu</string>
+          <string>set log filter for output</string>
          </property>
          <property name="text">
           <string>Log</string>
@@ -854,6 +887,9 @@
            <width>81</width>
            <height>31</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>shifts zero-frequency components to the center of the spectrum</string>
          </property>
          <property name="text">
           <string>FFT shift</string>
@@ -913,6 +949,9 @@
            <height>20</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="sizeAdjustPolicy">
           <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
          </property>
@@ -950,6 +989,9 @@
            <width>82</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string/>
          </property>
          <property name="text">
           <string>Contrast</string>
@@ -1069,6 +1111,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="decimals">
           <number>4</number>
          </property>
@@ -1114,6 +1159,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>Number of values tried</string>
+         </property>
          <property name="maximum">
           <number>100000</number>
          </property>
@@ -1143,6 +1191,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>number of loops</string>
+         </property>
          <property name="maximum">
           <number>100000</number>
          </property>
@@ -1158,6 +1209,9 @@
            <width>51</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>number of holograms processed (phase mode only)</string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -1177,6 +1231,9 @@
            <width>171</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>unwrap the phase angle (phase mode only)</string>
          </property>
          <property name="text">
           <string>Unwrap phase</string>
@@ -1290,6 +1347,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>ratio</string>
+         </property>
          <property name="text">
           <string>Image ratio Ip/Iq</string>
          </property>
@@ -1302,6 +1362,9 @@
            <width>171</width>
            <height>20</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>Enable signal averaging in a ROI</string>
          </property>
          <property name="text">
           <string>Avg. signal in ROI</string>
@@ -1325,6 +1388,9 @@
            <width>81</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>Record Roi result</string>
          </property>
          <property name="text">
           <string>Save ROI</string>
@@ -1457,6 +1523,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>launch ROI fonctionnality</string>
+         </property>
          <property name="text">
           <string>Plot</string>
          </property>
@@ -1495,6 +1564,9 @@
            <width>81</width>
            <height>20</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>apply spation-temporal kernels to outputs</string>
          </property>
          <property name="text">
           <string>Convolution</string>
@@ -1558,6 +1630,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="text">
           <string>Flowgraphy</string>
          </property>
@@ -1570,6 +1645,9 @@
            <width>51</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>n level of flowgraphy</string>
          </property>
          <property name="minimum">
           <number>3</number>
@@ -1605,6 +1683,9 @@
            <width>61</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>buffer used to apply convolution &amp; flowgraphy</string>
          </property>
          <property name="minimum">
           <number>3</number>
@@ -1660,6 +1741,9 @@
            <width>71</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string># of frames to record</string>
          </property>
          <property name="minimum">
           <number>1</number>
@@ -1791,6 +1875,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
          </property>
@@ -1838,6 +1925,9 @@
            <width>21</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>Allow batch file reading</string>
          </property>
          <property name="text">
           <string>...</string>
@@ -2079,6 +2169,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string/>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -2160,6 +2253,9 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>bit depth for a pixel</string>
+         </property>
          <item>
           <property name="text">
            <string>8</string>
@@ -2237,6 +2333,9 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>loop the file reading</string>
+         </property>
          <property name="text">
           <string>Loop</string>
          </property>
@@ -2291,6 +2390,9 @@
            <width>171</width>
            <height>21</height>
           </rect>
+         </property>
+         <property name="toolTip">
+          <string>allow to read a cine file</string>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -2392,8 +2494,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1330</width>
-     <height>18</height>
+     <width>1335</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

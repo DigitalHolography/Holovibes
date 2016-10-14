@@ -17,9 +17,9 @@ __global__ void img8_to_complex(
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    //float val  = sqrt(static_cast<float>(input[index] * 257));
-    output[index].x = static_cast<float>(input[index] * 257);
-    output[index].y = 0;
+    float val  = sqrt(static_cast<float>(input[index] * 257));
+	output[index].x = val;//static_cast<float>(input[index] * 257);
+    output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -37,9 +37,9 @@ __global__ void img16_to_complex(
 
   while (index < size)
   {
-	 // float val = sqrt(static_cast<float>(input[index]));
-	  output[index].x = static_cast<float>(input[index]);
-	  output[index].y = 0;
+	  float val = sqrt(static_cast<float>(input[index]));
+	  output[index].x = val;//static_cast<float>(input[index]);
+	  output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -82,7 +82,7 @@ static __global__ void kernel_complex_to_squared_modulus(
 
   while (index < size)
   {
-    output[index] = input[index].x * input[index].x + input[index].y * input[index].y;
+	  output[index] = pow(hypotf(input[index].x, input[index].y), 2);//input[index].x * input[index].x + input[index].y * input[index].y;
     index += blockDim.x * gridDim.x;
   }
 }
