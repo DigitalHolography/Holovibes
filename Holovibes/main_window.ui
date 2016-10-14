@@ -1896,7 +1896,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>50</y>
+           <y>40</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1906,7 +1906,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>80</y>
+           <y>70</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1919,7 +1919,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>80</y>
+           <y>70</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1932,7 +1932,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>130</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1945,7 +1945,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>120</y>
+           <y>130</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2042,7 +2042,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>150</y>
+           <y>160</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2055,7 +2055,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>150</y>
+           <y>160</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2074,7 +2074,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>180</y>
+           <y>190</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2093,7 +2093,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>180</y>
+           <y>190</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2109,7 +2109,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>240</y>
+           <y>250</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2129,7 +2129,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>240</y>
+           <y>250</y>
            <width>81</width>
            <height>16</height>
           </rect>
@@ -2142,7 +2142,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>210</y>
+           <y>220</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2155,7 +2155,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>210</y>
+           <y>220</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2170,17 +2170,12 @@
            <string>16</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>32</string>
-          </property>
-         </item>
         </widget>
         <widget class="QLabel" name="ImportSpanLabelVibro">
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>270</y>
+           <y>280</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -2193,7 +2188,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>270</y>
+           <y>280</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2212,7 +2207,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>300</y>
+           <y>310</y>
            <width>91</width>
            <height>22</height>
           </rect>
@@ -2231,7 +2226,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>30</y>
+           <y>20</y>
            <width>71</width>
            <height>21</height>
           </rect>
@@ -2247,7 +2242,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>50</y>
+           <y>40</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -2260,7 +2255,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>30</y>
+           <y>20</y>
            <width>91</width>
            <height>20</height>
           </rect>
@@ -2273,13 +2268,38 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>300</y>
+           <y>310</y>
            <width>81</width>
            <height>21</height>
           </rect>
          </property>
          <property name="text">
           <string>End:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="CineFileCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>171</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Cine file</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
        </widget>
@@ -2810,8 +2830,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>164</x>
-     <y>105</y>
+     <x>171</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2875,7 +2895,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>538</x>
-     <y>86</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -2891,7 +2911,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>628</x>
-     <y>86</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -2906,8 +2926,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>195</y>
+     <x>728</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -2922,8 +2942,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>74</y>
+     <x>407</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -2955,7 +2975,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>628</x>
-     <y>65</y>
+     <y>62</y>
     </hint>
     <hint type="destinationlabel">
      <x>470</x>
@@ -3066,8 +3086,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>383</x>
-     <y>186</y>
+     <x>408</x>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3242,8 +3262,8 @@ p, li { white-space: pre-wrap; }
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>285</y>
+     <x>728</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -3290,8 +3310,8 @@ p, li { white-space: pre-wrap; }
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>740</x>
-     <y>195</y>
+     <x>788</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -3306,8 +3326,8 @@ p, li { white-space: pre-wrap; }
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>740</x>
-     <y>285</y>
+     <x>788</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -3322,8 +3342,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>800</x>
-     <y>195</y>
+     <x>848</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -3338,8 +3358,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>800</x>
-     <y>285</y>
+     <x>848</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -3354,8 +3374,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>902</x>
-     <y>125</y>
+     <x>978</x>
+     <y>112</y>
     </hint>
     <hint type="destinationlabel">
      <x>1010</x>
@@ -3370,8 +3390,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>992</x>
-     <y>125</y>
+     <x>1068</x>
+     <y>112</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -3498,8 +3518,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>831</x>
-     <y>255</y>
+     <x>848</x>
+     <y>252</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3610,8 +3630,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_unwrap_history_size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>106</y>
+     <x>407</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
      <x>583</x>
@@ -3859,6 +3879,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CineFileCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_import_cine_file(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>885</x>
+     <y>377</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3932,5 +3968,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_max(double)</slot>
   <slot>set_z_div(int)</slot>
   <slot>set_z_iter(int)</slot>
+  <slot>set_import_cine_file(bool)</slot>
  </slots>
 </ui>

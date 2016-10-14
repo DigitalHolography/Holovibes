@@ -1581,7 +1581,7 @@ namespace gui
       global::global_config.import_pixel_size,
       (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
-    camera_visible(false);
+	camera_visible(false);
     record_visible(false);
     global_visibility(false);
     gl_window_.reset(nullptr);
@@ -2117,5 +2117,14 @@ namespace gui
 
     // Changing the endianess when depth = 8 makes no sense
     imp_cbox->setEnabled(curr_value != "8");
+  }
+
+  void MainWindow::set_import_cine_file(bool value)
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+
+	  cd.is_cine_file.exchange(value);
+	  cine->setChecked(value);
   }
 }

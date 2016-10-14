@@ -90,6 +90,7 @@ namespace holovibes
 	  , autofocus_z_div(10)
 	  , autofocus_z_iter(3)
 	  , flowgraphy_level(3)
+	  , is_cine_file(false)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -181,5 +182,8 @@ namespace holovibes
 
     /*! Selected zone in which apply the stft algorithm. */
     std::atomic<Rectangle> stft_roi_zone;
+
+	/*! Is read file a .cine file. */
+	std::atomic<bool> is_cine_file;
   };
 }

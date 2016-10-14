@@ -234,13 +234,13 @@ namespace gui
 	/*! \brief Set z_min for autofocus
 	*/
 	void set_z_max(const double value);
-	/*! \brief Set z_min for autofocus
+	/*! \brief Set z_max for autofocus
 	*/
 	void set_z_iter(const int value);
-	/*! \brief Set z_min for autofocus
+	/*! \brief Set z_iter for autofocus
 	*/
 	void set_z_div(const int value);
-	/*! \brief Set z_min for autofocus
+	/*! \brief Set z_div for autofocus
 	*/
     void set_autofocus_mode();
     /*! \brief Request autofocus action in pipeline
@@ -381,6 +381,10 @@ namespace gui
     void import_end_spinbox_update();
     /*! \brief Hide endianess choice depending on 8/16 bit is selected*/
     void hide_endianess();
+
+	void set_import_cine_file(bool value);
+	/*! \brief Set is_cine_file value
+	*/
 
     /*! \} */
 
