@@ -1891,7 +1891,7 @@ namespace gui
   void MainWindow::display_info(const std::string msg)
   {
     QMessageBox msg_box;
-    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setText(QString::fromLatin1(msg.c_str()));
     msg_box.setIcon(QMessageBox::Information);
     msg_box.exec();
   }
