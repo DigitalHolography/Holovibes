@@ -2193,6 +2193,7 @@ namespace gui
 	  QSpinBox*		width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
 	  QSpinBox*		height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
 	  QComboBox*	depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+	  QComboBox*	big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 	  int			read_width = 0;
 	  int			read_height = 0;
 	  unsigned short int read_depth = 0;
@@ -2240,7 +2241,9 @@ namespace gui
 			  read_height = -read_height;
 		  height_spinbox->setValue(read_height);
 		  pixel_size = (1 / (double)read_pixelpermeter_x) * 1000000;
-		  set_import_pixel_size(pixel_size);
+		  cd.import_pixel_size = pixel_size;
+		  big_endian_checkbox->setCurrentText("Little Endian");
+		  notify();
 	  }
 	  catch (std::runtime_error& e)
 	  {
