@@ -193,7 +193,7 @@ namespace gui
 		average->setChecked(is_enabled_average_);
 
 		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
-		import_pixel_size->setValue(cd.import_pixel_size);
+		import_pixel_size->setValue(cd.import_pixel_size.load());
 
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
@@ -1648,10 +1648,6 @@ namespace gui
     set_image_mode();
 
     // Changing the gui
-    QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
-    pixel_size->clear();
-    pixel_size->insert(QString::number(holovibes_.get_cam_frame_desc().pixel_size));
-
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->clear();
     boundary->insert(QString::number(holovibes_.get_boundary()));
@@ -1734,9 +1730,6 @@ namespace gui
 
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
     float_output_checkbox->setDisabled(!value);
-
-    QLineEdit* pixelSize = findChild<QLineEdit*>("pixelSize");
-    pixelSize->setDisabled(!value);
 
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);
@@ -1874,9 +1867,8 @@ namespace gui
         camera_type_ = camera_type;
 
         // Changing the gui
-        QLineEdit* pixel_size = findChild<QLineEdit*>("pixelSize");
-        pixel_size->clear();
-        pixel_size->insert(QString::number(holovibes_.get_cam_frame_desc().pixel_size));
+		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
+        import_pixel_size->setValue(holovibes_.get_cam_frame_desc().pixel_size);
 
         QLineEdit* boundary = findChild<QLineEdit*>("boundary");
         boundary->clear();
