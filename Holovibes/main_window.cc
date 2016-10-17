@@ -482,6 +482,7 @@ namespace gui
 	  cudaDeviceSynchronize();
 	  cudaDeviceReset();
 	  change_camera(camera_type_);
+	  load_ini("holovibes.ini");
 	  manager->remove_info("Status");
   }
 
