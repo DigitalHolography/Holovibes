@@ -403,7 +403,7 @@
           <number>4</number>
          </property>
          <property name="maximum">
-          <double>9999.989999999999782</double>
+          <double>9999.999900000000707</double>
          </property>
          <property name="singleStep">
           <double>0.010000000000000</double>
@@ -2354,8 +2354,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>983</x>
-     <y>316</y>
+     <x>1072</x>
+     <y>313</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -2370,8 +2370,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>983</x>
-     <y>346</y>
+     <x>1072</x>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -2483,7 +2483,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>191</y>
+     <y>183</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3362,8 +3362,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_direct_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>50</y>
+     <x>58</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -3592,6 +3592,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImportPixelSizeDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_import_pixel_size(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>146</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>433</y>
     </hint>
    </hints>
   </connection>
