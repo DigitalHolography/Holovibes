@@ -1613,16 +1613,20 @@ namespace gui
     QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
     QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
     QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
 
     std::string file_src = import_line_edit->text().toUtf8();
 
-    camera::FrameDescriptor frame_desc = {
-      width_spinbox->value(),
-      height_spinbox->value(),
-      // 0:depth = 8, 1:depth = 16
-      depth_spinbox->currentIndex() + 1,
-      cd.import_pixel_size,
-      (big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
+	if (cine->isChecked() == true)
+		seek_cine_header_data(file_src, holovibes_);
+
+	camera::FrameDescriptor frame_desc = {
+		width_spinbox->value(),
+		height_spinbox->value(),
+		// 0:depth = 8, 1:depth = 16
+		depth_spinbox->currentIndex() + 1,
+		cd.import_pixel_size,
+		(big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
 	camera_visible(false);
     record_visible(false);
@@ -2167,8 +2171,82 @@ namespace gui
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+	  QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
+	  QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
+	  QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+	  QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+	  QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
 
 	  cd.is_cine_file.exchange(value);
 	  cine->setChecked(value);
+	  width_spinbox->setEnabled(!value);
+	  height_spinbox->setEnabled(!value);
+	  depth_spinbox->setEnabled(!value);
+	  import_pixel_size->setEnabled(!value);
+	  if (depth_spinbox->currentText() == QString("16"))
+		  big_endian_checkbox->setEnabled(!value);
+  }
+
+  void MainWindow::seek_cine_header_data(std::string &file_src_, holovibes::Holovibes& holovibes_)
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  QSpinBox*		width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
+	  QSpinBox*		height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
+	  QComboBox*	depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+	  int			read_width = 0;
+	  int			read_height = 0;
+	  unsigned short int read_depth = 0;
+	  unsigned int	read_pixelpermeter_x = 0;
+	  FILE*			file = nullptr;
+	  fpos_t		pos = 0;
+	  long int		length = 0;
+	  unsigned int	offset_to_ptr = 0;
+	  char			buffer[44];
+	  double		pixel_size = 0;
+
+	  try
+	  {
+		  fopen_s(&file, file_src_.c_str(), "rb");
+		  if (!file)
+			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
+		  std::fsetpos(file, &pos);
+		  if ((length = std::fread(buffer, 1, 44, file)) = !44)
+			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  if (std::strstr(buffer, "CI") == NULL)
+			  throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
+		  std::memcpy(&offset_to_ptr, (buffer + 24), sizeof(int));
+		  pos = offset_to_ptr + 4;
+		  std::fsetpos(file, &pos);
+		  if ((length = std::fread(&read_width, 1, sizeof(int), file)) = !sizeof(int))
+			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  pos = offset_to_ptr + 8;
+		  std::fsetpos(file, &pos);
+		  if ((length = std::fread(&read_height, 1, sizeof(int), file)) = !sizeof(int))
+			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  pos = offset_to_ptr + 14;
+		  std::fsetpos(file, &pos);
+		  if ((length = std::fread(&read_depth, 1, sizeof(short int), file)) = !sizeof(short int))
+			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  pos = offset_to_ptr + 24;
+		  std::fsetpos(file, &pos);
+		  if ((length = std::fread(&read_pixelpermeter_x, 1, sizeof(int), file)) = !sizeof(int))
+			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  if (read_depth == 8)
+			  depth_spinbox->setCurrentIndex(0);
+		  else
+			  depth_spinbox->setCurrentIndex(1);
+		  width_spinbox->setValue(read_width);
+		  if (read_height < 0)
+			  read_height = -read_height;
+		  height_spinbox->setValue(read_height);
+		  pixel_size = (1 / (double)read_pixelpermeter_x) * 1000000;
+		  set_import_pixel_size(pixel_size);
+	  }
+	  catch (std::runtime_error& e)
+	  {
+		  std::cout << e.what() << std::endl;
+	  }
+	  std::fsetpos(file, &pos);
+
   }
 }

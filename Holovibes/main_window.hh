@@ -393,6 +393,9 @@ namespace gui
 
     /*! \} */
 
+	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
+	/*! \brief Seek import value in .cine file*/
+
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
 
