@@ -373,6 +373,8 @@ namespace gui
 					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 						Qt::UniqueConnection);
 				}
+				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
 			}
 			catch (std::exception& e)
@@ -402,6 +404,8 @@ namespace gui
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 				global_visibility(true);
 				demodulation_visibility(false);
+				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+					holovibes_.get_pipe()->request_autocontrast();
 			}
 			catch (std::exception& e)
 			{
@@ -426,8 +430,8 @@ namespace gui
 		{
 			convo->setChecked(value);
 			holovibes_.get_compute_desc().convolution_enabled = value;
-			if (!is_direct_mode())
-				holovibes_.get_pipe()->request_refresh();
+			if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+				holovibes_.get_pipe()->request_autocontrast();
 		}
 	}
 
@@ -520,7 +524,8 @@ namespace gui
 				  cd.flowgraphy_level = cd.special_buffer_size;
 		  }
 		  notify();
-		  holovibes_.get_pipe()->request_refresh();
+		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+			  holovibes_.get_pipe()->request_autocontrast();
 	  }
   }
 
@@ -538,7 +543,8 @@ namespace gui
         p_vibro->setValue(value + 1);
 
         cd.pindex.exchange(value);
-        holovibes_.get_pipe()->request_refresh();
+		if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+			holovibes_.get_pipe()->request_autocontrast();
       }
       else
         display_error("p param has to be between 0 and n");
@@ -584,7 +590,8 @@ namespace gui
       {
         ++(cd.pindex);
         notify();
-        holovibes_.get_pipe()->request_refresh();
+		if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+			holovibes_.get_pipe()->request_autocontrast();
       }
       else
         display_error("p param has to be between 1 and n");
@@ -601,7 +608,8 @@ namespace gui
       {
         --(cd.pindex);
         notify();
-        holovibes_.get_pipe()->request_refresh();
+		if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+			holovibes_.get_pipe()->request_autocontrast();
       }
       else
         display_error("p param has to be between 1 and n");
@@ -664,90 +672,91 @@ namespace gui
 
   void  MainWindow::set_algorithm(const QString value)
   {
-    if (!is_direct_mode())
-    {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-      QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
-      GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-      gl_widget->set_selection_mode(gui::eselection::ZOOM);
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
+		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
 
-      cd.nsamples = 2;
-      if (value == "1FFT")
-        cd.algorithm = holovibes::ComputeDescriptor::FFT1;
-      else if (value == "2FFT")
-        cd.algorithm = holovibes::ComputeDescriptor::FFT2;
-      else if (value == "STFT")
-      {
-        cd.nsamples = 16;
-        gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-        connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-          Qt::UniqueConnection);
-        connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-          Qt::UniqueConnection);
-        cd.algorithm = holovibes::ComputeDescriptor::STFT;
-      }
-      else
-        assert(!"Unknow Algorithm.");
+		  cd.nsamples = 2;
+		  if (value == "1FFT")
+			  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
+		  else if (value == "2FFT")
+			  cd.algorithm = holovibes::ComputeDescriptor::FFT2;
+		  else if (value == "STFT")
+		  {
+			  cd.nsamples = 16;
+			  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+			  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+				  Qt::UniqueConnection);
+			  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+				  Qt::UniqueConnection);
+			  cd.algorithm = holovibes::ComputeDescriptor::STFT;
+		  }
+		  else
+			  assert(!"Unknow Algorithm.");
 
-      phaseNumberSpinBox->setValue(cd.nsamples);
-      holovibes_.get_pipe()->request_refresh();
-    }
+		  phaseNumberSpinBox->setValue(cd.nsamples);
+		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+			  holovibes_.get_pipe()->request_autocontrast();
+	  }
   }
 
   void MainWindow::set_view_mode(const QString value)
   {
-    if (!is_direct_mode())
-    {
-      holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      // Reenabling phase number and p adjustments.
-      QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-      phase_number->setEnabled(true);
+		  // Reenabling phase number and p adjustments.
+		  QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+		  phase_number->setEnabled(true);
 
-      QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-      p->setEnabled(true);
+		  QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
+		  p->setEnabled(true);
 
-     // QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
-	  bool pipeline_checked = false; //pipeline_checkbox->isChecked();
+		  // QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
+		  bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
-      std::cout << "Value = " << value.toUtf8().constData() << std::endl;
+		  std::cout << "Value = " << value.toUtf8().constData() << std::endl;
 
-      if (value == "magnitude")
-      {
-        cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
-        last_contrast_type_ = value;
-      }
-      else if (value == "squared magnitude")
-      {
-        cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
-        last_contrast_type_ = value;
-      }
-      else if (value == "argument")
-      {
-        cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
-        last_contrast_type_ = value;
-      }
-      else
-      {
-        if (pipeline_checked)
-        {
-          // For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
-          display_error("Unwrapping is not available with the Pipeline.");
-          QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
-          // last_contrast_type_ exists for this sole purpose...
-          contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
-        }
-        else
-        {
-          if (value == "phase 1")
-            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-          else if (value == "phase 2")
-            cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
-        }
-      }
-
-      holovibes_.get_pipe()->request_refresh();
-    }
+		  if (value == "magnitude")
+		  {
+			  cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
+			  last_contrast_type_ = value;
+		  }
+		  else if (value == "squared magnitude")
+		  {
+			  cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
+			  last_contrast_type_ = value;
+		  }
+		  else if (value == "argument")
+		  {
+			  cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+			  last_contrast_type_ = value;
+		  }
+		  else
+		  {
+			  if (pipeline_checked)
+			  {
+				  // For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
+				  display_error("Unwrapping is not available with the Pipeline.");
+				  QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
+				  // last_contrast_type_ exists for this sole purpose...
+				  contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
+			  }
+			  else
+			  {
+				  if (value == "phase 1")
+					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+				  else if (value == "phase 2")
+					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
+			  }
+		  }
+		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+			  holovibes_.get_pipe()->request_autocontrast();
+	  }
   }
 
   void MainWindow::set_unwrap_history_size(int value)
@@ -1883,7 +1892,7 @@ namespace gui
   void MainWindow::display_error(const std::string msg)
   {
     QMessageBox msg_box;
-    msg_box.setText(QString::fromUtf8(msg.c_str()));
+    msg_box.setText(QString::fromLatin1(msg.c_str()));
     msg_box.setIcon(QMessageBox::Critical);
     msg_box.exec();
   }
