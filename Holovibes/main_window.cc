@@ -1647,6 +1647,8 @@ namespace gui
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->clear();
     boundary->insert(QString::number(holovibes_.get_boundary()));
+	if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
+		big_endian_checkbox->setEnabled(true);
   }
 
   void MainWindow::import_start_spinbox_update()
@@ -1730,8 +1732,21 @@ namespace gui
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);
 
-	QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
-	import_pixel_size->setEnabled(true);
+	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+	QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+	QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+	if (cine->isChecked() == false)
+	{
+		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
+		import_pixel_size->setEnabled(true);
+		if (depth_spinbox->currentText() == QString("16"))
+			big_endian_checkbox->setEnabled(true);
+	}
+	else if (cine->isChecked() == true)
+	{
+		if (depth_spinbox->currentText() == QString("16"))
+			big_endian_checkbox->setEnabled(false);
+	}
   }
 
   void MainWindow::phase_num_visible(const bool value)
