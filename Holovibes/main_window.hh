@@ -504,6 +504,9 @@ namespace gui
     /*! File index used in batch recording */
     unsigned int file_index_;
 
+	/* index used to record curent theme (0:classic 1:night)*/
+	unsigned short theme_index_;
+
     std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
 
     /*! \{ \name Shortcuts */
