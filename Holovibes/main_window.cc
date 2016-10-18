@@ -192,9 +192,6 @@ namespace gui
 		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
 		average->setChecked(is_enabled_average_);
 
-		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
-		import_pixel_size->setValue(cd.import_pixel_size.load());
-
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
@@ -801,7 +798,6 @@ namespace gui
   {
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		cd.import_pixel_size = value;
-		notify();
   }
 
   void  MainWindow::set_z_iter(const int value)
@@ -1733,6 +1729,9 @@ namespace gui
 
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);
+
+	QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
+	import_pixel_size->setEnabled(true);
   }
 
   void MainWindow::phase_num_visible(const bool value)
@@ -1771,8 +1770,12 @@ namespace gui
   void MainWindow::camera_visible(const bool value)
   {
     is_enabled_camera_ = value;
-    gui::GroupBox* image_rendering = findChild<gui::GroupBox*>("ImageRendering");
-    image_rendering->setDisabled(!value);
+	QRadioButton* direct = findChild<QRadioButton*>("directImageRadioButton");
+	direct->setEnabled(value);
+	QRadioButton* holo = findChild<QRadioButton*>("hologramRadioButton");
+	holo->setEnabled(value);
+	QRadioButton* demo = findChild<QRadioButton*>("demodulationRadioButton");
+	demo->setEnabled(value);
     QAction* settings = findChild<QAction*>("actionSettings");
     settings->setDisabled(!value);
   }
@@ -2186,6 +2189,7 @@ namespace gui
 	  QSpinBox*		height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
 	  QComboBox*	depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
 	  QComboBox*	big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+	  QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
 	  int			read_width = 0;
 	  int			read_height = 0;
 	  unsigned short int read_depth = 0;
@@ -2234,14 +2238,12 @@ namespace gui
 		  height_spinbox->setValue(read_height);
 		  pixel_size = (1 / (double)read_pixelpermeter_x) * 1000000;
 		  cd.import_pixel_size = pixel_size;
+		  import_pixel_size->setValue(cd.import_pixel_size.load());
 		  big_endian_checkbox->setCurrentText("Little Endian");
-		  notify();
 	  }
 	  catch (std::runtime_error& e)
 	  {
 		  std::cout << e.what() << std::endl;
 	  }
-	  std::fsetpos(file, &pos);
-
   }
 }
