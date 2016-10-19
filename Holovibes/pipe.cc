@@ -692,7 +692,9 @@ namespace holovibes
 	auto manager = gui::InfoManager::get_manager();
 	manager->remove_info("Status");
     /// End of the loop, free resources and notify the new z
-	if (af_z != 0)
+	// Sometimes a value outside the initial upper and lower bounds can be found
+	// Thus checking if af_z is within initial bounds
+	if (af_z != 0 && af_z >= compute_desc_.autofocus_z_min && af_z <= compute_desc_.autofocus_z_max)
 		compute_desc_.zdistance = af_z;
     compute_desc_.notify_observers();
 
