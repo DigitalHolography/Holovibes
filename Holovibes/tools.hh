@@ -5,6 +5,7 @@
 
 # include <algorithm>
 # include <cmath>
+# include <string>
 
 # include "geometry.hh"
 # include "hardware_limits.hh"
@@ -41,4 +42,13 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
 inline holovibes::Rectangle get_rectangle(const camera::FrameDescriptor& a)
 {
 	return holovibes::Rectangle(a.width, a.height);
+}
+
+
+namespace holovibes
+{
+	/*! \brief Get framerate from .cine file */
+	void	get_framerate_cinefile(FILE *file, std::string &file_src_);
+	/*! \brief Get exposure from .cine file */
+	void	get_exposure_cinefile(FILE *file, std::string &file_src_);
 }

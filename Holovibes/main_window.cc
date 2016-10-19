@@ -13,6 +13,7 @@
 #include "info_manager.hh"
 #include <fstream>
 #include <boost/algorithm/string.hpp>
+#include "tools.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -2255,6 +2256,8 @@ namespace gui
 		  cd.import_pixel_size = pixel_size;
 		  import_pixel_size->setValue(cd.import_pixel_size.load());
 		  big_endian_checkbox->setCurrentText("Little Endian");
+		  holovibes::get_framerate_cinefile(file, file_src_);
+		  holovibes::get_exposure_cinefile(file, file_src_);
 	  }
 	  catch (std::runtime_error& e)
 	  {
