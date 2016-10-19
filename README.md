@@ -330,6 +330,16 @@ Cyril, Clément are now working on the project until January 2017.
 
 * Several bugs fixed
 
+### v.2.1.0
+
+* Add demodulation mode
+* Add Special queue to handle Convolution & Flowgraphy
+* Add Convolution with loaded kernels
+* Add temporal Flowgraphy
+* Add cine file parsing
+* Add GUI themes 
+
+
 # Known problems :
 
 * Marshall.cxx / ole32.dll : No known fixes, try updating QT.

@@ -2071,7 +2071,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2121,10 +2121,18 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionImport"/>
     <addaction name="actionInfo"/>
    </widget>
+   <widget class="QMenu" name="menuTheme">
+    <property name="title">
+     <string>Theme</string>
+    </property>
+    <addaction name="actionClassic"/>
+    <addaction name="actionNight"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Camera"/>
    <addaction name="menu_Help"/>
+   <addaction name="menuTheme"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionIDS">
@@ -2332,6 +2340,16 @@ p, li { white-space: pre-wrap; }
     <string>Load</string>
    </property>
   </action>
+  <action name="actionClassic">
+   <property name="text">
+    <string>Classic</string>
+   </property>
+  </action>
+  <action name="actionNight">
+   <property name="text">
+    <string>Night</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -2530,8 +2548,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>171</x>
-     <y>102</y>
+     <x>178</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3378,8 +3396,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_holographic_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>132</x>
-     <y>53</y>
+     <x>139</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3611,6 +3629,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionNight</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_night()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClassic</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_classic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3686,5 +3736,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_iter(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
   <slot>set_import_pixel_size(double)</slot>
+  <slot>set_night()</slot>
+  <slot>set_classic()</slot>
  </slots>
 </ui>

@@ -390,8 +390,14 @@ namespace gui
 	void set_import_cine_file(bool value);
 	/*! \brief Set is_cine_file value
 	*/
-
     /*! \} */
+	
+	/*! \brief Display classic GUI theme*/
+	void set_classic();
+
+	/*! \brief Display classic GUI theme*/
+	void set_night();
+
 
 	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
 	/*! \brief Seek import value in .cine file*/
@@ -434,6 +440,7 @@ namespace gui
     ** \param msg information message
     */
     void display_info(std::string msg);
+
     /*! \brief Open a file
     ** \param path file path
     */
@@ -496,6 +503,9 @@ namespace gui
 
     /*! File index used in batch recording */
     unsigned int file_index_;
+
+	/* index used to record curent theme (0:classic 1:night)*/
+	unsigned short theme_index_;
 
     std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
 

@@ -35,6 +35,7 @@ namespace gui
 		, CSV_record_thread_(nullptr)
 		, file_index_(1)
 		, gpib_interface_(nullptr)
+		, theme_index_(0)
 	{
 		ui.setupUi(this);
 		this->setWindowIcon(QIcon("icon1.ico"));
@@ -45,7 +46,8 @@ namespace gui
 
 		load_ini("holovibes.ini");
 		layout_toggled(false);
-
+		if (theme_index_ == 1)
+			set_night();
 		// Keyboard shortcuts
 		z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
 		z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -1920,6 +1922,7 @@ namespace gui
     msg_box.exec();
   }
 
+
   void MainWindow::open_file(const std::string& path)
   {
     QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
@@ -2043,6 +2046,7 @@ namespace gui
       // Info
       info_action->setChecked(!ptree.get<bool>("info.hidden", false));
       info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
+	  theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
       // Autofocus
       cd.autofocus_size = ptree.get<int>("autofocus.size", cd.autofocus_size);
@@ -2065,6 +2069,7 @@ namespace gui
 	  config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
 	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 	  config.device_number = ptree.get<int>("reset.device_number", config.device_number);
+	 
     }
   }
 
@@ -2123,6 +2128,7 @@ namespace gui
 
     // Info
     ptree.put("info.hidden", info_group_box->isHidden());
+	ptree.put("info.theme_type", theme_index_);
 
     // Autofocus
     ptree.put("autofocus.size", cd.autofocus_size);
@@ -2142,6 +2148,7 @@ namespace gui
 	ptree.put("reset.set_cuda_device", config.set_cuda_device);
 	ptree.put("reset.auto_device_number", config.auto_device_number);
 	ptree.put("reset.device_number", config.device_number);
+
 
 	boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
   }
@@ -2264,4 +2271,40 @@ namespace gui
 		  std::cout << e.what() << std::endl;
 	  }
   }
+
+  void MainWindow::set_classic()
+  {
+	  theme_index_ = 0;
+	  qApp->setPalette(this->style()->standardPalette());
+	  qApp->setStyle(QStyleFactory::create("WindowsVista"));
+	  qApp->setStyleSheet("");
+  }
+
+  void MainWindow::set_night()
+  {
+	  theme_index_ = 1;
+	  qApp->setStyle(QStyleFactory::create("Fusion"));
+
+	  QPalette darkPalette;
+	  darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
+	  darkPalette.setColor(QPalette::WindowText, Qt::white);
+	  darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
+	  darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
+	  darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+	  darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+	  darkPalette.setColor(QPalette::Text, Qt::white);
+	  darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+	  darkPalette.setColor(QPalette::ButtonText, Qt::white);
+	  darkPalette.setColor(QPalette::BrightText, Qt::red);
+	  darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
+	  darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
+	  darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+	  darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+	  darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+
+	  qApp->setPalette(darkPalette);
+
+	  qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+  }
+
 }
