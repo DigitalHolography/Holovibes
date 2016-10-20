@@ -73,7 +73,7 @@ namespace camera
     exposure_time_ = pt.get<float>("pco-pixelfly.exposure_time", exposure_time_);
     extended_sensor_format_ = pt.get<bool>("pco-pixelfly.extended_sensor_format", extended_sensor_format_);
     pixel_rate_ = pt.get<unsigned int>("pco-pixelfly.pixel_rate", pixel_rate_);
-    if (pixel_rate_ != 12 || pixel_rate_ != 25)
+    if (pixel_rate_ != 12 && pixel_rate_ != 25)
       pixel_rate_ = 12;
     binning_ = pt.get<bool>("pco-pixelfly.binning", binning_);
     ir_sensitivity_ = pt.get<bool>("pco-pixelfly.ir_sensitivity", ir_sensitivity_);
