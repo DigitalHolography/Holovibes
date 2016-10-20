@@ -44,10 +44,30 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 
+		// Hide non default tab
+		gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+		gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
+		gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
+
+		QAction*      special_action = findChild<QAction*>("actionSpecial");
+		QAction*      record_action = findChild<QAction*>("actionRecord");
+		QAction*      info_action = findChild<QAction*>("actionInfo");
+
+		special_action->setChecked(false);
+		special_group_box->setHidden(true);
+		record_action->setChecked(false);
+		record_group_box->setHidden(true);
+		info_action->setChecked(false);
+		info_group_box->setHidden(true);
+
+		layout_toggled(false);
+
+		//Load Ini file
 		load_ini("holovibes.ini");
 		layout_toggled(false);
 		if (theme_index_ == 1)
 			set_night();
+
 		// Keyboard shortcuts
 		z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
 		z_up_shortcut_->setContext(Qt::ApplicationShortcut);
