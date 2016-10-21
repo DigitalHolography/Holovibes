@@ -24,7 +24,9 @@ DisableProgramGroupPage=yes
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
-DiskSpanning=yes 
+DiskSpanning=yes
+UninstallDisplayName=Holovibes
+UninstallDisplayIcon={app}\Holovibes.exe 
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -44,9 +46,13 @@ Source: "C:\Qt\qwt-6.1.2\lib\qwtd.exp"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Qt\qwt-6.1.2\lib\qwtd.ilk"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Qt\qwt-6.1.2\lib\qwtd.lib"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Qt\qwt-6.1.2\lib\qwtd.pdb"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5OpenGL.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\Bronxville\Desktop\holovibes\Installer_files\cuda_7.5.18_win10.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller_Win10
 Source: "C:\Users\Bronxville\Desktop\holovibes\Installer_files\cuda_7.5.18_windows.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller
-Source: "C:\Users\Bronxville\Desktop\holovibes\Installer_files\qt-opensource-windows-x86-msvc2013_64-5.5.0.exe"; DestDir: "{tmp}"; AfterInstall: QtInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Code]
@@ -78,17 +84,6 @@ begin
       MsgBox('Cuda installer failed to run!' + #13#10 +
         SysErrorMessage(ResultCode), mbError, MB_OK);
     end;
-end;
-
-procedure QtInstaller;
-var
-  ResultCode: Integer;
-begin
-  if not Exec(ExpandConstant('{tmp}\qt-opensource-windows-x86-msvc2013_64-5.5.0.exe'), '', '', SW_SHOWNORMAL,
-    ewWaitUntilTerminated, ResultCode)
-  then
-    MsgBox('Qt installer failed to run!' + #13#10 +
-      SysErrorMessage(ResultCode), mbError, MB_OK);
 end;
 
 [Icons]
