@@ -52,6 +52,7 @@ Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5OpenGL.dll"; DestDir: "{app}"; Fla
 Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Qt\Qt5.5.0\5.5\msvc2013_64\plugins\platforms\*"; DestDir: "{app}\platforms"; Flags: ignoreversion
 Source: "C:\Users\Bronxville\Desktop\holovibes\Installer_files\cuda_7.5.18_win10.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller_Win10
 Source: "C:\Users\Bronxville\Desktop\holovibes\Installer_files\cuda_7.5.18_windows.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
