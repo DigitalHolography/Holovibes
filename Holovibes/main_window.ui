@@ -1923,12 +1923,17 @@
          </property>
          <item>
           <property name="text">
-           <string>8</string>
+           <string>UINT 8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>16</string>
+           <string>UINT 16</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>FLOAT 32</string>
           </property>
          </item>
         </widget>

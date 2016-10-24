@@ -1631,17 +1631,22 @@ namespace gui
     QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
     QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+	int	depth_multi = 1;
 
     std::string file_src = import_line_edit->text().toUtf8();
 
 	if (cine->isChecked() == true)
 		seek_cine_header_data(file_src, holovibes_);
 
+	if (depth_spinbox->currentIndex() == 2)
+		depth_multi = 2;
+	else if (depth_spinbox->currentIndex() == 3)
+		depth_multi = 4;
+
 	camera::FrameDescriptor frame_desc = {
 		width_spinbox->value(),
 		height_spinbox->value(),
-		// 0:depth = 8, 1:depth = 16
-		depth_spinbox->currentIndex() + 1,
+		depth_multi,
 		cd.import_pixel_size,
 		(big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 
