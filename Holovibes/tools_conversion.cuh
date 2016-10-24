@@ -49,6 +49,23 @@ __global__ void img16_to_complex(
   const unsigned int size,
   const float* sqrt_array);
 
+/*! \brief This function allows to transform float 32 bits data to its complex representation.
+*
+* The transformation is performed by putting the squareroot of each element's
+* value into the real and imaginary parts of the complex output.
+*
+* \param output Where to store the resulting complex data.
+* \param input float 32-bit input data to convert.
+* \param size The number of elements to convert.
+* \param sqrt_array Pointer to a float array containing the results
+* of the square root function, starting from 0. Precondition : length(array) >= size
+*/
+__global__ void float_to_complex(
+	cufftComplex* output,
+	const float* input,
+	const unsigned int size,
+	const float* sqrt_array);
+
 /*! \brief Compute the modulus of complex image(s).
  *
  * \param input Input data should be contiguous.

@@ -36,7 +36,7 @@ void make_contiguous_complex(
   {
     const unsigned int n_frame_resolution = frame_resolution * n;
     /* Contiguous case. */
-    if (frame_desc.depth > 1)
+    if (frame_desc.depth == 2)
     {
 			img16_to_complex << <blocks, threads, 0, stream >> >(
 			output,
@@ -44,7 +44,7 @@ void make_contiguous_complex(
 			n_frame_resolution,
 			sqrt_array);
     }
-    else
+	else if (frame_desc.depth == 1)
     {
 			img8_to_complex << <blocks, threads, 0, stream >> >(
 			output,
@@ -52,6 +52,14 @@ void make_contiguous_complex(
 			n_frame_resolution,
 			sqrt_array);
     }
+	else
+	{
+		float_to_complex << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<float*>(input.get_start()),
+			n_frame_resolution,
+			sqrt_array);
+	}
   }
   else
   {
@@ -60,7 +68,7 @@ void make_contiguous_complex(
     const unsigned int left_elts = n - contiguous_elts;
     const unsigned int left_elts_res = frame_resolution * left_elts;
 
-    if (frame_desc.depth > 1)
+    if (frame_desc.depth == 2)
     {
       // Convert contiguous elements (at the end of the queue).
       img16_to_complex << <blocks, threads, 0, stream >> >(
@@ -76,7 +84,7 @@ void make_contiguous_complex(
         left_elts_res,
         sqrt_array);
     }
-    else
+	else if (frame_desc.depth == 1)
     {
       // Convert contiguous elements (at the end of the queue).
       img8_to_complex << <blocks, threads, 0, stream >> >(
@@ -92,5 +100,21 @@ void make_contiguous_complex(
         left_elts_res,
         sqrt_array);
     }
+	else
+	{
+		// Convert contiguous elements (at the end of the queue).
+		float_to_complex << <blocks, threads, 0, stream >> >(
+			output,
+			static_cast<float *>(input.get_start()),
+			contiguous_elts_res,
+			sqrt_array);
+
+		// Convert the contiguous elements left (at the beginning of queue).
+		float_to_complex << <blocks, threads, 0, stream >> >(
+			output + contiguous_elts_res,
+			static_cast<float*>(input.get_buffer()),
+			left_elts_res,
+			sqrt_array);
+	}
   }
 }

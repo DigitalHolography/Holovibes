@@ -1923,12 +1923,12 @@
          </property>
          <item>
           <property name="text">
-           <string>UINT 8</string>
+           <string>8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>UINT 16</string>
+           <string>16</string>
           </property>
          </item>
          <item>

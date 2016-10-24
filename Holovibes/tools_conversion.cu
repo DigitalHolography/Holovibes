@@ -44,6 +44,23 @@ __global__ void img16_to_complex(
   }
 }
 
+__global__ void float_to_complex(
+	cufftComplex* output,
+	const float* input,
+	const unsigned int size,
+	const float* sqrt_array)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		float val = sqrt(input[index]);
+		output[index].x = val;//static_cast<float>(input[index]);
+		output[index].y = val;
+		index += blockDim.x * gridDim.x;
+	}
+}
+
 /* Kernel function wrapped by complex_to_modulus. */
 static __global__ void kernel_complex_to_modulus(
   const cufftComplex* input,

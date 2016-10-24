@@ -1638,9 +1638,9 @@ namespace gui
 	if (cine->isChecked() == true)
 		seek_cine_header_data(file_src, holovibes_);
 
-	if (depth_spinbox->currentIndex() == 2)
+	if (depth_spinbox->currentIndex() == 1)
 		depth_multi = 2;
-	else if (depth_spinbox->currentIndex() == 3)
+	else if (depth_spinbox->currentIndex() == 2)
 		depth_multi = 4;
 
 	camera::FrameDescriptor frame_desc = {
