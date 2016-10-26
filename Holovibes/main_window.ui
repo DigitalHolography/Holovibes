@@ -530,27 +530,27 @@
          </property>
          <item>
           <property name="text">
-           <string>magnitude</string>
+           <string>Magnitude</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>squared magnitude</string>
+           <string>Squared magnitude</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>argument</string>
+           <string>Argument</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>phase 1</string>
+           <string>Phase 1</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>phase 2</string>
+           <string>Phase 2</string>
           </property>
          </item>
         </widget>

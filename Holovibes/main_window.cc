@@ -29,7 +29,7 @@ namespace gui
 		, is_batch_interrupted_(false)
 		, z_step_(0.01f)
 		, camera_type_(holovibes::Holovibes::NONE)
-		, last_contrast_type_("magnitude")
+		, last_contrast_type_("Magnitude")
 		, plot_window_(nullptr)
 		, record_thread_(nullptr)
 		, CSV_record_thread_(nullptr)
@@ -741,17 +741,17 @@ namespace gui
 
 		  std::cout << "Value = " << value.toUtf8().constData() << std::endl;
 
-		  if (value == "magnitude")
+		  if (value == "Magnitude")
 		  {
 			  cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
 			  last_contrast_type_ = value;
 		  }
-		  else if (value == "squared magnitude")
+		  else if (value == "Squared magnitude")
 		  {
 			  cd.view_mode = holovibes::ComputeDescriptor::SQUARED_MODULUS;
 			  last_contrast_type_ = value;
 		  }
-		  else if (value == "argument")
+		  else if (value == "Argument")
 		  {
 			  cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
 			  last_contrast_type_ = value;
@@ -768,9 +768,9 @@ namespace gui
 			  }
 			  else
 			  {
-				  if (value == "phase 1")
+				  if (value == "Phase 1")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-				  else if (value == "phase 2")
+				  else if (value == "Phase 2")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
 			  }
 		  }
