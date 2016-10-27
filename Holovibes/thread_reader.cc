@@ -168,7 +168,7 @@ namespace holovibes
   void ThreadReader::proc_for_float()
   {
 	  /*Forcing frame depth to 2*/
-	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * 2;
+	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * 4;
 	  unsigned int frame_size_float =  frame_desc_.width * frame_desc_.height * sizeof(float);
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
 	  char*        buffer;
@@ -180,7 +180,7 @@ namespace holovibes
 	  size_t  length = 0;
 
 	  cudaMallocHost(&conv_buffer, frame_size_float * elts_max_nbr);
-	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
+	  cudaMallocHost(&buffer, frame_size);
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -200,8 +200,8 @@ namespace holovibes
 				  }
 				  if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT)
 				  {
-					  float_to_ushort_no_stream((float *)(conv_buffer + (act_frame * frame_size_float)), (unsigned short*)(buffer + act_frame * frame_size), frame_desc_.frame_res());
-					  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
+					  float_to_ushort_no_stream((float *)(conv_buffer + (act_frame * frame_size_float)), (unsigned short*)(buffer), frame_desc_.frame_res());
+					  queue_.enqueue(buffer, cudaMemcpyHostToDevice);
 				  }
 				  else
 					  queue_.enqueue(conv_buffer + act_frame * frame_size_float, cudaMemcpyHostToDevice);
