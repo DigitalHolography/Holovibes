@@ -151,3 +151,8 @@ void float_to_ushort(
   unsigned short* output,
   const unsigned int size,
   cudaStream_t stream = 0);
+
+void float_to_ushort_no_stream(
+	const float* input,
+	unsigned short* output,
+	const unsigned int size);

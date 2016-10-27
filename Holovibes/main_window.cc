@@ -1663,7 +1663,8 @@ namespace gui
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
-      global::global_config.input_queue_max_size);
+      global::global_config.input_queue_max_size,
+	  holovibes_);
 
     camera_visible(true);
     record_visible(true);

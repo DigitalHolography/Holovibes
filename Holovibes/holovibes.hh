@@ -133,7 +133,8 @@ namespace holovibes
       unsigned int fps,
       unsigned int spanStart,
       unsigned int spanEnd,
-      unsigned int q_max_size_);
+      unsigned int q_max_size_,
+	  Holovibes& holovibes);
 
     /*! \{ \name Getters/Setters */
     std::shared_ptr<ICompute> get_pipe()

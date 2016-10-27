@@ -17,6 +17,7 @@
 namespace holovibes
 {
   class Queue;
+  class Holovibes;
 }
 
 namespace holovibes
@@ -38,7 +39,8 @@ namespace holovibes
       , unsigned int spanStart
       , unsigned int spanEnd
       , Queue& input
-	  , bool is_cine_file);
+	  , bool is_cine_file
+	  , Holovibes& holovibes);
 
     virtual ~ThreadReader();
 
@@ -46,6 +48,12 @@ namespace holovibes
   private:
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
+	/*! \brief Read frames for 8 and 16 bit case */
+	void	ThreadReader::proc_for_8_and_16(void);
+	/*! \brief Read frames for unpacked cine file case */
+	void	ThreadReader::proc_for_unpacked_cine_file(void);
+	/*! \brief Read frames for float case */
+	void	ThreadReader::proc_for_float(void);
 	/*! \brief Seek the offset to attain the .cine file first image */
 	long int  offset_cine_first_image(FILE *file);
 
@@ -67,6 +75,8 @@ namespace holovibes
     Queue& queue_;
 	/*! \brief Reading a cine file */
 	bool is_cine_file_;
+	/*! \brief Holovibes class */
+	Holovibes& holovibes_;
 
     /*! The thread which shall run thread_proc(). */
     std::thread thread_;

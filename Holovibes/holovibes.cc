@@ -164,7 +164,8 @@ namespace holovibes
     unsigned int fps,
     unsigned int spanStart,
     unsigned int spanEnd,
-    unsigned int q_max_size_)
+    unsigned int q_max_size_,
+	Holovibes& holovibes)
   {
     camera_initialized_ = false;
 
@@ -179,7 +180,8 @@ namespace holovibes
         , spanStart
         , spanEnd
         , *input_
-		, compute_desc_.is_cine_file.load()));
+		, compute_desc_.is_cine_file.load()
+		, holovibes));
       std::cout << "[CAPTURE] reader thread started" << std::endl;
       camera_initialized_ = true;
     }

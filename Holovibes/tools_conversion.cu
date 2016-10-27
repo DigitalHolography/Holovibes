@@ -311,3 +311,14 @@ void float_to_ushort(
 
   kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }
+
+void float_to_ushort_no_stream(
+	const float* input,
+	unsigned short* output,
+	const unsigned int size)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem(size, threads);
+
+	kernel_float_to_ushort << <blocks, threads, 0 >> >(input, output, size);
+}
