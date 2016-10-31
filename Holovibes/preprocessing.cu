@@ -52,7 +52,7 @@ void make_contiguous_complex(
 			n_frame_resolution,
 			sqrt_array);
     }
-	else
+	else if (frame_desc.depth == 4)
 	{
 		float_to_complex << <blocks, threads, 0, stream >> >(
 			output,
@@ -100,7 +100,7 @@ void make_contiguous_complex(
         left_elts_res,
         sqrt_array);
     }
-	else
+	else if (frame_desc.depth == 4)
 	{
 		// Convert contiguous elements (at the end of the queue).
 		float_to_complex << <blocks, threads, 0, stream >> >(

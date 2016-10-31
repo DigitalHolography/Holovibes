@@ -5,6 +5,7 @@
 
 #include "gui_gl_widget.hh"
 #include "queue.hh"
+#include "tools_conversion.cuh"
 
 namespace gui
 {
@@ -131,12 +132,16 @@ namespace gui
     /* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
     glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
 
-    frame_desc_.frame_size();
+    //frame_desc_.frame_size();
+	unsigned int size = frame_desc_.frame_size();
+	if (frame_desc_.depth == 4)
+		size /= 2;
 
     /* Creates and initialize a buffer object's data store. */
     glBufferData(
       GL_TEXTURE_BUFFER,
-      frame_desc_.frame_size(),
+	  size,
+      //frame_desc_.frame_size(),
       nullptr,
       GL_DYNAMIC_DRAW);
     /* Unbind any buffer of GL_TEXTURE_BUFFER target. */
@@ -162,13 +167,17 @@ namespace gui
 
     const void* frame = queue_.get_last_images(1);
 
+	void *tmp = nullptr;
     /* Map the buffer for access by CUDA. */
     cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
     size_t buffer_size;
     void* buffer_ptr;
     cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
     /* CUDA memcpy of the frame to opengl buffer. */
-    cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+	if (frame_desc_.depth != 4)
+		cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+	else
+		float_to_ushort(static_cast<const float *>(frame), static_cast<unsigned short *> (buffer_ptr), frame_desc_.frame_res());
     /* Unmap the buffer for access by CUDA. */
     cudaGraphicsUnmapResources(1, &cuda_buffer_, cuda_stream_);
 
@@ -180,27 +189,24 @@ namespace gui
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
     else
       glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+	
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	auto depth = GL_UNSIGNED_SHORT;
+	if (frame_desc_.depth == 1)
+		depth = GL_UNSIGNED_BYTE;
+	if (frame_desc_.depth == 2)
+		depth = GL_UNSIGNED_SHORT;
+	
+	auto kind = GL_RED;
 
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      /* Base image level. */
-      0,
-      GL_LUMINANCE,
-      frame_desc_.width,
-      frame_desc_.height,
-      /* border: This value must be 0. */
-      0,
-      GL_LUMINANCE,
-      /* Unsigned byte = 1 byte, Unsigned short = 2 bytes. */
-      frame_desc_.depth == 1 ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT,
-      /* Pointer to image data in memory. */
-      nullptr);
-
+	glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
+	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBegin(GL_QUADS);
@@ -210,7 +216,7 @@ namespace gui
     glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
     glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
     glEnd();
-
+	
     glDisable(GL_TEXTURE_2D);
 
     if (is_selection_enabled_)

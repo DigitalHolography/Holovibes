@@ -39,14 +39,12 @@ namespace holovibes
   void ThreadReader::thread_proc()
   {
 	  if (is_cine_file_ == true)
-		  proc_for_unpacked_cine_file();
-	  else if (frame_desc_.depth == 4)
-		  proc_for_float();
+		  proc_cine_file();
 	  else
-		  proc_for_8_and_16();
+		  proc_8_16_32();
   }
 
-  void	ThreadReader::proc_for_8_and_16()
+  void	ThreadReader::proc_8_16_32()
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
@@ -104,7 +102,7 @@ namespace holovibes
 	  cudaFreeHost(buffer);
   }
 
-  void	ThreadReader::proc_for_unpacked_cine_file()
+  void	ThreadReader::proc_cine_file()
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
@@ -165,75 +163,6 @@ namespace holovibes
 	  cudaFreeHost(buffer);
   }
 
-  void ThreadReader::proc_for_float()
-  {
-	  /*Forcing frame depth to 2*/
-	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * 4;
-	  unsigned int frame_size_float =  frame_desc_.width * frame_desc_.height * sizeof(float);
-	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
-	  char*        buffer;
-	  char*		 conv_buffer;
-	  unsigned int nbr_stored = 0;
-	  unsigned int act_frame = 0;
-	  FILE*   file = nullptr;
-	  fpos_t  pos = 0;
-	  size_t  length = 0;
-
-	  cudaMallocHost(&conv_buffer, frame_size_float * elts_max_nbr);
-	  cudaMallocHost(&buffer, frame_size);
-	  try
-	  {
-		  fopen_s(&file, file_src_.c_str(), "rb");
-		  if (!file)
-			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-		  pos = frame_size * (spanStart_ - 1);
-		  std::fsetpos(file, &pos);
-		  while (!stop_requested_)
-		  {
-			  if (!std::feof(file) && frameId_ <= spanEnd_)
-			  {
-				  if (act_frame >= nbr_stored)
-				  {
-					  length = std::fread(conv_buffer, 1, frame_size_float * elts_max_nbr, file);
-					  nbr_stored = length / frame_size_float;
-					  act_frame = 0;
-				  }
-				  if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT)
-				  {
-					  float_to_ushort_no_stream((float *)(conv_buffer + (act_frame * frame_size_float)), (unsigned short*)(buffer), frame_desc_.frame_res());
-					  queue_.enqueue(buffer, cudaMemcpyHostToDevice);
-				  }
-				  else
-					  queue_.enqueue(conv_buffer + act_frame * frame_size_float, cudaMemcpyHostToDevice);
-				  ++frameId_;
-				  ++act_frame;
-				  Sleep(1000 / fps_);
-			  }
-			  else if (loop_)
-			  {
-				  std::clearerr(file);
-				  std::fsetpos(file, &pos);
-				  frameId_ = spanStart_;
-				  act_frame = 0;
-			  }
-			  else
-				  stop_requested_ = true;
-		  }
-	  }
-	  catch (std::runtime_error& e)
-	  {
-		  std::cout << e.what() << std::endl;
-	  }
-
-	  if (file)
-	  {
-		  std::fclose(file);
-		  file = nullptr;
-	  }
-	  stop_requested_ = true;
-	  cudaFreeHost(buffer);
-	  cudaFreeHost(conv_buffer);
-  }
 
   ThreadReader::~ThreadReader()
   {

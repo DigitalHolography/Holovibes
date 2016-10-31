@@ -49,11 +49,9 @@ namespace holovibes
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
 	/*! \brief Read frames for 8 and 16 bit case */
-	void	ThreadReader::proc_for_8_and_16(void);
+	void	ThreadReader::proc_8_16_32(void);
 	/*! \brief Read frames for unpacked cine file case */
-	void	ThreadReader::proc_for_unpacked_cine_file(void);
-	/*! \brief Read frames for float case */
-	void	ThreadReader::proc_for_float(void);
+	void	ThreadReader::proc_cine_file(void);
 	/*! \brief Seek the offset to attain the .cine file first image */
 	long int  offset_cine_first_image(FILE *file);
 

@@ -31,7 +31,7 @@ namespace gui
     default_screen_ = new QShortcut(QKeySequence("Esc"), this);
     connect(default_screen_, SIGNAL(activated()), this, SLOT(default_screen()));
     default_screen_->setContext(Qt::ApplicationShortcut);
-
+	
     this->move(pos);
     this->resize(QSize(width, height));
     this->show();

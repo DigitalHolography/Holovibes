@@ -113,7 +113,7 @@ namespace holovibes
     }
 
     // Fill input complex buffer, one frame at a time.
-    fn_vect_.push_back(std::bind(
+	 fn_vect_.push_back(std::bind(
       make_contiguous_complex,
       std::ref(input_),
       gpu_input_buffer_,
@@ -515,7 +515,7 @@ namespace holovibes
       fn_vect_.push_back(std::bind(
       &Pipe::fps_count,
       this));
-
+	
     fn_vect_.push_back(std::bind(
       float_to_ushort,
       gpu_float_buffer_,

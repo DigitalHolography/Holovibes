@@ -38,7 +38,7 @@ __global__ void img16_to_complex(
   while (index < size)
   {
 	  float val = sqrt(static_cast<float>(input[index]));
-	  output[index].x = val;//static_cast<float>(input[index]);
+	  output[index].x = val;
 	  output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
@@ -54,8 +54,10 @@ __global__ void float_to_complex(
 
 	while (index < size)
 	{
-		float val = sqrt(input[index]);
-		output[index].x = val;//static_cast<float>(input[index]);
+		float val = input[index];
+		if (val > 0)
+			val = sqrtf(val);
+		output[index].x = val;
 		output[index].y = val;
 		index += blockDim.x * gridDim.x;
 	}
