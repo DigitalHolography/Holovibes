@@ -1341,7 +1341,7 @@
           </rect>
          </property>
          <property name="toolTip">
-          <string>Alt + S</string>
+          <string>Alt + P</string>
          </property>
          <property name="text">
           <string/>
@@ -2371,7 +2371,7 @@ p, li { white-space: pre-wrap; }
     <string>Post-processing</string>
    </property>
    <property name="shortcut">
-    <string>Alt+S</string>
+    <string>Alt+P</string>
    </property>
   </action>
   <action name="actionRecord">
