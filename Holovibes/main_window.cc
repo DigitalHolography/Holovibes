@@ -145,12 +145,8 @@ namespace gui
 			view_mode->setCurrentIndex(1);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 			view_mode->setCurrentIndex(2);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-			view_mode->setCurrentIndex(3);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-			view_mode->setCurrentIndex(4);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_3)
-			view_mode->setCurrentIndex(5);
+			view_mode->setCurrentIndex(3);
 		else // Fallback on Modulus
 			view_mode->setCurrentIndex(0);
 
@@ -197,7 +193,7 @@ namespace gui
 		p_vibro->setMaximum(cd.nsamples);
 
 		QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
-		q_vibro->setValue(cd.vibrometry_q + 1);
+		q_vibro->setValue(cd.vibrometry_q);
 		q_vibro->setMaximum(cd.nsamples);
 
 		QDoubleSpinBox* z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox");
@@ -1029,18 +1025,18 @@ namespace gui
 
   void MainWindow::set_q_vibro(int value)
   {
-	  value--;
     if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value < static_cast<int>(cd.nsamples) && value >= 0)
+      if (value <= static_cast<int>(cd.nsamples) && value >= 1)
       {
+		value--;
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
         holovibes_.get_pipe()->request_refresh();
       }
       else
-        display_error("q param has to be between 0 and phase #");
+        display_error("q param has to be between 1 and phase #");
     }
   }
 
@@ -2041,19 +2037,17 @@ namespace gui
 
       cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
-      // Special
-      special_action->setChecked(!ptree.get<bool>("special.hidden", false));
-      special_group_box->setHidden(ptree.get<bool>("special.hidden", false));
-
+      // Post Processing
+      special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
+      special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
       cd.vibrometry_enabled.exchange(
-        ptree.get<bool>("special.image_ratio_enabled", cd.vibrometry_enabled));
-
+        ptree.get<bool>("post_processing.image_ratio_enabled", cd.vibrometry_enabled));
       cd.vibrometry_q.exchange(
-        ptree.get<int>("special.image_ratio_q", cd.vibrometry_q));
-
-      is_enabled_average_ = ptree.get<bool>("special.average_enabled", is_enabled_average_);
-
-      // Record
+        ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q));
+      is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
+	  cd.special_buffer_size.exchange(ptree.get<int>("post_processing.buffer_size", cd.special_buffer_size));
+     
+	  // Record
       record_action->setChecked(!ptree.get<bool>("record.hidden", false));
       record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
 
@@ -2074,9 +2068,6 @@ namespace gui
 	  cd.autofocus_z_max = ptree.get<float>("autofocus.z_max", cd.autofocus_z_max);
 	  cd.autofocus_z_div = ptree.get<unsigned int>("autofocus.steps", cd.autofocus_z_div);
 	  cd.autofocus_z_iter = ptree.get<unsigned int>("autofocus.loops", cd.autofocus_z_iter);
-
-	  //Special buffer
-	  cd.special_buffer_size.exchange(ptree.get<int>("special_buffer.size", cd.special_buffer_size));
 
 	  //flowgraphy
 	  unsigned int flowgraphy_level = ptree.get<unsigned int>("flowgraphy.level", cd.flowgraphy_level);
@@ -2133,11 +2124,12 @@ namespace gui
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
 
-    // Special
-    ptree.put("special.hidden", special_group_box->isHidden());
-    ptree.put("special.image_ratio_enabled", cd.vibrometry_enabled);
-    ptree.put("special.image_ratio_q", cd.vibrometry_q);
-    ptree.put("special.average_enabled", is_enabled_average_);
+    // Post-processing
+    ptree.put("post_processing.hidden", special_group_box->isHidden());
+    ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
+    ptree.put("post_processing.image_ratio_q", cd.vibrometry_q);
+    ptree.put("post_processing.average_enabled", is_enabled_average_);
+	ptree.put("post_processing.buffer_size", cd.special_buffer_size);
 
     // Record
     ptree.put("record.hidden", record_group_box->isHidden());
@@ -2156,9 +2148,6 @@ namespace gui
 	ptree.put("autofocus.z_max", cd.autofocus_z_max);
 	ptree.put("autofocus.steps", cd.autofocus_z_div);
 	ptree.put("autofocus.loops", cd.autofocus_z_iter);
-
-	//special buffer
-	ptree.put("special_buffer.size", cd.special_buffer_size);
 
 	//flowgraphy
 	ptree.put("flowgraphy.level", cd.flowgraphy_level);

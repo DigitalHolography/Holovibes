@@ -545,11 +545,6 @@
          </item>
          <item>
           <property name="text">
-           <string>phase 1</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
            <string>phase 2</string>
           </property>
          </item>
@@ -845,7 +840,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Special</string>
+         <string>Post-processing</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -1283,7 +1278,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Special Buffer Size</string>
+          <string>Buffer Size</string>
          </property>
         </widget>
        </widget>
@@ -2071,7 +2066,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2241,7 +2236,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Special</string>
+    <string>Post-processing</string>
    </property>
    <property name="shortcut">
     <string>Alt+S</string>
