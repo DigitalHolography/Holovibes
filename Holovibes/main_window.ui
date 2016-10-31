@@ -1514,7 +1514,7 @@
           <rect>
            <x>10</x>
            <y>60</y>
-           <width>171</width>
+           <width>81</width>
            <height>21</height>
           </rect>
          </property>
@@ -1629,6 +1629,31 @@
          </property>
          <property name="text">
           <string/>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>60</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Complex output</string>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
        </widget>
@@ -1933,7 +1958,12 @@
          </item>
          <item>
           <property name="text">
-           <string>FLOAT 32</string>
+           <string>32 (float)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>64 (complex)</string>
           </property>
          </item>
         </widget>
@@ -2203,7 +2233,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

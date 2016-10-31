@@ -347,6 +347,15 @@ namespace holovibes
 			static_cast<cudaStream_t>(0)));
 	}
 
+	if (complex_output_requested_)
+	{
+		fn_vect_.push_back(std::bind(
+			&Pipe::record_complex,
+			this,
+			gpu_input_frame_ptr_,
+			static_cast<cudaStream_t>(0)));
+	}
+	
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {

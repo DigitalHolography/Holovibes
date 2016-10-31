@@ -132,6 +132,13 @@ namespace holovibes
     /*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
     void request_float_output_stop();
 
+	/*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
+	void request_complex_output(Queue* fqueue);
+
+	/*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
+	void request_complex_output_stop();
+
+
     /*! \brief Ask for the end of the execution loop. */
     void request_termination();
     /*! \} */ // End of requests group.
@@ -237,6 +244,9 @@ namespace holovibes
     /*! \brief Add frame in fqueue_. */
     void record_float(float* float_output, cudaStream_t stream);
 
+	/*! \brief Add frame in fqueue_. */
+	void record_complex(cufftComplex* complex_output, cudaStream_t stream);
+
     /*! \brief Print fps each 100 frames
     **
     ** Use InfoManager */
@@ -293,6 +303,7 @@ namespace holovibes
     bool average_requested_;
     bool average_record_requested_;
     bool float_output_requested_;
+	bool complex_output_requested_;
     bool abort_construct_requested_;
     bool termination_requested_;
     /*! \} */
@@ -318,8 +329,6 @@ namespace holovibes
     /*! \} */
     /*! \brief containt all var needed by auto_focus */
     af_env        af_env_;
-    /*! \brief Buffer use to read gpu buffer and write it to float_output_file_*/
-    float*        cpu_float_buffer_;
     /*! \brief Ofstream use by float_output_recorder. */
     std::ofstream float_output_file_;
   };

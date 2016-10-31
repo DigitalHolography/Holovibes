@@ -1251,6 +1251,7 @@ namespace gui
     QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
     QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+	QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
 
     int nb_of_frames = nb_of_frames_spinbox->value();
     std::string path = path_line_edit->text().toUtf8();
@@ -1263,10 +1264,19 @@ namespace gui
         std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
         camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
-        frame_desc.depth = sizeof(float);
+        frame_desc.depth = sizeof (float);
         queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
         pipe->request_float_output(queue);
       }
+	  else if (complex_output_checkbox->isChecked() && !is_direct_mode())
+	  {
+		  std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
+		  camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
+
+		  frame_desc.depth = sizeof (cufftComplex);
+		  queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
+		  pipe->request_complex_output(queue);
+	  }
       else if (is_direct_mode())
         queue = &holovibes_.get_capture_queue();
       else
@@ -1295,11 +1305,13 @@ namespace gui
   void MainWindow::finished_image_record()
   {
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-
+	QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
     record_thread_.reset(nullptr);
     display_info("Record done");
     if (float_output_checkbox->isChecked() && !is_direct_mode())
       holovibes_.get_pipe()->request_float_output_stop();
+	if (complex_output_checkbox->isChecked() && !is_direct_mode())
+		holovibes_.get_pipe()->request_complex_output_stop();
     if (!is_direct_mode())
       global_visibility(true);
     record_but_cancel_visible(true);

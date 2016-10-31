@@ -77,6 +77,11 @@ namespace holovibes
 
     /*! \brief Doing the ol'dirty way that was working */
     void autofocus_caller(float* input, cudaStream_t stream) override;
+
+	/*TODO:*/
+
+	void complex_pipe();
+
   private:
     /*! \brief Core of the pipe */
     FnVector fn_vect_;

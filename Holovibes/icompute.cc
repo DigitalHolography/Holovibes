@@ -50,7 +50,6 @@ namespace holovibes
     , average_output_(nullptr)
     , average_n_(0)
     , af_env_({ 0 })
-    , cpu_float_buffer_(nullptr)
     , past_time_(std::chrono::high_resolution_clock::now())
   {
     const unsigned short nsamples = desc.nsamples;
@@ -305,7 +304,7 @@ namespace holovibes
     else
       cudaDestroy<cudaError_t>(&q_gpu_stft_buffer_);
 
-    if (!float_output_requested_ && fqueue_)
+    if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
     {
       delete fqueue_;
       fqueue_ = nullptr;
@@ -365,6 +364,20 @@ namespace holovibes
     float_output_requested_ = false;
     request_refresh();
   }
+
+  void ICompute::request_complex_output(Queue* fqueue)
+  {
+	  fqueue_ = fqueue;
+	  complex_output_requested_ = true;
+	  request_refresh();
+  }
+
+  void ICompute::request_complex_output_stop()
+  {
+	  complex_output_requested_ = false;
+	  request_refresh();
+  }
+
 
   void ICompute::request_termination()
   {
@@ -472,6 +485,12 @@ namespace holovibes
   {
     // TODO: use stream in enqueue
     fqueue_->enqueue(float_output, cudaMemcpyDeviceToDevice);
+  }
+
+  void ICompute::record_complex(cufftComplex* complex_output, cudaStream_t stream)
+  {
+	  // TODO: use stream in enqueue aswell
+	  fqueue_->enqueue(complex_output, cudaMemcpyDeviceToDevice);
   }
 
   void ICompute::average_caller(
