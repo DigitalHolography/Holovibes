@@ -280,6 +280,9 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 		global_visibility(false);
+
+		QAction* settings = findChild<QAction*>("actionSettings");
+		settings->setEnabled(false);
 	}
 
 	void MainWindow::camera_adimec()
@@ -1668,6 +1671,8 @@ namespace gui
     boundary->insert(QString::number(holovibes_.get_boundary()));
 	if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 		big_endian_checkbox->setEnabled(true);
+	QAction* settings = findChild<QAction*>("actionSettings");
+	settings->setEnabled(false);
   }
 
   void MainWindow::import_start_spinbox_update()
@@ -1810,8 +1815,6 @@ namespace gui
 	holo->setEnabled(value);
 	QRadioButton* demo = findChild<QRadioButton*>("demodulationRadioButton");
 	demo->setEnabled(value);
-    QAction* settings = findChild<QAction*>("actionSettings");
-    settings->setDisabled(!value);
   }
 
   void MainWindow::contrast_visible(const bool value)
@@ -1910,6 +1913,9 @@ namespace gui
         QLineEdit* boundary = findChild<QLineEdit*>("boundary");
         boundary->clear();
         boundary->insert(QString::number(holovibes_.get_boundary()));
+
+		QAction* settings = findChild<QAction*>("actionSettings");
+		settings->setEnabled(true);
       }
       catch (camera::CameraException& e)
       {
