@@ -1513,7 +1513,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
+           <y>80</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1528,7 +1528,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Float output</string>
+          <string>Float</string>
          </property>
          <property name="tristate">
           <bool>false</bool>
@@ -1635,8 +1635,13 @@
          <property name="geometry">
           <rect>
            <x>100</x>
+<<<<<<< 63285cab91826dadbde8996580d3f26a829ebc30
            <y>60</y>
            <width>111</width>
+=======
+           <y>80</y>
+           <width>101</width>
+>>>>>>> Add : complex reader for demodulation & holographic mode
            <height>21</height>
           </rect>
          </property>
@@ -1650,10 +1655,23 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Complex output</string>
+          <string>Complex</string>
          </property>
          <property name="tristate">
           <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="numberOfFramesLabel_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>91</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Output :</string>
          </property>
         </widget>
        </widget>

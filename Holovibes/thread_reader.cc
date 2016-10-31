@@ -41,10 +41,10 @@ namespace holovibes
 	  if (is_cine_file_ == true)
 		  proc_cine_file();
 	  else
-		  proc_8_16_32();
+		  proc_default();
   }
 
-  void	ThreadReader::proc_8_16_32()
+  void	ThreadReader::proc_default()
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;

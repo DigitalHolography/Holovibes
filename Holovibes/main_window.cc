@@ -1654,7 +1654,8 @@ namespace gui
 		depth_multi = 2;
 	else if (depth_spinbox->currentIndex() == 2)
 		depth_multi = 4;
-
+	else if (depth_spinbox->currentIndex() == 3)
+		depth_multi = 8;
 	camera::FrameDescriptor frame_desc = {
 		width_spinbox->value(),
 		height_spinbox->value(),
