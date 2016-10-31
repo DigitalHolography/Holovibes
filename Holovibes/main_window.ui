@@ -65,6 +65,12 @@
           <pointsize>8</pointsize>
          </font>
         </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
         <property name="title">
          <string>Image rendering</string>
         </property>
@@ -412,6 +418,22 @@
           <double>5.420000000000000</double>
          </property>
         </widget>
+        <widget class="QLabel" name="ImageRenderingShorcut_label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>91</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + D</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -424,6 +446,12 @@
           <pointsize>8</pointsize>
           <kerning>true</kerning>
          </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
         </property>
         <property name="title">
          <string>View</string>
@@ -829,6 +857,22 @@
           <string>Phase cumulation:</string>
          </property>
         </widget>
+        <widget class="QLabel" name="ViewShorcut_label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + V</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -838,6 +882,12 @@
           <width>0</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
         </property>
         <property name="title">
          <string>Post-processing</string>
@@ -1281,10 +1331,32 @@
           <string>Buffer Size</string>
          </property>
         </widget>
+        <widget class="QLabel" name="Post_processing_label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>91</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + S</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="gui::GroupBox" name="Record">
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
         <property name="title">
          <string>Record</string>
         </property>
@@ -1543,10 +1615,32 @@
           <string>ROI output:</string>
          </property>
         </widget>
+        <widget class="QLabel" name="RecordShotcut_Label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + R</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="gui::GroupBox" name="Import">
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
         <property name="title">
          <string>Import</string>
         </property>
@@ -1981,6 +2075,22 @@
           <bool>false</bool>
          </property>
         </widget>
+        <widget class="QLabel" name="ImportShorcut_Label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + I</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -1990,6 +2100,12 @@
           <width>0</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
         </property>
         <property name="title">
          <string>Info</string>
@@ -2052,6 +2168,22 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="format">
           <string>%v/%m</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="InfoShorcut_Label">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>41</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Alt + N</string>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </widget>
