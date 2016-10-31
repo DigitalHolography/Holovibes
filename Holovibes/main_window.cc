@@ -769,7 +769,7 @@ namespace gui
 			  {
 				  if (value == "phase 1")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-				  else if (value == "phase 2")
+				  else if (value == "phase increase")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
 			  }
 		  }
