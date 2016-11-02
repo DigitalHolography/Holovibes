@@ -544,9 +544,9 @@
         <widget class="QComboBox" name="viewModeComboBox">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>70</x>
            <y>30</y>
-           <width>101</width>
+           <width>111</width>
            <height>20</height>
           </rect>
          </property>
@@ -2026,7 +2026,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>91</width>
+           <width>61</width>
            <height>20</height>
           </rect>
          </property>

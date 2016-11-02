@@ -313,23 +313,22 @@ namespace gui
 	void MainWindow::credits()
 	{
 		display_info("Holovibes " + holovibes::version + "\n\n"
-			"Scientists:\n"
-			"Michael Atlan\n"
-			"\n"
+			
 			"Developers:\n"
 			"Cyril Cetre\n"
 			"Clément Ledant\n"
-			"\n"
+			
 			"Eric Delanghe\n"
 			"Arnaud Gaillard\n"
 			"Geoffrey Le Gourriérec\n"
-			"\n"
+			
 			"Jeffrey Bencteux\n"
 			"Thomas Kostas\n"
 			"Pierre Pagnoux\n"
-			"\n"
+			
 			"Antoine Dillée\n"
-			"Romain Cancillière\n");
+			"Romain Cancillière\n"
+			"Michael Atlan\n");
 	}
 
 	void MainWindow::configure_camera()
