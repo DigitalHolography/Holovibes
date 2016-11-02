@@ -14,7 +14,7 @@ namespace holovibes
     Config()
     {
       this->input_queue_max_size = 100;
-      this->output_queue_max_size = 20;
+      this->output_queue_max_size = 50;
       this->float_queue_max_size = 20;
       this->flush_on_refresh = 1;
       this->frame_timeout = 1e5;
