@@ -1981,13 +1981,13 @@ namespace gui
     {
       holovibes::Config& config = global::global_config;
       // Config
-      config.input_queue_max_size = ptree.get<int>("config.input_queue_max_size", config.input_queue_max_size);
-      config.output_queue_max_size = ptree.get<int>("config.output_queue_max_size", config.output_queue_max_size);
-      config.float_queue_max_size = ptree.get<int>("config.float_queue_max_size", config.float_queue_max_size);
+      config.input_queue_max_size = ptree.get<int>("config.input_queue_size", config.input_queue_max_size);
+      config.output_queue_max_size = ptree.get<int>("config.output_queue_size", config.output_queue_max_size);
+      config.float_queue_max_size = ptree.get<int>("config.float_queue_size", config.float_queue_max_size);
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-      config.reader_buf_max_size = ptree.get<int>("config.reader_buf_max_size", config.reader_buf_max_size);
-      config.unwrap_history_size = ptree.get<int>("config.unwrap_history_size", config.unwrap_history_size);
+      config.reader_buf_max_size = ptree.get<int>("config.reader_buf_size", config.reader_buf_max_size);
+      config.unwrap_history_size = ptree.get<int>("config.accumulation_phase", config.unwrap_history_size);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -2102,13 +2102,13 @@ namespace gui
     holovibes::Config& config = global::global_config;
 
     // Config
-    ptree.put("config.input_queue_max_size", config.input_queue_max_size);
-    ptree.put("config.output_queue_max_size", config.output_queue_max_size);
-    ptree.put("config.float_queue_max_size", config.float_queue_max_size);
+    ptree.put("config.input_queue_size", config.input_queue_max_size);
+    ptree.put("config.output_queue_size", config.output_queue_max_size);
+    ptree.put("config.float_queue_size", config.float_queue_max_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
-    ptree.put("config.reader_buf_max_size", config.reader_buf_max_size);
-    ptree.put("config.unwrap_history_size", config.unwrap_history_size);
+    ptree.put("config.reader_buf_size", config.reader_buf_max_size);
+    ptree.put("config.accumulation_size", config.unwrap_history_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
