@@ -1635,13 +1635,8 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-<<<<<<< 63285cab91826dadbde8996580d3f26a829ebc30
-           <y>60</y>
-           <width>111</width>
-=======
            <y>80</y>
-           <width>101</width>
->>>>>>> Add : complex reader for demodulation & holographic mode
+           <width>111</width>
            <height>21</height>
           </rect>
          </property>

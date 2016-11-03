@@ -1617,13 +1617,15 @@ namespace gui
   void MainWindow::set_float_visible(bool value)
   {
 	  QCheckBox* complex_checkbox  = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-	  complex_checkbox->setEnabled(!value);
+	  if (complex_checkbox->isChecked() && value == true)
+		  complex_checkbox->setChecked(false);
   }
 
   void MainWindow::set_complex_visible(bool value)
   {
 	  QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-	  float_checkbox->setEnabled(!value);
+	  if (float_checkbox->isChecked() && value == true)
+		  float_checkbox->setChecked(false);
   }
 
 

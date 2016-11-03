@@ -200,6 +200,8 @@ namespace gui
 		  depth = GL_UNSIGNED_BYTE;
 
 	  auto kind = GL_RED;
+	  if (frame_desc_.depth == 8)
+		  kind = GL_RG;
 
 	  glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
 	  glGenerateMipmap(GL_TEXTURE_2D); 
