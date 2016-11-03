@@ -1687,7 +1687,7 @@ namespace gui
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->clear();
     boundary->insert(QString::number(holovibes_.get_boundary()));
-	if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
+	if (depth_spinbox->currentText() != QString("8") && cine->isChecked() == false)
 		big_endian_checkbox->setEnabled(true);
 	QAction* settings = findChild<QAction*>("actionSettings");
 	settings->setEnabled(false);

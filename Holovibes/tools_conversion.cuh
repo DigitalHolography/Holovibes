@@ -152,7 +152,10 @@ void float_to_ushort(
   const unsigned int size,
   cudaStream_t stream = 0);
 
-void float_to_ushort_no_stream(
-	const float* input,
-	unsigned short* output,
-	const unsigned int size);
+/*Todo:*/
+
+void complex_to_ushort(
+	const cufftComplex* input,
+	unsigned int* output,
+	const unsigned int size,
+	cudaStream_t stream = 0);

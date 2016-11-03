@@ -121,7 +121,7 @@ void make_contiguous_complex(
 	else if (frame_desc.depth == 8)
 	{
 		cudaMemcpy(output, input.get_start(), contiguous_elts_res, cudaMemcpyDeviceToDevice);
-		//cudaMemcpy(output + contiguous_elts_res, input.get_buffer(), left_elts_res, cudaMemcpyDeviceToDevice);
+		cudaMemcpy(output + contiguous_elts_res, input.get_buffer(), left_elts_res, cudaMemcpyDeviceToDevice);
 	}
   }
 }

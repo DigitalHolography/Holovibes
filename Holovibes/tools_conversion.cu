@@ -17,9 +17,9 @@ __global__ void img8_to_complex(
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-    float val  = sqrt(static_cast<float>(input[index] * 257));
+    float val  = sqrt(static_cast<float>(2 * (input[index] * 257)));
 	output[index].x = val;//static_cast<float>(input[index] * 257);
-    output[index].y = val;
+	output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -37,8 +37,9 @@ __global__ void img16_to_complex(
 
   while (index < size)
   {
-	  float val = sqrt(static_cast<float>(input[index]));
-	  output[index].x = val;
+	//  float val = sqrt(static_cast<float>(input[index]));
+	  float val = static_cast<float>(input[index]);
+	  output[index].x = val;//static_cast<float>(input[index]);
 	  output[index].y = val;
     index += blockDim.x * gridDim.x;
   }
@@ -302,6 +303,34 @@ static __global__ void kernel_float_to_ushort(
   }
 }
 
+static __global__ void kernel_complex_to_ushort(
+	const cufftComplex* input,
+	unsigned int * output,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		unsigned short x = 0;
+		unsigned short y = 0;
+		if (input[index].x > 65535.0f)
+			x = 65535;
+		else if (input[index].x >= 1.0f)
+		x = static_cast<unsigned short>(pow(input[index].x, 2));
+		
+		if (input[index].y > 65535.0f)
+			y = 65535;
+		else if (input[index].y >= 0.0f)
+			y = static_cast<unsigned short>(pow(input[index].y, 2));
+		auto& res = output[index];
+		res ^ res;
+		res = x << 16;
+		res += y;
+		index += blockDim.x * gridDim.x;
+	}
+}
+
 void float_to_ushort(
   const float* input,
   unsigned short* output,
@@ -314,13 +343,14 @@ void float_to_ushort(
   kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
-void float_to_ushort_no_stream(
-	const float* input,
-	unsigned short* output,
-	const unsigned int size)
+void complex_to_ushort(
+	const cufftComplex* input,
+	unsigned int* output,
+	const unsigned int size,
+	cudaStream_t stream)
 {
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(size, threads);
 
-	kernel_float_to_ushort << <blocks, threads, 0 >> >(input, output, size);
+	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }

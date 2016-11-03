@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
 
   holovibes::Holovibes h;
   h.set_compute_desc(opts.compute_desc);
-
   if (opts.is_gui_enabled)
   {
     /* --- GUI mode --- */

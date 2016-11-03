@@ -134,8 +134,9 @@ namespace gui
 
     //frame_desc_.frame_size();
 	unsigned int size = frame_desc_.frame_size();
-	if (frame_desc_.depth == 4)
+	if (frame_desc_.depth == 4 || frame_desc_.depth == 8)
 		size /= 2;
+
 
     /* Creates and initialize a buffer object's data store. */
     glBufferData(
@@ -162,51 +163,63 @@ namespace gui
 
   void GLWidget::paintGL()
   {
-    glEnable(GL_TEXTURE_2D);
-    glClear(GL_COLOR_BUFFER_BIT);
+	  glEnable(GL_TEXTURE_2D);
+	  glClear(GL_COLOR_BUFFER_BIT);
 
-    const void* frame = queue_.get_last_images(1);
+	  const void* frame = queue_.get_last_images(1);
 
-	void *tmp = nullptr;
-    /* Map the buffer for access by CUDA. */
-    cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
-    size_t buffer_size;
-    void* buffer_ptr;
-    cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
-    /* CUDA memcpy of the frame to opengl buffer. */
-	if (frame_desc_.depth != 4)
-		cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
-	else
-		float_to_ushort(static_cast<const float *>(frame), static_cast<unsigned short *> (buffer_ptr), frame_desc_.frame_res());
-    /* Unmap the buffer for access by CUDA. */
-    cudaGraphicsUnmapResources(1, &cuda_buffer_, cuda_stream_);
+	  void *tmp = nullptr;
+	  /* Map the buffer for access by CUDA. */
+	  cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
+	  size_t buffer_size;
+	  void* buffer_ptr;
+	  cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
+	  /* CUDA memcpy of the frame to opengl buffer. */
 
-    /* Bind the buffer object to the target GL_PIXEL_UNPACK_BUFFER.
-     * This affects glTexImage2D command. */
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer_);
+	  if (frame_desc_.depth == 4)
+		  float_to_ushort(static_cast<const float *>(frame), static_cast<unsigned short *> (buffer_ptr), frame_desc_.frame_res());
+	  else if (frame_desc_.depth == 8)
+		  complex_to_ushort(static_cast<const cufftComplex *>(frame), static_cast<unsigned int *> (buffer_ptr), frame_desc_.frame_res());
+	  else
+		  cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 
-    if (frame_desc_.endianness == camera::BIG_ENDIAN)
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-    else
-      glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
-	
+	  /* Unmap the buffer for access by CUDA. */
+	  cudaGraphicsUnmapResources(1, &cuda_buffer_, cuda_stream_);
 
-	auto depth = GL_UNSIGNED_SHORT;
-	if (frame_desc_.depth == 1)
-		depth = GL_UNSIGNED_BYTE;
-	if (frame_desc_.depth == 2)
-		depth = GL_UNSIGNED_SHORT;
-	
-	auto kind = GL_RED;
+	  /* Bind the buffer object to the target GL_PIXEL_UNPACK_BUFFER.
+	   * This affects glTexImage2D command. */
+	  glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer_);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
-	glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+	  if (frame_desc_.endianness == camera::BIG_ENDIAN)
+		  glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+	  else
+		  glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+
+	  auto depth = GL_UNSIGNED_SHORT;
+	  if (frame_desc_.depth == 1)
+		  depth = GL_UNSIGNED_BYTE;
+	  if (frame_desc_.depth == 2 || frame_desc_.depth == 4)
+		  depth = GL_UNSIGNED_SHORT;
+
+	  auto kind = GL_RED;
+	  if (frame_desc_.depth == 8)
+		  kind = GL_RG;
+	  glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
+	  glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	  if (frame_desc_.depth == 8)
+	  {
+		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+	  }
+	  else
+	  {
+		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+	  }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     glBegin(GL_QUADS);
