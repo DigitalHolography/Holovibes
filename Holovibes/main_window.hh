@@ -374,6 +374,11 @@ namespace gui
     /*! \brief Stop average/ROI record */
     void stop_csv_record();
 
+	/*! \brief set float output mode */
+	void set_float_visible(bool value);
+	/*! \brief set complex output mode */
+	void set_complex_visible(bool value);
+
     /*! \brief Set import file src */
     void import_browse_file();
     /*! \brief Run thread_reader */

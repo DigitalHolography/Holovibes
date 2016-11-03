@@ -319,11 +319,11 @@ static __global__ void kernel_complex_to_ushort(
 	{
 		unsigned short x = 0;
 		unsigned short y = 0;
-		/*if (input[index].x > 65535.0f)
+		if (input[index].x > 65535.0f)
 			x = 65535;
 		else if (input[index].x >= 1.0f)
 		x = static_cast<unsigned short>(pow(input[index].x, 2));
-		*/
+		
 		if (input[index].y > 65535.0f)
 			y = 65535;
 		else if (input[index].y >= 0.0f)

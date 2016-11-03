@@ -1614,6 +1614,20 @@ namespace gui
     }
   }
 
+  void MainWindow::set_float_visible(bool value)
+  {
+	  QCheckBox* complex_checkbox  = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+	  complex_checkbox->setEnabled(!value);
+  }
+
+  void MainWindow::set_complex_visible(bool value)
+  {
+	  QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+	  float_checkbox->setEnabled(!value);
+  }
+
+
+
   void MainWindow::import_browse_file()
   {
     QString filename = QFileDialog::getOpenFileName(this,
@@ -1770,6 +1784,9 @@ namespace gui
 
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
     float_output_checkbox->setDisabled(!value);
+
+	QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+	complex_output_checkbox->setDisabled(!value);
 
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);

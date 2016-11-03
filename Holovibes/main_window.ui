@@ -3841,6 +3841,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>RecordComplexOutputCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_complex_visible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>860</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>888</x>
+     <y>112</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RecordFloatOutputCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_float_visible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>720</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -3918,5 +3950,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_import_pixel_size(double)</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
+  <slot>set_float_visible(bool)</slot>
+  <slot>set_complex_visible(bool)</slot>
  </slots>
 </ui>
