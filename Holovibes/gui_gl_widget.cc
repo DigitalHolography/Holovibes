@@ -198,20 +198,20 @@ namespace gui
 	  auto depth = GL_UNSIGNED_SHORT;
 	  if (frame_desc_.depth == 1)
 		  depth = GL_UNSIGNED_BYTE;
-	  if (frame_desc_.depth == 2 || frame_desc_.depth == 4)
-		  depth = GL_UNSIGNED_SHORT;
 
 	  auto kind = GL_RED;
 	  if (frame_desc_.depth == 8)
 		  kind = GL_RG;
+
 	  glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
-	  glGenerateMipmap(GL_TEXTURE_2D);  //Generate mipmaps now!!!
+	  glGenerateMipmap(GL_TEXTURE_2D); 
 	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	  if (frame_desc_.depth == 8)
 	  {
+		  //We replace the green color by the blue one for complex display
 		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
 		  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
 	  }
