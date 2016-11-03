@@ -1,4 +1,4 @@
-# Holovibes v2.0.0 #
+# Holovibes v2.2.0 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -339,6 +339,12 @@ Cyril, Clément are now working on the project until January 2017.
 * Add cine file parsing
 * Add GUI themes 
 
+### v.2.2.0
+
+* Add float file import
+* Add complex file write/import
+* Add complex color display
+* several GUI changes
 
 # Known problems :
 
