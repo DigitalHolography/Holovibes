@@ -172,4 +172,5 @@ __global__ void	kernel_buffer_size_conversion(char *real_buffer
 	, const char *buffer
 	, const size_t frame_desc_width
 	, const size_t frame_desc_height
-	, const size_t real_frame_desc_width);
+	, const size_t real_frame_desc_width
+	, const size_t area);
