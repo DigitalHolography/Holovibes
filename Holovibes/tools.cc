@@ -86,20 +86,17 @@ namespace holovibes
 	void	buffer_size_conversion(char *real_buffer
 		, const char *buffer
 		, const camera::FrameDescriptor real_frame_desc
-		, const camera::FrameDescriptor frame_desc
-		, const unsigned int elts_max_nbr)
+		, const camera::FrameDescriptor frame_desc)
 	{
 		size_t		cur_line = 0;
 		size_t		cur_elmt = 0;
 		size_t		real_line_size = real_frame_desc.depth * real_frame_desc.width;
 		size_t		line_size = frame_desc.depth * frame_desc.width;
 
-		while (cur_elmt < elts_max_nbr)
-		{
 			while (cur_line < frame_desc.height)
 			{
-				cudaMemcpy(real_buffer + (cur_elmt * real_frame_desc.frame_size())  + (cur_line * real_line_size)
-					, buffer + (cur_elmt * frame_desc.frame_size()) + (cur_line * line_size)
+				cudaMemcpy(real_buffer + (cur_line * real_line_size)
+					, buffer + (cur_line * line_size)
 					, line_size
 					, cudaMemcpyDeviceToDevice);
 				cudaMemset(real_buffer + (cur_line * real_line_size) + line_size
@@ -107,15 +104,5 @@ namespace holovibes
 					, real_line_size - line_size);
 				cur_line++;
 			}
-			while (cur_line < real_frame_desc.height)
-			{
-				cudaMemset(real_buffer + (cur_elmt * real_frame_desc.frame_size()) + (cur_line * real_line_size)
-					, 0
-					, real_line_size);
-				cur_line++;
-			}
-			cur_elmt++;
-			cur_line = 0;
-		}
 	}
 }

@@ -62,7 +62,7 @@ namespace holovibes
 
 	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
 	  if (real_frame_desc_.width != frame_desc_.width && real_frame_desc_.height != frame_desc_.height)
-		cudaMallocHost(&real_buffer, real_frame_size * elts_max_nbr);
+		cudaMallocHost(&real_buffer, real_frame_size);
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -70,6 +70,7 @@ namespace holovibes
 			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 		  pos = frame_size * (spanStart_ - 1);
 		  std::fsetpos(file, &pos);
+		  cudaMemset(real_buffer, 0, real_frame_desc_.frame_size());
 		  while (!stop_requested_)
 		  {
 			  if (!std::feof(file) && frameId_ <= spanEnd_)
@@ -79,13 +80,17 @@ namespace holovibes
 					  length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
 					  nbr_stored = length / frame_size;
 					  act_frame = 0;
-					  if (real_frame_desc_.width != frame_desc_.width && real_frame_desc_.height != frame_desc_.height)
-						  buffer_size_conversion(real_buffer, buffer, real_frame_desc_, frame_desc_, elts_max_nbr);
 				  }
 				  if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
 					  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
 				  else
-					  queue_.enqueue(real_buffer + act_frame * real_frame_size, cudaMemcpyHostToDevice);
+				  {
+					  buffer_size_conversion(real_buffer
+						  , buffer + act_frame * frame_size
+						  , real_frame_desc_
+						  , frame_desc_);
+					  queue_.enqueue(real_buffer, cudaMemcpyHostToDevice);
+				  }
 				  ++frameId_;
 				  ++act_frame;
 				  Sleep(1000 / fps_);

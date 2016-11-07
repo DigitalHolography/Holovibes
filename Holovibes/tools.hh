@@ -59,6 +59,5 @@ namespace holovibes
 	void	buffer_size_conversion(char *real_buffer
 		, const char *buffer
 		, const camera::FrameDescriptor real_frame_desc
-		, const camera::FrameDescriptor frame_desc
-		, const unsigned int elts_max_nbr);
+		, const camera::FrameDescriptor frame_desc);
 }
