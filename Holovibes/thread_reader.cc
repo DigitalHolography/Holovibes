@@ -8,11 +8,13 @@
 # include "thread_reader.hh"
 # include "queue.hh"
 # include "holovibes.hh"
+# include "tools.hh"
 
 namespace holovibes
 {
   ThreadReader::ThreadReader(std::string file_src,
-    camera::FrameDescriptor& frame_desc,
+    camera::FrameDescriptor& new_frame_desc,
+	camera::FrameDescriptor& frame_desc,
     bool loop,
     unsigned int fps,
     unsigned int spanStart,
@@ -23,6 +25,7 @@ namespace holovibes
     : IThreadInput()
     , file_src_(file_src)
     , frame_desc_(frame_desc)
+	, real_frame_desc_(new_frame_desc)
     , loop_(loop)
     , fps_(fps)
     , frameId_(spanStart)
@@ -47,8 +50,10 @@ namespace holovibes
   void	ThreadReader::proc_default()
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
+	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
-	  char*        buffer;
+	  char*        buffer = NULL;
+	  char*		   real_buffer = NULL;
 	  unsigned int nbr_stored = 0;
 	  unsigned int act_frame = 0;
 	  FILE*   file = nullptr;
@@ -56,6 +61,8 @@ namespace holovibes
 	  size_t  length = 0;
 
 	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
+	  if (real_frame_desc_.width != frame_desc_.width && real_frame_desc_.height != frame_desc_.height)
+		cudaMallocHost(&real_buffer, real_frame_size * elts_max_nbr);
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -72,8 +79,13 @@ namespace holovibes
 					  length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
 					  nbr_stored = length / frame_size;
 					  act_frame = 0;
+					  if (real_frame_desc_.width != frame_desc_.width && real_frame_desc_.height != frame_desc_.height)
+						  buffer_size_conversion(real_buffer, buffer, real_frame_desc_, frame_desc_, elts_max_nbr);
 				  }
-				  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
+					  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  else
+					  queue_.enqueue(real_buffer + act_frame * real_frame_size, cudaMemcpyHostToDevice);
 				  ++frameId_;
 				  ++act_frame;
 				  Sleep(1000 / fps_);
@@ -100,6 +112,8 @@ namespace holovibes
 	  }
 	  stop_requested_ = true;
 	  cudaFreeHost(buffer);
+	  if (real_buffer != NULL)
+		  cudaFreeHost(real_buffer);
   }
 
   void	ThreadReader::proc_cine_file()

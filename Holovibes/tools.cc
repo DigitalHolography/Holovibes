@@ -1,5 +1,7 @@
 #include <stdexcept>
 #include <iostream>
+#include <cuda.h>
+#include <cuda_runtime.h>
 #include "tools.hh"
 
 namespace holovibes
@@ -59,6 +61,61 @@ namespace holovibes
 		catch (std::runtime_error& e)
 		{
 			std::cout << e.what() << std::endl;
+		}
+	}
+
+	unsigned short	nearest_size(const unsigned short n)
+	{
+		double	pos = std::ceil(std::log2(n));
+		double	p = 0;
+			
+		p = std::pow(2, pos);
+		return (static_cast<unsigned short>(p));
+	}
+
+	unsigned short	nearest_window_size(const camera::FrameDescriptor frame)
+	{
+		unsigned short	pow_x = nearest_size(frame.width);
+		unsigned short	pow_y = nearest_size(frame.height);
+
+		if (pow_x > pow_y)
+			return (pow_x);
+		return (pow_y);
+	}
+
+	void	buffer_size_conversion(char *real_buffer
+		, const char *buffer
+		, const camera::FrameDescriptor real_frame_desc
+		, const camera::FrameDescriptor frame_desc
+		, const unsigned int elts_max_nbr)
+	{
+		size_t		cur_line = 0;
+		size_t		cur_elmt = 0;
+		size_t		real_line_size = real_frame_desc.depth * real_frame_desc.width;
+		size_t		line_size = frame_desc.depth * frame_desc.width;
+
+		while (cur_elmt < elts_max_nbr)
+		{
+			while (cur_line < frame_desc.height)
+			{
+				cudaMemcpy(real_buffer + (cur_elmt * real_frame_desc.frame_size())  + (cur_line * real_line_size)
+					, buffer + (cur_elmt * frame_desc.frame_size()) + (cur_line * line_size)
+					, line_size
+					, cudaMemcpyDeviceToDevice);
+				cudaMemset(real_buffer + (cur_line * real_line_size) + line_size
+					, 0
+					, real_line_size - line_size);
+				cur_line++;
+			}
+			while (cur_line < real_frame_desc.height)
+			{
+				cudaMemset(real_buffer + (cur_elmt * real_frame_desc.frame_size()) + (cur_line * real_line_size)
+					, 0
+					, real_line_size);
+				cur_line++;
+			}
+			cur_elmt++;
+			cur_line = 0;
 		}
 	}
 }

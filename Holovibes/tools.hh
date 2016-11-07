@@ -51,4 +51,14 @@ namespace holovibes
 	void	get_framerate_cinefile(FILE *file, std::string &file_src_);
 	/*! \brief Get exposure from .cine file */
 	void	get_exposure_cinefile(FILE *file, std::string &file_src_);
+	/*! \brief Calculate the nearest squared window */
+	unsigned short	nearest_window_size(const camera::FrameDescriptor frame);
+	/*! \brief Calculate the nearest power of two */
+	unsigned short	nearest_size(const unsigned short n);
+	/*! \brief Cast buffer into real_buffer*/
+	void	buffer_size_conversion(char *real_buffer
+		, const char *buffer
+		, const camera::FrameDescriptor real_frame_desc
+		, const camera::FrameDescriptor frame_desc
+		, const unsigned int elts_max_nbr);
 }
