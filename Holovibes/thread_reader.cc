@@ -61,8 +61,7 @@ namespace holovibes
 	  size_t  length = 0;
 
 	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
-	  if (real_frame_desc_.width != frame_desc_.width && real_frame_desc_.height != frame_desc_.height)
-		cudaMallocHost(&real_buffer, real_frame_size);
+	  cudaMallocHost(&real_buffer, real_frame_size);
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -117,8 +116,7 @@ namespace holovibes
 	  }
 	  stop_requested_ = true;
 	  cudaFreeHost(buffer);
-	  if (real_buffer != NULL)
-		  cudaFreeHost(real_buffer);
+	  cudaFreeHost(real_buffer);
   }
 
   void	ThreadReader::proc_cine_file()
