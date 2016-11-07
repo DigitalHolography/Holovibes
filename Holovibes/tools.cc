@@ -3,6 +3,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include "tools.hh"
+#include "tools_conversion.cuh"
 
 namespace holovibes
 {
@@ -81,28 +82,5 @@ namespace holovibes
 		if (pow_x > pow_y)
 			return (pow_x);
 		return (pow_y);
-	}
-
-	void	buffer_size_conversion(char *real_buffer
-		, const char *buffer
-		, const camera::FrameDescriptor real_frame_desc
-		, const camera::FrameDescriptor frame_desc)
-	{
-		size_t		cur_line = 0;
-		size_t		cur_elmt = 0;
-		size_t		real_line_size = real_frame_desc.depth * real_frame_desc.width;
-		size_t		line_size = frame_desc.depth * frame_desc.width;
-
-			while (cur_line < frame_desc.height)
-			{
-				cudaMemcpy(real_buffer + (cur_line * real_line_size)
-					, buffer + (cur_line * line_size)
-					, line_size
-					, cudaMemcpyDeviceToDevice);
-				cudaMemset(real_buffer + (cur_line * real_line_size) + line_size
-					, 0
-					, real_line_size - line_size);
-				cur_line++;
-			}
 	}
 }

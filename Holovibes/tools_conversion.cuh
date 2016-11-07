@@ -11,6 +11,7 @@
 #  define _USE_MATH_DEFINES
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
+# include "frame_desc.hh"
 
 /* CONVERSION FUNCTIONS */
 
@@ -159,3 +160,16 @@ void complex_to_ushort(
 	unsigned int* output,
 	const unsigned int size,
 	cudaStream_t stream = 0);
+
+/*! \brief Cast buffer into real_buffer*/
+void	buffer_size_conversion(char *real_buffer
+	, const char *buffer
+	, const camera::FrameDescriptor real_frame_desc
+	, const camera::FrameDescriptor frame_desc);
+
+/*! \brief Cuda Kernel for buffer_size_conversion*/
+__global__ void	kernel_buffer_size_conversion(char *real_buffer
+	, const char *buffer
+	, const size_t frame_desc_width
+	, const size_t frame_desc_height
+	, const size_t real_frame_desc_width);

@@ -359,3 +359,33 @@ void complex_to_ushort(
 
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
+
+__global__ void	kernel_buffer_size_conversion(char *real_buffer
+	, const char *buffer
+	, const size_t frame_desc_width
+	, const size_t frame_desc_height
+	, const size_t real_frame_desc_width)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < (frame_desc_height * real_frame_desc_width)
+		&& (index % real_frame_desc_width) < frame_desc_width)
+	{
+		real_buffer[index] = *(buffer + (index / real_frame_desc_width) * frame_desc_width + (index % real_frame_desc_width));
+	}
+}
+
+void	buffer_size_conversion(char *real_buffer
+	, const char *buffer
+	, const camera::FrameDescriptor real_frame_desc
+	, const camera::FrameDescriptor frame_desc)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width), threads);
+
+	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(real_buffer
+		, buffer
+		, frame_desc.width
+		, frame_desc.height
+		, real_frame_desc.width);
+}
