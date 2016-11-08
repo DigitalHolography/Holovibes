@@ -51,6 +51,19 @@ namespace holovibes
     cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
     cufftSetStream(plan3d_, static_cast<cudaStream_t>(0));
 
+	/*Creating new Queue for phase accumulation*/
+	const camera::FrameDescriptor old_fd = input_.get_frame_desc();
+	camera::FrameDescriptor new_fd;
+
+	new_fd.width = old_fd.width;
+	new_fd.height = old_fd.height;
+	new_fd.depth = 8;
+	new_fd.pixel_size = old_fd.pixel_size;
+
+	img_acc_ = new holovibes::Queue(new_fd, 20, "AccumulationQueue");
+
+	cudaMalloc<cufftComplex>(&acc_complex_output, input_.get_pixels() * sizeof(cufftComplex));
+
     refresh();
   }
 
@@ -64,6 +77,10 @@ namespace holovibes
 
     /* gpu_input_buffer */
     cudaFree(gpu_input_buffer_);
+
+	delete img_acc_;
+
+	cudaFree(acc_complex_output);
   }
 
   void Pipe::update_n_parameter(unsigned short n)
@@ -356,6 +373,13 @@ namespace holovibes
 			static_cast<cudaStream_t>(0)));
 	}
 	
+	/*Add image to phase accumulation buffer*/
+	
+	fn_vect_.push_back(std::bind(
+		&Pipe::add_img_to_img_acc_buffer,
+		this,
+		gpu_input_frame_ptr_));
+
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {
@@ -384,6 +408,25 @@ namespace holovibes
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
     }
+	else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
+	{
+		fn_vect_.push_back(std::bind(
+			accumulate_images,
+			static_cast<cufftComplex *>(img_acc_->get_buffer()),
+			acc_complex_output,
+			img_acc_->get_start_index(),
+			img_acc_->get_max_elts(),
+			20,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+
+		fn_vect_.push_back(std::bind(
+			complex_to_modulus,
+			acc_complex_output,
+			gpu_float_buffer_,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+	}
     else
     {
       if (!unwrap_res_)
@@ -709,6 +752,11 @@ namespace holovibes
 
     cudaFree(gpu_float_buffer_af_zone);
     cudaFree(gpu_input_buffer_tmp);
+  }
+
+  void Pipe::add_img_to_img_acc_buffer(cufftComplex *input)
+  {
+	  img_acc_->enqueue(input, cudaMemcpyDeviceToHost);
   }
 
   void Pipe::exec()

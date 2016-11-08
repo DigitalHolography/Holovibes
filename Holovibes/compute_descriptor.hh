@@ -55,7 +55,8 @@ namespace holovibes
       ARGUMENT,
       UNWRAPPED_ARGUMENT,
       UNWRAPPED_ARGUMENT_2,
-      UNWRAPPED_ARGUMENT_3
+      UNWRAPPED_ARGUMENT_3,
+	  IMAGE_ACCUMULATION
     };
 
     /*! \brief ComputeDescriptor constructor

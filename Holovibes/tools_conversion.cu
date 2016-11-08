@@ -359,3 +359,52 @@ void complex_to_ushort(
 
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
+
+__global__ void kernel_accumulate_images(
+	const cufftComplex *input,
+	cufftComplex *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	size_t	i = 0;
+	size_t	pos = start;
+
+	if (index < nb_pixel)
+	{
+		output[index].x = 0;
+		output[index].y = 0;
+		while (i < nb_elmt)
+		{
+			output[index].x += input[index + pos * nb_pixel].x;
+			output[index].y += input[index + pos * nb_pixel].y;
+			i++;
+			pos++;
+			if (pos > max_elmt)
+				pos = 0;
+		}
+	}
+}
+
+void accumulate_images(
+	const cufftComplex *input,
+	cufftComplex *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel,
+	cudaStream_t stream)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem(nb_pixel, threads);
+
+	kernel_accumulate_images << <blocks, threads, 0, stream >> >(
+		input,
+		output,
+		start,
+		max_elmt,
+		nb_elmt,
+		nb_pixel);
+}

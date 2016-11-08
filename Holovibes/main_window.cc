@@ -145,7 +145,7 @@ namespace gui
 			view_mode->setCurrentIndex(1);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 			view_mode->setCurrentIndex(2);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+		else if (cd.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
 			view_mode->setCurrentIndex(3);
 		else // Fallback on Modulus
 			view_mode->setCurrentIndex(0);
@@ -769,7 +769,7 @@ namespace gui
 				  if (value == "Phase 1")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
 				  else if (value == "Phase increase")
-					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
+					  cd.view_mode = holovibes::ComputeDescriptor::IMAGE_ACCUMULATION;
 			  }
 		  }
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)

@@ -159,3 +159,42 @@ void complex_to_ushort(
 	unsigned int* output,
 	const unsigned int size,
 	cudaStream_t stream = 0);
+
+
+/*! \brief Add images.
+*
+* \param input Input data should be contiguous.
+* \param output Where to store the output.
+* \param start Number of starting elmt.
+* \param max_elmt Total number of elmt.
+* \param nb_elmt Number of elmt that should be added.
+* \param nb_pixel Number of pixel per image.
+* \param stream The CUDA stream on which to launch the operation.
+*/
+void accumulate_images(
+	const cufftComplex *input,
+	cufftComplex *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel,
+	cudaStream_t stream = 0);
+
+/*! \brief Kernel for add images.
+*
+* \param input Input data should be contiguous.
+* \param output Where to store the output.
+* \param start Number of starting elmt.
+* \param max_elmt Total number of elmt.
+* \param nb_elmt Number of elmt that should be added.
+* \param nb_pixel Number of pixel per image.
+* \param stream The CUDA stream on which to launch the operation.
+*/
+
+__global__ void kernel_accumulate_images(
+	const cufftComplex *input,
+	cufftComplex *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel);

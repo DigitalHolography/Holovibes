@@ -55,6 +55,9 @@ namespace holovibes
 
     virtual ~Pipe();
 
+	/*! Queue for phase accumulation*/
+	Queue *img_acc_;
+
   protected:
     /*! \brief Generate the ICompute vector. */
     virtual void refresh();
@@ -82,6 +85,9 @@ namespace holovibes
 
 	void complex_pipe();
 
+	/*! \brief Add current img to img_phase queue*/
+	void add_img_to_img_acc_buffer(cufftComplex *input);
+
   private:
     /*! \brief Core of the pipe */
     FnVector fn_vect_;
@@ -102,6 +108,9 @@ namespace holovibes
 
     /*! Input frame pointer. */
     cufftComplex* gpu_input_frame_ptr_;
+
+	/*! Input frame pointer. */
+	cufftComplex* acc_complex_output;
     /*! \} */
   };
 }
