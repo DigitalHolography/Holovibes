@@ -382,12 +382,12 @@ void	buffer_size_conversion(char *real_buffer
 	, const camera::FrameDescriptor frame_desc)
 {
 	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width), threads);
+	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * frame_desc.depth), threads);
 
 	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(real_buffer
 		, buffer
-		, frame_desc.width
-		, frame_desc.height
-		, real_frame_desc.width
-		, frame_desc.height * real_frame_desc.width);
+		, frame_desc.width * frame_desc.depth
+		, frame_desc.height * frame_desc.depth
+		, real_frame_desc.width * frame_desc.depth
+		, frame_desc.height * real_frame_desc.width * frame_desc.depth);
 }

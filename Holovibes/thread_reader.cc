@@ -122,8 +122,10 @@ namespace holovibes
   void	ThreadReader::proc_cine_file()
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
+	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
 	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
-	  char*        buffer;
+	  char*        buffer = NULL;
+	  char*        real_buffer = NULL;
 	  unsigned int nbr_stored = 0;
 	  unsigned int act_frame = 0;
 	  FILE*   file = nullptr;
@@ -132,6 +134,7 @@ namespace holovibes
 	  size_t  offset = 0;
 
 	  cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
+	  cudaMallocHost(&real_buffer, real_frame_size);
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -141,6 +144,7 @@ namespace holovibes
 		  offset = offset_cine_first_image(file);
 		  pos = offset + (frame_size + 8) * (spanStart_ - 1);
 		  std::fsetpos(file, &pos);
+		  cudaMemset(real_buffer, 0, real_frame_desc_.frame_size());
 		  while (!stop_requested_)
 		  {
 			  if (!std::feof(file) && frameId_ <= spanEnd_)
@@ -151,7 +155,16 @@ namespace holovibes
 					  nbr_stored = length / (frame_size + 8);
 					  act_frame = 0;
 				  }
-				  queue_.enqueue(buffer + 8 * (act_frame + 1) + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
+					  queue_.enqueue(buffer + 8 * (act_frame + 1) + act_frame * frame_size, cudaMemcpyHostToDevice);
+				  else
+				  {
+					  buffer_size_conversion(real_buffer
+						  , buffer + 8 * (act_frame + 1) + act_frame * frame_size
+						  , real_frame_desc_
+						  , frame_desc_);
+					  queue_.enqueue(real_buffer, cudaMemcpyHostToDevice);
+				  }
 				  ++frameId_;
 				  ++act_frame;
 				  Sleep(1000 / fps_);
@@ -178,6 +191,7 @@ namespace holovibes
 	  }
 	  stop_requested_ = true;
 	  cudaFreeHost(buffer);
+	  cudaFreeHost(real_buffer);
   }
 
 
