@@ -172,8 +172,8 @@ void complex_to_ushort(
 * \param stream The CUDA stream on which to launch the operation.
 */
 void accumulate_images(
-	const cufftComplex *input,
-	cufftComplex *output,
+	const float *input,
+	float *output,
 	const size_t start,
 	const size_t max_elmt,
 	const size_t nb_elmt,
@@ -192,8 +192,8 @@ void accumulate_images(
 */
 
 __global__ void kernel_accumulate_images(
-	const cufftComplex *input,
-	cufftComplex *output,
+	const float *input,
+	float *output,
 	const size_t start,
 	const size_t max_elmt,
 	const size_t nb_elmt,

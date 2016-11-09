@@ -57,12 +57,12 @@ namespace holovibes
 
 	new_fd.width = old_fd.width;
 	new_fd.height = old_fd.height;
-	new_fd.depth = 8;
+	new_fd.depth = 4;
 	new_fd.pixel_size = old_fd.pixel_size;
 
-	img_acc_ = new holovibes::Queue(new_fd, 20, "AccumulationQueue");
+	img_acc_ = new holovibes::Queue(new_fd, 30, "AccumulationQueue");
 
-	cudaMalloc<cufftComplex>(&acc_complex_output, input_.get_pixels() * sizeof(cufftComplex));
+	cudaMalloc<float>(&acc_complex_output, input_.get_pixels() * sizeof(float));
 
     refresh();
   }
@@ -373,13 +373,6 @@ namespace holovibes
 			static_cast<cudaStream_t>(0)));
 	}
 	
-	/*Add image to phase accumulation buffer*/
-	
-	fn_vect_.push_back(std::bind(
-		&Pipe::add_img_to_img_acc_buffer,
-		this,
-		gpu_input_frame_ptr_));
-
     /* Apply conversion to floating-point respresentation. */
     if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
     {
@@ -408,25 +401,6 @@ namespace holovibes
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
     }
-	else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
-	{
-		fn_vect_.push_back(std::bind(
-			accumulate_images,
-			static_cast<cufftComplex *>(img_acc_->get_buffer()),
-			acc_complex_output,
-			img_acc_->get_start_index(),
-			img_acc_->get_max_elts(),
-			20,
-			input_fd.frame_res(),
-			static_cast<cudaStream_t>(0)));
-
-		fn_vect_.push_back(std::bind(
-			complex_to_modulus,
-			acc_complex_output,
-			gpu_float_buffer_,
-			input_fd.frame_res(),
-			static_cast<cudaStream_t>(0)));
-	}
     else
     {
       if (!unwrap_res_)
@@ -478,6 +452,26 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
     }
 
+
+	/*Add image to phase accumulation buffer*/
+
+	fn_vect_.push_back(std::bind(
+		&Pipe::add_img_to_img_acc_buffer,
+		this,
+		gpu_float_buffer_));
+
+//	else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
+	{
+		fn_vect_.push_back(std::bind(
+			accumulate_images,
+			static_cast<float *>(img_acc_->get_buffer()),
+			gpu_float_buffer_,
+			img_acc_->get_start_index(),
+			img_acc_->get_max_elts(),
+			30,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+	}
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
     if (compute_desc_.shift_corners_enabled)
@@ -754,7 +748,7 @@ namespace holovibes
     cudaFree(gpu_input_buffer_tmp);
   }
 
-  void Pipe::add_img_to_img_acc_buffer(cufftComplex *input)
+  void Pipe::add_img_to_img_acc_buffer(float *input)
   {
 	  img_acc_->enqueue(input, cudaMemcpyDeviceToHost);
   }

@@ -86,7 +86,7 @@ namespace holovibes
 	void complex_pipe();
 
 	/*! \brief Add current img to img_phase queue*/
-	void add_img_to_img_acc_buffer(cufftComplex *input);
+	void add_img_to_img_acc_buffer(float *input);
 
   private:
     /*! \brief Core of the pipe */
@@ -110,7 +110,7 @@ namespace holovibes
     cufftComplex* gpu_input_frame_ptr_;
 
 	/*! Input frame pointer. */
-	cufftComplex* acc_complex_output;
+	float* acc_complex_output;
     /*! \} */
   };
 }

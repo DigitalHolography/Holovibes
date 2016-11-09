@@ -361,8 +361,8 @@ void complex_to_ushort(
 }
 
 __global__ void kernel_accumulate_images(
-	const cufftComplex *input,
-	cufftComplex *output,
+	const float *input,
+	float *output,
 	const size_t start,
 	const size_t max_elmt,
 	const size_t nb_elmt,
@@ -374,23 +374,24 @@ __global__ void kernel_accumulate_images(
 
 	if (index < nb_pixel)
 	{
-		output[index].x = 0;
-		output[index].y = 0;
+		output[index] = 0;
+	//	output[index].y = 0;
 		while (i < nb_elmt)
 		{
-			output[index].x += input[index + pos * nb_pixel].x;
-			output[index].y += input[index + pos * nb_pixel].y;
+			output[index] += input[index + pos * nb_pixel];
+		//	output[index].y += input[index + pos * nb_pixel].y;
 			i++;
 			pos++;
 			if (pos > max_elmt)
 				pos = 0;
 		}
+		output[index] /= max_elmt;
 	}
 }
 
 void accumulate_images(
-	const cufftComplex *input,
-	cufftComplex *output,
+	const float *input,
+	float *output,
 	const size_t start,
 	const size_t max_elmt,
 	const size_t nb_elmt,
