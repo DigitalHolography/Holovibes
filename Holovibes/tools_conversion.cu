@@ -370,22 +370,20 @@ __global__ void kernel_accumulate_images(
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	size_t	i = 0;
-	size_t	pos = start;
+	int		pos = start;
 
 	if (index < nb_pixel)
 	{
 		output[index] = 0;
-	//	output[index].y = 0;
 		while (i < nb_elmt)
 		{
 			output[index] += input[index + pos * nb_pixel];
-		//	output[index].y += input[index + pos * nb_pixel].y;
 			i++;
-			pos++;
-			if (pos > max_elmt)
-				pos = 0;
+			pos--;
+			if (pos < 0)
+				pos = max_elmt;
 		}
-		output[index] /= max_elmt;
+		output[index] /= nb_elmt;
 	}
 }
 

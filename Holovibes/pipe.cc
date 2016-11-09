@@ -60,7 +60,7 @@ namespace holovibes
 	new_fd.depth = 4;
 	new_fd.pixel_size = old_fd.pixel_size;
 
-	img_acc_ = new holovibes::Queue(new_fd, 30, "AccumulationQueue");
+	img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_buffer_size.load(), "AccumulationQueue");
 
 	cudaMalloc<float>(&acc_complex_output, input_.get_pixels() * sizeof(float));
 
@@ -460,7 +460,7 @@ namespace holovibes
 		this,
 		gpu_float_buffer_));
 
-//	else if (compute_desc_.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
+	if (compute_desc_.img_acc_enabled)
 	{
 		fn_vect_.push_back(std::bind(
 			accumulate_images,
@@ -468,10 +468,11 @@ namespace holovibes
 			gpu_float_buffer_,
 			img_acc_->get_start_index(),
 			img_acc_->get_max_elts(),
-			30,
+			compute_desc_.img_acc_level.load(),
 			input_fd.frame_res(),
 			static_cast<cudaStream_t>(0)));
 	}
+
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
     if (compute_desc_.shift_corners_enabled)
@@ -750,7 +751,7 @@ namespace holovibes
 
   void Pipe::add_img_to_img_acc_buffer(float *input)
   {
-	  img_acc_->enqueue(input, cudaMemcpyDeviceToHost);
+	  img_acc_->enqueue(input, cudaMemcpyDeviceToDevice);
   }
 
   void Pipe::exec()

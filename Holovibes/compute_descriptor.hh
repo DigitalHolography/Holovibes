@@ -56,7 +56,6 @@ namespace holovibes
       UNWRAPPED_ARGUMENT,
       UNWRAPPED_ARGUMENT_2,
       UNWRAPPED_ARGUMENT_3,
-	  IMAGE_ACCUMULATION
     };
 
     /*! \brief ComputeDescriptor constructor
@@ -93,6 +92,9 @@ namespace holovibes
 	  , flowgraphy_level(3)
 	  , is_cine_file(false)
 	  , import_pixel_size(5.42)
+	  , img_acc_enabled(false)
+	  , img_acc_buffer_size(20)
+	  , img_acc_level(1)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -190,5 +192,12 @@ namespace holovibes
 
 	/*! Pixel Size used when importing a file */
 	std::atomic<float> import_pixel_size;
+
+	/*! Is Image Accumulation enabled. */
+	std::atomic<bool> img_acc_enabled;
+	/*! Size of Image Accumulation buffer. */
+	std::atomic<unsigned int> img_acc_buffer_size;
+	/*! Set Image Accumulation level. */
+	std::atomic<unsigned int> img_acc_level;
   };
 }

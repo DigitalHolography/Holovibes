@@ -145,7 +145,7 @@ namespace gui
 			view_mode->setCurrentIndex(1);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 			view_mode->setCurrentIndex(2);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::IMAGE_ACCUMULATION)
+		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
 			view_mode->setCurrentIndex(3);
 		else // Fallback on Modulus
 			view_mode->setCurrentIndex(0);
@@ -225,6 +225,12 @@ namespace gui
 
 		QCheckBox* flowgraphy_enable = findChild<QCheckBox*>("flowgraphy_checkbox");
 		flowgraphy_enable->setChecked(cd.flowgraphy_enabled);
+
+		QSpinBox* img_acc_level = findChild<QSpinBox*>("img_accSpinBox");
+		img_acc_level->setValue(cd.img_acc_level.load());
+
+		QCheckBox* img_acc_enabled = findChild<QCheckBox*>("img_accCheckBox");
+		img_acc_enabled->setChecked(cd.img_acc_enabled.load());
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -769,7 +775,7 @@ namespace gui
 				  if (value == "Phase 1")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
 				  else if (value == "Phase increase")
-					  cd.view_mode = holovibes::ComputeDescriptor::IMAGE_ACCUMULATION;
+					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
 			  }
 		  }
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
@@ -795,6 +801,25 @@ namespace gui
       pipe->request_unwrapping(value);
       pipe->request_refresh();
     }
+  }
+
+  void MainWindow::set_accumulation(bool value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
+		  holovibes_.get_pipe()->request_refresh();
+	  }
+  }
+
+  void MainWindow::set_accumulation_level(int value)
+  {
+	  if (!is_direct_mode() && value <= holovibes_.get_compute_desc().img_acc_buffer_size)
+	  {
+			holovibes_.get_compute_desc().img_acc_level.exchange(value);
+			holovibes_.get_pipe()->request_refresh();
+	  }
+	  notify();
   }
 
   void  MainWindow::set_z_min(const double value)
@@ -2025,7 +2050,8 @@ namespace gui
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
       config.reader_buf_max_size = ptree.get<int>("config.reader_buf_size", config.reader_buf_max_size);
-      config.unwrap_history_size = ptree.get<int>("config.accumulation_phase", config.unwrap_history_size);
+      config.unwrap_history_size = ptree.get<int>("config.increase_phase_size", config.unwrap_history_size);
+	  cd.img_acc_buffer_size = ptree.get<unsigned int>("config.image_accumulation_size", cd.img_acc_buffer_size);
 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -2079,6 +2105,10 @@ namespace gui
       cd.contrast_min = ptree.get<float>("view.contrast_min", cd.contrast_min);
 
       cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
+
+	  cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
+
+	  cd.img_acc_level = ptree.get<unsigned int>("view.accumulation_level", cd.img_acc_level);
 
       // Post Processing
       special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2146,7 +2176,8 @@ namespace gui
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put("config.reader_buf_size", config.reader_buf_max_size);
-    ptree.put("config.accumulation_size", config.unwrap_history_size);
+    ptree.put("config.increase_phase_size", config.unwrap_history_size);
+	ptree.put("config.image_accumulation_size", cd.img_acc_buffer_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -2166,6 +2197,8 @@ namespace gui
     ptree.put("view.contrast_enabled", cd.contrast_enabled);
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
+	ptree.put("view.accumulation_enabled", cd.img_acc_enabled);
+	ptree.put("view.accumulation_level", cd.img_acc_level);
 
     // Post-processing
     ptree.put("post_processing.hidden", special_group_box->isHidden());
