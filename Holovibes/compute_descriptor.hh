@@ -53,6 +53,7 @@ namespace holovibes
       MODULUS,
       SQUARED_MODULUS,
       ARGUMENT,
+	  COMPLEX,
       UNWRAPPED_ARGUMENT,
       UNWRAPPED_ARGUMENT_2,
       UNWRAPPED_ARGUMENT_3

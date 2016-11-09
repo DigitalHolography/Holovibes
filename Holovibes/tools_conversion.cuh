@@ -161,6 +161,13 @@ void complex_to_ushort(
 	const unsigned int size,
 	cudaStream_t stream = 0);
 
+/*Todo:*/
+
+void complex_to_complex(
+	const cufftComplex* input,
+	unsigned short* output,
+	const unsigned int size,
+	cudaStream_t stream = 0);
 /*! \brief Cast buffer into real_buffer*/
 void	buffer_size_conversion(char *real_buffer
 	, const char *buffer

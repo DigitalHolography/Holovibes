@@ -65,7 +65,7 @@ namespace camera
 
     /* Ensure that the camera is not in recording state. */
     stop_acquisition();
-
+	
     /* Camera type checking. */
     PCO_CameraType str_camera_type;
     str_camera_type.wSize = sizeof(PCO_CameraType);

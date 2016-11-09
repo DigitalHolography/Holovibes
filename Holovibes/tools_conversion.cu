@@ -360,6 +360,15 @@ void complex_to_ushort(
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
 
+
+void complex_to_complex(
+	const cufftComplex* input,
+	unsigned short* output,
+	const unsigned int size,
+	cudaStream_t stream)
+{
+	cudaMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
+}
 __global__ void	kernel_buffer_size_conversion(char *real_buffer
 	, const char *buffer
 	, const size_t frame_desc_width

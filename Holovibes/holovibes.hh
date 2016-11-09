@@ -95,6 +95,13 @@ namespace holovibes
     }
     /*! \} */
 
+	/*! Used to display frames */
+	Queue& get_complex_output_queue()
+	{
+		return *complex_output_;
+	}
+	/*! \} */
+
     /*! \brief Launch the recorder
      *
      * \param filepath File path to record frames
@@ -123,6 +130,16 @@ namespace holovibes
      * use the Pipe before it finished the initialization. */
     void init_compute(const ThreadCompute::PipeType pipetype = ThreadCompute::PipeType::PIPE);
 
+	/*! \brief Launch the complex display
+	* \see ThreadCompute
+	* \see Pipe
+	*
+	* This function is useful whenever a user ask for a complex output.
+	* We are going to need more space in a new queue because we are manipulating complex and not
+	* unsigned short anymore
+	*/
+	void init_complex_compute(const ThreadCompute::PipeType pipetype = ThreadCompute::PipeType::PIPE);
+
     /*! \brief Request the computing thread to stop */
     void dispose_compute();
 
@@ -149,6 +166,7 @@ namespace holovibes
     {
       return compute_desc_;
     }
+
 
 	/*! \brief Reset values related to convolution matrix */
 	void reset_convolution_matrix();
@@ -199,6 +217,7 @@ namespace holovibes
     /*! \{ \name Frames queue (GPU) */
     std::unique_ptr<Queue> input_;
     std::unique_ptr<Queue> output_;
+	std::unique_ptr<Queue> complex_output_;
     /*! \} */
 
     /*! \brief Common compute descriptor shared between CLI/GUI and the

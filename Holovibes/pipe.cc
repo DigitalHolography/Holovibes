@@ -24,23 +24,23 @@
 
 namespace holovibes
 {
-  Pipe::Pipe(
-    Queue& input,
-    Queue& output,
-    ComputeDescriptor& desc)
-    : ICompute(input, output, desc)
-    , fn_vect_()
-    , gpu_input_buffer_(nullptr)
-    , gpu_output_buffer_(nullptr)
-    , gpu_float_buffer_(nullptr)
-    , gpu_input_frame_ptr_(nullptr)
+	Pipe::Pipe(
+		Queue& input,
+		Queue& output,
+		ComputeDescriptor& desc)
+		: ICompute(input, output, desc)
+		, fn_vect_()
+		, gpu_input_buffer_(nullptr)
+		, gpu_output_buffer_(nullptr)
+		, gpu_float_buffer_(nullptr)
+		, gpu_input_frame_ptr_(nullptr)
   {
     /* gpu_input_buffer */
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
     /* gpu_output_buffer */
     cudaMalloc<unsigned short>(&gpu_output_buffer_,
-      sizeof(unsigned short)* input_.get_pixels());
+      sizeof (cufftComplex) * input_.get_pixels());
 
     /* gpu_float_buffer */
     cudaMalloc<float>(&gpu_float_buffer_,
@@ -375,15 +375,25 @@ namespace holovibes
         input_fd.frame_res(),
         static_cast<cudaStream_t>(0)));
     }
-    else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
-    {
-      fn_vect_.push_back(std::bind(
-        complex_to_argument,
-        gpu_input_frame_ptr_,
-        gpu_float_buffer_,
-        input_fd.frame_res(),
-        static_cast<cudaStream_t>(0)));
-    }
+	else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+	{
+		fn_vect_.push_back(std::bind(
+			complex_to_argument,
+			gpu_input_frame_ptr_,
+			gpu_float_buffer_,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+	}
+	else if (compute_desc_.view_mode == ComputeDescriptor::COMPLEX)
+	{
+		fn_vect_.push_back(std::bind(
+			complex_to_complex,
+			gpu_input_frame_ptr_,
+			gpu_output_buffer_,
+			input_fd.frame_res() * 8,
+			static_cast<cudaStream_t>(0)));
+		return;
+	}
     else
     {
       if (!unwrap_res_)
@@ -720,12 +730,15 @@ namespace holovibes
       if (input_.get_current_elts() >= input_length_)
       {
         for (FnType& f : fn_vect_) f();
-
+		if (compute_desc_.view_mode != ComputeDescriptor::COMPLEX)
         output_.enqueue(
           gpu_output_buffer_,
           cudaMemcpyDeviceToDevice);
-        input_.dequeue();
-
+	else
+		output_.enqueue(
+			gpu_input_frame_ptr_,
+			cudaMemcpyDeviceToDevice);
+		input_.dequeue();
         if (refresh_requested_)
           refresh();
       }

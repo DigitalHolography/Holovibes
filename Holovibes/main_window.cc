@@ -147,6 +147,8 @@ namespace gui
 			view_mode->setCurrentIndex(2);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
 			view_mode->setCurrentIndex(3);
+		else if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
+			view_mode->setCurrentIndex(4);
 		else // Fallback on Modulus
 			view_mode->setCurrentIndex(0);
 
@@ -371,6 +373,7 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
@@ -378,9 +381,17 @@ namespace gui
 			init_image_mode(pos, width, height);
 			try
 			{
-				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+				if (cd.view_mode != holovibes::ComputeDescriptor::COMPLEX)
+				{
+					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				}
+				else
+				{
+					holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
+					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
+				}
 
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
 				{
 					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -407,9 +418,10 @@ namespace gui
 	{
 		if (is_enabled_camera_)
 		{
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
 			algorithm->setCurrentIndex(0);
-			holovibes_.get_compute_desc().algorithm = holovibes::ComputeDescriptor::FFT1;
+			//holovibes_.get_compute_desc().algorithm = holovibes::ComputeDescriptor::FFT1;
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
@@ -417,9 +429,16 @@ namespace gui
 			init_image_mode(pos, width, height);
 			try
 			{
-				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				if (cd.view_mode != holovibes::ComputeDescriptor::COMPLEX)
+				{
+					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				}
+				else
+				{
+					holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
+					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
+				}
 				global_visibility(true);
 				demodulation_visibility(false);
 				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
@@ -430,6 +449,33 @@ namespace gui
 				display_error(e.what());
 			}
 			notify();
+		}
+	}
+
+	void MainWindow::set_complex_mode(bool value)
+	{
+		QPoint pos(0, 0);
+		unsigned int width = 512;
+		unsigned int height = 512;
+		init_image_mode(pos, width, height);
+		try
+		{
+			if (value == true)
+			{
+				holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
+				gl_window_.
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
+			}
+			else
+			{
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+			}
+			global_visibility(true);
+		}
+		catch (std::exception& e)
+		{
+			display_error(e.what());
 		}
 	}
 
@@ -738,7 +784,10 @@ namespace gui
 		  bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
 		  std::cout << "Value = " << value.toUtf8().constData() << std::endl;
-
+		  if (last_contrast_type_ == "Complex output")
+		  {
+			  set_complex_mode(false);
+		  }
 		  if (value == "Magnitude")
 		  {
 			  cd.view_mode = holovibes::ComputeDescriptor::MODULUS;
@@ -752,6 +801,12 @@ namespace gui
 		  else if (value == "Argument")
 		  {
 			  cd.view_mode = holovibes::ComputeDescriptor::ARGUMENT;
+			  last_contrast_type_ = value;
+		  }
+		  else if (value == "Complex output")
+		  {
+			  set_complex_mode(true);
+			  cd.view_mode = holovibes::ComputeDescriptor::COMPLEX;
 			  last_contrast_type_ = value;
 		  }
 		  else

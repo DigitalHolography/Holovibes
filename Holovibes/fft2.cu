@@ -37,6 +37,14 @@ void fft_2(
   unsigned int threads = 128;
   unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
+  kernel_apply_lens << <blocks, threads, 0, stream >> >(
+	  input,
+	  n_frame_resolution,
+	  lens,
+	  frame_resolution);
+
+  cudaStreamSynchronize(stream);
+
   cufftExecC2C(plan3d, input, input, CUFFT_FORWARD);
 
   cufftComplex* pframe = input + frame_resolution * p;
@@ -44,15 +52,8 @@ void fft_2(
 
   cudaStreamSynchronize(stream);
 
-  kernel_apply_lens << <blocks, threads, 0, stream >> >(
-    input,
-    n_frame_resolution,
-    lens,
-    frame_resolution);
 
-  cudaStreamSynchronize(stream);
-
-  cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
+ /* cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);*/
   kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
   if (p != q)
   {

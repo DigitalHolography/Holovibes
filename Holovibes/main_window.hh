@@ -155,6 +155,10 @@ namespace gui
 	/* */
 	void set_demodulation_mode();
 
+	/*! \brief Called by set_image_mode if complex algorithm is clicked  */
+	/* */
+	void set_complex_mode(bool value);
+
 	/*! \brief Called by set_image_mode if Convolution button is clicked  */
 	/* */
 	void set_convolution_mode(const bool enable);

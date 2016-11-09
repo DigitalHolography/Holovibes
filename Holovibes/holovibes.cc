@@ -133,6 +133,28 @@ namespace holovibes
     std::cout << "\n";
   }
 
+  void Holovibes::init_complex_compute(const ThreadCompute::PipeType pipetype)
+  {
+	  camera::FrameDescriptor old_frame_desc = get_cam_frame_desc();
+	  camera::FrameDescriptor frame_desc = {
+		  old_frame_desc.width,
+		  old_frame_desc.height,
+		  8,
+		  compute_desc_.import_pixel_size,
+		  old_frame_desc.endianness };
+	  complex_output_.reset(new Queue(frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
+	  tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *complex_output_, pipetype));
+		  // A wait_for is necessary here in order for the pipe to finish
+		  // its allocations before getting it.
+		  std::mutex mutex;
+	  std::unique_lock<std::mutex> lck(mutex);
+
+	  std::cout << "Pipe is initializing ";
+	  while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+		  std::cout << ".";
+	  std::cout << "\n";
+  }
+
   void Holovibes::dispose_compute()
   {
     tcompute_.reset(nullptr);

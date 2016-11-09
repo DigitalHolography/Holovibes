@@ -40,5 +40,6 @@ void fft_1(
   // FFT
   cufftResult res = cufftExecC2C(plan, input, input, CUFFT_FORWARD);
 
+
   cudaStreamSynchronize(stream);
 }

@@ -576,6 +576,11 @@
            <string>Phase increase</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>Complex output</string>
+          </property>
+         </item>
         </widget>
         <widget class="QCheckBox" name="contrastCheckBox">
          <property name="geometry">
