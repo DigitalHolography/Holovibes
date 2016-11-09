@@ -109,14 +109,15 @@ namespace holovibes
     std::cout << "[RECORDER] recorder Stop" << std::endl;
   }
 
-  void Holovibes::init_compute(const ThreadCompute::PipeType pipetype)
+  void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, const unsigned int& depth)
   {
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
     assert(input_ && "input queue not initialized");
 
     camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
-    output_frame_desc.depth = 2;
+	/* depth is 2 by default execpt when we want dynamic complex dislay*/
+    output_frame_desc.depth = depth;
     output_.reset(new Queue(output_frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
 
     tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
@@ -131,28 +132,6 @@ namespace holovibes
     while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
       std::cout << ".";
     std::cout << "\n";
-  }
-
-  void Holovibes::init_complex_compute(const ThreadCompute::PipeType pipetype)
-  {
-	  camera::FrameDescriptor old_frame_desc = get_cam_frame_desc();
-	  camera::FrameDescriptor frame_desc = {
-		  old_frame_desc.width,
-		  old_frame_desc.height,
-		  8,
-		  compute_desc_.import_pixel_size,
-		  old_frame_desc.endianness };
-	  complex_output_.reset(new Queue(frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
-	  tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *complex_output_, pipetype));
-		  // A wait_for is necessary here in order for the pipe to finish
-		  // its allocations before getting it.
-		  std::mutex mutex;
-	  std::unique_lock<std::mutex> lck(mutex);
-
-	  std::cout << "Pipe is initializing ";
-	  while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
-		  std::cout << ".";
-	  std::cout << "\n";
   }
 
   void Holovibes::dispose_compute()

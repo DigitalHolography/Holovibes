@@ -379,19 +379,16 @@ namespace gui
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
+			unsigned int depth = 2;
 			try
 			{
-				if (cd.view_mode != holovibes::ComputeDescriptor::COMPLEX)
+				if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
 				{
-					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+					last_contrast_type_ = "Complex output";
+					depth = 8;
 				}
-				else
-				{
-					holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
-					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
-				}
-
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
 				{
 					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -427,18 +424,16 @@ namespace gui
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
+			unsigned int depth = 2;
 			try
 			{
-				if (cd.view_mode != holovibes::ComputeDescriptor::COMPLEX)
+				if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
 				{
-					holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+					last_contrast_type_ = "Complex output";
+					depth = 8;
 				}
-				else
-				{
-					holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
-					gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
-				}
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 				global_visibility(true);
 				demodulation_visibility(false);
 				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
@@ -458,20 +453,14 @@ namespace gui
 		unsigned int width = 512;
 		unsigned int height = 512;
 		init_image_mode(pos, width, height);
+		unsigned int depth = 2;
 		try
 		{
 			if (value == true)
-			{
-				holovibes_.init_complex_compute(holovibes::ThreadCompute::PipeType::PIPE);
-				gl_window_.
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_complex_output_queue()));
-			}
-			else
-			{
-				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-			}
-			global_visibility(true);
+				depth = 8;
+				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+			//global_visibility(true);
+			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 		}
 		catch (std::exception& e)
 		{
@@ -784,7 +773,7 @@ namespace gui
 		  bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
 		  std::cout << "Value = " << value.toUtf8().constData() << std::endl;
-		  if (last_contrast_type_ == "Complex output")
+		  if (last_contrast_type_ == "Complex output" && value != "Complex output")
 		  {
 			  set_complex_mode(false);
 		  }
