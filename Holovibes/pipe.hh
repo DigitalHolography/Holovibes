@@ -108,9 +108,5 @@ namespace holovibes
 
     /*! Input frame pointer. */
     cufftComplex* gpu_input_frame_ptr_;
-
-	/*! Input frame pointer. */
-	float* acc_complex_output;
-    /*! \} */
   };
 }

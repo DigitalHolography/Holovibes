@@ -55,14 +55,11 @@ namespace holovibes
 	const camera::FrameDescriptor old_fd = input_.get_frame_desc();
 	camera::FrameDescriptor new_fd;
 
-	new_fd.width = old_fd.width;
-	new_fd.height = old_fd.height;
+	new_fd = old_fd;
 	new_fd.depth = 4;
-	new_fd.pixel_size = old_fd.pixel_size;
 
+	/*Allocating a queue for image accumulation*/
 	img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_buffer_size.load(), "AccumulationQueue");
-
-	cudaMalloc<float>(&acc_complex_output, input_.get_pixels() * sizeof(float));
 
     refresh();
   }
@@ -79,8 +76,6 @@ namespace holovibes
     cudaFree(gpu_input_buffer_);
 
 	delete img_acc_;
-
-	cudaFree(acc_complex_output);
   }
 
   void Pipe::update_n_parameter(unsigned short n)
@@ -460,8 +455,12 @@ namespace holovibes
 		this,
 		gpu_float_buffer_));
 
+	/*Compute Accumulation buffer into gpu_float_buffer*/
 	if (compute_desc_.img_acc_enabled)
 	{
+		/* Forces pipe refresh to update img_acc_ internal values */
+		fn_vect_.push_back(std::bind(&holovibes::ICompute::request_refresh, this));
+
 		fn_vect_.push_back(std::bind(
 			accumulate_images,
 			static_cast<float *>(img_acc_->get_buffer()),

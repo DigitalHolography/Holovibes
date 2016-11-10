@@ -381,12 +381,15 @@ __global__ void kernel_accumulate_images(
 			i++;
 			pos--;
 			if (pos < 0)
-				pos = max_elmt;
+				pos = max_elmt - 1;
 		}
 		output[index] /= nb_elmt;
 	}
 }
 
+/*! \brief Kernel function wrapped in accumulate_images, making
+** the call easier
+**/
 void accumulate_images(
 	const float *input,
 	float *output,
