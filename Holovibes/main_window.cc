@@ -449,7 +449,6 @@ namespace gui
 			{
 				display_error(e.what());
 			}
-			notify();
 		}
 	}
 
