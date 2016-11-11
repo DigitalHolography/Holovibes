@@ -731,8 +731,6 @@ namespace gui
 		  QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
-
-		  cd.nsamples = 2;
 		  if (value == "1FFT")
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
 		  else if (value == "2FFT")
@@ -750,7 +748,6 @@ namespace gui
 		  else
 			  assert(!"Unknow Algorithm.");
 
-		  phaseNumberSpinBox->setValue(cd.nsamples);
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 			  holovibes_.get_pipe()->request_autocontrast();
 	  }
