@@ -20,6 +20,10 @@ build/
 AI Setup Project1-SetupFiles/
 AI Setup Project1/AI Setup Project1-cache/
 
+#Folders for setup creation
+setup_creator_files
+[Oo]utput
+
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
 
