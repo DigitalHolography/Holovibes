@@ -221,6 +221,9 @@ namespace gui
     ** "unwrapped argument", or "unwrapped argument 2".
     */
     void set_view_mode(QString value);
+	/*! Set 1D phase unwrap button enabled or diasbled
+	*/
+	void set_unwrap_enabled(void);
     /*! Set the size of the unwrapping history window.
     */
     void set_unwrap_history_size(int value);

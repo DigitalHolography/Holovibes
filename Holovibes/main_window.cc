@@ -152,9 +152,6 @@ namespace gui
 		else // Fallback on Modulus
 			view_mode->setCurrentIndex(0);
 
-		QSpinBox* unwrap_history_size = findChild<QSpinBox*>("unwrapSpinBox");
-		unwrap_history_size->setValue(cd.unwrap_history_size);
-
 		QCheckBox* log_scale = findChild<QCheckBox*>("logScaleCheckBox");
 		log_scale->setChecked(cd.log_scale_enabled);
 
@@ -819,8 +816,23 @@ namespace gui
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
 			  }
 		  }
+		  set_unwrap_enabled();
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 			  holovibes_.get_pipe()->request_autocontrast();
+	  }
+  }
+
+  void MainWindow::set_unwrap_enabled(void)
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
+
+		  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+			  unwrap_CheckBox_->setEnabled(true);
+		  else
+			  unwrap_CheckBox_->setEnabled(false);
 	  }
   }
 
@@ -2091,7 +2103,6 @@ namespace gui
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
       config.reader_buf_max_size = ptree.get<int>("config.reader_buf_size", config.reader_buf_max_size);
-      config.unwrap_history_size = ptree.get<int>("config.increase_phase_size", config.unwrap_history_size);
 	  cd.img_acc_buffer_size = ptree.get<unsigned int>("config.image_accumulation_size", cd.img_acc_buffer_size);
 
       // Camera type
@@ -2132,8 +2143,6 @@ namespace gui
       cd.view_mode = static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
         ptree.get<int>("view.view_mode", cd.view_mode));
 
-      cd.unwrap_history_size = config.unwrap_history_size;
-
       cd.log_scale_enabled.exchange(
         ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled));
 
@@ -2149,7 +2158,7 @@ namespace gui
 
 	  cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 
-	  cd.img_acc_level = ptree.get<unsigned int>("view.accumulation_level", cd.img_acc_level);
+	  cd.img_acc_level = ptree.get<unsigned int>("view.accumulations", cd.img_acc_level);
 
       // Post Processing
       special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2195,6 +2204,7 @@ namespace gui
 	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 	  config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 	 
+	  set_unwrap_enabled();
     }
   }
 
@@ -2217,7 +2227,6 @@ namespace gui
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put("config.reader_buf_size", config.reader_buf_max_size);
-    ptree.put("config.increase_phase_size", config.unwrap_history_size);
 	ptree.put("config.image_accumulation_size", cd.img_acc_buffer_size);
 
     // Image rendering
@@ -2239,7 +2248,7 @@ namespace gui
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
 	ptree.put("view.accumulation_enabled", cd.img_acc_enabled);
-	ptree.put("view.accumulation_level", cd.img_acc_level);
+	ptree.put("view.accumulations", cd.img_acc_level);
 
     // Post-processing
     ptree.put("post_processing.hidden", special_group_box->isHidden());

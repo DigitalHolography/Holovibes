@@ -71,7 +71,7 @@ namespace holovibes
       , lambda(532e-9f)
       , zdistance(1.50f)
       , view_mode(MODULUS)
-      , unwrap_history_size(10)
+      , unwrap_history_size(1)
 	  , special_buffer_size(10)
       , log_scale_enabled(false)
       , shift_corners_enabled(true)
