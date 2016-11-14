@@ -168,6 +168,7 @@ void complex_to_complex(
 	unsigned short* output,
 	const unsigned int size,
 	cudaStream_t stream = 0);
+
 /*! \brief Cast buffer into real_buffer*/
 void	buffer_size_conversion(char *real_buffer
 	, const char *buffer
@@ -181,3 +182,40 @@ __global__ void	kernel_buffer_size_conversion(char *real_buffer
 	, const size_t frame_desc_height
 	, const size_t real_frame_desc_width
 	, const size_t area);
+
+/*! \brief Cumulate images into one.
+*
+* \param input Input data should be contiguous.
+* \param output Where to store the output.
+* \param start Number of starting elmt.
+* \param max_elmt Total number of elmt.
+* \param nb_elmt Number of elmt that should be added.
+* \param nb_pixel Number of pixel per image.
+* \param stream The CUDA stream on which to launch the operation.
+*/
+void accumulate_images(
+	const float *input,
+	float *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel,
+	cudaStream_t stream = 0);
+
+/*! \brief Kernel to cumulate images into one.
+*
+* \param input Input data should be contiguous.
+* \param output Where to store the output.
+* \param start Number of starting elmt.
+* \param max_elmt Total number of elmt.
+* \param nb_elmt Number of elmt that should be added.
+* \param nb_pixel Number of pixel per image.
+* \param stream The CUDA stream on which to launch the operation.
+*/
+__global__ void kernel_accumulate_images(
+	const float *input,
+	float *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel);

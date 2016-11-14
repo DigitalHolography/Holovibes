@@ -360,7 +360,6 @@ void complex_to_ushort(
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
 
-
 void complex_to_complex(
 	const cufftComplex* input,
 	unsigned short* output,
@@ -369,6 +368,7 @@ void complex_to_complex(
 {
 	cudaMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
 }
+
 __global__ void	kernel_buffer_size_conversion(char *real_buffer
 	, const char *buffer
 	, const size_t frame_desc_width
@@ -399,4 +399,55 @@ void	buffer_size_conversion(char *real_buffer
 		, frame_desc.height * frame_desc.depth
 		, real_frame_desc.width * frame_desc.depth
 		, frame_desc.height * real_frame_desc.width * frame_desc.depth);
+}
+
+__global__ void kernel_accumulate_images(
+	const float *input,
+	float *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	size_t	i = 0;
+	int		pos = start;
+
+	if (index < nb_pixel)
+	{
+		output[index] = 0;
+		while (i < nb_elmt)
+		{
+			output[index] += input[index + pos * nb_pixel];
+			i++;
+			pos--;
+			if (pos < 0)
+				pos = max_elmt - 1;
+		}
+		output[index] /= nb_elmt;
+	}
+}
+
+/*! \brief Kernel function wrapped in accumulate_images, making
+** the call easier
+**/
+void accumulate_images(
+	const float *input,
+	float *output,
+	const size_t start,
+	const size_t max_elmt,
+	const size_t nb_elmt,
+	const size_t nb_pixel,
+	cudaStream_t stream)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem(nb_pixel, threads);
+
+	kernel_accumulate_images << <blocks, threads, 0, stream >> >(
+		input,
+		output,
+		start,
+		max_elmt,
+		nb_elmt,
+		nb_pixel);
 }

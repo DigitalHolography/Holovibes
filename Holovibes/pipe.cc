@@ -51,6 +51,16 @@ namespace holovibes
     cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
     cufftSetStream(plan3d_, static_cast<cudaStream_t>(0));
 
+	/*Creating new Queue for phase accumulation*/
+	const camera::FrameDescriptor old_fd = input_.get_frame_desc();
+	camera::FrameDescriptor new_fd;
+
+	new_fd = old_fd;
+	new_fd.depth = 4;
+
+	/*Allocating a queue for image accumulation*/
+	img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_buffer_size.load(), "AccumulationQueue");
+
     refresh();
   }
 
@@ -64,6 +74,8 @@ namespace holovibes
 
     /* gpu_input_buffer */
     cudaFree(gpu_input_buffer_);
+
+	delete img_acc_;
   }
 
   void Pipe::update_n_parameter(unsigned short n)
@@ -445,6 +457,31 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
     }
 
+
+	/*Add image to phase accumulation buffer*/
+
+	fn_vect_.push_back(std::bind(
+		&Pipe::add_img_to_img_acc_buffer,
+		this,
+		gpu_float_buffer_));
+
+	/*Compute Accumulation buffer into gpu_float_buffer*/
+	if (compute_desc_.img_acc_enabled)
+	{
+		/* Forces pipe refresh to update img_acc_ internal values */
+		fn_vect_.push_back(std::bind(&holovibes::ICompute::request_refresh, this));
+
+		fn_vect_.push_back(std::bind(
+			accumulate_images,
+			static_cast<float *>(img_acc_->get_buffer()),
+			gpu_float_buffer_,
+			img_acc_->get_start_index(),
+			img_acc_->get_max_elts(),
+			compute_desc_.img_acc_level.load(),
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+	}
+
     /* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
     if (compute_desc_.shift_corners_enabled)
@@ -719,6 +756,11 @@ namespace holovibes
 
     cudaFree(gpu_float_buffer_af_zone);
     cudaFree(gpu_input_buffer_tmp);
+  }
+
+  void Pipe::add_img_to_img_acc_buffer(float *input)
+  {
+	  img_acc_->enqueue(input, cudaMemcpyDeviceToDevice);
   }
 
   void Pipe::exec()

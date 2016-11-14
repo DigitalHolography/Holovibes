@@ -234,6 +234,13 @@ namespace gui
     ** selection signal of OpenGl widget to request_autofocus() slot. Then whenever the
     ** user has finished its selection, the request will be called.
     */
+
+	void set_accumulation(bool value);
+	/*! \brief Set accmulation on or off
+	*/
+	void set_accumulation_level(int value);
+	/*! \brief Set the number of image accmulated 
+	*/
 	void set_z_min(const double value);
 	/*! \brief Set z_min for autofocus
 	*/
