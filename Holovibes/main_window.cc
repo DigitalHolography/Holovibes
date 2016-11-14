@@ -824,16 +824,13 @@ namespace gui
 
   void MainWindow::set_unwrap_enabled(void)
   {
-	  if (!is_direct_mode())
-	  {
-		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
 
-		  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
-			  unwrap_CheckBox_->setEnabled(true);
-		  else
-			  unwrap_CheckBox_->setEnabled(false);
-	  }
+	  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+		  unwrap_CheckBox_->setEnabled(true);
+	  else
+		  unwrap_CheckBox_->setEnabled(false);
   }
 
   void MainWindow::set_unwrap_history_size(int value)
