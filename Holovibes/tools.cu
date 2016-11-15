@@ -21,10 +21,9 @@ __global__ void kernel_apply_lens(
   while (index < input_size)
   {
     unsigned int index2 = index % lens_size; // necessary if more than one frame
-	/*input[index].y = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
-	input[index].x = input[index].y * lens[index2].x + input[index].x * lens[index2].y;*/
-    input[index].x *= lens[index2].x;
-    input[index].y *= lens[index2].y;
+	float tmp_x = input[index].x;
+	input[index].x = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
+	input[index].y = input[index].y * lens[index2].x + tmp_x * lens[index2].y;
     index += blockDim.x * gridDim.x;
   }
 }

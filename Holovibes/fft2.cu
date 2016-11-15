@@ -55,12 +55,6 @@ void fft_2(
 
   kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
 
-  void * tmp = malloc(n_frame_resolution * sizeof (cufftComplex));
-  cudaMemcpy(tmp, pframe, 500 * sizeof(cufftComplex), cudaMemcpyDeviceToHost);
-  cufftComplex *a = (cufftComplex*)tmp;
-  cufftComplex test = *(a + 60);
-
-
   if (p != q)
   {
     cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
