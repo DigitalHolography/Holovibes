@@ -230,6 +230,9 @@ namespace gui
 
 		QCheckBox* img_acc_enabled = findChild<QCheckBox*>("img_accCheckBox");
 		img_acc_enabled->setChecked(cd.img_acc_enabled.load());
+
+		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
+		import_pixel_size->setValue(cd.import_pixel_size);
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -1730,7 +1733,6 @@ namespace gui
     QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
     QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
     QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-    QCheckBox* loop_checkbox = findChild<QCheckBox*>("ImportLoopCheckBox");
     QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
     QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
@@ -1763,7 +1765,7 @@ namespace gui
     holovibes_.init_import_mode(
       file_src,
       frame_desc,
-      loop_checkbox->isChecked(),
+      true,
       fps_spinbox->value(),
       start_spinbox->value(),
       end_spinbox->value(),
@@ -2019,8 +2021,11 @@ namespace gui
         camera_type_ = camera_type;
 
         // Changing the gui
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
 		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
         import_pixel_size->setValue(holovibes_.get_cam_frame_desc().pixel_size);
+		cd.import_pixel_size.exchange(holovibes_.get_cam_frame_desc().pixel_size);
 
         QLineEdit* boundary = findChild<QLineEdit*>("boundary");
         boundary->clear();
