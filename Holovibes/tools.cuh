@@ -110,6 +110,7 @@ void shift_corners(
   const unsigned int size_y,
   cudaStream_t stream = 0);
 
+
 /*! \brief Compute the log base-10 of every element of the input.
 *
 * \param input The image to modify in-place.

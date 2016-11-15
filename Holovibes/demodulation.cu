@@ -18,25 +18,25 @@ void demodulation(
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
 	// Do the ROI
-	kernel_bursting << <blocks, threads, 0, stream >> >(
+	/*kernel_bursting << <blocks, threads, 0, stream >> >(
 		input,
 		frame_resolution,
 		nframes,
 		stft_buf
-		);
+		);*/
 
 	// FFT 1D
-	cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
-	cudaStreamSynchronize(stream);
+	cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
+	//cudaStreamSynchronize(stream);
 
-	kernel_reconstruct << <blocks, threads, 0, stream >> >(
+	/*kernel_reconstruct << <blocks, threads, 0, stream >> >(
 		stft_dup_buf,
 		input,
 		pindex,
 		nframes,
 		frame_resolution
 		);
-
-	cudaStreamSynchronize(stream);
+		*/
+	//cudaStreamSynchronize(stream);
 
 }

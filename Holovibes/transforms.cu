@@ -65,7 +65,7 @@ __global__ void kernel_spectral_lens(
   float csquare;
   if (index < fd.width * fd.height)
   {
-    csquare = c * sqrtf(1.0f - lambda * lambda * u * u - lambda * lambda * v * v);
+    csquare = c * sqrtf(abs(1.0f - lambda * lambda * u * u - lambda * lambda * v * v));
     output[index].x = cosf(csquare);
     output[index].y = sinf(csquare);
   }

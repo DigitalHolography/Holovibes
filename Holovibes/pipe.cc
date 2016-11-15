@@ -135,7 +135,7 @@ namespace holovibes
 
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
-		// Add FFT1 1D.
+		// Add temporal FFT1 1D .
 		fn_vect_.push_back(std::bind(
 			demodulation,
 			gpu_input_buffer_,
@@ -148,7 +148,7 @@ namespace holovibes
 			static_cast<cudaStream_t>(0)));
 
 		/* frame pointer */
-		gpu_input_frame_ptr_ = gpu_input_buffer_;
+		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 	}
 	else if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -239,88 +239,88 @@ namespace holovibes
       }
     }
 	else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
-    {
-      fft1_lens(
-        gpu_lens_,
-        input_fd,
-        compute_desc_.lambda,
-        compute_desc_.zdistance,
-        static_cast<cudaStream_t>(0));
+	{
+		fft1_lens(
+			gpu_lens_,
+			input_fd,
+			compute_desc_.lambda,
+			compute_desc_.zdistance,
+			static_cast<cudaStream_t>(0));
 
-      curr_elt_stft_ = 0;
-      // Add STFT.
-      fn_vect_.push_back(std::bind(
-        stft,
-        gpu_input_buffer_,
-        gpu_lens_,
-        gpu_stft_buffer_,
-        gpu_stft_dup_buffer_,
-        plan2d_,
-        plan1d_,
-        compute_desc_.stft_roi_zone.load(),
-        curr_elt_stft_,
-        input_fd,
-        compute_desc_.nsamples.load(),
-        static_cast<cudaStream_t>(0)));
+		curr_elt_stft_ = 0;
+		// Add STFT.
+		fn_vect_.push_back(std::bind(
+			stft,
+			gpu_input_buffer_,
+			gpu_lens_,
+			gpu_stft_buffer_,
+			gpu_stft_dup_buffer_,
+			plan2d_,
+			plan1d_,
+			compute_desc_.stft_roi_zone.load(),
+			curr_elt_stft_,
+			input_fd,
+			compute_desc_.nsamples.load(),
+			static_cast<cudaStream_t>(0)));
 
-      fn_vect_.push_back(std::bind(
-        stft_recontruct,
-        gpu_input_buffer_,
-        gpu_stft_dup_buffer_,
-        compute_desc_.stft_roi_zone.load(),
-        input_fd,
-        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
-        (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
-        compute_desc_.pindex.load(),
-        compute_desc_.nsamples.load(),
-        static_cast<cudaStream_t>(0)));
+		fn_vect_.push_back(std::bind(
+			stft_recontruct,
+			gpu_input_buffer_,
+			gpu_stft_dup_buffer_,
+			compute_desc_.stft_roi_zone.load(),
+			input_fd,
+			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+			compute_desc_.pindex.load(),
+			compute_desc_.nsamples.load(),
+			static_cast<cudaStream_t>(0)));
 
-      /* frame pointer */
-      gpu_input_frame_ptr_ = gpu_input_buffer_;
+		/* frame pointer */
+		gpu_input_frame_ptr_ = gpu_input_buffer_;
 
-      if (compute_desc_.vibrometry_enabled)
-      {
-        /* q frame pointer */
-        cufftComplex* q = q_gpu_stft_buffer_;
+		if (compute_desc_.vibrometry_enabled)
+		{
+			/* q frame pointer */
+			cufftComplex* q = q_gpu_stft_buffer_;
 
-        fn_vect_.push_back(std::bind(
-          stft_recontruct,
-          q,
-          gpu_stft_dup_buffer_,
-          compute_desc_.stft_roi_zone.load(),
-          input_fd,
-          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
-          (stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
-          compute_desc_.vibrometry_q.load(),
-          compute_desc_.nsamples.load(),
-          static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back(std::bind(
+				stft_recontruct,
+				q,
+				gpu_stft_dup_buffer_,
+				compute_desc_.stft_roi_zone.load(),
+				input_fd,
+				(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+				(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+				compute_desc_.vibrometry_q.load(),
+				compute_desc_.nsamples.load(),
+				static_cast<cudaStream_t>(0)));
 
-        fn_vect_.push_back(std::bind(
-          frame_ratio,
-          gpu_input_frame_ptr_,
-          q,
-          gpu_input_frame_ptr_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
-      }
+			fn_vect_.push_back(std::bind(
+				frame_ratio,
+				gpu_input_frame_ptr_,
+				q,
+				gpu_input_frame_ptr_,
+				input_fd.frame_res(),
+				static_cast<cudaStream_t>(0)));
+		}
 
-      if (average_requested_)
-      {
-        if (compute_desc_.stft_roi_zone.load().area())
-          fn_vect_.push_back(std::bind(
-          &Pipe::average_stft_caller,
-          this,
-          gpu_stft_dup_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.stft_roi_zone.load().get_width(),
-          compute_desc_.stft_roi_zone.load().get_height(),
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          compute_desc_.nsamples.load(),
-          static_cast<cudaStream_t>(0)));
-      }
-    }
+		if (average_requested_)
+		{
+			if (compute_desc_.stft_roi_zone.load().area())
+				fn_vect_.push_back(std::bind(
+				&Pipe::average_stft_caller,
+				this,
+				gpu_stft_dup_buffer_,
+				input_fd.width,
+				input_fd.height,
+				compute_desc_.stft_roi_zone.load().get_width(),
+				compute_desc_.stft_roi_zone.load().get_height(),
+				compute_desc_.signal_zone.load(),
+				compute_desc_.noise_zone.load(),
+				compute_desc_.nsamples.load(),
+				static_cast<cudaStream_t>(0)));
+		}
+	}
     else
       assert(!"Impossible case.");
 

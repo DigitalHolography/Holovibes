@@ -20,11 +20,11 @@ __global__ void kernel_apply_lens(
 
   while (index < input_size)
   {
-    unsigned int index2 = index % lens_size;
-	input[index].x = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
-	input[index].y = input[index].y * lens[index2].x + input[index].x * lens[index2].y;
-    /*input[index].x *= lens[index2].x;
-    input[index].y *= lens[index2].y;*/
+    unsigned int index2 = index % lens_size; // necessary if more than one frame
+	/*input[index].y = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
+	input[index].x = input[index].y * lens[index2].x + input[index].x * lens[index2].y;*/
+    input[index].x *= lens[index2].x;
+    input[index].y *= lens[index2].y;
     index += blockDim.x * gridDim.x;
   }
 }
@@ -180,6 +180,7 @@ void shift_corners(
 
   kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
 }
+
 
 /* Kernel used in apply_log10 */
 static __global__ void kernel_log10(

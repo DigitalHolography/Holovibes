@@ -36,10 +36,8 @@ void fft_1(
   kernel_apply_lens << <blocks, threads, 0, stream >> >(input, n_frame_resolution, lens, frame_resolution);
 
   cudaStreamSynchronize(stream);
-
   // FFT
   cufftResult res = cufftExecC2C(plan, input, input, CUFFT_FORWARD);
-
-
+  
   cudaStreamSynchronize(stream);
 }

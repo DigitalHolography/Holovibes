@@ -105,7 +105,15 @@ namespace holovibes
       input_.get_frame_desc().height,
       CUFFT_C2C);
 
+	int inembed[1] = { nsamples };
+
+	cufftPlanMany(&plan1d_, 1, inembed,
+		inembed, input_.get_pixels(), 1,
+		inembed, input_.get_pixels(), 1,
+		CUFFT_C2C, input_.get_pixels());
+
     /* CUFFT plan1d */
+	/*
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 		cufftPlan1d(
 		&plan1d_,
@@ -120,7 +128,7 @@ namespace holovibes
 		CUFFT_C2C,
 		compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
 		);
-
+	*/
 	if (compute_desc_.convolution_enabled
 		|| compute_desc_.flowgraphy_enabled)
 	{
@@ -246,16 +254,23 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaDestroy<cudaError_t>(&gpu_stft_dup_buffer_) ? ++err_count : 0;
+	
+	int inembed[1] = { n };
 
+	cufftPlanMany(&plan1d_, 1, inembed,
+		inembed, input_.get_pixels(), 1,
+		inembed, input_.get_pixels(), 1,
+		CUFFT_C2C, input_.get_pixels());
+	
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
-		cufftPlan1d(
+	/*	cufftPlan1d(
 			&plan1d_,
 			n,
 			CUFFT_C2C,
 			input_.get_pixels()
 			) ? ++err_count : 0;
-
+			*/
 		/* gpu_stft_buffer */
 		cudaMalloc(&gpu_stft_buffer_,
 			sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;
@@ -266,13 +281,13 @@ namespace holovibes
 	}
 	else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
     {
-      cufftPlan1d(
+     /* cufftPlan1d(
         &plan1d_,
         n,
         CUFFT_C2C,
         compute_desc_.stft_roi_zone.load().area() ? compute_desc_.stft_roi_zone.load().area() : 1
         ) ? ++err_count : 0;
-
+	  */
       /* gpu_stft_buffer */
       cudaMalloc(&gpu_stft_buffer_,
         sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
