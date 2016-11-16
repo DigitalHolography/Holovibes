@@ -91,7 +91,7 @@ namespace holovibes
     return (start_ + curr_elts_) % max_elts_;
   }
 
-  bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
+  bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind, bool display)
   {
     guard guard(mutex_);
 
@@ -116,6 +116,7 @@ namespace holovibes
       ++curr_elts_;
     else
       start_ = (start_ + 1) % max_elts_;
+	if (display)
     gui::InfoManager::update_info_safe(name_,
       std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     return true;

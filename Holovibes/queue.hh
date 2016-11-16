@@ -92,7 +92,7 @@ namespace holovibes
     ** \param elt pointer to element to enqueue
     ** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
     */
-    bool enqueue(void* elt, cudaMemcpyKind cuda_kind);
+    bool enqueue(void* elt, cudaMemcpyKind cuda_kind, bool display = true);
 
     /*! \brief Dequeue method overload
     **

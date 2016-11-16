@@ -203,9 +203,12 @@ namespace holovibes
         fft_1,
         std::ref(gpu_complex_buffers_[1]),
         gpu_lens_,
-        plan3d_,
+        plan1d_,
+		plan2d_,
         input_fd.frame_res(),
         compute_desc_.nsamples.load(),
+		compute_desc_.pindex.load(),
+		compute_desc_.vibrometry_q.load(),
         modules_[1]->stream_
         ));
 

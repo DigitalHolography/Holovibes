@@ -32,7 +32,10 @@ void fft1_lens(
 void fft_1(
   cufftComplex* input,
   const cufftComplex* lens,
-  const cufftHandle plan,
+  const cufftHandle plan1D,
+  const cufftHandle plan2D,
   const unsigned int frame_resolution,
   const unsigned int nframes,
+  const unsigned int p,
+  const unsigned int q,
   cudaStream_t stream = 0);

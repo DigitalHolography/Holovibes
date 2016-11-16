@@ -82,9 +82,11 @@ namespace holovibes
     ICompute::update_n_parameter(n);
 
     /* gpu_input_buffer */
-    cudaDestroy<cudaError_t>(&(gpu_input_buffer_));
+	auto* tmp_gpu_input_buffer = gpu_input_buffer_;
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+	cudaFree(tmp_gpu_input_buffer);
+	//cudaDestroy<cudaError_t>(&(tmp_gpu_input_buffer));
   }
 
   void Pipe::refresh()
@@ -139,7 +141,7 @@ namespace holovibes
 			demodulation,
 			gpu_input_buffer_,
 			plan1d_,
-		static_cast<cudaStream_t>(0)));
+		    static_cast<cudaStream_t>(0)));
 
 		/* frame pointer */
 		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
@@ -152,17 +154,35 @@ namespace holovibes
         compute_desc_.lambda,
         compute_desc_.zdistance,
         static_cast<cudaStream_t>(0));
-
-      // Add FFT1.
-      fn_vect_.push_back(std::bind(
-        fft_1,
-        gpu_input_buffer_,
-        gpu_lens_,
-        plan3d_,
-        input_fd.frame_res(),
-        compute_desc_.nsamples.load(),
-        static_cast<cudaStream_t>(0)));
-
+	  if (!compute_desc_.vibrometry_enabled)
+	  {
+		  // Add FFT1.
+		  fn_vect_.push_back(std::bind(
+			  fft_1,
+			  gpu_input_buffer_,
+			  gpu_lens_,
+			  plan1d_,
+			  plan2d_,
+			  input_fd.frame_res(),
+			  compute_desc_.nsamples.load(),
+			  compute_desc_.pindex.load(),
+			  compute_desc_.pindex.load(),
+			  static_cast<cudaStream_t>(0)));
+	  }
+	  else
+	  {
+		  fn_vect_.push_back(std::bind(
+			  fft_1,
+			  gpu_input_buffer_,
+			  gpu_lens_,
+			  plan1d_,
+			  plan2d_,
+			  input_fd.frame_res(),
+			  compute_desc_.nsamples.load(),
+			  compute_desc_.pindex.load(),
+			  compute_desc_.vibrometry_q.load(),
+			  static_cast<cudaStream_t>(0)));
+	  }
       /* p frame pointer */
       gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
 
@@ -453,12 +473,12 @@ namespace holovibes
 
 
 	/*Add image to phase accumulation buffer*/
-
+	
 	fn_vect_.push_back(std::bind(
 		&Pipe::add_img_to_img_acc_buffer,
 		this,
 		gpu_float_buffer_));
-
+	
 	/*Compute Accumulation buffer into gpu_float_buffer*/
 	if (compute_desc_.img_acc_enabled)
 	{
@@ -639,12 +659,15 @@ namespace holovibes
             compute_desc_.lambda,
             z);
 
-          fft_1(
-            gpu_input_buffer_tmp,
-            gpu_lens_,
-            plan3d_,
-            input_fd.frame_res(),
-            compute_desc_.nsamples);
+		  fft_1(
+			  gpu_input_buffer_tmp,
+			  gpu_lens_,
+			  plan1d_,
+			  plan2d_,
+			  input_fd.frame_res(),
+			  compute_desc_.nsamples,
+			  compute_desc_.pindex.load(),
+			  compute_desc_.pindex.load());
 
           gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
         }
@@ -754,7 +777,7 @@ namespace holovibes
 
   void Pipe::add_img_to_img_acc_buffer(float *input)
   {
-	  img_acc_->enqueue(input, cudaMemcpyDeviceToDevice);
+	  img_acc_->enqueue(input, cudaMemcpyDeviceToDevice, false);
   }
 
   void Pipe::exec()
