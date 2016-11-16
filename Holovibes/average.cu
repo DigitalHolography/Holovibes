@@ -138,7 +138,7 @@ std::tuple<float, float, float, float> make_average_stft_plot(
   unsigned int blocks = map_blocks_to_problem(size, threads);
 
   // Reconstruct Roi
-  kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
+  /*kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
     stft_buffer,
     cbuf,
     width_roi,
@@ -147,7 +147,7 @@ std::tuple<float, float, float, float> make_average_stft_plot(
     width,
     height,
     pindex,
-    nsamples);
+    nsamples);*/
 
   complex_to_modulus(cbuf, fbuf, size, stream);
 

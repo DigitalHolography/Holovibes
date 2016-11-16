@@ -28,108 +28,6 @@ __global__ void kernel_apply_lens(
   }
 }
 
-
-
-__global__ void kernel_bursting(
-	const cufftComplex *input,
-	const unsigned int frame_resolution,
-	const unsigned int nsamples,
-	cufftComplex *output
-	)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int size = frame_resolution * nsamples;
-
-	while (index < frame_resolution)
-	{
-		for (unsigned int i = 0; i < nsamples; i++)
-		{
-			unsigned int output_index = index * nsamples + i;
-			unsigned int input_index = index + (i * frame_resolution);
-			output[output_index] = input[input_index];
-		}
-		index += blockDim.x * gridDim.x;
-	}
-}
-
-__global__ void kernel_bursting_roi(
-	const cufftComplex *input,
-	const unsigned int tl_x,
-	const unsigned int tl_y,
-	const unsigned int br_x,
-	const unsigned int br_y,
-	const unsigned int curr_elt,
-	const unsigned int nsamples,
-	const unsigned int width,
-	const unsigned int size,
-	cufftComplex *output)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int width_roi = br_x - tl_x;
-
-	// In ROI
-	while (index < size)
-	{
-		if (index >= tl_y * width && index < br_y * width
-			&& index % width >= tl_x && index % width < br_x)
-		{
-			unsigned int x = index % width - tl_x;
-			unsigned int y = index / width - tl_y;
-			unsigned int index_roi = x + y * width_roi;
-
-			output[index_roi * nsamples + curr_elt] = input[index];
-		}
-		index += blockDim.x * gridDim.x;
-	}
-}
-
-__global__ void kernel_reconstruct(
-	const cufftComplex* input,
-	cufftComplex* output,
-	const unsigned int p,
-	const unsigned int nframes,
-	const unsigned int frame_resolution)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int size = frame_resolution * nframes;
-	while (index < frame_resolution)
-	{
-		output[index] = input[index * nframes + p];
-		// These divisions are done for demodulation and therefore this
-		// function is not reusable as it is currently
-		output[index].x /= nframes;
-		output[index].y /= nframes;
-		index += blockDim.x * gridDim.x;
-	}
-}
-
-__global__ void kernel_reconstruct_roi(
-  const cufftComplex* input,
-  cufftComplex* output,
-  const unsigned int  input_width,
-  const unsigned int  input_height,
-  const unsigned int  output_width,
-  const unsigned int  reconstruct_width,
-  const unsigned int  reconstruct_height,
-  const unsigned int  p,
-  const unsigned int  nsample)
-{
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  unsigned int size = reconstruct_width * reconstruct_height;
-
-  while (index < size)
-  {
-    unsigned int x = index % reconstruct_width;
-    unsigned int y = index / reconstruct_width;
-    unsigned int x2 = x * input_width / reconstruct_width;
-    unsigned int y2 = y * input_height / reconstruct_height;
-    unsigned int pixel_index = y2 * input_width + x2;
-
-    output[y * output_width + x] = input[pixel_index * nsample + p];
-    index += blockDim.x * gridDim.x;
-  }
-}
-
 static __global__ void kernel_shift_corners(
   float* input,
   const unsigned int size_x,
@@ -223,6 +121,16 @@ static __global__ void kernel_complex_to_modulus(
   }
 }
 
+void demodulation(
+	cufftComplex* input,
+	const cufftHandle  plan1d,
+	cudaStream_t stream)
+{
+	// FFT 1D TEMPORAL
+	cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
+}
+
+
 void convolution_operator(
   const cufftComplex* x,
   const cufftComplex* k,
@@ -305,6 +213,7 @@ static __global__ void kernel_sum(const float* input, float* sum, const size_t s
     atomicAdd(sum, tmp_reduce);
   }
 }
+
 
 float average_operator(
   const float* input,

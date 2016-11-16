@@ -39,60 +39,6 @@ __global__ void kernel_apply_lens(
   const cufftComplex *lens,
   const unsigned int lens_size);
 
-// TODO 
-__global__ void kernel_bursting(
-	const cufftComplex *input,
-	const unsigned int frame_resolution,
-	const unsigned int nsamples,
-	cufftComplex *output
-	);
-
-// TODO:
-__global__ void kernel_reconstruct(
-	const cufftComplex* input,
-	cufftComplex* output,
-	const unsigned int p,
-	const unsigned int nframes,
-	const unsigned int frame_resolution);
-
-/*! \brief Will split the pixels of the original image
- * into output respecting the ROI selected
- * \param tl_x top left x coordinate of ROI
- * \param tl_y top left y coordinate of ROI
- * \param br_x bot right x coordinate of ROI
- * \param br_y bot right y coordinate of ROI
- * \param curr_elt which image out of nsamples we are doing the ROI on
- * \param width total width of input
- * \param output buffer containing all our pixels taken from the ROI
- */
-__global__ void kernel_bursting_roi(
-  const cufftComplex *input,
-  const unsigned int tl_x,
-  const unsigned int tl_y,
-  const unsigned int br_x,
-  const unsigned int br_y,
-  const unsigned int curr_elt,
-  const unsigned int nsamples,
-  const unsigned int width,
-  const unsigned int size,
-  cufftComplex *output);
-
-/*! \brief Reconstruct bursted pixel from input
- * into output
- * \param p which image we are on
- * \param nsample total number of images
- */
-__global__ void kernel_reconstruct_roi(
-  const cufftComplex* input,
-  cufftComplex*       output,
-  const unsigned int  input_width,
-  const unsigned int  input_height,
-  const unsigned int  output_width,
-  const unsigned int  reconstruct_width,
-  const unsigned int  reconstruct_height,
-  const unsigned int  p,
-  const unsigned int  nsample);
-
 /*! \brief Shifts in-place the corners of an image.
  *
  * This function shifts zero-frequency components to the center
@@ -121,6 +67,25 @@ void apply_log10(
   float* input,
   const unsigned int size,
   cudaStream_t stream = 0);
+
+
+/*! \brief Allows demodulation in real time. Considering that we need (exactly like
+*   an STFT) put every pixel in a particular order to apply an FFT and then reconstruct
+*   the frame, please consider that this computation is very costly.
+
+* !!! An explanation of how the computation is given in stft.cuh !!!
+
+* \param input input buffer is where frames are taken for computation
+* \param stft_buf the buffer which will be exploded
+* \param stft_dup_buf the buffer that will receive the plan1d transforms
+* \parem frame_resolution number of pixels in one frame.
+* \param nsamples number of frames that will be used.
+
+*/
+void demodulation(
+	cufftComplex* input,
+	const cufftHandle plan,
+	cudaStream_t stream = 0);
 
 /*! \brief Apply the convolution operator to 2 complex matrices.
 *

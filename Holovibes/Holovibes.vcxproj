@@ -143,7 +143,6 @@
     <ClInclude Include="config.hh" />
     <ClInclude Include="contrast_correction.cuh" />
     <ClInclude Include="convolution.cuh" />
-    <ClInclude Include="demodulation.cuh" />
     <ClInclude Include="fft2.cuh" />
     <ClInclude Include="flowgraphy.cuh" />
     <ClInclude Include="GeneratedFiles\ui_gl_window.h" />
@@ -375,7 +374,6 @@
     <CudaCompile Include="average.cu" />
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="convolution.cu" />
-    <CudaCompile Include="demodulation.cu" />
     <CudaCompile Include="fft2.cu" />
     <CudaCompile Include="flowgraphy.cu" />
     <CudaCompile Include="hardware_limits.cc" />

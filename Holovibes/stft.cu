@@ -45,7 +45,7 @@ void stft(
   }
 
   // Do the ROI
-  kernel_bursting_roi << <blocks, threads, 0, stream >> >(
+/*  kernel_bursting_roi << <blocks, threads, 0, stream >> >(
     input,
     r.top_left.x,
     r.top_left.y,
@@ -56,7 +56,7 @@ void stft(
     desc.width,
     desc.width * desc.height,
     stft_buf);
-  ++curr_elt;
+  ++curr_elt;*/
 
   // FFT 1D
   cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
@@ -80,7 +80,7 @@ void stft_recontruct(
   if (!r.area())
     return;
   // Reconstruct Roi
-  kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
+/*  kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
     stft_dup_buf,
     output,
     r.get_width(),
@@ -89,5 +89,5 @@ void stft_recontruct(
     reconstruct_width,
     reconstruct_height,
     pindex,
-    nsamples);
+    nsamples);*/
 }
