@@ -105,8 +105,5 @@ namespace holovibes
 
     /*! Input frame pointer. */
     cufftComplex* gpu_input_frame_ptr_;
-
-	/*! Queue for phase accumulation*/
-	Queue *img_acc_;
   };
 }

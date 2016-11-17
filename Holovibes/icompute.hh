@@ -331,5 +331,8 @@ namespace holovibes
     af_env        af_env_;
     /*! \brief Ofstream use by float_output_recorder. */
     std::ofstream float_output_file_;
+
+	/*! Queue for phase accumulation*/
+	Queue *gpu_img_acc_;
   };
 }

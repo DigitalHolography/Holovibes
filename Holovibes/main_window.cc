@@ -866,7 +866,7 @@ namespace gui
 
   void MainWindow::set_accumulation_level(int value)
   {
-	  if (!is_direct_mode() && value <= holovibes_.get_compute_desc().img_acc_buffer_size)
+	  if (!is_direct_mode())
 	  {
 			holovibes_.get_compute_desc().img_acc_level.exchange(value);
 			holovibes_.get_pipe()->request_refresh();
