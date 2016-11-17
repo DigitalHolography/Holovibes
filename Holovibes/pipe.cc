@@ -773,7 +773,7 @@ namespace holovibes
 
   void Pipe::add_img_to_img_acc_buffer(float *input)
   {
-	  gpu_img_acc_->enqueue(input, cudaMemcpyDeviceToDevice, true);
+	  gpu_img_acc_->enqueue(input, cudaMemcpyDeviceToDevice, false);
   }
 
   void Pipe::exec()

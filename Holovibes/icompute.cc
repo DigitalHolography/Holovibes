@@ -342,7 +342,7 @@ namespace holovibes
 		delete gpu_img_acc_;
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		new_fd.depth = 4;
-		gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
+		gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation Processing...");
 	}
 
   }

@@ -17,7 +17,7 @@ __global__ void img8_to_complex(
   while (index < size)
   {
     // Image rescaling on 2^16 colors (65535 / 255 = 257)
-	float val = static_cast<float>(input[index] * 257);
+	  float val = static_cast<float>(input[index] * 257);
 	output[index].x = val;
 	output[index].y = 0;
     index += blockDim.x * gridDim.x;

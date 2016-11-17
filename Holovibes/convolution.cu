@@ -32,8 +32,10 @@ __global__ void kernel_multiply_kernel(
 			float b = kernel[m + n * k_width + (z * k_size)];
 			sum.x += a.x * b;// - a.y * b.y;
 			sum.y += a.y * b;// + a.x * b.y;
-			sum.x /= nsamples * k_width * k_height;
 		}
+		const unsigned int n_k_size = nsamples * k_size;
+		sum.x /= n_k_size;
+		sum.y /= n_k_size;
 		input[index] = sum;
 		index += blockDim.x * gridDim.x;
 	}
@@ -52,7 +54,6 @@ void convolution_kernel(
 	const unsigned int& gpu_special_queue_max_index,
 	cudaStream_t stream)
 {
-	// const unsigned int n_frame_resolution = frame_resolution * nframes;
 
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
