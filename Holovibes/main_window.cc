@@ -192,7 +192,7 @@ namespace gui
 		p_vibro->setMaximum(cd.nsamples);
 
 		QSpinBox* q_vibro = findChild<QSpinBox*>("qSpinBoxVibro");
-		q_vibro->setValue(cd.vibrometry_q);
+		q_vibro->setValue(cd.vibrometry_q + 1);
 		q_vibro->setMaximum(cd.nsamples);
 
 		QDoubleSpinBox* z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox");
@@ -1104,13 +1104,13 @@ namespace gui
 
   void MainWindow::set_q_vibro(int value)
   {
+	  value--;
     if (!is_direct_mode())
     {
       holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-      if (value <= static_cast<int>(cd.nsamples) && value >= 1)
+      if (value < static_cast<int>(cd.nsamples) && value >= 0)
       {
-		value--;
         holovibes_.get_compute_desc().vibrometry_q.exchange(value);
         holovibes_.get_pipe()->request_refresh();
       }
