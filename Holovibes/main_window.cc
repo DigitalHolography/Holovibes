@@ -1779,7 +1779,7 @@ namespace gui
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->clear();
     boundary->insert(QString::number(holovibes_.get_boundary()));
-	if (depth_spinbox->currentText() != QString("8") && cine->isChecked() == false)
+	if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 		big_endian_checkbox->setEnabled(true);
 	QAction* settings = findChild<QAction*>("actionSettings");
 	settings->setEnabled(false);
@@ -2318,7 +2318,7 @@ namespace gui
     QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 
     // Changing the endianess when depth = 8 makes no sense
-    imp_cbox->setEnabled(curr_value != "8");
+    imp_cbox->setEnabled(curr_value == "16");
   }
 
   void MainWindow::set_import_cine_file(bool value)

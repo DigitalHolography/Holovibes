@@ -30,8 +30,8 @@ __global__ void kernel_multiply_kernel(
 		for (n = 0; n < k_height; ++n) {
 			cufftComplex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
 			float b = kernel[m + n * k_width + (z * k_size)];
-			sum.x += a.x * b;// - a.y * b.y;
-			sum.y += a.y * b;// + a.x * b.y;
+			sum.x += a.x * b;
+			sum.y += a.y * b;
 		}
 		const unsigned int n_k_size = nsamples * k_size;
 		sum.x /= n_k_size;
