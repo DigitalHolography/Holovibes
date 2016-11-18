@@ -28,7 +28,7 @@ DisableProgramGroupPage=yes
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
-DiskSpanning=yes
+DiskSpanning=no
 UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\Holovibes.exe
 
