@@ -46,6 +46,7 @@ namespace holovibes
     , average_record_requested_(false)
     , abort_construct_requested_(false)
     , termination_requested_(false)
+	, update_acc_requested_(false)
     , q_gpu_stft_buffer_(nullptr)
     , average_output_(nullptr)
     , average_n_(0)
@@ -272,6 +273,7 @@ namespace holovibes
       /* gpu_stft_buffer */
       cudaMalloc(&gpu_stft_dup_buffer_,
         sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
+
     }
 	
     if (err_count)
@@ -337,19 +339,32 @@ namespace holovibes
 		cudaMalloc<cufftComplex>(&gpu_special_queue_,
 			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load());
 	}
-	if (compute_desc_.img_acc_enabled)
-	{
-		delete gpu_img_acc_;
-		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		new_fd.depth = 4;
-		gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation Processing...");
-	}
+  }
 
+  void ICompute::update_acc_parameter()
+  {
+	  if (gpu_img_acc_ != nullptr)
+	  {
+		  delete gpu_img_acc_;
+		  gpu_img_acc_ = nullptr;
+	  }
+	  if (compute_desc_.img_acc_enabled)
+	  {
+		  camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		  new_fd.depth = 4;
+		  gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
+	  }
   }
 
   void ICompute::request_refresh()
   {
     refresh_requested_ = true;
+  }
+
+  void ICompute::request_acc_refresh()
+  {
+	  update_acc_requested_ = true;
+	  request_refresh();
   }
 
   void ICompute::request_float_output(Queue* fqueue)

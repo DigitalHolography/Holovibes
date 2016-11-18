@@ -78,10 +78,6 @@ namespace holovibes
     /*! \brief Doing the ol'dirty way that was working */
     void autofocus_caller(float* input, cudaStream_t stream) override;
 
-	/*TODO:*/
-
-	void complex_pipe();
-
 	/*! \brief Add current img to img_phase queue*/
 	void add_img_to_img_acc_buffer(float *input);
 

@@ -106,7 +106,11 @@ namespace holovibes
       update_n_requested_ = false;
       update_n_parameter(compute_desc_.nsamples);
     }
-
+	if (update_acc_requested_)
+	{
+		update_acc_requested_ = false;
+		update_acc_parameter();
+	}
     if (abort_construct_requested_)
       return;
 
@@ -773,7 +777,7 @@ namespace holovibes
 
   void Pipe::add_img_to_img_acc_buffer(float *input)
   {
-	  gpu_img_acc_->enqueue(input, cudaMemcpyDeviceToDevice, false);
+	  gpu_img_acc_->enqueue(input, cudaMemcpyDeviceToDevice, true);
   }
 
   void Pipe::exec()

@@ -72,9 +72,15 @@ namespace holovibes
     /*! \brief Destroy the ICompute object. */
     virtual ~ICompute();
 
+	/*! \brief Realloc the image accumulation buffer */
+	void update_acc_parameter();
+
     /*! \{ \name ICompute request methods */
     /*! \brief Request the ICompute to refresh. */
     void request_refresh();
+
+	/*! \brief Request to refresh the accumulation queue. */
+	void request_acc_refresh();
 
     /*! \brief Request the ICompute to apply the autofocus algorithm. */
     void request_autofocus();
@@ -306,6 +312,7 @@ namespace holovibes
 	bool complex_output_requested_;
     bool abort_construct_requested_;
     bool termination_requested_;
+	bool update_acc_requested_;
     /*! \} */
 
     /*! \brief Number of frame in input. */

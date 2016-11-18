@@ -849,9 +849,9 @@ namespace gui
     if (!is_direct_mode())
     {
       auto pipe = holovibes_.get_pipe();
-
       pipe->request_unwrapping(value);
-      pipe->request_refresh();
+	  pipe->update_acc_parameter();
+      //pipe->request_refresh();
     }
   }
 
@@ -860,7 +860,10 @@ namespace gui
 	  if (!is_direct_mode())
 	  {
 		  holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
-		  holovibes_.get_pipe()->request_refresh();
+		 // if (!value)
+			 holovibes_.get_pipe()->request_acc_refresh();
+		 // else
+			//  holovibes_.get_pipe()->request_refresh();
 	  }
   }
 
@@ -869,7 +872,7 @@ namespace gui
 	  if (!is_direct_mode())
 	  {
 			holovibes_.get_compute_desc().img_acc_level.exchange(value);
-			holovibes_.get_pipe()->request_refresh();
+			holovibes_.get_pipe()->request_acc_refresh();
 	  }
 	  notify();
   }
@@ -2104,8 +2107,7 @@ namespace gui
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
       config.reader_buf_max_size = ptree.get<int>("config.reader_buf_size", config.reader_buf_max_size);
-	  cd.img_acc_buffer_size = ptree.get<unsigned int>("config.image_accumulation_size", cd.img_acc_buffer_size);
-
+	 
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
@@ -2228,7 +2230,6 @@ namespace gui
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
     ptree.put("config.reader_buf_size", config.reader_buf_max_size);
-	ptree.put("config.image_accumulation_size", cd.img_acc_buffer_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
