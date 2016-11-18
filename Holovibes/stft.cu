@@ -21,19 +21,19 @@ void stft(
   unsigned int threads = 128;
   unsigned int blocks = map_blocks_to_problem(desc.frame_res(), threads);
 
-  // Apply lens on multiple frames.
+ /* // Apply lens on multiple frames.
   kernel_apply_lens << <blocks, threads, 0, stream >> >(input, desc.frame_res(), lens, desc.frame_res());
 
   cudaStreamSynchronize(stream);
 
   // FFT 2D
   cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
-  cudaStreamSynchronize(stream);
+  cudaStreamSynchronize(stream);*/
 
   if (!r.area())
     return;
 
-  if (curr_elt == nsamples)
+/*  if (curr_elt == nsamples)
   {
     // Remove first element and move all element on left
     cudaMemcpyAsync(stft_buf,
@@ -42,7 +42,7 @@ void stft(
       cudaMemcpyDeviceToDevice,
       stream);
     --curr_elt;
-  }
+  }*/
 
   // Do the ROI
 /*  kernel_bursting_roi << <blocks, threads, 0, stream >> >(

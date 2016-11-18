@@ -10,7 +10,7 @@
 
 namespace holovibes
 {
-  const static std::string version = "v2.2.0"; /*!< Current version of this project. */
+  const static std::string version = "v2.3.0"; /*!< Current version of this project. */
 
   /*! \brief Contains compute parameters.
    *
@@ -55,8 +55,6 @@ namespace holovibes
       ARGUMENT,
 	  COMPLEX,
       UNWRAPPED_ARGUMENT,
-      UNWRAPPED_ARGUMENT_2,
-      UNWRAPPED_ARGUMENT_3,
     };
 
     /*! \brief ComputeDescriptor constructor

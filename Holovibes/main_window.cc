@@ -145,7 +145,7 @@ namespace gui
 			view_mode->setCurrentIndex(1);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 			view_mode->setCurrentIndex(2);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
 			view_mode->setCurrentIndex(3);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
 			view_mode->setCurrentIndex(4);
@@ -812,10 +812,8 @@ namespace gui
 			  }
 			  else
 			  {
-				  if (value == "Phase 1")
+				   if (value == "Phase increase")
 					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
-				  else if (value == "Phase increase")
-					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2;
 			  }
 		  }
 		  set_unwrap_enabled();
@@ -829,7 +827,7 @@ namespace gui
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
 
-	  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT_2)
+	  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
 		  unwrap_CheckBox_->setEnabled(true);
 	  else
 		  unwrap_CheckBox_->setEnabled(false);
