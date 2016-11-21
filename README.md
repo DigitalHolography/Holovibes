@@ -346,6 +346,13 @@ Cyril, Clément are now working on the project until January 2017.
 * Add complex color display
 * several GUI changes
 
+### v.2.3.0
+
+* FFT1 & FFT2 fixed
+* FFT1D temporal performances greatly improved
+* add accumulation stack feature
+* fix several bugs
+
 # Known problems :
 
 * Marshall.cxx / ole32.dll : No known fixes, try updating QT.
