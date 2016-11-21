@@ -7,7 +7,7 @@
 
 void stft(
   cufftComplex*                   input,
-  const cufftComplex*             lens,
+  const cufftComplex*             gpu_queue,
   cufftComplex*                   stft_buf,
   cufftComplex*                   stft_dup_buf,
   const cufftHandle               plan2d,
@@ -16,7 +16,8 @@ void stft(
   unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
   unsigned int                    nsamples,
-  cudaStream_t stream)
+  unsigned int                    stft_level,
+  cudaStream_t                    stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = map_blocks_to_problem(desc.frame_res(), threads);

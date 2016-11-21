@@ -32,8 +32,7 @@ namespace holovibes
     enum fft_algorithm
     {
       FFT1,
-      FFT2,
-      STFT,
+      FFT2
     };
 
 	/*! \brief select which mode the pipe will be using*/
@@ -77,6 +76,7 @@ namespace holovibes
       , vibrometry_enabled(false)
 	  , convolution_enabled(false)
 	  , flowgraphy_enabled(false)
+	  , stft_enabled(false)
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q()
@@ -94,6 +94,7 @@ namespace holovibes
 	  , img_acc_enabled(false)
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
+	  , stft_level(32)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -198,5 +199,9 @@ namespace holovibes
 	std::atomic<unsigned int> img_acc_buffer_size;
 	/*! Set Image Accumulation level. */
 	std::atomic<unsigned int> img_acc_level;
+	/*! Is stft mode enabled. */
+	std::atomic<bool> stft_enabled;
+	/*! Quantity of frames that will be processed during STFT. */
+	std::atomic<int> stft_level;
   };
 }

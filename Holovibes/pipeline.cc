@@ -286,7 +286,7 @@ namespace holovibes
           ));
       }
     }
-    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    else if (compute_desc_.stft_enabled)
     {
       // Initialize FFT1 lens.
       if (!autofocus_requested_)
@@ -323,6 +323,7 @@ namespace holovibes
         curr_elt_stft_,
         input_fd,
         compute_desc_.nsamples.load(),
+		compute_desc_.stft_level.load(),
         modules_[1]->stream_
         ));
 

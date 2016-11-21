@@ -132,8 +132,6 @@ namespace gui
 			algorithm->setCurrentIndex(0);
 		else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
 			algorithm->setCurrentIndex(1);
-		else if (cd.algorithm == holovibes::ComputeDescriptor::STFT)
-			algorithm->setCurrentIndex(2);
 		else
 			algorithm->setCurrentIndex(0);
 
@@ -395,7 +393,7 @@ namespace gui
 				}
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-				if (holovibes_.get_compute_desc().algorithm == holovibes::ComputeDescriptor::STFT)
+				if (holovibes_.get_compute_desc().stft_enabled)
 				{
 					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 
@@ -740,7 +738,7 @@ namespace gui
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
 		  else if (value == "2FFT")
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT2;
-		  else if (value == "STFT")
+		 /* else if (value == "STFT")
 		  {
 			  cd.nsamples = 16;
 			  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
@@ -749,12 +747,29 @@ namespace gui
 			  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 				  Qt::UniqueConnection);
 			  cd.algorithm = holovibes::ComputeDescriptor::STFT;
-		  }
+		  }*/
 		  else
 			  assert(!"Unknow Algorithm.");
 
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 			  holovibes_.get_pipe()->request_autocontrast();
+	  }
+  }
+
+  void MainWindow::set_stft()
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  if (!is_direct_mode())
+	  {
+		  cd.stft_enabled = !(cd.stft_enabled);
+	  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+	  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+	  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+		  Qt::UniqueConnection);
+	  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+		  Qt::UniqueConnection);
+	  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+		  holovibes_.get_pipe()->request_autocontrast();
 	  }
   }
 
@@ -928,7 +943,7 @@ namespace gui
     const unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-    if (desc.algorithm == holovibes::ComputeDescriptor::STFT)
+    if (desc.stft_enabled)
     {
       display_error("You can't call autofocus in stft mode.");
       return;

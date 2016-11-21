@@ -48,7 +48,7 @@ namespace camera
  */
 void stft(
   cufftComplex*                   input,
-  const cufftComplex*             lens,
+  const cufftComplex*             gpu_queue,
   cufftComplex*                   stft_buf,
   cufftComplex*                   stft_dup_buf,
   const cufftHandle               plan2d,
@@ -57,7 +57,8 @@ void stft(
   unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
   unsigned int                    nsamples,
-  cudaStream_t stream = 0);
+  unsigned int                    stft_level,
+  cudaStream_t                    stream = 0);
 
 /*! \brief Reconstruct image from bursting complex queue (stft_dup_buf)
 * and rescale it to reconstruct width/height
@@ -75,4 +76,4 @@ void stft_recontruct(
   const unsigned int              reconstruct_height,
   const unsigned int              pindex,
   const unsigned int              nsamples,
-  cudaStream_t stream = 0);
+  cudaStream_t                    stream = 0);

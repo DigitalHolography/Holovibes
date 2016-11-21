@@ -213,6 +213,12 @@ namespace gui
     ** \param value algorithm "1FFT" or "2FFT"
     */
     void set_algorithm(QString value);
+
+	/*! \brief Set algorithm
+	** \param value to set stft on/off
+	*/
+	void set_stft();
+
     /*! \} */
 
     /*! \{ \name View */

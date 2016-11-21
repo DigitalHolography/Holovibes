@@ -144,6 +144,9 @@ namespace holovibes
 	/*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
 	void request_complex_output_stop();
 
+	/*! \brief Add current img to img_phase queue*/
+	void queue_enqueue(void* input, Queue* queue);
+
 
     /*! \brief Ask for the end of the execution loop. */
     void request_termination();
@@ -341,5 +344,10 @@ namespace holovibes
 
 	/*! Queue for phase accumulation*/
 	Queue *gpu_img_acc_;
+
+	/*! Queue for phase accumulation*/
+	Queue *gpu_stft_queue_;
+
+
   };
 }
