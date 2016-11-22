@@ -282,8 +282,6 @@ namespace holovibes
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
-    /*! cufftComplex array containing save of n contiguous ROI of frames. */
-	cufftComplex* gpu_stft_dup_buffer_;
 	/*! cufftComplex array containing lens. */
 	cufftComplex* gpu_lens_;
 	/*! cufftComplex array containing kernel. */

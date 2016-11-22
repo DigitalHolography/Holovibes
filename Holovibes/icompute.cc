@@ -29,7 +29,6 @@ namespace holovibes
     , gpu_sqrt_vector_(nullptr)
     , unwrap_res_(nullptr)
     , gpu_stft_buffer_(nullptr)
-    , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
 	, gpu_kernel_buffer_(nullptr)
 	, gpu_special_queue_(nullptr)
@@ -190,9 +189,6 @@ namespace holovibes
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
 
-    /* gpu_stft_dup_buffer */
-	cudaFree(gpu_stft_dup_buffer_);
-
 	/* gpu_special_queue */
 	cudaFree(gpu_special_queue_);
 
@@ -260,9 +256,6 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
-
-    /* gpu_stft_buffer */
-    cudaDestroy<cudaError_t>(&gpu_stft_dup_buffer_) ? ++err_count : 0;
 	
 	//int inembed[1] = { input_length_ };
 

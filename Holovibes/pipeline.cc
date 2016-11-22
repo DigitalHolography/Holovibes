@@ -369,24 +369,24 @@ namespace holovibes
           modules_[1]->stream_
           ));
       }
-
-      if (average_requested_)
-      {
-        if (compute_desc_.stft_roi_zone.load().area())
-          modules_[1]->push_back_worker(std::bind(
-          &Pipeline::average_stft_caller,
-          this,
-          gpu_stft_dup_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.stft_roi_zone.load().get_width(),
-          compute_desc_.stft_roi_zone.load().get_height(),
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          compute_desc_.nsamples.load(),
-          modules_[1]->stream_
-          ));
-      }
+/*
+	  if (average_requested_)
+	  {
+		  if (compute_desc_.stft_roi_zone.load().area())
+			  modules_[1]->push_back_worker(std::bind(
+			  &Pipeline::average_stft_caller,
+			  this,
+			  gpu_stft_dup_buffer_,
+			  input_fd.width,
+			  input_fd.height,
+			  compute_desc_.stft_roi_zone.load().get_width(),
+			  compute_desc_.stft_roi_zone.load().get_height(),
+			  compute_desc_.signal_zone.load(),
+			  compute_desc_.noise_zone.load(),
+			  compute_desc_.nsamples.load(),
+			  modules_[1]->stream_
+			  ));
+	  }*/
     }
     else
       assert(!"Impossible case.");
