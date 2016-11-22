@@ -69,3 +69,22 @@ __global__ void kernel_correct_angles(
   const float* corrections,
   const size_t image_size,
   const size_t history_size);
+
+/*! Initialise fx, fy, z matrix for unwrap 2d.
+*
+* \param Matrix width.
+* \param Matrix height.
+* \param Matrix resolution.
+* \param 1TF or 2TF result.
+* \param fx buffer.
+* \param fy buffer.
+* \param z buffer. */
+
+__global__ void kernel_init_unwrap_2d(
+	unsigned int width,
+	unsigned int height,
+	unsigned int frame_res,
+	cufftComplex *input,
+	float *fx,
+	float *fy,
+	cufftComplex *z);

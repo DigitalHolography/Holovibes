@@ -20,6 +20,11 @@ namespace holovibes
 namespace holovibes
 {
   struct UnwrappingResources;
+  struct UnwrappingResources_2d;
+}
+namespace camera
+{
+	struct FrameDescriptor;
 }
 
 /*! \brief  Apply a previously computed lens to image(s).
@@ -184,7 +189,26 @@ void unwrap_diff(
   const size_t image_size,
   const bool with_unwrap);
 
+
+/*! Main function for unwrap_2d calculations*/
 void unwrap_2d(
 	cufftComplex *input,
 	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream);
+
+/*! Gradian calculation for unwrap_2d calculations*/
+void gradian_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d res,
+	camera::FrameDescriptor& fd,
+	cudaStream_t stream);
+
+/*! Eq calculation for unwrap_2d calculations*/
+void eq_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d res,
+	camera::FrameDescriptor& fd,
 	cudaStream_t stream);

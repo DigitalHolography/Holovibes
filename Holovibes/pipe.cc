@@ -461,6 +461,8 @@ namespace holovibes
 				unwrap_res_2d_.reset(new UnwrappingResources_2d(
 					input_.get_pixels()));
 			}
+			if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
+				unwrap_res_2d_->reallocate(input_.get_pixels());
 			if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
 			{
 				// Phase unwrapping, complex multiply-with-conjugate method
@@ -468,6 +470,9 @@ namespace holovibes
 					unwrap_2d,
 					gpu_input_frame_ptr_,
 					plan2d_,
+					unwrap_res_2d_,
+					gpu_float_buffer_,
+					input_.get_frame_desc(),
 					static_cast<cudaStream_t>(0)));
 			}
 			else

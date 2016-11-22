@@ -35,3 +35,41 @@ __global__ void kernel_multiply_frames_float(
   const float* input2,
   float* output,
   const unsigned int size);
+
+/*! \brief  Multiply each pixels of a complex frame value by a float. Done for 2 complexes.
+*/
+__global__ void kernel_multiply_complexes_by_floats_(
+	const float* input1,
+	const float* input2,
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const unsigned int size);
+
+	/*! \brief  Multiply each pixels of two complexes frames value by a single complex.
+	*/
+__global__ void kernel_multiply_complexes_by_single_complex(
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const cufftComplex input,
+	const unsigned int size);
+
+/*! \brief  Multiply each pixels of complex frames value by a single complex.
+*/
+__global__ void kernel_multiply_complex_by_single_complex(
+	cufftComplex* output,
+	const cufftComplex input,
+	const unsigned int size);
+
+/*! \brief  Get conjugate complex frame.
+*/
+__global__ void kernel_conjugate_complex(
+	cufftComplex* output,
+	const unsigned int size);
+
+/*! \brief  Multiply a complex frames by a complex frame.
+*/
+__global__ void kernel_multiply_complex_frames_by_complex_frame(
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const cufftComplex* input,
+	const unsigned int size)
