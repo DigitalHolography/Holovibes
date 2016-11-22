@@ -818,34 +818,6 @@
           <number>3</number>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrapCheckBox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>50</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>unwrap the phase angle (phase increase mode only)</string>
-         </property>
-         <property name="text">
-          <string>1D</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
         <widget class="QLabel" name="ViewShorcut_label">
          <property name="geometry">
           <rect>
@@ -912,34 +884,6 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrapCheckBox_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>50</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>unwrap the phase angle (phase increase mode only)</string>
-         </property>
-         <property name="text">
-          <string>2D</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
         <widget class="QLabel" name="autofocusLabel_2">
          <property name="geometry">
           <rect>
@@ -953,32 +897,44 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>unwrapCheckBox</zorder>
-        <zorder>ViewShorcut_label</zorder>
-        <zorder>img_accSpinBox</zorder>
-        <zorder>img_accCheckBox</zorder>
-        <zorder>unwrapCheckBox_2</zorder>
-        <zorder>ImageRendering</zorder>
-        <zorder>autofocusLabel_2</zorder>
+        <widget class="QRadioButton" name="unwrapRadioButton_1D">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>50</y>
+           <width>31</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>1D</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="unwrapRadioButton_2D">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>50</y>
+           <width>31</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>2D</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -2333,7 +2289,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2827,7 +2783,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>232</y>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2843,7 +2799,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>308</x>
-     <y>177</y>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2859,7 +2815,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>181</y>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2922,8 +2878,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_view_mode(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>71</y>
+     <x>408</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -2939,7 +2895,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>202</y>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3051,7 +3007,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>233</y>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -3210,8 +3166,8 @@ p, li { white-space: pre-wrap; }
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>345</y>
+     <x>539</x>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -3226,8 +3182,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>345</y>
+     <x>629</x>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -3275,7 +3231,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>272</y>
+     <y>252</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -3530,8 +3486,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>322</y>
+     <x>629</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3562,8 +3518,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>830</x>
-     <y>145</y>
+     <x>849</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3604,30 +3560,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>unwrapCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_unwrapping(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>338</x>
-     <y>112</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>583</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>directImageRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_direct_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>67</y>
+     <x>65</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -3642,8 +3582,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_holographic_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>146</x>
-     <y>67</y>
+     <x>107</x>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3658,8 +3598,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_convo_matrix()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>190</y>
+     <x>539</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3674,8 +3614,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>160</y>
+     <x>629</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -3690,8 +3630,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_convolution_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>189</y>
+     <x>629</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3722,8 +3662,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_special_buffer_size(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>603</x>
-     <y>101</y>
+     <x>629</x>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -3738,8 +3678,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>208</y>
+     <x>629</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>663</x>
@@ -3755,7 +3695,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>302</y>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3771,7 +3711,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>332</y>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -3787,7 +3727,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>368</x>
-     <y>363</y>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3803,7 +3743,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>363</y>
+     <y>343</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3818,8 +3758,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_import_cine_file(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1092</x>
-     <y>62</y>
+     <x>1062</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
      <x>885</x>
@@ -3850,8 +3790,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_demodulation_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>82</y>
+     <x>107</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -3946,8 +3886,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>285</x>
-     <y>136</y>
+     <x>328</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -3962,12 +3902,44 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>374</x>
-     <y>124</y>
+     <x>388</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
      <y>391</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>unwrapRadioButton_1D</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrap_1d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>342</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>unwrapRadioButton_2D</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrap_2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>98</y>
     </hint>
    </hints>
   </connection>
@@ -4052,5 +4024,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_complex_visible(bool)</slot>
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
+  <slot>set_unwrap_1d(bool)</slot>
+  <slot>set_unwrap_2d(bool)</slot>
  </slots>
 </ui>

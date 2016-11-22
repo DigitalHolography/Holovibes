@@ -64,4 +64,6 @@ namespace holovibes
     /*! Current phase image after unwrapping. */
     float* gpu_unwrapped_angle_;
   };
+
+
 }

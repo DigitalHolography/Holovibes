@@ -183,3 +183,8 @@ void unwrap_diff(
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
   const bool with_unwrap);
+
+void unwrap_2d(
+	cufftComplex *input,
+	const cufftHandle plan2d,
+	cudaStream_t stream);

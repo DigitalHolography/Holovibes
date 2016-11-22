@@ -28,7 +28,7 @@
 # include "options_parser.hh"
 # include "holovibes.hh"
 # include "observer.hh"
-#include "options_descriptor.hh"
+# include "options_descriptor.hh"
 
 /* Forward declarations. */
 namespace gui
@@ -158,6 +158,14 @@ namespace gui
 	/*! \brief Called by set_image_mode if complex algorithm is clicked  */
 	/* */
 	void set_complex_mode(bool value);
+
+	/*! \brief Set unwrap to 1D  */
+	/* */
+	void set_unwrap_1d(bool value);
+
+	/*! \brief Set unwrap to 2D  */
+	/* */
+	void set_unwrap_2d(bool value);
 
 	/*! \brief Called by set_image_mode if Convolution button is clicked  */
 	/* */

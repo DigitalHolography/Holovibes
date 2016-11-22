@@ -57,6 +57,12 @@ namespace holovibes
       UNWRAPPED_ARGUMENT,
     };
 
+	enum unwrap_mode
+	{
+		DIM_1,
+		DIM_2,
+	};
+
     /*! \brief ComputeDescriptor constructor
      *
      * Initialize the compute descriptor to default values of computation. */
@@ -94,6 +100,7 @@ namespace holovibes
 	  , img_acc_enabled(false)
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
+	  , unwrap(DIM_1)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -110,6 +117,8 @@ namespace holovibes
     std::atomic<enum fft_algorithm> algorithm;
 	/*! Computing mode used by the pipe */
 	std::atomic<enum compute_mode> compute_mode;
+	/*! Unwrap type. */
+	std::atomic<enum unwrap_mode> unwrap;
 
 	/*! Convolution matrix length. */
 	std::atomic<unsigned int> convo_matrix_width;

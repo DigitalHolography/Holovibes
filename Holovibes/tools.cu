@@ -455,3 +455,11 @@ void unwrap_diff(
     ++resources->size_;
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
+
+void unwrap_2d(
+	cufftComplex *input,
+	const cufftHandle plan2d,
+	cudaStream_t stream)
+{
+	return ;
+}

@@ -500,6 +500,18 @@ namespace gui
 			holovibes_.get_pipe()->request_refresh();
 	}
 
+	void MainWindow::set_unwrap_1d(const bool value)
+	{
+		holovibes_.get_compute_desc().unwrap = holovibes::ComputeDescriptor::unwrap_mode::DIM_1;
+		holovibes_.get_pipe()->request_refresh();
+	}
+
+	void MainWindow::set_unwrap_2d(const bool value)
+	{
+		holovibes_.get_compute_desc().unwrap = holovibes::ComputeDescriptor::unwrap_mode::DIM_2;
+		holovibes_.get_pipe()->request_refresh();
+	}
+
 	bool MainWindow::is_direct_mode()
 	{
 		return holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT;
@@ -825,12 +837,19 @@ namespace gui
   void MainWindow::set_unwrap_enabled(void)
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-	  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
+	  QRadioButton* dim1 = findChild<QRadioButton*>("unwrapRadioButton_1D");
+	  QRadioButton* dim2 = findChild<QRadioButton*>("unwrapRadioButton_2D");
 
 	  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-		  unwrap_CheckBox_->setEnabled(true);
+	  {
+		  dim1->setEnabled(true);
+		  dim2->setEnabled(true);
+	  }
 	  else
-		  unwrap_CheckBox_->setEnabled(false);
+	  {
+		  dim1->setEnabled(false);
+		  dim2->setEnabled(false);
+	  }
   }
 
   void MainWindow::set_unwrap_history_size(int value)

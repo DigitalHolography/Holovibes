@@ -248,6 +248,9 @@
     <ClCompile Include="gui_gl_widget.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="compute_bundles_2d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -381,6 +384,9 @@
     </ClInclude>
     <ClInclude Include="flowgraphy.cuh">
       <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_bundles_2d.hh">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

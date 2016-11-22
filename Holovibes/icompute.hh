@@ -25,6 +25,7 @@ namespace holovibes
 namespace holovibes
 {
   struct UnwrappingResources;
+  struct UnwrappingResources_2d;
 }
 
 namespace holovibes
@@ -276,6 +277,9 @@ namespace holovibes
 
     /*! All buffers needed for phase unwrapping are here. */
     std::shared_ptr<UnwrappingResources> unwrap_res_;
+
+	/*! All buffers needed for phase unwrapping 2d are here. */
+	std::shared_ptr<UnwrappingResources_2d> unwrap_res_2d_;
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;

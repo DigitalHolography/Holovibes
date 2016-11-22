@@ -7,6 +7,7 @@
 #include "compute_descriptor.hh"
 #include "queue.hh"
 #include "compute_bundles.hh"
+#include "compute_bundles_2d.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -71,7 +72,6 @@ namespace holovibes
     /* gpu_input_buffer */
     cudaFree(gpu_input_buffer_);
 
-	//delete img_acc_;
   }
 
   void Pipe::update_n_parameter(unsigned short n)
@@ -423,35 +423,64 @@ namespace holovibes
 	}
     else
     {
-      if (!unwrap_res_)
-      {
-        unwrap_res_.reset(new UnwrappingResources(
-          compute_desc_.unwrap_history_size,
-          input_.get_pixels()));
-      }
-      unwrap_res_->reset(compute_desc_.unwrap_history_size);
-      unwrap_res_->reallocate(input_.get_pixels());
-      if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-      {
-        // Phase unwrapping, complex multiply-with-conjugate method
-        fn_vect_.push_back(std::bind(
-          unwrap_mult,
-          gpu_input_frame_ptr_,
-          unwrap_res_.get(),
-          input_fd.frame_res(),
-          unwrap_requested_));
-      }
-      else
-      {
-        // Fallback on modulus mode.
-        fn_vect_.push_back(std::bind(
-          complex_to_modulus,
-          gpu_input_frame_ptr_,
-          gpu_float_buffer_,
-          input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));
-      };
-
+		if (compute_desc_.unwrap == holovibes::ComputeDescriptor::DIM_1)
+		{
+			if (!unwrap_res_)
+			{
+				unwrap_res_.reset(new UnwrappingResources(
+					compute_desc_.unwrap_history_size,
+					input_.get_pixels()));
+			}
+			unwrap_res_->reset(compute_desc_.unwrap_history_size);
+			unwrap_res_->reallocate(input_.get_pixels());
+			if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+			{
+				// Phase unwrapping, complex multiply-with-conjugate method
+				fn_vect_.push_back(std::bind(
+					unwrap_mult,
+					gpu_input_frame_ptr_,
+					unwrap_res_.get(),
+					input_fd.frame_res(),
+					unwrap_requested_));
+			}
+			else
+			{
+				// Fallback on modulus mode.
+				fn_vect_.push_back(std::bind(
+					complex_to_modulus,
+					gpu_input_frame_ptr_,
+					gpu_float_buffer_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
+			};
+		}
+		else
+		{
+			if (!unwrap_res_2d_)
+			{
+				unwrap_res_2d_.reset(new UnwrappingResources_2d(
+					input_.get_pixels()));
+			}
+			if (compute_desc_.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+			{
+				// Phase unwrapping, complex multiply-with-conjugate method
+				fn_vect_.push_back(std::bind(
+					unwrap_2d,
+					gpu_input_frame_ptr_,
+					plan2d_,
+					static_cast<cudaStream_t>(0)));
+			}
+			else
+			{
+				// Fallback on modulus mode.
+				fn_vect_.push_back(std::bind(
+					complex_to_modulus,
+					gpu_input_frame_ptr_,
+					gpu_float_buffer_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
+			};
+		}
       // Converting angle information in floating-point representation.
       fn_vect_.push_back(std::bind(
         rescale_float,

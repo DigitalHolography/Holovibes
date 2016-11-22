@@ -28,6 +28,7 @@ namespace holovibes
     , output_(output)
     , gpu_sqrt_vector_(nullptr)
     , unwrap_res_(nullptr)
+	, unwrap_res_2d_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_stft_dup_buffer_(nullptr)
     , gpu_lens_(nullptr)
@@ -195,6 +196,7 @@ namespace holovibes
 
 	/* gpu_img_acc */
 	delete gpu_img_acc_;
+
   }
 
   void ICompute::update_n_parameter(unsigned short n)
