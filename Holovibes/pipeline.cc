@@ -311,7 +311,7 @@ namespace holovibes
 
       curr_elt_stft_ = 0;
       // Add STFT.
-      modules_[1]->push_back_worker(std::bind(
+     /* modules_[1]->push_back_worker(std::bind(
         stft,
         std::ref(gpu_complex_buffers_[1]),
         gpu_lens_,
@@ -326,7 +326,7 @@ namespace holovibes
 		compute_desc_.stft_level.load(),
         modules_[1]->stream_
         ));
-
+		*/
       modules_[1]->push_back_worker(std::bind(
         stft_recontruct,
         std::ref(gpu_complex_buffers_[1]),

@@ -393,7 +393,7 @@ namespace gui
 				}
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-				if (holovibes_.get_compute_desc().stft_enabled)
+				/*if (holovibes_.get_compute_desc().stft_enabled)
 				{
 					GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 
@@ -402,7 +402,7 @@ namespace gui
 						Qt::UniqueConnection);
 					connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 						Qt::UniqueConnection);
-				}
+				}*/
 				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
@@ -768,8 +768,7 @@ namespace gui
 		  Qt::UniqueConnection);
 	  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 		  Qt::UniqueConnection);
-	  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-		  holovibes_.get_pipe()->request_autocontrast();
+		  holovibes_.get_pipe()->request_update_n(cd.nsamples);
 	  }
   }
 

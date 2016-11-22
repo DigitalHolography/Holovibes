@@ -300,6 +300,8 @@ namespace holovibes
     cufftHandle plan2d_;
     /*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan1d_;
+	/*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
+	cufftHandle plan1d_stft_;
     /*! \} */
     /*! \{ \name request flags */
     bool unwrap_requested_;

@@ -7,16 +7,15 @@
 
 void stft(
   cufftComplex*                   input,
-  const cufftComplex*             gpu_queue,
+  cufftComplex*                   gpu_queue,
   cufftComplex*                   stft_buf,
   cufftComplex*                   stft_dup_buf,
-  const cufftHandle               plan2d,
   const cufftHandle               plan1d,
   const holovibes::Rectangle&     r,
-  unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
-  unsigned int                    nsamples,
   unsigned int                    stft_level,
+  unsigned int                    p, 
+  unsigned int                    frame_size,
   cudaStream_t                    stream)
 {
   unsigned int threads = 128;
@@ -60,8 +59,14 @@ void stft(
   ++curr_elt;*/
 
   // FFT 1D
-  cufftExecC2C(plan1d, stft_buf, stft_dup_buf, CUFFT_FORWARD);
+  cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
   cudaStreamSynchronize(stream);
+
+  cudaMemcpy(
+	  input,
+	  stft_buf,
+	  sizeof(cufftComplex)* frame_size,
+	  cudaMemcpyDeviceToDevice);
 }
 
 void stft_recontruct(

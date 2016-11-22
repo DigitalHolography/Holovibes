@@ -128,6 +128,15 @@ namespace holovibes
       gpu_sqrt_vector_,
       static_cast<cudaStream_t>(0)));
 
+	 unsigned int nframes = compute_desc_.nsamples.load();
+	 unsigned int pframe = compute_desc_.pindex.load();
+	 if (compute_desc_.stft_enabled)
+	 {
+		 nframes = 0;
+		 pframe = 0;
+	 }
+
+
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		// Add temporal FFT1 1D .
@@ -138,7 +147,7 @@ namespace holovibes
 		    static_cast<cudaStream_t>(0)));
 
 		/* frame pointer */
-		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+		gpu_input_frame_ptr_ = gpu_input_buffer_ + pframe * input_fd.frame_res();
 	}
 	else if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
     {
@@ -158,9 +167,9 @@ namespace holovibes
 			  plan1d_,
 			  plan2d_,
 			  input_fd.frame_res(),
-			  compute_desc_.nsamples.load(),
-			  compute_desc_.pindex.load(),
-			  compute_desc_.pindex.load(),
+			  nframes,
+			  pframe,
+			  pframe,
 			  static_cast<cudaStream_t>(0)));
 	  }
 	  else
@@ -172,13 +181,13 @@ namespace holovibes
 			  plan1d_,
 			  plan2d_,
 			  input_fd.frame_res(),
-			  compute_desc_.nsamples.load(),
-			  compute_desc_.pindex.load(),
+			  nframes,
+			  pframe,
 			  compute_desc_.vibrometry_q.load(),
 			  static_cast<cudaStream_t>(0)));
 	  }
       /* p frame pointer */
-      gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+      gpu_input_frame_ptr_ = gpu_input_buffer_ + pframe * input_fd.frame_res();
 
       if (compute_desc_.vibrometry_enabled)
       {
@@ -204,7 +213,7 @@ namespace holovibes
 			static_cast<cudaStream_t>(0));
 
 		/* p frame pointer */
-		gpu_input_frame_ptr_ = gpu_input_buffer_ + compute_desc_.pindex * input_fd.frame_res();
+		gpu_input_frame_ptr_ = gpu_input_buffer_ + pframe * input_fd.frame_res();
 
 		if (!compute_desc_.vibrometry_enabled)
 		{
@@ -215,9 +224,9 @@ namespace holovibes
 				plan3d_,
 				plan2d_,
 				input_fd.frame_res(),
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
-				compute_desc_.pindex.load(),
+				nframes,
+				pframe,
+				pframe,
 				static_cast<cudaStream_t>(0)));
 		}
 		else
@@ -229,8 +238,8 @@ namespace holovibes
 				plan3d_,
 				plan2d_,
 				input_fd.frame_res(),
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
+				nframes,
+				pframe,
 				compute_desc_.vibrometry_q.load(),
 				static_cast<cudaStream_t>(0)));
 
@@ -251,89 +260,76 @@ namespace holovibes
 	if (compute_desc_.stft_enabled)
 	{
 		std::cout << "stft_on!" << std::endl;
-		
+
 		fn_vect_.push_back(std::bind(
 			&ICompute::queue_enqueue,
 			this,
 			gpu_input_frame_ptr_,
 			gpu_stft_queue_));
-		
-			curr_elt_stft_ = 0;
-			// Add STFT.
-			fn_vect_.push_back(std::bind(
+
+		curr_elt_stft_ = 0;
+		// Add STFT.
+		fn_vect_.push_back(std::bind(
 			stft,
 			gpu_input_buffer_,
 			static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 			gpu_stft_buffer_,
 			gpu_stft_dup_buffer_,
-			plan2d_,
-			plan1d_,
+			plan1d_stft_,
 			compute_desc_.stft_roi_zone.load(),
-			curr_elt_stft_,
 			input_fd,
 			compute_desc_.nsamples.load(),
-			compute_desc_.stft_level.load(),
+			compute_desc_.pindex.load(),
+			input_fd.frame_res(),
 			static_cast<cudaStream_t>(0)));
 
-			/*fn_vect_.push_back(std::bind(
-			stft_recontruct,
-			gpu_input_buffer_,
-			gpu_stft_dup_buffer_,
-			compute_desc_.stft_roi_zone.load(),
-			input_fd,
-			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
-			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
-			compute_desc_.pindex.load(),
-			compute_desc_.nsamples.load(),
-			static_cast<cudaStream_t>(0)));*/
-			
 		/* frame pointer */
 		gpu_input_frame_ptr_ = gpu_input_buffer_;
 
 		if (compute_desc_.vibrometry_enabled)
 		{
-		/* q frame pointer */
-			cufftComplex* q = q_gpu_stft_buffer_;
+			/* q frame pointer */
+			/*	cufftComplex* q = q_gpu_stft_buffer_;
 
-			fn_vect_.push_back(std::bind(
-			stft_recontruct,
-			q,
-			gpu_stft_dup_buffer_,
-			compute_desc_.stft_roi_zone.load(),
-			input_fd,
-			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
-			(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
-			compute_desc_.vibrometry_q.load(),
-			compute_desc_.nsamples.load(),
-			static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+				stft_recontruct,
+				q,
+				gpu_stft_dup_buffer_,
+				compute_desc_.stft_roi_zone.load(),
+				input_fd,
+				(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_width() : input_fd.width),
+				(stft_update_roi_requested_ ? compute_desc_.stft_roi_zone.load().get_height() : input_fd.height),
+				compute_desc_.vibrometry_q.load(),
+				compute_desc_.nsamples.load(),
+				static_cast<cudaStream_t>(0)));
 
-			fn_vect_.push_back(std::bind(
-			frame_ratio,
-			gpu_input_frame_ptr_,
-			q,
-			gpu_input_frame_ptr_,
-			input_fd.frame_res(),
-			static_cast<cudaStream_t>(0)));
-			}
+				fn_vect_.push_back(std::bind(
+				frame_ratio,
+				gpu_input_frame_ptr_,
+				q,
+				gpu_input_frame_ptr_,
+				input_fd.frame_res(),
+				static_cast<cudaStream_t>(0)));
+				}
 
-			if (average_requested_)
-			{
-			if (compute_desc_.stft_roi_zone.load().area())
-			fn_vect_.push_back(std::bind(
-			&Pipe::average_stft_caller,
-			this,
-			gpu_stft_dup_buffer_,
-			input_fd.width,
-			input_fd.height,
-			compute_desc_.stft_roi_zone.load().get_width(),
-			compute_desc_.stft_roi_zone.load().get_height(),
-			compute_desc_.signal_zone.load(),
-			compute_desc_.noise_zone.load(),
-			compute_desc_.nsamples.load(),
-			static_cast<cudaStream_t>(0)));
-			}
+				if (average_requested_)
+				{
+				if (compute_desc_.stft_roi_zone.load().area())
+				fn_vect_.push_back(std::bind(
+				&Pipe::average_stft_caller,
+				this,
+				gpu_stft_dup_buffer_,
+				input_fd.width,
+				input_fd.height,
+				compute_desc_.stft_roi_zone.load().get_width(),
+				compute_desc_.stft_roi_zone.load().get_height(),
+				compute_desc_.signal_zone.load(),
+				compute_desc_.noise_zone.load(),
+				compute_desc_.nsamples.load(),
+				static_cast<cudaStream_t>(0)));
+				}*/
+		}
 	}
-
 	if (compute_desc_.convolution_enabled)
 	{
 		gpu_special_queue_start_index = 0;

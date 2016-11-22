@@ -48,16 +48,15 @@ namespace camera
  */
 void stft(
   cufftComplex*                   input,
-  const cufftComplex*             gpu_queue,
+  cufftComplex*                   gpu_queue,
   cufftComplex*                   stft_buf,
   cufftComplex*                   stft_dup_buf,
-  const cufftHandle               plan2d,
   const cufftHandle               plan1d,
   const holovibes::Rectangle&     r,
-  unsigned int&                   curr_elt,
   const camera::FrameDescriptor&  desc,
-  unsigned int                    nsamples,
   unsigned int                    stft_level,
+  unsigned int                    p,
+  unsigned int                    frame_size,
   cudaStream_t                    stream = 0);
 
 /*! \brief Reconstruct image from bursting complex queue (stft_dup_buf)
