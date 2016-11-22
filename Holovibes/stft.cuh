@@ -7,6 +7,7 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 
+
 /* Forward declarations. */
 namespace holovibes
 {
@@ -50,29 +51,8 @@ void stft(
   cufftComplex*                   input,
   cufftComplex*                   gpu_queue,
   cufftComplex*                   stft_buf,
-  cufftComplex*                   stft_dup_buf,
   const cufftHandle               plan1d,
-  const holovibes::Rectangle&     r,
-  const camera::FrameDescriptor&  desc,
   unsigned int                    stft_level,
   unsigned int                    p,
   unsigned int                    frame_size,
-  cudaStream_t                    stream = 0);
-
-/*! \brief Reconstruct image from bursting complex queue (stft_dup_buf)
-* and rescale it to reconstruct width/height
-*
-* \param r the selected zone for stft
-* \param pindex which image are we on
-* \param nspamples how many images are used for transform
-*/
-void stft_recontruct(
-  cufftComplex*                   output,
-  cufftComplex*                   stft_dup_buf,
-  const holovibes::Rectangle      r,
-  const camera::FrameDescriptor&  desc,
-  const unsigned int              reconstruct_width,
-  const unsigned int              reconstruct_height,
-  const unsigned int              pindex,
-  const unsigned int              nsamples,
   cudaStream_t                    stream = 0);

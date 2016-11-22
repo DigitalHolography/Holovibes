@@ -552,8 +552,9 @@ namespace gui
 
 	if (!is_direct_mode())
     {
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		input = &holovibes_.get_capture_queue();
-		if (value <= input->get_max_elts())
+		if (cd.stft_enabled || (value <= input->get_max_elts()))
 		{
 			holovibes_.get_pipe()->request_update_n(value);
 			notify();
@@ -738,17 +739,7 @@ namespace gui
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
 		  else if (value == "2FFT")
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT2;
-		 /* else if (value == "STFT")
-		  {
-			  cd.nsamples = 16;
-			  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-			  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-				  Qt::UniqueConnection);
-			  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-				  Qt::UniqueConnection);
-			  cd.algorithm = holovibes::ComputeDescriptor::STFT;
-		  }*/
-		  else
+			  else
 			  assert(!"Unknow Algorithm.");
 
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
@@ -762,12 +753,6 @@ namespace gui
 	  if (!is_direct_mode())
 	  {
 		  cd.stft_enabled = !(cd.stft_enabled);
-	  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-	  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-	  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-		  Qt::UniqueConnection);
-	  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-		  Qt::UniqueConnection);
 		  holovibes_.get_pipe()->request_update_n(cd.nsamples);
 	  }
   }

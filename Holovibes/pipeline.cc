@@ -327,7 +327,7 @@ namespace holovibes
         modules_[1]->stream_
         ));
 		*/
-      modules_[1]->push_back_worker(std::bind(
+     /* modules_[1]->push_back_worker(std::bind(
         stft_recontruct,
         std::ref(gpu_complex_buffers_[1]),
         gpu_stft_dup_buffer_,
@@ -338,7 +338,7 @@ namespace holovibes
         compute_desc_.pindex.load(),
         compute_desc_.nsamples.load(),
         modules_[1]->stream_
-        ));
+        ));*/
 
       gpu_pindex_buffers_ = gpu_complex_buffers_;
 
@@ -347,7 +347,7 @@ namespace holovibes
         /* q frame pointer */
         cufftComplex* q = q_gpu_stft_buffer_;
 
-        modules_[1]->push_back_worker(std::bind(
+       /* modules_[1]->push_back_worker(std::bind(
           stft_recontruct,
           q,
           gpu_stft_dup_buffer_,
@@ -358,7 +358,7 @@ namespace holovibes
           compute_desc_.vibrometry_q.load(),
           compute_desc_.nsamples.load(),
           modules_[1]->stream_
-          ));
+          ));*/
 
         modules_[1]->push_back_worker(std::bind(
           frame_ratio,

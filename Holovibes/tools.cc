@@ -84,3 +84,36 @@ namespace holovibes
 		return (pow_y);
 	}
 }
+
+
+/*__global__ void kernel_bursting_roi(
+	const cufftComplex *input,
+	const unsigned int tl_x,
+	const unsigned int tl_y,
+	const unsigned int br_x,
+	const unsigned int br_y,
+	const unsigned int curr_elt,
+	const unsigned int nsamples,
+	const unsigned int width,
+	const unsigned int size,
+	cufftComplex *output)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int width_roi = br_x - tl_x;
+
+	// In ROI
+	while (index < size)
+	{
+		unsigned int squared_index = index = size;
+		if (index >= tl_y * width && index < br_y * width
+			&& index % width >= tl_x && index % width < br_x)
+		{
+			unsigned int x = index % width - tl_x;
+			unsigned int y = index / width - tl_y;
+			unsigned int index_roi = x + y * width_roi;
+
+			output[index_roi * nsamples + curr_elt] = input[index];
+		}
+		index += blockDim.x * gridDim.x;
+	}
+}*/
