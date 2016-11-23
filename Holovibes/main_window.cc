@@ -747,13 +747,17 @@ namespace gui
 	  }
   }
 
-  void MainWindow::set_stft()
+  void MainWindow::set_stft(bool b)
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (!is_direct_mode())
 	  {
-		  cd.stft_enabled = !(cd.stft_enabled);
+		  unsigned int tmp = cd.nsamples.load();
+		  cd.nsamples.exchange(cd.stft_level.load());
+		  cd.stft_level.exchange(tmp);
+		  cd.stft_enabled =  b;
 		  holovibes_.get_pipe()->request_update_n(cd.nsamples);
+		  notify();
 	  }
   }
 
@@ -2133,6 +2137,8 @@ namespace gui
       if (z_step > 0.0f)
         z_step_ = z_step;
 
+	  cd.stft_level = ptree.get<unsigned int>("image_rendering.stft_level", cd.stft_level);
+
       cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
         ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
@@ -2212,6 +2218,12 @@ namespace gui
   {
     boost::property_tree::ptree ptree;
     holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	if (cd.stft_enabled)
+	{
+		unsigned int tmp = cd.nsamples.load();
+		cd.nsamples.exchange(cd.stft_level.load());
+		cd.stft_level.exchange(tmp);
+	}
     gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
     gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
     gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
@@ -2237,6 +2249,7 @@ namespace gui
     ptree.put("image_rendering.z_distance", cd.zdistance);
     ptree.put("image_rendering.z_step", z_step_);
     ptree.put("image_rendering.algorithm", cd.algorithm);
+	ptree.put("image_rendering.stft_level", cd.stft_level);
 
     // View
     ptree.put("view.hidden", view_group_box->isHidden());

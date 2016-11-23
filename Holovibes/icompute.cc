@@ -163,7 +163,7 @@ namespace holovibes
 
 		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 		new_fd2.depth = 8;
-		gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "stftQueue");
+		gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 	}
 
 
@@ -221,23 +221,6 @@ namespace holovibes
       input_length_ = 1;
      else
       input_length_ = n;
-
-    /*
-    ** plan1D have limit and if they are reach, GPU may crash
-    ** http://stackoverflow.com/questions/13187443/nvidia-cufft-limit-on-sizes-and-batches-for-fft-with-scikits-cuda
-    ** 48e6 is an arbitary value
-    */
-  /*  if (compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n) > 48e6)
-    {
-      abort_construct_requested_ = true;
-      std::cout
-        << "[PREVENT_ERROR] ICompute l" << __LINE__ << " "
-        << "You will reach the hard limit of cufftPlan\n"
-        << compute_desc_.stft_roi_zone.load().area() * static_cast<unsigned int>(n)
-        << " > "
-        << 48e6
-        << std::endl;
-    }*/
 
     /* CUFFT plan3d realloc */
     cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;

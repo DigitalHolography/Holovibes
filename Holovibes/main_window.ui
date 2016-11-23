@@ -434,17 +434,32 @@
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="STFTPushButton">
+        <widget class="QCheckBox" name="STFTCheckBox">
          <property name="geometry">
           <rect>
            <x>100</x>
            <y>50</y>
-           <width>51</width>
+           <width>111</width>
            <height>21</height>
           </rect>
          </property>
+         <property name="toolTip">
+          <string>allow to read a cine file</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
          <property name="text">
-          <string>STFT</string>
+          <string>    STFT</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
        </widget>
@@ -953,6 +968,32 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
+        <zorder>logScaleCheckBox</zorder>
+        <zorder>shiftCornersCheckBox</zorder>
+        <zorder>minLabel</zorder>
+        <zorder>maxLabel</zorder>
+        <zorder>autoPushButton</zorder>
+        <zorder>viewModeComboBox</zorder>
+        <zorder>contrastCheckBox</zorder>
+        <zorder>contrastMinDoubleSpinBox</zorder>
+        <zorder>contrastMaxDoubleSpinBox</zorder>
+        <zorder>contrastTypeLabel</zorder>
+        <zorder>autofocusLabel</zorder>
+        <zorder>zmaxLabel</zorder>
+        <zorder>zmaxDoubleSpinBox</zorder>
+        <zorder>zminDoubleSpinBox</zorder>
+        <zorder>zminLabel</zorder>
+        <zorder>zdivLabel</zorder>
+        <zorder>zdivSpinBox</zorder>
+        <zorder>autofocusPushButton</zorder>
+        <zorder>ziterSpinBox</zorder>
+        <zorder>unwrapCheckBox</zorder>
+        <zorder>ViewShorcut_label</zorder>
+        <zorder>img_accSpinBox</zorder>
+        <zorder>img_accCheckBox</zorder>
+        <zorder>unwrapCheckBox_2</zorder>
+        <zorder>autofocusLabel_2</zorder>
+        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item>
@@ -2307,7 +2348,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3946,18 +3987,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTPushButton</sender>
-   <signal>clicked()</signal>
+   <sender>STFTCheckBox</sender>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_stft()</slot>
+   <slot>set_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>84</y>
+     <x>147</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
-     <y>86</y>
+     <y>82</y>
     </hint>
    </hints>
   </connection>
@@ -4042,6 +4083,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_complex_visible(bool)</slot>
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
-  <slot>set_stft()</slot>
+  <slot>set_stft(bool)</slot>
  </slots>
 </ui>

@@ -217,7 +217,7 @@ namespace gui
 	/*! \brief Set algorithm
 	** \param value to set stft on/off
 	*/
-	void set_stft();
+	void set_stft(bool b);
 
     /*! \} */
 
