@@ -63,24 +63,8 @@ namespace holovibes
       input_length_ = nsamples;
 
 	if (compute_desc_.stft_enabled) {
-		/* gpu_stft_buffer */
-	/*	cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-			sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);*/
 		cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
 			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
-
-		/* gpu_stft_buffer */
-		/*cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-			sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * nsamples);*/
-	} 
-	else {
-		/* gpu_stft_buffer */
-		/*cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * nsamples);*/
-
-		/* gpu_stft_buffer */
-		/*cudaMalloc<cufftComplex>(&gpu_stft_dup_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * nsamples);*/
 	}
     /* Square root vector */
 	/* TODO: not used anymore because square root of 65535 is not initialized */
@@ -166,7 +150,6 @@ namespace holovibes
 		gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 	}
 
-
   }
 
   ICompute::~ICompute()
@@ -217,10 +200,11 @@ namespace holovibes
     abort_construct_requested_ = false;
 
     /* if stft, we don't need to allocate more than one frame */
-	if (compute_desc_.stft_enabled)
-      input_length_ = 1;
-     else
-      input_length_ = n;
+	if (!compute_desc_.stft_enabled)
+		input_length_ = n;
+	else
+		input_length_ = 1;
+
 
     /* CUFFT plan3d realloc */
     cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;

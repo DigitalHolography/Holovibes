@@ -54,5 +54,6 @@ void stft(
   const cufftHandle               plan1d,
   unsigned int                    stft_level,
   unsigned int                    p,
+  unsigned int                    q,
   unsigned int                    frame_size,
   cudaStream_t                    stream = 0);

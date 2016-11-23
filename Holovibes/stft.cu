@@ -15,6 +15,7 @@ void stft(
   const cufftHandle               plan1d,
   unsigned int                    stft_level,
   unsigned int                    p, 
+  unsigned int                    q, 
   unsigned int                    frame_size,
   cudaStream_t                    stream)
 {
@@ -31,4 +32,15 @@ void stft(
 	  stft_buf + p * frame_size,
 	  sizeof(cufftComplex)* frame_size,
 	  cudaMemcpyDeviceToDevice);
+
+  if (p != q)
+  {
+	  cudaMemcpy(
+		  input + frame_size,
+		  stft_buf + q * frame_size,
+		  sizeof(cufftComplex)* frame_size,
+		  cudaMemcpyDeviceToDevice);
+
+  }
+
 }
