@@ -137,13 +137,23 @@ __global__ void kernel_norm_ratio(
 	while (index < size)
 	{
 		float norm = sqrtf(input1[index] * input1[index] + input2[index] * input2[index]);
-		float coeff_x = input1[index] / norm;
-		float coeff_y = input2[index] / norm;
+		if (norm != 0)
+		{
+			float coeff_x = input1[index] / norm;
+			float coeff_y = input2[index] / norm;
 
-		output1[index].x = output1[index].x * coeff_x;
-		output1[index].y = output1[index].y * coeff_x;
-		output2[index].x = output2[index].x * coeff_y;
-		output2[index].y = output2[index].y * coeff_y;
+			output1[index].x = output1[index].x * coeff_x;
+			output1[index].y = output1[index].y * coeff_x;
+			output2[index].x = output2[index].x * coeff_y;
+			output2[index].y = output2[index].y * coeff_y;
+		}
+		else
+		{
+			output1[index].x = 0;
+			output1[index].y = 0;
+			output2[index].x = 0;
+			output2[index].y = 0;
+		}
 		index += blockDim.x * gridDim.x;
 	}
 }
