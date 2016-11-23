@@ -194,7 +194,7 @@ void unwrap_diff(
 void unwrap_2d(
 	cufftComplex *input,
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	float *output,
 	cudaStream_t stream);
@@ -202,13 +202,21 @@ void unwrap_2d(
 /*! Gradian calculation for unwrap_2d calculations*/
 void gradian_unwrap_2d(
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	cudaStream_t stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
 void eq_unwrap_2d(
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
+	cudaStream_t stream);
+
+/*! Phi calculation for unwrap_2d calculations*/
+void phi_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
 	cudaStream_t stream);

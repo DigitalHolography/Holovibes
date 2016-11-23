@@ -460,70 +460,105 @@ void unwrap_diff(
 void unwrap_2d(
 	cufftComplex *input,
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	float *output,
 	cudaStream_t stream)
 {
 	const unsigned threads = 128;
-	const unsigned blocks = map_blocks_to_problem(res.image_resolution_, threads);
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
-	kernel_init_unwrap_2d << < blocks, threads, 0, stream >> > (fd.width,
+	kernel_init_unwrap_2d << < blocks, threads, 0, stream >> > (
+		fd.width,
 		fd.height,
 		fd.frame_res(),
 		input,
-		res.gpu_fx_,
-		res.gpu_fy_
-		res.gpu_z_);
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_z_);
 	gradian_unwrap_2d(plan2d, res, fd, stream);
 	eq_unwrap_2d(plan2d, res, fd, stream);
-
+	phi_unwrap_2d(plan2d, res, fd, output, stream);
 }
 
 void gradian_unwrap_2d(
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	cudaStream_t stream)
 {
 	const unsigned threads = 128;
-	const unsigned blocks = map_blocks_to_problem(res.image_resolution_, threads);
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 	cufftComplex single_complex = make_cuComplex(0, 1);
 
-	cufftExecC2C(plan2d, res.gpu_z_, res.gpu_grad_eq_x_, CUFFT_FORWARD);
-	cufftExecC2C(plan2d, res.gpu_z_, res.gpu_grad_eq_y_, CUFFT_FORWARD);
-	kernel_multiply_complexes_by_floats_(res.gpu_fx_,
-		res.gpu_fy_,
-		res.gpu_grad_eq_x_,
-		res.gpu_grad_eq_y_,
+	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
+	kernel_multiply_complexes_by_floats_ << < blocks, threads, 0, stream >> > (
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
 		fd.frame_res());
-	cufftExecC2C(plan2d, res.gpu_grad_eq_x_, res.gpu_grad_eq_x_, CUFFT_INVERSE);
-	cufftExecC2C(plan2d, res.gpu_grad_eq_y_, res.gpu_grad_eq_y_, CUFFT_INVERSE);
-	kernel_multiply_complexes_by_single_complex(res.gpu_grad_eq_x_,
-		res.gpu_grad_eq_y_,
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
+	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_INVERSE);
+	kernel_multiply_complexes_by_single_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
 		single_complex,
 		fd.frame_res());
 }
 
 void eq_unwrap_2d(
 	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d res,
+	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	cudaStream_t stream)
 {
 	const unsigned threads = 128;
-	const unsigned blocks = map_blocks_to_problem(res.image_resolution_, threads);
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 	cufftComplex single_complex = make_cuComplex(0, 1);
 
-	kernel_multiply_complex_by_single_complex(res.gpu_z_,
+	kernel_multiply_complex_by_single_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_z_,
 		single_complex,
 		fd.frame_res());
-	kernel_conjugate_complex(res.gpu_z_,
+	kernel_conjugate_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_z_,
 		fd.frame_res());
-	kernel_multiply_complex_frames_by_complex_frame(res.gpu_grad_eq_x_,
-		res.gpu_grad_eq_y_,
-		res.gpu_z_,
+	kernel_multiply_complex_frames_by_complex_frame << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		res->gpu_z_,
 		fd.frame_res());
-	cufftExecC2C(plan2d, res.gpu_grad_eq_x_, res.gpu_grad_eq_x_, CUFFT_FORWARD);
-	cufftExecC2C(plan2d, res.gpu_grad_eq_y_, res.gpu_grad_eq_y_, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
+	kernel_norm_ratio << < blocks, threads, 0, stream >> >(
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		fd.frame_res());
+}
+
+void phi_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream)
+{
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
+	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
+
+	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		fd.frame_res());
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
+	kernel_phi << < blocks, threads, 0, stream >>> (
+		output,
+		res->gpu_grad_eq_x_,
+		single_complex,
+		fd.frame_res());
 }

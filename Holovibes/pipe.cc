@@ -453,6 +453,14 @@ namespace holovibes
 					input_fd.frame_res(),
 					static_cast<cudaStream_t>(0)));
 			};
+
+			// Converting angle information in floating-point representation.
+			fn_vect_.push_back(std::bind(
+				rescale_float,
+				unwrap_res_->gpu_angle_current_,
+				gpu_float_buffer_,
+				input_fd.frame_res(),
+				static_cast<cudaStream_t>(0)));
 		}
 		else
 		{
@@ -470,9 +478,9 @@ namespace holovibes
 					unwrap_2d,
 					gpu_input_frame_ptr_,
 					plan2d_,
-					unwrap_res_2d_,
-					gpu_float_buffer_,
+					unwrap_res_2d_.get(),
 					input_.get_frame_desc(),
+					gpu_float_buffer_,
 					static_cast<cudaStream_t>(0)));
 			}
 			else
@@ -486,13 +494,6 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			};
 		}
-      // Converting angle information in floating-point representation.
-      fn_vect_.push_back(std::bind(
-        rescale_float,
-        unwrap_res_->gpu_angle_current_,
-        gpu_float_buffer_,
-        input_fd.frame_res(),
-        static_cast<cudaStream_t>(0)));
     }
 
 	/*Compute Accumulation buffer into gpu_float_buffer*/

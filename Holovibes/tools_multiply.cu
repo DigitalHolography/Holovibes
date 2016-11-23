@@ -124,3 +124,56 @@ __global__ void kernel_multiply_complex_frames_by_complex_frame(
 		index += blockDim.x * gridDim.x;
 	}
 }
+
+__global__ void kernel_norm_ratio(
+	const float* input1,
+	const float* input2,
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		float norm = sqrtf(input1[index] * input1[index] + input2[index] * input2[index]);
+		float coeff_x = input1[index] / norm;
+		float coeff_y = input2[index] / norm;
+
+		output1[index].x = output1[index].x * coeff_x;
+		output1[index].y = output1[index].y * coeff_x;
+		output2[index].x = output2[index].x * coeff_y;
+		output2[index].y = output2[index].y * coeff_y;
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void kernel_add_complex_frames(
+	cufftComplex* output,
+	const cufftComplex* input,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		output[index].x += input[index].x;
+		output[index].y += input[index].y;
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void kernel_phi(
+	float* output,
+	const cufftComplex* input,
+	const cufftComplex coeff,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		output[index] = input[index].y / coeff.y;
+		index += blockDim.x * gridDim.x;
+	}
+}
