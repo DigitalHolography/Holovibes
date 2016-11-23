@@ -2169,10 +2169,10 @@ namespace gui
       // Post Processing
       special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
       special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
-      cd.vibrometry_enabled.exchange(
+     /* cd.vibrometry_enabled.exchange(
         ptree.get<bool>("post_processing.image_ratio_enabled", cd.vibrometry_enabled));
       cd.vibrometry_q.exchange(
-        ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q));
+        ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q));*/ //TOFIX
       is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
 	  cd.special_buffer_size.exchange(ptree.get<int>("post_processing.buffer_size", cd.special_buffer_size));
      
@@ -2264,8 +2264,8 @@ namespace gui
 
     // Post-processing
     ptree.put("post_processing.hidden", special_group_box->isHidden());
-    ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
-    ptree.put("post_processing.image_ratio_q", cd.vibrometry_q);
+    //ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
+   // ptree.put("post_processing.image_ratio_q", cd.vibrometry_q); TOFIX
     ptree.put("post_processing.average_enabled", is_enabled_average_);
 	ptree.put("post_processing.buffer_size", cd.special_buffer_size);
 

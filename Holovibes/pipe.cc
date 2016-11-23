@@ -196,13 +196,13 @@ namespace holovibes
         /* q frame pointer */
         cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
 
-      /*  fn_vect_.push_back(std::bind(
+        fn_vect_.push_back(std::bind(
           frame_ratio,
           gpu_input_frame_ptr_,
           q,
           gpu_input_frame_ptr_,
           input_fd.frame_res(),
-          static_cast<cudaStream_t>(0)));*/
+          static_cast<cudaStream_t>(0)));
       }
     }
 	else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
