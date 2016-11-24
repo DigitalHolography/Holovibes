@@ -269,7 +269,7 @@ namespace holovibes
 
 	 camera::FrameDescriptor new_fd = input_.get_frame_desc();
 	 new_fd.depth = 8;
-	 gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "stftQueue");
+	 gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
  }
 
 
