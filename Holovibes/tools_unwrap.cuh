@@ -84,7 +84,7 @@ __global__ void kernel_init_unwrap_2d(
 	unsigned int width,
 	unsigned int height,
 	unsigned int frame_res,
-	cufftComplex *input,
+	float *input,
 	float *fx,
 	float *fy,
 	cufftComplex *z);

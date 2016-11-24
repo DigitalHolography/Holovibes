@@ -150,24 +150,23 @@ float average_operator(
  * two-by-two differences that exceed this cutoff value and performs
  * cumulative adjustments in order to 'smooth' the signal.
  */
-void unwrap(
+/*void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
-  const bool with_unwrap);
+  const bool with_unwrap);*/
 
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.
-* This version computes : arg(H .* H-t)
-* and unwraps the result.
+* This version computes : arg(H(t) .* H^*(t- T))
 *
-* Phase unwrapping adjusts phase angles encoded in complex data,
+* Phase increase adjusts phase angles encoded in complex data,
 * by a cutoff value (which is here fixed to pi). Unwrapping seeks
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
 */
-void unwrap_mult(
+void phase_increase(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
@@ -182,13 +181,13 @@ void unwrap_mult(
 * by a cutoff value (which is here fixed to pi). Unwrapping seeks
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
-*/
+
 void unwrap_diff(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
   const bool with_unwrap);
-
+*/
 
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(

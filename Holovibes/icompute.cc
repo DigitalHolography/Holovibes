@@ -37,7 +37,8 @@ namespace holovibes
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
-    , unwrap_requested_(true)
+    , unwrap_1d_requested_(false)
+	, unwrap_2d_requested_(false)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
     , refresh_requested_(false)
@@ -444,9 +445,14 @@ namespace holovibes
     request_refresh();
   }
 
-  void ICompute::request_unwrapping(const bool value)
+  void ICompute::request_unwrapping_1d(const bool value)
   {
-    unwrap_requested_ = value;
+    unwrap_1d_requested_ = value;
+  }
+
+  void ICompute::request_unwrapping_2d(const bool value)
+  {
+	unwrap_2d_requested_ = value;
   }
 
   void ICompute::request_average(

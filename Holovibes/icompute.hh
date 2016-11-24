@@ -108,9 +108,11 @@ namespace holovibes
     /*! Set the size of the unwrapping history window. */
     void request_update_unwrap_size(const unsigned size);
 
-    /*! The boolean will determine activation/deactivation of the unwrapping phase
-     * in the unwrap() function. */
-    void request_unwrapping(const bool value);
+    /*! The boolean will determine activation/deactivation of the unwrapping 1d */
+    void request_unwrapping_1d(const bool value);
+
+	/*! The boolean will determine activation/deactivation of the unwrapping 2d */
+	void request_unwrapping_2d(const bool value);
 
     /*! \brief Request the ICompute to fill the output vector.
     *
@@ -303,7 +305,8 @@ namespace holovibes
     cufftHandle plan1d_;
     /*! \} */
     /*! \{ \name request flags */
-    bool unwrap_requested_;
+    bool unwrap_1d_requested_;
+	bool unwrap_2d_requested_;
     bool autofocus_requested_;
     bool autofocus_stop_requested_;
     bool autocontrast_requested_;

@@ -516,7 +516,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>160</y>
+           <y>170</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -532,7 +532,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>130</y>
+           <y>140</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -897,41 +897,53 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
-        <widget class="QRadioButton" name="unwrapRadioButton_1D">
+        <widget class="QCheckBox" name="unwrap_1d_CheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>150</x>
            <y>50</y>
            <width>31</width>
-           <height>21</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="toolTip">
-          <string/>
+          <string>Accumulate n images</string>
          </property>
          <property name="text">
           <string>1D</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
-        <widget class="QRadioButton" name="unwrapRadioButton_2D">
+        <widget class="QCheckBox" name="unwrap_2d_CheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>110</x>
            <y>50</y>
            <width>31</width>
-           <height>21</height>
+           <height>20</height>
           </rect>
          </property>
          <property name="toolTip">
-          <string/>
+          <string>Accumulate n images</string>
          </property>
          <property name="text">
           <string>2D</string>
          </property>
          <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
           <bool>false</bool>
          </property>
         </widget>
@@ -3912,33 +3924,33 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>unwrapRadioButton_1D</sender>
+   <sender>unwrap_1d_CheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_unwrap_1d(bool)</slot>
+   <slot>set_unwrapping_1d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>342</x>
-     <y>83</y>
+     <x>395</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
-     <y>359</y>
+     <y>54</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>unwrapRadioButton_2D</sender>
+   <sender>unwrap_2d_CheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_unwrap_2d(bool)</slot>
+   <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>375</x>
-     <y>80</y>
+     <x>353</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
+     <x>447</x>
      <y>98</y>
     </hint>
    </hints>
@@ -4001,7 +4013,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>layout_toggled(bool)</slot>
   <slot>set_unwrap_history_size(int)</slot>
-  <slot>set_unwrapping(bool)</slot>
+  <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>
   <slot>set_direct_mode()</slot>
   <slot>set_holographic_mode()</slot>
@@ -4024,7 +4036,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_complex_visible(bool)</slot>
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
-  <slot>set_unwrap_1d(bool)</slot>
-  <slot>set_unwrap_2d(bool)</slot>
+  <slot>set_unwrapping_2d(bool)</slot>
  </slots>
 </ui>

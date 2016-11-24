@@ -107,7 +107,7 @@ __global__ void kernel_init_unwrap_2d(
 	unsigned int width,
 	unsigned int height,
 	unsigned int frame_res,
-	cufftComplex *input,
+	float *input,
 	float *fx,
 	float *fy,
 	cufftComplex *z)
@@ -125,7 +125,10 @@ __global__ void kernel_init_unwrap_2d(
 		fy[index] = j - roundf(width / 2);
 
 		/*z init*/
-		const float modulus = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+
+		z[index].x = cosf(input[index]);
+		z[index].y = sinf(input[index]);
+	/*	const float modulus = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
 		if (modulus == 0)
 		{
 			z[index].x = 0;
@@ -135,6 +138,6 @@ __global__ void kernel_init_unwrap_2d(
 		{
 			z[index].x = input[index].x / modulus;
 			z[index].y = input[index].y / modulus;
-		}
+		}*/
 	}
 }
