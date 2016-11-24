@@ -130,8 +130,6 @@ namespace holovibes
 	  unsigned int act_frame = 0;
 	  FILE*   file = nullptr;
 	  fpos_t  pos = 0;
-	  size_t  length = 0;
-	  size_t  offset = 0;
 
 	  cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
 	  cudaMallocHost(&real_buffer, real_frame_size);
@@ -141,7 +139,7 @@ namespace holovibes
 		  if (!file)
 			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 
-		  offset = offset_cine_first_image(file);
+		  size_t offset = offset_cine_first_image(file);
 		  pos = offset + (frame_size + 8) * (spanStart_ - 1);
 		  std::fsetpos(file, &pos);
 		  cudaMemset(real_buffer, 0, real_frame_desc_.frame_size());
@@ -151,7 +149,7 @@ namespace holovibes
 			  {
 				  if (act_frame >= nbr_stored)
 				  {
-					  length = std::fread(buffer, 1, (frame_size + 8) * elts_max_nbr, file);
+					  size_t length = std::fread(buffer, 1, (frame_size + 8) * elts_max_nbr, file);
 					  nbr_stored = length / (frame_size + 8);
 					  act_frame = 0;
 				  }

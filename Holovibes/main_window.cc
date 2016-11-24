@@ -411,7 +411,6 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-			algorithm->setCurrentIndex(0);
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
