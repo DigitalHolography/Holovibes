@@ -75,6 +75,7 @@ namespace holovibes
 	auto* tmp_gpu_input_buffer = gpu_input_buffer_;
 	//TODO:
 	if (compute_desc_.stft_enabled)
+		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
 		cudaMalloc<cufftComplex>(&gpu_input_buffer_,
 		sizeof(cufftComplex)* input_.get_pixels() * 2);
 	else
@@ -206,7 +207,7 @@ namespace holovibes
 			fft_2,
 			gpu_input_buffer_,
 			gpu_lens_,
-			plan3d_,
+			plan1d_,
 			plan2d_,
 			input_fd.frame_res(),
 			nframes,
@@ -621,7 +622,7 @@ namespace holovibes
           fft_2(
             gpu_input_buffer_tmp,
             gpu_lens_,
-            plan3d_,
+            plan1d_,
             plan2d_,
             input_fd.frame_res(),
             compute_desc_.nsamples,

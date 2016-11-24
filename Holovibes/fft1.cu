@@ -36,7 +36,6 @@ void fft_1(
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 	
 	cufftComplex* pframe = input + frame_resolution * p;
-	cufftComplex* qframe = input + frame_resolution * q;
 
 	cufftExecC2C(plan1D, input, input, CUFFT_FORWARD);
 
@@ -49,6 +48,7 @@ void fft_1(
 
 	if (p != q)
 	{
+		cufftComplex* qframe = input + frame_resolution * q;
 		kernel_apply_lens << <blocks, threads, 0, stream >> >(qframe, frame_resolution, lens, frame_resolution);
 		cufftExecC2C(plan2D, qframe, qframe, CUFFT_FORWARD);
 	}
