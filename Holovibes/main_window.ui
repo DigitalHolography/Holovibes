@@ -2787,8 +2787,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_phase_number(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>145</y>
+     <x>182</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2804,7 +2804,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>183</y>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2820,7 +2820,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>205</y>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2835,8 +2835,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>235</y>
+     <x>187</x>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2851,8 +2851,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>122</y>
+     <x>187</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3156,7 +3156,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>265</y>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -3684,7 +3684,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>107</x>
-     <y>90</y>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3907,8 +3907,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_import_pixel_size(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>146</x>
-     <y>299</y>
+     <x>153</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -4028,6 +4028,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>autofocusPushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>take_reference()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>123</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>autofocusPushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cancel_take_reference()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>108</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4110,5 +4142,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
   <slot>set_stft(bool)</slot>
+  <slot>take_reference()</slot>
+  <slot>cancel_take_reference()</slot>
  </slots>
 </ui>

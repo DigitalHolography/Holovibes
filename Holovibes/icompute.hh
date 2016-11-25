@@ -75,12 +75,18 @@ namespace holovibes
 	/*! \brief Realloc the image accumulation buffer */
 	void update_acc_parameter();
 
+	/*! \brief Realloc the images_reference_buffer */
+	void update_ref_diff_parameter();
+
     /*! \{ \name ICompute request methods */
     /*! \brief Request the ICompute to refresh. */
     void request_refresh();
 
 	/*! \brief Request to refresh the accumulation queue. */
 	void request_acc_refresh();
+
+	/*! \brief Request to refresh the reference queue. */
+	void request_ref_diff_refresh();
 
     /*! \brief Request the ICompute to apply the autofocus algorithm. */
     void request_autofocus();
@@ -301,22 +307,6 @@ namespace holovibes
 	/*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
 	cufftHandle plan1d_stft_;
     /*! \} */
-    /*! \{ \name request flags */
-    bool unwrap_requested_;
-    bool autofocus_requested_;
-    bool autofocus_stop_requested_;
-    bool autocontrast_requested_;
-    bool refresh_requested_;
-    bool update_n_requested_;
-    bool stft_update_roi_requested_;
-    bool average_requested_;
-    bool average_record_requested_;
-    bool float_output_requested_;
-	bool complex_output_requested_;
-    bool abort_construct_requested_;
-    bool termination_requested_;
-	bool update_acc_requested_;
-    /*! \} */
 
     /*! \brief Number of frame in input. */
     unsigned int input_length_;
@@ -343,11 +333,30 @@ namespace holovibes
     std::ofstream float_output_file_;
 
 	/*! Queue for phase accumulation*/
-	Queue *gpu_img_acc_;
+	Queue* gpu_img_acc_;
 
 	/*! Queue for phase accumulation*/
-	Queue *gpu_stft_queue_;
+	Queue* gpu_stft_queue_;
 
+	/* Queue for the reference diff */
+	Queue* gpu_ref_diff_queue;
 
+	/*! \{ \name request flags */
+	bool unwrap_requested_;
+	bool autofocus_requested_;
+	bool autofocus_stop_requested_;
+	bool autocontrast_requested_;
+	bool refresh_requested_;
+	bool update_n_requested_;
+	bool stft_update_roi_requested_;
+	bool average_requested_;
+	bool average_record_requested_;
+	bool float_output_requested_;
+	bool complex_output_requested_;
+	bool abort_construct_requested_;
+	bool termination_requested_;
+	bool update_acc_requested_;
+	bool update_ref_diff_requested_;
+	/*! \} */
   };
 }

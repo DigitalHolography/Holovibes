@@ -33,6 +33,7 @@ namespace holovibes
 	, gpu_kernel_buffer_(nullptr)
 	, gpu_special_queue_(nullptr)
 	, gpu_stft_queue_(nullptr)
+	, gpu_ref_diff_queue(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
@@ -48,6 +49,7 @@ namespace holovibes
     , abort_construct_requested_(false)
     , termination_requested_(false)
 	, update_acc_requested_(false)
+	, update_ref_diff_requested_(false)
     , q_gpu_stft_buffer_(nullptr)
     , average_output_(nullptr)
     , average_n_(0)
@@ -150,6 +152,10 @@ namespace holovibes
 		gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 	}
 
+	if (compute_desc_.ref_diff_enabled)
+	{
+		gpu_ref_diff_queue = new holovibes::Queue(input_.get_frame_desc(), compute_desc_.stft_level.load(), "TakeRefQueue");
+	}
   }
 
   ICompute::~ICompute()
@@ -192,6 +198,9 @@ namespace holovibes
 
 	/* gpu_stft_queue */
 	delete gpu_stft_queue_;
+
+	/* gpu_take_ref_queue */
+	delete gpu_ref_diff_queue;
   }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -355,6 +364,19 @@ namespace holovibes
 	  }
   }
 
+  void ICompute::update_ref_diff_parameter()
+  {
+	  if (gpu_ref_diff_queue != nullptr)
+	  {
+		  delete gpu_ref_diff_queue;
+		  gpu_ref_diff_queue = nullptr;
+	  }
+	  if (compute_desc_.ref_diff_enabled)
+	  {
+		  gpu_ref_diff_queue = new holovibes::Queue(input_.get_frame_desc(), compute_desc_.ref_diff_level, "TakeRefQueue");
+	  }
+  }
+
   void ICompute::request_refresh()
   {
     refresh_requested_ = true;
@@ -363,6 +385,12 @@ namespace holovibes
   void ICompute::request_acc_refresh()
   {
 	  update_acc_requested_ = true;
+	  request_refresh();
+  }
+
+  void ICompute::request_ref_diff_refresh()
+  {
+	  update_ref_diff_requested_ = true;
 	  request_refresh();
   }
 

@@ -95,6 +95,8 @@ namespace holovibes
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
 	  , stft_level(32)
+	  , ref_diff_level(1)
+	  , ref_diff_enabled(false)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -193,15 +195,21 @@ namespace holovibes
 	/*! Pixel Size used when importing a file */
 	std::atomic<float> import_pixel_size;
 
+
 	/*! Is Image Accumulation enabled. */
 	std::atomic<bool> img_acc_enabled;
 	/*! Size of Image Accumulation buffer. */
 	std::atomic<unsigned int> img_acc_buffer_size;
 	/*! Set Image Accumulation level. */
 	std::atomic<unsigned int> img_acc_level;
-	/*! Is stft mode enabled. */
-	std::atomic<bool> stft_enabled;
 	/*! Quantity of frames that will be processed during STFT. */
 	std::atomic<int> stft_level;
+	/*! Is stft mode enabled. */
+	std::atomic<bool> stft_enabled;
+	/*! Frame number of images that will be averaged. */
+	std::atomic<int> ref_diff_level;
+	/*! Is reference difference mode enabled. */
+	std::atomic<bool> ref_diff_enabled;
+
   };
 }

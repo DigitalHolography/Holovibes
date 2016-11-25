@@ -173,7 +173,14 @@ namespace gui
 
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
-    /*! \brief Set phase number (also called 'n' in papers)
+    
+	/* launch the take reference mode that record one image and substract it to the others */
+	void take_reference();
+
+	/* cancel the reference_taking mode */
+	void cancel_take_reference();
+	
+	/*! \brief Set phase number (also called 'n' in papers)
     ** \param value new phase number
     */
     void set_phase_number(int value);
@@ -306,7 +313,6 @@ namespace gui
     /*! \brief Enable or diable shift corners algorithm */
     void set_shifted_corners(bool value);
     /*! \} */
-
     /*! \{ \name Special */
     /*! \brief Enable or disable vibrometry/image ratio mode */
     void set_vibro_mode(bool value);

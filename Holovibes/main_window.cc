@@ -534,6 +534,26 @@ namespace gui
 	  manager->remove_info("Status");
   }
 
+  void MainWindow::take_reference()
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.ref_diff_enabled.exchange(true);
+		  holovibes_.get_pipe()->request_ref_diff_refresh();
+	  } 
+  }
+
+  void MainWindow::cancel_take_reference()
+  {
+		  if (!is_direct_mode())
+		  {
+			  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			  cd.ref_diff_enabled.exchange(false);
+			  holovibes_.get_pipe()->request_ref_diff_refresh();
+		  }
+  }
+
   void  MainWindow::set_phase_number(const int value)
   {
 	holovibes::Queue* input;

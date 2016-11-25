@@ -16,6 +16,7 @@
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
+#include "tools_divide.cuh"
 #include "tools.hh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
@@ -109,6 +110,15 @@ namespace holovibes
 		update_acc_requested_ = false;
 		update_acc_parameter();
 	}
+
+	if (update_ref_diff_requested_)
+	{
+		update_ref_diff_requested_ = false;
+		update_ref_diff_parameter();
+		if (compute_desc_.ref_diff_enabled)
+			queue_enqueue(input_.get_buffer(), gpu_ref_diff_queue);
+		
+	}
     if (abort_construct_requested_)
       return;
 
@@ -147,6 +157,19 @@ namespace holovibes
 		 qframe = pframe;
 	 /* p frame pointer */
 	 gpu_input_frame_ptr_ = gpu_input_buffer_ + pframe * input_fd.frame_res();
+
+	 if (compute_desc_.ref_diff_enabled)
+	 {
+		 fn_vect_.push_back(std::bind(
+			 substract_ref,
+			 gpu_input_buffer_,
+			 gpu_ref_diff_queue->get_buffer(),
+			 input_.get_frame_desc().depth,
+			 input_.get_frame_desc().frame_res(),
+			 nframes,
+			 static_cast<cudaStream_t>(0)));
+	 }
+
 
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{

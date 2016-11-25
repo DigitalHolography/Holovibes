@@ -12,6 +12,8 @@
 # endif /* !_USE_MATH_DEFINES */
 # include <math.h>
 
+# include "compute_descriptor.hh"
+
 /*! \brief  Divide all the pixels of input image(s) by the float divider.
 *
 * \param image The image(s) to process. Should be contiguous memory.
@@ -33,3 +35,17 @@ __global__ void kernel_float_divide(
   float* input,
   const unsigned int size,
   const float divider);
+
+__global__ void kernel_substract_ref(
+	cufftComplex* input,
+	void*         reference,
+	const holovibes::ComputeDescriptor compute_desc,
+	const unsigned int nframes);
+
+void substract_ref(
+	cufftComplex* input,
+	void*         reference,
+	const unsigned int pixel_size,
+	const unsigned frame_resolution,
+	const unsigned int nframes,
+	cudaStream_t stream = 0);
