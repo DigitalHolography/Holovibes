@@ -97,3 +97,7 @@ __global__ void kernel_phi(
 	const cufftComplex* input,
 	const cufftComplex coeff,
 	const unsigned int size);
+
+__global__ void kernel_convergence(
+	cufftComplex* input1,
+	cufftComplex* input2);

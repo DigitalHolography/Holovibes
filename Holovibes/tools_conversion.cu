@@ -127,7 +127,7 @@ static __global__ void kernel_complex_to_argument(
 
   while (index < size)
   {
-    output[index] = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
+	  output[index] = (atanf(input[index].y / input[index].x) + pi_div_2);// *c;
 
     index += blockDim.x * gridDim.x;
   }

@@ -862,7 +862,8 @@ namespace gui
 	  QCheckBox* unwrap_2d = findChild<QCheckBox*>("unwrap_2d_CheckBox");
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-	  if (cd.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE | cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
+	  if (cd.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE |
+		  cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 	  {
 		  unwrap_1d->setEnabled(true);
 		  unwrap_2d->setEnabled(true);

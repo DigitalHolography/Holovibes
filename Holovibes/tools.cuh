@@ -191,6 +191,15 @@ void unwrap_diff(
 
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(
+	float *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream);
+
+/*! Main function for unwrap_2d calculations*/
+void unwrap_2d_complex(
 	cufftComplex *input,
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,

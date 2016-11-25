@@ -325,6 +325,31 @@ void phase_increase(
 }
 
 void unwrap_2d(
+	float *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream)
+{
+	unsigned int threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
+
+	kernel_init_unwrap_2d << < lblocks, lthreads, 0, stream >> > (
+		fd.width,
+		fd.height,
+		fd.frame_res(),
+		input,
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_z_);
+	gradian_unwrap_2d(plan2d, res, fd, stream);
+	eq_unwrap_2d(plan2d, res, fd, stream);
+	phi_unwrap_2d(plan2d, res, fd, output, stream);
+}
+
+void unwrap_2d_complex(
 	cufftComplex *input,
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
@@ -332,14 +357,15 @@ void unwrap_2d(
 	float *output,
 	cudaStream_t stream)
 {
-	const unsigned threads = 128;
-	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
+	unsigned int threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
-	kernel_init_unwrap_2d << < blocks, threads, 0, stream >> > (
+	kernel_init_unwrap_2d_complex << < lblocks, lthreads, 0, stream >> > (
 		fd.width,
 		fd.height,
 		fd.frame_res(),
-		output,
+		input,
 		res->gpu_fx_,
 		res->gpu_fy_,
 		res->gpu_z_);
@@ -418,6 +444,8 @@ void phi_unwrap_2d(
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
 
+	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_);
 	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(
 		res->gpu_grad_eq_x_,
 		res->gpu_grad_eq_y_,

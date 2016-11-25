@@ -112,23 +112,43 @@ __global__ void kernel_init_unwrap_2d(
 	float *fy,
 	cufftComplex *z)
 {
-	const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
+	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int index = j * blockDim.x * gridDim.x + i;
 
 	if (index < frame_res)
 	{
-		const unsigned int j = index / width;
-		const unsigned int i = index % width;
-		
-		/*fx and fy init*/
-
-		fx[index] = i - roundf(width / 2);
-		fy[index] = j - roundf(width / 2);
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width) / 2)));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height) / 2)));
 
 		/*z init*/
-
 		z[index].x = cosf(input[index]);
 		z[index].y = sinf(input[index]);
-	/*	const float modulus = sqrtf(input[index].x * input[index].x + input[index].y * input[index].y);
+	}
+}
+
+__global__ void kernel_init_unwrap_2d_complex(
+	unsigned int width,
+	unsigned int height,
+	unsigned int frame_res,
+	cufftComplex *input,
+	float *fx,
+	float *fy,
+	cufftComplex *z)
+{
+	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int index = j * blockDim.x * gridDim.x + i;
+
+	if (index < frame_res)
+	{
+		/*fx and fy init*/
+
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width) / 2)));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height) / 2)));
+
+		/*z init*/
+		const float modulus = sqrtf(abs(input[index].x * input[index].x + input[index].y * input[index].y));
 		if (modulus == 0)
 		{
 			z[index].x = 0;
@@ -138,6 +158,6 @@ __global__ void kernel_init_unwrap_2d(
 		{
 			z[index].x = input[index].x / modulus;
 			z[index].y = input[index].y / modulus;
-		}*/
+		}
 	}
 }

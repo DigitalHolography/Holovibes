@@ -136,7 +136,8 @@ __global__ void kernel_norm_ratio(
 
 	while (index < size)
 	{
-		float norm = sqrtf(input1[index] * input1[index] + input2[index] * input2[index]);
+		float norm = input1[index] * input1[index] + input2[index] * input2[index];
+
 		if (norm != 0)
 		{
 			float coeff_x = input1[index] / norm;
@@ -186,4 +187,14 @@ __global__ void kernel_phi(
 		output[index] = input[index].y / coeff.y;
 		index += blockDim.x * gridDim.x;
 	}
+}
+
+__global__ void kernel_convergence(
+	cufftComplex* input1,
+	cufftComplex* input2)
+{
+	input1[0].x = 0;
+	input1[0].y = 0;
+	input2[0].x = 0;
+	input2[0].y = 0;
 }
