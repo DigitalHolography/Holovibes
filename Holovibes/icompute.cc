@@ -14,7 +14,8 @@
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "info_manager.hh"
-# include "compute_bundles.hh"
+#include "tools_divide.cuh"
+#include "compute_bundles.hh"
 
 
 namespace holovibes
@@ -33,7 +34,7 @@ namespace holovibes
 	, gpu_kernel_buffer_(nullptr)
 	, gpu_special_queue_(nullptr)
 	, gpu_stft_queue_(nullptr)
-	, gpu_ref_diff_queue(nullptr)
+	, gpu_ref_diff_queue_(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
@@ -52,6 +53,8 @@ namespace holovibes
 	, update_ref_diff_requested_(false)
     , q_gpu_stft_buffer_(nullptr)
     , average_output_(nullptr)
+	, ref_diff_state_(ENQUEUE)
+	, ref_diff_counter(0)
     , average_n_(0)
     , af_env_({ 0 })
     , past_time_(std::chrono::high_resolution_clock::now())
@@ -154,7 +157,11 @@ namespace holovibes
 
 	if (compute_desc_.ref_diff_enabled)
 	{
-		gpu_ref_diff_queue = new holovibes::Queue(input_.get_frame_desc(), compute_desc_.stft_level.load(), "TakeRefQueue");
+		/*cudaMalloc<cufftComplex>(&gpu_ref_diff_buffer_,
+			sizeof(cufftComplex) * input_.get_pixels() * compute_desc_.ref_diff_level.load());*/
+		camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
+		new_fd3.depth = 8;
+		new holovibes::Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
 	}
   }
 
@@ -200,7 +207,8 @@ namespace holovibes
 	delete gpu_stft_queue_;
 
 	/* gpu_take_ref_queue */
-	delete gpu_ref_diff_queue;
+	delete gpu_ref_diff_queue_;
+	//cudaFree(gpu_ref_diff_buffer_);
   }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -366,14 +374,20 @@ namespace holovibes
 
   void ICompute::update_ref_diff_parameter()
   {
-	  if (gpu_ref_diff_queue != nullptr)
+	  if (gpu_ref_diff_queue_ != nullptr)
 	  {
-		  delete gpu_ref_diff_queue;
-		  gpu_ref_diff_queue = nullptr;
+		  //cudaFree(gpu_ref_diff_buffer_);
+		  delete  gpu_ref_diff_queue_;
+		  gpu_ref_diff_queue_ = nullptr;
+		  ref_diff_state_ = ENQUEUE;
 	  }
 	  if (compute_desc_.ref_diff_enabled)
 	  {
-		  gpu_ref_diff_queue = new holovibes::Queue(input_.get_frame_desc(), compute_desc_.ref_diff_level, "TakeRefQueue");
+		/*  cudaMalloc<cufftComplex>(&gpu_ref_diff_buffer_,
+			  sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.ref_diff_level.load());*/
+		  camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		  new_fd.depth = 8;
+		  gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level, "TakeRefQueue");
 	  }
   }
 
@@ -535,9 +549,26 @@ namespace holovibes
 	  fqueue_->enqueue(complex_output, cudaMemcpyDeviceToDevice);
   }
 
+  void ICompute::handle_reference(cufftComplex *input, const unsigned int nframes)
+  {
+	  if (ref_diff_state_ == ENQUEUE)
+	  {
+		  queue_enqueue(input, gpu_ref_diff_queue_);
+		  ref_diff_counter--;
+		  if (ref_diff_counter == 0)
+			  ref_diff_state_ = COMPUTE;
+	  }
+	  if (ref_diff_state_ == COMPUTE)
+	  {
+		  substract_ref(input, static_cast<cufftComplex*>(gpu_ref_diff_queue_->get_buffer()),
+			  input_.get_frame_desc().frame_res(), nframes,
+			  static_cast<cudaStream_t>(0));
+	  }
+  }
+
   void ICompute::queue_enqueue(void* input, Queue* queue)
   {
-	  queue->enqueue(input, cudaMemcpyDeviceToDevice, true);
+	  queue->enqueue(input, cudaMemcpyDeviceToDevice);
   }
 
   void ICompute::average_caller(

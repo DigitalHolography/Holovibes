@@ -57,6 +57,13 @@ namespace holovibes
       unsigned int    af_square_size;
     };
 
+	/* these states are used for take ref when we need to do action punctually in the pipe*/
+	enum state
+	{
+		ENQUEUE,
+		COMPUTE
+	};
+
     /* \brief Pre-allocation needed ressources for the autofocus to work. */
     void autofocus_init();
 
@@ -262,6 +269,10 @@ namespace holovibes
 	/*! \brief Add frame in fqueue_. */
 	void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 
+	/* TODO: */ 
+	void handle_reference(cufftComplex* input, const unsigned int nframes);
+
+
     /*! \brief Print fps each 100 frames
     **
     ** Use InfoManager */
@@ -339,7 +350,11 @@ namespace holovibes
 	Queue* gpu_stft_queue_;
 
 	/* Queue for the reference diff */
-	Queue* gpu_ref_diff_queue;
+	Queue* gpu_ref_diff_queue_;
+
+	enum state ref_diff_state_;
+
+	unsigned int ref_diff_counter;
 
 	/*! \{ \name request flags */
 	bool unwrap_requested_;

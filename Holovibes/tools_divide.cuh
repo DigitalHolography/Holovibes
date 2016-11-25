@@ -44,8 +44,7 @@ __global__ void kernel_substract_ref(
 
 void substract_ref(
 	cufftComplex* input,
-	void*         reference,
-	const unsigned int pixel_size,
+	cufftComplex* reference,
 	const unsigned frame_resolution,
 	const unsigned int nframes,
 	cudaStream_t stream = 0);

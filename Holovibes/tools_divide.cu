@@ -33,37 +33,23 @@ __global__ void kernel_float_divide(
 
 __global__ void kernel_substract_ref_8(
 	cufftComplex*      input,
-	unsigned char*    reference,
+	cufftComplex*      reference,
 	const unsigned int size,
 	const unsigned int frame_size)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	while (index < size)
 	{
-		input[index].x -= reference[index % frame_size];
+		input[index].x -= reference[index % frame_size].x;
 		index += blockDim.x * gridDim.x;
 	}
 }
 
-__global__ void kernel_substract_ref_16(
-	cufftComplex*      input,
-	unsigned short*    reference,
-	const unsigned int size,
-	const unsigned int frame_size)
-{
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	while (index < size)
-	{
-		input[index].x -= (reference[index % frame_size] * 257);
-		index += blockDim.x * gridDim.x;
-	}
-}
 
 
 void substract_ref(
 	cufftComplex* input,
-	void*         reference,
-	const unsigned int pixel_size,
+	cufftComplex* reference,
 	const unsigned int frame_resolution,
 	const unsigned int nframes,
 	cudaStream_t stream)
@@ -71,8 +57,6 @@ void substract_ref(
 	const unsigned int n_frame_resolution = frame_resolution * nframes;
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
-	if (pixel_size == 1)
-    kernel_substract_ref_8 << <blocks, threads, 0, stream >> >(input, static_cast<unsigned char*>(reference), n_frame_resolution, frame_resolution);
-	if (pixel_size == 2)
-	kernel_substract_ref_16 << <blocks, threads, 0, stream >> >(input, static_cast<unsigned short*>(reference), n_frame_resolution, frame_resolution);
+    kernel_substract_ref_8 << <blocks, threads, 0, stream >> >(input, reference, n_frame_resolution, frame_resolution);
+
 }
