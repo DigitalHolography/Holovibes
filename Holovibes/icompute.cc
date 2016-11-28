@@ -27,11 +27,10 @@ namespace holovibes
     : compute_desc_(desc)
     , input_(input)
     , output_(output)
-    , gpu_sqrt_vector_(nullptr)
     , unwrap_res_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_lens_(nullptr)
-	, gpu_kernel_buffer_(nullptr)
+	, gpu_kernel_buffer_(nullptr)  
 	, gpu_special_queue_(nullptr)
 	, gpu_stft_queue_(nullptr)
 	, gpu_ref_diff_queue_(nullptr)
@@ -176,9 +175,6 @@ namespace holovibes
 
     /* gpu_lens */
     cudaFree(gpu_lens_);
-
-    /* Square root vector */
-    cudaFree(gpu_sqrt_vector_);
 
     /* gpu_stft_buffer */
     cudaFree(gpu_stft_buffer_);
@@ -678,8 +674,7 @@ namespace holovibes
     make_contiguous_complex(
       input_,
       af_env_.gpu_input_buffer_tmp,
-      compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_);
+      compute_desc_.nsamples.load());
 
     af_env_.zone = compute_desc_.autofocus_zone;
     /* Compute square af zone. */

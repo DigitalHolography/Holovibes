@@ -291,9 +291,6 @@ namespace holovibes
     /*! \brief Output frame queue : 16-bit frames. */
     Queue& output_;
 
-    /*! Vector filled with sqrtf values. */
-    float* gpu_sqrt_vector_;
-
     /*! All buffers needed for phase unwrapping are here. */
     std::shared_ptr<UnwrappingResources> unwrap_res_;
 

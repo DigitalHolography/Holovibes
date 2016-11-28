@@ -4,7 +4,7 @@
 #include "tools.hh"
 #include "transforms.cuh"
 #include "preprocessing.cuh"
-#include "tools_divide.cuh"
+#include "tools_compute.cuh"
 #include "tools.cuh"
 
 void fft2_lens(

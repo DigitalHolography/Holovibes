@@ -30,8 +30,7 @@
 __global__ void img8_to_complex(
   cufftComplex* output,
   const unsigned char* input,
-  const unsigned int size,
-  const float* sqrt_array);
+  const unsigned int size);
 
 /*! \brief This function allows to transform 16 bit data to its complex representation.
  *
@@ -47,8 +46,7 @@ __global__ void img8_to_complex(
 __global__ void img16_to_complex(
   cufftComplex* output,
   const unsigned short* input,
-  const unsigned int size,
-  const float* sqrt_array);
+  const unsigned int size);
 
 /*! \brief This function allows to transform float 32 bits data to its complex representation.
 *
@@ -64,8 +62,7 @@ __global__ void img16_to_complex(
 __global__ void float_to_complex(
 	cufftComplex* output,
 	const float* input,
-	const unsigned int size,
-	const float* sqrt_array);
+	const unsigned int size);
 
 /*! \brief Compute the modulus of complex image(s).
  *

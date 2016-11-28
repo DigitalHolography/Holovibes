@@ -158,7 +158,6 @@ namespace holovibes
         std::ref(input_),
         std::ref(gpu_complex_buffers_[0]),
         input_length_,
-        gpu_sqrt_vector_,
         modules_[0]->stream_
         ));
     }

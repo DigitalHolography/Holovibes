@@ -137,7 +137,6 @@ namespace holovibes
       std::ref(input_),
       gpu_input_buffer_,
       input_length_,
-      gpu_sqrt_vector_,
       static_cast<cudaStream_t>(0)));
 
 	 unsigned int nframes = compute_desc_.nsamples.load();
@@ -552,8 +551,7 @@ namespace holovibes
     make_contiguous_complex(
       input_,
       gpu_input_buffer_,
-      compute_desc_.nsamples.load(),
-      gpu_sqrt_vector_);
+      compute_desc_.nsamples.load());
 
     float z_min = compute_desc_.autofocus_z_min;
     float z_max = compute_desc_.autofocus_z_max;
