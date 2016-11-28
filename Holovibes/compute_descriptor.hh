@@ -95,7 +95,7 @@ namespace holovibes
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
 	  , stft_level(32)
-	  , ref_diff_level(3)
+	  , ref_diff_level(1)
 	  , ref_diff_enabled(false)
     {
       pindex = 0;

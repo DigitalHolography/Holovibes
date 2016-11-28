@@ -114,7 +114,7 @@ namespace holovibes
 	{
 		update_ref_diff_requested_ = false;
 		update_ref_diff_parameter();
-		ref_diff_counter = compute_desc_.ref_diff_level.load();
+		ref_diff_counter = compute_desc_.ref_diff_level.load() + 1;
 	}
     if (abort_construct_requested_)
       return;

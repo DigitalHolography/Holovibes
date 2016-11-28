@@ -1740,6 +1740,7 @@ namespace gui
 
   void MainWindow::import_file()
   {
+	  request_stop_compute();
 	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
     QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
     QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
@@ -2019,6 +2020,7 @@ namespace gui
 
   void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
+	  request_stop_compute();
     if (camera_type != holovibes::Holovibes::NONE)
     {
       try
@@ -2154,6 +2156,8 @@ namespace gui
       cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
         ptree.get<int>("image_rendering.algorithm", cd.algorithm));
 
+	  cd.ref_diff_level = ptree.get<unsigned int>("image_rendering.take_ref_level", cd.ref_diff_level);
+
       // View
       view_action->setChecked(!ptree.get<bool>("view.hidden", false));
       view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
@@ -2262,6 +2266,7 @@ namespace gui
     ptree.put("image_rendering.z_step", z_step_);
     ptree.put("image_rendering.algorithm", cd.algorithm);
 	ptree.put("image_rendering.stft_level", cd.stft_level);
+	ptree.put("image_rendering.take_ref_level", cd.ref_diff_level);
 
     // View
     ptree.put("view.hidden", view_group_box->isHidden());
@@ -2429,6 +2434,15 @@ namespace gui
 	  {
 		  std::cout << e.what() << std::endl;
 	  }
+  }
+
+  void MainWindow::request_stop_compute()
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  if (cd.stft_enabled)
+		  set_stft(false);
+	  if (cd.ref_diff_enabled)
+		  cancel_take_reference();
   }
 
   void MainWindow::set_classic()

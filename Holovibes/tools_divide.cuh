@@ -48,3 +48,10 @@ void substract_ref(
 	const unsigned frame_resolution,
 	const unsigned int nframes,
 	cudaStream_t stream = 0);
+
+void mean_images(
+	cufftComplex* input,
+	cufftComplex* output,
+	unsigned int n,
+	unsigned int frame_size,
+	cudaStream_t stream = 0);

@@ -351,6 +351,7 @@ void complex_to_ushort(
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
 
+/*TODO:*/
 void complex_to_complex(
 	const cufftComplex* input,
 	unsigned short* output,

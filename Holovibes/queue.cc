@@ -15,6 +15,7 @@ namespace holovibes
     , max_elts_(elts)
     , curr_elts_(0)
     , start_(0)
+	, display_(true)
     , is_big_endian_(frame_desc.depth >= 2 &&
     frame_desc.endianness == camera::BIG_ENDIAN)
     , name_(name)
@@ -31,6 +32,7 @@ namespace holovibes
 
   Queue::~Queue()
   {
+	  if (display_)
     gui::InfoManager::remove_info_safe(name_);
     if (cudaFree(buffer_) != CUDA_SUCCESS)
       std::cerr << "Queue: couldn't free queue" << std::endl;
@@ -106,6 +108,7 @@ namespace holovibes
     if (cuda_status != CUDA_SUCCESS)
     {
       std::cerr << "Queue: couldn't enqueue" << std::endl;
+	  if (display_)
       gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
       return false;
     }
@@ -116,6 +119,7 @@ namespace holovibes
       ++curr_elts_;
     else
       start_ = (start_ + 1) % max_elts_;
+	if (display_)
     gui::InfoManager::update_info_safe(name_,
       std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     return true;
@@ -131,6 +135,7 @@ namespace holovibes
       cudaMemcpyAsync(dest, first_img, size_, cuda_kind, stream_);
       start_ = (start_ + 1) % max_elts_;
       --curr_elts_;
+	  if (display_)
       gui::InfoManager::update_info_safe(name_,
         std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
     }
@@ -153,5 +158,10 @@ namespace holovibes
 
     curr_elts_ = 0;
     start_ = 0;
+  }
+
+  void Queue::set_display(bool value)
+  {
+	  display_ = value;
   }
 }

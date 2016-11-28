@@ -423,16 +423,17 @@ namespace gui
 	*/
     /*! \} */
 	
+	/*! \brief Seek import value in .cine file*/
+	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
+
+	/* stop computing that might crash program before launching any program */
+	void request_stop_compute();
+
 	/*! \brief Display classic GUI theme*/
 	void set_classic();
 
 	/*! \brief Display classic GUI theme*/
 	void set_night();
-
-
-	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
-	/*! \brief Seek import value in .cine file*/
-
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
 

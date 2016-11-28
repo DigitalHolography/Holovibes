@@ -113,6 +113,9 @@ namespace holovibes
     /*! Empties the Queue. */
     void flush();
 
+	/* allow us to choose if we want to display the queue or not */
+	void set_display(bool value);
+  
   private:
     /*! The name of the queue */
     std::string name_;
@@ -146,5 +149,8 @@ namespace holovibes
 
     /*! Stream id use by cuda */
     cudaStream_t  stream_;
+
+	/* display tool */
+	bool display_;
   };
 }
