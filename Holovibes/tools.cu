@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 
 #include "tools.cuh"
-#include "tools_multiply.cuh"
+#include "tools_divide.cuh"
 #include "tools_unwrap.cuh"
 #include "tools.hh"
 #include "geometry.hh"

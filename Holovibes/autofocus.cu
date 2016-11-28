@@ -6,8 +6,7 @@
 # include "hardware_limits.hh"
 # include "tools.cuh"
 # include "tools.hh"
-# include "tools_multiply.cuh"
-# include "tools_divide.cuh"
+# include "tools_compute.cuh"
 # include "average.cuh"
 
 static __global__ void kernel_minus_operator(

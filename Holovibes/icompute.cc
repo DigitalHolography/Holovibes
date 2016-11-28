@@ -14,7 +14,7 @@
 #include "compute_descriptor.hh"
 #include "power_of_two.hh"
 #include "info_manager.hh"
-#include "tools_divide.cuh"
+#include "tools_compute.cuh"
 #include "compute_bundles.hh"
 
 
