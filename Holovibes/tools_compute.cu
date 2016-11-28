@@ -92,8 +92,8 @@ void substract_ref(
 __global__ void kernel_mean_images(
 	cufftComplex *input,
 	cufftComplex *output,
-	unsigned int frame_size,
-	unsigned int n)
+	unsigned int n,
+	unsigned int frame_size)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	while (index < frame_size)
@@ -102,7 +102,7 @@ __global__ void kernel_mean_images(
 		for (int i = 0; i < n; i++)
 			tmp += input[index + i * frame_size].x;
 		tmp /= n;
-		output[index % frame_size].x = tmp;
+		output[index].x = tmp;
 		index += blockDim.x * gridDim.x;
 	}
 }
@@ -117,5 +117,5 @@ void mean_images(
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_size, threads);
 
-	kernel_mean_images << <blocks, threads, 0, stream >> >(input, input, n, frame_size);
+	kernel_mean_images << <blocks, threads, 0, stream >> >(input, output, n, frame_size);
 }

@@ -2440,7 +2440,11 @@ namespace gui
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (cd.stft_enabled)
+	  {
+		  QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+		  stft_button->setChecked(false);
 		  set_stft(false);
+	  }
 	  if (cd.ref_diff_enabled)
 		  cancel_take_reference();
   }
