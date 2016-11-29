@@ -359,6 +359,7 @@ namespace gui
 
 	void MainWindow::set_direct_mode()
 	{
+		close_critical_compute();
 		if (is_enabled_camera_)
 		{
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
@@ -375,6 +376,7 @@ namespace gui
 
 	void MainWindow::set_holographic_mode()
 	{
+		close_critical_compute();
 		if (is_enabled_camera_)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -407,6 +409,7 @@ namespace gui
 
 	void MainWindow::set_demodulation_mode()
 	{
+		close_critical_compute();
 		if (is_enabled_camera_)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -1738,7 +1741,7 @@ namespace gui
 
   void MainWindow::import_file()
   {
-	  change_compute_state(false);
+	close_critical_compute();
 	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
     QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
     QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
@@ -1884,6 +1887,9 @@ namespace gui
     QLineEdit* boundary = findChild<QLineEdit*>("boundary");
     boundary->setDisabled(!value);
 
+	QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+	stft_button->setDisabled(!value);
+
 	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
 	QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
 	QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
@@ -2018,7 +2024,7 @@ namespace gui
 
   void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
-	  change_compute_state(false);
+	  close_critical_compute();
     if (camera_type != holovibes::Holovibes::NONE)
     {
       try
@@ -2434,22 +2440,25 @@ namespace gui
 	  }
   }
 
-  void MainWindow::change_compute_state(bool value)
+  void MainWindow::close_critical_compute()
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (cd.stft_enabled)
 	  {
+		  unsigned int tmp = cd.nsamples.load();
+		  cd.nsamples.exchange(cd.stft_level.load());
+		  cd.stft_level.exchange(tmp);
 		  QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		  stft_button->setChecked(false);
 		  set_stft(false);
-
-		  if (cd.ref_diff_enabled)
-			  cancel_take_reference();
 	  }
+	  if (cd.ref_diff_enabled)
+		  cancel_take_reference();
   }
 
   void MainWindow::reload_ini()
   {
+	  close_critical_compute();
 	  load_ini("holovibes.ini");
 	  notify();
   }

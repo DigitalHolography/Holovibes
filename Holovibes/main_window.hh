@@ -426,8 +426,8 @@ namespace gui
 	/*! \brief Seek import value in .cine file*/
 	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
 
-	/* change computin state that might crash program before launching any program */
-	void change_compute_state(bool value);
+	/* change computing state that might crash program before launching any program */
+	void close_critical_compute();
 
 	/* reload computing values */
 	void reload_ini();
