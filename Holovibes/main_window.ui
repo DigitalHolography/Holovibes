@@ -994,32 +994,6 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>unwrapCheckBox</zorder>
-        <zorder>ViewShorcut_label</zorder>
-        <zorder>img_accSpinBox</zorder>
-        <zorder>img_accCheckBox</zorder>
-        <zorder>unwrapCheckBox_2</zorder>
-        <zorder>autofocusLabel_2</zorder>
-        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item>
@@ -2382,6 +2356,7 @@ p, li { white-space: pre-wrap; }
      <string>&amp;File</string>
     </property>
     <addaction name="actionConfigure"/>
+    <addaction name="actionReload_ini"/>
     <addaction name="actionReset"/>
     <addaction name="actionExit"/>
    </widget>
@@ -2651,6 +2626,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionNight">
    <property name="text">
     <string>Night</string>
+   </property>
+  </action>
+  <action name="actionReload_ini">
+   <property name="text">
+    <string>Reload .ini</string>
    </property>
   </action>
  </widget>
@@ -4060,6 +4040,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionReload_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reload_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4144,5 +4140,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_stft(bool)</slot>
   <slot>take_reference()</slot>
   <slot>cancel_take_reference()</slot>
+  <slot>reload_ini()</slot>
  </slots>
 </ui>

@@ -1721,8 +1721,6 @@ namespace gui
 		  float_checkbox->setChecked(false);
   }
 
-
-
   void MainWindow::import_browse_file()
   {
     QString filename = QFileDialog::getOpenFileName(this,
@@ -1740,7 +1738,7 @@ namespace gui
 
   void MainWindow::import_file()
   {
-	  request_stop_compute();
+	  change_compute_state(false);
 	holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
     QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
     QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
@@ -2020,7 +2018,7 @@ namespace gui
 
   void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
-	  request_stop_compute();
+	  change_compute_state(false);
     if (camera_type != holovibes::Holovibes::NONE)
     {
       try
@@ -2436,7 +2434,7 @@ namespace gui
 	  }
   }
 
-  void MainWindow::request_stop_compute()
+  void MainWindow::change_compute_state(bool value)
   {
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (cd.stft_enabled)
@@ -2444,10 +2442,18 @@ namespace gui
 		  QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		  stft_button->setChecked(false);
 		  set_stft(false);
+
+		  if (cd.ref_diff_enabled)
+			  cancel_take_reference();
 	  }
-	  if (cd.ref_diff_enabled)
-		  cancel_take_reference();
   }
+
+  void MainWindow::reload_ini()
+  {
+	  load_ini("holovibes.ini");
+	  notify();
+  }
+
 
   void MainWindow::set_classic()
   {
