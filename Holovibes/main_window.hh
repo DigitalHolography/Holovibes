@@ -28,6 +28,7 @@
 # include "options_parser.hh"
 # include "holovibes.hh"
 # include "observer.hh"
+# include "geometry.hh"
 #include "options_descriptor.hh"
 
 /* Forward declarations. */
@@ -180,6 +181,11 @@ namespace gui
 	/* cancel the reference_taking mode */
 	void cancel_take_reference();
 	
+	//TODO:
+	void set_filter2D();
+
+	void cancel_filter2D();
+
 	/*! \brief Set phase number (also called 'n' in papers)
     ** \param value new phase number
     */

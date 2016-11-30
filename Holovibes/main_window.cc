@@ -557,10 +557,38 @@ namespace gui
 		  }
   }
 
+  void MainWindow::set_filter2D()
+  {
+	  if (!is_direct_mode())
+	  {
+		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+			  Qt::UniqueConnection);
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+			  Qt::UniqueConnection);
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.filter_2d_enabled.exchange(true);
+		  holovibes_.get_pipe()->request_autocontrast();
+	  }
+  }
+
+  void MainWindow::cancel_filter2D()
+  {
+	  if (!is_direct_mode())
+	  {
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
+		  cd.filter_2d_enabled.exchange(false);
+		  cd.stft_roi_zone.exchange(holovibes::Rectangle(holovibes::Point2D(0, 0), holovibes::Point2D(0, 0)));
+		  holovibes_.get_pipe()->request_autocontrast();
+	  }
+  }
+
   void  MainWindow::set_phase_number(const int value)
   {
 	holovibes::Queue* input;
-
 	if (!is_direct_mode())
     {
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();

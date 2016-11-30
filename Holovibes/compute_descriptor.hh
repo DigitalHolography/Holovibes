@@ -77,6 +77,7 @@ namespace holovibes
 	  , convolution_enabled(false)
 	  , flowgraphy_enabled(false)
 	  , stft_enabled(false)
+	  , filter_2d_enabled(false)
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q()
@@ -210,6 +211,8 @@ namespace holovibes
 	std::atomic<int> ref_diff_level;
 	/*! Is reference difference mode enabled. */
 	std::atomic<bool> ref_diff_enabled;
+	/*! Is filter2D enabled. */
+	std::atomic<bool> filter_2d_enabled;
 
   };
 }

@@ -10,6 +10,7 @@
 
 #include "fft1.cuh"
 #include "fft2.cuh"
+#include "filter2D.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
 #include "flowgraphy.cuh"
@@ -160,7 +161,16 @@ namespace holovibes
 		 this,
 		 gpu_input_buffer_,
 		 nframes));
-
+	 if (compute_desc_.filter_2d_enabled)
+	 {
+		 fn_vect_.push_back(std::bind(
+			 filter2D,
+			 gpu_input_buffer_,
+			 plan2d_,
+			 compute_desc_.stft_roi_zone.load(),
+			 input_fd,
+			 static_cast<cudaStream_t>(0)));
+	 }
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		// Add temporal FFT1 1D .
@@ -170,82 +180,84 @@ namespace holovibes
 			plan1d_,
 		    static_cast<cudaStream_t>(0)));
 	}
-	else if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+	else if (!compute_desc_.filter_2d_enabled)
 	{
-		fft1_lens(
-			gpu_lens_,
-			input_fd,
-			compute_desc_.lambda,
-			compute_desc_.zdistance,
-			static_cast<cudaStream_t>(0));
-		// Add FFT1.
-		fn_vect_.push_back(std::bind(
-			fft_1,
-			gpu_input_buffer_,
-			gpu_lens_,
-			plan1d_,
-			plan2d_,
-			input_fd.frame_res(),
-			nframes,
-			pframe,
-			qframe,
-			static_cast<cudaStream_t>(0)));
-
-		if (compute_desc_.vibrometry_enabled)
+		if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
 		{
+			fft1_lens(
+				gpu_lens_,
+				input_fd,
+				compute_desc_.lambda,
+				compute_desc_.zdistance,
+				static_cast<cudaStream_t>(0));
+			// Add FFT1.
+			fn_vect_.push_back(std::bind(
+				fft_1,
+				gpu_input_buffer_,
+				gpu_lens_,
+				plan1d_,
+				plan2d_,
+				input_fd.frame_res(),
+				nframes,
+				pframe,
+				qframe,
+				static_cast<cudaStream_t>(0)));
 
-			/* q frame pointer */
-			cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
+			if (compute_desc_.vibrometry_enabled)
+			{
+
+				/* q frame pointer */
+				cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
+
+				fn_vect_.push_back(std::bind(
+					frame_ratio,
+					gpu_input_frame_ptr_,
+					q,
+					gpu_input_frame_ptr_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
+			}
+		}
+
+		else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+		{
+			fft2_lens(
+				gpu_lens_,
+				input_fd,
+				compute_desc_.lambda,
+				compute_desc_.zdistance,
+				static_cast<cudaStream_t>(0));
 
 			fn_vect_.push_back(std::bind(
-				frame_ratio,
-				gpu_input_frame_ptr_,
-				q,
-				gpu_input_frame_ptr_,
+				fft_2,
+				gpu_input_buffer_,
+				gpu_lens_,
+				plan1d_,
+				plan2d_,
 				input_fd.frame_res(),
+				nframes,
+				pframe,
+				qframe,
 				static_cast<cudaStream_t>(0)));
+
+			if (compute_desc_.vibrometry_enabled)
+			{
+				/* q frame pointer */
+				cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
+
+				fn_vect_.push_back(std::bind(
+					frame_ratio,
+					gpu_input_frame_ptr_,
+					q,
+					gpu_input_frame_ptr_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
+			}
 		}
+
+		else
+			assert(!"Impossible case.");
 	}
-    
-	else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
-	{
-		fft2_lens(
-			gpu_lens_,
-			input_fd,
-			compute_desc_.lambda,
-			compute_desc_.zdistance,
-			static_cast<cudaStream_t>(0));
-
-		fn_vect_.push_back(std::bind(
-			fft_2,
-			gpu_input_buffer_,
-			gpu_lens_,
-			plan1d_,
-			plan2d_,
-			input_fd.frame_res(),
-			nframes,
-			pframe,
-			qframe,
-			static_cast<cudaStream_t>(0)));
-
-		if (compute_desc_.vibrometry_enabled)
-		{
-			/* q frame pointer */
-			cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
-
-			fn_vect_.push_back(std::bind(
-				frame_ratio,
-				gpu_input_frame_ptr_,
-				q,
-				gpu_input_frame_ptr_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		}
-	}
-	
-	else
-		assert(!"Impossible case.");
-
 	if (compute_desc_.stft_enabled)
 	{
 		fn_vect_.push_back(std::bind(
