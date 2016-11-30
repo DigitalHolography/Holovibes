@@ -94,7 +94,9 @@ namespace gui
 
 		if (is_direct_mode())
 			global_visibility(false);
-
+		
+		/* Default size of the main window*/
+		this->resize(1335, 425);
 		// Display default values
 		notify();
 	}
@@ -2537,6 +2539,7 @@ namespace gui
 	  darkPalette.setColor(QPalette::BrightText, Qt::red);
 	  darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
 	  darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
+	  darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
 	  darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
 	  darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
 	  darkPalette.setColor(QPalette::HighlightedText, Qt::black);
