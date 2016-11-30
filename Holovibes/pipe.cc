@@ -180,7 +180,7 @@ namespace holovibes
 			plan1d_,
 		    static_cast<cudaStream_t>(0)));
 	}
-	else if (!compute_desc_.filter_2d_enabled)
+	else if (!compute_desc_.filter_2d_enabled || (compute_desc_.filter_2d_enabled &&  compute_desc_.stft_roi_zone.load().area()))
 	{
 		if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
 		{

@@ -541,6 +541,8 @@ namespace gui
   {
 	  if (!is_direct_mode())
 	  {
+		  QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
+		  cancel->setEnabled(true);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.ref_diff_enabled.exchange(true);
 		  holovibes_.get_pipe()->request_ref_diff_refresh();
@@ -551,6 +553,8 @@ namespace gui
   {
 		  if (!is_direct_mode())
 		  {
+			  QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
+			  cancel->setEnabled(false);
 			  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			  cd.ref_diff_enabled.exchange(false);
 			  holovibes_.get_pipe()->request_ref_diff_refresh();
@@ -561,13 +565,26 @@ namespace gui
   {
 	  if (!is_direct_mode())
 	  {
+		  QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
+		  cancel->setEnabled(true);
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
 			  Qt::UniqueConnection);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 			  Qt::UniqueConnection);
-		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  QCheckBox* convo = findChild<QCheckBox*>("logScaleCheckBox");
+		  convo->setChecked(true);
+		  cd.log_scale_enabled.exchange(true);
+		  if (cd.contrast_enabled)
+		  {
+			  QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
+			  QDoubleSpinBox* contrast_max = findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox");
+			  set_contrast_min(contrast_min->value());
+			  set_contrast_max(contrast_max->value());
+		  }
+
 		  cd.filter_2d_enabled.exchange(true);
 		  holovibes_.get_pipe()->request_autocontrast();
 	  }
@@ -577,6 +594,8 @@ namespace gui
   {
 	  if (!is_direct_mode())
 	  {
+		  QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
+		  cancel->setEnabled(false);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
