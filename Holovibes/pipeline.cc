@@ -344,7 +344,7 @@ namespace holovibes
       if (compute_desc_.vibrometry_enabled)
       {
         /* q frame pointer */
-        cufftComplex* q = q_gpu_stft_buffer_;
+		  cufftComplex* q = nullptr;// q_gpu_stft_buffer;
 
        /* modules_[1]->push_back_worker(std::bind(
           stft_recontruct,

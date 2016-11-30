@@ -50,7 +50,6 @@ namespace holovibes
     , termination_requested_(false)
 	, update_acc_requested_(false)
 	, update_ref_diff_requested_(false)
-    , q_gpu_stft_buffer_(nullptr)
     , average_output_(nullptr)
 	, ref_diff_state_(ENQUEUE)
 	, ref_diff_counter(0)
@@ -297,14 +296,6 @@ namespace holovibes
 
   void ICompute::refresh()
   {
-    if (compute_desc_.stft_enabled
-      && compute_desc_.vibrometry_enabled)
-    {
-      cudaMalloc<cufftComplex>(&q_gpu_stft_buffer_,
-        sizeof(cufftComplex)* input_.get_pixels());
-    }
-    else
-      cudaDestroy<cudaError_t>(&q_gpu_stft_buffer_);
 
     if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
     {

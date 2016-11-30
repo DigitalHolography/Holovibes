@@ -322,12 +322,7 @@ namespace holovibes
     Queue*       fqueue_;
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
-    /*! \brief Containt q image for vibrometry in stft mode
-    *
-    * Is only allocated if stft mode and vibrometry is enable */
-    cufftComplex* q_gpu_stft_buffer_;
 
-    /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float, float>>* average_output_;
     unsigned int average_n_;
     /*! \} */
@@ -349,9 +344,11 @@ namespace holovibes
 	/* Queue for the reference diff */
 	Queue* gpu_ref_diff_queue_;
 
+	//TODO:
 	enum state ref_diff_state_;
 
 	unsigned int ref_diff_counter;
+
 
 	/*! \{ \name request flags */
 	bool unwrap_requested_;
