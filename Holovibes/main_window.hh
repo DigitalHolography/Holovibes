@@ -175,8 +175,11 @@ namespace gui
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
     
-	/* launch the take reference mode that record one image and substract it to the others */
+	/* launch the take reference mode that record one or several images and substract the mean of it to the others */
 	void take_reference();
+
+	/* launch the take slinding reference mode that record the last images and  substract the mean of it to the others */
+	void take_sliding_ref();
 
 	/* cancel the reference_taking mode */
 	void cancel_take_reference();

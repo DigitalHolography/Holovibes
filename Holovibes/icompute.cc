@@ -154,7 +154,7 @@ namespace holovibes
 		gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 	}
 
-	if (compute_desc_.ref_diff_enabled)
+	if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 	{
 		camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 		new_fd3.depth = 8;
@@ -380,7 +380,8 @@ namespace holovibes
 		  ref_diff_state_ = ENQUEUE;
 
 	  }
-	  if (compute_desc_.ref_diff_enabled)
+
+	  if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 	  {
 		  camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		  new_fd.depth = 8;
@@ -564,6 +565,28 @@ namespace holovibes
 	  }
 	  if (ref_diff_state_ == COMPUTE)
 	  {
+		  substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
+			  input_.get_frame_desc().frame_res(), nframes,
+			  static_cast<cudaStream_t>(0));
+	  }
+  }
+
+  void ICompute::handle_sliding_reference(cufftComplex *input, const unsigned int nframes)
+  {
+	  if (ref_diff_state_ == ENQUEUE)
+	  {
+		  queue_enqueue(input, gpu_ref_diff_queue_);
+		  ref_diff_counter--;
+		  if (ref_diff_counter == 0)
+			  ref_diff_state_ = COMPUTE;
+	  }
+	  else if (ref_diff_state_ == COMPUTE)
+	  {
+		  queue_enqueue(input, gpu_ref_diff_queue_);
+		  if (compute_desc_.ref_diff_level.load() > 1)
+			  mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
+			  , static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
+			  compute_desc_.ref_diff_level, input_.get_pixels());
 		  substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 			  input_.get_frame_desc().frame_res(), nframes,
 			  static_cast<cudaStream_t>(0));

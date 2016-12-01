@@ -272,6 +272,8 @@ namespace holovibes
 	/* TODO: */ 
 	void handle_reference(cufftComplex* input, const unsigned int nframes);
 
+	/* TODO: */
+	void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
 
     /*! \brief Print fps each 100 frames
     **

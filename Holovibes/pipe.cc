@@ -117,6 +117,7 @@ namespace holovibes
 		update_ref_diff_parameter();
 		ref_diff_counter = compute_desc_.ref_diff_level.load();
 	}
+
     if (abort_construct_requested_)
       return;
 
@@ -162,6 +163,12 @@ namespace holovibes
 		 gpu_input_buffer_,
 		 nframes));
 
+	 if (compute_desc_.ref_sliding_enabled)
+		 fn_vect_.push_back(std::bind(
+		 &Pipe::handle_sliding_reference,
+		 this,
+		 gpu_input_buffer_,
+		 nframes));
 
 	 if (compute_desc_.filter_2d_enabled)
 	 {
@@ -174,6 +181,7 @@ namespace holovibes
 			 input_fd,
 			 static_cast<cudaStream_t>(0)));
 	 }
+
 
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{

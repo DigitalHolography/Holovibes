@@ -545,10 +545,27 @@ namespace gui
 	  {
 		  QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
 		  cancel->setEnabled(true);
+		  QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
+		  sliding->setEnabled(false);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.ref_diff_enabled.exchange(true);
 		  holovibes_.get_pipe()->request_ref_diff_refresh();
 	  } 
+  }
+
+
+  void MainWindow::take_sliding_ref()
+  {
+	  if (!is_direct_mode())
+	  {
+		  QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
+		  cancel->setEnabled(true);
+		  QPushButton* takeref = findChild<QPushButton*>("takerefPushButton");
+		  takeref->setEnabled(false);
+		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		  cd.ref_sliding_enabled.exchange(true);
+		  holovibes_.get_pipe()->request_ref_diff_refresh();
+	  }
   }
 
   void MainWindow::cancel_take_reference()
@@ -557,8 +574,13 @@ namespace gui
 		  {
 			  QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
 			  cancel->setEnabled(false);
+			  QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
+			  sliding->setEnabled(true);
+			  QPushButton* takeref = findChild<QPushButton*>("takerefPushButton");
+			  takeref->setEnabled(true);
 			  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			  cd.ref_diff_enabled.exchange(false);
+			  cd.ref_sliding_enabled.exchange(false);
 			  holovibes_.get_pipe()->request_ref_diff_refresh();
 		  }
   }
@@ -2501,7 +2523,7 @@ namespace gui
 		  stft_button->setChecked(false);
 		  set_stft(false);
 	  }
-	  if (cd.ref_diff_enabled)
+	  if (cd.ref_diff_enabled || cd.ref_sliding_enabled)
 		  cancel_take_reference();
   }
 

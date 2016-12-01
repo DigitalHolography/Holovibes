@@ -523,7 +523,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="takerefPushButton_2">
+        <widget class="QPushButton" name="slindingrefPushButton">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -549,6 +549,33 @@
           <string>Ref</string>
          </property>
         </widget>
+        <zorder>takerefPushButton</zorder>
+        <zorder>directImageRadioButton</zorder>
+        <zorder>hologramRadioButton</zorder>
+        <zorder>phaseNumberSpinBox</zorder>
+        <zorder>PhaseNumberLabel</zorder>
+        <zorder>pSpinBox</zorder>
+        <zorder>pLabel</zorder>
+        <zorder>wavelengthLabel</zorder>
+        <zorder>wavelengthSpinBox</zorder>
+        <zorder>zLabel</zorder>
+        <zorder>zSpinBox</zorder>
+        <zorder>algorithmLabel</zorder>
+        <zorder>algorithmComboBox</zorder>
+        <zorder>zStepLabel</zorder>
+        <zorder>zStepDoubleSpinBox</zorder>
+        <zorder>algorithmLabel_3</zorder>
+        <zorder>boundary</zorder>
+        <zorder>demodulationRadioButton</zorder>
+        <zorder>ImportPixelSize</zorder>
+        <zorder>ImportPixelSizeDoubleSpinBox</zorder>
+        <zorder>ImageRenderingShorcut_label</zorder>
+        <zorder>STFTCheckBox</zorder>
+        <zorder>cancelrefPushButton</zorder>
+        <zorder>Filter2DPushButton</zorder>
+        <zorder>cancelFilter2DPushButton</zorder>
+        <zorder>slindingrefPushButton</zorder>
+        <zorder>autofocusLabel_3</zorder>
        </widget>
       </item>
       <item>
@@ -2717,7 +2744,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1072</x>
-     <y>313</y>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -2733,7 +2760,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1072</x>
-     <y>343</y>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -2828,8 +2855,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_phase_number(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>176</y>
+     <x>187</x>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2845,7 +2872,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>206</y>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2861,7 +2888,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>236</y>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2877,7 +2904,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>266</y>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2893,7 +2920,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>145</y>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -2988,8 +3015,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>728</x>
-     <y>192</y>
+     <x>730</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -3148,8 +3175,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>183</y>
+     <x>409</x>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3197,7 +3224,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>187</x>
-     <y>296</y>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -3244,8 +3271,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>244</y>
+     <x>629</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3292,8 +3319,8 @@ p, li { white-space: pre-wrap; }
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>345</y>
+     <x>539</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -3308,8 +3335,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>576</x>
-     <y>345</y>
+     <x>629</x>
+     <y>370</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -3324,8 +3351,8 @@ p, li { white-space: pre-wrap; }
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>728</x>
-     <y>282</y>
+     <x>730</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -3340,8 +3367,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>275</y>
+     <x>629</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -3357,7 +3384,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>255</y>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -3372,8 +3399,8 @@ p, li { white-space: pre-wrap; }
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>788</x>
-     <y>192</y>
+     <x>790</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -3388,8 +3415,8 @@ p, li { white-space: pre-wrap; }
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>788</x>
-     <y>282</y>
+     <x>790</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -3404,8 +3431,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>192</y>
+     <x>850</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -3420,8 +3447,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>282</y>
+     <x>850</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -3580,8 +3607,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>848</x>
-     <y>252</y>
+     <x>850</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3613,7 +3640,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>315</y>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3628,8 +3655,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>831</x>
-     <y>325</y>
+     <x>850</x>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3773,7 +3800,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>174</y>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3788,8 +3815,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>222</y>
+     <x>539</x>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3805,7 +3832,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>185</y>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -3821,7 +3848,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>233</y>
+     <y>256</y>
     </hint>
     <hint type="destinationlabel">
      <x>663</x>
@@ -3837,7 +3864,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>285</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3853,7 +3880,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>315</y>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -3869,7 +3896,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>368</x>
-     <y>346</y>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3885,7 +3912,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>346</y>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3948,8 +3975,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_import_pixel_size(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>153</x>
-     <y>326</y>
+     <x>160</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -4029,7 +4056,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>328</x>
-     <y>124</y>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4044,8 +4071,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>374</x>
-     <y>124</y>
+     <x>388</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4140,12 +4167,28 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>123</y>
+     <x>155</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
      <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>slindingrefPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>take_sliding_ref()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>126</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>
@@ -4237,5 +4280,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_feature()</slot>
   <slot>set_filter2D()</slot>
   <slot>cancel_filter2D()</slot>
+  <slot>take_sliding_ref()</slot>
  </slots>
 </ui>

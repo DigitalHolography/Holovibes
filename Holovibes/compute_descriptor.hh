@@ -98,6 +98,7 @@ namespace holovibes
 	  , stft_level(32)
 	  , ref_diff_level(1)
 	  , ref_diff_enabled(false)
+	  , ref_sliding_enabled(false)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -211,8 +212,11 @@ namespace holovibes
 	std::atomic<int> ref_diff_level;
 	/*! Is reference difference mode enabled. */
 	std::atomic<bool> ref_diff_enabled;
+	/* Is reference  slinding difference mode enabled */
+	std::atomic<bool> ref_sliding_enabled;
 	/*! Is filter2D enabled. */
 	std::atomic<bool> filter_2d_enabled;
+
 
   };
 }
