@@ -34,6 +34,7 @@ namespace holovibes
 	, gpu_special_queue_(nullptr)
 	, gpu_stft_queue_(nullptr)
 	, gpu_ref_diff_queue_(nullptr)
+	, gpu_filter2d_buffer(nullptr)
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
@@ -158,8 +159,14 @@ namespace holovibes
 		camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 		new_fd3.depth = 8;
 		new holovibes::Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
-
 	}
+
+	if (compute_desc_.filter_2d_enabled)
+	{
+		cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
+			sizeof(cufftComplex) * input_.get_pixels());
+	}
+
   }
 
   ICompute::~ICompute()
@@ -202,6 +209,10 @@ namespace holovibes
 
 	/* gpu_take_ref_queue */
 	delete gpu_ref_diff_queue_;
+
+	/* gpu_filter2d_buffer */
+	cudaFree(gpu_filter2d_buffer);
+
   }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -255,17 +266,9 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
-      /* gpu_stft_buffer */
-     /* cudaMalloc(&gpu_stft_buffer_,
-        sizeof(cufftComplex) * compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;*/
-
+  
 	 cudaMalloc(&gpu_stft_buffer_,
 		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;
-
-      /* gpu_stft_buffer */
-     /* cudaMalloc(&gpu_stft_dup_buffer_,
-        sizeof(cufftComplex)* compute_desc_.stft_roi_zone.load().area() * n) ? ++err_count : 0;
-		*/
     }
 
  if (gpu_stft_queue_ != nullptr)
@@ -340,6 +343,17 @@ namespace holovibes
 			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load());
 	}
 
+	if (gpu_filter2d_buffer != nullptr)
+	{
+		cudaFree(gpu_filter2d_buffer);
+		gpu_filter2d_buffer = nullptr;
+	}
+
+	if (compute_desc_.filter_2d_enabled)
+	{
+		cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
+			sizeof(cufftComplex) * input_.get_pixels());
+	}
   }
 
   void ICompute::update_acc_parameter()

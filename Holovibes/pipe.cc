@@ -166,6 +166,7 @@ namespace holovibes
 		 fn_vect_.push_back(std::bind(
 			 filter2D,
 			 gpu_input_buffer_,
+			 gpu_filter2d_buffer,
 			 plan2d_,
 			 compute_desc_.stft_roi_zone.load(),
 			 input_fd,

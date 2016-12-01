@@ -349,6 +349,7 @@ namespace holovibes
 
 	unsigned int ref_diff_counter;
 
+	cufftComplex* gpu_filter2d_buffer;
 
 	/*! \{ \name request flags */
 	bool unwrap_requested_;
