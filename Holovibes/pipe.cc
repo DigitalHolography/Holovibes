@@ -161,6 +161,8 @@ namespace holovibes
 		 this,
 		 gpu_input_buffer_,
 		 nframes));
+
+
 	 if (compute_desc_.filter_2d_enabled)
 	 {
 		 fn_vect_.push_back(std::bind(
@@ -172,6 +174,7 @@ namespace holovibes
 			 input_fd,
 			 static_cast<cudaStream_t>(0)));
 	 }
+
 	if (compute_desc_.compute_mode == ComputeDescriptor::DEMODULATION)
 	{
 		// Add temporal FFT1 1D .
