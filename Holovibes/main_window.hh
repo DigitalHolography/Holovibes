@@ -441,6 +441,9 @@ namespace gui
 	/* reload computing values */
 	void reload_ini();
 
+	/* save computing values */
+	void write_ini();
+
 	/*! \brief Display classic GUI theme*/
 	void set_classic();
 

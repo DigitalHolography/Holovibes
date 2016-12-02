@@ -2444,6 +2444,7 @@ p, li { white-space: pre-wrap; }
      <string>&amp;File</string>
     </property>
     <addaction name="actionConfigure"/>
+    <addaction name="actionSave_ini"/>
     <addaction name="actionReload_ini"/>
     <addaction name="actionReset"/>
     <addaction name="actionExit"/>
@@ -2718,7 +2719,12 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionReload_ini">
    <property name="text">
-    <string>Reload .ini</string>
+    <string>Load .ini</string>
+   </property>
+  </action>
+  <action name="actionSave_ini">
+   <property name="text">
+    <string>Save .ini</string>
    </property>
   </action>
  </widget>
@@ -4192,6 +4198,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSave_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4281,5 +4303,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_filter2D()</slot>
   <slot>cancel_filter2D()</slot>
   <slot>take_sliding_ref()</slot>
+  <slot>write_ini()</slot>
  </slots>
 </ui>

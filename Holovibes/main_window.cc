@@ -597,10 +597,9 @@ namespace gui
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
 			  Qt::UniqueConnection);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-			  Qt::UniqueConnection);
-		  QCheckBox* convo = findChild<QCheckBox*>("logScaleCheckBox");
-		  convo->setChecked(true);
+			  Qt::UniqueConnection);		  
 		  cd.log_scale_enabled.exchange(true);
+		  cd.shift_corners_enabled.exchange(false);
 		  if (cd.contrast_enabled)
 		  {
 			  QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
@@ -610,6 +609,7 @@ namespace gui
 		  }
 
 		  cd.filter_2d_enabled.exchange(true);
+		  notify();
 		  holovibes_.get_pipe()->request_autocontrast();
 	  }
   }
@@ -2525,6 +2525,15 @@ namespace gui
 	  }
 	  if (cd.ref_diff_enabled || cd.ref_sliding_enabled)
 		  cancel_take_reference();
+	  if (cd.filter_2d_enabled)
+		  cancel_filter2D();
+  }
+
+  void MainWindow::write_ini()
+  {
+	  close_critical_compute();
+	  save_ini("holovibes.ini");
+	  notify();
   }
 
   void MainWindow::reload_ini()
@@ -2534,7 +2543,7 @@ namespace gui
 	  notify();
   }
 
-
+  
   void MainWindow::set_classic()
   {
 	  theme_index_ = 0;
