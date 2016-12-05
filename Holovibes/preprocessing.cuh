@@ -50,5 +50,4 @@ void make_contiguous_complex(
   holovibes::Queue& input,
   cufftComplex* output,
   const unsigned int n,
-  const float* sqrt_array,
   cudaStream_t stream = 0);

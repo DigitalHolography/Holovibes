@@ -4,7 +4,7 @@
 #include "tools.hh"
 #include "transforms.cuh"
 #include "preprocessing.cuh"
-#include "tools_divide.cuh"
+#include "tools_compute.cuh"
 #include "tools.cuh"
 
 void fft2_lens(
@@ -24,7 +24,7 @@ void fft2_lens(
 void fft_2(
   cufftComplex* input,
   const cufftComplex* lens,
-  const cufftHandle plan3d,
+  const cufftHandle plan1d,
   const cufftHandle plan2d,
   const unsigned int frame_resolution,
   const unsigned int nframes,
@@ -37,17 +37,15 @@ void fft_2(
   unsigned int threads = 128;
   unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 
-  cufftExecC2C(plan3d, input, input, CUFFT_FORWARD);
+  cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
+ 
   cudaStreamSynchronize(stream);
+  
   cufftComplex* pframe = input + frame_resolution * p;
-  cufftComplex* qframe = input + frame_resolution * q;
-	/*
-  kernel_apply_lens << <blocks, threads, 0, stream >> >(
-	  input,
-	 n_frame_resolution,
-	  lens,
-	  frame_resolution);
-  */
+
+
+  cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
+
   kernel_apply_lens << <blocks, threads, 0, stream >> >(
 	  pframe,
 	  frame_resolution,
@@ -62,6 +60,8 @@ void fft_2(
 
   if (p != q)
   {
+	  cufftComplex* qframe = input + frame_resolution * q;
+	  cufftExecC2C(plan2d, qframe, qframe, CUFFT_FORWARD);
 	  kernel_apply_lens << <blocks, threads, 0, stream >> >(
 		  qframe,
 		  frame_resolution,

@@ -72,12 +72,6 @@
     <CudaCompile Include="tools_conversion.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
-    <CudaCompile Include="tools_divide.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="tools_multiply.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
     <CudaCompile Include="stft.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
@@ -88,6 +82,12 @@
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
     <CudaCompile Include="flowgraphy.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="tools_compute.cu">
+      <Filter>Source Files CUDA</Filter>
+    </CudaCompile>
+    <CudaCompile Include="filter2D.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -337,12 +337,6 @@
     <ClInclude Include="tools_conversion.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="tools_divide.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="tools_multiply.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
     <ClInclude Include="stft.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
@@ -387,6 +381,12 @@
     </ClInclude>
     <ClInclude Include="compute_bundles_2d.hh">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_compute.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="filter2D.cuh">
+      <Filter>Header Files CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

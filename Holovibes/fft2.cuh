@@ -30,7 +30,7 @@ void fft2_lens(
 void fft_2(
   cufftComplex* input,
   const cufftComplex* lens,
-  const cufftHandle plan3d,
+  const cufftHandle plan1d,
   const cufftHandle plan2d,
   const unsigned int frame_resolution,
   const unsigned int nframes,

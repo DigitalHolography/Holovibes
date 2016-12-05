@@ -158,7 +158,6 @@ namespace holovibes
         std::ref(input_),
         std::ref(gpu_complex_buffers_[0]),
         input_length_,
-        gpu_sqrt_vector_,
         modules_[0]->stream_
         ));
     }
@@ -286,7 +285,7 @@ namespace holovibes
           ));
       }
     }
-    else if (compute_desc_.algorithm == ComputeDescriptor::STFT)
+    else if (compute_desc_.stft_enabled)
     {
       // Initialize FFT1 lens.
       if (!autofocus_requested_)
@@ -311,7 +310,7 @@ namespace holovibes
 
       curr_elt_stft_ = 0;
       // Add STFT.
-      modules_[1]->push_back_worker(std::bind(
+     /* modules_[1]->push_back_worker(std::bind(
         stft,
         std::ref(gpu_complex_buffers_[1]),
         gpu_lens_,
@@ -323,10 +322,11 @@ namespace holovibes
         curr_elt_stft_,
         input_fd,
         compute_desc_.nsamples.load(),
+		compute_desc_.stft_level.load(),
         modules_[1]->stream_
         ));
-
-      modules_[1]->push_back_worker(std::bind(
+		*/
+     /* modules_[1]->push_back_worker(std::bind(
         stft_recontruct,
         std::ref(gpu_complex_buffers_[1]),
         gpu_stft_dup_buffer_,
@@ -337,16 +337,16 @@ namespace holovibes
         compute_desc_.pindex.load(),
         compute_desc_.nsamples.load(),
         modules_[1]->stream_
-        ));
+        ));*/
 
       gpu_pindex_buffers_ = gpu_complex_buffers_;
 
       if (compute_desc_.vibrometry_enabled)
       {
         /* q frame pointer */
-        cufftComplex* q = q_gpu_stft_buffer_;
+		  cufftComplex* q = nullptr;// q_gpu_stft_buffer;
 
-        modules_[1]->push_back_worker(std::bind(
+       /* modules_[1]->push_back_worker(std::bind(
           stft_recontruct,
           q,
           gpu_stft_dup_buffer_,
@@ -357,7 +357,7 @@ namespace holovibes
           compute_desc_.vibrometry_q.load(),
           compute_desc_.nsamples.load(),
           modules_[1]->stream_
-          ));
+          ));*/
 
         modules_[1]->push_back_worker(std::bind(
           frame_ratio,
@@ -368,24 +368,24 @@ namespace holovibes
           modules_[1]->stream_
           ));
       }
-
-      if (average_requested_)
-      {
-        if (compute_desc_.stft_roi_zone.load().area())
-          modules_[1]->push_back_worker(std::bind(
-          &Pipeline::average_stft_caller,
-          this,
-          gpu_stft_dup_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.stft_roi_zone.load().get_width(),
-          compute_desc_.stft_roi_zone.load().get_height(),
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          compute_desc_.nsamples.load(),
-          modules_[1]->stream_
-          ));
-      }
+/*
+	  if (average_requested_)
+	  {
+		  if (compute_desc_.stft_roi_zone.load().area())
+			  modules_[1]->push_back_worker(std::bind(
+			  &Pipeline::average_stft_caller,
+			  this,
+			  gpu_stft_dup_buffer_,
+			  input_fd.width,
+			  input_fd.height,
+			  compute_desc_.stft_roi_zone.load().get_width(),
+			  compute_desc_.stft_roi_zone.load().get_height(),
+			  compute_desc_.signal_zone.load(),
+			  compute_desc_.noise_zone.load(),
+			  compute_desc_.nsamples.load(),
+			  modules_[1]->stream_
+			  ));
+	  }*/
     }
     else
       assert(!"Impossible case.");

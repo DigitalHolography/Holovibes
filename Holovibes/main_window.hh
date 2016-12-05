@@ -28,6 +28,7 @@
 # include "options_parser.hh"
 # include "holovibes.hh"
 # include "observer.hh"
+# include "geometry.hh"
 # include "options_descriptor.hh"
 
 /* Forward declarations. */
@@ -173,7 +174,22 @@ namespace gui
 
 	/*! \brief Reset the GPU ressources and camera's record */
 	void reset();
-    /*! \brief Set phase number (also called 'n' in papers)
+    
+	/* launch the take reference mode that record one or several images and substract the mean of it to the others */
+	void take_reference();
+
+	/* launch the take slinding reference mode that record the last images and  substract the mean of it to the others */
+	void take_sliding_ref();
+
+	/* cancel the reference_taking mode */
+	void cancel_take_reference();
+	
+	//TODO:
+	void set_filter2D();
+
+	void cancel_filter2D();
+
+	/*! \brief Set phase number (also called 'n' in papers)
     ** \param value new phase number
     */
     void set_phase_number(int value);
@@ -213,6 +229,12 @@ namespace gui
     ** \param value algorithm "1FFT" or "2FFT"
     */
     void set_algorithm(QString value);
+
+	/*! \brief Set algorithm
+	** \param value to set stft on/off
+	*/
+	void set_stft(bool b);
+
     /*! \} */
 
     /*! \{ \name View */
@@ -301,7 +323,6 @@ namespace gui
     /*! \brief Enable or diable shift corners algorithm */
     void set_shifted_corners(bool value);
     /*! \} */
-
     /*! \{ \name Special */
     /*! \brief Enable or disable vibrometry/image ratio mode */
     void set_vibro_mode(bool value);
@@ -412,16 +433,23 @@ namespace gui
 	*/
     /*! \} */
 	
+	/*! \brief Seek import value in .cine file*/
+	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
+
+	/* change computing state that might crash program before launching any program */
+	void close_critical_compute();
+
+	/* reload computing values */
+	void reload_ini();
+
+	/* save computing values */
+	void write_ini();
+
 	/*! \brief Display classic GUI theme*/
 	void set_classic();
 
 	/*! \brief Display classic GUI theme*/
 	void set_night();
-
-
-	void seek_cine_header_data(std::string &file_src, holovibes::Holovibes& holovibes);
-	/*! \brief Seek import value in .cine file*/
-
   protected:
     virtual void closeEvent(QCloseEvent* event) override;
 

@@ -1,0 +1,102 @@
+
+#include "filter2D.cuh"
+#include "hardware_limits.hh"
+#include "geometry.hh"
+#include "frame_desc.hh"
+#include "tools.hh"
+
+__global__ void filter2D_roi(
+	cufftComplex *input,
+	const unsigned int tl_x,
+	const unsigned int tl_y,
+	const unsigned int br_x,
+	const unsigned int br_y,
+	const unsigned int width,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	// In ROI
+	while (index < size)
+	{
+		if (index >= tl_y * width && index < br_y * width
+			&& index % width >= tl_x && index % width < br_x)
+		{}
+		else
+		{
+			input[index] = make_cuComplex(0, 0);
+		}
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void circ_shift(
+	cufftComplex *input,
+	cufftComplex *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int index_x = 0;
+	int index_y = 0;
+	int shift_x = 0;
+	int shift_y = 0;
+	// In ROI
+	while (index < size)
+	{
+		index_x = index % width;
+		index_y = index / width;
+		shift_x = index_x - i;
+		shift_y = index_y - j;
+		if (shift_x < 0)
+			shift_x = width + shift_x;
+		if (shift_y < 0)
+			shift_y = width + shift_y;
+		output[(width * shift_y) + shift_x] = input[index];
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+void filter2D(
+	cufftComplex*                   input,
+	cufftComplex*                   tmp_buffer,
+	const cufftHandle               plan2d,
+	const holovibes::Rectangle&     r,
+	const camera::FrameDescriptor&  desc,
+	cudaStream_t stream)
+{
+	unsigned int threads = 128;
+	unsigned int blocks = map_blocks_to_problem(desc.frame_res(), threads);
+	unsigned int size = desc.width * desc.height;
+	
+	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
+	cudaStreamSynchronize(stream);
+
+	if (!r.area())
+		return;
+	int center_x = (r.top_left.x + r.bottom_right.x) / 2;
+	int center_y = (r.top_left.y + r.bottom_right.y) / 2;
+	
+	filter2D_roi << <blocks, threads, 0, stream >> >(
+		input,
+		r.top_left.x,
+		r.top_left.y,
+		r.bottom_right.x,
+		r.bottom_right.y,
+		desc.width,
+		desc.width * desc.height);
+
+	cudaMemcpy(tmp_buffer, input, size * sizeof (cufftComplex), cudaMemcpyDeviceToDevice);
+
+	circ_shift << <blocks, threads, 0, stream >> >(
+		tmp_buffer,
+		input,
+		center_x,
+		center_y,
+		desc.width,
+		size);
+
+	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
+}

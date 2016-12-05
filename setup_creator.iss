@@ -15,6 +15,8 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
 AppId={{905ACDE1-B1A5-43D3-A874-5C5FC50A47D8}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -72,11 +74,23 @@ Source: "{#QtPath}\Qt5PrintSupport.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\platforms"; Flags: ignoreversion
+Source: "setup_creator_files\vcredist_x64.exe"; DestDir: "{tmp}"; AfterInstall: Visual
 Source: "setup_creator_files\cuda_7.5.18_win10.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller_Win10
 Source: "setup_creator_files\cuda_7.5.18_windows.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Code]
+procedure Visual;
+var
+  ResultCode: Integer;
+begin
+    if not Exec(ExpandConstant('{tmp}\vcredist_x64.exe'), '', '', SW_SHOWNORMAL,
+      ewWaitUntilTerminated, ResultCode)
+    then
+      MsgBox('Visual c++ redistributable 2013 failed to run!' + #13#10 +
+        SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
 procedure CudaInstaller_Win10;
 var
   ResultCode: Integer;

@@ -20,7 +20,7 @@ namespace holovibes
     contrast_max = cd.contrast_max.load();
     vibrometry_q = cd.vibrometry_q.load();
     autofocus_size = cd.autofocus_size.load();
-
+	stft_enabled = cd.stft_enabled.load();
     return *this;
   }
 }

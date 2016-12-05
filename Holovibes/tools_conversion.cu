@@ -9,8 +9,7 @@
 __global__ void img8_to_complex(
   cufftComplex* output,
   const unsigned char* input,
-  const unsigned int size,
-  const float* sqrt_array)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -30,8 +29,7 @@ __global__ void img8_to_complex(
 __global__ void img16_to_complex(
   cufftComplex* output,
   const unsigned short* input,
-  const unsigned int size,
-  const float* sqrt_array)
+  const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -47,8 +45,7 @@ __global__ void img16_to_complex(
 __global__ void float_to_complex(
 	cufftComplex* output,
 	const float* input,
-	const unsigned int size,
-	const float* sqrt_array)
+	const unsigned int size)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -351,6 +348,7 @@ void complex_to_ushort(
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
 
+/*TODO:*/
 void complex_to_complex(
 	const cufftComplex* input,
 	unsigned short* output,

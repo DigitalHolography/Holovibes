@@ -134,6 +134,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="filter2D.cuh" />
     <ClInclude Include="autofocus.cuh" />
     <ClInclude Include="average.cuh" />
     <ClInclude Include="camera_dll.hh" />
@@ -264,8 +265,7 @@
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="tools.hh" />
     <ClInclude Include="tools_conversion.cuh" />
-    <ClInclude Include="tools_divide.cuh" />
-    <ClInclude Include="tools_multiply.cuh" />
+    <ClInclude Include="tools_compute.cuh" />
     <ClInclude Include="tools_unwrap.cuh" />
     <ClInclude Include="transforms.cuh" />
     <ClInclude Include="vibrometry.cuh" />
@@ -377,6 +377,7 @@
     <CudaCompile Include="contrast_correction.cu" />
     <CudaCompile Include="convolution.cu" />
     <CudaCompile Include="fft2.cu" />
+    <CudaCompile Include="filter2D.cu" />
     <CudaCompile Include="flowgraphy.cu" />
     <CudaCompile Include="hardware_limits.cc" />
     <CudaCompile Include="preprocessing.cu" />
@@ -384,8 +385,7 @@
     <CudaCompile Include="stft.cu" />
     <CudaCompile Include="tools.cu" />
     <CudaCompile Include="tools_conversion.cu" />
-    <CudaCompile Include="tools_divide.cu" />
-    <CudaCompile Include="tools_multiply.cu" />
+    <CudaCompile Include="tools_compute.cu" />
     <CudaCompile Include="tools_unwrap.cu" />
     <CudaCompile Include="transforms.cu" />
     <CudaCompile Include="vibrometry.cu" />

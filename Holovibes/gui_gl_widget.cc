@@ -320,7 +320,7 @@ namespace gui
 
         selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
         selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
-      }
+	  }
 
       selection_.bottom_left = holovibes::Point2D(
         selection_.top_left.x,
@@ -363,6 +363,8 @@ namespace gui
         {
           stft_roi_selection_ = selection_;
           emit stft_roi_zone_selected_update(stft_roi_selection_);
+		  emit stft_roi_zone_selected_end();
+		  selection_mode_ = ZOOM;
         }
         else
         {

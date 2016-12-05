@@ -58,6 +58,13 @@ namespace holovibes
       unsigned int    af_square_size;
     };
 
+	/* these states are used for take ref when we need to do action punctually in the pipe*/
+	enum state
+	{
+		ENQUEUE,
+		COMPUTE
+	};
+
     /* \brief Pre-allocation needed ressources for the autofocus to work. */
     void autofocus_init();
 
@@ -76,12 +83,18 @@ namespace holovibes
 	/*! \brief Realloc the image accumulation buffer */
 	void update_acc_parameter();
 
+	/*! \brief Realloc the images_reference_buffer */
+	void update_ref_diff_parameter();
+
     /*! \{ \name ICompute request methods */
     /*! \brief Request the ICompute to refresh. */
     void request_refresh();
 
 	/*! \brief Request to refresh the accumulation queue. */
 	void request_acc_refresh();
+
+	/*! \brief Request to refresh the reference queue. */
+	void request_ref_diff_refresh();
 
     /*! \brief Request the ICompute to apply the autofocus algorithm. */
     void request_autofocus();
@@ -146,6 +159,9 @@ namespace holovibes
 
 	/*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
 	void request_complex_output_stop();
+
+	/*! \brief Add current img to img_phase queue*/
+	void queue_enqueue(void* input, Queue* queue);
 
 
     /*! \brief Ask for the end of the execution loop. */
@@ -256,6 +272,12 @@ namespace holovibes
 	/*! \brief Add frame in fqueue_. */
 	void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 
+	/* TODO: */ 
+	void handle_reference(cufftComplex* input, const unsigned int nframes);
+
+	/* TODO: */
+	void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
+
     /*! \brief Print fps each 100 frames
     **
     ** Use InfoManager */
@@ -274,9 +296,6 @@ namespace holovibes
     /*! \brief Output frame queue : 16-bit frames. */
     Queue& output_;
 
-    /*! Vector filled with sqrtf values. */
-    float* gpu_sqrt_vector_;
-
     /*! All buffers needed for phase unwrapping are here. */
     std::shared_ptr<UnwrappingResources> unwrap_res_;
 
@@ -285,8 +304,6 @@ namespace holovibes
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
-    /*! cufftComplex array containing save of n contiguous ROI of frames. */
-	cufftComplex* gpu_stft_dup_buffer_;
 	/*! cufftComplex array containing lens. */
 	cufftComplex* gpu_lens_;
 	/*! cufftComplex array containing kernel. */
@@ -303,23 +320,10 @@ namespace holovibes
     cufftHandle plan2d_;
     /*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan1d_;
-    /*! \} */
-    /*! \{ \name request flags */
-    bool unwrap_1d_requested_;
-	bool unwrap_2d_requested_;
-    bool autofocus_requested_;
-    bool autofocus_stop_requested_;
-    bool autocontrast_requested_;
-    bool refresh_requested_;
-    bool update_n_requested_;
-    bool stft_update_roi_requested_;
-    bool average_requested_;
-    bool average_record_requested_;
-    bool float_output_requested_;
-	bool complex_output_requested_;
-    bool abort_construct_requested_;
-    bool termination_requested_;
-	bool update_acc_requested_;
+
+	/*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
+	cufftHandle plan1d_stft_;
+
     /*! \} */
 
     /*! \brief Number of frame in input. */
@@ -328,12 +332,7 @@ namespace holovibes
     Queue*       fqueue_;
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
-    /*! \brief Containt q image for vibrometry in stft mode
-    *
-    * Is only allocated if stft mode and vibrometry is enable */
-    cufftComplex* q_gpu_stft_buffer_;
 
-    /*! \{ \name average plot */
     ConcurrentDeque<std::tuple<float, float, float, float>>* average_output_;
     unsigned int average_n_;
     /*! \} */
@@ -347,6 +346,38 @@ namespace holovibes
     std::ofstream float_output_file_;
 
 	/*! Queue for phase accumulation*/
-	Queue *gpu_img_acc_;
+	Queue* gpu_img_acc_;
+
+	/*! Queue for phase accumulation*/
+	Queue* gpu_stft_queue_;
+
+	/* Queue for the reference diff */
+	Queue* gpu_ref_diff_queue_;
+
+	//TODO:
+	enum state ref_diff_state_;
+
+	unsigned int ref_diff_counter;
+
+	cufftComplex* gpu_filter2d_buffer;
+
+	/*! \{ \name request flags */
+	bool unwrap_1d_requested_;
+	bool unwrap_2d_requested_;
+	bool autofocus_requested_;
+	bool autofocus_stop_requested_;
+	bool autocontrast_requested_;
+	bool refresh_requested_;
+	bool update_n_requested_;
+	bool stft_update_roi_requested_;
+	bool average_requested_;
+	bool average_record_requested_;
+	bool float_output_requested_;
+	bool complex_output_requested_;
+	bool abort_construct_requested_;
+	bool termination_requested_;
+	bool update_acc_requested_;
+	bool update_ref_diff_requested_;
+	/*! \} */
   };
 }

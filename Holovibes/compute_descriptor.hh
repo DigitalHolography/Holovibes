@@ -32,8 +32,7 @@ namespace holovibes
     enum fft_algorithm
     {
       FFT1,
-      FFT2,
-      STFT,
+      FFT2
     };
 
 	/*! \brief select which mode the pipe will be using*/
@@ -77,6 +76,8 @@ namespace holovibes
       , vibrometry_enabled(false)
 	  , convolution_enabled(false)
 	  , flowgraphy_enabled(false)
+	  , stft_enabled(false)
+	  , filter_2d_enabled(false)
       , contrast_min(1)
       , contrast_max(65535)
       , vibrometry_q()
@@ -94,6 +95,10 @@ namespace holovibes
 	  , img_acc_enabled(false)
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
+	  , stft_level(32)
+	  , ref_diff_level(1)
+	  , ref_diff_enabled(false)
+	  , ref_sliding_enabled(false)
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -192,11 +197,26 @@ namespace holovibes
 	/*! Pixel Size used when importing a file */
 	std::atomic<float> import_pixel_size;
 
+
 	/*! Is Image Accumulation enabled. */
 	std::atomic<bool> img_acc_enabled;
 	/*! Size of Image Accumulation buffer. */
 	std::atomic<unsigned int> img_acc_buffer_size;
 	/*! Set Image Accumulation level. */
 	std::atomic<unsigned int> img_acc_level;
+	/*! Quantity of frames that will be processed during STFT. */
+	std::atomic<int> stft_level;
+	/*! Is stft mode enabled. */
+	std::atomic<bool> stft_enabled;
+	/*! Frame number of images that will be averaged. */
+	std::atomic<int> ref_diff_level;
+	/*! Is reference difference mode enabled. */
+	std::atomic<bool> ref_diff_enabled;
+	/* Is reference  slinding difference mode enabled */
+	std::atomic<bool> ref_sliding_enabled;
+	/*! Is filter2D enabled. */
+	std::atomic<bool> filter_2d_enabled;
+
+
   };
 }

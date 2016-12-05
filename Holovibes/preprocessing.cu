@@ -23,7 +23,6 @@ void make_contiguous_complex(
   holovibes::Queue& input,
   cufftComplex* output,
   const unsigned int n,
-  const float* sqrt_array,
   cudaStream_t stream)
 {
   unsigned int threads = get_max_threads_1d();
@@ -41,24 +40,21 @@ void make_contiguous_complex(
 			img16_to_complex << <blocks, threads, 0, stream >> >(
 			output,
 			static_cast<unsigned short*>(input.get_start()),
-			n_frame_resolution,
-			sqrt_array);
+			n_frame_resolution);
     }
 	else if (frame_desc.depth == 1)
     {
 			img8_to_complex << <blocks, threads, 0, stream >> >(
 			output,
 			static_cast<unsigned char*>(input.get_start()),
-			n_frame_resolution,
-			sqrt_array);
+			n_frame_resolution);
     }
 	else if (frame_desc.depth == 4)
 	{
 		float_to_complex << <blocks, threads, 0, stream >> >(
 			output,
 			static_cast<float*>(input.get_start()),
-			n_frame_resolution,
-			sqrt_array);
+			n_frame_resolution);
 	}
 	else if (frame_desc.depth == 8)
 		cudaMemcpy(output, input.get_start(), n_frame_resolution * 8, cudaMemcpyDeviceToDevice);
@@ -76,15 +72,13 @@ void make_contiguous_complex(
       img16_to_complex << <blocks, threads, 0, stream >> >(
         output,
         static_cast<unsigned short*>(input.get_start()),
-        contiguous_elts_res,
-        sqrt_array);
+        contiguous_elts_res);
 
       // Convert the contiguous elements left (at the beginning of queue).
       img16_to_complex << <blocks, threads, 0, stream >> >(
         output + contiguous_elts_res,
         static_cast<unsigned short*>(input.get_buffer()),
-        left_elts_res,
-        sqrt_array);
+        left_elts_res);
     }
 	else if (frame_desc.depth == 1)
     {
@@ -92,15 +86,13 @@ void make_contiguous_complex(
       img8_to_complex << <blocks, threads, 0, stream >> >(
         output,
         static_cast<unsigned char*>(input.get_start()),
-        contiguous_elts_res,
-        sqrt_array);
+        contiguous_elts_res);
 
       // Convert the contiguous elements left (at the beginning of queue).
       img8_to_complex << <blocks, threads, 0, stream >> >(
         output + contiguous_elts_res,
         static_cast<unsigned char*>(input.get_buffer()),
-        left_elts_res,
-        sqrt_array);
+        left_elts_res);
     }
 	else if (frame_desc.depth == 4)
 	{
@@ -108,15 +100,13 @@ void make_contiguous_complex(
 		float_to_complex << <blocks, threads, 0, stream >> >(
 			output,
 			static_cast<float *>(input.get_start()),
-			contiguous_elts_res,
-			sqrt_array);
+			contiguous_elts_res);
 
 		// Convert the contiguous elements left (at the beginning of queue).
 		float_to_complex << <blocks, threads, 0, stream >> >(
 			output + contiguous_elts_res,
 			static_cast<float*>(input.get_buffer()),
-			left_elts_res,
-			sqrt_array);
+			left_elts_res);
 	}
 	else if (frame_desc.depth == 8)
 	{
