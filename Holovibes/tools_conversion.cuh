@@ -216,3 +216,9 @@ __global__ void kernel_accumulate_images(
 	const size_t max_elmt,
 	const size_t nb_elmt,
 	const size_t nb_pixel);
+
+__global__ void kernel_normalize_images(
+	float *image,
+	const float max,
+	const float min,
+	const unsigned int size);

@@ -43,5 +43,7 @@ namespace holovibes
 		cufftComplex* gpu_grad_eq_x_;
 		/*! Common matrix for grad_y and eq_y */
 		cufftComplex* gpu_grad_eq_y_;
+		/*! Buffer to seek minmax value */
+		float* minmax_buffer_;
 	};
 }

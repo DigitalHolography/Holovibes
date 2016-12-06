@@ -440,3 +440,18 @@ void accumulate_images(
 		nb_elmt,
 		nb_pixel);
 }
+
+__global__ void kernel_normalize_images(
+	float *image,
+	const float max,
+	const float min,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;
+		index += blockDim.x * gridDim.x;
+	}
+}

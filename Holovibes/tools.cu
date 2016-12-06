@@ -4,6 +4,7 @@
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "tools_conversion.cuh"
 #include "tools_unwrap.cuh"
 #include "tools.hh"
 #include "geometry.hh"
@@ -440,6 +441,8 @@ void phi_unwrap_2d(
 	float *output,
 	cudaStream_t stream)
 {
+	float min = 0;
+	float max = 0;
 	const unsigned threads = 128;
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
@@ -455,5 +458,19 @@ void phi_unwrap_2d(
 		output,
 		res->gpu_grad_eq_x_,
 		single_complex,
+		fd.frame_res());
+
+
+//	cudaMemcpy(res->minmax_buffer_, output, sizeof(float) * fd.frame_res(), cudaMemcpyDeviceToHost);
+//	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
+//	min = *minmax.first;
+//	max = *minmax.second;
+
+	min = -100000000000000;
+	max = 100000000000000;
+	kernel_normalize_images << < blocks, threads, 0, stream >> > (
+		output,
+		max,
+		min,
 		fd.frame_res());
 }

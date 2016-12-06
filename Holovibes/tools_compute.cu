@@ -275,6 +275,8 @@ __global__ void kernel_phi(
 	}
 }
 
+
+
 __global__ void kernel_convergence(
 	cufftComplex* input1,
 	cufftComplex* input2)
