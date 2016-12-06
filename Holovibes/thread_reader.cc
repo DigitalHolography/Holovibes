@@ -74,8 +74,8 @@ namespace holovibes
 		  {
 			  if (!std::feof(file) && frameId_ <= spanEnd_)
 			  {
-				 if (act_frame >= nbr_stored)
-				 {
+				  if (act_frame >= nbr_stored)
+				  {			  
 					  length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
 					  nbr_stored = length / frame_size;
 					  act_frame = 0;
@@ -99,7 +99,7 @@ namespace holovibes
 				  std::clearerr(file);
 				  std::fsetpos(file, &pos);
 				  frameId_ = spanStart_;
-				  act_frame = 0;
+				  int offset = elts_max_nbr - length;
 			  }
 			  else
 				  stop_requested_ = true;
@@ -172,7 +172,6 @@ namespace holovibes
 				  std::clearerr(file);
 				  std::fsetpos(file, &pos);
 				  frameId_ = spanStart_;
-				  act_frame = 0;
 			  }
 			  else
 				  stop_requested_ = true;
