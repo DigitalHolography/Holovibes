@@ -460,14 +460,11 @@ void phi_unwrap_2d(
 		single_complex,
 		fd.frame_res());
 
+	cudaMemcpy(res->minmax_buffer_, output, sizeof(float) * fd.frame_res(), cudaMemcpyDeviceToHost);
+	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
+	min = *minmax.first;
+	max = *minmax.second;
 
-//	cudaMemcpy(res->minmax_buffer_, output, sizeof(float) * fd.frame_res(), cudaMemcpyDeviceToHost);
-//	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
-//	min = *minmax.first;
-//	max = *minmax.second;
-
-	min = -100000000000000;
-	max = 100000000000000;
 	kernel_normalize_images << < blocks, threads, 0, stream >> > (
 		output,
 		max,
