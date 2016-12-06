@@ -550,6 +550,7 @@ namespace gui
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.ref_diff_enabled.exchange(true);
 		  holovibes_.get_pipe()->request_ref_diff_refresh();
+		  gui::InfoManager::update_info_safe("Reference","Processing... ");
 	  } 
   }
 
@@ -562,9 +563,12 @@ namespace gui
 		  cancel->setEnabled(true);
 		  QPushButton* takeref = findChild<QPushButton*>("takerefPushButton");
 		  takeref->setEnabled(false);
+		  QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
+		  sliding->setEnabled(false);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  cd.ref_sliding_enabled.exchange(true);
 		  holovibes_.get_pipe()->request_ref_diff_refresh();
+		  gui::InfoManager::update_info_safe("Reference", "Processing...");
 	  }
   }
 
@@ -582,6 +586,7 @@ namespace gui
 			  cd.ref_diff_enabled.exchange(false);
 			  cd.ref_sliding_enabled.exchange(false);
 			  holovibes_.get_pipe()->request_ref_diff_refresh();
+			  gui::InfoManager::remove_info_safe("Reference");
 		  }
   }
 
@@ -607,10 +612,10 @@ namespace gui
 			  set_contrast_min(contrast_min->value());
 			  set_contrast_max(contrast_max->value());
 		  }
-
 		  cd.filter_2d_enabled.exchange(true);
-		  notify();
+		 // notify();
 		  holovibes_.get_pipe()->request_autocontrast();
+		  gui::InfoManager::update_info_safe("Filter2D", "Processing...");
 	  }
   }
 
@@ -625,6 +630,7 @@ namespace gui
 		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
 		  cd.filter_2d_enabled.exchange(false);
 		  cd.stft_roi_zone.exchange(holovibes::Rectangle(holovibes::Point2D(0, 0), holovibes::Point2D(0, 0)));
+		  gui::InfoManager::remove_info_safe("Filter2D");
 		  holovibes_.get_pipe()->request_autocontrast();
 	  }
   }
@@ -1912,6 +1918,15 @@ namespace gui
 
     GroupBox* special = findChild<GroupBox*>("Vibrometry");
     special->setDisabled(!value);
+	
+	QPushButton* takeref = findChild<QPushButton*>("takerefPushButton");
+	takeref->setDisabled(!value);
+	
+	QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
+	sliding->setDisabled(!value);
+
+	QPushButton* filter2D = findChild<QPushButton*>("Filter2DPushButton");
+	filter2D->setDisabled(!value);
 
     QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
     phase_number_label->setDisabled(!value);
