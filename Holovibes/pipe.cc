@@ -144,12 +144,13 @@ namespace holovibes
 	 unsigned int nframes = compute_desc_.nsamples.load();
 	 unsigned int pframe = compute_desc_.pindex.load();
 	 unsigned int qframe = compute_desc_.vibrometry_q.load();
-	 if (compute_desc_.stft_enabled)
+	 if (compute_desc_.stft_enabled || (compute_desc_.filter_2d_enabled && !compute_desc_.stft_roi_zone.load().area()))
 	 {
 		 nframes = 1;
 		 pframe = 0;
 		 qframe = 0;
 	 }
+
 	 // In this case the q frame is not needed and will therefore not be computed in FFT1 & FFT2 
 	 if (!compute_desc_.vibrometry_enabled)
 		 qframe = pframe;
