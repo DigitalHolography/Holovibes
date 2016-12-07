@@ -451,7 +451,10 @@ __global__ void kernel_normalize_images(
 
 	while (index < size)
 	{
-		image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;
+		if (min < 0.f)
+			image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;
+		else
+			image[index] = (image[index] - min) / (max - min) * 65535.0f;
 		index += blockDim.x * gridDim.x;
 	}
 }

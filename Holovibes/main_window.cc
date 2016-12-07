@@ -923,10 +923,10 @@ namespace gui
   {
     if (!is_direct_mode())
     {
-      auto pipe = holovibes_.get_pipe();
-      pipe->request_unwrapping_1d(value);
-	  pipe->update_acc_parameter();
-      pipe->request_refresh();
+		auto pipe = holovibes_.get_pipe();
+		pipe->request_unwrapping_1d(value);
+		pipe->request_refresh();
+		//pipe->update_acc_parameter();
     }
   }
 
@@ -936,8 +936,8 @@ namespace gui
 	  {
 		  auto pipe = holovibes_.get_pipe();
 		  pipe->request_unwrapping_2d(value);
-		  pipe->update_acc_parameter();
 		  pipe->request_refresh();
+		  //pipe->update_acc_parameter();
 	  }
   }
 
