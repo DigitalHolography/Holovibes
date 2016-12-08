@@ -17,6 +17,9 @@ namespace camera
     if (ini_file_is_open())
       load_ini_params();
 
+	if (ini_file_is_open())
+		ini_file_.close();
+
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
     frame_.bp_size = 0;

@@ -20,6 +20,9 @@ namespace camera
 
     if (ini_file_is_open())
       load_ini_params();
+
+	if (ini_file_is_open())
+		ini_file_.close();
   }
 
   CameraIxon::~CameraIxon()

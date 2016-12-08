@@ -23,9 +23,13 @@ namespace camera
       : Camera("pike.ini")
     {
       name_ = "Pike Kodak KAI 4022 F-421";
+
       load_default_params();
       if (ini_file_is_open())
         load_ini_params();
+
+	  if (ini_file_is_open())
+		  ini_file_.close();
     }
 
     virtual ~CameraPike()

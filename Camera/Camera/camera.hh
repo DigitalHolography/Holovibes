@@ -48,6 +48,7 @@ namespace camera
       return ini_path_.c_str();
     }
 
+
   protected:
     /*! Construct a blank camera object.
      * Try to open the corresponding configuration file, if any, and parse it with Boost
@@ -152,10 +153,10 @@ namespace camera
     void(*free_memory_)(void* buf);
     /*! \} */
 
+	std::ifstream  ini_file_; //!< INI configuration file data stream.
+
   private:
     std::string ini_path_; //!< INI configuration file's absolute path.
-
-    std::ifstream  ini_file_; //!< INI configuration file data stream.
 
     boost::property_tree::ptree ini_pt_; //!< INI property tree, containing extracted data.
   };
