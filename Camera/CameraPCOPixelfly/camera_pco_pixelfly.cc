@@ -21,6 +21,9 @@ namespace camera
     if (ini_file_is_open())
       load_ini_params();
 
+	if (ini_file_is_open())
+		ini_file_.close();
+
     for (unsigned int i = 0; i < 2048 * 2048; ++i)
       squared_buffer_[i] = 0;
   }

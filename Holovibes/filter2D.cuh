@@ -7,6 +7,7 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 #include  <device_launch_parameters.h>
+# include "tools.cuh"
 
 /* Forward declarations. */
 namespace holovibes

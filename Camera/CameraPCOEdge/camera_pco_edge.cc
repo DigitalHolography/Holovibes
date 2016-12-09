@@ -34,9 +34,13 @@ namespace camera
     : CameraPCO("edge.ini", CAMERATYPE_PCO_EDGE_USB3)
   {
     name_ = "Edge 4.2 LT";
+
     load_default_params();
     if (ini_file_is_open())
       load_ini_params();
+
+	if (ini_file_is_open())
+		ini_file_.close();
   }
 
   CameraPCOEdge::~CameraPCOEdge()
