@@ -31,8 +31,9 @@ namespace holovibes
     /*! \brief Select hologram methods. */
     enum fft_algorithm
     {
+	  None,
       FFT1,
-      FFT2
+	  FFT2
     };
 
 	/*! \brief select which mode the pipe will be using*/
@@ -61,7 +62,7 @@ namespace holovibes
      * Initialize the compute descriptor to default values of computation. */
     ComputeDescriptor()
       : Observable()
-      , algorithm(FFT1)
+      , algorithm(None)
 	  , compute_mode(DIRECT)
       , nsamples(2)
       , pindex()

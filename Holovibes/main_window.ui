@@ -99,8 +99,8 @@
         <widget class="QRadioButton" name="hologramRadioButton">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>40</y>
+           <x>100</x>
+           <y>20</y>
            <width>91</width>
            <height>16</height>
           </rect>
@@ -282,6 +282,11 @@
          </property>
          <item>
           <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
            <string>1FFT</string>
           </property>
          </item>
@@ -356,28 +361,6 @@
          </property>
          <property name="readOnly">
           <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="demodulationRadioButton">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>20</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="toolTipDuration">
-          <number>-3</number>
-         </property>
-         <property name="text">
-          <string>Demodulation</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
          </property>
         </widget>
         <widget class="QLabel" name="ImportPixelSize">
@@ -566,7 +549,6 @@
         <zorder>zStepDoubleSpinBox</zorder>
         <zorder>algorithmLabel_3</zorder>
         <zorder>boundary</zorder>
-        <zorder>demodulationRadioButton</zorder>
         <zorder>ImportPixelSize</zorder>
         <zorder>ImportPixelSizeDoubleSpinBox</zorder>
         <zorder>ImageRenderingShorcut_label</zorder>
@@ -1082,6 +1064,32 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
+        <zorder>logScaleCheckBox</zorder>
+        <zorder>shiftCornersCheckBox</zorder>
+        <zorder>minLabel</zorder>
+        <zorder>maxLabel</zorder>
+        <zorder>autoPushButton</zorder>
+        <zorder>viewModeComboBox</zorder>
+        <zorder>contrastCheckBox</zorder>
+        <zorder>contrastMinDoubleSpinBox</zorder>
+        <zorder>contrastMaxDoubleSpinBox</zorder>
+        <zorder>contrastTypeLabel</zorder>
+        <zorder>autofocusLabel</zorder>
+        <zorder>zmaxLabel</zorder>
+        <zorder>zmaxDoubleSpinBox</zorder>
+        <zorder>zminDoubleSpinBox</zorder>
+        <zorder>zminLabel</zorder>
+        <zorder>zdivLabel</zorder>
+        <zorder>zdivSpinBox</zorder>
+        <zorder>autofocusPushButton</zorder>
+        <zorder>ziterSpinBox</zorder>
+        <zorder>unwrapCheckBox</zorder>
+        <zorder>ViewShorcut_label</zorder>
+        <zorder>img_accSpinBox</zorder>
+        <zorder>img_accCheckBox</zorder>
+        <zorder>unwrapCheckBox_2</zorder>
+        <zorder>autofocusLabel_2</zorder>
+        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item>
@@ -3951,22 +3959,6 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>demodulationRadioButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_demodulation_mode()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>107</x>
-     <y>60</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
