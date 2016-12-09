@@ -139,10 +139,9 @@ __global__ void kernel_add_complex_frames(
 
 /*! \brief  Calculate phi for a frame.
 */
-__global__ void kernel_phi(
+__global__ void kernel_unwrap2d_last_step(
 	float* output,
 	const cufftComplex* input,
-	const cufftComplex coeff,
 	const unsigned int size);
 
 __global__ void kernel_convergence(

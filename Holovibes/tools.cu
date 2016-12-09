@@ -445,19 +445,17 @@ void phi_unwrap_2d(
 	float max = 0;
 	const unsigned threads = 128;
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
-	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
 
-	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
-		res->gpu_grad_eq_y_);
+//	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
+//		res->gpu_grad_eq_y_);
 	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(
 		res->gpu_grad_eq_x_,
 		res->gpu_grad_eq_y_,
 		fd.frame_res());
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
-	kernel_phi << < blocks, threads, 0, stream >>> (
+	kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (
 		output,
 		res->gpu_grad_eq_x_,
-		single_complex,
 		fd.frame_res());
 
 	cudaMemcpy(res->minmax_buffer_, output, sizeof(float) * fd.frame_res(), cudaMemcpyDeviceToHost);

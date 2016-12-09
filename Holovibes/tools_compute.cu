@@ -260,17 +260,16 @@ __global__ void kernel_add_complex_frames(
 	}
 }
 
-__global__ void kernel_phi(
+__global__ void kernel_unwrap2d_last_step(
 	float* output,
 	const cufftComplex* input,
-	const cufftComplex coeff,
 	const unsigned int size)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
-		output[index] = input[index].y / coeff.y;
+		output[index] = input[index].y / (-2 * M_PI);
 		index += blockDim.x * gridDim.x;
 	}
 }
