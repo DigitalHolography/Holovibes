@@ -455,3 +455,33 @@ void unwrap_diff(
     ++resources->size_;
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
+
+__global__ void circ_shift(
+	cufftComplex *input,
+	cufftComplex *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int height,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int index_x = 0;
+	int index_y = 0;
+	int shift_x = 0;
+	int shift_y = 0;
+	// In ROI
+	while (index < size)
+	{
+		index_x = index % width;
+		index_y = index / width;
+		shift_x = index_x - i;
+		shift_y = index_y - j;
+		if (shift_x < 0)
+			shift_x = width + shift_x;
+		if (shift_y < 0)
+			shift_y = height + shift_y;
+		output[(width * shift_y) + shift_x] = input[index];
+		index += blockDim.x * gridDim.x;
+	}
+}
