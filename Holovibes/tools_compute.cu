@@ -274,7 +274,19 @@ __global__ void kernel_unwrap2d_last_step(
 	}
 }
 
+__global__ void kernel_substract_ref(
+	float* output,
+	const float* input,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
+	while (index < size)
+	{
+		output[index] -= input[index];
+		index += blockDim.x * gridDim.x;
+	}
+}
 
 __global__ void kernel_convergence(
 	cufftComplex* input1,

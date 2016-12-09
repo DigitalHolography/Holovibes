@@ -336,6 +336,8 @@ void unwrap_2d(
 	unsigned int threads_2d = get_max_threads_2d();
 	dim3 lthreads(threads_2d, threads_2d);
 	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
 	kernel_init_unwrap_2d << < lblocks, lthreads, 0, stream >> > (
 		fd.width,
@@ -345,12 +347,28 @@ void unwrap_2d(
 		res->gpu_fx_,
 		res->gpu_fy_,
 		res->gpu_z_);
+	circ_shift_float << < blocks, threads, 0, stream >> > (
+		res->gpu_fx_,
+		res->gpu_shift_fx_,
+		fd.width / 2,
+		fd.height / 2,
+		fd.width,
+		fd.height,
+		fd.frame_res());
+	circ_shift_float << < blocks, threads, 0, stream >> > (
+		res->gpu_fy_,
+		res->gpu_shift_fy_,
+		fd.width / 2,
+		fd.height / 2,
+		fd.width,
+		fd.height,
+		fd.frame_res());
 	gradian_unwrap_2d(plan2d, res, fd, stream);
 	eq_unwrap_2d(plan2d, res, fd, stream);
 	phi_unwrap_2d(plan2d, res, fd, output, stream);
 }
 
-void unwrap_2d_complex(
+/*void unwrap_2d_complex(
 	cufftComplex *input,
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
@@ -373,7 +391,7 @@ void unwrap_2d_complex(
 	gradian_unwrap_2d(plan2d, res, fd, stream);
 	eq_unwrap_2d(plan2d, res, fd, stream);
 	phi_unwrap_2d(plan2d, res, fd, output, stream);
-}
+}*/
 
 void gradian_unwrap_2d(
 	const cufftHandle plan2d,
@@ -388,8 +406,8 @@ void gradian_unwrap_2d(
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
 	kernel_multiply_complexes_by_floats_ << < blocks, threads, 0, stream >> > (
-		res->gpu_fx_,
-		res->gpu_fy_,
+		res->gpu_shift_fx_,
+		res->gpu_shift_fy_,
 		res->gpu_grad_eq_x_,
 		res->gpu_grad_eq_y_,
 		fd.frame_res());
@@ -427,8 +445,8 @@ void eq_unwrap_2d(
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
 	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
 	kernel_norm_ratio << < blocks, threads, 0, stream >> >(
-		res->gpu_fx_,
-		res->gpu_fy_,
+		res->gpu_shift_fx_,
+		res->gpu_shift_fy_,
 		res->gpu_grad_eq_x_,
 		res->gpu_grad_eq_y_,
 		fd.frame_res());
@@ -453,10 +471,21 @@ void phi_unwrap_2d(
 		res->gpu_grad_eq_y_,
 		fd.frame_res());
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
+
 	kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (
-		output,
+	output,
+	res->gpu_grad_eq_x_,
+	fd.frame_res());
+
+	/*kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (
+		res->gpu_phi_result_,
 		res->gpu_grad_eq_x_,
 		fd.frame_res());
+
+	kernel_substract_ref << < blocks, threads, 0, stream >> > (
+		output,
+		res->gpu_phi_result_,
+		fd.frame_res());*/
 
 	cudaMemcpy(res->minmax_buffer_, output, sizeof(float)* fd.frame_res(), cudaMemcpyDeviceToHost);
 	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
@@ -488,7 +517,37 @@ __global__ void circ_shift(
 	while (index < size)
 	{
 		index_x = index % width;
-		index_y = index / width;
+		index_y = index / height;
+		shift_x = index_x - i;
+		shift_y = index_y - j;
+		if (shift_x < 0)
+			shift_x = width + shift_x;
+		if (shift_y < 0)
+			shift_y = height + shift_y;
+		output[(width * shift_y) + shift_x] = input[index];
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void circ_shift_float(
+	float *input,
+	float *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int height,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int index_x = 0;
+	int index_y = 0;
+	int shift_x = 0;
+	int shift_y = 0;
+	// In ROI
+	while (index < size)
+	{
+		index_x = index % width;
+		index_y = index / height;
 		shift_x = index_x - i;
 		shift_y = index_y - j;
 		if (shift_x < 0)

@@ -16,6 +16,12 @@ namespace holovibes
 
 		cudaMalloc(&gpu_fy_, sizeof(float)* image_resolution_);
 
+		cudaMalloc(&gpu_shift_fx_, sizeof(float)* image_resolution_);
+
+		cudaMalloc(&gpu_shift_fy_, sizeof(float)* image_resolution_);
+
+		cudaMalloc(&gpu_phi_result_, sizeof(float)* image_resolution_);
+
 		cudaMalloc(&gpu_z_, sizeof(cufftComplex)* image_resolution_);
 
 		cudaMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex)* image_resolution_);
@@ -31,6 +37,12 @@ namespace holovibes
 			cudaFree(gpu_fx_);
 		if (gpu_fy_)
 			cudaFree(gpu_fy_);
+		if (gpu_shift_fx_)
+			cudaFree(gpu_shift_fx_);
+		if (gpu_shift_fy_)
+			cudaFree(gpu_shift_fy_);
+		if (gpu_phi_result_)
+			cudaFree(gpu_phi_result_);
 		if (gpu_z_)
 			cudaFree(gpu_z_);
 		if (gpu_grad_eq_x_)
@@ -52,6 +64,18 @@ namespace holovibes
 		if (gpu_fy_)
 			cudaFree(gpu_fy_);
 		cudaMalloc(&gpu_fy_, sizeof(float)* image_resolution_);
+
+		if (gpu_shift_fx_)
+			cudaFree(gpu_shift_fx_);
+		cudaMalloc(&gpu_shift_fx_, sizeof(float)* image_resolution_);
+
+		if (gpu_shift_fy_)
+			cudaFree(gpu_shift_fy_);
+		cudaMalloc(&gpu_shift_fy_, sizeof(float)* image_resolution_);
+
+		if (gpu_phi_result_)
+			cudaFree(gpu_phi_result_);
+		cudaMalloc(&gpu_phi_result_, sizeof(float)* image_resolution_);
 
 		if (gpu_z_)
 			cudaFree(gpu_z_);

@@ -144,6 +144,12 @@ __global__ void kernel_unwrap2d_last_step(
 	const cufftComplex* input,
 	const unsigned int size);
 
+/*TODO*/
+__global__ void kernel_substract_ref(
+	float* output,
+	const float* input,
+	const unsigned int size);
+
 __global__ void kernel_convergence(
 	cufftComplex* input1,
 	cufftComplex* input2);

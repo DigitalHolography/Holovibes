@@ -187,7 +187,6 @@ void unwrap_diff(
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
   const bool with_unwrap);
-<<<<<<< HEAD
 */
 
 /*! Main function for unwrap_2d calculations*/
@@ -200,13 +199,13 @@ void unwrap_2d(
 	cudaStream_t stream);
 
 /*! Main function for unwrap_2d calculations*/
-void unwrap_2d_complex(
+/*void unwrap_2d_complex(
 	cufftComplex *input,
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
 	float *output,
-	cudaStream_t stream);
+	cudaStream_t stream);*/
 
 /*! Gradian calculation for unwrap_2d calculations*/
 void gradian_unwrap_2d(
@@ -234,6 +233,16 @@ void phi_unwrap_2d(
 __global__ void circ_shift(
 	cufftComplex *input,
 	cufftComplex *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int height,
+	const unsigned int size);
+
+//Same in float
+__global__ void circ_shift_float(
+	float *input,
+	float *output,
 	const int i, // shift on x axis
 	const int j, // shift on y axis
 	const unsigned int width,

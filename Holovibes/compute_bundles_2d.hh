@@ -37,6 +37,12 @@ namespace holovibes
 		float* gpu_fx_;
 		/*! Matrix for fy */
 		float* gpu_fy_;
+		/*! Matrix for cirshiffed fx. */
+		float* gpu_shift_fx_;
+		/*! Matrix for cirshiffed fy */
+		float* gpu_shift_fy_;
+		/*! Matrix for phi calculation*/
+		float* gpu_phi_result_;
 		/*! Matrix for z */
 		cufftComplex* gpu_z_;
 		/*! Common matrix for grad_x and eq_x */
