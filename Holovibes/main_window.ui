@@ -10,13 +10,19 @@
     <x>0</x>
     <y>0</y>
     <width>1335</width>
-    <height>424</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
     <width>1335</width>
     <height>16777215</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="font">

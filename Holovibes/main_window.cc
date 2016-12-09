@@ -96,7 +96,7 @@ namespace gui
 			global_visibility(false);
 		
 		/* Default size of the main window*/
-		this->resize(1335, 425);
+		this->resize(width(), 425);
 		// Display default values
 		notify();
 	}
@@ -252,7 +252,7 @@ namespace gui
 			childCount += !var->isHidden();
 
 		if (childCount > 0)
-			this->resize(QSize(childCount * 195, 385));
+			this->resize(QSize(childCount * 195, 425));
 		else
 			this->resize(QSize(195, 60));
 	}

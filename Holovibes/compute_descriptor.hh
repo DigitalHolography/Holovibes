@@ -40,8 +40,7 @@ namespace holovibes
 	enum compute_mode
 	{
 		DIRECT,
-		HOLOGRAM,
-		DEMODULATION,
+		HOLOGRAM
 	};
 
     /*! \brief Complex to float methods.
