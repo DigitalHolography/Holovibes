@@ -935,34 +935,6 @@
           <number>3</number>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrapCheckBox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>90</x>
-           <y>50</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>unwrap the phase angle (phase increase mode only)</string>
-         </property>
-         <property name="text">
-          <string>1D</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
         <widget class="QLabel" name="ViewShorcut_label">
          <property name="geometry">
           <rect>
@@ -1029,34 +1001,6 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrapCheckBox_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>50</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>unwrap the phase angle (phase increase mode only)</string>
-         </property>
-         <property name="text">
-          <string>2D</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
         <widget class="QLabel" name="autofocusLabel_2">
          <property name="geometry">
           <rect>
@@ -1068,6 +1012,56 @@
          </property>
          <property name="text">
           <string>Phase unwrap:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="unwrap_1d_CheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>50</y>
+           <width>31</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Accumulate n images</string>
+         </property>
+         <property name="text">
+          <string>1D</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="unwrap_2d_CheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>110</x>
+           <y>50</y>
+           <width>31</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Accumulate n images</string>
+         </property>
+         <property name="text">
+          <string>2D</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
         <zorder>logScaleCheckBox</zorder>
@@ -2450,7 +2444,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3733,22 +3727,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>unwrapCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_unwrapping(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>358</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>583</x>
-     <y>183</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>directImageRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4085,6 +4063,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>unwrap_1d_CheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrapping_1d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>395</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>54</y>
+    </hint>
+  </hints>
+</connection>
+<connection>
    <sender>STFTCheckBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4101,6 +4095,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>unwrap_2d_CheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_unwrapping_2d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>353</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>98</y>
+    </hint>
+  </hints>
+</connection>
+<connection>
    <sender>takerefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4209,6 +4219,7 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>211</y>
+>>>>>>> origin/Filter2D
     </hint>
    </hints>
   </connection>
@@ -4270,7 +4281,7 @@ p, li { white-space: pre-wrap; }
   <slot>camera_adimec()</slot>
   <slot>layout_toggled(bool)</slot>
   <slot>set_unwrap_history_size(int)</slot>
-  <slot>set_unwrapping(bool)</slot>
+  <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>
   <slot>set_direct_mode()</slot>
   <slot>set_holographic_mode()</slot>
@@ -4293,6 +4304,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_complex_visible(bool)</slot>
   <slot>set_accumulation(bool)</slot>
   <slot>set_accumulation_level(int)</slot>
+  <slot>set_unwrapping_2d(bool)</slot>
   <slot>set_stft(bool)</slot>
   <slot>take_reference()</slot>
   <slot>cancel_take_reference()</slot>

@@ -4,11 +4,13 @@
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "tools_conversion.cuh"
 #include "tools_unwrap.cuh"
 #include "tools.hh"
 #include "geometry.hh"
 #include "hardware_limits.hh"
 #include "compute_bundles.hh"
+#include "compute_bundles_2d.hh"
 
 __global__ void kernel_apply_lens(
   cufftComplex *input,
@@ -214,7 +216,6 @@ static __global__ void kernel_sum(const float* input, float* sum, const size_t s
   }
 }
 
-
 float average_operator(
   const float* input,
   const unsigned int size,
@@ -243,64 +244,13 @@ float average_operator(
   return cpu_sum /= static_cast<float>(size);
 }
 
-void unwrap(
+void phase_increase(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
   const bool with_unwrap)
 {
-  const unsigned threads = 128;
-  const unsigned blocks = map_blocks_to_problem(image_size, threads);
-
-  static bool first_time = true;
-  if (first_time)
-  {
-    kernel_extract_angle << <blocks, threads >> >(cur,
-      resources->gpu_angle_predecessor_,
-      image_size);
-    first_time = false;
-  }
-
-  // Convert to polar notation in order to work on angles.
-  kernel_extract_angle << <blocks, threads >> >(cur,
-    resources->gpu_angle_current_,
-    image_size);
-
-  if (!with_unwrap)
-    return;
-
-  /* Store the new unwrapped phase image in the next buffer position.
-   * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  kernel_unwrap << < blocks, threads >> >(resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    next_unwrap,
-    image_size);
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
-
-  // Updating predecessor
-  cudaMemcpy(resources->gpu_angle_predecessor_,
-    resources->gpu_angle_current_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
-
-  // Applying unwrapping history to the current image.
-  kernel_correct_angles << <blocks, threads >> >(
-    resources->gpu_angle_current_,
-    resources->gpu_unwrap_buffer_,
-    image_size,
-    resources->size_);
-}
-
-void unwrap_mult(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap)
-{
-  const unsigned threads = 128;
+  const unsigned threads = 128; // 3072 cuda cores / 24 SMM = 128 Threads per SMM
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
 
   static bool first_time = true;
@@ -375,85 +325,178 @@ void unwrap_mult(
   resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
 
-void unwrap_diff(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap)
+void unwrap_2d(
+	float *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream)
 {
-  const unsigned threads = 128;
-  const unsigned blocks = map_blocks_to_problem(image_size, threads);
+	unsigned int threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
-  static bool first_time = true;
-  if (first_time)
-  {
-    cudaMemcpy(resources->gpu_predecessor_,
-      cur,
-      sizeof(cufftComplex)* image_size,
-      cudaMemcpyDeviceToDevice);
-    first_time = false;
-  }
+	kernel_init_unwrap_2d << < lblocks, lthreads, 0, stream >> > (
+		fd.width,
+		fd.height,
+		fd.frame_res(),
+		input,
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_z_);
+	circ_shift_float << < blocks, threads, 0, stream >> > (
+		res->gpu_fx_,
+		res->gpu_shift_fx_,
+		fd.width / 2,
+		fd.height / 2,
+		fd.width,
+		fd.height,
+		fd.frame_res());
+	circ_shift_float << < blocks, threads, 0, stream >> > (
+		res->gpu_fy_,
+		res->gpu_shift_fy_,
+		fd.width / 2,
+		fd.height / 2,
+		fd.width,
+		fd.height,
+		fd.frame_res());
+	gradian_unwrap_2d(plan2d, res, fd, stream);
+	eq_unwrap_2d(plan2d, res, fd, stream);
+	phi_unwrap_2d(plan2d, res, fd, output, stream);
+}
 
-  // Compute the newest phase image, not unwrapped yet
-  kernel_compute_angle_diff << <blocks, threads >> >(
-    resources->gpu_predecessor_,
-    cur,
-    resources->gpu_angle_current_,
-    image_size);
-  //  Updating predecessor (complex image) for the next iteration
-  cudaMemcpy(resources->gpu_predecessor_,
-    cur,
-    sizeof(cufftComplex)* image_size,
-    cudaMemcpyDeviceToDevice);
+/*void unwrap_2d_complex(
+	cufftComplex *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream)
+{
+	unsigned int threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
-  // Optional unwrapping
-  if (with_unwrap)
-  {
-    kernel_unwrap << <blocks, threads >> >(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      resources->gpu_unwrapped_angle_,
-      image_size);
-    // Updating the unwrapped angle for the next iteration.
-    cudaMemcpy(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      sizeof(float)* image_size,
-      cudaMemcpyDeviceToDevice);
-    // Updating gpu_angle_current_ for the rest of the function.
-    cudaMemcpy(
-      resources->gpu_angle_current_,
-      resources->gpu_unwrapped_angle_,
-      sizeof(float)* image_size,
-      cudaMemcpyDeviceToDevice);
-  }
+	kernel_init_unwrap_2d_complex << < lblocks, lthreads, 0, stream >> > (
+		fd.width,
+		fd.height,
+		fd.frame_res(),
+		input,
+		res->gpu_fx_,
+		res->gpu_fy_,
+		res->gpu_z_);
+	gradian_unwrap_2d(plan2d, res, fd, stream);
+	eq_unwrap_2d(plan2d, res, fd, stream);
+	phi_unwrap_2d(plan2d, res, fd, output, stream);
+}*/
 
-  /* Copying in order to later enqueue the (not summed up with values
-  * in gpu_unwrap_buffer_) phase image. */
-  cudaMemcpy(
-    resources->gpu_angle_copy_,
-    resources->gpu_angle_current_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
+void gradian_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	cudaStream_t stream)
+{
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
+	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
 
-  // Applying history on the latest phase image
-  kernel_correct_angles << <blocks, threads >> >(
-    resources->gpu_angle_current_,
-    resources->gpu_unwrap_buffer_,
-    image_size,
-    resources->size_);
+	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
+	kernel_multiply_complexes_by_floats_ << < blocks, threads, 0, stream >> > (
+		res->gpu_shift_fx_,
+		res->gpu_shift_fy_,
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		fd.frame_res());
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
+	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_INVERSE);
+	kernel_multiply_complexes_by_single_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		single_complex,
+		fd.frame_res());
+}
 
-  /* Store the new phase image in the next buffer position.
-  * The buffer is handled as a circular buffer. */
-  float* next_unwrap = resources->gpu_unwrap_buffer_ + image_size * resources->next_index_;
-  cudaMemcpy(
-    next_unwrap,
-    resources->gpu_angle_copy_,
-    sizeof(float)* image_size,
-    cudaMemcpyDeviceToDevice);
-  if (resources->size_ < resources->capacity_)
-    ++resources->size_;
-  resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
+void eq_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	cudaStream_t stream)
+{
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
+	cufftComplex single_complex = make_cuComplex(0, 1);
+
+	kernel_multiply_complex_by_single_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_z_,
+		single_complex,
+		fd.frame_res());
+	kernel_conjugate_complex << < blocks, threads, 0, stream >> >(
+		res->gpu_z_,
+		fd.frame_res());
+	kernel_multiply_complex_frames_by_complex_frame << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		res->gpu_z_,
+		fd.frame_res());
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
+	kernel_norm_ratio << < blocks, threads, 0, stream >> >(
+		res->gpu_shift_fx_,
+		res->gpu_shift_fy_,
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		fd.frame_res());
+}
+
+void phi_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream)
+{
+	float min = 0;
+	float max = 0;
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
+
+	//	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
+	//		res->gpu_grad_eq_y_);
+	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(
+		res->gpu_grad_eq_x_,
+		res->gpu_grad_eq_y_,
+		fd.frame_res());
+	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
+
+	kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (
+	output,
+	res->gpu_grad_eq_x_,
+	fd.frame_res());
+
+	/*kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (
+		res->gpu_phi_result_,
+		res->gpu_grad_eq_x_,
+		fd.frame_res());
+
+	kernel_substract_ref << < blocks, threads, 0, stream >> > (
+		output,
+		res->gpu_phi_result_,
+		fd.frame_res());*/
+
+	cudaMemcpy(res->minmax_buffer_, output, sizeof(float)* fd.frame_res(), cudaMemcpyDeviceToHost);
+	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
+	min = *minmax.first;
+	max = *minmax.second;
+
+	kernel_normalize_images << < blocks, threads, 0, stream >> > (
+		output,
+		max,
+		min,
+		fd.frame_res());
 }
 
 __global__ void circ_shift(
@@ -474,7 +517,37 @@ __global__ void circ_shift(
 	while (index < size)
 	{
 		index_x = index % width;
-		index_y = index / width;
+		index_y = index / height;
+		shift_x = index_x - i;
+		shift_y = index_y - j;
+		if (shift_x < 0)
+			shift_x = width + shift_x;
+		if (shift_y < 0)
+			shift_y = height + shift_y;
+		output[(width * shift_y) + shift_x] = input[index];
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+__global__ void circ_shift_float(
+	float *input,
+	float *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int height,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int index_x = 0;
+	int index_y = 0;
+	int shift_x = 0;
+	int shift_y = 0;
+	// In ROI
+	while (index < size)
+	{
+		index_x = index % width;
+		index_y = index / height;
 		shift_x = index_x - i;
 		shift_y = index_y - j;
 		if (shift_x < 0)

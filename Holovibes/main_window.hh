@@ -29,7 +29,7 @@
 # include "holovibes.hh"
 # include "observer.hh"
 # include "geometry.hh"
-#include "options_descriptor.hh"
+# include "options_descriptor.hh"
 
 /* Forward declarations. */
 namespace gui
@@ -239,15 +239,17 @@ namespace gui
     ** "unwrapped argument", or "unwrapped argument 2".
     */
     void set_view_mode(QString value);
-	/*! Set 1D phase unwrap button enabled or diasbled
-	*/
-	void set_unwrap_enabled(void);
     /*! Set the size of the unwrapping history window.
     */
     void set_unwrap_history_size(int value);
-    /*! Activate / Deactivate phase unwrapping.
+    /*! Activate / Deactivate phase unwrapping 1d.
     */
-    void set_unwrapping(const bool value);
+    void set_unwrapping_1d(const bool value);
+	/*! Activate / Deactivate phase unwrapping 2d.
+	*/
+	void set_unwrapping_2d(const bool value);
+	/* ! Set enable unwrap 1d and 2d checkbox*/
+	void set_enable_unwrap_box(void);
     /*! \brief Set autofocus mode on
     **
     ** Set GLWidget selection mode to AUTOFOCUS.
@@ -255,7 +257,6 @@ namespace gui
     ** selection signal of OpenGl widget to request_autofocus() slot. Then whenever the
     ** user has finished its selection, the request will be called.
     */
-
 	void set_accumulation(bool value);
 	/*! \brief Set accmulation on or off
 	*/

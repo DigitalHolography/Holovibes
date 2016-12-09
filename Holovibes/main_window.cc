@@ -146,7 +146,7 @@ namespace gui
 			view_mode->setCurrentIndex(1);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 			view_mode->setCurrentIndex(2);
-		else if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
+		else if (cd.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE)
 			view_mode->setCurrentIndex(3);
 		else if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
 			view_mode->setCurrentIndex(4);
@@ -234,6 +234,8 @@ namespace gui
 
 		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
 		import_pixel_size->setValue(cd.import_pixel_size);
+
+		set_enable_unwrap_box();
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -871,24 +873,14 @@ namespace gui
 			  else
 			  {
 				   if (value == "Phase increase")
-					  cd.view_mode = holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT;
+					  cd.view_mode = holovibes::ComputeDescriptor::PHASE_INCREASE;
 			  }
 		  }
-		  set_unwrap_enabled();
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 			  holovibes_.get_pipe()->request_autocontrast();
+
+		  set_enable_unwrap_box();
 	  }
-  }
-
-  void MainWindow::set_unwrap_enabled(void)
-  {
-	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-	  QCheckBox* unwrap_CheckBox_ = findChild<QCheckBox*>("unwrapCheckBox");
-
-	  if (cd.view_mode == holovibes::ComputeDescriptor::UNWRAPPED_ARGUMENT)
-		  unwrap_CheckBox_->setEnabled(true);
-	  else
-		  unwrap_CheckBox_->setEnabled(false);
   }
 
   void MainWindow::set_unwrap_history_size(int value)
@@ -900,15 +892,45 @@ namespace gui
     }
   }
 
-  void MainWindow::set_unwrapping(const bool value)
+  void MainWindow::set_unwrapping_1d(const bool value)
   {
     if (!is_direct_mode())
     {
-      auto pipe = holovibes_.get_pipe();
-      pipe->request_unwrapping(value);
-	  pipe->update_acc_parameter();
-      //pipe->request_refresh();
+		auto pipe = holovibes_.get_pipe();
+		pipe->request_unwrapping_1d(value);
+		pipe->request_refresh();
+		//pipe->update_acc_parameter();
     }
+  }
+
+  void MainWindow::set_unwrapping_2d(const bool value)
+  {
+	  if (!is_direct_mode())
+	  {
+		  auto pipe = holovibes_.get_pipe();
+		  pipe->request_unwrapping_2d(value);
+		  pipe->request_refresh();
+		  //pipe->update_acc_parameter();
+	  }
+  }
+
+  void MainWindow::set_enable_unwrap_box()
+  {
+	  QCheckBox* unwrap_1d = findChild<QCheckBox*>("unwrap_1d_CheckBox");
+	  QCheckBox* unwrap_2d = findChild<QCheckBox*>("unwrap_2d_CheckBox");
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+	  if (cd.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE |
+		  cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
+	  {
+		  unwrap_1d->setEnabled(true);
+		  unwrap_2d->setEnabled(true);
+	  }
+	  else
+	  {
+		  unwrap_1d->setEnabled(false);
+		  unwrap_2d->setEnabled(false);
+	  }
   }
 
   void MainWindow::set_accumulation(bool value)
@@ -2281,7 +2303,6 @@ namespace gui
 	  config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 	  config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 	 
-	  set_unwrap_enabled();
     }
   }
 

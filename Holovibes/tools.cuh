@@ -20,6 +20,11 @@ namespace holovibes
 namespace holovibes
 {
   struct UnwrappingResources;
+  struct UnwrappingResources_2d;
+}
+namespace camera
+{
+	struct FrameDescriptor;
 }
 
 /*! \brief  Apply a previously computed lens to image(s).
@@ -145,24 +150,23 @@ float average_operator(
  * two-by-two differences that exceed this cutoff value and performs
  * cumulative adjustments in order to 'smooth' the signal.
  */
-void unwrap(
+/*void unwrap(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
-  const bool with_unwrap);
+  const bool with_unwrap);*/
 
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.
-* This version computes : arg(H .* H-t)
-* and unwraps the result.
+* This version computes : arg(H(t) .* H^*(t- T))
 *
-* Phase unwrapping adjusts phase angles encoded in complex data,
+* Phase increase adjusts phase angles encoded in complex data,
 * by a cutoff value (which is here fixed to pi). Unwrapping seeks
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
 */
-void unwrap_mult(
+void phase_increase(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
@@ -177,12 +181,53 @@ void unwrap_mult(
 * by a cutoff value (which is here fixed to pi). Unwrapping seeks
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
-*/
+
 void unwrap_diff(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
   const size_t image_size,
   const bool with_unwrap);
+*/
+
+/*! Main function for unwrap_2d calculations*/
+void unwrap_2d(
+	float *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream);
+
+/*! Main function for unwrap_2d calculations*/
+/*void unwrap_2d_complex(
+	cufftComplex *input,
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream);*/
+
+/*! Gradian calculation for unwrap_2d calculations*/
+void gradian_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	cudaStream_t stream);
+
+/*! Eq calculation for unwrap_2d calculations*/
+void eq_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	cudaStream_t stream);
+
+/*! Phi calculation for unwrap_2d calculations*/
+void phi_unwrap_2d(
+	const cufftHandle plan2d,
+	holovibes::UnwrappingResources_2d *res,
+	camera::FrameDescriptor& fd,
+	float *output,
+	cudaStream_t stream);
 
 //TODO:
 __global__ void circ_shift(
@@ -194,3 +239,12 @@ __global__ void circ_shift(
 	const unsigned int height,
 	const unsigned int size);
 
+//Same in float
+__global__ void circ_shift_float(
+	float *input,
+	float *output,
+	const int i, // shift on x axis
+	const int j, // shift on y axis
+	const unsigned int width,
+	const unsigned int height,
+	const unsigned int size);

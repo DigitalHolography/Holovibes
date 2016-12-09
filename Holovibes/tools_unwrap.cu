@@ -102,3 +102,62 @@ __global__ void kernel_correct_angles(
     data[index] += corrections[correction_idx];
   }
 }
+
+__global__ void kernel_init_unwrap_2d(
+	unsigned int width,
+	unsigned int height,
+	unsigned int frame_res,
+	float *input,
+	float *fx,
+	float *fy,
+	cufftComplex *z)
+{
+	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int index = j * blockDim.x * gridDim.x + i;
+
+	if (index < frame_res)
+	{
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width) / 2)));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height) / 2)));
+
+		/*z init*/
+		z[index].x = cosf(input[index]);
+		z[index].y = sinf(input[index]);
+	}
+}
+
+__global__ void kernel_init_unwrap_2d_complex(
+	unsigned int width,
+	unsigned int height,
+	unsigned int frame_res,
+	cufftComplex *input,
+	float *fx,
+	float *fy,
+	cufftComplex *z)
+{
+	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int index = j * blockDim.x * gridDim.x + i;
+
+	if (index < frame_res)
+	{
+		/*fx and fy init*/
+
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width) / 2)));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height) / 2)));
+
+		/*z init*/
+		const float modulus = sqrtf(abs(input[index].x * input[index].x + input[index].y * input[index].y));
+		if (modulus == 0)
+		{
+			z[index].x = 0;
+			z[index].y = 0;
+		}
+		else
+		{
+			z[index].x = input[index].x / modulus;
+			z[index].y = input[index].y / modulus;
+		}
+	}
+}

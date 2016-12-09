@@ -139,6 +139,7 @@
     <ClInclude Include="average.cuh" />
     <ClInclude Include="camera_dll.hh" />
     <ClInclude Include="compute_bundles.hh" />
+    <ClInclude Include="compute_bundles_2d.hh" />
     <ClInclude Include="compute_descriptor.hh" />
     <ClInclude Include="concurrent_deque.hh" />
     <ClInclude Include="config.hh" />
@@ -282,6 +283,7 @@
   <ItemGroup>
     <ClCompile Include="camera_dll.cc" />
     <ClCompile Include="compute_bundles.cc" />
+    <ClCompile Include="compute_bundles_2d.cc" />
     <ClCompile Include="compute_descriptor.cc" />
     <ClCompile Include="config.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">

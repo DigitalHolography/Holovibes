@@ -28,6 +28,7 @@ namespace holovibes
     , input_(input)
     , output_(output)
     , unwrap_res_(nullptr)
+	, unwrap_res_2d_(nullptr)
     , gpu_stft_buffer_(nullptr)
     , gpu_lens_(nullptr)
 	, gpu_kernel_buffer_(nullptr)  
@@ -38,8 +39,9 @@ namespace holovibes
     , plan3d_(0)
     , plan2d_(0)
     , plan1d_(0)
+    , unwrap_1d_requested_(false)
+	, unwrap_2d_requested_(false)
 	, plan1d_stft_(0)
-    , unwrap_requested_(true)
     , autofocus_requested_(false)
     , autocontrast_requested_(false)
     , refresh_requested_(false)
@@ -213,7 +215,7 @@ namespace holovibes
 	/* gpu_filter2d_buffer */
 	cudaFree(gpu_filter2d_buffer);
 
-  }
+ }
 
   void ICompute::update_n_parameter(unsigned short n)
   {
@@ -482,9 +484,14 @@ namespace holovibes
     request_refresh();
   }
 
-  void ICompute::request_unwrapping(const bool value)
+  void ICompute::request_unwrapping_1d(const bool value)
   {
-    unwrap_requested_ = value;
+    unwrap_1d_requested_ = value;
+  }
+
+  void ICompute::request_unwrapping_2d(const bool value)
+  {
+	unwrap_2d_requested_ = value;
   }
 
   void ICompute::request_average(

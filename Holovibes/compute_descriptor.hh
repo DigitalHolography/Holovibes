@@ -53,7 +53,7 @@ namespace holovibes
       SQUARED_MODULUS,
       ARGUMENT,
 	  COMPLEX,
-      UNWRAPPED_ARGUMENT,
+      PHASE_INCREASE,
     };
 
     /*! \brief ComputeDescriptor constructor

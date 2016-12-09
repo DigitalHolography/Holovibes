@@ -25,6 +25,7 @@ namespace holovibes
 namespace holovibes
 {
   struct UnwrappingResources;
+  struct UnwrappingResources_2d;
 }
 
 namespace holovibes
@@ -120,9 +121,11 @@ namespace holovibes
     /*! Set the size of the unwrapping history window. */
     void request_update_unwrap_size(const unsigned size);
 
-    /*! The boolean will determine activation/deactivation of the unwrapping phase
-     * in the unwrap() function. */
-    void request_unwrapping(const bool value);
+    /*! The boolean will determine activation/deactivation of the unwrapping 1d */
+    void request_unwrapping_1d(const bool value);
+
+	/*! The boolean will determine activation/deactivation of the unwrapping 2d */
+	void request_unwrapping_2d(const bool value);
 
     /*! \brief Request the ICompute to fill the output vector.
     *
@@ -296,6 +299,9 @@ namespace holovibes
     /*! All buffers needed for phase unwrapping are here. */
     std::shared_ptr<UnwrappingResources> unwrap_res_;
 
+	/*! All buffers needed for phase unwrapping 2d are here. */
+	std::shared_ptr<UnwrappingResources_2d> unwrap_res_2d_;
+
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
 	/*! cufftComplex array containing lens. */
@@ -314,8 +320,10 @@ namespace holovibes
     cufftHandle plan2d_;
     /*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
     cufftHandle plan1d_;
+
 	/*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
 	cufftHandle plan1d_stft_;
+
     /*! \} */
 
     /*! \brief Number of frame in input. */
@@ -354,7 +362,8 @@ namespace holovibes
 	cufftComplex* gpu_filter2d_buffer;
 
 	/*! \{ \name request flags */
-	bool unwrap_requested_;
+	bool unwrap_1d_requested_;
+	bool unwrap_2d_requested_;
 	bool autofocus_requested_;
 	bool autofocus_stop_requested_;
 	bool autocontrast_requested_;

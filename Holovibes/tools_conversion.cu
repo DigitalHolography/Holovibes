@@ -124,7 +124,7 @@ static __global__ void kernel_complex_to_argument(
 
   while (index < size)
   {
-    output[index] = (atanf(input[index].y / input[index].x) + pi_div_2) * c;
+	  output[index] = (atanf(input[index].y / input[index].x) + pi_div_2);// *c;
 
     index += blockDim.x * gridDim.x;
   }
@@ -439,4 +439,22 @@ void accumulate_images(
 		max_elmt,
 		nb_elmt,
 		nb_pixel);
+}
+
+__global__ void kernel_normalize_images(
+	float *image,
+	const float max,
+	const float min,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		if (min < 0.f)
+			image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;
+		else
+			image[index] = (image[index] - min) / (max - min) * 65535.0f;
+		index += blockDim.x * gridDim.x;
+	}
 }
