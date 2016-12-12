@@ -658,8 +658,8 @@ namespace gui
         p_vibro->setValue(value + 1);
 
         cd.pindex.exchange(value);
-		/*if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
-			holovibes_.get_pipe()->request_autocontrast();*/
+		if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+			holovibes_.get_pipe()->request_autocontrast();
       }
       else
         display_error("p param has to be between 0 and n");
