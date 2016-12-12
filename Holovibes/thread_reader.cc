@@ -51,7 +51,7 @@ namespace holovibes
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
-	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
+	  unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 	  char*        buffer = NULL;
 	  char*		   real_buffer = NULL;
 	  unsigned int nbr_stored = 0;
@@ -123,7 +123,7 @@ namespace holovibes
   {
 	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
-	  unsigned int elts_max_nbr = global::global_config.input_queue_max_size;
+	  unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 	  char*        buffer = NULL;
 	  char*        real_buffer = NULL;
 	  unsigned int nbr_stored = 0;

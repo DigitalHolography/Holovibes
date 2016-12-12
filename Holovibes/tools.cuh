@@ -141,21 +141,6 @@ float average_operator(
   const unsigned int size,
   cudaStream_t stream = 0);
 
-/*! Let H be the latest complex image, and H-t the one preceding it.
- * This version computes : arg(H) - arg(H-t)
- * and unwraps the result.
- *
- * Phase unwrapping adjusts phase angles encoded in complex data,
- * by a cutoff value (which is here fixed to pi). Unwrapping seeks
- * two-by-two differences that exceed this cutoff value and performs
- * cumulative adjustments in order to 'smooth' the signal.
- */
-/*void unwrap(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap);*/
-
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.
@@ -172,23 +157,6 @@ void phase_increase(
   const size_t image_size,
   const bool with_unwrap);
 
-/*! Let H be the latest complex image, and H-t the conjugate matrix of
-* the one preceding it.
-* This version computes : arg(H - H-t)
-* and unwraps the result.
-*
-* Phase unwrapping adjusts phase angles encoded in complex data,
-* by a cutoff value (which is here fixed to pi). Unwrapping seeks
-* two-by-two differences that exceed this cutoff value and performs
-* cumulative adjustments in order to 'smooth' the signal.
-
-void unwrap_diff(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap);
-*/
-
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(
 	float *input,
@@ -198,17 +166,8 @@ void unwrap_2d(
 	float *output,
 	cudaStream_t stream);
 
-/*! Main function for unwrap_2d calculations*/
-/*void unwrap_2d_complex(
-	cufftComplex *input,
-	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d *res,
-	camera::FrameDescriptor& fd,
-	float *output,
-	cudaStream_t stream);*/
-
-/*! Gradian calculation for unwrap_2d calculations*/
-void gradian_unwrap_2d(
+/*! Gradient calculation for unwrap_2d calculations*/
+void gradient_unwrap_2d(
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,

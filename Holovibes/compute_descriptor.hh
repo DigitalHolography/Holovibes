@@ -95,7 +95,7 @@ namespace holovibes
 	  , img_acc_enabled(false)
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
-	  , stft_level(32)
+	  , stft_level(16)
 	  , ref_diff_level(1)
 	  , ref_diff_enabled(false)
 	  , ref_sliding_enabled(false)
