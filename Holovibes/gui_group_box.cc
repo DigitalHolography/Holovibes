@@ -15,7 +15,7 @@ namespace gui
   {
     if (this->isVisible())
       hide();
-    else
+	else
       show();
   }
 }

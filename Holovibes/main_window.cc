@@ -96,7 +96,7 @@ namespace gui
 			global_visibility(false);
 		
 		/* Default size of the main window*/
-		this->resize(1335, 425);
+		this->resize(width(), 425);
 		// Display default values
 		notify();
 	}
@@ -129,11 +129,12 @@ namespace gui
 		z_step->setValue(z_step_);
 
 		QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-
-		if (cd.algorithm == holovibes::ComputeDescriptor::FFT1)
+		if (cd.algorithm == holovibes::ComputeDescriptor::None)
 			algorithm->setCurrentIndex(0);
-		else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
+		if (cd.algorithm == holovibes::ComputeDescriptor::FFT1)
 			algorithm->setCurrentIndex(1);
+		else if (cd.algorithm == holovibes::ComputeDescriptor::FFT2)
+			algorithm->setCurrentIndex(2);
 		else
 			algorithm->setCurrentIndex(0);
 
@@ -253,7 +254,7 @@ namespace gui
 			childCount += !var->isHidden();
 
 		if (childCount > 0)
-			this->resize(QSize(childCount * 195, 385));
+			this->resize(QSize(childCount * 195, 425));
 		else
 			this->resize(QSize(195, 60));
 	}
@@ -411,40 +412,6 @@ namespace gui
 		}
 	}
 
-	void MainWindow::set_demodulation_mode()
-	{
-		close_critical_compute();
-		if (is_enabled_camera_)
-		{
-			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			QComboBox* algorithm = findChild<QComboBox*>("algorithmComboBox");
-			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DEMODULATION;
-			QPoint pos(0, 0);
-			unsigned int width = 512;
-			unsigned int height = 512;
-			init_image_mode(pos, width, height);
-			unsigned int depth = 2;
-			try
-			{
-				if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
-				{
-					last_contrast_type_ = "Complex output";
-					depth = 8;
-				}
-				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-				global_visibility(true);
-				demodulation_visibility(false);
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
-					holovibes_.get_pipe()->request_autocontrast();
-			}
-			catch (std::exception& e)
-			{
-				display_error(e.what());
-			}
-		}
-	}
-
 	void MainWindow::set_complex_mode(bool value)
 	{
 		QPoint pos(0, 0);
@@ -504,8 +471,6 @@ namespace gui
 			set_direct_mode();
 		if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
 			set_holographic_mode();
-		if (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DEMODULATION)
-			set_demodulation_mode();
 	}
 
   void MainWindow::reset()
@@ -825,11 +790,13 @@ namespace gui
 		  QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		  gl_widget->set_selection_mode(gui::eselection::ZOOM);
-		  if (value == "1FFT")
+		  if (value == "None")
+			  cd.algorithm = holovibes::ComputeDescriptor::None;
+		  else if (value == "1FFT")
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT1;
 		  else if (value == "2FFT")
 			  cd.algorithm = holovibes::ComputeDescriptor::FFT2;
-			  else
+		  else
 			  assert(!"Unknow Algorithm.");
 
 		  if (!holovibes_.get_compute_desc().flowgraphy_enabled)
@@ -2055,8 +2022,6 @@ namespace gui
 	direct->setEnabled(value);
 	QRadioButton* holo = findChild<QRadioButton*>("hologramRadioButton");
 	holo->setEnabled(value);
-	QRadioButton* demo = findChild<QRadioButton*>("demodulationRadioButton");
-	demo->setEnabled(value);
   }
 
   void MainWindow::contrast_visible(const bool value)

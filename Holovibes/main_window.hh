@@ -152,10 +152,6 @@ namespace gui
 	/* */
 	void set_holographic_mode();
 	
-	/*! \brief Called by set_image_mode if demodulation button is clicked  */
-	/* */
-	void set_demodulation_mode();
-
 	/*! \brief Called by set_image_mode if complex algorithm is clicked  */
 	/* */
 	void set_complex_mode(bool value);
