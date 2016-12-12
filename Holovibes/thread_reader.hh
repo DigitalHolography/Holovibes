@@ -49,10 +49,13 @@ namespace holovibes
   private:
     /*! \brief Read frames while thread is running */
     void  thread_proc(void);
-	/*! \brief Read frames for 8, 16, 32 & 64 bit case */
-	void	ThreadReader::proc_default(void);
-	/*! \brief Read frames for unpacked cine file case */
-	void	ThreadReader::proc_cine_file(void);
+
+	void reader_loop(FILE* file, 
+		char* buffer, 
+		char *resize_buffer, 
+		const unsigned int& frame_size, 
+		const unsigned int& elts_max_nbr,
+		fpos_t pos);
 	/*! \brief Seek the offset to attain the .cine file first image */
 	long int  offset_cine_first_image(FILE *file);
 
@@ -78,6 +81,11 @@ namespace holovibes
 	bool is_cine_file_;
 	/*! \brief Holovibes class */
 	Holovibes& holovibes_;
+	/*\ current buffer frame to be read */
+	unsigned int act_frame_;
+	
+	/*\ current number of frames effectively stacked in the buffer (not always elts_max_nbr whenever eof is reached)*/
+	unsigned int nbr_stored_;
 
     /*! The thread which shall run thread_proc(). */
     std::thread thread_;

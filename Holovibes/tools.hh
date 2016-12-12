@@ -6,6 +6,7 @@
 # include <algorithm>
 # include <cmath>
 # include <string>
+# include <ctime>
 
 # include "geometry.hh"
 # include "hardware_limits.hh"
@@ -42,6 +43,13 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
 inline holovibes::Rectangle get_rectangle(const camera::FrameDescriptor& a)
 {
 	return holovibes::Rectangle(a.width, a.height);
+}
+
+
+inline double clockToMilliseconds(clock_t ticks)
+{
+	// units/(units/time) => time (seconds) * 1000 = milliseconds
+	return (ticks / static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
 }
 
 
