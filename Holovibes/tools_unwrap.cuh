@@ -89,11 +89,68 @@ __global__ void kernel_init_unwrap_2d(
 	float *fy,
 	cufftComplex *z);
 
-__global__ void kernel_init_unwrap_2d_complex(
-	unsigned int width,
-	unsigned int height,
-	unsigned int frame_res,
-	cufftComplex *input,
-	float *fx,
-	float *fy,
-	cufftComplex *z);
+/*! \brief  Multiply each pixels of a complex frame value by a float. Done for 2 complexes.
+*/
+__global__ void kernel_multiply_complexes_by_floats_(
+	const float* input1,
+	const float* input2,
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const unsigned int size);
+
+/*! \brief  Multiply each pixels of two complexes frames value by a single complex.
+*/
+__global__ void kernel_multiply_complexes_by_single_complex(
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const cufftComplex input,
+	const unsigned int size);
+
+/*! \brief  Multiply each pixels of complex frames value by a single complex.
+*/
+__global__ void kernel_multiply_complex_by_single_complex(
+	cufftComplex* output,
+	const cufftComplex input,
+	const unsigned int size);
+
+/*! \brief  Get conjugate complex frame.
+*/
+__global__ void kernel_conjugate_complex(
+	cufftComplex* output,
+	const unsigned int size);
+
+/*! \brief  Multiply a complex frames by a complex frame.
+*/
+__global__ void kernel_multiply_complex_frames_by_complex_frame(
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const cufftComplex* input,
+	const unsigned int size);
+
+/*! \brief  Multiply a complex frames by ratio from fx or fy and norm of fx and fy.
+*/
+__global__ void kernel_norm_ratio(
+	const float* input1,
+	const float* input2,
+	cufftComplex* output1,
+	cufftComplex* output2,
+	const unsigned int size);
+
+/*! \brief  Add two complex frames into one.
+*/
+__global__ void kernel_add_complex_frames(
+	cufftComplex* output,
+	const cufftComplex* input,
+	const unsigned int size);
+
+/*! \brief  Calculate phi for a frame.
+*/
+__global__ void kernel_unwrap2d_last_step(
+	float* output,
+	const cufftComplex* input,
+	const unsigned int size);
+
+/*! \Brief Function from mathlab in case there is NaN in result*/
+__global__ void kernel_convergence(
+	cufftComplex* input1,
+	cufftComplex* input2);
