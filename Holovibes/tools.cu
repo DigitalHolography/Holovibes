@@ -363,12 +363,12 @@ void unwrap_2d(
 		fd.width,
 		fd.height,
 		fd.frame_res());
-	gradian_unwrap_2d(plan2d, res, fd, stream);
+	gradient_unwrap_2d(plan2d, res, fd, stream);
 	eq_unwrap_2d(plan2d, res, fd, stream);
 	phi_unwrap_2d(plan2d, res, fd, output, stream);
 }
 
-void gradian_unwrap_2d(
+void gradient_unwrap_2d(
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,

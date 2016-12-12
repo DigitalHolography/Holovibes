@@ -166,8 +166,8 @@ void unwrap_2d(
 	float *output,
 	cudaStream_t stream);
 
-/*! Gradian calculation for unwrap_2d calculations*/
-void gradian_unwrap_2d(
+/*! Gradient calculation for unwrap_2d calculations*/
+void gradient_unwrap_2d(
 	const cufftHandle plan2d,
 	holovibes::UnwrappingResources_2d *res,
 	camera::FrameDescriptor& fd,
