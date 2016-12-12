@@ -112,13 +112,16 @@ namespace gui
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
+		QSpinBox* STFT_step = findChild<QSpinBox*>("STFTSpinBox");
+		STFT_step->setValue(cd.stft_steps.load());
+
 		QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
 		phase_number->setValue(cd.nsamples);
 
 		QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
 		p->setValue(cd.pindex + 1);
 		p->setMaximum(cd.nsamples);
-
+		
 		QDoubleSpinBox* lambda = findChild<QDoubleSpinBox*>("wavelengthSpinBox");
 		lambda->setValue(cd.lambda * 1.0e9f);
 
@@ -655,8 +658,8 @@ namespace gui
         p_vibro->setValue(value + 1);
 
         cd.pindex.exchange(value);
-		if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
-			holovibes_.get_pipe()->request_autocontrast();
+		/*if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+			holovibes_.get_pipe()->request_autocontrast();*/
       }
       else
         display_error("p param has to be between 0 and n");
@@ -812,8 +815,18 @@ namespace gui
 		  unsigned int tmp = cd.nsamples.load();
 		  cd.nsamples.exchange(cd.stft_level.load());
 		  cd.stft_level.exchange(tmp);
-		  cd.stft_enabled =  b;
+		  cd.stft_enabled = b;
 		  holovibes_.get_pipe()->request_update_n(cd.nsamples);
+		  notify();
+	  }
+  }
+
+  void MainWindow::update_stft_steps(int value)
+  {
+	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+	  if (!is_direct_mode())
+	  {
+		  cd.stft_steps.exchange(value);
 		  notify();
 	  }
   }

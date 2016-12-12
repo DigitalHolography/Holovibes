@@ -162,7 +162,9 @@ namespace holovibes
 
 	/*! \brief Add current img to img_phase queue*/
 	void queue_enqueue(void* input, Queue* queue);
-
+	
+	/* TODO: */
+	void stft_handler(cufftComplex* input, cufftComplex* output);
 
     /*! \brief Ask for the end of the execution loop. */
     void request_termination();
@@ -357,9 +359,12 @@ namespace holovibes
 	//TODO:
 	enum state ref_diff_state_;
 
+	cufftComplex* gpu_filter2d_buffer;
+
 	unsigned int ref_diff_counter;
 
-	cufftComplex* gpu_filter2d_buffer;
+	unsigned int stft_frame_counter;
+
 
 	/*! \{ \name request flags */
 	bool unwrap_1d_requested_;

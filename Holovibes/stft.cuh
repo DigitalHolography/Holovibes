@@ -56,4 +56,5 @@ void stft(
   unsigned int                    p,
   unsigned int                    q,
   unsigned int                    frame_size,
+  bool                            stft_activated,
   cudaStream_t                    stream = 0);

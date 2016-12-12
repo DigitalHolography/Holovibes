@@ -17,14 +17,15 @@ void stft(
   unsigned int                    p, 
   unsigned int                    q, 
   unsigned int                    frame_size,
+  bool                            stft_activated,
   cudaStream_t                    stream)
 {
   unsigned int threads = 128;
   unsigned int blocks = map_blocks_to_problem(frame_size, threads);
 
-
   // FFT 1D
-  cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
+  if (stft_activated)
+	  cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
   cudaStreamSynchronize(stream);
 
   cudaMemcpy(

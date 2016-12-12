@@ -96,6 +96,7 @@ namespace holovibes
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)
 	  , stft_level(16)
+	  , stft_steps(1)
 	  , ref_diff_level(1)
 	  , ref_diff_enabled(false)
 	  , ref_sliding_enabled(false)
@@ -206,6 +207,8 @@ namespace holovibes
 	std::atomic<unsigned int> img_acc_level;
 	/*! Quantity of frames that will be processed during STFT. */
 	std::atomic<int> stft_level;
+	/*! Quantity frames to wait in STFT mode before computing a temporal FFT. */
+	std::atomic<int> stft_steps;
 	/*! Is stft mode enabled. */
 	std::atomic<bool> stft_enabled;
 	/*! Frame number of images that will be averaged. */

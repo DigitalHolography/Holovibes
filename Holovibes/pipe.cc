@@ -267,59 +267,36 @@ namespace holovibes
 			 }
 		 }
 	 }
-	if (compute_desc_.stft_enabled)
-	{
-		fn_vect_.push_back(std::bind(
-			&ICompute::queue_enqueue,
-			this,
-			gpu_input_frame_ptr_,
-			gpu_stft_queue_));
+	 if (compute_desc_.stft_enabled)
+	 {
+		 fn_vect_.push_back(std::bind(
+			 &ICompute::queue_enqueue,
+			 this,
+			 gpu_input_frame_ptr_,
+			 gpu_stft_queue_));
 
+		 fn_vect_.push_back(std::bind(
+			 &ICompute::stft_handler,
+			 this,
+			 gpu_input_buffer_,
+			 static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
 
-
-		// Add STFT.
-		if (!compute_desc_.vibrometry_enabled)
-		{
-			fn_vect_.push_back(std::bind(
-				stft,
-				gpu_input_buffer_,
-				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				gpu_stft_buffer_,
-				plan1d_stft_,
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
-				compute_desc_.pindex.load(),
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		}
-		else
-		{
-			/* q frame pointer */
-			qframe = 1;
-			cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
-			fn_vect_.push_back(std::bind(
-				stft,
-				gpu_input_buffer_,
-				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				gpu_stft_buffer_,
-				plan1d_stft_,
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
-				compute_desc_.vibrometry_q.load(), // FIX
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-
-			fn_vect_.push_back(std::bind(
-				frame_ratio,
-				gpu_input_buffer_,
-				q,
-				gpu_input_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		}
-		/* frame pointer */
-		gpu_input_frame_ptr_ = gpu_input_buffer_;
-	}
+		 if (compute_desc_.vibrometry_enabled)
+		 {
+			 qframe = 1;
+			 /* q frame pointer */
+			 cufftComplex* q = gpu_input_buffer_ + qframe * input_fd.frame_res();
+			 fn_vect_.push_back(std::bind(
+				 frame_ratio,
+				 gpu_input_buffer_,
+				 q,
+				 gpu_input_buffer_,
+				 input_fd.frame_res(),
+				 static_cast<cudaStream_t>(0)));
+		 }
+		 /* frame pointer */
+		 gpu_input_frame_ptr_ = gpu_input_buffer_;
+	 }
 
 	if (compute_desc_.convolution_enabled)
 	{

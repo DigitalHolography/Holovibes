@@ -232,6 +232,8 @@ namespace gui
 	void set_stft(bool b);
 
     /*! \} */
+	//TODO:
+	void update_stft_steps(int value);
 
     /*! \{ \name View */
     /*! \brief Set view mode

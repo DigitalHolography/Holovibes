@@ -426,9 +426,9 @@
         <widget class="QCheckBox" name="STFTCheckBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>10</x>
            <y>40</y>
-           <width>111</width>
+           <width>51</width>
            <height>21</height>
           </rect>
          </property>
@@ -538,6 +538,38 @@
           <string>Ref</string>
          </property>
         </widget>
+        <widget class="QSpinBox" name="STFTSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>40</y>
+           <width>61</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string># of images picked at each iteration</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2048</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="PhaseNumberLabel_2">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>40</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Steps</string>
+         </property>
+        </widget>
         <zorder>takerefPushButton</zorder>
         <zorder>directImageRadioButton</zorder>
         <zorder>hologramRadioButton</zorder>
@@ -564,6 +596,8 @@
         <zorder>cancelFilter2DPushButton</zorder>
         <zorder>slindingrefPushButton</zorder>
         <zorder>autofocusLabel_3</zorder>
+        <zorder>STFTSpinBox</zorder>
+        <zorder>PhaseNumberLabel_2</zorder>
        </widget>
       </item>
       <item>
@@ -3722,8 +3756,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_holographic_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>80</y>
+     <x>197</x>
+     <y>60</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -4042,8 +4076,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
-     <y>82</y>
+     <x>64</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4179,6 +4213,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>STFTSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_stft_steps(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>75</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4270,5 +4320,6 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_filter2D()</slot>
   <slot>take_sliding_ref()</slot>
   <slot>write_ini()</slot>
+  <slot>update_stft_steps(int)</slot>
  </slots>
 </ui>

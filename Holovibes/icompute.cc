@@ -15,6 +15,7 @@
 #include "power_of_two.hh"
 #include "info_manager.hh"
 #include "tools_compute.cuh"
+#include "vibrometry.cuh"
 #include "compute_bundles.hh"
 
 
@@ -56,6 +57,7 @@ namespace holovibes
     , average_output_(nullptr)
 	, ref_diff_state_(ENQUEUE)
 	, ref_diff_counter(0)
+	, stft_frame_counter(1)
     , average_n_(0)
     , af_env_({ 0 })
     , past_time_(std::chrono::high_resolution_clock::now())
@@ -259,6 +261,7 @@ namespace holovibes
  if (compute_desc_.stft_enabled)
     {
 
+	 //stft_frame_counter = compute_desc_.stft_steps.load();
 	 /* CUFFT plan1d realloc */
 	 cudaDestroy<cufftResult>(&plan1d_stft_);
 
@@ -600,6 +603,46 @@ namespace holovibes
 	  }
   }
 	  
+  void ICompute::stft_handler(cufftComplex* input, cufftComplex* output)
+  {
+	  stft_frame_counter--;
+	  bool b = false;
+	  if (stft_frame_counter == 0)
+	  {
+		  b = true;
+		  stft_frame_counter = compute_desc_.stft_steps.load();
+	  }
+	  if (!compute_desc_.vibrometry_enabled)
+	  {
+		  stft(input,
+			  output,
+			  gpu_stft_buffer_,
+			  plan1d_stft_,
+			  compute_desc_.nsamples.load(),
+			  compute_desc_.pindex.load(),
+			  compute_desc_.pindex.load(),
+			  input_.get_frame_desc().frame_res(),
+			  b,
+			  static_cast<cudaStream_t>(0));
+	  }
+	  else
+	  {
+		  /* q frame pointer */
+		  cufftComplex* q = input + 1 * input_.get_frame_desc().frame_res();
+		  stft(
+			  input,
+			  static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+			  gpu_stft_buffer_,
+			  plan1d_stft_,
+			  compute_desc_.nsamples.load(),
+			  compute_desc_.pindex.load(),
+			  compute_desc_.vibrometry_q.load(),
+			  input_.get_frame_desc().frame_res(),
+			  b,
+			  static_cast<cudaStream_t>(0));
+	  }
+  }
+
 
   void ICompute::queue_enqueue(void* input, Queue* queue)
   {
