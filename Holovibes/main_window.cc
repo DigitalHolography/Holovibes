@@ -2228,13 +2228,17 @@ namespace gui
     {
       holovibes::Config& config = global::global_config;
       // Config
-      config.input_queue_max_size = ptree.get<int>("config.input_queue_size", config.input_queue_max_size);
-      config.output_queue_max_size = ptree.get<int>("config.output_queue_size", config.output_queue_max_size);
-      config.float_queue_max_size = ptree.get<int>("config.float_queue_size", config.float_queue_max_size);
+      config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
+      config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
+      config.float_queue_max_size = ptree.get<int>("config.float_buffer_size", config.float_queue_max_size);
       config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
       config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-      config.reader_buf_max_size = ptree.get<int>("config.reader_buf_size", config.reader_buf_max_size);
-	 
+      config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
+	  cd.special_buffer_size.exchange(ptree.get<int>("config.convolution_buffer_size", cd.special_buffer_size));
+	  cd.stft_level = ptree.get<unsigned int>("config.stft_buffer_size", cd.stft_level);
+	  cd.ref_diff_level = ptree.get<unsigned int>("config.reference_buffer_size", cd.ref_diff_level);
+	  cd.img_acc_level = ptree.get<unsigned int>("config.accumulation_buffer_size", cd.img_acc_level);
+
       // Camera type
       const int camera_type = ptree.get<int>("image_rendering.camera", 0);
       change_camera((holovibes::Holovibes::camera_type)camera_type);
@@ -2263,12 +2267,8 @@ namespace gui
       if (z_step > 0.0f)
         z_step_ = z_step;
 
-	  cd.stft_level = ptree.get<unsigned int>("image_rendering.stft_level", cd.stft_level);
-
       cd.algorithm = static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
         ptree.get<int>("image_rendering.algorithm", cd.algorithm));
-
-	  cd.ref_diff_level = ptree.get<unsigned int>("image_rendering.take_ref_level", cd.ref_diff_level);
 
       // View
       view_action->setChecked(!ptree.get<bool>("view.hidden", false));
@@ -2292,8 +2292,6 @@ namespace gui
 
 	  cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 
-	  cd.img_acc_level = ptree.get<unsigned int>("view.accumulations", cd.img_acc_level);
-
       // Post Processing
       special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
       special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
@@ -2302,7 +2300,7 @@ namespace gui
       cd.vibrometry_q.exchange(
         ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q));
       is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
-	  cd.special_buffer_size.exchange(ptree.get<int>("post_processing.buffer_size", cd.special_buffer_size));
+	  
      
 	  // Record
       record_action->setChecked(!ptree.get<bool>("record.hidden", false));
@@ -2360,12 +2358,16 @@ namespace gui
     holovibes::Config& config = global::global_config;
 
     // Config
-    ptree.put("config.input_queue_size", config.input_queue_max_size);
-    ptree.put("config.output_queue_size", config.output_queue_max_size);
-    ptree.put("config.float_queue_size", config.float_queue_max_size);
+    ptree.put("config.input_buffer_size", config.input_queue_max_size);
+    ptree.put("config.output_buffer_size", config.output_queue_max_size);
+    ptree.put("config.float_buffer_size", config.float_queue_max_size);
+	ptree.put("config.input_file_buffer_size", config.reader_buf_max_size);
+	ptree.put("config.stft_buffer_size", cd.stft_level);
+	ptree.put("config.reference_buffer_size", cd.ref_diff_level);
+	ptree.put("config.accumulation_buffer_size", cd.img_acc_level);
+	ptree.put("config.convolution_buffer_size", cd.special_buffer_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
     ptree.put("config.flush_on_refresh", config.flush_on_refresh);
-    ptree.put("config.reader_buf_size", config.reader_buf_max_size);
 
     // Image rendering
     ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -2376,8 +2378,6 @@ namespace gui
     ptree.put("image_rendering.z_distance", cd.zdistance);
     ptree.put("image_rendering.z_step", z_step_);
     ptree.put("image_rendering.algorithm", cd.algorithm);
-	ptree.put("image_rendering.stft_level", cd.stft_level);
-	ptree.put("image_rendering.take_ref_level", cd.ref_diff_level);
 
     // View
     ptree.put("view.hidden", view_group_box->isHidden());
@@ -2388,14 +2388,12 @@ namespace gui
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
 	ptree.put("view.accumulation_enabled", cd.img_acc_enabled);
-	ptree.put("view.accumulations", cd.img_acc_level);
 
     // Post-processing
     ptree.put("post_processing.hidden", special_group_box->isHidden());
     //ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
     ptree.put("post_processing.image_ratio_q", cd.vibrometry_q);
     ptree.put("post_processing.average_enabled", is_enabled_average_);
-	ptree.put("post_processing.buffer_size", cd.special_buffer_size);
 
     // Record
     ptree.put("record.hidden", record_group_box->isHidden());
