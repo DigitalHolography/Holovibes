@@ -261,7 +261,6 @@ namespace holovibes
  if (compute_desc_.stft_enabled)
     {
 
-	 //stft_frame_counter = compute_desc_.stft_steps.load();
 	 /* CUFFT plan1d realloc */
 	 cudaDestroy<cufftResult>(&plan1d_stft_);
 
@@ -727,7 +726,7 @@ namespace holovibes
       if (diff)
       {
         auto fps = frame_count_ * 1000 / diff;
-        manager->update_info("Rendering", std::to_string(fps) + std::string(" fps"));
+        manager->update_info("Rendering FPS", std::to_string(fps) + std::string(" fps"));
       }
       past_time_ = time;
       frame_count_ = 0;

@@ -2102,6 +2102,8 @@ namespace gui
   void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
   {
 	  close_critical_compute();
+	  auto manager = gui::InfoManager::get_manager();
+	  manager->remove_info_safe("Input Fps");
     if (camera_type != holovibes::Holovibes::NONE)
     {
       try

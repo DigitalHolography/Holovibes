@@ -171,7 +171,7 @@ namespace holovibes
 
 	void ThreadReader::thread_proc()
 	{
-		clock_t deltaTime = 0;
+		unsigned int refresh_fps = fps_;
 		unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
 		unsigned int resize_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
@@ -186,7 +186,9 @@ namespace holovibes
 			fopen_s(&file, file_src_.c_str(), "rb");
 			if (is_cine_file_)
 			{
+				// we look we the data is.
 				offset = offset_cine_first_image(file);
+		        // Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
 			}
 			cudaMallocHost(&buffer, frame_size * elts_max_nbr);
@@ -194,16 +196,29 @@ namespace holovibes
 			std::fsetpos(file, &pos);
 			if (!file)
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-			clock_t deltaTime = 0;
+
+			clock_t beginFrames = clock();
 			while (!stop_requested_)
 			{
-				clock_t beginFrame = clock();
+				clock_t begin = clock();
 				reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
-				clock_t endFrame = clock();
-				deltaTime = endFrame - beginFrame;
-				double timelaps = clockToMilliseconds(endFrame - beginFrame);
-				if (timelaps < 1000)
-					Sleep((1000 - timelaps) / fps_);
+				clock_t end = clock() - begin;
+				double timelaps = static_cast<double>(end) / CLOCKS_PER_SEC;
+				if (timelaps < (1.0f / fps_))
+				{
+					double time = (1.0f / fps_ - timelaps) * 1000.0f;
+					Sleep(time);
+				}
+				if (--refresh_fps == 0)
+				{
+					clock_t endframes = clock() - beginFrames;
+					double timelapsframes = static_cast<double>(endframes) / CLOCKS_PER_SEC;
+					auto manager = gui::InfoManager::get_manager();
+					double fps = static_cast<double>(fps_) / timelapsframes;
+					manager->update_info("Input Fps", std::to_string(static_cast<int>(fps)) + std::string(" fps"));
+					refresh_fps = fps_;
+					beginFrames = clock();
+				}
 			}
 		}
 		catch (std::runtime_error& e)
@@ -226,9 +241,9 @@ namespace holovibes
 		const unsigned int& elts_max_nbr,
 		fpos_t pos)
 	{
-		unsigned int offset = 0;
+		unsigned int cine_offset = 0;
 		if (is_cine_file_)
-			offset = 8;
+			cine_offset = 8;
 
 		if (std::feof(file) || frameId_ > spanEnd_)
 		{
@@ -251,11 +266,11 @@ namespace holovibes
 			act_frame_ = 0;
 		}
 		if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
-			queue_.enqueue(buffer + offset + act_frame_ * frame_size, cudaMemcpyHostToDevice);
+			queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice);
 		else
 		{
 			buffer_size_conversion(resize_buffer
-				, buffer + offset + act_frame_ * frame_size
+				, buffer + cine_offset + act_frame_ * frame_size
 				, real_frame_desc_
 				, frame_desc_);
 			queue_.enqueue(resize_buffer, cudaMemcpyHostToDevice);
