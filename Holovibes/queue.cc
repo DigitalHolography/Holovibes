@@ -121,14 +121,13 @@ namespace holovibes
       start_ = (start_ + 1) % max_elts_;
 	if (display_)
     gui::InfoManager::update_info_safe(name_,
-      std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
+      std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+	  + std::string(" (") + calculate_size() + std::string(" MB)"));
     return true;
   }
 
   void Queue::dequeue(void* dest, cudaMemcpyKind cuda_kind)
   {
-    guard guard(mutex_);
-
     if (curr_elts_ > 0)
     {
       void* first_img = buffer_ + start_ * size_;
@@ -136,8 +135,9 @@ namespace holovibes
       start_ = (start_ + 1) % max_elts_;
       --curr_elts_;
 	  if (display_)
-      gui::InfoManager::update_info_safe(name_,
-        std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_));
+		  gui::InfoManager::update_info_safe(name_,
+		  std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+		  + std::string(" (") + calculate_size() + std::string(" MB)"));
     }
   }
 
@@ -163,5 +163,15 @@ namespace holovibes
   void Queue::set_display(bool value)
   {
 	  display_ = value;
+  }
+
+  std::string Queue::calculate_size(void)
+  {
+	  std::string display_size = std::to_string((get_max_elts() * get_size()) / (1024.f * 1024));
+	  size_t pos = display_size.find(".");
+
+	  if (pos != std::string::npos)
+		  display_size.resize(pos);
+	  return(display_size);
   }
 }

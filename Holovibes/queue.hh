@@ -115,6 +115,9 @@ namespace holovibes
 
 	/* allow us to choose if we want to display the queue or not */
 	void set_display(bool value);
+
+	/*Create a string containing the buffer size in MB*/
+	std::string calculate_size(void);
   
   private:
     /*! The name of the queue */
