@@ -421,6 +421,15 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
+		else
+		{
+			// Converting angle information in floating-point representation.
+			fn_vect_.push_back(std::bind(
+				rescale_argument,
+				gpu_float_buffer_,
+				input_fd.frame_res(),
+				static_cast<cudaStream_t>(0)));
+		}
 	}
 	else if (compute_desc_.view_mode == ComputeDescriptor::COMPLEX)
 	{
