@@ -434,8 +434,6 @@ void phi_unwrap_2d(
 	float *output,
 	cudaStream_t stream)
 {
-	float min = 0;
-	float max = 0;
 	const unsigned threads = 128;
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
 
@@ -451,17 +449,6 @@ void phi_unwrap_2d(
 	output,
 	res->gpu_grad_eq_x_,
 	fd.frame_res());
-
-	cudaMemcpy(res->minmax_buffer_, output, sizeof(float)* fd.frame_res(), cudaMemcpyDeviceToHost);
-	auto minmax = std::minmax_element(res->minmax_buffer_, res->minmax_buffer_ + fd.frame_res());
-	min = *minmax.first;
-	max = *minmax.second;
-
-	kernel_normalize_images << < blocks, threads, 0, stream >> > (
-		output,
-		max,
-		min,
-		fd.frame_res());
 }
 
 __global__ void circ_shift(

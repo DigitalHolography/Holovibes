@@ -409,7 +409,16 @@ namespace holovibes
 				plan2d_,
 				unwrap_res_2d_.get(),
 				input_.get_frame_desc(),
+				unwrap_res_2d_->gpu_angle_,
+				static_cast<cudaStream_t>(0)));
+
+			// Converting angle information in floating-point representation.
+			fn_vect_.push_back(std::bind(
+				rescale_float_unwrap2d,
+				unwrap_res_2d_->gpu_angle_,
 				gpu_float_buffer_,
+				unwrap_res_2d_->minmax_buffer_,
+				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
 	}
@@ -470,16 +479,17 @@ namespace holovibes
 				plan2d_,
 				unwrap_res_2d_.get(),
 				input_.get_frame_desc(),
-				gpu_float_buffer_,
+				unwrap_res_2d_->gpu_angle_,
 				static_cast<cudaStream_t>(0)));
 
 			// Converting angle information in floating-point representation.
-	/*		fn_vect_.push_back(std::bind(
-				rescale_float,
-				unwrap_res_->gpu_angle_current_,
+			fn_vect_.push_back(std::bind(
+				rescale_float_unwrap2d,
+				unwrap_res_2d_->gpu_angle_,
 				gpu_float_buffer_,
+				unwrap_res_2d_->minmax_buffer_,
 				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));*/
+				static_cast<cudaStream_t>(0)));
 		}
 		else
 		{
@@ -493,26 +503,6 @@ namespace holovibes
 		}
     }
 
-	/*if (unwrap_2d_requested_ && (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT |
-		compute_desc_.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE))
-	{
-		if (!unwrap_res_2d_)
-		{
-			unwrap_res_2d_.reset(new UnwrappingResources_2d(
-				input_.get_pixels()));
-		}
-		if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-			unwrap_res_2d_->reallocate(input_.get_pixels());
-
-		fn_vect_.push_back(std::bind(
-			unwrap_2d_complex,
-			gpu_input_frame_ptr_,
-			plan2d_,
-			unwrap_res_2d_.get(),
-			input_.get_frame_desc(),
-			gpu_float_buffer_,
-			static_cast<cudaStream_t>(0)));
-	}*/
 
 	/*Compute Accumulation buffer into gpu_float_buffer*/
 	if (compute_desc_.img_acc_enabled)

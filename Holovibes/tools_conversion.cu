@@ -243,6 +243,31 @@ void rescale_float(
   cudaFree(gpu_local_maxs);
 }
 
+void rescale_float_unwrap2d(float *input,
+	float *output,
+	float *cpu_buffer,
+	unsigned int frame_res,
+	cudaStream_t stream)
+{
+	float min = 0;
+	float max = 0;
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(frame_res, threads);
+
+	cudaMemcpy(cpu_buffer, input, sizeof(float) * frame_res, cudaMemcpyDeviceToHost);
+	auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
+	min = *minmax.first;
+	max = *minmax.second;
+
+	cudaMemcpy(output, input, sizeof(float)* frame_res, cudaMemcpyDeviceToDevice);
+
+	kernel_normalize_images << < blocks, threads, 0, stream >> > (
+	output,
+	max,
+	min,
+	frame_res);
+}
+
 /*! \brief Kernel function wrapped in endianness_conversion, making
  ** the call easier
  **/
