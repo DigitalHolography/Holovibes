@@ -222,3 +222,18 @@ __global__ void kernel_normalize_images(
 	const float max,
 	const float min,
 	const unsigned int size);
+
+void rescale_float_unwrap2d(float *input,
+	float *output,
+	float *cpu_buffer,
+	unsigned int frame_res,
+	cudaStream_t stream = 0);
+
+__global__ void kernel_rescale_argument(
+	float *input,
+	const unsigned int size);
+
+void rescale_argument(
+	float *input,
+	const unsigned int frame_res,
+	cudaStream_t stream = 0);

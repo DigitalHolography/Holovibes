@@ -10,6 +10,9 @@ namespace holovibes
 		, gpu_z_(nullptr)
 		, gpu_grad_eq_x_(nullptr)
 		, gpu_grad_eq_y_(nullptr)
+		, gpu_angle_(nullptr)
+		, gpu_shift_fx_(nullptr)
+		, gpu_shift_fy_(nullptr)
 		, minmax_buffer_(nullptr)
 	{
 		cudaMalloc(&gpu_fx_, sizeof(float)* image_resolution_);
@@ -20,7 +23,7 @@ namespace holovibes
 
 		cudaMalloc(&gpu_shift_fy_, sizeof(float)* image_resolution_);
 
-		cudaMalloc(&gpu_phi_result_, sizeof(float)* image_resolution_);
+		cudaMalloc(&gpu_angle_, sizeof(float)* image_resolution_);
 
 		cudaMalloc(&gpu_z_, sizeof(cufftComplex)* image_resolution_);
 
@@ -41,8 +44,8 @@ namespace holovibes
 			cudaFree(gpu_shift_fx_);
 		if (gpu_shift_fy_)
 			cudaFree(gpu_shift_fy_);
-		if (gpu_phi_result_)
-			cudaFree(gpu_phi_result_);
+		if (gpu_angle_)
+			cudaFree(gpu_angle_);
 		if (gpu_z_)
 			cudaFree(gpu_z_);
 		if (gpu_grad_eq_x_)
@@ -73,9 +76,9 @@ namespace holovibes
 			cudaFree(gpu_shift_fy_);
 		cudaMalloc(&gpu_shift_fy_, sizeof(float)* image_resolution_);
 
-		if (gpu_phi_result_)
-			cudaFree(gpu_phi_result_);
-		cudaMalloc(&gpu_phi_result_, sizeof(float)* image_resolution_);
+		if (gpu_angle_)
+			cudaFree(gpu_angle_);
+		cudaMalloc(&gpu_angle_, sizeof(float)* image_resolution_);
 
 		if (gpu_z_)
 			cudaFree(gpu_z_);
@@ -88,5 +91,9 @@ namespace holovibes
 		if (gpu_grad_eq_y_)
 			cudaFree(gpu_grad_eq_y_);
 		cudaMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex)* image_resolution_);
+
+		if (minmax_buffer_)
+			delete[] minmax_buffer_;
+		minmax_buffer_ = new float[image_resolution_]();
 	}
 }

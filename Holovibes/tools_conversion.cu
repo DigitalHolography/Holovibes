@@ -120,11 +120,10 @@ static __global__ void kernel_complex_to_argument(
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
   const float pi_div_2 = M_PI / 2.0f;
-  const float c = 65535.0f / M_PI;
 
   while (index < size)
   {
-	  output[index] = (atanf(input[index].y / input[index].x) + pi_div_2);// *c;
+	  output[index] = (atanf(input[index].y / input[index].x) + pi_div_2);;
 
     index += blockDim.x * gridDim.x;
   }
@@ -241,6 +240,57 @@ void rescale_float(
 
   cudaFree(gpu_local_mins);
   cudaFree(gpu_local_maxs);
+}
+
+void rescale_float_unwrap2d(
+	float *input,
+	float *output,
+	float *cpu_buffer,
+	unsigned int frame_res,
+	cudaStream_t stream)
+{
+	float min = 0;
+	float max = 0;
+	const unsigned threads = 128;
+	const unsigned blocks = map_blocks_to_problem(frame_res, threads);
+
+	cudaMemcpy(cpu_buffer, input, sizeof(float) * frame_res, cudaMemcpyDeviceToHost);
+	auto minmax = std::minmax_element(cpu_buffer, cpu_buffer + frame_res);
+	min = *minmax.first;
+	max = *minmax.second;
+
+	cudaMemcpy(output, input, sizeof(float)* frame_res, cudaMemcpyDeviceToDevice);
+
+	kernel_normalize_images << < blocks, threads, 0, stream >> > (
+	output,
+	max,
+	min,
+	frame_res);
+}
+
+__global__ void kernel_rescale_argument(
+	float *input,
+	const unsigned int size)
+{
+	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	while (index < size)
+	{
+		input[index] *= 65535.0f / M_PI;
+
+		index += blockDim.x * gridDim.x;
+	}
+}
+
+void rescale_argument(
+	float *input,
+	const unsigned int frame_res,
+	cudaStream_t stream)
+{
+	const unsigned int threads = get_max_threads_1d();
+	const unsigned int blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_rescale_argument << <blocks, threads, 0, stream >> >(input, frame_res);
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
