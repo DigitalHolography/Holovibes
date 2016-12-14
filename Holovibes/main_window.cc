@@ -899,7 +899,6 @@ namespace gui
 		auto pipe = holovibes_.get_pipe();
 		pipe->request_unwrapping_1d(value);
 		pipe->request_refresh();
-		//pipe->update_acc_parameter();
     }
   }
 
@@ -910,27 +909,19 @@ namespace gui
 		  auto pipe = holovibes_.get_pipe();
 		  pipe->request_unwrapping_2d(value);
 		  pipe->request_refresh();
-		  //pipe->update_acc_parameter();
 	  }
   }
 
   void MainWindow::set_enable_unwrap_box()
   {
-	  QCheckBox* unwrap_1d = findChild<QCheckBox*>("unwrap_1d_CheckBox");
 	  QCheckBox* unwrap_2d = findChild<QCheckBox*>("unwrap_2d_CheckBox");
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 	  if (cd.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE |
-		  cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
-	  {
-		  unwrap_1d->setEnabled(true);
+			cd.view_mode == holovibes::ComputeDescriptor::ARGUMENT)
 		  unwrap_2d->setEnabled(true);
-	  }
 	  else
-	  {
-		  unwrap_1d->setEnabled(false);
 		  unwrap_2d->setEnabled(false);
-	  }
   }
 
   void MainWindow::set_accumulation(bool value)

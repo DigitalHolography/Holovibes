@@ -247,8 +247,7 @@ float average_operator(
 void phase_increase(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap)
+  const size_t image_size)
 {
   const unsigned threads = 128; // 3072 cuda cores / 24 SMM = 128 Threads per SMM
   const unsigned blocks = map_blocks_to_problem(image_size, threads);
@@ -262,7 +261,7 @@ void phase_increase(
       cudaMemcpyDeviceToDevice);
     first_time = false;
   }
-
+ 
   // Compute the newest phase image, not unwrapped yet
   kernel_compute_angle_mult << <blocks, threads >> >(
     resources->gpu_predecessor_,
@@ -274,28 +273,6 @@ void phase_increase(
     cur,
     sizeof(cufftComplex)* image_size,
     cudaMemcpyDeviceToDevice);
-
-  // Optional unwrapping
-  if (with_unwrap)
-  {
-    kernel_unwrap << <blocks, threads >> >(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      resources->gpu_unwrapped_angle_,
-      image_size);
-    // Updating the unwrapped angle for the next iteration.
-    cudaMemcpy(
-      resources->gpu_angle_predecessor_,
-      resources->gpu_angle_current_,
-      sizeof(float)* image_size,
-      cudaMemcpyDeviceToDevice);
-    // Updating gpu_angle_current_ for the rest of the function.
-    cudaMemcpy(
-      resources->gpu_angle_current_,
-      resources->gpu_unwrapped_angle_,
-      sizeof(float)* image_size,
-      cudaMemcpyDeviceToDevice);
-  }
 
   /* Copying in order to later enqueue the (not summed up with values
    * in gpu_unwrap_buffer_) phase image. */
