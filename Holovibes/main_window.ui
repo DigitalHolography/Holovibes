@@ -1014,38 +1014,13 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrap_1d_CheckBox">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>50</y>
-           <width>31</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Accumulate n images</string>
-         </property>
-         <property name="text">
-          <string>1D</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="tristate">
-          <bool>false</bool>
-         </property>
-        </widget>
         <widget class="QCheckBox" name="unwrap_2d_CheckBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>90</x>
            <y>50</y>
            <width>31</width>
            <height>20</height>
@@ -1064,6 +1039,7 @@
           <bool>false</bool>
          </property>
         </widget>
+        <zorder>unwrap_2d_CheckBox</zorder>
         <zorder>logScaleCheckBox</zorder>
         <zorder>shiftCornersCheckBox</zorder>
         <zorder>minLabel</zorder>
@@ -1083,13 +1059,10 @@
         <zorder>zdivSpinBox</zorder>
         <zorder>autofocusPushButton</zorder>
         <zorder>ziterSpinBox</zorder>
-        <zorder>unwrapCheckBox</zorder>
         <zorder>ViewShorcut_label</zorder>
         <zorder>img_accSpinBox</zorder>
         <zorder>img_accCheckBox</zorder>
-        <zorder>unwrapCheckBox_2</zorder>
         <zorder>autofocusLabel_2</zorder>
-        <zorder>ImageRendering</zorder>
        </widget>
       </item>
       <item>
@@ -4063,22 +4036,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>unwrap_1d_CheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_unwrapping_1d(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>395</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>446</x>
-     <y>54</y>
-    </hint>
-  </hints>
-</connection>
-<connection>
    <sender>STFTCheckBox</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4108,9 +4065,9 @@ p, li { white-space: pre-wrap; }
      <x>447</x>
      <y>98</y>
     </hint>
-  </hints>
-</connection>
-<connection>
+   </hints>
+  </connection>
+  <connection>
    <sender>takerefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4219,7 +4176,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>211</y>
->>>>>>> origin/Filter2D
     </hint>
    </hints>
   </connection>

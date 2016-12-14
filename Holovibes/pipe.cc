@@ -443,6 +443,7 @@ namespace holovibes
 	}
     else
     {
+		//Unwrap_res is ressources for phase_increase
 		if (!unwrap_res_)
 		{
 			unwrap_res_.reset(new UnwrappingResources(
@@ -458,8 +459,7 @@ namespace holovibes
 				phase_increase,
 				gpu_input_frame_ptr_,
 				unwrap_res_.get(),
-				input_fd.frame_res(),
-				unwrap_1d_requested_));
+				input_fd.frame_res()));
 		}
 		else
 		{

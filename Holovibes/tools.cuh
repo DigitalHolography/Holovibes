@@ -154,8 +154,7 @@ float average_operator(
 void phase_increase(
   const cufftComplex* cur,
   holovibes::UnwrappingResources* resources,
-  const size_t image_size,
-  const bool with_unwrap);
+  const size_t image_size);
 
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(
