@@ -181,6 +181,8 @@ namespace holovibes
 			cudaMallocHost(&resize_buffer, resize_frame_size);
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
+		double rest = 0;
+		auto fps_duration = std::chrono::milliseconds(1000) / static_cast<float>(fps_);
 		try
 		{
 			fopen_s(&file, file_src_.c_str(), "rb");
@@ -188,7 +190,7 @@ namespace holovibes
 			{
 				// we look we the data is.
 				offset = offset_cine_first_image(file);
-		        // Cine file format put an extra 8 bits header for every image
+				// Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
 			}
 			cudaMallocHost(&buffer, frame_size * elts_max_nbr);
@@ -197,27 +199,20 @@ namespace holovibes
 			if (!file)
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 
-			clock_t beginFrames = clock();
+			auto beginFrames = std::chrono::high_resolution_clock::now();
 			while (!stop_requested_)
 			{
-				clock_t begin = clock();
 				reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
-				clock_t end = clock() - begin;
-				double timelaps = static_cast<double>(end) / CLOCKS_PER_SEC;
-				if (timelaps < (1.0f / fps_))
-				{
-					double time = (1.0f / fps_ - timelaps) * 1000.0f;
-					Sleep(time);
-				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(fps_duration.count())));
 				if (--refresh_fps == 0)
 				{
-					clock_t endframes = clock() - beginFrames;
-					double timelapsframes = static_cast<double>(endframes) / CLOCKS_PER_SEC;
+					auto endframes = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
 					auto manager = gui::InfoManager::get_manager();
-					double fps = static_cast<double>(fps_) / timelapsframes;
-					manager->update_info("Input Fps", std::to_string(static_cast<int>(fps)) + std::string(" fps"));
+					float fps = static_cast<float>(fps_) / (timelaps.count() / 1000.0f);
+					manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
 					refresh_fps = fps_;
-					beginFrames = clock();
+					beginFrames = std::chrono::high_resolution_clock::now();
 				}
 			}
 		}
