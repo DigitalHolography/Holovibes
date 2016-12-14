@@ -12,134 +12,6 @@
 
 namespace holovibes
 {
-<<<<<<< 0da8e21add50d421ac96c02bd36a59a8e48dfac3
-  ThreadReader::ThreadReader(std::string file_src,
-    camera::FrameDescriptor& new_frame_desc,
-	camera::FrameDescriptor& frame_desc,
-    bool loop,
-    unsigned int fps,
-    unsigned int spanStart,
-    unsigned int spanEnd,
-    Queue& input,
-	bool is_cine_file,
-	holovibes::Holovibes& holovibes)
-    : IThreadInput()
-    , file_src_(file_src)
-    , frame_desc_(frame_desc)
-	, real_frame_desc_(new_frame_desc)
-    , loop_(loop)
-    , fps_(fps)
-    , frameId_(spanStart)
-    , spanStart_(spanStart)
-    , spanEnd_(spanEnd)
-    , queue_(input)
-	, is_cine_file_(is_cine_file)
-	, holovibes_(holovibes)
-    , thread_(&ThreadReader::thread_proc, this)
-  {
-    gui::InfoManager::get_manager()->update_info("ImgSource", "File");
-  }
-
-  void ThreadReader::thread_proc()
-  {
-	  if (is_cine_file_ == true)
-		  proc_cine_file();
-	  else
-		  proc_default();
-  }
-
-  void	ThreadReader::proc_default()
-  {
-	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
-	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
-	  unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
-	  char*        buffer = NULL;
-	  char*		   real_buffer = NULL;
-	  unsigned int nbr_stored = 0;
-	  unsigned int act_frame = 0;
-	  FILE*   file = nullptr;
-	  fpos_t  pos = 0;
-	  size_t  length = 0;
-
-	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
-	  cudaMallocHost(&real_buffer, real_frame_size);
-	  try
-	  {
-		  fopen_s(&file, file_src_.c_str(), "rb");
-		  if (!file)
-			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-		  pos = frame_size * (spanStart_ - 1);
-		  std::fsetpos(file, &pos);
-		  cudaMemset(real_buffer, 0, real_frame_desc_.frame_size());
-		  while (!stop_requested_)
-		  {
-			  if (!std::feof(file) && frameId_ <= spanEnd_)
-			  {
-				  if (act_frame >= nbr_stored)
-				  {			  
-					  length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
-					  nbr_stored = length / frame_size;
-					  act_frame = 0;
-				  }
-				  if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
-					  queue_.enqueue(buffer + act_frame * frame_size, cudaMemcpyHostToDevice);
-				  else
-				  {
-					  buffer_size_conversion(real_buffer
-						  , buffer + act_frame * frame_size
-						  , real_frame_desc_
-						  , frame_desc_);
-					  queue_.enqueue(real_buffer, cudaMemcpyHostToDevice);
-				  }
-				  ++frameId_;
-				  ++act_frame;
-				  Sleep(1000 / fps_);
-			  }
-			  else if (loop_)
-			  {
-				  std::clearerr(file);
-				  std::fsetpos(file, &pos);
-				  frameId_ = spanStart_;
-				  int offset = elts_max_nbr - length;
-			  }
-			  else
-				  stop_requested_ = true;
-		  }
-	  }
-	  catch (std::runtime_error& e)
-	  {
-		  std::cout << e.what() << std::endl;
-	  }
-	  if (file)
-	  {
-		  std::fclose(file);
-		  file = nullptr;
-	  }
-	  stop_requested_ = true;
-	  cudaFreeHost(buffer);
-	  cudaFreeHost(real_buffer);
-  }
-
-  void	ThreadReader::proc_cine_file()
-  {
-	  unsigned int frame_size = frame_desc_.width * frame_desc_.height * frame_desc_.depth;
-	  unsigned int real_frame_size = real_frame_desc_.width * real_frame_desc_.height * real_frame_desc_.depth;
-	  unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
-	  char*        buffer = NULL;
-	  char*        real_buffer = NULL;
-	  unsigned int nbr_stored = 0;
-	  unsigned int act_frame = 0;
-	  FILE*   file = nullptr;
-	  fpos_t  pos = 0;
-
-	  cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
-	  cudaMallocHost(&real_buffer, real_frame_size);
-	  try
-	  {
-		  fopen_s(&file, file_src_.c_str(), "rb");
-		  if (!file)
-			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-=======
 	ThreadReader::ThreadReader(std::string file_src,
 		camera::FrameDescriptor& new_frame_desc,
 		camera::FrameDescriptor& frame_desc,
@@ -209,7 +81,7 @@ namespace holovibes
 					auto endframes = std::chrono::high_resolution_clock::now();
 					std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
 					auto manager = gui::InfoManager::get_manager();
-					float fps = static_cast<float>(fps_) / (timelaps.count() / 1000.0f);
+					int fps = static_cast<float>(fps_) / (timelaps.count() / 1000.0f);
 					manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
 					refresh_fps = fps_;
 					beginFrames = std::chrono::high_resolution_clock::now();
@@ -226,7 +98,6 @@ namespace holovibes
 		cudaFreeHost(buffer);
 		cudaFreeHost(resize_buffer);
 	}
->>>>>>> Update : thread_reader is now implemented in a cleaner way
 
 	void ThreadReader::reader_loop(
 		FILE* file,
