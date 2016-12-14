@@ -1225,7 +1225,7 @@
           <rect>
            <x>10</x>
            <y>280</y>
-           <width>51</width>
+           <width>31</width>
            <height>16</height>
           </rect>
          </property>
@@ -1278,9 +1278,9 @@
         <widget class="QLabel" name="label_2">
          <property name="geometry">
           <rect>
-           <x>70</x>
+           <x>50</x>
            <y>280</y>
-           <width>41</width>
+           <width>31</width>
            <height>16</height>
           </rect>
          </property>
@@ -1328,9 +1328,9 @@
         <widget class="QPushButton" name="pushButton">
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>90</x>
            <y>280</y>
-           <width>61</width>
+           <width>41</width>
            <height>21</height>
           </rect>
          </property>
@@ -1535,6 +1535,22 @@
          </property>
          <property name="text">
           <string/>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="closeROI">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>280</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>launch ROI fonctionnality</string>
+         </property>
+         <property name="text">
+          <string>Close</string>
          </property>
         </widget>
        </widget>
@@ -3003,7 +3019,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>730</x>
-     <y>215</y>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -3019,7 +3035,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>408</x>
-     <y>64</y>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>306</x>
@@ -3163,7 +3179,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>206</y>
+     <y>203</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3354,8 +3370,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>629</x>
-     <y>305</y>
+     <x>589</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -3387,7 +3403,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>790</x>
-     <y>215</y>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -3419,7 +3435,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>215</y>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -3706,8 +3722,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_direct_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>65</x>
-     <y>60</y>
+     <x>72</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -3722,8 +3738,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_holographic_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>80</y>
+     <x>114</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3771,7 +3787,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>194</y>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -3819,7 +3835,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>256</y>
+     <y>253</y>
     </hint>
     <hint type="destinationlabel">
      <x>663</x>
@@ -3899,7 +3915,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1062</x>
-     <y>75</y>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
      <x>885</x>
@@ -4011,7 +4027,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>328</x>
-     <y>144</y>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4027,7 +4043,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>388</x>
-     <y>146</y>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4058,8 +4074,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>353</x>
-     <y>84</y>
+     <x>348</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4138,8 +4154,8 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
-     <y>145</y>
+     <x>162</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4176,6 +4192,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeROI</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>dispose_average_graphic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>317</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -4270,5 +4302,6 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_filter2D()</slot>
   <slot>take_sliding_ref()</slot>
   <slot>write_ini()</slot>
+  <slot>dispose_average_graphic()</slot>
  </slots>
 </ui>

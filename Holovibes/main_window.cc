@@ -1213,14 +1213,16 @@ namespace gui
 
     connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
     holovibes_.get_pipe()->request_average(&holovibes_.get_average_queue());
+	holovibes_.get_pipe()->request_refresh();
     plot_window_.reset(plot_window);
   }
 
   void MainWindow::dispose_average_graphic()
   {
     plot_window_.reset(nullptr);
-    if (!is_direct_mode())
-      holovibes_.get_pipe()->request_average_stop();
+    holovibes_.get_pipe()->request_average_stop();
+	holovibes_.get_average_queue().clear();
+	holovibes_.get_pipe()->request_refresh();
   }
 
   void MainWindow::browse_roi_file()
