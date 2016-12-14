@@ -60,8 +60,16 @@ namespace holovibes
 	  fpos_t  pos = 0;
 	  size_t  length = 0;
 
-	  cudaMallocHost(&buffer, frame_size * elts_max_nbr);
-	  cudaMallocHost(&real_buffer, real_frame_size);
+	  if (cudaMallocHost(&buffer, frame_size * elts_max_nbr) != CUDA_SUCCESS)
+	  {
+		  std::cerr << "Reader: couldn't allocate memory" << std::endl;
+		  throw std::runtime_error("[READER] Couldn't allocate memory for buffer");
+	  }
+	  if (cudaMallocHost(&real_buffer, real_frame_size) != CUDA_SUCCESS)
+	  {
+		  std::cerr << "Reader: couldn't allocate memory" << std::endl;
+		  throw std::runtime_error("[READER] Couldn't allocate memory for resize buffer");
+	  }
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");
@@ -131,8 +139,16 @@ namespace holovibes
 	  FILE*   file = nullptr;
 	  fpos_t  pos = 0;
 
-	  cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr);
-	  cudaMallocHost(&real_buffer, real_frame_size);
+	  if (cudaMallocHost(&buffer, (frame_size + 8) * elts_max_nbr) != CUDA_SUCCESS)
+	  {
+		  std::cerr << "Reader: couldn't allocate memory" << std::endl;
+		  throw std::runtime_error("[READER] Couldn't allocate memory for buffer");
+	  }
+	  if (cudaMallocHost(&real_buffer, real_frame_size) != CUDA_SUCCESS)
+	  {
+		  std::cerr << "Reader: couldn't allocate memory" << std::endl;
+		  throw std::runtime_error("[READER] Couldn't allocate memory for resize buffer");
+	  }
 	  try
 	  {
 		  fopen_s(&file, file_src_.c_str(), "rb");

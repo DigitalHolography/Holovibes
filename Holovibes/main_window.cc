@@ -1836,15 +1836,29 @@ namespace gui
     gl_window_.reset(nullptr);
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
-    holovibes_.init_import_mode(
-      file_src,
-      frame_desc,
-      true,
-      fps_spinbox->value(),
-      start_spinbox->value(),
-      end_spinbox->value(),
-      global::global_config.input_queue_max_size,
-	  holovibes_);
+	try
+	{
+		holovibes_.init_import_mode(
+			file_src,
+			frame_desc,
+			true,
+			fps_spinbox->value(),
+			start_spinbox->value(),
+			end_spinbox->value(),
+			global::global_config.input_queue_max_size,
+			holovibes_);
+	}
+	catch (std::exception& e)
+	{
+		display_error(e.what());
+		camera_visible(false);
+		record_visible(false);
+		global_visibility(false);
+		gl_window_.reset(nullptr);
+		holovibes_.dispose_compute();
+		holovibes_.dispose_capture();
+		return;
+	}
 
     camera_visible(true);
     record_visible(true);
