@@ -271,8 +271,8 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
   
-	/* cudaMalloc(&gpu_stft_buffer_,
-		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;*/
+	  cudaMalloc(&gpu_stft_buffer_,
+		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;
     }
 
  if (gpu_stft_queue_ != nullptr)

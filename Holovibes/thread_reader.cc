@@ -10,6 +10,9 @@
 # include "holovibes.hh"
 # include "tools.hh"
 
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+
 namespace holovibes
 {
 	ThreadReader::ThreadReader(std::string file_src,
@@ -57,8 +60,7 @@ namespace holovibes
 		}
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
-		double rest = 0;
-		auto fps_duration = std::chrono::milliseconds(1000) / static_cast<float>(fps_);
+		const Clock::duration frame_frequency = std::chrono::microseconds(1000000 / fps_);
 		try
 		{
 			fopen_s(&file, file_src_.c_str(), "rb");
@@ -76,20 +78,25 @@ namespace holovibes
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 
 			auto beginFrames = std::chrono::high_resolution_clock::now();
+			auto next_game_tick = std::chrono::high_resolution_clock::now();
 			while (!stop_requested_)
 			{
-				reader_loop(file, buffer, resize_buffer, tmp_resize_buffer, frame_size, elts_max_nbr, pos);
-				std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(fps_duration.count())));
-				if (--refresh_fps == 0)
+				while (std::chrono::high_resolution_clock::now() > next_game_tick)
 				{
-					auto endframes = std::chrono::high_resolution_clock::now();
-					std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
-					auto manager = gui::InfoManager::get_manager();
-					int fps = static_cast<float>(fps_) / (timelaps.count() / 1000.0f);
-					manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
-					refresh_fps = fps_;
-					beginFrames = std::chrono::high_resolution_clock::now();
+					reader_loop(file, buffer, resize_buffer, tmp_resize_buffer, frame_size, elts_max_nbr, pos);
+					next_game_tick += frame_frequency;
+					if (--refresh_fps == 0)
+					{
+						auto endframes = std::chrono::high_resolution_clock::now();
+						std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
+						auto manager = gui::InfoManager::get_manager();
+						int fps = (fps_ / (timelaps.count() / 1000));
+						manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
+						refresh_fps = fps_;
+						beginFrames = std::chrono::high_resolution_clock::now();
+					}
 				}
+				
 			}
 		}
 		catch (std::runtime_error& e)
