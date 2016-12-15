@@ -52,7 +52,8 @@ namespace holovibes
 
 	void reader_loop(FILE* file, 
 		char* buffer, 
-		char *resize_buffer, 
+		char* resize_buffer,
+		char* tmp_resize_buffer, 
 		const unsigned int& frame_size, 
 		const unsigned int& elts_max_nbr,
 		fpos_t pos);

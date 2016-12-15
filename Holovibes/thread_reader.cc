@@ -49,8 +49,12 @@ namespace holovibes
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 		char* buffer = nullptr;
 		char* resize_buffer = nullptr;
+		char * tmp_resize_buffer = nullptr;
 		if (real_frame_desc_.width != frame_desc_.width || real_frame_desc_.height != frame_desc_.height)
-			cudaMallocHost(&resize_buffer, resize_frame_size);
+		{
+			cudaMalloc(&resize_buffer, resize_frame_size);
+			//cudaMalloc(&tmp_resize_buffer, frame_size); // To bench
+		}
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
 		double rest = 0;
@@ -60,7 +64,7 @@ namespace holovibes
 			fopen_s(&file, file_src_.c_str(), "rb");
 			if (is_cine_file_)
 			{
-				// we look we the data is.
+				// we look were the data is.
 				offset = offset_cine_first_image(file);
 				// Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
@@ -74,7 +78,7 @@ namespace holovibes
 			auto beginFrames = std::chrono::high_resolution_clock::now();
 			while (!stop_requested_)
 			{
-				reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
+				reader_loop(file, buffer, resize_buffer, tmp_resize_buffer, frame_size, elts_max_nbr, pos);
 				std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(fps_duration.count())));
 				if (--refresh_fps == 0)
 				{
@@ -96,13 +100,15 @@ namespace holovibes
 			std::fclose(file);
 		stop_requested_ = true;
 		cudaFreeHost(buffer);
-		cudaFreeHost(resize_buffer);
+		cudaFree(resize_buffer);
+		cudaFree(tmp_resize_buffer);
 	}
 
 	void ThreadReader::reader_loop(
 		FILE* file,
 		char* buffer,
 		char* resize_buffer,
+		char* tmp_resize_buffer,
 		const unsigned int& frame_size,
 		const unsigned int& elts_max_nbr,
 		fpos_t pos)
@@ -135,11 +141,12 @@ namespace holovibes
 			queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice);
 		else
 		{
+			//cudaMemcpy(tmp_resize_buffer, buffer + cine_offset + act_frame_ * frame_size, frame_size, cudaMemcpyHostToDevice);
 			buffer_size_conversion(resize_buffer
 				, buffer + cine_offset + act_frame_ * frame_size
 				, real_frame_desc_
 				, frame_desc_);
-			queue_.enqueue(resize_buffer, cudaMemcpyHostToDevice);
+			queue_.enqueue(resize_buffer, cudaMemcpyDeviceToDevice);
 		}
 		++frameId_;
 		++act_frame_;

@@ -417,10 +417,13 @@ __global__ void	kernel_buffer_size_conversion(char *real_buffer
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < area
-		&& (index % real_frame_desc_width) < frame_desc_width)
+	while (index < area)
 	{
-		real_buffer[index] = *(buffer + (index / real_frame_desc_width) * frame_desc_width + (index % real_frame_desc_width));
+		unsigned int x = index % real_frame_desc_width;
+		unsigned int y = index / real_frame_desc_width;
+		if (y < frame_desc_height && x < frame_desc_width)
+			real_buffer[index] = buffer[y * frame_desc_width + x];
+		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -432,7 +435,8 @@ void	buffer_size_conversion(char *real_buffer
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * frame_desc.depth), threads);
 
-	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(real_buffer
+	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(
+		real_buffer
 		, buffer
 		, frame_desc.width * frame_desc.depth
 		, frame_desc.height * frame_desc.depth
