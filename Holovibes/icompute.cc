@@ -200,7 +200,7 @@ namespace holovibes
     cudaFree(af_env_.gpu_input_buffer_tmp);
 
     if (gui::InfoManager::get_manager())
-      gui::InfoManager::get_manager()->remove_info("Rendering");
+      gui::InfoManager::get_manager()->remove_info("Rendering FPS");
 
 	/* gpu_kernel_buffer */
 	cudaFree(gpu_kernel_buffer_);
@@ -271,8 +271,8 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
   
-	 cudaMalloc(&gpu_stft_buffer_,
-		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;
+	/* cudaMalloc(&gpu_stft_buffer_,
+		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;*/
     }
 
  if (gpu_stft_queue_ != nullptr)
