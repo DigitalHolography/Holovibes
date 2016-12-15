@@ -28,6 +28,11 @@ namespace holovibes
   struct UnwrappingResources_2d;
 }
 
+namespace gui
+{
+	class MainWindow;
+}
+
 namespace holovibes
 {
 /* \brief Stores functions helping the editing of the images.

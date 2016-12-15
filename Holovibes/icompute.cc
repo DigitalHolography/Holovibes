@@ -246,8 +246,6 @@ namespace holovibes
 
     /* gpu_stft_buffer */
     cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
-	
-	//int inembed[1] = { input_length_ };
 
 	int inembed[1] = { input_length_ };
 
@@ -269,8 +267,18 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
   
-	 cudaMalloc(&gpu_stft_buffer_,
-		 sizeof(cufftComplex)* input_.get_pixels() * n) ? ++err_count : 0;
+	 if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n)
+		 != CUDA_SUCCESS)
+	 {
+		 std::cout
+			 << "[ERROR] ICompute l" << __LINE__
+			 << " err_count: " << err_count
+			 << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+			 << std::endl;
+		 compute_desc_.stft_enabled.exchange(false);
+		 compute_desc_.stft_level.exchange(1);
+		 return;
+	 }
     }
 
  if (gpu_stft_queue_ != nullptr)
@@ -284,9 +292,17 @@ namespace holovibes
 
 	 camera::FrameDescriptor new_fd = input_.get_frame_desc();
 	 new_fd.depth = 8;
-	 gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
+	 try
+	 {
+		 gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
+	 }
+	 catch (std::exception& e)
+	 {
+		 gpu_img_acc_ = nullptr;
+		 compute_desc_.stft_enabled.exchange(false);
+		 compute_desc_.stft_level.exchange(1);
+	 }
  }
-
 
     if (err_count)
     {
@@ -369,7 +385,16 @@ namespace holovibes
 	  {
 		  camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		  new_fd.depth = 4;
-		  gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
+		  try
+		  {
+			  gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
+		  }
+		  catch (std::exception& e)
+		  {
+			  gpu_img_acc_ = nullptr;
+			  compute_desc_.img_acc_enabled.exchange(false);
+			  compute_desc_.img_acc_level.exchange(1);
+		  }
 	  }
   }
 
@@ -387,8 +412,17 @@ namespace holovibes
 	  {
 		  camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		  new_fd.depth = 8;
-		  gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level, "TakeRefQueue");
-		  gpu_ref_diff_queue_->set_display(false);
+		  try
+		  {
+			  gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level, "TakeRefQueue");
+			  gpu_ref_diff_queue_->set_display(false);
+		  }
+		  catch (std::exception& e)
+		  {
+			  gpu_img_acc_ = nullptr;
+			  compute_desc_.ref_diff_enabled.exchange(false);
+			  compute_desc_.ref_sliding_enabled.exchange(false);
+		  }
 	  }
   }
 

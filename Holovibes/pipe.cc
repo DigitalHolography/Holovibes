@@ -524,9 +524,6 @@ namespace holovibes
 			gpu_float_buffer_,
 			gpu_img_acc_));
 
-		/* Forces pipe refresh to update img_acc_ internal values */
-	//	fn_vect_.push_back(std::bind(&holovibes::ICompute::request_refresh, this));
-
 		fn_vect_.push_back(std::bind(
 			accumulate_images,
 			static_cast<float *>(gpu_img_acc_->get_buffer()),
