@@ -279,6 +279,7 @@ namespace holovibes
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
 		 compute_desc_.nsamples.exchange(1);
+		 compute_desc_.pindex.exchange(1);
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		 return;
 	 }
@@ -305,6 +306,7 @@ namespace holovibes
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
 		 compute_desc_.nsamples.exchange(1);
+		 compute_desc_.pindex.exchange(1);
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 	 }
  }
@@ -322,61 +324,96 @@ namespace holovibes
 
   void ICompute::refresh()
   {
+		  if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
+		  {
+			  delete fqueue_;
+			  fqueue_ = nullptr;
+		  }
 
-    if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
-    {
-      delete fqueue_;
-      fqueue_ = nullptr;
-    }
+		  if (compute_desc_.convolution_enabled
+			  || compute_desc_.flowgraphy_enabled)
+		  {
+			  /* gpu_tmp_input */
+			  cudaFree(gpu_tmp_input_);
+			  /* gpu_tmp_input */
+			  if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
+				  sizeof(cufftComplex)* input_.get_pixels() *
+				  compute_desc_.nsamples) != CUDA_SUCCESS)
+			  {
+				  refresh_failed();
+				  return;
+			  }
+		  }
+		  if (compute_desc_.convolution_enabled)
+		  {
+			  /* kst_size */
+			  int size = compute_desc_.convo_matrix.size();
+			  /* gpu_kernel_buffer */
+			  cudaFree(gpu_kernel_buffer_);
+			  /* gpu_kernel_buffer */
+			  if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float)* (size)) != CUDA_SUCCESS)
+			  {
+				  refresh_failed();
+				  return;
+			  }
+			  /* Build the kst 3x3 matrix */
+			  float* kst_complex_cpu = (float *)malloc(sizeof (float)* size);
+			  for (int i = 0; i < size; ++i)
+			  {
+				  kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
+				  //kst_complex_cpu[i].y = 0;
+			  }
+			  if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float)* size,
+				  cudaMemcpyHostToDevice) != CUDA_SUCCESS)
+			  {
+				  refresh_failed();
+				  return;
+			  }
+		  }
+		  /* not deleted properly !!!!*/
+		  if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+		  {
+			  /* gpu_tmp_input */
+			  cudaFree(gpu_special_queue_);
+			  /* gpu_tmp_input */
+			  if (cudaMalloc<cufftComplex>(&gpu_special_queue_,
+				  sizeof(cufftComplex)* input_.get_pixels() *
+				  compute_desc_.special_buffer_size.load()) != CUDA_SUCCESS)
+			  {
+				  refresh_failed();
+				  return;
+			  }
+		  }
 
-	if (compute_desc_.convolution_enabled
-		|| compute_desc_.flowgraphy_enabled)
-	{
-		/* gpu_tmp_input */
-		cudaFree(gpu_tmp_input_);
-		/* gpu_tmp_input */
-		cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
-	}
-	if (compute_desc_.convolution_enabled)
-	{
-		/* kst_size */
-		int size = compute_desc_.convo_matrix.size();
-		/* gpu_kernel_buffer */
-		cudaFree(gpu_kernel_buffer_);
-		/* gpu_kernel_buffer */
-		cudaMalloc<float>(&gpu_kernel_buffer_,
-			sizeof (float) * (size));
-		/* Build the kst 3x3 matrix */
-		float* kst_complex_cpu = (float *) malloc(sizeof (float) * size);
-		for (int i = 0; i < size; ++i)
-		{
-			kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
-			//kst_complex_cpu[i].y = 0;
-		}
-		cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size, cudaMemcpyHostToDevice);
-	}
-	/* not deleted properly !!!!*/
-	if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
-	{
-		/* gpu_tmp_input */
-		cudaFree(gpu_special_queue_);
-		/* gpu_tmp_input */
-		cudaMalloc<cufftComplex>(&gpu_special_queue_,
-			sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load());
-	}
+		  if (gpu_filter2d_buffer != nullptr)
+		  {
+			  cudaFree(gpu_filter2d_buffer);
+			  gpu_filter2d_buffer = nullptr;
+		  }
 
-	if (gpu_filter2d_buffer != nullptr)
-	{
-		cudaFree(gpu_filter2d_buffer);
-		gpu_filter2d_buffer = nullptr;
-	}
+		  if (compute_desc_.filter_2d_enabled)
+		  {
+			  if (cudaMalloc<cufftComplex>(&gpu_filter2d_buffer, sizeof(cufftComplex) *
+				  input_.get_pixels()) != CUDA_SUCCESS)
+			  {
+				  refresh_failed();
+				  return;
+			  }
+		  }
+  }
 
-	if (compute_desc_.filter_2d_enabled)
-	{
-		cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
-			sizeof(cufftComplex) * input_.get_pixels());
-	}
+  void ICompute::refresh_failed()
+  {
+	  std::cout
+		  << "[ERROR] ICompute :"
+		  << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+		  << std::endl;
+	  compute_desc_.flowgraphy_enabled.exchange(false);
+	  compute_desc_.convolution_enabled.exchange(false);
+	  compute_desc_.flowgraphy_level.exchange(3);
+	  compute_desc_.special_buffer_size.exchange(3);
+	  gui::MainWindowAccessor::GetInstance().getMainWindow()->cancel_filter2D();
+	  gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
   }
 
   void ICompute::update_acc_parameter()
