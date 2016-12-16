@@ -1815,8 +1815,16 @@ namespace gui
 
     std::string file_src = import_line_edit->text().toUtf8();
 
-	if (cine->isChecked() == true)
-		seek_cine_header_data(file_src, holovibes_);
+	try
+	{
+		if (cine->isChecked() == true)
+			seek_cine_header_data(file_src, holovibes_);
+	}
+	catch (std::exception& e)
+	{
+		display_error(e.what());
+		return;
+	}
 
 	if (depth_spinbox->currentIndex() == 1)
 		depth_multi = 2;
@@ -2513,6 +2521,7 @@ namespace gui
 	  catch (std::runtime_error& e)
 	  {
 		  std::cout << e.what() << std::endl;
+		  throw std::runtime_error(e.what());
 	  }
   }
 
