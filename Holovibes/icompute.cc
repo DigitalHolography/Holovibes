@@ -279,7 +279,7 @@ namespace holovibes
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
 		 compute_desc_.nsamples.exchange(1);
-		 compute_desc_.pindex.exchange(1);
+		 compute_desc_.pindex.exchange(0);
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		 return;
 	 }
@@ -306,7 +306,7 @@ namespace holovibes
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
 		 compute_desc_.nsamples.exchange(1);
-		 compute_desc_.pindex.exchange(1);
+		 compute_desc_.pindex.exchange(0);
 		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 	 }
  }
