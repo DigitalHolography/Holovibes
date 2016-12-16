@@ -1826,7 +1826,8 @@ namespace gui
 	int	depth_multi = 1;
 
     std::string file_src = import_line_edit->text().toUtf8();
-
+	if (file_src == "")
+		return;
 	if (cine->isChecked() == true)
 		seek_cine_header_data(file_src, holovibes_);
 

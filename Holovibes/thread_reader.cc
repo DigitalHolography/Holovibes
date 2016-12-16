@@ -52,12 +52,8 @@ namespace holovibes
 		unsigned int elts_max_nbr = global::global_config.reader_buf_max_size;
 		char* buffer = nullptr;
 		char* resize_buffer = nullptr;
-		char * tmp_resize_buffer = nullptr;
 		if (real_frame_desc_.width != frame_desc_.width || real_frame_desc_.height != frame_desc_.height)
-		{
 			cudaMalloc(&resize_buffer, resize_frame_size);
-			//cudaMalloc(&tmp_resize_buffer, frame_size); // To bench
-		}
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
 		const Clock::duration frame_frequency = std::chrono::microseconds(1000000 / fps_);
@@ -83,14 +79,14 @@ namespace holovibes
 			{
 				while (std::chrono::high_resolution_clock::now() > next_game_tick)
 				{
-					reader_loop(file, buffer, resize_buffer, tmp_resize_buffer, frame_size, elts_max_nbr, pos);
+					reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
 					next_game_tick += frame_frequency;
 					if (--refresh_fps == 0)
 					{
 						auto endframes = std::chrono::high_resolution_clock::now();
 						std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
 						auto manager = gui::InfoManager::get_manager();
-						int fps = (fps_ / (timelaps.count() / 1000));
+						int fps = (fps_ / (timelaps.count() / 1000.0f));
 						manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
 						refresh_fps = fps_;
 						beginFrames = std::chrono::high_resolution_clock::now();
@@ -108,14 +104,12 @@ namespace holovibes
 		stop_requested_ = true;
 		cudaFreeHost(buffer);
 		cudaFree(resize_buffer);
-		cudaFree(tmp_resize_buffer);
 	}
 
 	void ThreadReader::reader_loop(
 		FILE* file,
 		char* buffer,
 		char* resize_buffer,
-		char* tmp_resize_buffer,
 		const unsigned int& frame_size,
 		const unsigned int& elts_max_nbr,
 		fpos_t pos)
@@ -138,6 +132,7 @@ namespace holovibes
 				return;
 			}
 		}
+
 		if (act_frame_ >= nbr_stored_)
 		{
 			size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
@@ -148,7 +143,6 @@ namespace holovibes
 			queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice);
 		else
 		{
-			//cudaMemcpy(tmp_resize_buffer, buffer + cine_offset + act_frame_ * frame_size, frame_size, cudaMemcpyHostToDevice);
 			buffer_size_conversion(resize_buffer
 				, buffer + cine_offset + act_frame_ * frame_size
 				, real_frame_desc_

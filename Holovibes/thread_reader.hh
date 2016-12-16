@@ -48,12 +48,14 @@ namespace holovibes
     const camera::FrameDescriptor& get_frame_descriptor() const;
   private:
     /*! \brief Read frames while thread is running */
+
+	  /* Proc that will launch the import mode. */
     void  thread_proc(void);
 
+	/* the loop that will read elements from a specified file. It is launched FPS times */
 	void reader_loop(FILE* file, 
 		char* buffer, 
 		char* resize_buffer,
-		char* tmp_resize_buffer, 
 		const unsigned int& frame_size, 
 		const unsigned int& elts_max_nbr,
 		fpos_t pos);
