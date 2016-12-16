@@ -9,6 +9,14 @@ namespace gui
 
 namespace gui
 {
+	/*! \class MainWindowAccessor
+	** Singleton Class that containt a pointer to MainWindow
+	**
+	** Used to refresh Holovibes UI when MainWindow can't be accessed such as
+	** try and catch in the refresh functions in pipe class.
+	**
+	** Pointer to MainWindow is get at Holovibes startup
+	*/
 	class MainWindowAccessor
 	{
 	public:
