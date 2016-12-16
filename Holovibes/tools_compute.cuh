@@ -62,13 +62,20 @@ __global__ void kernel_multiply_frames_float(
 	const unsigned int size);
 
 
-//TODO:
+/*! \brief kernel wich compute the substract of a reference image to another */
 __global__ void kernel_substract_ref(
 	cufftComplex* input,
 	void*         reference,
 	const holovibes::ComputeDescriptor compute_desc,
 	const unsigned int nframes);
 
+
+/*! \brief  substract the pixels value of a reference image to another
+*
+* The images to multiply should have the same size.
+* The result is given in output.
+* Output should have the same size of inputs.
+*/
 void substract_ref(
 	cufftComplex* input,
 	cufftComplex* reference,
@@ -76,6 +83,7 @@ void substract_ref(
 	const unsigned int nframes,
 	cudaStream_t stream = 0);
 
+/* \brief  Compute the mean of several images from output. The result image is put into output*/
 void mean_images(
 	cufftComplex* input,
 	cufftComplex* output,

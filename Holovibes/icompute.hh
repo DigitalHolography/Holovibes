@@ -163,7 +163,7 @@ namespace holovibes
 	/*! \brief Add current img to img_phase queue*/
 	void queue_enqueue(void* input, Queue* queue);
 	
-	/* TODO: */
+	/* \brief handle all the stft workaround. Allow us to use a counter to compute STFT asynchronously */
 	void stft_handler(cufftComplex* input, cufftComplex* output);
 
     /*! \brief Ask for the end of the execution loop. */
@@ -274,10 +274,10 @@ namespace holovibes
 	/*! \brief Add frame in fqueue_. */
 	void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 
-	/* TODO: */ 
+	/* \brief handle all the reference workaround when take_ref button is pushed. */
 	void handle_reference(cufftComplex* input, const unsigned int nframes);
 
-	/* TODO: */
+	/* /* \brief handle all the reference workaround when slinding button is pushed. */ 
 	void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
 
     /*! \brief Print fps each 100 frames
@@ -347,16 +347,16 @@ namespace holovibes
     /*! \brief Ofstream use by float_output_recorder. */
     std::ofstream float_output_file_;
 
-	/*! Queue for phase accumulation*/
+	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_img_acc_;
 
-	/*! Queue for phase accumulation*/
+	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_stft_queue_;
 
-	/* Queue for the reference diff */
+	/* \brief Queue for the reference diff */
 	Queue* gpu_ref_diff_queue_;
 
-	//TODO:
+	/* these states are used for take ref when we need to do action punctually in the pipe*/
 	enum state ref_diff_state_;
 
 	cufftComplex* gpu_filter2d_buffer;

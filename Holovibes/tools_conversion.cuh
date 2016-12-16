@@ -150,16 +150,26 @@ void float_to_ushort(
   const unsigned int size,
   cudaStream_t stream = 0);
 
-/*Todo:*/
 
+/*! \brief Convert data from complex data to unsigned short (16-bit).
+*
+* The input data shall be restricted first to the range [0; 2^16 - 1],
+* by forcing every negative  value to 0 and every positive one
+* greater than 2^16 - 1 to 2^16 - 1.
+* Then it is truncated to unsigned short data type.
+*
+* \param input The input floating-point data.
+* \param output Where to store the data converted in unsigned short.
+* \param size The number of elements to process.
+* \param stream The CUDA stream on which to launch the operation.
+*/
 void complex_to_ushort(
 	const cufftComplex* input,
 	unsigned int* output,
 	const unsigned int size,
 	cudaStream_t stream = 0);
 
-/*Todo:*/
-
+/*! \brief Memcpy of a complex sized frame into another buffer */
 void complex_to_complex(
 	const cufftComplex* input,
 	unsigned short* output,

@@ -180,9 +180,12 @@ namespace gui
 	/* cancel the reference_taking mode */
 	void cancel_take_reference();
 	
-	//TODO:
+	/* launch the filter2D mode that works in two steps. First, you need to select a rectangle on the displayed area and then
+	** the computation can occurs.
+	*/
 	void set_filter2D();
 
+	/* cancel the filter_2D mode */
 	void cancel_filter2D();
 
 	/*! \brief Set phase number (also called 'n' in papers)
@@ -232,7 +235,7 @@ namespace gui
 	void set_stft(bool b);
 
     /*! \} */
-	//TODO:
+	// \brief update how often the STFT is computed while STFT mode is activated
 	void update_stft_steps(int value);
 
     /*! \{ \name View */

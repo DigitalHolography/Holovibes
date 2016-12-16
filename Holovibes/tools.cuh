@@ -187,7 +187,9 @@ void phi_unwrap_2d(
 	float *output,
 	cudaStream_t stream);
 
-//TODO:
+/*  \brief Circularly shifts the elements in input given a point(i,j)
+**   and the size of the frame.
+*/
 __global__ void circ_shift(
 	cufftComplex *input,
 	cufftComplex *output,
@@ -197,7 +199,7 @@ __global__ void circ_shift(
 	const unsigned int height,
 	const unsigned int size);
 
-//Same in float
+/*  \brief Circularly shifts the elements in input given a point(i,j) given float output & inputs*/
 __global__ void circ_shift_float(
 	float *input,
 	float *output,

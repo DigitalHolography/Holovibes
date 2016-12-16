@@ -74,7 +74,7 @@ namespace holovibes
 
     /* gpu_input_buffer */
 	auto* tmp_gpu_input_buffer = gpu_input_buffer_;
-	//TODO:
+
 	if (compute_desc_.stft_enabled)
 		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
 		cudaMalloc<cufftComplex>(&gpu_input_buffer_,

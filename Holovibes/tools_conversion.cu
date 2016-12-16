@@ -23,8 +23,6 @@ __global__ void img8_to_complex(
   }
 }
 
-//TODO:   removed the sqrt_array from computation and it seems more effective without.
-//        need to do proper benchmarks.
 
 __global__ void img16_to_complex(
   cufftComplex* output,
@@ -210,7 +208,7 @@ void rescale_float(
   unsigned blocks = map_blocks_to_problem(size, threads);
 
   // TODO : See if gpu_float_buffer_ could be used directly.
-  cudaMemcpy(output, input, sizeof(float)* size, cudaMemcpyDeviceToDevice);
+  cudaMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
 
   // Computing minimum and maximum values, in order to rescale properly.
   float* gpu_local_mins;
@@ -398,7 +396,7 @@ void complex_to_ushort(
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
 
-/*TODO:*/
+/*! \brief Memcpy of a complex sized frame into another buffer */
 void complex_to_complex(
 	const cufftComplex* input,
 	unsigned short* output,

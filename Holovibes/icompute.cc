@@ -74,11 +74,6 @@ namespace holovibes
 		cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
 			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
 	}
-    /* Square root vector */
-	/* TODO: not used anymore because square root of 65535 is not initialized */
-	/* need to benchmark with & without this vector to know if it was useful */
-   // cudaMalloc<float>(&gpu_sqrt_vector_, sizeof(float) * 65536);
-    //make_sqrt_vect(gpu_sqrt_vector_, 65535);
 
     /* gpu_lens */
     cudaMalloc(&gpu_lens_,
@@ -553,7 +548,6 @@ namespace holovibes
 
   void ICompute::record_complex(cufftComplex* complex_output, cudaStream_t stream)
   {
-	  // TODO: use stream in enqueue aswell
 	  fqueue_->enqueue(complex_output, cudaMemcpyDeviceToDevice);
   }
 
