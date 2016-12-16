@@ -11,6 +11,7 @@
 # include "config.hh"
 # include "pipeline_utils.hh"
 # include "geometry.hh"
+//# include "sMainWindow.hh"
 
 /* Forward declarations. */
 namespace holovibes
@@ -30,7 +31,7 @@ namespace holovibes
 
 namespace gui
 {
-	class MainWindow;
+	class MainWindowAccessor;
 }
 
 namespace holovibes

@@ -11,6 +11,12 @@
 #include "config.hh"
 #include "camera_exception.hh"
 #include "options_descriptor.hh"
+#include "MainWindowAccessor.hh"
+
+namespace gui
+{
+	class MainWindowAccessor;
+}
 
 int main(int argc, char* argv[])
 {
@@ -34,6 +40,7 @@ int main(int argc, char* argv[])
 #endif /* !_DEBUG */
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     gui::MainWindow w(h);
+	gui::MainWindowAccessor::GetInstance().setMainWindow(&w);
     w.show();
 	splash.finish(&w);
     h.get_compute_desc().register_observer(w);

@@ -251,6 +251,9 @@
     <ClCompile Include="compute_bundles_2d.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MainWindowAccessor.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -387,6 +390,9 @@
     </ClInclude>
     <ClInclude Include="filter2D.cuh">
       <Filter>Header Files CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindowAccessor.hh">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -105,7 +105,6 @@ namespace gui
 	{
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
-
 	}
 
 	void MainWindow::notify()

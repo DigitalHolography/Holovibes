@@ -16,6 +16,7 @@
 #include "info_manager.hh"
 #include "tools_compute.cuh"
 #include "compute_bundles.hh"
+#include "MainWindowAccessor.hh"
 
 
 namespace holovibes
@@ -275,8 +276,10 @@ namespace holovibes
 			 << " err_count: " << err_count
 			 << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
 			 << std::endl;
-		 compute_desc_.stft_enabled.exchange(false);
+		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
+		 compute_desc_.nsamples.exchange(1);
+		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		 return;
 	 }
     }
@@ -298,9 +301,11 @@ namespace holovibes
 	 }
 	 catch (std::exception& e)
 	 {
-		 gpu_img_acc_ = nullptr;
-		 compute_desc_.stft_enabled.exchange(false);
+		 gpu_stft_queue_ = nullptr;
+		 gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 		 compute_desc_.stft_level.exchange(1);
+		 compute_desc_.nsamples.exchange(1);
+		 gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 	 }
  }
 
@@ -394,6 +399,7 @@ namespace holovibes
 			  gpu_img_acc_ = nullptr;
 			  compute_desc_.img_acc_enabled.exchange(false);
 			  compute_desc_.img_acc_level.exchange(1);
+			  gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		  }
 	  }
   }
@@ -419,9 +425,10 @@ namespace holovibes
 		  }
 		  catch (std::exception& e)
 		  {
-			  gpu_img_acc_ = nullptr;
-			  compute_desc_.ref_diff_enabled.exchange(false);
-			  compute_desc_.ref_sliding_enabled.exchange(false);
+			  gpu_ref_diff_queue_ = nullptr;
+			  gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
+			  compute_desc_.ref_diff_level.exchange(1);
+			  gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		  }
 	  }
   }
