@@ -1474,8 +1474,12 @@ namespace gui
   {
     QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
 	QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+	QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+
     record_thread_.reset(nullptr);
     display_info("Record done");
+	progress_bar->setMaximum(1);
+	progress_bar->setValue(1);
     if (float_output_checkbox->isChecked() && !is_direct_mode())
       holovibes_.get_pipe()->request_float_output_stop();
 	if (complex_output_checkbox->isChecked() && !is_direct_mode())
