@@ -106,7 +106,6 @@ namespace gui
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
-
 	}
 
 	void MainWindow::notify()
@@ -1228,14 +1227,16 @@ namespace gui
 
     connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
     holovibes_.get_pipe()->request_average(&holovibes_.get_average_queue());
+	holovibes_.get_pipe()->request_refresh();
     plot_window_.reset(plot_window);
   }
 
   void MainWindow::dispose_average_graphic()
   {
     plot_window_.reset(nullptr);
-    if (!is_direct_mode())
-      holovibes_.get_pipe()->request_average_stop();
+    holovibes_.get_pipe()->request_average_stop();
+	holovibes_.get_average_queue().clear();
+	holovibes_.get_pipe()->request_refresh();
   }
 
   void MainWindow::browse_roi_file()
@@ -1832,10 +1833,20 @@ namespace gui
 	cd.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
 	int	depth_multi = 1;
     std::string file_src = import_line_edit->text().toUtf8();
+
 	if (file_src == "")
 		return;
-	if (cine->isChecked() == true)
-		seek_cine_header_data(file_src, holovibes_);
+	try
+	{
+		if (cine->isChecked() == true)
+			seek_cine_header_data(file_src, holovibes_);
+	}
+	catch (std::exception& e)
+	{
+		display_error(e.what());
+		return;
+	}
+
 	if (depth_spinbox->currentIndex() == 1)
 		depth_multi = 2;
 	else if (depth_spinbox->currentIndex() == 2)
@@ -1855,17 +1866,29 @@ namespace gui
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
-
-    holovibes_.init_import_mode(
-      file_src,
-      frame_desc,
-      true,
-      fps_spinbox->value(),
-      start_spinbox->value(),
-      end_spinbox->value(),
-      global::global_config.input_queue_max_size,
-	  holovibes_);
-
+	try
+	{
+		holovibes_.init_import_mode(
+			file_src,
+			frame_desc,
+			true,
+			fps_spinbox->value(),
+			start_spinbox->value(),
+			end_spinbox->value(),
+			global::global_config.input_queue_max_size,
+			holovibes_);
+	}
+	catch (std::exception& e)
+	{
+		display_error(e.what());
+		camera_visible(false);
+		record_visible(false);
+		global_visibility(false);
+		gl_window_.reset(nullptr);
+		holovibes_.dispose_compute();
+		holovibes_.dispose_capture();
+		return;
+	}
     camera_visible(true);
     record_visible(true);
     set_image_mode();
@@ -2520,6 +2543,7 @@ namespace gui
 	  catch (std::runtime_error& e)
 	  {
 		  std::cout << e.what() << std::endl;
+		  throw std::runtime_error(e.what());
 	  }
   }
 

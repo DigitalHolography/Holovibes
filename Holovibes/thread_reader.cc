@@ -132,7 +132,6 @@ namespace holovibes
 				return;
 			}
 		}
-
 		if (act_frame_ >= nbr_stored_)
 		{
 			size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
