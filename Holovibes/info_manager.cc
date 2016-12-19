@@ -26,11 +26,30 @@ namespace gui
       instance->remove_info(key);
   }
 
-  InfoManager::InfoManager(gui::GroupBox *ui) : ui_(ui), progressBar_(ui->findChild<QProgressBar*>("infoProgressBar"))
+  void InfoManager::stop_display()
+  {
+	  if (instance)
+		  instance->stop_requested_ = true;
+  }
+
+  InfoManager::InfoManager(gui::GroupBox *ui) 
+	  : ui_(ui)
+	  , progressBar_(ui->findChild<QProgressBar*>("infoProgressBar"))
+	  , stop_requested_(false)
   {
     progressBar_ = ui->findChild<QProgressBar*>("infoProgressBar");
     infoEdit_ = ui->findChild<QTextEdit*>("infoTextEdit");
     connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
+	this->start();
+  }
+
+  void InfoManager::run()
+  {
+	  while (!stop_requested_)
+	  {
+		  draw();
+		  std::this_thread::sleep_for(std::chrono::milliseconds(25));
+	  }
   }
 
   InfoManager::~InfoManager() {}
@@ -38,11 +57,9 @@ namespace gui
   void InfoManager::draw()
   {
     std::string str = "";
-
     auto ite = infos_.end();
     for (auto it = infos_.begin(); it != ite; ++it)
       str += it->first + ":\n  " + it->second + "\n";
-
     const QString qstr = str.c_str();
     emit update_text(qstr);
   }
@@ -50,19 +67,16 @@ namespace gui
   void InfoManager::update_info(const std::string& key, const std::string& value)
   {
     infos_[key] = value;
-    draw();
   }
 
   void InfoManager::remove_info(const std::string& key)
   {
     infos_.erase(key);
-    draw();
   }
 
   void InfoManager::clear_info()
   {
     infos_.clear();
-    draw();
   }
 
   QProgressBar* InfoManager::get_progress_bar()

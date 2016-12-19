@@ -105,6 +105,7 @@ namespace gui
 	{
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
+		gui::InfoManager::stop_display();
 
 	}
 
@@ -342,6 +343,7 @@ namespace gui
 			
 			"Antoine Dillée\n"
 			"Romain Cancillière\n"
+			
 			"Michael Atlan\n");
 	}
 
@@ -1806,7 +1808,8 @@ namespace gui
 
   void MainWindow::import_file_stop(void)
   {
-    change_camera(camera_type_);
+	  camera_none();
+   // change_camera(camera_type_);
   }
 
   void MainWindow::import_file()

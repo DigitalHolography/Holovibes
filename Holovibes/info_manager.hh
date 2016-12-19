@@ -3,6 +3,9 @@
 # include "gui_group_box.hh"
 # include <QProgressBar>
 # include <QTextBrowser>
+# include <QThread>
+#include <thread>
+#include <chrono>
 
 # include <stdexcept>
 
@@ -12,7 +15,7 @@ namespace gui
   **
   ** You can use it from anywere, using update/remove info to print what you want
   ** or get  a progress_bar to inform your progression */
-  class InfoManager : public QObject
+  class InfoManager : public QThread
   {
     Q_OBJECT
   signals :
@@ -29,6 +32,7 @@ namespace gui
     /*! dtr */
     ~InfoManager();
 
+	void run() override;
   public:
     /*! Get the singleton, it's creat on first call 
     ** \param ui must containt infoProgressBar and infoTextEdit in child*/
@@ -40,6 +44,9 @@ namespace gui
     ** Use it if your are before InfoManager instantiate, or if your are possibly in CLI mode */
     static void remove_info_safe(const std::string& key);
 
+	/*! Stop to refresh the info_panel display*/
+	static void stop_display();
+
     /*! Draw all current information */
     void draw();
     /*! Add your information until is remove, and call draw()
@@ -50,7 +57,6 @@ namespace gui
     void remove_info(const std::string& key);
     /*! Remove all information, and call draw */
     void clear_info();
-
     /*! Return progress_bar, you can use it as you want */
     QProgressBar* get_progress_bar();
   private:
@@ -65,5 +71,7 @@ namespace gui
     QProgressBar*   progressBar_;
     /*! infoTextEdit, use to display informations*/
     QTextEdit*      infoEdit_;
+
+	bool stop_requested_;
   };
 }
