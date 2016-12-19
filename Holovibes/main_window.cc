@@ -1813,7 +1813,6 @@ namespace gui
   void MainWindow::import_file_stop(void)
   {
 	  camera_none();
-   // change_camera(camera_type_);
   }
 
   void MainWindow::import_file()
@@ -1830,14 +1829,13 @@ namespace gui
     QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
     QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 	QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+	cd.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
 	int	depth_multi = 1;
-
     std::string file_src = import_line_edit->text().toUtf8();
 	if (file_src == "")
 		return;
 	if (cine->isChecked() == true)
 		seek_cine_header_data(file_src, holovibes_);
-
 	if (depth_spinbox->currentIndex() == 1)
 		depth_multi = 2;
 	else if (depth_spinbox->currentIndex() == 2)
@@ -1850,13 +1848,14 @@ namespace gui
 		depth_multi,
 		cd.import_pixel_size,
 		(big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
-
 	camera_visible(false);
     record_visible(false);
     global_visibility(false);
     gl_window_.reset(nullptr);
+	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
+
     holovibes_.init_import_mode(
       file_src,
       frame_desc,

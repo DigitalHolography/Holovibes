@@ -550,6 +550,9 @@
          <property name="toolTip">
           <string># of images picked at each iteration</string>
          </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -2451,7 +2454,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

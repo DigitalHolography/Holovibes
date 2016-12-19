@@ -48,7 +48,7 @@ namespace gui
 	  while (!stop_requested_)
 	  {
 		  draw();
-		  std::this_thread::sleep_for(std::chrono::milliseconds(25));
+		  std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	  }
   }
 
