@@ -2470,7 +2470,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3407,7 +3407,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>589</x>
+     <x>579</x>
      <y>322</y>
     </hint>
     <hint type="destinationlabel">
@@ -3776,7 +3776,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>197</x>
-     <y>60</y>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -4095,8 +4095,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>85</y>
+     <x>67</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4245,6 +4245,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>224</x>
      <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closeROI</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>dispose_average_graphic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>612</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>416</y>
     </hint>
    </hints>
   </connection>
