@@ -3,9 +3,9 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <BoostLib>C:\local\boost_1_55_0</BoostLib>
-    <QTDIR>C:\Qt\Qt5.5.0\5.5\msvc2013_64</QTDIR>
+    <QTDIR>C:\Qt\Qt5.7.1\5.7\msvc2013_64</QTDIR>
     <SolutionLibDir>$(SolutionDir)lib</SolutionLibDir>
-    <QWTDIR>C:\qwt-6.1.2</QWTDIR>
+    <QWTDIR>C:\qwt-6.1.3</QWTDIR>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>HolovibesPropertySheet</_PropertySheetDisplayName>
