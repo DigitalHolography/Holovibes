@@ -75,24 +75,20 @@ namespace holovibes
 
 			auto beginFrames = std::chrono::high_resolution_clock::now();
 			auto next_game_tick = std::chrono::high_resolution_clock::now();
-			while (!stop_requested_)
+			while (std::chrono::high_resolution_clock::now() > next_game_tick && !stop_requested_)
 			{
-				while (std::chrono::high_resolution_clock::now() > next_game_tick)
+				reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
+				next_game_tick += frame_frequency;
+				if (--refresh_fps == 0)
 				{
-					reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
-					next_game_tick += frame_frequency;
-					if (--refresh_fps == 0)
-					{
-						auto endframes = std::chrono::high_resolution_clock::now();
-						std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
-						auto manager = gui::InfoManager::get_manager();
-						int fps = (fps_ / (timelaps.count() / 1000.0f));
-						manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
-						refresh_fps = fps_;
-						beginFrames = std::chrono::high_resolution_clock::now();
-					}
+					auto endframes = std::chrono::high_resolution_clock::now();
+					std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
+					auto manager = gui::InfoManager::get_manager();
+					int fps = (fps_ / (timelaps.count() / 1000.0f));
+					manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
+					refresh_fps = fps_;
+					beginFrames = std::chrono::high_resolution_clock::now();
 				}
-				
 			}
 		}
 		catch (std::runtime_error& e)
@@ -156,8 +152,9 @@ namespace holovibes
   {
     stop_requested_ = true;
 
-    if (thread_.joinable())
-      thread_.join();
+	while (!thread_.joinable())
+		continue;
+    thread_.join();
     gui::InfoManager::get_manager()->update_info("ImgSource", "none");
   }
 
