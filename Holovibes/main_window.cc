@@ -1863,7 +1863,6 @@ namespace gui
     record_visible(false);
     global_visibility(false);
     gl_window_.reset(nullptr);
-	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     holovibes_.dispose_compute();
     holovibes_.dispose_capture();
 	try
