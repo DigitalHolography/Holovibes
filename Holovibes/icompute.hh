@@ -349,12 +349,11 @@ namespace holovibes
     /*! \} */
     /*! \{ \name fps_count */
     std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration> past_time_;
-    unsigned int frame_count_;
+  
+	unsigned int frame_count_;
     /*! \} */
     /*! \brief containt all var needed by auto_focus */
     af_env        af_env_;
-    /*! \brief Ofstream use by float_output_recorder. */
-    std::ofstream float_output_file_;
 
 	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_img_acc_;

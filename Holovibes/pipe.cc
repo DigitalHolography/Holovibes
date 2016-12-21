@@ -73,16 +73,15 @@ namespace holovibes
     ICompute::update_n_parameter(n);
 
     /* gpu_input_buffer */
-	auto* tmp_gpu_input_buffer = gpu_input_buffer_;
+	cudaFree(gpu_input_buffer_);
 
 	if (compute_desc_.stft_enabled)
 		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
 		cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-		sizeof(cufftComplex)* input_.get_pixels() * 2);
+		sizeof(cufftComplex) * input_.get_pixels() * 2);
 	else
     cudaMalloc<cufftComplex>(&gpu_input_buffer_,
       sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-	cudaFree(tmp_gpu_input_buffer);
   }
 
   void Pipe::refresh()

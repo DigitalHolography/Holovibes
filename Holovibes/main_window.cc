@@ -1813,6 +1813,7 @@ namespace gui
 
   void MainWindow::import_file_stop(void)
   {
+	  close_critical_compute();
 	  camera_none();
   }
 
@@ -2551,9 +2552,9 @@ namespace gui
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (cd.stft_enabled)
 	  {
-		  unsigned int tmp = cd.nsamples.load();
-		  cd.nsamples.exchange(cd.stft_level.load());
-		  cd.stft_level.exchange(tmp);
+		 // unsigned int tmp = cd.nsamples.load();
+		 // cd.nsamples.exchange(cd.stft_level.load());
+		 // cd.stft_level.exchange(tmp);
 		  QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		  stft_button->setChecked(false);
 		  set_stft(false);

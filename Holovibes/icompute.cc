@@ -71,17 +71,12 @@ namespace holovibes
    // else
       input_length_ = nsamples;
 
-	if (compute_desc_.stft_enabled) {
-		cudaMalloc<cufftComplex>(&gpu_stft_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * nsamples);
-	}
-
     /* gpu_lens */
     cudaMalloc(&gpu_lens_,
       input_.get_pixels() * sizeof(cufftComplex));
 
     /* CUFFT plan3d */
-    if (compute_desc_.algorithm == ComputeDescriptor::FFT1
+   if (compute_desc_.algorithm == ComputeDescriptor::FFT1
       || compute_desc_.algorithm == ComputeDescriptor::FFT2)
       cufftPlan3d(
       &plan3d_,
@@ -180,6 +175,9 @@ namespace holovibes
     /* CUFFT plan3d */
     cufftDestroy(plan3d_);
 
+	/* CUFFT plan1d for STFT */
+	cufftDestroy(plan1d_stft_);
+
     /* gpu_lens */
     cudaFree(gpu_lens_);
 
@@ -195,8 +193,7 @@ namespace holovibes
     /* gpu_input_buffer_tmp */
     cudaFree(af_env_.gpu_input_buffer_tmp);
 
-    if (gui::InfoManager::get_manager())
-      gui::InfoManager::get_manager()->remove_info("Rendering FPS");
+	cudaFree(gpu_tmp_input_);
 
 	/* gpu_kernel_buffer */
 	cudaFree(gpu_kernel_buffer_);
@@ -213,6 +210,7 @@ namespace holovibes
 	/* gpu_filter2d_buffer */
 	cudaFree(gpu_filter2d_buffer);
 
+	gui::InfoManager::get_manager()->remove_info_safe("Rendering FPS");
  }
 
   void ICompute::update_n_parameter(unsigned short n)
@@ -243,7 +241,7 @@ namespace holovibes
     cudaDestroy<cufftResult>(&plan1d_) ? ++err_count : 0;
 
     /* gpu_stft_buffer */
-    cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
+    //cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
 
 	int inembed[1] = { input_length_ };
 
@@ -252,12 +250,19 @@ namespace holovibes
 		inembed, input_.get_pixels(), 1,
 		CUFFT_C2C, input_.get_pixels());
 	
+	
+	if (gpu_stft_buffer_ != nullptr)
+	{
+		cudaFree(gpu_stft_buffer_);
+		gpu_stft_buffer_ = nullptr;
+	}
+
+	cudaDestroy<cufftResult>(&plan1d_stft_) ? ++err_count : 0;
+
  if (compute_desc_.stft_enabled)
     {
 
 	 /* CUFFT plan1d realloc */
-	 cudaDestroy<cufftResult>(&plan1d_stft_);
-
 	 int inembed_stft[1] = { n };
 
 	 cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
@@ -265,7 +270,7 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
   
-	 if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n)
+	 if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n)
 		 != CUDA_SUCCESS)
 	 {
 		 std::cout
