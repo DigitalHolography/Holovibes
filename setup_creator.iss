@@ -7,9 +7,9 @@
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 ;define for Qt and Qwt path
-#define QtPath "C:\Qt\Qt5.5.0\5.5\msvc2013_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.5.0\5.5\msvc2013_64\plugins\platforms"
-#define QwtPath "C:\Qt\qwt-6.1.2\lib"
+#define QtPath "C:\Qt\Qt5.7.1\5.7\msvc2013_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.7.1\5.7\msvc2013_64\plugins\platforms"
+#define QwtPath "C:\Qt\qwt-6.1.3\lib"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -33,6 +33,7 @@ SolidCompression=yes
 DiskSpanning=no
 UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\Holovibes.exe
+SetupIconFile="x64\Release\icon1.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
