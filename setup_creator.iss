@@ -30,7 +30,7 @@ DisableProgramGroupPage=yes
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
-DiskSpanning=no
+DiskSpanning=yes
 UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\Holovibes.exe
 SetupIconFile="x64\Release\icon1.ico"
@@ -76,8 +76,8 @@ Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\platforms"; Flags: ignoreversion
 Source: "setup_creator_files\vcredist_x64.exe"; DestDir: "{tmp}"; AfterInstall: Visual
-Source: "setup_creator_files\cuda_7.5.18_win10.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller_Win10
-Source: "setup_creator_files\cuda_7.5.18_windows.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller
+Source: "setup_creator_files\cuda_8.0.44_win10.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller_Win10
+Source: "setup_creator_files\cuda_8.0.44_windows.exe"; DestDir: "{tmp}"; AfterInstall: CudaInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Code]
@@ -99,7 +99,7 @@ var
 begin
   GetWindowsVersionEx(Version);
   if Version.Major = 10 then begin
-    if not Exec(ExpandConstant('{tmp}\cuda_7.5.18_win10.exe'), '', '', SW_SHOWNORMAL,
+    if not Exec(ExpandConstant('{tmp}\cuda_8.0.44_win10.exe'), '', '', SW_SHOWNORMAL,
       ewWaitUntilTerminated, ResultCode)
     then
       MsgBox('Cuda installer failed to run!' + #13#10 +
@@ -114,7 +114,7 @@ var
 begin
   GetWindowsVersionEx(Version);
   if Version.Major < 10 then begin
-    if not Exec(ExpandConstant('{tmp}\cuda_7.5.18_windows.exe'), '', '', SW_SHOWNORMAL,
+    if not Exec(ExpandConstant('{tmp}\cuda_8.0.44_windows.exe'), '', '', SW_SHOWNORMAL,
       ewWaitUntilTerminated, ResultCode)
     then
       MsgBox('Cuda installer failed to run!' + #13#10 +
