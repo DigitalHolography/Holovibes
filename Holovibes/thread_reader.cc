@@ -44,6 +44,14 @@ namespace holovibes
 		gui::InfoManager::get_manager()->update_info("ImgSource", "File");
 	}
 
+	void ThreadReader::clear_memory(char **buffer, char **resize_buffer)
+	{
+		cudaFreeHost(*buffer);
+		cudaFree(*resize_buffer);
+		*buffer = nullptr;
+		*resize_buffer = nullptr;
+	}
+
 	void ThreadReader::thread_proc()
 	{
 		unsigned int refresh_fps = fps_;
@@ -53,7 +61,10 @@ namespace holovibes
 		char* buffer = nullptr;
 		char* resize_buffer = nullptr;
 		if (real_frame_desc_.width != frame_desc_.width || real_frame_desc_.height != frame_desc_.height)
-			cudaMalloc(&resize_buffer, resize_frame_size);
+		{
+			if (cudaMalloc(&resize_buffer, resize_frame_size) != CUDA_SUCCESS)
+				throw std::runtime_error("[CUDA] : Memory allocation failed");
+		}
 		FILE*   file = nullptr;
 		unsigned int offset = 0;
 		const Clock::duration frame_frequency = std::chrono::microseconds(1000000 / fps_);
@@ -67,12 +78,18 @@ namespace holovibes
 				// Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
 			}
-			cudaMallocHost(&buffer, frame_size * elts_max_nbr);
+			if (cudaMallocHost(&buffer, frame_size * elts_max_nbr) != CUDA_SUCCESS)
+			{
+				clear_memory(&buffer, &resize_buffer);
+				throw std::runtime_error("[CUDA] : Memory allocation failed");
+			}
 			fpos_t pos = offset + frame_size * (spanStart_ - 1);
 			std::fsetpos(file, &pos);
 			if (!file)
+			{
+				clear_memory(&buffer, &resize_buffer);
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-
+			}
 			auto beginFrames = std::chrono::high_resolution_clock::now();
 			auto next_game_tick = std::chrono::high_resolution_clock::now();
 			while (!stop_requested_)
@@ -101,8 +118,7 @@ namespace holovibes
 		if (file)
 			std::fclose(file);
 		stop_requested_ = true;
-		cudaFreeHost(buffer);
-		cudaFree(resize_buffer);
+		clear_memory(&buffer, &resize_buffer);
 	}
 
 	void ThreadReader::reader_loop(

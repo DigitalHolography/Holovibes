@@ -52,6 +52,9 @@ namespace holovibes
 	  /* Proc that will launch the import mode. */
     void  thread_proc(void);
 
+	/*! \brief Function that clear thread_reader buffers*/
+	void  clear_memory(char **buffer, char **resize_buffer);
+
 	/* the loop that will read elements from a specified file. It is launched FPS times */
 	void reader_loop(FILE* file, 
 		char* buffer, 
