@@ -2368,10 +2368,10 @@ namespace gui
 	ptree.put("config.accumulation_buffer_size", cd.img_acc_level);
 	ptree.put("config.convolution_buffer_size", cd.special_buffer_size);
     ptree.put("config.frame_timeout", config.frame_timeout);
-    ptree.put("config.flush_on_refresh", config.flush_on_refresh);
+	ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
 
     // Image rendering
-    ptree.put("image_rendering.hidden", image_rendering_group_box->isHidden());
+	ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
     ptree.put("image_rendering.camera", camera_type_);
     ptree.put("image_rendering.phase_number", cd.nsamples);
     ptree.put("image_rendering.p_index", cd.pindex);
@@ -2381,30 +2381,30 @@ namespace gui
     ptree.put("image_rendering.algorithm", cd.algorithm);
 
     // View
-    ptree.put("view.hidden", view_group_box->isHidden());
+	ptree.put<bool>("view.hidden", view_group_box->isHidden());
     ptree.put("view.view_mode", cd.view_mode);
-    ptree.put("view.log_scale_enabled", cd.log_scale_enabled);
-    ptree.put("view.shift_corners_enabled", cd.shift_corners_enabled);
-    ptree.put("view.contrast_enabled", cd.contrast_enabled);
+	ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled);
+	ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled);
+	ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled);
     ptree.put("view.contrast_min", cd.contrast_min);
     ptree.put("view.contrast_max", cd.contrast_max);
-	ptree.put("view.accumulation_enabled", cd.img_acc_enabled);
+	ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 
     // Post-processing
-    ptree.put("post_processing.hidden", special_group_box->isHidden());
+	ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
     //ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
     ptree.put("post_processing.image_ratio_q", cd.vibrometry_q);
-    ptree.put("post_processing.average_enabled", is_enabled_average_);
+	ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
 
     // Record
-    ptree.put("record.hidden", record_group_box->isHidden());
+	ptree.put<bool>("record.hidden", record_group_box->isHidden());
 
     // Import
-    ptree.put("import.hidden", import_group_box->isHidden());
+	ptree.put<bool>("import.hidden", import_group_box->isHidden());
     ptree.put("import.pixel_size", cd.import_pixel_size);
 
     // Info
-    ptree.put("info.hidden", info_group_box->isHidden());
+	ptree.put<bool>("info.hidden", info_group_box->isHidden());
 	ptree.put("info.theme_type", theme_index_);
 
     // Autofocus
@@ -2416,11 +2416,11 @@ namespace gui
 
 	//flowgraphy
 	ptree.put("flowgraphy.level", cd.flowgraphy_level);
-	ptree.put("flowgraphy.enable", cd.flowgraphy_enabled);
+	ptree.put<bool>("flowgraphy.enable", cd.flowgraphy_enabled);
 
 	//Reset
-	ptree.put("reset.set_cuda_device", config.set_cuda_device);
-	ptree.put("reset.auto_device_number", config.auto_device_number);
+	ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
+	ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
 	ptree.put("reset.device_number", config.device_number);
 
 
