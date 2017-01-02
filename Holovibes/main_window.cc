@@ -1901,6 +1901,14 @@ namespace gui
 		big_endian_checkbox->setEnabled(true);
 	QAction* settings = findChild<QAction*>("actionSettings");
 	settings->setEnabled(false);
+	if (holovibes_.get_tcapture()->stop_requested_)
+	{
+		camera_visible(false);
+		record_visible(false);
+		global_visibility(false);
+		gl_window_.reset(nullptr);
+		holovibes_.dispose_capture();
+	}
   }
 
   void MainWindow::import_start_spinbox_update()

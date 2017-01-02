@@ -196,6 +196,12 @@ namespace holovibes
     */
     const std::string get_launch_path();
 
+	/* \brief Return capture thread*/
+	std::unique_ptr<IThreadInput>& get_tcapture()
+	{
+		return tcapture_;
+	}
+
   private:
     /* Use shared pointers to ensure each ressources will freed. */
     /*! \brief ICamera use to acquire image */

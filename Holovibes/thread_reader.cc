@@ -71,6 +71,8 @@ namespace holovibes
 		try
 		{
 			fopen_s(&file, file_src_.c_str(), "rb");
+			if (file == nullptr)
+				throw std::runtime_error("[READER] unable to open file: " + file_src_);
 			if (is_cine_file_)
 			{
 				// we look were the data is.
