@@ -1907,6 +1907,7 @@ namespace gui
 		record_visible(false);
 		global_visibility(false);
 		gl_window_.reset(nullptr);
+		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 	}
   }
