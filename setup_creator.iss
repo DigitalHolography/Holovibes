@@ -69,6 +69,7 @@ Source: "x64\Release\GPIB.dll"; DestDir: "{app}";Components: program; Flags: ign
 Source: "x64\Release\m3apiX64.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "x64\Release\SC2_Cam.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "x64\Release\uEye_api_64.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
+Source: "x64\Release\adimec.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "x64\Release\edge.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "x64\Release\ids.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "x64\Release\ixon.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion

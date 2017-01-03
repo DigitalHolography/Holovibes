@@ -76,7 +76,8 @@
         copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
-        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+      copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"
+       copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
@@ -85,6 +86,7 @@
 
         copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
         copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"
+
 </Command>
     </PostBuildEvent>
     <CudaCompile />
@@ -116,7 +118,8 @@
         copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
-        copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
+      copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"
+       copy /Y "$(ProjectDir)\ids.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
