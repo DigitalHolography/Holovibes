@@ -192,9 +192,12 @@ namespace holovibes
 	  fpos_t		off = 0;
 	  long int		offset_to_image = 0;
 
+	  /*Reading the whole cine file header*/
 	  if ((length = std::fread(buffer, 1, 44, file)) =! 44)
 		  return (0);
+	  /*Reading OffImageOffsets for offset to POINTERS TO IMAGES*/
 	  std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
+	  /*Reading offset of the first image*/
 	  off = offset_to_ptr;
 	  std::fsetpos(file, &off);
 	  if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) =! sizeof(long int))

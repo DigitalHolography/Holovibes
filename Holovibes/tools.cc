@@ -17,15 +17,20 @@ namespace holovibes
 
 		try
 		{
+			/*Checking if it exists*/
 			if (!file)
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 			std::fsetpos(file, &pos);
+			/*Reading the whole cine file header*/
 			if ((length = std::fread(buffer, 1, 44, file)) = !44)
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
+			/*Checking if the file is actually a .cine file*/
 			if (std::strstr(buffer, "CI") == NULL)
 				throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
+			/*Reading OffSetup for offset to CAMERA SETUP*/
 			std::memcpy(&offset_to_ptr, (buffer + 28), sizeof(int));
 			pos = offset_to_ptr;
+			/*Reading value FrameRate16*/
 			std::fsetpos(file, &pos);
 			if ((length = std::fread(&value, 1, sizeof(short int), file)) = !sizeof(short int))
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
@@ -46,14 +51,19 @@ namespace holovibes
 
 		try
 		{
+			/*Checking if it exists*/
 			if (!file)
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 			std::fsetpos(file, &pos);
+			/*Reading the whole cine file header*/
 			if ((length = std::fread(buffer, 1, 44, file)) = !44)
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
+			/*Checking if the file is actually a .cine file*/
 			if (std::strstr(buffer, "CI") == NULL)
 				throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
+			/*Reading OffSetup for offset to CAMERA SETUP*/
 			std::memcpy(&offset_to_ptr, (buffer + 28), sizeof(int));
+			/*Reading value Shutter16*/
 			pos = offset_to_ptr + 2;
 			std::fsetpos(file, &pos);
 			if ((length = std::fread(&value, 1, sizeof(short int), file)) = !sizeof(short int))

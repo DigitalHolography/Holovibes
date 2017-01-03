@@ -419,7 +419,7 @@ namespace holovibes
 	}
     else
     {
-		//Unwrap_res is ressources for phase_increase
+		//Unwrap_res is a ressource for phase_increase
 		if (!unwrap_res_)
 		{
 			unwrap_res_.reset(new UnwrappingResources(
@@ -430,7 +430,7 @@ namespace holovibes
 		unwrap_res_->reallocate(input_.get_pixels());
 		if (compute_desc_.view_mode == holovibes::ComputeDescriptor::PHASE_INCREASE)
 		{
-			// Phase increase, complex multiply-with-conjugate method
+			// Phase increase
 			fn_vect_.push_back(std::bind(
 				phase_increase,
 				gpu_input_frame_ptr_,

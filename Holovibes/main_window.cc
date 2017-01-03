@@ -2509,31 +2509,41 @@ namespace gui
 
 	  try
 	  {
+		  /*Opening file and checking if it exists*/
 		  fopen_s(&file, file_src_.c_str(), "rb");
 		  if (!file)
 			  throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
-		  std::fsetpos(file, &pos);
+		  std::fsetpos(file, &pos);  
+		  /*Reading the whole cine file header*/
 		  if ((length = std::fread(buffer, 1, 44, file)) = !44)
 			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  /*Checking if the file is actually a .cine file*/
 		  if (std::strstr(buffer, "CI") == NULL)
 			  throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
+		  /*Reading OffImageHeader for offset to BITMAPINFOHEADER*/
 		  std::memcpy(&offset_to_ptr, (buffer + 24), sizeof(int));
+		  /*Reading value biWidth*/
 		  pos = offset_to_ptr + 4;
 		  std::fsetpos(file, &pos);
 		  if ((length = std::fread(&read_width, 1, sizeof(int), file)) = !sizeof(int))
 			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  /*Reading value biHeigth*/
 		  pos = offset_to_ptr + 8;
 		  std::fsetpos(file, &pos);
 		  if ((length = std::fread(&read_height, 1, sizeof(int), file)) = !sizeof(int))
 			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  /*Reading value biBitCount*/
 		  pos = offset_to_ptr + 14;
 		  std::fsetpos(file, &pos);
 		  if ((length = std::fread(&read_depth, 1, sizeof(short int), file)) = !sizeof(short int))
 			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+		  /*Reading value biXpelsPerMetter*/
 		  pos = offset_to_ptr + 24;
 		  std::fsetpos(file, &pos);
 		  if ((length = std::fread(&read_pixelpermeter_x, 1, sizeof(int), file)) = !sizeof(int))
 			  throw std::runtime_error("[READER] unable to read file: " + file_src_);
+
+		  /*Setting value in Qt interface*/
 		  if (read_depth == 8)
 			  depth_spinbox->setCurrentIndex(0);
 		  else
@@ -2546,8 +2556,10 @@ namespace gui
 		  cd.import_pixel_size = pixel_size;
 		  import_pixel_size->setValue(cd.import_pixel_size.load());
 		  big_endian_checkbox->setCurrentText("Little Endian");
-		  holovibes::get_framerate_cinefile(file, file_src_);
-		  holovibes::get_exposure_cinefile(file, file_src_);
+
+		  /*Unused fonction ready to read framerate dans exposure*/
+		  //holovibes::get_framerate_cinefile(file, file_src_);
+		  //holovibes::get_exposure_cinefile(file, file_src_);
 	  }
 	  catch (std::runtime_error& e)
 	  {
