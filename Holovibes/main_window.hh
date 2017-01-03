@@ -38,6 +38,7 @@ namespace gui
   class PlotWindow;
   class ThreadRecorder;
   class ThreadCSVRecord;
+  class GuiTool;
 }
 namespace camera
 {
@@ -82,6 +83,8 @@ namespace gui
     ~MainWindow();
 
     void notify() override;
+
+	void setup_gui(GuiTool& holovibes);
 
     public slots:
     /*! \{ \name Menu */

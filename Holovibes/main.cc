@@ -12,6 +12,7 @@
 #include "camera_exception.hh"
 #include "options_descriptor.hh"
 #include "MainWindowAccessor.hh"
+#include "gui_tool.hh"
 
 namespace gui
 {
@@ -40,6 +41,8 @@ int main(int argc, char* argv[])
 #endif /* !_DEBUG */
 	std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     gui::MainWindow w(h);
+	gui::GuiTool gt(h, &w);
+	w.setup_gui(gt);
 	gui::MainWindowAccessor::GetInstance().setMainWindow(&w);
     w.show();
 	splash.finish(&w);

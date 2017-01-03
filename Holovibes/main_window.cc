@@ -14,6 +14,7 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include "tools.hh"
+#include "gui_tool.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
 
@@ -239,6 +240,11 @@ namespace gui
 		import_pixel_size->setValue(cd.import_pixel_size);
 
 		set_enable_unwrap_box();
+	}
+
+	void MainWindow::setup_gui(GuiTool& holovibes)
+	{
+
 	}
 
 	void MainWindow::layout_toggled(bool b)

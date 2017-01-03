@@ -254,6 +254,9 @@
     <ClCompile Include="MainWindowAccessor.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_tool.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -392,6 +395,9 @@
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="MainWindowAccessor.hh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_tool.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

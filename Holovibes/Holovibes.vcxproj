@@ -204,6 +204,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
     </CustomBuild>
     <ClInclude Include="gpib_dll.hh" />
+    <ClInclude Include="gui_tool.hh" />
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
     <ClInclude Include="icompute.hh" />
@@ -357,6 +358,7 @@
     <ClCompile Include="gui_gl_window.cc" />
     <ClCompile Include="gui_group_box.cc" />
     <ClCompile Include="gui_plot_window.cc" />
+    <ClCompile Include="gui_tool.cc" />
     <ClCompile Include="holovibes.cc" />
     <ClCompile Include="icompute.cc" />
     <ClCompile Include="info_manager.cc" />
