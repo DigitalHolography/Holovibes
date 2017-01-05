@@ -242,9 +242,45 @@ namespace gui
 		set_enable_unwrap_box();
 	}
 
+	void MainWindow::notify_error(std::exception& e)
+	{
+
+		if (dynamic_cast<std::bad_alloc*>(&e) != nullptr)
+		{
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			cd.nsamples.exchange(1);
+			cd.pindex.exchange(0);
+			close_critical_compute();		
+			//qApp->connect(this, SIGNAL(yolo(QString, QMessageBox::Icon)), SLOT(display_message(QString, QMessageBox::Icon)));
+			connect(this, SIGNAL(yolo(QString)),
+	            this, SLOT(display_message(QString)));
+			emit yolo("hello friend");
+			/*int ret = QMessageBox::warning(qApp, tr("My Application"),
+				tr("The document has been modified.\n"
+				"Do you want to save your changes?"),
+				QMessageBox::Save | QMessageBox::Discard
+				| QMessageBox::Cancel,
+				QMessageBox::Save);*/
+			//display_message("hello friend", QMessageBox::Icon::Critical);
+
+			//qApp->sender
+			//QObject::connect(*this, SIGNAL([]()))
+			//ThreadMsgBox a("hello friend", QMessageBox::Icon::Critical);
+			//a.run();
+		}
+	}
+
 	void MainWindow::setup_gui(GuiTool& holovibes)
 	{
 
+	}
+
+	void MainWindow::display_message(QString msg)
+	{
+	    QMessageBox msg_box(0);
+		msg_box.setText(msg);
+		msg_box.setIcon(QMessageBox::Critical);
+		msg_box.exec();
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -409,6 +445,7 @@ namespace gui
 					depth = 8;
 				}
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+				holovibes_.get_pipe()->register_observer(*this);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 					if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
@@ -434,6 +471,7 @@ namespace gui
 			if (value == true)
 				depth = 8;
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+				holovibes_.get_pipe()->register_observer(*this);
 			//global_visibility(true);
 			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
 		}
@@ -825,7 +863,7 @@ namespace gui
 		  cd.stft_enabled = b;
 		  holovibes_.get_pipe()->request_update_n(cd.nsamples);
 		  notify();
-	  }
+	 }
   }
 
   void MainWindow::update_stft_steps(int value)
@@ -834,7 +872,6 @@ namespace gui
 	  if (!is_direct_mode())
 	  {
 		  cd.stft_steps.exchange(value);
-		  notify();
 	  }
   }
 
@@ -2579,12 +2616,8 @@ namespace gui
 	  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 	  if (cd.stft_enabled)
 	  {
-		 // unsigned int tmp = cd.nsamples.load();
-		 // cd.nsamples.exchange(cd.stft_level.load());
-		 // cd.stft_level.exchange(tmp);
 		  QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		  stft_button->setChecked(false);
-		  set_stft(false);
 	  }
 	  if (cd.ref_diff_enabled || cd.ref_sliding_enabled)
 		  cancel_take_reference();

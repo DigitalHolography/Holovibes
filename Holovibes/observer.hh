@@ -1,3 +1,4 @@
+# include <exception>
 /*! \file
  *
  * Implementation of the Observer design pattern. */
@@ -17,6 +18,8 @@ namespace holovibes
      * state.
      */
     virtual void notify() = 0;
+
+	virtual void notify_error(std::exception& e) = 0;
 
   protected:
     Observer()

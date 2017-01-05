@@ -251,10 +251,10 @@
     <ClCompile Include="compute_bundles_2d.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainWindowAccessor.cc">
+    <ClCompile Include="gui_tool.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_tool.cc">
+    <ClCompile Include="thread_message_box.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -394,10 +394,10 @@
     <ClInclude Include="filter2D.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="MainWindowAccessor.hh">
+    <ClInclude Include="gui_tool.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui_tool.hh">
+    <ClInclude Include="thread_message_box.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

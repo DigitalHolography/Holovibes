@@ -11,6 +11,7 @@
 # include "config.hh"
 # include "pipeline_utils.hh"
 # include "geometry.hh"
+# include "observable.hh"
 //# include "sMainWindow.hh"
 
 /* Forward declarations. */
@@ -42,7 +43,7 @@ namespace holovibes
  * any sort of editing to the image (i.e. refresh functions
  * or caller).
  */
-  class ICompute
+  class ICompute : public Observable
   {
     friend class ThreadCompute;
   public:

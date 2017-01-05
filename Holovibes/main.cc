@@ -11,7 +11,6 @@
 #include "config.hh"
 #include "camera_exception.hh"
 #include "options_descriptor.hh"
-#include "MainWindowAccessor.hh"
 #include "gui_tool.hh"
 
 namespace gui
@@ -43,7 +42,6 @@ int main(int argc, char* argv[])
     gui::MainWindow w(h);
 	gui::GuiTool gt(h, &w);
 	w.setup_gui(gt);
-	gui::MainWindowAccessor::GetInstance().setMainWindow(&w);
     w.show();
 	splash.finish(&w);
     h.get_compute_desc().register_observer(w);

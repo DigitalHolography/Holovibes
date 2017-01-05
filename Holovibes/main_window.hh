@@ -84,9 +84,19 @@ namespace gui
 
     void notify() override;
 
+	void notify_error(std::exception& e) override;
+
 	void setup_gui(GuiTool& holovibes);
 
+ signals:
+	void yolo(QString message);
+
     public slots:
+		/*! \brief Display information message
+		** \param msg information message
+		*/
+		void display_message(QString message);
+
     /*! \{ \name Menu */
     /*! \brief Resize windows if one layout is toggled.
     **

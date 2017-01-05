@@ -242,7 +242,6 @@
     </CustomBuild>
     <ClInclude Include="fft1.cuh" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="MainWindowAccessor.hh" />
     <ClInclude Include="stft.cuh" />
     <ClInclude Include="thread_compute.hh" />
     <ClInclude Include="thread_capture.hh" />
@@ -266,6 +265,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
     </CustomBuild>
+    <ClInclude Include="thread_message_box.hh" />
     <ClInclude Include="thread_reader.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="tools.hh" />
@@ -371,11 +371,11 @@
     <ClCompile Include="power_of_two.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
-    <ClCompile Include="MainWindowAccessor.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
     <ClCompile Include="thread_csv_record.cc" />
+    <ClCompile Include="thread_message_box.cc" />
     <ClCompile Include="thread_reader.cc" />
     <ClCompile Include="thread_recorder.cc" />
     <ClCompile Include="tools.cc" />

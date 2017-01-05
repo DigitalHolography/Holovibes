@@ -31,6 +31,14 @@ namespace holovibes
         [](Observer* observer) { observer->notify(); });
     }
 
+	/*! \brief notify all Observer in list that an error occured */
+	void notify_error_observers(std::exception& e)
+	{
+		std::for_each(observers_.begin(),
+			observers_.end(),
+			[&e](Observer* observer) { observer->notify_error(e); });
+	}
+
   protected:
     Observable()
     {
