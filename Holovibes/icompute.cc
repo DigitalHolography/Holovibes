@@ -19,6 +19,7 @@
 #include "compute_bundles.hh"
 
 
+
 namespace holovibes
 {
   ICompute::ICompute(
@@ -317,12 +318,13 @@ namespace holovibes
     if (err_count != 0)
     {
       abort_construct_requested_ = true;
-      std::cout
-        << "[ERROR] ICompute l" << __LINE__ << std::endl
-        << " err_count: " << err_count << std::endl
-        << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
-        << std::endl;
-	  notify_error_observers(std::bad_alloc());
+	  auto cuda_error = cudaGetErrorString(cudaGetLastError());
+	  std::cout
+		  << "[ERROR] ICompute l" << __LINE__ << std::endl
+		  << " err_count: " << err_count << std::endl
+		  << " cudaError_t: " << cuda_error
+		  << std::endl;
+	  notify_error_observers(std::bad_alloc(),  cuda_error);
     }
   }
 

@@ -32,11 +32,11 @@ namespace holovibes
     }
 
 	/*! \brief notify all Observer in list that an error occured */
-	void notify_error_observers(std::exception& e)
+	void notify_error_observers(std::exception& e, const char* msg)
 	{
 		std::for_each(observers_.begin(),
 			observers_.end(),
-			[&e](Observer* observer) { observer->notify_error(e); });
+			[&](Observer* observer) { observer->notify_error(e, msg); });
 	}
 
   protected:

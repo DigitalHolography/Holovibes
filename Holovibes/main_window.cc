@@ -90,6 +90,9 @@ namespace gui
 		autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
 		connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
+
+		connect(this, SIGNAL(send_error(QString)), this, SLOT(display_message(QString)));
+
 		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
 		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
 
@@ -242,31 +245,18 @@ namespace gui
 		set_enable_unwrap_box();
 	}
 
-	void MainWindow::notify_error(std::exception& e)
+	void MainWindow::notify_error(std::exception& e, const char* msg)
 	{
 
 		if (dynamic_cast<std::bad_alloc*>(&e) != nullptr)
 		{
+			std::stringstream str;
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.nsamples.exchange(1);
 			cd.pindex.exchange(0);
-			close_critical_compute();		
-			//qApp->connect(this, SIGNAL(yolo(QString, QMessageBox::Icon)), SLOT(display_message(QString, QMessageBox::Icon)));
-			connect(this, SIGNAL(yolo(QString)),
-	            this, SLOT(display_message(QString)));
-			emit yolo("hello friend");
-			/*int ret = QMessageBox::warning(qApp, tr("My Application"),
-				tr("The document has been modified.\n"
-				"Do you want to save your changes?"),
-				QMessageBox::Save | QMessageBox::Discard
-				| QMessageBox::Cancel,
-				QMessageBox::Save);*/
-			//display_message("hello friend", QMessageBox::Icon::Critical);
-
-			//qApp->sender
-			//QObject::connect(*this, SIGNAL([]()))
-			//ThreadMsgBox a("hello friend", QMessageBox::Icon::Critical);
-			//a.run();
+			close_critical_compute();
+			str << "GPU allocation error occured." << std::endl <<  "Cuda error message: " << std::endl << msg;
+			emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 	}
 

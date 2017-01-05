@@ -19,7 +19,7 @@ namespace holovibes
      */
     virtual void notify() = 0;
 
-	virtual void notify_error(std::exception& e) = 0;
+	virtual void notify_error(std::exception& e, const char* msg) = 0;
 
   protected:
     Observer()

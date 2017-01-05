@@ -21,6 +21,7 @@
 # include <fstream>
 # include <iostream>
 #include <boost/algorithm/string.hpp>
+#include "sstream"
 
 # include "camera_exception.hh"
 # include "../GPIB/IVisaInterface.hh"
@@ -84,12 +85,12 @@ namespace gui
 
     void notify() override;
 
-	void notify_error(std::exception& e) override;
+	void notify_error(std::exception& e, const char* msg) override;
 
 	void setup_gui(GuiTool& holovibes);
 
  signals:
-	void yolo(QString message);
+	void send_error(QString message);
 
     public slots:
 		/*! \brief Display information message
