@@ -17,6 +17,7 @@
 #include "tools_compute.cuh"
 #include "vibrometry.cuh"
 #include "compute_bundles.hh"
+#include "custom_exception.hh"
 
 
 
@@ -270,22 +271,8 @@ namespace holovibes
 		 inembed_stft, input_.get_pixels(), 1,
 		 CUFFT_C2C, input_.get_pixels());
   
-	 if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n)
-		 != CUDA_SUCCESS)
-	 {
-		 std::cout
-			 << "[ERROR] ICompute l" << __LINE__
-			 << " err_count: " << err_count
-			 << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
-			 << std::endl;
-		// gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
-		 //compute_desc_.stft_level.exchange(1);
-		// compute_desc_.nsamples.exchange(1);
-		// compute_desc_.pindex.exchange(0);
-		// gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
-		// return;
+	 if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n) != CUDA_SUCCESS)
 		 err_count++;
-	 }
     }
 
  if (gpu_stft_queue_ != nullptr)
@@ -306,11 +293,6 @@ namespace holovibes
 	 catch (std::exception& e)
 	 {
 		 gpu_stft_queue_ = nullptr;
-		// gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
-		// compute_desc_.stft_level.exchange(1);
-	//	 compute_desc_.nsamples.exchange(1);
-		// compute_desc_.pindex.exchange(0);
-		// gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
 		 err_count++;
 	 }
  }
@@ -318,18 +300,13 @@ namespace holovibes
     if (err_count != 0)
     {
       abort_construct_requested_ = true;
-	  auto cuda_error = cudaGetErrorString(cudaGetLastError());
-	  std::cout
-		  << "[ERROR] ICompute l" << __LINE__ << std::endl
-		  << " err_count: " << err_count << std::endl
-		  << " cudaError_t: " << cuda_error
-		  << std::endl;
-	  notify_error_observers(std::bad_alloc(),  cuda_error);
+	  allocation_failed(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
     }
   }
 
   void ICompute::refresh()
   {
+	  unsigned int err_count = 0;
 		  if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
 		  {
 			  delete fqueue_;
@@ -343,12 +320,8 @@ namespace holovibes
 			  cudaFree(gpu_tmp_input_);
 			  /* gpu_tmp_input */
 			  if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				  sizeof(cufftComplex)* input_.get_pixels() *
-				  compute_desc_.nsamples) != CUDA_SUCCESS)
-			  {
-				  refresh_failed();
-				  return;
-			  }
+				  sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples) != CUDA_SUCCESS)
+				  err_count++;
 		  }
 		  if (compute_desc_.convolution_enabled)
 		  {
@@ -358,10 +331,7 @@ namespace holovibes
 			  cudaFree(gpu_kernel_buffer_);
 			  /* gpu_kernel_buffer */
 			  if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float)* (size)) != CUDA_SUCCESS)
-			  {
-				  refresh_failed();
-				  return;
-			  }
+				  err_count++;
 			  /* Build the kst 3x3 matrix */
 			  float* kst_complex_cpu = (float *)malloc(sizeof (float)* size);
 			  for (int i = 0; i < size; ++i)
@@ -371,10 +341,7 @@ namespace holovibes
 			  }
 			  if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float)* size,
 				  cudaMemcpyHostToDevice) != CUDA_SUCCESS)
-			  {
-				  refresh_failed();
-				  return;
-			  }
+				  err_count++;
 		  }
 		  /* not deleted properly !!!!*/
 		  if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
@@ -385,10 +352,7 @@ namespace holovibes
 			  if (cudaMalloc<cufftComplex>(&gpu_special_queue_,
 				  sizeof(cufftComplex)* input_.get_pixels() *
 				  compute_desc_.special_buffer_size.load()) != CUDA_SUCCESS)
-			  {
-				  refresh_failed();
-				  return;
-			  }
+				  err_count++;
 		  }
 
 		  if (gpu_filter2d_buffer != nullptr)
@@ -401,25 +365,23 @@ namespace holovibes
 		  {
 			  if (cudaMalloc<cufftComplex>(&gpu_filter2d_buffer, sizeof(cufftComplex) *
 				  input_.get_pixels()) != CUDA_SUCCESS)
-			  {
-				  refresh_failed();
-				  return;
-			  }
+				  err_count++;
 		  }
+
+		  if (err_count != 0)
+			  allocation_failed(err_count, CustomException("error in refresh()", error_kind::fail_update));
   }
 
-  void ICompute::refresh_failed()
+  void ICompute::allocation_failed(const int& err_count, std::exception& e)
   {
+	  auto cuda_error = cudaGetErrorString(cudaGetLastError());
 	  std::cout
-		  << "[ERROR] ICompute :"
-		  << " cudaError_t: " << cudaGetErrorString(cudaGetLastError())
+		  << "[ERROR] ICompute l" << __LINE__ << std::endl
+		  << " error message: " << e.what()
+		  << " err_count: " << err_count << std::endl
+		  << " cudaError_t: " << cuda_error
 		  << std::endl;
-	  compute_desc_.flowgraphy_enabled.exchange(false);
-	  compute_desc_.convolution_enabled.exchange(false);
-	  compute_desc_.flowgraphy_level.exchange(3);
-	  compute_desc_.special_buffer_size.exchange(3);
-	//  gui::MainWindowAccessor::GetInstance().getMainWindow()->cancel_filter2D(); // HERE
-	 // gui::MainWindowAccessor::GetInstance().getMainWindow()->notify();
+	  notify_error_observers(e, cuda_error);
   }
 
   void ICompute::update_acc_parameter()
@@ -442,7 +404,7 @@ namespace holovibes
 			  gpu_img_acc_ = nullptr;
 			  compute_desc_.img_acc_enabled.exchange(false);
 			  compute_desc_.img_acc_level.exchange(1);
-		//	  gui::MainWindowAccessor::GetInstance().getMainWindow()->notify(); // HERE
+			  allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 		  }
 	  }
   }
@@ -470,8 +432,8 @@ namespace holovibes
 		  {
 			  gpu_ref_diff_queue_ = nullptr;
 			//  gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
-			  compute_desc_.ref_diff_level.exchange(1);
-			//  gui::MainWindowAccessor::GetInstance().getMainWindow()->notify(); // HERE
+			  allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
+
 		  }
 	  }
   }

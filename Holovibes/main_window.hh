@@ -31,6 +31,7 @@
 # include "observer.hh"
 # include "geometry.hh"
 # include "options_descriptor.hh"
+# include "custom_exception.hh"
 
 /* Forward declarations. */
 namespace gui
@@ -89,7 +90,8 @@ namespace gui
 
 	void setup_gui(GuiTool& holovibes);
 
- signals:
+signals:
+	/* \brief signal needed to send error messages from the compute thread.*/
 	void send_error(QString message);
 
     public slots:

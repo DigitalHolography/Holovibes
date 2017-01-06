@@ -254,9 +254,6 @@
     <ClCompile Include="gui_tool.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thread_message_box.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -397,7 +394,7 @@
     <ClInclude Include="gui_tool.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thread_message_box.hh">
+    <ClInclude Include="custom_exception.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

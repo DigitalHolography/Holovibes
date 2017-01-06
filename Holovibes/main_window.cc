@@ -247,15 +247,41 @@ namespace gui
 
 	void MainWindow::notify_error(std::exception& e, const char* msg)
 	{
-
-		if (dynamic_cast<std::bad_alloc*>(&e) != nullptr)
+		holovibes::CustomException* err_ptr = dynamic_cast<holovibes::CustomException*>(&e);
+		std::stringstream str;
+		if (err_ptr != nullptr)
 		{
-			std::stringstream str;
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			cd.nsamples.exchange(1);
-			cd.pindex.exchange(0);
+			if (err_ptr->get_kind() == holovibes::error_kind::fail_update)
+			{
+				// notify will be in close_critical_compute
+				if (cd.stft_enabled.load())
+				{
+					cd.nsamples.exchange(1);
+					cd.pindex.exchange(0);
+				}
+				if (cd.flowgraphy_enabled.load() || cd.convolution_enabled.load())
+				{
+					cd.convolution_enabled.exchange(false);
+					cd.flowgraphy_enabled.exchange(false);
+					cd.special_buffer_size.exchange(3);
+					notify();
+				}
+			}
+			if (err_ptr->get_kind() == holovibes::error_kind::fail_accumulation)
+			{
+				cd.img_acc_enabled.exchange(false);
+				cd.img_acc_level.exchange(1);
+				notify();
+			}
 			close_critical_compute();
-			str << "GPU allocation error occured." << std::endl <<  "Cuda error message: " << std::endl << msg;
+			
+			str << "GPU allocation error occured." << std::endl << "Cuda error message: " << std::endl << msg;
+			emit send_error(QString::fromLatin1(str.str().c_str()));	
+		}
+		else
+		{
+			str << "Unknown error occured.";
 			emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 	}

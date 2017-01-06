@@ -137,6 +137,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="custom_exception.hh" />
     <ClInclude Include="filter2D.cuh" />
     <ClInclude Include="autofocus.cuh" />
     <ClInclude Include="average.cuh" />
@@ -265,7 +266,6 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).cc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).cc</Message>
     </CustomBuild>
-    <ClInclude Include="thread_message_box.hh" />
     <ClInclude Include="thread_reader.hh" />
     <ClInclude Include="tools.cuh" />
     <ClInclude Include="tools.hh" />
@@ -375,7 +375,6 @@
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />
     <ClCompile Include="thread_csv_record.cc" />
-    <ClCompile Include="thread_message_box.cc" />
     <ClCompile Include="thread_reader.cc" />
     <ClCompile Include="thread_recorder.cc" />
     <ClCompile Include="tools.cc" />

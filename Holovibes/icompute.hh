@@ -200,8 +200,8 @@ namespace holovibes
     /*! \brief Generate the ICompute vector. */
     virtual void refresh();
 
-	/*! \brief In case refresh can't alloc memory. */
-	virtual void refresh_failed();
+	/*! \brief In case an allocation error occured */
+	virtual void allocation_failed(const int& err_count, std::exception& e);
 
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual void update_n_parameter(unsigned short n);
