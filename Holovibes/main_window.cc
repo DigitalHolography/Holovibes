@@ -477,6 +477,7 @@ namespace gui
 
 	void MainWindow::set_complex_mode(bool value)
 	{
+		close_critical_compute();
 		QPoint pos(0, 0);
 		unsigned int width = 512;
 		unsigned int height = 512;
