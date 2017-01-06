@@ -431,7 +431,6 @@ namespace holovibes
 		  catch (std::exception& e)
 		  {
 			  gpu_ref_diff_queue_ = nullptr;
-			//  gui::MainWindowAccessor::GetInstance().getMainWindow()->close_critical_compute();
 			  allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
 
 		  }
