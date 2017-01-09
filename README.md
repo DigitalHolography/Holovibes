@@ -27,11 +27,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### Qt 5.7.1 ###
 
-* [Qt OpenSource Windows x64 5.5](https://www.qt.io/qt5-7/)
-
-### AdvancedInstaller ###
-
-* [AdvancedInstaller for Visual Studio](http://www.advancedinstaller.com/download.html)
+* [Qt OpenSource Windows x64 5.7.1](https://www.qt.io/qt5-7/)
 
 ### VISA ###
 
