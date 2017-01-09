@@ -1,4 +1,4 @@
-# Holovibes v2.2.0 #
+# Holovibes v2.5.0 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -352,6 +352,22 @@ Cyril, Clément are now working on the project until January 2017.
 * FFT1D temporal performances greatly improved
 * add accumulation stack feature
 * fix several bugs
+
+### v.2.4.0
+
+* STFT has been rewritten completely with great result improvement
+* Thread_reader as been completely rewritten.
+* 2D_unwrap has been rewritten.
+* Every dll has been updated : Hovovibes is now in 8.0.
+* Add Reference substract from the current image (sliding and settled)
+* Add Filter2D feature.
+* Add Complex display & record
+
+### v.2.5.0
+
+* Bug fixing
+* Errors in Holovibes are now displayed & better handled.
+
 
 # Known problems :
 
