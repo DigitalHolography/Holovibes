@@ -306,7 +306,6 @@ signals:
     */
     void request_stft_roi_update(holovibes::Rectangle zone);
     /*! \brief Indicate stft roi selection is finish
-    ** \param zone selection is region of interest
     */
     void request_stft_roi_end();
     /*! \brief Request to stop the autofocus currently

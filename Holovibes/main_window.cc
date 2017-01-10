@@ -630,11 +630,13 @@ namespace gui
 		  cancel->setEnabled(true);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		  /* This is NOT use for STFT the name just wasn't change and use the same old STFT tools*/
 		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
 			  Qt::UniqueConnection);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-			  Qt::UniqueConnection);		  
+			  Qt::UniqueConnection);
+
 		  cd.log_scale_enabled.exchange(true);
 		  cd.shift_corners_enabled.exchange(false);
 		  if (cd.contrast_enabled)
@@ -1109,6 +1111,8 @@ namespace gui
   {
     holovibes_.get_pipe()->request_stft_roi_end();
   }
+
+
 
   void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
   {
