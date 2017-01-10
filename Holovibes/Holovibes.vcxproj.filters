@@ -242,9 +242,6 @@
     <ClCompile Include="compute_bundles.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="gui_gl_widget.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -253,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="gui_tool.cc">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
