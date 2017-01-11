@@ -35,7 +35,7 @@ __global__ void kernel_flowgraphy(
 			cufftComplex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
-			D.x += std::sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2)); // |a - b|
+			D.x += std::sqrt(pow((a.x - b.x), 2) + pow((a.y - b.y), 2)); // |a - b| 
 		}
 		M.x += (n_i * b.x);
 		M.y += (n_i * b.y);

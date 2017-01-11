@@ -113,10 +113,10 @@ namespace holovibes
     void request_autocontrast();
 
     /*! \brief Request the ICompute to apply the stft algorithm in the border. And call request_update_n */
-    void request_stft_roi_update();
+    void request_filter2D_roi_update();
 
     /*! \brief Request the ICompute to apply the stft algorithm in full window. And call request_update_n */
-    void request_stft_roi_end();
+    void request_filter2D_roi_end();
 
     /*! \brief Request the ICompute to update the nsamples parameter.
     *

@@ -634,7 +634,7 @@ namespace gui
 		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_filter2D_roi_update(holovibes::Rectangle)),
 			  Qt::UniqueConnection);
-		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_filter2D_roi_end()),
 			  Qt::UniqueConnection);
 
 		  cd.log_scale_enabled.exchange(true);
@@ -1109,7 +1109,7 @@ namespace gui
 
   void MainWindow::request_filter2D_roi_end()
   {
-    holovibes_.get_pipe()->request_stft_roi_end();
+    holovibes_.get_pipe()->request_filter2D_roi_end();
   }
 
 
@@ -1120,7 +1120,7 @@ namespace gui
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
     desc.stft_roi_zone = zone;
-    holovibes_.get_pipe()->request_stft_roi_update();
+    holovibes_.get_pipe()->request_filter2D_roi_update();
   }
 
   void MainWindow::request_autofocus_stop()

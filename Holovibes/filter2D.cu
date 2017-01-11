@@ -19,10 +19,9 @@ __global__ void filter2D_roi(
 	// In ROI
 	while (index < size)
 	{
-		if (index >= tl_y * width && index < br_y * width
-			&& index % width >= tl_x && index % width < br_x)
-		{}
-		else
+		unsigned int mod_index = index % width;
+		if (!(index >= tl_y * width && index < br_y * width
+			&& mod_index >= tl_x && mod_index < br_x))
 		{
 			input[index] = make_cuComplex(0, 0);
 		}

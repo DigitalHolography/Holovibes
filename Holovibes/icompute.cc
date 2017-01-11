@@ -492,13 +492,13 @@ namespace holovibes
     request_refresh();
   }
 
-  void ICompute::request_stft_roi_update()
+  void ICompute::request_filter2D_roi_update()
   {
     stft_update_roi_requested_ = true;
     request_update_n(compute_desc_.nsamples.load());
   }
 
-  void ICompute::request_stft_roi_end()
+  void ICompute::request_filter2D_roi_end()
   {
     stft_update_roi_requested_ = false;
     request_update_n(compute_desc_.nsamples.load());
