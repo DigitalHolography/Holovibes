@@ -301,13 +301,13 @@ signals:
     ** \param zone selection zone for computation
     */
     void request_autofocus(holovibes::Rectangle zone);
-    /*! \brief Request stft roi action in zone
+    /*! \brief Request fliter2D roi action in zone
     ** \param zone selection is region of interest
     */
-    void request_stft_roi_update(holovibes::Rectangle zone);
-    /*! \brief Indicate stft roi selection is finish
+    void request_filter2D_roi_update(holovibes::Rectangle zone);
+    /*! \brief Indicate filter2D roi selection is finish
     */
-    void request_stft_roi_end();
+    void request_filter2D_roi_end();
     /*! \brief Request to stop the autofocus currently
     **  occuring.
     */

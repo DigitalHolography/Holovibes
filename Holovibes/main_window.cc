@@ -632,7 +632,7 @@ namespace gui
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		  /* This is NOT use for STFT the name just wasn't change and use the same old STFT tools*/
 		  gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_filter2D_roi_update(holovibes::Rectangle)),
 			  Qt::UniqueConnection);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
 			  Qt::UniqueConnection);
@@ -1107,14 +1107,14 @@ namespace gui
     gl_widget->set_selection_mode(gui::eselection::ZOOM);
   }
 
-  void MainWindow::request_stft_roi_end()
+  void MainWindow::request_filter2D_roi_end()
   {
     holovibes_.get_pipe()->request_stft_roi_end();
   }
 
 
 
-  void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
+  void MainWindow::request_filter2D_roi_update(holovibes::Rectangle zone)
   {
     GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
     holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();

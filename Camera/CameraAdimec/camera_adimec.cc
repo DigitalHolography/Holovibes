@@ -194,10 +194,10 @@ namespace camera
 
     /* Frame period should be set before exposure time, because the latter
      * depends of the former. */
-    if (BFCXPWriteReg(board_, 0, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
+    if (BFCXPWriteReg(board_, 0xFF, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
       std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
 
-    if (BFCXPWriteReg(board_, 0, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
+    if (BFCXPWriteReg(board_, 0xFF, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
       std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
     /* ROI : Find a software alternative in Bi or rely solely on .bfml files. */

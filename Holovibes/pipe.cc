@@ -523,35 +523,6 @@ namespace holovibes
         static_cast<cudaStream_t>(0)));
     }
 
-    if (average_requested_)
-    {
-      if (average_record_requested_)
-      {
-        fn_vect_.push_back(std::bind(
-          &Pipe::average_record_caller,
-          this,
-          gpu_float_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          static_cast<cudaStream_t>(0)));
-
-        average_record_requested_ = false;
-      }
-      else
-      {
-        fn_vect_.push_back(std::bind(
-          &Pipe::average_caller,
-          this,
-          gpu_float_buffer_,
-          input_fd.width,
-          input_fd.height,
-          compute_desc_.signal_zone.load(),
-          compute_desc_.noise_zone.load(),
-          static_cast<cudaStream_t>(0)));
-      }
-    }
 
     if (compute_desc_.log_scale_enabled)
     {
@@ -586,6 +557,36 @@ namespace holovibes
         compute_desc_.contrast_max.load(),
         static_cast<cudaStream_t>(0)));
     }
+
+	if (average_requested_)
+	{
+		if (average_record_requested_)
+		{
+			fn_vect_.push_back(std::bind(
+				&Pipe::average_record_caller,
+				this,
+				gpu_float_buffer_,
+				input_fd.width,
+				input_fd.height,
+				compute_desc_.signal_zone.load(),
+				compute_desc_.noise_zone.load(),
+				static_cast<cudaStream_t>(0)));
+
+			average_record_requested_ = false;
+		}
+		else
+		{
+			fn_vect_.push_back(std::bind(
+				&Pipe::average_caller,
+				this,
+				gpu_float_buffer_,
+				input_fd.width,
+				input_fd.height,
+				compute_desc_.signal_zone.load(),
+				compute_desc_.noise_zone.load(),
+				static_cast<cudaStream_t>(0)));
+		}
+	}
 
     if (float_output_requested_)
     {
