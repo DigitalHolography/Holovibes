@@ -627,6 +627,7 @@ namespace gui
 	  if (!is_direct_mode())
 	  {
 		  QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
+		  QCheckBox* fftshiftbox = findChild<QCheckBox*>("shiftCornersCheckBox");
 		  cancel->setEnabled(true);
 		  holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		  GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
@@ -636,9 +637,9 @@ namespace gui
 			  Qt::UniqueConnection);
 		  connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_filter2D_roi_end()),
 			  Qt::UniqueConnection);
-
 		  cd.log_scale_enabled.exchange(true);
 		  cd.shift_corners_enabled.exchange(false);
+		  fftshiftbox->setEnabled(false);
 		  if (cd.contrast_enabled)
 		  {
 			  QDoubleSpinBox* contrast_min = findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox");
@@ -1110,6 +1111,8 @@ namespace gui
   void MainWindow::request_filter2D_roi_end()
   {
     holovibes_.get_pipe()->request_filter2D_roi_end();
+	QCheckBox* fftshiftbox = findChild<QCheckBox*>("shiftCornersCheckBox");
+	fftshiftbox->setEnabled(true);
   }
 
 
