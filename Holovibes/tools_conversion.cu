@@ -117,7 +117,7 @@ static __global__ void kernel_complex_to_argument(
   const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  const float pi_div_2 = M_PI / 2.0f;
+  const float pi_div_2 = M_PI_2;
 
   while (index < size)
   {
