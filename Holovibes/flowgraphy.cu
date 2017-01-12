@@ -18,7 +18,7 @@ __global__ void kernel_flowgraphy(
 	const unsigned int n_i)
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int size = frame_resolution * nsamples;
+	//unsigned int size = frame_resolution * nsamples;
 
 	while (index < frame_resolution)
 	{
@@ -77,11 +77,11 @@ void convolution_flowgraphy(
 		sizeof(cufftComplex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 
-	unsigned int n = pow(nframes, 3) - 3;
+	unsigned int n = static_cast<unsigned int>(pow(nframes, 3) - 3);
 	unsigned int  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
 	cufftComplex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
 
-	kernel_flowgraphy << <blocks, threads, 0, stream >> >(
+	kernel_flowgraphy <<<blocks, threads, 0, stream>>>(
 		input,
 		gpu_special_queue,
 		gpu_special_queue_buffer_length,

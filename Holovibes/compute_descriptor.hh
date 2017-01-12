@@ -26,8 +26,9 @@ namespace holovibes
    * This class contains std::atomic fields to avoid concurrent access between
    * the pipe and the GUI.
    */
-  struct ComputeDescriptor : public Observable
+  class ComputeDescriptor : public Observable
   {
+  public:
     /*! \brief Select hologram methods. */
     enum fft_algorithm
     {
@@ -78,8 +79,8 @@ namespace holovibes
 	  , flowgraphy_enabled(false)
 	  , stft_enabled(false)
 	  , filter_2d_enabled(false)
-      , contrast_min(1)
-      , contrast_max(65535)
+      , contrast_min(1.f)
+      , contrast_max(65535.f)
       , vibrometry_q()
       , autofocus_size(3)
 	  , convo_matrix_width(0)
@@ -91,7 +92,7 @@ namespace holovibes
 	  , autofocus_z_iter(3)
 	  , flowgraphy_level(3)
 	  , is_cine_file(false)
-	  , import_pixel_size(5.42)
+	  , import_pixel_size(5.42f)
 	  , img_acc_enabled(false)
 	  , img_acc_buffer_size(20)
 	  , img_acc_level(1)

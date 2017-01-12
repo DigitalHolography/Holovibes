@@ -21,7 +21,7 @@ namespace camera
         is_AllocImageMem(cam_,
           desc_.width,
           desc_.height,
-          desc_.depth * 8,
+		  static_cast<int>(desc_.depth * 8),
           &frame_,
           &frame_mem_pid_);
       }

@@ -17,8 +17,8 @@ void fft2_lens(
   unsigned int threads_2d = get_max_threads_2d();
   dim3 lthreads(threads_2d, threads_2d);
   dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
-  float test = fd.pixel_size;
-  kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z);
+  //float test = fd.pixel_size;
+  kernel_spectral_lens <<<lblocks, lthreads, 0, stream >>>(lens, fd, lambda, z);
 }
 
 void fft_2(

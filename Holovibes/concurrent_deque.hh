@@ -137,7 +137,7 @@ namespace holovibes
       guard guard(mutex_);
 
       reverse_iterator q_end = deque_.rbegin();
-      unsigned limit = std::min(nb_elts, deque_.size());
+	  size_t limit = std::min(nb_elts,deque_.size());
       std::advance(q_end, limit);
 
       std::transform(deque_.rbegin(),

@@ -17,7 +17,7 @@ namespace holovibes
       this->output_queue_max_size = 50;
       this->float_queue_max_size = 20;
       this->flush_on_refresh = 1;
-      this->frame_timeout = 1e5;
+      this->frame_timeout = static_cast<unsigned int>(1e5);
       this->reader_buf_max_size = 20;
       this->unwrap_history_size = 20;
       this->import_pixel_size = 5.42f;

@@ -358,14 +358,14 @@ static __global__ void kernel_complex_to_ushort(
 		if (input[index].x > 65535.0f)
 			x = 65535;
 		else if (input[index].x >= 1.0f)
-		x = static_cast<unsigned short>(pow(input[index].x, 2));
+			x = static_cast<unsigned short>(pow(input[index].x, 2));
 		
 		if (input[index].y > 65535.0f)
 			y = 65535;
 		else if (input[index].y >= 0.0f)
 			y = static_cast<unsigned short>(pow(input[index].y, 2));
 		auto& res = output[index];
-		res ^ res;
+		res ^= res;
 		res = x << 16;
 		res += y;
 		index += blockDim.x * gridDim.x;
@@ -431,15 +431,15 @@ void	buffer_size_conversion(char *real_buffer
 	, const camera::FrameDescriptor frame_desc)
 {
 	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * frame_desc.depth), threads);
+	unsigned int blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
 
-	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(
-		real_buffer
-		, buffer
-		, frame_desc.width * frame_desc.depth
-		, frame_desc.height * frame_desc.depth
-		, real_frame_desc.width * frame_desc.depth
-		, frame_desc.height * real_frame_desc.width * frame_desc.depth);
+	kernel_buffer_size_conversion <<<blocks, threads, 0>>>(
+		real_buffer,
+		buffer,
+		frame_desc.width * static_cast<unsigned int>(frame_desc.depth),
+		frame_desc.height * static_cast<unsigned int>(frame_desc.depth),
+		real_frame_desc.width * static_cast<unsigned int>(frame_desc.depth),
+		frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
 }
 
 __global__ void kernel_accumulate_images(

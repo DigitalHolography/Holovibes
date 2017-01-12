@@ -12,7 +12,7 @@ namespace holovibes
 		fpos_t					pos = 0;
 		unsigned int			offset_to_ptr = 0;
 		char					buffer[44];
-		long int				length = 0;
+		size_t					length = 0;
 		unsigned short int		value = 0;
 
 		try
@@ -22,8 +22,10 @@ namespace holovibes
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 			std::fsetpos(file, &pos);
 			/*Reading the whole cine file header*/
-			if ((length = std::fread(buffer, 1, 44, file)) = !44)
+			//if ((length = std::fread(buffer, 1, 44, file)) != 44)
+			if (std::fread(buffer, 1, 44, file) != 44)
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
+
 			/*Checking if the file is actually a .cine file*/
 			if (std::strstr(buffer, "CI") == NULL)
 				throw std::runtime_error("[READER] file " + file_src_ + " is not a valid .cine file");
@@ -32,7 +34,8 @@ namespace holovibes
 			pos = offset_to_ptr;
 			/*Reading value FrameRate16*/
 			std::fsetpos(file, &pos);
-			if ((length = std::fread(&value, 1, sizeof(short int), file)) = !sizeof(short int))
+			//if ((length = std::fread(&value, 1, sizeof(short int), file)) != sizeof(short int))
+			if (std::fread(&value, 1, sizeof(short int), file) != sizeof(short int))
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
 		}
 		catch (std::runtime_error& e)
@@ -46,7 +49,7 @@ namespace holovibes
 		fpos_t					pos = 0;
 		unsigned int			offset_to_ptr = 0;
 		char					buffer[44];
-		long int				length = 0;
+		size_t					length = 0;
 		unsigned short int		value = 0;
 
 		try
@@ -56,7 +59,8 @@ namespace holovibes
 				throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 			std::fsetpos(file, &pos);
 			/*Reading the whole cine file header*/
-			if ((length = std::fread(buffer, 1, 44, file)) = !44)
+			//if ((length = std::fread(buffer, 1, 44, file)) != 44)
+			if (std::fread(buffer, 1, 44, file) != 44)
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
 			/*Checking if the file is actually a .cine file*/
 			if (std::strstr(buffer, "CI") == NULL)
@@ -66,7 +70,8 @@ namespace holovibes
 			/*Reading value Shutter16*/
 			pos = offset_to_ptr + 2;
 			std::fsetpos(file, &pos);
-			if ((length = std::fread(&value, 1, sizeof(short int), file)) = !sizeof(short int))
+			//if ((length = std::fread(&value, 1, sizeof(short int), file)) != sizeof(short int))
+			if (std::fread(&value, 1, sizeof(short int), file) != sizeof(short int))
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
 		}
 		catch (std::runtime_error& e)

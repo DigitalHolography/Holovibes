@@ -41,5 +41,5 @@ void frame_ratio(
   unsigned int threads = get_max_threads_1d();
   unsigned int blocks = map_blocks_to_problem(size, threads);
 
-  kernel_frame_ratio << <blocks, threads, 0, stream >> >(frame_p, frame_q, output, size);
+  kernel_frame_ratio <<<blocks, threads, 0, stream>>>(frame_p, frame_q, output, size);
 }

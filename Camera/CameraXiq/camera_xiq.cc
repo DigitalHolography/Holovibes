@@ -95,10 +95,10 @@ namespace camera
 
     gain_ = pt.get<float>("xiq.gain", gain_);
 
-    downsampling_rate_ = pt.get<int>("xiq.downsampling_rate", downsampling_rate_);
+    downsampling_rate_ = pt.get<unsigned int>("xiq.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
-    desc_.width = desc_.width / downsampling_rate_;
-    desc_.height = desc_.height / downsampling_rate_;
+	desc_.width = desc_.width / static_cast<unsigned short>(downsampling_rate_);
+	desc_.height = desc_.height / static_cast<unsigned short>(downsampling_rate_);
 
     std::string str;
     str = pt.get<std::string>("xiq.downsampling_type", "");
@@ -139,8 +139,8 @@ namespace camera
         roi_height_ = tmp_roi_height;
 
         // Don't forget to update the frame descriptor!
-        desc_.width = roi_width_;
-        desc_.height = roi_height_;
+        desc_.width = static_cast<unsigned short>(roi_width_);
+		desc_.height = static_cast<unsigned short>(roi_height_);
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;

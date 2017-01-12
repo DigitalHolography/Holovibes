@@ -19,7 +19,7 @@ __global__ void kernel_multiply_kernel(
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int n, m, z;
-	unsigned int size = frame_resolution * nsamples;
+	//unsigned int size = frame_resolution * nsamples;
 	unsigned int k_size = k_width * k_height;
 	while (index < frame_resolution)
 	{

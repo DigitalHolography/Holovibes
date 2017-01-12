@@ -14,8 +14,9 @@ namespace holovibes
   /*! \brief The aim of this structure is to contain user
   ** parameters entered with the CLI or GUI.
   **/
-  struct OptionsDescriptor
+  class OptionsDescriptor
   {
+  public:
     /*! \brief The constructor sets default values. */
     OptionsDescriptor()
     : recorder_n_img(0)

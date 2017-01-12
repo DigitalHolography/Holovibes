@@ -7,7 +7,7 @@
 /*! Forward declaration*/
 namespace camera
 {
-  class FrameDescriptor;
+  struct FrameDescriptor;
 }
 
 namespace holovibes

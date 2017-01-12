@@ -15,7 +15,7 @@
 /* Forward declarations. */
 namespace holovibes
 {
-  class Rectangle;
+  struct Rectangle;
 }
 namespace holovibes
 {

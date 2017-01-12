@@ -39,7 +39,7 @@ namespace gui
 	while (deque_.size() < nb_frames_ && record_)
 	{
 		if (deque_.size() <= nb_frames_)
-		emit value_change(deque_.size());
+		emit value_change(static_cast<int>(deque_.size()));
 		continue;
 	}
 	emit value_change(nb_frames_);
