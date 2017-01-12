@@ -25,7 +25,8 @@ namespace gui
     /*! Throwed if try instance InfoManager more once*/
     class ManagerNotInstantiate : std::exception
     {
-      std::string& what() { return std::string("InfoManager is not instantiate, use InfoManager::get_manager with arg"); }
+		/* std::string& */
+		const char *what() { return /*std::string*/("InfoManager is not instantiate, use InfoManager::get_manager with arg"); }
     };
     /*! ctr */
     InfoManager(gui::GroupBox *ui);

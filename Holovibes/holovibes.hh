@@ -74,7 +74,7 @@ namespace holovibes
     }
 
     /*! \brief Returns the camera name. */
-    const std::string& get_camera_name()
+	/* const std::string& */const char* get_camera_name()
     {
       assert(camera_initialized_ && "camera not initialized");
       return camera_.get()->get_name();

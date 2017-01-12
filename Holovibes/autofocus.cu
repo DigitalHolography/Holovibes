@@ -102,10 +102,11 @@ static float average_local_variance(
   {
     const unsigned square_mat_size = mat_size * mat_size;
     cufftComplex* ke_complex_cpu = (cufftComplex*) malloc(sizeof(cufftComplex) * square_mat_size);
-    for (int i = 0; i < square_mat_size; ++i)
+
+    for (unsigned int i = 0; i < square_mat_size; i++) // ++i before
     {
-      ke_complex_cpu[i].x = 1 / square_mat_size;
-      ke_complex_cpu[i].y = 1 / square_mat_size;
+      ke_complex_cpu[i].x = 1.f / static_cast<float>(square_mat_size);
+	  ke_complex_cpu[i].y = 1.f / static_cast<float>(square_mat_size);
     }
 
     /* Copy the ke matrix to ke_gpu_frame. */

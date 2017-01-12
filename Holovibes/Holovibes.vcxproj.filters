@@ -13,10 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Macro Files">
-      <UniqueIdentifier>{e4a98df1-2e43-4ad2-8ac7-8e7a631c9874}</UniqueIdentifier>
-      <Extensions>def;</Extensions>
-    </Filter>
     <Filter Include="Source Files CUDA">
       <UniqueIdentifier>{f4e5e542-dbd7-4865-8a96-427aaf9a475d}</UniqueIdentifier>
       <Extensions>cu;</Extensions>
@@ -37,13 +33,25 @@
     <Filter Include="Generated Files\Release">
       <UniqueIdentifier>{5d8f330a-0ea3-4ba9-8db0-3839536cba01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gui">
+      <UniqueIdentifier>{498134bf-b07f-4767-b374-0d7154cfc12f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\thread">
+      <UniqueIdentifier>{f6a0f91a-367e-4d96-b120-72a008815c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\compute">
+      <UniqueIdentifier>{c33ed7ed-0a0c-478f-808a-257d04cf75a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tools">
+      <UniqueIdentifier>{7bdc08de-d48e-4627-994c-c577be5362ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{571c322b-2036-4ccb-b92b-0c54bd9121c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="contrast_correction.cu">
       <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="hardware_limits.cc">
-      <Filter>Source Files</Filter>
     </CudaCompile>
     <CudaCompile Include="preprocessing.cu">
       <Filter>Source Files CUDA</Filter>
@@ -90,11 +98,11 @@
     <CudaCompile Include="filter2D.cu">
       <Filter>Source Files CUDA</Filter>
     </CudaCompile>
+    <CudaCompile Include="hardware_limits.cc">
+      <Filter>Source Files\tools</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="holovibes.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,27 +113,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="recorder.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_capture.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_compute.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_group_box.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_descriptor.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_recorder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
@@ -164,17 +151,11 @@
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_plot_window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_plot_window.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_gui_plot_window.cc">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_curve_plot.cc">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
       <Filter>Generated Files\Debug</Filter>
@@ -182,49 +163,19 @@
     <ClCompile Include="GeneratedFiles\Release\moc_gui_curve_plot.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="camera_dll.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_csv_record.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_csv_record.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_thread_csv_record.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="ithread_input.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_reader.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="geometry.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pipe.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="pipeline.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="module.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="icompute.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tools.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="power_of_two.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="config.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="info_manager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_recorder.cc">
@@ -239,20 +190,80 @@
     <ClCompile Include="gpib_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="compute_bundles.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_widget.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_bundles_2d.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_tool.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_dll.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_curve_plot.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_widget.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_window.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_group_box.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_plot_window.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_tool.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_recorder.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_reader.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_csv_record.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_compute.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="thread_capture.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="ithread_input.cc">
+      <Filter>Source Files\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="compute_bundles.cc">
+      <Filter>Source Files\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="compute_bundles_2d.cc">
+      <Filter>Source Files\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="compute_descriptor.cc">
+      <Filter>Source Files\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cc">
+      <Filter>Source Files\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="info_manager.cc">
+      <Filter>Source Files\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="power_of_two.cc">
+      <Filter>Source Files\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="pipe.cc">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="holovibes.cc">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="icompute.cc">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline.cc">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cc">
+      <Filter>Source Files\gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

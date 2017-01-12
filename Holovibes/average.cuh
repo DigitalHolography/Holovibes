@@ -11,7 +11,7 @@
 /* Forward declaration. */
 namespace holovibes
 {
-  class Rectangle;
+  struct Rectangle;
 }
 
 /*! \brief  Make the average plot on the 2 selected zones

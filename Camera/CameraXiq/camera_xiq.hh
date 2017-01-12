@@ -43,7 +43,7 @@ namespace camera
      * * 1: 1x1 sensor pixel  = 1 image pixel
      * * 2: 2x2 sensor pixels = 1 image pixel
      * * 4: 4x4 sensor pixels = 1 image pixel */
-    int downsampling_rate_;
+    unsigned int downsampling_rate_;
 
     //!< Downsampling method.
     /*! * XI_BINNING  0: pixels are interpolated - better image

@@ -110,7 +110,7 @@ namespace gui
     using elt_t = std::tuple<float, float, float, float>;
     std::vector<elt_t> tmp = average_vector_;
 
-    float curr = 0.0f;
+    //float curr = 0.0f;
 
     auto minmax = std::minmax_element(tmp.cbegin(),
       tmp.cend(),

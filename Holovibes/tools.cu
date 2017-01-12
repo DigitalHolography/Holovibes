@@ -353,11 +353,11 @@ void gradient_unwrap_2d(
 {
 	const unsigned threads = 128;
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
-	cufftComplex single_complex = make_cuComplex(0, 2 * M_PI);
+	cufftComplex single_complex = make_cuComplex(0.f, static_cast<float>(2 * M_PI));
 
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
-	kernel_multiply_complexes_by_floats_ << < blocks, threads, 0, stream >> > (
+	kernel_multiply_complexes_by_floats_ <<< blocks, threads, 0, stream>>>(
 		res->gpu_shift_fx_,
 		res->gpu_shift_fy_,
 		res->gpu_grad_eq_x_,

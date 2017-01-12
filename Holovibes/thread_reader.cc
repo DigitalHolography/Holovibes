@@ -152,7 +152,7 @@ namespace holovibes
 		if (act_frame_ >= nbr_stored_)
 		{
 			size_t length = std::fread(buffer, 1, frame_size * elts_max_nbr, file);
-			nbr_stored_ = length / frame_size;
+			nbr_stored_ = static_cast<unsigned int>(length) / frame_size;
 			act_frame_ = 0;
 		}
 		if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
@@ -186,7 +186,7 @@ namespace holovibes
 
   long int ThreadReader::offset_cine_first_image(FILE *file)
   {
-	  long int		length = 0;
+	  size_t		length = 0;
 	  char			buffer[44];
 	  unsigned int	offset_to_ptr = 0;
 	  fpos_t		off = 0;

@@ -26,6 +26,13 @@ namespace camutils
   * * Asking for pinned memory allocation on the host to speed up data transfer.
   * \{
   */
+
+  /*void create_logfile(const std::string name);
+  void log_msg(const std::string msg);
+  void close_logfile();
+  void allocate_memory(void** buf, const std::size_t size);
+  void free_memory(void* buf);*/
+
   extern "C"
   {
     /*! \brief Create a logfile for a given camera name.

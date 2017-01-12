@@ -13,7 +13,7 @@
 /* Forward declarations. */
 namespace holovibes
 {
-  struct ComputeDescriptor;
+  class ComputeDescriptor;
   class Queue;
 }
 

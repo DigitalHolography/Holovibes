@@ -30,8 +30,6 @@ void fft_1(
 	const unsigned int q,
 	cudaStream_t stream)
 {
-	const unsigned int n_frame_resolution = frame_resolution * nframes;
-
 	unsigned int threads = get_max_threads_1d();
 	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
 	
@@ -40,16 +38,14 @@ void fft_1(
 	cufftExecC2C(plan1D, input, input, CUFFT_FORWARD);
 
 	// Apply lens on multiple frames.
-	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
+	kernel_apply_lens <<<blocks, threads, 0, stream>>>(pframe, frame_resolution, lens, frame_resolution);
 	cudaStreamSynchronize(stream);
 	// FFT
-
     cufftExecC2C(plan2D, pframe, pframe, CUFFT_FORWARD);
-
 	if (p != q)
 	{
 		cufftComplex* qframe = input + frame_resolution * q;
-		kernel_apply_lens << <blocks, threads, 0, stream >> >(qframe, frame_resolution, lens, frame_resolution);
+		kernel_apply_lens <<<blocks, threads, 0, stream>>>(qframe, frame_resolution, lens, frame_resolution);
 		cufftExecC2C(plan2D, qframe, qframe, CUFFT_FORWARD);
 	}
 
