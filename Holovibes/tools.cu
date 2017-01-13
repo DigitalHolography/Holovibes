@@ -80,7 +80,6 @@ void shift_corners(
   kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
 }
 
-
 /* Kernel used in apply_log10 */
 static __global__ void kernel_log10(
   float* input,

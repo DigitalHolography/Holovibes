@@ -2715,7 +2715,7 @@ namespace gui
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
 			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(0, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));
+				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));
 		}
 		else
 		{

@@ -58,3 +58,16 @@ void stft(
   unsigned int                    frame_size,
   bool                            stft_activated,
   cudaStream_t                    stream = 0);
+
+typedef unsigned int	uint;
+typedef unsigned short	ushort;
+
+void	stft_view_begin(	cufftComplex	*input,
+							ushort			*output,
+							uint			x0,
+							uint			y0,
+							uint			z0,
+							uint			frame_size,
+							uint			width,
+							uint			height,
+							uint			depth);

@@ -45,3 +45,42 @@ void stft(
 	}
 
 }
+
+__global__	void	stft_view_xz(	cufftComplex	*input,
+									ushort			*output,
+									uint			x0,
+									uint			y0,
+									uint			z0,
+									uint			frame_size,
+									uint			width,
+									uint			height,
+									uint			depth)
+{
+	uint id = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (id < frame_size)
+	{
+		uint index_x = id;
+		uint index_z = id % depth;
+//		cufftComplex pixel = input[(y0 * width) + (index_x / width) * frame_size + index_x % width];
+		cufftComplex pixel = input[(y0 * width) + (index_x / width) * frame_size + index_x % width];
+		float res = hypotf(pixel.x, pixel.y);
+		output[id] = static_cast<ushort>(pixel.x);
+	}
+}
+
+void	stft_view_begin(	cufftComplex	*input,
+							ushort			*output,
+							uint			x0,
+							uint			y0,
+							uint			z0,
+							uint			frame_size,
+							uint			width,
+							uint			height,
+							uint			depth)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem(frame_size, threads);
+
+	stft_view_xz<<<blocks, threads, 0, 0 >>>(input, output, x0, y0, z0, frame_size, width, height, depth);
+}
