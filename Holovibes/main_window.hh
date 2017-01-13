@@ -92,7 +92,7 @@ namespace gui
 		/* \brief signal needed to send error messages from the compute thread.*/
 		void send_error(QString message);
 
-		public slots:
+	public slots:
 		/*! \brief Display information message
 		** \param msg information message
 		*/
@@ -465,6 +465,9 @@ namespace gui
 
 		/*! \brief Display classic GUI theme*/
 		void set_night();
+
+		void stft_view(bool b);
+
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
 
@@ -538,6 +541,10 @@ namespace gui
 		holovibes::Holovibes& holovibes_;
 		/*! OpenGL window */
 		std::unique_ptr<GuiGLWindow> gl_window_;
+		// TO DO
+		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
+		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
+
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;
 		/*! true if average mode is enabled, false otherwise */
@@ -581,5 +588,6 @@ namespace gui
 		QShortcut* gl_normal_screen_;
 		QShortcut* autofocus_ctrl_c_shortcut_;
 		/*! \} */
+		
 	};
 }

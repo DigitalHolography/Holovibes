@@ -48,6 +48,21 @@
     <Filter Include="Source Files\core">
       <UniqueIdentifier>{571c322b-2036-4ccb-b92b-0c54bd9121c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\compute">
+      <UniqueIdentifier>{ad96cfb3-0291-4b70-a199-dd09de6b38be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\thread">
+      <UniqueIdentifier>{f09398da-e256-48cb-a5a8-9dfd0dae52ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{73555b3c-6ac2-4c56-9d83-c6d55d8d1cb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui">
+      <UniqueIdentifier>{0889426a-6d14-4583-8c95-566a13f7d6d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tools">
+      <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="contrast_correction.cu">
@@ -270,12 +285,6 @@
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="hardware_limits.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="holovibes.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="options_descriptor.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -291,23 +300,14 @@
     <ClInclude Include="fft1.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="thread_capture.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="transforms.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="thread_compute.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="fft2.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="compute_descriptor.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
       <Filter>Header Files</Filter>
@@ -342,23 +342,11 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ithread_input.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_reader.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools_conversion.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="stft.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="pipe.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pipeline.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pipeline_utils.hh">
       <Filter>Header Files</Filter>
@@ -366,22 +354,10 @@
     <ClInclude Include="module.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="icompute.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tools.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="power_of_two.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="config.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gpib_dll.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="compute_bundles.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools_unwrap.cuh">
@@ -393,26 +369,62 @@
     <ClInclude Include="flowgraphy.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="compute_bundles_2d.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tools_compute.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="filter2D.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="gui_tool.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="custom_exception.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="compute_bundles.hh">
+      <Filter>Header Files\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_bundles_2d.hh">
+      <Filter>Header Files\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_descriptor.hh">
+      <Filter>Header Files\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_reader.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_compute.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_capture.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="ithread_input.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.hh">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline.hh">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="icompute.hh">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="holovibes.hh">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="gui_tool.hh">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware_limits.hh">
+      <Filter>Header Files\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="power_of_two.hh">
+      <Filter>Header Files\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.hh">
+      <Filter>Header Files\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="main_window.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="main_window.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
@@ -425,38 +437,41 @@
     <CustomBuild Include="gl_window.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_gl_window.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_gl_widget.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_group_box.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="thread_recorder.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_plot_window.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="plot_window.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="plot_window.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_curve_plot.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="thread_csv_record.hh">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="recorder.hh">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="thread_recorder.hh">
+      <Filter>Header Files\thread</Filter>
+    </CustomBuild>
+    <CustomBuild Include="thread_csv_record.hh">
+      <Filter>Header Files\thread</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_curve_plot.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_window.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_group_box.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_plot_window.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.hh">
+      <Filter>Header Files\gui</Filter>
+    </CustomBuild>
     <CustomBuild Include="info_manager.hh">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\tools</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

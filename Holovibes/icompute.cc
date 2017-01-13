@@ -37,6 +37,7 @@ namespace holovibes
 		, gpu_kernel_buffer_(nullptr)
 		, gpu_special_queue_(nullptr)
 		, gpu_stft_queue_(nullptr)
+		, gpu_stft_slice_queue_(nullptr)
 		, gpu_ref_diff_queue_(nullptr)
 		, gpu_filter2d_buffer(nullptr)
 		, plan3d_(0)
@@ -205,6 +206,8 @@ namespace holovibes
 		/* gpu_stft_queue */
 		delete gpu_stft_queue_;
 
+		delete gpu_stft_slice_queue_;
+
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
 
@@ -290,19 +293,59 @@ namespace holovibes
 			{
 				gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
 			}
-			catch (std::exception& /*e*/)
+			catch (std::exception& )
 			{
 				gpu_stft_queue_ = nullptr;
 				err_count++;
 			}
 		}
 
+		if (compute_desc_.stft_view_enabled)
+		{
+			try
+			{
+				update_stft_slice_queue();
+			}
+			catch (std::exception&)
+			{
+				gpu_stft_queue_ = nullptr;
+				err_count++;
+			}
+		}
+		
 		if (err_count != 0)
 		{
 			abort_construct_requested_ = true;
 			allocation_failed(err_count,
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
 		}
+	}
+
+	void	ICompute::update_stft_slice_queue()
+	{
+		delete_stft_slice_queue();
+		create_stft_slice_queue();
+	}
+
+	void	ICompute::delete_stft_slice_queue()
+	{
+		if (gpu_stft_slice_queue_)
+		{
+			delete gpu_stft_slice_queue_;
+			gpu_stft_slice_queue_ = nullptr;
+		}
+	}
+
+	void	ICompute::create_stft_slice_queue()
+	{
+		camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		new_fd.depth = 8;
+		gpu_stft_slice_queue_ = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+	}
+
+	Queue&	ICompute::get_stft_slice_queue()
+	{
+		return *gpu_stft_slice_queue_;
 	}
 
 	void ICompute::refresh()
@@ -400,7 +443,7 @@ namespace holovibes
 			{
 				gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
 			}
-			catch (std::exception& /*e*/)
+			catch (std::exception& )
 			{
 				gpu_img_acc_ = nullptr;
 				compute_desc_.img_acc_enabled.exchange(false);
@@ -429,7 +472,7 @@ namespace holovibes
 				gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level, "TakeRefQueue");
 				gpu_ref_diff_queue_->set_display(false);
 			}
-			catch (std::exception& /*e*/)
+			catch (std::exception& )
 			{
 				gpu_ref_diff_queue_ = nullptr;
 				allocation_failed(1, static_cast<std::exception>(CustomException("update_acc_parameter()", error_kind::fail_reference)));
@@ -685,6 +728,11 @@ namespace holovibes
 				input_.get_frame_desc().frame_res(),
 				b,
 				static_cast<cudaStream_t>(0));
+		}
+		if (compute_desc_.stft_view_enabled)
+		{
+			//gpu_stft_slice_queue_->enqueue(output, cudaMemcpyDeviceToDevice);
+
 		}
 	}
 

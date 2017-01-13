@@ -170,8 +170,8 @@ namespace gui
 
 		/* Map the buffer for access by CUDA. */
 		cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
-		size_t buffer_size;
-		void* buffer_ptr;
+		size_t	buffer_size;
+		void*	buffer_ptr;
 		cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
 		/* CUDA memcpy of the frame to opengl buffer. */
 

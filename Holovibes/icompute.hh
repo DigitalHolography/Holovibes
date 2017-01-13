@@ -196,6 +196,11 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec() = 0;
 
+	void	create_stft_slice_queue();
+	void	delete_stft_slice_queue();
+	void	update_stft_slice_queue();
+	Queue&	get_stft_slice_queue();
+
   protected:
     /*! \brief Generate the ICompute vector. */
     virtual void refresh();
@@ -361,7 +366,8 @@ namespace holovibes
 
 	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_stft_queue_;
-
+	Queue* gpu_stft_slice_queue_;
+	
 	/* \brief Queue for the reference diff */
 	Queue* gpu_ref_diff_queue_;
 

@@ -79,6 +79,7 @@ namespace holovibes
 	  , flowgraphy_enabled(false)
 	  , stft_enabled(false)
 	  , filter_2d_enabled(false)
+	  , stft_view_enabled(false)
       , contrast_min(1.f)
       , contrast_max(65535.f)
       , vibrometry_q()
@@ -221,6 +222,7 @@ namespace holovibes
 	/*! Is filter2D enabled. */
 	std::atomic<bool> filter_2d_enabled;
 
+	std::atomic<bool> stft_view_enabled;
 
   };
 }

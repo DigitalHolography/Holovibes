@@ -24,6 +24,8 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
+		, gl_win_stft_0(nullptr)
+		//, gl_win_stft_1(nullptr)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -107,6 +109,7 @@ namespace gui
 
 	MainWindow::~MainWindow()
 	{
+		gl_win_stft_0.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
@@ -442,7 +445,7 @@ namespace gui
 		if (is_enabled_camera_)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
+			cd.compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			QPoint pos(0, 0);
 			unsigned int width = 512;
 			unsigned int height = 512;
@@ -458,7 +461,7 @@ namespace gui
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				holovibes_.get_pipe()->register_observer(*this);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
 			}
@@ -874,6 +877,16 @@ namespace gui
 			cd.stft_enabled = b;
 			holovibes_.get_pipe()->request_update_n(cd.nsamples);
 			notify();
+			QCheckBox* p = findChild<QCheckBox*>("stft_view_checkbox");
+			if (b)
+			{
+				p->setEnabled(true);
+			}
+			else
+			{
+				p->setEnabled(false);
+				// to do : security
+			}
 		}
 	}
 
@@ -1915,7 +1928,8 @@ namespace gui
 			height_spinbox->value(),
 			depth_multi,
 			cd.import_pixel_size,
-			(big_endian_checkbox->currentText() == QString("Big Endian") ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
+			(big_endian_checkbox->currentText() == QString("Big Endian") ?
+				camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 		camera_visible(false);
 		record_visible(false);
 		global_visibility(false);
@@ -2686,6 +2700,32 @@ namespace gui
 		qApp->setPalette(darkPalette);
 
 		qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+	}
+
+	void MainWindow::stft_view(bool b)
+	{
+		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
+		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+
+		if (b)
+		{
+			p->setEnabled(false);
+			// launch stft_view windows
+			cd.stft_view_enabled.exchange(true);
+			notify();
+			holovibes_.get_pipe()->create_stft_slice_queue();
+			gl_win_stft_0.reset(new GuiGLWindow(
+				QPoint(0, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));
+		}
+		else
+		{
+			// delete stft_view windows
+			gl_win_stft_0.reset(nullptr);
+			holovibes_.get_pipe()->delete_stft_slice_queue();
+			cd.stft_view_enabled.exchange(false);
+			// -------------------
+			p->setEnabled(true);
+		}
 	}
 
 }
