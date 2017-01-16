@@ -55,15 +55,13 @@ __global__	void	stft_view_xz(	cufftComplex	*input,
 									uint			height,
 									uint			depth)
 {
-	uint id = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index_x = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (id < frame_size)
+	if (index_x < frame_size)
 	{
-		uint index_x = id;
-		uint index_z = id % depth;
 		cufftComplex pixel = input[(y0 * width) + (index_x / width) * frame_size + index_x % width];
-		float res = hypotf(pixel.x, pixel.y);
-		output[id] = static_cast<ushort>(pixel.x);
+		//float res = hypotf(pixel.x, pixel.y);
+		output[index_x] = static_cast<ushort>(pixel.x);
 	}
 }
 

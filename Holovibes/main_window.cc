@@ -878,15 +878,7 @@ namespace gui
 			holovibes_.get_pipe()->request_update_n(cd.nsamples);
 			notify();
 			QCheckBox* p = findChild<QCheckBox*>("stft_view_checkbox");
-			if (b)
-			{
-				p->setEnabled(true);
-			}
-			else
-			{
-				p->setEnabled(false);
-				// to do : security
-			}
+			p->setEnabled((b) ? true : false);
 		}
 	}
 
@@ -2713,8 +2705,10 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
-			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));
+			
+			/*gl_win_stft_0.reset(new GuiGLWindow(
+				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));*/
+
 			cd.stft_view_enabled.exchange(true);
 		}
 		else
