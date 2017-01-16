@@ -2160,7 +2160,7 @@
         </widget>
         <widget class="QComboBox" name="ImportEndianModeComboBox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2169,6 +2169,9 @@
            <width>91</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="currentText">
+          <string>Big Endian</string>
          </property>
          <item>
           <property name="text">
@@ -2490,7 +2493,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
