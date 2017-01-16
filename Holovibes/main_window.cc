@@ -2711,18 +2711,18 @@ namespace gui
 		{
 			p->setEnabled(false);
 			// launch stft_view windows
-			cd.stft_view_enabled.exchange(true);
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
 			gl_win_stft_0.reset(new GuiGLWindow(
 				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue()));
+			cd.stft_view_enabled.exchange(true);
 		}
 		else
 		{
 			// delete stft_view windows
+			cd.stft_view_enabled.exchange(false);
 			gl_win_stft_0.reset(nullptr);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
-			cd.stft_view_enabled.exchange(false);
 			// -------------------
 			p->setEnabled(true);
 		}
