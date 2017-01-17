@@ -118,11 +118,10 @@ static __global__ void kernel_complex_to_argument(
   const unsigned int size)
 {
   unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-  const float pi_div_2 = M_PI_2;
 
   while (index < size)
   {
-	  output[index] = (atanf(input[index].y / input[index].x) + pi_div_2);;
+	  output[index] = (atanf(input[index].y / input[index].x) + M_PI_2);;
 
     index += blockDim.x * gridDim.x;
   }
@@ -219,7 +218,7 @@ void rescale_float(
 
   /* We have to hardcode the template parameter, unfortunately.
    * It must be equal to the number of threads per block. */
-  kernel_minmax <128> << <blocks, threads, threads * 2, stream >> > (output,
+  kernel_minmax <128> << <blocks, threads, threads << 1, stream >> > (output,
     size,
     gpu_local_mins,
     gpu_local_maxs);
@@ -275,8 +274,7 @@ __global__ void kernel_rescale_argument(
 
 	while (index < size)
 	{
-		input[index] *= 65535.0f / M_PI;
-
+		input[index] *= 20860.4383911;//65535.0f / M_PI;
 		index += blockDim.x * gridDim.x;
 	}
 }

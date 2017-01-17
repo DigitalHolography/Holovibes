@@ -57,7 +57,7 @@ void make_contiguous_complex(
 			n_frame_resolution);
 	}
 	else if (frame_desc.depth == 8)
-		cudaMemcpy(output, input.get_start(), n_frame_resolution * 8, cudaMemcpyDeviceToDevice);
+		cudaMemcpy(output, input.get_start(), n_frame_resolution << 3, cudaMemcpyDeviceToDevice); // frame_res * 8
   }
   else
   {

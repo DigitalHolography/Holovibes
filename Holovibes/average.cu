@@ -47,7 +47,7 @@ static __global__ void kernel_zone_sum(
 
 	// Sum sdata in sdata[0]
 	__syncthreads();
-	for (unsigned int s = blockDim.x / 2; s > 32; s >>= 1)
+	for (unsigned int s = blockDim.x >> 1; s > 32; s >>= 1)
 	{
 		if (tid < s)
 			sdata[tid] += sdata[tid + s];

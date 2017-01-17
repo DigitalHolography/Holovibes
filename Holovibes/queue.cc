@@ -167,7 +167,7 @@ namespace holovibes
 
 	std::string Queue::calculate_size(void)
 	{
-		std::string display_size = std::to_string((get_max_elts() * get_size()) / (1024.f * 1024));
+		std::string display_size = std::to_string((get_max_elts() * get_size()) / (1048576)); // 1024 * 1024
 		size_t pos = display_size.find(".");
 
 		if (pos != std::string::npos)

@@ -7,6 +7,8 @@
 #include "transforms.cuh"
 #include "frame_desc.hh"
 
+#define M_2PI 6.28318530718
+
 __global__ void kernel_quadratic_lens(
   cufftComplex* output,
   const camera::FrameDescriptor fd,
@@ -31,8 +33,8 @@ __global__ void kernel_quadratic_lens(
   {
     i = index % fd.width;
     j = index / fd.height;
-    x = (i - (static_cast<float>(fd.width) / 2)) * dx;
-    y = (j - (static_cast<float>(fd.height) / 2)) * dy;
+    x = (i - (static_cast<float>(fd.width >> 1))) * dx;
+    y = (j - (static_cast<float>(fd.height >> 1))) * dy;
 
     csquare = c * (x * x + y * y);
     output[index].x = cosf(csquare);
@@ -51,7 +53,7 @@ __global__ void kernel_spectral_lens(
   unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
   unsigned int index = j * blockDim.x * gridDim.x + i;
 
-  const float c = 2 * M_PI * distance / lambda;
+  const float c = M_2PI * distance / lambda;
 
   const float dx = fd.pixel_size * 1.0e-6f;
   const float dy = fd.pixel_size * 1.0e-6f;
@@ -59,8 +61,8 @@ __global__ void kernel_spectral_lens(
   const float du = 1 / ((static_cast<float>(fd.width)) * dx);
   const float dv = 1 / ((static_cast<float>(fd.height)) * dy);
 
-  const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width) / 2))) * du;
-  const float v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height) / 2))) * dv;
+  const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width >> 1)))) * du;
+  const float v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height >> 1)))) * dv;
 
   float csquare;
   if (index < fd.width * fd.height)

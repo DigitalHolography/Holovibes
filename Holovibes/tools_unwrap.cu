@@ -7,6 +7,8 @@
 
 #include "tools_unwrap.cuh"
 
+#define M_2PI 6.28318530718
+
 __global__ void kernel_extract_angle(
   const cufftComplex* input,
   float* output,
@@ -35,9 +37,9 @@ __global__ void kernel_unwrap(
   // Unwrapping //
   float local_adjust;
   if (local_diff > pi)
-    local_adjust = -2.f * pi;
+    local_adjust = -M_2PI;
   else if (local_diff < -pi)
-    local_adjust = 2.f * pi;
+    local_adjust = M_2PI;
   else
     local_adjust = 0.f;
 
@@ -118,8 +120,8 @@ __global__ void kernel_init_unwrap_2d(
 
 	if (index < frame_res)
 	{
-		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width) / 2)));
-		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height) / 2)));
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>((width) >> 1))));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>((height) >> 1))));
 
 		/*z init*/
 		z[index].x = cosf(input[index]);
@@ -276,7 +278,7 @@ __global__ void kernel_unwrap2d_last_step(
 
 	while (index < size)
 	{
-		output[index] = input[index].y / (-2 * M_PI);
+		output[index] = input[index].y / -M_2PI;
 		index += blockDim.x * gridDim.x;
 	}
 }

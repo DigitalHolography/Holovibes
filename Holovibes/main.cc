@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 					{
 					opts.file_image_width,
 					opts.file_image_height,
-					opts.file_image_depth / 8,
+					opts.file_image_depth >> 3, // image depth / 8
 					global::global_config.import_pixel_size,
 					(opts.file_is_big_endian ? camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) },
 					false,

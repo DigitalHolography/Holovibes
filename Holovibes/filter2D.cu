@@ -47,8 +47,8 @@ void filter2D(
 
 	if (!r.area())
 		return;
-	int center_x = (r.top_left.x + r.bottom_right.x) / 2;
-	int center_y = (r.top_left.y + r.bottom_right.y) / 2;
+	int center_x = (r.top_left.x + r.bottom_right.x) >> 1;
+	int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,

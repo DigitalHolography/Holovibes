@@ -12,6 +12,8 @@
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
 
+#define M_2PI 6.28318530718
+
 __global__ void kernel_apply_lens(
   cufftComplex *input,
   const unsigned int input_size,
@@ -44,19 +46,21 @@ static __global__ void kernel_shift_corners(
   float tmp = 0.0f;
 
   // Superior half of the matrix
-  if (j >= size_y / 2)
+  unsigned int size_x2 = size_x >> 1;
+  unsigned int size_y2 = size_y >> 1;
+  if (j >= size_y2)
   {
     // Left superior quarter of the matrix
-    if (i < size_x / 2)
+    if (i < size_x2)
     {
-      ni = i + size_x / 2;
-      nj = j - size_y / 2;
+      ni = i + size_x2;
+      nj = j - size_y2;
     }
     // Right superior quarter
     else
     {
-      ni = i - size_x / 2;
-      nj = j - size_y / 2;
+      ni = i - size_x2;
+      nj = j - size_y2;
     }
 
     nindex = nj * size_x + ni;
@@ -323,19 +327,21 @@ void unwrap_2d(
 		res->gpu_fx_,
 		res->gpu_fy_,
 		res->gpu_z_);
+	unsigned short middlex = fd.width >> 1;
+	unsigned short middley = fd.height >> 1;
 	circ_shift_float << < blocks, threads, 0, stream >> > (
 		res->gpu_fx_,
 		res->gpu_shift_fx_,
-		fd.width / 2,
-		fd.height / 2,
+		middlex,
+		middley,
 		fd.width,
 		fd.height,
 		fd.frame_res());
 	circ_shift_float << < blocks, threads, 0, stream >> > (
 		res->gpu_fy_,
 		res->gpu_shift_fy_,
-		fd.width / 2,
-		fd.height / 2,
+		middlex,
+		middley,
 		fd.width,
 		fd.height,
 		fd.frame_res());
@@ -352,7 +358,7 @@ void gradient_unwrap_2d(
 {
 	const unsigned threads = 128;
 	const unsigned blocks = map_blocks_to_problem(res->image_resolution_, threads);
-	cufftComplex single_complex = make_cuComplex(0.f, static_cast<float>(2 * M_PI));
+	cufftComplex single_complex = make_cuComplex(0.f, static_cast<float>(M_2PI));
 
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
 	cufftExecC2C(plan2d, res->gpu_z_, res->gpu_grad_eq_y_, CUFFT_FORWARD);

@@ -297,8 +297,8 @@ namespace gui
 				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
 					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
 
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) << 1 - 1);
+				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 		}
 	}
@@ -317,8 +317,8 @@ namespace gui
 				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
 					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
 
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) << 1 - 1);
+				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 
 			selection_.bottom_left = holovibes::Point2D(
@@ -430,8 +430,8 @@ namespace gui
 		const float ydest = 0.0f;
 
 		// Source point is center of the selection zone (normal coords)
-		const int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
-		const int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
+		const int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) >> 1);
+		const int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) >> 1);
 
 		// Normalizing source points to OpenGL coords
 		const float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;

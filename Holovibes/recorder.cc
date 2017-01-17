@@ -101,7 +101,7 @@ namespace holovibes
 	  cur_size = queue_.get_current_elts();
 	  if (cur_size >= max_size - 1)
 		  gui::InfoManager::update_info_safe("Recording", "Queue is full, data will be lost !");
-	  else if (cur_size > (max_size * 80 / 100))
+	  else if (cur_size > (max_size * 0.8f))
 		  gui::InfoManager::update_info_safe("Recording", "Queue is nearly full !");
 	  else
 		  gui::InfoManager::remove_info_safe("Recording");
