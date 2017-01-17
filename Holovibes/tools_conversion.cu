@@ -272,9 +272,10 @@ __global__ void kernel_rescale_argument(
 {
 	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
 
+	const float scale = 65535.0f / M_PI;
 	while (index < size)
 	{
-		input[index] *= 20860.4383911;//65535.0f / M_PI;
+		input[index] *= scale;
 		index += blockDim.x * gridDim.x;
 	}
 }
@@ -303,7 +304,6 @@ static __global__ void kernel_endianness_conversion(
   while (index < size)
   {
     output[index] = (input[index] << 8) | (input[index] >> 8);
-
     index += blockDim.x * gridDim.x;
   }
 }
@@ -338,7 +338,6 @@ static __global__ void kernel_float_to_ushort(
       output[index] = 0;
     else
       output[index] = static_cast<unsigned short>(input[index]);
-
     index += blockDim.x * gridDim.x;
   }
 }
