@@ -77,7 +77,7 @@ void convolution_flowgraphy(
 		sizeof(cufftComplex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 
-	unsigned int n = static_cast<unsigned int>(pow(nframes, 3) - 3);
+	unsigned int n = static_cast<unsigned int>(nframes * nframes * nframes - 3);
 	unsigned int  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
 	cufftComplex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
 

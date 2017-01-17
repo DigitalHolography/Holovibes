@@ -93,7 +93,8 @@ static __global__ void kernel_complex_to_squared_modulus(
 
   while (index < size)
   {
-	  output[index] = pow(hypotf(input[index].x, input[index].y), 2);
+	  output[index] = hypotf(input[index].x, input[index].y);
+	  output[index] *= output[index];
     index += blockDim.x * gridDim.x;
   }
 }
@@ -358,12 +359,12 @@ static __global__ void kernel_complex_to_ushort(
 		if (input[index].x > 65535.0f)
 			x = 65535;
 		else if (input[index].x >= 1.0f)
-			x = static_cast<unsigned short>(pow(input[index].x, 2));
+			x = static_cast<unsigned short>(input[index].x * input[index].x);
 		
 		if (input[index].y > 65535.0f)
 			y = 65535;
 		else if (input[index].y >= 0.0f)
-			y = static_cast<unsigned short>(pow(input[index].y, 2));
+			y = static_cast<unsigned short>(input[index].y * input[index].x);
 		auto& res = output[index];
 		res ^= res;
 		res = x << 16;

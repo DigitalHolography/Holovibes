@@ -94,8 +94,6 @@ namespace holovibes
 		unsigned short	pow_x = nearest_size(frame.width);
 		unsigned short	pow_y = nearest_size(frame.height);
 
-		if (pow_x > pow_y)
-			return (pow_x);
-		return (pow_y);
+		return ((pow_x > pow_y) ? (pow_x) : (pow_y));
 	}
 }
