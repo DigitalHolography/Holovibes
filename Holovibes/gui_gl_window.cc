@@ -10,34 +10,49 @@ namespace gui
 		const unsigned int height,
 		holovibes::Holovibes& h,
 		holovibes::Queue& q,
+		window_kind wk,
 		QWidget* parent)
 		: QMainWindow(parent)
 		, gl_widget_(nullptr)
 		, full_screen_(nullptr)
 		, maximized_screen_(nullptr)
 	{
-		ui.setupUi(this);
-		this->setWindowIcon(QIcon("icon1.ico"));
+		//TODO:
+		if (wk == window_kind::DIRECT)
+		{
+			Ui::GLWindow ui;
+			ui.setupUi(this);
 
-		// Keyboard shortcuts
-		full_screen_ = new QShortcut(QKeySequence("Ctrl+f"), this);
-		full_screen_->setContext(Qt::ApplicationShortcut);
-		connect(full_screen_, SIGNAL(activated()), this, SLOT(full_screen()));
+			this->setWindowIcon(QIcon("icon1.ico"));
 
-		maximized_screen_ = new QShortcut(QKeySequence("Ctrl+m"), this);
-		connect(maximized_screen_, SIGNAL(activated()), this, SLOT(maximized_screen()));
-		maximized_screen_->setContext(Qt::ApplicationShortcut);
+			// Keyboard shortcuts
+			full_screen_ = new QShortcut(QKeySequence("Ctrl+f"), this);
+			full_screen_->setContext(Qt::ApplicationShortcut);
+			connect(full_screen_, SIGNAL(activated()), this, SLOT(full_screen()));
 
-		default_screen_ = new QShortcut(QKeySequence("Esc"), this);
-		connect(default_screen_, SIGNAL(activated()), this, SLOT(default_screen()));
-		default_screen_->setContext(Qt::ApplicationShortcut);
+			maximized_screen_ = new QShortcut(QKeySequence("Ctrl+m"), this);
+			connect(maximized_screen_, SIGNAL(activated()), this, SLOT(maximized_screen()));
+			maximized_screen_->setContext(Qt::ApplicationShortcut);
 
-		this->move(pos);
-		this->resize(QSize(width, height));
-		this->show();
+			default_screen_ = new QShortcut(QKeySequence("Esc"), this);
+			connect(default_screen_, SIGNAL(activated()), this, SLOT(default_screen()));
+			default_screen_->setContext(Qt::ApplicationShortcut);
+			this->move(pos);
+			this->resize(QSize(width, height));
+			this->show();
 
-		// Default displaying format is 16-bits, monochrome.
-		gl_widget_.reset(new GLWidget(h, q, width, height, this));
+			// Default displaying format is 16-bits, monochrome.
+			gl_widget_.reset(new GLWidget(h, q, width, height, this));
+		}
+		else
+		{
+			Ui::GLSliceWindow ui;
+			ui.setupUi(this);
+			this->move(pos);
+			this->resize(QSize(width, height));
+			this->show();
+			gl_widget_.reset(new GLWidgetSlice(h, q, width, height, this));
+		}
 		gl_widget_->show();
 	}
 
@@ -52,7 +67,8 @@ namespace gui
 
 		if (gl_widget_)
 		{
-			gl_widget_->resizeFromWindow(min_dim, min_dim);
+			// TODO: remove the dynamic cast when the widget_slice has been cleared up & its gonna SEGFAULT
+			dynamic_cast<GLWidget*>(gl_widget_.get())->resizeFromWindow(min_dim, min_dim);
 
 			if (windowState() != Qt::WindowFullScreen)
 			{

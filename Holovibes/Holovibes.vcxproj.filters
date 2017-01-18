@@ -280,6 +280,15 @@
     <ClCompile Include="main_window.cc">
       <Filter>Source Files\gui</Filter>
     </ClCompile>
+    <ClCompile Include="gui_gl_widget_slice.cc">
+      <Filter>Source Files\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
@@ -423,6 +432,9 @@
     <ClInclude Include="tools.hh">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
@@ -472,6 +484,12 @@
     </CustomBuild>
     <CustomBuild Include="info_manager.hh">
       <Filter>Header Files\tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gl_slice_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget_slice.hh">
+      <Filter>Header Files\gui</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
