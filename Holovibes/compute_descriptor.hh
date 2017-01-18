@@ -4,6 +4,7 @@
 #pragma once
 
 # include <atomic>
+# include <QPoint>
 
 # include "observable.hh"
 # include "geometry.hh"
@@ -79,7 +80,6 @@ namespace holovibes
 	  , flowgraphy_enabled(false)
 	  , stft_enabled(false)
 	  , filter_2d_enabled(false)
-	  , stft_view_enabled(false)
       , contrast_min(1.f)
       , contrast_max(65535.f)
       , vibrometry_q()
@@ -102,6 +102,8 @@ namespace holovibes
 	  , ref_diff_level(15)
 	  , ref_diff_enabled(false)
 	  , ref_sliding_enabled(false)
+	  , stft_view_enabled(false)
+	  , stft_slice_cursor()
     {
       pindex = 0;
       vibrometry_q = 0;
@@ -223,6 +225,8 @@ namespace holovibes
 	std::atomic<bool> filter_2d_enabled;
 
 	std::atomic<bool> stft_view_enabled;
+	/* TODO:*/
+	std::atomic<QPoint> stft_slice_cursor;
 
   };
 }

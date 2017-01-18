@@ -2697,28 +2697,33 @@ namespace gui
 	void MainWindow::stft_view(bool b)
 	{
 		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
+		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+		auto manager = gui::InfoManager::get_manager();
 		if (b)
 		{
 			p->setEnabled(false);
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
-<<<<<<< 486a9e8aabedea0898758ee00c46867dcb5b2f64
 			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0)));
+				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
 			gl_win_stft_1.reset(new GuiGLWindow(
-				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1)));
-=======
+				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
 			
-			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(), GuiGLWindow::window_kind::SLICE_XZ));
->>>>>>> Update : slicing is done in a brand new window & bug fix when deleting window
-
+			
+			/* gui */
+			gl_window_->setCursor(Qt::CrossCursor);
+			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+			connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
+				Qt::UniqueConnection);
+			manager->update_info("STFT Slice Cursor : ", "(Y,X) = (0,0)");
 			cd.stft_view_enabled.exchange(true);
 		}
 		else
 		{
+			/*not sure that it is necessary but safer*/
+			disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 			// delete stft_view windows
 			cd.stft_view_enabled.exchange(false);
 			gl_win_stft_1.reset(nullptr);
@@ -2726,6 +2731,19 @@ namespace gui
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			// -------------------
 			p->setEnabled(true);
+			gl_window_->setCursor(Qt::ArrowCursor);
+			gl_widget->set_selection_mode(gui::eselection::ZOOM);
 		}
+	}
+
+
+	void MainWindow::update_stft_slice_pos(QPoint pos)
+	{
+		auto manager = gui::InfoManager::get_manager();
+		std::stringstream ss;
+		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+		manager->update_info("STFT Slice Cursor : ", ss.str());
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		cd.stft_slice_cursor.exchange(pos);
 	}
 }

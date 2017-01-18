@@ -466,7 +466,11 @@ namespace gui
 		/*! \brief Display classic GUI theme*/
 		void set_night();
 
+
+		/*TODO: this should not be at the bottom of mainwindow but at the right place*/
 		void stft_view(bool b);
+
+		void update_stft_slice_pos(QPoint pos);
 
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;

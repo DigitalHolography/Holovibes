@@ -28,6 +28,7 @@ namespace gui
 		AVERAGE,
 		ZOOM,
 		STFT_ROI,
+		STFT_SLICE
 	} eselection;
 
 	/*! \brief OpenGL widget used to display frames contained in Queue(s).
@@ -128,6 +129,9 @@ namespace gui
 		** zone is definitely selected.
 		*/
 		void stft_roi_zone_selected_end();
+
+		/*TODO:*/
+		void stft_slice_pos_update(QPoint pos);
 
 	protected:
 		/* \brief Initialize all OpenGL components needed */

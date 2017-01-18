@@ -254,6 +254,9 @@ namespace gui
 			case STFT_ROI:
 				selection_rect(selection_, stft_roi_color);
 				break;
+			case STFT_SLICE:
+				// You can do something here like rectangle selection (have fun...)
+				break;
 			default:
 				break;
 			}
@@ -271,9 +274,11 @@ namespace gui
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height());
 		}
-		else
-		if (selection_mode_ == ZOOM)
+		else if (selection_mode_ == ZOOM)
 			dezoom();
+		if (selection_mode_ == STFT_SLICE)
+			stft_slice_pos_update(e->pos());
+			
 	}
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -301,6 +306,8 @@ namespace gui
 				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 		}
+		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
+			stft_slice_pos_update(e->pos());
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
