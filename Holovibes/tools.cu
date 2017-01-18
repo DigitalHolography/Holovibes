@@ -12,8 +12,6 @@
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
 
-#define M_2PI 6.28318530718
-
 __global__ void kernel_apply_lens(
   cufftComplex *input,
   const unsigned int input_size,

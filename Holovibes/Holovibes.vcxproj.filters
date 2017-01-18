@@ -423,6 +423,9 @@
     <ClInclude Include="tools.hh">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_shared.cuh">
+      <Filter>Header Files CUDA</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">

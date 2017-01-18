@@ -1,13 +1,7 @@
 #include <device_launch_parameters.h>
 #include <cmath>
-# ifndef _USE_MATH_DEFINES
-/* Enables math constants. */
-#  define _USE_MATH_DEFINES
-# endif /* !_USE_MATH_DEFINES */
 
 #include "tools_unwrap.cuh"
-
-#define M_2PI 6.28318530718
 
 __global__ void kernel_extract_angle(
   const cufftComplex* input,

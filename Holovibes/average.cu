@@ -8,8 +8,6 @@
 #include "tools_conversion.cuh"
 #include "hardware_limits.hh"
 
-#define THREADS 256
-
 /*! \brief  Sume 2 zone of input image
 *
 * \param input The image from where zones should be summed.
@@ -17,19 +15,18 @@
 * \param height The height of the input image.
 *
 */
-static __global__ void kernel_zone_sum(
-	float* input,
-	const unsigned int width,
-	float* output,
-	const unsigned int zone_start_x,
-	const unsigned int zone_start_y,
-	const unsigned int zone_width,
-	const unsigned int zone_height)
+static __global__ void kernel_zone_sum(	float		*input,
+										const uint	width,
+										float		*output,
+										const uint	zone_start_x,
+										const uint	zone_start_y,
+										const uint	zone_width,
+										const uint	zone_height)
 {
-	const unsigned int size = zone_width * zone_height;
-	unsigned int tid = threadIdx.x;
-	unsigned int index = blockIdx.x * blockDim.x + tid;
-	extern __shared__ float  sdata[];
+	const uint				size = zone_width * zone_height;
+	uint					tid = threadIdx.x;
+	uint					index = blockIdx.x * blockDim.x + tid;
+	extern __shared__ float	sdata[];
 
 	// INIT
 	sdata[tid] = 0.0f;
@@ -47,7 +44,7 @@ static __global__ void kernel_zone_sum(
 
 	// Sum sdata in sdata[0]
 	__syncthreads();
-	for (unsigned int s = blockDim.x >> 1; s > 32; s >>= 1)
+	for (uint s = blockDim.x >> 1; s > 32; s >>= 1)
 	{
 		if (tid < s)
 			sdata[tid] += sdata[tid + s];
@@ -69,17 +66,16 @@ static __global__ void kernel_zone_sum(
 		*output = sdata[0];
 }
 
-std::tuple<float, float, float, float> make_average_plot(
-	float *input,
-	const unsigned int width,
-	const unsigned int height,
-	const holovibes::Rectangle& signal,
-	const holovibes::Rectangle& noise,
-	cudaStream_t stream)
+std::tuple<float, float, float, float> make_average_plot(	float						*input,
+															const uint					width,
+															const uint					height,
+															const holovibes::Rectangle&	signal,
+															const holovibes::Rectangle&	noise,
+															cudaStream_t				stream)
 {
-	//const unsigned int size = width * height;
-	unsigned int threads = THREADS;
-	//unsigned int blocks = map_blocks_to_problem(size, threads);
+	//const uint size = width * height;
+	uint threads = THREADS_256;
+	//uint blocks = map_blocks_to_problem(size, threads);
 
 	float* gpu_s;
 	float* gpu_n;
@@ -90,10 +86,10 @@ std::tuple<float, float, float, float> make_average_plot(
 	cudaMemsetAsync(gpu_s, 0, sizeof(float), stream);
 	cudaMemsetAsync(gpu_n, 0, sizeof(float), stream);
 
-	unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
-	unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
-	unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
-	unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
+	uint signal_width = abs(signal.top_right.x - signal.top_left.x);
+	uint signal_height = abs(signal.top_left.y - signal.bottom_left.y);
+	uint noise_width = abs(noise.top_right.x - noise.top_left.x);
+	uint noise_height = abs(noise.top_left.y - noise.bottom_left.y);
 
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
 		noise.top_left.x, noise.top_left.y, noise_width, noise_height);
@@ -117,25 +113,24 @@ std::tuple<float, float, float, float> make_average_plot(
 	return std::tuple < float, float, float, float > { cpu_s, cpu_n, moy, 10 * log10f(moy)};
 }
 
-std::tuple<float, float, float, float> make_average_stft_plot(
-	cufftComplex*          cbuf,
-	float*                 fbuf,
-	cufftComplex*          stft_buffer,
-	const unsigned int     width,
-	const unsigned int     height,
-	const unsigned int     width_roi,
-	const unsigned int     height_roi,
-	holovibes::Rectangle&  signal_zone,
-	holovibes::Rectangle&  noise_zone,
-	const unsigned int     pindex,
-	const unsigned int     nsamples,
-	cudaStream_t stream)
+std::tuple<float, float, float, float> make_average_stft_plot(	complex					*cbuf,
+																float					*fbuf,
+																complex					*stft_buffer,
+																const uint				width,
+																const uint				height,
+																const uint				width_roi,
+																const uint				height_roi,
+																holovibes::Rectangle&	signal_zone,
+																holovibes::Rectangle&	noise_zone,
+																const uint				pindex,
+																const uint				nsamples,
+																cudaStream_t			stream)
 {
 	std::tuple<float, float, float, float> res;
 
-	const unsigned int size = width * height;
-	//unsigned int threads = 128;
-	//unsigned int blocks = map_blocks_to_problem(size, threads);
+	const uint size = width * height;
+	//uint threads = 128;
+	//uint blocks = map_blocks_to_problem(size, threads);
 
 	// Reconstruct Roi
 	/*kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(

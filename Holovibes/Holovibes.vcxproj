@@ -138,6 +138,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cuda_shared.cuh" />
     <ClInclude Include="custom_exception.hh" />
     <ClInclude Include="filter2D.cuh" />
     <ClInclude Include="autofocus.cuh" />

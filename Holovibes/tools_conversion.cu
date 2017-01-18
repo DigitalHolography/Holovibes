@@ -4,7 +4,6 @@
 #include "tools_conversion.cuh"
 #include "hardware_limits.hh"
 #include "tools.hh"
-#include <iostream>
 
 __global__ void img8_to_complex(
   cufftComplex* output,

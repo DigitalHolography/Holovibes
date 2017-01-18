@@ -3,14 +3,7 @@
  * Conversion functions between different data types and formats. */
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-
-# ifndef _USE_MATH_DEFINES
-/* Enables math constants. */
-#  define _USE_MATH_DEFINES
-# endif /* !_USE_MATH_DEFINES */
-# include <math.h>
+# include "cuda_shared.cuh"
 # include "frame_desc.hh"
 
 /* CONVERSION FUNCTIONS */
@@ -27,10 +20,9 @@
  * \param sqrt_array Pointer to a float array containing the results
  * of the square root function, starting from 0. Precondition : length(array) >= size
  */
-__global__ void img8_to_complex(
-  cufftComplex* output,
-  const unsigned char* input,
-  const unsigned int size);
+__global__ void img8_to_complex(complex		*output,
+								const uchar	*input,
+								const uint	size);
 
 /*! \brief This function allows to transform 16 bit data to its complex representation.
  *
@@ -43,10 +35,9 @@ __global__ void img8_to_complex(
  * \param sqrt_array Pointer to a float array containing the results
  * of the square root function, starting from 0. Precondition : length(array) >= size
  */
-__global__ void img16_to_complex(
-  cufftComplex* output,
-  const unsigned short* input,
-  const unsigned int size);
+__global__ void img16_to_complex(	complex			*output,
+									const ushort	*input,
+									const uint		size);
 
 /*! \brief This function allows to transform float 32 bits data to its complex representation.
 *
@@ -59,10 +50,9 @@ __global__ void img16_to_complex(
 * \param sqrt_array Pointer to a float array containing the results
 * of the square root function, starting from 0. Precondition : length(array) >= size
 */
-__global__ void float_to_complex(
-	cufftComplex* output,
-	const float* input,
-	const unsigned int size);
+__global__ void float_to_complex(	complex		*output,
+									const float	*input,
+									const uint	size);
 
 /*! \brief Compute the modulus of complex image(s).
  *
@@ -71,11 +61,10 @@ __global__ void float_to_complex(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_modulus(
-  const cufftComplex* input,
-  float* output,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+void complex_to_modulus(const complex	*input,
+						float			*output,
+						const uint		size,
+						cudaStream_t	stream = 0);
 
 /*! \brief Compute the squared modulus of complex image(s).
  *
@@ -84,11 +73,10 @@ void complex_to_modulus(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_squared_modulus(
-  const cufftComplex* input,
-  float* output,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+void complex_to_squared_modulus(const complex	*input,
+								float			*output,
+								const uint		size,
+								cudaStream_t	stream = 0);
 
 /*! \brief Compute argument (angle) of complex image(s).
  *
@@ -97,11 +85,10 @@ void complex_to_squared_modulus(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void complex_to_argument(
-  const cufftComplex* input,
-  float* output,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+void complex_to_argument(	const complex	*input,
+							float			*output,
+							const uint		size,
+							cudaStream_t	stream = 0);
 
 /*! Copy the rescaled angle value of each element of the input.
  *
@@ -114,11 +101,10 @@ void complex_to_argument(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void rescale_float(
-  const float* input,
-  float* output,
-  const unsigned int size,
-  cudaStream_t stream);
+void rescale_float(	const float		*input,
+					float			*output,
+					const uint		size,
+					cudaStream_t	stream);
 
 /*! \brief Convert from big endian to little endian.
  * \param input The input data in big endian.
@@ -126,11 +112,10 @@ void rescale_float(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void endianness_conversion(
-  const unsigned short* input,
-  unsigned short* output,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+void endianness_conversion(	const ushort	*input,
+							ushort			*output,
+							const uint		size,
+							cudaStream_t	stream = 0);
 
 /*! \brief Convert data from float to unsigned short (16-bit).
  *
@@ -144,11 +129,10 @@ void endianness_conversion(
  * \param size The number of elements to process.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void float_to_ushort(
-  const float* input,
-  unsigned short* output,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+void float_to_ushort(	const float		*input,
+						ushort			*output,
+						const uint		size,
+						cudaStream_t	stream = 0);
 
 
 /*! \brief Convert data from complex data to unsigned short (16-bit).
@@ -163,32 +147,30 @@ void float_to_ushort(
 * \param size The number of elements to process.
 * \param stream The CUDA stream on which to launch the operation.
 */
-void complex_to_ushort(
-	const cufftComplex* input,
-	unsigned int* output,
-	const unsigned int size,
-	cudaStream_t stream = 0);
+void complex_to_ushort(	const complex	*input,
+						unsigned int	*output,
+						const uint		size,
+						cudaStream_t	stream = 0);
 
 /*! \brief Memcpy of a complex sized frame into another buffer */
-void complex_to_complex(
-	const cufftComplex* input,
-	unsigned short* output,
-	const unsigned int size,
-	cudaStream_t stream = 0);
+void complex_to_complex(const complex	*input,
+						ushort			*output,
+						const uint		size,
+						cudaStream_t	stream = 0);
 
 /*! \brief Cast buffer into real_buffer*/
-void	buffer_size_conversion(char *real_buffer
-	, const char *buffer
-	, const camera::FrameDescriptor real_frame_desc
-	, const camera::FrameDescriptor frame_desc);
+void	buffer_size_conversion(	char							*real_buffer,
+								const char						*buffer,
+								const camera::FrameDescriptor	real_frame_desc,
+								const camera::FrameDescriptor	frame_desc);
 
 /*! \brief Cuda Kernel for buffer_size_conversion*/
-__global__ void	kernel_buffer_size_conversion(char *real_buffer
-	, const char *buffer
-	, const size_t frame_desc_width
-	, const size_t frame_desc_height
-	, const size_t real_frame_desc_width
-	, const size_t area);
+__global__ void	kernel_buffer_size_conversion(	char			*real_buffer,
+												const char		*buffer,
+												const size_t	frame_desc_width,
+												const size_t	frame_desc_height,
+												const size_t	real_frame_desc_width,
+												const size_t	area);
 
 /*! \brief Cumulate images into one.
 *
@@ -200,14 +182,13 @@ __global__ void	kernel_buffer_size_conversion(char *real_buffer
 * \param nb_pixel Number of pixel per image.
 * \param stream The CUDA stream on which to launch the operation.
 */
-void accumulate_images(
-	const float *input,
-	float *output,
-	const size_t start,
-	const size_t max_elmt,
-	const size_t nb_elmt,
-	const size_t nb_pixel,
-	cudaStream_t stream = 0);
+void accumulate_images(	const float		*input,
+						float			*output,
+						const size_t	start,
+						const size_t	max_elmt,
+						const size_t	nb_elmt,
+						const size_t	nb_pixel,
+						cudaStream_t	stream = 0);
 
 /*! \brief Kernel to cumulate images into one.
 *
@@ -219,31 +200,27 @@ void accumulate_images(
 * \param nb_pixel Number of pixel per image.
 * \param stream The CUDA stream on which to launch the operation.
 */
-__global__ void kernel_accumulate_images(
-	const float *input,
-	float *output,
-	const size_t start,
-	const size_t max_elmt,
-	const size_t nb_elmt,
-	const size_t nb_pixel);
+__global__ void kernel_accumulate_images(	const float		*input,
+											float			*output,
+											const size_t	start,
+											const size_t	max_elmt,
+											const size_t	nb_elmt,
+											const size_t	nb_pixel);
 
-__global__ void kernel_normalize_images(
-	float *image,
-	const float max,
-	const float min,
-	const unsigned int size);
+__global__ void kernel_normalize_images(float		*image,
+										const float	max,
+										const float	min,
+										const uint	size);
 
-void rescale_float_unwrap2d(float *input,
-	float *output,
-	float *cpu_buffer,
-	unsigned int frame_res,
-	cudaStream_t stream = 0);
+void rescale_float_unwrap2d(float			*input,
+							float			*output,
+							float			*cpu_buffer,
+							uint			frame_res,
+							cudaStream_t	stream = 0);
 
-__global__ void kernel_rescale_argument(
-	float *input,
-	const unsigned int size);
+__global__ void kernel_rescale_argument(float		*input,
+										const uint	size);
 
-void rescale_argument(
-	float *input,
-	const unsigned int frame_res,
-	cudaStream_t stream = 0);
+void rescale_argument(	float			*input,
+						const uint		frame_res,
+						cudaStream_t	stream = 0);

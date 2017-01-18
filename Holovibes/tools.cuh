@@ -3,29 +3,7 @@
  * Various functions used most notably in the View panel. */
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-
-# ifndef _USE_MATH_DEFINES
-/* Enables math constants. */
-#  define _USE_MATH_DEFINES
-# endif /* !_USE_MATH_DEFINES */
-# include <math.h>
-
-/* Forward declarations. */
-namespace holovibes
-{
-  struct Rectangle;
-}
-namespace holovibes
-{
-  struct UnwrappingResources;
-  struct UnwrappingResources_2d;
-}
-namespace camera
-{
-	struct FrameDescriptor;
-}
+# include "cuda_shared.cuh"
 
 /*! \brief  Apply a previously computed lens to image(s).
  *
@@ -38,11 +16,10 @@ namespace camera
  * \param lens The precomputed lens to apply.
  * \param lens_size The number of elements in the lens matrix.
  */
-__global__ void kernel_apply_lens(
-  cufftComplex *input,
-  const unsigned int input_size,
-  const cufftComplex *lens,
-  const unsigned int lens_size);
+__global__ void kernel_apply_lens(	complex			*input,
+									const uint		input_size,
+									const complex	*lens,
+									const uint		lens_size);
 
 /*! \brief Shifts in-place the corners of an image.
  *
@@ -55,12 +32,10 @@ __global__ void kernel_apply_lens(
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void shift_corners(
-  float *input,
-  const unsigned int size_x,
-  const unsigned int size_y,
-  cudaStream_t stream = 0);
-
+void shift_corners(	float			*input,
+					const uint		size_x,
+					const uint		size_y,
+					cudaStream_t	stream = 0);
 
 /*! \brief Compute the log base-10 of every element of the input.
 *
@@ -68,11 +43,9 @@ void shift_corners(
 * \param size The number of elements to process.
 * \param stream The CUDA stream on which to launch the operation.
 */
-void apply_log10(
-  float* input,
-  const unsigned int size,
-  cudaStream_t stream = 0);
-
+void apply_log10(	float			*input,
+					const uint		size,
+					cudaStream_t	stream = 0);
 
 /*! \brief Allows demodulation in real time. Considering that we need (exactly like
 *   an STFT) put every pixel in a particular order to apply an FFT and then reconstruct
@@ -87,10 +60,9 @@ void apply_log10(
 * \param nsamples number of frames that will be used.
 
 */
-void demodulation(
-	cufftComplex* input,
-	const cufftHandle plan,
-	cudaStream_t stream = 0);
+void demodulation(	complex				*input,
+					const cufftHandle	plan,
+					cudaStream_t		stream = 0);
 
 /*! \brief Apply the convolution operator to 2 complex matrices.
 *
@@ -102,14 +74,13 @@ void demodulation(
 * \param plan2d_k Externally prepared plan for k
 * \param stream The CUDA stream on which to launch the operation.
 */
-void convolution_operator(
-  const cufftComplex* x,
-  const cufftComplex* k,
-  float* out,
-  const unsigned int size,
-  const cufftHandle plan2d_x,
-  const cufftHandle plan2d_k,
-  cudaStream_t stream = 0);
+void convolution_operator(	const complex		*x,
+							const complex		*k,
+							float				*out,
+							const uint			size,
+							const cufftHandle	plan2d_x,
+							const cufftHandle	plan2d_k,
+							cudaStream_t		stream = 0);
 
 /*! \brief Extract a part of the input image to the output.
 *
@@ -120,13 +91,12 @@ void convolution_operator(
 * \param output_width In pixels, the desired width of the cropped image
 * \param stream The CUDA stream on which to launch the operation.
 */
-void frame_memcpy(
-  float* input,
-  const holovibes::Rectangle& zone,
-  const unsigned int input_width,
-  float* output,
-  const unsigned int output_width,
-  cudaStream_t stream = 0);
+void frame_memcpy(	float						*input,
+					const holovibes::Rectangle&	zone,
+					const uint					input_width,
+					float						*output,
+					const uint					output_width,
+					cudaStream_t				stream = 0);
 
 /*! \brief Make the average of every element contained in the input.
  *
@@ -136,10 +106,9 @@ void frame_memcpy(
  *
  * \return The average value of the *size* first elements.
  */
-float average_operator(
-  const float* input,
-  const unsigned int size,
-  cudaStream_t stream = 0);
+float average_operator(	const float		*input,
+						const uint		size,
+						cudaStream_t	stream = 0);
 
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
@@ -151,60 +120,53 @@ float average_operator(
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
 */
-void phase_increase(
-  const cufftComplex* cur,
-  holovibes::UnwrappingResources* resources,
-  const size_t image_size);
+void phase_increase(const complex					*cur,
+					holovibes::UnwrappingResources	*resources,
+					const size_t					image_size);
 
 /*! Main function for unwrap_2d calculations*/
-void unwrap_2d(
-	float *input,
-	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d *res,
-	camera::FrameDescriptor& fd,
-	float *output,
-	cudaStream_t stream);
+void unwrap_2d(	float								*input,
+				const cufftHandle					plan2d,
+				holovibes::UnwrappingResources_2d	*res,
+				camera::FrameDescriptor&			fd,
+				float								*output,
+				cudaStream_t						stream);
 
 /*! Gradient calculation for unwrap_2d calculations*/
-void gradient_unwrap_2d(
-	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d *res,
-	camera::FrameDescriptor& fd,
-	cudaStream_t stream);
+void gradient_unwrap_2d(const cufftHandle					plan2d,
+						holovibes::UnwrappingResources_2d	*res,
+						camera::FrameDescriptor&			fd,
+						cudaStream_t						stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
-void eq_unwrap_2d(
-	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d *res,
-	camera::FrameDescriptor& fd,
-	cudaStream_t stream);
+void eq_unwrap_2d(	const cufftHandle					plan2d,
+					holovibes::UnwrappingResources_2d	*res,
+					camera::FrameDescriptor&			fd,
+					cudaStream_t						stream);
 
 /*! Phi calculation for unwrap_2d calculations*/
-void phi_unwrap_2d(
-	const cufftHandle plan2d,
-	holovibes::UnwrappingResources_2d *res,
-	camera::FrameDescriptor& fd,
-	float *output,
-	cudaStream_t stream);
+void phi_unwrap_2d(	const cufftHandle					plan2d,
+					holovibes::UnwrappingResources_2d	*res,
+					camera::FrameDescriptor&			fd,
+					float								*output,
+					cudaStream_t						stream);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
 **   and the size of the frame.
 */
-__global__ void circ_shift(
-	cufftComplex *input,
-	cufftComplex *output,
-	const int i, // shift on x axis
-	const int j, // shift on y axis
-	const unsigned int width,
-	const unsigned int height,
-	const unsigned int size);
+__global__ void circ_shift(	complex		*input,
+							complex		*output,
+							const int	i, // shift on x axis
+							const int	j, // shift on y axis
+							const uint	width,
+							const uint	height,
+							const uint	size);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j) given float output & inputs*/
-__global__ void circ_shift_float(
-	float *input,
-	float *output,
-	const int i, // shift on x axis
-	const int j, // shift on y axis
-	const unsigned int width,
-	const unsigned int height,
-	const unsigned int size);
+__global__ void circ_shift_float(	float		*input,
+									float		*output,
+									const int	i, // shift on x axis
+									const int	j, // shift on y axis
+									const uint	width,
+									const uint	height,
+									const uint	size);

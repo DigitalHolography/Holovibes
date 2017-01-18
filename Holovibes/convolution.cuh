@@ -1,8 +1,6 @@
-
 #pragma once
 
-#include <cuda_runtime.h>
-#include <cufft.h>
+# include "cuda_shared.cuh"
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
             
@@ -19,15 +17,14 @@
 * \param k_height kernel's height
 * \param k_z kernel's depth
 */
-void convolution_kernel(
-	cufftComplex* input,
-	cufftComplex* gpu_special_queue,
-	const unsigned int frame_resolution,
-	const unsigned int frame_width,
-	const float* kernel,
-	const unsigned int k_width,
-	const unsigned int k_height,
-	const unsigned int k_z,
-	unsigned int& gpu_special_queue_start_index,
-	const unsigned int& gpu_special_queue_max_index,
-	cudaStream_t stream);
+void convolution_kernel(cufftComplex	*input,
+						cufftComplex	*gpu_special_queue,
+						const uint		frame_resolution,
+						const uint		frame_width,
+						const float		*kernel,
+						const uint		k_width,
+						const uint		k_height,
+						const uint		k_z,
+						uint&			gpu_special_queue_start_index,
+						const uint&		gpu_special_queue_max_index,
+						cudaStream_t	stream);

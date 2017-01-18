@@ -4,15 +4,8 @@
  */
 #pragma once
 
+# include "cuda_shared.cuh"
 # include <tuple>
-# include <cuda_runtime.h>
-# include <cufft.h>
-
-/* Forward declaration. */
-namespace holovibes
-{
-  struct Rectangle;
-}
 
 /*! \brief  Make the average plot on the 2 selected zones
 *
@@ -24,27 +17,26 @@ namespace holovibes
 *
 */
 std::tuple<float, float, float, float> make_average_plot(
-  float* input,
-  const unsigned int width,
-  const unsigned int height,
-  const holovibes::Rectangle& signal,
-  const holovibes::Rectangle& noise,
-  cudaStream_t stream = 0);
+														  float							*input,
+														  const uint					width,
+														  const uint					height,
+														  const holovibes::Rectangle&	signal,
+														  const holovibes::Rectangle&	noise,
+														  cudaStream_t					stream = 0);
 
 /*! \brief  Make the average plot on the 2 select zones
 * but first it will call the reconstruct roi after having
 * splitted the image for the stft.
 */
-std::tuple<float, float, float, float> make_average_stft_plot(
-  cufftComplex*          cbuf,
-  float*                 fbuf,
-  cufftComplex*          input,
-  const unsigned int     width,
-  const unsigned int     height,
-  const unsigned int     width_roi,
-  const unsigned int     height_roi,
-  holovibes::Rectangle&  signal_zone,
-  holovibes::Rectangle&  noise_zone,
-  const unsigned int     pindex,
-  const unsigned int     nsamples,
-  cudaStream_t stream = 0);
+std::tuple<float, float, float, float> make_average_stft_plot(complex*				cbuf,
+															  float*                fbuf,
+															  complex*				input,
+															  const uint			width,
+															  const uint			height,
+															  const uint			width_roi,
+															  const uint			height_roi,
+															  holovibes::Rectangle& signal_zone,
+															  holovibes::Rectangle& noise_zone,
+															  const uint			pindex,
+															  const uint			nsamples,
+															  cudaStream_t			stream = 0);

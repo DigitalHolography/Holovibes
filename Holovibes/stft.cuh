@@ -4,19 +4,7 @@
  */
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-
-
-/* Forward declarations. */
-namespace holovibes
-{
-  struct Rectangle;
-}
-namespace camera
-{
-  struct FrameDescriptor;
-}
+#include "cuda_shared.cuh"
 
 /*! \brief Function handling the stft algorithm which steps are \n
  * 1 : Aplly lens on the input queue \n
@@ -47,26 +35,22 @@ namespace camera
  *
  *\endverbatim
  */
-void stft(
-  cufftComplex*                   input,
-  cufftComplex*                   gpu_queue,
-  cufftComplex*                   stft_buf,
-  const cufftHandle               plan1d,
-  unsigned int                    stft_level,
-  unsigned int                    p,
-  unsigned int                    q,
-  unsigned int                    frame_size,
-  bool                            stft_activated,
-  cudaStream_t                    stream = 0);
+void stft(	complex				*input,
+			complex				*gpu_queue,
+			complex				*stft_buf,
+			const cufftHandle	plan1d,
+			uint				stft_level,
+			uint				p,
+			uint				q,
+			uint				frame_size,
+			bool				stft_activated,
+			cudaStream_t		stream = 0);
 
-typedef unsigned int	uint;
-typedef unsigned short	ushort;
-
-void	stft_view_begin(	cufftComplex	*input,
-							ushort			*output,
-							uint			x0,
-							uint			y0,
-							uint			frame_size,
-							uint			width,
-							uint			height,
-							uint			depth);
+void	stft_view_begin(	complex	*input,
+							ushort	*output,
+							uint	x0,
+							uint	y0,
+							uint	frame_size,
+							uint	width,
+							uint	height,
+							uint	depth);

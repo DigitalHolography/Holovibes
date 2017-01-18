@@ -4,15 +4,8 @@
  */
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-#include "compute_descriptor.hh"
-
-/* Forward declaration. */
-namespace holovibes
-{
-  class Queue;
-}
+# include "cuda_shared.cuh"
+# include "compute_descriptor.hh"
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
 * range 0 to n.
@@ -21,9 +14,9 @@ namespace holovibes
 * \param output Array of the sqrt values form 0 to n - 1,
 * this array should have size greater or equal to n.
 */
-void make_sqrt_vect(float* out,
-  const unsigned short n,
-  cudaStream_t stream = 0);
+void make_sqrt_vect(float			*out,
+					const			ushort n,
+					cudaStream_t	stream = 0);
 
 /*! \brief Ensure the contiguity of images extracted from
  * the queue for any further processing.
@@ -46,8 +39,7 @@ void make_sqrt_vect(float* out,
  * this function would need an unsigned short buffer that is unused
  * anywhere else.
  */
-void make_contiguous_complex(
-  holovibes::Queue& input,
-  cufftComplex* output,
-  const unsigned int n,
-  cudaStream_t stream = 0);
+void make_contiguous_complex(	holovibes::Queue&	input,
+								complex				*output,
+								const uint			n,
+								cudaStream_t		stream = 0);

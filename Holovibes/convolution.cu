@@ -4,36 +4,35 @@
 #include "hardware_limits.hh"
 #include "tools.hh"
 
-__global__ void kernel_multiply_kernel(
-	cufftComplex* input,
-	cufftComplex* gpu_special_queue,
-	const unsigned int gpu_special_queue_buffer_length,
-	const unsigned int frame_resolution,
-	const unsigned int i_width,
-	const float* kernel,
-	const unsigned int k_width,
-	const unsigned int k_height,
-	const unsigned int nsamples,
-	const unsigned int start_index,
-	const unsigned int max_index )
+__global__ void kernel_multiply_kernel(	complex		*input,
+										complex		*gpu_special_queue,
+										const uint	gpu_special_queue_buffer_length,
+										const uint	frame_resolution,
+										const uint	i_width,
+										const float	*kernel,
+										const uint	k_width,
+										const uint	k_height,
+										const uint	nsamples,
+										const uint	start_index,
+										const uint	max_index)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int n, m, z;
-	//unsigned int size = frame_resolution * nsamples;
-	unsigned int k_size = k_width * k_height;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint n, m, z;
+	//uint size = frame_resolution * nsamples;
+	uint k_size = k_width * k_height;
 	while (index < frame_resolution)
 	{
-		cufftComplex sum = make_cuComplex(0, 0);
+		complex sum = make_cuComplex(0, 0);
 
 		for (z = 0; z < nsamples; ++z)
 		for (m = 0; m < k_width; ++m)
 		for (n = 0; n < k_height; ++n) {
-			cufftComplex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
+			complex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
 			float b = kernel[m + n * k_width + (z * k_size)];
 			sum.x += a.x * b;
 			sum.y += a.y * b;
 		}
-		const unsigned int n_k_size = nsamples * k_size;
+		const uint n_k_size = nsamples * k_size;
 		sum.x /= n_k_size;
 		sum.y /= n_k_size;
 		input[index] = sum;
@@ -41,22 +40,21 @@ __global__ void kernel_multiply_kernel(
 	}
 }
 
-void convolution_kernel(
-	cufftComplex* input,
-	cufftComplex* gpu_special_queue,
-	const unsigned int frame_resolution,
-	const unsigned int frame_width,
-	const float* kernel,
-	const unsigned int k_width,
-	const unsigned int k_height,
-	const unsigned int k_z,
-	unsigned int& gpu_special_queue_start_index,
-	const unsigned int& gpu_special_queue_max_index,
-	cudaStream_t stream)
+void convolution_kernel(complex			*input,
+						complex			*gpu_special_queue,
+						const uint		frame_resolution,
+						const uint		frame_width,
+						const float		*kernel,
+						const uint		k_width,
+						const uint		k_height,
+						const uint		k_z,
+						uint&			gpu_special_queue_start_index,
+						const uint&		gpu_special_queue_max_index,
+						cudaStream_t	stream)
 {
 
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_resolution, threads);
 
 
 	cudaStreamSynchronize(stream);
@@ -68,10 +66,10 @@ void convolution_kernel(
 	cudaMemcpy(
 		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,
-		sizeof(cufftComplex)* frame_resolution,
+		sizeof(complex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 	
-	unsigned int gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
+	uint gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
 
 	kernel_multiply_kernel<<<blocks, threads, 0, stream>>>(
 		input,
