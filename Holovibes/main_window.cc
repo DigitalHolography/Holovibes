@@ -24,8 +24,8 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		, gl_win_stft_0(nullptr)
-		//, gl_win_stft_1(nullptr)
+		, gl_win_stft_XZ(nullptr)
+		//, gl_win_stft_YZ(nullptr)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -109,7 +109,7 @@ namespace gui
 
 	MainWindow::~MainWindow()
 	{
-		gl_win_stft_0.reset(nullptr);
+		gl_win_stft_XZ.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
@@ -2706,7 +2706,7 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
-			gl_win_stft_0.reset(new GuiGLWindow(
+			gl_win_stft_XZ.reset(new GuiGLWindow(
 				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(), GuiGLWindow::window_kind::SLICE_XZ));
 			
 			/* gui */
@@ -2723,7 +2723,7 @@ namespace gui
 			disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 			// delete stft_view windows
 			cd.stft_view_enabled.exchange(false);
-			gl_win_stft_0.reset(nullptr);
+			gl_win_stft_XZ.reset(nullptr);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			// -------------------
 			p->setEnabled(true);

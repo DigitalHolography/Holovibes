@@ -69,7 +69,8 @@ namespace gui
 	class MainWindow : public QMainWindow, public holovibes::Observer
 	{
 		Q_OBJECT
-
+	
+	#pragma region Public Methods
 	public:
 		/*! \brief Set keyboard shortcuts, set visibility and load default values from holovibes.ini.
 		**
@@ -87,11 +88,12 @@ namespace gui
 		void notify() override;
 
 		void notify_error(std::exception& e, const char* msg) override;
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Signals & Slots
 	signals:
 		/* \brief signal needed to send error messages from the compute thread.*/
 		void send_error(QString message);
-
 	public slots:
 		/*! \brief Display information message
 		** \param msg information message
@@ -471,10 +473,11 @@ namespace gui
 		void stft_view(bool b);
 
 		void update_stft_slice_pos(QPoint pos);
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Protected / Private Methods
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
-
 	private:
 		/*! \{ \name Visibility
 		**
@@ -538,7 +541,9 @@ namespace gui
 		** \return path with _index up to 10^6
 		*/
 		std::string format_batch_output(const std::string& path, unsigned int index);
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Fields
 	private:
 		Ui::MainWindow ui;
 		/*! Reference to Holovibes object */
@@ -546,8 +551,8 @@ namespace gui
 		/*! OpenGL window */
 		std::unique_ptr<GuiGLWindow> gl_window_;
 		// TO DO
-		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
-		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
+		std::unique_ptr<GuiGLWindow> gl_win_stft_XZ;
+		//std::unique_ptr<GuiGLWindow> gl_win_stft_YZ;
 
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;
@@ -592,6 +597,7 @@ namespace gui
 		QShortcut* gl_normal_screen_;
 		QShortcut* autofocus_ctrl_c_shortcut_;
 		/*! \} */
-		
+	#pragma endregion
+
 	};
 }
