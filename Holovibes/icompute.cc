@@ -731,12 +731,12 @@ namespace holovibes
 		}
 		if (compute_desc_.stft_view_enabled)
 		{
-			//gpu_stft_slice_queue_->enqueue(output, cudaMemcpyDeviceToDevice);
 			camera::FrameDescriptor fd = gpu_stft_slice_queue_->get_frame_desc();
 			stft_view_begin(
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 				static_cast<unsigned short *>(gpu_stft_slice_queue_->get_last_images(1)),
-				0, 0,
+				compute_desc_.stft_slice_cursor.load().x(), 
+				compute_desc_.stft_slice_cursor.load().y(),
 				fd.frame_res(),
 				input_.get_frame_desc().width,
 				input_.get_frame_desc().height,
