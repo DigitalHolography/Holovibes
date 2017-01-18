@@ -736,7 +736,7 @@ namespace holovibes
 			stft_view_begin(
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 				static_cast<unsigned short *>(gpu_stft_slice_queue_->get_last_images(1)),
-				0, 0,
+				128, 0,
 				fd.frame_res(),
 				input_.get_frame_desc().width,
 				input_.get_frame_desc().height,
