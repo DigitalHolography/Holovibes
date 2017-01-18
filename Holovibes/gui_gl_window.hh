@@ -9,7 +9,9 @@
 # include <memory>
 
 # include "ui_gl_window.h"
+# include "ui_gl_slice_window.h"
 # include "gui_gl_widget.hh"
+# include "gui_gl_widget_slice.hh"
 
 /* Forward declarations. */
 namespace holovibes
@@ -26,6 +28,13 @@ namespace gui
 		Q_OBJECT
 
 	public:
+
+		enum window_kind
+		{
+			DIRECT,
+			SLICE_XZ
+		};
+
 		/*! \brief GuiGLWindow constructor
 		**
 		** \param pos initial position of the window
@@ -40,6 +49,7 @@ namespace gui
 			const unsigned int height,
 			holovibes::Holovibes& h,
 			holovibes::Queue& q,
+		    window_kind wk = window_kind::DIRECT,
 			QWidget* parent = nullptr);
 
 		/* \brief GuiGLWindow destructor */
@@ -51,7 +61,8 @@ namespace gui
 		/*! \brief Returns a reference to a GLWidget object. */
 		GLWidget& get_gl_widget() const
 		{
-			return *gl_widget_;
+			//TODO: : remove the dynamic cast when the widget_slice has been cleared up & its gonna SEGFAULT
+			return *(dynamic_cast<GLWidget*>(gl_widget_.get()));
 		}
 
 		public slots:
@@ -63,9 +74,8 @@ namespace gui
 		void default_screen();
 
 	private:
-		Ui::GLWindow ui;
 		/*! GL widget, it updates itself */
-		std::unique_ptr<GLWidget> gl_widget_;
+		std::unique_ptr<QGLWidget> gl_widget_;
 
 		/*! \{ \name Screen modes keyboard shortcuts */
 		QShortcut* full_screen_;

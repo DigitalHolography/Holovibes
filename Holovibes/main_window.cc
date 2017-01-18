@@ -2704,10 +2704,16 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
+<<<<<<< 486a9e8aabedea0898758ee00c46867dcb5b2f64
 			gl_win_stft_0.reset(new GuiGLWindow(
 				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0)));
 			gl_win_stft_1.reset(new GuiGLWindow(
 				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1)));
+=======
+			
+			gl_win_stft_0.reset(new GuiGLWindow(
+				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(), GuiGLWindow::window_kind::SLICE_XZ));
+>>>>>>> Update : slicing is done in a brand new window & bug fix when deleting window
 
 			cd.stft_view_enabled.exchange(true);
 		}
