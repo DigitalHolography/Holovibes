@@ -93,15 +93,13 @@ namespace holovibes
     const std::string& filepath,
     const unsigned int rec_n_images)
   {
-    Recorder* recorder;
-
+    
     assert(camera_initialized_ && "camera not initialized");
     assert(tcapture_ && "capture thread not initialized");
 
-    if (tcompute_)
-      recorder = new Recorder(*output_, filepath);
-    else
-      recorder = new Recorder(*input_, filepath);
+	Recorder* recorder = new Recorder(
+					*((tcompute_) ? output_ : input_),
+					filepath);
 
     std::cout << "[RECORDER] recorder Start" << std::endl;
     recorder->record(rec_n_images);

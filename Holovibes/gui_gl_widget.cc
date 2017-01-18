@@ -139,12 +139,7 @@ namespace gui
 
 
 		/* Creates and initialize a buffer object's data store. */
-		glBufferData(
-			GL_TEXTURE_BUFFER,
-			size,
-			//frame_desc_.frame_size(),
-			nullptr,
-			GL_DYNAMIC_DRAW);
+		glBufferData(GL_TEXTURE_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 		/* Unbind any buffer of GL_TEXTURE_BUFFER target. */
 		glBindBuffer(GL_TEXTURE_BUFFER, 0);
 		/* Register buffer name to CUDA. */
@@ -277,7 +272,7 @@ namespace gui
 		else if (selection_mode_ == ZOOM)
 			dezoom();
 		if (selection_mode_ == STFT_SLICE)
-			stft_slice_pos_update(e->pos());
+			stft_slice_pos_update(e->pos() / 2);
 			
 	}
 
@@ -307,7 +302,7 @@ namespace gui
 			}
 		}
 		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
-			stft_slice_pos_update(e->pos());
+			stft_slice_pos_update(e->pos() / 2);
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)

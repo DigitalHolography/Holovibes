@@ -24,8 +24,8 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		, gl_win_stft_0(nullptr)
-		//, gl_win_stft_1(nullptr)
+		, gl_win_stft_XZ(nullptr)
+		//, gl_win_stft_YZ(nullptr)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -109,7 +109,7 @@ namespace gui
 
 	MainWindow::~MainWindow()
 	{
-		gl_win_stft_0.reset(nullptr);
+		gl_win_stft_XZ.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
@@ -2710,8 +2710,7 @@ namespace gui
 				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
 			gl_win_stft_1.reset(new GuiGLWindow(
 				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
-			
-			
+				
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
 			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);

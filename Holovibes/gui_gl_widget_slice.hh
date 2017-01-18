@@ -21,15 +21,6 @@ namespace holovibes
 
 namespace gui
 {
-	/*! Zone selection modes */
-	/*typedef enum selection
-	{
-		AUTOFOCUS,
-		AVERAGE,
-		ZOOM,
-		STFT_ROI,
-	} eselection;*/
-
 	/*! \brief OpenGL widget used to display frames contained in Queue(s).
 	 *
 	 * Users can select zone and move in display surf
@@ -42,6 +33,7 @@ namespace gui
 		/*! Frame rate of the display in Hertz (Frame.s-1) */
 		const unsigned int DISPLAY_FRAMERATE = 30;
 
+	#pragma region Public Methods
 	public:
 		/* \brief GLWidget constructor
 		**
@@ -95,13 +87,10 @@ namespace gui
 			noise_selection_ = selection;
 			h_.get_compute_desc().noise_zone = noise_selection_;
 		}
-
-	/*	void set_selection_mode(const eselection mode)
-		{
-			//selection_mode_ = mode;
-		}
-		*/
-		public slots:
+	#pragma endregion
+	/* ---------- */
+	#pragma region Slots & Signals
+	public slots:
 		void resizeFromWindow(const int width, const int height);
 
 		/*! \{ \name View Shortcut */
@@ -114,21 +103,14 @@ namespace gui
 		/*! \} */
 
 	signals:
-		/*! \brief Signal used to inform the main window that autofocus
-		** zone has been selected.
-		*/
-		/*void autofocus_zone_selected(holovibes::Rectangle zone);*/
-
-		/*! \brief Signal used to inform the main window that roi
-		** zone has been selected but not definitely.
-		*/
-		/*void stft_roi_zone_selected_update(holovibes::Rectangle zone);*/
 
 		/*! \brief Signal used to inform the main window that roi
 		** zone is definitely selected.
 		*/
 		void stft_roi_zone_selected_end();
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Protected Methods
 	protected:
 		/* \brief Initialize all OpenGL components needed */
 		void initializeGL() override;
@@ -167,7 +149,9 @@ namespace gui
 		** In ZOOM mode, its check that the selection is not a point.
 		*/
 		void mouseReleaseEvent(QMouseEvent* e) override;
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Protected Fields
 	protected:
 		QWidget* parent_;
 		holovibes::Holovibes& h_;
@@ -187,8 +171,6 @@ namespace gui
 		/*! \{ \name Selection */
 		/*! \brief User is currently select zone ? */
 		bool is_selection_enabled_;
-		/*! \brief Color zone and signal emit depend of this */
-		//eselection selection_mode_;
 		/*! \brief Boolean used to switch between signal and noise selection */
 		bool is_signal_selection_;
 		/*! \} */
@@ -220,7 +202,9 @@ namespace gui
 		QShortcut *key_plus_shortcut;
 		QShortcut *key_minus_shortcut;
 		/*! \} */
-
+	#pragma endregion
+	/* ---------- */
+	#pragma region Private Methods
 	private:
 		/*! \brief Draw a selection zone
 		**
@@ -267,5 +251,6 @@ namespace gui
 		 * Use only in debug mode, glGetError is slow and should be avoided
 		 */
 		void gl_error_checking();
+	#pragma endregion
 	};
 }
