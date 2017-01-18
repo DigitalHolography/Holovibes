@@ -438,6 +438,9 @@
     <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="holo_widget.hh">
+      <Filter>Header Files\gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">

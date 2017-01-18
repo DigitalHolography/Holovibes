@@ -220,6 +220,7 @@
     <ClInclude Include="gui_tool.hh" />
     <ClInclude Include="hardware_limits.hh" />
     <ClInclude Include="holovibes.hh" />
+    <ClInclude Include="holo_widget.hh" />
     <ClInclude Include="icompute.hh" />
     <CustomBuild Include="info_manager.hh">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Debug\moc_%(Filename).cc"</Command>
