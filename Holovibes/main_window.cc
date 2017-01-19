@@ -279,7 +279,7 @@ namespace gui
 			}
 			close_critical_compute();
 
-			str << "GPU allocation error occured." << std::endl << "Cuda error message: " << std::endl << msg;
+			str << "GPU allocation error occured." << '\n' << "Cuda error message: " << '\n' << msg;
 			emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 		else
@@ -907,7 +907,7 @@ namespace gui
 			// QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
 			bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
-			std::cout << "Value = " << value.toUtf8().constData() << std::endl;
+			std::cout << "Value = " << value.toUtf8().constData() << '\n';
 			if (last_contrast_type_ == "Complex output" && value != "Complex output")
 			{
 				set_complex_mode(false);
@@ -1128,7 +1128,7 @@ namespace gui
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cerr << e.what() << std::endl;
+			std::cerr << e.what() << '\n';
 		}
 	}
 
@@ -2291,7 +2291,7 @@ namespace gui
 		}
 		catch (std::exception& e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cout << e.what() << '\n';
 		}
 
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -2625,7 +2625,7 @@ namespace gui
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cout << e.what() << '\n';
 			throw std::runtime_error(e.what());
 		}
 	}

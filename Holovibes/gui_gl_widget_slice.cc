@@ -525,7 +525,7 @@ namespace gui
 		GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << std::endl;
+			std::cerr << "[GL] " << err_string << '\n';
 	}
 
 	void GLWidgetSlice::resizeFromWindow(const int width, const int height)

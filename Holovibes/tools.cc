@@ -40,7 +40,7 @@ namespace holovibes
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cout << e.what() << '\n';
 		}
 	}
 
@@ -76,7 +76,7 @@ namespace holovibes
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cout << e.what() << '\n';
 		}
 	}
 

@@ -22,7 +22,7 @@ namespace holovibes
 	{
 		if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
 		{
-			std::cerr << "Queue: couldn't allocate queue" << std::endl;
+			std::cerr << "Queue: couldn't allocate queue" << '\n';
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
 
@@ -35,7 +35,7 @@ namespace holovibes
 		if (display_)
 			gui::InfoManager::remove_info_safe(name_);
 		if (cudaFree(buffer_) != CUDA_SUCCESS)
-			std::cerr << "Queue: couldn't free queue" << std::endl;
+			std::cerr << "Queue: couldn't free queue" << '\n';
 		cudaStreamDestroy(stream_);
 	}
 
@@ -107,7 +107,7 @@ namespace holovibes
 
 		if (cuda_status != CUDA_SUCCESS)
 		{
-			std::cerr << "Queue: couldn't enqueue" << std::endl;
+			std::cerr << "Queue: couldn't enqueue" << '\n';
 			if (display_)
 				gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
 			return false;

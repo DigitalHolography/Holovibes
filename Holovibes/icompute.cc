@@ -420,11 +420,11 @@ namespace holovibes
 	{
 		auto cuda_error = cudaGetErrorString(cudaGetLastError());
 		std::cout
-			<< "[ERROR] ICompute l" << __LINE__ << std::endl
+			<< "[ERROR] ICompute l" << __LINE__ << '\n'
 			<< " error message: " << e.what()
-			<< " err_count: " << err_count << std::endl
+			<< " err_count: " << err_count << '\n'
 			<< " cudaError_t: " << cuda_error
-			<< std::endl;
+			<< '\n';
 		notify_error_observers(e, cuda_error);
 	}
 
@@ -798,13 +798,13 @@ namespace holovibes
 
 		if (cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex)))
 		{
-			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
+			std::cout << "[ERROR] Couldn't cudaMalloc average output" << '\n';
 			return;
 		}
 		if (cudaMalloc<float>(&fbuf, width * height * sizeof(float)))
 		{
 			cudaFree(cbuf);
-			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
+			std::cout << "[ERROR] Couldn't cudaMalloc average output" << '\n';
 			return;
 		}
 

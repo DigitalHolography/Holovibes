@@ -143,7 +143,7 @@ namespace holovibes
 
 		if (abort_construct_requested_)
 		{
-			std::cout << "[PIPELINE] abort_construct_requested" << std::endl;
+			std::cout << "[PIPELINE] abort_construct_requested" << '\n';
 			return;
 		}
 

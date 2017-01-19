@@ -236,27 +236,27 @@ namespace holovibes
 		}
 		catch (po::unknown_option& e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 		catch (po::invalid_option_value &e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 		catch (po::too_many_positional_options_error& e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 		catch (po::required_option& e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 		catch (po::invalid_command_line_syntax& e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 		catch (std::runtime_error &e)
 		{
-			std::cerr << "[CLI] " << e.what() << std::endl;
+			std::cerr << "[CLI] " << e.what() << '\n';
 		}
 
 		if (!succeed)
@@ -270,13 +270,13 @@ namespace holovibes
 	{
 		print_version();
 		std::cout << "\nUsage: ./holovibes.exe [OPTIONS]\n"
-			<< "This help message depends on --nogui parameter (more options available).\n" << std::endl;
+			<< "This help message depends on --nogui parameter (more options available).\n" << '\n';
 		std::cout << merge_opts_desc_;
 	}
 
 	void OptionsParser::print_version()
 	{
-		std::cout << "\nHolovibes " << version << std::endl;
+		std::cout << "\nHolovibes " << version << '\n';
 	}
 
 	void OptionsParser::proceed_help()

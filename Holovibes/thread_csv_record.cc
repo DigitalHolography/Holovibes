@@ -51,9 +51,9 @@ namespace gui
       << ", p : " << holo_.get_compute_desc().pindex
       << ", lambda : " << holo_.get_compute_desc().lambda
       << ", z : " << holo_.get_compute_desc().zdistance
-      << "]" << std::endl;
+      << "]" << '\n';
 
-    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
+    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << '\n';
 
     const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
     unsigned int i = 0;
