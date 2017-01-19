@@ -1021,7 +1021,7 @@ namespace gui
 		notify();
 	}
 
-	void  MainWindow::set_z_min(const double value)
+	void MainWindow::set_z_min(const double value)
 	{
 		if (!is_direct_mode())
 		{
@@ -1030,7 +1030,7 @@ namespace gui
 		}
 	}
 
-	void  MainWindow::set_z_max(const double value)
+	void MainWindow::set_z_max(const double value)
 	{
 		if (!is_direct_mode())
 		{
@@ -1039,13 +1039,13 @@ namespace gui
 		}
 	}
 
-	void  MainWindow::set_import_pixel_size(const double value)
+	void MainWindow::set_import_pixel_size(const double value)
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		cd.import_pixel_size = value;
 	}
 
-	void  MainWindow::set_z_iter(const int value)
+	void MainWindow::set_z_iter(const int value)
 	{
 		if (!is_direct_mode())
 		{
@@ -1054,7 +1054,7 @@ namespace gui
 		}
 	}
 
-	void  MainWindow::set_z_div(const int value)
+	void MainWindow::set_z_div(const int value)
 	{
 		if (!is_direct_mode())
 		{
@@ -2698,14 +2698,12 @@ namespace gui
 	{
 		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-
 		if (b)
 		{
 			p->setEnabled(false);
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
-			
 			gl_win_stft_0.reset(new GuiGLWindow(
 				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0)));
 			gl_win_stft_1.reset(new GuiGLWindow(
@@ -2724,5 +2722,4 @@ namespace gui
 			p->setEnabled(true);
 		}
 	}
-
 }
