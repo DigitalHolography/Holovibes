@@ -113,6 +113,8 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Romain Cancilliere <romain.cancilliere@gmail.com>
 * Clement Ledant <clement.ledant@gmail.com>
 * Cyril CETRE <cyril.cetre@epita.fr>
+* Thomas JARROSSAY <tjarross@student.42.fr>
+* Alexandre BARTZ <abartz@student.42.fr>
 
 ## Changelog ##
 
