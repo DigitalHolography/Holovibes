@@ -24,7 +24,6 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		, gl_win_stft_XZ(nullptr)
 		//, gl_win_stft_YZ(nullptr)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
@@ -109,7 +108,6 @@ namespace gui
 
 	MainWindow::~MainWindow()
 	{
-		gl_win_stft_XZ.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
