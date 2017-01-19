@@ -199,7 +199,7 @@ namespace holovibes
 	void	create_stft_slice_queue();
 	void	delete_stft_slice_queue();
 	void	update_stft_slice_queue();
-	Queue&	get_stft_slice_queue();
+	Queue&	get_stft_slice_queue(int i);
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -366,7 +366,8 @@ namespace holovibes
 
 	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_stft_queue_;
-	Queue* gpu_stft_slice_queue_;
+	Queue* gpu_stft_slice_queue_xz;
+	Queue* gpu_stft_slice_queue_yz;
 	
 	/* \brief Queue for the reference diff */
 	Queue* gpu_ref_diff_queue_;

@@ -37,7 +37,8 @@ namespace holovibes
 		, gpu_kernel_buffer_(nullptr)
 		, gpu_special_queue_(nullptr)
 		, gpu_stft_queue_(nullptr)
-		, gpu_stft_slice_queue_(nullptr)
+		, gpu_stft_slice_queue_xz(nullptr)
+		, gpu_stft_slice_queue_yz(nullptr)
 		, gpu_ref_diff_queue_(nullptr)
 		, gpu_filter2d_buffer(nullptr)
 		, plan3d_(0)
@@ -206,7 +207,8 @@ namespace holovibes
 		/* gpu_stft_queue */
 		delete gpu_stft_queue_;
 
-		delete gpu_stft_slice_queue_;
+		delete gpu_stft_slice_queue_xz;
+		delete gpu_stft_slice_queue_yz;
 
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
@@ -329,10 +331,15 @@ namespace holovibes
 
 	void	ICompute::delete_stft_slice_queue()
 	{
-		if (gpu_stft_slice_queue_)
+		if (gpu_stft_slice_queue_xz)
 		{
-			delete gpu_stft_slice_queue_;
-			gpu_stft_slice_queue_ = nullptr;
+			delete gpu_stft_slice_queue_xz;
+			gpu_stft_slice_queue_xz = nullptr;
+		}
+		if (gpu_stft_slice_queue_yz)
+		{
+			delete gpu_stft_slice_queue_yz;
+			gpu_stft_slice_queue_yz = nullptr;
 		}
 	}
 
@@ -340,12 +347,16 @@ namespace holovibes
 	{
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		new_fd.depth = 2;
-		gpu_stft_slice_queue_ = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+		gpu_stft_slice_queue_xz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+		gpu_stft_slice_queue_yz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
 	}
 
-	Queue&	ICompute::get_stft_slice_queue()
+	Queue&	ICompute::get_stft_slice_queue(int i)
 	{
-		return *gpu_stft_slice_queue_;
+		if (!i)
+			return *gpu_stft_slice_queue_xz;
+		else
+			return *gpu_stft_slice_queue_yz;
 	}
 
 	void ICompute::refresh()
@@ -732,11 +743,12 @@ namespace holovibes
 		if (compute_desc_.stft_view_enabled)
 		{
 			//gpu_stft_slice_queue_->enqueue(output, cudaMemcpyDeviceToDevice);
-			camera::FrameDescriptor fd = gpu_stft_slice_queue_->get_frame_desc();
+			camera::FrameDescriptor fd = gpu_stft_slice_queue_xz->get_frame_desc();
 			stft_view_begin(
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_->get_last_images(1)),
-				128, 0,
+				static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+				static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+				128, 128,
 				fd.frame_res(),
 				input_.get_frame_desc().width,
 				input_.get_frame_desc().height,

@@ -55,7 +55,8 @@ void stft(	complex				*input,
 			cudaStream_t		stream = 0);
 
 void	stft_view_begin(	complex	*input,
-							ushort	*output,
+							ushort	*outputxz,
+							ushort	*outputyz,
 							uint	x0,
 							uint	y0,
 							uint	frame_size,

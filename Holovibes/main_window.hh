@@ -543,7 +543,7 @@ namespace gui
 		std::unique_ptr<GuiGLWindow> gl_window_;
 		// TO DO
 		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
-		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
+		std::unique_ptr<GuiGLWindow> gl_win_stft_1;
 
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;

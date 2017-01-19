@@ -88,7 +88,8 @@ __global__	void	stft_view_xz(	const complex	*input,
 }
 
 void	stft_view_begin(complex	*input,
-						ushort	*output,
+						ushort	*outputxz,
+						ushort	*outputyz,
 						uint	x0,
 						uint	y0,
 						uint	frame_size,
@@ -99,6 +100,6 @@ void	stft_view_begin(complex	*input,
 	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_size, threads);
 
-//	stft_view_xz<<<blocks, threads, 0, 0 >>>(input, output, y0, frame_size, width);
-	stft_view_yz<<<blocks, threads, 0, 0 >>>(input, output, x0, frame_size, width, height, depth);
+	stft_view_xz<<<blocks, threads, 0, 0>>>(input, outputxz, y0, frame_size, width);
+	stft_view_yz<<<blocks, threads, 0, 0>>>(input, outputyz, x0, frame_size, width, height, depth);
 }
