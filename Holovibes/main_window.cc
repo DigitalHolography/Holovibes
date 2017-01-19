@@ -2707,9 +2707,13 @@ namespace gui
 			holovibes_.get_pipe()->create_stft_slice_queue();
 			
 			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0)));
+				QPoint(520, 0),
+				512, 512,
+				holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0)));
 			gl_win_stft_1.reset(new GuiGLWindow(
-				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1)));
+				QPoint(0, 545),
+				512, 512,
+				holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1)));
 
 			cd.stft_view_enabled.exchange(true);
 		}
