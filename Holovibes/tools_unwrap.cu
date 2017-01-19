@@ -1,116 +1,111 @@
-#include <device_launch_parameters.h>
-#include <cmath>
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
 
 #include "tools_unwrap.cuh"
 
-__global__ void kernel_extract_angle(
-  const cufftComplex* input,
-  float* output,
-  const size_t size)
+__global__ void kernel_extract_angle(	const complex	*input,
+										float			*output,
+										const size_t	size)
 {
-  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index >= size)
-    return;
+	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
+	if (index >= size)
+		return;
 
-  // We use std::atan2 in order to obtain results in [-pi; pi].
-  output[index] = std::atan2(input[index].y, input[index].x);
+	// We use std::atan2 in order to obtain results in [-pi; pi].
+	output[index] = std::atan2(input[index].y, input[index].x);
 }
 
-__global__ void kernel_unwrap(
-  float* pred,
-  float* cur,
-  float* output,
-  const size_t size)
+__global__ void kernel_unwrap(	float			*pred,
+								float			*cur,
+								float			*output,
+								const size_t	size)
 {
-  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index >= size)
-    return;
-  const float pi = M_PI;
-
-  float local_diff = cur[index] - pred[index];
-  // Unwrapping //
-  float local_adjust;
-  if (local_diff > pi)
-    local_adjust = -M_2PI;
-  else if (local_diff < -pi)
-    local_adjust = M_2PI;
-  else
-    local_adjust = 0.f;
-
-  // Cumulating each angle with its correction
-  output[index] = cur[index] + local_adjust;
+	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
+	if (index < size)
+	{
+		float local_diff = cur[index] - pred[index];
+		// Unwrapping //
+		float local_adjust;
+		if (local_diff > M_PI)
+			local_adjust = -M_2PI;
+		else if (local_diff < -M_PI)
+			local_adjust = M_2PI;
+		else
+			local_adjust = 0.f;
+		// Cumulating each angle with its correction
+		output[index] = cur[index] + local_adjust;
+	}
 }
 
-__global__ void kernel_compute_angle_mult(
-  const cufftComplex* pred,
-  const cufftComplex* cur,
-  float* output,
-  const size_t size)
+__global__ void kernel_compute_angle_mult(	const complex	*pred,
+											const complex	*cur,
+											float			*output,
+											const size_t	size)
 {
-  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index >= size)
-    return;
+	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
+	if (index < size)
+	{
+		complex conj_prod;
+		conj_prod = cur[index];
 
-  cufftComplex conj_prod;
-  conj_prod = cur[index];
+		conj_prod.x *= pred[index].x;
+		conj_prod.x += cur[index].y * pred[index].y;
 
-  conj_prod.x *= pred[index].x;
-  conj_prod.x += cur[index].y * pred[index].y;
+		conj_prod.y *= pred[index].x;
+		conj_prod.y -= cur[index].x * pred[index].y;
 
-  conj_prod.y *= pred[index].x;
-  conj_prod.y -= cur[index].x * pred[index].y;
-
-  output[index] = std::atan2(conj_prod.y, conj_prod.x);
+		output[index] = std::atan2(conj_prod.y, conj_prod.x);
+	}
 }
 
-__global__ void kernel_compute_angle_diff(
-  const cufftComplex* pred,
-  const cufftComplex* cur,
-  float* output,
-  const size_t size)
+__global__ void kernel_compute_angle_diff(	const complex	*pred,
+											const complex	*cur,
+											float			*output,
+											const size_t	size)
 {
-  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index >= size)
-    return;
-
-  cufftComplex diff;
-  diff = cur[index];
-  diff.x -= pred[index].x;
-  diff.y -= pred[index].y;
-
-  output[index] = std::atan2(diff.y, diff.x);
+	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
+	if (index < size)
+	{
+		complex diff = cur[index];
+		diff.x -= pred[index].x;
+		diff.y -= pred[index].y;
+		output[index] = std::atan2(diff.y, diff.x);
+	}
 }
 
-__global__ void kernel_correct_angles(
-  float* data,
-  const float* corrections,
-  const size_t image_size,
-  const size_t history_size)
+__global__ void kernel_correct_angles(	float			*data,
+										const float		*corrections,
+										const size_t	image_size,
+										const size_t	history_size)
 {
-  const unsigned index = blockDim.x * blockIdx.x + threadIdx.x;
-  if (index >= image_size)
-    return;
-
-  for (auto correction_idx = index;
-    correction_idx < history_size * image_size;
-    correction_idx += image_size)
-  {
-    data[index] += corrections[correction_idx];
-  }
+	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
+	if (index < image_size)
+		for (auto correction_idx = index;
+			correction_idx < history_size * image_size;
+			correction_idx += image_size)
+			data[index] += corrections[correction_idx];
 }
 
-__global__ void kernel_init_unwrap_2d(
-	unsigned int width,
-	unsigned int height,
-	unsigned int frame_res,
-	float *input,
-	float *fx,
-	float *fy,
-	cufftComplex *z)
+__global__ void kernel_init_unwrap_2d(	uint	width,
+										uint	height,
+										uint	frame_res,
+										float	*input,
+										float	*fx,
+										float	*fy,
+										complex	*z)
 {
-	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int j = blockIdx.y * blockDim.y + threadIdx.y;
-	unsigned int index = j * blockDim.x * gridDim.x + i;
+	uint i = blockIdx.x * blockDim.x + threadIdx.x;
+	uint j = blockIdx.y * blockDim.y + threadIdx.y;
+	uint index = j * blockDim.x * gridDim.x + i;
 
 	if (index < frame_res)
 	{
@@ -123,14 +118,13 @@ __global__ void kernel_init_unwrap_2d(
 	}
 }
 
-__global__ void kernel_multiply_complexes_by_floats_(
-	const float* input1,
-	const float* input2,
-	cufftComplex* output1,
-	cufftComplex* output2,
-	const unsigned int size)
+__global__ void kernel_multiply_complexes_by_floats_(	const float	*input1,
+														const float	*input2,
+														complex		*output1,
+														complex		*output2,
+														const uint	size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -142,18 +136,17 @@ __global__ void kernel_multiply_complexes_by_floats_(
 	}
 }
 
-__global__ void kernel_multiply_complexes_by_single_complex(
-	cufftComplex* output1,
-	cufftComplex* output2,
-	const cufftComplex input,
-	const unsigned int size)
+__global__ void kernel_multiply_complexes_by_single_complex(complex			*output1,
+															complex			*output2,
+															const complex	input,
+															const uint		size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
-		const cufftComplex cpy_o1 = output1[index];
-		const cufftComplex cpy_o2 = output2[index];
+		const complex cpy_o1 = output1[index];
+		const complex cpy_o2 = output2[index];
 
 		output1[index].x = cpy_o1.x * input.x - cpy_o1.y * input.y;
 		output1[index].y = cpy_o1.x * input.y + cpy_o1.y * input.x;
@@ -163,16 +156,15 @@ __global__ void kernel_multiply_complexes_by_single_complex(
 	}
 }
 
-__global__ void kernel_multiply_complex_by_single_complex(
-	cufftComplex* output,
-	const cufftComplex input,
-	const unsigned int size)
+__global__ void kernel_multiply_complex_by_single_complex(	complex			*output,
+															const complex	input,
+															const uint		size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
-		const cufftComplex cpy_o1 = output[index];
+		const complex cpy_o1 = output[index];
 
 		output[index].x = cpy_o1.x * input.x - cpy_o1.y * input.y;
 		output[index].y = cpy_o1.x * input.y + cpy_o1.y * input.x;
@@ -180,11 +172,9 @@ __global__ void kernel_multiply_complex_by_single_complex(
 	}
 }
 
-__global__ void kernel_conjugate_complex(
-	cufftComplex* output,
-	const unsigned int size)
+__global__ void kernel_conjugate_complex(complex* output, const uint size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -193,18 +183,17 @@ __global__ void kernel_conjugate_complex(
 	}
 }
 
-__global__ void kernel_multiply_complex_frames_by_complex_frame(
-	cufftComplex* output1,
-	cufftComplex* output2,
-	const cufftComplex* input,
-	const unsigned int size)
+__global__ void kernel_multiply_complex_frames_by_complex_frame(complex			*output1,
+																complex			*output2,
+																const complex	*input,
+																const uint		size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
-		const cufftComplex cpy_o1 = output1[index];
-		const cufftComplex cpy_o2 = output2[index];
+		const complex cpy_o1 = output1[index];
+		const complex cpy_o2 = output2[index];
 
 		output1[index].x = cpy_o1.x * input[index].x - cpy_o1.y * input[index].y;
 		output1[index].y = cpy_o1.x * input[index].y + cpy_o1.y * input[index].x;
@@ -214,14 +203,13 @@ __global__ void kernel_multiply_complex_frames_by_complex_frame(
 	}
 }
 
-__global__ void kernel_norm_ratio(
-	const float* input1,
-	const float* input2,
-	cufftComplex* output1,
-	cufftComplex* output2,
-	const unsigned int size)
+__global__ void kernel_norm_ratio(	const float	*input1,
+									const float	*input2,
+									complex		*output1,
+									complex		*output2,
+									const uint	size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -248,12 +236,11 @@ __global__ void kernel_norm_ratio(
 	}
 }
 
-__global__ void kernel_add_complex_frames(
-	cufftComplex* output,
-	const cufftComplex* input,
-	const unsigned int size)
+__global__ void kernel_add_complex_frames(	complex			*output,
+											const complex	*input,
+											const uint		size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -263,12 +250,9 @@ __global__ void kernel_add_complex_frames(
 	}
 }
 
-__global__ void kernel_unwrap2d_last_step(
-	float* output,
-	const cufftComplex* input,
-	const unsigned int size)
+__global__ void kernel_unwrap2d_last_step(float *output, const complex *input, const uint size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -277,12 +261,12 @@ __global__ void kernel_unwrap2d_last_step(
 	}
 }
 
-__global__ void kernel_convergence(
-	cufftComplex* input1,
-	cufftComplex* input2)
-{
-	input1[0].x = 0;
-	input1[0].y = 0;
-	input2[0].x = 0;
-	input2[0].y = 0;
-}
+// Is this function really used ?
+
+//__global__ void kernel_convergence(complex* input1, complex* input2)
+//{
+//	input1[0].x = 0;
+//	input1[0].y = 0;
+//	input2[0].x = 0;
+//	input2[0].y = 0;
+//}

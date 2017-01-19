@@ -1,38 +1,46 @@
-#include <device_launch_parameters.h>
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
 
 #include "flowgraphy.cuh"
 #include "hardware_limits.hh"
 #include "tools.hh"
 
 
-__global__ void kernel_flowgraphy(
-	cufftComplex* input,
-	const cufftComplex* gpu_special_queue,
-	const unsigned int gpu_special_queue_buffer_length,
-	const cufftComplex* gpu_special_queue_end,
-	const unsigned int start_index,
-	const unsigned int max_index,
-	const unsigned int frame_resolution,
-	const unsigned int i_width,
-	const unsigned int nsamples,
-	const unsigned int n_i)
+__global__ void kernel_flowgraphy(	complex			*input,
+									const complex	*gpu_special_queue,
+									const uint		gpu_special_queue_buffer_length,
+									const complex	*gpu_special_queue_end,
+									const uint		start_index,
+									const uint		max_index,
+									const uint		frame_resolution,
+									const uint		i_width,
+									const uint		nsamples,
+									const uint		n_i)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
-	//unsigned int size = frame_resolution * nsamples;
-
+	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	complex M = make_cuComplex(0, 0);
+	complex D = make_cuComplex(0, 0);
+	//uint size = frame_resolution * nsamples;
 	while (index < frame_resolution)
 	{
-		cufftComplex M = make_cuComplex(0, 0);
-		cufftComplex D = make_cuComplex(0, 0);
 		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nsamples >> 1)) % gpu_special_queue_buffer_length;
-		cufftComplex b = gpu_special_queue[deplacement];
+		complex b = gpu_special_queue[deplacement];
 
 		for (int k = 0; k < nsamples; ++k)
 		for (int j = 0; j < nsamples; ++j)
 		for (int i = 0; i < nsamples; ++i)
 		{
 			deplacement = (index + i + (j * i_width) + (((k + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length; // while x while y, on peut virer le modulo
-			cufftComplex a = gpu_special_queue[deplacement];
+			complex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
 			float diffx = a.x - b.x;
@@ -50,20 +58,18 @@ __global__ void kernel_flowgraphy(
 }
 
 
-void convolution_flowgraphy(
-	cufftComplex* input,
-	cufftComplex* gpu_special_queue,
-	unsigned int &gpu_special_queue_start_index,
-	const unsigned int gpu_special_queue_max_index,
-	const unsigned int frame_resolution,
-	const unsigned int frame_width,
-	const unsigned int nframes,
-	cudaStream_t stream)
+void convolution_flowgraphy(complex			*input,
+							complex			*gpu_special_queue,
+							uint&			gpu_special_queue_start_index,
+							const uint		gpu_special_queue_max_index,
+							const uint		frame_resolution,
+							const uint		frame_width,
+							const uint		nframes,
+							cudaStream_t	stream)
 {
-	// const unsigned int n_frame_resolution = frame_resolution * nframes;
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
-
+	// const uint n_frame_resolution = frame_resolution * nframes;
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_resolution, threads);
 
 	cudaStreamSynchronize(stream);
 
@@ -74,25 +80,23 @@ void convolution_flowgraphy(
 	cudaMemcpy(
 		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,
-		sizeof(cufftComplex) * frame_resolution,
+		sizeof(complex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 
-	unsigned int n = static_cast<unsigned int>(nframes * nframes * nframes - 3);
-	unsigned int  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
-	cufftComplex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
+	uint n = static_cast<uint>(nframes * nframes * nframes - 3);
+	uint  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
+	complex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
 
-	kernel_flowgraphy <<<blocks, threads, 0, stream>>>(
-		input,
-		gpu_special_queue,
-		gpu_special_queue_buffer_length,
-		gpu_special_queue_end,
-		gpu_special_queue_start_index,
-		gpu_special_queue_max_index,
-		frame_resolution,
-		frame_width,
-		nframes,
-		n
-		);
+	kernel_flowgraphy <<<blocks, threads, 0, stream>>>(	input,
+														gpu_special_queue,
+														gpu_special_queue_buffer_length,
+														gpu_special_queue_end,
+														gpu_special_queue_start_index,
+														gpu_special_queue_max_index,
+														frame_resolution,
+														frame_width,
+														nframes,
+														n);
 
 	cudaStreamSynchronize(stream);
 }

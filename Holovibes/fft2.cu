@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include "fft2.cuh"
 #include "hardware_limits.hh"
 #include "frame_desc.hh"
@@ -7,68 +19,57 @@
 #include "tools_compute.cuh"
 #include "tools.cuh"
 
-void fft2_lens(
-  cufftComplex* lens,
-  const camera::FrameDescriptor& fd,
-  const float lambda,
-  const float z,
-  cudaStream_t stream)
+void fft2_lens(	complex							*lens,
+				const camera::FrameDescriptor&	fd,
+				const float						lambda,
+				const float						z,
+				cudaStream_t					stream)
 {
-  unsigned int threads_2d = get_max_threads_2d();
-  dim3 lthreads(threads_2d, threads_2d);
-  dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
-  //float test = fd.pixel_size;
-  kernel_spectral_lens <<<lblocks, lthreads, 0, stream >>>(lens, fd, lambda, z);
+	uint threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
+	//float test = fd.pixel_size;
+	kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z);
 }
 
-void fft_2(
-  cufftComplex* input,
-  const cufftComplex* lens,
-  const cufftHandle plan1d,
-  const cufftHandle plan2d,
-  const unsigned int frame_resolution,
-  const unsigned int nframes,
-  const unsigned int p,
-  const unsigned int q,
-  cudaStream_t stream)
+void fft_2(	complex				*input,
+			const complex		*lens,
+			const cufftHandle	plan1d,
+			const cufftHandle	plan2d,
+			const uint			frame_resolution,
+			const uint			nframes,
+			const uint			p,
+			const uint			q,
+			cudaStream_t		stream)
 {
-  const unsigned int n_frame_resolution = frame_resolution * nframes;
+	const uint	n_frame_resolution = frame_resolution * nframes;
+	uint			threads = THREADS_128;
+	uint			blocks = map_blocks_to_problem(frame_resolution, threads);
 
-  unsigned int threads = 128;
-  unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
+	cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
 
-  cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
- 
-  cudaStreamSynchronize(stream);
-  
-  cufftComplex* pframe = input + frame_resolution * p;
+	cudaStreamSynchronize(stream);
+
+	complex* pframe = input + frame_resolution * p;
 
 
-  cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
+	cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
 
-  kernel_apply_lens << <blocks, threads, 0, stream >> >(
-	  pframe,
-	  frame_resolution,
-	  lens,
-	  frame_resolution);
+	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
 
-  cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(stream);
 
-  cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
+	cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
 
-  kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
+	kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
 
-  if (p != q)
-  {
-	  cufftComplex* qframe = input + frame_resolution * q;
-	  cufftExecC2C(plan2d, qframe, qframe, CUFFT_FORWARD);
-	  kernel_apply_lens << <blocks, threads, 0, stream >> >(
-		  qframe,
-		  frame_resolution,
-		  lens,
-		  frame_resolution);
-    cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
-    kernel_complex_divide << <blocks, threads, 0, stream >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
-  }
-  cudaStreamSynchronize(stream);
+	if (p != q)
+	{
+		complex* qframe = input + frame_resolution * q;
+		cufftExecC2C(plan2d, qframe, qframe, CUFFT_FORWARD);
+		kernel_apply_lens << <blocks, threads, 0, stream >> >(qframe, frame_resolution, lens, frame_resolution);
+		cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
+		kernel_complex_divide << <blocks, threads, 0, stream >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
+	}
+	cudaStreamSynchronize(stream);
 }

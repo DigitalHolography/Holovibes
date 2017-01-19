@@ -1,15 +1,24 @@
-#include <device_launch_parameters.h>
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
 
 #include "tools_compute.cuh"
 #include "hardware_limits.hh"
 #include "tools.hh"
 
-__global__ void kernel_complex_divide(
-  cufftComplex* image,
-  const unsigned int size,
-  const float divider)
+__global__ void kernel_complex_divide(complex		*image,
+									  const uint	size,
+									  const float	divider)
 {
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  uint index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size)
   {
     image[index].x = image[index].x / divider;
@@ -18,12 +27,11 @@ __global__ void kernel_complex_divide(
   }
 }
 
-__global__ void kernel_float_divide(
-  float* input,
-  const unsigned int size,
-  const float divider)
+__global__ void kernel_float_divide(float		*input,
+									const uint	size,
+									const float	divider)
 {
-  unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+  uint index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < size)
   {
     input[index] /= divider;
@@ -31,13 +39,12 @@ __global__ void kernel_float_divide(
   }
 }
 
-__global__ void kernel_multiply_frames_complex(
-	const cufftComplex* input1,
-	const cufftComplex* input2,
-	cufftComplex* output,
-	const unsigned int size)
+__global__ void kernel_multiply_frames_complex(	const complex	*input1,
+												const complex	*input2,
+												complex			*output,
+												const uint		size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -47,13 +54,12 @@ __global__ void kernel_multiply_frames_complex(
 	}
 }
 
-__global__ void kernel_multiply_frames_float(
-	const float* input1,
-	const float* input2,
-	float* output,
-	const unsigned int size)
+__global__ void kernel_multiply_frames_float(	const float	*input1,
+												const float	*input2,
+												float		*output,
+												const uint	size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	while (index < size)
 	{
@@ -62,13 +68,13 @@ __global__ void kernel_multiply_frames_float(
 	}
 }
 
-__global__ void kernel_substract_ref(
-	cufftComplex*      input,
-	cufftComplex*      reference,
-	const unsigned int size,
-	const unsigned int frame_size)
+__global__ void kernel_substract_ref(	complex		*input,
+										complex		*reference,
+										const uint	size,
+										const uint	frame_size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
 	while (index < size)
 	{
 		input[index].x -= reference[index % frame_size].x;
@@ -76,26 +82,25 @@ __global__ void kernel_substract_ref(
 	}
 }
 
-void substract_ref(
-	cufftComplex* input,
-	cufftComplex* reference,
-	const unsigned int frame_resolution,
-	const unsigned int nframes,
-	cudaStream_t stream)
+void substract_ref(	complex			*input,
+					complex			*reference,
+					const uint		frame_resolution,
+					const uint		nframes,
+					cudaStream_t	stream)
 {
-	const unsigned int n_frame_resolution = frame_resolution * nframes;
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(frame_resolution, threads);
+	const uint	n_frame_resolution = frame_resolution * nframes;
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
     kernel_substract_ref << <blocks, threads, 0, stream >> >(input, reference, n_frame_resolution, frame_resolution);
 }
 
-__global__ void kernel_mean_images(
-	cufftComplex *input,
-	cufftComplex *output,
-	unsigned int n,
-	unsigned int frame_size)
+__global__ void kernel_mean_images(	complex		*input,
+									complex		*output,
+									uint		n,
+									uint		frame_size)
 {
-	unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
+	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
 	while (index < frame_size)
 	{
 		float tmp = 0;
@@ -107,15 +112,14 @@ __global__ void kernel_mean_images(
 	}
 }
 
-void mean_images(
-	 cufftComplex* input,
-	 cufftComplex* output,
-	unsigned int n,
-	unsigned int frame_size,
-	cudaStream_t stream)
+void mean_images(	complex			*input,
+					complex			*output,
+					uint			n,
+					uint			frame_size,
+					cudaStream_t	stream)
 {
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(frame_size, threads);
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_size, threads);
 
 	kernel_mean_images << <blocks, threads, 0, stream >> >(input, output, n, frame_size);
 }
