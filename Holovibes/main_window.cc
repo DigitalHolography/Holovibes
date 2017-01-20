@@ -71,6 +71,22 @@ namespace gui
 		if (theme_index_ == 1)
 			set_night();
 
+
+		/* !!!!!  TO REMOVE AFTER 4.0 !!!!*/
+
+
+		/* !!!!!  TO REMOVE AFTER 4.0 !!!!*/
+
+
+		QCheckBox* hide_function = findChild<QCheckBox*>("stft_view_checkbox");                                                /* <=======   TO REMOVE AFTER 4.0  */
+		hide_function->setVisible(false);                                                                                      /* <=======   TO REMOVE AFTER 4.0  */
+	
+		
+		/* !!!!!  TO REMOVE AFTER 4.0 !!!!*/
+		
+		
+		/* !!!!!  TO REMOVE AFTER 4.0 !!!!*/
+
 		// Keyboard shortcuts
 		z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
 		z_up_shortcut_->setContext(Qt::ApplicationShortcut);
@@ -384,22 +400,24 @@ namespace gui
 	{
 		display_info("Holovibes " + holovibes::version + "\n\n"
 
+			"Development director:\n"
+			"Michael Atlan\n\n"
+
 			"Developers:\n"
 			"Cyril Cetre\n"
-			"Cl�ment Ledant\n"
+			"Clément Ledant\n"
 
 			"Eric Delanghe\n"
 			"Arnaud Gaillard\n"
-			"Geoffrey Le Gourri�rec\n"
+			"Geoffrey Le Gourriérec\n"
 
 			"Jeffrey Bencteux\n"
 			"Thomas Kostas\n"
 			"Pierre Pagnoux\n"
 
-			"Antoine Dill�e\n"
-			"Romain Cancilli�re\n"
-
-			"Michael Atlan\n");
+			"Antoine Dillée\n"
+			"Romain Cancillière\n"
+			);
 	}
 
 	void MainWindow::configure_camera()
@@ -2250,7 +2268,7 @@ namespace gui
 	void MainWindow::display_error(const std::string msg)
 	{
 		QMessageBox msg_box;
-		msg_box.setText(QString::fromLatin1(msg.c_str()));
+		msg_box.setText(QString::fromUtf8(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Critical);
 		msg_box.exec();
 	}
@@ -2258,7 +2276,7 @@ namespace gui
 	void MainWindow::display_info(const std::string msg)
 	{
 		QMessageBox msg_box;
-		msg_box.setText(QString::fromLatin1(msg.c_str()));
+		msg_box.setText(QString::fromUtf8(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();
 	}
