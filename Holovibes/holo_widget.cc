@@ -10,24 +10,32 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include "basic_widget.hh"
+#include "holo_widget.hh"
 
 namespace gui {
 
-	class HoloWidget : protected BasicWidget
+	HoloWidget::HoloWidget(holovibes::Queue& q,
+							const uint w,
+							const uint h,
+							QWidget* parent) :
+							BasicWidget(w, h, parent)
 	{
-		public:
-			HoloWidget(holovibes::Queue& q,
-						const uint w,
-						const uint h,
-						QWidget* parent = 0);
-			virtual ~HoloWidget();
 
-		protected:
-			virtual void resizeGL(int width, int height);
-			virtual void paintGL();
-	};
+	}
+
+	HoloWidget::~HoloWidget()
+	{
+
+	}
+	
+	void HoloWidget::resizeGL(int width, int height)
+	{
+		glViewport(0, 0, width, height);
+	}
+
+	void HoloWidget::paintGL()
+	{
+
+	}
 
 }

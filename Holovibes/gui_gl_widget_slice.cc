@@ -78,7 +78,7 @@ namespace gui
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	void GLWidgetSlice::view_move_down()
+	/*void GLWidgetSlice::view_move_down()
 	{
 		py_ += 0.1f / zoom_ratio_;
 	}
@@ -108,7 +108,7 @@ namespace gui
 	{
 		zoom_ratio_ *= 0.9f;
 		glScalef(0.9f, 0.9f, 0.9f);
-	}
+	}*/
 
 	QSize GLWidgetSlice::minimumSizeHint() const
 	{
@@ -139,12 +139,7 @@ namespace gui
 
 
 		/* Creates and initialize a buffer object's data store. */
-		glBufferData(
-			GL_TEXTURE_BUFFER,
-			size,
-			//frame_desc_.frame_size(),
-			nullptr,
-			GL_DYNAMIC_DRAW);
+		glBufferData(GL_TEXTURE_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 		/* Unbind any buffer of GL_TEXTURE_BUFFER target. */
 		glBindBuffer(GL_TEXTURE_BUFFER, 0);
 		/* Register buffer name to CUDA. */
@@ -231,7 +226,7 @@ namespace gui
 
 		glDisable(GL_TEXTURE_2D);
 
-		if (is_selection_enabled_)
+		/*if (is_selection_enabled_)
 		{
 			const float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
 			const float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
@@ -239,7 +234,7 @@ namespace gui
 			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
 
-/*			switch (selection_mode_)
+			switch (selection_mode_)
 			{
 			case AUTOFOCUS:
 				selection_rect(selection_, autofocus_color);
@@ -256,15 +251,15 @@ namespace gui
 				break;
 			default:
 				break;
-			}*/
-		}
+			}
+		}*/
 
 		gl_error_checking();
 	}
 
-	void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
+	/*void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
 	{
-	/*	if (e->button() == Qt::LeftButton)
+		if (e->button() == Qt::LeftButton)
 		{
 			is_selection_enabled_ = true;
 			selection_.top_left = holovibes::Point2D(
@@ -273,8 +268,8 @@ namespace gui
 		}
 		else
 		if (selection_mode_ == ZOOM)
-			dezoom();*/
-	}
+			dezoom();
+	}*/
 
 	void GLWidgetSlice::mouseMoveEvent(QMouseEvent* e)
 	{
@@ -305,7 +300,7 @@ namespace gui
 
 	void GLWidgetSlice::mouseReleaseEvent(QMouseEvent* e)
 	{
-	/*	if (is_selection_enabled_)
+		/*if (is_selection_enabled_)
 		{
 			selection_.bottom_right = holovibes::Point2D(
 				(e->x() * frame_desc_.width) / width(),
@@ -379,9 +374,9 @@ namespace gui
 		}*/
 	}
 
-	void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
+	/*void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
 	{
-		/*const float xmax = frame_desc_.width;
+		const float xmax = frame_desc_.width;
 		const float ymax = frame_desc_.height;
 
 		float nstartx = (2.0f * static_cast<float>(selection.top_left.x)) / xmax - 1.0f;
@@ -405,10 +400,10 @@ namespace gui
 		glVertex2f(nstartx, nendy);
 		glEnd();
 
-		glDisable(GL_BLEND);*/
+		glDisable(GL_BLEND);
 	}
 
-	/*holovibes::Rectangle  GLWidgetSlice::resize_zone(holovibes::Rectangle selection)
+	holovibes::Rectangle  GLWidgetSlice::resize_zone(holovibes::Rectangle selection)
 	{
 		selection.top_left.x /= zoom_ratio_;
 		selection.bottom_left.x /= zoom_ratio_;
@@ -420,7 +415,7 @@ namespace gui
 		selection.bottom_left.y /= zoom_ratio_;
 		selection.bottom_right.y /= zoom_ratio_;
 		return (selection);
-	}*/
+	}
 
 	void GLWidgetSlice::zoom(const holovibes::Rectangle& selection)
 	{
@@ -515,7 +510,7 @@ namespace gui
 			selection.bottom_right.y = frame_desc_.height;
 
 		selection = holovibes::Rectangle(selection.top_left, selection.bottom_right);
-	}
+	}*/
 
 	void GLWidgetSlice::gl_error_checking()
 	{

@@ -138,6 +138,7 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="basic_widget.hh" />
     <ClInclude Include="custom_exception.hh" />
     <ClInclude Include="filter2D.cuh" />
     <ClInclude Include="autofocus.cuh" />
@@ -255,6 +256,7 @@
     </CustomBuild>
     <ClInclude Include="fft1.cuh" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="slice_widget.hh" />
     <ClInclude Include="stft.cuh" />
     <ClInclude Include="thread_compute.hh" />
     <ClInclude Include="thread_capture.hh" />
@@ -298,6 +300,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="basic_widget.cc" />
     <ClCompile Include="camera_dll.cc" />
     <ClCompile Include="compute_bundles.cc" />
     <ClCompile Include="compute_bundles_2d.cc" />
@@ -403,6 +406,7 @@
     <ClCompile Include="gui_plot_window.cc" />
     <ClCompile Include="gui_tool.cc" />
     <ClCompile Include="holovibes.cc" />
+    <ClCompile Include="holo_widget.cc" />
     <ClCompile Include="icompute.cc" />
     <ClCompile Include="info_manager.cc" />
     <ClCompile Include="ithread_input.cc" />
@@ -414,6 +418,7 @@
     <ClCompile Include="power_of_two.cc" />
     <ClCompile Include="queue.cc" />
     <ClCompile Include="recorder.cc" />
+    <ClCompile Include="slice_widget.cc" />
     <ClCompile Include="thread_capture.cc" />
     <ClCompile Include="thread_compute.cc" />
     <ClCompile Include="main_window.cc" />

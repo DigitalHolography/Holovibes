@@ -131,7 +131,6 @@ namespace gui
 
 		/* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
 		glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
-
 		//frame_desc_.frame_size();
 		unsigned int size = frame_desc_.frame_size();
 		if (frame_desc_.depth == 4 || frame_desc_.depth == 8)

@@ -10,24 +10,39 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
 #include "basic_widget.hh"
 
 namespace gui {
 
-	class HoloWidget : protected BasicWidget
+	BasicWidget::BasicWidget(const uint w, const uint h, QWidget* parent) :
+							QOpenGLWidget(parent),
+							QOpenGLFunctions(),
+							Width(w), Height(h),
+							cuBuffer(nullptr),
+							Vbo(QOpenGLBuffer::VertexBuffer), Vao(0), Tex(0),
+							Program(nullptr), Vertex(nullptr), Fragment(nullptr)
 	{
-		public:
-			HoloWidget(holovibes::Queue& q,
-						const uint w,
-						const uint h,
-						QWidget* parent = 0);
-			virtual ~HoloWidget();
+		if (cudaStreamCreate(&cuStream) != cudaSuccess)
+			cuStream = 0;
+		resize(QSize(w, h));
+	}
 
-		protected:
-			virtual void resizeGL(int width, int height);
-			virtual void paintGL();
-	};
+	BasicWidget::~BasicWidget()
+	{
+		makeCurrent();
+
+		cudaGraphicsUnregisterResource(cuBuffer);
+		cudaStreamDestroy(cuStream);
+		
+		Vao.destroy();
+		Vbo.destroy();
+		glDeleteTextures(1, &Tex);
+
+		delete Fragment;
+		delete Vertex;
+		delete Program;
+		
+		doneCurrent();
+	}
 
 }

@@ -39,6 +39,12 @@ int main(int argc, char* argv[])
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif /* !_DEBUG */
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		/* ----------------------- */
+		QSurfaceFormat format;
+		format.setVersion(4, 0);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+		QSurfaceFormat::setDefaultFormat(format);
+		/* ----------------------- */
 		gui::MainWindow w(h);
 		gui::GuiTool gt(h, &w);
 		w.show();

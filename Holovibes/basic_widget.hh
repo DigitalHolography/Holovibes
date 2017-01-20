@@ -12,22 +12,46 @@
 
 #pragma once
 
-#include "basic_widget.hh"
+# include <QOpenGLWidget>
+# include <QOpenGLFunctions.h>
+# include <qopenglbuffer.h>
+# include <qopenglvertexarrayobject.h>
+# include <qopenglshaderprogram.h>
+# include <cuda_gl_interop.h>
+
+# include "holovibes.hh"
 
 namespace gui {
-
-	class HoloWidget : protected BasicWidget
+	
+	class BasicWidget : public QOpenGLWidget, protected QOpenGLFunctions
 	{
 		public:
-			HoloWidget(holovibes::Queue& q,
-						const uint w,
-						const uint h,
-						QWidget* parent = 0);
-			virtual ~HoloWidget();
+			BasicWidget(const uint w, const uint h, QWidget* parent = 0);
+			virtual ~BasicWidget();
 
 		protected:
-			virtual void resizeGL(int width, int height);
-			virtual void paintGL();
+			const uint	Width;
+			const uint	Height;
+
+			// CUDA
+			struct cudaGraphicsResource*	cuBuffer;
+			cudaStream_t					cuStream;
+
+			// OpenGL Objects
+			QOpenGLVertexArrayObject	Vao;
+			QOpenGLBuffer	Vbo;
+			GLuint			Tex;
+
+			// OpenGL Shaders Objects
+			QOpenGLShaderProgram	*Program;
+			QOpenGLShader			*Vertex;
+			QOpenGLShader			*Fragment;
+
+			virtual void initShaders() = 0;
+
+			virtual void initializeGL() = 0;
+			virtual void resizeGL(int w, int h) = 0;
+			virtual void paintGL() = 0;
 	};
 
 }

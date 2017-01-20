@@ -12,20 +12,26 @@
 
 #pragma once
 
+#include "queue.hh"
 #include "basic_widget.hh"
 
 namespace gui {
 
-	class HoloWidget : protected BasicWidget
+	class SliceWidget : protected BasicWidget
 	{
 		public:
-			HoloWidget(holovibes::Queue& q,
-						const uint w,
-						const uint h,
-						QWidget* parent = 0);
-			virtual ~HoloWidget();
+			SliceWidget(holovibes::Queue& q,
+						const uint w, const uint h, QWidget* parent = 0);
+			virtual ~SliceWidget();
 
 		protected:
+
+			holovibes::Queue&				HQueue;
+			const camera::FrameDescriptor&  Fd;
+
+			virtual void initShaders();
+
+			virtual void initializeGL();
 			virtual void resizeGL(int width, int height);
 			virtual void paintGL();
 	};

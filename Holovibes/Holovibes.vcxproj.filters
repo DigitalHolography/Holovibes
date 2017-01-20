@@ -51,17 +51,38 @@
     <Filter Include="Header Files\compute">
       <UniqueIdentifier>{ad96cfb3-0291-4b70-a199-dd09de6b38be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\thread">
-      <UniqueIdentifier>{f09398da-e256-48cb-a5a8-9dfd0dae52ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\core">
       <UniqueIdentifier>{73555b3c-6ac2-4c56-9d83-c6d55d8d1cb7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\gui">
       <UniqueIdentifier>{0889426a-6d14-4583-8c95-566a13f7d6d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\tools">
+    <Filter Include="Source Files\gui\other">
+      <UniqueIdentifier>{5c519152-f934-43df-bb64-f794a130651d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\windows">
+      <UniqueIdentifier>{112f127f-c089-4b14-a78a-d11679250e92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\windows">
+      <UniqueIdentifier>{7577c7a0-e308-499e-b9bc-c24f24c951e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\other">
+      <UniqueIdentifier>{b47ac2b0-ba30-40bf-ab09-e5378b01fa63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\z">
       <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\opengl_widgets">
+      <UniqueIdentifier>{f2b69de0-455d-44d7-8906-bf3c911b956d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\opengl_widgets">
+      <UniqueIdentifier>{6093626f-d6e9-4638-95b3-7465f9078757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\thread">
+      <UniqueIdentifier>{6eef1a70-e998-426f-b9fc-c921b3305e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tools">
+      <UniqueIdentifier>{f09398da-e256-48cb-a5a8-9dfd0dae52ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -211,24 +232,6 @@
     <ClCompile Include="camera_dll.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui_curve_plot.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_widget.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_window.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_group_box.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_plot_window.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_tool.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
     <ClCompile Include="thread_recorder.cc">
       <Filter>Source Files\thread</Filter>
     </ClCompile>
@@ -277,34 +280,52 @@
     <ClCompile Include="pipeline.cc">
       <Filter>Source Files\core</Filter>
     </ClCompile>
-    <ClCompile Include="main_window.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
-    <ClCompile Include="gui_gl_widget_slice.cc">
-      <Filter>Source Files\gui</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="gui_gl_widget.cc">
+      <Filter>Source Files\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_widget_slice.cc">
+      <Filter>Source Files\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="holo_widget.cc">
+      <Filter>Source Files\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_gl_window.cc">
+      <Filter>Source Files\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_plot_window.cc">
+      <Filter>Source Files\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cc">
+      <Filter>Source Files\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_curve_plot.cc">
+      <Filter>Source Files\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_group_box.cc">
+      <Filter>Source Files\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="gui_tool.cc">
+      <Filter>Source Files\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="basic_widget.cc">
+      <Filter>Source Files\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="slice_widget.cc">
+      <Filter>Source Files\gui\opengl_widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="contrast_correction.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="options_descriptor.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="options_parser.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="preprocessing.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="queue.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fft1.cuh">
       <Filter>Header Files CUDA</Filter>
@@ -324,50 +345,20 @@
     <ClInclude Include="GeneratedFiles\ui_main_window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="observable.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="observer.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vibrometry.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="average.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="geometry.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="concurrent_deque.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_dll.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="autofocus.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools_conversion.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
     <ClInclude Include="stft.cuh">
       <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="pipeline_utils.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="module.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gpib_dll.hh">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools_unwrap.cuh">
       <Filter>Header Files CUDA</Filter>
@@ -384,9 +375,6 @@
     <ClInclude Include="filter2D.cuh">
       <Filter>Header Files CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="custom_exception.hh">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="compute_bundles.hh">
       <Filter>Header Files\compute</Filter>
     </ClInclude>
@@ -395,18 +383,6 @@
     </ClInclude>
     <ClInclude Include="compute_descriptor.hh">
       <Filter>Header Files\compute</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_reader.hh">
-      <Filter>Header Files\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_compute.hh">
-      <Filter>Header Files\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="thread_capture.hh">
-      <Filter>Header Files\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="ithread_input.hh">
-      <Filter>Header Files\thread</Filter>
     </ClInclude>
     <ClInclude Include="pipe.hh">
       <Filter>Header Files\core</Filter>
@@ -420,8 +396,26 @@
     <ClInclude Include="holovibes.hh">
       <Filter>Header Files\core</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="gui_tool.hh">
-      <Filter>Header Files\gui</Filter>
+      <Filter>Header Files\gui\other</Filter>
+    </ClInclude>
+    <ClInclude Include="holo_widget.hh">
+      <Filter>Header Files\gui\opengl_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ithread_input.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_capture.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_compute.hh">
+      <Filter>Header Files\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_reader.hh">
+      <Filter>Header Files\thread</Filter>
     </ClInclude>
     <ClInclude Include="hardware_limits.hh">
       <Filter>Header Files\tools</Filter>
@@ -432,11 +426,53 @@
     <ClInclude Include="tools.hh">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="camera_dll.hh">
+      <Filter>Header Files\z</Filter>
     </ClInclude>
-    <ClInclude Include="holo_widget.hh">
-      <Filter>Header Files\gui</Filter>
+    <ClInclude Include="concurrent_deque.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="config.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_exception.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="gpib_dll.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="module.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="observable.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="observer.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="options_descriptor.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="options_parser.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline_utils.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.hh">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files\z</Filter>
+    </ClInclude>
+    <ClInclude Include="basic_widget.hh">
+      <Filter>Header Files\gui\opengl_widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="slice_widget.hh">
+      <Filter>Header Files\gui\opengl_widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -458,41 +494,41 @@
     <CustomBuild Include="plot_window.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="recorder.hh">
-      <Filter>Header Files</Filter>
+    <CustomBuild Include="gl_slice_window.ui">
+      <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="thread_recorder.hh">
-      <Filter>Header Files\thread</Filter>
+    <CustomBuild Include="gui_curve_plot.hh">
+      <Filter>Header Files\gui\other</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget.hh">
+      <Filter>Header Files\gui\opengl_widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_widget_slice.hh">
+      <Filter>Header Files\gui\opengl_widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_gl_window.hh">
+      <Filter>Header Files\gui\windows</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_group_box.hh">
+      <Filter>Header Files\gui\other</Filter>
+    </CustomBuild>
+    <CustomBuild Include="gui_plot_window.hh">
+      <Filter>Header Files\gui\windows</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.hh">
+      <Filter>Header Files\gui\windows</Filter>
     </CustomBuild>
     <CustomBuild Include="thread_csv_record.hh">
       <Filter>Header Files\thread</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_curve_plot.hh">
-      <Filter>Header Files\gui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_gl_widget.hh">
-      <Filter>Header Files\gui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_gl_window.hh">
-      <Filter>Header Files\gui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_group_box.hh">
-      <Filter>Header Files\gui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_plot_window.hh">
-      <Filter>Header Files\gui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="main_window.hh">
-      <Filter>Header Files\gui</Filter>
+    <CustomBuild Include="thread_recorder.hh">
+      <Filter>Header Files\thread</Filter>
     </CustomBuild>
     <CustomBuild Include="info_manager.hh">
       <Filter>Header Files\tools</Filter>
     </CustomBuild>
-    <CustomBuild Include="gl_slice_window.ui">
-      <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui_gl_widget_slice.hh">
-      <Filter>Header Files\gui</Filter>
+    <CustomBuild Include="recorder.hh">
+      <Filter>Header Files\z</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
