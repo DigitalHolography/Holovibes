@@ -399,7 +399,6 @@ namespace gui
 	void MainWindow::credits()
 	{
 		display_info("Holovibes " + holovibes::version + "\n\n"
-
 			"Development director:\n"
 			"Michael Atlan\n\n"
 
