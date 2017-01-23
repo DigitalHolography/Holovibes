@@ -118,6 +118,8 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
+Alexandre B., Thomas J. are now working on the project until July 2017.
+
 ### v.2.5.0
 
 * Bug fixing
