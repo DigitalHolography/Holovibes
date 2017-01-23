@@ -2704,11 +2704,14 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
+			// set positions of new windows according to the position of the main GL window
+			QPoint new_window_pos_x = gl_window_->pos() + QPoint(520, 0);
+			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, 545);
 			gl_win_stft_0.reset(new GuiGLWindow(
-				QPoint(520, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
+				new_window_pos_x, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
 			gl_win_stft_1.reset(new GuiGLWindow(
-				QPoint(0, 545), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
-				
+				new_window_pos_y, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
+			
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
 			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
