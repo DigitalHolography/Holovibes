@@ -65,6 +65,7 @@ namespace gui
 		key_minus_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
 		key_minus_shortcut->setContext(Qt::ApplicationShortcut);
 		connect(key_minus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+		setMouseTracking(true);
 	}
 
 	GLWidget::~GLWidget()
@@ -262,7 +263,7 @@ namespace gui
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::LeftButton)
+		if (e->button() == Qt::NoButton)
 		{
 			is_selection_enabled_ = true;
 			selection_.top_left = holovibes::Point2D(
@@ -301,7 +302,7 @@ namespace gui
 				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 		}
-		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
+		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::NoButton)
 			stft_slice_pos_update(e->pos() / 2);
 	}
 

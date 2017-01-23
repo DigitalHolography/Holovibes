@@ -2729,7 +2729,7 @@ namespace gui
 			gl_win_stft_1.reset(nullptr);
 			gl_win_stft_0.reset(nullptr);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
-			// -------------------
+			// ------------------------
 			p->setEnabled(true);
 			gl_window_->setCursor(Qt::ArrowCursor);
 			gl_widget->set_selection_mode(gui::eselection::ZOOM);
