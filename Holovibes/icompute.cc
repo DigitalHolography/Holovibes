@@ -704,6 +704,9 @@ namespace holovibes
 
 	void ICompute::stft_handler(cufftComplex* input, cufftComplex* output)
 	{
+		static ushort mouse_x;
+		static ushort mouse_y;
+
 		stft_frame_counter--;
 		bool b = false;
 		if (stft_frame_counter == 0)
@@ -744,23 +747,27 @@ namespace holovibes
 		{
 			//gpu_stft_slice_queue_->enqueue(output, cudaMemcpyDeviceToDevice);
 			camera::FrameDescriptor fd = gpu_stft_slice_queue_xz->get_frame_desc();
-			unsigned short mouse_x = compute_desc_.stft_slice_cursor.load().x();
-			unsigned short mouse_y = compute_desc_.stft_slice_cursor.load().y();
-			unsigned short width = input_.get_frame_desc().width - 1;
-			unsigned short height = input_.get_frame_desc().height - 1;
-			mouse_x = (mouse_x > width ? width : mouse_x);
-			mouse_y = (mouse_y > height ? height : mouse_y);
-			stft_view_begin(
-				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-				mouse_x,
-				mouse_y,
-				fd.frame_res(),
-				input_.get_frame_desc().width,
-				input_.get_frame_desc().height,
-				compute_desc_.nsamples.load()
-				);
+			
+			// Conservation of the coordinates when cursor is outside of the window
+			ushort old_mouse_x = compute_desc_.stft_slice_cursor.load().x();
+			ushort old_mouse_y = compute_desc_.stft_slice_cursor.load().y();
+			ushort width = input_.get_frame_desc().width - 1;
+			ushort height = input_.get_frame_desc().height - 1;
+			if (old_mouse_x <= width && old_mouse_y <= height)
+			{
+				mouse_x = old_mouse_x;
+				mouse_y = old_mouse_y;
+			}
+			// -----------------------------------------------------
+			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+							static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+							static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+							mouse_x,
+							mouse_y,
+							fd.frame_res(),
+							input_.get_frame_desc().width,
+							input_.get_frame_desc().height,
+							compute_desc_.nsamples.load());
 		}
 	}
 
