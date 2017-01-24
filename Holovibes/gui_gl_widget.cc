@@ -32,6 +32,7 @@ namespace gui
 		, py_(0.0f)
 		, zoom_ratio_(1.0f)
 		, parent_(parent)
+		, slice_block_(false)
 	{
 		this->setObjectName("GLWidget");
 		this->resize(QSize(width, height));
@@ -65,6 +66,11 @@ namespace gui
 		key_minus_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
 		key_minus_shortcut->setContext(Qt::ApplicationShortcut);
 		connect(key_minus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+		
+		key_space_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+		key_space_shortcut->setContext(Qt::ApplicationShortcut);
+		connect(key_space_shortcut, SIGNAL(activated()), this, SLOT(block_slice()));
+
 		setMouseTracking(true);
 	}
 
@@ -109,6 +115,14 @@ namespace gui
 	{
 		zoom_ratio_ *= 0.9f;
 		glScalef(0.9f, 0.9f, 0.9f);
+	}
+
+	void GLWidget::block_slice()
+	{
+		if (slice_block_)
+			slice_block_ = false;
+		else if (!slice_block_)
+			slice_block_ = true;
 	}
 
 	QSize GLWidget::minimumSizeHint() const
@@ -263,7 +277,7 @@ namespace gui
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::NoButton)
+		if (e->button() == Qt::NoButton && !slice_block_)
 		{
 			is_selection_enabled_ = true;
 			selection_.top_left = holovibes::Point2D(
@@ -302,7 +316,7 @@ namespace gui
 				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 		}
-		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::NoButton)
+		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::NoButton && !slice_block_)
 			stft_slice_pos_update(e->pos() / 2);
 	}
 
