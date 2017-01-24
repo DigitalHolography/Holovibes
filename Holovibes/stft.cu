@@ -64,8 +64,8 @@ __global__	void	stft_view_yz(	const complex	*input,
 
 	if (id < frame_size)
 	{
-		const uint index_y = id * width;
-		complex pixel = input[x0 + index_y / height * depth + index_y % height];
+		const uint index_y = id * frame_size;
+		complex pixel = input[x0 + index_y / (depth * frame_size) * depth + index_y % (height * frame_size)];
 		//float res = hypotf(pixel.x, pixel.y);
 		output[id] = static_cast<ushort>(pixel.x);
 	}

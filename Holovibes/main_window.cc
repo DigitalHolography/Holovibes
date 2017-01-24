@@ -2633,6 +2633,11 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled)
 		{
+			if (cd.stft_view_enabled)
+			{
+				QCheckBox* stft_view_button = findChild<QCheckBox*>("stft_view_checkbox");
+				stft_view_button->setChecked(false);
+			}
 			QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 			stft_button->setChecked(false);
 		}
@@ -2708,9 +2713,9 @@ namespace gui
 			QPoint new_window_pos_x = gl_window_->pos() + QPoint(520, 0);
 			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, 545);
 			gl_win_stft_0.reset(new GuiGLWindow(
-				new_window_pos_x, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
+				new_window_pos_x, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
 			gl_win_stft_1.reset(new GuiGLWindow(
-				new_window_pos_y, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
+				new_window_pos_y, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
 			
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
