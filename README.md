@@ -122,6 +122,11 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 Alexandre B., Thomas J. are now working on the project until July 2017.
 
+### v.4.0.0
+
+* Bug fixing
+* Jump a version to match CNRS repository (4.0)
+
 ### v.2.5.0
 
 * Bug fixing
