@@ -19,7 +19,9 @@ namespace gui {
 							QOpenGLFunctions(),
 							Width(w), Height(h),
 							cuBuffer(nullptr),
-							Vbo(QOpenGLBuffer::VertexBuffer), Vao(0), Tex(0),
+							Ebo(QOpenGLBuffer::IndexBuffer),
+							Vbo(QOpenGLBuffer::VertexBuffer), Vao(0),
+							Tex(nullptr),
 							Program(nullptr), Vertex(nullptr), Fragment(nullptr)
 	{
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
@@ -34,10 +36,12 @@ namespace gui {
 		cudaGraphicsUnregisterResource(cuBuffer);
 		cudaStreamDestroy(cuStream);
 		
+		Ebo.destroy();
 		Vao.destroy();
 		Vbo.destroy();
-		glDeleteTextures(1, &Tex);
+		Tex->destroy();
 
+		delete Tex;
 		delete Fragment;
 		delete Vertex;
 		delete Program;

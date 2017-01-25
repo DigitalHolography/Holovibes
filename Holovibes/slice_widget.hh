@@ -17,7 +17,7 @@
 
 namespace gui {
 
-	class SliceWidget : protected BasicWidget
+	class SliceWidget : public BasicWidget
 	{
 		public:
 			SliceWidget(holovibes::Queue& q,
@@ -29,11 +29,12 @@ namespace gui {
 			holovibes::Queue&				HQueue;
 			const camera::FrameDescriptor&  Fd;
 
-			virtual void initShaders();
+			virtual void	initShaders();
+			virtual void	initTexture();
 
-			virtual void initializeGL();
-			virtual void resizeGL(int width, int height);
-			virtual void paintGL();
+			virtual void	initializeGL();
+			virtual void	resizeGL(int width, int height);
+			virtual void	paintGL();
 	};
 
 }

@@ -40,10 +40,10 @@ int main(int argc, char* argv[])
 #endif /* !_DEBUG */
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		/* ----------------------- */
-		QSurfaceFormat format;
+		/*QSurfaceFormat format;
 		format.setVersion(4, 0);
 		format.setProfile(QSurfaceFormat::CoreProfile);
-		QSurfaceFormat::setDefaultFormat(format);
+		QSurfaceFormat::setDefaultFormat(format);*/
 		/* ----------------------- */
 		gui::MainWindow w(h);
 		gui::GuiTool gt(h, &w);

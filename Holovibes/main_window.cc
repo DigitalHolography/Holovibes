@@ -2635,7 +2635,14 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled)
 		{
+			if (cd.stft_view_enabled)
+			{
+				QCheckBox* stft_view_button = findChild<QCheckBox*>("stft_view_checkbox");
+				cd.stft_view_enabled.exchange(false);
+				stft_view_button->setChecked(false);
+			}
 			QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+			cd.stft_enabled.exchange(false);
 			stft_button->setChecked(false);
 		}
 		if (cd.ref_diff_enabled || cd.ref_sliding_enabled)

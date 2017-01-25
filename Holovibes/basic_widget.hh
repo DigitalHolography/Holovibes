@@ -17,9 +17,11 @@
 # include <qopenglbuffer.h>
 # include <qopenglvertexarrayobject.h>
 # include <qopenglshaderprogram.h>
+# include <qopengltexture.h>
 # include <cuda_gl_interop.h>
 
 # include "holovibes.hh"
+# include "tools_conversion.cuh"
 
 namespace gui {
 	
@@ -39,15 +41,17 @@ namespace gui {
 
 			// OpenGL Objects
 			QOpenGLVertexArrayObject	Vao;
-			QOpenGLBuffer	Vbo;
-			GLuint			Tex;
+			QOpenGLBuffer	Vbo;	// Vertex Buffer
+			QOpenGLBuffer	Ebo;	// Element Buffer
+			QOpenGLTexture	*Tex;
 
 			// OpenGL Shaders Objects
 			QOpenGLShaderProgram	*Program;
-			QOpenGLShader			*Vertex;
-			QOpenGLShader			*Fragment;
-
+			QOpenGLShader			*Vertex;	// Vertex Shader
+			QOpenGLShader			*Fragment;	// Fragment Shader
+			
 			virtual void initShaders() = 0;
+			virtual void initTexture() = 0;
 
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;

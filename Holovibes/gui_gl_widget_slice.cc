@@ -74,11 +74,11 @@ namespace gui
 		/* Free the associated computation stream. */
 		cudaStreamDestroy(cuda_stream_);
 		/* Destroy buffer name. */
-	//	glDeleteBuffers(1, &buffer_);
+		glDeleteBuffers(1, &buffer_);
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	/*void GLWidgetSlice::view_move_down()
+	void GLWidgetSlice::view_move_down()
 	{
 		py_ += 0.1f / zoom_ratio_;
 	}
@@ -108,7 +108,7 @@ namespace gui
 	{
 		zoom_ratio_ *= 0.9f;
 		glScalef(0.9f, 0.9f, 0.9f);
-	}*/
+	}
 
 	QSize GLWidgetSlice::minimumSizeHint() const
 	{
@@ -132,7 +132,7 @@ namespace gui
 		/* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
 		glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
 
-		//frame_desc_.frame_size();
+		frame_desc_.frame_size();
 		unsigned int size = frame_desc_.frame_size();
 		if (frame_desc_.depth == 4 || frame_desc_.depth == 8)
 			size /= 2;
@@ -257,7 +257,7 @@ namespace gui
 		gl_error_checking();
 	}
 
-	/*void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
+	void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
 	{
 		if (e->button() == Qt::LeftButton)
 		{
@@ -266,10 +266,10 @@ namespace gui
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height());
 		}
-		else
+		/*else
 		if (selection_mode_ == ZOOM)
-			dezoom();
-	}*/
+			dezoom();*/
+	}
 
 	void GLWidgetSlice::mouseMoveEvent(QMouseEvent* e)
 	{
@@ -374,7 +374,7 @@ namespace gui
 		}*/
 	}
 
-	/*void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
+	void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
 	{
 		const float xmax = frame_desc_.width;
 		const float ymax = frame_desc_.height;
@@ -403,7 +403,7 @@ namespace gui
 		glDisable(GL_BLEND);
 	}
 
-	holovibes::Rectangle  GLWidgetSlice::resize_zone(holovibes::Rectangle selection)
+	/*holovibes::Rectangle  GLWidgetSlice::resize_zone(holovibes::Rectangle selection)
 	{
 		selection.top_left.x /= zoom_ratio_;
 		selection.bottom_left.x /= zoom_ratio_;
@@ -415,7 +415,7 @@ namespace gui
 		selection.bottom_left.y /= zoom_ratio_;
 		selection.bottom_right.y /= zoom_ratio_;
 		return (selection);
-	}
+	}*/
 
 	void GLWidgetSlice::zoom(const holovibes::Rectangle& selection)
 	{
@@ -477,10 +477,10 @@ namespace gui
 			{
 				selection.horizontal_symetry();
 			}
-			//else
-			//{
-			//  This case is the default one, it doesn't need to be handled.
-			//}
+			else
+			{
+			  //This case is the default one, it doesn't need to be handled.
+			}
 		}
 		else
 		{
@@ -510,13 +510,13 @@ namespace gui
 			selection.bottom_right.y = frame_desc_.height;
 
 		selection = holovibes::Rectangle(selection.top_left, selection.bottom_right);
-	}*/
+	}
 
 	void GLWidgetSlice::gl_error_checking()
 	{
-		// Sometimes this will occur when opengl is having some
-		// trouble, and this will cause glGetString to return NULL.
-		// That's why we need to check it, in order to avoid crashes.
+		/* Sometimes this will occur when opengl is having some
+		 trouble, and this will cause glGetString to return NULL.
+		 That's why we need to check it, in order to avoid crashes.*/
 		GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)

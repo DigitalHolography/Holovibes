@@ -43,6 +43,7 @@ namespace gui
 
 			// Default displaying format is 16-bits, monochrome.
 			gl_widget_.reset(new GLWidget(h, q, width, height, this));
+			gl_widget_->show();
 		}
 		else
 		{
@@ -51,9 +52,10 @@ namespace gui
 			this->move(pos);
 			this->resize(QSize(width, height));
 			this->show();
-			gl_widget_.reset(new GLWidgetSlice(h, q, width, height, this));
+			//gl_widget_.reset(new GLWidgetSlice(h, q, width, height, this));
+			widget.reset(new SliceWidget(q, width, height, this));
+			widget->show();
 		}
-		gl_widget_->show();
 	}
 
 	GuiGLWindow::~GuiGLWindow()
@@ -63,7 +65,8 @@ namespace gui
 
 	void GuiGLWindow::resizeEvent(QResizeEvent* e)
 	{
-		unsigned int min_dim = e->size().width() < e->size().height() ? e->size().width() : e->size().height();
+		const QSize	s = e->size();
+		const uint	min_dim = std::min(s.width(), s.height());
 
 		if (gl_widget_)
 		{

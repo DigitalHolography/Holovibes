@@ -20,25 +20,26 @@ namespace gui {
 							HQueue(q), Fd(HQueue.get_frame_desc())
 	{}
 
-	SliceWidget::~SliceWidget()
-	{}
+	SliceWidget::~SliceWidget() {}
 
 	void SliceWidget::initShaders()
 	{
 		Vertex = new QOpenGLShader(QOpenGLShader::Vertex);
 		Vertex->compileSourceCode(
-			"#version 400\n"
+			"#version 450\n"
 			"layout(location = 0) in vec2 xy;\n"
-			"layout(location = 1) in vec2 uv;\n"
+			//"layout(location = 1) in vec2 uv;\n"
 			"out vec2 frag_uv;\n"
 			"void main() {\n"
-			"	frag_uv = uv;\n"
+			"	frag_uv = xy;\n" //uv;\n"
 			"   gl_Position = vec4(xy, 0.0f, 1.0f);\n"
-			"}"
+			"}\n"
 		);
+		if (!Vertex->isCompiled())
+			std::cerr << "[Error] Vertex Shader is not compiled\n";
 		Fragment = new QOpenGLShader(QOpenGLShader::Fragment);
 		Fragment->compileSourceCode(
-			"#version 400\n"
+			"#version 450\n"
 			"in vec2 frag_uv;\n"
 			"out vec4 out_color;\n"
 			"uniform sampler2D tex;\n"
@@ -46,41 +47,97 @@ namespace gui {
 			"	out_color = texture(tex, frag_uv).rgba;\n"
 			"}\n"
 		);
+		if (!Fragment->isCompiled())
+			std::cerr << "[Error] Fragment Shader is not compiled\n";
+	}
+
+	void SliceWidget::initTexture()
+	{
+		//if (!Tex.create()) std::cerr << "[Error] Tex create() fail\n";
+		//Tex.bind();
+		Tex = new QOpenGLTexture(QOpenGLTexture::Target2D);
+		Tex->setMagnificationFilter(QOpenGLTexture::Nearest);
+		Tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+		Tex->setFormat(QOpenGLTexture::RGB16U);
+		//Tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
+		//Tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
+
+		const auto	pixelFormat = (Fd.depth == 8) ? QOpenGLTexture::RG : QOpenGLTexture::Red;
+		const auto	pixelType = (Fd.depth == 1) ? QOpenGLTexture::UInt8 : QOpenGLTexture::UInt16;
+		Tex->setSize(Fd.width, Fd.height, Fd.depth);
+		Tex->allocateStorage(pixelFormat, pixelType);
 	}
 
 	void SliceWidget::initializeGL()
 	{
 		makeCurrent();
 		initializeOpenGLFunctions();
+		std::cout << glGetString(GL_VERSION) << '\n';
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
+		glClear(GL_COLOR_BUFFER_BIT);
+		
 		initShaders();
 		Program = new QOpenGLShaderProgram();
 		Program->addShader(Vertex);
 		Program->addShader(Fragment);
-		if (Program->link())
-		{
-			/*glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);*/
-			glClear(GL_COLOR_BUFFER_BIT);
+		if (!Program->link())
+			std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+		/*Program->enableAttributeArray("xy");
+		Program->setAttributeBuffer("xy", GL_FLOAT, 0, 0);*/
+		
+		if (!Vao.create())
+			std::cerr << "[Error] Vao create() fail\n";
+		Vao.bind();
 
-			glGenTextures(1, &Tex);
-			glBindTexture(GL_TEXTURE_2D, Tex);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glBindTexture(GL_TEXTURE_2D, 0);
+		if (!Vbo.create())
+			std::cerr << "[Error] Vbo create() fail\n";
+		Vbo.bind();
+		Vbo.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+		const float	data[8] = {
+			// Top-left
+			0.0f, 0.0f,
+			// Top-right
+			1.0f, 0.0f,
+			// Bottom-right
+			1.0f, 1.0f,
+			// Bottom-left
+			0.0f, 1.0f
+		};
+		Vbo.allocate(data, 8 * sizeof(float));
 
-			cudaGraphicsGLRegisterBuffer(
-				&cuda_buffer_,
-				Tex,
-				cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+		initTexture();
+		cudaGraphicsGLRegisterBuffer(
+			&cuBuffer,
+			Tex->textureId(),
+			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
 
-		}
-		else
-			std::cerr << Program->log().toStdString() << '\n';
+		if (!Ebo.create())
+			std::cerr << "[Error] Ebo create() fail\n";
+		Ebo.bind();
+		Ebo.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+		const GLuint elements[6] = {
+			0, 1, 2,
+			2, 3, 0
+		};
+		Ebo.allocate(elements, 6 * sizeof(GLuint));
+		
+		/*glGenBuffers(1, &ebo);
+		GLuint elements[6] = {
+			0, 1, 2,
+			2, 3, 0
+		};
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
+
+		Tex->release();
+		Ebo.release();
+		Vbo.release();
+		Vao.release();
+		Program->release();
+
+		doneCurrent();
 	}
 
 	void SliceWidget::resizeGL(int width, int height)
@@ -90,7 +147,61 @@ namespace gui {
 
 	void SliceWidget::paintGL()
 	{
+		const void* frame = HQueue.get_last_images(1);
+		/* ----------- */
+		#pragma region Cuda
+		/* Map the buffer for access by CUDA. */
+		cudaGraphicsMapResources(1, &cuBuffer, cuStream);
+		size_t	size;
+		void*	glBuffer;
+		cudaGraphicsResourceGetMappedPointer(&glBuffer, &size, cuBuffer);
+		/* CUDA memcpy of the frame to opengl buffer. */
+		const uint resolution = Fd.frame_res();
+		if (Fd.depth == 4)
+		{
+			float_to_ushort(
+				static_cast<const float *>(frame),
+				static_cast<unsigned short *> (glBuffer),
+				resolution);
+		}
+		else if (Fd.depth == 8)
+		{
+			complex_to_ushort(
+				static_cast<const cufftComplex *>(frame),
+				static_cast<unsigned int *> (glBuffer),
+				resolution);
+		}
+		else
+			cudaMemcpy(glBuffer, frame, size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 
+		/* Unmap the buffer for access by CUDA. */
+		cudaGraphicsUnmapResources(1, &cuBuffer, cuStream);
+		#pragma endregion
+		/* ----------- */
+		makeCurrent();
+		glClear(GL_COLOR_BUFFER_BIT);
+		if (!Program->bind())
+			std::cerr << "[Error] Program bind() fail\n";
+		Vao.bind();
+		if (!Vbo.bind())
+			std::cerr << "[Error] Vbo bind() fail\n";
+		if (!Ebo.bind())
+			std::cerr << "[Error] Ebo bind() fail\n";
+		
+		const auto	pixelFormat = (Fd.depth == 8) ? QOpenGLTexture::RG : QOpenGLTexture::Red;
+		const auto	pixelType = (Fd.depth == 1) ? QOpenGLTexture::UInt8 : QOpenGLTexture::UInt16;
+		Tex->bind();
+		//Tex->setData(QOpenGLTexture::RGB_Integer, QOpenGLTexture::UInt16, frame);
+		//Tex->setData(pixelFormat, pixelType, frame);
+				
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		Ebo.release();
+		Tex->release();
+		Vbo.release();
+		Vao.release();
+		Program->release();
+		doneCurrent();
 	}
 
 }

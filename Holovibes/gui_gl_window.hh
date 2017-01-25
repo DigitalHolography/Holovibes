@@ -12,6 +12,7 @@
 # include "ui_gl_slice_window.h"
 # include "gui_gl_widget.hh"
 # include "gui_gl_widget_slice.hh"
+# include "slice_widget.hh"
 
 /* Forward declarations. */
 namespace holovibes
@@ -75,7 +76,8 @@ namespace gui
 
 	private:
 		/*! GL widget, it updates itself */
-		std::unique_ptr<QGLWidget> gl_widget_;
+		std::unique_ptr<QGLWidget>		gl_widget_;
+		std::unique_ptr<SliceWidget>	widget;
 
 		/*! \{ \name Screen modes keyboard shortcuts */
 		QShortcut* full_screen_;
