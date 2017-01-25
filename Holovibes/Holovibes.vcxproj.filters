@@ -1,29 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source Files CUDA">
-      <UniqueIdentifier>{f4e5e542-dbd7-4865-8a96-427aaf9a475d}</UniqueIdentifier>
-      <Extensions>cu;</Extensions>
-    </Filter>
-    <Filter Include="Header Files CUDA">
-      <UniqueIdentifier>{e7bbddd6-f330-4e16-a366-e6ac808111a8}</UniqueIdentifier>
-      <Extensions>cuh;</Extensions>
-    </Filter>
-    <Filter Include="Form Files">
-      <UniqueIdentifier>{42051917-46e7-4cd9-8e34-6ee3adc4c3a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Generated Files">
       <UniqueIdentifier>{a92f5a26-c24b-4d75-87a7-34cddd371f0d}</UniqueIdentifier>
     </Filter>
@@ -33,124 +10,82 @@
     <Filter Include="Generated Files\Release">
       <UniqueIdentifier>{5d8f330a-0ea3-4ba9-8db0-3839536cba01}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui">
-      <UniqueIdentifier>{498134bf-b07f-4767-b374-0d7154cfc12f}</UniqueIdentifier>
+    <Filter Include="cuda sources">
+      <UniqueIdentifier>{f4e5e542-dbd7-4865-8a96-427aaf9a475d}</UniqueIdentifier>
+      <Extensions>cu;</Extensions>
     </Filter>
-    <Filter Include="Source Files\thread">
-      <UniqueIdentifier>{f6a0f91a-367e-4d96-b120-72a008815c18}</UniqueIdentifier>
+    <Filter Include="resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\compute">
-      <UniqueIdentifier>{c33ed7ed-0a0c-478f-808a-257d04cf75a7}</UniqueIdentifier>
+    <Filter Include="cuda includes">
+      <UniqueIdentifier>{e7bbddd6-f330-4e16-a366-e6ac808111a8}</UniqueIdentifier>
+      <Extensions>cuh;</Extensions>
     </Filter>
-    <Filter Include="Source Files\tools">
-      <UniqueIdentifier>{7bdc08de-d48e-4627-994c-c577be5362ba}</UniqueIdentifier>
+    <Filter Include="forms">
+      <UniqueIdentifier>{42051917-46e7-4cd9-8e34-6ee3adc4c3a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\core">
-      <UniqueIdentifier>{571c322b-2036-4ccb-b92b-0c54bd9121c7}</UniqueIdentifier>
+    <Filter Include="c++ includes">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\compute">
+    <Filter Include="c++ includes\compute">
       <UniqueIdentifier>{ad96cfb3-0291-4b70-a199-dd09de6b38be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\core">
+    <Filter Include="c++ includes\core">
       <UniqueIdentifier>{73555b3c-6ac2-4c56-9d83-c6d55d8d1cb7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\gui">
+    <Filter Include="c++ includes\gui">
       <UniqueIdentifier>{0889426a-6d14-4583-8c95-566a13f7d6d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\other">
-      <UniqueIdentifier>{5c519152-f934-43df-bb64-f794a130651d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\gui\windows">
-      <UniqueIdentifier>{112f127f-c089-4b14-a78a-d11679250e92}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\windows">
+    <Filter Include="c++ includes\gui\windows">
       <UniqueIdentifier>{7577c7a0-e308-499e-b9bc-c24f24c951e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\gui\other">
+    <Filter Include="c++ includes\gui\other">
       <UniqueIdentifier>{b47ac2b0-ba30-40bf-ab09-e5378b01fa63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\z">
-      <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\opengl_widgets">
+    <Filter Include="c++ includes\gui\opengl_widgets">
       <UniqueIdentifier>{f2b69de0-455d-44d7-8906-bf3c911b956d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\opengl_widgets">
-      <UniqueIdentifier>{6093626f-d6e9-4638-95b3-7465f9078757}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\thread">
+    <Filter Include="c++ includes\thread">
       <UniqueIdentifier>{6eef1a70-e998-426f-b9fc-c921b3305e91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\tools">
+    <Filter Include="c++ includes\tools">
       <UniqueIdentifier>{f09398da-e256-48cb-a5a8-9dfd0dae52ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="c++ sources\gui">
+      <UniqueIdentifier>{498134bf-b07f-4767-b374-0d7154cfc12f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\gui\other">
+      <UniqueIdentifier>{5c519152-f934-43df-bb64-f794a130651d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\gui\windows">
+      <UniqueIdentifier>{112f127f-c089-4b14-a78a-d11679250e92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\gui\opengl_widgets">
+      <UniqueIdentifier>{6093626f-d6e9-4638-95b3-7465f9078757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\thread">
+      <UniqueIdentifier>{f6a0f91a-367e-4d96-b120-72a008815c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\compute">
+      <UniqueIdentifier>{c33ed7ed-0a0c-478f-808a-257d04cf75a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\tools">
+      <UniqueIdentifier>{7bdc08de-d48e-4627-994c-c577be5362ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\core">
+      <UniqueIdentifier>{571c322b-2036-4ccb-b92b-0c54bd9121c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ includes\other">
+      <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="contrast_correction.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="preprocessing.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="fft1.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="tools.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="transforms.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="fft2.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="vibrometry.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="average.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="autofocus.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="tools_conversion.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="stft.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="tools_unwrap.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="convolution.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="flowgraphy.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="tools_compute.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="filter2D.cu">
-      <Filter>Source Files CUDA</Filter>
-    </CudaCompile>
-    <CudaCompile Include="hardware_limits.cc">
-      <Filter>Source Files\tools</Filter>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="options_parser.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="queue.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="recorder.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -205,15 +140,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_thread_csv_record.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="geometry.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_recorder.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -223,62 +149,8 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_info_manager.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="gpib_dll.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_dll.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_recorder.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_reader.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_csv_record.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_compute.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="thread_capture.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="ithread_input.cc">
-      <Filter>Source Files\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_bundles.cc">
-      <Filter>Source Files\compute</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_bundles_2d.cc">
-      <Filter>Source Files\compute</Filter>
-    </ClCompile>
-    <ClCompile Include="compute_descriptor.cc">
-      <Filter>Source Files\compute</Filter>
-    </ClCompile>
-    <ClCompile Include="tools.cc">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="info_manager.cc">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="power_of_two.cc">
-      <Filter>Source Files\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="pipe.cc">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="holovibes.cc">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="icompute.cc">
-      <Filter>Source Files\core</Filter>
-    </ClCompile>
-    <ClCompile Include="pipeline.cc">
-      <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Debug</Filter>
@@ -286,262 +158,393 @@
     <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="gui_gl_widget.cc">
-      <Filter>Source Files\gui\opengl_widgets</Filter>
+    <ClCompile Include="sources\camera_dll.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_gl_widget_slice.cc">
-      <Filter>Source Files\gui\opengl_widgets</Filter>
+    <ClCompile Include="sources\config.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="holo_widget.cc">
-      <Filter>Source Files\gui\opengl_widgets</Filter>
+    <ClCompile Include="sources\geometry.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_gl_window.cc">
-      <Filter>Source Files\gui\windows</Filter>
+    <ClCompile Include="sources\gpib_dll.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_plot_window.cc">
-      <Filter>Source Files\gui\windows</Filter>
+    <ClCompile Include="sources\main.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="main_window.cc">
-      <Filter>Source Files\gui\windows</Filter>
+    <ClCompile Include="sources\module.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_curve_plot.cc">
-      <Filter>Source Files\gui\other</Filter>
+    <ClCompile Include="sources\options_parser.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_group_box.cc">
-      <Filter>Source Files\gui\other</Filter>
+    <ClCompile Include="sources\queue.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="gui_tool.cc">
-      <Filter>Source Files\gui\other</Filter>
+    <ClCompile Include="sources\recorder.cc">
+      <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="basic_widget.cc">
-      <Filter>Source Files\gui\opengl_widgets</Filter>
+    <ClCompile Include="sources\tools\hardware_limits.cc">
+      <Filter>c++ sources\tools</Filter>
     </ClCompile>
-    <ClCompile Include="slice_widget.cc">
-      <Filter>Source Files\gui\opengl_widgets</Filter>
+    <ClCompile Include="sources\tools\info_manager.cc">
+      <Filter>c++ sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\tools\power_of_two.cc">
+      <Filter>c++ sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\tools\tools.cc">
+      <Filter>c++ sources\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\ithread_input.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\thread_capture.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\thread_compute.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\thread_csv_record.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\thread_reader.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\thread\thread_recorder.cc">
+      <Filter>c++ sources\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\opengl_widgets\basic_widget.cc">
+      <Filter>c++ sources\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\opengl_widgets\gui_gl_widget.cc">
+      <Filter>c++ sources\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\opengl_widgets\gui_gl_widget_slice.cc">
+      <Filter>c++ sources\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\opengl_widgets\holo_widget.cc">
+      <Filter>c++ sources\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\opengl_widgets\slice_widget.cc">
+      <Filter>c++ sources\gui\opengl_widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\other\gui_curve_plot.cc">
+      <Filter>c++ sources\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\other\gui_group_box.cc">
+      <Filter>c++ sources\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\other\gui_tool.cc">
+      <Filter>c++ sources\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\gui_gl_window.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\gui_plot_window.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\main_window.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\core\holovibes.cc">
+      <Filter>c++ sources\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\core\icompute.cc">
+      <Filter>c++ sources\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\core\pipe.cc">
+      <Filter>c++ sources\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\core\pipeline.cc">
+      <Filter>c++ sources\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\compute_bundles.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\compute_bundles_2d.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\compute_descriptor.cc">
+      <Filter>c++ sources\compute</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="contrast_correction.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="preprocessing.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="fft1.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="tools.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="transforms.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="fft2.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
-      <Filter>Header Files</Filter>
+      <Filter>c++ includes</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_main_window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vibrometry.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="average.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="autofocus.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="tools_conversion.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="stft.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="tools_unwrap.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="convolution.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="flowgraphy.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="tools_compute.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="filter2D.cuh">
-      <Filter>Header Files CUDA</Filter>
-    </ClInclude>
-    <ClInclude Include="compute_bundles.hh">
-      <Filter>Header Files\compute</Filter>
-    </ClInclude>
-    <ClInclude Include="compute_bundles_2d.hh">
-      <Filter>Header Files\compute</Filter>
-    </ClInclude>
-    <ClInclude Include="compute_descriptor.hh">
-      <Filter>Header Files\compute</Filter>
-    </ClInclude>
-    <ClInclude Include="pipe.hh">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="pipeline.hh">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="icompute.hh">
-      <Filter>Header Files\core</Filter>
-    </ClInclude>
-    <ClInclude Include="holovibes.hh">
-      <Filter>Header Files\core</Filter>
+      <Filter>c++ includes</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
-      <Filter>Header Files</Filter>
+      <Filter>c++ includes</Filter>
     </ClInclude>
-    <ClInclude Include="gui_tool.hh">
-      <Filter>Header Files\gui\other</Filter>
+    <ClInclude Include="includes\camera_dll.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="holo_widget.hh">
-      <Filter>Header Files\gui\opengl_widgets</Filter>
+    <ClInclude Include="includes\concurrent_deque.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="ithread_input.hh">
-      <Filter>Header Files\thread</Filter>
+    <ClInclude Include="includes\config.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="thread_capture.hh">
-      <Filter>Header Files\thread</Filter>
+    <ClInclude Include="includes\custom_exception.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="thread_compute.hh">
-      <Filter>Header Files\thread</Filter>
+    <ClInclude Include="includes\geometry.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="thread_reader.hh">
-      <Filter>Header Files\thread</Filter>
+    <ClInclude Include="includes\gpib_dll.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="hardware_limits.hh">
-      <Filter>Header Files\tools</Filter>
+    <ClInclude Include="includes\module.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="power_of_two.hh">
-      <Filter>Header Files\tools</Filter>
+    <ClInclude Include="includes\observable.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="tools.hh">
-      <Filter>Header Files\tools</Filter>
+    <ClInclude Include="includes\observer.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="camera_dll.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\options_descriptor.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="concurrent_deque.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\options_parser.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="config.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\pipeline_utils.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="custom_exception.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\queue.hh">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="geometry.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\resource.h">
+      <Filter>c++ includes\other</Filter>
     </ClInclude>
-    <ClInclude Include="gpib_dll.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\tools\hardware_limits.hh">
+      <Filter>c++ includes\tools</Filter>
     </ClInclude>
-    <ClInclude Include="module.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\tools\power_of_two.hh">
+      <Filter>c++ includes\tools</Filter>
     </ClInclude>
-    <ClInclude Include="observable.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\tools\tools.hh">
+      <Filter>c++ includes\tools</Filter>
     </ClInclude>
-    <ClInclude Include="observer.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\thread\ithread_input.hh">
+      <Filter>c++ includes\thread</Filter>
     </ClInclude>
-    <ClInclude Include="options_descriptor.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\thread\thread_capture.hh">
+      <Filter>c++ includes\thread</Filter>
     </ClInclude>
-    <ClInclude Include="options_parser.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\thread\thread_compute.hh">
+      <Filter>c++ includes\thread</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline_utils.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\thread\thread_reader.hh">
+      <Filter>c++ includes\thread</Filter>
     </ClInclude>
-    <ClInclude Include="queue.hh">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\gui\opengl_widgets\basic_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files\z</Filter>
+    <ClInclude Include="includes\gui\opengl_widgets\holo_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </ClInclude>
-    <ClInclude Include="basic_widget.hh">
-      <Filter>Header Files\gui\opengl_widgets</Filter>
+    <ClInclude Include="includes\gui\opengl_widgets\slice_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </ClInclude>
-    <ClInclude Include="slice_widget.hh">
-      <Filter>Header Files\gui\opengl_widgets</Filter>
+    <ClInclude Include="includes\gui\other\gui_tool.hh">
+      <Filter>c++ includes\gui\other</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\core\holovibes.hh">
+      <Filter>c++ includes\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\core\icompute.hh">
+      <Filter>c++ includes\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\core\pipe.hh">
+      <Filter>c++ includes\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\core\pipeline.hh">
+      <Filter>c++ includes\core</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\compute_bundles.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\compute_bundles_2d.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\compute_descriptor.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\autofocus.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\average.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\contrast_correction.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\convolution.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\fft1.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\fft2.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\filter2D.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\flowgraphy.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\preprocessing.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\stft.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_compute.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_conversion.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_multiply.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_unwrap.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\transforms.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\vibrometry.cuh">
+      <Filter>cuda includes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
-      <Filter>Form Files</Filter>
+      <Filter>forms</Filter>
     </CustomBuild>
     <CustomBuild Include="main_window.qrc">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </CustomBuild>
     <CustomBuild Include="gl_window.ui">
-      <Filter>Form Files</Filter>
+      <Filter>forms</Filter>
     </CustomBuild>
     <CustomBuild Include="gl_window.qrc">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </CustomBuild>
     <CustomBuild Include="plot_window.ui">
-      <Filter>Form Files</Filter>
+      <Filter>forms</Filter>
     </CustomBuild>
     <CustomBuild Include="plot_window.qrc">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </CustomBuild>
     <CustomBuild Include="gl_slice_window.ui">
-      <Filter>Form Files</Filter>
+      <Filter>forms</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_curve_plot.hh">
-      <Filter>Header Files\gui\other</Filter>
+    <CustomBuild Include="includes\gui\opengl_widgets\gui_gl_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_gl_widget.hh">
-      <Filter>Header Files\gui\opengl_widgets</Filter>
+    <CustomBuild Include="includes\gui\opengl_widgets\gui_gl_widget_slice.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_gl_widget_slice.hh">
-      <Filter>Header Files\gui\opengl_widgets</Filter>
+    <CustomBuild Include="includes\thread\thread_recorder.hh">
+      <Filter>c++ includes\thread</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_gl_window.hh">
-      <Filter>Header Files\gui\windows</Filter>
+    <CustomBuild Include="includes\thread\thread_csv_record.hh">
+      <Filter>c++ includes\thread</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_group_box.hh">
-      <Filter>Header Files\gui\other</Filter>
+    <CustomBuild Include="includes\gui\other\gui_group_box.hh">
+      <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
-    <CustomBuild Include="gui_plot_window.hh">
-      <Filter>Header Files\gui\windows</Filter>
+    <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
+      <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
-    <CustomBuild Include="main_window.hh">
-      <Filter>Header Files\gui\windows</Filter>
+    <CustomBuild Include="includes\gui\windows\gui_gl_window.hh">
+      <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
-    <CustomBuild Include="thread_csv_record.hh">
-      <Filter>Header Files\thread</Filter>
+    <CustomBuild Include="includes\gui\windows\main_window.hh">
+      <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
-    <CustomBuild Include="thread_recorder.hh">
-      <Filter>Header Files\thread</Filter>
+    <CustomBuild Include="includes\gui\windows\gui_plot_window.hh">
+      <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
-    <CustomBuild Include="info_manager.hh">
-      <Filter>Header Files\tools</Filter>
+    <CustomBuild Include="includes\tools\info_manager.hh">
+      <Filter>c++ includes\tools</Filter>
     </CustomBuild>
-    <CustomBuild Include="recorder.hh">
-      <Filter>Header Files\z</Filter>
+    <CustomBuild Include="includes\recorder.hh">
+      <Filter>c++ includes\other</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Holovibes.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
     <Image Include="holovibes_logo.png">
-      <Filter>Resource Files</Filter>
+      <Filter>resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Holovibes.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="cuda_sources\autofocus.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\average.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\contrast_correction.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\convolution.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\fft1.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\fft2.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\filter2D.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\flowgraphy.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\preprocessing.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\stft.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_compute.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_conversion.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_unwrap.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\transforms.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\vibrometry.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

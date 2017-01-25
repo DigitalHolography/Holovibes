@@ -24,7 +24,7 @@
 #include "sstream"
 
 # include "camera_exception.hh"
-# include "../GPIB/IVisaInterface.hh"
+# include "IVisaInterface.hh"
 # include "ui_main_window.h"
 # include "options_parser.hh"
 # include "holovibes.hh"
