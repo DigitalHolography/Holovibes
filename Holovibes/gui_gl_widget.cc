@@ -76,6 +76,13 @@ namespace gui
 
 	GLWidget::~GLWidget()
 	{
+		delete num_2_shortcut;
+		delete num_4_shortcut;
+		delete num_6_shortcut;
+		delete num_8_shortcut;
+		delete key_plus_shortcut;
+		delete key_minus_shortcut;
+		delete key_space_shortcut;
 		/* Unregister buffer for access by CUDA. */
 		cudaGraphicsUnregisterResource(cuda_buffer_);
 		/* Free the associated computation stream. */
@@ -314,7 +321,8 @@ namespace gui
 		}
 		if (selection_mode_ == STFT_SLICE && !slice_block_)
 		{
-			stft_slice_pos_update(e->pos() * ((frame_desc_.width * frame_desc_.height) / (width() * height())));
+			//QPoint pos = (e->x() * (frame_desc_.width / width()), e->y() * (frame_desc_.height / height()));
+			stft_slice_pos_update(e->pos() / 2);
 		}
 		else if (selection_mode_ != STFT_SLICE)
 			slice_block_ = false;

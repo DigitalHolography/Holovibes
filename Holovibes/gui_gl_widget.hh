@@ -274,6 +274,6 @@ namespace gui
 		 */
 		void gl_error_checking();
 
-		bool slice_block_;
+		std::atomic<bool> slice_block_;
 	};
 }
