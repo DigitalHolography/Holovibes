@@ -76,6 +76,7 @@ namespace gui
 
 	GLWidget::~GLWidget()
 	{
+		makeCurrent();
 		delete num_2_shortcut;
 		delete num_4_shortcut;
 		delete num_6_shortcut;
@@ -88,8 +89,9 @@ namespace gui
 		/* Free the associated computation stream. */
 		cudaStreamDestroy(cuda_stream_);
 		/* Destroy buffer name. */
-//		glDeleteBuffers(1, &buffer_);   // These lines seg faults if stft_slice_view enabled
-//		glDisable(GL_TEXTURE_2D);		// and close current file
+		glDeleteBuffers(1, &buffer_);
+		glDisable(GL_TEXTURE_2D);
+		doneCurrent();
 	}
 
 	void GLWidget::view_move_down()
