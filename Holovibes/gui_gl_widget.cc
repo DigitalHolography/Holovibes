@@ -81,8 +81,8 @@ namespace gui
 		/* Free the associated computation stream. */
 		cudaStreamDestroy(cuda_stream_);
 		/* Destroy buffer name. */
-		glDeleteBuffers(1, &buffer_);
-		glDisable(GL_TEXTURE_2D);
+//		glDeleteBuffers(1, &buffer_);   // These lines seg faults if stft_slice_view enabled
+//		glDisable(GL_TEXTURE_2D);		// and close current file
 	}
 
 	void GLWidget::view_move_down()
@@ -92,7 +92,7 @@ namespace gui
 
 	void GLWidget::view_move_left()
 	{
-		px_ += -0.1f / zoom_ratio_;
+		px_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidget::view_move_right()
@@ -102,7 +102,7 @@ namespace gui
 
 	void GLWidget::view_move_up()
 	{
-		py_ += -0.1f / zoom_ratio_;
+		py_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidget::view_zoom_out()
@@ -119,10 +119,7 @@ namespace gui
 
 	void GLWidget::block_slice()
 	{
-		if (slice_block_)
-			slice_block_ = false;
-		else if (!slice_block_)
-			slice_block_ = true;
+			slice_block_ = !slice_block_;
 	}
 
 	QSize GLWidget::minimumSizeHint() const
@@ -150,7 +147,7 @@ namespace gui
 		//frame_desc_.frame_size();
 		unsigned int size = frame_desc_.frame_size();
 		if (frame_desc_.depth == 4 || frame_desc_.depth == 8)
-			size /= 2;
+			size >>= 1;
 
 
 		/* Creates and initialize a buffer object's data store. */
@@ -265,7 +262,7 @@ namespace gui
 				selection_rect(selection_, stft_roi_color);
 				break;
 			case STFT_SLICE:
-				// You can do something here like rectangle selection (have fun...)
+				selection_rect(selection_, zoom_color);// You can do something here like rectangle selection (have fun...)
 				break;
 			default:
 				break;
@@ -279,16 +276,15 @@ namespace gui
 	{
 		if (e->buttons() == Qt::LeftButton)
 		{
+			if (selection_mode_ == STFT_SLICE && !slice_block_)
+				return;
 			is_selection_enabled_ = true;
 			selection_.top_left = holovibes::Point2D(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height());
 		}
-		else if (selection_mode_ == ZOOM)
+		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
 			dezoom();
-		if (selection_mode_ == STFT_SLICE && !slice_block_)
-			stft_slice_pos_update(e->pos() / 2);
-			
 	}
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -317,7 +313,11 @@ namespace gui
 			}
 		}
 		if (selection_mode_ == STFT_SLICE && !slice_block_)
-			stft_slice_pos_update(e->pos() / 2);
+		{
+			stft_slice_pos_update(e->pos() * ((frame_desc_.width * frame_desc_.height) / (width() * height())));
+		}
+		else if (selection_mode_ != STFT_SLICE)
+			slice_block_ = false;
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -370,7 +370,6 @@ namespace gui
 				break;
 			case ZOOM:
 				is_selection_enabled_ = false;
-
 				if (selection_.top_left != selection_.bottom_right)
 					zoom(selection_);
 				break;
@@ -387,6 +386,9 @@ namespace gui
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
 				}
+				break;
+			case STFT_SLICE:
+				is_selection_enabled_ = false;
 				break;
 			default:
 				break;
@@ -467,8 +469,8 @@ namespace gui
 			static_cast<float>(selection.top_left.y));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
-		px_ += -px / zoom_ratio_ / 2;
-		py_ += py / zoom_ratio_ / 2;
+		px_ += -px / zoom_ratio_ * 0.5;
+		py_ += py / zoom_ratio_ * 0.5;
 		zoom_ratio_ *= min_ratio;
 
 		glScalef(min_ratio, min_ratio, 1.0f);

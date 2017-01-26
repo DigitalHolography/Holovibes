@@ -541,6 +541,8 @@ namespace gui
 		** \return path with _index up to 10^6
 		*/
 		std::string format_batch_output(const std::string& path, unsigned int index);
+
+		void MainWindow::cancel_stft_view(holovibes::ComputeDescriptor& cd);
 	#pragma endregion
 	/* ---------- */
 	#pragma region Fields

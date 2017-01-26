@@ -67,13 +67,12 @@ namespace gui
 
 		if (gl_widget_)
 		{
-			
 			// TODO: remove the dynamic cast when the widget_slice has been cleared up & its gonna SEGFAULT
 			auto* ptr = dynamic_cast<GLWidget*>(gl_widget_.get());
 			if (ptr)
 				ptr->resizeFromWindow(min_dim, min_dim);
 			else
-			dynamic_cast<GLWidgetSlice*>(gl_widget_.get())->resizeFromWindow(min_dim, min_dim);
+				dynamic_cast<GLWidgetSlice*>(gl_widget_.get())->resizeFromWindow(min_dim, min_dim);
 			
 			if (windowState() != Qt::WindowFullScreen)
 			{
@@ -81,7 +80,7 @@ namespace gui
 				gl_widget_->move(0, 0);
 			}
 			else
-				gl_widget_->move(e->size().width() >> 1 - gl_widget_->width() >> 1, 0);
+				gl_widget_->move((e->size().width() >> 1) - (gl_widget_->width() >> 1), 0);
 		}
 	}
 

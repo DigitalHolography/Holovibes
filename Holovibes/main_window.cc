@@ -2628,19 +2628,28 @@ namespace gui
 		}
 	}
 
+	void MainWindow::cancel_stft_view(holovibes::ComputeDescriptor& cd)
+	{
+		if (cd.stft_view_enabled)
+		{
+			// delete stft_view windows
+			cd.stft_view_enabled.exchange(false);
+			gl_win_stft_1.reset(nullptr);
+			gl_win_stft_0.reset(nullptr);
+			holovibes_.get_pipe()->delete_stft_slice_queue();
+			// ------------------------
+			QCheckBox* stft_view_button = findChild<QCheckBox*>("stft_view_checkbox");
+			stft_view_button->setChecked(false);
+		}
+		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+		stft_button->setChecked(false);
+	}
+
 	void MainWindow::close_critical_compute()
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled)
-		{
-			if (cd.stft_view_enabled)
-			{
-				QCheckBox* stft_view_button = findChild<QCheckBox*>("stft_view_checkbox");
-				stft_view_button->setChecked(false);
-			}
-			QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
-			stft_button->setChecked(false);
-		}
+			cancel_stft_view(cd);
 		if (cd.ref_diff_enabled || cd.ref_sliding_enabled)
 			cancel_take_reference();
 		if (cd.filter_2d_enabled)

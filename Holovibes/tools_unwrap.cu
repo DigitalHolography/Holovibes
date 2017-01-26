@@ -109,8 +109,8 @@ __global__ void kernel_init_unwrap_2d(	uint	width,
 
 	if (index < frame_res)
 	{
-		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>((width) >> 1))));
-		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>((height) >> 1))));
+		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width >> 1))));
+		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height >> 1))));
 
 		/*z init*/
 		z[index].x = cosf(input[index]);
@@ -128,10 +128,10 @@ __global__ void kernel_multiply_complexes_by_floats_(	const float	*input1,
 
 	while (index < size)
 	{
-		output1[index].x = output1[index].x * input1[index];
-		output1[index].y = output1[index].y * input1[index];
-		output2[index].x = output2[index].x * input2[index];
-		output2[index].y = output2[index].y * input2[index];
+		output1[index].x *= input1[index];
+		output1[index].y *= input1[index];
+		output2[index].x *= input2[index];
+		output2[index].y *= input2[index];
 		index += blockDim.x * gridDim.x;
 	}
 }
