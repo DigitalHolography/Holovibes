@@ -47,6 +47,8 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 
+		move(QPoint(520, 542));
+
 		// Hide non default tab
 		gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
 		gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
@@ -428,7 +430,7 @@ namespace gui
 		if (is_enabled_camera_)
 		{
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
-			QPoint pos(0, 0);
+			QPoint pos(0, 4);
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
@@ -446,7 +448,7 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
-			QPoint pos(0, 0);
+			QPoint pos(0, 4);
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
@@ -2705,7 +2707,8 @@ namespace gui
 	{
 		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+		holovibes::ComputeDescriptor&	Cd = holovibes_.get_compute_desc();
+		const camera::FrameDescriptor&	Fd = holovibes_.get_cam_frame_desc();
 		auto manager = gui::InfoManager::get_manager();
 		if (b)
 		{
@@ -2713,8 +2716,12 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
-			gl_win_stft_XZ.reset(new GuiGLWindow(
-				QPoint(512, 0), 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(), GuiGLWindow::window_kind::SLICE_XZ));
+			gl_win_stft_XZ.reset(
+				new GuiGLWindow(
+					QPoint(520, 4),
+					Fd.width, Cd.nsamples,
+					holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(),
+					GuiGLWindow::window_kind::SLICE_XZ));
 			
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
@@ -2722,14 +2729,14 @@ namespace gui
 			connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
 				Qt::UniqueConnection);
 			manager->update_info("STFT Slice Cursor : ", "(Y,X) = (0,0)");
-			cd.stft_view_enabled.exchange(true);
+			Cd.stft_view_enabled.exchange(true);
 		}
 		else
 		{
 			/*not sure that it is necessary but safer*/
 			disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 			// delete stft_view windows
-			cd.stft_view_enabled.exchange(false);
+			Cd.stft_view_enabled.exchange(false);
 			gl_win_stft_XZ.reset(nullptr);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			// -------------------

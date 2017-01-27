@@ -364,7 +364,7 @@ namespace holovibes
 	/*! \brief Queue for phase accumulation*/
 	Queue* gpu_img_acc_;
 
-	/*! \brief Queue for phase accumulation*/
+	/*! \brief Queue for stft */
 	Queue* gpu_stft_queue_;
 	Queue* gpu_stft_slice_queue_;
 	

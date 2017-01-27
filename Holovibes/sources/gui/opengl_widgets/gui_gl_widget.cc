@@ -166,14 +166,16 @@ namespace gui
 		cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
 		size_t	buffer_size;
 		void*	buffer_ptr;
+		// Recuperation d'un pointeur sur un buffer sur la CG a partir de la ressource : cuda_buffer_.
+		// Retourne aussi la size de ce buffer : buffer_size
 		cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
-		/* CUDA memcpy of the frame to opengl buffer. */
 
 		if (frame_desc_.depth == 4)
 			float_to_ushort(static_cast<const float *>(frame), static_cast<unsigned short *> (buffer_ptr), frame_desc_.frame_res());
 		else if (frame_desc_.depth == 8)
 			complex_to_ushort(static_cast<const cufftComplex *>(frame), static_cast<unsigned int *> (buffer_ptr), frame_desc_.frame_res());
 		else
+			/* CUDA memcpy of the frame to opengl buffer. */
 			cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 
 		/* Unmap the buffer for access by CUDA. */

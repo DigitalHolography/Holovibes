@@ -132,7 +132,7 @@ namespace gui
 		/* Bind a named buffer object to the target GL_TEXTURE_BUFFER. */
 		glBindBuffer(GL_TEXTURE_BUFFER, buffer_);
 
-		frame_desc_.frame_size();
+		//frame_desc_.frame_size();
 		unsigned int size = frame_desc_.frame_size();
 		if (frame_desc_.depth == 4 || frame_desc_.depth == 8)
 			size /= 2;
@@ -201,7 +201,7 @@ namespace gui
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		if (frame_desc_.depth == 8)
 		{

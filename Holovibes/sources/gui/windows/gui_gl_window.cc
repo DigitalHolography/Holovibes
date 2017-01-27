@@ -76,7 +76,7 @@ namespace gui
 			if (ptr)
 				ptr->resizeFromWindow(min_dim, min_dim);
 			else
-			dynamic_cast<GLWidgetSlice*>(gl_widget_.get())->resizeFromWindow(min_dim, min_dim);
+				dynamic_cast<GLWidgetSlice*>(gl_widget_.get())->resizeFromWindow(min_dim, min_dim);
 			
 			if (windowState() != Qt::WindowFullScreen)
 			{

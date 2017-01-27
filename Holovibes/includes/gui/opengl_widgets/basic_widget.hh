@@ -23,6 +23,13 @@
 # include "holovibes.hh"
 # include "tools_conversion.cuh"
 
+#ifndef vertCoord
+# define vertCoord 0.7f
+#endif
+#ifndef texCoord
+# define texCoord 1.0f
+#endif
+
 namespace gui {
 	
 	class BasicWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -41,14 +48,12 @@ namespace gui {
 
 			// OpenGL Objects
 			QOpenGLVertexArrayObject	Vao;
-			QOpenGLBuffer	Vbo;	// Vertex Buffer
-			QOpenGLBuffer	Ebo;	// Element Buffer
-			QOpenGLTexture	*Tex;
+			GLuint	Tex, Vbo, Ebo;
 
 			// OpenGL Shaders Objects
 			QOpenGLShaderProgram	*Program;
-			QOpenGLShader			*Vertex;	// Vertex Shader
-			QOpenGLShader			*Fragment;	// Fragment Shader
+			QOpenGLShader			*Vertex;
+			QOpenGLShader			*Fragment;
 			
 			virtual void initShaders() = 0;
 			virtual void initTexture() = 0;
