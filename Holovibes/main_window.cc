@@ -93,7 +93,6 @@ namespace gui
 		autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
 		connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
-
 		connect(this, SIGNAL(send_error(QString)), this, SLOT(display_message(QString)));
 
 		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
@@ -110,6 +109,11 @@ namespace gui
 
 	MainWindow::~MainWindow()
 	{
+		delete z_up_shortcut_;
+		delete z_down_shortcut_;
+		delete p_left_shortcut_;
+		delete p_right_shortcut_;
+		delete autofocus_ctrl_c_shortcut_;
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		gui::InfoManager::stop_display();
@@ -416,10 +420,8 @@ namespace gui
 			pos = gl_window_->pos();
 			width = gl_window_->size().width();
 			height = gl_window_->size().height();
-		}
-
-		if (gl_window_)
 			gl_window_.reset(nullptr);
+		}
 	}
 
 	void MainWindow::set_direct_mode()
@@ -2714,6 +2716,7 @@ namespace gui
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
+		manager->update_info("STFT Slice Cursor : ", "(Y,X) = (0,0)");
 		if (b)
 		{
 			p->setEnabled(false);
@@ -2721,8 +2724,8 @@ namespace gui
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
 			// set positions of new windows according to the position of the main GL window
-			QPoint new_window_pos_x = gl_window_->pos() + QPoint(520, 0);
-			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, 545);
+			QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
+			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 33);
 			gl_win_stft_0.reset(new GuiGLWindow(
 				new_window_pos_x, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
 			gl_win_stft_1.reset(new GuiGLWindow(
@@ -2733,7 +2736,6 @@ namespace gui
 			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
 			connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
 				Qt::UniqueConnection);
-			manager->update_info("STFT Slice Cursor : ", "(Y,X) = (0,0)");
 			cd.stft_view_enabled.exchange(true);
 		}
 		else
