@@ -254,6 +254,7 @@ namespace gui
 			const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
 			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
+			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
 
 			switch (selection_mode_)
 			{
@@ -271,13 +272,12 @@ namespace gui
 				selection_rect(selection_, stft_roi_color);
 				break;
 			case STFT_SLICE:
-				selection_rect(selection_, zoom_color);// You can do something here like rectangle selection (have fun...)
+				selection_rect(selection_, stft_slice_color);// You can do something here like rectangle selection (have fun...)
 				break;
 			default:
 				break;
 			}
 		}
-
 		gl_error_checking();
 	}
 
@@ -291,6 +291,7 @@ namespace gui
 			selection_.top_left = holovibes::Point2D(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height());
+			selection_.bottom_right = selection_.top_left;
 		}
 		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
 			dezoom();
@@ -316,15 +317,15 @@ namespace gui
 				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
 				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
 					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
-
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) << 1 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
+				selection_.bottom_right.x = selection_.top_left.x + max * (((selection_.top_left.x < selection_.bottom_right.x) << 1) - 1);
+				selection_.bottom_right.y = selection_.top_left.y + max * (((selection_.top_left.y < selection_.bottom_right.y) << 1) - 1);
 			}
 		}
 		if (selection_mode_ == STFT_SLICE && !slice_block_)
 		{
-			//QPoint pos = (e->x() * (frame_desc_.width / width()), e->y() * (frame_desc_.height / height()));
-			stft_slice_pos_update(e->pos() / 2);
+			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
+								e->y() * (frame_desc_.height / static_cast<float>(height())));
+			stft_slice_pos_update(QPoint(pos.x(), pos.y()));
 		}
 		else if (selection_mode_ != STFT_SLICE)
 			slice_block_ = false;
@@ -417,12 +418,11 @@ namespace gui
 		float nstarty = -1.0f * ((2.0f * static_cast<float>(selection.top_left.y)) / ymax - 1.0f);
 		float nendx = (2.0f * static_cast<float>(selection.bottom_right.x)) / xmax - 1.0f;
 		float nendy = -1.0f * ((2.0f * static_cast<float>(selection.bottom_right.y) / ymax - 1.0f));
-
+		
 		nstartx /= zoom_ratio_;
 		nstarty /= zoom_ratio_;
 		nendx /= zoom_ratio_;
 		nendy /= zoom_ratio_;
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

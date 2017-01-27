@@ -46,6 +46,8 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 
+		move(QPoint(520, 545));
+
 		// Hide non default tab
 		gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
 		gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
