@@ -10,31 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+# include "texture_update.cuh"
 
-#include "queue.hh"
-#include "basic_widget.hh"
-
-namespace gui {
-	
-	class SliceWidget : public BasicWidget
-	{
-		public:
-			SliceWidget(holovibes::Queue& q,
-						const uint w, const uint h, QWidget* parent = 0);
-			virtual ~SliceWidget();
-
-		protected:
-
-			holovibes::Queue&				HQueue;
-			const camera::FrameDescriptor&  Fd;
-
-			virtual void	initShaders();
-			virtual void	initTexture();
-
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-	};
+__global__ void texture_update()
+{
 
 }

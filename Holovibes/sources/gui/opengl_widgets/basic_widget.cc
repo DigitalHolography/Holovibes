@@ -18,13 +18,15 @@ namespace gui {
 							QOpenGLWidget(parent),
 							QOpenGLFunctions(),
 							Width(w), Height(h),
-							cuBuffer(nullptr),
+							cuResource(nullptr),
 							Vao(0),
-							Tex(0),
-							Vbo(0),
-							Ebo(0),
-							Program(nullptr), Vertex(nullptr), Fragment(nullptr)
+							Vbo(0), Ebo(0),
+							Tex(0),// Pbo(0),
+							Program(nullptr), Vertex(nullptr), Fragment(nullptr),
+							timer(this)
 	{
+		connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
+		timer.start(1000 / 60);
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
 			cuStream = 0;
 		resize(QSize(w, h));
@@ -34,12 +36,13 @@ namespace gui {
 	{
 		makeCurrent();
 
-		cudaGraphicsUnregisterResource(cuBuffer);
+		cudaGraphicsUnregisterResource(cuResource);
 		cudaStreamDestroy(cuStream);
 		
 		if (Ebo) glDeleteBuffers(1, &Ebo);
 		if (Vbo) glDeleteBuffers(1, &Vbo);
 		if (Tex) glDeleteBuffers(1, &Tex);
+		//if (Pbo) glDeleteBuffers(1, &Pbo);
 		Vao.destroy();
 
 		delete Fragment;

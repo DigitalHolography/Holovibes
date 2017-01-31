@@ -387,12 +387,13 @@ namespace gui
 		display_info("Holovibes " + holovibes::version + "\n\n"
 
 			"Developers:\n"
+
 			"Cyril Cetre\n"
-			"Cl�ment Ledant\n"
+			"Clement Ledant\n"
 
 			"Eric Delanghe\n"
 			"Arnaud Gaillard\n"
-			"Geoffrey Le Gourri�rec\n"
+			"Geoffrey Le Gourrierec\n"
 
 			"Jeffrey Bencteux\n"
 			"Thomas Kostas\n"
@@ -2003,6 +2004,9 @@ namespace gui
 		if (gl_window_)
 			gl_window_->close();
 
+		if (gl_win_stft_XZ)
+			gl_win_stft_XZ->close();
+
 		if (plot_window_)
 			plot_window_->close();
 	}
@@ -2675,34 +2679,6 @@ namespace gui
 		qApp->setStyleSheet("");
 	}
 
-	void MainWindow::set_night()
-	{
-		theme_index_ = 1;
-		qApp->setStyle(QStyleFactory::create("Fusion"));
-
-		QPalette darkPalette;
-		darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
-		darkPalette.setColor(QPalette::WindowText, Qt::white);
-		darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
-		darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
-		darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
-		darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-		darkPalette.setColor(QPalette::Text, Qt::white);
-		darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
-		darkPalette.setColor(QPalette::ButtonText, Qt::white);
-		darkPalette.setColor(QPalette::BrightText, Qt::red);
-		darkPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
-		darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-		darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, Qt::darkGray);
-		darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-		darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-		darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-
-		qApp->setPalette(darkPalette);
-
-		qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
-	}
-
 	void MainWindow::stft_view(bool b)
 	{
 		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
@@ -2716,10 +2692,11 @@ namespace gui
 			// launch stft_view windows
 			notify();
 			holovibes_.get_pipe()->create_stft_slice_queue();
+			//const uint w = ((Cd.nsamples >= 512) ? Cd.nsamples : 512);
 			gl_win_stft_XZ.reset(
 				new GuiGLWindow(
 					QPoint(520, 4),
-					Fd.width, Cd.nsamples,
+					512, 512,
 					holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(),
 					GuiGLWindow::window_kind::SLICE_XZ));
 			

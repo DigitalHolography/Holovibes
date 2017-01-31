@@ -29,8 +29,9 @@ namespace gui {
 			"#version 450\n"
 			"layout(location = 0) in vec2 xy;\n"
 			"layout(location = 1) in vec2 uv;\n"
-			"out vec2 texCoord;\n"
-			"void main() {\n"
+			"out vec2	texCoord;\n"
+			"void main()"
+			"{\n"
 			"	texCoord = uv;\n"
 			"   gl_Position = vec4(xy, 0.0f, 1.0f);\n"
 			"}\n"
@@ -42,10 +43,13 @@ namespace gui {
 			"#version 450\n"
 			"in vec2	texCoord;\n"
 			"out vec4	out_color;\n"
-			//"uniform sampler2D	tex;\n"
-			"void main() {\n"
-			//"	out_color  = texture(tex, texCoord);\n"
-			"	out_color  = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
+			"uniform sampler2D	tex;\n"
+			"void main()"
+			"{\n"
+			"	vec4 clrTex = texture(tex, texCoord);\n"
+			"	vec4 clr = vec4(0.0f, 0.0f, 0.6f, 1.0f);\n"
+			"	out_color = mix(clrTex, clr, 0.5);\n"
+			//"	out_color = texture(tex, texCoord);\n"
 			"}\n"
 		);
 		if (!Fragment->isCompiled())
@@ -53,22 +57,8 @@ namespace gui {
 	}
 
 	void SliceWidget::initTexture()
-	{
-		/*//if (!Tex.create()) std::cerr << "[Error] Tex create() fail\n";
-		//Tex.bind();
-		Tex = new QOpenGLTexture(QOpenGLTexture::Target2D);
-		Tex->setMagnificationFilter(QOpenGLTexture::Nearest);
-		Tex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-		Tex->setFormat(QOpenGLTexture::RGB16U);
-		//Tex->setWrapMode(QOpenGLTexture::DirectionS, QOpenGLTexture::ClampToEdge);
-		//Tex->setWrapMode(QOpenGLTexture::DirectionT, QOpenGLTexture::ClampToEdge);
-
-		const auto	pixelFormat = (Fd.depth == 8) ? QOpenGLTexture::RG : QOpenGLTexture::Red;
-		const auto	pixelType = (Fd.depth == 1) ? QOpenGLTexture::UInt8 : QOpenGLTexture::UInt16;
-		Tex->setSize(Fd.width, Fd.height, Fd.depth);
-		Tex->allocateStorage(pixelFormat, pixelType);*/
-		
-		glGenBuffers(1, &Tex);
+	{		
+		/*glGenBuffers(1, &Tex);
 		glBindBuffer(GL_TEXTURE_BUFFER, Tex);
 
 		unsigned int size = Fd.frame_size();
@@ -78,10 +68,8 @@ namespace gui {
 		glBindBuffer(GL_TEXTURE_BUFFER, 0);
 
 		cudaGraphicsGLRegisterBuffer(
-			&cuBuffer,
-			Tex,
-			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
-		
+			&cuResource, Tex,
+			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);*/
 	}
 
 	void SliceWidget::initializeGL()
@@ -104,26 +92,33 @@ namespace gui {
 		Vao.bind();
 		/* ---------- */
 		#pragma region Texture
-		/*glGenTextures(1, &Tex);
+		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
-		if (Fd.endianness == camera::BIG_ENDIAN)
-			glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-		else
-			glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
-
-		//auto pixelType = (Fd.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-
-		auto pixelFormat = GL_RED; // crash
-		if (Fd.depth == 8)
-			pixelFormat = GL_RG;
+		/*void	*frame = HQueue.get_last_images(1);
+		uint	size = Fd.frame_size();
+		uchar	*ptr = new uchar[size + 1];
+		std::memset(ptr, 0, size + 1);
+		std::memcpy(ptr, frame, size);
+		std::cout << ptr << std::endl;
+		delete[] ptr;*/
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
-			GL_RGBA, Fd.width, Fd.height, 0, GL_RG, GL_UNSIGNED_BYTE,
-			HQueue.get_last_images(1));
-			
-		cudaGraphicsGLRegisterImage(&cuBuffer, Tex, GL_TEXTURE_2D, cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
-		glBindTexture(GL_TEXTURE_2D, 0);*/
+			GL_RG,
+			Fd.width, Fd.height, 0,
+			GL_RG, GL_UNSIGNED_SHORT, nullptr);
+		
+		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
+			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+		// cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone
+		// cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore
 		#pragma endregion
 		/* ---------- */
 		#pragma region Vertex Buffer Object
@@ -180,17 +175,21 @@ namespace gui {
 
 	void SliceWidget::paintGL()
 	{
-		const void* frame = HQueue.get_last_images(1);
+		void* frame = HQueue.get_last_images(1);
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
 		/* ----------- */
 		#pragma region Cuda
 		/* Map the buffer for access by CUDA. */
-		cudaGraphicsMapResources(1, &cuBuffer, cuStream);
-		size_t	size;
+		cudaGraphicsMapResources(1, &cuResource, cuStream);
+		cudaArray *arr = nullptr;
+
+		cudaGraphicsSubResourceGetMappedArray(&arr, cuResource, 0, 0);
+
+		cudaMemcpyToArray(arr, 0, 0, frame, Fd.frame_size(), cudaMemcpyDeviceToDevice);
+
+		/*size_t	size;
 		void*	glBuffer;
-		cudaGraphicsResourceGetMappedPointer(&glBuffer, &size, cuBuffer);
-		/* CUDA memcpy of the frame to opengl buffer. */
 		const uint resolution = Fd.frame_res();
 		if (Fd.depth == 4)
 		{
@@ -207,10 +206,11 @@ namespace gui {
 				resolution);
 		}
 		else
-			cudaMemcpy(glBuffer, frame, size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+			// CUDA memcpy of the frame to opengl buffer.
+			//cudaMemcpy(glBuffer, frame, size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);*/
 
 		/* Unmap the buffer for access by CUDA. */
-		cudaGraphicsUnmapResources(1, &cuBuffer, cuStream);
+		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		#pragma endregion
 		/* ----------- */
 		#pragma region Texture update
@@ -243,6 +243,11 @@ namespace gui {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 		}
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);*/
+
+		/*glBindTexture(GL_TEXTURE_2D, Tex);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height,
+			GL_RGBA, GL_UNSIGNED_SHORT, nullptr);*/
+
 		#pragma endregion
 		/* ----------- */
 		Program->bind();
@@ -258,7 +263,7 @@ namespace gui {
 
 		Vao.release();
 		Program->release();
-
+		
 		doneCurrent();
 	}
 

@@ -148,6 +148,7 @@
     <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />
+    <ClInclude Include="cuda_includes\texture_update.cuh" />
     <ClInclude Include="cuda_includes\tools.cuh" />
     <ClInclude Include="cuda_includes\tools_compute.cuh" />
     <ClInclude Include="cuda_includes\tools_conversion.cuh" />
@@ -171,7 +172,16 @@
     <ClInclude Include="includes\custom_exception.hh" />
     <ClInclude Include="includes\geometry.hh" />
     <ClInclude Include="includes\gpib_dll.hh" />
-    <ClInclude Include="includes\gui\opengl_widgets\basic_widget.hh" />
+    <CustomBuild Include="includes\gui\opengl_widgets\basic_widget.hh">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Debug\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Release\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+    </CustomBuild>
     <CustomBuild Include="includes\gui\opengl_widgets\gui_gl_widget.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -192,8 +202,26 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\gui\opengl_widgets\holo_widget.hh" />
-    <ClInclude Include="includes\gui\opengl_widgets\slice_widget.hh" />
+    <CustomBuild Include="includes\gui\opengl_widgets\holo_widget.hh">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Debug\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Release\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\opengl_widgets\slice_widget.hh">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Debug\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Release\moc_%(Filename).cc"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+    </CustomBuild>
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -345,6 +373,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_basic_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_slice_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_holo_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_gl_window.cc" />
     <ClCompile Include="GeneratedFiles\qrc_main_window.cc" />
     <ClCompile Include="GeneratedFiles\Release\moc_gui_curve_plot.cc">
@@ -390,6 +430,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_basic_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_slice_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_holo_widget.cc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />
@@ -412,6 +464,7 @@
     <ClCompile Include="sources\gui\windows\gui_gl_window.cc" />
     <ClCompile Include="sources\gui\windows\gui_plot_window.cc" />
     <ClCompile Include="sources\gui\windows\main_window.cc" />
+    <ClCompile Include="sources\gui\windows\test.cc" />
     <ClCompile Include="sources\main.cc" />
     <ClCompile Include="sources\module.cc" />
     <ClCompile Include="sources\options_parser.cc" />
@@ -548,6 +601,7 @@
     <CudaCompile Include="cuda_sources\flowgraphy.cu" />
     <CudaCompile Include="cuda_sources\preprocessing.cu" />
     <CudaCompile Include="cuda_sources\stft.cu" />
+    <CudaCompile Include="cuda_sources\texture_update.cu" />
     <CudaCompile Include="cuda_sources\tools.cu" />
     <CudaCompile Include="cuda_sources\tools_compute.cu" />
     <CudaCompile Include="cuda_sources\tools_conversion.cu" />

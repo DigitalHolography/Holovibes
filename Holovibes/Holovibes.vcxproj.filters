@@ -173,9 +173,6 @@
     <ClCompile Include="sources\main.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\module.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
     <ClCompile Include="sources\options_parser.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
@@ -269,6 +266,30 @@
     <ClCompile Include="sources\compute\compute_descriptor.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\test.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\module.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_slice_widget.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_basic_widget.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_basic_widget.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_holo_widget.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_holo_widget.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_slice_widget.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
@@ -342,15 +363,6 @@
     </ClInclude>
     <ClInclude Include="includes\thread\thread_reader.hh">
       <Filter>c++ includes\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\opengl_widgets\basic_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\opengl_widgets\holo_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\opengl_widgets\slice_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\other\gui_tool.hh">
       <Filter>c++ includes\gui\other</Filter>
@@ -427,6 +439,9 @@
     <ClInclude Include="cuda_includes\vibrometry.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\texture_update.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
@@ -482,6 +497,15 @@
     </CustomBuild>
     <CustomBuild Include="includes\recorder.hh">
       <Filter>c++ includes\other</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\opengl_widgets\holo_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\opengl_widgets\slice_widget.hh">
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\opengl_widgets\basic_widget.hh">
+      <Filter>c++ includes</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -544,6 +568,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\vibrometry.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\texture_update.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

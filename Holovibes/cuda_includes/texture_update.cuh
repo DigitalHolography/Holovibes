@@ -12,29 +12,8 @@
 
 #pragma once
 
-#include "queue.hh"
-#include "basic_widget.hh"
+//# include <cutil_inline.h>		// includes cuda.h and cuda_runtime_api.h
+//# include <cutil_gl_inline.h>	// includes cuda_gl_interop.h
+# include <cuda_runtime.h>
 
-namespace gui {
-	
-	class SliceWidget : public BasicWidget
-	{
-		public:
-			SliceWidget(holovibes::Queue& q,
-						const uint w, const uint h, QWidget* parent = 0);
-			virtual ~SliceWidget();
-
-		protected:
-
-			holovibes::Queue&				HQueue;
-			const camera::FrameDescriptor&  Fd;
-
-			virtual void	initShaders();
-			virtual void	initTexture();
-
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-	};
-
-}
+__global__ void texture_update();

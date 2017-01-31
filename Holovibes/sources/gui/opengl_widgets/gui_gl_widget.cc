@@ -175,7 +175,7 @@ namespace gui
 		else if (frame_desc_.depth == 8)
 			complex_to_ushort(static_cast<const cufftComplex *>(frame), static_cast<unsigned int *> (buffer_ptr), frame_desc_.frame_res());
 		else
-			/* CUDA memcpy of the frame to opengl buffer. */
+			// CUDA memcpy of the frame to opengl buffer.
 			cudaMemcpy(buffer_ptr, frame, buffer_size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 
 		/* Unmap the buffer for access by CUDA. */

@@ -19,12 +19,13 @@
 # include <qopenglshaderprogram.h>
 # include <qopengltexture.h>
 # include <cuda_gl_interop.h>
+# include <qtimer.h>
 
 # include "holovibes.hh"
 # include "tools_conversion.cuh"
 
 #ifndef vertCoord
-# define vertCoord 0.7f
+# define vertCoord 1.0f
 #endif
 #ifndef texCoord
 # define texCoord 1.0f
@@ -34,6 +35,7 @@ namespace gui {
 	
 	class BasicWidget : public QOpenGLWidget, protected QOpenGLFunctions
 	{
+		Q_OBJECT
 		public:
 			BasicWidget(const uint w, const uint h, QWidget* parent = 0);
 			virtual ~BasicWidget();
@@ -43,12 +45,13 @@ namespace gui {
 			const uint	Height;
 
 			// CUDA
-			struct cudaGraphicsResource*	cuBuffer;
+			struct cudaGraphicsResource*	cuResource;
 			cudaStream_t					cuStream;
 
 			// OpenGL Objects
 			QOpenGLVertexArrayObject	Vao;
-			GLuint	Tex, Vbo, Ebo;
+			GLuint	Vbo, Ebo;
+			GLuint	Tex; // , Pbo;
 
 			// OpenGL Shaders Objects
 			QOpenGLShaderProgram	*Program;
@@ -61,6 +64,8 @@ namespace gui {
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;
+		private:
+			QTimer	timer;
 	};
 
 }

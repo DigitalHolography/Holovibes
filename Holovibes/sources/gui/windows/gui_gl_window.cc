@@ -12,10 +12,10 @@ namespace gui
 		holovibes::Queue& q,
 		window_kind wk,
 		QWidget* parent)
-		: QMainWindow(parent)
-		, gl_widget_(nullptr)
-		, full_screen_(nullptr)
-		, maximized_screen_(nullptr)
+		: QMainWindow(parent),
+		gl_widget_(nullptr),
+		full_screen_(nullptr),
+		maximized_screen_(nullptr)
 	{
 		//TODO:
 		if (wk == window_kind::DIRECT)
@@ -61,6 +61,7 @@ namespace gui
 	GuiGLWindow::~GuiGLWindow()
 	{
 		gl_widget_.reset(nullptr);
+		widget.reset(nullptr);
 	}
 
 	void GuiGLWindow::resizeEvent(QResizeEvent* e)
