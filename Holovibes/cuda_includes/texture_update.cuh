@@ -12,8 +12,14 @@
 
 #pragma once
 
-//# include <cutil_inline.h>		// includes cuda.h and cuda_runtime_api.h
-//# include <cutil_gl_inline.h>	// includes cuda_gl_interop.h
 # include <cuda_runtime.h>
+# include <surface_functions.h>
+# include <device_launch_parameters.h>
 
-__global__ void texture_update();
+__global__
+void	kernelTextureUpdate();
+// -------------------- //
+void	textureUpdate(	cudaSurfaceObject_t cuSurface,
+						void *frame,
+						unsigned short width,
+						unsigned short height);

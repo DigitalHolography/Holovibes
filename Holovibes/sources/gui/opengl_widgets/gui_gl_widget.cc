@@ -69,6 +69,7 @@ namespace gui
 
 	GLWidget::~GLWidget()
 	{
+		makeCurrent();
 		/* Unregister buffer for access by CUDA. */
 		cudaGraphicsUnregisterResource(cuda_buffer_);
 		/* Free the associated computation stream. */
@@ -76,6 +77,7 @@ namespace gui
 		/* Destroy buffer name. */
 		glDeleteBuffers(1, &buffer_);
 		glDisable(GL_TEXTURE_2D);
+		doneCurrent();
 	}
 
 	void GLWidget::view_move_down()

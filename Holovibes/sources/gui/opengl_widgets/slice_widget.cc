@@ -10,6 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "texture_update.cuh"
 #include "slice_widget.hh"
 
 namespace gui {
@@ -17,8 +18,7 @@ namespace gui {
 	SliceWidget::SliceWidget(holovibes::Queue& q,
 							const uint w, const uint h, QWidget* parent) :
 							BasicWidget(w, h, parent),
-							HQueue(q), Fd(HQueue.get_frame_desc())
-	{}
+							HQueue(q), Fd(HQueue.get_frame_desc()) {}
 
 	SliceWidget::~SliceWidget() {}
 
@@ -46,10 +46,10 @@ namespace gui {
 			"uniform sampler2D	tex;\n"
 			"void main()"
 			"{\n"
-			"	vec4 clrTex = texture(tex, texCoord);\n"
-			"	vec4 clr = vec4(0.0f, 0.0f, 0.6f, 1.0f);\n"
-			"	out_color = mix(clrTex, clr, 0.5);\n"
-			//"	out_color = texture(tex, texCoord);\n"
+			//"	vec4 clrTex = texture(tex, texCoord);\n"
+			//"	vec4 clr = vec4(0.8f, 0.0f, 0.0f, 1.0f);\n"
+			//"	out_color = mix(clrTex, clr, 0.5);\n"
+			"	out_color = texture(tex, texCoord).rgba;\n"
 			"}\n"
 		);
 		if (!Fragment->isCompiled())
@@ -76,7 +76,7 @@ namespace gui {
 	{
 		makeCurrent();
 		initializeOpenGLFunctions();
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		///* ---------- */
 		#pragma region Shaders
@@ -95,28 +95,58 @@ namespace gui {
 		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
-		/*void	*frame = HQueue.get_last_images(1);
 		uint	size = Fd.frame_size();
-		uchar	*ptr = new uchar[size + 1];
-		std::memset(ptr, 0, size + 1);
-		std::memcpy(ptr, frame, size);
-		std::cout << ptr << std::endl;
-		delete[] ptr;*/
+		uint	res = Fd.frame_res();
+		ushort	*mTexture = new ushort[size];
+		
+		std::memset(mTexture, 0x00, size * 2);
+
+		/*for (uint i = 0; i < size; i += 2)
+		{
+			mTexture[i] = 0xc000;
+			mTexture[i + 1] = 0x4000;
+		}*/
+
+		/*for (uint i = 0; i < size; i += 4)
+		{
+			mTexture[i] = 0xff;
+			mTexture[i + 1] = 0x00;
+			mTexture[i + 2] = 0x00;
+			mTexture[i + 3] = 0xff;
+			i += 4;
+			if (i < size)
+			{
+				mTexture[i] = 0x00;
+				mTexture[i + 1] = 0xff;
+				mTexture[i + 2] = 0x00;
+				mTexture[i + 3] = 0xff;
+				i += 4;
+			}
+			if (i < size)
+			{
+				mTexture[i] = 0x00;
+				mTexture[i + 1] = 0x00;
+				mTexture[i + 2] = 0xff;
+				mTexture[i + 3] = 0xff;
+			}
+		}*/
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
-			GL_RG,
+			GL_RGBA,
 			Fd.width, Fd.height, 0,
-			GL_RG, GL_UNSIGNED_SHORT, nullptr);
+			GL_RG, GL_UNSIGNED_SHORT, mTexture);
 		
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+		delete[] mTexture;
 		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
-			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
 		// cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone
 		// cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore
 		#pragma endregion
@@ -128,13 +158,13 @@ namespace gui {
 			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
 			// Top-right
 			vertCoord, vertCoord,
-			1.0f, 0.0f,
+			texCoord, 0.0f,
 			// Bottom-right
 			vertCoord, -vertCoord,
-			1.0f, 1.0f,
+			texCoord, texCoord,
 			// Bottom-left
 			-vertCoord, -vertCoord,
-			0.0f, 1.0f
+			0.0f, texCoord
 		};
 		glGenBuffers(1, &Vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, Vbo);
@@ -171,6 +201,21 @@ namespace gui {
 	void SliceWidget::resizeGL(int width, int height)
 	{
 		glViewport(0, 0, width, height);
+		/*
+		// unregister
+		cudaGraphicsUnregisterResource(viewCudaResource);
+        // resize
+		glBindTexture(GL_TEXTURE_2D, viewGLTexture);
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+				view.getWidth(), view.getHeight(), 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+		// register back
+		cudaGraphicsGLRegisterImage(&viewCudaResource, viewGLTexture, GL_TEXTURE_2D,
+			cudaGraphicsRegisterFlagsWriteDiscard);
+		*/
 	}
 
 	void SliceWidget::paintGL()
@@ -182,35 +227,27 @@ namespace gui {
 		#pragma region Cuda
 		/* Map the buffer for access by CUDA. */
 		cudaGraphicsMapResources(1, &cuResource, cuStream);
-		cudaArray *arr = nullptr;
+		cudaArray_t cuArr = nullptr;
 
-		cudaGraphicsSubResourceGetMappedArray(&arr, cuResource, 0, 0);
-
-		cudaMemcpyToArray(arr, 0, 0, frame, Fd.frame_size(), cudaMemcpyDeviceToDevice);
-
-		/*size_t	size;
-		void*	glBuffer;
-		const uint resolution = Fd.frame_res();
-		if (Fd.depth == 4)
+		cudaGraphicsSubResourceGetMappedArray(&cuArr, cuResource, 0, 0);
+		cudaResourceDesc cuArrRD;
 		{
-			float_to_ushort(
-				static_cast<const float *>(frame),
-				static_cast<unsigned short *> (glBuffer),
-				resolution);
+			cuArrRD.resType = cudaResourceTypeArray;
+			cuArrRD.res.array.array = cuArr;
 		}
-		else if (Fd.depth == 8)
+		cudaSurfaceObject_t cuSurface;
+		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		{
-			complex_to_ushort(
-				static_cast<const cufftComplex *>(frame),
-				static_cast<unsigned int *> (glBuffer),
-				resolution);
+			textureUpdate(cuSurface, frame, Fd.width, Fd.height);
 		}
-		else
-			// CUDA memcpy of the frame to opengl buffer.
-			//cudaMemcpy(glBuffer, frame, size, cudaMemcpyKind::cudaMemcpyDeviceToDevice);*/
+		cudaDestroySurfaceObject(cuSurface);
 
-		/* Unmap the buffer for access by CUDA. */
+		//cudaMemcpyToArray(cuArr, 0, 0, frame, Fd.frame_size(), cudaMemcpyDeviceToDevice);
+
+		// Unmap the buffer for access by CUDA.
 		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
+		cudaStreamSynchronize(cuStream);
+
 		#pragma endregion
 		/* ----------- */
 		#pragma region Texture update
@@ -250,6 +287,8 @@ namespace gui {
 
 		#pragma endregion
 		/* ----------- */
+		glBindTexture(GL_TEXTURE_2D, Tex);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		Program->bind();
 		Vao.bind();
 
@@ -263,7 +302,12 @@ namespace gui {
 
 		Vao.release();
 		Program->release();
-		
+		glBindTexture(GL_TEXTURE_2D, 0);
+		GLenum error = glGetError();
+		auto err_string = glGetString(error);
+		if (error != GL_NO_ERROR && err_string)
+			std::cerr << "[GL] " << err_string << '\n';
+
 		doneCurrent();
 	}
 

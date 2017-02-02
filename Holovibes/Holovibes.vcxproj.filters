@@ -505,7 +505,7 @@
       <Filter>c++ includes\gui\opengl_widgets</Filter>
     </CustomBuild>
     <CustomBuild Include="includes\gui\opengl_widgets\basic_widget.hh">
-      <Filter>c++ includes</Filter>
+      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

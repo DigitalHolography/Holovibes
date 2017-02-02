@@ -47,7 +47,7 @@ namespace gui
 		/* \brief GLWidget constructor
 		**
 		** Build the widget and start a display QTimer.
-		**
+		** é ù à
 		** \param h holovibes object
 		** \param q Queue containing the frames to display
 		** \param width widget's width

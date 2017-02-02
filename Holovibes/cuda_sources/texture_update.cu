@@ -10,9 +10,32 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+# include "tools.hh"
 # include "texture_update.cuh"
 
-__global__ void texture_update()
+__global__ void kernelTextureUpdate(cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
+	unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	//unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
+	if (x < texDim.x)// && y < texDim.y)
+	{
+		uchar4  data = make_uchar4(0xff, 0x00, 0x00, 0xff);
+		//surf2Dwrite(data, cuSurface, x * sizeof(uchar4), y);
+		surf1Dwrite(data, cuSurface, x * sizeof(uchar4));
+	}
+}
+
+void textureUpdate(	cudaSurfaceObject_t cuSurface,
+					void *frame,
+					unsigned short width,
+					unsigned short height)
+{
+	unsigned int threads = get_max_threads_1d();
+	unsigned int blocks = map_blocks_to_problem(width * height, threads);
+
+	//dim3 threads(30, 30);
+	//dim3 blocks(tex->getWidth() / threads.x, tex->getHeight() / threads.y);
+
+	kernelTextureUpdate <<< blocks, threads >>>(cuSurface, dim3(width, height));
 }
