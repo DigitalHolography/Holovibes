@@ -21,10 +21,18 @@ void kernelTextureUpdate(	unsigned short* frame,
 	unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-	/*unsigned short* p = &frame[y * texDim.x + x];
-		ushort4  data = make_ushort4(p[0], 0x4000, p[1], 0xffff);*/
+	// Red Mode
+	unsigned short pix = frame[(y * texDim.x + x)];
+	//float pix_f = pix / 65536.f * 256;
+	surf2Dwrite(static_cast<unsigned short>(pix >> 8), cuSurface, x * 4, y);
 
-	surf2Dwrite(frame[y * texDim.x + x], cuSurface, x*4, y);
+	// Grey Mode
+	/*unsigned short pix0 = frame[(y * texDim.x + x)];
+	float pix_f = pix0 / 256;
+	unsigned char p = static_cast<unsigned char>(pix_f);
+	uchar4 p4 = make_uchar4(p, p, p, 0xff);
+
+	surf2Dwrite(p4, cuSurface, x * 4, y);*/
 }
 
 void textureUpdate(	cudaSurfaceObject_t cuSurface,
