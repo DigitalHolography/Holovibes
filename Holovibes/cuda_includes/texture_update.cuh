@@ -16,9 +16,6 @@
 # include <surface_functions.h>
 # include <device_launch_parameters.h>
 
-__global__
-void	kernelTextureUpdate();
-// -------------------- //
 void	textureUpdate(	cudaSurfaceObject_t cuSurface,
 						void *frame,
 						unsigned short width,

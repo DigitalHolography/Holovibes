@@ -13,17 +13,18 @@
 # include "tools.hh"
 # include "texture_update.cuh"
 
-__global__ void kernelTextureUpdate(cudaSurfaceObject_t cuSurface, dim3 texDim)
+__global__
+void kernelTextureUpdate(	unsigned short* frame,
+							cudaSurfaceObject_t cuSurface,
+							dim3 texDim)
 {
 	unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	//unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-	if (x < texDim.x)// && y < texDim.y)
-	{
-		uchar4  data = make_uchar4(0xff, 0x00, 0x00, 0xff);
-		//surf2Dwrite(data, cuSurface, x * sizeof(uchar4), y);
-		surf1Dwrite(data, cuSurface, x * sizeof(uchar4));
-	}
+	/*unsigned short* p = &frame[y * texDim.x + x];
+		ushort4  data = make_ushort4(p[0], 0x4000, p[1], 0xffff);*/
+
+	surf2Dwrite(frame[y * texDim.x + x], cuSurface, x*4, y);
 }
 
 void textureUpdate(	cudaSurfaceObject_t cuSurface,
@@ -31,11 +32,9 @@ void textureUpdate(	cudaSurfaceObject_t cuSurface,
 					unsigned short width,
 					unsigned short height)
 {
-	unsigned int threads = get_max_threads_1d();
-	unsigned int blocks = map_blocks_to_problem(width * height, threads);
+	dim3 threads(32, 32);
+	dim3 blocks(width / threads.x, height / threads.y);
 
-	//dim3 threads(30, 30);
-	//dim3 blocks(tex->getWidth() / threads.x, tex->getHeight() / threads.y);
-
-	kernelTextureUpdate <<< blocks, threads >>>(cuSurface, dim3(width, height));
+	kernelTextureUpdate << < blocks, threads >> >(reinterpret_cast<unsigned short*>(frame),
+		cuSurface, dim3(width, height));
 }

@@ -49,7 +49,7 @@ namespace gui {
 			//"	vec4 clrTex = texture(tex, texCoord);\n"
 			//"	vec4 clr = vec4(0.8f, 0.0f, 0.0f, 1.0f);\n"
 			//"	out_color = mix(clrTex, clr, 0.5);\n"
-			"	out_color = texture(tex, texCoord).rgba;\n"
+			"	out_color = texture(tex, texCoord);\n"
 			"}\n"
 		);
 		if (!Fragment->isCompiled())
@@ -241,49 +241,10 @@ namespace gui {
 			textureUpdate(cuSurface, frame, Fd.width, Fd.height);
 		}
 		cudaDestroySurfaceObject(cuSurface);
-
-		//cudaMemcpyToArray(cuArr, 0, 0, frame, Fd.frame_size(), cudaMemcpyDeviceToDevice);
-
+		
 		// Unmap the buffer for access by CUDA.
 		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		cudaStreamSynchronize(cuStream);
-
-		#pragma endregion
-		/* ----------- */
-		#pragma region Texture update
-		/*glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Tex);
-		GLuint texId;
-		glGenTextures(1, &texId);
-		glBindTexture(GL_TEXTURE_2D, texId);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, Fd.width, Fd.height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-		glBindTexture(GL_TEXTURE_2D, Tex);
-
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		if (Fd.depth == 8)
-		{
-			//We replace the green color by the blue one for complex display
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		}
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);*/
-
-		/*glBindTexture(GL_TEXTURE_2D, Tex);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height,
-			GL_RGBA, GL_UNSIGNED_SHORT, nullptr);*/
 
 		#pragma endregion
 		/* ----------- */
