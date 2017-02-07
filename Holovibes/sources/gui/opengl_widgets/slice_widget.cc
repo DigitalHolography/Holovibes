@@ -220,7 +220,6 @@ namespace gui {
 
 	void SliceWidget::paintGL()
 	{
-		void* frame = HQueue.get_last_images(1);
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
 		/* ----------- */
@@ -238,7 +237,13 @@ namespace gui {
 		cudaSurfaceObject_t cuSurface;
 		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		{
-			textureUpdate(cuSurface, frame, Fd.width, Fd.height);
+			textureUpdate(cuSurface, HQueue.get_last_images(1), Fd.width, Fd.height);
+			/*dim3 threads(32, 32);
+			dim3 blocks(Fd.width >> 5, Fd.height >> 5);
+
+			kernelTextureUpdate <<< blocks, threads >>>(
+				reinterpret_cast<unsigned short*>(HQueue.get_last_images(1)),
+				cuSurface, dim3(Fd.widt, Fd.height));*/
 		}
 		cudaDestroySurfaceObject(cuSurface);
 		

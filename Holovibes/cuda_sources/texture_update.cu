@@ -18,21 +18,15 @@ void kernelTextureUpdate(	unsigned short* frame,
 							cudaSurfaceObject_t cuSurface,
 							dim3 texDim)
 {
-	unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
 	// Red Mode
-	unsigned short pix = frame[(y * texDim.x + x)];
-	//float pix_f = pix / 65536.f * 256;
-	surf2Dwrite(static_cast<unsigned short>(pix >> 8), cuSurface, x * 4, y);
+	surf2Dwrite(static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x * 4, y);
 
 	// Grey Mode
-	/*unsigned short pix0 = frame[(y * texDim.x + x)];
-	float pix_f = pix0 / 256;
-	unsigned char p = static_cast<unsigned char>(pix_f);
-	uchar4 p4 = make_uchar4(p, p, p, 0xff);
-
-	surf2Dwrite(p4, cuSurface, x * 4, y);*/
+	/*const unsigned char p = static_cast<unsigned char>(frame[y * texDim.x + x] >> 8);
+	surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x * 4, y);*/
 }
 
 void textureUpdate(	cudaSurfaceObject_t cuSurface,
@@ -41,8 +35,8 @@ void textureUpdate(	cudaSurfaceObject_t cuSurface,
 					unsigned short height)
 {
 	dim3 threads(32, 32);
-	dim3 blocks(width / threads.x, height / threads.y);
+	dim3 blocks(width >> 5, height >> 5);
 
-	kernelTextureUpdate << < blocks, threads >> >(reinterpret_cast<unsigned short*>(frame),
+	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<unsigned short*>(frame),
 		cuSurface, dim3(width, height));
 }
