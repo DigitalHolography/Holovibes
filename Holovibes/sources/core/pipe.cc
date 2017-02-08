@@ -143,7 +143,10 @@ namespace holovibes
 		unsigned int nframes = compute_desc_.nsamples.load();
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
-		if (compute_desc_.stft_enabled || (compute_desc_.filter_2d_enabled && !compute_desc_.stft_roi_zone.load().area()))
+		Rectangle roiZone;
+		compute_desc_.stftRoiZone(&roiZone, ComputeDescriptor::Get);
+		if (compute_desc_.stft_enabled ||
+			(compute_desc_.filter_2d_enabled && !roiZone.area()))
 		{
 			nframes = 1;
 			pframe = 0;
@@ -177,12 +180,13 @@ namespace holovibes
 				gpu_input_buffer_,
 				gpu_filter2d_buffer,
 				plan2d_,
-				compute_desc_.stft_roi_zone.load(),
+				roiZone,
 				input_fd,
 				static_cast<cudaStream_t>(0)));
 		}
 		//Algorithm combobox
-		if (!compute_desc_.filter_2d_enabled || (compute_desc_.filter_2d_enabled &&  compute_desc_.stft_roi_zone.load().area()))
+		if (!compute_desc_.filter_2d_enabled ||
+			(compute_desc_.filter_2d_enabled && roiZone.area()))
 		{
 			if (compute_desc_.algorithm == ComputeDescriptor::None)
 			{
@@ -527,6 +531,10 @@ namespace holovibes
 
 		if (average_requested_)
 		{
+			Rectangle signalZone;
+			Rectangle noiseZone;
+			compute_desc_.signalZone(&signalZone, ComputeDescriptor::Get);
+			compute_desc_.noiseZone(&noiseZone, ComputeDescriptor::Get);
 			if (average_record_requested_)
 			{
 				fn_vect_.push_back(std::bind(
@@ -535,8 +543,8 @@ namespace holovibes
 					gpu_float_buffer_,
 					input_fd.width,
 					input_fd.height,
-					compute_desc_.signal_zone.load(),
-					compute_desc_.noise_zone.load(),
+					signalZone,
+					noiseZone,
 					static_cast<cudaStream_t>(0)));
 
 				average_record_requested_ = false;
@@ -549,8 +557,8 @@ namespace holovibes
 					gpu_float_buffer_,
 					input_fd.width,
 					input_fd.height,
-					compute_desc_.signal_zone.load(),
-					compute_desc_.noise_zone.load(),
+					signalZone,
+					noiseZone,
 					static_cast<cudaStream_t>(0)));
 			}
 		}
@@ -622,7 +630,8 @@ namespace holovibes
 		float z_min = compute_desc_.autofocus_z_min;
 		float z_max = compute_desc_.autofocus_z_max;
 		const float z_div = static_cast<float>(compute_desc_.autofocus_z_div);
-		Rectangle zone = compute_desc_.autofocus_zone;
+		Rectangle zone;
+		compute_desc_.autofocusZone(&zone, ComputeDescriptor::Get);
 
 		/* Autofocus needs to work on the same images.
 		* It will computes on copies. */
@@ -633,11 +642,12 @@ namespace holovibes
 
 		/* Compute square af zone. */
 		float* gpu_float_buffer_af_zone;
-		const unsigned int zone_width = zone.top_right.x - zone.top_left.x;
-		const unsigned int zone_height = zone.bottom_left.y - zone.top_left.y;
+		const unsigned int zone_width = zone.width();
+		const unsigned int zone_height = zone.height();
 
 		const unsigned int af_square_size =
-			static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
+			static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ?
+				static_cast<float>(zone_width) : static_cast<float>(zone_height)))));
 		const unsigned int af_size = af_square_size * af_square_size;
 
 		cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));

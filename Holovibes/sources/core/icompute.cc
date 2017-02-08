@@ -1,4 +1,5 @@
 #include <cufft.h>
+#include <cassert>
 
 #include "icompute.hh"
 #include "fft1.cuh"
@@ -95,7 +96,7 @@ namespace holovibes
 			CUFFT_C2C);
 
 		/* CUFFT plan1d temporal*/
-		int inembed[1] = { input_length_ };
+		int inembed[1] = { static_cast<int>(input_length_) };
 
 		cufftPlanMany(&plan1d_, 1, inembed,
 			inembed, input_.get_pixels(), 1,
@@ -247,7 +248,7 @@ namespace holovibes
 		/* gpu_stft_buffer */
 		//cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
 
-		int inembed[1] = { input_length_ };
+		int inembed[1] = { static_cast<int>(input_length_) };
 
 		cufftPlanMany(&plan1d_, 1, inembed,
 			inembed, input_.get_pixels(), 1,
@@ -732,11 +733,13 @@ namespace holovibes
 		if (compute_desc_.stft_view_enabled)
 		{
 			camera::FrameDescriptor fd = gpu_stft_slice_queue_->get_frame_desc();
+			QPoint cursorPos;
+			compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
 			stft_view_begin(
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 				static_cast<unsigned short *>(gpu_stft_slice_queue_->get_last_images(1)),
-				compute_desc_.stft_slice_cursor.load().x(), 
-				compute_desc_.stft_slice_cursor.load().y(),
+				cursorPos.x(),
+				cursorPos.y(),
 				fd.frame_res(),
 				input_.get_frame_desc().width,
 				input_.get_frame_desc().height,
@@ -857,10 +860,10 @@ namespace holovibes
 			af_env_.gpu_input_buffer_tmp,
 			compute_desc_.nsamples.load());
 
-		af_env_.zone = compute_desc_.autofocus_zone;
+		compute_desc_.autofocusZone(&af_env_.zone, ComputeDescriptor::Get);
 		/* Compute square af zone. */
-		const unsigned int zone_width = af_env_.zone.get_width();
-		const unsigned int zone_height = af_env_.zone.get_height();
+		const unsigned int zone_width = af_env_.zone.width();
+		const unsigned int zone_height = af_env_.zone.height();
 
 		af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
 

@@ -661,7 +661,11 @@ namespace gui
 			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 			gl_widget->set_selection_mode(gui::eselection::ZOOM);
 			cd.filter_2d_enabled.exchange(false);
-			cd.stft_roi_zone.exchange(holovibes::Rectangle(holovibes::Point2D(0, 0), holovibes::Point2D(0, 0)));
+			
+			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
+			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
+			//cd.stft_roi_zone.exchange(holovibes::Rectangle(holovibes::Point2D(0, 0), holovibes::Point2D(0, 0)));
+
 			gui::InfoManager::remove_info_safe("Filter2D");
 			holovibes_.get_pipe()->request_autocontrast();
 		}
@@ -1104,7 +1108,8 @@ namespace gui
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		desc.autofocus_zone = zone;
+		//desc.autofocus_zone = zone;
+		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
 		gl_widget->set_selection_mode(gui::eselection::ZOOM);
 	}
@@ -1119,7 +1124,8 @@ namespace gui
 		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		desc.stft_roi_zone = zone;
+		//desc.stft_roi_zone = zone;
+		desc.stftRoiZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_filter2D_roi_update();
 	}
 
@@ -1345,15 +1351,15 @@ namespace gui
 			const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
 			const holovibes::Rectangle& noise = gl_widget.get_noise_selection();
 
-			ptree.put("signal.top_left_x", signal.top_left.x);
-			ptree.put("signal.top_left_y", signal.top_left.y);
-			ptree.put("signal.bottom_right_x", signal.bottom_right.x);
-			ptree.put("signal.bottom_right_y", signal.bottom_right.y);
+			ptree.put("signal.top_left_x", signal.topLeft().x());
+			ptree.put("signal.top_left_y", signal.topLeft().y());
+			ptree.put("signal.bottom_right_x", signal.bottomRight().x());
+			ptree.put("signal.bottom_right_y", signal.bottomRight().y());
 
-			ptree.put("noise.top_left_x", noise.top_left.x);
-			ptree.put("noise.top_left_y", noise.top_left.y);
-			ptree.put("noise.bottom_right_x", noise.bottom_right.x);
-			ptree.put("noise.bottom_right_y", noise.bottom_right.y);
+			ptree.put("noise.top_left_x", noise.topLeft().x());
+			ptree.put("noise.top_left_y", noise.topLeft().y());
+			ptree.put("noise.bottom_right_x", noise.bottomRight().x());
+			ptree.put("noise.bottom_right_y", noise.bottomRight().y());
 
 			boost::property_tree::write_ini(path, ptree);
 			display_info("Roi saved in " + path);
@@ -1373,7 +1379,7 @@ namespace gui
 		{
 			boost::property_tree::ini_parser::read_ini(path, ptree);
 
-			holovibes::Point2D signal_top_left;
+			/*holovibes::Point2D signal_top_left;
 			holovibes::Point2D signal_bottom_right;
 			holovibes::Point2D noise_top_left;
 			holovibes::Point2D noise_bottom_right;
@@ -1389,10 +1395,19 @@ namespace gui
 			noise_bottom_right.y = ptree.get<int>("noise.bottom_right_y", 0);
 
 			holovibes::Rectangle signal(signal_top_left, signal_bottom_right);
-			holovibes::Rectangle noise(noise_top_left, noise_bottom_right);
+			holovibes::Rectangle noise(noise_top_left, noise_bottom_right);*/
 
-			gl_widget.set_signal_selection(signal);
-			gl_widget.set_noise_selection(noise);
+			holovibes::Rectangle rectSignal;
+			holovibes::Rectangle rectNoise;
+
+			rectSignal.setTopLeft(QPoint(ptree.get<int>("signal.top_left_x", 0), ptree.get<int>("signal.top_left_y", 0)));
+			rectSignal.setBottomRight(QPoint(ptree.get<int>("signal.bottom_right_x", 0), ptree.get<int>("signal.bottom_right_y", 0)));
+
+			rectNoise.setTopLeft(QPoint(ptree.get<int>("noise.top_left_x", 0), ptree.get<int>("noise.top_left_y", 0)));
+			rectNoise.setBottomRight(QPoint(ptree.get<int>("noise.bottom_right_x", 0), ptree.get<int>("noise.bottom_right_y", 0)));
+
+			gl_widget.set_signal_selection(rectSignal);
+			gl_widget.set_noise_selection(rectNoise);
 			gl_widget.enable_selection();
 		}
 		catch (std::exception& e)
@@ -2730,6 +2745,6 @@ namespace gui
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
 		manager->update_info("STFT Slice Cursor : ", ss.str());
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		cd.stft_slice_cursor.exchange(pos);
+		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
 	}
 }

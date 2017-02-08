@@ -1,6 +1,8 @@
 #include <device_launch_parameters.h>
 #include <cmath>
 
+#include <qpoint.h>
+
 #include "average.cuh"
 #include "geometry.hh"
 #include "tools.hh"
@@ -21,8 +23,8 @@ static __global__ void kernel_zone_sum(
 	float* input,
 	const unsigned int width,
 	float* output,
-	const unsigned int zone_start_x,
-	const unsigned int zone_start_y,
+	const unsigned int zTopLeft_x,
+	const unsigned int zTopLeft_y,
 	const unsigned int zone_width,
 	const unsigned int zone_height)
 {
@@ -37,8 +39,8 @@ static __global__ void kernel_zone_sum(
 	// SUM input in sdata
 	while (index < size)
 	{
-		int x = index % zone_width + zone_start_x;
-		int y = index / zone_width + zone_start_y;
+		int x = index % zone_width + zTopLeft_x;
+		int y = index / zone_width + zTopLeft_y;
 		int index2 = y * width + x;
 
 		sdata[tid] += input[index2];
@@ -90,15 +92,15 @@ std::tuple<float, float, float, float> make_average_plot(
 	cudaMemsetAsync(gpu_s, 0, sizeof(float), stream);
 	cudaMemsetAsync(gpu_n, 0, sizeof(float), stream);
 
-	unsigned int signal_width = abs(signal.top_right.x - signal.top_left.x);
-	unsigned int signal_height = abs(signal.top_left.y - signal.bottom_left.y);
-	unsigned int noise_width = abs(noise.top_right.x - noise.top_left.x);
-	unsigned int noise_height = abs(noise.top_left.y - noise.bottom_left.y);
+	const uint signal_width = signal.width();
+	const uint signal_height = signal.height();
+	const uint noise_width = noise.width();
+	const uint noise_height = noise.height();
 
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
-		noise.top_left.x, noise.top_left.y, noise_width, noise_height);
+		noise.topLeft().x(), noise.topLeft().y(), noise_width, noise_height);
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_s,
-		signal.top_left.x, signal.top_left.y, signal_width, signal_height);
+		signal.topLeft().x(), signal.topLeft().y(), signal_width, signal_height);
 
 	float cpu_s;
 	float cpu_n;
@@ -106,8 +108,8 @@ std::tuple<float, float, float, float> make_average_plot(
 	cudaMemcpyAsync(&cpu_s, gpu_s, sizeof(float), cudaMemcpyDeviceToHost, stream);
 	cudaMemcpyAsync(&cpu_n, gpu_n, sizeof(float), cudaMemcpyDeviceToHost, stream);
 
-	cpu_s /= float(signal_width * signal_height);
-	cpu_n /= float(noise_width * noise_height);
+	cpu_s /= static_cast<float>(signal_width * signal_height);
+	cpu_n /= static_cast<float>(noise_width * noise_height);
 
 	float moy = cpu_s / cpu_n;
 

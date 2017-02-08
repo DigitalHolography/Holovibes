@@ -7,11 +7,13 @@
 #include "queue.hh"
 #include "tools_conversion.cuh"
 
+using namespace holovibes;
+
 namespace gui
 {
 	GLWidget::GLWidget(
-		holovibes::Holovibes& h,
-		holovibes::Queue& q,
+		Holovibes& h,
+		Queue& q,
 		const unsigned int width,
 		const unsigned int height,
 		QWidget *parent)
@@ -268,9 +270,9 @@ namespace gui
 		if (e->button() == Qt::LeftButton)
 		{
 			is_selection_enabled_ = true;
-			selection_.top_left = holovibes::Point2D(
+			selection_.setTopLeft(QPoint(
 				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height());
+				(e->y() * frame_desc_.height) / height()));
 		}
 		else if (selection_mode_ == ZOOM)
 			dezoom();
@@ -283,9 +285,9 @@ namespace gui
 	{
 		if (is_selection_enabled_)
 		{
-			selection_.bottom_right = holovibes::Point2D(
+			selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height());
+				(e->y() * frame_desc_.height) / height()));
 
 			if (selection_mode_ == AVERAGE)
 			{
@@ -296,12 +298,16 @@ namespace gui
 			}
 			else if (selection_mode_ == STFT_ROI)
 			{
-				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
-				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
-					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+				int max = std::abs(selection_.bottomRight().x() - selection_.topLeft().x());
+				if (std::abs(selection_.bottomRight().y() - selection_.topLeft().y()) > max)
+					max = std::abs(selection_.bottomRight().y() - selection_.topLeft().y());
 
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottomRight().setX(
+					selection_.topLeft().x() +
+					max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1));
+				selection_.bottomRight().setY(
+					selection_.topLeft().y() +
+					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
 			}
 		}
 		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
@@ -312,27 +318,31 @@ namespace gui
 	{
 		if (is_selection_enabled_)
 		{
-			selection_.bottom_right = holovibes::Point2D(
+			selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height());
+				(e->y() * frame_desc_.height) / height()));
 
 			if (selection_mode_ == STFT_ROI)
 			{
-				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
-				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
-					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
+				int max = std::abs(selection_.bottomRight().x() - selection_.topLeft().x());
+				if (std::abs(selection_.bottomRight().y() - selection_.topLeft().y()) > max)
+					max = std::abs(selection_.bottomRight().y() - selection_.topLeft().y());
 
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottomRight().setX(
+					selection_.topLeft().x() +
+					max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1));
+				selection_.bottomRight().setY(
+					selection_.topLeft().y() +
+					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
 			}
 
-			selection_.bottom_left = holovibes::Point2D(
-				selection_.top_left.x,
-				(e->y() * frame_desc_.height) / height());
+			selection_.setBottomLeft(QPoint(
+				selection_.topLeft().x(),
+				(e->y() * frame_desc_.height) / height()));
 
-			selection_.top_right = holovibes::Point2D(
+			selection_.setTopRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
-				selection_.top_left.y);
+				selection_.topLeft().y()));
 
 			bounds_check(selection_);
 			swap_selection_corners(selection_);
@@ -346,20 +356,24 @@ namespace gui
 			case AVERAGE:
 				if (is_signal_selection_)
 				{
-					signal_selection_ = selection_;
-					h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
+					//signal_selection_ = selection_;
+					//h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
+					holovibes::Rectangle rect(resize_zone((signal_selection_ = selection_)));
+					h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
 				}
 				else // Noise selection
 				{
-					noise_selection_ = selection_;
-					h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
+					//noise_selection_ = selection_;
+					//h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
+					holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
+					h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
 				}
 				is_signal_selection_ = !is_signal_selection_;
 				break;
 			case ZOOM:
 				is_selection_enabled_ = false;
 
-				if (selection_.top_left != selection_.bottom_right)
+				if (selection_.topLeft() != selection_.bottomRight())
 					zoom(selection_);
 				break;
 			case STFT_ROI:
@@ -389,15 +403,16 @@ namespace gui
 		const float xmax = frame_desc_.width;
 		const float ymax = frame_desc_.height;
 
-		float nstartx = (2.0f * static_cast<float>(selection.top_left.x)) / xmax - 1.0f;
-		float nstarty = -1.0f * ((2.0f * static_cast<float>(selection.top_left.y)) / ymax - 1.0f);
-		float nendx = (2.0f * static_cast<float>(selection.bottom_right.x)) / xmax - 1.0f;
-		float nendy = -1.0f * ((2.0f * static_cast<float>(selection.bottom_right.y) / ymax - 1.0f));
+		float nstartx = (2.0f * static_cast<float>(selection.topLeft().x())) / xmax - 1.0f;
+		float nstarty = -1.0f * ((2.0f * static_cast<float>(selection.topLeft().y())) / ymax - 1.0f);
+		float nendx = (2.0f * static_cast<float>(selection.bottomRight().x())) / xmax - 1.0f;
+		float nendy = -1.0f * ((2.0f * static_cast<float>(selection.bottomRight().y()) / ymax - 1.0f));
 
-		nstartx /= zoom_ratio_;
-		nstarty /= zoom_ratio_;
-		nendx /= zoom_ratio_;
-		nendy /= zoom_ratio_;
+		const int zr = 1 / zoom_ratio_;
+		nstartx *= zr;
+		nstarty *= zr;
+		nendx *= zr;
+		nendy *= zr;
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -415,15 +430,23 @@ namespace gui
 
 	holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection)
 	{
-		selection.top_left.x /= zoom_ratio_;
-		selection.bottom_left.x /= zoom_ratio_;
-		selection.top_left.y /= zoom_ratio_;
-		selection.top_right.y /= zoom_ratio_;
+		const float zr = 1 / zoom_ratio_;
 
-		selection.top_right.x /= zoom_ratio_;
-		selection.bottom_right.x /= zoom_ratio_;
-		selection.bottom_left.y /= zoom_ratio_;
-		selection.bottom_right.y /= zoom_ratio_;
+		selection.setTopRight(selection.topRight() * zr);
+		//selection.topRight().setX(selection.topRight().x() * zr);
+		//selection.topRight().setY(selection.topRight().y() * zr);
+
+		selection.setTopLeft(selection.topLeft() * zr);
+		//selection.topLeft().setX(selection.topLeft().x() * zr);
+		//selection.topLeft().setY(selection.topLeft().y() * zr);
+
+		selection.setBottomRight(selection.bottomRight() * zr);
+		//selection.bottomRight().setX(selection.bottomRight().x() * zr);
+		//selection.bottomRight().setY(selection.bottomRight().y() * zr);
+
+		selection.setBottomLeft(selection.bottomLeft() * zr);
+		//selection.bottomLeft().setX(selection.bottomLeft().x() * zr);
+		//selection.bottomLeft().setY(selection.bottomLeft().y() * zr);
 		return (selection);
 	}
 
@@ -435,8 +458,8 @@ namespace gui
 		const float ydest = 0.0f;
 
 		// Source point is center of the selection zone (normal coords)
-		const int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
-		const int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
+		const int xsource = selection.topLeft().x() + ((selection.bottomRight().x() - selection.topLeft().x()) / 2);
+		const int ysource = selection.topLeft().y() + ((selection.bottomRight().y() - selection.topLeft().y()) / 2);
 
 		// Normalizing source points to OpenGL coords
 		const float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;
@@ -448,11 +471,11 @@ namespace gui
 
 		// Zoom ratio
 		const float xratio = static_cast<float>(frame_desc_.width) /
-			(static_cast<float>(selection.bottom_right.x) -
-			static_cast<float>(selection.top_left.x));
+			(static_cast<float>(selection.bottomRight().x()) -
+			static_cast<float>(selection.topLeft().x()));
 		const float yratio = static_cast<float>(frame_desc_.height) /
-			(static_cast<float>(selection.bottom_right.y) -
-			static_cast<float>(selection.top_left.y));
+			(static_cast<float>(selection.bottomRight().y()) -
+			static_cast<float>(selection.topLeft().y()));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
 		px_ += -px / zoom_ratio_ / 2;
@@ -474,10 +497,10 @@ namespace gui
 
 	void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
 	{
-		const int x_top_left = selection.top_left.x;
-		const int y_top_left = selection.top_left.y;
-		const int x_bottom_right = selection.bottom_right.x;
-		const int y_bottom_rigth = selection.bottom_right.y;
+		const int x_top_left = selection.topLeft().x();
+		const int y_top_left = selection.topLeft().y();
+		const int x_bottom_right = selection.bottomRight().x();
+		const int y_bottom_rigth = selection.bottomRight().y();
 
 		QPoint tmp;
 
@@ -485,7 +508,7 @@ namespace gui
 		{
 			if (y_top_left > y_bottom_rigth)
 			{
-				selection.horizontal_symetry();
+				//selection.horizontal_symetry();
 			}
 			//else
 			//{
@@ -496,30 +519,30 @@ namespace gui
 		{
 			if (y_top_left < y_bottom_rigth)
 			{
-				selection.vertical_symetry();
+				//selection.vertical_symetry();
 			}
 			else
 			{
 				// Vertical and horizontal swaps
-				selection.vertical_symetry();
-				selection.horizontal_symetry();
+				//selection.vertical_symetry();
+				//selection.horizontal_symetry();
 			}
 		}
 	}
 
 	void GLWidget::bounds_check(holovibes::Rectangle& selection)
 	{
-		if (selection.bottom_right.x < 0)
-			selection.bottom_right.x = 0;
-		if (selection.bottom_right.x > frame_desc_.width)
-			selection.bottom_right.x = frame_desc_.width;
+		if (selection.bottomRight().x() < 0)
+			selection.bottomRight().setX(0);
+		if (selection.bottomRight().x() > frame_desc_.width)
+			selection.bottomRight().setX(frame_desc_.width);
 
-		if (selection.bottom_right.y < 0)
-			selection.bottom_right.y = 0;
-		if (selection.bottom_right.y > frame_desc_.height)
-			selection.bottom_right.y = frame_desc_.height;
+		if (selection.bottomRight().y() < 0)
+			selection.bottomRight().setY(0);
+		if (selection.bottomRight().y() > frame_desc_.height)
+			selection.bottomRight().setY(frame_desc_.height);
 
-		selection = holovibes::Rectangle(selection.top_left, selection.bottom_right);
+		//selection = Rectangle(selection.topLeft(), );
 	}
 
 	void GLWidget::gl_error_checking()

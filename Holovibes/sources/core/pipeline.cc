@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 
 #include "pipeline.hh"
 #include "config.hh"
@@ -449,6 +450,10 @@ namespace holovibes
 
 		if (average_requested_)
 		{
+			Rectangle signalZone;
+			Rectangle noiseZone;
+			compute_desc_.signalZone(&signalZone, ComputeDescriptor::Get);
+			compute_desc_.noiseZone(&noiseZone, ComputeDescriptor::Get);
 			if (average_record_requested_)
 			{
 				modules_[2]->push_back_worker(std::bind(
@@ -457,8 +462,8 @@ namespace holovibes
 					std::ref(gpu_float_buffers_[1]),
 					input_fd.width,
 					input_fd.height,
-					compute_desc_.signal_zone.load(),
-					compute_desc_.noise_zone.load(),
+					signalZone,
+					noiseZone,
 					modules_[2]->stream_
 					));
 
@@ -472,8 +477,8 @@ namespace holovibes
 					std::ref(gpu_float_buffers_[1]),
 					input_fd.width,
 					input_fd.height,
-					compute_desc_.signal_zone.load(),
-					compute_desc_.noise_zone.load(),
+					signalZone,
+					noiseZone,
 					modules_[2]->stream_
 					));
 			}

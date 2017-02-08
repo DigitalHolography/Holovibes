@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 #include <device_launch_parameters.h>
+#include <qpoint.h>
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -178,7 +179,7 @@ void frame_memcpy(
   const unsigned int output_width,
   cudaStream_t stream)
 {
-  const float* zone_ptr = input + (zone.top_left.y * input_width + zone.top_left.x);
+  const float* zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
 
   cudaMemcpy2DAsync(
     output,

@@ -47,15 +47,15 @@ void filter2D(
 
 	if (!r.area())
 		return;
-	int center_x = (r.top_left.x + r.bottom_right.x) / 2;
-	int center_y = (r.top_left.y + r.bottom_right.y) / 2;
+	//int center_x = (r.x + r.bottom_right.x) >> 1;
+	//int center_y = (r.top_left.y + r.bottom_right.y) >> 1;
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
-		r.top_left.x,
-		r.top_left.y,
-		r.bottom_right.x,
-		r.bottom_right.y,
+		r.topLeft().x(),
+		r.topLeft().y(),
+		r.bottomRight().x(),
+		r.bottomRight().y(),
 		desc.width,
 		desc.width * desc.height);
 
@@ -64,8 +64,8 @@ void filter2D(
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,
 		input,
-		center_x,
-		center_y,
+		r.center().x(),
+		r.center().y(),
 		desc.width,
 		desc.height,
 		size);

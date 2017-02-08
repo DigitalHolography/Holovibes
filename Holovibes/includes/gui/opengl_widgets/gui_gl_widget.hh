@@ -88,13 +88,15 @@ namespace gui
 		void set_signal_selection(const holovibes::Rectangle& selection)
 		{
 			signal_selection_ = selection;
-			h_.get_compute_desc().signal_zone = signal_selection_;
+			//h_.get_compute_desc().signal_zone = signal_selection_;
+			h_.get_compute_desc().signalZone(&signal_selection_, holovibes::ComputeDescriptor::Set);
 		}
 
 		void set_noise_selection(const holovibes::Rectangle& selection)
 		{
 			noise_selection_ = selection;
-			h_.get_compute_desc().noise_zone = noise_selection_;
+			//h_.get_compute_desc().noise_zone = noise_selection_;
+			h_.get_compute_desc().signalZone(&noise_selection_, holovibes::ComputeDescriptor::Set);
 		}
 
 		void set_selection_mode(const eselection mode)
