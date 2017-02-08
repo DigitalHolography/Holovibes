@@ -681,6 +681,9 @@ namespace gui
 				holovibes_.get_pipe()->request_update_n(value);
 				if (cd.stft_view_enabled.load())
 				{
+					/*_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
+					gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
+					lovibes_.get_pipe()->update_stft_slice_queue();*/
 					stft_view(false);
 					stft_view(true);
 				}
@@ -2008,6 +2011,7 @@ namespace gui
 
 	void MainWindow::closeEvent(QCloseEvent* event)
 	{
+		close_critical_compute();
 		// Avoiding "unused variable" warning.
 		static_cast<void>(event);
 		save_ini("holovibes.ini");
@@ -2647,16 +2651,7 @@ namespace gui
 	void MainWindow::cancel_stft_view(holovibes::ComputeDescriptor& cd)
 	{
 		if (cd.stft_view_enabled)
-		{
-			// delete stft_view windows
-			cd.stft_view_enabled.exchange(false);
-			gl_win_stft_1.reset(nullptr);
-			gl_win_stft_0.reset(nullptr);
-			holovibes_.get_pipe()->delete_stft_slice_queue();
-			// ------------------------
-			QCheckBox* stft_view_button = findChild<QCheckBox*>("stft_view_checkbox");
-			stft_view_button->setChecked(false);
-		}
+			stft_view(false);
 		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		stft_button->setChecked(false);
 	}

@@ -346,9 +346,8 @@ namespace holovibes
 	void	ICompute::create_stft_slice_queue()
 	{
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		new_fd.width = 256;
 		new_fd.height = compute_desc_.nsamples;
-		new_fd.depth = 2;
+		new_fd.depth = 2.f;
 		gpu_stft_slice_queue_xz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
 		gpu_stft_slice_queue_yz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
 	}
@@ -747,40 +746,23 @@ namespace holovibes
 		}
 		if (compute_desc_.stft_view_enabled)
 		{
-			//gpu_stft_slice_queue_->enqueue(output, cudaMemcpyDeviceToDevice);
-			camera::FrameDescriptor fdx = gpu_stft_slice_queue_xz->get_frame_desc();
-			camera::FrameDescriptor fdy = gpu_stft_slice_queue_yz->get_frame_desc();
-			
 			// Conservation of the coordinates when cursor is outside of the window
 			ushort old_mouse_x = compute_desc_.stft_slice_cursor.load().x();
 			ushort old_mouse_y = compute_desc_.stft_slice_cursor.load().y();
-			ushort width = input_.get_frame_desc().width - 1;
-			ushort height = input_.get_frame_desc().height - 1;
-			if (old_mouse_x <= width && old_mouse_y <= height)
+			ushort width = input_.get_frame_desc().width;
+			ushort height = input_.get_frame_desc().height ;
+			if (old_mouse_x < width && old_mouse_y < height)
 			{
 				mouse_x = old_mouse_x;
 				mouse_y = old_mouse_y;
 			}
 			// -----------------------------------------------------
-			/*std::cout << "width xz = " << fdx.width;
-			std::cout << " width yz = " << fdy.width;
-			std::cout << " height xz = " << fdx.height;
-			std::cout << " height yz = " << fdy.height << std::endl;*/
-			/*std::cout << "output size = " << gpu_stft_slice_queue_xz->get_size();
-			std::cout << " nsample = " << compute_desc_.nsamples.load();
-			std::cout << " width = " << input_.get_frame_desc().width;
-			std::cout << " height = " << input_.get_frame_desc().height << std::endl;*/
 			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 							static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
 							static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-							mouse_x,
-							mouse_y,
-							256 * 256,
-							256 * compute_desc_.nsamples.load(),
-							256,
-							256,
-							//input_.get_frame_desc().width,
-							//input_.get_frame_desc().height);//,
+							mouse_x, mouse_y,
+							input_.get_frame_desc().width,
+							input_.get_frame_desc().height,
 							compute_desc_.nsamples.load());
 		}
 	}

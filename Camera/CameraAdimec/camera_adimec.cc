@@ -107,6 +107,7 @@ namespace camera
 		BiBrdClose(board_);
 	}
 
+
 	void* CameraAdimec::get_frame()
 	{
 		// Mark the previously read buffer as available for writing, for the board.
@@ -179,8 +180,8 @@ namespace camera
 
 		roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
 		roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
-		roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
-		roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
+		//roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
+		//roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
 	}
 
 	void CameraAdimec::bind_params()
@@ -207,7 +208,7 @@ namespace camera
 		if (BFCXPWriteReg(board_, CloseFlag::ALL, RegAdress::ROI_HEIGHT, roi_height_) != BF_OK)
 			std::cerr << "[CAMERA] Could not set roi height to " << roi_height_ << std::endl;*/
 
-		/* After setup the profiles of the camera in SysReg, these lines are reading into the registers of the camera to set the good */
+			/* After setup the profiles of the camera in SysReg, these lines are reading into the registers of the camera to set the good */
 		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_WIDTH, &roi_width_) != BF_OK)
 			std::cerr << "[CAMERA] Could not read the roi width into the registers of the camera " << std::endl;
 

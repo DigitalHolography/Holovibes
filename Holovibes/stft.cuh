@@ -59,8 +59,6 @@ void	stft_view_begin(const complex	*input,
 						ushort			*outputyz,
 						const uint		x0,
 						const uint		y0,
-						const uint		frame_size,
-						const uint		output_size,
 						const uint		width,
 						const uint		height,
 						const uint		depth);
