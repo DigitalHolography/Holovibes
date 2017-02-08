@@ -2,112 +2,87 @@
 
 namespace holovibes
 {
-  /*! Point in 2D */
+	#pragma region 2D Point
+	Point2D::Point2D()
+		: x(0)
+		, y(0)
+	{
+	}
 
-  Point2D::Point2D()
-    : x(0)
-    , y(0)
-  {
-  }
+	Point2D::Point2D(const Point2D& p)
+		: x(p.x)
+		, y(p.y)
+	{
+	}
 
-  Point2D::Point2D(const Point2D& p)
-    : x(p.x)
-    , y(p.y)
-  {
-  }
+	Point2D::Point2D(const int xcoord, const int ycoord)
+		: x(xcoord)
+		, y(ycoord)
+	{
+	}
 
-  Point2D::Point2D(const int xcoord, const int ycoord)
-    : x(xcoord)
-    , y(ycoord)
-  {
-  }
+	Point2D& Point2D::operator=(const Point2D& p)
+	{
+		x = p.x;
+		y = p.y;
+		return *this;
+	}
 
-  Point2D& Point2D::operator=(const Point2D& p)
-  {
-    x = p.x;
-    y = p.y;
-    return *this;
-  }
+	bool Point2D::operator!=(const Point2D& p)
+	{
+		return x != p.x || y != p.y;
+	}
+	#pragma endregion
 
-  bool Point2D::operator!=(const Point2D& p)
-  {
-    return x != p.x || y != p.y;
-  }
+	#pragma region Rectangle
+	Rectangle::Rectangle() : QRect()
+	{
+	}
 
-  Rectangle::Rectangle()
-  {
-  }
+	Rectangle::Rectangle(const Rectangle& rect)
+		: QRect()
+	{
+		setTopRight(rect.topRight());
+		setTopLeft(rect.topLeft());
+		setBottomRight(rect.bottomRight());
+		setBottomLeft(rect.bottomLeft());
+	}
 
-  Rectangle::Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner)
-    : top_left(top_left_corner)
-    , top_right(bottom_right_corner.x, top_left_corner.y)
-    , bottom_left(top_left_corner.x, bottom_right_corner.y)
-    , bottom_right(bottom_right_corner)
-  {
-  }
-  
-  Rectangle::Rectangle(const Rectangle& rect)
-    : top_left(rect.top_left)
-    , top_right(rect.top_right)
-    , bottom_left(rect.bottom_left)
-    , bottom_right(rect.bottom_right)
-  {
-  }
+	Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
+		: QRect(topleft, size)
+	{
+	}
 
-  Rectangle::Rectangle(const unsigned int width, const unsigned height)
-	: top_left(0, 0)
-	, top_right(width, 0)
-	, bottom_left(0, height)
-	, bottom_right(width, height)
-  {
-  }
+	Rectangle::Rectangle(const unsigned int width, const unsigned int height)
+		: QRect(0, 0, width, height)
+	{
+	}
 
+	unsigned int Rectangle::area() const
+	{
+		return (width() * height());
+	}
+	#pragma endregion
 
-  Rectangle& Rectangle::operator=(const Rectangle& rect)
-  {
-    top_left = rect.top_left;
-    top_right = rect.top_right;
-    bottom_left = rect.bottom_left;
-    bottom_right = rect.bottom_right;
-    return *this;
-  }
+	/*void Rectangle::vertical_symetry()
+	{
+		Point2D tmp(top_left);
+		top_left = top_right;
+		top_right = tmp;
 
-  unsigned int Rectangle::area() const
-  {
-    const unsigned int AB = bottom_right.x - top_left.x;
-    const unsigned int AD = bottom_right.y - top_left.y;
-    return (AB * AD);
-  }
+		tmp = bottom_left;
+		bottom_left = bottom_right;
+		bottom_right = tmp;
+	}
 
-  unsigned int Rectangle::get_width() const
-  {
-    return bottom_right.x - top_left.x;
-  }
+	void Rectangle::horizontal_symetry()
+	{
+		Point2D tmp(top_left);
+		top_left = bottom_left;
+		bottom_left = tmp;
 
-  unsigned int Rectangle::get_height() const
-  {
-    return bottom_right.y - top_left.y;
-  }
-
-  void Rectangle::vertical_symetry()
-  {
-    Point2D tmp(top_left);
-    top_left = top_right;
-    top_right = tmp;
-
-    tmp = bottom_left;
-    bottom_left = bottom_right;
-    bottom_right = tmp;
-  }
-
-  void Rectangle::horizontal_symetry()
-  {
-    Point2D tmp(top_left);
-    top_left = bottom_left;
-    bottom_left = tmp;
-
-    tmp = top_right;
-    top_right = bottom_right;
-    bottom_right = tmp;
-  }
+		tmp = top_right;
+		top_right = bottom_right;
+		bottom_right = tmp;
+	}*/
 }
