@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <BoostLib>C:\local\boost_1_55_0</BoostLib>
+    <BoostLib>C:\local\boost_1_63_0</BoostLib>
     <QTDIR>C:\Qt\Qt5.8.0\5.8\msvc2015_64</QTDIR>
     <SolutionLibDir>$(SolutionDir)lib</SolutionLibDir>
     <QWTDIR>C:\qwt-6.1.3</QWTDIR>
@@ -24,7 +24,7 @@
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BoostLib)\lib64-msvc-14.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>

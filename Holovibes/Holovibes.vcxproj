@@ -57,7 +57,7 @@
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
       <AdditionalOptions>/FS /D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
