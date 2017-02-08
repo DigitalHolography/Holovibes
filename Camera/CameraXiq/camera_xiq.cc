@@ -1,5 +1,6 @@
 #include <utils.hh>
 #include <camera_exception.hh>
+#include <iostream>
 
 #include "camera_xiq.hh"
 

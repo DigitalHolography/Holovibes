@@ -354,7 +354,7 @@ namespace holovibes
     unsigned int average_n_;
     /*! \} */
     /*! \{ \name fps_count */
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::system_clock::duration> past_time_;
+    std::chrono::time_point<std::chrono::steady_clock> past_time_;
   
 	unsigned int frame_count_;
     /*! \} */

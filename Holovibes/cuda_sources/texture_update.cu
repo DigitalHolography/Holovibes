@@ -22,11 +22,11 @@ void kernelTextureUpdate(	unsigned short* frame,
 	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
 	// Red Mode
-	surf2Dwrite(static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x * 4, y);
+	//surf2Dwrite(static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x * 4, y);
 
 	// Grey Mode
-	/*const unsigned char p = static_cast<unsigned char>(frame[y * texDim.x + x] >> 8);
-	surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x * 4, y);*/
+	const unsigned char p = static_cast<unsigned char>(frame[y * texDim.x + x] >> 8);
+	surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x * 4, y);
 }
 
 void textureUpdate(	cudaSurfaceObject_t cuSurface,
