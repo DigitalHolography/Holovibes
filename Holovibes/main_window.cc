@@ -49,13 +49,13 @@ namespace gui
 		move(QPoint(520, 545));
 
 		// Hide non default tab
-		gui::GroupBox *special_group_box = findChild<gui::GroupBox*>("Vibrometry");
-		gui::GroupBox *record_group_box = findChild<gui::GroupBox*>("Record");
-		gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
+		gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
+		gui::GroupBox	*record_group_box = findChild<gui::GroupBox*>("Record");
+		gui::GroupBox	*info_group_box = findChild<gui::GroupBox*>("Info");
 
-		QAction*      special_action = findChild<QAction*>("actionSpecial");
-		QAction*      record_action = findChild<QAction*>("actionRecord");
-		QAction*      info_action = findChild<QAction*>("actionInfo");
+		QAction		*special_action = findChild<QAction*>("actionSpecial");
+		QAction		*record_action = findChild<QAction*>("actionRecord");
+		QAction		*info_action = findChild<QAction*>("actionInfo");
 
 		special_action->setChecked(false);
 		special_group_box->setHidden(true);
@@ -389,6 +389,9 @@ namespace gui
 		display_info("Holovibes " + holovibes::version + "\n\n"
 
 			"Developers:\n"
+			"Thomas Jarrossay\n"
+			"Alexandre Bartz\n"
+
 			"Cyril Cetre\n"
 			"Cl�ment Ledant\n"
 
@@ -676,6 +679,15 @@ namespace gui
 			if (cd.stft_enabled || (value <= static_cast<const int>(input->get_max_elts())))
 			{
 				holovibes_.get_pipe()->request_update_n(value);
+				if (cd.stft_view_enabled.load())
+				{
+					stft_view(false);
+					stft_view(true);
+				}
+				//keep focus on SpinBox #img after resizing of the slice window 
+				setWindowState(Qt::WindowMinimized);
+				setWindowState(Qt::WindowActive);
+
 				notify();
 			}
 			else
@@ -873,11 +885,11 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (!is_direct_mode())
 		{
-			unsigned int tmp = cd.nsamples.load();
+			unsigned int nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
-			cd.stft_level.exchange(tmp);
+			cd.stft_level.exchange(nsamples);
 			cd.stft_enabled = b;
-			holovibes_.get_pipe()->request_update_n(cd.nsamples);
+			holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 			notify();
 			QCheckBox* p = findChild<QCheckBox*>("stft_view_checkbox");
 			p->setEnabled((b) ? true : false);
@@ -2280,12 +2292,12 @@ namespace gui
 		gui::GroupBox *import_group_box = findChild<gui::GroupBox*>("Import");
 		gui::GroupBox *info_group_box = findChild<gui::GroupBox*>("Info");
 
-		QAction*      image_rendering_action = findChild<QAction*>("actionImage_rendering");
-		QAction*      view_action = findChild<QAction*>("actionView");
-		QAction*      special_action = findChild<QAction*>("actionSpecial");
-		QAction*      record_action = findChild<QAction*>("actionRecord");
-		QAction*      import_action = findChild<QAction*>("actionImport");
-		QAction*      info_action = findChild<QAction*>("actionInfo");
+		QAction*	image_rendering_action = findChild<QAction*>("actionImage_rendering");
+		QAction*	view_action = findChild<QAction*>("actionView");
+		QAction*	special_action = findChild<QAction*>("actionSpecial");
+		QAction*	record_action = findChild<QAction*>("actionRecord");
+		QAction*	import_action = findChild<QAction*>("actionImport");
+		QAction*	info_action = findChild<QAction*>("actionInfo");
 
 		try
 		{
@@ -2419,9 +2431,9 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled)
 		{
-			unsigned int tmp = cd.nsamples.load();
+			unsigned int nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
-			cd.stft_level.exchange(tmp);
+			cd.stft_level.exchange(nsamples);
 		}
 		gui::GroupBox *image_rendering_group_box = findChild<gui::GroupBox*>("ImageRendering");
 		gui::GroupBox *view_group_box = findChild<gui::GroupBox*>("View");
@@ -2716,7 +2728,7 @@ namespace gui
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
-		manager->update_info("STFT Slice Cursor : ", "(Y,X) = (0,0)");
+		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
 		if (b)
 		{
 			p->setEnabled(false);
@@ -2726,11 +2738,20 @@ namespace gui
 			// set positions of new windows according to the position of the main GL window
 			QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
 			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 33);
-			gl_win_stft_0.reset(new GuiGLWindow(
-				new_window_pos_x, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(1), GuiGLWindow::window_kind::SLICE_XZ));
-			gl_win_stft_1.reset(new GuiGLWindow(
-				new_window_pos_y, 512, 512, holovibes_, holovibes_.get_pipe()->get_stft_slice_queue(0), GuiGLWindow::window_kind::SLICE_XZ));
-			
+			// window slice_xz (down window)
+			gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
+												gl_window_->width(),
+												(cd.nsamples.load() < 120 ? 120 : cd.nsamples.load()) * 2,
+												holovibes_,
+												holovibes_.get_pipe()->get_stft_slice_queue(0),
+												GuiGLWindow::window_kind::SLICE_VIEW));
+			// window slice_yz (right window)
+			gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
+												(cd.nsamples.load() < 120 ? 120 : cd.nsamples.load()) * 2,
+												gl_window_->height(),
+												holovibes_,
+												holovibes_.get_pipe()->get_stft_slice_queue(1),
+												GuiGLWindow::window_kind::SLICE_VIEW));
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
 			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
@@ -2740,7 +2761,7 @@ namespace gui
 		}
 		else
 		{
-			/*not sure that it is necessary but safer*/
+			manager->remove_info("STFT Slice Cursor");
 			disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 			// delete stft_view windows
 			cd.stft_view_enabled.exchange(false);
@@ -2754,13 +2775,12 @@ namespace gui
 		}
 	}
 
-
 	void MainWindow::update_stft_slice_pos(QPoint pos)
 	{
 		auto manager = gui::InfoManager::get_manager();
 		std::stringstream ss;
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info("STFT Slice Cursor : ", ss.str());
+		manager->update_info("STFT Slice Cursor", ss.str());
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		cd.stft_slice_cursor.exchange(pos);
 	}

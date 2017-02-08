@@ -18,16 +18,10 @@
 namespace holovibes
 {
   struct UnwrappingResources;
+  struct UnwrappingResources_2d;
   class Queue;
   template <class T> class ConcurrentDeque;
   class ComputeDescriptor;
-}
-
-/* Forward declarations. */
-namespace holovibes
-{
-  struct UnwrappingResources;
-  struct UnwrappingResources_2d;
 }
 
 namespace gui
@@ -51,18 +45,18 @@ namespace holovibes
     /*! \brief Contains all the information related to the autofocus. */
     struct af_env
     {
-      float           z;
-      float           z_min;
-      float           z_max;
-      float           z_step;
-      unsigned int    z_iter;
-      float           af_z;
-      std::vector<float> focus_metric_values;
-      Rectangle       zone;
-      float*          gpu_float_buffer_af_zone;
-      cufftComplex*   gpu_input_buffer_tmp;
-      size_t          gpu_input_size;
-      unsigned int    af_square_size;
+      float					z;
+      float					z_min;
+      float					z_max;
+      float					z_step;
+      unsigned int			z_iter;
+      float					af_z;
+      std::vector<float>	focus_metric_values;
+		Rectangle			zone;
+		float				*gpu_float_buffer_af_zone;
+		cufftComplex		*gpu_input_buffer_tmp;
+		size_t				gpu_input_size;
+		unsigned int		af_square_size;
     };
 
 	/* these states are used for take ref when we need to do action punctually in the pipe*/
@@ -196,6 +190,7 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec() = 0;
 
+	void	set_slice_queue_details(int width, int height, int depth);
 	void	create_stft_slice_queue();
 	void	delete_stft_slice_queue();
 	void	update_stft_slice_queue();
@@ -381,6 +376,11 @@ namespace holovibes
 
 	unsigned int stft_frame_counter;
 
+	int		slice_width_;
+	int		slice_height_;
+	int		slice_depth_;
+	int		frame_res_xz_;
+	int		frame_res_yz_;
 
 	/*! \{ \name request flags */
 	bool unwrap_1d_requested_;

@@ -58,10 +58,10 @@ namespace camera
      * occurs. Binary masking is used here to add up flags. */
     enum CloseFlag
     {
-      NO_BOARD = 0x00, //!< Nothing to close
-      BUFFER = 0xF0,   //!< Free allocated resources
-      BOARD = 0x0F,    //!< Close the board
-      ALL = 0xFF       //!< Release everything, in correct order
+      NO_BOARD =	0x00, //!< Nothing to close
+      BUFFER =		0xF0,   //!< Free allocated resources
+      BOARD =		0x0F,    //!< Close the board
+      ALL =			0xFF       //!< Release everything, in correct order
     };
 
     //! Some of the board's registers.
@@ -69,8 +69,14 @@ namespace camera
      * that we manually set to override some configuration data, at runtime. */
     enum RegAdress
     {
-      FRAME_PERIOD = 0x8220,
-      EXPOSURE_TIME = 0x8258
+		ROI_WIDTH =		0x8118,
+		ROI_HEIGHT =	0x811C,
+		EXPOSURE_MODE =	0x8250,
+		PIXEL_FORMAT =	0x8144,
+		FRAME_PERIOD =	0x8220,
+		EXPOSURE_TIME =	0x8258,
+		START =			0x8204,
+		STOP =			0x8208
     };
 
     Bd board_; //!< Handle to the opened BitFlow board.

@@ -53,7 +53,7 @@ namespace holovibes
         assert(!"Impossible case");
 
       std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
-      camera_->init_camera();
+	  camera_->init_camera();
       std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
       input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
       std::cout << "(Holovibes) Prepared to start initialization." << std::endl;

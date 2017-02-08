@@ -32,7 +32,7 @@ namespace gui
 		enum window_kind
 		{
 			DIRECT,
-			SLICE_XZ
+			SLICE_VIEW
 		};
 
 		/*! \brief GuiGLWindow constructor

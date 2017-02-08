@@ -325,7 +325,7 @@ namespace gui
 		{
 			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
 								e->y() * (frame_desc_.height / static_cast<float>(height())));
-			stft_slice_pos_update(QPoint(pos.x(), pos.y()));
+			stft_slice_pos_update(pos);
 		}
 		else if (selection_mode_ != STFT_SLICE)
 			slice_block_ = false;
@@ -365,6 +365,7 @@ namespace gui
 			case AUTOFOCUS:
 				emit autofocus_zone_selected(selection_);
 				selection_mode_ = ZOOM;
+				is_selection_enabled_ = false;
 				break;
 			case AVERAGE:
 				if (is_signal_selection_)
@@ -391,11 +392,13 @@ namespace gui
 					emit stft_roi_zone_selected_update(stft_roi_selection_);
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
+					is_selection_enabled_ = false;
 				}
-				else
+				else if (e->button() == Qt::RightButton)
 				{
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
+					is_selection_enabled_ = false;
 				}
 				break;
 			case STFT_SLICE:
