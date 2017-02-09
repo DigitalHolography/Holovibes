@@ -541,6 +541,7 @@ namespace gui
 		** \return path with _index up to 10^6
 		*/
 		std::string format_batch_output(const std::string& path, unsigned int index);
+		void cancel_stft_view(holovibes::ComputeDescriptor& cd);
 	#pragma endregion
 	/* ---------- */
 	#pragma region Fields
@@ -550,9 +551,9 @@ namespace gui
 		holovibes::Holovibes& holovibes_;
 		/*! OpenGL window */
 		std::unique_ptr<GuiGLWindow> gl_window_;
-		// TO DO
-		std::unique_ptr<GuiGLWindow> gl_win_stft_XZ;
-		//std::unique_ptr<GuiGLWindow> gl_win_stft_YZ;
+
+		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
+		std::unique_ptr<GuiGLWindow> gl_win_stft_1;
 
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;

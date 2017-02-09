@@ -13,7 +13,7 @@ namespace camera
 
   CameraPCOPixelfly::CameraPCOPixelfly()
     : CameraPCO("pixelfly.ini", CAMERATYPE_PCO_USBPIXELFLY)
-    , squared_buffer_(new WORD[2048 * 2048])
+	, squared_buffer_(new WORD[4194304]) // 2048 * 2048
   {
     name_ = "pixelfly";
 
@@ -23,8 +23,8 @@ namespace camera
 
 	if (ini_file_is_open())
 		ini_file_.close();
-
-    for (unsigned int i = 0; i < 2048 * 2048; ++i)
+	unsigned int frame_size = 4194304; // 2048 * 2048
+    for (unsigned int i = 0; i < frame_size; ++i)
       squared_buffer_[i] = 0;
   }
 

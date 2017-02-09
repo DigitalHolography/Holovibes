@@ -5,7 +5,7 @@
     <BoostLib>C:\local\boost_1_63_0</BoostLib>
     <QTDIR>C:\Qt\Qt5.8.0\5.8\msvc2015_64</QTDIR>
     <SolutionLibDir>$(SolutionDir)lib</SolutionLibDir>
-    <QWTDIR>C:\qwt-6.1.3</QWTDIR>
+    <QWTDIR>C:\Qt\qwt-6.1.3</QWTDIR>
   </PropertyGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>HolovibesPropertySheet</_PropertySheetDisplayName>

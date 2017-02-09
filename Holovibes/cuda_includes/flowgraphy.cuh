@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cuda_runtime.h>
-#include <iostream>
-#include <cufft.h>
+# include "cuda_shared.cuh"
 
 /*! \brief This function allows us to apply a flowgraphy algorithm to a given amount
 *   of frames. For every pixel of a frame, we take a given number of pixels around in 3 dimension
@@ -19,12 +17,11 @@
 * \param nframes Number of frames 
 * 
 */
-void convolution_flowgraphy(
-	cufftComplex* input,
-	cufftComplex* gpu_special_queue,
-	unsigned int &gpu_special_queue_start_index,
-	const unsigned int gpu_special_queue_max_index,
-	const unsigned int frame_resolution,
-	const unsigned int frame_width,
-	const unsigned int nframes,
-	cudaStream_t stream);
+void convolution_flowgraphy(complex			*input,
+							complex			*gpu_special_queue,
+							uint			&gpu_special_queue_start_index,
+							const uint		gpu_special_queue_max_index,
+							const uint		frame_resolution,
+							const uint		frame_width,
+							const uint		nframes,
+							cudaStream_t	stream);

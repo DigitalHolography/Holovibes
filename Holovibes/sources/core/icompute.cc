@@ -38,7 +38,8 @@ namespace holovibes
 		, gpu_kernel_buffer_(nullptr)
 		, gpu_special_queue_(nullptr)
 		, gpu_stft_queue_(nullptr)
-		, gpu_stft_slice_queue_(nullptr)
+		, gpu_stft_slice_queue_xz(nullptr)
+		, gpu_stft_slice_queue_yz(nullptr)
 		, gpu_ref_diff_queue_(nullptr)
 		, gpu_filter2d_buffer(nullptr)
 		, plan3d_(0)
@@ -207,7 +208,8 @@ namespace holovibes
 		/* gpu_stft_queue */
 		delete gpu_stft_queue_;
 
-		delete gpu_stft_slice_queue_;
+		delete gpu_stft_slice_queue_xz;
+		delete gpu_stft_slice_queue_yz;
 
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
@@ -330,23 +332,33 @@ namespace holovibes
 
 	void	ICompute::delete_stft_slice_queue()
 	{
-		if (gpu_stft_slice_queue_)
+		if (gpu_stft_slice_queue_xz)
 		{
-			delete gpu_stft_slice_queue_;
-			gpu_stft_slice_queue_ = nullptr;
+			delete gpu_stft_slice_queue_xz;
+			gpu_stft_slice_queue_xz = nullptr;
+		}
+		if (gpu_stft_slice_queue_yz)
+		{
+			delete gpu_stft_slice_queue_yz;
+			gpu_stft_slice_queue_yz = nullptr;
 		}
 	}
 
 	void	ICompute::create_stft_slice_queue()
 	{
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		new_fd.depth = 2;
-		gpu_stft_slice_queue_ = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+		new_fd.height = compute_desc_.nsamples;
+		new_fd.depth = 2.f;
+		gpu_stft_slice_queue_xz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+		gpu_stft_slice_queue_yz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
 	}
 
-	Queue&	ICompute::get_stft_slice_queue()
+	Queue&	ICompute::get_stft_slice_queue(int i)
 	{
-		return *gpu_stft_slice_queue_;
+		if (!i)
+			return *gpu_stft_slice_queue_xz;
+		else
+			return *gpu_stft_slice_queue_yz;
 	}
 
 	void ICompute::refresh()
@@ -694,6 +706,9 @@ namespace holovibes
 
 	void ICompute::stft_handler(cufftComplex* input, cufftComplex* output)
 	{
+		static ushort mouse_x;
+		static ushort mouse_y;
+
 		stft_frame_counter--;
 		bool b = false;
 		if (stft_frame_counter == 0)
@@ -732,19 +747,25 @@ namespace holovibes
 		}
 		if (compute_desc_.stft_view_enabled)
 		{
-			camera::FrameDescriptor fd = gpu_stft_slice_queue_->get_frame_desc();
+			// Conservation of the coordinates when cursor is outside of the window
 			QPoint cursorPos;
 			compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
-			stft_view_begin(
-				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_->get_last_images(1)),
+			const ushort width = input_.get_frame_desc().width;
+			const ushort height = input_.get_frame_desc().height ;
+			if (cursorPos.x() < width && cursorPos.y() < height)
+			{
+				mouse_x = cursorPos.x();
+				mouse_y = cursorPos.y();
+			}
+			// -----------------------------------------------------
+			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+				static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+				static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
 				cursorPos.x(),
 				cursorPos.y(),
-				fd.frame_res(),
-				input_.get_frame_desc().width,
-				input_.get_frame_desc().height,
-				compute_desc_.nsamples.load()
-				);
+				width,
+				height,
+				compute_desc_.nsamples.load());
 		}
 	}
 

@@ -32,6 +32,7 @@ namespace gui
 		, py_(0.0f)
 		, zoom_ratio_(1.0f)
 		, parent_(parent)
+		, slice_block_(false)
 	{
 		this->setObjectName("GLWidgetSlice");
 		this->resize(QSize(width, height));
@@ -87,7 +88,7 @@ namespace gui
 
 	void GLWidgetSlice::view_move_left()
 	{
-		px_ += -0.1f / zoom_ratio_;
+		px_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidgetSlice::view_move_right()
@@ -97,7 +98,7 @@ namespace gui
 
 	void GLWidgetSlice::view_move_up()
 	{
-		py_ += -0.1f / zoom_ratio_;
+		py_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidgetSlice::view_zoom_out()
@@ -112,7 +113,12 @@ namespace gui
 		glScalef(0.9f, 0.9f, 0.9f);
 	}
 
-	QSize GLWidgetSlice::minimumSizeHint() const
+	void GLWidget::block_slice()
+	{
+			slice_block_ = !slice_block_;
+	}
+
+	QSize GLWidget::minimumSizeHint() const
 	{
 		return QSize(width_, height_);
 	}
@@ -137,7 +143,7 @@ namespace gui
 		//frame_desc_.frame_size();
 		unsigned int size = frame_desc_.frame_size();
 		if (frame_desc_.depth == 4 || frame_desc_.depth == 8)
-			size /= 2;
+			size >>= 1;
 
 
 		/* Creates and initialize a buffer object's data store. */
@@ -235,6 +241,7 @@ namespace gui
 			const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
 			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
+			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
 
 			switch (selection_mode_)
 			{
@@ -251,6 +258,9 @@ namespace gui
 			case STFT_ROI:
 				selection_rect(selection_, stft_roi_color);
 				break;
+			case STFT_SLICE:
+				selection_rect(selection_, stft_slice_color);// You can do something here like rectangle selection (have fun...)
+				break;
 			default:
 				break;
 			}
@@ -261,16 +271,18 @@ namespace gui
 
 	void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::LeftButton)
+		if (e->buttons() == Qt::LeftButton)
 		{
+			if (selection_mode_ == STFT_SLICE && !slice_block_)
+				return;
 			is_selection_enabled_ = true;
 			selection_.setTopLeft(QPoint(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height()));
+			selection_.setBottomRight(selection_.topLeft());
 		}
-		/*else
-		if (selection_mode_ == ZOOM)
-			dezoom();*/
+		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
+			dezoom();
 	}
 
 	void GLWidgetSlice::mouseMoveEvent(QMouseEvent* e)
@@ -293,11 +305,18 @@ namespace gui
 				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
 				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
 					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
-
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottom_right.x = selection_.top_left.x + max * (((selection_.top_left.x < selection_.bottom_right.x) << 1) - 1);
+				selection_.bottom_right.y = selection_.top_left.y + max * (((selection_.top_left.y < selection_.bottom_right.y) << 1) - 1);
 			}
 		}*/
+		if (selection_mode_ == STFT_SLICE && !slice_block_)
+		{
+			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
+								e->y() * (frame_desc_.height / static_cast<float>(height())));
+			stft_slice_pos_update(pos);
+		}
+		else if (selection_mode_ != STFT_SLICE)
+			slice_block_ = false;
 	}
 
 	void GLWidgetSlice::mouseReleaseEvent(QMouseEvent* e)
@@ -314,8 +333,8 @@ namespace gui
 				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
 					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
 
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) * 2 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) * 2 - 1);
+				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) << 1 - 1);
+				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
 			}
 
 			selection_.bottom_left = holovibes::Point2D(
@@ -334,6 +353,7 @@ namespace gui
 			case AUTOFOCUS:
 				emit autofocus_zone_selected(selection_);
 				selection_mode_ = ZOOM;
+				is_selection_enabled_ = false;
 				break;
 			case AVERAGE:
 				if (is_signal_selection_)
@@ -350,7 +370,6 @@ namespace gui
 				break;
 			case ZOOM:
 				is_selection_enabled_ = false;
-
 				if (selection_.top_left != selection_.bottom_right)
 					zoom(selection_);
 				break;
@@ -361,12 +380,17 @@ namespace gui
 					emit stft_roi_zone_selected_update(stft_roi_selection_);
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
+					is_selection_enabled_ = false;
 				}
-				else
+				else if (e->button() == Qt::RightButton)
 				{
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
+					is_selection_enabled_ = false;
 				}
+				break;
+			case STFT_SLICE:
+				is_selection_enabled_ = false;
 				break;
 			default:
 				break;
@@ -390,7 +414,6 @@ namespace gui
 		nstarty /= zoom_ratio_;
 		nendx /= zoom_ratio_;
 		nendy /= zoom_ratio_;
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -448,8 +471,8 @@ namespace gui
 			static_cast<float>(selection.topLeft().y()));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
-		px_ += -px / zoom_ratio_ / 2;
-		py_ += py / zoom_ratio_ / 2;
+		px_ += -px / zoom_ratio_ * 0.5;
+		py_ += py / zoom_ratio_ * 0.5;
 		zoom_ratio_ *= min_ratio;
 
 		glScalef(min_ratio, min_ratio, 1.0f);

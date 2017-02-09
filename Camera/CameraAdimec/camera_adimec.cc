@@ -26,10 +26,10 @@ namespace camera
 
 		load_default_params();
 		if (ini_file_is_open())
+		{
 			load_ini_params();
-
-		if (ini_file_is_open())
 			ini_file_.close();
+		}
 	}
 
 	void CameraAdimec::init_camera()
@@ -180,8 +180,8 @@ namespace camera
 
 		roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
 		roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
-		roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
-		roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
+		//roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
+		//roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
 	}
 
 	void CameraAdimec::bind_params()
@@ -194,13 +194,21 @@ namespace camera
 
 		 /* Frame period should be set before exposure time, because the latter
 		  * depends of the former. */
-		if (BFCXPWriteReg(board_, 0xFF, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
+
+		if (BFCXPWriteReg(board_, CloseFlag::ALL, RegAdress::FRAME_PERIOD, frame_period_) != BF_OK)
 			std::cerr << "[CAMERA] Could not set frame period to " << frame_period_ << std::endl;
 
-		if (BFCXPWriteReg(board_, 0xFF, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
+		if (BFCXPWriteReg(board_, CloseFlag::ALL, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
 			std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
-		/* ROI : Find a software alternative in Bi or rely solely on .bfml files. */
+		/* After setup the profiles of the camera in SysReg, these lines are reading into the registers of the camera to set the good */
+		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_WIDTH, &roi_width_) != BF_OK)
+			std::cerr << "[CAMERA] Could not read the roi width into the registers of the camera " << std::endl;
+
+		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_HEIGHT, &roi_height_) != BF_OK)
+			std::cerr << "[CAMERA] Could not read the roi height into the registers of the camera " << std::endl;
+		desc_.width = roi_width_;
+		desc_.height = roi_height_;
 	}
 
 	ICamera* new_camera_device()

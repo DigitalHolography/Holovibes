@@ -78,7 +78,7 @@ namespace holovibes
 		if (compute_desc_.stft_enabled)
 			/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
 			cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * 2);
+			sizeof(cufftComplex)* input_.get_pixels() << 1);
 		else
 			cudaMalloc<cufftComplex>(&gpu_input_buffer_,
 			sizeof(cufftComplex)* input_.get_pixels() * input_length_);
@@ -419,7 +419,7 @@ namespace holovibes
 				complex_to_complex,
 				gpu_input_frame_ptr_,
 				gpu_output_buffer_,
-				input_fd.frame_res() * 8,
+				input_fd.frame_res() << 3, // frame_res() * 8
 				static_cast<cudaStream_t>(0)));
 			return;
 		}

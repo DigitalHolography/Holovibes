@@ -1,18 +1,19 @@
-/*! \file
- *
- * Functions that are called before any editing is done on the images.
- */
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-#include "compute_descriptor.hh"
-
-/* Forward declaration. */
-namespace holovibes
-{
-  class Queue;
-}
+# include "cuda_shared.cuh"
+# include "compute_descriptor.hh"
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
 * range 0 to n.
@@ -21,9 +22,9 @@ namespace holovibes
 * \param output Array of the sqrt values form 0 to n - 1,
 * this array should have size greater or equal to n.
 */
-void make_sqrt_vect(float* out,
-  const unsigned short n,
-  cudaStream_t stream = 0);
+void make_sqrt_vect(float			*out,
+					const			ushort n,
+					cudaStream_t	stream = 0);
 
 /*! \brief Ensure the contiguity of images extracted from
  * the queue for any further processing.
@@ -46,8 +47,7 @@ void make_sqrt_vect(float* out,
  * this function would need an unsigned short buffer that is unused
  * anywhere else.
  */
-void make_contiguous_complex(
-  holovibes::Queue& input,
-  cufftComplex* output,
-  const unsigned int n,
-  cudaStream_t stream = 0);
+void make_contiguous_complex(	holovibes::Queue&	input,
+								complex				*output,
+								const uint			n,
+								cudaStream_t		stream = 0);

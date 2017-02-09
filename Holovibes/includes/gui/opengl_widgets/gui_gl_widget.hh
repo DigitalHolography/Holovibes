@@ -114,6 +114,7 @@ namespace gui
 		void view_move_up();
 		void view_zoom_in();
 		void view_zoom_out();
+		void block_slice();
 		/*! \} */
 
 	signals:
@@ -225,6 +226,7 @@ namespace gui
 		QShortcut *num_8_shortcut;
 		QShortcut *key_plus_shortcut;
 		QShortcut *key_minus_shortcut;
+		QShortcut *key_space_shortcut;
 		/*! \} */
 
 	private:
@@ -273,5 +275,7 @@ namespace gui
 		 * Use only in debug mode, glGetError is slow and should be avoided
 		 */
 		void gl_error_checking();
+
+		std::atomic<bool>	slice_block_;
 	};
 }

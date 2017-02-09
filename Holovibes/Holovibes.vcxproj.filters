@@ -290,6 +290,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_slice_widget.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
@@ -442,6 +448,9 @@
     <ClInclude Include="cuda_includes\texture_update.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_shared.cuh">
+      <Filter>cuda includes</Filter>
+	</ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
