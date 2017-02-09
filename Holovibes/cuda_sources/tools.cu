@@ -171,7 +171,7 @@ void frame_memcpy(	float						*input,
 					const uint					output_width,
 					cudaStream_t				stream)
 {
-	const float	*zone_ptr = input + (zone.top_left.y * input_width + zone.top_left.x);
+	const float	*zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
 	const uint	output_width_float = output_width * sizeof(float);
 	cudaMemcpy2DAsync(	output,
 						output_width_float,

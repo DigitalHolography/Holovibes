@@ -27,7 +27,7 @@ namespace camera
 		{
 			// Make sure the camera is closed at program exit.
 			// shutdown camera
-			BiBrdClose(board_);
+			//BiBrdClose(board_);
 		}
 
 		virtual void init_camera() override;

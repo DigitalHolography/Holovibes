@@ -35,8 +35,7 @@ void textureUpdate(	cudaSurfaceObject_t cuSurface,
 					unsigned short height)
 {
 	dim3 threads(32, 32);
-	dim3 blocks(width >> 5, height >> 5);
+	dim3 blocks(width >> 5, height >> 5); // >> 5 == /= 32
 
-	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<unsigned short*>(frame),
-		cuSurface, dim3(width, height));
+	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<unsigned short*>(frame), cuSurface, dim3(width, height));
 }

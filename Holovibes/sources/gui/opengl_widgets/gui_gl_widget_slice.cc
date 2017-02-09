@@ -32,7 +32,6 @@ namespace gui
 		, py_(0.0f)
 		, zoom_ratio_(1.0f)
 		, parent_(parent)
-		, slice_block_(false)
 	{
 		this->setObjectName("GLWidgetSlice");
 		this->resize(QSize(width, height));
@@ -113,12 +112,7 @@ namespace gui
 		glScalef(0.9f, 0.9f, 0.9f);
 	}
 
-	void GLWidget::block_slice()
-	{
-			slice_block_ = !slice_block_;
-	}
-
-	QSize GLWidget::minimumSizeHint() const
+	QSize GLWidgetSlice::minimumSizeHint() const
 	{
 		return QSize(width_, height_);
 	}
@@ -271,18 +265,7 @@ namespace gui
 
 	void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->buttons() == Qt::LeftButton)
-		{
-			if (selection_mode_ == STFT_SLICE && !slice_block_)
-				return;
-			is_selection_enabled_ = true;
-			selection_.setTopLeft(QPoint(
-				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height()));
-			selection_.setBottomRight(selection_.topLeft());
-		}
-		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
-			dezoom();
+	
 	}
 
 	void GLWidgetSlice::mouseMoveEvent(QMouseEvent* e)
@@ -309,14 +292,6 @@ namespace gui
 				selection_.bottom_right.y = selection_.top_left.y + max * (((selection_.top_left.y < selection_.bottom_right.y) << 1) - 1);
 			}
 		}*/
-		if (selection_mode_ == STFT_SLICE && !slice_block_)
-		{
-			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
-								e->y() * (frame_desc_.height / static_cast<float>(height())));
-			stft_slice_pos_update(pos);
-		}
-		else if (selection_mode_ != STFT_SLICE)
-			slice_block_ = false;
 	}
 
 	void GLWidgetSlice::mouseReleaseEvent(QMouseEvent* e)

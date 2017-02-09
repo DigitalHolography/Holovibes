@@ -142,6 +142,7 @@
     <ClInclude Include="cuda_includes\average.cuh" />
     <ClInclude Include="cuda_includes\contrast_correction.cuh" />
     <ClInclude Include="cuda_includes\convolution.cuh" />
+    <ClInclude Include="cuda_includes\cuda_shared.cuh" />
     <ClInclude Include="cuda_includes\fft1.cuh" />
     <ClInclude Include="cuda_includes\fft2.cuh" />
     <ClInclude Include="cuda_includes\filter2D.cuh" />
@@ -430,7 +431,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="GeneratedFiles\Release\moc_basic_widget.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

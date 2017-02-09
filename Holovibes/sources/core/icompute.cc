@@ -346,11 +346,11 @@ namespace holovibes
 
 	void	ICompute::create_stft_slice_queue()
 	{
-		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		new_fd.height = compute_desc_.nsamples;
-		new_fd.depth = 2.f;
-		gpu_stft_slice_queue_xz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
-		gpu_stft_slice_queue_yz = new holovibes::Queue(new_fd, compute_desc_.nsamples, "STFT View queue");
+		camera::FrameDescriptor fd = input_.get_frame_desc();
+		fd.height = compute_desc_.nsamples;
+		fd.depth = 2.f;
+		gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples, "STFT View queue");
+		gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples, "STFT View queue");
 	}
 
 	Queue&	ICompute::get_stft_slice_queue(int i)
@@ -752,7 +752,8 @@ namespace holovibes
 			compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
 			const ushort width = input_.get_frame_desc().width;
 			const ushort height = input_.get_frame_desc().height ;
-			if (cursorPos.x() < width && cursorPos.y() < height)
+			if (cursorPos.x() < width && cursorPos.y() < height &&
+				cursorPos.x() > 0 && cursorPos.y() > 0)
 			{
 				mouse_x = cursorPos.x();
 				mouse_y = cursorPos.y();
@@ -761,8 +762,8 @@ namespace holovibes
 			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
 				static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
 				static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-				cursorPos.x(),
-				cursorPos.y(),
+				mouse_x,
+				mouse_y,
 				width,
 				height,
 				compute_desc_.nsamples.load());

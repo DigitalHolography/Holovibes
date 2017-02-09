@@ -100,8 +100,8 @@ void	stft_view_begin(const complex	*input,
 						const uint		depth)
 {
 	uint frame_size = width * height;
-	uint output_size_xz = width * depth;
-	uint output_size_yz = height * depth;
+	uint output_size_xz = width * depth - 1;
+	uint output_size_yz = height * depth - 1;
 	uint threads = get_max_threads_1d();
 	uint blocks_xz = map_blocks_to_problem(output_size_xz, threads);
 	uint blocks_yz = map_blocks_to_problem(output_size_yz, threads);

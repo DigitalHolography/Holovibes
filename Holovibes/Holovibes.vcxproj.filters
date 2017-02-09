@@ -448,9 +448,9 @@
     <ClInclude Include="cuda_includes\texture_update.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_shared.cuh">
+    <ClInclude Include="cuda_includes\cuda_shared.cuh">
       <Filter>cuda includes</Filter>
-	</ClInclude>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">

@@ -34,6 +34,7 @@ namespace gui
 		, py_(0.0f)
 		, zoom_ratio_(1.0f)
 		, parent_(parent)
+		, slice_block_(false)
 	{
 		this->setObjectName("GLWidget");
 		this->resize(QSize(width, height));
@@ -67,10 +68,24 @@ namespace gui
 		key_minus_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
 		key_minus_shortcut->setContext(Qt::ApplicationShortcut);
 		connect(key_minus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));
+
+		key_space_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+		key_space_shortcut->setContext(Qt::ApplicationShortcut);
+		connect(key_space_shortcut, SIGNAL(activated()), this, SLOT(block_slice()));
+
+		setMouseTracking(true);
 	}
 
 	GLWidget::~GLWidget()
 	{
+		delete key_space_shortcut;
+		delete key_minus_shortcut;
+		delete key_plus_shortcut;
+		delete num_8_shortcut;
+		delete num_6_shortcut;
+		delete num_4_shortcut;
+		delete num_2_shortcut;
+
 		makeCurrent();
 		/* Unregister buffer for access by CUDA. */
 		cudaGraphicsUnregisterResource(cuda_buffer_);
@@ -114,11 +129,16 @@ namespace gui
 		glScalef(0.9f, 0.9f, 0.9f);
 	}
 
+	void GLWidget::block_slice()
+	{
+		slice_block_.exchange(!slice_block_);
+	}
+
 	QSize GLWidget::minimumSizeHint() const
 	{
 		return QSize(width_, height_);
 	}
-
+	
 	QSize GLWidget::sizeHint() const
 	{
 		return QSize(width_, height_);
@@ -238,6 +258,7 @@ namespace gui
 			const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
 			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
 			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
+			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
 
 			switch (selection_mode_)
 			{
@@ -255,7 +276,7 @@ namespace gui
 				selection_rect(selection_, stft_roi_color);
 				break;
 			case STFT_SLICE:
-				// You can do something here like rectangle selection (have fun...)
+				selection_rect(selection_, stft_slice_color);
 				break;
 			default:
 				break;
@@ -267,18 +288,19 @@ namespace gui
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::LeftButton)
+		if (e->buttons() == Qt::LeftButton)
 		{
-			is_selection_enabled_ = true;
-			selection_.setTopLeft(QPoint(
-				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height()));
+			if (selection_mode_ == STFT_SLICE && slice_block_)
+			{
+				is_selection_enabled_ = true;
+				selection_.setTopLeft(QPoint(
+					(e->x() * frame_desc_.width) / width(),
+					(e->y() * frame_desc_.height) / height()));
+				selection_.setBottomRight(selection_.topLeft());
+			}
 		}
-		else if (selection_mode_ == ZOOM)
+		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
 			dezoom();
-		if (selection_mode_ == STFT_SLICE)
-			stft_slice_pos_update(e->pos() / 2);
-			
 	}
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -310,8 +332,17 @@ namespace gui
 					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
 			}
 		}
-		if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
-			stft_slice_pos_update(e->pos() / 2);
+		//if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
+			//stft_slice_pos_update(e->pos() / 2);
+
+		if (selection_mode_ == STFT_SLICE && !slice_block_)
+		{
+			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
+				e->y() * (frame_desc_.height / static_cast<float>(height())));
+			stft_slice_pos_update(pos);
+		}
+		else if (selection_mode_ != STFT_SLICE)
+			slice_block_.exchange(false);
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -352,6 +383,7 @@ namespace gui
 			case AUTOFOCUS:
 				emit autofocus_zone_selected(selection_);
 				selection_mode_ = ZOOM;
+				is_selection_enabled_ = false;
 				break;
 			case AVERAGE:
 				if (is_signal_selection_)
@@ -371,8 +403,9 @@ namespace gui
 				is_signal_selection_ = !is_signal_selection_;
 				break;
 			case ZOOM:
+				if (selection_.topLeft() != selection_.topRight())
+					zoom(selection_);
 				is_selection_enabled_ = false;
-
 				if (selection_.topLeft() != selection_.bottomRight())
 					zoom(selection_);
 				break;
@@ -389,6 +422,10 @@ namespace gui
 					emit stft_roi_zone_selected_end();
 					selection_mode_ = ZOOM;
 				}
+				is_selection_enabled_ = false;
+				break;
+			case STFT_SLICE:
+				is_selection_enabled_ = false;
 				break;
 			default:
 				break;

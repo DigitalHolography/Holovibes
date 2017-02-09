@@ -47,7 +47,7 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 
-		move(QPoint(520, 545));
+		move(QPoint(520, 542));
 
 		// Hide non default tab
 		gui::GroupBox	*special_group_box = findChild<gui::GroupBox*>("Vibrometry");
@@ -118,7 +118,7 @@ namespace gui
 
 		gl_win_stft_0.reset(nullptr);
 		gl_win_stft_1.reset(nullptr);
-		holovibes_.get_pipe()->delete_stft_slice_queue();
+		//holovibes_.get_pipe()->delete_stft_slice_queue(); // Crash
 
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
@@ -2035,14 +2035,17 @@ namespace gui
 	{
 		close_critical_compute();
 		// Avoiding "unused variable" warning.
-		static_cast<void>(event);
+		static_cast<void*>(event);
 		save_ini("holovibes.ini");
 
 		if (gl_window_)
 			gl_window_->close();
 
-		if (gl_win_stft_XZ)
-			gl_win_stft_XZ->close();
+		if (gl_win_stft_0)
+			gl_win_stft_0->close();
+
+		if (gl_win_stft_1)
+			gl_win_stft_1->close();
 
 		if (plot_window_)
 			plot_window_->close();
@@ -2730,7 +2733,7 @@ namespace gui
 			holovibes_.get_pipe()->create_stft_slice_queue();
 			// set positions of new windows according to the position of the main GL window
 			QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
-			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 33);
+			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
 			// window slice_xz (down window)
 			gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
 												gl_window_->width(),
@@ -2745,6 +2748,7 @@ namespace gui
 												holovibes_,
 												holovibes_.get_pipe()->get_stft_slice_queue(1),
 												GuiGLWindow::window_kind::SLICE_VIEW));
+			
 			/* gui */
 			gl_window_->setCursor(Qt::CrossCursor);
 			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
