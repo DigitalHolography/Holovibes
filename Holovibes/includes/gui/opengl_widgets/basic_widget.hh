@@ -25,7 +25,7 @@
 # include "tools_conversion.cuh"
 
 #ifndef vertCoord
-# define vertCoord 0.85f
+# define vertCoord 1.0f
 #endif
 #ifndef texCoord
 # define texCoord 1.0f

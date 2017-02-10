@@ -13,10 +13,10 @@
 #include "options_descriptor.hh"
 #include "gui_tool.hh"
 
-namespace gui
-{
-	class MainWindowAccessor;
-}
+//namespace gui
+//{
+//	class MainWindowAccessor;
+//}
 
 int main(int argc, char* argv[])
 {

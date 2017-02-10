@@ -75,7 +75,7 @@ namespace holovibes
 
 	void ComputeDescriptor::stftCursor(QPoint *p, t_access mode)
 	{
-		holovibes::guard g(mutex_);
+		guard g(mutex_);
 		if (mode == Get)
 		{
 			*p = stft_slice_cursor;
@@ -88,7 +88,7 @@ namespace holovibes
 
 	void ComputeDescriptor::signalZone(Rectangle *rect, t_access mode)
 	{
-		holovibes::guard g(mutex_);
+		guard g(mutex_);
 		if (mode == Get)
 		{
 			*rect = signal_zone;
@@ -101,7 +101,7 @@ namespace holovibes
 
 	void ComputeDescriptor::noiseZone(Rectangle *rect, t_access mode)
 	{
-		holovibes::guard g(mutex_);
+		guard g(mutex_);
 		if (mode == Get)
 		{
 			*rect = noise_zone;
@@ -114,7 +114,7 @@ namespace holovibes
 
 	void ComputeDescriptor::autofocusZone(Rectangle *rect, t_access mode)
 	{
-		holovibes::guard g(mutex_);
+		guard g(mutex_);
 		if (mode == Get)
 		{
 			*rect = autofocus_zone;
@@ -127,7 +127,7 @@ namespace holovibes
 
 	void ComputeDescriptor::stftRoiZone(Rectangle *rect, t_access mode)
 	{
-		holovibes::guard g(mutex_);
+		guard g(mutex_);
 		if (mode == Get)
 		{
 			*rect = stft_roi_zone;

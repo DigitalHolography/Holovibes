@@ -14,10 +14,10 @@
 # include "holovibes.hh"
 
 /* Forward declaration. */
-namespace holovibes
-{
-	class Queue;
-}
+//namespace holovibes
+//{
+//	class Queue;
+//}
 
 namespace gui
 {

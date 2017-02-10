@@ -3,13 +3,13 @@
  * Common functionalities to all cameras.*/
 #pragma once
 
+//# include <string>
+//# include <fstream>
+# include <boost/property_tree/ini_parser.hpp>
+//# include <boost/property_tree/ptree.hpp>
+# include <Windows.h>
 # include <icamera.hh>
 # include <frame_desc.hh>
-# include <string>
-# include <fstream>
-# include <boost/property_tree/ini_parser.hpp>
-# include <boost/property_tree/ptree.hpp>
-# include <Windows.h>
 
 namespace camera
 {

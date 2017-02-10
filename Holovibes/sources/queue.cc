@@ -4,9 +4,10 @@
 #include "info_manager.hh"
 #include <stdexcept>
 
+using guard = std::lock_guard<std::mutex>;
+
 namespace holovibes
 {
-	using guard = std::lock_guard<std::mutex>;
 
 	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)
 		: frame_desc_(frame_desc)
@@ -17,7 +18,7 @@ namespace holovibes
 		, start_(0)
 		, display_(true)
 		, is_big_endian_(frame_desc.depth >= 2 &&
-		frame_desc.endianness == camera::BIG_ENDIAN)
+			frame_desc.endianness == camera::BIG_ENDIAN)
 		, name_(name)
 	{
 		if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
@@ -121,8 +122,8 @@ namespace holovibes
 			start_ = (start_ + 1) % max_elts_;
 		if (display_)
 			gui::InfoManager::update_info_safe(name_,
-			std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-			+ std::string(" (") + calculate_size() + std::string(" MB)"));
+				std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+				+ std::string(" (") + calculate_size() + std::string(" MB)"));
 		return true;
 	}
 
@@ -136,8 +137,8 @@ namespace holovibes
 			--curr_elts_;
 			if (display_)
 				gui::InfoManager::update_info_safe(name_,
-				std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-				+ std::string(" (") + calculate_size() + std::string(" MB)"));
+					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+					+ std::string(" (") + calculate_size() + std::string(" MB)"));
 		}
 	}
 

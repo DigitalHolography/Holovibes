@@ -24,10 +24,10 @@ namespace holovibes
   class ComputeDescriptor;
 }
 
-namespace gui
-{
-	class MainWindowAccessor;
-}
+//namespace gui
+//{
+//	class MainWindowAccessor;
+//}
 
 namespace holovibes
 {

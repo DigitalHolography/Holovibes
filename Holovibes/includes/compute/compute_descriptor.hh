@@ -10,11 +10,12 @@
 # include "observable.hh"
 # include "geometry.hh"
 
+using guard = std::lock_guard<std::mutex>;
+
 namespace holovibes
 {
 	const static std::string version = "v4.0.0"; /*!< Current version of this project. */
 
-	using guard = std::lock_guard<std::mutex>;
 
 	/*! \brief Contains compute parameters.
 	 *
