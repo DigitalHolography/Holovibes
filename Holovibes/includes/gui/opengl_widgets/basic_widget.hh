@@ -21,7 +21,6 @@
 # include <cuda_gl_interop.h>
 # include <qtimer.h>
 
-# include "holovibes.hh"
 # include "tools_conversion.cuh"
 
 #ifndef vertCoord
@@ -51,19 +50,17 @@ namespace gui {
 			// OpenGL Objects
 			QOpenGLVertexArrayObject	Vao;
 			GLuint	Vbo, Ebo;
-			GLuint	Tex; // , Pbo;
+			GLuint	Tex;
 
 			// OpenGL Shaders Objects
 			QOpenGLShaderProgram	*Program;
-			QOpenGLShader			*Vertex;
-			QOpenGLShader			*Fragment;
+			QOpenGLShader	*Vertex;
+			QOpenGLShader	*Fragment;
 			
-			virtual void initShaders() = 0;
-			virtual void initTexture() = 0;
-
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;
+
 		private:
 			QTimer	timer;
 	};

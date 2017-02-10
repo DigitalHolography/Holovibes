@@ -21,7 +21,7 @@ namespace gui {
 							cuResource(nullptr),
 							Vao(0),
 							Vbo(0), Ebo(0),
-							Tex(0),// Pbo(0),
+							Tex(0),
 							Program(nullptr), Vertex(nullptr), Fragment(nullptr),
 							timer(this)
 	{
@@ -42,7 +42,6 @@ namespace gui {
 		if (Ebo) glDeleteBuffers(1, &Ebo);
 		if (Vbo) glDeleteBuffers(1, &Vbo);
 		if (Tex) glDeleteBuffers(1, &Tex);
-		//if (Pbo) glDeleteBuffers(1, &Pbo);
 		Vao.destroy();
 
 		delete Fragment;

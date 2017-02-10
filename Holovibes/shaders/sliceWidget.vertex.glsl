@@ -10,30 +10,24 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#version 450
 
-#include "queue.hh"
-#include "basic_widget.hh"
+layout(location = 0) in vec2	xy;
+layout(location = 1) in vec2	uv;
+uniform float	angle;
 
-namespace gui {
-	
-	class SliceWidget : public BasicWidget
-	{
-		public:
-			SliceWidget(holovibes::Queue& q,
-						const uint w, const uint h, QWidget* parent = 0);
-			virtual ~SliceWidget();
+out vec2	texCoord;
 
-		protected:
-
-			holovibes::Queue&				HQueue;
-			const camera::FrameDescriptor&  Fd;
-
-			const float angle;
-
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-	};
-
+mat2 rotate2d(float _angle){
+    return mat2(cos(_angle),-sin(_angle),
+                sin(_angle),cos(_angle));
 }
+
+void main()
+{
+    texCoord = uv;
+    gl_Position = vec4(xy * rotate2d(angle), 0.0f, 1.0f);
+    //gl_Position = vec4(xy * rotate2d(1.5708f), 0.0f, 1.0f);
+}
+
+// 1 rad = (M_PI / 180.)

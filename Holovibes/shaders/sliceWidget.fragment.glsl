@@ -10,30 +10,13 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#version 450
 
-#include "queue.hh"
-#include "basic_widget.hh"
+in vec2	texCoord;
+out vec4	out_color;
+uniform sampler2D	tex;
 
-namespace gui {
-	
-	class SliceWidget : public BasicWidget
-	{
-		public:
-			SliceWidget(holovibes::Queue& q,
-						const uint w, const uint h, QWidget* parent = 0);
-			virtual ~SliceWidget();
-
-		protected:
-
-			holovibes::Queue&				HQueue;
-			const camera::FrameDescriptor&  Fd;
-
-			const float angle;
-
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-	};
-
+void main()
+{
+	out_color = texture(tex, texCoord);
 }
