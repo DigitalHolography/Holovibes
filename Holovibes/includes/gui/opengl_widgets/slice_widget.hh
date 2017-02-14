@@ -21,7 +21,8 @@ namespace gui {
 	{
 		public:
 			SliceWidget(holovibes::Queue& q,
-						const uint w, const uint h, QWidget* parent = 0);
+						const uint w, const uint h,
+						float a, QWidget* parent = 0);
 			virtual ~SliceWidget();
 
 		protected:
@@ -29,7 +30,7 @@ namespace gui {
 			holovibes::Queue&				HQueue;
 			const camera::FrameDescriptor&  Fd;
 
-			//const float angle;
+			float angle;
 
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);

@@ -292,11 +292,11 @@ namespace gui
 		{
 			if (selection_mode_ == STFT_SLICE && !slice_block_)
 				return;
-			is_selection_enabled_ = true;
 			selection_.setTopLeft(QPoint(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height()));
 			selection_.setBottomRight(selection_.topLeft());
+			is_selection_enabled_ = true;
 		}
 		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
 			dezoom();
@@ -331,9 +331,6 @@ namespace gui
 					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
 			}
 		}
-		//if (selection_mode_ == STFT_SLICE && e->buttons() == Qt::LeftButton)
-			//stft_slice_pos_update(e->pos() / 2);
-
 		if (selection_mode_ == STFT_SLICE && !slice_block_)
 		{
 			QPoint pos = QPoint(e->x() * (frame_desc_.width / static_cast<float>(width())),
@@ -404,9 +401,9 @@ namespace gui
 			case ZOOM:
 				if (selection_.topLeft() != selection_.topRight())
 					zoom(selection_);
-				is_selection_enabled_ = false;
 				if (selection_.topLeft() != selection_.bottomRight())
 					zoom(selection_);
+				is_selection_enabled_ = false;
 				break;
 			case STFT_ROI:
 				if (e->button() == Qt::LeftButton)

@@ -8,6 +8,7 @@ namespace gui
 	GuiGLWindow::GuiGLWindow(const QPoint& pos,
 		const unsigned int width,
 		const unsigned int height,
+		float rotation,
 		holovibes::Holovibes& h,
 		holovibes::Queue& q,
 		window_kind wk,
@@ -45,7 +46,7 @@ namespace gui
 			gl_widget_.reset(new GLWidget(h, q, width, height, this));
 			gl_widget_->show();
 		}
-		else
+		else if (wk == window_kind::SLICE_VIEW)
 		{
 			Ui::GLSliceWindow ui;
 			ui.setupUi(this);
@@ -53,7 +54,7 @@ namespace gui
 			this->resize(QSize(width, height));
 			this->show();
 			//gl_widget_.reset(new GLWidgetSlice(h, q, width, height, this));
-			widget.reset(new SliceWidget(q, width, height, this));
+			widget.reset(new SliceWidget(q, width, height, rotation, this));
 			widget->show();
 		}
 	}

@@ -1,94 +1,29 @@
-/*! \file
- *
- * Store the 'Point' and the 'Rectangle' structures. */
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #pragma once
 
 # include <qrect.h>
 
 namespace holovibes
 {
-	/*! Point in 2D */
-	struct Point2D
+	class Rectangle : public QRect
 	{
-		int x;
-		int y;
+		public:
+			Rectangle();
+			Rectangle(const Rectangle& rect);
+			Rectangle(const QPoint &topleft, const QSize &size);
+			Rectangle(const unsigned int width, const unsigned int height);
 
-		/*! Construct a Point2D. */
-		Point2D();
-		/*! Construct a Point2D with another Point2D. */
-		Point2D(const Point2D& p);
-		/*! Construct a Point2D with two coordinates. */
-		Point2D(const int xcoord, const int ycoord);
-		/*! Assignement operator. */
-		Point2D& operator=(const Point2D& p);
-		/*! Unequality operator. */
-		bool operator!=(const Point2D& p);
-	};
-
-	/*! \brief Rectangle used for selections
-	 *
-	 * Even though 4 points do not guarantee that a rectangle
-	 * is being represented, the vector only takes two (top left and bot
-	 * right). These 2 points always represent a rectangle. The two
-	 * other points are built and the resulting structure will always
-	 * be a rectangle
-	 */
-
-	struct Rectangle : public QRect
-	{
-		/*Point2D top_left;
-		Point2D top_right;
-		Point2D bottom_left;
-		Point2D bottom_right;*/
-
-		//uchar x1, y1;
-		//uchar x2, y2;
-
-		/*! Construct a Rectangle. */
-		Rectangle();
-		Rectangle(const Rectangle& rect);
-		Rectangle(const QPoint &topleft, const QSize &size);
-		Rectangle(const unsigned int width, const unsigned int height);
-
-
-
-		/*! Compute the area of the Rectangle. */
-		uint	area() const;
-		/*ushort	width() const;
-		ushort	height() const;
-		QPoint	topRight() const;
-		QPoint	topLeft() const;
-		QPoint	bottomRight() const;
-		QPoint	bottomLeft() const;
-		QPoint	center() const;*/
-
-
-
-		/*! Construct a Rectangle with two points. */
-		//Rectangle(const Point2D& top_left_corner, const Point2D& bottom_right_corner);
-		/*! Construct a Rectangle with another Rectangle. */
-		/*! Construct a Rectangle with width and height. */
-		/*! Assignement operator. */
-		//Rectangle& operator=(const Rectangle& rect);
-		/*! Return the width of the Rectangle. */
-		//unsigned int get_width() const;
-		/*! Return the height of the Rectangle. */
-		//unsigned int get_height() const;
-		/*! \brief The two following functions will only be called in gui_gl_widget.cc
-		**
-		** in order to 'correctly' represent a selection rectangle.
-		** I.E. The first point clicked on during selection is considered as top
-		** left, but isn't necessarily the top left hand corner. These functions
-		** will readjust the rectangle so that the names are relevant.
-		**/
-		//void vertical_symetry();
-		/*! \brief The two following functions will only be called in gui_gl_widget.cc
-		**
-		** in order to 'correctly' represent a selection rectangle.
-		** I.E. The first point clicked on during selection is considered as top
-		** left, but isn't necessarily the top left hand corner. These functions
-		** will readjust the rectangle so that the names are relevant.
-		**/
-		//void horizontal_symetry();
+			uint	area() const;
 	};
 }

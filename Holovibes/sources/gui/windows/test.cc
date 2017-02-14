@@ -30,4 +30,12 @@ namespace gui
 
 		qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
 	}
+
+	void MainWindow::set_classic()
+	{
+		theme_index_ = 0;
+		qApp->setPalette(this->style()->standardPalette());
+		qApp->setStyle(QStyleFactory::create("WindowsVista"));
+		qApp->setStyleSheet("");
+	}
 }

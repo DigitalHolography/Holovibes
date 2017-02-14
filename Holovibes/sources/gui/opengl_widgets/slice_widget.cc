@@ -16,9 +16,9 @@
 namespace gui {
 
 	SliceWidget::SliceWidget(holovibes::Queue& q,
-		const uint w, const uint h, QWidget* parent) :
+		const uint w, const uint h, float a, QWidget* parent) :
 		BasicWidget(w, h, parent),
-		HQueue(q), Fd(HQueue.get_frame_desc()) {}
+		HQueue(q), Fd(HQueue.get_frame_desc()), angle (a) {}
 
 	SliceWidget::~SliceWidget() {}
 
@@ -36,8 +36,7 @@ namespace gui {
 		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		#pragma endregion
 		/* ---------- */
-		if (!Vao.create())
-			std::cerr << "[Error] Vao create() fail\n";
+		if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
 		Vao.bind();
 		/* ---------- */
 		#pragma region Texture
@@ -68,7 +67,7 @@ namespace gui {
 			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
 		#pragma endregion
 		/* ---------- */
-#pragma region Vertex Buffer Object
+		#pragma region Vertex Buffer Object
 		const float	data[16] = {
 			// Top-left
 			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
@@ -97,9 +96,9 @@ namespace gui {
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-#pragma endregion
+		#pragma endregion
 		/* ---------- */
-#pragma region Element Buffer Object
+		#pragma region Element Buffer Object
 		const GLuint elements[6] = {
 			0, 1, 2,
 			2, 3, 0
@@ -108,10 +107,10 @@ namespace gui {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#pragma endregion
+		#pragma endregion
 		/* ---------- */
 
-		//glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle * (M_PI / 180.f));
+		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle * (M_PI / 180.f));
 		
 		/* ---------- */
 		Vao.release();

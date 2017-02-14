@@ -84,6 +84,9 @@
     <Filter Include="c++ includes\other">
       <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{8283ec4c-4ff4-4811-9775-8d76f66171d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
@@ -582,5 +585,13 @@
     <CudaCompile Include="cuda_sources\texture_update.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\sliceWidget.fragment.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\sliceWidget.vertex.glsl">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

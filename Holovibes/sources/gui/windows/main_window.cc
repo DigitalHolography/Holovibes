@@ -444,7 +444,7 @@ namespace gui
 			unsigned int width = 512;
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
-			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_capture_queue()));
+			gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_capture_queue()));
 			set_convolution_mode(false);
 			global_visibility(false);
 			notify();
@@ -472,7 +472,7 @@ namespace gui
 				}
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				holovibes_.get_pipe()->register_observer(*this);
-				gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+				gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
@@ -500,7 +500,7 @@ namespace gui
 			holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 			holovibes_.get_pipe()->register_observer(*this);
 			//global_visibility(true);
-			gl_window_.reset(new GuiGLWindow(pos, width, height, holovibes_, holovibes_.get_output_queue()));
+			gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
 		}
 		catch (std::exception& e)
 		{
@@ -673,7 +673,6 @@ namespace gui
 			
 			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
 			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
-			//cd.stft_roi_zone.exchange(holovibes::Rectangle(holovibes::Point2D(0, 0), holovibes::Point2D(0, 0)));
 
 			gui::InfoManager::remove_info_safe("Filter2D");
 			holovibes_.get_pipe()->request_autocontrast();
@@ -1399,33 +1398,23 @@ namespace gui
 		try
 		{
 			boost::property_tree::ini_parser::read_ini(path, ptree);
-
-			/*holovibes::Point2D signal_top_left;
-			holovibes::Point2D signal_bottom_right;
-			holovibes::Point2D noise_top_left;
-			holovibes::Point2D noise_bottom_right;
-
-			signal_top_left.x = ptree.get<int>("signal.top_left_x", 0);
-			signal_top_left.y = ptree.get<int>("signal.top_left_y", 0);
-			signal_bottom_right.x = ptree.get<int>("signal.bottom_right_x", 0);
-			signal_bottom_right.y = ptree.get<int>("signal.bottom_right_y", 0);
-
-			noise_top_left.x = ptree.get<int>("noise.top_left_x", 0);
-			noise_top_left.y = ptree.get<int>("noise.top_left_y", 0);
-			noise_bottom_right.x = ptree.get<int>("noise.bottom_right_x", 0);
-			noise_bottom_right.y = ptree.get<int>("noise.bottom_right_y", 0);
-
-			holovibes::Rectangle signal(signal_top_left, signal_bottom_right);
-			holovibes::Rectangle noise(noise_top_left, noise_bottom_right);*/
-
+			
 			holovibes::Rectangle rectSignal;
 			holovibes::Rectangle rectNoise;
 
-			rectSignal.setTopLeft(QPoint(ptree.get<int>("signal.top_left_x", 0), ptree.get<int>("signal.top_left_y", 0)));
-			rectSignal.setBottomRight(QPoint(ptree.get<int>("signal.bottom_right_x", 0), ptree.get<int>("signal.bottom_right_y", 0)));
+			rectSignal.setTopLeft(
+				QPoint(	ptree.get<int>("signal.top_left_x", 0),
+						ptree.get<int>("signal.top_left_y", 0)));
+			rectSignal.setBottomRight(
+				QPoint(	ptree.get<int>("signal.bottom_right_x", 0),
+						ptree.get<int>("signal.bottom_right_y", 0)));
 
-			rectNoise.setTopLeft(QPoint(ptree.get<int>("noise.top_left_x", 0), ptree.get<int>("noise.top_left_y", 0)));
-			rectNoise.setBottomRight(QPoint(ptree.get<int>("noise.bottom_right_x", 0), ptree.get<int>("noise.bottom_right_y", 0)));
+			rectNoise.setTopLeft(
+				QPoint(	ptree.get<int>("noise.top_left_x", 0),
+						ptree.get<int>("noise.top_left_y", 0)));
+			rectNoise.setBottomRight(
+				QPoint(	ptree.get<int>("noise.bottom_right_x", 0),
+						ptree.get<int>("noise.bottom_right_y", 0)));
 
 			gl_widget.set_signal_selection(rectSignal);
 			gl_widget.set_noise_selection(rectNoise);
@@ -1955,10 +1944,10 @@ namespace gui
 		else if (depth_spinbox->currentIndex() == 3)
 			depth_multi = 8;
 		camera::FrameDescriptor frame_desc = {
-			width_spinbox->value(),
-			height_spinbox->value(),
-			depth_multi,
-			cd.import_pixel_size,
+			static_cast<unsigned short>(width_spinbox->value()),
+			static_cast<unsigned short>(height_spinbox->value()),
+			static_cast<float>(depth_multi),
+			static_cast<float>(cd.import_pixel_size),
 			(big_endian_checkbox->currentText() == QString("Big Endian") ?
 				camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN) };
 		camera_visible(false);
@@ -2709,15 +2698,7 @@ namespace gui
 		load_ini("holovibes.ini");
 		notify();
 	}
-
-	void MainWindow::set_classic()
-	{
-		theme_index_ = 0;
-		qApp->setPalette(this->style()->standardPalette());
-		qApp->setStyle(QStyleFactory::create("WindowsVista"));
-		qApp->setStyleSheet("");
-	}
-
+	
 	void MainWindow::stft_view(bool b)
 	{
 		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
@@ -2734,17 +2715,20 @@ namespace gui
 			// set positions of new windows according to the position of the main GL window
 			QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
 			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
+			const ushort nImg = cd.nsamples.load();
 			// window slice_xz (down window)
 			gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
 												gl_window_->width(),
-												(cd.nsamples.load() < 120 ? 120 : cd.nsamples.load()) * 2,
+												(nImg < 128 ? 128 : nImg) * 2,
+												0.f,
 												holovibes_,
 												holovibes_.get_pipe()->get_stft_slice_queue(0),
 												GuiGLWindow::window_kind::SLICE_VIEW));
 			// window slice_yz (right window)
 			gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
-												(cd.nsamples.load() < 120 ? 120 : cd.nsamples.load()) * 2,
+												(nImg < 128 ? 128 : nImg) * 2,
 												gl_window_->height(),
+												90.f,
 												holovibes_,
 												holovibes_.get_pipe()->get_stft_slice_queue(1),
 												GuiGLWindow::window_kind::SLICE_VIEW));

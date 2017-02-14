@@ -48,6 +48,7 @@ namespace gui
 		GuiGLWindow(const QPoint& pos,
 			const unsigned int width,
 			const unsigned int height,
+			float rotation,
 			holovibes::Holovibes& h,
 			holovibes::Queue& q,
 		    window_kind wk = window_kind::DIRECT,

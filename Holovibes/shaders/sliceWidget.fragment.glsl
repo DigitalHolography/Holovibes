@@ -12,8 +12,8 @@
 
 #version 450
 
-in vec2	texCoord;
-out vec4	out_color;
+in	vec2	texCoord;
+out	vec4	out_color;
 uniform sampler2D	tex;
 
 void main()

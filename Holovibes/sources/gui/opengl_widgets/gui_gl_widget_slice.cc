@@ -26,7 +26,6 @@ namespace gui
 		, buffer_(0)
 		, cuda_buffer_(nullptr)
 		, is_selection_enabled_(false)
-		//, selection_mode_(eselection::ZOOM)
 		, is_signal_selection_(true)
 		, px_(0.0f)
 		, py_(0.0f)
@@ -41,30 +40,6 @@ namespace gui
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
 			cuda_stream_ = 0; // Use default stream as a fallback
-
-	/*	num_2_shortcut = new QShortcut(QKeySequence(Qt::Key_2), this);
-		num_2_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(num_2_shortcut, SIGNAL(activated()), this, SLOT(view_move_down()));
-
-		num_4_shortcut = new QShortcut(QKeySequence(Qt::Key_4), this);
-		num_4_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(num_4_shortcut, SIGNAL(activated()), this, SLOT(view_move_left()));
-
-		num_6_shortcut = new QShortcut(QKeySequence(Qt::Key_6), this);
-		num_6_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(num_6_shortcut, SIGNAL(activated()), this, SLOT(view_move_right()));
-
-		num_8_shortcut = new QShortcut(QKeySequence(Qt::Key_8), this);
-		num_8_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(num_8_shortcut, SIGNAL(activated()), this, SLOT(view_move_up()));
-
-		key_plus_shortcut = new QShortcut(QKeySequence(Qt::Key_Plus), this);
-		key_plus_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(key_plus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_out()));
-
-		key_minus_shortcut = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-		key_minus_shortcut->setContext(Qt::ApplicationShortcut);
-		connect(key_minus_shortcut, SIGNAL(activated()), this, SLOT(view_zoom_in()));*/
 	}
 
 	GLWidgetSlice::~GLWidgetSlice()
@@ -227,152 +202,20 @@ namespace gui
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
-
-		/*if (is_selection_enabled_)
-		{
-			const float zoom_color[4] = { 0.0f, 0.5f, 0.0f, 0.4f };
-			const float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
-			const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
-			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
-			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
-			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
-
-			switch (selection_mode_)
-			{
-			case AUTOFOCUS:
-				selection_rect(selection_, autofocus_color);
-				break;
-			case AVERAGE:
-				selection_rect(signal_selection_, signal_color);
-				selection_rect(noise_selection_, noise_color);
-				break;
-			case ZOOM:
-				selection_rect(selection_, zoom_color);
-				break;
-			case STFT_ROI:
-				selection_rect(selection_, stft_roi_color);
-				break;
-			case STFT_SLICE:
-				selection_rect(selection_, stft_slice_color);// You can do something here like rectangle selection (have fun...)
-				break;
-			default:
-				break;
-			}
-		}*/
-
+		
 		gl_error_checking();
 	}
 
 	void GLWidgetSlice::mousePressEvent(QMouseEvent* e)
 	{
-	
 	}
 
 	void GLWidgetSlice::mouseMoveEvent(QMouseEvent* e)
 	{
-		/*if (is_selection_enabled_)
-		{
-			selection_.bottom_right = holovibes::Point2D(
-				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height());
-
-			if (selection_mode_ == AVERAGE)
-			{
-				if (is_signal_selection_)
-					signal_selection_ = selection_;
-				else // Noise selection
-					noise_selection_ = selection_;
-			}
-			else if (selection_mode_ == STFT_ROI)
-			{
-				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
-				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
-					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
-				selection_.bottom_right.x = selection_.top_left.x + max * (((selection_.top_left.x < selection_.bottom_right.x) << 1) - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * (((selection_.top_left.y < selection_.bottom_right.y) << 1) - 1);
-			}
-		}*/
 	}
 
 	void GLWidgetSlice::mouseReleaseEvent(QMouseEvent* e)
 	{
-		/*if (is_selection_enabled_)
-		{
-			selection_.bottom_right = holovibes::Point2D(
-				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height());
-
-			if (selection_mode_ == STFT_ROI)
-			{
-				int max = std::abs(selection_.bottom_right.x - selection_.top_left.x);
-				if (std::abs(selection_.bottom_right.y - selection_.top_left.y) > max)
-					max = std::abs(selection_.bottom_right.y - selection_.top_left.y);
-
-				selection_.bottom_right.x = selection_.top_left.x + max * ((selection_.top_left.x < selection_.bottom_right.x) << 1 - 1);
-				selection_.bottom_right.y = selection_.top_left.y + max * ((selection_.top_left.y < selection_.bottom_right.y) << 1 - 1);
-			}
-
-			selection_.bottom_left = holovibes::Point2D(
-				selection_.top_left.x,
-				(e->y() * frame_desc_.height) / height());
-
-			selection_.top_right = holovibes::Point2D(
-				(e->x() * frame_desc_.width) / width(),
-				selection_.top_left.y);
-
-			bounds_check(selection_);
-			swap_selection_corners(selection_);
-
-			switch (selection_mode_)
-			{
-			case AUTOFOCUS:
-				emit autofocus_zone_selected(selection_);
-				selection_mode_ = ZOOM;
-				is_selection_enabled_ = false;
-				break;
-			case AVERAGE:
-				if (is_signal_selection_)
-				{
-					signal_selection_ = selection_;
-					h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
-				}
-				else // Noise selection
-				{
-					noise_selection_ = selection_;
-					h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
-				}
-				is_signal_selection_ = !is_signal_selection_;
-				break;
-			case ZOOM:
-				is_selection_enabled_ = false;
-				if (selection_.top_left != selection_.bottom_right)
-					zoom(selection_);
-				break;
-			case STFT_ROI:
-				if (e->button() == Qt::LeftButton)
-				{
-					stft_roi_selection_ = selection_;
-					emit stft_roi_zone_selected_update(stft_roi_selection_);
-					emit stft_roi_zone_selected_end();
-					selection_mode_ = ZOOM;
-					is_selection_enabled_ = false;
-				}
-				else if (e->button() == Qt::RightButton)
-				{
-					emit stft_roi_zone_selected_end();
-					selection_mode_ = ZOOM;
-					is_selection_enabled_ = false;
-				}
-				break;
-			case STFT_SLICE:
-				is_selection_enabled_ = false;
-				break;
-			default:
-				break;
-			}
-
-			selection_ = holovibes::Rectangle();
-		}*/
 	}
 
 	void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
@@ -402,21 +245,7 @@ namespace gui
 
 		glDisable(GL_BLEND);
 	}
-
-	/*holovibes::Rectangle  GLWidgetSlice::resize_zone(holovibes::Rectangle selection)
-	{
-		selection.top_left.x /= zoom_ratio_;
-		selection.bottom_left.x /= zoom_ratio_;
-		selection.top_left.y /= zoom_ratio_;
-		selection.top_right.y /= zoom_ratio_;
-
-		selection.top_right.x /= zoom_ratio_;
-		selection.bottom_right.x /= zoom_ratio_;
-		selection.bottom_left.y /= zoom_ratio_;
-		selection.bottom_right.y /= zoom_ratio_;
-		return (selection);
-	}*/
-
+	
 	void GLWidgetSlice::zoom(const holovibes::Rectangle& selection)
 	{
 		// Translation
@@ -424,9 +253,6 @@ namespace gui
 		const float xdest = 0.0f;
 		const float ydest = 0.0f;
 
-		// Source point is center of the selection zone (normal coords)
-		//const int xsource = selection.top_left.x + ((selection.bottom_right.x - selection.top_left.x) / 2);
-		//const int ysource = selection.top_left.y + ((selection.bottom_right.y - selection.top_left.y) / 2);
 		const QPoint center = selection.center();
 
 		// Normalizing source points to OpenGL coords

@@ -27,7 +27,4 @@ void main()
 {
     texCoord = uv;
     gl_Position = vec4(xy * rotate2d(angle), 0.0f, 1.0f);
-    //gl_Position = vec4(xy * rotate2d(1.5708f), 0.0f, 1.0f);
 }
-
-// 1 rad = (M_PI / 180.)

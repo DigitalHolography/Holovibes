@@ -610,6 +610,10 @@
     <CudaCompile Include="cuda_sources\transforms.cu" />
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\sliceWidget.fragment.glsl" />
+    <None Include="shaders\sliceWidget.vertex.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
