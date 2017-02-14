@@ -290,14 +290,13 @@ namespace gui
 	{
 		if (e->buttons() == Qt::LeftButton)
 		{
-			if (selection_mode_ == STFT_SLICE && slice_block_)
-			{
-				is_selection_enabled_ = true;
-				selection_.setTopLeft(QPoint(
-					(e->x() * frame_desc_.width) / width(),
-					(e->y() * frame_desc_.height) / height()));
-				selection_.setBottomRight(selection_.topLeft());
-			}
+			if (selection_mode_ == STFT_SLICE && !slice_block_)
+				return;
+			is_selection_enabled_ = true;
+			selection_.setTopLeft(QPoint(
+				(e->x() * frame_desc_.width) / width(),
+				(e->y() * frame_desc_.height) / height()));
+			selection_.setBottomRight(selection_.topLeft());
 		}
 		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
 			dezoom();
@@ -445,7 +444,7 @@ namespace gui
 		float nendx = (2.0f * static_cast<float>(selection.bottomRight().x())) / xmax - 1.0f;
 		float nendy = -1.0f * ((2.0f * static_cast<float>(selection.bottomRight().y()) / ymax - 1.0f));
 
-		const int zr = 1 / zoom_ratio_;
+		const float zr = 1 / zoom_ratio_;
 		nstartx *= zr;
 		nstarty *= zr;
 		nendx *= zr;

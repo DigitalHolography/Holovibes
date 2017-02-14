@@ -29,7 +29,7 @@ namespace gui {
 			holovibes::Queue&				HQueue;
 			const camera::FrameDescriptor&  Fd;
 
-			const float angle;
+			//const float angle;
 
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);

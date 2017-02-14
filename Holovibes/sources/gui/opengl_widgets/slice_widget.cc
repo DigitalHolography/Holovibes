@@ -16,9 +16,9 @@
 namespace gui {
 
 	SliceWidget::SliceWidget(holovibes::Queue& q,
-		const uint w, const uint h, float a, QWidget* parent) :
+		const uint w, const uint h, QWidget* parent) :
 		BasicWidget(w, h, parent),
-		HQueue(q), Fd(HQueue.get_frame_desc()), angle(a) {}
+		HQueue(q), Fd(HQueue.get_frame_desc()) {}
 
 	SliceWidget::~SliceWidget() {}
 
@@ -111,7 +111,7 @@ namespace gui {
 #pragma endregion
 		/* ---------- */
 
-		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle * (M_PI / 180.f));
+		//glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle * (M_PI / 180.f));
 		
 		/* ---------- */
 		Vao.release();
