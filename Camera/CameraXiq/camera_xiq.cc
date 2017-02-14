@@ -87,7 +87,7 @@ namespace camera
     roi_width_ = 2048;
     roi_height_ = 2048;
 
-	exposure_time_ = 0.0166666666666667; // 1 / 60;
+	exposure_time_ = 0.0166666666666667f; // 1 / 60;
   }
 
   void CameraXiq::load_ini_params()

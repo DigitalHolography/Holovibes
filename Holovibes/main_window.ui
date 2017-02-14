@@ -1057,7 +1057,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>100</x>
            <y>50</y>
            <width>41</width>
            <height>20</height>
@@ -1088,8 +1088,24 @@
            <height>30</height>
           </rect>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
-          <string>STFT View (Slices)</string>
+          <string>STFT Slices</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="TrigSTFT">
+         <property name="geometry">
+          <rect>
+           <x>110</x>
+           <y>70</y>
+           <width>72</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Ext. trig</string>
          </property>
         </widget>
         <zorder>unwrap_2d_CheckBox</zorder>
@@ -1117,6 +1133,7 @@
         <zorder>img_accCheckBox</zorder>
         <zorder>autofocusLabel_2</zorder>
         <zorder>stft_view_checkbox</zorder>
+        <zorder>TrigSTFT</zorder>
        </widget>
       </item>
       <item>
@@ -1491,7 +1508,7 @@
           <rect>
            <x>10</x>
            <y>210</y>
-           <width>81</width>
+           <width>101</width>
            <height>21</height>
           </rect>
          </property>
@@ -1505,7 +1522,7 @@
         <widget class="QSpinBox" name="FlowgraphySpinBox">
          <property name="geometry">
           <rect>
-           <x>130</x>
+           <x>140</x>
            <y>210</y>
            <width>51</width>
            <height>22</height>
@@ -2175,12 +2192,12 @@
          </property>
          <item>
           <property name="text">
-           <string>Little Endian</string>
+           <string>Big Endian</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Big Endian</string>
+           <string>Little Endian</string>
           </property>
          </item>
         </widget>
@@ -2227,12 +2244,12 @@
          </property>
          <item>
           <property name="text">
-           <string>8</string>
+           <string>16</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>16</string>
+           <string>8</string>
           </property>
          </item>
          <item>
@@ -2493,7 +2510,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2999,7 +3016,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>215</y>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3111,7 +3128,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>185</y>
+     <y>206</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3335,7 +3352,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>275</y>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3719,7 +3736,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>365</y>
+     <y>386</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3815,7 +3832,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>539</x>
-     <y>175</y>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3831,7 +3848,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>145</y>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -4198,8 +4215,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>57</x>
-     <y>125</y>
+     <x>64</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4294,12 +4311,12 @@ p, li { white-space: pre-wrap; }
    <slot>stft_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>361</x>
-     <y>112</y>
+     <x>278</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
-     <x>446</x>
-     <y>61</y>
+     <x>444</x>
+     <y>69</y>
     </hint>
    </hints>
   </connection>
@@ -4396,6 +4413,7 @@ p, li { white-space: pre-wrap; }
   <slot>write_ini()</slot>
   <slot>update_stft_steps(int)</slot>
   <slot>dispose_average_graphic()</slot>
+  <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
  </slots>
 </ui>

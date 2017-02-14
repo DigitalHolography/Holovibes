@@ -670,7 +670,7 @@ namespace gui
 			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 			gl_widget->set_selection_mode(gui::eselection::ZOOM);
 			cd.filter_2d_enabled.exchange(false);
-			
+
 			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
 			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
 
@@ -1398,23 +1398,23 @@ namespace gui
 		try
 		{
 			boost::property_tree::ini_parser::read_ini(path, ptree);
-			
+
 			holovibes::Rectangle rectSignal;
 			holovibes::Rectangle rectNoise;
 
 			rectSignal.setTopLeft(
-				QPoint(	ptree.get<int>("signal.top_left_x", 0),
-						ptree.get<int>("signal.top_left_y", 0)));
+				QPoint(ptree.get<int>("signal.top_left_x", 0),
+					ptree.get<int>("signal.top_left_y", 0)));
 			rectSignal.setBottomRight(
-				QPoint(	ptree.get<int>("signal.bottom_right_x", 0),
-						ptree.get<int>("signal.bottom_right_y", 0)));
+				QPoint(ptree.get<int>("signal.bottom_right_x", 0),
+					ptree.get<int>("signal.bottom_right_y", 0)));
 
 			rectNoise.setTopLeft(
-				QPoint(	ptree.get<int>("noise.top_left_x", 0),
-						ptree.get<int>("noise.top_left_y", 0)));
+				QPoint(ptree.get<int>("noise.top_left_x", 0),
+					ptree.get<int>("noise.top_left_y", 0)));
 			rectNoise.setBottomRight(
-				QPoint(	ptree.get<int>("noise.bottom_right_x", 0),
-						ptree.get<int>("noise.bottom_right_y", 0)));
+				QPoint(ptree.get<int>("noise.bottom_right_x", 0),
+					ptree.get<int>("noise.bottom_right_y", 0)));
 
 			gl_widget.set_signal_selection(rectSignal);
 			gl_widget.set_noise_selection(rectNoise);
@@ -1522,7 +1522,7 @@ namespace gui
 				std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
 				camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
-				frame_desc.depth = sizeof (float);
+				frame_desc.depth = sizeof(float);
 				queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
 				pipe->request_float_output(queue);
 			}
@@ -1531,7 +1531,7 @@ namespace gui
 				std::shared_ptr<holovibes::ICompute> pipe = holovibes_.get_pipe();
 				camera::FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
 
-				frame_desc.depth = sizeof (cufftComplex);
+				frame_desc.depth = sizeof(cufftComplex);
 				queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 				pipe->request_complex_output(queue);
 			}
@@ -2668,7 +2668,7 @@ namespace gui
 	void MainWindow::cancel_stft_view(holovibes::ComputeDescriptor& cd)
 	{
 		if (cd.stft_view_enabled)
-			stft_view(false);
+			cancel_stft_slice_view();
 		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		cd.stft_enabled.exchange(false);
 		stft_button->setChecked(false);
@@ -2698,62 +2698,79 @@ namespace gui
 		load_ini("holovibes.ini");
 		notify();
 	}
-	
-	void MainWindow::stft_view(bool b)
+
+	void MainWindow::cancel_stft_slice_view()
 	{
-		QCheckBox*	p = findChild<QCheckBox*>("STFTCheckBox");
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
+		QCheckBox	*stft_view = findChild<QCheckBox*>("stft_view_checkbox");
+		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+		auto manager = gui::InfoManager::get_manager();
+		manager->remove_info("STFT Slice Cursor");
+		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
+		// delete stft_view windows
+		cd.stft_view_enabled.exchange(false);
+		gl_win_stft_1.reset(nullptr);
+		gl_win_stft_0.reset(nullptr);
+		holovibes_.get_pipe()->delete_stft_slice_queue();
+		// ------------------------
+		stft_view->setChecked(false);
+		stft->setEnabled(true);
+		gl_window_->setCursor(Qt::ArrowCursor);
+		gl_widget->set_selection_mode(gui::eselection::ZOOM);
+	}
+
+	void MainWindow::stft_view(bool checked)
+	{
+		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
+		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
-		if (b)
+		if (checked)
 		{
-			p->setEnabled(false);
-			// launch stft_view windows
-			notify();
-			holovibes_.get_pipe()->create_stft_slice_queue();
-			// set positions of new windows according to the position of the main GL window
-			QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
-			QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
-			const ushort nImg = cd.nsamples.load();
-			// window slice_xz (down window)
-			gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
-												gl_window_->width(),
-												(nImg < 128 ? 128 : nImg) * 2,
-												0.f,
-												holovibes_,
-												holovibes_.get_pipe()->get_stft_slice_queue(0),
-												GuiGLWindow::window_kind::SLICE_VIEW));
-			// window slice_yz (right window)
-			gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
-												(nImg < 128 ? 128 : nImg) * 2,
-												gl_window_->height(),
-												90.f,
-												holovibes_,
-												holovibes_.get_pipe()->get_stft_slice_queue(1),
-												GuiGLWindow::window_kind::SLICE_VIEW));
-			
-			/* gui */
-			gl_window_->setCursor(Qt::CrossCursor);
-			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
-			connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
-				Qt::UniqueConnection);
-			cd.stft_view_enabled.exchange(true);
+			try
+			{
+				stft->setEnabled(false);
+				// launch stft_view windows
+				notify();
+				holovibes_.get_pipe()->create_stft_slice_queue();
+				// set positions of new windows according to the position of the main GL window
+				QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
+				QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
+				const ushort nImg = cd.nsamples.load();
+				// window slice_xz (down window)
+				gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
+					gl_window_->width(),
+					(nImg < 128 ? 128 : nImg) * 2,
+					0.f,
+					holovibes_,
+					holovibes_.get_pipe()->get_stft_slice_queue(0),
+					GuiGLWindow::window_kind::SLICE_VIEW));
+				// window slice_yz (right window)
+				gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
+					(nImg < 128 ? 128 : nImg) * 2,
+					gl_window_->height(),
+					90.f,
+					holovibes_,
+					holovibes_.get_pipe()->get_stft_slice_queue(1),
+					GuiGLWindow::window_kind::SLICE_VIEW));
+
+				/* gui */
+				gl_window_->setCursor(Qt::CrossCursor);
+				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
+					Qt::UniqueConnection);
+				cd.stft_view_enabled.exchange(true);
+			}
+			catch (std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+				cancel_stft_slice_view();
+			}
 		}
 		else
-		{
-			manager->remove_info("STFT Slice Cursor");
-			disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
-			// delete stft_view windows
-			cd.stft_view_enabled.exchange(false);
-			gl_win_stft_1.reset(nullptr);
-			gl_win_stft_0.reset(nullptr);
-			holovibes_.get_pipe()->delete_stft_slice_queue();
-			// ------------------------
-			p->setEnabled(true);
-			gl_window_->setCursor(Qt::ArrowCursor);
-			gl_widget->set_selection_mode(gui::eselection::ZOOM);
-		}
+			cancel_stft_slice_view();
 	}
 
 	void MainWindow::update_stft_slice_pos(QPoint pos)
