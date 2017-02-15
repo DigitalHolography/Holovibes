@@ -1096,6 +1096,9 @@
          </property>
         </widget>
         <widget class="QCheckBox" name="TrigSTFT">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -2177,7 +2180,7 @@
         </widget>
         <widget class="QComboBox" name="ImportEndianModeComboBox">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2510,7 +2513,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

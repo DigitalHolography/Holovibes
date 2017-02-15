@@ -556,6 +556,8 @@ namespace gui
 		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
 		std::unique_ptr<GuiGLWindow> gl_win_stft_1;
 
+		std::mutex mutex_;
+
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;
 		/*! true if average mode is enabled, false otherwise */

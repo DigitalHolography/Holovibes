@@ -24,11 +24,6 @@ namespace holovibes
   class ComputeDescriptor;
 }
 
-//namespace gui
-//{
-//	class MainWindowAccessor;
-//}
-
 namespace holovibes
 {
 /* \brief Stores functions helping the editing of the images.

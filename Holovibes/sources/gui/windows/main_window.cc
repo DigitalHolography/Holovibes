@@ -678,12 +678,13 @@ namespace gui
 			holovibes_.get_pipe()->request_autocontrast();
 		}
 	}
-
+	
 	void MainWindow::set_phase_number(const int value)
 	{
 		holovibes::Queue* input;
 		if (!is_direct_mode())
 		{
+			std::lock_guard<std::mutex> g(mutex_);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			input = &holovibes_.get_capture_queue();
 			if (cd.stft_enabled || (value <= static_cast<const int>(input->get_max_elts())))
@@ -2778,7 +2779,7 @@ namespace gui
 		auto manager = gui::InfoManager::get_manager();
 		std::stringstream ss;
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info("STFT Slice Cursor : ", ss.str());
+		manager->update_info("STFT Slice Cursor", ss.str());
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
 	}

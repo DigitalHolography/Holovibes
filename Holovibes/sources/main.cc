@@ -13,11 +13,6 @@
 #include "options_descriptor.hh"
 #include "gui_tool.hh"
 
-//namespace gui
-//{
-//	class MainWindowAccessor;
-//}
-
 int main(int argc, char* argv[])
 {
 	holovibes::OptionsDescriptor opts;
@@ -33,31 +28,21 @@ int main(int argc, char* argv[])
 		QApplication a(argc, argv);
 		QPixmap pixmap("holovibes_logo.png");
 		QSplashScreen splash(pixmap);
-		splash.show();
-#ifndef _DEBUG
+
+		#ifndef _DEBUG
 		/* Hides the console window. */
 		ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif /* !_DEBUG */
+		#endif /* !_DEBUG */
+
+		splash.show();
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-		/* ----------------------- */
-		/*QSurfaceFormat format;
-		format.setVersion(4, 0);
-		format.setProfile(QSurfaceFormat::CoreProfile);
-		QSurfaceFormat::setDefaultFormat(format);*/
-		/* ----------------------- */
 		gui::MainWindow w(h);
 		gui::GuiTool gt(h, &w);
 		w.show();
 		splash.finish(&w);
 		h.get_compute_desc().register_observer(w);
-
-		int status = a.exec();
-
-#ifndef _DEBUG
-		ShowWindow(GetConsoleWindow(), SW_SHOW);
-#endif /* !_DEBUG */
-
-		return status;
+		
+		return a.exec();
 	}
 	else
 	{
