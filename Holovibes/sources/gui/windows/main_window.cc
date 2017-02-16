@@ -688,10 +688,9 @@ namespace gui
 		holovibes::Queue* input;
 		if (!is_direct_mode())
 		{
-			//std::lock_guard<std::mutex> g(mutex_);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			input = &holovibes_.get_capture_queue();
-			if (cd.stft_enabled || (value <= static_cast<const int>(input->get_max_elts())))
+			if (cd.stft_enabled.load() || (value <= static_cast<const int>(input->get_max_elts())))
 			{
 				holovibes_.get_pipe()->request_update_n(value);
 				if (cd.stft_view_enabled.load())
@@ -998,7 +997,7 @@ namespace gui
 					QSize(nSize, gl_window_->height()),
 					holovibes_.get_pipe()->get_stft_slice_queue(1)));
 				sliceYZ->setTitle("Slice YZ");
-				sliceYZ->setRotation(90.f);
+				sliceYZ->setAngle(90.f);
 
 				/* gui */
 				gl_window_->setCursor(Qt::CrossCursor);

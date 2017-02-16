@@ -19,7 +19,11 @@ namespace gui
 		BasicOpenGLWindow(p, s, q),
 		Fd(q.get_frame_desc()),
 		Angle(0.f)
-	{}
+	{
+		/*Rotation = new QShortcut(QKeySequence(Qt::Key_R), this);
+		connect(Rotation, SIGNAL(activated()), this, SLOT(Rotate()));
+		Rotation->setContext(Qt::ApplicationShortcut);*/
+	}
 
 	SliceWindow::~SliceWindow()
 	{}
@@ -197,9 +201,15 @@ namespace gui
 		std::cerr << "[GL] " << err_string << '\n';*/
 	}
 
-	void SliceWindow::setRotation(float a)
+	void SliceWindow::setAngle(float a)
 	{
 		Angle = a;
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
+			Program->release();
+		}
 	}
-
 }

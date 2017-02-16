@@ -355,10 +355,8 @@ namespace holovibes
 
 	Queue&	ICompute::get_stft_slice_queue(int i)
 	{
-		if (!i)
-			return *gpu_stft_slice_queue_xz;
-		else
-			return *gpu_stft_slice_queue_yz;
+		return (!i) ?	*gpu_stft_slice_queue_xz :
+						*gpu_stft_slice_queue_yz;
 	}
 
 	void ICompute::refresh()

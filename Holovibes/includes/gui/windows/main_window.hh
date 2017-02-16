@@ -554,15 +554,16 @@ namespace gui
 		Ui::MainWindow ui;
 		/*! Reference to Holovibes object */
 		holovibes::Holovibes& holovibes_;
+
 		/*! OpenGL window */
 		std::unique_ptr<GuiGLWindow> gl_window_;
-
 		//std::unique_ptr<GuiGLWindow> gl_win_stft_0;
 		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
 
 		std::unique_ptr<SliceWindow> sliceXZ;
 		std::unique_ptr<SliceWindow> sliceYZ;
 
+		//std::lock_guard<std::mutex> g(mutex_);
 		std::mutex mutex_;
 
 		/*! true if a camera is loaded, false otherwise */

@@ -23,7 +23,7 @@ namespace gui
 			SliceWindow(QPoint p, QSize s, holovibes::Queue& q);
 			virtual ~SliceWindow();
 
-			void	setRotation(float a);
+			void	setAngle(float a);
 
 		protected:
 			const camera::FrameDescriptor&  Fd;

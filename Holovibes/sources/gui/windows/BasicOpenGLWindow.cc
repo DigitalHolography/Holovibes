@@ -25,22 +25,11 @@ namespace gui
 		Vbo(0), Ebo(0),
 		Tex(0)
 	{
-		/*static QTimer timer(this);
-		connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
-		timer.start(1000 / 60);*/
-		//Ui::GLSliceWindow ui;
-		//ui.setupUi(this);
-
-		/*QSurfaceFormat format;
-		format.setDepthBufferSize(24);
-		format.setStencilBufferSize(8);
-		setFormat(format);*/
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
 			cuStream = 0;
 		resize(winSize);
 		setFramePosition(winPos);
 		setIcon(QIcon("icon1.ico"));
-
 		show();
 	}
 
