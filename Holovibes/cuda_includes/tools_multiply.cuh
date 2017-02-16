@@ -7,9 +7,8 @@
 # include <cufft.h>
 
 # ifndef _USE_MATH_DEFINES
-/* Enables math constants. */
 #  define _USE_MATH_DEFINES
-# endif /* !_USE_MATH_DEFINES */
+# endif
 # include <math.h>
 
 /*! \brief  Multiply the pixels value of 2 complexe input images

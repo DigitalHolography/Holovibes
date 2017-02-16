@@ -20,9 +20,9 @@
 # include <string>
 # include <fstream>
 # include <iostream>
-#include <boost/algorithm/string.hpp>
-#include "sstream"
+# include <boost/algorithm/string.hpp>
 
+# include "sstream"
 # include "camera_exception.hh"
 # include "IVisaInterface.hh"
 # include "ui_main_window.h"
@@ -32,8 +32,7 @@
 # include "geometry.hh"
 # include "options_descriptor.hh"
 # include "custom_exception.hh"
-
-#include "SliceWindow.hh"
+# include "SliceWindow.hh"
 
 /* Forward declarations. */
 namespace gui

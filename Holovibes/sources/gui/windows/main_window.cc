@@ -2512,6 +2512,10 @@ namespace gui
 
 			cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 
+			//main_rot_flip = ptree.get<float>("view.mainWindow_rotate_flip", main_rot_flip);
+			//xCut_rot_flip = ptree.get<float>("view.xCut_rotate_flip", xCut_rot_flip);
+			//yCut_rot_flip = ptree.get<float>("view.yCut_rotate_flip", yCut_rot_flip);
+
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
 			special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
@@ -2608,6 +2612,9 @@ namespace gui
 		ptree.put("view.contrast_min", cd.contrast_min);
 		ptree.put("view.contrast_max", cd.contrast_max);
 		ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
+		//ptree.put("view.mainWindow_rotate_flip", (main_rotate / 90.f) + (mainflip * 10));
+		//ptree.put("view.xCut_rotate_flip", (main_rotate / 90.f) + (main_flip * 10));
+		//ptree.put("view.yCut_rotate_flip", (main_rotate / 90.f) + (main_flip * 10));
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());

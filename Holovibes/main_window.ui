@@ -630,7 +630,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>150</y>
+           <y>160</y>
            <width>71</width>
            <height>31</height>
           </rect>
@@ -651,7 +651,7 @@
          <property name="geometry">
           <rect>
            <x>110</x>
-           <y>150</y>
+           <y>160</y>
            <width>81</width>
            <height>31</height>
           </rect>
@@ -670,7 +670,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>210</y>
+           <y>220</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -686,7 +686,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>180</y>
+           <y>190</y>
            <width>31</width>
            <height>16</height>
           </rect>
@@ -699,7 +699,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>210</y>
+           <y>220</y>
            <width>61</width>
            <height>21</height>
           </rect>
@@ -753,7 +753,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>180</y>
+           <y>190</y>
            <width>82</width>
            <height>21</height>
           </rect>
@@ -775,7 +775,7 @@
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>210</y>
+           <y>220</y>
            <width>62</width>
            <height>22</height>
           </rect>
@@ -797,7 +797,7 @@
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>180</y>
+           <y>190</y>
            <width>62</width>
            <height>22</height>
           </rect>
@@ -1042,7 +1042,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>80</y>
+           <y>70</y>
            <width>81</width>
            <height>31</height>
           </rect>
@@ -1058,7 +1058,7 @@
          <property name="geometry">
           <rect>
            <x>110</x>
-           <y>80</y>
+           <y>70</y>
            <width>41</width>
            <height>31</height>
           </rect>
@@ -1083,7 +1083,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>100</y>
            <width>131</width>
            <height>30</height>
           </rect>
@@ -1102,7 +1102,7 @@
          <property name="geometry">
           <rect>
            <x>110</x>
-           <y>120</y>
+           <y>100</y>
            <width>72</width>
            <height>30</height>
           </rect>
@@ -1110,6 +1110,47 @@
          <property name="text">
           <string>Ext. trig</string>
          </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_3">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>130</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Flip</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_4">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>130</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Rotate</string>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="comboBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>130</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <item>
+          <property name="text">
+           <string>Win.</string>
+          </property>
+         </item>
         </widget>
         <zorder>unwrap_2d_CheckBox</zorder>
         <zorder>logScaleCheckBox</zorder>
@@ -1137,6 +1178,9 @@
         <zorder>autofocusLabel_2</zorder>
         <zorder>STFTSlices</zorder>
         <zorder>STFTExtTrig</zorder>
+        <zorder>pushButton_3</zorder>
+        <zorder>pushButton_4</zorder>
+        <zorder>comboBox</zorder>
        </widget>
       </item>
       <item>
