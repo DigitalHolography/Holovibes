@@ -146,6 +146,7 @@ namespace gui
 
 	void GLWidget::initializeGL()
 	{
+		makeCurrent();
 		initializeOpenGLFunctions();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glEnable(GL_TEXTURE_2D);
@@ -172,6 +173,7 @@ namespace gui
 			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
 
 		glViewport(0, 0, width_, height_);
+		//doneCurrent();
 	}
 
 	void GLWidget::resizeGL(int width, int height)
@@ -181,6 +183,7 @@ namespace gui
 
 	void GLWidget::paintGL()
 	{
+		makeCurrent();
 		glEnable(GL_TEXTURE_2D);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -284,6 +287,7 @@ namespace gui
 		}
 
 		gl_error_checking();
+	//	doneCurrent();
 	}
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
@@ -447,6 +451,7 @@ namespace gui
 		nendx *= zr;
 		nendy *= zr;
 
+		makeCurrent();
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -459,6 +464,7 @@ namespace gui
 		glEnd();
 
 		glDisable(GL_BLEND);
+		//doneCurrent();
 	}
 
 	holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection)

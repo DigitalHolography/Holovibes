@@ -33,6 +33,8 @@
 # include "options_descriptor.hh"
 # include "custom_exception.hh"
 
+#include "SliceWindow.hh"
+
 /* Forward declarations. */
 namespace gui
 {
@@ -553,8 +555,11 @@ namespace gui
 		/*! OpenGL window */
 		std::unique_ptr<GuiGLWindow> gl_window_;
 
-		std::unique_ptr<GuiGLWindow> gl_win_stft_0;
-		std::unique_ptr<GuiGLWindow> gl_win_stft_1;
+		//std::unique_ptr<GuiGLWindow> gl_win_stft_0;
+		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
+
+		std::unique_ptr<SliceWindow> sliceXZ;
+		std::unique_ptr<SliceWindow> sliceYZ;
 
 		std::mutex mutex_;
 
