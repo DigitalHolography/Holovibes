@@ -299,6 +299,24 @@
     <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\SliceWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_BasicOpenGLWindow.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SliceWindow.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SliceWindow.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_BasicOpenGLWindow.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
@@ -518,6 +536,12 @@
     </CustomBuild>
     <CustomBuild Include="includes\gui\opengl_widgets\basic_widget.hh">
       <Filter>c++ includes\gui\opengl_widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\windows\BasicOpenGLWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\windows\SliceWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

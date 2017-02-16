@@ -24,8 +24,10 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		, gl_win_stft_0(nullptr)
-		, gl_win_stft_1(nullptr)
+		//, gl_win_stft_0(nullptr)
+		//, gl_win_stft_1(nullptr)
+		, sliceXZ(nullptr)
+		, sliceYZ(nullptr)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -116,8 +118,10 @@ namespace gui
 		delete p_right_shortcut_;
 		delete autofocus_ctrl_c_shortcut_;
 
-		gl_win_stft_0.reset(nullptr);
-		gl_win_stft_1.reset(nullptr);
+		//gl_win_stft_0.reset(nullptr);
+		//gl_win_stft_1.reset(nullptr);
+		sliceXZ.reset(nullptr);
+		sliceYZ.reset(nullptr);
 		//holovibes_.get_pipe()->delete_stft_slice_queue(); // Crash
 
 		holovibes_.dispose_compute();
@@ -684,7 +688,7 @@ namespace gui
 		holovibes::Queue* input;
 		if (!is_direct_mode())
 		{
-			std::lock_guard<std::mutex> g(mutex_);
+			//std::lock_guard<std::mutex> g(mutex_);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			input = &holovibes_.get_capture_queue();
 			if (cd.stft_enabled || (value <= static_cast<const int>(input->get_max_elts())))
@@ -932,13 +936,14 @@ namespace gui
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 		// delete stft_view windows
 		cd.stft_view_enabled.exchange(false);
-		gl_win_stft_1.reset(nullptr);
-		gl_win_stft_0.reset(nullptr);
+		//gl_win_stft_1.reset(nullptr);
+		//gl_win_stft_0.reset(nullptr);
+		sliceXZ.reset(nullptr);
+		sliceYZ.reset(nullptr);
 		holovibes_.get_pipe()->delete_stft_slice_queue();
 		// ------------------------
 		stft_view->setChecked(false);
-		if (!cd.signal_trig_enabled.load())
-			stft->setEnabled(true);
+		stft->setEnabled(true);
 		gl_window_->setCursor(Qt::ArrowCursor);
 		gl_widget->set_selection_mode(gui::eselection::ZOOM);
 	}
@@ -946,6 +951,7 @@ namespace gui
 	void MainWindow::stft_view(bool checked)
 	{
 		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
+		QCheckBox	*stft_view = findChild<QCheckBox*>("STFTSlices");
 		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
@@ -959,31 +965,47 @@ namespace gui
 				notify();
 				holovibes_.get_pipe()->create_stft_slice_queue();
 				// set positions of new windows according to the position of the main GL window
-				QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
-				QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
-				const ushort nImg = cd.nsamples.load();
-				// window slice_xz (down window)
+				QPoint			xzPos = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
+				QPoint			yzPos = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
+				const ushort	nImg = cd.nsamples.load();
+				const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
+
+				/*// window slice_xz (down window)
 				gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
-					gl_window_->width(),
-					(nImg < 128 ? 128 : nImg) * 2,
-					0.f,
-					holovibes_,
-					holovibes_.get_pipe()->get_stft_slice_queue(0),
-					GuiGLWindow::window_kind::SLICE_VIEW));
+				gl_window_->width(),
+				(nImg < 128 ? 128 : nImg) * 2,
+				0.f,
+				holovibes_,
+				holovibes_.get_pipe()->get_stft_slice_queue(0),
+				GuiGLWindow::window_kind::SLICE_VIEW));
 				// window slice_yz (right window)
 				gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
-					(nImg < 128 ? 128 : nImg) * 2,
-					gl_window_->height(),
-					90.f,
-					holovibes_,
-					holovibes_.get_pipe()->get_stft_slice_queue(1),
-					GuiGLWindow::window_kind::SLICE_VIEW));
+				(nImg < 128 ? 128 : nImg) * 2,
+				gl_window_->height(),
+				90.f,
+				holovibes_,
+				holovibes_.get_pipe()->get_stft_slice_queue(1),
+				GuiGLWindow::window_kind::SLICE_VIEW));*/
+
+				sliceXZ.reset(new SliceWindow(
+					xzPos,
+					QSize(gl_window_->width(), nSize),
+					holovibes_.get_pipe()->get_stft_slice_queue(0)));
+				sliceXZ->setTitle("Slice XZ");
+
+				sliceYZ.reset(new SliceWindow(
+					yzPos,
+					QSize(nSize, gl_window_->height()),
+					holovibes_.get_pipe()->get_stft_slice_queue(1)));
+				sliceYZ->setTitle("Slice YZ");
+				sliceYZ->setRotation(90.f);
 
 				/* gui */
 				gl_window_->setCursor(Qt::CrossCursor);
 				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
 				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
 					Qt::UniqueConnection);
+				stft_view->setChecked(true);
 				cd.stft_view_enabled.exchange(true);
 			}
 			catch (std::exception& e)
@@ -2118,11 +2140,14 @@ namespace gui
 		if (gl_window_)
 			gl_window_->close();
 
-		if (gl_win_stft_0)
-			gl_win_stft_0->close();
+		//if (gl_win_stft_0) gl_win_stft_0->close();
+		//if (gl_win_stft_1) gl_win_stft_1->close();
 
-		if (gl_win_stft_1)
-			gl_win_stft_1->close();
+		if (sliceXZ)
+			sliceXZ->close();
+
+		if (sliceYZ)
+			sliceYZ->close();
 
 		if (plot_window_)
 			plot_window_->close();
@@ -2804,6 +2829,7 @@ namespace gui
 
 			if (cd.stft_view_enabled.load())
 				cancel_stft_slice_view();
+
 			set_stft(false);
 			set_stft(true);
 
