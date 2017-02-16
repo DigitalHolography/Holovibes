@@ -250,6 +250,14 @@ namespace gui
 		*/
 		void set_stft(bool b);
 
+		/*! \brief create winndows
+		** \and set the slices
+		** \param value to set stft view on/off
+		*/
+		void stft_view(bool checked);
+		void cancel_stft_slice_view();
+		void update_stft_slice_pos(QPoint pos);
+
 		/*! \} */
 		// \brief update how often the STFT is computed while STFT mode is activated
 		void update_stft_steps(int value);
@@ -468,12 +476,7 @@ namespace gui
 		/*! \brief Display classic GUI theme*/
 		void set_night();
 
-
-		/*TODO: this should not be at the bottom of mainwindow but at the right place*/
-		void stft_view(bool checked);
-		void cancel_stft_slice_view();
-
-		void update_stft_slice_pos(QPoint pos);
+		void stft_signal_trig(bool checked);
 	#pragma endregion
 	/* ---------- */
 	#pragma region Protected / Private Methods
@@ -593,14 +596,15 @@ namespace gui
 		std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
 
 		/*! \{ \name Shortcuts */
-		QShortcut* z_up_shortcut_;
-		QShortcut* z_down_shortcut_;
-		QShortcut* p_left_shortcut_;
-		QShortcut* p_right_shortcut_;
-		QShortcut* gl_full_screen_;
-		QShortcut* gl_normal_screen_;
-		QShortcut* autofocus_ctrl_c_shortcut_;
+		QShortcut	*z_up_shortcut_;
+		QShortcut	*z_down_shortcut_;
+		QShortcut	*p_left_shortcut_;
+		QShortcut	*p_right_shortcut_;
+		QShortcut	*gl_full_screen_;
+		QShortcut	*gl_normal_screen_;
+		QShortcut	*autofocus_ctrl_c_shortcut_;
 		/*! \} */
+
 	#pragma endregion
 
 	};

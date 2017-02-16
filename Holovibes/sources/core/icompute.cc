@@ -752,21 +752,21 @@ namespace holovibes
 			compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
 			const ushort width = input_.get_frame_desc().width;
 			const ushort height = input_.get_frame_desc().height ;
-			if (cursorPos.x() < width && cursorPos.y() < height &&
-				cursorPos.x() > 0 && cursorPos.y() > 0)
+			if (static_cast<uint>(cursorPos.x()) < width &&
+				static_cast<uint>(cursorPos.y()) < height)
 			{
 				mouse_x = cursorPos.x();
 				mouse_y = cursorPos.y();
 			}
 			// -----------------------------------------------------
 			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-				static_cast<unsigned short *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-				mouse_x,
-				mouse_y,
-				width,
-				height,
-				compute_desc_.nsamples.load());
+							static_cast<ushort *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+							static_cast<ushort *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+							mouse_x,
+							mouse_y,
+							width,
+							height,
+							compute_desc_.nsamples.load());
 		}
 	}
 

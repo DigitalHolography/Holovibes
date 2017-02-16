@@ -43,6 +43,7 @@ namespace holovibes
 		, ref_diff_enabled(false)
 		, ref_sliding_enabled(false)
 		, stft_view_enabled(false)
+		, signal_trig_enabled(false)
 		, stft_slice_cursor(QPoint(0, 0))
 		, signal_zone(Rectangle(10, 10))
 		, noise_zone(Rectangle(10, 10))

@@ -905,8 +905,10 @@ namespace gui
 			cd.stft_enabled = b;
 			holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 			notify();
-			QCheckBox* p = findChild<QCheckBox*>("stft_view_checkbox");
-			p->setEnabled((b) ? true : false);
+			QCheckBox *p = findChild<QCheckBox*>("STFTSlices");
+			p->setEnabled(b);
+			p = findChild<QCheckBox*>("STFTExtTrig");
+			p->setEnabled(b);
 		}
 	}
 
@@ -917,6 +919,91 @@ namespace gui
 		{
 			cd.stft_steps.exchange(value);
 		}
+	}
+
+	void MainWindow::cancel_stft_slice_view()
+	{
+		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
+		QCheckBox	*stft_view = findChild<QCheckBox*>("STFTSlices");
+		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+		auto manager = gui::InfoManager::get_manager();
+		manager->remove_info("STFT Slice Cursor");
+		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
+		// delete stft_view windows
+		cd.stft_view_enabled.exchange(false);
+		gl_win_stft_1.reset(nullptr);
+		gl_win_stft_0.reset(nullptr);
+		holovibes_.get_pipe()->delete_stft_slice_queue();
+		// ------------------------
+		stft_view->setChecked(false);
+		if (!cd.signal_trig_enabled.load())
+			stft->setEnabled(true);
+		gl_window_->setCursor(Qt::ArrowCursor);
+		gl_widget->set_selection_mode(gui::eselection::ZOOM);
+	}
+
+	void MainWindow::stft_view(bool checked)
+	{
+		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
+		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+		auto manager = gui::InfoManager::get_manager();
+		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
+		if (checked)
+		{
+			try
+			{
+				stft->setEnabled(false);
+				// launch stft_view windows
+				notify();
+				holovibes_.get_pipe()->create_stft_slice_queue();
+				// set positions of new windows according to the position of the main GL window
+				QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
+				QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
+				const ushort nImg = cd.nsamples.load();
+				// window slice_xz (down window)
+				gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
+					gl_window_->width(),
+					(nImg < 128 ? 128 : nImg) * 2,
+					0.f,
+					holovibes_,
+					holovibes_.get_pipe()->get_stft_slice_queue(0),
+					GuiGLWindow::window_kind::SLICE_VIEW));
+				// window slice_yz (right window)
+				gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
+					(nImg < 128 ? 128 : nImg) * 2,
+					gl_window_->height(),
+					90.f,
+					holovibes_,
+					holovibes_.get_pipe()->get_stft_slice_queue(1),
+					GuiGLWindow::window_kind::SLICE_VIEW));
+
+				/* gui */
+				gl_window_->setCursor(Qt::CrossCursor);
+				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
+					Qt::UniqueConnection);
+				cd.stft_view_enabled.exchange(true);
+			}
+			catch (std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+				cancel_stft_slice_view();
+			}
+		}
+		else
+			cancel_stft_slice_view();
+	}
+
+	void MainWindow::update_stft_slice_pos(QPoint pos)
+	{
+		auto manager = gui::InfoManager::get_manager();
+		std::stringstream ss;
+		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+		manager->update_info("STFT Slice Cursor", ss.str());
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
 	}
 
 	void MainWindow::set_view_mode(const QString value)
@@ -2633,7 +2720,7 @@ namespace gui
 			/*Reading value biBitCount*/
 			pos = offset_to_ptr + 14;
 			std::fsetpos(file, &pos);
-			if ((length = std::fread(&read_depth, 1, sizeof(short int), file)) = !sizeof(short int))
+			if ((length = std::fread(&read_depth, 1, sizeof(short), file)) = !sizeof(short))
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
 			/*Reading value biXpelsPerMetter*/
 			pos = offset_to_ptr + 24;
@@ -2668,7 +2755,9 @@ namespace gui
 
 	void MainWindow::cancel_stft_view(holovibes::ComputeDescriptor& cd)
 	{
-		if (cd.stft_view_enabled)
+		if (cd.signal_trig_enabled.load())
+			stft_signal_trig(false);
+		else if (cd.stft_view_enabled.load())
 			cancel_stft_slice_view();
 		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
 		cd.stft_enabled.exchange(false);
@@ -2678,11 +2767,11 @@ namespace gui
 	void MainWindow::close_critical_compute()
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		if (cd.stft_enabled)
+		if (cd.stft_enabled.load())
 			cancel_stft_view(cd);
-		if (cd.ref_diff_enabled || cd.ref_sliding_enabled)
+		if (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load())
 			cancel_take_reference();
-		if (cd.filter_2d_enabled)
+		if (cd.filter_2d_enabled.load())
 			cancel_filter2D();
 	}
 
@@ -2700,87 +2789,32 @@ namespace gui
 		notify();
 	}
 
-	void MainWindow::cancel_stft_slice_view()
+	void MainWindow::stft_signal_trig(bool checked)
 	{
-		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
-		QCheckBox	*stft_view = findChild<QCheckBox*>("stft_view_checkbox");
-		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		QCheckBox* stft = findChild<QCheckBox*>("STFTCheckBox");
+		QCheckBox* stft_view = findChild<QCheckBox*>("STFTSlices");
+		QCheckBox* trig = findChild<QCheckBox*>("STFTExtTrig");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-		auto manager = gui::InfoManager::get_manager();
-		manager->remove_info("STFT Slice Cursor");
-		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
-		// delete stft_view windows
-		cd.stft_view_enabled.exchange(false);
-		gl_win_stft_1.reset(nullptr);
-		gl_win_stft_0.reset(nullptr);
-		holovibes_.get_pipe()->delete_stft_slice_queue();
-		// ------------------------
-		stft_view->setChecked(false);
-		stft->setEnabled(true);
-		gl_window_->setCursor(Qt::ArrowCursor);
-		gl_widget->set_selection_mode(gui::eselection::ZOOM);
-	}
 
-	void MainWindow::stft_view(bool checked)
-	{
-		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
-		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-		auto manager = gui::InfoManager::get_manager();
-		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
 		if (checked)
 		{
-			try
-			{
-				stft->setEnabled(false);
-				// launch stft_view windows
-				notify();
-				holovibes_.get_pipe()->create_stft_slice_queue();
-				// set positions of new windows according to the position of the main GL window
-				QPoint new_window_pos_x = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
-				QPoint new_window_pos_y = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
-				const ushort nImg = cd.nsamples.load();
-				// window slice_xz (down window)
-				gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
-					gl_window_->width(),
-					(nImg < 128 ? 128 : nImg) * 2,
-					0.f,
-					holovibes_,
-					holovibes_.get_pipe()->get_stft_slice_queue(0),
-					GuiGLWindow::window_kind::SLICE_VIEW));
-				// window slice_yz (right window)
-				gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
-					(nImg < 128 ? 128 : nImg) * 2,
-					gl_window_->height(),
-					90.f,
-					holovibes_,
-					holovibes_.get_pipe()->get_stft_slice_queue(1),
-					GuiGLWindow::window_kind::SLICE_VIEW));
+			trig->setChecked(true);
+			stft_view->setEnabled(false);
+			stft->setEnabled(false);
 
-				/* gui */
-				gl_window_->setCursor(Qt::CrossCursor);
-				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
-				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
-					Qt::UniqueConnection);
-				cd.stft_view_enabled.exchange(true);
-			}
-			catch (std::exception& e)
-			{
-				std::cerr << e.what() << std::endl;
+			if (cd.stft_view_enabled.load())
 				cancel_stft_slice_view();
-			}
+			set_stft(false);
+			set_stft(true);
+
+			cd.signal_trig_enabled.exchange(true);
 		}
 		else
-			cancel_stft_slice_view();
-	}
-
-	void MainWindow::update_stft_slice_pos(QPoint pos)
-	{
-		auto manager = gui::InfoManager::get_manager();
-		std::stringstream ss;
-		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info("STFT Slice Cursor", ss.str());
-		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
+		{
+			trig->setChecked(false);
+			stft_view->setEnabled(true);
+			stft->setEnabled(true);
+			cd.signal_trig_enabled.exchange(false);
+		}
 	}
 }

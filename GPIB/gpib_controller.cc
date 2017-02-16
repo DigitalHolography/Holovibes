@@ -16,10 +16,9 @@ namespace gpib
 
 	struct VisaInterface::VisaPimpl
 	{
-		VisaPimpl()
-		: status_{ VI_SUCCESS }
-		, ret_count_{ 0 }
-		, buffer_{ nullptr }
+		VisaPimpl() : status_{ VI_SUCCESS }
+			, ret_count_{ 0 }
+			, buffer_{ nullptr }
 		{
 		}
 
@@ -264,7 +263,6 @@ namespace gpib
 				cmd.command = line;
 				cmd.wait = 0;
 			}
-
 			++line_num;
 		}
 
