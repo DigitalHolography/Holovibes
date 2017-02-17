@@ -86,7 +86,7 @@ namespace gui
 				gl_widget_->move(0, 0);
 			}
 			else
-				gl_widget_->move(e->size().width() / 2 - gl_widget_->width() / 2, 0);
+				gl_widget_->move(s.width() / 2 - gl_widget_->width() / 2, 0);
 		}
 	}
 
