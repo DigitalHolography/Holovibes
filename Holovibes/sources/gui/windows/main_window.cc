@@ -2514,6 +2514,12 @@ namespace gui
 			//main_rot_flip = ptree.get<float>("view.mainWindow_rotate_flip", main_rot_flip);
 			//xCut_rot_flip = ptree.get<float>("view.xCut_rotate_flip", xCut_rot_flip);
 			//yCut_rot_flip = ptree.get<float>("view.yCut_rotate_flip", yCut_rot_flip);
+			//main_rot = (main_rot_flip % 10) * 90; //gets the rotation of the main gl window
+			//xCut_rot = (xCut_rot_flip % 10) * 90; //gets the rotation of the xCut gl window
+			//yCut_rot = (yCut_rot_flip % 10) * 90; //gets the rotation of the yCut window
+			//main_flip = main_rot_flip / 10; //gets the flip of the main gl window
+			//xCut_flip = xCut_rot_flip / 10; //gets the flip of the xCut window
+			//yCut_flip = yCut_rot_flip / 10; //gets the flip of the yCut window
 
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2611,9 +2617,9 @@ namespace gui
 		ptree.put("view.contrast_min", cd.contrast_min);
 		ptree.put("view.contrast_max", cd.contrast_max);
 		ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
-		//ptree.put("view.mainWindow_rotate_flip", (main_rotate / 90.f) + (mainflip * 10));
-		//ptree.put("view.xCut_rotate_flip", (main_rotate / 90.f) + (main_flip * 10));
-		//ptree.put("view.yCut_rotate_flip", (main_rotate / 90.f) + (main_flip * 10));
+		//ptree.put("view.mainWindow_rotate_flip", (main_rotate / 90) + (mainflip * 10));
+		//ptree.put("view.xCut_rotate_flip", (main_rotate / 90) + (main_flip * 10));
+		//ptree.put("view.yCut_rotate_flip", (main_rotate / 90) + (main_flip * 10));
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
