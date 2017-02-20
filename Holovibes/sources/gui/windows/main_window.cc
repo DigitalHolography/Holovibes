@@ -685,7 +685,9 @@ namespace gui
 	
 	void MainWindow::set_phase_number(const int value)
 	{
+		QSpinBox* p_nphase = findChild<QSpinBox*>("phaseNumberSpinBox");
 		holovibes::Queue* input;
+
 		if (!is_direct_mode())
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -698,8 +700,11 @@ namespace gui
 					/*_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
 					gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
 					lovibes_.get_pipe()->update_stft_slice_queue();*/
+
 					stft_view(false);
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 					stft_view(true);
+
 				}
 				//keep focus on SpinBox #img after resizing of the slice window 
 				setWindowState(Qt::WindowMinimized);
@@ -709,7 +714,6 @@ namespace gui
 			}
 			else
 			{
-				QSpinBox* p_nphase = findChild<QSpinBox*>("phaseNumberSpinBox");
 				p_nphase->setValue(value - 1);
 			}
 		}
@@ -926,31 +930,25 @@ namespace gui
 
 	void MainWindow::cancel_stft_slice_view()
 	{
-		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
-		QCheckBox	*stft_view = findChild<QCheckBox*>("STFTSlices");
 		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
+
 		manager->remove_info("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
-		// delete stft_view windows
-		cd.stft_view_enabled.exchange(false);
-		//gl_win_stft_1.reset(nullptr);
-		//gl_win_stft_0.reset(nullptr);
+
 		sliceXZ.reset(nullptr);
 		sliceYZ.reset(nullptr);
 		holovibes_.get_pipe()->delete_stft_slice_queue();
-		// ------------------------
-		stft_view->setChecked(false);
-		stft->setEnabled(true);
+
+		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
+		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 		gl_window_->setCursor(Qt::ArrowCursor);
 		gl_widget->set_selection_mode(gui::eselection::ZOOM);
 	}
 
 	void MainWindow::stft_view(bool checked)
 	{
-		QCheckBox	*stft = findChild<QCheckBox*>("STFTCheckBox");
-		QCheckBox	*stft_view = findChild<QCheckBox*>("STFTSlices");
 		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
@@ -959,8 +957,8 @@ namespace gui
 		{
 			try
 			{
-				stft->setEnabled(false);
-				// launch stft_view windows
+				findChild<QCheckBox*>("STFTCheckBox")->setEnabled(false);
+
 				notify();
 				holovibes_.get_pipe()->create_stft_slice_queue();
 				// set positions of new windows according to the position of the main GL window
@@ -968,23 +966,6 @@ namespace gui
 				QPoint			yzPos = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
 				const ushort	nImg = cd.nsamples.load();
 				const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
-
-				/*// window slice_xz (down window)
-				gl_win_stft_1.reset(new GuiGLWindow(new_window_pos_y,
-				gl_window_->width(),
-				(nImg < 128 ? 128 : nImg) * 2,
-				0.f,
-				holovibes_,
-				holovibes_.get_pipe()->get_stft_slice_queue(0),
-				GuiGLWindow::window_kind::SLICE_VIEW));
-				// window slice_yz (right window)
-				gl_win_stft_0.reset(new GuiGLWindow(new_window_pos_x,
-				(nImg < 128 ? 128 : nImg) * 2,
-				gl_window_->height(),
-				90.f,
-				holovibes_,
-				holovibes_.get_pipe()->get_stft_slice_queue(1),
-				GuiGLWindow::window_kind::SLICE_VIEW));*/
 
 				sliceXZ.reset(new SliceWindow(
 					xzPos,
@@ -999,15 +980,17 @@ namespace gui
 				sliceYZ->setTitle("Slice YZ");
 				sliceYZ->setAngle(90.f);
 
-				/* gui */
 				gl_window_->setCursor(Qt::CrossCursor);
 				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+
+				// Update Cursor position in Info Manager
 				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
 					Qt::UniqueConnection);
-				stft_view->setChecked(true);
+
+				findChild<QCheckBox*>("STFTSlices")->setChecked(true);
 				cd.stft_view_enabled.exchange(true);
 			}
-			catch (std::exception& e)
+			catch (std::logic_error& e)
 			{
 				std::cerr << e.what() << std::endl;
 				cancel_stft_slice_view();

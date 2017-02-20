@@ -50,9 +50,7 @@ namespace gui
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
 		uint	size = Fd.frame_size();
-		uint	res = Fd.frame_res();
 		ushort	*mTexture = new ushort[size];
-
 		std::memset(mTexture, 0x00, size * 2);
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
@@ -131,21 +129,6 @@ namespace gui
 	void SliceWindow::resizeGL(int width, int height)
 	{
 		glViewport(0, 0, width, height);
-		/*
-		// unregister
-		cudaGraphicsUnregisterResource(viewCudaResource);
-		// resize
-		glBindTexture(GL_TEXTURE_2D, viewGLTexture);
-		{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-		view.getWidth(), view.getHeight(), 0,
-		GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		}
-		glBindTexture(GL_TEXTURE_2D, 0);
-		// register back
-		cudaGraphicsGLRegisterImage(&viewCudaResource, viewGLTexture, GL_TEXTURE_2D,
-		cudaGraphicsRegisterFlagsWriteDiscard);
-		*/
 	}
 
 	void SliceWindow::paintGL()
@@ -154,7 +137,6 @@ namespace gui
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		#pragma region Cuda
-		
 		cudaGraphicsMapResources(1, &cuResource, cuStream);
 		cudaArray_t cuArr = nullptr;
 
@@ -194,11 +176,6 @@ namespace gui
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		update();
-
-		/*GLenum error = glGetError();
-		auto err_string = glGetString(error);
-		if (error != GL_NO_ERROR && err_string)
-		std::cerr << "[GL] " << err_string << '\n';*/
 	}
 
 	void SliceWindow::setAngle(float a)

@@ -108,13 +108,16 @@ namespace holovibes
 
 		if (cuda_status != CUDA_SUCCESS)
 		{
-			std::cerr << "Queue: couldn't enqueue" << '\n';
+			std::cerr << "Queue: couldn't enqueue\n";
 			if (display_)
 				gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
 			return false;
 		}
 		if (is_big_endian_)
-			endianness_conversion((unsigned short*)new_elt_adress, (unsigned short*)new_elt_adress, frame_desc_.frame_res(), stream_);
+			endianness_conversion(
+				(unsigned short*)new_elt_adress,
+				(unsigned short*)new_elt_adress,
+				frame_desc_.frame_res(), stream_);
 
 		if (curr_elts_ < max_elts_)
 			++curr_elts_;

@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <qtimer.h>
 #include "BasicOpenGLWindow.hh"
 
 namespace gui
@@ -45,8 +44,6 @@ namespace gui
 		if (Vbo) glDeleteBuffers(1, &Vbo);
 		Vao.destroy();
 		delete Program;
-
-		doneCurrent();
 	}
 
 }
