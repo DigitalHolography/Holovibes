@@ -1084,7 +1084,7 @@
           <rect>
            <x>10</x>
            <y>100</y>
-           <width>72</width>
+           <width>91</width>
            <height>30</height>
           </rect>
          </property>
@@ -2385,7 +2385,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>61</width>
+           <width>71</width>
            <height>20</height>
           </rect>
          </property>
@@ -2448,6 +2448,19 @@
          </property>
          <property name="text">
           <string/>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_5">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Title Detect</string>
          </property>
         </widget>
        </widget>
@@ -2557,7 +2570,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3063,7 +3076,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>236</y>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3079,7 +3092,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>308</x>
-     <y>165</y>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3094,8 +3107,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>165</y>
+     <x>418</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3175,7 +3188,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>206</y>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3287,7 +3300,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>216</y>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -3303,7 +3316,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>203</y>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -4150,8 +4163,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>328</x>
-     <y>141</y>
+     <x>338</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4166,8 +4179,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>388</x>
-     <y>143</y>
+     <x>408</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4198,8 +4211,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>91</y>
+     <x>378</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4358,8 +4371,8 @@ p, li { white-space: pre-wrap; }
    <slot>stft_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>108</y>
+     <x>328</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -4374,12 +4387,28 @@ p, li { white-space: pre-wrap; }
    <slot>stft_signal_trig(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>116</y>
+     <x>407</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
      <y>132</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_5</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>title_detect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>956</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1111</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -4479,5 +4508,6 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
   <slot>stft_signal_trig(bool)</slot>
+  <slot>title_detect()</slot>
  </slots>
 </ui>

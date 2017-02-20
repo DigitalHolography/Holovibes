@@ -421,13 +421,12 @@ namespace gui
 					stft_roi_selection_ = selection_;
 					emit stft_roi_zone_selected_update(stft_roi_selection_);
 					emit stft_roi_zone_selected_end();
-					selection_mode_ = ZOOM;
 				}
-				else
+				else if (e->button() == Qt::RightButton)
 				{
 					emit stft_roi_zone_selected_end();
-					selection_mode_ = ZOOM;
 				}
+				selection_mode_ = ZOOM;
 				is_selection_enabled_ = false;
 				break;
 			case STFT_SLICE:
@@ -523,8 +522,8 @@ namespace gui
 			static_cast<float>(selection.topLeft().y()));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
-		px_ += -px / zoom_ratio_ / 2;
-		py_ += py / zoom_ratio_ / 2;
+		px_ += -px / zoom_ratio_ / 2.0f;
+		py_ += py / zoom_ratio_ / 2.0f;
 		zoom_ratio_ *= min_ratio;
 
 		glScalef(min_ratio, min_ratio, 1.0f);

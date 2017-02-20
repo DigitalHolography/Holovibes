@@ -714,7 +714,7 @@ namespace holovibes
 			b = true;
 			stft_frame_counter = compute_desc_.stft_steps.load();
 		}
-		if (!compute_desc_.vibrometry_enabled)
+		if (!compute_desc_.vibrometry_enabled.load())
 		{
 			stft(input,
 				output,
@@ -743,7 +743,7 @@ namespace holovibes
 				b,
 				static_cast<cudaStream_t>(0));
 		}
-		if (compute_desc_.stft_view_enabled)
+		if (compute_desc_.stft_view_enabled.load())
 		{
 			// Conservation of the coordinates when cursor is outside of the window
 			QPoint cursorPos;
@@ -757,14 +757,15 @@ namespace holovibes
 				mouse_y = cursorPos.y();
 			}
 			// -----------------------------------------------------
-			stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-							static_cast<ushort *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-							static_cast<ushort *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-							mouse_x,
-							mouse_y,
-							width,
-							height,
-							compute_desc_.nsamples.load());
+			if (gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz && gpu_stft_queue_)
+				stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+								static_cast<ushort *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+								static_cast<ushort *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+								mouse_x,
+								mouse_y,
+								width,
+								height,
+								compute_desc_.nsamples.load());
 		}
 	}
 

@@ -1596,6 +1596,24 @@ namespace gui
 		path_line_edit->insert(filename);
 	}
 
+	std::string MainWindow::set_filename(std::string filename)
+	{
+		camera::FrameDescriptor fd = holovibes_.get_cam_frame_desc();
+		int i;
+		std::string tmp = (is_direct_mode() ? "D_" : "H_");
+		std::string sub_str = "_" + tmp
+							+ std::to_string(fd.width)
+							+ "_" + std::to_string(fd.height)
+							+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit";
+		for (i = filename.length(); i > 0; --i)
+			if (filename[i] == '.')
+				break ;
+		if (i == 0)
+			return (filename);
+		filename.insert(i, sub_str, 0, sub_str.length());
+		return (filename);
+	}
+
 	void MainWindow::set_record()
 	{
 		global_visibility(false);
@@ -1608,6 +1626,8 @@ namespace gui
 
 		int nb_of_frames = nb_of_frames_spinbox->value();
 		std::string path = path_line_edit->text().toUtf8();
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		path = set_filename(path);
 		holovibes::Queue* queue;
 
 		try
@@ -2496,16 +2516,12 @@ namespace gui
 			cd.contrast_max = ptree.get<float>("view.contrast_max", cd.contrast_max);
 
 			cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
-
-			//main_rot_flip = ptree.get<float>("view.mainWindow_rotate_flip", main_rot_flip);
-			//xCut_rot_flip = ptree.get<float>("view.xCut_rotate_flip", xCut_rot_flip);
-			//yCut_rot_flip = ptree.get<float>("view.yCut_rotate_flip", yCut_rot_flip);
-			//main_rot = (main_rot_flip % 10) * 90; //gets the rotation of the main gl window
-			//xCut_rot = (xCut_rot_flip % 10) * 90; //gets the rotation of the xCut gl window
-			//yCut_rot = (yCut_rot_flip % 10) * 90; //gets the rotation of the yCut window
-			//main_flip = main_rot_flip / 10; //gets the flip of the main gl window
-			//xCut_flip = xCut_rot_flip / 10; //gets the flip of the xCut window
-			//yCut_flip = yCut_rot_flip / 10; //gets the flip of the yCut window
+			//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/);
+			//xcut_rotate = ptree.get("view.xCut_rotate", xcut_rotate/* / 90*/);
+			//ycut_rotate = ptree.get("view.yCut_rotate", ycut_rotate/* / 90*/);
+			//mainflip = ptree.get("view.mainWindow_flip", mainflip);
+			//xcut_flip = ptree.get("view.xCut_flip", xcut_flip);
+			//ycut_flip = ptree.get("view.yCut_flip", ycut_flip);
 
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2603,9 +2619,12 @@ namespace gui
 		ptree.put("view.contrast_min", cd.contrast_min);
 		ptree.put("view.contrast_max", cd.contrast_max);
 		ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
-		//ptree.put("view.mainWindow_rotate_flip", (main_rotate / 90) + (mainflip * 10));
-		//ptree.put("view.xCut_rotate_flip", (main_rotate / 90) + (main_flip * 10));
-		//ptree.put("view.yCut_rotate_flip", (main_rotate / 90) + (main_flip * 10));
+		//ptree.put("view.mainWindow_rotate", main_rotate/* / 90*/);
+		//ptree.put("view.xCut_rotate", xcut_rotate/* / 90*/);
+		//ptree.put("view.yCut_rotate", ycut_rotate/* / 90*/);
+		//ptree.put("view.mainWindow_flip", mainflip);
+		//ptree.put("view.xCut_flip", xcut_flip);
+		//ptree.put("view.yCut_flip", ycut_flip);
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
@@ -2840,5 +2859,10 @@ namespace gui
 			stft->setEnabled(true);
 			cd.signal_trig_enabled.exchange(false);
 		}
+	}
+
+	void MainWindow::title_detect(void)
+	{
+
 	}
 }
