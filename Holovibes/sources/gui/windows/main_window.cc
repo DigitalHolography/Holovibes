@@ -1411,8 +1411,11 @@ namespace gui
 	void MainWindow::set_average_mode(const bool value)
 	{
 		GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (value)
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+		else if (cd.stft_view_enabled.load())
+			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
 		else
 			gl_widget->set_selection_mode(gui::eselection::ZOOM);
 		is_enabled_average_ = value;

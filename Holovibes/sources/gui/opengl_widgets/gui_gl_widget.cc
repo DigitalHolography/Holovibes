@@ -86,6 +86,8 @@ namespace gui
 		delete num_4_shortcut;
 		delete num_2_shortcut;
 
+		setMouseTracking(false);
+
 		makeCurrent();
 		/* Unregister buffer for access by CUDA. */
 		cudaGraphicsUnregisterResource(cuda_buffer_);
@@ -310,29 +312,32 @@ namespace gui
 	{
 		if (is_selection_enabled_)
 		{
-			selection_.setBottomRight(QPoint(
-				(e->x() * frame_desc_.width) / width(),
-				(e->y() * frame_desc_.height) / height()));
-
-			if (selection_mode_ == AVERAGE)
+			if (e->buttons() == Qt::LeftButton)
 			{
-				if (is_signal_selection_)
-					signal_selection_ = selection_;
-				else // Noise selection
-					noise_selection_ = selection_;
-			}
-			else if (selection_mode_ == STFT_ROI)
-			{
-				int max = std::abs(selection_.bottomRight().x() - selection_.topLeft().x());
-				if (std::abs(selection_.bottomRight().y() - selection_.topLeft().y()) > max)
-					max = std::abs(selection_.bottomRight().y() - selection_.topLeft().y());
+				selection_.setBottomRight(QPoint(
+					(e->x() * frame_desc_.width) / width(),
+					(e->y() * frame_desc_.height) / height()));
 
-				selection_.bottomRight().setX(
-					selection_.topLeft().x() +
-					max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1));
-				selection_.bottomRight().setY(
-					selection_.topLeft().y() +
-					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
+				if (selection_mode_ == AVERAGE)
+				{
+					if (is_signal_selection_)
+						signal_selection_ = selection_;
+					else // Noise selection
+						noise_selection_ = selection_;
+				}
+				else if (selection_mode_ == STFT_ROI)
+				{
+					int max = std::abs(selection_.bottomRight().x() - selection_.topLeft().x());
+					if (std::abs(selection_.bottomRight().y() - selection_.topLeft().y()) > max)
+						max = std::abs(selection_.bottomRight().y() - selection_.topLeft().y());
+
+					selection_.bottomRight().setX(
+						selection_.topLeft().x() +
+						max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1));
+					selection_.bottomRight().setY(
+						selection_.topLeft().y() +
+						max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
+				}
 			}
 		}
 		if (selection_mode_ == STFT_SLICE && !slice_block_)
@@ -349,6 +354,7 @@ namespace gui
 	{
 		if (is_selection_enabled_)
 		{
+			
 			selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height()));
@@ -398,7 +404,7 @@ namespace gui
 					//noise_selection_ = selection_;
 					//h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
 					holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
-					h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
+					h_.get_compute_desc().noiseZone(&rect, ComputeDescriptor::Set);
 				}
 				is_signal_selection_ = !is_signal_selection_;
 				break;
