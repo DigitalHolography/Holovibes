@@ -33,7 +33,8 @@ Compression=lzma
 SolidCompression=yes
 DiskSpanning=yes
 UninstallDisplayName=Holovibes
-UninstallDisplayIcon={app}\Holovibes.exe
+UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
+UninstallFilesDir={app}\{#MyAppVersion}
 SetupIconFile="x64\Release\icon1.ico"
 
 [Languages]
@@ -54,49 +55,49 @@ Name: "visual"; Description: "Run-time components for C++"; Types: full
 ;Name: "cuda"; Description: "Nvidia and Cuda drivers"; Types: full
 
 [Files]
-Source: "x64\Release\Holovibes.exe"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\atmcd64d.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraAdimec.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraIds.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraIxon.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraPCOEdge.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraPCOPixelfly.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraPike.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraUtils.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\CameraXiq.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\FGCamera.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\GPIB.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\m3apiX64.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\SC2_Cam.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\uEye_api_64.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\adimec.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\edge.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\ids.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\ixon.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\pike.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\pixelfly.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\xiq.ini"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\icon1.ico"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "x64\Release\holovibes_logo.png"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QwtPath}\qwt.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QwtPath}\qwtd.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5OpenGL.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5PrintSupport.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#QtPlatformPath}\*"; DestDir: "{app}\platforms";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cufft64_80.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cudart64_80.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
+Source: "x64\Release\Holovibes.exe"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\atmcd64d.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraAdimec.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraIds.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraIxon.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraPCOEdge.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraPCOPixelfly.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraPike.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraXiq.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\GPIB.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\SC2_Cam.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\uEye_api_64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\adimec.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\edge.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\ids.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\ixon.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\icon1.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\holovibes_logo_42.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "Holovibes\shaders\sliceWidget.fragment.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
+Source: "Holovibes\shaders\sliceWidget.vertex.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
+Source: "{#QwtPath}\qwt.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QwtPath}\qwtd.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5Gui.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5OpenGL.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cufft64_80.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cudart64_80.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual
-;Source: "setup_creator_files\cuda_8.0.44_win10.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWin10; AfterInstall: CudaInstaller_Win10 
-;Source: "setup_creator_files\cuda_8.0.44_windows.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWinOther; AfterInstall: CudaInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
-Type: files; Name: "{app}\holovibes.ini"
-Type: filesandordirs; Name: "{app}"
+Type: files; Name: "{app}\{#MyAppVersion}\holovibes.ini"
+Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
 
 [Code]
 
@@ -104,7 +105,7 @@ procedure Visual;
 var
   ResultCode: Integer;
 begin
-    if not Exec(ExpandConstant('{tmp}\vcredist_x64.exe'), '', '', SW_SHOWNORMAL,
+    if not Exec(ExpandConstant('{tmp}\vcredist_2015_x64.exe'), '', '', SW_SHOWNORMAL,
       ewWaitUntilTerminated, ResultCode)
     then
       MsgBox('Visual c++ redistributable 2015 failed to run!' + #13#10 +
@@ -112,10 +113,10 @@ begin
 end;
 
 [Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
+Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 

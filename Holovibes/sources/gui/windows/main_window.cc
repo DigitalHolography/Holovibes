@@ -960,6 +960,7 @@ namespace gui
 		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
 		if (checked)
 		{
+			findChild<QPushButton*>("setPhaseButton")->setEnabled(false);
 			try
 			{
 				findChild<QCheckBox*>("STFTCheckBox")->setEnabled(false);
@@ -1002,7 +1003,10 @@ namespace gui
 			}
 		}
 		else
+		{
 			cancel_stft_slice_view();
+			findChild<QPushButton*>("setPhaseButton")->setEnabled(true);
+		}
 	}
 
 	void MainWindow::update_stft_slice_pos(QPoint pos)
@@ -1086,7 +1090,7 @@ namespace gui
 		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
 		QString s = c->currentText();
 
-		if (s == QString("mainDisplay"))
+		if (s == QString("None"))
 		{
 			;
 		}
@@ -1107,7 +1111,7 @@ namespace gui
 		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
 		QString s = c->currentText();
 
-		if (s == QString("mainDisplay"))
+		if (s == QString("None"))
 		{
 			;
 		}
