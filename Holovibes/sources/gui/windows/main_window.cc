@@ -1649,18 +1649,17 @@ namespace gui
 		path_line_edit->insert(filename);
 	}
 
-	std::string MainWindow::set_filename(std::string filename)
+	std::string MainWindow::set_record_filename(camera::FrameDescriptor fd, std::string filename)
 	{
-		camera::FrameDescriptor fd = holovibes_.get_cam_frame_desc();
 		int i;
 		std::string tmp = (is_direct_mode() ? "D_" : "H_");
 		std::string sub_str = "_" + tmp
-							+ std::to_string(fd.width)
-							+ "_" + std::to_string(fd.height)
-							+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit";
+			+ std::to_string(fd.width)
+			+ "_" + std::to_string(fd.height)
+			+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit";
 		for (i = filename.length(); i > 0; --i)
 			if (filename[i] == '.')
-				break ;
+				break;
 		if (i == 0)
 			return (filename);
 		filename.insert(i, sub_str, 0, sub_str.length());
@@ -1680,7 +1679,6 @@ namespace gui
 		int nb_of_frames = nb_of_frames_spinbox->value();
 		std::string path = path_line_edit->text().toUtf8();
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		path = set_filename(path);
 		holovibes::Queue* queue;
 
 		try
@@ -1708,6 +1706,7 @@ namespace gui
 			else
 				queue = &holovibes_.get_output_queue();
 
+			path = set_record_filename(queue->get_frame_desc(), path);
 			record_thread_.reset(new ThreadRecorder(
 				*queue,
 				path,
@@ -1839,7 +1838,7 @@ namespace gui
 			// Only loading the dll at runtime
 			gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
-			const std::string formatted_path = format_batch_output(path, file_index_);
+			std::string formatted_path = format_batch_output(path, file_index_);
 
 			global_visibility(false);
 			camera_visible(false);
@@ -1850,7 +1849,7 @@ namespace gui
 				q = &holovibes_.get_capture_queue();
 			else
 				q = &holovibes_.get_output_queue();
-
+			formatted_path = set_record_filename(q->get_frame_desc(), formatted_path);
 			if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 			{
 				if (is_batch_img_)
@@ -2922,6 +2921,62 @@ namespace gui
 
 	void MainWindow::title_detect(void)
 	{
+		QLineEdit	*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+		QSpinBox	*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
+		QSpinBox	*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
+		QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthModeComboBox");
+		QRadioButton* holo = findChild<QRadioButton*>("hologramRadioButton");
+		QRadioButton* direct = findChild<QRadioButton*>("directImageRadioButton");
+		std::string	file_src = import_line_edit->text().toUtf8();
+		int			width = 0, height = 0, depth = 0;
+		bool		mode;
+		int			i;
+		int			underscore = 4;
 
+		for (i = file_src.length(); i >= 0 && underscore; --i)
+			if (file_src[i] == '_')
+				underscore--;
+		if (underscore)
+			return;
+		if (file_src[++i] == '_' && i++)
+			if (file_src[i] == 'D' || file_src[i] == 'H')
+				mode = ((file_src[i] == 'D') ? (0) : (1));
+			else
+				return;
+		if (file_src[++i] == '_')
+		{
+			width = std::atoi(&file_src[++i]);
+			while (file_src[i] != '_' && file_src[i])
+				++i;
+		}
+		else
+			return;
+		if (file_src[i++] == '_')
+		{
+			height = std::atoi(&file_src[i++]);
+			while (file_src[i] != '_' && file_src[i])
+				++i;
+		}
+		else
+			return;
+		if (file_src[i++] == '_')
+		{
+			depth = std::atoi(&file_src[i++]);
+			while (file_src[i] != '_' && file_src[i])
+				++i;
+		}
+		else
+			return;
+		if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
+			return;
+	/*	std::cout << "width =  " << width << std::endl;
+		std::cout << "height = " << height << std::endl;
+		std::cout << "depth =  " << depth << std::endl;
+		std::cout << "mode =   " << ((mode == false) ? ("D") : ("H")) << std::endl;*/
+		import_width_box->setValue(width);
+		import_height_box->setValue(height);
+		import_depth_box->setCurrentIndex((depth >> 3) - 1);
+		direct->setChecked(!mode);
+		holo->setChecked(mode);
 	}
 }
