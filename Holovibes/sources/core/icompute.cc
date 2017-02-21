@@ -289,12 +289,13 @@ namespace holovibes
 
 		if (compute_desc_.stft_enabled)
 		{
-
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 8;
 			try
 			{
 				gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
+				if (compute_desc_.stft_view_enabled)
+					update_stft_slice_queue();
 			}
 			catch (std::exception& )
 			{
@@ -303,7 +304,7 @@ namespace holovibes
 			}
 		}
 
-		if (compute_desc_.stft_view_enabled)
+		/*if (compute_desc_.stft_view_enabled)
 		{
 			try
 			{
@@ -314,7 +315,7 @@ namespace holovibes
 				gpu_stft_queue_ = nullptr;
 				err_count++;
 			}
-		}
+		}*/
 		
 		if (err_count != 0)
 		{
@@ -743,7 +744,8 @@ namespace holovibes
 				b,
 				static_cast<cudaStream_t>(0));
 		}
-		if (compute_desc_.stft_view_enabled.load())
+		if (compute_desc_.stft_view_enabled.load() &&
+			gpu_stft_queue_ && gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz)
 		{
 			// Conservation of the coordinates when cursor is outside of the window
 			QPoint cursorPos;

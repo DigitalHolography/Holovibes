@@ -18,7 +18,7 @@ namespace gui
 	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
 		BasicOpenGLWindow(p, s, q),
 		Fd(q.get_frame_desc()),
-		Angle(0.f)
+		Angle(0.f), Flip(0)
 	{
 		/*Rotation = new QShortcut(QKeySequence(Qt::Key_R), this);
 		connect(Rotation, SIGNAL(activated()), this, SLOT(Rotate()));
@@ -114,7 +114,8 @@ namespace gui
 		#pragma endregion
 		
 		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-		
+		glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+
 		Vao.release();
 		Program->release();
 
@@ -189,4 +190,17 @@ namespace gui
 			Program->release();
 		}
 	}
+	
+	void SliceWindow::setFlip(int f)
+	{
+		Flip = f;
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+			Program->release();
+		}
+	}
+
 }

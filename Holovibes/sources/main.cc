@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
 		#ifndef _DEBUG
 		/* Hides the console window. */
-		ShowWindow(GetConsoleWindow(), SW_HIDE);
+		//ShowWindow(GetConsoleWindow(), SW_HIDE);
 		#endif /* !_DEBUG */
 
 		splash.show();

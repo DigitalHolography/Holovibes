@@ -613,6 +613,7 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
     </Image>
+    <Image Include="holovibes_logo_42.png" />
     <Image Include="icon1.ico">
       <DeploymentContent>false</DeploymentContent>
     </Image>

@@ -28,6 +28,10 @@ namespace gui
 		//, gl_win_stft_1(nullptr)
 		, sliceXZ(nullptr)
 		, sliceYZ(nullptr)
+		, xzAngle(0.f)
+		, yzAngle(0.f)
+		, xzFlip(0)
+		, yzFlip(0)
 		, is_enabled_camera_(false)
 		, is_enabled_average_(false)
 		, is_batch_img_(true)
@@ -136,8 +140,10 @@ namespace gui
 		QSpinBox* STFT_step = findChild<QSpinBox*>("STFTSpinBox");
 		STFT_step->setValue(cd.stft_steps.load());
 
-		QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-		phase_number->setValue(cd.nsamples);
+		//QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
+		//phase_number->setValue(cd.nsamples);
+		QLineEdit* phase = findChild<QLineEdit*>("setPhaseLine");
+		phase->setText(QString::fromUtf8(std::to_string(cd.nsamples).c_str()));
 
 		QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
 		p->setValue(cd.pindex + 1);
@@ -682,39 +688,38 @@ namespace gui
 			holovibes_.get_pipe()->request_autocontrast();
 		}
 	}
-	
-	void MainWindow::set_phase_number(const int value)
-	{
-		QSpinBox* p_nphase = findChild<QSpinBox*>("phaseNumberSpinBox");
-		holovibes::Queue* input;
 
+	void MainWindow::setPhase()
+	{
 		if (!is_direct_mode())
 		{
-			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			input = &holovibes_.get_capture_queue();
-			if (cd.stft_enabled.load() || (value <= static_cast<const int>(input->get_max_elts())))
+			QLineEdit* lineEdit = findChild<QLineEdit*>("setPhaseLine");
+			const int phaseNumber = lineEdit->text().toInt();
+			holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+			holovibes::Queue&				in = holovibes_.get_capture_queue();
+			if (cd.stft_enabled.load() ||
+				phaseNumber < static_cast<const int>(in.get_max_elts()))
 			{
-				holovibes_.get_pipe()->request_update_n(value);
+				holovibes_.get_pipe()->request_update_n(phaseNumber);
 				if (cd.stft_view_enabled.load())
 				{
-					/*_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
-					gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
-					lovibes_.get_pipe()->update_stft_slice_queue();*/
+					//_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
+					//gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
+					//holovibes_.get_pipe()->update_stft_slice_queue();
 
-					stft_view(false);
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
-					stft_view(true);
-
+					//stft_view(false);
+					//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					//stft_view(true);
 				}
-				//keep focus on SpinBox #img after resizing of the slice window 
-				setWindowState(Qt::WindowMinimized);
+				//setWindowState(Qt::WindowMinimized);
 				setWindowState(Qt::WindowActive);
-
 				notify();
 			}
 			else
 			{
-				p_nphase->setValue(value - 1);
+				lineEdit->setText(
+					QString::fromUtf8(
+						std::to_string(static_cast<const int>(in.get_max_elts())).c_str()));
 			}
 		}
 	}
@@ -1017,8 +1022,9 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			// Reenabling phase number and p adjustments.
-			QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-			phase_number->setEnabled(true);
+			//QSpinBox* phase = findChild<QSpinBox*>("phaseNumberSpinBox");
+			QLineEdit *phase = findChild<QLineEdit*>("setPhaseLine");
+			phase->setEnabled(true);
 
 			QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
 			p->setEnabled(true);
@@ -1072,6 +1078,48 @@ namespace gui
 				holovibes_.get_pipe()->request_autocontrast();
 
 			set_enable_unwrap_box();
+		}
+	}
+
+	void MainWindow::rotateTexture()
+	{
+		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
+		QString s = c->currentText();
+
+		if (s == QString("mainDisplay"))
+		{
+			;
+		}
+		else if (s == QString("sliceXZ"))
+		{
+			xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
+			sliceXZ->setAngle(xzAngle);
+		}
+		else if (s == QString("sliceYZ"))
+		{
+			yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
+			sliceYZ->setAngle(yzAngle);
+		}
+	}
+
+	void MainWindow::flipTexture()
+	{
+		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
+		QString s = c->currentText();
+
+		if (s == QString("mainDisplay"))
+		{
+			;
+		}
+		else if (s == QString("sliceXZ"))
+		{
+			xzFlip = !xzFlip;
+			sliceXZ->setFlip(xzFlip);
+		}
+		else if (s == QString("sliceYZ"))
+		{
+			yzFlip = !yzFlip;
+			sliceYZ->setFlip(yzFlip);
 		}
 	}
 
@@ -1393,14 +1441,19 @@ namespace gui
 
 	void MainWindow::set_average_mode(const bool value)
 	{
-		GLWidget * gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		GLWidget*	gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		if (value)
+		{
+			gl_widget->setMouseTracking(false);
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
-		else if (cd.stft_view_enabled.load())
-			gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+		}
 		else
-			gl_widget->set_selection_mode(gui::eselection::ZOOM);
+		{
+			gl_widget->set_selection_mode((cd.stft_view_enabled.load()) ?
+				gui::eselection::STFT_SLICE : gui::eselection::ZOOM);
+			gl_widget->setMouseTracking(true);
+		}
 		is_enabled_average_ = value;
 
 		average_visible(value);
@@ -2178,8 +2231,11 @@ namespace gui
 		QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
 		phase_number_label->setDisabled(!value);
 
-		QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
-		phase_nb->setDisabled(!value);
+		//QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
+		QLineEdit *phase = findChild<QLineEdit*>("setPhaseLine");
+		phase->setDisabled(!value);
+		QPushButton *phaseBtn = findChild<QPushButton*>("setPhaseButton");
+		phaseBtn->setDisabled(!value);
 
 		QLabel* p_label = findChild<QLabel*>("pLabel");
 		p_label->setDisabled(!value);
@@ -2242,8 +2298,11 @@ namespace gui
 
 	void MainWindow::phase_num_visible(const bool value)
 	{
-		QSpinBox* phase_num = findChild<QSpinBox*>("phaseNumberSpinBox");
-		phase_num->setDisabled(!value);
+		//QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
+		QLineEdit *phase_nb = findChild<QLineEdit*>("setPhaseLine");
+		phase_nb->setDisabled(!value);
+		QPushButton *phaseBtn = findChild<QPushButton*>("setPhaseButton");
+		phaseBtn->setDisabled(!value);
 	}
 
 	void MainWindow::demodulation_visibility(const bool value)

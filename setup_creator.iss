@@ -2,13 +2,13 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "4.0.0"
+#define MyAppVersion "4.2.0"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 ;define for Qt ,Qwt path and Cuda
 #define QtPath "C:\Qt\Qt5.7.1\5.7\msvc2013_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.7.1\5.7\msvc2013_64\plugins\platforms"
+#define QtPlatformPath "C:\Qt\Qt5.8.0\5.8\msvc2015_64\plugins\platforms"
 #define QwtPath "C:\Qt\qwt-6.1.3\lib"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin"
 
@@ -51,7 +51,7 @@ Name: "Custom"; Description: "Custom installation"; Flags: iscustom
 [Components]
 Name: "program"; Description: "Holovibes"; Types: full compact custom; Flags: fixed
 Name: "visual"; Description: "Run-time components for C++"; Types: full
-Name: "cuda"; Description: "Nvidia and Cuda drivers"; Types: full
+;Name: "cuda"; Description: "Nvidia and Cuda drivers"; Types: full
 
 [Files]
 Source: "x64\Release\Holovibes.exe"; DestDir: "{app}";Components: program; Flags: ignoreversion
@@ -90,8 +90,8 @@ Source: "{#QtPlatformPath}\*"; DestDir: "{app}\platforms";Components: program; F
 Source: "{#CudaPath}\cufft64_80.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_80.dll"; DestDir: "{app}";Components: program; Flags: ignoreversion
 Source: "setup_creator_files\vcredist_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual
-Source: "setup_creator_files\cuda_8.0.44_win10.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWin10; AfterInstall: CudaInstaller_Win10 
-Source: "setup_creator_files\cuda_8.0.44_windows.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWinOther; AfterInstall: CudaInstaller
+;Source: "setup_creator_files\cuda_8.0.44_win10.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWin10; AfterInstall: CudaInstaller_Win10 
+;Source: "setup_creator_files\cuda_8.0.44_windows.exe"; DestDir: "{tmp}"; Components: cuda; Flags: nocompression ignoreversion; Check : CheckWinOther; AfterInstall: CudaInstaller
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -132,7 +132,7 @@ begin
     if not Exec(ExpandConstant('{tmp}\vcredist_x64.exe'), '', '', SW_SHOWNORMAL,
       ewWaitUntilTerminated, ResultCode)
     then
-      MsgBox('Visual c++ redistributable 2013 failed to run!' + #13#10 +
+      MsgBox('Visual c++ redistributable 2015 failed to run!' + #13#10 +
         SysErrorMessage(ResultCode), mbError, MB_OK);
 end;
 

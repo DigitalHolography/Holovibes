@@ -24,10 +24,12 @@ namespace gui
 			virtual ~SliceWindow();
 
 			void	setAngle(float a);
+			void	setFlip(int f);
 
 		protected:
 			const camera::FrameDescriptor&  Fd;
-			float Angle;
+			float	Angle;
+			int		Flip;
 
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);

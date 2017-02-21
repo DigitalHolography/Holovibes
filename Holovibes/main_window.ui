@@ -124,25 +124,6 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QSpinBox" name="phaseNumberSpinBox">
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>160</y>
-           <width>81</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string># of images picked at each iteration</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>2048</number>
-         </property>
-        </widget>
         <widget class="QLabel" name="PhaseNumberLabel">
          <property name="geometry">
           <rect>
@@ -573,10 +554,32 @@
           <string>Steps</string>
          </property>
         </widget>
+        <widget class="QLineEdit" name="setPhaseLine">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>160</y>
+           <width>81</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="setPhaseButton">
+         <property name="geometry">
+          <rect>
+           <x>50</x>
+           <y>160</y>
+           <width>40</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Set</string>
+         </property>
+        </widget>
         <zorder>takerefPushButton</zorder>
         <zorder>directImageRadioButton</zorder>
         <zorder>hologramRadioButton</zorder>
-        <zorder>phaseNumberSpinBox</zorder>
         <zorder>PhaseNumberLabel</zorder>
         <zorder>pSpinBox</zorder>
         <zorder>pLabel</zorder>
@@ -601,6 +604,8 @@
         <zorder>autofocusLabel_3</zorder>
         <zorder>STFTSpinBox</zorder>
         <zorder>PhaseNumberLabel_2</zorder>
+        <zorder>setPhaseLine</zorder>
+        <zorder>setPhaseButton</zorder>
        </widget>
       </item>
       <item>
@@ -650,7 +655,7 @@
         <widget class="QCheckBox" name="shiftCornersCheckBox">
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>100</x>
            <y>160</y>
            <width>81</width>
            <height>31</height>
@@ -669,7 +674,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>100</x>
            <y>220</y>
            <width>31</width>
            <height>16</height>
@@ -685,7 +690,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>100</x>
            <y>190</y>
            <width>31</width>
            <height>16</height>
@@ -711,7 +716,7 @@
         <widget class="QComboBox" name="viewModeComboBox">
          <property name="geometry">
           <rect>
-           <x>70</x>
+           <x>97</x>
            <y>20</y>
            <width>111</width>
            <height>20</height>
@@ -774,7 +779,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>147</x>
            <y>220</y>
            <width>62</width>
            <height>22</height>
@@ -796,7 +801,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>147</x>
            <y>190</y>
            <width>62</width>
            <height>22</height>
@@ -854,7 +859,7 @@
         <widget class="QDoubleSpinBox" name="zmaxDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>117</x>
            <y>310</y>
            <width>91</width>
            <height>21</height>
@@ -876,7 +881,7 @@
         <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>117</x>
            <y>280</y>
            <width>91</width>
            <height>21</height>
@@ -924,7 +929,7 @@
         <widget class="QSpinBox" name="zdivSpinBox">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>117</x>
            <y>340</y>
            <width>51</width>
            <height>22</height>
@@ -943,7 +948,7 @@
         <widget class="QPushButton" name="autofocusPushButton">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>117</x>
            <y>250</y>
            <width>91</width>
            <height>21</height>
@@ -956,7 +961,7 @@
         <widget class="QSpinBox" name="ziterSpinBox">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>167</x>
            <y>340</y>
            <width>41</width>
            <height>22</height>
@@ -991,7 +996,7 @@
         <widget class="QSpinBox" name="img_accSpinBox">
          <property name="geometry">
           <rect>
-           <x>120</x>
+           <x>147</x>
            <y>50</y>
            <width>61</width>
            <height>22</height>
@@ -1057,7 +1062,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>90</x>
            <y>70</y>
            <width>41</width>
            <height>31</height>
@@ -1101,7 +1106,7 @@
          </property>
          <property name="geometry">
           <rect>
-           <x>110</x>
+           <x>90</x>
            <y>100</y>
            <width>70</width>
            <height>30</height>
@@ -1111,10 +1116,10 @@
           <string>Ext. trig</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="pushButton_3">
+        <widget class="QPushButton" name="flipButton">
          <property name="geometry">
           <rect>
-           <x>130</x>
+           <x>157</x>
            <y>130</y>
            <width>51</width>
            <height>21</height>
@@ -1124,10 +1129,10 @@
           <string>Flip</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="rotateButton">
          <property name="geometry">
           <rect>
-           <x>70</x>
+           <x>97</x>
            <y>130</y>
            <width>51</width>
            <height>21</height>
@@ -1137,18 +1142,28 @@
           <string>Rotate</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="comboBox">
+        <widget class="QComboBox" name="selectedWindowComboBox">
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>130</y>
-           <width>51</width>
+           <width>82</width>
            <height>21</height>
           </rect>
          </property>
          <item>
           <property name="text">
-           <string>Win.</string>
+           <string>mainDisplay</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>sliceXZ</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>sliceYZ</string>
           </property>
          </item>
         </widget>
@@ -1178,9 +1193,9 @@
         <zorder>autofocusLabel_2</zorder>
         <zorder>STFTSlices</zorder>
         <zorder>STFTExtTrig</zorder>
-        <zorder>pushButton_3</zorder>
-        <zorder>pushButton_4</zorder>
-        <zorder>comboBox</zorder>
+        <zorder>flipButton</zorder>
+        <zorder>rotateButton</zorder>
+        <zorder>selectedWindowComboBox</zorder>
        </widget>
       </item>
       <item>
@@ -2989,22 +3004,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>phaseNumberSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_phase_number(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>187</x>
-     <y>201</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>94</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -3412,7 +3411,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>295</y>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3796,7 +3795,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>386</y>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3892,7 +3891,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>539</x>
-     <y>196</y>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3908,7 +3907,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>166</y>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
      <x>665</x>
@@ -4275,8 +4274,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>146</y>
+     <x>71</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4397,18 +4396,50 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_5</sender>
-   <signal>pressed()</signal>
+   <sender>setPhaseButton</sender>
+   <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>title_detect()</slot>
+   <slot>setPhase()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>956</x>
-     <y>145</y>
+     <x>84</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1111</x>
-     <y>156</y>
+     <x>224</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rotateButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>rotateTexture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>360</x>
+     <y>163</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>260</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>flipButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>flipTexture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>387</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -4508,6 +4539,8 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
   <slot>stft_signal_trig(bool)</slot>
-  <slot>title_detect()</slot>
+  <slot>setPhase()</slot>
+  <slot>rotateTexture()</slot>
+  <slot>flipTexture()</slot>
  </slots>
 </ui>

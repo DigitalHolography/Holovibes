@@ -67,7 +67,8 @@ __global__	void	kernel_stft_view_xz(const complex	*input,
 	if (id < output_size)
 	{
 		pixel = input[(y0 * width) + (id / width) * frame_size + id % width];
-		output[output_size - id] = static_cast<ushort>(pixel.x);
+		//output[output_size - id] = static_cast<ushort>(pixel.x);
+		output[id] = static_cast<ushort>(pixel.x);
 	}
 }
 
@@ -86,7 +87,8 @@ __global__	void	kernel_stft_view_yz(	const complex	*input,
 	if (id < output_size)
 	{
 		pixel = input[x0 + id * width];
-		output[output_size - id] = static_cast<ushort>(pixel.x);
+		//output[output_size - id] = static_cast<ushort>(pixel.x);
+		output[id] = static_cast<ushort>(pixel.x);
 	}
 }
 

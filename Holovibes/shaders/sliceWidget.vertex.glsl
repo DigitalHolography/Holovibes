@@ -15,16 +15,17 @@
 layout(location = 0) in vec2	xy;
 layout(location = 1) in vec2	uv;
 uniform float	angle;
+uniform int		flip;
 
 out vec2	texCoord;
 
-mat2 rotate2d(float _angle){
-    return mat2(cos(_angle),-sin(_angle),
-                sin(_angle),cos(_angle));
+mat2 rotate2d(float agl){
+    return mat2(cos(agl),-sin(agl),
+                sin(agl),cos(agl));
 }
 
 void main()
 {
-    texCoord = uv;
+	texCoord = (flip == 1) ? vec2(uv.x, 1.f - uv.y) : uv;
     gl_Position = vec4(xy * rotate2d(angle), 0.0f, 1.0f);
 }

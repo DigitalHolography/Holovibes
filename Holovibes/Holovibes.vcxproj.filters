@@ -551,6 +551,9 @@
     <Image Include="holovibes_logo.png">
       <Filter>resources</Filter>
     </Image>
+    <Image Include="holovibes_logo_42.png">
+      <Filter>resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Holovibes.rc">

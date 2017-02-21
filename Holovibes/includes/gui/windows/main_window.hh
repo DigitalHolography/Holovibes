@@ -208,7 +208,8 @@ namespace gui
 		/*! \brief Set phase number (also called 'n' in papers)
 		** \param value new phase number
 		*/
-		void set_phase_number(int value);
+		void setPhase();
+		//void set_phase_number(int value);
 
 		/*! \brief Set special buffer size
 		** \param value new buffer size
@@ -474,7 +475,6 @@ namespace gui
 
 		/*! \brief Display classic GUI theme*/
 		void set_classic();
-
 		/*! \brief Display classic GUI theme*/
 		void set_night();
 
@@ -482,7 +482,10 @@ namespace gui
 		void stft_signal_trig(bool checked);
 
 		/*! \brief Detects the file properties with the title*/
-		void MainWindow::title_detect(void);
+		void	title_detect();
+		void	rotateTexture();
+		void	flipTexture();
+
 	#pragma endregion
 	/* ---------- */
 	#pragma region Protected / Private Methods
@@ -567,6 +570,12 @@ namespace gui
 
 		std::unique_ptr<SliceWindow> sliceXZ;
 		std::unique_ptr<SliceWindow> sliceYZ;
+
+		float	xzAngle;
+		float	yzAngle;
+
+		int		xzFlip;
+		int		yzFlip;
 
 		//std::lock_guard<std::mutex> g(mutex_);
 		std::mutex mutex_;
