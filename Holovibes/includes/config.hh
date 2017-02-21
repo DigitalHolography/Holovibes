@@ -13,7 +13,7 @@ namespace holovibes
     /*! \brief Construct the config with most commonly used values.*/
     Config()
     {
-      this->input_queue_max_size = 100;
+      this->input_queue_max_size = 128;
       this->output_queue_max_size = 50;
       this->float_queue_max_size = 20;
       this->flush_on_refresh = 1;
