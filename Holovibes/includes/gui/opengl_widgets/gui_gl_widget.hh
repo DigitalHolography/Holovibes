@@ -104,6 +104,18 @@ namespace gui
 			selection_mode_ = mode;
 		}
 
+		eselection get_selection_mode(void)
+		{
+			if (h_.get_compute_desc().stft_view_enabled.load())
+				return (eselection::STFT_SLICE);
+			else if (h_.get_compute_desc().filter_2d_enabled.load())
+				return (eselection::STFT_ROI);
+			else if (h_.get_compute_desc().average_enabled.load())
+				return (eselection::AVERAGE);
+			else
+				return (eselection::ZOOM);
+		}
+
 		public slots:
 		void resizeFromWindow(const int width, const int height);
 

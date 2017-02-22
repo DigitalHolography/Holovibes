@@ -20,6 +20,7 @@ namespace holovibes
 		, flowgraphy_enabled(false)
 		, stft_enabled(false)
 		, filter_2d_enabled(false)
+		, average_enabled(false)
 		, contrast_min(1.f)
 		, contrast_max(65535.f)
 		, vibrometry_q(0)

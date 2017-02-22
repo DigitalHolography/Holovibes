@@ -193,6 +193,8 @@ namespace holovibes
 		std::atomic<bool> filter_2d_enabled;
 		/*! Is stft view enabled. */
 		std::atomic<bool> stft_view_enabled;
+		/*! Is average enabled. */
+		std::atomic<bool> average_enabled;
 		/*! Is signal trig enabled. */
 		std::atomic<bool> signal_trig_enabled;
 		/*! Is read file a .cine file. */

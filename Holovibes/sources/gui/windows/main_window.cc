@@ -363,12 +363,13 @@ namespace gui
 
 	void MainWindow::camera_none()
 	{
-		gl_window_.reset(nullptr);
+		close_critical_compute();
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		camera_visible(false);
 		record_visible(false);
+		gl_window_.reset(nullptr);
 		global_visibility(false);
 
 		QAction* settings = findChild<QAction*>("actionSettings");
@@ -891,7 +892,7 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			//QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
 			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			gl_widget->set_selection_mode(gui::eselection::ZOOM);
+			gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 			if (value == "None")
 				cd.algorithm = holovibes::ComputeDescriptor::None;
 			else if (value == "1FFT")
@@ -939,6 +940,7 @@ namespace gui
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 
+		cd.stft_view_enabled.exchange(false);
 		manager->remove_info("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 
@@ -949,7 +951,8 @@ namespace gui
 		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 		gl_window_->setCursor(Qt::ArrowCursor);
-		gl_widget->set_selection_mode(gui::eselection::ZOOM);
+		setMouseTracking(false);
+		gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 	}
 
 	void MainWindow::stft_view(bool checked)
@@ -987,6 +990,7 @@ namespace gui
 				sliceYZ->setAngle(90.f);
 
 				gl_window_->setCursor(Qt::CrossCursor);
+				setMouseTracking(true);
 				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
 
 				// Update Cursor position in Info Manager
@@ -1000,6 +1004,7 @@ namespace gui
 			{
 				std::cerr << e.what() << std::endl;
 				cancel_stft_slice_view();
+				findChild<QPushButton*>("setPhaseButton")->setEnabled(true);
 			}
 		}
 		else
@@ -1275,7 +1280,7 @@ namespace gui
 		//desc.autofocus_zone = zone;
 		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
-		gl_widget->set_selection_mode(gui::eselection::ZOOM);
+		gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 	}
 
 	void MainWindow::request_stft_roi_end()
@@ -1448,18 +1453,11 @@ namespace gui
 		GLWidget*	gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		if (value)
-		{
-			gl_widget->setMouseTracking(false);
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
-		}
 		else
-		{
-			gl_widget->set_selection_mode((cd.stft_view_enabled.load()) ?
-				gui::eselection::STFT_SLICE : gui::eselection::ZOOM);
-			gl_widget->setMouseTracking(true);
-		}
+			gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+		cd.average_enabled.exchange(value);
 		is_enabled_average_ = value;
-
 		average_visible(value);
 	}
 
@@ -2593,7 +2591,7 @@ namespace gui
 			cd.vibrometry_q.exchange(
 				ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q));
 			is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
-
+			cd.average_enabled.exchange(is_enabled_average_);
 
 			// Record
 			record_action->setChecked(!ptree.get<bool>("record.hidden", false));
@@ -2973,14 +2971,17 @@ namespace gui
 			return;
 		if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
 			return;
-	/*	std::cout << "width =  " << width << std::endl;
-		std::cout << "height = " << height << std::endl;
-		std::cout << "depth =  " << depth << std::endl;
-		std::cout << "mode =   " << ((mode == false) ? ("D") : ("H")) << std::endl;*/
+		/*	std::cout << "width =  " << width << std::endl;
+			std::cout << "height = " << height << std::endl;
+			std::cout << "depth =  " << depth << std::endl;
+			std::cout << "mode =   " << ((mode == false) ? ("D") : ("H")) << std::endl;*/
 		import_width_box->setValue(width);
 		import_height_box->setValue(height);
 		import_depth_box->setCurrentIndex((depth >> 3) - 1);
-		direct->setChecked(!mode);
-		holo->setChecked(mode);
+		if (!direct->isCheckable() && !holo->isCheckable())
+		{
+			direct->setChecked(!mode);
+			holo->setChecked(mode);
+		}
 	}
 }
