@@ -335,11 +335,13 @@ namespace holovibes
 	{
 		if (gpu_stft_slice_queue_xz)
 		{
+			gpu_stft_slice_queue_xz->mutexLock();
 			delete gpu_stft_slice_queue_xz;
 			gpu_stft_slice_queue_xz = nullptr;
 		}
 		if (gpu_stft_slice_queue_yz)
 		{
+			gpu_stft_slice_queue_yz->mutexLock();
 			delete gpu_stft_slice_queue_yz;
 			gpu_stft_slice_queue_yz = nullptr;
 		}

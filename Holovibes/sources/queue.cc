@@ -4,8 +4,6 @@
 #include "info_manager.hh"
 #include <stdexcept>
 
-using guard = std::lock_guard<std::mutex>;
-
 namespace holovibes
 {
 
@@ -67,36 +65,37 @@ namespace holovibes
 
 	void* Queue::get_start()
 	{
-		guard guard(mutex_);
+		mutexLock();
 		return buffer_ + start_ * size_;
 	}
 
 	unsigned int Queue::get_start_index()
 	{
+		mutexLock();
 		return start_;
 	}
 
 	void* Queue::get_end()
 	{
-		guard guard(mutex_);
+		mutexLock();
 		return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
 	}
 
 	void* Queue::get_last_images(const unsigned n)
 	{
-		guard guard(mutex_);
+		mutexLock();
 		return buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
 	}
 
 	unsigned int Queue::get_end_index()
 	{
-		guard guard(mutex_);
+		mutexLock();
 		return (start_ + curr_elts_) % max_elts_;
 	}
 
 	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
 	{
-		guard guard(mutex_);
+		mutexLock();
 
 		const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
 		char* new_elt_adress = buffer_ + (end_ * size_);
@@ -147,7 +146,7 @@ namespace holovibes
 
 	void Queue::dequeue()
 	{
-		guard guard(mutex_);
+		mutexLock();
 
 		if (curr_elts_ > 0)
 		{
@@ -158,7 +157,7 @@ namespace holovibes
 
 	void Queue::flush()
 	{
-		guard guard(mutex_);
+		mutexLock();
 
 		curr_elts_ = 0;
 		start_ = 0;
@@ -178,4 +177,10 @@ namespace holovibes
 			display_size.resize(pos);
 		return(display_size);
 	}
+
+	void Queue::mutexLock()
+	{
+		std::lock_guard<std::mutex> Guard(mutex_);
+	}
+
 }
