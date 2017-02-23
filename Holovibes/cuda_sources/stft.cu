@@ -67,12 +67,14 @@ __global__	void	kernel_stft_view_xz(const complex	*input,
 	if (id < output_size)
 	{
 		pixel = input[(y0 * width) + (id / width) * frame_size + id % width];
-		//output[output_size - id] = static_cast<ushort>(pixel.x);
-		output[id] = static_cast<ushort>(pixel.x);
+		//output[id] = static_cast<ushort>(pixel.x);
+		//output[id] = static_cast<ushort>(abs((pixel.x * pixel.x) + (pixel.y * pixel.y)));
+		//output[id] = static_cast<ushort>(log(abs(pixel.x * pixel.x + pixel.y * pixel.y)));
+		output[id] = static_cast<ushort>(hypotf(pixel.x, pixel.y));
 	}
 }
 
-__global__	void	kernel_stft_view_yz(	const complex	*input,
+__global__	void	kernel_stft_view_yz(const complex	*input,
 										ushort			*output,
 										const uint		x0,
 										const uint		y0,
@@ -87,8 +89,10 @@ __global__	void	kernel_stft_view_yz(	const complex	*input,
 	if (id < output_size)
 	{
 		pixel = input[x0 + id * width];
-		//output[output_size - id] = static_cast<ushort>(pixel.x);
-		output[id] = static_cast<ushort>(pixel.x);
+		//output[id] = static_cast<ushort>(pixel.x);
+		//output[id] = static_cast<ushort>(abs((pixel.x * pixel.x) + (pixel.y * pixel.y)));
+		//output[id] = static_cast<ushort>(log(abs(pixel.x * pixel.x + pixel.y * pixel.y)));
+		output[id] = static_cast<ushort>(hypotf(pixel.x, pixel.y));
 	}
 }
 
