@@ -92,7 +92,9 @@ Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_80.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_80.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual
+Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "setup_creator_files\vcredist_2013_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2013
+Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2015
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -101,7 +103,18 @@ Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
 
 [Code]
 
-procedure Visual;
+procedure Visual2013;
+var
+  ResultCode: Integer;
+begin
+    if not Exec(ExpandConstant('{tmp}\vcredist_2013_x64.exe'), '', '', SW_SHOWNORMAL,
+      ewWaitUntilTerminated, ResultCode)
+    then
+      MsgBox('Visual c++ redistributable 2013 failed to run!' + #13#10 +
+        SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
+procedure Visual2015;
 var
   ResultCode: Integer;
 begin
