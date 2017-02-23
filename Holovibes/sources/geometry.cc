@@ -29,4 +29,25 @@ namespace holovibes
 	{
 		return (width() * height());
 	}
+
+	void	Rectangle::checkCorners()
+	{
+		if (width() < 0)
+		{
+			QPoint t0pRight = topRight();
+			QPoint b0ttomLeft = bottomLeft();
+
+			setTopLeft(t0pRight);
+			setBottomRight(b0ttomLeft);
+		}
+		if (height() < 0)
+		{
+			QPoint t0pRight = topRight();
+			QPoint b0ttomLeft = bottomLeft();
+
+			setTopLeft(b0ttomLeft);
+			setBottomRight(t0pRight);
+		}
+	}
+
 }

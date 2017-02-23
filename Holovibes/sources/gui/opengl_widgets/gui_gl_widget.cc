@@ -383,6 +383,7 @@ namespace gui
 
 			bounds_check(selection_);
 			swap_selection_corners(selection_);
+			selection_.checkCorners();
 
 			switch (selection_mode_)
 			{
@@ -411,7 +412,7 @@ namespace gui
 			case ZOOM:
 				if (selection_.topLeft() != selection_.topRight())
 					zoom(selection_);
-				if (selection_.topLeft() != selection_.bottomRight())
+				else if (selection_.topLeft() != selection_.bottomRight())
 					zoom(selection_);
 				is_selection_enabled_ = false;
 				break;

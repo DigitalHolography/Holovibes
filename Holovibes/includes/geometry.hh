@@ -25,5 +25,6 @@ namespace holovibes
 			Rectangle(const unsigned int width, const unsigned int height);
 
 			uint	area() const;
+			void	checkCorners();
 	};
 }
