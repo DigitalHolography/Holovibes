@@ -257,28 +257,26 @@ namespace holovibes
 			inembed, input_.get_pixels(), 1,
 			CUFFT_C2C, input_.get_pixels());
 
-
-		if (gpu_stft_buffer_ != nullptr)
 		{
-			cudaFree(gpu_stft_buffer_);
-			gpu_stft_buffer_ = nullptr;
-		}
+			//std::lock_guard<std::mutex> Guard(stftGuard);
+			if (gpu_stft_buffer_ != nullptr)
+			{
+				cudaFree(gpu_stft_buffer_);
+				gpu_stft_buffer_ = nullptr;
+			}
+			cudaDestroy<cufftResult>(&plan1d_stft_) ? ++err_count : 0;
+			if (compute_desc_.stft_enabled)
+			{
+				/* CUFFT plan1d realloc */
+				int inembed_stft[1] = { n };
 
-		cudaDestroy<cufftResult>(&plan1d_stft_) ? ++err_count : 0;
-
-		if (compute_desc_.stft_enabled)
-		{
-
-			/* CUFFT plan1d realloc */
-			int inembed_stft[1] = { n };
-
-			cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
-				inembed_stft, input_.get_pixels(), 1,
-				inembed_stft, input_.get_pixels(), 1,
-				CUFFT_C2C, input_.get_pixels());
-
-			if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n) != CUDA_SUCCESS)
-				err_count++;
+				cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
+					inembed_stft, input_.get_pixels(), 1,
+					inembed_stft, input_.get_pixels(), 1,
+					CUFFT_C2C, input_.get_pixels());
+				if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n) != CUDA_SUCCESS)
+					err_count++;
+			}
 		}
 
 		if (gpu_stft_queue_ != nullptr)
@@ -335,13 +333,13 @@ namespace holovibes
 	{
 		if (gpu_stft_slice_queue_xz)
 		{
-			gpu_stft_slice_queue_xz->mutexLock();
+			//std::lock_guard<std::mutex> Guard(gpu_stft_slice_queue_xz->getGuard());
 			delete gpu_stft_slice_queue_xz;
 			gpu_stft_slice_queue_xz = nullptr;
 		}
 		if (gpu_stft_slice_queue_yz)
 		{
-			gpu_stft_slice_queue_yz->mutexLock();
+			//std::lock_guard<std::mutex> Guard(gpu_stft_slice_queue_yz->getGuard());
 			delete gpu_stft_slice_queue_yz;
 			gpu_stft_slice_queue_yz = nullptr;
 		}
@@ -717,59 +715,64 @@ namespace holovibes
 			b = true;
 			stft_frame_counter = compute_desc_.stft_steps.load();
 		}
-		if (!compute_desc_.vibrometry_enabled.load())
 		{
-			stft(input,
-				output,
-				gpu_stft_buffer_,
-				plan1d_stft_,
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
-				compute_desc_.pindex.load(),
-				input_.get_frame_desc().frame_res(),
-				b,
-				static_cast<cudaStream_t>(0));
-		}
-		else
-		{
-			/* q frame pointer */
-			//cufftComplex* q = input + 1 * input_.get_frame_desc().frame_res();
-			stft(
-				input,
-				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-				gpu_stft_buffer_,
-				plan1d_stft_,
-				compute_desc_.nsamples.load(),
-				compute_desc_.pindex.load(),
-				compute_desc_.vibrometry_q.load(),
-				input_.get_frame_desc().frame_res(),
-				b,
-				static_cast<cudaStream_t>(0));
-		}
-		if (compute_desc_.stft_view_enabled.load() &&
-			gpu_stft_queue_ && gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz)
-		{
-			// Conservation of the coordinates when cursor is outside of the window
-			QPoint cursorPos;
-			compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
-			const ushort width = input_.get_frame_desc().width;
-			const ushort height = input_.get_frame_desc().height ;
-			if (static_cast<uint>(cursorPos.x()) < width &&
-				static_cast<uint>(cursorPos.y()) < height)
+			//std::lock_guard<std::mutex> Guard(stftGuard);
+
+			if (!compute_desc_.vibrometry_enabled.load())
 			{
-				mouse_x = cursorPos.x();
-				mouse_y = cursorPos.y();
+				stft(input,
+					output,
+					gpu_stft_buffer_,
+					plan1d_stft_,
+					compute_desc_.nsamples.load(),
+					compute_desc_.pindex.load(),
+					compute_desc_.pindex.load(),
+					input_.get_frame_desc().frame_res(),
+					b,
+					static_cast<cudaStream_t>(0));
 			}
-			// -----------------------------------------------------
-			if (gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz && gpu_stft_queue_)
-				stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-								static_cast<ushort *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-								static_cast<ushort *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-								mouse_x,
-								mouse_y,
-								width,
-								height,
-								compute_desc_.nsamples.load());
+			else
+			{
+				/* q frame pointer */
+				//cufftComplex* q = input + 1 * input_.get_frame_desc().frame_res();
+				stft(
+					input,
+					static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+					gpu_stft_buffer_,
+					plan1d_stft_,
+					compute_desc_.nsamples.load(),
+					compute_desc_.pindex.load(),
+					compute_desc_.vibrometry_q.load(),
+					input_.get_frame_desc().frame_res(),
+					b,
+					static_cast<cudaStream_t>(0));
+			}
+			if (compute_desc_.stft_view_enabled.load() &&
+				gpu_stft_queue_ && gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz)
+			{
+				// Conservation of the coordinates when cursor is outside of the window
+				QPoint cursorPos;
+				compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
+				const ushort width = input_.get_frame_desc().width;
+				const ushort height = input_.get_frame_desc().height;
+				if (static_cast<uint>(cursorPos.x()) < width &&
+					static_cast<uint>(cursorPos.y()) < height)
+				{
+					mouse_x = cursorPos.x();
+					mouse_y = cursorPos.y();
+				}
+				// -----------------------------------------------------
+				if (gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz && gpu_stft_queue_)
+					//stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
+					stft_view_begin(gpu_stft_buffer_,
+						static_cast<ushort *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+						static_cast<ushort *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+						mouse_x,
+						mouse_y,
+						width,
+						height,
+						compute_desc_.nsamples.load());
+			}
 		}
 	}
 
@@ -865,7 +868,7 @@ namespace holovibes
 
 	void ICompute::cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
 	{
-		::cudaMemcpy(dst, src, size, kind);
+		cudaMemcpy(dst, src, size, kind);
 	}
 
 	void ICompute::autofocus_init()

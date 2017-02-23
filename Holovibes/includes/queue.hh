@@ -119,7 +119,7 @@ namespace holovibes
 	/*Create a string containing the buffer size in MB*/
 	std::string calculate_size(void);
 
-	void	mutexLock();
+	std::mutex&	getGuard();
   
   private:
     /*! The name of the queue */

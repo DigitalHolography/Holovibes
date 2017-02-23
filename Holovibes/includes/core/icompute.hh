@@ -6,6 +6,7 @@
 # include <fstream>
 # include <cufft.h>
 # include <chrono>
+# include <mutex>
 # include <memory>
 
 # include "config.hh"
@@ -311,6 +312,8 @@ namespace holovibes
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
     cufftComplex* gpu_stft_buffer_;
+	std::mutex	stftGuard;
+
 	/*! cufftComplex array containing lens. */
 	cufftComplex* gpu_lens_;
 	/*! cufftComplex array containing kernel. */
