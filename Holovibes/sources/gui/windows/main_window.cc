@@ -695,8 +695,8 @@ namespace gui
 		if (!is_direct_mode())
 		{
 			QLineEdit* lineEdit = findChild<QLineEdit*>("setPhaseLine");
-			uint phaseNumber = static_cast<uint>(lineEdit->text().toInt());
-			phaseNumber = (!phaseNumber) ? 1 : phaseNumber;
+			int phaseNumber = lineEdit->text().toInt();
+			phaseNumber = (phaseNumber <= 0) ? 1 : phaseNumber;
 			holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 			holovibes::Queue&				in = holovibes_.get_capture_queue();
 
