@@ -2940,7 +2940,7 @@ namespace gui
 		size_t		i;
 		bool		mode, endian;
 
-		for (i = file_src.length(); i >= 0 && underscore; --i)
+		for (i = file_src.length(); i > 0 && underscore; --i)
 			if (file_src[i] == '_')
 				underscore--;
 		if (underscore)
