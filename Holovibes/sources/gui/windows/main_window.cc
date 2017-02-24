@@ -701,7 +701,7 @@ namespace gui
 			holovibes::Queue&				in = holovibes_.get_capture_queue();
 
 			if (cd.stft_enabled.load() ||
-				phaseNumber < static_cast<uint>(in.get_max_elts()))
+				phaseNumber < static_cast<int>(in.get_max_elts()))
 			{
 				holovibes_.get_pipe()->request_update_n(phaseNumber);
 				if (cd.stft_view_enabled.load())
@@ -1653,20 +1653,23 @@ namespace gui
 		path_line_edit->insert(filename);
 	}
 
-	std::string MainWindow::set_record_filename(camera::FrameDescriptor fd, std::string filename)
+	std::string MainWindow::set_record_filename_properties(camera::FrameDescriptor fd, std::string filename)
 	{
-		int i;
 		std::string tmp = (is_direct_mode() ? "D_" : "H_");
+		size_t i;
+
 		std::string sub_str = "_" + tmp
 			+ std::to_string(fd.width)
 			+ "_" + std::to_string(fd.height)
-			+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit";
-		for (i = filename.length(); i > 0; --i)
+			+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
+			+ "_" + "e"; // Holovibes record is only in little endian
+
+		for (i = filename.length(); i >= 0; --i)
 			if (filename[i] == '.')
 				break;
-		if (i == 0)
-			return (filename);
-		filename.insert(i, sub_str, 0, sub_str.length());
+		
+		if (i != 0)
+			filename.insert(i, sub_str, 0, sub_str.length());
 		return (filename);
 	}
 
@@ -1710,7 +1713,7 @@ namespace gui
 			else
 				queue = &holovibes_.get_output_queue();
 
-			path = set_record_filename(queue->get_frame_desc(), path);
+			path = set_record_filename_properties(queue->get_frame_desc(), path);
 			record_thread_.reset(new ThreadRecorder(
 				*queue,
 				path,
@@ -1853,7 +1856,7 @@ namespace gui
 				q = &holovibes_.get_capture_queue();
 			else
 				q = &holovibes_.get_output_queue();
-			formatted_path = set_record_filename(q->get_frame_desc(), formatted_path);
+			formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
 			if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 			{
 				if (is_batch_img_)
@@ -2929,13 +2932,13 @@ namespace gui
 		QSpinBox	*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
 		QSpinBox	*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
 		QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthModeComboBox");
+		QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndianModeComboBox");
 		QRadioButton* holo = findChild<QRadioButton*>("hologramRadioButton");
 		QRadioButton* direct = findChild<QRadioButton*>("directImageRadioButton");
 		std::string	file_src = import_line_edit->text().toUtf8();
-		int			width = 0, height = 0, depth = 0;
-		bool		mode;
-		int			i;
-		int			underscore = 4;
+		int			width = 0, height = 0, depth = 0, underscore = 5;
+		size_t		i;
+		bool		mode, endian;
 
 		for (i = file_src.length(); i >= 0 && underscore; --i)
 			if (file_src[i] == '_')
@@ -2944,7 +2947,7 @@ namespace gui
 			return;
 		if (file_src[++i] == '_' && i++)
 			if (file_src[i] == 'D' || file_src[i] == 'H')
-				mode = ((file_src[i] == 'D') ? (0) : (1));
+				mode = ((file_src[i] == 'D') ? (false) : (true));
 			else
 				return;
 		if (file_src[++i] == '_')
@@ -2971,6 +2974,13 @@ namespace gui
 		}
 		else
 			return;
+		if (file_src[i++] == '_')
+		{
+			if (file_src[i] == 'e' || file_src[i] == 'E')
+				endian = ((file_src[i] == 'e') ? (false) : (true));
+			else
+				return;
+		}
 		if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
 			return;
 		/*	std::cout << "width =  " << width << std::endl;
@@ -2979,7 +2989,8 @@ namespace gui
 			std::cout << "mode =   " << ((mode == false) ? ("D") : ("H")) << std::endl;*/
 		import_width_box->setValue(width);
 		import_height_box->setValue(height);
-		import_depth_box->setCurrentIndex((depth >> 3) - 1);
+		import_depth_box->setCurrentIndex(log2(depth) - 3);
+		import_endian_box->setCurrentIndex(endian);
 		if (!direct->isCheckable() && !holo->isCheckable())
 		{
 			direct->setChecked(!mode);

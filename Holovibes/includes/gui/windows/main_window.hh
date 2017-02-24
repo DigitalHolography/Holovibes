@@ -389,7 +389,7 @@ namespace gui
 		** A ThreadRecord is used for image recording in order not to block the
 		** GUI during recording time. When the record is done, it calls finished_image_record().
 		*/
-		std::string set_record_filename(camera::FrameDescriptor fd, std::string filename);
+		std::string set_record_filename_properties(camera::FrameDescriptor fd, std::string filename);
 		void set_record();
 		/*! \brief Destroy ThreadRecord cleanly */
 		void finished_image_record();
