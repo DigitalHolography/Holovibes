@@ -476,13 +476,14 @@ namespace gui
 			unsigned int height = 512;
 			init_image_mode(pos, width, height);
 			unsigned int depth = 2;
+			if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
+			{
+				last_contrast_type_ = "Complex output";
+				depth = 8;
+			}
 			try
 			{
-				if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
-				{
-					last_contrast_type_ = "Complex output";
-					depth = 8;
-				}
+				
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
@@ -493,6 +494,7 @@ namespace gui
 			}
 			catch (std::exception& e)
 			{
+				gl_window_.reset(nullptr);
 				display_error(e.what());
 			}
 			notify();
