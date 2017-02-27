@@ -271,7 +271,7 @@ namespace gui
 	void MainWindow::notify_error(std::exception& e, const char* msg)
 	{
 		holovibes::CustomException* err_ptr = dynamic_cast<holovibes::CustomException*>(&e);
-		std::stringstream str;
+		std::string str;
 		if (err_ptr != nullptr)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -299,13 +299,15 @@ namespace gui
 			}
 			close_critical_compute();
 
-			str << "GPU allocation error occured." << '\n' << "Cuda error message: " << '\n' << msg;
-			emit send_error(QString::fromLatin1(str.str().c_str()));
+			str = "GPU allocation error occured.\nCuda error message\n" + std::string(msg);
+			display_error(str);
+			//emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 		else
 		{
-			str << "Unknown error occured.";
-			emit send_error(QString::fromLatin1(str.str().c_str()));
+			display_error(msg);
+			//str << "Unknown error occured.";
+			//emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 	}
 
@@ -482,6 +484,7 @@ namespace gui
 					depth = 8;
 				}
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
+				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
@@ -1667,7 +1670,7 @@ namespace gui
 		for (i = filename.length(); i >= 0; --i)
 			if (filename[i] == '.')
 				break;
-		
+
 		if (i != 0)
 			filename.insert(i, sub_str, 0, sub_str.length());
 		return (filename);
@@ -2070,8 +2073,11 @@ namespace gui
 			tr("import file"), "C://", tr("All files (*)"));
 
 		QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-		import_line_edit->clear();
-		import_line_edit->insert(filename);
+		if (filename != "")
+		{
+			import_line_edit->clear();
+			import_line_edit->insert(filename);
+		}
 	}
 
 	void MainWindow::import_file_stop(void)
@@ -2467,18 +2473,22 @@ namespace gui
 
 	void MainWindow::display_error(const std::string msg)
 	{
-		QMessageBox msg_box;
+		/*QMessageBox msg_box;
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Critical);
-		msg_box.exec();
+		msg_box.exec();*/
+		gui::InfoManager::get_manager()->update_info_safe("Error", msg);
+		gui::InfoManager::get_manager()->wait(2000);
+		gui::InfoManager::get_manager()->remove_info("Error");
 	}
 
 	void MainWindow::display_info(const std::string msg)
 	{
-		QMessageBox msg_box;
+		/*QMessageBox msg_box;
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
-		msg_box.exec();
+		msg_box.exec();*/
+		gui::InfoManager::get_manager()->update_info_safe("Info", msg);
 	}
 
 	void MainWindow::open_file(const std::string& path)

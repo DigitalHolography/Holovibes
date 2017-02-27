@@ -61,6 +61,9 @@ namespace gui
 
 	GuiGLWindow::~GuiGLWindow()
 	{
+		delete full_screen_;
+		delete maximized_screen_;
+		delete default_screen_;
 		gl_widget_.reset(nullptr);
 		widget.reset(nullptr);
 	}
