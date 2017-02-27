@@ -167,7 +167,10 @@ namespace gui
 			algorithm->setCurrentIndex(2);
 		else
 			algorithm->setCurrentIndex(0);
-
+		if (cd.algorithm != holovibes::ComputeDescriptor::None)
+			findChild<QPushButton*>("autofocusPushButton")->setEnabled(true);
+		else
+			findChild<QPushButton*>("autofocusPushButton")->setEnabled(false);
 		QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
 
 		if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
@@ -313,10 +316,13 @@ namespace gui
 
 	void MainWindow::display_message(QString msg)
 	{
-		QMessageBox msg_box(0);
+		/*QMessageBox msg_box(0);
 		msg_box.setText(msg);
 		msg_box.setIcon(QMessageBox::Critical);
-		msg_box.exec();
+		msg_box.exec();*/
+		gui::InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
+		gui::InfoManager::get_manager()->wait(2000);
+		gui::InfoManager::get_manager()->remove_info("Message");
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -483,7 +489,6 @@ namespace gui
 			}
 			try
 			{
-				
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
@@ -569,6 +574,8 @@ namespace gui
 		holovibes::Config&	config = global::global_config;
 		int					device = 0;
 
+		close_critical_compute();
+		camera_none();
 		global_visibility(false);
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Resetting...");
@@ -908,7 +915,10 @@ namespace gui
 				cd.algorithm = holovibes::ComputeDescriptor::FFT2;
 			else
 				assert(!"Unknow Algorithm.");
-
+			if (cd.algorithm != holovibes::ComputeDescriptor::None)
+				findChild<QPushButton*>("autofocusPushButton")->setEnabled(true);
+			else
+				findChild<QPushButton*>("autofocusPushButton")->setEnabled(false);
 			if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 				holovibes_.get_pipe()->request_autocontrast();
 		}
@@ -988,13 +998,16 @@ namespace gui
 					QSize(gl_window_->width(), nSize),
 					holovibes_.get_pipe()->get_stft_slice_queue(0)));
 				sliceXZ->setTitle("Slice XZ");
+				sliceXZ->setAngle(xzAngle);
+				sliceXZ->setFlip(xzFlip);
 
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
 					QSize(nSize, gl_window_->height()),
 					holovibes_.get_pipe()->get_stft_slice_queue(1)));
 				sliceYZ->setTitle("Slice YZ");
-				sliceYZ->setAngle(90.f);
+				sliceYZ->setAngle(yzAngle);
+				sliceYZ->setFlip(yzFlip);
 
 				gl_window_->setCursor(Qt::CrossCursor);
 				setMouseTracking(true);
@@ -1746,7 +1759,7 @@ namespace gui
 		QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 		record_thread_.reset(nullptr);
-		display_info("Record done");
+		
 		progress_bar->setMaximum(1);
 		progress_bar->setValue(1);
 		if (float_output_checkbox->isChecked() && !is_direct_mode())
@@ -1756,6 +1769,7 @@ namespace gui
 		if (!is_direct_mode())
 			global_visibility(true);
 		record_but_cancel_visible(true);
+		display_error("Record done");
 	}
 
 	void MainWindow::average_record()
@@ -2071,14 +2085,23 @@ namespace gui
 
 	void MainWindow::import_browse_file()
 	{
-		QString filename = QFileDialog::getOpenFileName(this,
-			tr("import file"), "C://", tr("All files (*)"));
+		static QString tmp_path = "";
+		QString filename = "";
+
+		if (tmp_path == "")
+			filename = QFileDialog::getOpenFileName(this,
+				tr("import file"), "C://", tr("All files (*)"));
+		else
+			filename = QFileDialog::getOpenFileName(this,
+				tr("import file"), tmp_path, tr("All files (*)"));
 
 		QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+		
 		if (filename != "")
 		{
 			import_line_edit->clear();
 			import_line_edit->insert(filename);
+			tmp_path = filename;
 		}
 	}
 
@@ -2209,18 +2232,12 @@ namespace gui
 		static_cast<void*>(event);
 		save_ini("holovibes.ini");
 
-		if (gl_window_)
-			gl_window_->close();
-
-		//if (gl_win_stft_0) gl_win_stft_0->close();
-		//if (gl_win_stft_1) gl_win_stft_1->close();
-
 		if (sliceXZ)
 			sliceXZ->close();
-
 		if (sliceYZ)
 			sliceYZ->close();
-
+		if (gl_window_)
+			gl_window_->close();
 		if (plot_window_)
 			plot_window_->close();
 	}
@@ -2491,6 +2508,8 @@ namespace gui
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();*/
 		gui::InfoManager::get_manager()->update_info_safe("Info", msg);
+		gui::InfoManager::get_manager()->wait(2000);
+		gui::InfoManager::get_manager()->remove_info("Info");
 	}
 
 	void MainWindow::open_file(const std::string& path)
@@ -2594,11 +2613,11 @@ namespace gui
 
 			cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 			//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/);
-			//xcut_rotate = ptree.get("view.xCut_rotate", xcut_rotate/* / 90*/);
-			//ycut_rotate = ptree.get("view.yCut_rotate", ycut_rotate/* / 90*/);
+			xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle/* / 90*/);
+			yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle/* / 90*/);
 			//mainflip = ptree.get("view.mainWindow_flip", mainflip);
-			//xcut_flip = ptree.get("view.xCut_flip", xcut_flip);
-			//ycut_flip = ptree.get("view.yCut_flip", ycut_flip);
+			xzFlip = ptree.get("view.xCut_flip", xzFlip);
+			yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2697,11 +2716,11 @@ namespace gui
 		ptree.put("view.contrast_max", cd.contrast_max);
 		ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 		//ptree.put("view.mainWindow_rotate", main_rotate/* / 90*/);
-		//ptree.put("view.xCut_rotate", xcut_rotate/* / 90*/);
-		//ptree.put("view.yCut_rotate", ycut_rotate/* / 90*/);
+		ptree.put<float>("view.xCut_rotate", xzAngle/* / 90*/);
+		ptree.put<float>("view.yCut_rotate", yzAngle/* / 90*/);
 		//ptree.put("view.mainWindow_flip", mainflip);
-		//ptree.put("view.xCut_flip", xcut_flip);
-		//ptree.put("view.yCut_flip", ycut_flip);
+		ptree.put("view.xCut_flip", xzFlip);
+		ptree.put("view.yCut_flip", yzFlip);
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
