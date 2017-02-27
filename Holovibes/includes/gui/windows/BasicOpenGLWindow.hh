@@ -30,26 +30,28 @@
 
 namespace gui
 {
+	typedef
+	enum	KindOfView
+	{
+		Direct = 1,
+		Hologram,
+		Slice
+	}		t_KindOfView;
+
 	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 	{
 		Q_OBJECT
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint pos, QSize size, holovibes::Queue& q);
+			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k);
 			virtual ~BasicOpenGLWindow();
-
-			enum KindOfView
-			{
-				Direct = 1,
-				Hologram,
-				Slice
-			};
 
 		protected:
 			// Fields -----------
 			QPoint	winPos;
 			QSize	winSize;
 			holovibes::Queue&	Queue;
+			t_KindOfView	Kind;
 
 			// CUDA Objects -----
 			struct cudaGraphicsResource*	cuResource;
@@ -66,6 +68,4 @@ namespace gui
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;
 	};
-
-	typedef BasicOpenGLWindow::KindOfView t_KindOfView;
 }

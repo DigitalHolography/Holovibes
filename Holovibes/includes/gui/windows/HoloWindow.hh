@@ -10,41 +10,23 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#pragma once
+
 #include "BasicOpenGLWindow.hh"
 
 namespace gui
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k) :
-		QOpenGLWindow(), QOpenGLFunctions(),
-		winPos(p), winSize(s),
-		Queue(q),
-		Kind(k),
-		cuResource(nullptr),
-		Program(nullptr),
-		Vao(0),
-		Vbo(0), Ebo(0),
-		Tex(0)
+	class HoloWindow : public BasicOpenGLWindow
 	{
-		if (cudaStreamCreate(&cuStream) != cudaSuccess)
-			cuStream = 0;
-		resize(winSize);
-		setFramePosition(winPos);
-		setIcon(QIcon("icon1.ico"));
-		show();
-	}
+		Q_OBJECT
+		public:
+			HoloWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k);
+			virtual ~HoloWindow();
 
-	BasicOpenGLWindow::~BasicOpenGLWindow()
-	{
-		makeCurrent();
-
-		cudaGraphicsUnregisterResource(cuResource);
-		cudaStreamDestroy(cuStream);
-
-		if (Tex) glDeleteBuffers(1, &Tex);
-		if (Ebo) glDeleteBuffers(1, &Ebo);
-		if (Vbo) glDeleteBuffers(1, &Vbo);
-		Vao.destroy();
-		delete Program;
-	}
-
+		protected:
+			virtual void	initializeGL();
+			virtual void	resizeGL(int width, int height);
+			virtual void	paintGL();
+			
+	};
 }

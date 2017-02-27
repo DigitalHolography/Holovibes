@@ -16,7 +16,7 @@
 namespace gui
 {
 	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
-		BasicOpenGLWindow(p, s, q),
+		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
 		Fd(q.get_frame_desc()),
 		Angle(0.f), Flip(0)
 	{
