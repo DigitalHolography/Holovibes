@@ -94,16 +94,18 @@ namespace holovibes
 		}
 	}
 
-	void Pipeline::update_n_parameter(unsigned short n)
+	bool Pipeline::update_n_parameter(unsigned short n)
 	{
 		ICompute::update_n_parameter(n);
 
 		cufftComplex                  *gpu_complex_buffer = nullptr;
 
 		delete_them(gpu_complex_buffers_, [](cufftComplex* buffer) { cudaFree(buffer); });
-		cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+		if (cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_) != CUDA_SUCCESS)
+			return (false);
 		gpu_complex_buffers_.push_back(gpu_complex_buffer);
-		cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+		if (cudaMalloc(&gpu_complex_buffer, sizeof(cufftComplex)* input_.get_pixels() * input_length_) != CUDA_SUCCESS)
+			return (false); 
 		gpu_complex_buffers_.push_back(gpu_complex_buffer);
 
 		/* Remember that we don't need to deallocate these buffers : they're simply
@@ -125,6 +127,7 @@ namespace holovibes
 		{
 			gpu_vibro_buffers_.push_back(buf + compute_desc_.vibrometry_q * input_.get_frame_desc().frame_res());
 		});
+		return (true);
 	}
 
 	void Pipeline::refresh()

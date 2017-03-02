@@ -18,10 +18,12 @@ namespace holovibes
 		, is_big_endian_(frame_desc.depth >= 2 &&
 			frame_desc.endianness == camera::BIG_ENDIAN)
 		, name_(name)
+		, buffer_(nullptr)
 	{
 		if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
 		{
 			std::cerr << "Queue: couldn't allocate queue" << '\n';
+			std::cerr << cudaGetErrorString(cudaGetLastError()) << '\n';
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
 
@@ -110,6 +112,11 @@ namespace holovibes
 			std::cerr << "Queue: couldn't enqueue\n";
 			if (display_)
 				gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
+			if (buffer_)
+			{
+				cudaFree(buffer_);
+				buffer_ = nullptr;
+			}
 			return false;
 		}
 		if (is_big_endian_)
@@ -170,7 +177,7 @@ namespace holovibes
 
 	std::string Queue::calculate_size(void)
 	{
-		std::string display_size = std::to_string((get_max_elts() * get_size()) / (1048576)); // 1024 * 1024
+		std::string display_size = std::to_string((get_max_elts() * get_size()) >> 20); // get_size() / (1024 * 1024)
 		size_t pos = display_size.find(".");
 
 		if (pos != std::string::npos)

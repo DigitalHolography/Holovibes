@@ -40,6 +40,7 @@ namespace gui
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
+		setWindowTitle("Unreal Time Displayyyyyyyyyyyy");
 
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
@@ -140,7 +141,7 @@ namespace gui
 	{
 		return QSize(width_, height_);
 	}
-	
+
 	QSize GLWidget::sizeHint() const
 	{
 		return QSize(width_, height_);
@@ -289,7 +290,7 @@ namespace gui
 		}
 
 		gl_error_checking();
-	//	doneCurrent();
+		//	doneCurrent();
 	}
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
@@ -304,8 +305,11 @@ namespace gui
 			selection_.setBottomRight(selection_.topLeft());
 			is_selection_enabled_ = true;
 		}
-		else if (e->buttons() == Qt::RightButton && selection_mode_ == ZOOM)
-			dezoom();
+		else if (e->buttons() == Qt::RightButton)
+		{
+			if (selection_mode_ == ZOOM)
+				dezoom();
+		}
 	}
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)
@@ -354,7 +358,6 @@ namespace gui
 	{
 		if (is_selection_enabled_)
 		{
-			
 			selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height()));
@@ -387,54 +390,54 @@ namespace gui
 
 			switch (selection_mode_)
 			{
-			case AUTOFOCUS:
-				emit autofocus_zone_selected(selection_);
-				selection_mode_ = ZOOM;
-				is_selection_enabled_ = false;
-				break;
-			case AVERAGE:
-				if (is_signal_selection_)
-				{
-					//signal_selection_ = selection_;
-					//h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
-					holovibes::Rectangle rect(resize_zone((signal_selection_ = selection_)));
-					h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
-				}
-				else // Noise selection
-				{
-					//noise_selection_ = selection_;
-					//h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
-					holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
-					h_.get_compute_desc().noiseZone(&rect, ComputeDescriptor::Set);
-				}
-				is_signal_selection_ = !is_signal_selection_;
-				break;
-			case ZOOM:
-				if (selection_.topLeft() != selection_.topRight())
-					zoom(selection_);
-				else if (selection_.topLeft() != selection_.bottomRight())
-					zoom(selection_);
-				is_selection_enabled_ = false;
-				break;
-			case STFT_ROI:
-				if (e->button() == Qt::LeftButton)
-				{
-					stft_roi_selection_ = selection_;
-					emit stft_roi_zone_selected_update(stft_roi_selection_);
-					emit stft_roi_zone_selected_end();
-				}
-				else if (e->button() == Qt::RightButton)
-				{
-					emit stft_roi_zone_selected_end();
-				}
-				selection_mode_ = ZOOM;
-				is_selection_enabled_ = false;
-				break;
-			case STFT_SLICE:
-				is_selection_enabled_ = false;
-				break;
-			default:
-				break;
+				case AUTOFOCUS:
+					emit autofocus_zone_selected(selection_);
+					selection_mode_ = get_selection_mode();
+					is_selection_enabled_ = false;
+					break;
+				case AVERAGE:
+					if (is_signal_selection_)
+					{
+						//signal_selection_ = selection_;
+						//h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
+						holovibes::Rectangle rect(resize_zone((signal_selection_ = selection_)));
+						h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
+					}
+					else // Noise selection
+					{
+						//noise_selection_ = selection_;
+						//h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
+						holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
+						h_.get_compute_desc().noiseZone(&rect, ComputeDescriptor::Set);
+					}
+					is_signal_selection_ = !is_signal_selection_;
+					break;
+				case ZOOM:
+					if (selection_.topLeft() != selection_.topRight())
+						zoom(selection_);
+					else if (selection_.topLeft() != selection_.bottomRight())
+						zoom(selection_);
+					is_selection_enabled_ = false;
+					break;
+				case STFT_ROI:
+					if (e->button() == Qt::LeftButton)
+					{
+						stft_roi_selection_ = selection_;
+						emit stft_roi_zone_selected_update(stft_roi_selection_);
+						emit stft_roi_zone_selected_end();
+					}
+					else if (e->button() == Qt::RightButton)
+					{
+						emit stft_roi_zone_selected_end();
+					}
+					selection_mode_ = get_selection_mode();
+					is_selection_enabled_ = false;
+					break;
+				case STFT_SLICE:
+					is_selection_enabled_ = false;
+					break;
+				default:
+					break;
 			}
 
 			selection_ = holovibes::Rectangle();
@@ -517,10 +520,10 @@ namespace gui
 		// Zoom ratio
 		const float xratio = static_cast<float>(frame_desc_.width) /
 			(static_cast<float>(selection.bottomRight().x()) -
-			static_cast<float>(selection.topLeft().x()));
+				static_cast<float>(selection.topLeft().x()));
 		const float yratio = static_cast<float>(frame_desc_.height) /
 			(static_cast<float>(selection.bottomRight().y()) -
-			static_cast<float>(selection.topLeft().y()));
+				static_cast<float>(selection.topLeft().y()));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
 		px_ += -px / zoom_ratio_ / 2.0f;

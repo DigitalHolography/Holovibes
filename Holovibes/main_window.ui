@@ -946,6 +946,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="autofocusPushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>91</x>
@@ -1774,6 +1777,9 @@
          </property>
         </widget>
         <widget class="QLineEdit" name="ROIOutputLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1784,6 +1790,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="ROIPushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1798,7 +1807,7 @@
         </widget>
         <widget class="QPushButton" name="ROIStopPushButton">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1836,6 +1845,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="ROIBatchPushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -1916,6 +1928,9 @@
          </property>
         </widget>
         <widget class="QToolButton" name="ROIOutputToolButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>160</x>
@@ -2585,7 +2600,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

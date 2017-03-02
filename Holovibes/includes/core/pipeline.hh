@@ -58,7 +58,7 @@ namespace holovibes
     virtual void refresh() override;
 
     /*! \brief Realloc all buffer with the new nsamples and update ICompute */
-    virtual void update_n_parameter(unsigned short n);
+    virtual bool update_n_parameter(unsigned short n);
 
     //!< For each Module, advance the dataset being worked on.
     void step_forward();

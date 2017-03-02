@@ -68,20 +68,34 @@ namespace holovibes
 
 	}
 
-	void Pipe::update_n_parameter(unsigned short n)
+	bool Pipe::update_n_parameter(unsigned short n)
 	{
-		ICompute::update_n_parameter(n);
-
+		if (!ICompute::update_n_parameter(n))
+			return (false);
 		/* gpu_input_buffer */
+		cudaError_t error;
 		cudaFree(gpu_input_buffer_);
 
 		if (compute_desc_.stft_enabled)
+		{
 			/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
-			cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() << 1);
+			if ((error = cudaMalloc<cufftComplex>(&gpu_input_buffer_,
+				sizeof(cufftComplex) * (input_.get_pixels() << 1))) != CUDA_SUCCESS)
+			{
+				std::cout << "Cuda error : " << cudaGetErrorString(error) << std::endl;
+				return (false);
+			}
+		}
 		else
-			cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * input_length_);
+		{
+			if ((error = cudaMalloc<cufftComplex>(&gpu_input_buffer_,
+				sizeof(cufftComplex) * input_.get_pixels() * input_length_)) != CUDA_SUCCESS)
+			{
+				std::cout << "Cuda error : " << cudaGetErrorString(error) << std::endl;
+				return (false);
+			}
+		}
+		return (true);
 	}
 
 	void Pipe::refresh()
@@ -102,7 +116,11 @@ namespace holovibes
 		if (update_n_requested_)
 		{
 			update_n_requested_ = false;
-			update_n_parameter(compute_desc_.nsamples);
+			if (!update_n_parameter(compute_desc_.nsamples))
+			{
+				update_n_parameter(1);
+				std::cerr << "Updating n failed, n updated to 1" << std::endl;
+			}
 		}
 		if (update_acc_requested_)
 		{
@@ -815,9 +833,15 @@ namespace holovibes
 					gpu_output_buffer_,
 					cudaMemcpyDeviceToDevice);
 				else
-					output_.enqueue(
-					gpu_input_frame_ptr_,
-					cudaMemcpyDeviceToDevice);
+				{
+					if (!output_.enqueue(
+						gpu_input_frame_ptr_,
+						cudaMemcpyDeviceToDevice))
+					{
+						input_.dequeue();
+						break;
+					}
+				}
 				input_.dequeue();
 				if (refresh_requested_)
 					refresh();

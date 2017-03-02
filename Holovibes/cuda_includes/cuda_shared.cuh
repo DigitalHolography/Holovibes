@@ -23,7 +23,7 @@
 # endif
 # include <cmath>
 # include <math.h>
-#define M_2PI		6.28318530718
+#define M_2PI		6.28318530717959f
 #define THREADS_256	256
 #define THREADS_128	128
 

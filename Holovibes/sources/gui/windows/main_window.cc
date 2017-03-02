@@ -24,8 +24,6 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		//, gl_win_stft_0(nullptr)
-		//, gl_win_stft_1(nullptr)
 		, sliceXZ(nullptr)
 		, sliceYZ(nullptr)
 		, xzAngle(0.f)
@@ -167,7 +165,10 @@ namespace gui
 			algorithm->setCurrentIndex(2);
 		else
 			algorithm->setCurrentIndex(0);
-
+		if (cd.algorithm != holovibes::ComputeDescriptor::None)
+			findChild<QPushButton*>("autofocusPushButton")->setEnabled(true);
+		else
+			findChild<QPushButton*>("autofocusPushButton")->setEnabled(false);
 		QComboBox* view_mode = findChild<QComboBox*>("viewModeComboBox");
 
 		if (cd.view_mode == holovibes::ComputeDescriptor::MODULUS)
@@ -265,6 +266,23 @@ namespace gui
 		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
 		import_pixel_size->setValue(cd.import_pixel_size);
 
+		if (cd.compute_mode == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+		{
+			findChild<QLineEdit *>("ROIOutputLineEdit")->setEnabled(true);
+			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIPushButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIBatchPushButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIStopPushButton")->setEnabled(true);
+		}
+		else if (cd.compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+		{
+			findChild<QLineEdit *>("ROIOutputLineEdit")->setEnabled(false);
+			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIPushButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIBatchPushButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIStopPushButton")->setEnabled(false);
+		}
+
 		set_enable_unwrap_box();
 	}
 
@@ -313,10 +331,13 @@ namespace gui
 
 	void MainWindow::display_message(QString msg)
 	{
-		QMessageBox msg_box(0);
+		/*QMessageBox msg_box(0);
 		msg_box.setText(msg);
 		msg_box.setIcon(QMessageBox::Critical);
-		msg_box.exec();
+		msg_box.exec();*/
+		gui::InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
+		gui::InfoManager::get_manager()->wait(2000);
+		gui::InfoManager::get_manager()->remove_info("Message");
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -405,7 +426,8 @@ namespace gui
 
 	void MainWindow::credits()
 	{
-		display_info("Holovibes " + holovibes::version + "\n\n"
+		std::string msg = 
+			"Holovibes " + holovibes::version + "\n\n"
 
 			"Developers:\n"
 
@@ -426,7 +448,11 @@ namespace gui
 			"Antoine Dill�e\n"
 			"Romain Cancilli�re\n"
 
-			"Michael Atlan\n");
+			"Michael Atlan\n";
+		QMessageBox msg_box;
+		msg_box.setText(QString::fromLatin1(msg.c_str()));
+		msg_box.setIcon(QMessageBox::Information);
+		msg_box.exec();
 	}
 
 	void MainWindow::configure_camera()
@@ -483,10 +509,11 @@ namespace gui
 			}
 			try
 			{
-				
+				cd.nsamples.exchange(1);
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
+				holovibes_.get_pipe()->request_update_n(1);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
@@ -569,11 +596,12 @@ namespace gui
 		holovibes::Config&	config = global::global_config;
 		int					device = 0;
 
+		close_critical_compute();
+		camera_none();
 		global_visibility(false);
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Resetting...");
 		qApp->processEvents();
-		gl_window_.reset(nullptr);
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
@@ -705,8 +733,8 @@ namespace gui
 			holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 			holovibes::Queue&				in = holovibes_.get_capture_queue();
 
-			if (cd.stft_enabled.load() ||
-				phaseNumber < static_cast<int>(in.get_max_elts()))
+			if (cd.stft_enabled.load()
+				|| phaseNumber <= static_cast<int>(in.get_max_elts()))
 			{
 				holovibes_.get_pipe()->request_update_n(phaseNumber);
 				if (cd.stft_view_enabled.load())
@@ -908,7 +936,10 @@ namespace gui
 				cd.algorithm = holovibes::ComputeDescriptor::FFT2;
 			else
 				assert(!"Unknow Algorithm.");
-
+			if (cd.algorithm != holovibes::ComputeDescriptor::None)
+				findChild<QPushButton*>("autofocusPushButton")->setEnabled(true);
+			else
+				findChild<QPushButton*>("autofocusPushButton")->setEnabled(false);
 			if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 				holovibes_.get_pipe()->request_autocontrast();
 		}
@@ -922,8 +953,8 @@ namespace gui
 			unsigned int nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
 			cd.stft_level.exchange(nsamples);
-			cd.stft_enabled = b;
-			holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
+			cd.stft_enabled.exchange(b);
+			holovibes_.get_pipe()->request_update_n(nsamples);
 			notify();
 			QCheckBox *p = findChild<QCheckBox*>("STFTSlices");
 			p->setEnabled(b);
@@ -951,9 +982,9 @@ namespace gui
 		manager->remove_info("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 
+		holovibes_.get_pipe()->delete_stft_slice_queue();
 		sliceXZ.reset(nullptr);
 		sliceYZ.reset(nullptr);
-		holovibes_.get_pipe()->delete_stft_slice_queue();
 
 		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
@@ -988,13 +1019,16 @@ namespace gui
 					QSize(gl_window_->width(), nSize),
 					holovibes_.get_pipe()->get_stft_slice_queue(0)));
 				sliceXZ->setTitle("Slice XZ");
+				sliceXZ->setAngle(xzAngle);
+				sliceXZ->setFlip(xzFlip);
 
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
 					QSize(nSize, gl_window_->height()),
 					holovibes_.get_pipe()->get_stft_slice_queue(1)));
 				sliceYZ->setTitle("Slice YZ");
-				sliceYZ->setAngle(90.f);
+				sliceYZ->setAngle(yzAngle);
+				sliceYZ->setFlip(yzFlip);
 
 				gl_window_->setCursor(Qt::CrossCursor);
 				setMouseTracking(true);
@@ -1660,14 +1694,14 @@ namespace gui
 
 	std::string MainWindow::set_record_filename_properties(camera::FrameDescriptor fd, std::string filename)
 	{
-		std::string tmp = (is_direct_mode() ? "D_" : "H_");
+		std::string mode = (is_direct_mode() ? "D" : "H");
 		size_t i;
 
-		std::string sub_str = "_" + tmp
-			+ std::to_string(fd.width)
+		std::string sub_str = "_" + mode
+			+ "_" + std::to_string(fd.width)
 			+ "_" + std::to_string(fd.height)
 			+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
-			+ "_" + "e"; // Holovibes record is only in little endian
+			+ "_" + "e"; // Holovibes record only in little endian
 
 		for (i = filename.length(); i >= 0; --i)
 			if (filename[i] == '.')
@@ -1680,9 +1714,6 @@ namespace gui
 
 	void MainWindow::set_record()
 	{
-		global_visibility(false);
-		record_but_cancel_visible(false);
-
 		QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
 		QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
 		QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
@@ -1690,6 +1721,10 @@ namespace gui
 
 		int nb_of_frames = nb_of_frames_spinbox->value();
 		std::string path = path_line_edit->text().toUtf8();
+		if (path == "")
+			return;
+		global_visibility(false);
+		record_but_cancel_visible(false);
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		holovibes::Queue* queue;
 
@@ -1746,7 +1781,7 @@ namespace gui
 		QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 		record_thread_.reset(nullptr);
-		display_info("Record done");
+		
 		progress_bar->setMaximum(1);
 		progress_bar->setValue(1);
 		if (float_output_checkbox->isChecked() && !is_direct_mode())
@@ -1756,6 +1791,7 @@ namespace gui
 		if (!is_direct_mode())
 			global_visibility(true);
 		record_but_cancel_visible(true);
+		display_info("Record done");
 	}
 
 	void MainWindow::average_record()
@@ -1847,21 +1883,20 @@ namespace gui
 
 		try
 		{
-			// Only loading the dll at runtime
-			gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
-
-			std::string formatted_path = format_batch_output(path, file_index_);
-
-			global_visibility(false);
-			camera_visible(false);
-
 			holovibes::Queue* q;
-
 			if (is_direct_mode())
 				q = &holovibes_.get_capture_queue();
 			else
 				q = &holovibes_.get_output_queue();
-			formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
+			// Only loading the dll at runtime
+			gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+
+			std::string formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
+			formatted_path = format_batch_output(path, file_index_);
+
+			global_visibility(false);
+			camera_visible(false);
+
 			if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 			{
 				if (is_batch_img_)
@@ -2071,14 +2106,23 @@ namespace gui
 
 	void MainWindow::import_browse_file()
 	{
-		QString filename = QFileDialog::getOpenFileName(this,
-			tr("import file"), "C://", tr("All files (*)"));
+		static QString tmp_path = "";
+		QString filename = "";
+
+		if (tmp_path == "")
+			filename = QFileDialog::getOpenFileName(this,
+				tr("import file"), "C://", tr("All files (*)"));
+		else
+			filename = QFileDialog::getOpenFileName(this,
+				tr("import file"), tmp_path, tr("All files (*)"));
 
 		QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+		
 		if (filename != "")
 		{
 			import_line_edit->clear();
 			import_line_edit->insert(filename);
+			tmp_path = filename;
 		}
 	}
 
@@ -2209,18 +2253,12 @@ namespace gui
 		static_cast<void*>(event);
 		save_ini("holovibes.ini");
 
-		if (gl_window_)
-			gl_window_->close();
-
-		//if (gl_win_stft_0) gl_win_stft_0->close();
-		//if (gl_win_stft_1) gl_win_stft_1->close();
-
 		if (sliceXZ)
 			sliceXZ->close();
-
 		if (sliceYZ)
 			sliceYZ->close();
-
+		if (gl_window_)
+			gl_window_->close();
 		if (plot_window_)
 			plot_window_->close();
 	}
@@ -2479,18 +2517,16 @@ namespace gui
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Critical);
 		msg_box.exec();*/
-		gui::InfoManager::get_manager()->update_info_safe("Error", msg);
-		gui::InfoManager::get_manager()->wait(2000);
-		gui::InfoManager::get_manager()->remove_info("Error");
+		std::cout << "Error : " << msg << std::endl;
 	}
-
+	 
 	void MainWindow::display_info(const std::string msg)
 	{
 		/*QMessageBox msg_box;
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();*/
-		gui::InfoManager::get_manager()->update_info_safe("Info", msg);
+		std::cout << "Info : " << msg << std::endl;
 	}
 
 	void MainWindow::open_file(const std::string& path)
@@ -2594,11 +2630,11 @@ namespace gui
 
 			cd.img_acc_enabled = ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 			//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/);
-			//xcut_rotate = ptree.get("view.xCut_rotate", xcut_rotate/* / 90*/);
-			//ycut_rotate = ptree.get("view.yCut_rotate", ycut_rotate/* / 90*/);
+			xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle/* / 90*/);
+			yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle/* / 90*/);
 			//mainflip = ptree.get("view.mainWindow_flip", mainflip);
-			//xcut_flip = ptree.get("view.xCut_flip", xcut_flip);
-			//ycut_flip = ptree.get("view.yCut_flip", ycut_flip);
+			xzFlip = ptree.get("view.xCut_flip", xzFlip);
+			yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
@@ -2697,11 +2733,11 @@ namespace gui
 		ptree.put("view.contrast_max", cd.contrast_max);
 		ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled);
 		//ptree.put("view.mainWindow_rotate", main_rotate/* / 90*/);
-		//ptree.put("view.xCut_rotate", xcut_rotate/* / 90*/);
-		//ptree.put("view.yCut_rotate", ycut_rotate/* / 90*/);
+		ptree.put<float>("view.xCut_rotate", xzAngle/* / 90*/);
+		ptree.put<float>("view.yCut_rotate", yzAngle/* / 90*/);
 		//ptree.put("view.mainWindow_flip", mainflip);
-		//ptree.put("view.xCut_flip", xcut_flip);
-		//ptree.put("view.yCut_flip", ycut_flip);
+		ptree.put("view.xCut_flip", xzFlip);
+		ptree.put("view.yCut_flip", yzFlip);
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());

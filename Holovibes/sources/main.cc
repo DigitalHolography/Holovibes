@@ -3,7 +3,7 @@
 #include "options_parser.hh"
 #include "holovibes.hh"
 
-#undef min
+#undef main
 #include <QtWidgets>
 #include <thread>
 #include <chrono>
