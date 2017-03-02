@@ -323,8 +323,8 @@ namespace gui
 		}
 		else
 		{
-			display_error(msg);
-			//str << "Unknown error occured.";
+			str = "Unknown error occured.";
+			display_error(str);
 			//emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 	}
@@ -335,9 +335,8 @@ namespace gui
 		msg_box.setText(msg);
 		msg_box.setIcon(QMessageBox::Critical);
 		msg_box.exec();*/
-		gui::InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
-		gui::InfoManager::get_manager()->wait(2000);
 		gui::InfoManager::get_manager()->remove_info("Message");
+		gui::InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -429,7 +428,7 @@ namespace gui
 		std::string msg = 
 			"Holovibes " + holovibes::version + "\n\n"
 
-			"Developers:\n"
+			"Developers:\n\n"
 
 			"Thomas Jarrossay\n"
 			"Alexandre Bartz\n"
@@ -445,12 +444,12 @@ namespace gui
 			"Thomas Kostas\n"
 			"Pierre Pagnoux\n"
 
-			"Antoine Dill�e\n"
-			"Romain Cancilli�re\n"
+			"Antoine Dillée\n"
+			"Romain Cancillière\n"
 
 			"Michael Atlan\n";
 		QMessageBox msg_box;
-		msg_box.setText(QString::fromLatin1(msg.c_str()));
+		msg_box.setText(QString::fromUtf8(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();
 	}
@@ -473,9 +472,22 @@ namespace gui
 		}
 	}
 
+	void MainWindow::close_windows()
+	{
+		if (sliceXZ)
+			sliceXZ.reset(nullptr);
+		if (sliceYZ)
+			sliceYZ.reset(nullptr);
+		if (plot_window_)
+			plot_window_.reset(nullptr);
+		if (gl_window_)
+			gl_window_.reset(nullptr);
+	}
+
 	void MainWindow::set_direct_mode()
 	{
 		close_critical_compute();
+		close_windows();
 		if (is_enabled_camera_)
 		{
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
@@ -493,6 +505,7 @@ namespace gui
 	void MainWindow::set_holographic_mode()
 	{
 		close_critical_compute();
+		close_windows();
 		if (is_enabled_camera_)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -580,7 +593,7 @@ namespace gui
 
 	bool MainWindow::is_direct_mode()
 	{
-		return holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT;
+		return (holovibes_.get_compute_desc().compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT);
 	}
 
 	void MainWindow::set_image_mode()
@@ -620,6 +633,7 @@ namespace gui
 		}
 		cudaDeviceSynchronize();
 		cudaDeviceReset();
+		close_windows();
 		change_camera(camera_type_);
 		load_ini("holovibes.ini");
 		manager->remove_info("Status");
@@ -2130,11 +2144,12 @@ namespace gui
 	{
 		close_critical_compute();
 		camera_none();
+		close_windows();
 	}
 
 	void MainWindow::import_file()
 	{
-		close_critical_compute();
+		import_file_stop();
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
 		QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
@@ -2249,18 +2264,11 @@ namespace gui
 	void MainWindow::closeEvent(QCloseEvent* event)
 	{
 		close_critical_compute();
+		camera_none();
+		close_windows();
 		// Avoiding "unused variable" warning.
 		static_cast<void*>(event);
 		save_ini("holovibes.ini");
-
-		if (sliceXZ)
-			sliceXZ->close();
-		if (sliceYZ)
-			sliceYZ->close();
-		if (gl_window_)
-			gl_window_->close();
-		if (plot_window_)
-			plot_window_->close();
 	}
 
 	void MainWindow::global_visibility(const bool value)
@@ -2517,7 +2525,8 @@ namespace gui
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Critical);
 		msg_box.exec();*/
-		std::cout << "Error : " << msg << std::endl;
+		gui::InfoManager::get_manager()->remove_info("Error");
+		gui::InfoManager::get_manager()->update_info_safe("Error", msg);
 	}
 	 
 	void MainWindow::display_info(const std::string msg)
@@ -2526,7 +2535,8 @@ namespace gui
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();*/
-		std::cout << "Info : " << msg << std::endl;
+		gui::InfoManager::get_manager()->remove_info("Info");
+		gui::InfoManager::get_manager()->update_info_safe("Info", msg);
 	}
 
 	void MainWindow::open_file(const std::string& path)
