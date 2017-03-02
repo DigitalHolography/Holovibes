@@ -6,6 +6,7 @@
 
 namespace holovibes
 {
+	using MutexGuard = std::lock_guard<std::mutex>;
 
 	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)
 		: frame_desc_(frame_desc)
@@ -67,37 +68,37 @@ namespace holovibes
 
 	void* Queue::get_start()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 		return buffer_ + start_ * size_;
 	}
 
 	unsigned int Queue::get_start_index()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 		return start_;
 	}
 
 	void* Queue::get_end()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 		return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
 	}
 
 	void* Queue::get_last_images(const unsigned n)
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 		return buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
 	}
 
 	unsigned int Queue::get_end_index()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 		return (start_ + curr_elts_) % max_elts_;
 	}
 
 	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 
 		const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
 		char* new_elt_adress = buffer_ + (end_ * size_);
@@ -153,7 +154,7 @@ namespace holovibes
 
 	void Queue::dequeue()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 
 		if (curr_elts_ > 0)
 		{
@@ -164,7 +165,7 @@ namespace holovibes
 
 	void Queue::flush()
 	{
-		std::lock_guard<std::mutex> Guard(mutex_);
+		MutexGuard mGuard(mutex_);
 
 		curr_elts_ = 0;
 		start_ = 0;

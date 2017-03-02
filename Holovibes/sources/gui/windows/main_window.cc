@@ -23,7 +23,14 @@ namespace gui
 	MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
+<<<<<<< Updated upstream
 		, gl_window_(nullptr)
+=======
+		//, gl_window_(nullptr)
+		//, gl_win_stft_0(nullptr)
+		//, gl_win_stft_1(nullptr)
+		, mainDisplay(nullptr)
+>>>>>>> Stashed changes
 		, sliceXZ(nullptr)
 		, sliceYZ(nullptr)
 		, xzAngle(0.f)
@@ -242,9 +249,12 @@ namespace gui
 		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
 		average->setChecked(is_enabled_average_);
 
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		/*GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
-			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+			gl_widget->set_selection_mode(gui::eselection::AVERAGE);*/
+
+		if (is_enabled_average_ && !is_direct_mode())
+			mainDisplay->setKindOfSelection(KindOfSelection::Average);
 
 		average_visible(is_enabled_average_);
 
@@ -366,14 +376,6 @@ namespace gui
 		open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
 	}
 
-	void MainWindow::gl_full_screen()
-	{
-		if (gl_window_)
-			gl_window_->full_screen();
-		else
-			display_error("No camera selected");
-	}
-
 	void MainWindow::camera_ids()
 	{
 		change_camera(holovibes::Holovibes::IDS);
@@ -392,7 +394,7 @@ namespace gui
 		holovibes_.dispose_capture();
 		camera_visible(false);
 		record_visible(false);
-		gl_window_.reset(nullptr);
+		mainDisplay.reset(nullptr);
 		global_visibility(false);
 
 		QAction* settings = findChild<QAction*>("actionSettings");
@@ -460,16 +462,15 @@ namespace gui
 		open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 	}
 
-	void MainWindow::init_image_mode(QPoint& pos, unsigned int& width, unsigned int& height)
+	void MainWindow::init_image_mode(QPoint& position, QSize& size)
 	{
 		holovibes_.dispose_compute();
 
-		if (gl_window_)
+		if (mainDisplay)
 		{
-			pos = gl_window_->pos();
-			width = gl_window_->size().width();
-			height = gl_window_->size().height();
-			gl_window_.reset(nullptr);
+			position = mainDisplay->framePosition();
+			size = mainDisplay->size();
+			mainDisplay.reset(nullptr);
 		}
 	}
 
@@ -480,10 +481,13 @@ namespace gui
 		{
 			holovibes_.get_compute_desc().compute_mode = holovibes::ComputeDescriptor::compute_mode::DIRECT;
 			QPoint pos(0, 4);
-			unsigned int width = 512;
-			unsigned int height = 512;
-			init_image_mode(pos, width, height);
-			gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_capture_queue()));
+			QSize size(512, 512);
+			init_image_mode(pos, size);
+			mainDisplay.reset(new HoloWindow(
+				pos,
+				size,
+				holovibes_.get_capture_queue(),
+				KindOfView::Direct));
 			set_convolution_mode(false);
 			global_visibility(false);
 			notify();
@@ -498,9 +502,8 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.compute_mode = holovibes::ComputeDescriptor::compute_mode::HOLOGRAM;
 			QPoint pos(0, 4);
-			unsigned int width = 512;
-			unsigned int height = 512;
-			init_image_mode(pos, width, height);
+			QSize size(512, 512);
+			init_image_mode(pos, size);
 			unsigned int depth = 2;
 			if (cd.view_mode == holovibes::ComputeDescriptor::COMPLEX)
 			{
@@ -509,19 +512,23 @@ namespace gui
 			}
 			try
 			{
-				cd.nsamples.exchange(1);
+				//cd.nsamples.exchange(1);
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
-				holovibes_.get_pipe()->register_observer(*this);
+				holovibes_.get_pipe()->register_observer(*this);				
 				holovibes_.get_pipe()->request_update_n(1);
-				gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
+				mainDisplay.reset(new HoloWindow(
+					pos,
+					size,
+					holovibes_.get_output_queue(),
+					KindOfView::Hologram));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
 			}
 			catch (std::exception& e)
 			{
-				gl_window_.reset(nullptr);
+				mainDisplay.reset(nullptr);
 				display_error(e.what());
 			}
 			notify();
@@ -532,9 +539,8 @@ namespace gui
 	{
 		close_critical_compute();
 		QPoint pos(0, 0);
-		unsigned int width = 512;
-		unsigned int height = 512;
-		init_image_mode(pos, width, height);
+		QSize size(512, 512);
+		init_image_mode(pos, size);
 		unsigned int depth = 2;
 		try
 		{
@@ -543,7 +549,11 @@ namespace gui
 			holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 			holovibes_.get_pipe()->register_observer(*this);
 			//global_visibility(true);
-			gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
+			mainDisplay.reset(new HoloWindow(
+				pos,
+				size,
+				holovibes_.get_output_queue(),
+				KindOfView::Hologram));
 		}
 		catch (std::exception& e)
 		{
@@ -602,6 +612,7 @@ namespace gui
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Resetting...");
 		qApp->processEvents();
+		mainDisplay.reset(nullptr);
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
@@ -682,12 +693,18 @@ namespace gui
 			QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
 			cancel->setEnabled(true);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-			connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)), this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
-				Qt::UniqueConnection);
-			connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()), this, SLOT(request_stft_roi_end()),
-				Qt::UniqueConnection);
+
+			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+			//gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
+
+			mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
+			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)),
+					this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+					Qt::UniqueConnection);
+			connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()),
+					this, SLOT(request_stft_roi_end()),
+					Qt::UniqueConnection);*/
+
 			cd.log_scale_enabled.exchange(true);
 			cd.shift_corners_enabled.exchange(false);
 			if (cd.contrast_enabled)
@@ -711,8 +728,11 @@ namespace gui
 			QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
 			cancel->setEnabled(false);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			gl_widget->set_selection_mode(gui::eselection::ZOOM);
+			
+			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+			//gl_widget->set_selection_mode(gui::eselection::ZOOM);
+			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
+
 			cd.filter_2d_enabled.exchange(false);
 
 			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
@@ -926,8 +946,11 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			//QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
-			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+			//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+
+			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
+
 			if (value == "None")
 				cd.algorithm = holovibes::ComputeDescriptor::None;
 			else if (value == "1FFT")
@@ -974,13 +997,14 @@ namespace gui
 
 	void MainWindow::cancel_stft_slice_view()
 	{
-		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		//GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 
 		cd.stft_view_enabled.exchange(false);
 		manager->remove_info("STFT Slice Cursor");
-		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
+		
+		//disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 
 		holovibes_.get_pipe()->delete_stft_slice_queue();
 		sliceXZ.reset(nullptr);
@@ -988,14 +1012,18 @@ namespace gui
 
 		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
-		gl_window_->setCursor(Qt::ArrowCursor);
+
+		//gl_window_->setCursor(Qt::ArrowCursor);
+		mainDisplay->setCursor(Qt::ArrowCursor);
 		setMouseTracking(false);
-		gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+
+		//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+		mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
 	}
 
 	void MainWindow::stft_view(bool checked)
 	{
-		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		//GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
@@ -1009,14 +1037,14 @@ namespace gui
 				notify();
 				holovibes_.get_pipe()->create_stft_slice_queue();
 				// set positions of new windows according to the position of the main GL window
-				QPoint			xzPos = gl_window_->pos() + QPoint(0, gl_window_->height() + 27);
-				QPoint			yzPos = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
+				QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 27);
+				QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 8, 0);
 				const ushort	nImg = cd.nsamples.load();
 				const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
 
 				sliceXZ.reset(new SliceWindow(
 					xzPos,
-					QSize(gl_window_->width(), nSize),
+					QSize(mainDisplay->width(), nSize),
 					holovibes_.get_pipe()->get_stft_slice_queue(0)));
 				sliceXZ->setTitle("Slice XZ");
 				sliceXZ->setAngle(xzAngle);
@@ -1024,19 +1052,19 @@ namespace gui
 
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
-					QSize(nSize, gl_window_->height()),
+					QSize(nSize, mainDisplay->height()),
 					holovibes_.get_pipe()->get_stft_slice_queue(1)));
 				sliceYZ->setTitle("Slice YZ");
 				sliceYZ->setAngle(yzAngle);
 				sliceYZ->setFlip(yzFlip);
 
-				gl_window_->setCursor(Qt::CrossCursor);
+				mainDisplay->setCursor(Qt::CrossCursor);
 				setMouseTracking(true);
-				gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+				//gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
+				mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);
 
 				// Update Cursor position in Info Manager
-				connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)),
-					Qt::UniqueConnection);
+				//connect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)), Qt::UniqueConnection);
 
 				findChild<QCheckBox*>("STFTSlices")->setChecked(true);
 				cd.stft_view_enabled.exchange(true);
@@ -1282,8 +1310,9 @@ namespace gui
 
 	void MainWindow::set_autofocus_mode()
 	{
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
+		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		//gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
+		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus);
 
 		const float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
 		const float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
@@ -1304,8 +1333,8 @@ namespace gui
 			desc.autofocus_z_div.exchange(z_div);
 			desc.autofocus_z_iter = z_iter;
 
-			connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)),
-				Qt::UniqueConnection);
+			//connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)),
+					//this, SLOT(request_autofocus(holovibes::Rectangle)),Qt::UniqueConnection);
 		}
 		else
 			display_error("z min has to be strictly inferior to z max");
@@ -1315,13 +1344,14 @@ namespace gui
 	{
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Autofocus processing...");
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
 		//desc.autofocus_zone = zone;
 		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
-		gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+		//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus); // Raw Autofocus Tmp;
 	}
 
 	void MainWindow::request_stft_roi_end()
@@ -1491,12 +1521,14 @@ namespace gui
 
 	void MainWindow::set_average_mode(const bool value)
 	{
-		GLWidget*	gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
+		//GLWidget*	gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		if (value)
-			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+			//gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+			mainDisplay->setKindOfSelection(KindOfSelection::Average);
 		else
-			gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+			//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
+			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// Raw Zoom Tmp;
 		cd.average_enabled.exchange(value);
 		is_enabled_average_ = value;
 		average_visible(value);
@@ -1558,8 +1590,8 @@ namespace gui
 		if (path != "")
 		{
 			boost::property_tree::ptree ptree;
-			const GLWidget& gl_widget = gl_window_->get_gl_widget();
-			const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
+			//const GLWidget& gl_widget = gl_window_->get_gl_widget();
+			/*const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
 			const holovibes::Rectangle& noise = gl_widget.get_noise_selection();
 
 			ptree.put("signal.top_left_x", signal.topLeft().x());
@@ -1573,7 +1605,7 @@ namespace gui
 			ptree.put("noise.bottom_right_y", noise.bottomRight().y());
 
 			boost::property_tree::write_ini(path, ptree);
-			display_info("Roi saved in " + path);
+			display_info("Roi saved in " + path);*/
 		}
 		else
 			display_error("Invalid path");
@@ -1584,7 +1616,7 @@ namespace gui
 		QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
 		const std::string path = path_line_edit->text().toUtf8();
 		boost::property_tree::ptree ptree;
-		GLWidget& gl_widget = gl_window_->get_gl_widget();
+		//GLWidget& gl_widget = gl_window_->get_gl_widget();
 
 		try
 		{
@@ -1607,9 +1639,9 @@ namespace gui
 				QPoint(ptree.get<int>("noise.bottom_right_x", 0),
 					ptree.get<int>("noise.bottom_right_y", 0)));
 
-			gl_widget.set_signal_selection(rectSignal);
-			gl_widget.set_noise_selection(rectNoise);
-			gl_widget.enable_selection();
+			//gl_widget.set_signal_selection(rectSignal);
+			//gl_widget.set_noise_selection(rectNoise);
+			//gl_widget.enable_selection();
 		}
 		catch (std::exception& e)
 		{
@@ -2179,7 +2211,8 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 		global_visibility(false);
-		gl_window_.reset(nullptr);
+		//gl_window_.reset(nullptr);
+		mainDisplay.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
 		try
@@ -2200,7 +2233,8 @@ namespace gui
 			camera_visible(false);
 			record_visible(false);
 			global_visibility(false);
-			gl_window_.reset(nullptr);
+			//gl_window_.reset(nullptr);
+			mainDisplay.reset(nullptr);
 			holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
 			return;
@@ -2222,7 +2256,8 @@ namespace gui
 			camera_visible(false);
 			record_visible(false);
 			global_visibility(false);
-			gl_window_.reset(nullptr);
+			//gl_window_.reset(nullptr);
+			mainDisplay.reset(nullptr);
 			holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
 		}
@@ -2257,8 +2292,10 @@ namespace gui
 			sliceXZ->close();
 		if (sliceYZ)
 			sliceYZ->close();
-		if (gl_window_)
-			gl_window_->close();
+
+		if (mainDisplay)
+			mainDisplay->close();
+
 		if (plot_window_)
 			plot_window_->close();
 	}
@@ -2477,7 +2514,8 @@ namespace gui
 				camera_visible(false);
 				record_visible(false);
 				global_visibility(false);
-				gl_window_.reset(nullptr);
+				//gl_window_.reset(nullptr);
+				mainDisplay.reset(nullptr);
 				holovibes_.dispose_compute();
 				holovibes_.dispose_capture();
 				holovibes_.init_capture(camera_type);

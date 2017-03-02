@@ -12,10 +12,24 @@
 
 #pragma once
 
+#include <array>
 #include "BasicOpenGLWindow.hh"
 
 namespace gui
 {
+	template <typename T, uint Row, uint Column>
+	using MultiDimArray = std::array<std::array<T, Column>, Row>;
+
+	typedef
+	enum	KindOfSelection
+	{
+		Zoom,
+		Average,	// Signal == 1, Noise == 2
+		Autofocus = 3,
+		Filter2D,	// formerly STFT_ROI
+		SliceZoom	// formerly STFT_SLICE
+	}		t_KindOfSelection;
+
 	class HoloWindow : public BasicOpenGLWindow
 	{
 		Q_OBJECT
@@ -23,10 +37,18 @@ namespace gui
 			HoloWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k);
 			virtual ~HoloWindow();
 
+			void	setKindOfSelection(t_KindOfSelection k);
+
 		protected:
+			t_KindOfSelection			kSelection;
+			MultiDimArray<float, 6, 4>	selectionColors;
+
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
 			
+			void	mousePressEvent(QMouseEvent* e);
+			void	mouseMoveEvent(QMouseEvent* e);
+			void	mouseReleaseEvent(QMouseEvent* e);
 	};
 }

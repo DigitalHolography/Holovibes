@@ -317,6 +317,15 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_BasicOpenGLWindow.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\HoloWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_HoloWindow.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_HoloWindow.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
@@ -543,6 +552,9 @@
     <CustomBuild Include="includes\gui\windows\SliceWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
+    <CustomBuild Include="includes\gui\windows\HoloWindow.hh">
+      <Filter>c++ includes</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico">
@@ -618,6 +630,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\sliceWidget.vertex.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\HoloWindow.fragment.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\HoloWindow.vertex.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

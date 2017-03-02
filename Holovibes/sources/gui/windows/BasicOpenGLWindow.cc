@@ -18,7 +18,7 @@ namespace gui
 		QOpenGLWindow(), QOpenGLFunctions(),
 		winPos(p), winSize(s),
 		Queue(q),
-		Kind(k),
+		kView(k),
 		cuResource(nullptr),
 		Program(nullptr),
 		Vao(0),
@@ -47,4 +47,27 @@ namespace gui
 		delete Program;
 	}
 
+	const t_KindOfView	BasicOpenGLWindow::getKindOfView() const
+	{
+		return kView;
+	}
+
+	void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
+	{
+		switch (e->key())
+		{
+			case Qt::Key::Key_F11:
+				setWindowState(Qt::WindowFullScreen);
+				break;
+			case Qt::Key::Key_Escape:
+				setWindowState(Qt::WindowNoState);
+				break;
+			/*if (kView != KindOfView::Slice)
+			{
+				case Qt::Key::Key_6:
+					;
+					break;
+			}*/
+		}
+	}
 }

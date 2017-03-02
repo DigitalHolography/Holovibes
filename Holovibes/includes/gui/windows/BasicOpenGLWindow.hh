@@ -16,6 +16,7 @@
 #include <QOpenGLFunctions.h>
 #include <QOpenGLVertexArrayObject.h>
 #include <QOpenGLShaderProgram.h>
+#include <QEvent.h>
 #include <cuda_gl_interop.h>
 
 #include "tools_conversion.cuh"
@@ -37,7 +38,7 @@ namespace gui
 		Hologram,
 		Slice
 	}		t_KindOfView;
-
+	
 	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 	{
 		Q_OBJECT
@@ -51,7 +52,7 @@ namespace gui
 			QPoint	winPos;
 			QSize	winSize;
 			holovibes::Queue&	Queue;
-			t_KindOfView	Kind;
+			const t_KindOfView	kView;
 
 			// CUDA Objects -----
 			struct cudaGraphicsResource*	cuResource;
@@ -63,9 +64,15 @@ namespace gui
 			GLuint	Vbo, Ebo;
 			GLuint	Tex;
 			
+			// Accessors
+			const t_KindOfView getKindOfView() const;
+
 			// Virtual Pure Functions
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;
+
+			// Keyboard Event Functions
+			void keyPressEvent(QKeyEvent* e);
 	};
 }

@@ -24,11 +24,12 @@ namespace gui
 	/*! Zone selection modes */
 	typedef enum selection
 	{
-		AUTOFOCUS,
+		/*AUTOFOCUS,
 		AVERAGE,
 		ZOOM,
 		STFT_ROI,
-		STFT_SLICE
+		STFT_SLICE*/
+		gn
 	} eselection;
 
 	/*! \brief OpenGL widget used to display frames contained in Queue(s).
@@ -104,7 +105,8 @@ namespace gui
 			selection_mode_ = mode;
 		}
 
-		eselection get_selection_mode(void)
+		//			getKindOfSelection
+		/*eselection	get_selection_mode(void)
 		{
 			if (h_.get_compute_desc().stft_view_enabled.load())
 				return (eselection::STFT_SLICE);
@@ -114,7 +116,9 @@ namespace gui
 				return (eselection::AVERAGE);
 			else
 				return (eselection::ZOOM);
-		}
+
+			return selection_mode_;
+		}*/
 
 		public slots:
 		void resizeFromWindow(const int width, const int height);

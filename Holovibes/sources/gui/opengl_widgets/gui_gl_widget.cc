@@ -28,7 +28,7 @@ namespace gui
 		, buffer_(0)
 		, cuda_buffer_(nullptr)
 		, is_selection_enabled_(false)
-		, selection_mode_(eselection::ZOOM)
+		//, selection_mode_(eselection::ZOOM)
 		, is_signal_selection_(true)
 		, px_(0.0f)
 		, py_(0.0f)
@@ -123,7 +123,7 @@ namespace gui
 	void GLWidget::view_zoom_out()
 	{
 		zoom_ratio_ *= 1.1f;
-		glScalef(1.1f, 1.1f, 1.0f);
+		glScalef(1.1f, 1.1f, 1.0f);	///Vertex *= vec4(scale); 
 	}
 
 	void GLWidget::view_zoom_in()
@@ -134,7 +134,7 @@ namespace gui
 
 	void GLWidget::block_slice()
 	{
-		slice_block_.exchange(!slice_block_);
+		slice_block_.exchange(!slice_block_.load());
 	}
 
 	QSize GLWidget::minimumSizeHint() const
@@ -266,7 +266,7 @@ namespace gui
 			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
 			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
 
-			switch (selection_mode_)
+			/*switch (selection_mode_)
 			{
 			case AUTOFOCUS:
 				selection_rect(selection_, autofocus_color);
@@ -286,7 +286,9 @@ namespace gui
 				break;
 			default:
 				break;
-			}
+			}*/
+
+			// selection_rect(selection_, colorArray[selection_mode_]);
 		}
 
 		gl_error_checking();
@@ -295,8 +297,9 @@ namespace gui
 
 	void GLWidget::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->buttons() == Qt::LeftButton)
+		/*if (e->buttons() == Qt::LeftButton)
 		{
+			e->pos();
 			if (selection_mode_ == STFT_SLICE && !slice_block_)
 				return;
 			selection_.setTopLeft(QPoint(
@@ -314,7 +317,7 @@ namespace gui
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)
 	{
-		if (is_selection_enabled_)
+		/*if (is_selection_enabled_)
 		{
 			if (e->buttons() == Qt::LeftButton)
 			{
@@ -341,6 +344,15 @@ namespace gui
 					selection_.bottomRight().setY(
 						selection_.topLeft().y() +
 						max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
+
+					selection_.setBottomRight(QPoint(
+						// X
+						selection_.topLeft().x() +
+						max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1),
+						// Y
+						selection_.topLeft().y() +
+						max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1)
+					));
 				}
 			}
 		}
@@ -351,12 +363,12 @@ namespace gui
 			stft_slice_pos_update(pos);
 		}
 		else if (selection_mode_ != STFT_SLICE)
-			slice_block_.exchange(false);
+			slice_block_.exchange(false);*/
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
 	{
-		if (is_selection_enabled_)
+		/*if (is_selection_enabled_)
 		{
 			selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
@@ -374,6 +386,16 @@ namespace gui
 				selection_.bottomRight().setY(
 					selection_.topLeft().y() +
 					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1));
+
+				selection_.setBottomRight(QPoint(
+					// X
+					selection_.topLeft().x() +
+					max * ((selection_.topLeft().x() < selection_.bottomRight().x()) * 2 - 1),
+					// Y
+					selection_.topLeft().y() +
+					max * ((selection_.topLeft().y() < selection_.bottomRight().y()) * 2 - 1)
+				));
+
 			}
 
 			selection_.setBottomLeft(QPoint(
@@ -441,7 +463,7 @@ namespace gui
 			}
 
 			selection_ = holovibes::Rectangle();
-		}
+		}*/
 	}
 
 	void GLWidget::selection_rect(const holovibes::Rectangle& selection, const float color[4])
@@ -508,6 +530,8 @@ namespace gui
 		// Source point is center of the selection zone (normal coords)
 		const int xsource = selection.topLeft().x() + ((selection.bottomRight().x() - selection.topLeft().x()) / 2);
 		const int ysource = selection.topLeft().y() + ((selection.bottomRight().y() - selection.topLeft().y()) / 2);
+
+		selection.center();
 
 		// Normalizing source points to OpenGL coords
 		const float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;

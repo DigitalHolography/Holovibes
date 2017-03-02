@@ -110,8 +110,7 @@ namespace gui
 		void layout_toggled(bool b);
 		/*! \brief Open holovibes configuration file */
 		void configure_holovibes();
-		/*! \brief Call child OpenGL widget fullscreen method */
-		void gl_full_screen();
+
 		/*! \brief Set camera to NONE
 		**
 		** Delete GL widget, destroy capture and/or compute thread then
@@ -139,7 +138,7 @@ namespace gui
 		/* \} */
 
 		/*! \brief init the holovibes whenever changing rendering mode */
-		void init_image_mode(QPoint& pos, unsigned int& width, unsigned int& height);
+		void init_image_mode(QPoint& position, QSize& size);
 
 		/*! \{ \name Image rendering
 		**

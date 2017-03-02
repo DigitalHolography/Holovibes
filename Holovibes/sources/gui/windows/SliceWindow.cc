@@ -19,11 +19,7 @@ namespace gui
 		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
 		Fd(q.get_frame_desc()),
 		Angle(0.f), Flip(0)
-	{
-		/*Rotation = new QShortcut(QKeySequence(Qt::Key_R), this);
-		connect(Rotation, SIGNAL(activated()), this, SLOT(Rotate()));
-		Rotation->setContext(Qt::ApplicationShortcut);*/
-	}
+	{}
 
 	SliceWindow::~SliceWindow()
 	{}
@@ -37,8 +33,8 @@ namespace gui
 
 		#pragma region Shaders
 		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/sliceWidget.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/sliceWidget.fragment.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/SliceWindow.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/SliceWindow.fragment.glsl");
 		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		#pragma endregion
 
@@ -119,10 +115,10 @@ namespace gui
 		Vao.release();
 		Program->release();
 
-		GLenum error = glGetError();
+		/*GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << '\n';
+			std::cerr << "[GL] " << err_string << '\n';*/
 
 		glViewport(0, 0, winSize.width(), winSize.height());
 	}
