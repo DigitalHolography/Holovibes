@@ -1777,6 +1777,9 @@
          </property>
         </widget>
         <widget class="QLineEdit" name="ROIOutputLineEdit">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1787,6 +1790,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="ROIPushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1801,7 +1807,7 @@
         </widget>
         <widget class="QPushButton" name="ROIStopPushButton">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1839,6 +1845,9 @@
          </property>
         </widget>
         <widget class="QPushButton" name="ROIBatchPushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -1919,6 +1928,9 @@
          </property>
         </widget>
         <widget class="QToolButton" name="ROIOutputToolButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>160</x>

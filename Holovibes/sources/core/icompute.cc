@@ -220,7 +220,7 @@ namespace holovibes
 		gui::InfoManager::get_manager()->remove_info_safe("Rendering FPS");
 	}
 
-	void ICompute::update_n_parameter(unsigned short n)
+	bool ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_ = false;
@@ -320,7 +320,9 @@ namespace holovibes
 			abort_construct_requested_ = true;
 			allocation_failed(err_count,
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
+			return (false);
 		}
+		return (true);
 	}
 
 	void	ICompute::update_stft_slice_queue()

@@ -24,8 +24,6 @@ namespace gui
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
 		, gl_window_(nullptr)
-		//, gl_win_stft_0(nullptr)
-		//, gl_win_stft_1(nullptr)
 		, sliceXZ(nullptr)
 		, sliceYZ(nullptr)
 		, xzAngle(0.f)
@@ -268,6 +266,23 @@ namespace gui
 		QDoubleSpinBox* import_pixel_size = findChild<QDoubleSpinBox*>("ImportPixelSizeDoubleSpinBox");
 		import_pixel_size->setValue(cd.import_pixel_size);
 
+		if (cd.compute_mode == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+		{
+			findChild<QLineEdit *>("ROIOutputLineEdit")->setEnabled(true);
+			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIPushButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIBatchPushButton")->setEnabled(true);
+			findChild<QPushButton *>("ROIStopPushButton")->setEnabled(true);
+		}
+		else if (cd.compute_mode == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+		{
+			findChild<QLineEdit *>("ROIOutputLineEdit")->setEnabled(false);
+			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIPushButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIBatchPushButton")->setEnabled(false);
+			findChild<QPushButton *>("ROIStopPushButton")->setEnabled(false);
+		}
+
 		set_enable_unwrap_box();
 	}
 
@@ -411,7 +426,8 @@ namespace gui
 
 	void MainWindow::credits()
 	{
-		display_info("Holovibes " + holovibes::version + "\n\n"
+		std::string msg = 
+			"Holovibes " + holovibes::version + "\n\n"
 
 			"Developers:\n"
 
@@ -432,7 +448,11 @@ namespace gui
 			"Antoine Dill�e\n"
 			"Romain Cancilli�re\n"
 
-			"Michael Atlan\n");
+			"Michael Atlan\n";
+		QMessageBox msg_box;
+		msg_box.setText(QString::fromLatin1(msg.c_str()));
+		msg_box.setIcon(QMessageBox::Information);
+		msg_box.exec();
 	}
 
 	void MainWindow::configure_camera()
@@ -489,9 +509,11 @@ namespace gui
 			}
 			try
 			{
+				cd.nsamples.exchange(1);
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
+				holovibes_.get_pipe()->request_update_n(1);
 				gl_window_.reset(new GuiGLWindow(pos, width, height, 0.f, holovibes_, holovibes_.get_output_queue()));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
@@ -580,7 +602,6 @@ namespace gui
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Resetting...");
 		qApp->processEvents();
-		gl_window_.reset(nullptr);
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
@@ -712,8 +733,8 @@ namespace gui
 			holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 			holovibes::Queue&				in = holovibes_.get_capture_queue();
 
-			if (cd.stft_enabled.load() ||
-				phaseNumber < static_cast<int>(in.get_max_elts()))
+			if (cd.stft_enabled.load()
+				|| phaseNumber <= static_cast<int>(in.get_max_elts()))
 			{
 				holovibes_.get_pipe()->request_update_n(phaseNumber);
 				if (cd.stft_view_enabled.load())
@@ -932,8 +953,8 @@ namespace gui
 			unsigned int nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
 			cd.stft_level.exchange(nsamples);
-			cd.stft_enabled = b;
-			holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
+			cd.stft_enabled.exchange(b);
+			holovibes_.get_pipe()->request_update_n(nsamples);
 			notify();
 			QCheckBox *p = findChild<QCheckBox*>("STFTSlices");
 			p->setEnabled(b);
@@ -961,9 +982,9 @@ namespace gui
 		manager->remove_info("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 
+		holovibes_.get_pipe()->delete_stft_slice_queue();
 		sliceXZ.reset(nullptr);
 		sliceYZ.reset(nullptr);
-		holovibes_.get_pipe()->delete_stft_slice_queue();
 
 		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
@@ -1673,14 +1694,14 @@ namespace gui
 
 	std::string MainWindow::set_record_filename_properties(camera::FrameDescriptor fd, std::string filename)
 	{
-		std::string tmp = (is_direct_mode() ? "D_" : "H_");
+		std::string mode = (is_direct_mode() ? "D" : "H");
 		size_t i;
 
-		std::string sub_str = "_" + tmp
-			+ std::to_string(fd.width)
+		std::string sub_str = "_" + mode
+			+ "_" + std::to_string(fd.width)
 			+ "_" + std::to_string(fd.height)
 			+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
-			+ "_" + "e"; // Holovibes record is only in little endian
+			+ "_" + "e"; // Holovibes record only in little endian
 
 		for (i = filename.length(); i >= 0; --i)
 			if (filename[i] == '.')
@@ -1693,9 +1714,6 @@ namespace gui
 
 	void MainWindow::set_record()
 	{
-		global_visibility(false);
-		record_but_cancel_visible(false);
-
 		QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
 		QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
 		QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
@@ -1703,6 +1721,10 @@ namespace gui
 
 		int nb_of_frames = nb_of_frames_spinbox->value();
 		std::string path = path_line_edit->text().toUtf8();
+		if (path == "")
+			return;
+		global_visibility(false);
+		record_but_cancel_visible(false);
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		holovibes::Queue* queue;
 
@@ -1769,7 +1791,7 @@ namespace gui
 		if (!is_direct_mode())
 			global_visibility(true);
 		record_but_cancel_visible(true);
-		display_error("Record done");
+		display_info("Record done");
 	}
 
 	void MainWindow::average_record()
@@ -1861,21 +1883,20 @@ namespace gui
 
 		try
 		{
-			// Only loading the dll at runtime
-			gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
-
-			std::string formatted_path = format_batch_output(path, file_index_);
-
-			global_visibility(false);
-			camera_visible(false);
-
 			holovibes::Queue* q;
-
 			if (is_direct_mode())
 				q = &holovibes_.get_capture_queue();
 			else
 				q = &holovibes_.get_output_queue();
-			formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
+			// Only loading the dll at runtime
+			gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+
+			std::string formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
+			formatted_path = format_batch_output(path, file_index_);
+
+			global_visibility(false);
+			camera_visible(false);
+
 			if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 			{
 				if (is_batch_img_)
@@ -2496,20 +2517,16 @@ namespace gui
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Critical);
 		msg_box.exec();*/
-		gui::InfoManager::get_manager()->update_info_safe("Error", msg);
-		gui::InfoManager::get_manager()->wait(2000);
-		gui::InfoManager::get_manager()->remove_info("Error");
+		std::cout << "Error : " << msg << std::endl;
 	}
-
+	 
 	void MainWindow::display_info(const std::string msg)
 	{
 		/*QMessageBox msg_box;
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
 		msg_box.setIcon(QMessageBox::Information);
 		msg_box.exec();*/
-		gui::InfoManager::get_manager()->update_info_safe("Info", msg);
-		gui::InfoManager::get_manager()->wait(2000);
-		gui::InfoManager::get_manager()->remove_info("Info");
+		std::cout << "Info : " << msg << std::endl;
 	}
 
 	void MainWindow::open_file(const std::string& path)
