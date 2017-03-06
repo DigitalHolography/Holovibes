@@ -40,7 +40,7 @@ namespace gui
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
-		setWindowTitle("Unreal Time Displayyyyyyyyyyyy");
+		setWindowTitle("Real Time Display");
 
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
