@@ -40,8 +40,12 @@ namespace gui
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
-		setWindowTitle("Real Time Display");
-
+		//parent_->setWindowTitle("Real Time Display");
+		windowTitle_ = "Output : "
+					+ std::to_string(frame_desc_.width)
+					+ "x" + std::to_string(frame_desc_.height)
+					+ " " + std::to_string(static_cast<int>(frame_desc_.depth) << 3) + "bit";
+		parent_->setWindowTitle(QString::fromStdString(windowTitle_));
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
 			cuda_stream_ = 0; // Use default stream as a fallback
@@ -107,7 +111,7 @@ namespace gui
 
 	void GLWidget::view_move_left()
 	{
-		px_ += -0.1f / zoom_ratio_;
+		px_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidget::view_move_right()
@@ -117,7 +121,7 @@ namespace gui
 
 	void GLWidget::view_move_up()
 	{
-		py_ += -0.1f / zoom_ratio_;
+		py_ -= 0.1f / zoom_ratio_;
 	}
 
 	void GLWidget::view_zoom_out()
@@ -134,7 +138,7 @@ namespace gui
 
 	void GLWidget::block_slice()
 	{
-		slice_block_.exchange(!slice_block_);
+		slice_block_ = !slice_block_;
 	}
 
 	QSize GLWidget::minimumSizeHint() const
@@ -230,11 +234,11 @@ namespace gui
 
 		glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		if (frame_desc_.depth == 8)
+		if (frame_desc_.depth == 8.f)
 		{
 			//We replace the green color by the blue one for complex display
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
@@ -249,10 +253,10 @@ namespace gui
 
 		glBegin(GL_QUADS);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glTexCoord2d(0.0 + px_, 0.0 + py_); glVertex2d(-1.0, +1.0);
-		glTexCoord2d(1.0 + px_, 0.0 + py_); glVertex2d(+1.0, +1.0);
-		glTexCoord2d(1.0 + px_, 1.0 + py_); glVertex2d(+1.0, -1.0);
-		glTexCoord2d(0.0 + px_, 1.0 + py_); glVertex2d(-1.0, -1.0);
+		glTexCoord2d(0.0f + px_, 0.0f + py_); glVertex2d(-1.0f, +1.0f);
+		glTexCoord2d(1.0f + px_, 0.0f + py_); glVertex2d(+1.0f, +1.0f);
+		glTexCoord2d(1.0f + px_, 1.0f + py_); glVertex2d(+1.0f, -1.0f);
+		glTexCoord2d(0.0f + px_, 1.0f + py_); glVertex2d(-1.0f, -1.0f);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
@@ -353,7 +357,7 @@ namespace gui
 			stft_slice_pos_update(pos);
 		}
 		else if (selection_mode_ != STFT_SLICE)
-			slice_block_.exchange(false);
+			slice_block_ = false;
 	}
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -528,12 +532,12 @@ namespace gui
 				static_cast<float>(selection.topLeft().y()));
 
 		float min_ratio = xratio < yratio ? xratio : yratio;
-		px_ += -px / zoom_ratio_ / 2.0f;
-		py_ += py / zoom_ratio_ / 2.0f;
+		px_ += -px / zoom_ratio_ * 0.5f;
+		py_ += py / zoom_ratio_ * 0.5f;
 		zoom_ratio_ *= min_ratio;
 
 		glScalef(min_ratio, min_ratio, 1.0f);
-		parent_->setWindowTitle(QString("Real time display - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
+		parent_->setWindowTitle(QString::fromStdString(windowTitle_ + " - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
 	}
 
 	void GLWidget::dezoom()
@@ -542,7 +546,7 @@ namespace gui
 		zoom_ratio_ = 1.0f;
 		px_ = 0.0f;
 		py_ = 0.0f;
-		parent_->setWindowTitle(QString("Real time display"));
+		parent_->setWindowTitle(QString::fromStdString(windowTitle_));
 	}
 
 	void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)

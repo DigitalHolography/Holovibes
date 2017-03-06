@@ -738,6 +738,7 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 			QPushButton *filter_button = findChild<QPushButton *>("Filter2DPushButton");
+			gl_widget->dezoom();
 			gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
 
 			filter_button->setStyleSheet("QPushButton {color: #009FFF;}");
@@ -1351,18 +1352,16 @@ namespace gui
 		const unsigned int z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		if (desc.stft_enabled)
-		{
+		if (desc.stft_enabled.load())
 			display_error("You can't call autofocus in stft mode.");
-			return;
-		}
-		if (z_min < z_max)
+		else if (z_min < z_max)
 		{
+			gl_widget->dezoom();
 			gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
-			desc.autofocus_z_min = z_min;
-			desc.autofocus_z_max = z_max;
+			desc.autofocus_z_min.exchange(z_min);
+			desc.autofocus_z_max.exchange(z_max);
 			desc.autofocus_z_div.exchange(z_div);
-			desc.autofocus_z_iter = z_iter;
+			desc.autofocus_z_iter.exchange(z_iter);
 
 			connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)), this, SLOT(request_autofocus(holovibes::Rectangle)),
 				Qt::UniqueConnection);
@@ -1379,7 +1378,6 @@ namespace gui
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		//desc.autofocus_zone = zone;
 		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
 		gl_widget->set_selection_mode(gl_widget->get_selection_mode());
@@ -1558,6 +1556,7 @@ namespace gui
 		cd.average_enabled.exchange(value);
 		if (value)
 		{
+			gl_widget->dezoom();
 			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 			findChild<QLabel *>("label")->setText("<font color='DeepPink'>Signal</font>");
 			findChild<QLabel *>("label_2")->setText("<font color='Turquoise'>Noise</font>");
@@ -2198,7 +2197,7 @@ namespace gui
 
 	void MainWindow::import_file_stop(void)
 	{
-		close_critical_compute();
+		//close_critical_compute();
 		camera_none();
 		close_windows();
 		remove_infos();
@@ -2982,7 +2981,9 @@ namespace gui
 		else if (cd.stft_view_enabled.load())
 			cancel_stft_slice_view();
 		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+		cd.stft_view_enabled.exchange(false);
 		cd.stft_enabled.exchange(false);
+		cd.signal_trig_enabled.exchange(false);
 		stft_button->setChecked(false);
 	}
 
