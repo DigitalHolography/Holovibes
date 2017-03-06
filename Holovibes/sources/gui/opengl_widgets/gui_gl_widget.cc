@@ -263,7 +263,7 @@ namespace gui
 			const float signal_color[4] = { 1.0f, 0.0f, 0.5f, 0.4f };
 			const float noise_color[4] = { 0.26f, 0.56f, 0.64f, 0.4f };
 			const float autofocus_color[4] = { 1.0f, 0.8f, 0.0f, 0.4f };
-			const float stft_roi_color[4] = { 0.9f, 0.7f, 0.1f, 0.4f };
+			const float stft_roi_color[4] = { 0.0f, 0.62f, 1.0f, 0.4f };
 			const float stft_slice_color[4] = { 1.0f, 0.87f, 0.87f, 0.4f };
 
 			switch (selection_mode_)
@@ -309,6 +309,8 @@ namespace gui
 		{
 			if (selection_mode_ == ZOOM)
 				dezoom();
+			else if (selection_mode_ == AVERAGE)
+				is_selection_enabled_ = false;
 		}
 	}
 

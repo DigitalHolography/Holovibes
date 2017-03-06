@@ -466,6 +466,7 @@ namespace gui
 
 		/* change computing state that might crash program before launching any program */
 		void close_critical_compute();
+		void remove_infos();
 		void close_windows();
 
 		/* reload computing values */

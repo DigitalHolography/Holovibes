@@ -28,19 +28,19 @@ namespace gui
 		/*! \brief Display error message
 		** \param msg error message
 		*/
-		void display_error(std::string msg);
+		//void display_error(std::string msg);
 		/*! \brief Display information message
 		** \param msg information message
 		*/
-		void display_info(std::string msg);
+		//void display_info(std::string msg);
 
 		/*! \brief Check if direct button is enabled  */
-		bool is_direct_mode();
+		//bool is_direct_mode();
 
 		/*! \brief holovibes_ getter */
-		holovibes::Holovibes& get_holovibes();
+		//holovibes::Holovibes& get_holovibes();
 
-		QObject* findChild(QString name);
+		//QObject* findChild(QString name);
 
 	private:
 

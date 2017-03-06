@@ -12,7 +12,7 @@ namespace gui
 	GuiTool::~GuiTool()
 	{}
 
-	void GuiTool::display_error(const std::string msg)
+	/*void GuiTool::display_error(const std::string msg)
 	{
 		QMessageBox msg_box;
 		msg_box.setText(QString::fromLatin1(msg.c_str()));
@@ -42,5 +42,5 @@ namespace gui
 	{
 		return main_window_->findChild<QObject*>(name);
 	}
-
+	*/
 }
