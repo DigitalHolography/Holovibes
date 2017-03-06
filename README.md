@@ -1,10 +1,11 @@
-# Holovibes v4.0.0 #
+# Holovibes v4.2.170303 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
 
 ## User dependencies ##
 
+* Microsoft Windows 10 x64
 * Microsoft Windows 7 x64
 
 ### Cameras drivers ###
@@ -13,21 +14,22 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [Driver IDS](http://en.ids-imaging.com) V4.41
 * [AVT Vimba](https://www.alliedvision.com/fileadmin/content/software/software/Vimba/Vimba_v1.4_Windows.exe) V1.4
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
-* [PCO.Edge 4.2 USB 3.0 driver](http://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
+* [PCO.Edge 4.2 USB 3.0 driver](https://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
-* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk610.zip) Framegrabber for the adimec
+* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk620.zip) Framegrabber for the adimec V6.20
 
 ### CUDA ###
 
-* [CUDA 8.0 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 8.0.61 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Visual C++ redistributable ###
 
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
+* [Visual C++ Redistributable Packages for Visual Studio 2015](https://www.microsoft.com/fr-fr/download/details.aspx?id=48145)
 
-### Qt 5.7.1 ###
+### Qt 5.8.0 ###
 
-* [Qt OpenSource Windows x64 5.7.1](https://www.qt.io/qt5-7/)
+* [Qt OpenSource Windows x64 5.8.0](https://download.qt.io/archive/qt/5.8/5.8.0/)
 
 ### VISA ###
 
@@ -59,12 +61,12 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ### Libraries ###
 
-* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.55.0 build2
-* [Qwt 6.1.2](http://sourceforge.net/projects/qwt/files/qwt/6.1.2/)
+* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.63.0
+* [Qwt 6.1.3](http://sourceforge.net/projects/qwt/files/qwt/6.1.3/)
 
 ### IDE ###
 
-* Visual Studio 2013 Professional
+* Visual Studio 2015 Community
 
 ## Features ##
 
@@ -118,6 +120,17 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
+### v.4.2.170303
+
+* Add: STFT cuts :
+    - Rotation and flip
+* Add: title detect for imported files
+* Add: New colors for Autofocus, 2DFilter, and Average when selected
+* Update: Record now outputs a raw with properties in title readable by title detect feature
+* Update: OpenGL now using Dynamic pipeline
+* Update: Pop-ups are now displayed in info bar
+* Several bugs fixed
+
 ## January 2016 -- July 2017 ##
 
 Alexandre B., Thomas J. are now working on the project until July 2017.
@@ -126,6 +139,7 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 
 * Bug fixing
 * Jump a version to match CNRS repository (4.0)
+
 
 ### v.2.5.0
 
@@ -162,12 +176,12 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 
 ### v.2.1.0
 
-* Add demodulation mode
-* Add Special queue to handle Convolution & Flowgraphy
-* Add Convolution with loaded kernels
-* Add temporal Flowgraphy
-* Add cine file parsing
-* Add GUI themes 
+* Add: demodulation mode
+* Add: Special queue to handle Convolution & Flowgraphy
+* Add: Convolution with loaded kernels
+* Add: temporal Flowgraphy
+* Add: cine file parsing
+* Add: GUI themes 
 
 
 ### v.2.0.1
