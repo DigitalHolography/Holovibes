@@ -13,28 +13,46 @@
 #include "texture_update.cuh"
 #include "HoloWindow.hh"
 
+/*
+	x = ((x - (width * 0.5)) / width) * 2.;
+	y = (-((y - (height * 0.5)) / height)) * 2.;
+*/
+
 namespace gui
 {
-	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k) :
+
+	bool BasicOpenGLWindow::sliceLock = false;
+
+	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
 		BasicOpenGLWindow(p, s, q, k),
-		selectionColors{{
+		Translate{ 0.f, 0.f },
+		Scale(1.f),
+		kSelection(KindOfSelection::None),
+		selectionRect(1, 1),
+		selectionColors{ {
 			{ 0.0f,	0.5f, 0.0f, 0.4f },			// Zoom
 			{ 1.0f, 0.0f, 0.5f, 0.4f },			// Average::Signal
 			{ 0.26f, 0.56f, 0.64f, 0.4f },		// Average::Noise
 			{ 1.0f,	0.8f, 0.0f, 0.4f },			// Autofocus
 			{ 0.9f,	0.7f, 0.1f, 0.4f },			// Filter2D
-			{ 1.0f,	0.87f, 0.87f, 0.4f } }}		// SliceZoom
+			{ 1.0f,	0.87f, 0.87f, 0.4f } } }		// SliceZoom
 	{
 		//auto tab = selectionColors[kSelection];
+		sliceLock = false;
 
 	}
 
 	HoloWindow::~HoloWindow()
 	{}
 
-	void HoloWindow::setKindOfSelection(t_KindOfSelection k)
+	void HoloWindow::setKindOfSelection(KindOfSelection k)
 	{
 		kSelection = k;
+	}
+
+	KindOfSelection HoloWindow::getKindOfSelection() const
+	{
+		return kSelection;
 	}
 
 	void HoloWindow::initializeGL()
@@ -58,25 +76,44 @@ namespace gui
 		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
-		uint	size = Queue.get_frame_desc().frame_size();
-		ushort	*mTexture = new ushort[size];
-		std::memset(mTexture, 0x00, size * 2);
-
-		glTexImage2D(GL_TEXTURE_2D, 0,
-			GL_RGBA,
-			Queue.get_frame_desc().width,
-			Queue.get_frame_desc().height, 0,
-			GL_RG, GL_UNSIGNED_SHORT, mTexture);
+		if (Queue.get_frame_desc().depth == 1)
+		{
+			uint	size = Queue.get_frame_desc().frame_size();
+			uchar	*mTexture = new uchar[size];
+			std::memset(mTexture, 0x00, size);
+			glTexImage2D(GL_TEXTURE_2D, 0,
+				GL_RGBA,
+				Queue.get_frame_desc().width,
+				Queue.get_frame_desc().height, 0,
+				GL_RED, GL_UNSIGNED_BYTE, mTexture);
+			delete[] mTexture;
+		}
+		else if (Queue.get_frame_desc().depth == 2)
+		{
+			uint	size = Queue.get_frame_desc().frame_size();
+			ushort	*mTexture = new ushort[size];
+			std::memset(mTexture, 0x00, size * 2);
+			glTexImage2D(GL_TEXTURE_2D, 0,
+				GL_RGBA,
+				Queue.get_frame_desc().width,
+				Queue.get_frame_desc().height, 0,
+				GL_RG, GL_UNSIGNED_SHORT, mTexture);
+			delete[] mTexture;
+		}
 
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		if (Queue.get_frame_desc().depth == 1)
+		{
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-		delete[] mTexture;
 		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
 			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
 		#pragma endregion
@@ -96,6 +133,7 @@ namespace gui
 			-vertCoord, -vertCoord,
 			0.0f, texCoord
 		};
+
 		glGenBuffers(1, &Vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, Vbo);
 		glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(GLfloat), data, GL_STATIC_DRAW);
@@ -122,6 +160,8 @@ namespace gui
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		#pragma endregion
+
+		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 
 		Vao.release();
 		Program->release();
@@ -182,30 +222,91 @@ namespace gui
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-		
-		update();
+
+		//update();
 	}
 
 	void HoloWindow::mousePressEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::LeftButton)
+		if (kSelection == SliceZoom && !sliceLock)
 		{
-			
-		}
-		else if (e->button() == Qt::RightButton &&
-			kSelection == KindOfSelection::Zoom)
-		{
-			// dezoom;
+			if (e->button() == Qt::LeftButton)
+			{
+				e->pos();
+				selectionRect.setTopLeft(QPoint(
+					(e->x() * Fd.width) / width(),
+					(e->y() * Fd.height) / height()));
+				selectionRect.setBottomRight(selectionRect.topLeft());
+				if (kSelection == KindOfSelection::None)
+					kSelection = KindOfSelection::Zoom;
+			}
+			else if (e->button() == Qt::RightButton &&
+				kSelection == KindOfSelection::Zoom)
+			{
+				// dezoom;
+			}
 		}
 	}
 
 	void HoloWindow::mouseMoveEvent(QMouseEvent* e)
 	{
-	
+
 	}
 
 	void HoloWindow::mouseReleaseEvent(QMouseEvent* e)
 	{
-		
+		if (sliceLock)
+		{
+			selectionRect.setBottomRight(QPoint(
+				(e->x() * Fd.width) / width(),
+				(e->y() * Fd.height) / height()));
+			selectionRect.setBottomLeft(QPoint(
+				selectionRect.topLeft().x(),
+				(e->y() * Fd.height) / height()));
+
+			selectionRect.setTopRight(QPoint(
+				(e->x() * Fd.width) / width(),
+				selectionRect.topLeft().y()));
+
+			//bounds_check(selectionRect);
+			selectionRect.checkCorners();
+			if (selectionRect.topLeft() != selectionRect.topRight())
+				;// zoom(selectionRect);
+			else if (selectionRect.topLeft() != selectionRect.bottomRight())
+				;// zoom(selectionRect);
+			sliceLock = false;
+		}
 	}
+
+	void HoloWindow::wheelEvent(QWheelEvent *e)
+	{
+		if (e->x() < winSize.width() && e->y() < winSize.height())
+		{
+			if (e->angleDelta().y() > 0)
+			{
+				Scale += 0.1f * Scale;
+				setScale();
+			}
+			else if (e->angleDelta().y() < 0)
+			{
+				if (Scale <= 1 || Scale < 1.1f)
+					Scale = 1.f;
+				else
+					Scale -= 0.1f * Scale;
+				setScale();
+			}
+		}
+	}
+	
+	void HoloWindow::setScale()
+	{
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+			Program->release();
+		}
+	}
+
 }

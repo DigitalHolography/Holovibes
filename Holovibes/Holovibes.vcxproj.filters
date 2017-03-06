@@ -626,16 +626,16 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\sliceWidget.fragment.glsl">
-      <Filter>shaders</Filter>
-    </None>
-    <None Include="shaders\sliceWidget.vertex.glsl">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="shaders\HoloWindow.fragment.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\HoloWindow.vertex.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\SliceWindow.fragment.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\SliceWindow.vertex.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

@@ -14,34 +14,42 @@
 
 #include <array>
 #include "BasicOpenGLWindow.hh"
+#include "geometry.hh"
 
 namespace gui
 {
 	template <typename T, uint Row, uint Column>
 	using MultiDimArray = std::array<std::array<T, Column>, Row>;
 
-	typedef
-	enum	KindOfSelection
+	using Vec2f = std::array<float, 2>;
+
+	using KindOfSelection = 
+	enum
 	{
+		None = -1,
 		Zoom,
 		Average,	// Signal == 1, Noise == 2
 		Autofocus = 3,
-		Filter2D,	// formerly STFT_ROI
-		SliceZoom	// formerly STFT_SLICE
-	}		t_KindOfSelection;
+		Filter2D,
+		SliceZoom,
+	};
 
 	class HoloWindow : public BasicOpenGLWindow
 	{
 		Q_OBJECT
 		public:
-			HoloWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k);
+			HoloWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
 			virtual ~HoloWindow();
 
-			void	setKindOfSelection(t_KindOfSelection k);
+			void				setKindOfSelection(KindOfSelection k);
+			KindOfSelection		getKindOfSelection() const;
 
 		protected:
-			t_KindOfSelection			kSelection;
-			MultiDimArray<float, 6, 4>	selectionColors;
+			Vec2f	Translate;
+			float	Scale;
+			KindOfSelection			kSelection;
+			holovibes::Rectangle	selectionRect;
+			const MultiDimArray<float, 6, 4>	selectionColors;
 
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
@@ -50,5 +58,9 @@ namespace gui
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
+			void	wheelEvent(QWheelEvent *e);
+
+		private:
+			void	setScale();
 	};
 }

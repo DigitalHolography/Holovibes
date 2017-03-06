@@ -674,8 +674,8 @@
   <ItemGroup>
     <None Include="shaders\HoloWindow.fragment.glsl" />
     <None Include="shaders\HoloWindow.vertex.glsl" />
-    <None Include="shaders\sliceWidget.fragment.glsl" />
-    <None Include="shaders\sliceWidget.vertex.glsl" />
+    <None Include="shaders\SliceWindow.fragment.glsl" />
+    <None Include="shaders\SliceWindow.vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
