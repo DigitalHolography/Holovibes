@@ -117,6 +117,7 @@ namespace holovibes
 				cudaFree(buffer_);
 				buffer_ = nullptr;
 			}
+			throw std::logic_error(name_ + ": couldn't enqueue");
 			return false;
 		}
 		if (is_big_endian_)

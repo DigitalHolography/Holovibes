@@ -120,6 +120,8 @@ namespace gui
 		float py_;
 		/*! \brief Dezoom to default resolution */
 		void dezoom();
+
+		QString	windowTitle;
 	public slots:
 		void resizeFromWindow(const int width, const int height);
 
@@ -290,6 +292,5 @@ namespace gui
 		void gl_error_checking();
 
 		bool		slice_block_;
-		std::string	windowTitle_;
 	};
 }

@@ -41,11 +41,11 @@ namespace gui
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
 		//parent_->setWindowTitle("Real Time Display");
-		windowTitle_ = "Output : "
-					+ std::to_string(frame_desc_.width)
-					+ "x" + std::to_string(frame_desc_.height)
-					+ " " + std::to_string(static_cast<int>(frame_desc_.depth) << 3) + "bit";
-		parent_->setWindowTitle(QString::fromStdString(windowTitle_));
+		windowTitle = QString("Output : ")
+					+ QString(std::to_string(frame_desc_.width).c_str())
+					+ QString("x") + QString(std::to_string(frame_desc_.height).c_str())
+					+ QString(" ") + QString(std::to_string(static_cast<int>(frame_desc_.depth) << 3).c_str()) + QString("bit");
+		parent_->setWindowTitle(windowTitle);
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)
 			cuda_stream_ = 0; // Use default stream as a fallback
@@ -536,8 +536,8 @@ namespace gui
 		py_ += py / zoom_ratio_ * 0.5f;
 		zoom_ratio_ *= min_ratio;
 
+		parent_->setWindowTitle(windowTitle + QString(" - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
 		glScalef(min_ratio, min_ratio, 1.0f);
-		parent_->setWindowTitle(QString::fromStdString(windowTitle_ + " - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
 	}
 
 	void GLWidget::dezoom()
@@ -546,7 +546,7 @@ namespace gui
 		zoom_ratio_ = 1.0f;
 		px_ = 0.0f;
 		py_ = 0.0f;
-		parent_->setWindowTitle(QString::fromStdString(windowTitle_));
+		parent_->setWindowTitle(windowTitle);
 	}
 
 	void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
