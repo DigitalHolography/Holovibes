@@ -236,9 +236,6 @@
     <ClCompile Include="sources\gui\other\gui_group_box.cc">
       <Filter>c++ sources\gui\other</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\other\gui_tool.cc">
-      <Filter>c++ sources\gui\other</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\gui_gl_window.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
@@ -399,9 +396,6 @@
     </ClInclude>
     <ClInclude Include="includes\thread\thread_reader.hh">
       <Filter>c++ includes\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\other\gui_tool.hh">
-      <Filter>c++ includes\gui\other</Filter>
     </ClInclude>
     <ClInclude Include="includes\core\holovibes.hh">
       <Filter>c++ includes\core</Filter>

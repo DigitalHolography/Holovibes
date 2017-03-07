@@ -243,7 +243,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\gui\other\gui_tool.hh" />
     <CustomBuild Include="includes\gui\windows\gui_gl_window.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -515,7 +514,6 @@
     <ClCompile Include="sources\gui\opengl_widgets\slice_widget.cc" />
     <ClCompile Include="sources\gui\other\gui_curve_plot.cc" />
     <ClCompile Include="sources\gui\other\gui_group_box.cc" />
-    <ClCompile Include="sources\gui\other\gui_tool.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
     <ClCompile Include="sources\gui\windows\gui_gl_window.cc" />
     <ClCompile Include="sources\gui\windows\gui_plot_window.cc" />

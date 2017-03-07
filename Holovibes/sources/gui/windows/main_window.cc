@@ -23,14 +23,7 @@ namespace gui
 	MainWindow::MainWindow(holovibes::Holovibes& holovibes, QWidget *parent)
 		: QMainWindow(parent)
 		, holovibes_(holovibes)
-<<<<<<< Updated upstream
-		, gl_window_(nullptr)
-=======
-		//, gl_window_(nullptr)
-		//, gl_win_stft_0(nullptr)
-		//, gl_win_stft_1(nullptr)
 		, mainDisplay(nullptr)
->>>>>>> Stashed changes
 		, sliceXZ(nullptr)
 		, sliceYZ(nullptr)
 		, xzAngle(0.f)
@@ -145,8 +138,6 @@ namespace gui
 		QSpinBox* STFT_step = findChild<QSpinBox*>("STFTSpinBox");
 		STFT_step->setValue(cd.stft_steps.load());
 
-		//QSpinBox* phase_number = findChild<QSpinBox*>("phaseNumberSpinBox");
-		//phase_number->setValue(cd.nsamples);
 		QLineEdit* phase = findChild<QLineEdit*>("setPhaseLine");
 		phase->setText(QString::fromUtf8(std::to_string(cd.nsamples).c_str()));
 
@@ -249,10 +240,6 @@ namespace gui
 		QCheckBox* average = findChild<QCheckBox*>("averageCheckBox");
 		average->setChecked(is_enabled_average_);
 
-		/*GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
-			gl_widget->set_selection_mode(gui::eselection::AVERAGE);*/
-
 		if (is_enabled_average_ && !is_direct_mode())
 			mainDisplay->setKindOfSelection(KindOfSelection::Average);
 
@@ -329,22 +316,15 @@ namespace gui
 
 			str = "GPU allocation error occured.\nCuda error message\n" + std::string(msg);
 			display_error(str);
-			//emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 		else
 		{
 			display_error(msg);
-			//str << "Unknown error occured.";
-			//emit send_error(QString::fromLatin1(str.str().c_str()));
 		}
 	}
 
 	void MainWindow::display_message(QString msg)
 	{
-		/*QMessageBox msg_box(0);
-		msg_box.setText(msg);
-		msg_box.setIcon(QMessageBox::Critical);
-		msg_box.exec();*/
 		gui::InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
 		gui::InfoManager::get_manager()->wait(2000);
 		gui::InfoManager::get_manager()->remove_info("Message");
@@ -512,7 +492,7 @@ namespace gui
 			}
 			try
 			{
-				//cd.nsamples.exchange(1);
+				cd.nsamples.exchange(1);
 				holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);				
@@ -548,7 +528,6 @@ namespace gui
 				depth = 8;
 			holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 			holovibes_.get_pipe()->register_observer(*this);
-			//global_visibility(true);
 			mainDisplay.reset(new HoloWindow(
 				pos,
 				size,
@@ -694,9 +673,6 @@ namespace gui
 			cancel->setEnabled(true);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			//gl_widget->set_selection_mode(gui::eselection::STFT_ROI);
-
 			mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
 			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)),
 					this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
@@ -715,7 +691,6 @@ namespace gui
 				set_contrast_max(contrast_max->value());
 			}
 			cd.filter_2d_enabled.exchange(true);
-			// notify();
 			holovibes_.get_pipe()->request_autocontrast();
 			gui::InfoManager::update_info_safe("Filter2D", "Processing...");
 		}
@@ -728,9 +703,7 @@ namespace gui
 			QPushButton* cancel = findChild<QPushButton*>("cancelFilter2DPushButton");
 			cancel->setEnabled(false);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			
-			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			//gl_widget->set_selection_mode(gui::eselection::ZOOM);
+
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 
 			cd.filter_2d_enabled.exchange(false);
@@ -767,7 +740,6 @@ namespace gui
 					//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 					//stft_view(true);
 				}
-				//setWindowState(Qt::WindowMinimized);
 				setWindowState(Qt::WindowActive);
 				notify();
 			}
@@ -945,9 +917,6 @@ namespace gui
 		if (!is_direct_mode())
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			//QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
-			//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-			//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
 
@@ -997,7 +966,6 @@ namespace gui
 
 	void MainWindow::cancel_stft_slice_view()
 	{
-		//GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 
@@ -1013,17 +981,12 @@ namespace gui
 		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 
-		//gl_window_->setCursor(Qt::ArrowCursor);
 		mainDisplay->setCursor(Qt::ArrowCursor);
-		setMouseTracking(false);
-
-		//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 		mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
 	}
 
 	void MainWindow::stft_view(bool checked)
 	{
-		//GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
@@ -1059,8 +1022,6 @@ namespace gui
 				sliceYZ->setFlip(yzFlip);
 
 				mainDisplay->setCursor(Qt::CrossCursor);
-				setMouseTracking(true);
-				//gl_widget->set_selection_mode(gui::eselection::STFT_SLICE);
 				mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);
 
 				// Update Cursor position in Info Manager
@@ -1099,15 +1060,12 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-			// Reenabling phase number and p adjustments.
-			//QSpinBox* phase = findChild<QSpinBox*>("phaseNumberSpinBox");
 			QLineEdit *phase = findChild<QLineEdit*>("setPhaseLine");
 			phase->setEnabled(true);
 
 			QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
 			p->setEnabled(true);
 
-			// QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
 			bool pipeline_checked = false; //pipeline_checkbox->isChecked();
 
 			std::cout << "Value = " << value.toUtf8().constData() << '\n';
@@ -1310,8 +1268,6 @@ namespace gui
 
 	void MainWindow::set_autofocus_mode()
 	{
-		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		//gl_widget->set_selection_mode(gui::eselection::AUTOFOCUS);
 		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus);
 
 		const float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
@@ -1337,20 +1293,17 @@ namespace gui
 					//this, SLOT(request_autofocus(holovibes::Rectangle)),Qt::UniqueConnection);
 		}
 		else
-			display_error("z min has to be strictly inferior to z max");
+			display_error("z min have to be strictly inferior to z max");
 	}
 
 	void MainWindow::request_autofocus(holovibes::Rectangle zone)
 	{
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Autofocus processing...");
-		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		//desc.autofocus_zone = zone;
 		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
-		//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus); // Raw Autofocus Tmp;
 	}
 
@@ -1361,10 +1314,8 @@ namespace gui
 
 	void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
 	{
-		//GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		//desc.stft_roi_zone = zone;
 		desc.stftRoiZone(&zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_filter2D_roi_update();
 	}
@@ -1521,13 +1472,10 @@ namespace gui
 
 	void MainWindow::set_average_mode(const bool value)
 	{
-		//GLWidget*	gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		if (value)
-			//gl_widget->set_selection_mode(gui::eselection::AVERAGE);
 			mainDisplay->setKindOfSelection(KindOfSelection::Average);
 		else
-			//gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// Raw Zoom Tmp;
 		cd.average_enabled.exchange(value);
 		is_enabled_average_ = value;
@@ -1616,7 +1564,6 @@ namespace gui
 		QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
 		const std::string path = path_line_edit->text().toUtf8();
 		boost::property_tree::ptree ptree;
-		//GLWidget& gl_widget = gl_window_->get_gl_widget();
 
 		try
 		{
@@ -1654,7 +1601,6 @@ namespace gui
 		QLineEdit* path_line_edit = findChild<QLineEdit*>("ConvoMatrixLineEdit");
 		const std::string path = path_line_edit->text().toUtf8();
 		boost::property_tree::ptree ptree;
-		//GLWidget& gl_widget = gl_window_->get_gl_widget();
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 		std::stringstream strStream;
 		std::string str;
@@ -1662,7 +1608,6 @@ namespace gui
 		std::vector<std::string> v_str;
 		std::vector<std::string> matrix_size;
 		std::vector<std::string> matrix;
-		//QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
 		set_convolution_mode(false);
 		holovibes_.reset_convolution_matrix();
 
@@ -1905,7 +1850,6 @@ namespace gui
 	void MainWindow::batch_record(const std::string& path)
 	{
 		file_index_ = 1;
-		//struct stat buff;
 		QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
 		QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
 
@@ -2175,7 +2119,6 @@ namespace gui
 		QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
 		QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
 		QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-		//QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
 		QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
 		QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
 		cd.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
@@ -2211,7 +2154,6 @@ namespace gui
 		camera_visible(false);
 		record_visible(false);
 		global_visibility(false);
-		//gl_window_.reset(nullptr);
 		mainDisplay.reset(nullptr);
 		holovibes_.dispose_compute();
 		holovibes_.dispose_capture();
@@ -2233,7 +2175,6 @@ namespace gui
 			camera_visible(false);
 			record_visible(false);
 			global_visibility(false);
-			//gl_window_.reset(nullptr);
 			mainDisplay.reset(nullptr);
 			holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
@@ -2256,7 +2197,6 @@ namespace gui
 			camera_visible(false);
 			record_visible(false);
 			global_visibility(false);
-			//gl_window_.reset(nullptr);
 			mainDisplay.reset(nullptr);
 			holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
@@ -2320,7 +2260,6 @@ namespace gui
 		QLabel* phase_number_label = findChild<QLabel*>("PhaseNumberLabel");
 		phase_number_label->setDisabled(!value);
 
-		//QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
 		QLineEdit *phase = findChild<QLineEdit*>("setPhaseLine");
 		phase->setDisabled(!value);
 		QPushButton *phaseBtn = findChild<QPushButton*>("setPhaseButton");
@@ -2387,7 +2326,6 @@ namespace gui
 
 	void MainWindow::phase_num_visible(const bool value)
 	{
-		//QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
 		QLineEdit *phase_nb = findChild<QLineEdit*>("setPhaseLine");
 		phase_nb->setDisabled(!value);
 		QPushButton *phaseBtn = findChild<QPushButton*>("setPhaseButton");
@@ -2504,8 +2442,6 @@ namespace gui
 	void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
 	{
 		close_critical_compute();
-		/*auto manager = gui::InfoManager::get_manager();
-		manager->remove_info_safe("Input Fps");*/
 		gui::InfoManager::get_manager()->remove_info_safe("Input Fps");
 		if (camera_type != holovibes::Holovibes::NONE)
 		{
@@ -2514,7 +2450,6 @@ namespace gui
 				camera_visible(false);
 				record_visible(false);
 				global_visibility(false);
-				//gl_window_.reset(nullptr);
 				mainDisplay.reset(nullptr);
 				holovibes_.dispose_compute();
 				holovibes_.dispose_capture();
@@ -2551,19 +2486,11 @@ namespace gui
 
 	void MainWindow::display_error(const std::string msg)
 	{
-		/*QMessageBox msg_box;
-		msg_box.setText(QString::fromLatin1(msg.c_str()));
-		msg_box.setIcon(QMessageBox::Critical);
-		msg_box.exec();*/
 		std::cout << "Error : " << msg << std::endl;
 	}
 	 
 	void MainWindow::display_info(const std::string msg)
 	{
-		/*QMessageBox msg_box;
-		msg_box.setText(QString::fromLatin1(msg.c_str()));
-		msg_box.setIcon(QMessageBox::Information);
-		msg_box.exec();*/
 		std::cout << "Info : " << msg << std::endl;
 	}
 
@@ -3069,10 +2996,6 @@ namespace gui
 		}
 		if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
 			return;
-		/*	std::cout << "width =  " << width << std::endl;
-			std::cout << "height = " << height << std::endl;
-			std::cout << "depth =  " << depth << std::endl;
-			std::cout << "mode =   " << ((mode == false) ? ("D") : ("H")) << std::endl;*/
 		import_width_box->setValue(width);
 		import_height_box->setValue(height);
 		import_depth_box->setCurrentIndex(log2(depth) - 3);
