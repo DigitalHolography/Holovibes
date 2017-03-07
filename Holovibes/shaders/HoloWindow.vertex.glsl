@@ -14,11 +14,13 @@
 
 layout(location = 0) in vec2	xy;
 layout(location = 1) in vec2	uv;
+uniform float	scale;
+uniform vec2	translate;
 
 out vec2	texCoord;
 
 void main()
 {
-	texCoord = uv;
-	gl_Position = vec4(xy, 0.0f, 1.0f);
+	texCoord = uv + translate;
+	gl_Position = vec4((xy) * scale, 0.0f, 1.0f);
 }

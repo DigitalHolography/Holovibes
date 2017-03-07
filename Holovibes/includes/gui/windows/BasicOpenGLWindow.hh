@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <array>
 #include <QOpenGLWindow.h>
 #include <QOpenGLFunctions.h>
 #include <QOpenGLVertexArrayObject.h>
@@ -31,28 +32,37 @@
 
 namespace gui
 {
-	typedef
-	enum	KindOfView
+	using Vec2f = std::array<float, 2>;
+
+	using KindOfView =
+	enum
 	{
 		Direct = 1,
 		Hologram,
 		Slice
-	}		t_KindOfView;
+	};
 	
 	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 	{
 		Q_OBJECT
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k);
+			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
+
+			const KindOfView getKindOfView() const;
 
 		protected:
 			// Fields -----------
 			QPoint	winPos;
 			QSize	winSize;
-			holovibes::Queue&	Queue;
-			const t_KindOfView	kView;
+			holovibes::Queue&				Queue;
+			const camera::FrameDescriptor&  Fd;
+			const KindOfView	kView;
+
+			static bool sliceLock;
+			gui::Vec2f	Translate;
+			float		Scale;
 
 			// CUDA Objects -----
 			struct cudaGraphicsResource*	cuResource;
@@ -64,15 +74,19 @@ namespace gui
 			GLuint	Vbo, Ebo;
 			GLuint	Tex;
 			
-			// Accessors
-			const t_KindOfView getKindOfView() const;
-
 			// Virtual Pure Functions
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;
 
+			void	timerEvent(QTimerEvent *e);
+
 			// Keyboard Event Functions
-			void keyPressEvent(QKeyEvent* e);
+			void	keyPressEvent(QKeyEvent* e);
+
+			// Transfrom functions
+			void	setTranslate(uchar id, float value);
+			void	setScale();
+			void	resetTransform();
 	};
 }

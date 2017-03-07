@@ -27,7 +27,6 @@ namespace gui
 			void	setFlip(int f);
 
 		protected:
-			const camera::FrameDescriptor&  Fd;
 			float	Angle;
 			int		Flip;
 

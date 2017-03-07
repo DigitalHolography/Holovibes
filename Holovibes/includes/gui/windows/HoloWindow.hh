@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <array>
 #include "BasicOpenGLWindow.hh"
 #include "geometry.hh"
 
@@ -20,9 +19,7 @@ namespace gui
 {
 	template <typename T, uint Row, uint Column>
 	using MultiDimArray = std::array<std::array<T, Column>, Row>;
-
-	using Vec2f = std::array<float, 2>;
-
+	
 	using KindOfSelection = 
 	enum
 	{
@@ -45,8 +42,6 @@ namespace gui
 			KindOfSelection		getKindOfSelection() const;
 
 		protected:
-			Vec2f	Translate;
-			float	Scale;
 			KindOfSelection			kSelection;
 			holovibes::Rectangle	selectionRect;
 			const MultiDimArray<float, 6, 4>	selectionColors;
@@ -60,7 +55,5 @@ namespace gui
 			void	mouseReleaseEvent(QMouseEvent* e);
 			void	wheelEvent(QWheelEvent *e);
 
-		private:
-			void	setScale();
 	};
 }

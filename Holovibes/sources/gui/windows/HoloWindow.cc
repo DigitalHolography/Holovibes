@@ -25,8 +25,6 @@ namespace gui
 
 	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
 		BasicOpenGLWindow(p, s, q, k),
-		Translate{ 0.f, 0.f },
-		Scale(1.f),
 		kSelection(KindOfSelection::None),
 		selectionRect(1, 1),
 		selectionColors{ {
@@ -103,11 +101,11 @@ namespace gui
 
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// GL_CLAMP_TO_BORDER
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// GL_CLAMP_TO_BORDER
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-		if (Queue.get_frame_desc().depth == 1)
+		//if (Queue.get_frame_desc().depth == 1)
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
@@ -162,6 +160,7 @@ namespace gui
 		#pragma endregion
 
 		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+		glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 
 		Vao.release();
 		Program->release();
@@ -250,7 +249,8 @@ namespace gui
 
 	void HoloWindow::mouseMoveEvent(QMouseEvent* e)
 	{
-
+		if (sliceLock)
+			std::cout << e->x() << " " << e->y() << std::endl;
 	}
 
 	void HoloWindow::mouseReleaseEvent(QMouseEvent* e)
@@ -282,31 +282,30 @@ namespace gui
 	{
 		if (e->x() < winSize.width() && e->y() < winSize.height())
 		{
+			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
 			if (e->angleDelta().y() > 0)
 			{
 				Scale += 0.1f * Scale;
 				setScale();
+				setTranslate(0, xGL * 0.1 / Scale);
+				setTranslate(1, -yGL * 0.1 / Scale);
 			}
 			else if (e->angleDelta().y() < 0)
 			{
 				if (Scale <= 1 || Scale < 1.1f)
+				{
 					Scale = 1.f;
+					resetTransform();
+				}
 				else
+				{
 					Scale -= 0.1f * Scale;
-				setScale();
+					setScale();
+					setTranslate(0, -(-xGL * 0.1 / Scale));
+					setTranslate(1, -(yGL * 0.1 / Scale));
+				}
 			}
 		}
 	}
-	
-	void HoloWindow::setScale()
-	{
-		if (Program)
-		{
-			makeCurrent();
-			Program->bind();
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-			Program->release();
-		}
-	}
-
 }

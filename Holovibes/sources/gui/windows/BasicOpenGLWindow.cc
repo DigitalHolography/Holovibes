@@ -14,11 +14,14 @@
 
 namespace gui
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, t_KindOfView k) :
+	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
 		QOpenGLWindow(), QOpenGLFunctions(),
 		winPos(p), winSize(s),
 		Queue(q),
+		Fd(Queue.get_frame_desc()),
 		kView(k),
+		Translate{ 0.f, 0.f },
+		Scale(1.f),
 		cuResource(nullptr),
 		Program(nullptr),
 		Vao(0),
@@ -31,6 +34,7 @@ namespace gui
 		setFramePosition(winPos);
 		setIcon(QIcon("icon1.ico"));
 		show();
+		startTimer(50);
 	}
 
 	BasicOpenGLWindow::~BasicOpenGLWindow()
@@ -47,12 +51,17 @@ namespace gui
 		delete Program;
 	}
 
-	const t_KindOfView	BasicOpenGLWindow::getKindOfView() const
+	const	KindOfView	BasicOpenGLWindow::getKindOfView() const
 	{
 		return kView;
 	}
 
-	void BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
+	void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
+	{
+		QPaintDeviceWindow::update();
+	}
+
+	void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 	{
 		switch (e->key())
 		{
@@ -62,12 +71,63 @@ namespace gui
 			case Qt::Key::Key_Escape:
 				setWindowState(Qt::WindowNoState);
 				break;
-			/*if (kView != KindOfView::Slice)
-			{
-				case Qt::Key::Key_6:
-					;
-					break;
-			}*/
+			case Qt::Key::Key_Space:
+				sliceLock = !sliceLock;
+				std::cout << "sliceLock : " << sliceLock << std::endl;
+				break;
+			case (Qt::Key::Key_Up) :
+				setTranslate(1, -(0.1f / Scale));
+				break;
+			case Qt::Key::Key_Down:
+				setTranslate(1, 0.1f / Scale);
+				break;
+			case Qt::Key::Key_Right:
+				setTranslate(0, 0.1f / Scale);
+				break;
+			case Qt::Key::Key_Left:
+				setTranslate(0, -(0.1f / Scale));
+				break;
+		}
+	}
+
+	void	BasicOpenGLWindow::setTranslate(uchar id, float value)
+	{
+		Translate[id] += value;
+		Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
+						(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
+							0.f : Translate[id];
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+			Program->release();
+		}
+	}
+	
+	void	BasicOpenGLWindow::setScale()
+	{
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+			Program->release();
+		}
+	}
+
+	void	BasicOpenGLWindow::resetTransform()
+	{
+		Translate[0] = 0.f;
+		Translate[1] = 0.f;
+		Scale = 1.f;
+		if (Program)
+		{
+			makeCurrent();
+			Program->bind();
+			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+			Program->release();
 		}
 	}
 }

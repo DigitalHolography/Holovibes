@@ -17,7 +17,6 @@ namespace gui
 {
 	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
 		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
-		Fd(q.get_frame_desc()),
 		Angle(0.f), Flip(0)
 	{}
 
@@ -114,12 +113,7 @@ namespace gui
 
 		Vao.release();
 		Program->release();
-
-		/*GLenum error = glGetError();
-		auto err_string = glGetString(error);
-		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << '\n';*/
-
+		
 		glViewport(0, 0, winSize.width(), winSize.height());
 	}
 
@@ -172,7 +166,7 @@ namespace gui
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		update();
+		//update();
 	}
 
 	void SliceWindow::setAngle(float a)
