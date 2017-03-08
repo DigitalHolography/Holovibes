@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include <QOpenGL.h>
 #include <cuda_gl_interop.h>
 #include <cuda_runtime.h>
@@ -40,7 +52,6 @@ namespace gui
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
-		//parent_->setWindowTitle("Real Time Display");
 		windowTitle = QString("Output : ")
 					+ QString(std::to_string(frame_desc_.width).c_str())
 					+ QString("x") + QString(std::to_string(frame_desc_.height).c_str())
@@ -77,8 +88,6 @@ namespace gui
 		key_space_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
 		key_space_shortcut->setContext(Qt::ApplicationShortcut);
 		connect(key_space_shortcut, SIGNAL(activated()), this, SLOT(block_slice()));
-
-		setMouseTracking(true);
 	}
 
 	GLWidget::~GLWidget()
@@ -90,8 +99,6 @@ namespace gui
 		delete num_6_shortcut;
 		delete num_4_shortcut;
 		delete num_2_shortcut;
-
-		setMouseTracking(false);
 
 		makeCurrent();
 		/* Unregister buffer for access by CUDA. */
@@ -204,9 +211,9 @@ namespace gui
 		// Retourne aussi la size de ce buffer : buffer_size
 		cudaGraphicsResourceGetMappedPointer(&buffer_ptr, &buffer_size, cuda_buffer_);
 
-		if (frame_desc_.depth == 4)
+		if (frame_desc_.depth == 4.f)
 			float_to_ushort(static_cast<const float *>(frame), static_cast<unsigned short *> (buffer_ptr), frame_desc_.frame_res());
-		else if (frame_desc_.depth == 8)
+		else if (frame_desc_.depth == 8.f)
 			complex_to_ushort(static_cast<const cufftComplex *>(frame), static_cast<unsigned int *> (buffer_ptr), frame_desc_.frame_res());
 		else
 			// CUDA memcpy of the frame to opengl buffer.
@@ -225,11 +232,11 @@ namespace gui
 			glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
 
 		auto depth = GL_UNSIGNED_SHORT;
-		if (frame_desc_.depth == 1)
+		if (frame_desc_.depth == 1.f)
 			depth = GL_UNSIGNED_BYTE;
 
 		auto kind = GL_RED;
-		if (frame_desc_.depth == 8)
+		if (frame_desc_.depth == 8.f)
 			kind = GL_RG;
 
 		glTexImage2D(GL_TEXTURE_2D, 0, kind, frame_desc_.width, frame_desc_.height, 0, kind, depth, nullptr);
@@ -404,15 +411,11 @@ namespace gui
 				case AVERAGE:
 					if (is_signal_selection_)
 					{
-						//signal_selection_ = selection_;
-						//h_.get_compute_desc().signal_zone = resize_zone(signal_selection_);
 						holovibes::Rectangle rect(resize_zone((signal_selection_ = selection_)));
 						h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
 					}
 					else // Noise selection
 					{
-						//noise_selection_ = selection_;
-						//h_.get_compute_desc().noise_zone = resize_zone(noise_selection_);
 						holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
 						h_.get_compute_desc().noiseZone(&rect, ComputeDescriptor::Set);
 					}
@@ -487,20 +490,12 @@ namespace gui
 		const float zr = 1 / zoom_ratio_;
 
 		selection.setTopRight(selection.topRight() * zr);
-		//selection.topRight().setX(selection.topRight().x() * zr);
-		//selection.topRight().setY(selection.topRight().y() * zr);
 
 		selection.setTopLeft(selection.topLeft() * zr);
-		//selection.topLeft().setX(selection.topLeft().x() * zr);
-		//selection.topLeft().setY(selection.topLeft().y() * zr);
 
 		selection.setBottomRight(selection.bottomRight() * zr);
-		//selection.bottomRight().setX(selection.bottomRight().x() * zr);
-		//selection.bottomRight().setY(selection.bottomRight().y() * zr);
 
 		selection.setBottomLeft(selection.bottomLeft() * zr);
-		//selection.bottomLeft().setX(selection.bottomLeft().x() * zr);
-		//selection.bottomLeft().setY(selection.bottomLeft().y() * zr);
 		return (selection);
 	}
 
@@ -536,8 +531,8 @@ namespace gui
 		py_ += py / zoom_ratio_ * 0.5f;
 		zoom_ratio_ *= min_ratio;
 
-		parent_->setWindowTitle(windowTitle + QString(" - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
 		glScalef(min_ratio, min_ratio, 1.0f);
+		parent_->setWindowTitle(windowTitle + QString(" - zoom x") + QString(std::to_string(zoom_ratio_).c_str()));
 	}
 
 	void GLWidget::dezoom()

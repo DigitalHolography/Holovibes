@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include "queue.hh"
 #include "tools_conversion.cuh"
 
@@ -26,7 +38,6 @@ namespace holovibes
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << '\n';
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
-
 		frame_desc_.endianness = camera::LITTLE_ENDIAN;
 		cudaStreamCreate(&stream_);
 	}
@@ -35,8 +46,9 @@ namespace holovibes
 	{
 		if (display_)
 			gui::InfoManager::remove_info_safe(name_);
-		if (cudaFree(buffer_) != CUDA_SUCCESS)
-			std::cerr << "Queue: couldn't free queue" << '\n';
+		if (buffer_)
+			if (cudaFree(buffer_) != CUDA_SUCCESS)
+				std::cerr << "Queue: couldn't free queue" << '\n';
 		cudaStreamDestroy(stream_);
 	}
 
@@ -106,10 +118,10 @@ namespace holovibes
 			size_,
 			cuda_kind,
 			stream_);
-
 		if (cuda_status != CUDA_SUCCESS)
 		{
 			std::cerr << "Queue: couldn't enqueue\n";
+			std::cerr << cudaGetErrorString(cudaGetLastError()) << '\n';
 			if (display_)
 				gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
 			if (buffer_)
@@ -117,7 +129,6 @@ namespace holovibes
 				cudaFree(buffer_);
 				buffer_ = nullptr;
 			}
-			throw std::logic_error(name_ + ": couldn't enqueue");
 			return false;
 		}
 		if (is_big_endian_)

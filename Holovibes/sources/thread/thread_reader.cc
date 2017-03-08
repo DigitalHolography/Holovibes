@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 # include <fstream>
 # include <Windows.h>
 # include <chrono>
@@ -98,7 +110,9 @@ namespace holovibes
 			{
 				while (std::chrono::high_resolution_clock::now() > next_game_tick && !stop_requested_)
 				{
-					reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos);
+					if (!reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos))
+						stop_requested_ = true;
+					
 					next_game_tick += frame_frequency;
 					if (--refresh_fps == 0)
 					{
@@ -123,7 +137,7 @@ namespace holovibes
 		clear_memory(&buffer, &resize_buffer);
 	}
 
-	void ThreadReader::reader_loop(
+	bool ThreadReader::reader_loop(
 		FILE* file,
 		char* buffer,
 		char* resize_buffer,
@@ -146,7 +160,7 @@ namespace holovibes
 			else
 			{
 				stop_requested_ = true;
-				return;
+				return (true);
 			}
 		}
 		if (act_frame_ >= nbr_stored_)
@@ -156,52 +170,57 @@ namespace holovibes
 			act_frame_ = 0;
 		}
 		if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
-			queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice);
+		{
+			if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice))
+				return (false);
+		}
 		else
 		{
 			buffer_size_conversion(resize_buffer
 				, buffer + cine_offset + act_frame_ * frame_size
 				, real_frame_desc_
 				, frame_desc_);
-			queue_.enqueue(resize_buffer, cudaMemcpyDeviceToDevice);
+			if (!queue_.enqueue(resize_buffer, cudaMemcpyDeviceToDevice))
+				return (false);
 		}
 		++frameId_;
 		++act_frame_;
+		return (true);
 	}
 
-  ThreadReader::~ThreadReader()
-  {
-    stop_requested_ = true;
+	ThreadReader::~ThreadReader()
+	{
+		stop_requested_ = true;
 
-	while (!thread_.joinable())
-		continue;
-    thread_.join();
-    gui::InfoManager::get_manager()->update_info("ImgSource", "none");
-  }
+		while (!thread_.joinable())
+			continue;
+		thread_.join();
+		gui::InfoManager::get_manager()->update_info("ImgSource", "none");
+	}
 
-  const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
-  {
-    return frame_desc_;
-  }
+	const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
+	{
+		return frame_desc_;
+	}
 
-  long int ThreadReader::offset_cine_first_image(FILE *file)
-  {
-	  size_t		length = 0;
-	  char			buffer[44];
-	  unsigned int	offset_to_ptr = 0;
-	  fpos_t		off = 0;
-	  long int		offset_to_image = 0;
+	long int ThreadReader::offset_cine_first_image(FILE *file)
+	{
+		size_t		length = 0;
+		char			buffer[44];
+		unsigned int	offset_to_ptr = 0;
+		fpos_t		off = 0;
+		long int		offset_to_image = 0;
 
-	  /*Reading the whole cine file header*/
-	  if ((length = std::fread(buffer, 1, 44, file)) =! 44)
-		  return (0);
-	  /*Reading OffImageOffsets for offset to POINTERS TO IMAGES*/
-	  std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
-	  /*Reading offset of the first image*/
-	  off = offset_to_ptr;
-	  std::fsetpos(file, &off);
-	  if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) =! sizeof(long int))
-		  return (0);
-	  return (offset_to_image);
-  }
+		/*Reading the whole cine file header*/
+		if ((length = std::fread(buffer, 1, 44, file)) = !44)
+			return (0);
+		/*Reading OffImageOffsets for offset to POINTERS TO IMAGES*/
+		std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
+		/*Reading offset of the first image*/
+		off = offset_to_ptr;
+		std::fsetpos(file, &off);
+		if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) = !sizeof(long int))
+			return (0);
+		return (offset_to_image);
+	}
 }

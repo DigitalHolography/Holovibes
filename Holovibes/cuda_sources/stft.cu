@@ -70,7 +70,7 @@ __global__	void	kernel_stft_view_xz(const complex	*input,
 		//output[id] = static_cast<ushort>(pixel.x);
 		//output[id] = static_cast<ushort>(abs((pixel.x * pixel.x) + (pixel.y * pixel.y)));
 		//output[id] = static_cast<ushort>(log(abs(pixel.x * pixel.x + pixel.y * pixel.y)));
-		output[id] = static_cast<ushort>(abs(log(hypotf(pixel.x, pixel.y))));
+		output[id] = static_cast<ushort>(hypotf(pixel.x, pixel.y));
 	}
 }
 
@@ -92,7 +92,7 @@ __global__	void	kernel_stft_view_yz(const complex	*input,
 		//output[id] = static_cast<ushort>(pixel.x);
 		//output[id] = static_cast<ushort>(abs((pixel.x * pixel.x) + (pixel.y * pixel.y)));
 		//output[id] = static_cast<ushort>(log(abs(pixel.x * pixel.x + pixel.y * pixel.y)));
-		output[id] = static_cast<ushort>(abs(log(hypotf(pixel.x, pixel.y))));
+		output[id] = static_cast<ushort>(hypotf(pixel.x, pixel.y));
 	}
 }
 
