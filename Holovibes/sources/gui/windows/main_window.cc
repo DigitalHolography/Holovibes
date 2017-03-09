@@ -2652,12 +2652,12 @@ namespace gui
 
 			const unsigned short p_nsample = ptree.get<unsigned short>("image_rendering.phase_number", cd.nsamples);
 			cd.nsamples.exchange(1);
-			if (p_nsample < 1)
+			/*if (p_nsample < 1)
 				cd.nsamples.exchange(1);
 			else if (p_nsample > config.input_queue_max_size)
 				cd.nsamples.exchange(config.input_queue_max_size);
 			else
-				cd.nsamples.exchange(p_nsample);
+				cd.nsamples.exchange(p_nsample);*/
 
 			const unsigned short p_index = ptree.get<unsigned short>("image_rendering.p_index", cd.pindex);
 			if (p_index >= 0 && p_index < cd.nsamples)
@@ -2981,9 +2981,11 @@ namespace gui
 		else if (cd.stft_view_enabled.load())
 			cancel_stft_slice_view();
 		QCheckBox* stft_button = findChild<QCheckBox*>("STFTCheckBox");
+		findChild<QLineEdit *>("setPhaseLine")->setText("1");
 		cd.stft_view_enabled.exchange(false);
 		cd.stft_enabled.exchange(false);
 		cd.signal_trig_enabled.exchange(false);
+		cd.nsamples.exchange(1);
 		stft_button->setChecked(false);
 	}
 
@@ -3060,12 +3062,12 @@ namespace gui
 			if (file_src[i] == '_')
 				underscore--;
 		if (underscore)
-			return;
+			return (display_error("Cannot detect title properties"));
 		if (file_src[++i] == '_' && i++)
 			if (file_src[i] == 'D' || file_src[i] == 'H')
 				mode = ((file_src[i] == 'D') ? (false) : (true));
 			else
-				return;
+				return (display_error("Cannot detect title properties"));
 		if (file_src[++i] == '_')
 		{
 			width = std::atoi(&file_src[++i]);
@@ -3073,7 +3075,7 @@ namespace gui
 				++i;
 		}
 		else
-			return;
+			return (display_error("Cannot detect title properties"));
 		if (file_src[i++] == '_')
 		{
 			height = std::atoi(&file_src[i++]);
@@ -3081,7 +3083,7 @@ namespace gui
 				++i;
 		}
 		else
-			return;
+			return (display_error("Cannot detect title properties"));
 		if (file_src[i++] == '_')
 		{
 			depth = std::atoi(&file_src[i++]);
@@ -3089,16 +3091,16 @@ namespace gui
 				++i;
 		}
 		else
-			return;
+			return (display_error("Cannot detect title properties"));
 		if (file_src[i++] == '_')
 		{
 			if (file_src[i] == 'e' || file_src[i] == 'E')
 				endian = ((file_src[i] == 'e') ? (false) : (true));
 			else
-				return;
+				return (display_error("Cannot detect title properties"));
 		}
 		if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
-			return;
+			return (display_error("Cannot detect title properties"));
 		/*	std::cout << "width =  " << width << std::endl;
 			std::cout << "height = " << height << std::endl;
 			std::cout << "depth =  " << depth << std::endl;
@@ -3107,10 +3109,10 @@ namespace gui
 		import_height_box->setValue(height);
 		import_depth_box->setCurrentIndex(log2(depth) - 3);
 		import_endian_box->setCurrentIndex(endian);
-		if (!direct->isCheckable() && !holo->isCheckable())
-		{
-			direct->setChecked(!mode);
-			holo->setChecked(mode);
-		}
+		//if (!direct->isCheckable() && !holo->isCheckable())
+		//{
+		//	direct->setChecked(!mode);
+		//	holo->setChecked(mode);
+		//}
 	}
 }
