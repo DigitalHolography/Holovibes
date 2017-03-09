@@ -15,12 +15,10 @@
 # include <cuda_runtime.h>
 # include <surface_functions.h>
 # include <device_launch_parameters.h>
+# include "frame_desc.hh"
 
-__global__
-void kernelTextureUpdate(	unsigned short* frame,
-							cudaSurfaceObject_t cuSurface,
-							dim3 texDim);
+
 void	textureUpdate(	cudaSurfaceObject_t cuSurface,
-						void *frame,
-						unsigned short width,
-						unsigned short height);
+						void* frame,
+						const camera::FrameDescriptor& Fd,
+						cudaStream_t stream);

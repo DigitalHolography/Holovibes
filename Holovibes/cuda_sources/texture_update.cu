@@ -14,28 +14,49 @@
 # include "texture_update.cuh"
 
 __global__
-void kernelTextureUpdate(	unsigned short* frame,
-							cudaSurfaceObject_t cuSurface,
-							dim3 texDim)
+void TextureUpdate_8bit(unsigned char* frame,
+						cudaSurfaceObject_t cuSurface,
+						dim3 texDim)
 {
 	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-	// Red Mode
-	//surf2Dwrite(static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x * 4, y);
+	surf2Dwrite(frame[y * texDim.x + x], cuSurface, x << 2, y);
+}
 
-	// Grey Mode
-	const unsigned char p = static_cast<unsigned char>(frame[y * texDim.x + x] >> 8);
-	surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x * 4, y);
+__global__
+void TextureUpdate_16bit(unsigned short* frame,
+						cudaSurfaceObject_t cuSurface,
+						dim3 texDim)
+{
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+	surf2Dwrite(
+		static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x << 2, y);
 }
 
 void textureUpdate(	cudaSurfaceObject_t cuSurface,
-					void *frame,
-					unsigned short width,
-					unsigned short height)
+					void* frame,
+					const camera::FrameDescriptor& Fd,
+					cudaStream_t stream)
 {
-	dim3 threads(32, 32);
-	dim3 blocks(width >> 5, height >> 5); // >> 5 == /= 32
+	dim3 threads(8, 8);
+	dim3 blocks(Fd.width >> 3, Fd.height >> 3);
 
-	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<unsigned short*>(frame), cuSurface, dim3(width, height));
+	if (Fd.depth == 1)
+	{
+		TextureUpdate_8bit << < blocks, threads >> > (
+			reinterpret_cast<unsigned char*>(frame),
+			cuSurface,
+			dim3(Fd.width, Fd.height));
+	}
+	else if (Fd.depth == 2)
+	{
+		TextureUpdate_16bit << < blocks, threads >> > (
+			reinterpret_cast<unsigned short*>(frame),
+			cuSurface,
+			dim3(Fd.width, Fd.height));
+	}
+	cudaStreamSynchronize(stream);
 }
