@@ -21,10 +21,12 @@
 namespace gui
 {
 
-	bool BasicOpenGLWindow::sliceLock = false;
+	std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
-	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
-		BasicOpenGLWindow(p, s, q, k),
+	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
+		holovibes::ComputeDescriptor &cd, KindOfView k) :
+		/* ~~~~~~~~~~~~ */
+		BasicOpenGLWindow(p, s, q, cd, k),
 		kSelection(KindOfSelection::None),
 		selectionRect(1, 1),
 		selectionColors{ {
@@ -33,11 +35,9 @@ namespace gui
 			{ 0.26f, 0.56f, 0.64f, 0.4f },		// Average::Noise
 			{ 1.0f,	0.8f, 0.0f, 0.4f },			// Autofocus
 			{ 0.9f,	0.7f, 0.1f, 0.4f },			// Filter2D
-			{ 1.0f,	0.87f, 0.87f, 0.4f } } }		// SliceZoom
+			{ 1.0f,	0.87f, 0.87f, 0.4f } } }	// SliceZoom
 	{
 		//auto tab = selectionColors[kSelection];
-		sliceLock = false;
-
 	}
 
 	HoloWindow::~HoloWindow()
@@ -74,6 +74,7 @@ namespace gui
 		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
+		std::cout << "depth : " << Queue.get_frame_desc().depth << std::endl;
 		if (Queue.get_frame_desc().depth == 1)
 		{
 			uint	size = Queue.get_frame_desc().frame_size();
@@ -105,15 +106,20 @@ namespace gui
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// GL_CLAMP_TO_BORDER
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-		//if (Queue.get_frame_desc().depth == 1)
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		}
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
 		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
 			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
+
+		cudaGraphicsMapResources(1, &cuResource, cuStream);
+		cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
+		cuArrRD.resType = cudaResourceTypeArray;
+		cuArrRD.res.array.array = cuArray;
+		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
+
 		#pragma endregion
 
 		#pragma region Vertex Buffer Object
@@ -166,6 +172,7 @@ namespace gui
 		Program->release();
 
 		glViewport(0, 0, winSize.width(), winSize.height());
+		startTimer(1000. / 10.);
 	}
 
 	void HoloWindow::resizeGL(int width, int height)
@@ -178,31 +185,6 @@ namespace gui
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		#pragma region Cuda
-		cudaGraphicsMapResources(1, &cuResource, cuStream);
-		cudaArray_t cuArr = nullptr;
-
-		cudaGraphicsSubResourceGetMappedArray(&cuArr, cuResource, 0, 0);
-		cudaResourceDesc cuArrRD;
-		{
-			cuArrRD.resType = cudaResourceTypeArray;
-			cuArrRD.res.array.array = cuArr;
-		}
-		cudaSurfaceObject_t cuSurface;
-		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
-		{
-			textureUpdate(cuSurface,
-				Queue.get_last_images(1),
-				Queue.get_frame_desc().width,
-				Queue.get_frame_desc().height);
-		}
-		cudaDestroySurfaceObject(cuSurface);
-
-		// Unmap the buffer for access by CUDA.
-		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
-		cudaStreamSynchronize(cuStream);
-		#pragma endregion
-
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		Program->bind();
@@ -213,7 +195,7 @@ namespace gui
 		glEnableVertexAttribArray(1);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+		
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -221,13 +203,13 @@ namespace gui
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		//update();
+		
+		QPaintDeviceWindow::update();
 	}
 
 	void HoloWindow::mousePressEvent(QMouseEvent* e)
 	{
-		if (kSelection == SliceZoom && !sliceLock)
+		if (kSelection == SliceZoom && slicesAreLocked)
 		{
 			if (e->button() == Qt::LeftButton)
 			{
@@ -249,13 +231,19 @@ namespace gui
 
 	void HoloWindow::mouseMoveEvent(QMouseEvent* e)
 	{
-		if (sliceLock)
-			std::cout << e->x() << " " << e->y() << std::endl;
+		if (!slicesAreLocked)
+		{
+			updateCursorPosition(QPoint(
+				e->x() * (Fd.width / static_cast<float>(width())),
+				e->y() * (Fd.height / static_cast<float>(height()))));
+		}
 	}
 
 	void HoloWindow::mouseReleaseEvent(QMouseEvent* e)
 	{
-		if (sliceLock)
+		if (e->button() == Qt::RightButton)
+			resetTransform();
+		/*if (sliceLock)
 		{
 			selectionRect.setBottomRight(QPoint(
 				(e->x() * Fd.width) / width(),
@@ -274,8 +262,8 @@ namespace gui
 				;// zoom(selectionRect);
 			else if (selectionRect.topLeft() != selectionRect.bottomRight())
 				;// zoom(selectionRect);
-			sliceLock = false;
-		}
+			sliceLock.exchange(false);
+		}*/
 	}
 
 	void HoloWindow::wheelEvent(QWheelEvent *e)
@@ -308,4 +296,14 @@ namespace gui
 			}
 		}
 	}
+
+	void HoloWindow::updateCursorPosition(QPoint pos)
+	{
+		auto manager = InfoManager::get_manager();
+		std::stringstream ss;
+		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+		manager->update_info("STFT Slice Cursor", ss.str());
+		Cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
+	}
+
 }

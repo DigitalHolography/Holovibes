@@ -10,38 +10,47 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 
 namespace gui
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
+	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q,
+		holovibes::ComputeDescriptor &cd, KindOfView k) :
+		/* ~~~~~~~~~~~~ */
 		QOpenGLWindow(), QOpenGLFunctions(),
 		winPos(p), winSize(s),
+		Cd(cd),
 		Queue(q),
 		Fd(Queue.get_frame_desc()),
 		kView(k),
 		Translate{ 0.f, 0.f },
 		Scale(1.f),
 		cuResource(nullptr),
+		cuStream(nullptr),
+		cuArray(nullptr),
+		cuSurface(0),
 		Program(nullptr),
 		Vao(0),
 		Vbo(0), Ebo(0),
 		Tex(0)
 	{
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
-			cuStream = 0;
+			cuStream = nullptr;
 		resize(winSize);
 		setFramePosition(winPos);
 		setIcon(QIcon("icon1.ico"));
 		show();
-		startTimer(50);
 	}
 
 	BasicOpenGLWindow::~BasicOpenGLWindow()
 	{
 		makeCurrent();
 
+		cudaDestroySurfaceObject(cuSurface);
+		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		cudaGraphicsUnregisterResource(cuResource);
+		cudaFreeArray(cuArray);
 		cudaStreamDestroy(cuStream);
 
 		if (Tex) glDeleteBuffers(1, &Tex);
@@ -58,7 +67,10 @@ namespace gui
 
 	void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
 	{
-		QPaintDeviceWindow::update();
+		textureUpdate(cuSurface,
+			Queue.get_last_images(1),
+			Queue.get_frame_desc(),
+			cuStream);
 	}
 
 	void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
@@ -72,8 +84,7 @@ namespace gui
 				setWindowState(Qt::WindowNoState);
 				break;
 			case Qt::Key::Key_Space:
-				sliceLock = !sliceLock;
-				std::cout << "sliceLock : " << sliceLock << std::endl;
+				slicesAreLocked.exchange(!slicesAreLocked);
 				break;
 			case (Qt::Key::Key_Up) :
 				setTranslate(1, -(0.1f / Scale));
@@ -118,8 +129,7 @@ namespace gui
 
 	void	BasicOpenGLWindow::resetTransform()
 	{
-		Translate[0] = 0.f;
-		Translate[1] = 0.f;
+		Translate = { 0.f, 0.f };
 		Scale = 1.f;
 		if (Program)
 		{

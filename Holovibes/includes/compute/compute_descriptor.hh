@@ -81,6 +81,13 @@ namespace holovibes
 			COMPLEX,
 			PHASE_INCREASE,
 		};
+
+		typedef
+		enum	e_access
+		{
+			Get = 1,
+			Set = 2
+		}		t_access;
 		#pragma endregion
 
 		/*! \brief ComputeDescriptor constructor
@@ -91,14 +98,7 @@ namespace holovibes
 		 * The assignment operator is explicitely defined because std::atomic type
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
-
-		typedef
-		enum	e_access
-		{
-			Get = 1,
-			Set = 2
-		}		t_access;
-
+		
 		void stftCursor(QPoint *p, t_access mode);
 
 		void signalZone(Rectangle *rect, t_access mode);

@@ -12,6 +12,9 @@
 
 #pragma once
 
+#include <sstream>
+#include <boost/algorithm/string.hpp>
+#include "info_manager.hh"
 #include "BasicOpenGLWindow.hh"
 #include "geometry.hh"
 
@@ -35,7 +38,8 @@ namespace gui
 	{
 		Q_OBJECT
 		public:
-			HoloWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
+			HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
+				holovibes::ComputeDescriptor &cd, KindOfView k);
 			virtual ~HoloWindow();
 
 			void				setKindOfSelection(KindOfSelection k);
@@ -55,5 +59,6 @@ namespace gui
 			void	mouseReleaseEvent(QMouseEvent* e);
 			void	wheelEvent(QWheelEvent *e);
 
+			void	updateCursorPosition(QPoint pos);
 	};
 }

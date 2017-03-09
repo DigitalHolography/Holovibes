@@ -13,6 +13,7 @@
 #pragma once
 
 #include <array>
+#include <atomic>
 #include <QOpenGLWindow.h>
 #include <QOpenGLFunctions.h>
 #include <QOpenGLVertexArrayObject.h>
@@ -21,6 +22,7 @@
 #include <cuda_gl_interop.h>
 
 #include "tools_conversion.cuh"
+#include "compute_descriptor.hh"
 #include "queue.hh"
 
 #ifndef vertCoord
@@ -47,7 +49,8 @@ namespace gui
 		Q_OBJECT
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
+			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q,
+				holovibes::ComputeDescriptor &cd, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView getKindOfView() const;
@@ -56,17 +59,21 @@ namespace gui
 			// Fields -----------
 			QPoint	winPos;
 			QSize	winSize;
+			holovibes::ComputeDescriptor&  Cd;
 			holovibes::Queue&				Queue;
 			const camera::FrameDescriptor&  Fd;
 			const KindOfView	kView;
 
-			static bool sliceLock;
-			gui::Vec2f	Translate;
-			float		Scale;
+			static std::atomic<bool> slicesAreLocked;
+			Vec2f	Translate;
+			float	Scale;
 
 			// CUDA Objects -----
-			struct cudaGraphicsResource*	cuResource;
-			cudaStream_t					cuStream;
+			cudaGraphicsResource_t	cuResource;
+			cudaStream_t			cuStream;
+			cudaArray_t				cuArray;
+			cudaResourceDesc		cuArrRD;
+			cudaSurfaceObject_t		cuSurface;
 
 			// OpenGL Objects ---
 			QOpenGLShaderProgram	*Program;
@@ -84,7 +91,7 @@ namespace gui
 			// Keyboard Event Functions
 			void	keyPressEvent(QKeyEvent* e);
 
-			// Transfrom functions
+			// Transform functions
 			void	setTranslate(uchar id, float value);
 			void	setScale();
 			void	resetTransform();

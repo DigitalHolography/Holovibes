@@ -20,7 +20,8 @@ namespace gui
 	{
 		Q_OBJECT
 		public:
-			SliceWindow(QPoint p, QSize s, holovibes::Queue& q);
+			SliceWindow(QPoint p, QSize s, holovibes::Queue& q,
+				holovibes::ComputeDescriptor &cd);
 			virtual ~SliceWindow();
 
 			void	setAngle(float a);

@@ -158,7 +158,7 @@ namespace gui {
 		cudaSurfaceObject_t cuSurface;
 		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		{
-			textureUpdate(cuSurface, HQueue.get_last_images(1), Fd.width, Fd.height);
+			//textureUpdate(cuSurface, HQueue.get_last_images(1), Fd.width, Fd.height);
 		}
 		cudaDestroySurfaceObject(cuSurface);
 

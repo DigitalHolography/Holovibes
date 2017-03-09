@@ -253,9 +253,8 @@ namespace gui
 			findChild<QLabel *>("label_2")->setText("Noise");
 			findChild<QLabel *>("label")->setText("Signal");
 		}
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
-		if (gl_widget && is_enabled_average_ && is_direct_mode() == false)
-			gl_widget->set_selection_mode(gui::eselection::AVERAGE);
+		if (is_enabled_average_ && is_direct_mode() == false)
+			mainDisplay->setKindOfSelection(KindOfSelection::Average);
 
 		average_visible(is_enabled_average_);
 
@@ -507,8 +506,8 @@ namespace gui
 			sliceYZ.reset(nullptr);
 		if (plot_window_)
 			plot_window_.reset(nullptr);
-		if (gl_window_)
-			gl_window_.reset(nullptr);
+		if (mainDisplay)
+			mainDisplay.reset(nullptr);
 	}
 
 	void MainWindow::set_direct_mode()
@@ -525,6 +524,7 @@ namespace gui
 				pos,
 				size,
 				holovibes_.get_capture_queue(),
+				holovibes_.get_compute_desc(),
 				KindOfView::Direct));
 			set_convolution_mode(false);
 			global_visibility(false);
@@ -561,6 +561,7 @@ namespace gui
 					pos,
 					size,
 					holovibes_.get_output_queue(),
+					holovibes_.get_compute_desc(),
 					KindOfView::Hologram));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
@@ -592,6 +593,7 @@ namespace gui
 				pos,
 				size,
 				holovibes_.get_output_queue(),
+				holovibes_.get_compute_desc(),
 				KindOfView::Hologram));
 		}
 		catch (std::exception& e)
@@ -742,8 +744,8 @@ namespace gui
 					this, SLOT(request_stft_roi_end()),
 					Qt::UniqueConnection);*/
 
-			filter_button->setStyleSheet("QPushButton {color: #009FFF;}");
-			filter_button->setText("2DFilter");
+			findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
+			findChild<QPushButton*>("Filter2DPushButton")->setText("2DFilter");
 			cd.log_scale_enabled.exchange(true);
 			cd.shift_corners_enabled.exchange(false);
 			if (cd.contrast_enabled)
@@ -1069,7 +1071,8 @@ namespace gui
 				sliceXZ.reset(new SliceWindow(
 					xzPos,
 					QSize(mainDisplay->width(), nSize),
-					holovibes_.get_pipe()->get_stft_slice_queue(0)));
+					holovibes_.get_pipe()->get_stft_slice_queue(0),
+					holovibes_.get_compute_desc()));
 				sliceXZ->setTitle("Slice XZ");
 				sliceXZ->setAngle(xzAngle);
 				sliceXZ->setFlip(xzFlip);
@@ -1077,7 +1080,8 @@ namespace gui
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
 					QSize(nSize, mainDisplay->height()),
-					holovibes_.get_pipe()->get_stft_slice_queue(1)));
+					holovibes_.get_pipe()->get_stft_slice_queue(1),
+					holovibes_.get_compute_desc()));
 				sliceYZ->setTitle("Slice YZ");
 				sliceYZ->setAngle(yzAngle);
 				sliceYZ->setFlip(yzFlip);

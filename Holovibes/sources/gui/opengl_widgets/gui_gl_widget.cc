@@ -134,7 +134,7 @@ namespace gui
 	void GLWidget::view_zoom_out()
 	{
 		zoom_ratio_ *= 1.1f;
-		glScalef(1.1f, 1.1f, 1.0f);	///Vertex *= vec4(scale); 
+		glScalef(1.1f, 1.1f, 1.0f);
 	}
 
 	void GLWidget::view_zoom_in()
@@ -145,7 +145,7 @@ namespace gui
 
 	void GLWidget::block_slice()
 	{
-		slice_block_.exchange(!slice_block_.load());
+		//slice_block_.exchange(!slice_block_.load());
 	}
 
 	QSize GLWidget::minimumSizeHint() const
@@ -194,7 +194,7 @@ namespace gui
 	{
 		glViewport(0, 0, width, height);
 	}
-
+	
 	void GLWidget::paintGL()
 	{
 		makeCurrent();
@@ -325,7 +325,7 @@ namespace gui
 				dezoom();
 			else if (selection_mode_ == AVERAGE)
 				is_selection_enabled_ = false;
-		}
+		}*/
 	}
 
 	void GLWidget::mouseMoveEvent(QMouseEvent* e)

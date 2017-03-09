@@ -15,8 +15,10 @@
 
 namespace gui
 {
-	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
-		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
+	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q,
+		holovibes::ComputeDescriptor &cd) :
+		/* ~~~~~~~~~~~~ */
+		BasicOpenGLWindow(p, s, q, cd, KindOfView::Slice),
 		Angle(0.f), Flip(0)
 	{}
 
@@ -59,11 +61,18 @@ namespace gui
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		delete[] mTexture;
 		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
 			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
+		cudaGraphicsMapResources(1, &cuResource, cuStream);
+		cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
+		cuArrRD.resType = cudaResourceTypeArray;
+		cuArrRD.res.array.array = cuArray;
+		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		#pragma endregion
 
 		#pragma region Vertex Buffer Object
@@ -115,6 +124,7 @@ namespace gui
 		Program->release();
 		
 		glViewport(0, 0, winSize.width(), winSize.height());
+		startTimer(1000. / 30.);
 	}
 
 	void SliceWindow::resizeGL(int width, int height)
@@ -126,34 +136,13 @@ namespace gui
 	{
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
-		
-		#pragma region Cuda
-		cudaGraphicsMapResources(1, &cuResource, cuStream);
-		cudaArray_t cuArr = nullptr;
 
-		cudaGraphicsSubResourceGetMappedArray(&cuArr, cuResource, 0, 0);
-		cudaResourceDesc cuArrRD;
-		{
-			cuArrRD.resType = cudaResourceTypeArray;
-			cuArrRD.res.array.array = cuArr;
-		}
-		cudaSurfaceObject_t cuSurface;
-		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
-		{
-			textureUpdate(cuSurface, Queue.get_last_images(1), Fd.width, Fd.height);
-		}
-		cudaDestroySurfaceObject(cuSurface);
-
-		// Unmap the buffer for access by CUDA.
-		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
-		cudaStreamSynchronize(cuStream);
-		#pragma endregion
-		
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		Program->bind();
 		Vao.bind();
 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
@@ -161,12 +150,13 @@ namespace gui
 
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		//update();
+		QPaintDeviceWindow::update();
 	}
 
 	void SliceWindow::setAngle(float a)
