@@ -120,7 +120,13 @@ namespace gui
 			return selection_mode_;
 		}*/
 
-		public slots:
+		float px_;
+		float py_;
+		/*! \brief Dezoom to default resolution */
+		void dezoom();
+
+		QString	windowTitle;
+	public slots:
 		void resizeFromWindow(const int width, const int height);
 
 		/*! \{ \name View Shortcut */
@@ -132,6 +138,7 @@ namespace gui
 		void view_zoom_out();
 		void block_slice();
 		/*! \} */
+
 
 	signals:
 		/*! \brief Signal used to inform the main window that autofocus
@@ -225,8 +232,6 @@ namespace gui
 		/*! \} */
 
 		/*! \{ \name Previouses zoom translations */
-		float px_;
-		float py_;
 		float zoom_ratio_;
 		/*! \} */
 
@@ -271,9 +276,7 @@ namespace gui
 		** \param selection zone where to zoom
 		*/
 		void zoom(const holovibes::Rectangle& selection);
-
-		/*! \brief Dezoom to default resolution */
-		void dezoom();
+		
 
 		/*! \brief Return resized rectangle using actual zoom */
 		holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection);
@@ -292,6 +295,6 @@ namespace gui
 		 */
 		void gl_error_checking();
 
-		std::atomic<bool>	slice_block_;
+		bool		slice_block_;
 	};
 }

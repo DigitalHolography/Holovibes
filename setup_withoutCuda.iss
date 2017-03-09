@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "4.2.0"
+#define MyAppVersion "4.2.170308"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -78,7 +78,7 @@ Source: "x64\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "x64\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\icon1.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "x64\Release\holovibes_logo_42.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\holovibes_logo.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\sliceWidget.fragment.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\sliceWidget.vertex.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
 Source: "{#QwtPath}\qwt.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

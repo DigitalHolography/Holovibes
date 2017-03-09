@@ -292,7 +292,7 @@ namespace holovibes
 			try
 			{
 				gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
-				if (compute_desc_.stft_view_enabled)
+				if (compute_desc_.stft_view_enabled.load())
 					update_stft_slice_queue();
 			}
 			catch (std::exception& )

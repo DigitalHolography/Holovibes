@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include "gui_gl_window.hh"
 #include "holovibes.hh"
 
@@ -18,13 +30,12 @@ namespace gui
 		full_screen_(nullptr),
 		maximized_screen_(nullptr)
 	{
-		//TODO:
 		if (wk == window_kind::DIRECT)
 		{
 			Ui::GLWindow ui;
 			ui.setupUi(this);
 
-			this->setWindowIcon(QIcon("icon1.ico"));
+			setWindowIcon(QIcon("icon1.ico"));
 
 			// Keyboard shortcuts
 			full_screen_ = new QShortcut(QKeySequence("Ctrl+f"), this);
@@ -38,9 +49,9 @@ namespace gui
 			default_screen_ = new QShortcut(QKeySequence("Esc"), this);
 			connect(default_screen_, SIGNAL(activated()), this, SLOT(default_screen()));
 			default_screen_->setContext(Qt::ApplicationShortcut);
-			this->move(pos);
-			this->resize(QSize(width, height));
-			this->show();
+			move(pos);
+			resize(QSize(width, height));
+			show();
 
 			// Default displaying format is 16-bits, monochrome.
 			gl_widget_.reset(new GLWidget(h, q, width, height, this));
@@ -50,10 +61,9 @@ namespace gui
 		{
 			Ui::GLSliceWindow ui;
 			ui.setupUi(this);
-			this->move(pos);
-			this->resize(QSize(width, height));
-			this->show();
-			//gl_widget_.reset(new GLWidgetSlice(h, q, width, height, this));
+			move(pos);
+			resize(QSize(width, height));
+			show();
 			widget.reset(new SliceWidget(q, width, height, rotation, this));
 			widget->show();
 		}
@@ -77,7 +87,7 @@ namespace gui
 		{
 			
 			// TODO: remove the dynamic cast when the widget_slice has been cleared up & its gonna SEGFAULT
-			auto* ptr = dynamic_cast<GLWidget*>(gl_widget_.get());
+			auto *ptr = dynamic_cast<GLWidget*>(gl_widget_.get());
 			if (ptr)
 				ptr->resizeFromWindow(min_dim, min_dim);
 			else

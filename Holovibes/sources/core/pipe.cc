@@ -613,6 +613,17 @@ namespace holovibes
 				compute_desc_.contrast_min.load(),
 				compute_desc_.contrast_max.load(),
 				static_cast<cudaStream_t>(0)));
+			/*if (compute_desc_.stft_view_enabled.load())
+			{
+			fn_vect_.push_back(std::bind(
+			manual_contrast_correction,
+			static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+			input_fd.width * compute_desc_.nsamples.load(),
+			65535,
+			compute_desc_.contrast_min.load(),
+			compute_desc_.contrast_max.load(),
+			static_cast<cudaStream_t>(0)));
+			}*/
 		}
 
 		if (float_output_requested_)

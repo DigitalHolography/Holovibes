@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 /* \file
  *
  * Encapsulation of a thread used to import raw data from a file,
@@ -56,10 +68,10 @@ namespace holovibes
 	void  clear_memory(char **buffer, char **resize_buffer);
 
 	/* the loop that will read elements from a specified file. It is launched FPS times */
-	void reader_loop(FILE* file, 
-		char* buffer, 
+	bool reader_loop(FILE* file,
+		char* buffer,
 		char* resize_buffer,
-		const unsigned int& frame_size, 
+		const unsigned int& frame_size,
 		const unsigned int& elts_max_nbr,
 		fpos_t pos);
 	/*! \brief Seek the offset to attain the .cine file first image */

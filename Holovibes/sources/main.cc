@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	{
 		/* --- GUI mode --- */
 		QApplication a(argc, argv);
-		QPixmap pixmap("holovibes_logo_42.png");
+		QPixmap pixmap("holovibes_logo.png");
 		QSplashScreen splash(pixmap);
 
 		#ifndef _DEBUG
