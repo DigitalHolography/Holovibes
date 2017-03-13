@@ -66,7 +66,8 @@ namespace holovibes
 		enum compute_mode
 		{
 			DIRECT,
-			HOLOGRAM
+			HOLOGRAM,
+			NONE
 		};
 
 		/*! \brief Complex to float methods.
@@ -78,8 +79,8 @@ namespace holovibes
 			MODULUS,
 			SQUARED_MODULUS,
 			ARGUMENT,
-			COMPLEX,
 			PHASE_INCREASE,
+			COMPLEX
 		};
 		#pragma endregion
 

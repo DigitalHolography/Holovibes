@@ -67,21 +67,20 @@ namespace holovibes
 		, af_env_({ 0 })
 		, past_time_(std::chrono::high_resolution_clock::now())
 	{
-		const unsigned short nsamples = desc.nsamples;
 
 		/* if stft, we don't need to allocate more than one frame */
 		// if (compute_desc_.stft_enabled)
 		//    input_length_ = 1;
 		// else
-		input_length_ = nsamples;
+		input_length_ = desc.nsamples.load();
 
 		/* gpu_lens */
 		cudaMalloc(&gpu_lens_,
 			input_.get_pixels() * sizeof(cufftComplex));
 
 		/* CUFFT plan3d */
-		if (compute_desc_.algorithm == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
+			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 			cufftPlan3d(
 			&plan3d_,
 			input_length_,                  // NX
@@ -104,14 +103,14 @@ namespace holovibes
 			inembed, input_.get_pixels(), 1,
 			CUFFT_C2C, input_.get_pixels());
 
-		if (compute_desc_.convolution_enabled
-			|| compute_desc_.flowgraphy_enabled)
+		if (compute_desc_.convolution_enabled.load()
+			|| compute_desc_.flowgraphy_enabled.load())
 		{
 			/* gpu_tmp_input */
 			cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples);
+				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples.load());
 		}
-		if (compute_desc_.convolution_enabled)
+		if (compute_desc_.convolution_enabled.load())
 		{
 			/* kst_size */
 			int size = static_cast<int>(compute_desc_.convo_matrix.size());
@@ -127,21 +126,21 @@ namespace holovibes
 			}
 			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float)* size, cudaMemcpyHostToDevice);
 		}
-		if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
 		{
 			/* gpu_tmp_input */
 			cudaMalloc<cufftComplex>(&gpu_special_queue_,
 				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load());
 		}
 
-		if (compute_desc_.img_acc_enabled)
+		if (compute_desc_.img_acc_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4;
 			gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
 		}
 
-		if (compute_desc_.stft_enabled)
+		if (compute_desc_.stft_enabled.load())
 		{
 			cufftPlanMany(&plan1d_stft_, 1, inembed,
 				inembed, input_.get_pixels(), 1,
@@ -153,14 +152,14 @@ namespace holovibes
 			gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 		}
 
-		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
+		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 			new_fd3.depth = 8;
 			new holovibes::Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
 		}
 
-		if (compute_desc_.filter_2d_enabled)
+		if (compute_desc_.filter_2d_enabled.load())
 		{
 			cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
 				sizeof(cufftComplex)* input_.get_pixels());
@@ -226,7 +225,7 @@ namespace holovibes
 		abort_construct_requested_ = false;
 
 		/* if stft, we don't need to allocate more than one frame */
-		if (!compute_desc_.stft_enabled)
+		if (!compute_desc_.stft_enabled.load())
 			input_length_ = n;
 		else
 			input_length_ = 1;
@@ -235,8 +234,8 @@ namespace holovibes
 		/* CUFFT plan3d realloc */
 		cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;
 
-		if (compute_desc_.algorithm == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
+			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 			cufftPlan3d(
 			&plan3d_,
 			input_length_,                  // NX
@@ -265,7 +264,7 @@ namespace holovibes
 				gpu_stft_buffer_ = nullptr;
 			}
 			cudaDestroy<cufftResult>(&plan1d_stft_) ? ++err_count : 0;
-			if (compute_desc_.stft_enabled)
+			if (compute_desc_.stft_enabled.load())
 			{
 				/* CUFFT plan1d realloc */
 				int inembed_stft[1] = { n };
@@ -285,7 +284,7 @@ namespace holovibes
 			gpu_stft_queue_ = nullptr;
 		}
 
-		if (compute_desc_.stft_enabled)
+		if (compute_desc_.stft_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 8;
@@ -350,10 +349,10 @@ namespace holovibes
 	void	ICompute::create_stft_slice_queue()
 	{
 		camera::FrameDescriptor fd = input_.get_frame_desc();
-		fd.height = compute_desc_.nsamples;
+		fd.height = compute_desc_.nsamples.load();
 		fd.depth = 2.f;
-		gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples, "STFT View queue");
-		gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples, "STFT View queue");
+		gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
+		gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
 	}
 
 	Queue&	ICompute::get_stft_slice_queue(int i)
@@ -371,17 +370,17 @@ namespace holovibes
 			fqueue_ = nullptr;
 		}
 
-		if (compute_desc_.convolution_enabled
-			|| compute_desc_.flowgraphy_enabled)
+		if (compute_desc_.convolution_enabled.load()
+			|| compute_desc_.flowgraphy_enabled.load())
 		{
 			/* gpu_tmp_input */
 			cudaFree(gpu_tmp_input_);
 			/* gpu_tmp_input */
 			if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples) != CUDA_SUCCESS)
+				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples.load()) != CUDA_SUCCESS)
 				err_count++;
 		}
-		if (compute_desc_.convolution_enabled)
+		if (compute_desc_.convolution_enabled.load())
 		{
 			/* kst_size */
 			int size = static_cast<int>(compute_desc_.convo_matrix.size());
@@ -402,7 +401,7 @@ namespace holovibes
 				err_count++;
 		}
 		/* not deleted properly !!!!*/
-		if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
 		{
 			/* gpu_tmp_input */
 			cudaFree(gpu_special_queue_);
@@ -419,7 +418,7 @@ namespace holovibes
 			gpu_filter2d_buffer = nullptr;
 		}
 
-		if (compute_desc_.filter_2d_enabled)
+		if (compute_desc_.filter_2d_enabled.load())
 		{
 			if (cudaMalloc<cufftComplex>(&gpu_filter2d_buffer, sizeof(cufftComplex)*
 				input_.get_pixels()) != CUDA_SUCCESS)
@@ -449,7 +448,7 @@ namespace holovibes
 			delete gpu_img_acc_;
 			gpu_img_acc_ = nullptr;
 		}
-		if (compute_desc_.img_acc_enabled)
+		if (compute_desc_.img_acc_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4;
@@ -477,13 +476,13 @@ namespace holovibes
 
 		}
 
-		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
+		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 8;
 			try
 			{
-				gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level, "TakeRefQueue");
+				gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue");
 				gpu_ref_diff_queue_->set_display(false);
 			}
 			catch (std::exception& )
@@ -604,7 +603,7 @@ namespace holovibes
 	{
 		assert(output != nullptr);
 
-		if (compute_desc_.stft_enabled)
+		if (compute_desc_.stft_enabled.load())
 			output->resize(compute_desc_.nsamples.load());
 		average_output_ = output;
 
@@ -672,7 +671,7 @@ namespace holovibes
 				if (compute_desc_.ref_diff_level.load() > 1)
 					mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
 					, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-					compute_desc_.ref_diff_level, input_.get_pixels());
+					compute_desc_.ref_diff_level.load(), input_.get_pixels());
 			}
 		}
 		if (ref_diff_state_ == COMPUTE)
@@ -698,7 +697,7 @@ namespace holovibes
 			if (compute_desc_.ref_diff_level.load() > 1)
 				mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
 				, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-				compute_desc_.ref_diff_level, input_.get_pixels());
+				compute_desc_.ref_diff_level.load(), input_.get_pixels());
 			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 				input_.get_frame_desc().frame_res(), nframes,
 				static_cast<cudaStream_t>(0));

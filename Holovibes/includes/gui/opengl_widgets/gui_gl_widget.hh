@@ -88,14 +88,12 @@ namespace gui
 		void set_signal_selection(const holovibes::Rectangle& selection)
 		{
 			signal_selection_ = selection;
-			//h_.get_compute_desc().signal_zone = signal_selection_;
 			h_.get_compute_desc().signalZone(&signal_selection_, holovibes::ComputeDescriptor::Set);
 		}
 
 		void set_noise_selection(const holovibes::Rectangle& selection)
 		{
 			noise_selection_ = selection;
-			//h_.get_compute_desc().noise_zone = noise_selection_;
 			h_.get_compute_desc().signalZone(&noise_selection_, holovibes::ComputeDescriptor::Set);
 		}
 
@@ -106,11 +104,12 @@ namespace gui
 
 		eselection get_selection_mode(void)
 		{
-			if (h_.get_compute_desc().stft_view_enabled.load())
+			holovibes::ComputeDescriptor& cd = h_.get_compute_desc();
+			if (cd.stft_view_enabled.load())
 				return (eselection::STFT_SLICE);
-			else if (h_.get_compute_desc().filter_2d_enabled.load())
+			else if (cd.filter_2d_enabled.load())
 				return (eselection::STFT_ROI);
-			else if (h_.get_compute_desc().average_enabled.load())
+			else if (cd.average_enabled.load())
 				return (eselection::AVERAGE);
 			else
 				return (eselection::ZOOM);

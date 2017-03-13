@@ -116,7 +116,7 @@ namespace holovibes
 		if (update_n_requested_)
 		{
 			update_n_requested_ = false;
-			if (!update_n_parameter(compute_desc_.nsamples))
+			if (!update_n_parameter(compute_desc_.nsamples.load()))
 			{
 				update_n_parameter(1);
 				std::cerr << "Updating n failed, n updated to 1" << std::endl;
@@ -613,17 +613,17 @@ namespace holovibes
 				compute_desc_.contrast_min.load(),
 				compute_desc_.contrast_max.load(),
 				static_cast<cudaStream_t>(0)));
-			/*if (compute_desc_.stft_view_enabled.load())
+			if (compute_desc_.stft_view_enabled.load())
 			{
-			fn_vect_.push_back(std::bind(
-			manual_contrast_correction,
-			static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-			input_fd.width * compute_desc_.nsamples.load(),
-			65535,
-			compute_desc_.contrast_min.load(),
-			compute_desc_.contrast_max.load(),
-			static_cast<cudaStream_t>(0)));
-			}*/
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+					input_fd.width * compute_desc_.nsamples.load(),
+					65535,
+					compute_desc_.contrast_min.load(),
+					compute_desc_.contrast_max.load(),
+					static_cast<cudaStream_t>(0)));
+			}
 		}
 
 		if (float_output_requested_)
@@ -665,7 +665,7 @@ namespace holovibes
 		/* Autofocus needs to work on the same images.
 		* It will computes on copies. */
 		cufftComplex* gpu_input_buffer_tmp;
-		const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples * sizeof(cufftComplex);
+		const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples.load() * sizeof(cufftComplex);
 		cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
 		float z_step = (z_max - z_min) / z_div;
 
@@ -693,7 +693,7 @@ namespace holovibes
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 
 		unsigned int max_pos = 0;
-		const unsigned int z_iter = compute_desc_.autofocus_z_iter;
+		const unsigned int z_iter = compute_desc_.autofocus_z_iter.load();
 
 		for (unsigned i = 0; i < z_iter; ++i)
 		{
@@ -706,12 +706,12 @@ namespace holovibes
 					gpu_input_buffer_size,
 					cudaMemcpyDeviceToDevice);
 
-				if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+				if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1)
 				{
 					fft1_lens(
 						gpu_lens_,
 						input_fd,
-						compute_desc_.lambda,
+						compute_desc_.lambda.load(),
 						z);
 
 					fft_1(
@@ -720,21 +720,21 @@ namespace holovibes
 						plan1d_,
 						plan2d_,
 						input_fd.frame_res(),
-						compute_desc_.nsamples,
+						compute_desc_.nsamples.load(),
 						compute_desc_.pindex.load(),
 						compute_desc_.pindex.load());
 
-					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex.load() * input_fd.frame_res();
 				}
-				else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+				else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 				{
 					fft2_lens(
 						gpu_lens_,
 						input_fd,
-						compute_desc_.lambda,
+						compute_desc_.lambda.load(),
 						z);
 
-					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex * input_fd.frame_res();
+					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex.load() * input_fd.frame_res();
 
 					fft_2(
 						gpu_input_buffer_tmp,
@@ -742,9 +742,9 @@ namespace holovibes
 						plan1d_,
 						plan2d_,
 						input_fd.frame_res(),
-						compute_desc_.nsamples,
-						compute_desc_.pindex,
-						compute_desc_.pindex);
+						compute_desc_.nsamples.load(),
+						compute_desc_.pindex.load(),
+						compute_desc_.pindex.load());
 				}
 				else
 					assert(!"Impossible case");
@@ -840,9 +840,15 @@ namespace holovibes
 			{
 				for (FnType& f : fn_vect_) f();
 				if (compute_desc_.view_mode != ComputeDescriptor::COMPLEX)
-					output_.enqueue(
-					gpu_output_buffer_,
-					cudaMemcpyDeviceToDevice);
+				{
+					if (!output_.enqueue(
+						gpu_output_buffer_,
+						cudaMemcpyDeviceToDevice))
+					{
+						input_.dequeue();
+						break;
+					}
+				}
 				else
 				{
 					if (!output_.enqueue(

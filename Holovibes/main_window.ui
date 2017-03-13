@@ -355,7 +355,7 @@
           <rect>
            <x>10</x>
            <y>320</y>
-           <width>81</width>
+           <width>101</width>
            <height>21</height>
           </rect>
          </property>
@@ -670,7 +670,7 @@
         </widget>
         <widget class="QLabel" name="minLabel">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -686,7 +686,7 @@
         </widget>
         <widget class="QLabel" name="maxLabel">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -775,7 +775,7 @@
         </widget>
         <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -797,7 +797,7 @@
         </widget>
         <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -947,7 +947,7 @@
         </widget>
         <widget class="QPushButton" name="autofocusPushButton">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1000,7 +1000,7 @@
          <property name="geometry">
           <rect>
            <x>121</x>
-           <y>60</y>
+           <y>150</y>
            <width>61</width>
            <height>22</height>
           </rect>
@@ -1028,7 +1028,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
+           <y>150</y>
            <width>101</width>
            <height>20</height>
           </rect>
@@ -1050,7 +1050,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>80</y>
+           <y>50</y>
            <width>81</width>
            <height>31</height>
           </rect>
@@ -1066,7 +1066,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>80</y>
+           <y>50</y>
            <width>41</width>
            <height>31</height>
           </rect>
@@ -1086,13 +1086,13 @@
         </widget>
         <widget class="QCheckBox" name="STFTSlices">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>110</y>
-           <width>72</width>
+           <y>80</y>
+           <width>81</width>
            <height>30</height>
           </rect>
          </property>
@@ -1110,7 +1110,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>110</y>
+           <y>80</y>
            <width>70</width>
            <height>30</height>
           </rect>
@@ -1123,7 +1123,7 @@
          <property name="geometry">
           <rect>
            <x>140</x>
-           <y>140</y>
+           <y>120</y>
            <width>41</width>
            <height>21</height>
           </rect>
@@ -1136,7 +1136,7 @@
          <property name="geometry">
           <rect>
            <x>90</x>
-           <y>140</y>
+           <y>120</y>
            <width>41</width>
            <height>21</height>
           </rect>
@@ -1149,14 +1149,14 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>140</y>
+           <y>120</y>
            <width>71</width>
            <height>21</height>
           </rect>
          </property>
          <item>
           <property name="text">
-           <string>None</string>
+           <string>MainDisplay</string>
           </property>
          </item>
          <item>
@@ -1432,9 +1432,9 @@
         <widget class="QCheckBox" name="convolution_checkbox">
          <property name="geometry">
           <rect>
-           <x>100</x>
+           <x>90</x>
            <y>160</y>
-           <width>81</width>
+           <width>91</width>
            <height>20</height>
           </rect>
          </property>
@@ -1486,7 +1486,7 @@
           <rect>
            <x>10</x>
            <y>160</y>
-           <width>81</width>
+           <width>71</width>
            <height>21</height>
           </rect>
          </property>
@@ -1704,7 +1704,7 @@
         </widget>
         <widget class="QLineEdit" name="ROIOutputLineEdit">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1717,7 +1717,7 @@
         </widget>
         <widget class="QPushButton" name="ROIPushButton">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1733,7 +1733,7 @@
         </widget>
         <widget class="QPushButton" name="ROIStopPushButton">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1772,7 +1772,7 @@
         </widget>
         <widget class="QPushButton" name="ROIBatchPushButton">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1855,7 +1855,7 @@
         </widget>
         <widget class="QToolButton" name="ROIOutputToolButton">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2526,7 +2526,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

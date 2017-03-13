@@ -12,36 +12,54 @@
 
 #pragma once
 
-# include <cmath>
-# include <thread>
-# include <iomanip>
-# include <QMainWindow>
-# include <QFileDialog>
-# include <QShortcut>
-# include <QMessageBox>
-# include <QDesktopServices>
+# include <boost/algorithm/string.hpp>
 # include <boost/filesystem.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
+# include <cmath>
 # include <cstring>
-# include <vector>
-# include <sys/stat.h>
-# include <string>
 # include <fstream>
+# include <iomanip>
 # include <iostream>
-# include <boost/algorithm/string.hpp>
+# include <QDesktopServices>
+# include <QFileDialog>
+# include <QMainWindow>
+# include <QMessageBox>
+# include <QShortcut>
+# include <string>
+# include <sys/stat.h>
+# include <thread>
+# include <vector>
 
-# include "sstream"
+# include "../GPIB/gpib_controller.hh"
+# include "../GPIB/gpib_exceptions.hh"
 # include "camera_exception.hh"
-# include "IVisaInterface.hh"
-# include "ui_main_window.h"
-# include "options_parser.hh"
-# include "holovibes.hh"
-# include "observer.hh"
-# include "geometry.hh"
-# include "options_descriptor.hh"
+# include "compute_descriptor.hh"
+# include "config.hh"
 # include "custom_exception.hh"
+# include "geometry.hh"
+# include "gpib_dll.hh"
+# include "gui_gl_window.hh"
+# include "gui_plot_window.hh"
+# include "holovibes.hh"
+# include "IVisaInterface.hh"
+# include "info_manager.hh"
+# include "options_parser.hh"
+# include "observer.hh"
+# include "options_descriptor.hh"
+# include "queue.hh"
 # include "SliceWindow.hh"
+# include "sstream"
+# include "thread_csv_record.hh"
+# include "thread_recorder.hh"
+# include "tools.hh"
+# include "ui_main_window.h"
+
+#define GLOBAL_INI_PATH "holovibes.ini"
+
+typedef unsigned int	uint;
+typedef unsigned short	ushort;
+typedef unsigned char	uchar;
 
 /* Forward declarations. */
 namespace gui
@@ -96,6 +114,7 @@ namespace gui
 		~MainWindow();
 
 		void notify() override;
+		//void notify(bool value);
 
 		void notify_error(std::exception& e, const char* msg) override;
 	#pragma endregion
@@ -288,8 +307,7 @@ namespace gui
 		/*! Activate / Deactivate phase unwrapping 2d.
 		*/
 		void set_unwrapping_2d(const bool value);
-		/* ! Set enable unwrap 1d and 2d checkbox*/
-		void set_enable_unwrap_box(void);
+
 		/*! \brief Set autofocus mode on
 		**
 		** Set GLWidget selection mode to AUTOFOCUS.
@@ -345,6 +363,10 @@ namespace gui
 		**
 		** It will automatically fill contrast minimum and maximum values.
 		*/
+
+		void pipe_refresh();
+		// Safe pipe refresh
+
 		void set_auto_contrast();
 		/*! \brief Set contrast minimum value
 		** \param value new contrast minimum value
@@ -513,14 +535,14 @@ namespace gui
 		*/
 		void global_visibility(bool value);
 		void phase_num_visible(bool value);
-		void camera_visible(bool value);
+		//void camera_visible(bool value);
 		void contrast_visible(bool value);
 		void demodulation_visibility(bool value);
-		void record_visible(bool value);
-		void record_but_cancel_visible(bool value);
-		void image_ratio_visible(bool value);
-		void average_visible(bool value);
-		void average_record_but_cancel_visible(bool value);
+		//void record_visible(bool value);
+		//void record_but_cancel_visible(bool value);
+		//void image_ratio_visible(bool value);
+		//void average_visible(bool value);
+		//void average_record_but_cancel_visible(bool value);
 		/*! \} */
 
 		/*! \brief Change camera
@@ -596,6 +618,8 @@ namespace gui
 		//std::lock_guard<std::mutex> g(mutex_);
 		std::mutex mutex_;
 
+		/*! true if a autofocus is enabled, false otherwise */
+		bool is_enabled_autofocus_;
 		/*! true if a camera is loaded, false otherwise */
 		bool is_enabled_camera_;
 		/*! true if average mode is enabled, false otherwise */

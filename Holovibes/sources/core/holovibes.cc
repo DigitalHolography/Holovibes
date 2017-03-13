@@ -152,9 +152,9 @@ namespace holovibes
 
   void Holovibes::reset_convolution_matrix()
   {
-	  compute_desc_.convo_matrix_width = 0;
-	  compute_desc_.convo_matrix_height = 0;
-	  compute_desc_.convo_matrix_z = 0;
+	  compute_desc_.convo_matrix_width.exchange(0);
+	  compute_desc_.convo_matrix_height.exchange(0);
+	  compute_desc_.convo_matrix_z.exchange(0);
 	  compute_desc_.convo_matrix.clear();
   }
 
@@ -166,8 +166,8 @@ namespace holovibes
   const float Holovibes::get_boundary()
   {
     const float n = static_cast<float>(get_cam_frame_desc().height);
-    const float d = get_cam_frame_desc().pixel_size * static_cast<float>(0.000001);
-    return (n * d * d) / compute_desc_.lambda;
+    const float d = get_cam_frame_desc().pixel_size * 0.000001f;
+    return (n * d * d) / compute_desc_.lambda.load();
   }
 
   void Holovibes::init_import_mode(std::string &file_src,

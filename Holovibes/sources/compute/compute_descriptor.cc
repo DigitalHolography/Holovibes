@@ -6,7 +6,7 @@ namespace holovibes
 		algorithm(None)
 		, compute_mode(DIRECT)
 		, nsamples(2)
-		, pindex(0)
+		, pindex(1)
 		, lambda(532e-9f)
 		, zdistance(1.50f)
 		, view_mode(MODULUS)
@@ -55,23 +55,23 @@ namespace holovibes
 
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
-		compute_mode = cd.compute_mode.load();
-		algorithm = cd.algorithm.load();
-		nsamples = cd.nsamples.load();
-		pindex = cd.pindex.load();
-		lambda = cd.lambda.load();
-		zdistance = cd.zdistance.load();
-		view_mode = cd.view_mode.load();
-		unwrap_history_size = cd.unwrap_history_size.load();
-		log_scale_enabled = cd.log_scale_enabled.load();
-		shift_corners_enabled = cd.shift_corners_enabled.load();
-		contrast_enabled = cd.contrast_enabled.load();
-		vibrometry_enabled = cd.vibrometry_enabled.load();
-		contrast_min = cd.contrast_min.load();
-		contrast_max = cd.contrast_max.load();
-		vibrometry_q = cd.vibrometry_q.load();
-		autofocus_size = cd.autofocus_size.load();
-		stft_enabled = cd.stft_enabled.load();
+		compute_mode.exchange(cd.compute_mode.load());
+		algorithm.exchange(cd.algorithm.load());
+		nsamples.exchange(cd.nsamples.load());
+		pindex.exchange(cd.pindex.load());
+		lambda.exchange(cd.lambda.load());
+		zdistance.exchange(cd.zdistance.load());
+		view_mode.exchange(cd.view_mode.load());
+		unwrap_history_size.exchange(cd.unwrap_history_size.load());
+		log_scale_enabled.exchange(cd.log_scale_enabled.load());
+		shift_corners_enabled.exchange(cd.shift_corners_enabled.load());
+		contrast_enabled.exchange(cd.contrast_enabled.load());
+		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
+		contrast_min.exchange(cd.contrast_min.load());
+		contrast_max.exchange(cd.contrast_max.load());
+		vibrometry_q.exchange(cd.vibrometry_q.load());
+		autofocus_size.exchange(cd.autofocus_size.load());
+		stft_enabled.exchange(cd.stft_enabled.load());
 		return *this;
 	}
 
