@@ -749,15 +749,15 @@ namespace holovibes
 				else
 					assert(!"Impossible case");
 
-				if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+				if (compute_desc_.view_mode.load() == ComputeDescriptor::MODULUS)
 				{
 					complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+				else if (compute_desc_.view_mode.load() == ComputeDescriptor::SQUARED_MODULUS)
 				{
 					complex_to_squared_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+				else if (compute_desc_.view_mode.load() == ComputeDescriptor::ARGUMENT)
 				{
 					complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
@@ -769,7 +769,7 @@ namespace holovibes
 					return;
 				}
 
-				if (compute_desc_.shift_corners_enabled)
+				if (compute_desc_.shift_corners_enabled.load())
 				{
 					shift_corners(
 						gpu_float_buffer_,
@@ -777,7 +777,7 @@ namespace holovibes
 						output_.get_frame_desc().height);
 				}
 
-				if (compute_desc_.contrast_enabled)
+				if (compute_desc_.contrast_enabled.load())
 				{
 					manual_contrast_correction(
 						gpu_float_buffer_,
@@ -792,7 +792,7 @@ namespace holovibes
 
 				frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
 
-				const float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size, stream, compute_desc_.autofocus_size);
+				const float focus_metric_value = focus_metric(gpu_float_buffer_af_zone, af_square_size, stream, compute_desc_.autofocus_size.load());
 
 				if (!std::isnan(focus_metric_value))
 					focus_metric_values.push_back(focus_metric_value);
@@ -822,8 +822,8 @@ namespace holovibes
 		/// End of the loop, free resources and notify the new z
 		// Sometimes a value outside the initial upper and lower bounds can be found
 		// Thus checking if af_z is within initial bounds
-		if (af_z != 0 && af_z >= compute_desc_.autofocus_z_min && af_z <= compute_desc_.autofocus_z_max)
-			compute_desc_.zdistance = af_z;
+		if (af_z != 0 && af_z >= compute_desc_.autofocus_z_min.load() && af_z <= compute_desc_.autofocus_z_max.load())
+			compute_desc_.zdistance.exchange(af_z);
 		compute_desc_.notify_observers();
 
 		cudaFree(gpu_float_buffer_af_zone);
@@ -839,7 +839,7 @@ namespace holovibes
 			if (input_.get_current_elts() >= input_length_)
 			{
 				for (FnType& f : fn_vect_) f();
-				if (compute_desc_.view_mode != ComputeDescriptor::COMPLEX)
+				if (compute_desc_.view_mode.load() != ComputeDescriptor::COMPLEX)
 				{
 					if (!output_.enqueue(
 						gpu_output_buffer_,

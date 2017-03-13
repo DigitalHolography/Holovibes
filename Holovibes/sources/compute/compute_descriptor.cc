@@ -3,13 +3,13 @@
 namespace holovibes
 {
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		algorithm(None)
-		, compute_mode(DIRECT)
+		algorithm(fft_algorithm::None)
+		, compute_mode(compute_mode::DIRECT)
 		, nsamples(2)
 		, pindex(1)
 		, lambda(532e-9f)
 		, zdistance(1.50f)
-		, view_mode(MODULUS)
+		, view_mode(complex_view_mode::MODULUS)
 		, unwrap_history_size(1)
 		, special_buffer_size(10)
 		, log_scale_enabled(false)
@@ -50,6 +50,7 @@ namespace holovibes
 		, noise_zone(Rectangle(10, 10))
 		, autofocus_zone(Rectangle(10, 10))
 		, stft_roi_zone(Rectangle(10, 10))
+		, current_window(window::MAIN_DISPLAY)
 	{
 	}
 

@@ -82,6 +82,14 @@ namespace holovibes
 			PHASE_INCREASE,
 			COMPLEX
 		};
+
+		enum window
+		{
+			MAIN_DISPLAY,
+			SLICE_XZ,
+			SLICE_YZ
+		};
+
 		#pragma endregion
 
 		/*! \brief ComputeDescriptor constructor
@@ -117,6 +125,8 @@ namespace holovibes
 		std::atomic<enum compute_mode> compute_mode;
 		/*! Complex to float method. */
 		std::atomic<enum complex_view_mode> view_mode;
+
+		std::atomic<enum window> current_window;
 
 		/*! Number of samples in which apply the fft on. */
 		std::atomic<unsigned short> nsamples;

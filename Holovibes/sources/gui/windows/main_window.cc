@@ -83,8 +83,11 @@ namespace gui
 		autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
 		connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
-		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+		QComboBox *depth_cbox = findChild<QComboBox *>("ImportDepthModeComboBox");
 		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
+
+		QComboBox *window_cbox = findChild<QComboBox *>("selectedWindowComboBox");
+		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
 		resize(width(), 425);
 		// Display default values
@@ -106,7 +109,8 @@ namespace gui
 		remove_infos();
 
 		holovibes_.dispose_compute();
-		holovibes_.dispose_capture();
+		if (!is_direct_mode())
+			holovibes_.dispose_capture();
 		InfoManager::stop_display();
 	}
 
@@ -928,16 +932,11 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (!is_direct_mode())
 		{
-			uint nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
-			cd.stft_level.exchange(nsamples);
+			cd.stft_level.exchange(cd.nsamples.load());
 			cd.stft_enabled.exchange(b);
-			holovibes_.get_pipe()->request_update_n(nsamples);
+			holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 			notify();
-			/*QCheckBox *p = findChild<QCheckBox*>("STFTSlices");
-			p->setEnabled(b);
-			p = findChild<QCheckBox*>("STFTExtTrig");
-			p->setEnabled(b);*/
 		}
 	}
 
@@ -2423,9 +2422,8 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled.load())
 		{
-			uint nsamples = cd.nsamples.load();
 			cd.nsamples.exchange(cd.stft_level.load());
-			cd.stft_level.exchange(nsamples);
+			cd.stft_level.exchange(cd.nsamples.load());
 		}
 		GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRendering");
 		GroupBox *view_group_box = findChild<GroupBox *>("View");
@@ -2540,6 +2538,19 @@ namespace gui
 
 		// Changing the endianess when depth = 8 makes no sense
 		imp_cbox->setEnabled(curr_value == "16");
+	}
+
+	void MainWindow::change_window()
+	{
+		QComboBox *window_cbox = findChild<QComboBox*>("selectedWindowComboBox");
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+		if (window_cbox->currentIndex() == 0)
+			cd.current_window.exchange(holovibes::ComputeDescriptor::window::MAIN_DISPLAY);
+		else if (window_cbox->currentIndex() == 1)
+			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_XZ);
+		else if (window_cbox->currentIndex() == 2)
+			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_YZ);
 	}
 
 	void MainWindow::set_import_cine_file(bool value)

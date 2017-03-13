@@ -40,7 +40,7 @@ namespace holovibes
 		cudaMalloc(&gpu_float_buffer, sizeof(float)* input_.get_pixels());
 		gpu_float_buffers_.push_back(gpu_float_buffer);
 
-		update_n_parameter(compute_desc_.nsamples);
+		update_n_parameter(compute_desc_.nsamples.load());
 		refresh();
 	}
 
@@ -116,7 +116,7 @@ namespace holovibes
 			gpu_complex_buffers_.end(),
 			[&](cufftComplex* buf)
 		{
-			gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex * input_.get_frame_desc().frame_res());
+			gpu_pindex_buffers_.push_back(buf + compute_desc_.pindex.load() * input_.get_frame_desc().frame_res());
 		});
 
 		if (!gpu_vibro_buffers_.empty())
@@ -125,7 +125,7 @@ namespace holovibes
 			gpu_complex_buffers_.end(),
 			[&](cufftComplex* buf)
 		{
-			gpu_vibro_buffers_.push_back(buf + compute_desc_.vibrometry_q * input_.get_frame_desc().frame_res());
+			gpu_vibro_buffers_.push_back(buf + compute_desc_.vibrometry_q.load() * input_.get_frame_desc().frame_res());
 		});
 		return (true);
 	}
@@ -142,7 +142,7 @@ namespace holovibes
 		if (update_n_requested_)
 		{
 			update_n_requested_ = false;
-			update_n_parameter(compute_desc_.nsamples);
+			update_n_parameter(compute_desc_.nsamples.load());
 		}
 
 		if (abort_construct_requested_)
@@ -178,7 +178,7 @@ namespace holovibes
 				));
 		}
 
-		if (compute_desc_.algorithm == ComputeDescriptor::FFT1)
+		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1)
 		{
 			// Initialize FFT1 lens.
 			if (!autofocus_requested_)
@@ -186,8 +186,8 @@ namespace holovibes
 				fft1_lens(
 					gpu_lens_,
 					input_fd,
-					compute_desc_.lambda,
-					compute_desc_.zdistance,
+					compute_desc_.lambda.load(),
+					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
 			}
 			else
@@ -215,7 +215,7 @@ namespace holovibes
 				modules_[1]->stream_
 				));
 
-			if (compute_desc_.vibrometry_enabled)
+			if (compute_desc_.vibrometry_enabled.load())
 			{
 				modules_[1]->push_back_worker(std::bind(
 					frame_ratio,
@@ -226,7 +226,7 @@ namespace holovibes
 					modules_[1]->stream_));
 			}
 		}
-		else if (compute_desc_.algorithm == ComputeDescriptor::FFT2)
+		else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 		{
 			// Initialize FFT2 lens.
 			if (!autofocus_requested_)
@@ -234,8 +234,8 @@ namespace holovibes
 				fft2_lens(
 					gpu_lens_,
 					input_fd,
-					compute_desc_.lambda,
-					compute_desc_.zdistance,
+					compute_desc_.lambda.load(),
+					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
 			}
 			else
@@ -249,7 +249,7 @@ namespace holovibes
 					modules_[1]->stream_));
 			}
 
-			if (compute_desc_.vibrometry_enabled)
+			if (compute_desc_.vibrometry_enabled.load())
 			{
 				modules_[1]->push_back_worker(std::bind(
 					fft_2,
@@ -289,7 +289,7 @@ namespace holovibes
 					));
 			}
 		}
-		else if (compute_desc_.stft_enabled)
+		else if (compute_desc_.stft_enabled.load())
 		{
 			// Initialize FFT1 lens.
 			if (!autofocus_requested_)
@@ -297,8 +297,8 @@ namespace holovibes
 				fft1_lens(
 					gpu_lens_,
 					input_fd,
-					compute_desc_.lambda,
-					compute_desc_.zdistance,
+					compute_desc_.lambda.load(),
+					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
 			}
 			else
@@ -345,7 +345,7 @@ namespace holovibes
 
 			gpu_pindex_buffers_ = gpu_complex_buffers_;
 
-			if (compute_desc_.vibrometry_enabled)
+			if (compute_desc_.vibrometry_enabled.load())
 			{
 				/* q frame pointer */
 				cufftComplex* q = nullptr;// q_gpu_stft_buffer;
@@ -395,7 +395,7 @@ namespace holovibes
 			assert(!"Impossible case.");
 
 		/* Apply conversion to unsigned short. */
-		if (compute_desc_.view_mode == ComputeDescriptor::MODULUS)
+		if (compute_desc_.view_mode.load() == ComputeDescriptor::MODULUS)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_modulus,
@@ -405,7 +405,7 @@ namespace holovibes
 				modules_[0]->stream_
 				));
 		}
-		else if (compute_desc_.view_mode == ComputeDescriptor::SQUARED_MODULUS)
+		else if (compute_desc_.view_mode.load() == ComputeDescriptor::SQUARED_MODULUS)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_squared_modulus,
@@ -415,7 +415,7 @@ namespace holovibes
 				modules_[0]->stream_
 				));
 		}
-		else if (compute_desc_.view_mode == ComputeDescriptor::ARGUMENT)
+		else if (compute_desc_.view_mode.load() == ComputeDescriptor::ARGUMENT)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_argument,
@@ -440,7 +440,7 @@ namespace holovibes
 
 		/* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
-		if (compute_desc_.shift_corners_enabled)
+		if (compute_desc_.shift_corners_enabled.load())
 		{
 			modules_[2]->push_back_worker(std::bind(
 				shift_corners,
@@ -487,7 +487,7 @@ namespace holovibes
 			}
 		}
 
-		if (compute_desc_.log_scale_enabled)
+		if (compute_desc_.log_scale_enabled.load())
 		{
 			modules_[2]->push_back_worker(std::bind(
 				apply_log10,
@@ -512,7 +512,7 @@ namespace holovibes
 			autocontrast_requested_ = false;
 		}
 
-		if (compute_desc_.contrast_enabled)
+		if (compute_desc_.contrast_enabled.load())
 		{
 			modules_[2]->push_back_worker(std::bind(
 				manual_contrast_correction,

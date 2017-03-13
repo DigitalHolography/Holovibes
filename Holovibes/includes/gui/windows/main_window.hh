@@ -486,6 +486,8 @@ namespace gui
 		void import_end_spinbox_update();
 		/*! \brief Hide endianess choice depending on 8/16 bit is selected*/
 		void hide_endianess();
+		/*! \brief change selected window */
+		void change_window();
 
 		void set_import_cine_file(bool value);
 		/*! \brief Set is_cine_file value
