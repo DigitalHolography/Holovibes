@@ -787,8 +787,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const Rectangle& signal,
-		const Rectangle& noise,
+		const gui::Rectangle& signal,
+		const gui::Rectangle& noise,
 		cudaStream_t stream)
 	{
 		average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
@@ -798,8 +798,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const Rectangle& signal,
-		const Rectangle& noise,
+		const gui::Rectangle& signal,
+		const gui::Rectangle& noise,
 		cudaStream_t stream)
 	{
 		if (average_n_ > 0)
@@ -821,8 +821,8 @@ namespace holovibes
 		const unsigned int height,
 		const unsigned int width_roi,
 		const unsigned int height_roi,
-		Rectangle& signal_zone,
-		Rectangle& noise_zone,
+		gui::Rectangle& signal_zone,
+		gui::Rectangle& noise_zone,
 		const unsigned int nsamples,
 		cudaStream_t stream)
 	{

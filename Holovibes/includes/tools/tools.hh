@@ -8,7 +8,7 @@
 # include <string>
 # include <ctime>
 
-# include "geometry.hh"
+# include "Rectangle.hh"
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
 
@@ -40,9 +40,9 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
 
 
 /*! \brief cast a framedescriptor into a Rectangle */
-inline holovibes::Rectangle get_rectangle(const camera::FrameDescriptor& a)
+inline gui::Rectangle get_rectangle(const camera::FrameDescriptor& a)
 {
-	return holovibes::Rectangle(a.width, a.height);
+	return gui::Rectangle(a.width, a.height);
 }
 
 

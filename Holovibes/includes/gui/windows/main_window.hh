@@ -38,7 +38,6 @@
 # include "options_parser.hh"
 # include "holovibes.hh"
 # include "observer.hh"
-# include "geometry.hh"
 # include "options_descriptor.hh"
 # include "custom_exception.hh"
 # include "SliceWindow.hh"
@@ -319,11 +318,11 @@ namespace gui
 		/*! \brief Request autofocus action in pipeline
 		** \param zone selection zone for computation
 		*/
-		void request_autofocus(holovibes::Rectangle zone);
+		void request_autofocus(gui::Rectangle zone);
 		/*! \brief Request stft roi action in zone
 		** \param zone selection is region of interest
 		*/
-		void request_stft_roi_update(holovibes::Rectangle zone);
+		void request_stft_roi_update(gui::Rectangle zone);
 		/*! \brief Indicate stft roi selection is finish
 		** \param zone selection is region of interest
 		*/

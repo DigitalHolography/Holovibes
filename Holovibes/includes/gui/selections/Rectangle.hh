@@ -12,9 +12,9 @@
 
 #pragma once
 
-# include <qrect.h>
+#include <qrect.h>
 
-namespace holovibes
+namespace gui
 {
 	class Rectangle : public QRect
 	{
@@ -22,7 +22,7 @@ namespace holovibes
 			Rectangle();
 			Rectangle(const Rectangle& rect);
 			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const unsigned int width, const unsigned int height);
+			Rectangle(const uint width, const uint height);
 
 			uint	area() const;
 			void	checkCorners();

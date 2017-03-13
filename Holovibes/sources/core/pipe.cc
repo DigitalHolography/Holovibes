@@ -161,7 +161,7 @@ namespace holovibes
 		unsigned int nframes = compute_desc_.nsamples.load();
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
-		Rectangle roiZone;
+		gui::Rectangle roiZone;
 		compute_desc_.stftRoiZone(&roiZone, ComputeDescriptor::Get);
 		if (compute_desc_.stft_enabled ||
 			(compute_desc_.filter_2d_enabled && !roiZone.area()))
@@ -549,8 +549,8 @@ namespace holovibes
 
 		if (average_requested_)
 		{
-			Rectangle signalZone;
-			Rectangle noiseZone;
+			gui::Rectangle signalZone;
+			gui::Rectangle noiseZone;
 			compute_desc_.signalZone(&signalZone, ComputeDescriptor::Get);
 			compute_desc_.noiseZone(&noiseZone, ComputeDescriptor::Get);
 			if (average_record_requested_)
@@ -659,7 +659,7 @@ namespace holovibes
 		float z_min = compute_desc_.autofocus_z_min;
 		float z_max = compute_desc_.autofocus_z_max;
 		const float z_div = static_cast<float>(compute_desc_.autofocus_z_div);
-		Rectangle zone;
+		gui::Rectangle zone;
 		compute_desc_.autofocusZone(&zone, ComputeDescriptor::Get);
 
 		/* Autofocus needs to work on the same images.

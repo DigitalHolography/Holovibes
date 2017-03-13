@@ -11,7 +11,7 @@
 
 # include "config.hh"
 # include "pipeline_utils.hh"
-# include "geometry.hh"
+# include "Rectangle.hh"
 # include "observable.hh"
 //# include "sMainWindow.hh"
 
@@ -48,7 +48,7 @@ namespace holovibes
       unsigned int			z_iter;
       float					af_z;
       std::vector<float>	focus_metric_values;
-		Rectangle			zone;
+		gui::Rectangle		zone;
 		float				*gpu_float_buffer_af_zone;
 		cufftComplex		*gpu_input_buffer_tmp;
 		size_t				gpu_input_size;
@@ -226,8 +226,8 @@ namespace holovibes
       float* input,
       const unsigned int width,
       const unsigned int height,
-      const Rectangle& signal,
-      const Rectangle& noise,
+      const gui::Rectangle& signal,
+      const gui::Rectangle& noise,
       cudaStream_t stream);
 
     /*! \see request_average_record
@@ -242,8 +242,8 @@ namespace holovibes
       float* input,
       const unsigned int width,
       const unsigned int height,
-      const Rectangle& signal,
-      const Rectangle& noise,
+      const gui::Rectangle& signal,
+      const gui::Rectangle& noise,
       cudaStream_t stream);
 
     /*! \see request_average
@@ -260,8 +260,8 @@ namespace holovibes
       const unsigned int height,
       const unsigned int width_roi,
       const unsigned int height_roi,
-      Rectangle& signal_zone,
-      Rectangle& noise_zone,
+      gui::Rectangle& signal_zone,
+      gui::Rectangle& noise_zone,
       const unsigned int nsamples,
       cudaStream_t stream);
 

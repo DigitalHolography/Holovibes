@@ -43,7 +43,7 @@ __global__ void filter2D_roi(	complex		*input,
 void filter2D(	complex							*input,
 				complex							*tmp_buffer,
 				const cufftHandle				plan2d,
-				const holovibes::Rectangle&		r,
+				const gui::Rectangle&		r,
 				const camera::FrameDescriptor&	desc,
 				cudaStream_t					stream)
 {

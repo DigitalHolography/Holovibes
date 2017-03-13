@@ -165,7 +165,7 @@ void convolution_operator(	const complex		*x,
 }
 
 void frame_memcpy(	float						*input,
-					const holovibes::Rectangle&	zone,
+					const gui::Rectangle&	zone,
 					const uint					input_width,
 					float						*output,
 					const uint					output_width,

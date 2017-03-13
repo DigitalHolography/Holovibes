@@ -453,8 +453,8 @@ namespace holovibes
 
 		if (average_requested_)
 		{
-			Rectangle signalZone;
-			Rectangle noiseZone;
+			gui::Rectangle signalZone;
+			gui::Rectangle noiseZone;
 			compute_desc_.signalZone(&signalZone, ComputeDescriptor::Get);
 			compute_desc_.noiseZone(&noiseZone, ComputeDescriptor::Get);
 			if (average_record_requested_)

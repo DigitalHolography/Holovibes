@@ -737,8 +737,8 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
-			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(holovibes::Rectangle)),
-					this, SLOT(request_stft_roi_update(holovibes::Rectangle)),
+			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(gui::Rectangle)),
+					this, SLOT(request_stft_roi_update(gui::Rectangle)),
 					Qt::UniqueConnection);
 			connect(gl_widget, SIGNAL(stft_roi_zone_selected_end()),
 					this, SLOT(request_stft_roi_end()),
@@ -771,7 +771,7 @@ namespace gui
 
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 
-			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
+			Rectangle rect(QPoint(0, 0), QSize(0, 0));
 			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
 
 			gui::InfoManager::remove_info_safe("Filter2D");
@@ -1086,7 +1086,6 @@ namespace gui
 				sliceYZ->setAngle(yzAngle);
 				sliceYZ->setFlip(yzFlip);
 
-				mainDisplay->setCursor(Qt::CrossCursor);
 				mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);
 
 				// Update Cursor position in Info Manager
@@ -1352,8 +1351,8 @@ namespace gui
 			desc.autofocus_z_div.exchange(z_div);
 			desc.autofocus_z_iter.exchange(z_iter);
 
-			//connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)),
-					//this, SLOT(request_autofocus(holovibes::Rectangle)),Qt::UniqueConnection);
+			//connect(gl_widget, SIGNAL(autofocus_zone_selected(gui::Rectangle)),
+					//this, SLOT(request_autofocus(gui::Rectangle)),Qt::UniqueConnection);
 
 			findChild<QLabel *>("autofocusLabel")->setText("<font color='Yellow'>Autofocus:</font>");
 		}
@@ -1361,7 +1360,7 @@ namespace gui
 			display_error("z min have to be strictly inferior to z max");
 	}
 
-	void MainWindow::request_autofocus(holovibes::Rectangle zone)
+	void MainWindow::request_autofocus(Rectangle zone)
 	{
 		auto manager = gui::InfoManager::get_manager();
 		manager->update_info("Status", "Autofocus processing...");
@@ -1380,7 +1379,7 @@ namespace gui
 		holovibes_.get_pipe()->request_filter2D_roi_end();
 	}
 
-	void MainWindow::request_stft_roi_update(holovibes::Rectangle zone)
+	void MainWindow::request_stft_roi_update(Rectangle zone)
 	{
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
@@ -1623,8 +1622,8 @@ namespace gui
 		{
 			boost::property_tree::ptree ptree;
 			//const GLWidget& gl_widget = gl_window_->get_gl_widget();
-			/*const holovibes::Rectangle& signal = gl_widget.get_signal_selection();
-			const holovibes::Rectangle& noise = gl_widget.get_noise_selection();
+			/*const gui::Rectangle& signal = gl_widget.get_signal_selection();
+			const gui::Rectangle& noise = gl_widget.get_noise_selection();
 
 			ptree.put("signal.top_left_x", signal.topLeft().x());
 			ptree.put("signal.top_left_y", signal.topLeft().y());
@@ -1653,8 +1652,8 @@ namespace gui
 		{
 			boost::property_tree::ini_parser::read_ini(path, ptree);
 
-			holovibes::Rectangle rectSignal;
-			holovibes::Rectangle rectNoise;
+			Rectangle rectSignal;
+			Rectangle rectNoise;
 
 			rectSignal.setTopLeft(
 				QPoint(ptree.get<int>("signal.top_left_x", 0),

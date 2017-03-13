@@ -8,7 +8,7 @@
 # include <QPoint>
 
 # include "observable.hh"
-# include "geometry.hh"
+# include "Rectangle.hh"
 
 using guard = std::lock_guard<std::mutex>;
 
@@ -36,21 +36,15 @@ namespace holovibes
 	private:
 		mutable std::mutex mutex_;
 
-		/* TODO:*/
-		//std::atomic<QPoint> stft_slice_cursor;
 		QPoint stft_slice_cursor;
 		/*! Average mode signal zone */
-		//std::atomic<Rectangle> signal_zone;
-		Rectangle signal_zone;
+		gui::Rectangle signal_zone;
 		/*! Selected zone in which apply the autofocus algorithm. */
-		//std::atomic<Rectangle> autofocus_zone;
-		Rectangle autofocus_zone;
+		gui::Rectangle autofocus_zone;
 		/*! Average mode noise zone */
-		//std::atomic<Rectangle> noise_zone;
-		Rectangle noise_zone;
+		gui::Rectangle noise_zone;
 		/*! Selected zone in which apply the stft algorithm. */
-		//std::atomic<Rectangle> stft_roi_zone;
-		Rectangle stft_roi_zone;
+		gui::Rectangle stft_roi_zone;
 
 	public:
 		#pragma region enums
@@ -101,13 +95,13 @@ namespace holovibes
 		
 		void stftCursor(QPoint *p, t_access mode);
 
-		void signalZone(Rectangle *rect, t_access mode);
+		void signalZone(gui::Rectangle *rect, t_access mode);
 		
-		void noiseZone(Rectangle *rect, t_access mode);
+		void noiseZone(gui::Rectangle *rect, t_access mode);
 
-		void autofocusZone(Rectangle *rect, t_access mode);
+		void autofocusZone(gui::Rectangle *rect, t_access mode);
 
-		void stftRoiZone(Rectangle *rect, t_access mode);
+		void stftRoiZone(gui::Rectangle *rect, t_access mode);
 
 		#pragma region Atomics vars
 		/*! Hologram algorithm. */

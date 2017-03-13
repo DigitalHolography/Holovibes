@@ -218,7 +218,7 @@ namespace gui
 	{
 	}
 
-	void GLWidgetSlice::selection_rect(const holovibes::Rectangle& selection, const float color[4])
+	void GLWidgetSlice::selection_rect(const gui::Rectangle& selection, const float color[4])
 	{
 		const float xmax = frame_desc_.width;
 		const float ymax = frame_desc_.height;
@@ -246,7 +246,7 @@ namespace gui
 		glDisable(GL_BLEND);
 	}
 	
-	void GLWidgetSlice::zoom(const holovibes::Rectangle& selection)
+	void GLWidgetSlice::zoom(const gui::Rectangle& selection)
 	{
 		// Translation
 		// Destination point is center of the window (OpenGL coords)
@@ -289,7 +289,7 @@ namespace gui
 		parent_->setWindowTitle(QString("Real time display"));
 	}
 
-	void GLWidgetSlice::swap_selection_corners(holovibes::Rectangle& selection)
+	void GLWidgetSlice::swap_selection_corners(gui::Rectangle& selection)
 	{
 		const int x_top_left = selection.topLeft().x();
 		const int y_top_left = selection.topLeft().y();
@@ -324,7 +324,7 @@ namespace gui
 		}
 	}
 
-	void GLWidgetSlice::bounds_check(holovibes::Rectangle& selection)
+	void GLWidgetSlice::bounds_check(gui::Rectangle& selection)
 	{
 		if (selection.bottomRight().x() < 0)
 			selection.bottomRight().setX(0);
@@ -336,7 +336,7 @@ namespace gui
 		if (selection.bottomRight().y() > frame_desc_.height)
 			selection.bottomRight().setY(frame_desc_.height);
 
-		//selection = holovibes::Rectangle(selection.top_left, selection.bottom_right);
+		//selection = gui::Rectangle(selection.top_left, selection.bottom_right);
 	}
 
 	void GLWidgetSlice::gl_error_checking()

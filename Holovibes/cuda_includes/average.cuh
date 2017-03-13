@@ -28,8 +28,8 @@ std::tuple<float, float, float, float> make_average_plot(
 														  float							*input,
 														  const uint					width,
 														  const uint					height,
-														  const holovibes::Rectangle&	signal,
-														  const holovibes::Rectangle&	noise,
+														  const gui::Rectangle&	signal,
+														  const gui::Rectangle&	noise,
 														  cudaStream_t					stream = 0);
 
 /*! \brief  Make the average plot on the 2 select zones
@@ -43,8 +43,8 @@ std::tuple<float, float, float, float> make_average_stft_plot(complex*				cbuf,
 															  const uint			height,
 															  const uint			width_roi,
 															  const uint			height_roi,
-															  holovibes::Rectangle& signal_zone,
-															  holovibes::Rectangle& noise_zone,
+															  gui::Rectangle& signal_zone,
+															  gui::Rectangle& noise_zone,
 															  const uint			pindex,
 															  const uint			nsamples,
 															  cudaStream_t			stream = 0);

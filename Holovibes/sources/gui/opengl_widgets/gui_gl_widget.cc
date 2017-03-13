@@ -197,6 +197,7 @@ namespace gui
 	
 	void GLWidget::paintGL()
 	{
+		#pragma region old_draw
 		makeCurrent();
 		glEnable(GL_TEXTURE_2D);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -267,6 +268,7 @@ namespace gui
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
+		#pragma endregion
 
 		if (is_selection_enabled_)
 		{
@@ -381,13 +383,15 @@ namespace gui
 
 	void GLWidget::mouseReleaseEvent(QMouseEvent* e)
 	{
-		/*if (is_selection_enabled_)
+		if (is_selection_enabled_)
 		{
-			selection_.setBottomRight(QPoint(
+			// ---------------------------------
+			#pragma region Useless
+			/*selection_.setBottomRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
 				(e->y() * frame_desc_.height) / height()));
 
-			if (selection_mode_ == STFT_ROI)
+			if (selection_mode_ == STFT_ROI)	// 2d Filter
 			{
 				int max = std::abs(selection_.bottomRight().x() - selection_.topLeft().x());
 				if (std::abs(selection_.bottomRight().y() - selection_.topLeft().y()) > max)
@@ -417,9 +421,11 @@ namespace gui
 
 			selection_.setTopRight(QPoint(
 				(e->x() * frame_desc_.width) / width(),
-				selection_.topLeft().y()));
+				selection_.topLeft().y()));*/
+			#pragma endregion
+			// ---------------------------------
 
-			bounds_check(selection_);
+			/*bounds_check(selection_);
 			swap_selection_corners(selection_);
 			selection_.checkCorners();
 
@@ -433,12 +439,12 @@ namespace gui
 				case AVERAGE:
 					if (is_signal_selection_)
 					{
-						holovibes::Rectangle rect(resize_zone((signal_selection_ = selection_)));
+						gui::Rectangle rect(resize_zone((signal_selection_ = selection_)));
 						h_.get_compute_desc().signalZone(&rect, ComputeDescriptor::Set);
 					}
 					else // Noise selection
 					{
-						holovibes::Rectangle rect(resize_zone((noise_selection_ = selection_)));
+						gui::Rectangle rect(resize_zone((noise_selection_ = selection_)));
 						h_.get_compute_desc().noiseZone(&rect, ComputeDescriptor::Set);
 					}
 					is_signal_selection_ = !is_signal_selection_;
@@ -471,11 +477,11 @@ namespace gui
 					break;
 			}
 
-			selection_ = holovibes::Rectangle();
-		}*/
+			selection_ = gui::Rectangle();*/
+		}
 	}
 
-	void GLWidget::selection_rect(const holovibes::Rectangle& selection, const float color[4])
+	void GLWidget::selection_rect(const gui::Rectangle& selection, const float color[4])
 	{
 		const float xmax = frame_desc_.width;
 		const float ymax = frame_desc_.height;
@@ -507,7 +513,7 @@ namespace gui
 		//doneCurrent();
 	}
 
-	holovibes::Rectangle  GLWidget::resize_zone(holovibes::Rectangle selection)
+	gui::Rectangle  GLWidget::resize_zone(gui::Rectangle selection)
 	{
 		const float zr = 1 / zoom_ratio_;
 
@@ -521,7 +527,7 @@ namespace gui
 		return (selection);
 	}
 
-	void GLWidget::zoom(const holovibes::Rectangle& selection)
+	void GLWidget::zoom(const gui::Rectangle& selection)
 	{
 		// Translation
 		// Destination point is center of the window (OpenGL coords)
@@ -536,7 +542,7 @@ namespace gui
 
 		// Normalizing source points to OpenGL coords
 		const float nxsource = (2.0f * static_cast<float>(xsource)) / static_cast<float>(frame_desc_.width) - 1.0f;
-		const float nysource = -1.0f * ((2.0f * static_cast<float>(ysource)) / static_cast<float>(frame_desc_.height) - 1.0f);
+		const float nysource = -1.f * ((2.f * static_cast<float>(ysource)) / static_cast<float>(frame_desc_.height) - 1.f);
 
 		// Projection of the translation
 		const float px = xdest - nxsource;
@@ -568,7 +574,7 @@ namespace gui
 		parent_->setWindowTitle(windowTitle);
 	}
 
-	void GLWidget::swap_selection_corners(holovibes::Rectangle& selection)
+	void GLWidget::swap_selection_corners(gui::Rectangle& selection)
 	{
 		const int x_top_left = selection.topLeft().x();
 		const int y_top_left = selection.topLeft().y();
@@ -603,7 +609,7 @@ namespace gui
 		}
 	}
 
-	void GLWidget::bounds_check(holovibes::Rectangle& selection)
+	void GLWidget::bounds_check(gui::Rectangle& selection)
 	{
 		if (selection.bottomRight().x() < 0)
 			selection.bottomRight().setX(0);
