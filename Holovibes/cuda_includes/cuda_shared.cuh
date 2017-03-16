@@ -35,7 +35,6 @@ typedef	cufftComplex	complex;
 /* Forward declaration. */
 namespace	holovibes
 {
-	class	Rectangle;
 	class	Queue;
 	struct	UnwrappingResources;
 	struct	UnwrappingResources_2d;

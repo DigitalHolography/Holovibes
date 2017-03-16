@@ -15,7 +15,6 @@
 #include "tools_conversion.cuh"
 #include "tools_unwrap.cuh"
 #include "tools.hh"
-#include "geometry.hh"
 #include "hardware_limits.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"

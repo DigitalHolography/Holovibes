@@ -12,11 +12,9 @@
 
 #include "stft.cuh"
 #include "hardware_limits.hh"
-#include "geometry.hh"
 #include "frame_desc.hh"
 #include "tools.hh"
 #include "tools.cuh"
-#include "geometry.hh"
 
 void stft(	complex				*input,
 			complex				*gpu_queue,

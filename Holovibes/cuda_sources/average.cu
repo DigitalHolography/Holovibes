@@ -13,7 +13,6 @@
 #include <qpoint.h>
 
 #include "average.cuh"
-#include "geometry.hh"
 #include "tools.hh"
 #include "tools.cuh"
 #include "tools_conversion.cuh"

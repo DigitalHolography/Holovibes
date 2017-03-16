@@ -12,7 +12,6 @@
 
 #include "filter2D.cuh"
 #include "hardware_limits.hh"
-#include "geometry.hh"
 #include "frame_desc.hh"
 #include "tools.hh"
 

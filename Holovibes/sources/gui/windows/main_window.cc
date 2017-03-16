@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <fstream>
+#include <boost/algorithm/string.hpp>
 #include "main_window.hh"
 #include "gui_gl_window.hh"
 #include "gui_plot_window.hh"
@@ -23,16 +25,10 @@
 #include "camera_exception.hh"
 #include "config.hh"
 #include "info_manager.hh"
-#include <fstream>
-#include <boost/algorithm/string.hpp>
 #include "tools.hh"
 #include "gui_tool.hh"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
-
-typedef unsigned int	uint;
-typedef unsigned short	ushort;
-typedef unsigned char	uchar;
 
 namespace gui
 {

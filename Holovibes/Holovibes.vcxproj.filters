@@ -44,9 +44,6 @@
     <Filter Include="c++ includes\gui\other">
       <UniqueIdentifier>{b47ac2b0-ba30-40bf-ab09-e5378b01fa63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="c++ includes\gui\opengl_widgets">
-      <UniqueIdentifier>{f2b69de0-455d-44d7-8906-bf3c911b956d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="c++ includes\thread">
       <UniqueIdentifier>{6eef1a70-e998-426f-b9fc-c921b3305e91}</UniqueIdentifier>
     </Filter>
@@ -66,9 +63,6 @@
     <Filter Include="c++ sources\gui\windows">
       <UniqueIdentifier>{112f127f-c089-4b14-a78a-d11679250e92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="c++ sources\gui\opengl_widgets">
-      <UniqueIdentifier>{6093626f-d6e9-4638-95b3-7465f9078757}</UniqueIdentifier>
-    </Filter>
     <Filter Include="c++ sources\thread">
       <UniqueIdentifier>{f6a0f91a-367e-4d96-b120-72a008815c18}</UniqueIdentifier>
     </Filter>
@@ -87,14 +81,14 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{8283ec4c-4ff4-4811-9775-8d76f66171d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c++ sources\gui\selections">
+      <UniqueIdentifier>{f4e094e2-a0c9-4f08-a412-5650a373d482}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ includes\gui\selections">
+      <UniqueIdentifier>{25277a71-a0d9-4ab2-a696-afc06fa90dfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_window.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -155,9 +149,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
@@ -165,9 +156,6 @@
       <Filter>c++ sources</Filter>
     </ClCompile>
     <ClCompile Include="sources\config.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\geometry.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
     <ClCompile Include="sources\gpib_dll.cc">
@@ -215,29 +203,11 @@
     <ClCompile Include="sources\thread\thread_recorder.cc">
       <Filter>c++ sources\thread</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\opengl_widgets\basic_widget.cc">
-      <Filter>c++ sources\gui\opengl_widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\opengl_widgets\gui_gl_widget.cc">
-      <Filter>c++ sources\gui\opengl_widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\opengl_widgets\gui_gl_widget_slice.cc">
-      <Filter>c++ sources\gui\opengl_widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\opengl_widgets\holo_widget.cc">
-      <Filter>c++ sources\gui\opengl_widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\opengl_widgets\slice_widget.cc">
-      <Filter>c++ sources\gui\opengl_widgets</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\other\gui_curve_plot.cc">
       <Filter>c++ sources\gui\other</Filter>
     </ClCompile>
     <ClCompile Include="sources\gui\other\gui_group_box.cc">
       <Filter>c++ sources\gui\other</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\windows\gui_gl_window.cc">
-      <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
     <ClCompile Include="sources\gui\windows\gui_plot_window.cc">
       <Filter>c++ sources\gui\windows</Filter>
@@ -275,20 +245,11 @@
     <ClCompile Include="GeneratedFiles\Release\moc_slice_widget.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_basic_widget.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_basic_widget.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_holo_widget.cc">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_holo_widget.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_slice_widget.cc">
-      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Debug</Filter>
@@ -323,6 +284,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_HoloWindow.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\selections\Rectangle.cc">
+      <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\Selection.cc">
+      <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_gl_window.h">
@@ -344,9 +311,6 @@
       <Filter>c++ includes\other</Filter>
     </ClInclude>
     <ClInclude Include="includes\custom_exception.hh">
-      <Filter>c++ includes\other</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\geometry.hh">
       <Filter>c++ includes\other</Filter>
     </ClInclude>
     <ClInclude Include="includes\gpib_dll.hh">
@@ -475,6 +439,12 @@
     <ClInclude Include="cuda_includes\cuda_shared.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="includes\gui\selections\Rectangle.hh">
+      <Filter>c++ includes\gui\selections</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\Selection.hh">
+      <Filter>c++ includes\gui\selections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
@@ -498,12 +468,6 @@
     <CustomBuild Include="gl_slice_window.ui">
       <Filter>forms</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\opengl_widgets\gui_gl_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </CustomBuild>
-    <CustomBuild Include="includes\gui\opengl_widgets\gui_gl_widget_slice.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </CustomBuild>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
       <Filter>c++ includes\thread</Filter>
     </CustomBuild>
@@ -516,9 +480,6 @@
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\gui_gl_window.hh">
-      <Filter>c++ includes\gui\windows</Filter>
-    </CustomBuild>
     <CustomBuild Include="includes\gui\windows\main_window.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
@@ -530,15 +491,6 @@
     </CustomBuild>
     <CustomBuild Include="includes\recorder.hh">
       <Filter>c++ includes\other</Filter>
-    </CustomBuild>
-    <CustomBuild Include="includes\gui\opengl_widgets\holo_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </CustomBuild>
-    <CustomBuild Include="includes\gui\opengl_widgets\slice_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
-    </CustomBuild>
-    <CustomBuild Include="includes\gui\opengl_widgets\basic_widget.hh">
-      <Filter>c++ includes\gui\opengl_widgets</Filter>
     </CustomBuild>
     <CustomBuild Include="includes\gui\windows\BasicOpenGLWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
@@ -620,16 +572,16 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\HoloWindow.fragment.glsl">
+    <None Include="shaders\render.fragment.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\HoloWindow.vertex.glsl">
+    <None Include="shaders\render.vertex.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\SliceWindow.fragment.glsl">
+    <None Include="shaders\selections.fragment.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\SliceWindow.vertex.glsl">
+    <None Include="shaders\selections.vertex.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
