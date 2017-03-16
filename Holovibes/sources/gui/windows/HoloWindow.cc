@@ -10,13 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <sstream>
+#include <boost/algorithm/string.hpp>
 #include "texture_update.cuh"
 #include "HoloWindow.hh"
-
-/*
-	x = ((x - (width * 0.5)) / width) * 2.;
-	y = (-((y - (height * 0.5)) / height)) * 2.;
-*/
 
 namespace gui
 {
@@ -26,31 +23,20 @@ namespace gui
 	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
 		holovibes::ComputeDescriptor &cd, KindOfView k) :
 		/* ~~~~~~~~~~~~ */
-		BasicOpenGLWindow(p, s, q, cd, k),
-		kSelection(KindOfSelection::None),
-		selectionRect(1, 1),
-		selectionColors{ {
-			{ 0.0f,	0.5f, 0.0f, 0.4f },			// Zoom
-			{ 1.0f, 0.0f, 0.5f, 0.4f },			// Average::Signal
-			{ 0.26f, 0.56f, 0.64f, 0.4f },		// Average::Noise
-			{ 1.0f,	0.8f, 0.0f, 0.4f },			// Autofocus
-			{ 0.9f,	0.7f, 0.1f, 0.4f },			// Filter2D
-			{ 1.0f,	0.87f, 0.87f, 0.4f } } }	// SliceZoom
-	{
-		//auto tab = selectionColors[kSelection];
-	}
+		BasicOpenGLWindow(p, s, q, cd, k)
+	{}
 
 	HoloWindow::~HoloWindow()
 	{}
 
 	void HoloWindow::setKindOfSelection(KindOfSelection k)
 	{
-		kSelection = k;
+		zoneSelected.setKind(k);
 	}
 
-	KindOfSelection HoloWindow::getKindOfSelection() const
+	const KindOfSelection HoloWindow::getKindOfSelection() const
 	{
-		return kSelection;
+		return zoneSelected.getKind();
 	}
 
 	void HoloWindow::initializeGL()
@@ -60,10 +46,14 @@ namespace gui
 		glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquation(GL_FUNC_ADD);
+
 		#pragma region Shaders
 		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/HoloWindow.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/HoloWindow.fragment.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
 		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		#pragma endregion
 
@@ -102,8 +92,8 @@ namespace gui
 
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// GL_CLAMP_TO_BORDER
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	// GL_CLAMP_TO_BORDER
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);	// GL_CLAMP_TO_BORDER ~ GL_REPEAT
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);	// GL_CLAMP_TO_BORDER ~ GL_REPEAT
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
@@ -123,19 +113,19 @@ namespace gui
 		#pragma endregion
 
 		#pragma region Vertex Buffer Object
-		const float	data[16] = {
+		const float	data[] = {
 			// Top-left
 			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
-			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
+			0.f, 0.f,				// texture coord (0.0f <-> 1.0f)
 			// Top-right
 			vertCoord, vertCoord,
-			texCoord, 0.0f,
+			1.f, 0.f,
 			// Bottom-right
 			vertCoord, -vertCoord,
-			texCoord, texCoord,
+			1.f, 1.f,
 			// Bottom-left
 			-vertCoord, -vertCoord,
-			0.0f, texCoord
+			0.f, 1.f
 		};
 
 		glGenBuffers(1, &Vbo);
@@ -155,7 +145,7 @@ namespace gui
 		#pragma endregion
 
 		#pragma region Element Buffer Object
-		const GLuint elements[6] = {
+		const GLuint elements[] = {
 			0, 1, 2,
 			2, 3, 0
 		};
@@ -165,14 +155,19 @@ namespace gui
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		#pragma endregion
 
+		glUniform1i(glGetUniformLocation(Program->programId(), "flip"), 0);
 		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), 0 * (M_PI / 180.f));
 		glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 
-		Vao.release();
 		Program->release();
 
+		zoneSelected.initShaderProgram();
+
+		Vao.release();
+
 		glViewport(0, 0, winSize.width(), winSize.height());
-		startTimer(1000. / 10.);
+		startTimer(DisplayRate);
 	}
 
 	void HoloWindow::resizeGL(int width, int height)
@@ -200,49 +195,61 @@ namespace gui
 		glDisableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-		
-		QPaintDeviceWindow::update();
+
+		if (zoneSelected.isEnabled())
+		{
+			zoneSelected.draw();
+		}
+		Vao.release();
 	}
 
 	void HoloWindow::mousePressEvent(QMouseEvent* e)
 	{
-		if (kSelection == SliceZoom && slicesAreLocked)
+		if (slicesAreLocked.load())
 		{
 			if (e->button() == Qt::LeftButton)
 			{
-				e->pos();
-				selectionRect.setTopLeft(QPoint(
-					(e->x() * Fd.width) / width(),
-					(e->y() * Fd.height) / height()));
-				selectionRect.setBottomRight(selectionRect.topLeft());
-				if (kSelection == KindOfSelection::None)
-					kSelection = KindOfSelection::Zoom;
-			}
-			else if (e->button() == Qt::RightButton &&
-				kSelection == KindOfSelection::Zoom)
-			{
-				// dezoom;
+				zoneSelected.press(e->pos());
 			}
 		}
 	}
 
 	void HoloWindow::mouseMoveEvent(QMouseEvent* e)
 	{
-		if (!slicesAreLocked)
+		if (!slicesAreLocked.load())
 		{
 			updateCursorPosition(QPoint(
 				e->x() * (Fd.width / static_cast<float>(width())),
 				e->y() * (Fd.height / static_cast<float>(height()))));
 		}
+		else
+		{
+			if (e->buttons() == Qt::LeftButton)
+			{
+				zoneSelected.move(e->pos());
+			}
+		}
 	}
 
 	void HoloWindow::mouseReleaseEvent(QMouseEvent* e)
 	{
-		if (e->button() == Qt::RightButton)
+		if (e->button() == Qt::LeftButton)
+		{
+			zoneSelected.release();
+			if (zoneSelected.getZone().topLeft() != zoneSelected.getZone().bottomRight() &&
+				zoneSelected.getKind() == Zoom)
+				zoomInRect(zoneSelected.getZone());
+			/*else
+			{
+				Scale = 2;
+				setScale();
+			}*/
+		}
+		else if (e->button() == Qt::RightButton)
 			resetTransform();
+
 		/*if (sliceLock)
 		{
 			selectionRect.setBottomRight(QPoint(
@@ -276,25 +283,41 @@ namespace gui
 			{
 				Scale += 0.1f * Scale;
 				setScale();
-				setTranslate(0, xGL * 0.1 / Scale);
-				setTranslate(1, -yGL * 0.1 / Scale);
+				Translate[0] += xGL * 0.1 / Scale;
+				Translate[1] += -yGL * 0.1 / Scale;
+				setTranslate();
 			}
 			else if (e->angleDelta().y() < 0)
 			{
 				if (Scale <= 1 || Scale < 1.1f)
 				{
-					Scale = 1.f;
 					resetTransform();
 				}
 				else
 				{
 					Scale -= 0.1f * Scale;
 					setScale();
-					setTranslate(0, -(-xGL * 0.1 / Scale));
-					setTranslate(1, -(yGL * 0.1 / Scale));
+					Translate[0] -= -xGL * 0.1 / Scale;
+					Translate[1] -= yGL * 0.1 / Scale;
+					setTranslate();
 				}
 			}
 		}
+	}
+
+	void HoloWindow::zoomInRect(Rectangle zone)
+	{
+		const QPoint center = zone.center();
+
+		Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5) / Scale;
+		Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5) / Scale;
+		setTranslate();
+
+		const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
+		const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
+
+		Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
+		setScale();
 	}
 
 	void HoloWindow::updateCursorPosition(QPoint pos)

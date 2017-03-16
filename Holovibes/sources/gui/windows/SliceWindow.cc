@@ -34,8 +34,8 @@ namespace gui
 
 		#pragma region Shaders
 		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/SliceWindow.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/SliceWindow.fragment.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
 		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		#pragma endregion
 
@@ -82,13 +82,13 @@ namespace gui
 			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
 			// Top-right
 			vertCoord, vertCoord,
-			texCoord, 0.0f,
+			1.f, 0.0f,
 			// Bottom-right
 			vertCoord, -vertCoord,
-			texCoord, texCoord,
+			1.f, 1.f,
 			// Bottom-left
 			-vertCoord, -vertCoord,
-			0.0f, texCoord
+			0.0f, 1.f
 		};
 		glGenBuffers(1, &Vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, Vbo);
@@ -119,12 +119,14 @@ namespace gui
 		
 		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
 		glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), 1.f);
+		glUniform2f(glGetUniformLocation(Program->programId(), "translate"), 0.f, 0.f);
 
 		Vao.release();
 		Program->release();
 		
 		glViewport(0, 0, winSize.width(), winSize.height());
-		startTimer(1000. / 30.);
+		startTimer(DisplayRate);
 	}
 
 	void SliceWindow::resizeGL(int width, int height)
@@ -155,8 +157,6 @@ namespace gui
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		QPaintDeviceWindow::update();
 	}
 
 	void SliceWindow::setAngle(float a)

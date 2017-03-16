@@ -28,14 +28,13 @@
 #ifndef vertCoord
 # define vertCoord 1.0f
 #endif
-#ifndef texCoord
-# define texCoord 1.0f
+
+#ifndef DisplayRate
+# define DisplayRate 1000.f/30.f
 #endif
 
 namespace gui
 {
-	using Vec2f = std::array<float, 2>;
-
 	using KindOfView =
 	enum
 	{
@@ -57,15 +56,14 @@ namespace gui
 
 		protected:
 			// Fields -----------
-			QPoint	winPos;
 			QSize	winSize;
-			holovibes::ComputeDescriptor&  Cd;
+			holovibes::ComputeDescriptor&	Cd;
 			holovibes::Queue&				Queue;
 			const camera::FrameDescriptor&  Fd;
 			const KindOfView	kView;
 
-			static std::atomic<bool> slicesAreLocked;
-			Vec2f	Translate;
+			static std::atomic<bool>	slicesAreLocked;
+			std::array<float, 2>	Translate;
 			float	Scale;
 
 			// CUDA Objects -----
@@ -87,12 +85,10 @@ namespace gui
 			virtual void paintGL() = 0;
 
 			void	timerEvent(QTimerEvent *e);
-
-			// Keyboard Event Functions
 			void	keyPressEvent(QKeyEvent* e);
 
 			// Transform functions
-			void	setTranslate(uchar id, float value);
+			void	setTranslate();
 			void	setScale();
 			void	resetTransform();
 	};

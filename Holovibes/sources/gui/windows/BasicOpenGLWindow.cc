@@ -12,6 +12,9 @@
 
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
+#include <chrono>
+
+using Clock = std::chrono::high_resolution_clock;
 
 namespace gui
 {
@@ -19,7 +22,7 @@ namespace gui
 		holovibes::ComputeDescriptor &cd, KindOfView k) :
 		/* ~~~~~~~~~~~~ */
 		QOpenGLWindow(), QOpenGLFunctions(),
-		winPos(p), winSize(s),
+		winSize(s),
 		Cd(cd),
 		Queue(q),
 		Fd(Queue.get_frame_desc()),
@@ -38,7 +41,7 @@ namespace gui
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
 			cuStream = nullptr;
 		resize(winSize);
-		setFramePosition(winPos);
+		setFramePosition(p);
 		setIcon(QIcon("icon1.ico"));
 		show();
 	}
@@ -67,10 +70,21 @@ namespace gui
 
 	void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
 	{
+		auto tick = Clock::now();
+		/* ~~~~~~~~~~~~ */
 		textureUpdate(cuSurface,
 			Queue.get_last_images(1),
 			Queue.get_frame_desc(),
 			cuStream);
+		QPaintDeviceWindow::update();
+		/* ~~~~~~~~~~~~ */
+		bool sleep = true;
+		while (sleep)
+		{
+			if (std::chrono::duration_cast
+				<std::chrono::microseconds>(Clock::now() - tick).count() > DisplayRate)
+				sleep = false;
+		}
 	}
 
 	void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
@@ -83,30 +97,39 @@ namespace gui
 			case Qt::Key::Key_Escape:
 				setWindowState(Qt::WindowNoState);
 				break;
-			case Qt::Key::Key_Space:
-				slicesAreLocked.exchange(!slicesAreLocked);
+			case (Qt::Key::Key_Space):
+				if (kView == Hologram)
+				{
+					slicesAreLocked.exchange(!slicesAreLocked.load());
+					setCursor((slicesAreLocked.load()) ?
+						Qt::ArrowCursor : Qt::CrossCursor);
+				}
 				break;
-			case (Qt::Key::Key_Up) :
-				setTranslate(1, -(0.1f / Scale));
+			case Qt::Key::Key_Up :
+				Translate[1] -= 0.1f / Scale;
+				setTranslate();
 				break;
-			case Qt::Key::Key_Down:
-				setTranslate(1, 0.1f / Scale);
+			case Qt::Key::Key_Down :
+				Translate[1] += 0.1f / Scale;
+				setTranslate();
 				break;
 			case Qt::Key::Key_Right:
-				setTranslate(0, 0.1f / Scale);
+				Translate[0] += 0.1f / Scale;
+				setTranslate();
 				break;
 			case Qt::Key::Key_Left:
-				setTranslate(0, -(0.1f / Scale));
+				Translate[0] -= 0.1f / Scale;
+				setTranslate();
 				break;
 		}
 	}
 
-	void	BasicOpenGLWindow::setTranslate(uchar id, float value)
+	void	BasicOpenGLWindow::setTranslate()
 	{
-		Translate[id] += value;
-		Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
-						(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
-							0.f : Translate[id];
+		for (uint id = 0; id < 2; id++)
+			Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
+							(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
+								0.f : Translate[id];
 		if (Program)
 		{
 			makeCurrent();

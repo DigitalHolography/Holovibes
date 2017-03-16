@@ -12,28 +12,12 @@
 
 #pragma once
 
-#include <sstream>
-#include <boost/algorithm/string.hpp>
 #include "info_manager.hh"
 #include "BasicOpenGLWindow.hh"
-#include "geometry.hh"
+#include "Selection.hh"
 
 namespace gui
-{
-	template <typename T, uint Row, uint Column>
-	using MultiDimArray = std::array<std::array<T, Column>, Row>;
-	
-	using KindOfSelection = 
-	enum
-	{
-		None = -1,
-		Zoom,
-		Average,	// Signal == 1, Noise == 2
-		Autofocus = 3,
-		Filter2D,
-		SliceZoom,
-	};
-
+{	
 	class HoloWindow : public BasicOpenGLWindow
 	{
 		Q_OBJECT
@@ -42,13 +26,11 @@ namespace gui
 				holovibes::ComputeDescriptor &cd, KindOfView k);
 			virtual ~HoloWindow();
 
-			void				setKindOfSelection(KindOfSelection k);
-			KindOfSelection		getKindOfSelection() const;
+			void					setKindOfSelection(KindOfSelection k);
+			const KindOfSelection	getKindOfSelection() const;
 
 		protected:
-			KindOfSelection			kSelection;
-			holovibes::Rectangle	selectionRect;
-			const MultiDimArray<float, 6, 4>	selectionColors;
+			Selection	zoneSelected;
 
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
@@ -57,8 +39,9 @@ namespace gui
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
-			void	wheelEvent(QWheelEvent *e);
+			void	wheelEvent(QWheelEvent* e);
 
+			void	zoomInRect(Rectangle zone);
 			void	updateCursorPosition(QPoint pos);
 	};
 }
