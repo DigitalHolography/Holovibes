@@ -206,29 +206,31 @@ void rescale_float(	const float		*input,
 	cudaMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
 
 	// Computing minimum and maximum values, in order to rescale properly.
-	float* gpu_local_mins;
-	float* gpu_local_maxs;
+	float* gpu_local_min;
+	float* gpu_local_max;
 	uint float_blocks = sizeof(float) * blocks;
-	cudaMalloc(&gpu_local_mins, float_blocks);
-	cudaMalloc(&gpu_local_maxs, float_blocks);
+	cudaMalloc(&gpu_local_min, float_blocks);
+	cudaMalloc(&gpu_local_max, float_blocks);
 
 	/* We have to hardcode the template parameter, unfortunately.
 	 * It must be equal to the number of threads per block. */
-	kernel_minmax <128> << <blocks, threads, threads << 1, stream >> > (output, size, gpu_local_mins, gpu_local_maxs);
+	kernel_minmax <128> << <blocks, threads, threads << 1, stream >> > (output, size, gpu_local_min, gpu_local_max);
 
-	float	*cpu_local_mins = new float[blocks];
-	float	*cpu_local_maxs = new float[blocks];
-	cudaMemcpy(cpu_local_mins, gpu_local_mins, float_blocks, cudaMemcpyDeviceToHost);
-	cudaMemcpy(cpu_local_maxs, gpu_local_maxs, float_blocks, cudaMemcpyDeviceToHost);
+	float	*cpu_local_min = new float[blocks];
+	float	*cpu_local_max = new float[blocks];
+	cudaMemcpy(cpu_local_min, gpu_local_min, float_blocks, cudaMemcpyDeviceToHost);
+	cudaMemcpy(cpu_local_max, gpu_local_max, float_blocks, cudaMemcpyDeviceToHost);
 
 	const float max_intensity = 65535.f;
 	kernel_rescale << <blocks, threads, 0, stream >> >(	output,
 														size,
-														*(std::min_element(cpu_local_mins, cpu_local_mins + threads)),
-														*(std::max_element(cpu_local_maxs, cpu_local_maxs + threads)),
+														*(std::min_element(cpu_local_min, cpu_local_min + threads)),
+														*(std::max_element(cpu_local_max, cpu_local_max + threads)),
 														max_intensity);
-	cudaFree(gpu_local_mins);
-	cudaFree(gpu_local_maxs);
+	delete[] cpu_local_max;
+	delete[] cpu_local_min;
+	cudaFree(gpu_local_min);
+	cudaFree(gpu_local_max);
 }
 
 void rescale_float_unwrap2d(float			*input,
