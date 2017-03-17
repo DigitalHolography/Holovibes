@@ -48,11 +48,18 @@ namespace gui
 		, parent_(parent)
 		, slice_block_(false)
 	{
+		const camera::FrameDescriptor& input_fd = h_.get_capture_queue().get_frame_desc();
 		this->setObjectName("GLWidget");
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
-		windowTitle = QString("Output : ")
+		windowTitle = 
+					QString("Input : ")
+					+ QString(std::to_string(input_fd.width).c_str())
+					+ QString("x") + QString(std::to_string(input_fd.height).c_str())
+					+ QString(" ") + QString(std::to_string(static_cast<int>(input_fd.depth) << 3).c_str()) + QString("bit")
+					+ QString(" ")
+					+ QString("Output : ")
 					+ QString(std::to_string(frame_desc_.width).c_str())
 					+ QString("x") + QString(std::to_string(frame_desc_.height).c_str())
 					+ QString(" ") + QString(std::to_string(static_cast<int>(frame_desc_.depth) << 3).c_str()) + QString("bit");
@@ -602,7 +609,7 @@ namespace gui
 		GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << '\n';
+			std::cerr << "[GL] " << err_string << std::endl;
 	}
 
 	void GLWidget::resizeFromWindow(const int width, const int height)

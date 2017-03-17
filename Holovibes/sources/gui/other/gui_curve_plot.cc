@@ -47,7 +47,7 @@ namespace gui
 
   void CurvePlot::change_curve(int curve_to_plot)
   {
-    std::cout << curve_to_plot << '\n';
+    std::cout << curve_to_plot << std::endl;
 
     switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
     {

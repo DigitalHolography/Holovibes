@@ -18,8 +18,8 @@ __global__ void kernel_quadratic_lens(	complex* output,
 										const float lambda,
 										const float dist)
 {
-	uint		index = blockIdx.x * blockDim.x + threadIdx.x;
-	uint		size = fd.width * fd.height;
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	size = fd.width * fd.height;
 	const float	c = M_PI / (lambda * dist);
 	const float	dx = fd.pixel_size * 1.0e-6f;
 	const float	dy = dx; //fd.pixel_size * 1.0e-6f;
@@ -29,7 +29,7 @@ __global__ void kernel_quadratic_lens(	complex* output,
 	uint		j;
 	float		csquare;
 
-	while (index < size)
+	if (index < size)
 	{
 		i = index % fd.width;
 		j = index / fd.height;
@@ -39,7 +39,7 @@ __global__ void kernel_quadratic_lens(	complex* output,
 		csquare = c * (x * x + y * y);
 		output[index].x = cosf(csquare);
 		output[index].y = sinf(csquare);
-		index += blockDim.x * gridDim.x;
+		//index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -48,9 +48,9 @@ __global__ void kernel_spectral_lens(complex						*output,
 									 const float					lambda,
 									 const float					distance)
 {
-	uint		i = blockIdx.x * blockDim.x + threadIdx.x;
-	uint		j = blockIdx.y * blockDim.y + threadIdx.y;
-	uint		index = j * blockDim.x * gridDim.x + i;
+	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint	index = j * blockDim.x * gridDim.x + i;
 	const float c = M_2PI * distance / lambda;
 	const float dx = fd.pixel_size * 1.0e-6f;
 	const float dy = dx; //fd.pixel_size * 1.0e-6f;

@@ -43,7 +43,7 @@ namespace holovibes
 
       if (folderLevels.empty())
         return;
-      std::cout << folderLevels.back() << '\n';
+      std::cout << folderLevels.back() << std::endl;
       folderLevels.pop_back();
 
       if (_chdir(c_str))
@@ -91,7 +91,7 @@ namespace holovibes
 	const size_t max_size = queue_.get_max_elts();
 
     std::cout << "[RECORDER] started recording " <<
-      n_images << " frames" << '\n';
+      n_images << " frames" << std::endl;
 
     for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
     {
@@ -110,7 +110,7 @@ namespace holovibes
       emit value_change(i);
     }
 
-    std::cout << "[RECORDER] recording has been stopped" << '\n';
+    std::cout << "[RECORDER] recording has been stopped" << std::endl;
 	gui::InfoManager::remove_info_safe("Recording");
     delete[] buffer;
   }

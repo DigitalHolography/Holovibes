@@ -39,10 +39,10 @@ namespace gui
 		Program = new QOpenGLShaderProgram();
 		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/sliceWidget.vertex.glsl");
 		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/sliceWidget.fragment.glsl");
-		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << std::endl;
 		#pragma endregion
 
-		if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
+		if (!Vao.create()) std::cerr << "[Error] Vao create() fail" << std::endl;
 		Vao.bind();
 
 		#pragma region Texture
@@ -50,13 +50,13 @@ namespace gui
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
 		uint	size = Fd.frame_size();
-		ushort	*mTexture = new ushort[size];
-		std::memset(mTexture, 0x00, size * 2);
+		float	*mTexture = new float[size];
+		std::memset(mTexture, 0, size * sizeof(float));
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			GL_RGBA,
 			Fd.width, Fd.height, 0,
-			GL_RG, GL_UNSIGNED_SHORT, mTexture);
+			GL_RG, GL_FLOAT, mTexture);
 
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -122,9 +122,10 @@ namespace gui
 		GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << '\n';
+			std::cerr << "[GL] " << err_string << std::endl;
 
 		glViewport(0, 0, winSize.width(), winSize.height());
+		startTimer(50);
 	}
 
 	void SliceWindow::resizeGL(int width, int height)
@@ -148,6 +149,7 @@ namespace gui
 			cuArrRD.res.array.array = cuArr;
 		}
 		cudaSurfaceObject_t cuSurface;
+
 		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		{
 			textureUpdate(cuSurface, Queue.get_last_images(1), Fd.width, Fd.height);
@@ -175,8 +177,6 @@ namespace gui
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-
-		update();
 	}
 
 	void SliceWindow::setAngle(float a)
@@ -201,6 +201,11 @@ namespace gui
 			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
 			Program->release();
 		}
+	}
+
+	void SliceWindow::timerEvent(QTimerEvent *e)
+	{
+		update();
 	}
 
 }

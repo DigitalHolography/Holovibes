@@ -80,12 +80,12 @@ int main(int argc, char* argv[])
 		}
 		catch (camera::CameraException& e)
 		{
-			std::cerr << "[CAMERA] " << e.what() << '\n';
+			std::cerr << "[CAMERA] " << e.what() << std::endl;
 			return 1;
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cerr << e.what() << std::endl;
 			return 1;
 		}
 		return 0;

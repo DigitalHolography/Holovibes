@@ -34,11 +34,11 @@ namespace gui
 
 	InfoManager::InfoManager(gui::GroupBox *ui)
 		: ui_(ui)
-		, progressBar_(ui->findChild<QProgressBar*>("infoProgressBar"))
+		, progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar"))
 		, stop_requested_(false)
 	{
-		progressBar_ = ui->findChild<QProgressBar*>("infoProgressBar");
-		infoEdit_ = ui->findChild<QTextEdit*>("infoTextEdit");
+		progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
+		infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
 		connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
 		this->start();
 	}

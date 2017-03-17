@@ -43,17 +43,17 @@ namespace gui
 		continue;
 	}
 	emit value_change(nb_frames_);
-    std::cout << path_ << "\n";
+	std::cout << path_ << std::endl;
     std::ofstream of(path_);
 
     // Header displaying
-    of << "[Phase number : " << holo_.get_compute_desc().nsamples
-      << ", p : " << holo_.get_compute_desc().pindex
-      << ", lambda : " << holo_.get_compute_desc().lambda
-      << ", z : " << holo_.get_compute_desc().zdistance
-      << "]" << '\n';
+	of << "[Phase number : " << holo_.get_compute_desc().nsamples.load()
+		<< ", p : " << holo_.get_compute_desc().pindex.load()
+		<< ", lambda : " << holo_.get_compute_desc().lambda.load()
+		<< ", z : " << holo_.get_compute_desc().zdistance.load()
+		<< "]" << std::endl;
 
-    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << '\n';
+    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
 
     const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
     unsigned int i = 0;
@@ -63,7 +63,7 @@ namespace gui
       of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
         << std::get<0>(tuple) << ","
         << std::get<1>(tuple) << ","
-        << std::get<2>(tuple) << "\n";
+        << std::get<2>(tuple) << std::endl;
       ++i;
     }
 

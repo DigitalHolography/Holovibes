@@ -88,7 +88,7 @@ namespace gpib
 			&(pimpl_->sessions_.back().first));
 		if (pimpl_->status_ != VI_SUCCESS)
 		{
-			std::cerr << "[GPIB] Could not set up connection with instrument " << address << "\n";
+			std::cerr << "[GPIB] Could not set up connection with instrument " << address << std::endl;
 			throw GpibInstrError(boost::lexical_cast<std::string>(address));
 		}
 
@@ -188,7 +188,7 @@ namespace gpib
 		/* VisaPimpl's buffer's allocation assures Visa has been used,
 		 * and so that a connection was set up. */
 		if (pimpl_->buffer_ && viClose(pimpl_->default_rm_) != VI_SUCCESS)
-			std::cerr << "[GPIB] Could not close connection to VISA driver.\n";
+			std::cerr << "[GPIB] Could not close connection to VISA driver." << std::endl;
 	}
 
 	void VisaInterface::parse_file(std::ifstream& in)

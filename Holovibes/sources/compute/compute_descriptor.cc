@@ -23,6 +23,10 @@ namespace holovibes
 		, average_enabled(false)
 		, contrast_min(1.f)
 		, contrast_max(65535.f)
+		, contrast_min_slice_xz(1.f)
+		, contrast_min_slice_yz(1.f)
+		, contrast_max_slice_xz(65535.f)
+		, contrast_max_slice_yz(65535.f)
 		, vibrometry_q(0)
 		, autofocus_size(3)
 		, convo_matrix_width(0)
@@ -70,9 +74,14 @@ namespace holovibes
 		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
 		contrast_min.exchange(cd.contrast_min.load());
 		contrast_max.exchange(cd.contrast_max.load());
+		contrast_min_slice_xz.exchange(cd.contrast_min_slice_xz.load());
+		contrast_min_slice_yz.exchange(cd.contrast_min_slice_yz.load());
+		contrast_max_slice_xz.exchange(cd.contrast_max_slice_xz.load());
+		contrast_max_slice_yz.exchange(cd.contrast_max_slice_yz.load());
 		vibrometry_q.exchange(cd.vibrometry_q.load());
 		autofocus_size.exchange(cd.autofocus_size.load());
 		stft_enabled.exchange(cd.stft_enabled.load());
+		//TODO : to complete
 		return *this;
 	}
 

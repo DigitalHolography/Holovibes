@@ -33,10 +33,10 @@ namespace gui {
 		Program = new QOpenGLShaderProgram();
 		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/sliceWidget.vertex.glsl");
 		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/sliceWidget.fragment.glsl");
-		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << std::endl;
 		#pragma endregion
 		/* ---------- */
-		if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
+		if (!Vao.create()) std::cerr << "[Error] Vao create() fail" << std::endl;
 		Vao.bind();
 		/* ---------- */
 		#pragma region Texture
@@ -47,7 +47,7 @@ namespace gui {
 		uint	res = Fd.frame_res();
 		ushort	*mTexture = new ushort[size];
 
-		std::memset(mTexture, 0x00, size * 2);
+		std::memset(mTexture, 0x0, sizeof(ushort) * size);
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			GL_RGBA,
@@ -186,7 +186,7 @@ namespace gui {
 		/*GLenum error = glGetError();
 		auto err_string = glGetString(error);
 		if (error != GL_NO_ERROR && err_string)
-			std::cerr << "[GL] " << err_string << '\n';*/
+			std::cerr << "[GL] " << err_string << std::endl;*/
 
 		doneCurrent();
 	}

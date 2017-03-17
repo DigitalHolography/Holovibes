@@ -43,14 +43,14 @@ namespace gui
 	{
 		ui.setupUi(this);
 		setWindowIcon(QIcon("icon1.ico"));
-		InfoManager::get_manager(findChild<GroupBox *>("Info"));
+		InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
 		move(QPoint(520, 545));
 
 		// Hide non default tab
-		findChild<GroupBox *>("Vibrometry")->setHidden(true);
-		findChild<GroupBox *>("Record")->setHidden(true);
-		findChild<GroupBox *>("Info")->setHidden(true);
+		findChild<GroupBox *>("PostProcessingGroupBox")->setHidden(true);
+		findChild<GroupBox *>("RecordGroupBox")->setHidden(true);
+		findChild<GroupBox *>("InfoGroupBox")->setHidden(true);
 
 		findChild<QAction *>("actionSpecial")->setChecked(false);
 		findChild<QAction *>("actionRecord")->setChecked(false);
@@ -83,15 +83,17 @@ namespace gui
 		autofocus_ctrl_c_shortcut_->setContext(Qt::ApplicationShortcut);
 		connect(autofocus_ctrl_c_shortcut_, SIGNAL(activated()), this, SLOT(request_autofocus_stop()));
 
-		QComboBox *depth_cbox = findChild<QComboBox *>("ImportDepthModeComboBox");
+		QComboBox *depth_cbox = findChild<QComboBox *>("ImportDepthComboBox");
 		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(hide_endianess()));
 
-		QComboBox *window_cbox = findChild<QComboBox *>("selectedWindowComboBox");
-		connect(depth_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
+		QComboBox *window_cbox = findChild<QComboBox *>("WindowSelectionComboBox");
+		connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
 		resize(width(), 425);
 		// Display default values
 		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
+		notify();
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
 		notify();
 	}
 
@@ -121,134 +123,145 @@ namespace gui
 		bool is_direct = is_direct_mode();
 		if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::NONE)
 		{
-			findChild<GroupBox *>("ImageRendering")->setEnabled(false);
-			findChild<GroupBox *>("View")->setEnabled(false);
-			findChild<GroupBox *>("Vibrometry")->setEnabled(false);
-			findChild<GroupBox *>("Record")->setEnabled(false);
-			findChild<GroupBox *>("Import")->setEnabled(true);
-			findChild<GroupBox *>("Info")->setEnabled(true);
-			if (findChild<QRadioButton *>("directImageRadioButton")->isChecked())
+			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(false);
+			findChild<GroupBox *>("ViewGroupBox")->setEnabled(false);
+			findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(false);
+			findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
+			findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
+			findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
+			if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
 				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
 			else
 				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::HOLOGRAM);
+			return;
 		}
-		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT && is_enabled_camera_)
 		{
-			findChild<GroupBox *>("ImageRendering")->setEnabled(true);
-			findChild<GroupBox *>("Record")->setEnabled(true);
+			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
+			findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
 		}
-		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM && is_enabled_camera_)
 		{
-			findChild<GroupBox *>("ImageRendering")->setEnabled(true);
-			findChild<GroupBox *>("View")->setEnabled(true);
-			findChild<GroupBox *>("Vibrometry")->setEnabled(true);
-			findChild<GroupBox *>("Record")->setEnabled(true);
-		}
-		findChild<QPushButton *>("Filter2DPushButton")->setEnabled(!is_direct);
-		findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setEnabled(!is_direct);
-		findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setEnabled(!is_direct);
+			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
+			findChild<GroupBox *>("ViewGroupBox")->setEnabled(true);
+			findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
+			findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
+		}		
 		findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setEnabled(!is_direct);
 		findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setEnabled(!is_direct);
 
-		findChild<QLineEdit *>("ROIOutputLineEdit")->setEnabled(!is_direct && cd.average_enabled.load());
+		findChild<QLineEdit *>("ROIOutputPathLineEdit")->setEnabled(!is_direct && cd.average_enabled.load());
 		findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(!is_direct && cd.average_enabled.load());
-		findChild<QPushButton *>("ROIPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
-		findChild<QPushButton *>("ROIBatchPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
-		findChild<QPushButton *>("ROIStopPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
+		findChild<QPushButton *>("ROIOutputRecPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
+		findChild<QPushButton *>("ROIOutputBatchPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
+		findChild<QPushButton *>("ROIOutputStopPushButton")->setEnabled(!is_direct && cd.average_enabled.load());
 		findChild<QToolButton *>("ROIFileBrowseToolButton")->setEnabled(cd.average_enabled.load());
-		findChild<QLineEdit *>("ROIFileLineEdit")->setEnabled(cd.average_enabled.load());
-		findChild<QPushButton *>("saveROIPushButton")->setEnabled(cd.average_enabled.load());
-		findChild<QPushButton *>("loadROIPushButton")->setEnabled(cd.average_enabled.load());
+		findChild<QLineEdit *>("ROIFilePathLineEdit")->setEnabled(cd.average_enabled.load());
+		findChild<QPushButton *>("SaveROIPushButton")->setEnabled(cd.average_enabled.load());
+		findChild<QPushButton *>("LoadROIPushButton")->setEnabled(cd.average_enabled.load());
+		findChild<QLabel *>("AverageSignalLabel")->setText(cd.average_enabled.load() ? "<font color='DeepPink'>Signal</font>" : "Signal");
+		findChild<QLabel *>("AverageNoiseLabel")->setText(cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");
 
-		findChild<QLabel *>("label")->setText(cd.average_enabled.load() ? "<font color='DeepPink'>Signal</font>" : "Signal");
-		findChild<QLabel *>("label_2")->setText(cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");
-
-		findChild<QPushButton *>("Filter2DPushButton")
-			->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.filter_2d_enabled.load() && !cd.stft_view_enabled.load());
-		findChild<QPushButton *>("cancelFilter2DPushButton")->setEnabled(!is_direct && cd.filter_2d_enabled.load());
-
-		findChild<QCheckBox*>("unwrap_2d_CheckBox")->
+		findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 			setEnabled(((!is_direct && (cd.view_mode.load() == holovibes::ComputeDescriptor::PHASE_INCREASE) ||
 			(cd.view_mode.load() == holovibes::ComputeDescriptor::ARGUMENT)) ? (true) : (false)));
 
-		findChild<QCheckBox *>("STFTSlices")->setEnabled(!is_direct && cd.stft_enabled.load()
+		findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load()
 			&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load());
+		findChild<QCheckBox *>("STFTCutsCheckBox")->setChecked(!is_direct && cd.stft_view_enabled.load());
 
 		QPushButton *filter_button = findChild<QPushButton *>("Filter2DPushButton");
+		filter_button->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.filter_2d_enabled.load() && !cd.stft_view_enabled.load());
 		filter_button->setStyleSheet((!is_direct && cd.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
-		filter_button->setText("2DFilter");
+		filter_button->setText("Filter2D");
+		findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && cd.filter_2d_enabled.load());
 
-		findChild<QCheckBox *>("contrastCheckBox")->setChecked(!is_direct && cd.contrast_enabled.load());
-		findChild<QCheckBox *>("logScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
-		findChild<QDoubleSpinBox *>("contrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
-		findChild<QDoubleSpinBox *>("contrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
-		findChild<QPushButton *>("autoPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
-		findChild<QDoubleSpinBox *>("contrastMaxDoubleSpinBox")
-			->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
-		findChild<QDoubleSpinBox *>("contrastMinDoubleSpinBox")
-			->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
+		findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && cd.contrast_enabled.load());
+		findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
+		findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
+		findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
+		findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
+		//findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
+		//	->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
+		//findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
+		//	->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
+		if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+		{
+			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
+			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
+		}
+		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+		{
+			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setValue(log10(cd.contrast_min_slice_xz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setValue(log10(cd.contrast_max_slice_xz.load()));
+		}
+		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+		{
+			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setValue(log10(cd.contrast_min_slice_yz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setValue(log10(cd.contrast_max_slice_yz.load()));
+		}
+		findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
 
-		findChild<QCheckBox *>("logScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
-		findChild<QCheckBox *>("shiftCornersCheckBox")->setChecked(cd.shift_corners_enabled.load());
-
-		QSpinBox *p_vibro = findChild<QSpinBox *>("pSpinBoxVibro");
+		QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 		p_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
 		p_vibro->setValue(cd.pindex.load() + 1);
 		p_vibro->setMaximum(cd.nsamples.load());
-		QSpinBox *q_vibro = findChild<QSpinBox *>("qSpinBoxVibro");
+		QSpinBox *q_vibro = findChild<QSpinBox *>("ImageRatioQSpinBox");
 		q_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
 		q_vibro->setValue(cd.vibrometry_q.load() + 1);
 		q_vibro->setMaximum(cd.nsamples.load());
 
-		findChild<QCheckBox*>("vibrometryCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
-		findChild<QCheckBox *>("convolution_checkbox")->setEnabled(!is_direct && cd.convo_matrix.size() == 0 ? false : true);
-		findChild<QCheckBox *>("averageCheckBox")->setChecked(!is_direct && cd.average_enabled.load());
-		findChild<QSpinBox *>("FlowgraphySpinBox")->setValue(!is_direct && cd.flowgraphy_level.load());
-		findChild<QCheckBox *>("flowgraphy_checkbox")->setChecked(!is_direct && cd.flowgraphy_enabled.load());
-		findChild<QSpinBox *>("FlowgraphySpinBox")->setValue(cd.flowgraphy_level.load());
+		findChild<QCheckBox*>("ImageRatioCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
+		findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && cd.convo_matrix.size() == 0 ? false : true);
+		findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && cd.average_enabled.load());
+		findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && cd.flowgraphy_enabled.load());
+		findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && cd.flowgraphy_level.load());
+		findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(cd.flowgraphy_level.load());
 
-		findChild<QPushButton *>("autofocusPushButton")->setEnabled(!is_direct && cd.algorithm.load() != holovibes::ComputeDescriptor::None);
-		findChild<QLabel *>("autofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
+		findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && cd.algorithm.load() != holovibes::ComputeDescriptor::None);
+		findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 		findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.signal_trig_enabled.load());
-		findChild<QSpinBox *>("STFTSpinBox")->setEnabled(!is_direct);
-		findChild<QSpinBox *>("STFTSpinBox")->setValue(cd.stft_steps.load());
-		findChild<QPushButton *>("takerefPushButton")->setEnabled(!is_direct && !cd.ref_sliding_enabled.load());
-		findChild<QPushButton *>("slindingrefPushButton")->setEnabled(!is_direct && !cd.ref_diff_enabled.load() && !cd.ref_sliding_enabled.load());
-		findChild<QPushButton *>("cancelrefPushButton")->setEnabled(!is_direct && (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load()));
-		findChild<QComboBox *>("algorithmComboBox")->setEnabled(!is_direct);
-		findChild<QComboBox *>("algorithmComboBox")->setCurrentIndex(cd.algorithm.load());
-		findChild<QComboBox *>("viewModeComboBox")->setCurrentIndex(cd.view_mode.load());
-		findChild<QPushButton *>("setPhaseButton")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
-		findChild<QLineEdit *>("setPhaseLine")->setEnabled(!is_direct);
-		findChild<QLineEdit *>("setPhaseLine")->setText(QString::fromUtf8(std::to_string(cd.nsamples.load()).c_str()));
-		findChild<QSpinBox *>("pSpinBox")->setEnabled(!is_direct);
-		findChild<QSpinBox *>("pSpinBox")->setValue(cd.pindex.load() + 1);
-		findChild<QSpinBox *>("pSpinBox")->setMaximum(cd.nsamples.load());
-		findChild<QDoubleSpinBox *>("wavelengthSpinBox")->setEnabled(!is_direct);
-		findChild<QDoubleSpinBox *>("wavelengthSpinBox")->setValue(cd.lambda.load() * 1.0e9f);
-		findChild<QDoubleSpinBox *>("zSpinBox")->setEnabled(!is_direct);
-		findChild<QDoubleSpinBox *>("zSpinBox")->setValue(cd.zdistance.load());
-		findChild<QDoubleSpinBox*>("zSpinBox")->setSingleStep(z_step_);
-		findChild<QDoubleSpinBox *>("zStepDoubleSpinBox")->setEnabled(!is_direct);
-		findChild<QDoubleSpinBox *>("ImportPixelSizeDoubleSpinBox")->setEnabled(!is_direct);
-		findChild<QDoubleSpinBox *>("ImportPixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
-		findChild<QLineEdit *>("boundary")->setEnabled(!is_direct);
-		findChild<QLineEdit *>("boundary")->clear();
-		findChild<QCheckBox *>("img_accCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
-		findChild<QSpinBox *>("img_accSpinBox")->setValue(cd.img_acc_level.load());
-		findChild<QSpinBox *>("SpecialBufferSpinBox")->setValue(cd.special_buffer_size.load());
-		findChild<QDoubleSpinBox *>("zmaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
-		findChild<QDoubleSpinBox *>("zminDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
-		findChild<QSpinBox *>("zdivSpinBox")->setValue(cd.autofocus_z_div.load());
-		findChild<QSpinBox *>("ziterSpinBox")->setValue(cd.autofocus_z_iter.load());
+		findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && cd.stft_enabled.load());
+		findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
+		findChild<QSpinBox *>("STFTStepsSpinBox")->setValue(cd.stft_steps.load());
+		findChild<QPushButton *>("TakeRefPushButton")->setEnabled(!is_direct && !cd.ref_sliding_enabled.load());
+		findChild<QPushButton *>("SlidingRefPushButton")->setEnabled(!is_direct && !cd.ref_diff_enabled.load() && !cd.ref_sliding_enabled.load());
+		findChild<QPushButton *>("CancelRefPushButton")->setEnabled(!is_direct && (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load()));
+		findChild<QComboBox *>("AlgorithmComboBox")->setEnabled(!is_direct);
+		findChild<QComboBox *>("AlgorithmComboBox")->setCurrentIndex(cd.algorithm.load());
+		findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.view_mode.load());
+		findChild<QPushButton *>("SetPhaseNumberPushButton")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
+		findChild<QLineEdit *>("PhaseNumberLineEdit")->setEnabled(!is_direct);
+		findChild<QLineEdit *>("PhaseNumberLineEdit")->setText(QString::fromUtf8(std::to_string(cd.nsamples.load()).c_str()));
+		findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
+		findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load() + 1);
+		findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load());
+		findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setEnabled(!is_direct);
+		findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setValue(cd.lambda.load() * 1.0e9f);
+		findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
+		findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setValue(cd.zdistance.load());
+		findChild<QDoubleSpinBox*>("ZDoubleSpinBox")->setSingleStep(z_step_);
+		findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
+		findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!is_direct && !cd.is_cine_file.load());
+		findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
+		findChild<QLineEdit *>("BoundaryLineEdit")->setEnabled(!is_direct);
+		findChild<QLineEdit *>("BoundaryLineEdit")->clear();
+		findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
+		findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+		findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
+		findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
+		findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
+		findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
+		findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
 		findChild<QCheckBox *>("CineFileCheckBox")->setChecked(cd.is_cine_file.load());
 		findChild<QSpinBox *>("ImportWidthSpinBox")->setEnabled(!cd.is_cine_file.load());
 		findChild<QSpinBox *>("ImportHeightSpinBox")->setEnabled(!cd.is_cine_file.load());
-		findChild<QComboBox *>("ImportDepthModeComboBox")->setEnabled(!cd.is_cine_file.load());
-		QString depth_value = findChild<QComboBox *>("ImportDepthModeComboBox")->currentText();
-		findChild<QComboBox *>("ImportEndianModeComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
-		findChild<QDoubleSpinBox *>("ImportPixelSizeDoubleSpinBox")->setEnabled(!cd.is_cine_file.load());
-		findChild<QCheckBox *>("STFTExtTrig")->setEnabled(cd.signal_trig_enabled.load());
+		findChild<QComboBox *>("ImportDepthComboBox")->setEnabled(!cd.is_cine_file.load());
+		QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
+		findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
+		findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
 	}
 
 	void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -302,12 +315,12 @@ namespace gui
 		uint childCount = 0;
 		std::vector<GroupBox *> v;
 
-		v.push_back(findChild<GroupBox *>("ImageRendering"));
-		v.push_back(findChild<GroupBox *>("View"));
-		v.push_back(findChild<GroupBox *>("Vibrometry"));
-		v.push_back(findChild<GroupBox *>("Record"));
-		v.push_back(findChild<GroupBox *>("Import"));
-		v.push_back(findChild<GroupBox *>("Info"));
+		v.push_back(findChild<GroupBox *>("ImageRenderingGroupBox"));
+		v.push_back(findChild<GroupBox *>("ViewGroupBox"));
+		v.push_back(findChild<GroupBox *>("PostProcessingGroupBox"));
+		v.push_back(findChild<GroupBox *>("RecordGroupBox"));
+		v.push_back(findChild<GroupBox *>("ImportGroupBox"));
+		v.push_back(findChild<GroupBox *>("InfoGroupBox"));
 
 		for each (GroupBox *var in v)
 			childCount += !var->isHidden();
@@ -487,7 +500,7 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::HOLOGRAM);
-			QPoint pos(0, 4);
+			QPoint pos(0, 0);
 			init_image_mode(pos, display_width_, display_height_);
 			uint depth = 2;
 			if (cd.view_mode.load() == holovibes::ComputeDescriptor::COMPLEX)
@@ -520,6 +533,7 @@ namespace gui
 	void MainWindow::set_complex_mode(bool value)
 	{
 		close_critical_compute();
+		close_windows();
 		QPoint pos(0, 0);
 		init_image_mode(pos, display_width_, display_height_);
 		uint depth = 2;
@@ -530,7 +544,6 @@ namespace gui
 			holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, depth);
 			while (!holovibes_.get_pipe());
 			holovibes_.get_pipe()->register_observer(*this);
-			gl_window_.reset(nullptr);
 			gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_output_queue()));
 			notify();
 		}
@@ -543,17 +556,13 @@ namespace gui
 
 	void MainWindow::set_convolution_mode(const bool value)
 	{
-		QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
-
 		if (value == true && holovibes_.get_compute_desc().convo_matrix.empty())
 		{
-			convo->setChecked(false);
 			display_error("No valid kernel has been given");
 			holovibes_.get_compute_desc().convolution_enabled.exchange(false);
 		}
 		else
 		{
-			convo->setChecked(value);
 			holovibes_.get_compute_desc().convolution_enabled.exchange(value);
 			if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
 				set_auto_contrast();
@@ -620,10 +629,6 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			/*QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
-			cancel->setEnabled(true);
-			QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
-			sliding->setEnabled(false);*/
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.ref_diff_enabled.exchange(true);
 			holovibes_.get_pipe()->request_ref_diff_refresh();
@@ -636,12 +641,6 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			/*QPushButton* cancel = findChild<QPushButton*>("cancelrefPushButton");
-			cancel->setEnabled(true);
-			QPushButton* takeref = findChild<QPushButton*>("takerefPushButton");
-			takeref->setEnabled(false);
-			QPushButton* sliding = findChild<QPushButton*>("slindingrefPushButton");
-			sliding->setEnabled(false);*/
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.ref_sliding_enabled.exchange(true);
 			holovibes_.get_pipe()->request_ref_diff_refresh();
@@ -679,11 +678,6 @@ namespace gui
 			cd.log_scale_enabled.exchange(true);
 			cd.shift_corners_enabled.exchange(false);
 			cd.filter_2d_enabled.exchange(true);
-			//if (cd.contrast_enabled.load())
-			//{
-			//	set_contrast_min(findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox")->value());
-			//	set_contrast_max(findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox")->value());
-			//}
 			set_auto_contrast();
 			InfoManager::update_info_safe("Filter2D", "Processing...");
 			notify();
@@ -711,7 +705,7 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			QLineEdit* lineEdit = findChild<QLineEdit*>("setPhaseLine");
+			QLineEdit* lineEdit = findChild<QLineEdit *>("PhaseNumberLineEdit");
 			int phaseNumber = lineEdit->text().toInt();
 			phaseNumber = (phaseNumber <= 0) ? 1 : phaseNumber;
 			holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
@@ -721,8 +715,8 @@ namespace gui
 				|| phaseNumber <= static_cast<int>(in.get_max_elts()))
 			{
 				holovibes_.get_pipe()->request_update_n(phaseNumber);
-				if (cd.stft_view_enabled.load())
-				{
+				//if (cd.stft_view_enabled.load())
+				//{
 					//_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
 					//gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
 					//holovibes_.get_pipe()->update_stft_slice_queue();
@@ -730,9 +724,7 @@ namespace gui
 					//stft_view(false);
 					//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 					//stft_view(true);
-				}
-				//setWindowState(Qt::WindowMinimized);
-				setWindowState(Qt::WindowActive);
+				//}
 				notify();
 			}
 			else
@@ -773,10 +765,6 @@ namespace gui
 
 			if (value < static_cast<int>(cd.nsamples.load()))
 			{
-				// Synchronize with p_vibro
-				/*QSpinBox* p_vibro = findChild<QSpinBox*>("pSpinBoxVibro");
-				p_vibro->setValue(value + 1);*/
-
 				cd.pindex.exchange(value);
 				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
 					set_auto_contrast();
@@ -862,8 +850,8 @@ namespace gui
 			pipe_refresh();
 
 			// Updating the GUI
-			findChild<QLineEdit*>("boundary")->clear();
-			findChild<QLineEdit*>("boundary")->insert(QString::number(holovibes_.get_boundary()));
+			findChild<QLineEdit*>("BoundaryLineEdit")->clear();
+			findChild<QLineEdit*>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
 			notify();
 		}
 	}
@@ -910,7 +898,6 @@ namespace gui
 		if (!is_direct_mode())
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			//QSpinBox* phaseNumberSpinBox = findChild<QSpinBox*>("phaseNumberSpinBox");
 			GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 			gl_widget->set_selection_mode(gl_widget->get_selection_mode());
 			if (value == "None")
@@ -956,11 +943,13 @@ namespace gui
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = InfoManager::get_manager();
 
+		//set_contrast_mode(false);
 		cd.stft_view_enabled.exchange(false);
 		manager->remove_info_safe("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
-
+		
 		holovibes_.get_pipe()->delete_stft_slice_queue();
+		while (holovibes_.get_pipe()->get_cuts_delete_request());
 		sliceXZ.reset(nullptr);
 		sliceYZ.reset(nullptr);
 
@@ -988,7 +977,9 @@ namespace gui
 				QPoint			yzPos = gl_window_->pos() + QPoint(gl_window_->width() + 8, 0);
 				const ushort	nImg = cd.nsamples.load();
 				const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
-
+				
+				while (holovibes_.get_pipe()->get_cuts_request());
+				sliceXZ.reset(nullptr);
 				sliceXZ.reset(new SliceWindow(
 					xzPos,
 					QSize(gl_window_->width(), nSize),
@@ -996,7 +987,8 @@ namespace gui
 				sliceXZ->setTitle("Slice XZ");
 				sliceXZ->setAngle(xzAngle);
 				sliceXZ->setFlip(xzFlip);
-
+				
+				sliceYZ.reset(nullptr);
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
 					QSize(nSize, gl_window_->height()),
@@ -1043,18 +1035,9 @@ namespace gui
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-			// Reenabling phase number and p adjustments.
-			//QSpinBox* phase = findChild<QSpinBox*>("phaseNumberSpinBox");
-			QLineEdit *phase = findChild<QLineEdit*>("setPhaseLine");
-			phase->setEnabled(true);
+			bool pipeline_checked = false;
 
-			QSpinBox* p = findChild<QSpinBox*>("pSpinBox");
-			p->setEnabled(true);
-
-			// QCheckBox* pipeline_checkbox = findChild<QCheckBox*>("PipelineCheckBox");
-			bool pipeline_checked = false; //pipeline_checkbox->isChecked();
-
-			std::cout << "Value = " << value.toUtf8().constData() << '\n';
+			std::cout << "Value = " << value.toUtf8().constData() << std::endl;
 			if (last_contrast_type_ == "Complex output" && value != "Complex output")
 			{
 				set_complex_mode(false);
@@ -1106,10 +1089,10 @@ namespace gui
 
 	void MainWindow::rotateTexture()
 	{
-		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
+		QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
 		QString s = c->currentText();
 
-		if (s == QString("None"))
+		if (s == QString("MainDisplay"))
 		{
 			;
 		}
@@ -1128,10 +1111,10 @@ namespace gui
 
 	void MainWindow::flipTexture()
 	{
-		QComboBox *c = findChild<QComboBox*>("selectedWindowComboBox");
+		QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
 		QString s = c->currentText();
 
-		if (s == QString("None"))
+		if (s == QString("mainDisplay"))
 		{
 			;
 		}
@@ -1238,10 +1221,10 @@ namespace gui
 	{
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 
-		const float z_max = findChild<QDoubleSpinBox*>("zmaxDoubleSpinBox")->value();
-		const float z_min = findChild<QDoubleSpinBox*>("zminDoubleSpinBox")->value();
-		const uint z_div = findChild<QSpinBox*>("zdivSpinBox")->value();
-		const uint z_iter = findChild<QSpinBox*>("ziterSpinBox")->value();
+		const float z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
+		const float z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
+		const uint z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
+		const uint z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 		if (cd.stft_enabled.load())
@@ -1299,7 +1282,7 @@ namespace gui
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cerr << e.what() << std::endl;
 		}
 	}
 
@@ -1307,11 +1290,11 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			holovibes_.get_compute_desc().contrast_enabled.exchange(value);
-
-			set_contrast_min(findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox")->value());
-			set_contrast_max(findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox")->value());
-
+			change_window();
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			cd.contrast_enabled.exchange(value);
+			set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
+			set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 			pipe_refresh();
 			notify();
 		}
@@ -1339,6 +1322,7 @@ namespace gui
 			try
 			{
 				holovibes_.get_pipe()->request_autocontrast();
+				notify();
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1358,7 +1342,14 @@ namespace gui
 				if (cd.log_scale_enabled.load())
 					cd.contrast_min.exchange(value);
 				else
-					cd.contrast_min.exchange(pow(10, value));
+				{
+					if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+						cd.contrast_min.exchange(pow(10, value));
+					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+						cd.contrast_min_slice_xz.exchange(pow(10, value));
+					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+						cd.contrast_min_slice_yz.exchange(pow(10, value));
+				}
 				pipe_refresh();
 			}
 		}
@@ -1375,7 +1366,14 @@ namespace gui
 				if (cd.log_scale_enabled.load())
 					cd.contrast_max.exchange(value);
 				else
-					cd.contrast_max.exchange(pow(10, value));
+				{
+					if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+						cd.contrast_max.exchange(pow(10, value));
+					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+						cd.contrast_max_slice_xz.exchange(pow(10, value));
+					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+						cd.contrast_max_slice_yz.exchange(pow(10, value));
+				}
 				pipe_refresh();
 			}
 		}
@@ -1390,8 +1388,8 @@ namespace gui
 
 			if (cd.contrast_enabled.load())
 			{
-				set_contrast_min(findChild<QDoubleSpinBox*>("contrastMinDoubleSpinBox")->value());
-				set_contrast_max(findChild<QDoubleSpinBox*>("contrastMaxDoubleSpinBox")->value());
+				set_contrast_min(findChild<QDoubleSpinBox*>("ContrastMinDoubleSpinBox")->value());
+				set_contrast_max(findChild<QDoubleSpinBox*>("ContrastMaxDoubleSpinBox")->value());
 			}
 			pipe_refresh();
 			notify();
@@ -1482,7 +1480,7 @@ namespace gui
 
 	void MainWindow::set_average_graphic()
 	{
-		PlotWindow* plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
+		PlotWindow *plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
 
 		connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
 		holovibes_.get_pipe()->request_average(&holovibes_.get_average_queue());
@@ -1503,7 +1501,7 @@ namespace gui
 		QString filename = QFileDialog::getSaveFileName(this,
 			tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
-		QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+		QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
 		roi_output_line_edit->clear();
 		roi_output_line_edit->insert(filename);
 	}
@@ -1513,7 +1511,7 @@ namespace gui
 		QString filename = QFileDialog::getOpenFileName(this,
 			tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
 
-		QLineEdit* matrix_output_line_edit = findChild<QLineEdit*>("ConvoMatrixLineEdit");
+		QLineEdit* matrix_output_line_edit = findChild<QLineEdit *>("ConvoMatrixLineEdit");
 		matrix_output_line_edit->clear();
 		matrix_output_line_edit->insert(filename);
 	}
@@ -1523,14 +1521,14 @@ namespace gui
 		QString filename = QFileDialog::getSaveFileName(this,
 			tr("ROI output file"), "C://", tr("Text files (*.txt);;CSV files (*.csv)"));
 
-		QLineEdit* roi_output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+		QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIOutputPathLineEdit");
 		roi_output_line_edit->clear();
 		roi_output_line_edit->insert(filename);
 	}
 
 	void MainWindow::save_roi()
 	{
-		QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+		QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFileLineEdit");
 		std::string path = path_line_edit->text().toUtf8();
 
 		if (path != "")
@@ -1606,7 +1604,6 @@ namespace gui
 		std::string str;
 		std::string delims = " \f\n\r\t\v";
 		std::vector<std::string> v_str, matrix_size, matrix;
-		//QCheckBox* convo = findChild<QCheckBox*>("convolution_checkbox");
 		set_convolution_mode(false);
 		holovibes_.reset_convolution_matrix();
 
@@ -1663,7 +1660,7 @@ namespace gui
 		QString filename = QFileDialog::getSaveFileName(this,
 			tr("Record output file"), "C://", tr("Raw files (*.raw);; All files (*)"));
 
-		QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+		QLineEdit* path_line_edit = findChild<QLineEdit *>("ImageOutputPathLineEdit");
 		path_line_edit->clear();
 		path_line_edit->insert(filename);
 	}
@@ -1690,8 +1687,8 @@ namespace gui
 
 	void MainWindow::set_record()
 	{
-		QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("numberOfFramesSpinBox");
-		QLineEdit* path_line_edit = findChild<QLineEdit*>("pathLineEdit");
+		QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("NumberOfFramesSpinBox");
+		QLineEdit* path_line_edit = findChild<QLineEdit*>("ImageOutputPathLineEdit");
 		QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
 		QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
 
@@ -1736,7 +1733,7 @@ namespace gui
 			connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 			record_thread_->start();
 
-			QPushButton* cancel_button = findChild<QPushButton*>("cancelPushButton");
+			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
 			cancel_button->setDisabled(false);
 		}
 		catch (std::exception& e)
@@ -1747,8 +1744,8 @@ namespace gui
 
 	void MainWindow::finished_image_record()
 	{
-		QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-		QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+		QCheckBox* float_output_checkbox = findChild<QCheckBox *>("RecordFloatOutputCheckBox");
+		QCheckBox* complex_output_checkbox = findChild<QCheckBox *>("RecordComplexOutputCheckBox");
 		QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 		record_thread_.reset(nullptr);
@@ -1771,9 +1768,9 @@ namespace gui
 			pipe_refresh();
 		}
 
-		QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+		QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 		nb_frames_ = nb_of_frames_spin_box->value();
-		QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputLineEdit");
+		QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
 		std::string output_path = output_line_edit->text().toUtf8();
 
 		CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
@@ -1784,7 +1781,7 @@ namespace gui
 		connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
 		CSV_record_thread_->start();
 
-		QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+		QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
 		roi_stop_push_button->setDisabled(false);
 	}
 
@@ -1793,7 +1790,7 @@ namespace gui
 		CSV_record_thread_.reset(nullptr);
 		display_info("ROI record done");
 
-		QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIStopPushButton");
+		QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
 		roi_stop_push_button->setDisabled(true);
 	}
 
@@ -1802,14 +1799,14 @@ namespace gui
 		QString filename = QFileDialog::getOpenFileName(this,
 			tr("Batch input file"), "C://", tr("All files (*)"));
 
-		QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
+		QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 		batch_input_line_edit->clear();
 		batch_input_line_edit->insert(filename);
 	}
 
 	void MainWindow::image_batch_record()
 	{
-		QLineEdit* output_path = findChild<QLineEdit*>("pathLineEdit");
+		QLineEdit* output_path = findChild<QLineEdit*>("ImageOutputPathLineEdit");
 
 		is_batch_img_ = true;
 		is_batch_interrupted_ = false;
@@ -1825,7 +1822,7 @@ namespace gui
 			pipe_refresh();
 		}
 
-		QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputLineEdit");
+		QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputPathLineEdit");
 
 		is_batch_img_ = false;
 		is_batch_interrupted_ = false;
@@ -1836,8 +1833,8 @@ namespace gui
 	{
 		file_index_ = 1;
 		//struct stat buff;
-		QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("batchInputLineEdit");
-		QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+		QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
+		QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 
 		// Getting the path to the input batch file, and the number of frames to record.
 		const std::string input_path = batch_input_line_edit->text().toUtf8();
@@ -1933,13 +1930,13 @@ namespace gui
 
 		record_thread_.reset(nullptr);
 
-		QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("numberOfFramesSpinBox");
+		QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 		std::string path;
 
 		if (is_batch_img_)
-			path = findChild<QLineEdit*>("pathLineEdit")->text().toUtf8();
+			path = findChild<QLineEdit*>("ImageOutputPathLineEdit")->text().toUtf8();
 		else
-			path = findChild<QLineEdit*>("ROIOutputLineEdit")->text().toUtf8();
+			path = findChild<QLineEdit*>("ROIOutputPathLineEdit")->text().toUtf8();
 
 		holovibes::Queue* q;
 		if (is_direct_mode())
@@ -2095,26 +2092,25 @@ namespace gui
 	{
 		import_file_stop();
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		QLineEdit* import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-		QSpinBox* width_spinbox = findChild<QSpinBox*>("ImportWidthSpinBox");
-		QSpinBox* height_spinbox = findChild<QSpinBox*>("ImportHeightSpinBox");
-		QSpinBox* fps_spinbox = findChild<QSpinBox*>("ImportFpsSpinBox");
-		QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-		QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
-		QComboBox* depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
-		//QCheckBox* squared_checkbox = findChild<QCheckBox*>("ImportSquaredCheckBox");
-		QComboBox* big_endian_checkbox = findChild<QComboBox*>("ImportEndianModeComboBox");
-		QCheckBox* cine = findChild<QCheckBox*>("CineFileCheckBox");
+		QLineEdit *import_line_edit = findChild<QLineEdit *>("ImportPathLineEdit");
+		QSpinBox *width_spinbox = findChild<QSpinBox *>("ImportWidthSpinBox");
+		QSpinBox *height_spinbox = findChild<QSpinBox *>("ImportHeightSpinBox");
+		QSpinBox *fps_spinbox = findChild<QSpinBox *>("ImportFpsSpinBox");
+		QSpinBox *start_spinbox = findChild<QSpinBox *>("ImportStartSpinBox");
+		QSpinBox *end_spinbox = findChild<QSpinBox *>("ImportEndSpinBox");
+		QComboBox *depth_spinbox = findChild<QComboBox *>("ImportDepthComboBox");
+		QComboBox *big_endian_checkbox = findChild<QComboBox *>("ImportEndiannessComboBox");
+		QCheckBox *cine = findChild<QCheckBox *>("CineFileCheckBox");
 		cd.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
 		int	depth_multi = 1;
 		std::string file_src = import_line_edit->text().toUtf8();
 
-		if (file_src == "")
-			return (display_error("[RECORD] No output file"));
 		try
 		{
 			if (cine->isChecked() == true)
 				seek_cine_header_data(file_src, holovibes_);
+			if (file_src == "")
+				throw std::exception("[IMPORT] No input file");
 		}
 		catch (std::exception& e)
 		{
@@ -2164,11 +2160,11 @@ namespace gui
 		set_image_mode();
 
 		// Changing the gui
-		findChild<QLineEdit*>("boundary")->clear();
-		findChild<QLineEdit*>("boundary")->insert(QString::number(holovibes_.get_boundary()));
+		findChild<QLineEdit *>("BoundaryLineEdit")->clear();
+		findChild<QLineEdit *>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
 		if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 			big_endian_checkbox->setEnabled(true);
-		QAction* settings = findChild<QAction*>("actionSettings");
+		QAction *settings = findChild<QAction*>("actionSettings");
 		settings->setEnabled(false);
 		if (holovibes_.get_tcapture()->stop_requested_)
 		{
@@ -2182,8 +2178,8 @@ namespace gui
 
 	void MainWindow::import_start_spinbox_update()
 	{
-		QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-		QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+		QSpinBox *start_spinbox = findChild<QSpinBox *>("ImportStartSpinBox");
+		QSpinBox *end_spinbox = findChild<QSpinBox *>("ImportEndSpinBox");
 
 		if (start_spinbox->value() > end_spinbox->value())
 			end_spinbox->setValue(start_spinbox->value());
@@ -2191,8 +2187,8 @@ namespace gui
 
 	void MainWindow::import_end_spinbox_update()
 	{
-		QSpinBox* start_spinbox = findChild<QSpinBox*>("ImportStartSpinBox");
-		QSpinBox* end_spinbox = findChild<QSpinBox*>("ImportEndSpinBox");
+		QSpinBox *start_spinbox = findChild<QSpinBox *>("ImportStartSpinBox");
+		QSpinBox *end_spinbox = findChild<QSpinBox *>("ImportEndSpinBox");
 
 		if (end_spinbox->value() < start_spinbox->value())
 			start_spinbox->setValue(end_spinbox->value());
@@ -2203,19 +2199,10 @@ namespace gui
 		close_critical_compute();
 		camera_none();
 		close_windows();
+		remove_infos();
 		// Avoiding "unused variable" warning.
 		static_cast<void*>(event);
 		save_ini("holovibes.ini");
-	}
-
-	void MainWindow::phase_num_visible(const bool value)
-	{
-		return;
-		//QSpinBox* phase_nb = findChild<QSpinBox*>("phaseNumberSpinBox");
-		QLineEdit *phase_nb = findChild<QLineEdit*>("setPhaseLine");
-		phase_nb->setDisabled(!value);
-		QPushButton *phaseBtn = findChild<QPushButton*>("setPhaseButton");
-		phaseBtn->setDisabled(!value);
 	}
 
 	void MainWindow::change_camera(const holovibes::Holovibes::camera_type camera_type)
@@ -2269,12 +2256,12 @@ namespace gui
 	void MainWindow::load_ini(const std::string& path)
 	{
 		boost::property_tree::ptree ptree;
-		GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRendering");
-		GroupBox *view_group_box = findChild<GroupBox *>("View");
-		GroupBox *special_group_box = findChild<GroupBox *>("Vibrometry");
-		GroupBox *record_group_box = findChild<GroupBox *>("Record");
-		GroupBox *import_group_box = findChild<GroupBox *>("Import");
-		GroupBox *info_group_box = findChild<GroupBox *>("Info");
+		GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
+		GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
+		GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
+		GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
+		GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
+		GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
 
 		QAction*	image_rendering_action = findChild<QAction*>("actionImage_rendering");
 		QAction*	view_action = findChild<QAction*>("actionView");
@@ -2289,7 +2276,7 @@ namespace gui
 		}
 		catch (std::exception& e)
 		{
-			std::cout << e.what() << '\n';
+			std::cout << e.what() << std::endl;
 		}
 
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -2372,8 +2359,6 @@ namespace gui
 			// Post Processing
 			special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
 			special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
-			/* cd.vibrometry_enabled.exchange(
-			   ptree.get<bool>("post_processing.image_ratio_enabled", cd.vibrometry_enabled));*/
 			cd.vibrometry_q.exchange(
 				ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q.load()));
 			is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
@@ -2425,12 +2410,12 @@ namespace gui
 			cd.nsamples.exchange(cd.stft_level.load());
 			cd.stft_level.exchange(cd.nsamples.load());
 		}
-		GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRendering");
-		GroupBox *view_group_box = findChild<GroupBox *>("View");
-		GroupBox *special_group_box = findChild<GroupBox *>("Vibrometry");
-		GroupBox *record_group_box = findChild<GroupBox *>("Record");
-		GroupBox *import_group_box = findChild<GroupBox *>("Import");
-		GroupBox *info_group_box = findChild<GroupBox *>("Info");
+		GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
+		GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
+		GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
+		GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
+		GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
+		GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
 		holovibes::Config& config = global::global_config;
 
 		// Config
@@ -2473,7 +2458,6 @@ namespace gui
 
 		// Post-processing
 		ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
-		//ptree.put("post_processing.image_ratio_enabled", cd.vibrometry_enabled);
 		ptree.put("post_processing.image_ratio_q", cd.vibrometry_q.load());
 		ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
 
@@ -2532,9 +2516,9 @@ namespace gui
 
 	void MainWindow::hide_endianess()
 	{
-		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+		QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthComboBox");
 		QString curr_value = depth_cbox->currentText();
-		QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndianModeComboBox");
+		QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndiannessComboBox");
 
 		// Changing the endianess when depth = 8 makes no sense
 		imp_cbox->setEnabled(curr_value == "16");
@@ -2542,7 +2526,7 @@ namespace gui
 
 	void MainWindow::change_window()
 	{
-		QComboBox *window_cbox = findChild<QComboBox*>("selectedWindowComboBox");
+		QComboBox *window_cbox = findChild<QComboBox*>("WindowSelectionComboBox");
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 		if (window_cbox->currentIndex() == 0)
@@ -2551,6 +2535,7 @@ namespace gui
 			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_XZ);
 		else if (window_cbox->currentIndex() == 2)
 			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_YZ);
+		notify();
 	}
 
 	void MainWindow::set_import_cine_file(bool value)
@@ -2563,7 +2548,7 @@ namespace gui
 	void MainWindow::seek_cine_header_data(std::string &file_src_, holovibes::Holovibes& holovibes_)
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		QComboBox		*depth_spinbox = findChild<QComboBox*>("ImportDepthModeComboBox");
+		QComboBox		*depth_spinbox = findChild<QComboBox*>("ImportDepthComboBox");
 		int				read_width = 0, read_height = 0;
 		ushort			read_depth = 0;
 		uint			read_pixelpermeter_x = 0, offset_to_ptr = 0;
@@ -2620,7 +2605,7 @@ namespace gui
 			findChild<QSpinBox*>("ImportHeightSpinBox")->setValue(read_height);
 			pixel_size = (1 / static_cast<double>(read_pixelpermeter_x)) * 1000000;
 			cd.import_pixel_size.exchange(pixel_size);
-			findChild<QComboBox*>("ImportEndianModeComboBox")->setCurrentIndex(0); // Little Endian
+			findChild<QComboBox*>("ImportEndiannessComboBox")->setCurrentIndex(0); // Little Endian
 
 			/*Unused fonction ready to read framerate in exposure*/
 			//holovibes::get_framerate_cinefile(file, file_src_);
@@ -2629,7 +2614,7 @@ namespace gui
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cout << e.what() << '\n';
+			std::cout << e.what() << std::endl;
 			throw std::runtime_error(e.what());
 		}
 	}
@@ -2677,8 +2662,8 @@ namespace gui
 	void MainWindow::stft_signal_trig(bool checked)
 	{
 		QCheckBox* stft = findChild<QCheckBox*>("STFTCheckBox");
-		QCheckBox* stft_view = findChild<QCheckBox*>("STFTSlices");
-		QCheckBox* trig = findChild<QCheckBox*>("STFTExtTrig");
+		QCheckBox* stft_view = findChild<QCheckBox*>("STFTCutsCheckBox");
+		QCheckBox* trig = findChild<QCheckBox*>("ExtTrigCheckBox");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 
 		if (checked)
@@ -2702,10 +2687,10 @@ namespace gui
 		QLineEdit	*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
 		QSpinBox	*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
 		QSpinBox	*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
-		QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthModeComboBox");
-		QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndianModeComboBox");
-		//QRadioButton* holo = findChild<QRadioButton*>("hologramRadioButton");
-		//QRadioButton* direct = findChild<QRadioButton*>("directImageRadioButton");
+		QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
+		QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
+		//QRadioButton* holo = findChild<QRadioButton*>("HologramRadioButton");
+		//QRadioButton* direct = findChild<QRadioButton*>("DirectRadioButton");
 		const std::string	file_src = import_line_edit->text().toUtf8();
 		uint				width = 0, height = 0, depth = 0, underscore = 5;
 		size_t				i;

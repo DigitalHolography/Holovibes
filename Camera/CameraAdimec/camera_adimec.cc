@@ -140,7 +140,7 @@ namespace camera
 	{
 		if (status != CI_OK)
 		{
-			std::cerr << "[CAMERA] " << err_mess << " : " << status << "\n";
+			std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
 
 			if (flag & CloseFlag::BUFFER)
 				BiBufferFree(board_, info_);

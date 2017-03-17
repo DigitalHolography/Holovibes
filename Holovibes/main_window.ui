@@ -65,7 +65,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="gui::GroupBox" name="ImageRendering">
+       <widget class="gui::GroupBox" name="ImageRenderingGroupBox">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -83,7 +83,7 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <widget class="QRadioButton" name="directImageRadioButton">
+        <widget class="QRadioButton" name="DirectRadioButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -102,7 +102,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QRadioButton" name="hologramRadioButton">
+        <widget class="QRadioButton" name="HologramRadioButton">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -137,7 +137,7 @@
           <string># img:</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="pSpinBox">
+        <widget class="QSpinBox" name="PSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -153,7 +153,7 @@
           <number>1</number>
          </property>
         </widget>
-        <widget class="QLabel" name="pLabel">
+        <widget class="QLabel" name="PLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -166,7 +166,7 @@
           <string>p:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="wavelengthLabel">
+        <widget class="QLabel" name="WaveLengthLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -179,7 +179,7 @@
           <string>λ (nm):</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="wavelengthSpinBox">
+        <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -204,7 +204,7 @@
           <double>0.010000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="zLabel">
+        <widget class="QLabel" name="ZLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -217,7 +217,7 @@
           <string>z (m):</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="zSpinBox">
+        <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -242,7 +242,7 @@
           <double>0.010000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="algorithmLabel">
+        <widget class="QLabel" name="AlgorithmLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -255,7 +255,7 @@
           <string>Algorithm:</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="algorithmComboBox">
+        <widget class="QComboBox" name="AlgorithmComboBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -283,7 +283,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QLabel" name="zStepLabel">
+        <widget class="QLabel" name="ZStepLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -296,7 +296,7 @@
           <string>z step (m):</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="zStepDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="ZStepDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -318,7 +318,7 @@
           <double>0.010000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="algorithmLabel_3">
+        <widget class="QLabel" name="BoundaryLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -331,7 +331,7 @@
           <string>Boundary (m):</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="boundary">
+        <widget class="QLineEdit" name="BoundaryLineEdit">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -350,7 +350,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="ImportPixelSize">
+        <widget class="QLabel" name="PixelSizeLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -363,7 +363,7 @@
           <string>Pixel size (µm):</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="ImportPixelSizeDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="PixelSizeDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -388,7 +388,7 @@
           <double>5.420000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="ImageRenderingShorcut_label">
+        <widget class="QLabel" name="ImageRenderingLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -432,7 +432,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="cancelrefPushButton">
+        <widget class="QPushButton" name="CancelRefPushButton">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -448,7 +448,7 @@
           <string>X</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="takerefPushButton">
+        <widget class="QPushButton" name="TakeRefPushButton">
          <property name="geometry">
           <rect>
            <x>40</x>
@@ -471,10 +471,10 @@
           </rect>
          </property>
          <property name="text">
-          <string>2DFilter</string>
+          <string>Filter2D</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="cancelFilter2DPushButton">
+        <widget class="QPushButton" name="CancelFilter2DPushButton">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -493,7 +493,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QPushButton" name="slindingrefPushButton">
+        <widget class="QPushButton" name="SlidingRefPushButton">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -506,7 +506,7 @@
           <string>Sliding</string>
          </property>
         </widget>
-        <widget class="QLabel" name="autofocusLabel_3">
+        <widget class="QLabel" name="RefLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -519,7 +519,7 @@
           <string>Ref</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="STFTSpinBox">
+        <widget class="QSpinBox" name="STFTStepsSpinBox">
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -541,7 +541,7 @@
           <number>2048</number>
          </property>
         </widget>
-        <widget class="QLabel" name="PhaseNumberLabel_2">
+        <widget class="QLabel" name="STFTStepsLabel">
          <property name="geometry">
           <rect>
            <x>80</x>
@@ -554,7 +554,7 @@
           <string>Steps</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="setPhaseLine">
+        <widget class="QLineEdit" name="PhaseNumberLineEdit">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -564,7 +564,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QPushButton" name="setPhaseButton">
+        <widget class="QPushButton" name="SetPhaseNumberPushButton">
          <property name="geometry">
           <rect>
            <x>149</x>
@@ -577,39 +577,39 @@
           <string>Set</string>
          </property>
         </widget>
-        <zorder>takerefPushButton</zorder>
-        <zorder>directImageRadioButton</zorder>
-        <zorder>hologramRadioButton</zorder>
+        <zorder>TakeRefPushButton</zorder>
+        <zorder>DirectRadioButton</zorder>
+        <zorder>HologramRadioButton</zorder>
         <zorder>PhaseNumberLabel</zorder>
-        <zorder>pSpinBox</zorder>
-        <zorder>pLabel</zorder>
-        <zorder>wavelengthLabel</zorder>
-        <zorder>wavelengthSpinBox</zorder>
-        <zorder>zLabel</zorder>
-        <zorder>zSpinBox</zorder>
-        <zorder>algorithmLabel</zorder>
-        <zorder>algorithmComboBox</zorder>
-        <zorder>zStepLabel</zorder>
-        <zorder>zStepDoubleSpinBox</zorder>
-        <zorder>algorithmLabel_3</zorder>
-        <zorder>boundary</zorder>
-        <zorder>ImportPixelSize</zorder>
-        <zorder>ImportPixelSizeDoubleSpinBox</zorder>
-        <zorder>ImageRenderingShorcut_label</zorder>
+        <zorder>PSpinBox</zorder>
+        <zorder>PLabel</zorder>
+        <zorder>WaveLengthLabel</zorder>
+        <zorder>WaveLengthDoubleSpinBox</zorder>
+        <zorder>ZLabel</zorder>
+        <zorder>ZDoubleSpinBox</zorder>
+        <zorder>AlgorithmLabel</zorder>
+        <zorder>AlgorithmComboBox</zorder>
+        <zorder>ZStepLabel</zorder>
+        <zorder>ZStepDoubleSpinBox</zorder>
+        <zorder>BoundaryLabel</zorder>
+        <zorder>BoundaryLineEdit</zorder>
+        <zorder>PixelSizeLabel</zorder>
+        <zorder>PixelSizeDoubleSpinBox</zorder>
+        <zorder>ImageRenderingLabel</zorder>
         <zorder>STFTCheckBox</zorder>
-        <zorder>cancelrefPushButton</zorder>
+        <zorder>CancelRefPushButton</zorder>
         <zorder>Filter2DPushButton</zorder>
-        <zorder>cancelFilter2DPushButton</zorder>
-        <zorder>slindingrefPushButton</zorder>
-        <zorder>autofocusLabel_3</zorder>
-        <zorder>STFTSpinBox</zorder>
-        <zorder>PhaseNumberLabel_2</zorder>
-        <zorder>setPhaseLine</zorder>
-        <zorder>setPhaseButton</zorder>
+        <zorder>CancelFilter2DPushButton</zorder>
+        <zorder>SlidingRefPushButton</zorder>
+        <zorder>RefLabel</zorder>
+        <zorder>STFTStepsSpinBox</zorder>
+        <zorder>STFTStepsLabel</zorder>
+        <zorder>PhaseNumberLineEdit</zorder>
+        <zorder>SetPhaseNumberPushButton</zorder>
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="View">
+       <widget class="gui::GroupBox" name="ViewGroupBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -631,7 +631,7 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <widget class="QCheckBox" name="logScaleCheckBox">
+        <widget class="QCheckBox" name="LogScaleCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -652,7 +652,7 @@
           <string>Log</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="shiftCornersCheckBox">
+        <widget class="QCheckBox" name="FFTShiftCheckBox">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -668,7 +668,7 @@
           <string>FFT shift</string>
          </property>
         </widget>
-        <widget class="QLabel" name="minLabel">
+        <widget class="QLabel" name="ContrastMaxLabel_2">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -684,7 +684,7 @@
           <string>Min:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="maxLabel">
+        <widget class="QLabel" name="ContrastMaxLabel">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -700,7 +700,7 @@
           <string>Max:</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="autoPushButton">
+        <widget class="QPushButton" name="AutoContrastPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -713,7 +713,7 @@
           <string>Auto</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="viewModeComboBox">
+        <widget class="QComboBox" name="ViewModeComboBox">
          <property name="geometry">
           <rect>
            <x>71</x>
@@ -754,7 +754,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QCheckBox" name="contrastCheckBox">
+        <widget class="QCheckBox" name="ContrastCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -773,7 +773,7 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="contrastMinDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -795,7 +795,7 @@
           <double>0.100000000000000</double>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="contrastMaxDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -817,7 +817,7 @@
           <double>0.100000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="contrastTypeLabel">
+        <widget class="QLabel" name="ImgTypeLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -830,7 +830,7 @@
           <string>Img. type:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="autofocusLabel">
+        <widget class="QLabel" name="AutofocusLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -843,7 +843,7 @@
           <string>Autofocus:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="zmaxLabel">
+        <widget class="QLabel" name="AutofocusZMaxLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -856,7 +856,7 @@
           <string>z max:</string>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="zmaxDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="AutofocusZMaxDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>91</x>
@@ -878,7 +878,7 @@
           <double>1.000000000000000</double>
          </property>
         </widget>
-        <widget class="QDoubleSpinBox" name="zminDoubleSpinBox">
+        <widget class="QDoubleSpinBox" name="AutofocusZMinDoubleSpinBox">
          <property name="geometry">
           <rect>
            <x>91</x>
@@ -900,7 +900,7 @@
           <double>100.000000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="zminLabel">
+        <widget class="QLabel" name="AutofocusZMinLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -913,7 +913,7 @@
           <string>z min:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="zdivLabel">
+        <widget class="QLabel" name="AutofocusStepsLoopsLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -926,7 +926,7 @@
           <string>Steps/loops:</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="zdivSpinBox">
+        <widget class="QSpinBox" name="AutofocusStepsSpinBox">
          <property name="geometry">
           <rect>
            <x>91</x>
@@ -945,7 +945,7 @@
           <number>10</number>
          </property>
         </widget>
-        <widget class="QPushButton" name="autofocusPushButton">
+        <widget class="QPushButton" name="AutofocusRunPushButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -961,7 +961,7 @@
           <string>Run</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="ziterSpinBox">
+        <widget class="QSpinBox" name="AutofocusLoopsSpinBox">
          <property name="geometry">
           <rect>
            <x>141</x>
@@ -980,7 +980,7 @@
           <number>3</number>
          </property>
         </widget>
-        <widget class="QLabel" name="ViewShorcut_label">
+        <widget class="QLabel" name="ViewLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -996,7 +996,7 @@
           <string/>
          </property>
         </widget>
-        <widget class="QSpinBox" name="img_accSpinBox">
+        <widget class="QSpinBox" name="ImgAccuSpinBox">
          <property name="geometry">
           <rect>
            <x>121</x>
@@ -1021,7 +1021,7 @@
           <number>1</number>
          </property>
         </widget>
-        <widget class="QCheckBox" name="img_accCheckBox">
+        <widget class="QCheckBox" name="ImgAccuCheckBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1046,7 +1046,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="autofocusLabel_2">
+        <widget class="QLabel" name="PhaseUnwrapLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1059,7 +1059,7 @@
           <string>Phase unwrap:</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="unwrap_2d_CheckBox">
+        <widget class="QCheckBox" name="PhaseUnwrap2DCheckBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1084,7 +1084,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QCheckBox" name="STFTSlices">
+        <widget class="QCheckBox" name="STFTCutsCheckBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1103,7 +1103,7 @@
           <string>STFT cuts</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="STFTExtTrig">
+        <widget class="QCheckBox" name="ExtTrigCheckBox">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -1119,7 +1119,7 @@
           <string>Ext. trig</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="flipButton">
+        <widget class="QPushButton" name="FlipPushButton">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -1132,7 +1132,7 @@
           <string>Flip</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="rotateButton">
+        <widget class="QPushButton" name="RotatePushButton">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -1145,7 +1145,7 @@
           <string>Rotate</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="selectedWindowComboBox">
+        <widget class="QComboBox" name="WindowSelectionComboBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1170,39 +1170,39 @@
           </property>
          </item>
         </widget>
-        <zorder>unwrap_2d_CheckBox</zorder>
-        <zorder>logScaleCheckBox</zorder>
-        <zorder>shiftCornersCheckBox</zorder>
-        <zorder>minLabel</zorder>
-        <zorder>maxLabel</zorder>
-        <zorder>autoPushButton</zorder>
-        <zorder>viewModeComboBox</zorder>
-        <zorder>contrastCheckBox</zorder>
-        <zorder>contrastMinDoubleSpinBox</zorder>
-        <zorder>contrastMaxDoubleSpinBox</zorder>
-        <zorder>contrastTypeLabel</zorder>
-        <zorder>autofocusLabel</zorder>
-        <zorder>zmaxLabel</zorder>
-        <zorder>zmaxDoubleSpinBox</zorder>
-        <zorder>zminDoubleSpinBox</zorder>
-        <zorder>zminLabel</zorder>
-        <zorder>zdivLabel</zorder>
-        <zorder>zdivSpinBox</zorder>
-        <zorder>autofocusPushButton</zorder>
-        <zorder>ziterSpinBox</zorder>
-        <zorder>ViewShorcut_label</zorder>
-        <zorder>img_accSpinBox</zorder>
-        <zorder>img_accCheckBox</zorder>
-        <zorder>autofocusLabel_2</zorder>
-        <zorder>STFTSlices</zorder>
-        <zorder>STFTExtTrig</zorder>
-        <zorder>flipButton</zorder>
-        <zorder>rotateButton</zorder>
-        <zorder>selectedWindowComboBox</zorder>
+        <zorder>PhaseUnwrap2DCheckBox</zorder>
+        <zorder>LogScaleCheckBox</zorder>
+        <zorder>FFTShiftCheckBox</zorder>
+        <zorder>ContrastMaxLabel_2</zorder>
+        <zorder>ContrastMaxLabel</zorder>
+        <zorder>AutoContrastPushButton</zorder>
+        <zorder>ViewModeComboBox</zorder>
+        <zorder>ContrastCheckBox</zorder>
+        <zorder>ContrastMinDoubleSpinBox</zorder>
+        <zorder>ContrastMaxDoubleSpinBox</zorder>
+        <zorder>ImgTypeLabel</zorder>
+        <zorder>AutofocusLabel</zorder>
+        <zorder>AutofocusZMaxLabel</zorder>
+        <zorder>AutofocusZMaxDoubleSpinBox</zorder>
+        <zorder>AutofocusZMinDoubleSpinBox</zorder>
+        <zorder>AutofocusZMinLabel</zorder>
+        <zorder>AutofocusStepsLoopsLabel</zorder>
+        <zorder>AutofocusStepsSpinBox</zorder>
+        <zorder>AutofocusRunPushButton</zorder>
+        <zorder>AutofocusLoopsSpinBox</zorder>
+        <zorder>ViewLabel</zorder>
+        <zorder>ImgAccuSpinBox</zorder>
+        <zorder>ImgAccuCheckBox</zorder>
+        <zorder>PhaseUnwrapLabel</zorder>
+        <zorder>STFTCutsCheckBox</zorder>
+        <zorder>ExtTrigCheckBox</zorder>
+        <zorder>FlipPushButton</zorder>
+        <zorder>RotatePushButton</zorder>
+        <zorder>WindowSelectionComboBox</zorder>
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="Vibrometry">
+       <widget class="gui::GroupBox" name="PostProcessingGroupBox">
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -1227,7 +1227,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="pLabelVibro">
+        <widget class="QLabel" name="ImageRatioPLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1240,7 +1240,7 @@
           <string>p:</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="pSpinBoxVibro">
+        <widget class="QSpinBox" name="ImageRatioPSpinBox">
          <property name="geometry">
           <rect>
            <x>30</x>
@@ -1256,7 +1256,7 @@
           <number>1</number>
          </property>
         </widget>
-        <widget class="QSpinBox" name="qSpinBoxVibro">
+        <widget class="QSpinBox" name="ImageRatioQSpinBox">
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -1272,7 +1272,7 @@
           <number>1</number>
          </property>
         </widget>
-        <widget class="QLabel" name="qLabelVibro">
+        <widget class="QLabel" name="ImageRatioQLabel">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -1285,7 +1285,7 @@
           <string>q:</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="vibrometryCheckBox">
+        <widget class="QCheckBox" name="ImageRatioCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1301,7 +1301,7 @@
           <string>Image ratio Ip/Iq</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="averageCheckBox">
+        <widget class="QCheckBox" name="AverageCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1317,7 +1317,7 @@
           <string>Avg. signal in ROI</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="ROIFileLineEdit">
+        <widget class="QLineEdit" name="ROIFilePathLineEdit">
          <property name="geometry">
           <rect>
            <x>60</x>
@@ -1327,7 +1327,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QPushButton" name="saveROIPushButton">
+        <widget class="QPushButton" name="SaveROIPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1343,7 +1343,7 @@
           <string>Save ROI</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="loadROIPushButton">
+        <widget class="QPushButton" name="LoadROIPushButton">
          <property name="geometry">
           <rect>
            <x>100</x>
@@ -1356,7 +1356,7 @@
           <string>Load ROI</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="AverageSignalLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1374,7 +1374,7 @@
           <string>Signal</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="AverageNoiseLabel">
          <property name="geometry">
           <rect>
            <x>50</x>
@@ -1387,7 +1387,7 @@
           <string>Noise</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="AveragePlotPushButton">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -1429,7 +1429,7 @@
           <string>ROI file:</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="convolution_checkbox">
+        <widget class="QCheckBox" name="ConvoCheckBox">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -1458,7 +1458,7 @@
           <string>Convolution matrix file :</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="ConvoMatrixLineEdit">
+        <widget class="QLineEdit" name="ConvoMatrixPathLineEdit">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1468,7 +1468,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QToolButton" name="ConvoMatrixBrowseButton">
+        <widget class="QToolButton" name="ConvoMatrixBrowseToolButton">
          <property name="geometry">
           <rect>
            <x>160</x>
@@ -1481,7 +1481,7 @@
           <string>...</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="loadConvoMatrixPushButton">
+        <widget class="QPushButton" name="ConvoLoadMatrixPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1494,7 +1494,7 @@
           <string>Load Matrix</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="flowgraphy_checkbox">
+        <widget class="QCheckBox" name="FlowgraphyCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1510,7 +1510,7 @@
           <string>Flowgraphy</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="FlowgraphySpinBox">
+        <widget class="QSpinBox" name="FlowgraphyLevelSpinBox">
          <property name="geometry">
           <rect>
            <x>130</x>
@@ -1535,7 +1535,7 @@
           <number>3</number>
          </property>
         </widget>
-        <widget class="QLabel" name="FlowLabel">
+        <widget class="QLabel" name="FlowgraphyLevelLabel">
          <property name="geometry">
           <rect>
            <x>97</x>
@@ -1548,7 +1548,7 @@
           <string>Level</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="SpecialBufferSpinBox">
+        <widget class="QSpinBox" name="KernelBufferSizeSpinBox">
          <property name="geometry">
           <rect>
            <x>120</x>
@@ -1570,7 +1570,7 @@
           <number>10</number>
          </property>
         </widget>
-        <widget class="QLabel" name="SpecialBufferLabel">
+        <widget class="QLabel" name="KernelBufferSizeLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1583,7 +1583,7 @@
           <string>Kernel buffer Size</string>
          </property>
         </widget>
-        <widget class="QLabel" name="Post_processing_label">
+        <widget class="QLabel" name="PostProcessingLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1599,7 +1599,7 @@
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="closeROI">
+        <widget class="QPushButton" name="AverageClosePlotPushButton">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -1618,7 +1618,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="Record">
+       <widget class="gui::GroupBox" name="RecordGroupBox">
         <property name="toolTip">
          <string notr="true"/>
         </property>
@@ -1631,7 +1631,7 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <widget class="QLabel" name="numberOfFramesLabel">
+        <widget class="QLabel" name="NumberOfFramesLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1644,7 +1644,7 @@
           <string># of frames:</string>
          </property>
         </widget>
-        <widget class="QSpinBox" name="numberOfFramesSpinBox">
+        <widget class="QSpinBox" name="NumberOfFramesSpinBox">
          <property name="geometry">
           <rect>
            <x>110</x>
@@ -1663,7 +1663,7 @@
           <number>10000000</number>
          </property>
         </widget>
-        <widget class="QLineEdit" name="pathLineEdit">
+        <widget class="QLineEdit" name="ImageOutputPathLineEdit">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1673,7 +1673,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QPushButton" name="recPushButton">
+        <widget class="QPushButton" name="ImageOutputRecPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1686,7 +1686,7 @@
           <string>Rec.</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="cancelPushButton">
+        <widget class="QPushButton" name="ImageOutputStopPushButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1702,7 +1702,7 @@
           <string>Stop</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="ROIOutputLineEdit">
+        <widget class="QLineEdit" name="ROIOutputPathLineEdit">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1715,7 +1715,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QPushButton" name="ROIPushButton">
+        <widget class="QPushButton" name="ROIOutputRecPushButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1731,7 +1731,7 @@
           <string>Rec.</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="ROIStopPushButton">
+        <widget class="QPushButton" name="ROIOutputStopPushButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1747,7 +1747,7 @@
           <string>Stop</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="batchInputLineEdit">
+        <widget class="QLineEdit" name="BatchInputPathLineEdit">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1757,7 +1757,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="ImageOutputBatchPushButton">
          <property name="geometry">
           <rect>
            <x>70</x>
@@ -1770,7 +1770,7 @@
           <string>Batch</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="ROIBatchPushButton">
+        <widget class="QPushButton" name="ROIOutputBatchPushButton">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -1824,7 +1824,7 @@
           <string>Image output:</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="ImageOutputBrowsePushButton">
+        <widget class="QToolButton" name="ImageOutputBrowseToolButton">
          <property name="geometry">
           <rect>
            <x>160</x>
@@ -1837,7 +1837,7 @@
           <string>...</string>
          </property>
         </widget>
-        <widget class="QToolButton" name="batchInputBrowseToolButton">
+        <widget class="QToolButton" name="BatchInputBrowseToolButton">
          <property name="geometry">
           <rect>
            <x>160</x>
@@ -1895,7 +1895,7 @@
           <string>ROI output:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="RecordShotcut_Label">
+        <widget class="QLabel" name="RecordLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -1936,7 +1936,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="numberOfFramesLabel_2">
+        <widget class="QLabel" name="OutputLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1952,7 +1952,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="Import">
+       <widget class="gui::GroupBox" name="ImportGroupBox">
         <property name="toolTip">
          <string notr="true"/>
         </property>
@@ -2001,7 +2001,7 @@
           <string>Close</string>
          </property>
         </widget>
-        <widget class="QLabel" name="pLabel_2">
+        <widget class="QLabel" name="ImportWidthLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2111,7 +2111,7 @@
           </property>
          </widget>
         </widget>
-        <widget class="QLabel" name="HeightLabel">
+        <widget class="QLabel" name="ImportHeightLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2165,7 +2165,7 @@
           <number>100</number>
          </property>
         </widget>
-        <widget class="QLabel" name="FpsLabel">
+        <widget class="QLabel" name="ImportFpsLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2178,7 +2178,7 @@
           <string>FPS:</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="ImportEndianModeComboBox">
+        <widget class="QComboBox" name="ImportEndiannessComboBox">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -2204,7 +2204,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QLabel" name="ImportEndianneTypeLabel">
+        <widget class="QLabel" name="ImportEndiannessLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2217,7 +2217,7 @@
           <string>Endianness:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="ImportDepthLabelVibro">
+        <widget class="QLabel" name="ImportDepthLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2230,7 +2230,7 @@
           <string>Depth (bit):</string>
          </property>
         </widget>
-        <widget class="QComboBox" name="ImportDepthModeComboBox">
+        <widget class="QComboBox" name="ImportDepthComboBox">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -2266,7 +2266,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QLabel" name="ImportSpanLabelVibro">
+        <widget class="QLabel" name="ImportStartLabel">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2281,7 +2281,7 @@
         </widget>
         <widget class="QSpinBox" name="ImportStartSpinBox">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2303,7 +2303,7 @@
         </widget>
         <widget class="QSpinBox" name="ImportEndSpinBox">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -2341,7 +2341,7 @@
           <rect>
            <x>10</x>
            <y>30</y>
-           <width>61</width>
+           <width>81</width>
            <height>20</height>
           </rect>
          </property>
@@ -2349,7 +2349,7 @@
           <string>Image input:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="ImportSpanLabelVibro_2">
+        <widget class="QLabel" name="ImportEndLabel_2">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2390,7 +2390,7 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="ImportShorcut_Label">
+        <widget class="QLabel" name="ImportLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -2406,7 +2406,7 @@
           <string/>
          </property>
         </widget>
-        <widget class="QPushButton" name="TitleDetect">
+        <widget class="QPushButton" name="TitleDetectPushButton">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2422,7 +2422,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="Info">
+       <widget class="gui::GroupBox" name="InfoGroupBox">
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -2447,7 +2447,7 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QTextEdit" name="infoTextEdit">
+        <widget class="QTextEdit" name="InfoTextEdit">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2467,7 +2467,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
-        <widget class="QProgressBar" name="infoProgressBar">
+        <widget class="QProgressBar" name="RecordProgressBar">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -2498,7 +2498,7 @@ p, li { white-space: pre-wrap; }
           <string>%v/%m</string>
          </property>
         </widget>
-        <widget class="QLabel" name="InfoShorcut_Label">
+        <widget class="QLabel" name="InfoLabel">
          <property name="geometry">
           <rect>
            <x>0</x>
@@ -2867,7 +2867,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionView</sender>
    <signal>changed()</signal>
-   <receiver>View</receiver>
+   <receiver>ViewGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2883,7 +2883,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionRecord</sender>
    <signal>changed()</signal>
-   <receiver>Record</receiver>
+   <receiver>RecordGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2899,7 +2899,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionImage_rendering</sender>
    <signal>changed()</signal>
-   <receiver>ImageRendering</receiver>
+   <receiver>ImageRenderingGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2915,7 +2915,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionSpecial</sender>
    <signal>changed()</signal>
-   <receiver>Vibrometry</receiver>
+   <receiver>PostProcessingGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2945,7 +2945,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pSpinBox</sender>
+   <sender>PSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_p(int)</slot>
@@ -2961,7 +2961,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>wavelengthSpinBox</sender>
+   <sender>WaveLengthDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_wavelength(double)</slot>
@@ -2977,7 +2977,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>zSpinBox</sender>
+   <sender>ZDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z(double)</slot>
@@ -2993,7 +2993,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>algorithmComboBox</sender>
+   <sender>AlgorithmComboBox</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_algorithm(QString)</slot>
@@ -3009,7 +3009,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>autoPushButton</sender>
+   <sender>AutoContrastPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_auto_contrast()</slot>
@@ -3025,7 +3025,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>logScaleCheckBox</sender>
+   <sender>LogScaleCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_log_scale(bool)</slot>
@@ -3041,7 +3041,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>shiftCornersCheckBox</sender>
+   <sender>FFTShiftCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_shifted_corners(bool)</slot>
@@ -3057,7 +3057,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pSpinBoxVibro</sender>
+   <sender>ImageRatioPSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_p_vibro(int)</slot>
@@ -3073,7 +3073,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>qSpinBoxVibro</sender>
+   <sender>ImageRatioQSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_q_vibro(int)</slot>
@@ -3089,7 +3089,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>recPushButton</sender>
+   <sender>ImageOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_record()</slot>
@@ -3105,7 +3105,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>viewModeComboBox</sender>
+   <sender>ViewModeComboBox</sender>
    <signal>currentIndexChanged(QString)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_view_mode(QString)</slot>
@@ -3121,7 +3121,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>contrastCheckBox</sender>
+   <sender>ContrastCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_contrast_mode(bool)</slot>
@@ -3137,7 +3137,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>vibrometryCheckBox</sender>
+   <sender>ImageRatioCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_vibro_mode(bool)</slot>
@@ -3233,7 +3233,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>contrastMinDoubleSpinBox</sender>
+   <sender>ContrastMinDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_contrast_min(double)</slot>
@@ -3249,7 +3249,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>contrastMaxDoubleSpinBox</sender>
+   <sender>ContrastMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_contrast_max(double)</slot>
@@ -3297,7 +3297,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>zStepDoubleSpinBox</sender>
+   <sender>ZStepDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z_step(double)</slot>
@@ -3345,7 +3345,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>averageCheckBox</sender>
+   <sender>AverageCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_average_mode(bool)</slot>
@@ -3393,7 +3393,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>saveROIPushButton</sender>
+   <sender>SaveROIPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>save_roi()</slot>
@@ -3409,7 +3409,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>loadROIPushButton</sender>
+   <sender>LoadROIPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>load_roi()</slot>
@@ -3425,7 +3425,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIPushButton</sender>
+   <sender>ROIOutputRecPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>average_record()</slot>
@@ -3441,7 +3441,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pushButton</sender>
+   <sender>AveragePlotPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_average_graphic()</slot>
@@ -3457,7 +3457,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>autofocusPushButton</sender>
+   <sender>AutofocusRunPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_autofocus_mode()</slot>
@@ -3473,7 +3473,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_2</sender>
+   <sender>ImageOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>image_batch_record()</slot>
@@ -3489,7 +3489,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIBatchPushButton</sender>
+   <sender>ROIOutputBatchPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>csv_batch_record()</slot>
@@ -3505,7 +3505,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>cancelPushButton</sender>
+   <sender>ImageOutputStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>stop_image_record()</slot>
@@ -3521,7 +3521,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ROIStopPushButton</sender>
+   <sender>ROIOutputStopPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>stop_csv_record()</slot>
@@ -3571,7 +3571,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionImport</sender>
    <signal>changed()</signal>
-   <receiver>Import</receiver>
+   <receiver>ImportGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3729,7 +3729,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>batchInputBrowseToolButton</sender>
+   <sender>BatchInputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>browse_batch_input()</slot>
@@ -3745,7 +3745,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImageOutputBrowsePushButton</sender>
+   <sender>ImageOutputBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>browse_file()</slot>
@@ -3763,7 +3763,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>actionInfo</sender>
    <signal>changed()</signal>
-   <receiver>Info</receiver>
+   <receiver>InfoGroupBox</receiver>
    <slot>ShowOrHide()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -3793,7 +3793,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>directImageRadioButton</sender>
+   <sender>DirectRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_direct_mode()</slot>
@@ -3809,7 +3809,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>hologramRadioButton</sender>
+   <sender>HologramRadioButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>set_holographic_mode()</slot>
@@ -3825,7 +3825,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>loadConvoMatrixPushButton</sender>
+   <sender>ConvoLoadMatrixPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>load_convo_matrix()</slot>
@@ -3841,7 +3841,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ConvoMatrixBrowseButton</sender>
+   <sender>ConvoMatrixBrowseToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>browse_convo_matrix_file()</slot>
@@ -3857,7 +3857,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>convolution_checkbox</sender>
+   <sender>ConvoCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_convolution_mode(bool)</slot>
@@ -3873,7 +3873,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>flowgraphy_checkbox</sender>
+   <sender>FlowgraphyCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_flowgraphy_mode(bool)</slot>
@@ -3889,7 +3889,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SpecialBufferSpinBox</sender>
+   <sender>KernelBufferSizeSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_special_buffer_size(int)</slot>
@@ -3905,7 +3905,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>FlowgraphySpinBox</sender>
+   <sender>FlowgraphyLevelSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_flowgraphy_level(int)</slot>
@@ -3921,7 +3921,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>zminDoubleSpinBox</sender>
+   <sender>AutofocusZMinDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z_min(double)</slot>
@@ -3937,7 +3937,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>zmaxDoubleSpinBox</sender>
+   <sender>AutofocusZMaxDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z_max(double)</slot>
@@ -3953,7 +3953,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>zdivSpinBox</sender>
+   <sender>AutofocusStepsSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z_div(int)</slot>
@@ -3969,7 +3969,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ziterSpinBox</sender>
+   <sender>AutofocusLoopsSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_z_iter(int)</slot>
@@ -4017,7 +4017,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ImportPixelSizeDoubleSpinBox</sender>
+   <sender>PixelSizeDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_import_pixel_size(double)</slot>
@@ -4097,7 +4097,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>img_accCheckBox</sender>
+   <sender>ImgAccuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_accumulation(bool)</slot>
@@ -4113,7 +4113,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>img_accSpinBox</sender>
+   <sender>ImgAccuSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_accumulation_level(int)</slot>
@@ -4145,7 +4145,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>unwrap_2d_CheckBox</sender>
+   <sender>PhaseUnwrap2DCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_unwrapping_2d(bool)</slot>
@@ -4161,7 +4161,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>takerefPushButton</sender>
+   <sender>TakeRefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>take_reference()</slot>
@@ -4177,7 +4177,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>cancelrefPushButton</sender>
+   <sender>CancelRefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>cancel_take_reference()</slot>
@@ -4225,7 +4225,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>cancelFilter2DPushButton</sender>
+   <sender>CancelFilter2DPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>cancel_filter2D()</slot>
@@ -4241,7 +4241,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>slindingrefPushButton</sender>
+   <sender>SlidingRefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>take_sliding_ref()</slot>
@@ -4273,7 +4273,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTSpinBox</sender>
+   <sender>STFTStepsSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>update_stft_steps(int)</slot>
@@ -4289,7 +4289,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>closeROI</sender>
+   <sender>AverageClosePlotPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>dispose_average_graphic()</slot>
@@ -4305,7 +4305,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTSlices</sender>
+   <sender>STFTCutsCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>stft_view(bool)</slot>
@@ -4321,7 +4321,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTExtTrig</sender>
+   <sender>ExtTrigCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>stft_signal_trig(bool)</slot>
@@ -4337,7 +4337,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>setPhaseButton</sender>
+   <sender>SetPhaseNumberPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>setPhase()</slot>
@@ -4353,7 +4353,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>rotateButton</sender>
+   <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>rotateTexture()</slot>
@@ -4369,7 +4369,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>flipButton</sender>
+   <sender>FlipPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>flipTexture()</slot>
@@ -4385,7 +4385,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>TitleDetect</sender>
+   <sender>TitleDetectPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>title_detect()</slot>

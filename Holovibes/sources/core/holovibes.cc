@@ -68,16 +68,16 @@ namespace holovibes
 	  camera_->init_camera();
 		std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
       input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
-      std::cout << "(Holovibes) Prepared to start initialization." << '\n';
+      std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
       camera_->start_acquisition();
       tcapture_.reset(new ThreadCapture(*camera_, *input_));
 
-      std::cout << "[CAPTURE] capture thread started" << '\n';
+      std::cout << "[CAPTURE] capture thread started" << std::endl;
       camera_initialized_ = true;
     }
     catch (std::exception& e)
     {
-      std::cout << e.what() << '\n';
+      std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
       input_.reset(nullptr);
 
@@ -98,7 +98,7 @@ namespace holovibes
     camera_.reset();
     camera_initialized_ = false;
 
-    std::cout << "[CAPTURE] capture thread stopped" << '\n';
+    std::cout << "[CAPTURE] capture thread stopped" << std::endl;
   }
 
   void Holovibes::recorder(
@@ -113,10 +113,10 @@ namespace holovibes
 					*((tcompute_) ? output_ : input_),
 					filepath);
 
-    std::cout << "[RECORDER] recorder Start" << '\n';
+    std::cout << "[RECORDER] recorder Start" << std::endl;
     recorder->record(rec_n_images);
     delete recorder;
-    std::cout << "[RECORDER] recorder Stop" << '\n';
+    std::cout << "[RECORDER] recorder Stop" << std::endl;
   }
 
   void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, const unsigned int& depth)
@@ -131,7 +131,7 @@ namespace holovibes
     output_.reset(new Queue(output_frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
 
     tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
-    std::cout << "[CUDA] compute thread started" << '\n';
+    std::cout << "[CUDA] compute thread started" << std::endl;
 
     // A wait_for is necessary here in order for the pipe to finish
     // its allocations before getting it.
@@ -141,7 +141,7 @@ namespace holovibes
     std::cout << "Pipe is initializing ";
     while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
       std::cout << ".";
-    std::cout << "\n";
+    std::cout << std::endl;
   }
 
   void Holovibes::dispose_compute()
@@ -199,12 +199,12 @@ namespace holovibes
         , *input_
 		, compute_desc_.is_cine_file.load()
 		, holovibes));
-      std::cout << "[CAPTURE] reader thread started" << '\n';
+      std::cout << "[CAPTURE] reader thread started" << std::endl;
       camera_initialized_ = true;
     }
     catch (std::exception& e)
     {
-      std::cout << e.what() << '\n';
+      std::cout << e.what() << std::endl;
       tcapture_.reset(nullptr);
       input_.reset(nullptr);
 

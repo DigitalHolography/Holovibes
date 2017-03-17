@@ -147,7 +147,7 @@ namespace holovibes
 
 		if (abort_construct_requested_)
 		{
-			std::cout << "[PIPELINE] abort_construct_requested" << '\n';
+			std::cout << "[PIPELINE] abort_construct_requested" << std::endl;
 			return;
 		}
 
@@ -499,13 +499,15 @@ namespace holovibes
 
 		if (autocontrast_requested_)
 		{
-			modules_[2]->push_back_worker(std::bind(
+			/*modules_[2]->push_back_worker(std::bind(
 				autocontrast_caller,
 				std::ref(gpu_float_buffers_[1]),
 				input_fd.frame_res(),
 				std::ref(compute_desc_),
+				nullptr,
+				nullptr,
 				modules_[2]->stream_
-				));
+				));*/
 
 			step_count_before_refresh_ = unsigned int(modules_.size() + 1);
 			request_refresh();

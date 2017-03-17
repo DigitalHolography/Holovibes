@@ -8,6 +8,7 @@
 # include <chrono>
 # include <mutex>
 # include <memory>
+# include <atomic>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
@@ -186,11 +187,12 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec() = 0;
 
-	void	set_slice_queue_details(int width, int height, int depth);
 	void	create_stft_slice_queue();
 	void	delete_stft_slice_queue();
 	void	update_stft_slice_queue();
 	Queue&	get_stft_slice_queue(int i);
+	bool	get_cuts_request();
+	bool	get_cuts_delete_request();
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -209,11 +211,12 @@ namespace holovibes
 
     /*! \brief Call autocontrast algorithm and then update the compute
     * descriptor. */
-    static void autocontrast_caller(
-      float* input,
-      const unsigned int size,
-      ComputeDescriptor& compute_desc,
-      cudaStream_t stream);
+    static void autocontrast_caller(float				*input,
+									const uint			size,
+									ComputeDescriptor&	compute_desc,
+									std::atomic<float>&	min,
+									std::atomic<float>&	max,
+									cudaStream_t		stream);
 
     /*! \see request_average
     * \brief Call the average algorithm and store the result in the vector.
@@ -397,6 +400,8 @@ namespace holovibes
 	bool termination_requested_;
 	bool update_acc_requested_;
 	bool update_ref_diff_requested_;
+	bool request_stft_cuts_;
+	bool request_delete_stft_cuts_;
 	/*! \} */
   };
 }

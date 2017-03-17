@@ -227,6 +227,8 @@ void rescale_float(	const float		*input,
 														*(std::min_element(cpu_local_mins, cpu_local_mins + threads)),
 														*(std::max_element(cpu_local_maxs, cpu_local_maxs + threads)),
 														max_intensity);
+	delete[] cpu_local_maxs;
+	delete[] cpu_local_mins;
 	cudaFree(gpu_local_mins);
 	cudaFree(gpu_local_maxs);
 }
