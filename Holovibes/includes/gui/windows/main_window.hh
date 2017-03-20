@@ -40,8 +40,9 @@
 # include "observer.hh"
 # include "options_descriptor.hh"
 # include "custom_exception.hh"
-# include "SliceWindow.hh"
+# include "DirectWindow.hh"
 # include "HoloWindow.hh"
+# include "SliceWindow.hh"
 
 /* Forward declarations. */
 namespace gui
@@ -578,12 +579,8 @@ namespace gui
 		uint display_width_;
 		uint display_height_;
 
-		/*! OpenGL window */
-		//std::unique_ptr<GuiGLWindow> gl_window_;
-		//std::unique_ptr<GuiGLWindow> gl_win_stft_0;
-		//std::unique_ptr<GuiGLWindow> gl_win_stft_1;
-
-		std::unique_ptr<HoloWindow>		mainDisplay;
+		/*! OpenGL windows */
+		std::unique_ptr<BasicOpenGLWindow>	mainDisplay;
 		std::unique_ptr<SliceWindow>	sliceXZ;
 		std::unique_ptr<SliceWindow>	sliceYZ;
 
