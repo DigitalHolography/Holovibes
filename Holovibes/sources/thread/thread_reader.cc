@@ -53,7 +53,7 @@ namespace holovibes
 		, nbr_stored_(0)
 		, thread_(&ThreadReader::thread_proc, this)
 	{
-		gui::InfoManager::get_manager()->update_info("ImgSource", "File");
+		gui::InfoManager::get_manager()->update_info_safe("ImgSource", "File");
 	}
 
 	void ThreadReader::clear_memory(char **buffer, char **resize_buffer)
@@ -120,7 +120,7 @@ namespace holovibes
 						std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
 						auto manager = gui::InfoManager::get_manager();
 						int fps = (fps_ / (timelaps.count() / 1000.0f));
-						manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
+						manager->update_info_safe("Input Fps", std::to_string(fps) + std::string(" fps"));
 						refresh_fps = fps_;
 						beginFrames = std::chrono::high_resolution_clock::now();
 					}
@@ -195,7 +195,7 @@ namespace holovibes
 		while (!thread_.joinable())
 			continue;
 		thread_.join();
-		gui::InfoManager::get_manager()->update_info("ImgSource", "none");
+		gui::InfoManager::get_manager()->update_info_safe("ImgSource", "none");
 	}
 
 	const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const

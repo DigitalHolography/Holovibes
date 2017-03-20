@@ -397,7 +397,7 @@ namespace holovibes
 			cudaFree(gpu_tmp_input_);
 			/* gpu_tmp_input */
 			if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples.load()) != CUDA_SUCCESS)
+				sizeof(cufftComplex) * input_.get_pixels() * compute_desc_.nsamples.load()) != CUDA_SUCCESS)
 				err_count++;
 		}
 		if (compute_desc_.convolution_enabled.load())
@@ -407,16 +407,16 @@ namespace holovibes
 			/* gpu_kernel_buffer */
 			cudaFree(gpu_kernel_buffer_);
 			/* gpu_kernel_buffer */
-			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float)* (size)) != CUDA_SUCCESS)
+			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float) * size) != CUDA_SUCCESS)
 				err_count++;
 			/* Build the kst 3x3 matrix */
-			float* kst_complex_cpu = (float *)malloc(sizeof (float)* size);
+			float* kst_complex_cpu = (float *)malloc(sizeof (float) * size);
 			for (int i = 0; i < size; ++i)
 			{
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
 				//kst_complex_cpu[i].y = 0;
 			}
-			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float)* size,
+			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size,
 				cudaMemcpyHostToDevice) != CUDA_SUCCESS)
 				err_count++;
 		}
@@ -879,7 +879,7 @@ namespace holovibes
 			if (diff)
 			{
 				auto fps = frame_count_ * 1000 / diff;
-				manager->update_info("Rendering FPS", std::to_string(fps) + std::string(" fps"));
+				manager->update_info_safe("Rendering FPS", std::to_string(fps) + std::string(" fps"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;

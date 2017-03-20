@@ -18,6 +18,7 @@
 #include "gui_gl_widget.hh"
 #include "queue.hh"
 #include "tools_conversion.cuh"
+#include "info_manager.hh"
 
 using namespace holovibes;
 
@@ -204,6 +205,7 @@ namespace gui
 
 	void GLWidget::paintGL()
 	{
+//		static uint img;
 		makeCurrent();
 		glEnable(GL_TEXTURE_2D);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -306,7 +308,8 @@ namespace gui
 				break;
 			}
 		}
-
+//		InfoManager::get_manager()->update_info_safe("ImgSource", std::to_string(img));
+//		img = (img + 1) % queue_.get_max_elts();
 		gl_error_checking();
 		//	doneCurrent();
 	}

@@ -612,6 +612,19 @@ namespace holovibes
 				gpu_float_buffer_,
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
+/*			if (compute_desc_.stft_view_enabled.load())
+			{
+				fn_vect_.push_back(std::bind(
+					apply_log10,
+					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+					output_fd.width * compute_desc_.nsamples.load(),
+					static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+					apply_log10,
+					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+					output_fd.height * compute_desc_.nsamples.load(),
+					static_cast<cudaStream_t>(0)));
+			}*/
 		}
 
 		if (autocontrast_requested_)
@@ -874,8 +887,7 @@ namespace holovibes
 			z_step = (z_max - z_min) / z_div;
 			focus_metric_values.clear();
 		}
-		auto manager = gui::InfoManager::get_manager();
-		manager->remove_info("Status");
+		gui::InfoManager::get_manager()->remove_info_safe("Status");
 		/// End of the loop, free resources and notify the new z
 		// Sometimes a value outside the initial upper and lower bounds can be found
 		// Thus checking if af_z is within initial bounds

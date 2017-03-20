@@ -194,13 +194,17 @@ namespace gui
 		}
 		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
 		{
-			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setValue(log10(cd.contrast_min_slice_xz.load()));
-			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setValue(log10(cd.contrast_max_slice_xz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_xz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_max_slice_xz.load()));
 		}
 		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
 		{
-			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setValue(log10(cd.contrast_min_slice_yz.load()));
-			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setValue(log10(cd.contrast_max_slice_yz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_yz.load()));
+			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
+				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_max_slice_yz.load()));
 		}
 		findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
 
@@ -599,7 +603,7 @@ namespace gui
 		close_critical_compute();
 		camera_none();
 		auto manager = InfoManager::get_manager();
-		manager->update_info("Status", "Resetting...");
+		manager->update_info_safe("Status", "Resetting...");
 		qApp->processEvents();
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
@@ -1511,7 +1515,7 @@ namespace gui
 		QString filename = QFileDialog::getOpenFileName(this,
 			tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
 
-		QLineEdit* matrix_output_line_edit = findChild<QLineEdit *>("ConvoMatrixLineEdit");
+		QLineEdit* matrix_output_line_edit = findChild<QLineEdit *>("ConvoMatrixPathLineEdit");
 		matrix_output_line_edit->clear();
 		matrix_output_line_edit->insert(filename);
 	}
@@ -1595,10 +1599,9 @@ namespace gui
 
 	void MainWindow::load_convo_matrix()
 	{
-		QLineEdit* path_line_edit = findChild<QLineEdit*>("ConvoMatrixLineEdit");
+		QLineEdit* path_line_edit = findChild<QLineEdit*>("ConvoMatrixPathLineEdit");
 		const std::string path = path_line_edit->text().toUtf8();
 		boost::property_tree::ptree ptree;
-		//GLWidget& gl_widget = gl_window_->get_gl_widget();
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		std::stringstream strStream;
 		std::string str;
