@@ -12,36 +12,34 @@
 
 #pragma once
 
+#include "icompute.hh"
+#include "compute_descriptor.hh"
 #include "info_manager.hh"
-#include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
 #include "Selection.hh"
 
 namespace gui
 {	
-	class HoloWindow : public BasicOpenGLWindow
+	using SharedPipe = std::shared_ptr<holovibes::ICompute>;
+	using CDescriptor = holovibes::ComputeDescriptor;
+
+	class HoloWindow : public DirectWindow
 	{
-		Q_OBJECT
 		public:
 			HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
-				holovibes::ComputeDescriptor &cd, KindOfView k);
+				SharedPipe& ic, CDescriptor& cd);
 			virtual ~HoloWindow();
-
-			void					setKindOfSelection(KindOfSelection k);
-			const KindOfSelection	getKindOfSelection() const;
-
+			
 		protected:
-			Selection	zoneSelected;
-
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
+			SharedPipe&		Ic;
+			CDescriptor&	Cd;
+			
+			virtual void	initShaders();
 			
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
-			void	wheelEvent(QWheelEvent* e);
 
-			void	zoomInRect(Rectangle zone);
 			void	updateCursorPosition(QPoint pos);
 	};
 }

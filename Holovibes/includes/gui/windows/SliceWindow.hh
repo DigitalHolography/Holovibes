@@ -18,10 +18,8 @@ namespace gui
 {
 	class SliceWindow : public BasicOpenGLWindow
 	{
-		Q_OBJECT
 		public:
-			SliceWindow(QPoint p, QSize s, holovibes::Queue& q,
-				holovibes::ComputeDescriptor &cd);
+			SliceWindow(QPoint p, QSize s, holovibes::Queue& q);
 			virtual ~SliceWindow();
 
 			void	setAngle(float a);
@@ -31,6 +29,7 @@ namespace gui
 			float	Angle;
 			int		Flip;
 
+			virtual void	initShaders();
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();

@@ -16,19 +16,22 @@
 namespace gui
 {
 	DirectWindow::DirectWindow(QPoint p, QSize s, holovibes::Queue& q) :
-		/* ~~~~~~~~~~~~ */
-		BasicOpenGLWindow(p, s, q, KindOfView::Direct),
-		zoneSelected(),
-		Pbo(0),
-		ptrBuffer(nullptr),
-		sizeBuffer(0)
-	{
+		BasicOpenGLWindow(p, s, q, KindOfView::Direct)
+	{}
 
-	}
+	DirectWindow::DirectWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
+		BasicOpenGLWindow(p, s, q, k)
+	{}
 
 	DirectWindow::~DirectWindow()
+	{}
+
+	void DirectWindow::initShaders()
 	{
-		if (Pbo) glDeleteBuffers(1, &Pbo);
+		Program = new QOpenGLShaderProgram();
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/direct.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/direct.fragment.glsl");
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 	}
 
 	void DirectWindow::initializeGL()
@@ -36,66 +39,58 @@ namespace gui
 		makeCurrent();
 		initializeOpenGLFunctions();
 		glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquation(GL_FUNC_ADD);
 
-		#pragma region Shaders
-		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/direct.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/direct.fragment.glsl");
-		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
-		#pragma endregion
-
+		#pragma region Shaders & Vao
+		initShaders();
 		if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
 		Vao.bind();
+		#pragma endregion
 
 		#pragma region Texture
-		unsigned int size = Fd.frame_size();
-		uchar	*mPixels = new uchar[size];
-		std::memset(mPixels, 0xff, size);
-		
+		unsigned int size = Fd.frame_size();		
 		glGenBuffers(1, &Pbo);
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
 		glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
-		if (Fd.endianness == camera::BIG_ENDIAN)
-			glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-		else
-			glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_FALSE);
+		glPixelStorei(GL_UNPACK_SWAP_BYTES,
+			(Fd.endianness == camera::BIG_ENDIAN) ?
+			GL_TRUE : GL_FALSE);
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
+		cudaGraphicsGLRegisterBuffer(&cuResource, Pbo,
+			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+		/* -------------------------------------------------- */
 		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Fd.width, Fd.height, 0, GL_RED, GL_UNSIGNED_BYTE, mPixels);
-
-		delete[] mPixels;
-
+		texDepth = (Fd.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Fd.width, Fd.height, 0, GL_RED, texDepth, nullptr);
+		
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
-		cudaGraphicsGLRegisterBuffer(
-			&cuResource,
-			Pbo,
-			cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		#pragma endregion
 
 		#pragma region Vertex Buffer Object
 		const float	data[16] = {
 			// Top-left
-			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
-			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
+			-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
+			0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
 			// Top-right
-			vertCoord, vertCoord,
+			1.f, 1.f,
 			1.f, 0.0f,
 			// Bottom-right
-			vertCoord, -vertCoord,
+			1.f, -1.f,
 			1.f, 1.f,
 			// Bottom-left
-			-vertCoord, -vertCoord,
+			-1.f, -1.f,
 			0.0f, 1.f
 		};
 		glGenBuffers(1, &Vbo);
@@ -127,11 +122,16 @@ namespace gui
 
 		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 		glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-
-		Vao.release();
+		if (kView == Hologram)
+		{
+			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), 0);
+			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), 0 * (M_PI / 180.f));
+		}
 		Program->release();
-		glViewport(0, 0, winSize.width(), winSize.height());
-		//startTimer(DisplayRate);
+		zoneSelected.initShaderProgram();
+		Vao.release();
+		glViewport(0, 0, width(), height());
+		startTimer(DisplayRate);
 	}
 
 	void DirectWindow::resizeGL(int width, int height)
@@ -144,19 +144,20 @@ namespace gui
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		cudaGraphicsMapResources(1, &cuResource, cuStream);
-		cudaGraphicsResourceGetMappedPointer(&ptrBuffer, &sizeBuffer, cuResource);
-		cudaMemcpy(ptrBuffer, Queue.get_last_images(1), sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
-		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
-
-		Program->bind();
 		Vao.bind();
+		Program->bind();
+
+		cudaGraphicsMapResources(1, &cuResource, cuStream);
+		cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
+		cudaMemcpy(cuPtrToPbo, Queue.get_last_images(1), sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
+		cudaStreamSynchronize(cuStream);
 
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-		
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, GL_RED, texDepth, nullptr);
 		glGenerateMipmap(GL_TEXTURE_2D);
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 		
@@ -167,19 +168,64 @@ namespace gui
 
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
-		
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);		
 
 		Program->release();
-
+		if (zoneSelected.isEnabled())
+			zoneSelected.draw();
 		Vao.release();
-		QPaintDeviceWindow::update();
+	}
+
+	void DirectWindow::mousePressEvent(QMouseEvent* e)
+	{
+		if (slicesAreLocked.load())
+		{
+			if (e->button() == Qt::LeftButton)
+				zoneSelected.press(e->pos());
+		}
+	}
+
+	void DirectWindow::mouseMoveEvent(QMouseEvent* e)
+	{
+		if (e->buttons() == Qt::LeftButton)
+			zoneSelected.move(e->pos());
+	}
+
+	void DirectWindow::mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			if (kView == Direct)
+				zoneSelected.release();
+			if (zoneSelected.getConstZone().topLeft() !=
+				zoneSelected.getConstZone().bottomRight())
+			{
+				if (zoneSelected.getKind() == Zoom)
+					zoomInRect(zoneSelected.getConstZone());
+			}
+		}
+		else if (e->button() == Qt::RightButton)
+			resetTransform();
+	}
+
+	void	DirectWindow::zoomInRect(Rectangle zone)
+	{
+		const QPoint center = zone.center();
+
+		Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5) / Scale;
+		Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5) / Scale;
+		setTranslate();
+
+		const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
+		const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
+
+		Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
+		setScale();
 	}
 
 	void	DirectWindow::wheelEvent(QWheelEvent *e)
 	{
-		if (e->x() < winSize.width() && e->y() < winSize.height())
+		if (e->x() < width() && e->y() < height())
 		{
 			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
 			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;

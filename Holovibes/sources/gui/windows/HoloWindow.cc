@@ -21,15 +21,17 @@ namespace gui
 	std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
 	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
-		holovibes::ComputeDescriptor &cd, KindOfView k) :
+		SharedPipe& ic, CDescriptor& cd) :
 		/* ~~~~~~~~~~~~ */
-		BasicOpenGLWindow(p, s, q, cd, k)
+		DirectWindow(p, s, q, KindOfView::Hologram),
+		Ic(ic),
+		Cd(cd)
 	{}
 
 	HoloWindow::~HoloWindow()
 	{}
 
-	void HoloWindow::setKindOfSelection(KindOfSelection k)
+	/*void HoloWindow::setKindOfSelection(KindOfSelection k)
 	{
 		zoneSelected.setKind(k);
 	}
@@ -37,9 +39,17 @@ namespace gui
 	const KindOfSelection HoloWindow::getKindOfSelection() const
 	{
 		return zoneSelected.getKind();
+	}*/
+
+	void HoloWindow::initShaders()
+	{
+		Program = new QOpenGLShaderProgram();
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 	}
 
-	void HoloWindow::initializeGL()
+	/*void HoloWindow::initializeGL()
 	{
 		makeCurrent();
 		initializeOpenGLFunctions();
@@ -115,16 +125,16 @@ namespace gui
 		#pragma region Vertex Buffer Object
 		const float	data[] = {
 			// Top-left
-			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
-			0.f, 0.f,				// texture coord (0.0f <-> 1.0f)
+			-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
+			0.f, 0.f,		// texture coord (0.0f <-> 1.0f)
 			// Top-right
-			vertCoord, vertCoord,
+			1.f, 1.f,
 			1.f, 0.f,
 			// Bottom-right
-			vertCoord, -vertCoord,
+			1.f, -1.f,
 			1.f, 1.f,
 			// Bottom-left
-			-vertCoord, -vertCoord,
+			-1.f, -1.f,
 			0.f, 1.f
 		};
 
@@ -168,159 +178,47 @@ namespace gui
 
 		glViewport(0, 0, winSize.width(), winSize.height());
 		startTimer(DisplayRate);
-	}
-
-	void HoloWindow::resizeGL(int width, int height)
+	}*/
+	
+	void	HoloWindow::mousePressEvent(QMouseEvent* e)
 	{
-		glViewport(0, 0, width, height);
-	}
-
-	void HoloWindow::paintGL()
-	{
-		makeCurrent();
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glBindTexture(GL_TEXTURE_2D, Tex);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		Program->bind();
-		Vao.bind();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		
-		glDisableVertexAttribArray(1);
-		glDisableVertexAttribArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		Program->release();
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		if (zoneSelected.isEnabled())
-		{
-			zoneSelected.draw();
-		}
-		Vao.release();
-	}
-
-	void HoloWindow::mousePressEvent(QMouseEvent* e)
-	{
-		if (slicesAreLocked.load())
-		{
-			if (e->button() == Qt::LeftButton)
-			{
-				zoneSelected.press(e->pos());
-			}
-		}
-	}
-
-	void HoloWindow::mouseMoveEvent(QMouseEvent* e)
-	{
+		DirectWindow::mousePressEvent(e);
 		if (!slicesAreLocked.load())
 		{
 			updateCursorPosition(QPoint(
 				e->x() * (Fd.width / static_cast<float>(width())),
 				e->y() * (Fd.height / static_cast<float>(height()))));
 		}
-		else
-		{
-			if (e->buttons() == Qt::LeftButton)
-			{
-				zoneSelected.move(e->pos());
-			}
-		}
 	}
 
-	void HoloWindow::mouseReleaseEvent(QMouseEvent* e)
+	void	HoloWindow::mouseMoveEvent(QMouseEvent* e)
 	{
+		DirectWindow::mouseMoveEvent(e);
+		if (!slicesAreLocked.load())
+			updateCursorPosition(e->pos());
+	}
+
+	void	HoloWindow::mouseReleaseEvent(QMouseEvent* e)
+	{
+		DirectWindow::mouseReleaseEvent(e);
 		if (e->button() == Qt::LeftButton)
 		{
-			zoneSelected.release();
-			if (zoneSelected.getZone().topLeft() != zoneSelected.getZone().bottomRight() &&
-				zoneSelected.getKind() == Zoom)
-				zoomInRect(zoneSelected.getZone());
-			/*else
+			if (zoneSelected.getConstZone().topLeft() !=
+				zoneSelected.getConstZone().bottomRight())
 			{
-				Scale = 2;
-				setScale();
-			}*/
-		}
-		else if (e->button() == Qt::RightButton)
-			resetTransform();
-
-		/*if (sliceLock)
-		{
-			selectionRect.setBottomRight(QPoint(
-				(e->x() * Fd.width) / width(),
-				(e->y() * Fd.height) / height()));
-			selectionRect.setBottomLeft(QPoint(
-				selectionRect.topLeft().x(),
-				(e->y() * Fd.height) / height()));
-
-			selectionRect.setTopRight(QPoint(
-				(e->x() * Fd.width) / width(),
-				selectionRect.topLeft().y()));
-
-			//bounds_check(selectionRect);
-			selectionRect.checkCorners();
-			if (selectionRect.topLeft() != selectionRect.topRight())
-				;// zoom(selectionRect);
-			else if (selectionRect.topLeft() != selectionRect.bottomRight())
-				;// zoom(selectionRect);
-			sliceLock.exchange(false);
-		}*/
-	}
-
-	void HoloWindow::wheelEvent(QWheelEvent *e)
-	{
-		if (e->x() < winSize.width() && e->y() < winSize.height())
-		{
-			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
-			if (e->angleDelta().y() > 0)
-			{
-				Scale += 0.1f * Scale;
-				setScale();
-				Translate[0] += xGL * 0.1 / Scale;
-				Translate[1] += -yGL * 0.1 / Scale;
-				setTranslate();
-			}
-			else if (e->angleDelta().y() < 0)
-			{
-				if (Scale <= 1 || Scale < 1.1f)
+				if (zoneSelected.getKind() == Filter2D)
 				{
-					resetTransform();
-				}
-				else
-				{
-					Scale -= 0.1f * Scale;
-					setScale();
-					Translate[0] -= -xGL * 0.1 / Scale;
-					Translate[1] -= yGL * 0.1 / Scale;
-					setTranslate();
+					Cd.stftRoiZone(zoneSelected.getZone(), holovibes::ComputeDescriptor::Set);
+					Ic->request_filter2D_roi_update();
+					Ic->request_filter2D_roi_end();
+					zoneSelected.release();
 				}
 			}
+
 		}
 	}
 
-	void HoloWindow::zoomInRect(Rectangle zone)
-	{
-		const QPoint center = zone.center();
-
-		Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5) / Scale;
-		Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5) / Scale;
-		setTranslate();
-
-		const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
-		const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
-
-		Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
-		setScale();
-	}
-
-	void HoloWindow::updateCursorPosition(QPoint pos)
+	void	HoloWindow::updateCursorPosition(QPoint pos)
 	{
 		auto manager = InfoManager::get_manager();
 		std::stringstream ss;

@@ -15,15 +15,22 @@
 
 namespace gui
 {
-	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q,
-		holovibes::ComputeDescriptor &cd) :
+	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
 		/* ~~~~~~~~~~~~ */
-		BasicOpenGLWindow(p, s, q, cd, KindOfView::Slice),
+		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
 		Angle(0.f), Flip(0)
 	{}
 
 	SliceWindow::~SliceWindow()
 	{}
+
+	void SliceWindow::initShaders()
+	{
+		Program = new QOpenGLShaderProgram();
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+	}
 
 	void SliceWindow::initializeGL()
 	{
@@ -32,12 +39,7 @@ namespace gui
 		glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		#pragma region Shaders
-		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
-		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
-		#pragma endregion
+		initShaders();
 
 		if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
 		Vao.bind();
@@ -78,16 +80,16 @@ namespace gui
 		#pragma region Vertex Buffer Object
 		const float	data[16] = {
 			// Top-left
-			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
-			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
+			-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
+			0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
 			// Top-right
-			vertCoord, vertCoord,
+			1.f, 1.f,
 			1.f, 0.0f,
 			// Bottom-right
-			vertCoord, -vertCoord,
+			1.f, -1.f,
 			1.f, 1.f,
 			// Bottom-left
-			-vertCoord, -vertCoord,
+			-1.f, -1.f,
 			0.0f, 1.f
 		};
 		glGenBuffers(1, &Vbo);
@@ -125,7 +127,7 @@ namespace gui
 		Vao.release();
 		Program->release();
 		
-		glViewport(0, 0, winSize.width(), winSize.height());
+		glViewport(0, 0, width(), height());
 		startTimer(DisplayRate);
 	}
 
@@ -138,6 +140,11 @@ namespace gui
 	{
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		textureUpdate(cuSurface,
+			Queue.get_last_images(1),
+			Queue.get_frame_desc(),
+			cuStream);
 
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glGenerateMipmap(GL_TEXTURE_2D);

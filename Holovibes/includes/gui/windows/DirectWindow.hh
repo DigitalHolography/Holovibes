@@ -21,19 +21,22 @@ namespace gui
 	{
 		public:
 			DirectWindow(QPoint p, QSize s, holovibes::Queue& q);
+			DirectWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
 			virtual ~DirectWindow();
 
 		protected:
-			Selection	zoneSelected;
+			int	texDepth;
 
-			GLuint	Pbo;
-			void*	ptrBuffer;
-			size_t	sizeBuffer;
-
+			virtual void	initShaders();
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
 
+			void	mousePressEvent(QMouseEvent* e);
+			void	mouseMoveEvent(QMouseEvent* e);
+			void	mouseReleaseEvent(QMouseEvent* e);
+
+			void	zoomInRect(Rectangle zone);
 			void	wheelEvent(QWheelEvent *e);
 	};
 }

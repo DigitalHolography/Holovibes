@@ -21,13 +21,9 @@
 #include <QEvent.h>
 #include <cuda_gl_interop.h>
 
+#include "Selection.hh"
 #include "tools_conversion.cuh"
-#include "compute_descriptor.hh"
 #include "queue.hh"
-
-#ifndef vertCoord
-# define vertCoord 1.0f
-#endif
 
 #ifndef DisplayRate
 # define DisplayRate 1000.f/30.f
@@ -45,41 +41,46 @@ namespace gui
 	
 	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 	{
-		Q_OBJECT
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q,
-				holovibes::ComputeDescriptor &cd, KindOfView k);
+			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView getKindOfView() const;
+			void setKindOfSelection(KindOfSelection k);
+			const KindOfSelection getKindOfSelection() const;
 
 		protected:
 			// Fields -----------
-			QSize	winSize;
-			holovibes::ComputeDescriptor&	Cd;
 			holovibes::Queue&				Queue;
-			const camera::FrameDescriptor&  Fd;
+			const camera::FrameDescriptor&	Fd;
 			const KindOfView	kView;
 
-			static std::atomic<bool>	slicesAreLocked;
 			std::array<float, 2>	Translate;
 			float	Scale;
 
 			// CUDA Objects -----
 			cudaGraphicsResource_t	cuResource;
 			cudaStream_t			cuStream;
+
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
 
+			void*	cuPtrToPbo;
+			size_t	sizeBuffer;
+
 			// OpenGL Objects ---
 			QOpenGLShaderProgram	*Program;
 			QOpenGLVertexArrayObject	Vao;
-			GLuint	Vbo, Ebo;
+			GLuint	Vbo, Ebo, Pbo;
 			GLuint	Tex;
+
+			Selection	zoneSelected;
+			static std::atomic<bool>	slicesAreLocked;
 			
 			// Virtual Pure Functions
+			virtual void initShaders() = 0;
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int w, int h) = 0;
 			virtual void paintGL() = 0;

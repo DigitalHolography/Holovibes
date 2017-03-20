@@ -12,18 +12,12 @@
 
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
-#include <chrono>
-
-using Clock = std::chrono::high_resolution_clock;
 
 namespace gui
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q,
-		holovibes::ComputeDescriptor &cd, KindOfView k) :
+	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
 		/* ~~~~~~~~~~~~ */
 		QOpenGLWindow(), QOpenGLFunctions(),
-		winSize(s),
-		Cd(cd),
 		Queue(q),
 		Fd(Queue.get_frame_desc()),
 		kView(k),
@@ -33,14 +27,17 @@ namespace gui
 		cuStream(nullptr),
 		cuArray(nullptr),
 		cuSurface(0),
+		cuPtrToPbo(nullptr),
+		sizeBuffer(0),
 		Program(nullptr),
 		Vao(0),
-		Vbo(0), Ebo(0),
-		Tex(0)
+		Vbo(0), Ebo(0), Pbo(0),
+		Tex(0),
+		zoneSelected()
 	{
 		if (cudaStreamCreate(&cuStream) != cudaSuccess)
 			cuStream = nullptr;
-		resize(winSize);
+		resize(s);
 		setFramePosition(p);
 		setIcon(QIcon("icon1.ico"));
 		show();
@@ -50,13 +47,11 @@ namespace gui
 	{
 		makeCurrent();
 
-		cudaDestroySurfaceObject(cuSurface);
-		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		cudaGraphicsUnregisterResource(cuResource);
-		cudaFreeArray(cuArray);
 		cudaStreamDestroy(cuStream);
 
 		if (Tex) glDeleteBuffers(1, &Tex);
+		if (Pbo) glDeleteBuffers(1, &Pbo);
 		if (Ebo) glDeleteBuffers(1, &Ebo);
 		if (Vbo) glDeleteBuffers(1, &Vbo);
 		Vao.destroy();
@@ -68,23 +63,19 @@ namespace gui
 		return kView;
 	}
 
+	void	BasicOpenGLWindow::setKindOfSelection(KindOfSelection k)
+	{
+		zoneSelected.setKind(k);
+	}
+
+	const KindOfSelection BasicOpenGLWindow::getKindOfSelection() const
+	{
+		return zoneSelected.getKind();
+	}
+
 	void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
 	{
-		auto tick = Clock::now();
-		/* ~~~~~~~~~~~~ */
-		textureUpdate(cuSurface,
-			Queue.get_last_images(1),
-			Queue.get_frame_desc(),
-			cuStream);
 		QPaintDeviceWindow::update();
-		/* ~~~~~~~~~~~~ */
-		bool sleep = true;
-		while (sleep)
-		{
-			if (std::chrono::duration_cast
-				<std::chrono::microseconds>(Clock::now() - tick).count() > DisplayRate)
-				sleep = false;
-		}
 	}
 
 	void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
