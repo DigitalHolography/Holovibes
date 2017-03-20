@@ -10,7 +10,6 @@
 # include <cuda_gl_interop.h>
 
 # include "frame_desc.hh"
-# include "geometry.hh"
 # include "holovibes.hh"
 
 /* Forward declaration. */

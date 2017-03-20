@@ -98,12 +98,6 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_window.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_gui_group_box.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
@@ -147,9 +141,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_info_manager.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="sources\camera_dll.cc">
@@ -242,21 +233,6 @@
     <ClCompile Include="sources\module.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_slice_widget.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_basic_widget.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_holo_widget.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_gl_widget_slice.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gui_gl_widget_slice.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
@@ -269,26 +245,20 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SliceWindow.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_SliceWindow.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_BasicOpenGLWindow.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\HoloWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_HoloWindow.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_HoloWindow.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\selections\Rectangle.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
     <ClCompile Include="sources\gui\selections\Selection.cc">
       <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\DirectWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -445,6 +415,9 @@
     <ClInclude Include="includes\gui\selections\Selection.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
+    <ClInclude Include="includes\gui\windows\DirectWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.ui">
@@ -499,7 +472,7 @@
       <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
     <CustomBuild Include="includes\gui\windows\HoloWindow.hh">
-      <Filter>c++ includes</Filter>
+      <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
