@@ -40,10 +40,12 @@ namespace gui
 			Selection();
 			virtual ~Selection();
 
-			const Rectangle&		getZone()	const;
+			const Rectangle&		getConstZone()	const;
+			Rectangle&				getZone();
 			const KindOfSelection	getKind()	const;
 			const Color				getColor()	const;
 			const bool				isEnabled() const;
+			void					setEnabled(bool b);
 
 			void initShaderProgram();
 			void initBuffers();

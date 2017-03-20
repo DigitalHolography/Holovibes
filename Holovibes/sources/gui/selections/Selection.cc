@@ -37,7 +37,12 @@ namespace gui
 		if (!Program) delete Program;
 	}
 
-	const Rectangle&		Selection::getZone() const
+	const Rectangle&		Selection::getConstZone() const
+	{
+		return (Zone);
+	}
+
+	Rectangle&				Selection::getZone()
 	{
 		return (Zone);
 	}
@@ -57,9 +62,15 @@ namespace gui
 		return (Enabled);
 	}
 
-	void	Selection::setKind(KindOfSelection k)
+	void					Selection::setEnabled(bool b)
+	{
+		Enabled = b;
+	}
+
+	void					Selection::setKind(KindOfSelection k)
 	{
 		kSelection = k;
+		setUniformColor();
 	}
 
 	/* ------------------------------- */
@@ -191,6 +202,16 @@ namespace gui
 	void	Selection::move(QPoint pos)
 	{
 		Zone.setBottomRight(pos);
+		if (kSelection == Filter2D)
+		{
+			const int max = std::max(Zone.width(), Zone.height());
+			Zone.setBottomRight(QPoint(
+				Zone.topLeft().x() +
+				max * ((Zone.topLeft().x() < Zone.bottomRight().x()) * 2 - 1),
+				Zone.topLeft().y() +
+				max * ((Zone.topLeft().y() < Zone.bottomRight().y()) * 2 - 1)
+			));
+		}
 		if (Enabled)
 			setZoneBuffer();
 	}

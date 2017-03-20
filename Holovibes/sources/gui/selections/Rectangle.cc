@@ -21,10 +21,8 @@ namespace gui
 	Rectangle::Rectangle(const Rectangle& rect)
 		: QRect()
 	{
-		setTopRight(rect.topRight());
 		setTopLeft(rect.topLeft());
 		setBottomRight(rect.bottomRight());
-		setBottomLeft(rect.bottomLeft());
 	}
 
 	Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
@@ -36,7 +34,7 @@ namespace gui
 	{}
 	#pragma endregion
 
-	unsigned int Rectangle::area() const
+	uint	Rectangle::area() const
 	{
 		return (width() * height());
 	}
