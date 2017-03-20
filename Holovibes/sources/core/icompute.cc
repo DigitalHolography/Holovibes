@@ -890,7 +890,7 @@ namespace holovibes
 			af_env_.gpu_input_buffer_tmp,
 			compute_desc_.nsamples.load());
 
-		compute_desc_.autofocusZone(&af_env_.zone, ComputeDescriptor::Get);
+		compute_desc_.autofocusZone(af_env_.zone, ComputeDescriptor::Get);
 		/* Compute square af zone. */
 		const unsigned int zone_width = af_env_.zone.width();
 		const unsigned int zone_height = af_env_.zone.height();

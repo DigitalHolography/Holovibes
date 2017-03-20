@@ -88,55 +88,55 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::signalZone(gui::Rectangle *rect, t_access mode)
+	void ComputeDescriptor::signalZone(gui::Rectangle& rect, t_access mode)
 	{
 		guard g(mutex_);
 		if (mode == Get)
 		{
-			*rect = signal_zone;
+			rect = signal_zone;
 		}
 		else if (mode == Set)
 		{
-			signal_zone = *rect;
+			signal_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::noiseZone(gui::Rectangle *rect, t_access mode)
+	void ComputeDescriptor::noiseZone(gui::Rectangle& rect, t_access mode)
 	{
 		guard g(mutex_);
 		if (mode == Get)
 		{
-			*rect = noise_zone;
+			rect = noise_zone;
 		}
 		else if (mode == Set)
 		{
-			noise_zone = *rect;
+			noise_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::autofocusZone(gui::Rectangle *rect, t_access mode)
+	void ComputeDescriptor::autofocusZone(gui::Rectangle& rect, t_access mode)
 	{
 		guard g(mutex_);
 		if (mode == Get)
 		{
-			*rect = autofocus_zone;
+			rect = autofocus_zone;
 		}
 		else if (mode == Set)
 		{
-			autofocus_zone = *rect;
+			autofocus_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::stftRoiZone(gui::Rectangle *rect, t_access mode)
+	void ComputeDescriptor::stftRoiZone(gui::Rectangle& rect, t_access mode)
 	{
 		guard g(mutex_);
 		if (mode == Get)
 		{
-			*rect = stft_roi_zone;
+			rect = stft_roi_zone;
 		}
 		else if (mode == Set)
 		{
-			stft_roi_zone = *rect;
+			stft_roi_zone = rect;
 		}
 	}
 

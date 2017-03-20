@@ -39,10 +39,10 @@ namespace holovibes
 		QPoint stft_slice_cursor;
 		/*! Average mode signal zone */
 		gui::Rectangle signal_zone;
-		/*! Selected zone in which apply the autofocus algorithm. */
-		gui::Rectangle autofocus_zone;
 		/*! Average mode noise zone */
 		gui::Rectangle noise_zone;
+		/*! Selected zone in which apply the autofocus algorithm. */
+		gui::Rectangle autofocus_zone;
 		/*! Selected zone in which apply the stft algorithm. */
 		gui::Rectangle stft_roi_zone;
 
@@ -95,13 +95,13 @@ namespace holovibes
 		
 		void stftCursor(QPoint *p, t_access mode);
 
-		void signalZone(gui::Rectangle *rect, t_access mode);
+		void signalZone(gui::Rectangle& rect, t_access mode);
 		
-		void noiseZone(gui::Rectangle *rect, t_access mode);
+		void noiseZone(gui::Rectangle& rect, t_access mode);
 
-		void autofocusZone(gui::Rectangle *rect, t_access mode);
+		void autofocusZone(gui::Rectangle& rect, t_access mode);
 
-		void stftRoiZone(gui::Rectangle *rect, t_access mode);
+		void stftRoiZone(gui::Rectangle& rect, t_access mode);
 
 		#pragma region Atomics vars
 		/*! Hologram algorithm. */

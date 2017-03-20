@@ -10,10 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <fstream>
-#include <boost/algorithm/string.hpp>
 #include "main_window.hh"
-#include "gui_gl_window.hh"
 #include "gui_plot_window.hh"
 #include "queue.hh"
 #include "thread_recorder.hh"
@@ -516,12 +513,10 @@ namespace gui
 			QPoint pos(0, 4);
 			QSize size(512, 512);
 			init_image_mode(pos, size);
-			mainDisplay.reset(new HoloWindow(
+			mainDisplay.reset(new DirectWindow(
 				pos,
 				size,
-				holovibes_.get_capture_queue(),
-				holovibes_.get_compute_desc(),
-				KindOfView::Direct));
+				holovibes_.get_capture_queue()));
 			set_convolution_mode(false);
 			global_visibility(false);
 			notify();
@@ -557,8 +552,8 @@ namespace gui
 					pos,
 					size,
 					holovibes_.get_output_queue(),
-					holovibes_.get_compute_desc(),
-					KindOfView::Hologram));
+					holovibes_.get_pipe(),
+					holovibes_.get_compute_desc()));
 				if (!cd.flowgraphy_enabled && !is_direct_mode())
 					holovibes_.get_pipe()->request_autocontrast();
 				global_visibility(true);
@@ -589,8 +584,8 @@ namespace gui
 				pos,
 				size,
 				holovibes_.get_output_queue(),
-				holovibes_.get_compute_desc(),
-				KindOfView::Hologram));
+				holovibes_.get_pipe(),
+				holovibes_.get_compute_desc()));
 		}
 		catch (std::exception& e)
 		{
@@ -768,7 +763,7 @@ namespace gui
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 
 			Rectangle rect(QPoint(0, 0), QSize(0, 0));
-			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
+			cd.stftRoiZone(rect, holovibes::ComputeDescriptor::Set);
 
 			gui::InfoManager::remove_info_safe("Filter2D");
 			holovibes_.get_pipe()->request_autocontrast();
@@ -1067,8 +1062,7 @@ namespace gui
 				sliceXZ.reset(new SliceWindow(
 					xzPos,
 					QSize(mainDisplay->width(), nSize),
-					holovibes_.get_pipe()->get_stft_slice_queue(0),
-					holovibes_.get_compute_desc()));
+					holovibes_.get_pipe()->get_stft_slice_queue(0)));
 				sliceXZ->setTitle("Slice XZ");
 				sliceXZ->setAngle(xzAngle);
 				sliceXZ->setFlip(xzFlip);
@@ -1076,8 +1070,7 @@ namespace gui
 				sliceYZ.reset(new SliceWindow(
 					yzPos,
 					QSize(nSize, mainDisplay->height()),
-					holovibes_.get_pipe()->get_stft_slice_queue(1),
-					holovibes_.get_compute_desc()));
+					holovibes_.get_pipe()->get_stft_slice_queue(1)));
 				sliceYZ->setTitle("Slice YZ");
 				sliceYZ->setAngle(yzAngle);
 				sliceYZ->setFlip(yzFlip);
@@ -1362,7 +1355,7 @@ namespace gui
 		manager->update_info("Status", "Autofocus processing...");
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		desc.autofocusZone(&zone, holovibes::ComputeDescriptor::Set);
+		desc.autofocusZone(zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_autofocus();
 
 		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus); // Raw Autofocus Tmp;
@@ -1379,7 +1372,7 @@ namespace gui
 	{
 		holovibes::ComputeDescriptor& desc = holovibes_.get_compute_desc();
 
-		desc.stftRoiZone(&zone, holovibes::ComputeDescriptor::Set);
+		desc.stftRoiZone(zone, holovibes::ComputeDescriptor::Set);
 		holovibes_.get_pipe()->request_filter2D_roi_update();
 	}
 

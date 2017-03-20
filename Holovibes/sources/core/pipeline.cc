@@ -455,8 +455,8 @@ namespace holovibes
 		{
 			gui::Rectangle signalZone;
 			gui::Rectangle noiseZone;
-			compute_desc_.signalZone(&signalZone, ComputeDescriptor::Get);
-			compute_desc_.noiseZone(&noiseZone, ComputeDescriptor::Get);
+			compute_desc_.signalZone(signalZone, ComputeDescriptor::Get);
+			compute_desc_.noiseZone(noiseZone, ComputeDescriptor::Get);
 			if (average_record_requested_)
 			{
 				modules_[2]->push_back_worker(std::bind(
