@@ -458,7 +458,7 @@ namespace holovibes
 		}
 
 		if (err_count != 0)
-			allocation_failed(err_count, static_cast<std::exception>(CustomException("error in refresh()", error_kind::fail_update)));
+			allocation_failed(err_count, CustomException("error in refresh()", error_kind::fail_update));
 	}
 
 	void ICompute::allocation_failed(const int& err_count, std::exception& e)
@@ -493,7 +493,7 @@ namespace holovibes
 				gpu_img_acc_ = nullptr;
 				compute_desc_.img_acc_enabled.exchange(false);
 				compute_desc_.img_acc_level.exchange(1);
-				allocation_failed(1, static_cast<std::exception>(CustomException("update_acc_parameter()", error_kind::fail_accumulation)));
+				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
 	}
@@ -520,7 +520,7 @@ namespace holovibes
 			catch (std::exception& )
 			{
 				gpu_ref_diff_queue_ = nullptr;
-				allocation_failed(1, static_cast<std::exception>(CustomException("update_acc_parameter()", error_kind::fail_reference)));
+				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
 
 			}
 		}
