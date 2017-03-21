@@ -83,7 +83,6 @@ int main(int argc, char* argv[])
 					global::global_config.input_queue_max_size,
 					h);
 			}
-
 			if (opts.is_compute_enabled)
 				h.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 			h.recorder(opts.recorder_filepath, opts.recorder_n_img);

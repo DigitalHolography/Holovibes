@@ -489,8 +489,11 @@ namespace gui
 		{
 			QPoint pos(0, 0);
 			init_image_mode(pos, display_width_, display_height_);
+			holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE, holovibes_.get_capture_queue().get_frame_desc().depth);
+			while (!holovibes_.get_pipe());
+			holovibes_.get_pipe()->register_observer(*this);
 			holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
-			gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_capture_queue()));
+			gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_output_queue()));
 			set_convolution_mode(false);
 			notify();
 		}
@@ -1721,8 +1724,8 @@ namespace gui
 				queue = new holovibes::Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 				pipe->request_complex_output(queue);
 			}
-			else if (is_direct_mode())
-				queue = &holovibes_.get_capture_queue();
+			//else if (is_direct_mode())
+			//	queue = &holovibes_.get_capture_queue();
 			else
 				queue = &holovibes_.get_output_queue();
 

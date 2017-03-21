@@ -205,12 +205,11 @@ namespace gui
 
 	void GLWidget::paintGL()
 	{
-//		static uint img;
 		makeCurrent();
 		glEnable(GL_TEXTURE_2D);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		const void* frame = queue_.get_last_images(1);
+		const void *frame = queue_.get_last_images(1);
 
 		/* Map the buffer for access by CUDA. */
 		cudaGraphicsMapResources(1, &cuda_buffer_, cuda_stream_);
@@ -308,8 +307,6 @@ namespace gui
 				break;
 			}
 		}
-//		InfoManager::get_manager()->update_info_safe("ImgSource", std::to_string(img));
-//		img = (img + 1) % queue_.get_max_elts();
 		gl_error_checking();
 		//	doneCurrent();
 	}

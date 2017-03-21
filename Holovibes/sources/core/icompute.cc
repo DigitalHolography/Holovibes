@@ -32,8 +32,6 @@
 #include "compute_bundles.hh"
 #include "custom_exception.hh"
 
-
-
 namespace holovibes
 {
 	ICompute::ICompute(
@@ -132,13 +130,14 @@ namespace holovibes
 			cudaMalloc<float>(&gpu_kernel_buffer_,
 				sizeof (float)* (size));
 			/* Build the kst 3x3 matrix */
-			float* kst_complex_cpu = (float *)malloc(sizeof (float)* size);
+			float *kst_complex_cpu = new float[size];
 			for (int i = 0; i < size; ++i)
 			{
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
 				//kst_complex_cpu[i].y = 0;
 			}
-			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float)* size, cudaMemcpyHostToDevice);
+			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size, cudaMemcpyHostToDevice);
+			delete[] kst_complex_cpu;
 		}
 		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
 		{
@@ -150,7 +149,7 @@ namespace holovibes
 		if (compute_desc_.img_acc_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
-			new_fd.depth = 4;
+			new_fd.depth = 4.f;
 			gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
 		}
 
@@ -162,14 +161,14 @@ namespace holovibes
 				CUFFT_C2C, input_.get_pixels());
 
 			camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
-			new_fd2.depth = 8;
+			new_fd2.depth = 8.f;
 			gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 		}
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
-			new_fd3.depth = 8;
+			new_fd3.depth = 8.f;
 			new holovibes::Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
 		}
 
@@ -287,7 +286,7 @@ namespace holovibes
 					inembed_stft, input_.get_pixels(), 1,
 					inembed_stft, input_.get_pixels(), 1,
 					CUFFT_C2C, input_.get_pixels());
-				if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex)* input_.get_pixels() * n) != CUDA_SUCCESS)
+				if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n) != CUDA_SUCCESS)
 					err_count++;
 			}
 		}
@@ -422,7 +421,7 @@ namespace holovibes
 			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float) * size) != CUDA_SUCCESS)
 				err_count++;
 			/* Build the kst 3x3 matrix */
-			float* kst_complex_cpu = (float *)malloc(sizeof (float) * size);
+			float *kst_complex_cpu = new float[size];
 			for (int i = 0; i < size; ++i)
 			{
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
@@ -431,6 +430,7 @@ namespace holovibes
 			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size,
 				cudaMemcpyHostToDevice) != CUDA_SUCCESS)
 				err_count++;
+			delete[] kst_complex_cpu;
 		}
 		/* not deleted properly !!!!*/
 		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
@@ -859,12 +859,12 @@ namespace holovibes
 		cufftComplex*   cbuf;
 		float*          fbuf;
 
-		if (cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex)))
+		if (cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex)) != CUDA_SUCCESS)
 		{
 			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
 			return;
 		}
-		if (cudaMalloc<float>(&fbuf, width * height * sizeof(float)))
+		if (cudaMalloc<float>(&fbuf, width * height * sizeof(float)) != CUDA_SUCCESS)
 		{
 			cudaFree(cbuf);
 			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
