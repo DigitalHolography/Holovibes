@@ -14,7 +14,7 @@ using guard = std::lock_guard<std::mutex>;
 
 namespace holovibes
 {
-	const static std::string version = "v4.2.170308"; /*!< Current version of this project. */
+	const static std::string version = "v4.2.170317"; /*!< Current version of this project. */
 
 
 	/*! \brief Contains compute parameters.
@@ -60,7 +60,8 @@ namespace holovibes
 		enum compute_mode
 		{
 			DIRECT,
-			HOLOGRAM
+			HOLOGRAM,
+			NONE
 		};
 
 		/*! \brief Complex to float methods.
@@ -72,8 +73,8 @@ namespace holovibes
 			MODULUS,
 			SQUARED_MODULUS,
 			ARGUMENT,
-			COMPLEX,
 			PHASE_INCREASE,
+			COMPLEX
 		};
 
 		typedef
@@ -82,6 +83,13 @@ namespace holovibes
 			Get = 1,
 			Set = 2
 		}		t_access;
+		enum window
+		{
+			MAIN_DISPLAY,
+			SLICE_XZ,
+			SLICE_YZ
+		};
+
 		#pragma endregion
 
 		/*! \brief ComputeDescriptor constructor
@@ -111,6 +119,8 @@ namespace holovibes
 		/*! Complex to float method. */
 		std::atomic<enum complex_view_mode> view_mode;
 
+		std::atomic<enum window> current_window;
+
 		/*! Number of samples in which apply the fft on. */
 		std::atomic<unsigned short> nsamples;
 		/*! p-th output component to show. */
@@ -124,10 +134,13 @@ namespace holovibes
 		std::vector<float> convo_matrix;
 		/*! Sensor-to-object distance. */
 		std::atomic<float> zdistance;
-		/*! Contrast minimal range value. */
+		/*! Contrast minimal and maximal range value. */
 		std::atomic<float> contrast_min;
-		/*! Contrast maximal range value. */
 		std::atomic<float> contrast_max;
+		std::atomic<float> contrast_min_slice_xz;
+		std::atomic<float> contrast_min_slice_yz;
+		std::atomic<float> contrast_max_slice_xz;
+		std::atomic<float> contrast_max_slice_yz;
 		/*! Z minimal range for autofocus. */
 		std::atomic<float> autofocus_z_min;
 		/*! Z maximal range for autofocus. */

@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include <Windows.h>
 
 #include "options_parser.hh"
@@ -69,7 +81,6 @@ int main(int argc, char* argv[])
 					global::global_config.input_queue_max_size,
 					h);
 			}
-
 			if (opts.is_compute_enabled)
 				h.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
 			h.recorder(opts.recorder_filepath, opts.recorder_n_img);
@@ -78,12 +89,12 @@ int main(int argc, char* argv[])
 		}
 		catch (camera::CameraException& e)
 		{
-			std::cerr << "[CAMERA] " << e.what() << '\n';
+			std::cerr << "[CAMERA] " << e.what() << std::endl;
 			return 1;
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << e.what() << '\n';
+			std::cerr << e.what() << std::endl;
 			return 1;
 		}
 		return 0;

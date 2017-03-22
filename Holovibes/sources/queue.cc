@@ -35,8 +35,8 @@ namespace holovibes
 	{
 		if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
 		{
-			std::cerr << "Queue: couldn't allocate queue" << '\n';
-			std::cerr << cudaGetErrorString(cudaGetLastError()) << '\n';
+			std::cerr << "Queue: couldn't allocate queue" << std::endl;
+			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
 		frame_desc_.endianness = camera::LITTLE_ENDIAN;
@@ -46,10 +46,10 @@ namespace holovibes
 	Queue::~Queue()
 	{
 		if (display_)
-			gui::InfoManager::remove_info_safe(name_);
+			gui::InfoManager::remove_info(name_);
 		if (buffer_)
 			if (cudaFree(buffer_) != CUDA_SUCCESS)
-				std::cerr << "Queue: couldn't free queue" << '\n';
+				std::cerr << "Queue: couldn't free queue" << std::endl;
 		cudaStreamDestroy(stream_);
 	}
 
@@ -121,10 +121,10 @@ namespace holovibes
 			stream_);
 		if (cuda_status != CUDA_SUCCESS)
 		{
-			std::cerr << "Queue: couldn't enqueue\n";
-			std::cerr << cudaGetErrorString(cudaGetLastError()) << '\n';
+ 			std::cerr << "Queue: couldn't enqueue" << std::endl;
+			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			if (display_)
-				gui::InfoManager::update_info_safe(name_, "couldn't enqueue");
+				gui::InfoManager::update_info(name_, "couldn't enqueue");
 			if (buffer_)
 			{
 				cudaFree(buffer_);
@@ -134,8 +134,8 @@ namespace holovibes
 		}
 		if (is_big_endian_)
 			endianness_conversion(
-				(unsigned short*)new_elt_adress,
-				(unsigned short*)new_elt_adress,
+				reinterpret_cast<unsigned short *>(new_elt_adress),
+				reinterpret_cast<unsigned short *>(new_elt_adress),
 				frame_desc_.frame_res(), stream_);
 
 		if (curr_elts_ < max_elts_)
@@ -143,7 +143,7 @@ namespace holovibes
 		else
 			start_ = (start_ + 1) % max_elts_;
 		if (display_)
-			gui::InfoManager::update_info_safe(name_,
+			gui::InfoManager::update_info(name_,
 				std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
 				+ std::string(" (") + calculate_size() + std::string(" MB)"));
 		return true;
@@ -158,7 +158,7 @@ namespace holovibes
 			start_ = (start_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
-				gui::InfoManager::update_info_safe(name_,
+				gui::InfoManager::update_info(name_,
 					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
 					+ std::string(" (") + calculate_size() + std::string(" MB)"));
 		}

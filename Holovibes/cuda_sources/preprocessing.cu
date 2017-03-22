@@ -36,8 +36,8 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 								const uint			n,
 								cudaStream_t		stream)
 {
-	uint								threads = get_max_threads_1d();
-	uint								blocks = map_blocks_to_problem(input.get_pixels() * n, threads);
+	const uint						threads = get_max_threads_1d();
+	const uint						blocks = map_blocks_to_problem(input.get_pixels() * n, threads);
 	const uint						frame_resolution = input.get_pixels();
 	const camera::FrameDescriptor&	frame_desc = input.get_frame_desc();
 
@@ -45,28 +45,28 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 	{
 		const uint n_frame_resolution = frame_resolution * n;
 		/* Contiguous case. */
-		if (frame_desc.depth == 2)
+		if (frame_desc.depth == 2.f)
 		{
 			img16_to_complex << <blocks, threads, 0, stream >> >(
 				output,
 				static_cast<ushort*>(input.get_start()),
 				n_frame_resolution);
 		}
-		else if (frame_desc.depth == 1)
+		else if (frame_desc.depth == 1.f)
 		{
 			img8_to_complex << <blocks, threads, 0, stream >> >(
 				output,
 				static_cast<uchar*>(input.get_start()),
 				n_frame_resolution);
 		}
-		else if (frame_desc.depth == 4)
+		else if (frame_desc.depth == 4.f)
 		{
 			float_to_complex << <blocks, threads, 0, stream >> >(
 				output,
 				static_cast<float*>(input.get_start()),
 				n_frame_resolution);
 		}
-		else if (frame_desc.depth == 8)
+		else if (frame_desc.depth == 8.f)
 			cudaMemcpy(output, input.get_start(), n_frame_resolution << 3, cudaMemcpyDeviceToDevice); // frame_res * 8
 	}
 	else
@@ -76,7 +76,7 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 		const uint left_elts = n - contiguous_elts;
 		const uint left_elts_res = frame_resolution * left_elts;
 
-		if (frame_desc.depth == 2)
+		if (frame_desc.depth == 2.f)
 		{
 			// Convert contiguous elements (at the end of the queue).
 			img16_to_complex << <blocks, threads, 0, stream >> >(
@@ -90,7 +90,7 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 				static_cast<ushort*>(input.get_buffer()),
 				left_elts_res);
 		}
-		else if (frame_desc.depth == 1)
+		else if (frame_desc.depth == 1.f)
 		{
 			// Convert contiguous elements (at the end of the queue).
 			img8_to_complex << <blocks, threads, 0, stream >> >(
@@ -104,7 +104,7 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 				static_cast<uchar*>(input.get_buffer()),
 				left_elts_res);
 		}
-		else if (frame_desc.depth == 4)
+		else if (frame_desc.depth == 4.f)
 		{
 			// Convert contiguous elements (at the end of the queue).
 			float_to_complex << <blocks, threads, 0, stream >> >(
@@ -118,7 +118,7 @@ void make_contiguous_complex(	holovibes::Queue&	input,
 				static_cast<float*>(input.get_buffer()),
 				left_elts_res);
 		}
-		else if (frame_desc.depth == 8)
+		else if (frame_desc.depth == 8.f)
 		{
 			cudaMemcpy(output, input.get_start(), contiguous_elts_res, cudaMemcpyDeviceToDevice);
 			cudaMemcpy(output + contiguous_elts_res, input.get_buffer(), left_elts_res, cudaMemcpyDeviceToDevice);

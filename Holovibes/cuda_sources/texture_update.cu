@@ -18,8 +18,8 @@ void TextureUpdate_8bit(unsigned char* frame,
 						cudaSurfaceObject_t cuSurface,
 						dim3 texDim)
 {
-	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 
 	surf2Dwrite(frame[y * texDim.x + x], cuSurface, x << 2, y);
 }
@@ -60,3 +60,25 @@ void textureUpdate(	cudaSurfaceObject_t cuSurface,
 	}
 	cudaStreamSynchronize(stream);
 }
+
+/*kernel_up_float()
+{
+	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<float *>(frame), cuSurface, dim3(width, height));
+	->
+	static void kernelTextureUpdate(float				*frame,
+								cudaSurfaceObject_t cuSurface,
+								dim3				texDim)
+	{
+		const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+		const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+		
+		// Grey Mode
+		if (frame[y * texDim.x + x] > 65535.f)
+			frame[y * texDim.x + x] = 65535;
+		else if (frame[y * texDim.x + x] < 0.f)
+			frame[y * texDim.x + x] = 0;
+
+		const uchar p = static_cast<uchar>(frame[y * texDim.x + x] / 256);
+		surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x << 2, y);
+	}
+}*/

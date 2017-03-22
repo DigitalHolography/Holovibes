@@ -1,4 +1,16 @@
-/*! \file 
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
+/*! \file
  * 
  * Stores functions helping the editing of the images. */
 #pragma once
@@ -8,6 +20,7 @@
 # include <chrono>
 # include <mutex>
 # include <memory>
+# include <atomic>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
@@ -186,11 +199,13 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec() = 0;
 
-	void	set_slice_queue_details(int width, int height, int depth);
 	void	create_stft_slice_queue();
 	void	delete_stft_slice_queue();
 	void	update_stft_slice_queue();
 	Queue&	get_stft_slice_queue(int i);
+	bool	get_cuts_request();
+	bool	get_cuts_delete_request();
+	bool	get_refresh_request();
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -209,11 +224,12 @@ namespace holovibes
 
     /*! \brief Call autocontrast algorithm and then update the compute
     * descriptor. */
-    static void autocontrast_caller(
-      float* input,
-      const unsigned int size,
-      ComputeDescriptor& compute_desc,
-      cudaStream_t stream);
+    static void autocontrast_caller(float				*input,
+									const uint			size,
+									ComputeDescriptor&	compute_desc,
+									std::atomic<float>&	min,
+									std::atomic<float>&	max,
+									cudaStream_t		stream);
 
     /*! \see request_average
     * \brief Call the average algorithm and store the result in the vector.
@@ -397,6 +413,8 @@ namespace holovibes
 	bool termination_requested_;
 	bool update_acc_requested_;
 	bool update_ref_diff_requested_;
+	bool request_stft_cuts_;
+	bool request_delete_stft_cuts_;
 	/*! \} */
   };
 }

@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #pragma once
 
 # include "gui_group_box.hh"
@@ -37,13 +49,7 @@ namespace gui
   public:
     /*! Get the singleton, it's creat on first call 
     ** \param ui must containt infoProgressBar and infoTextEdit in child*/
-    static InfoManager* get_manager(gui::GroupBox *ui = nullptr);
-    /*! Call update_info only if singleton is instantiate
-    ** Use it if your are before InfoManager instantiate, or if your are possibly in CLI mode */
-    static void update_info_safe(const std::string& key, const std::string& value);
-    /*! Call remove_info only if singleton is instantiate
-    ** Use it if your are before InfoManager instantiate, or if your are possibly in CLI mode */
-    static void remove_info_safe(const std::string& key);
+    static InfoManager *get_manager(gui::GroupBox *ui = nullptr);
 
 	/*! Stop to refresh the info_panel display*/
 	static void stop_display();
@@ -53,16 +59,18 @@ namespace gui
     /*! Add your information until is remove, and call draw()
     ** \param key is where you can access to your information
     ** \param value is your information linked to key */
-    void update_info(const std::string& key, const std::string& value);
+    static void update_info(const std::string& key, const std::string& value);
     /*! Remove information, and call draw */
-    void remove_info(const std::string& key);
+    static void remove_info(const std::string& key);
+	/*! Insert an information, and call draw */
+	void insert_info(uint pos, const std::string& key, const std::string& value);
     /*! Remove all information, and call draw */
     void clear_info();
     /*! Return progress_bar, you can use it as you want */
-    QProgressBar* get_progress_bar();
+    QProgressBar *get_progress_bar();
   private:
     /*! The singleton*/
-    static InfoManager* instance;
+    static InfoManager *instance;
 
     /*! Store all informations */
     std::map<std::string, std::string>  infos_;

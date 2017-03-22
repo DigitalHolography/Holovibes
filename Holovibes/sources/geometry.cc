@@ -10,42 +10,56 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "thread_recorder.hh"
-#include "recorder.hh"
-#include "queue.hh"
+#include "geometry.hh"
 
-#include "info_manager.hh"
-
-namespace gui
+namespace holovibes
 {
-  ThreadRecorder::ThreadRecorder(
-    holovibes::Queue& queue,
-    const std::string& filepath,
-    const unsigned int n_images,
-    QObject* parent)
-    : QThread(parent)
-    , queue_(queue)
-    , recorder_(queue, filepath)
-    , n_images_(n_images)
-  {
-  }
+	Rectangle::Rectangle() : QRect()
+	{
+	}
 
-  ThreadRecorder::~ThreadRecorder()
-  {
-  }
+	Rectangle::Rectangle(const Rectangle& rect)
+		: QRect()
+	{
+		setTopRight(rect.topRight());
+		setTopLeft(rect.topLeft());
+		setBottomRight(rect.bottomRight());
+		setBottomLeft(rect.bottomLeft());
+	}
 
-  void ThreadRecorder::stop()
-  {
-    recorder_.stop();
-  }
+	Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
+		: QRect(topleft, size)
+	{
+	}
 
-  void ThreadRecorder::run()
-  {
-    QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+	Rectangle::Rectangle(const unsigned int width, const unsigned int height)
+		: QRect(0, 0, width, height)
+	{
+	}
 
-    queue_.flush();
-    progress_bar->setMaximum(n_images_);
-    connect(&recorder_, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-    recorder_.record(n_images_);
-  }
+	unsigned int Rectangle::area() const
+	{
+		return (width() * height());
+	}
+
+	void	Rectangle::checkCorners()
+	{
+		if (width() < 0)
+		{
+			QPoint t0pRight = topRight();
+			QPoint b0ttomLeft = bottomLeft();
+
+			setTopLeft(t0pRight);
+			setBottomRight(b0ttomLeft);
+		}
+		if (height() < 0)
+		{
+			QPoint t0pRight = topRight();
+			QPoint b0ttomLeft = bottomLeft();
+
+			setTopLeft(b0ttomLeft);
+			setBottomRight(t0pRight);
+		}
+	}
+
 }

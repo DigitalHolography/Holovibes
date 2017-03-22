@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include <camera_exception.hh>
 
 #include "camera_ids.hh"
@@ -65,7 +77,7 @@ namespace camera
   {
     desc_.width = 2048;
     desc_.height = 2048;
-    desc_.depth = 1;
+    desc_.depth = 1.f;
     desc_.pixel_size = 5.5f;
     desc_.endianness = LITTLE_ENDIAN;
 
@@ -196,13 +208,13 @@ namespace camera
 
   int CameraIds::get_color_mode(const std::string ui)
   {
-    desc_.depth = 1;
+    desc_.depth = 1.f;
     if (ui == "RAW8")
       return IS_CM_SENSOR_RAW8;
     if (ui == "MONO8")
       return IS_CM_MONO8;
 
-    desc_.depth = 2;
+    desc_.depth = 2.f;
     if (ui == "RAW10")
       return IS_CM_SENSOR_RAW10;
     if (ui == "RAW12")
@@ -216,7 +228,7 @@ namespace camera
     if (ui == "MONO16")
       return IS_CM_MONO16;
 
-    desc_.depth = 1;
+    desc_.depth = 1.f;
     return IS_CM_SENSOR_RAW8;
   }
 

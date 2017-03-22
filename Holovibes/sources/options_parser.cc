@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include <boost\algorithm\string.hpp>
 #include <boost\lexical_cast.hpp>
 #include <cassert>
@@ -236,27 +248,27 @@ namespace holovibes
 		}
 		catch (po::unknown_option& e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 		catch (po::invalid_option_value &e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 		catch (po::too_many_positional_options_error& e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 		catch (po::required_option& e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 		catch (po::invalid_command_line_syntax& e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 		catch (std::runtime_error &e)
 		{
-			std::cerr << "[CLI] " << e.what() << '\n';
+			std::cerr << "[CLI] " << e.what() << std::endl;
 		}
 
 		if (!succeed)
@@ -269,14 +281,14 @@ namespace holovibes
 	void OptionsParser::print_help()
 	{
 		print_version();
-		std::cout << "\nUsage: ./holovibes.exe [OPTIONS]\n"
-			<< "This help message depends on --nogui parameter (more options available).\n" << '\n';
+		std::cout << std::endl << "Usage: ./holovibes.exe [OPTIONS]" << std::endl
+			<< "This help message depends on --nogui parameter (more options available)." << std::endl;
 		std::cout << merge_opts_desc_;
 	}
 
 	void OptionsParser::print_version()
 	{
-		std::cout << "\nHolovibes " << version << '\n';
+		std::cout << std::endl << "Holovibes " << version << std::endl;
 	}
 
 	void OptionsParser::proceed_help()
@@ -419,7 +431,7 @@ namespace holovibes
 		if (vm_.count("1fft"))
 		{
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm = ComputeDescriptor::FFT1;
+			opts_.compute_desc.algorithm.exchange(ComputeDescriptor::FFT1);
 		}
 
 		if (vm_.count("2fft"))
@@ -428,7 +440,7 @@ namespace holovibes
 				throw std::runtime_error("1fft method already selected");
 
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm = ComputeDescriptor::FFT2;
+			opts_.compute_desc.algorithm.exchange(ComputeDescriptor::FFT2);
 		}
 
 		if (vm_.count("nsamples"))
@@ -437,18 +449,18 @@ namespace holovibes
 			if (nsamples <= 0)
 				throw std::runtime_error("--nsamples parameter must be strictly positive");
 
-			opts_.compute_desc.nsamples = nsamples;
+			opts_.compute_desc.nsamples.exchange(nsamples);
 
-			if (opts_.compute_desc.nsamples >= global::global_config.input_queue_max_size)
+			if (opts_.compute_desc.nsamples.load() >= global::global_config.input_queue_max_size)
 				throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
 		}
 
 		if (vm_.count("pindex"))
 		{
 			const unsigned short pindex = vm_["pindex"].as<unsigned short>();
-			if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
+			if (pindex < 0 || pindex >= opts_.compute_desc.nsamples.load())
 				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
-			opts_.compute_desc.pindex = pindex;
+			opts_.compute_desc.pindex.exchange(pindex);
 		}
 
 		if (vm_.count("lambda"))
@@ -456,31 +468,31 @@ namespace holovibes
 			const float lambda = vm_["lambda"].as<float>();
 			if (lambda <= 0.0000f)
 				throw std::runtime_error("--lambda parameter must be strictly positive");
-			opts_.compute_desc.lambda = lambda;
+			opts_.compute_desc.lambda.exchange(lambda);
 		}
 
 		if (vm_.count("zdistance"))
 		{
 			const float zdistance = vm_["zdistance"].as<float>();
-			opts_.compute_desc.zdistance = zdistance;
+			opts_.compute_desc.zdistance.exchange(zdistance);
 		}
 
 		if (vm_.count("viewmode"))
 		{
 			const std::string viewmode = vm_["viewmode"].as<std::string>();
 			if (boost::iequals(viewmode, "magnitude"))
-				opts_.compute_desc.view_mode = ComputeDescriptor::MODULUS;
+				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::MODULUS);
 			else if (boost::iequals(viewmode, "squaredmagnitude"))
-				opts_.compute_desc.view_mode = ComputeDescriptor::SQUARED_MODULUS;
+				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::SQUARED_MODULUS);
 			else if (boost::iequals(viewmode, "argument"))
-				opts_.compute_desc.view_mode = ComputeDescriptor::ARGUMENT;
+				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::ARGUMENT);
 			else
 				throw std::runtime_error("unknown view mode");
 		}
 
-		opts_.compute_desc.log_scale_enabled = vm_.count("log") > 0;
+		opts_.compute_desc.log_scale_enabled.exchange(vm_.count("log") > 0);
 
-		opts_.compute_desc.shift_corners_enabled = !vm_.count("nofftshift");
+		opts_.compute_desc.shift_corners_enabled.exchange(!vm_.count("nofftshift"));
 
 		if (vm_.count("contrastmin"))
 		{
@@ -489,11 +501,11 @@ namespace holovibes
 			if (log_min < -100.0f || log_min > 100.0f)
 				throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
-			if (opts_.compute_desc.log_scale_enabled)
-				opts_.compute_desc.contrast_min = static_cast<float>(log_min);
+			if (opts_.compute_desc.log_scale_enabled.load())
+				opts_.compute_desc.contrast_min.exchange(static_cast<float>(log_min));
 			else
-				opts_.compute_desc.contrast_min = static_cast<float>(pow(10.0, log_min));
-			opts_.compute_desc.contrast_enabled = true;
+				opts_.compute_desc.contrast_min.exchange(static_cast<float>(pow(10.0, log_min)));
+			opts_.compute_desc.contrast_enabled.exchange(true);
 		}
 
 		if (vm_.count("contrastmax"))
@@ -503,20 +515,20 @@ namespace holovibes
 			if (log_max < -100.0f || log_max > 100.0f)
 				throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
 
-			if (opts_.compute_desc.log_scale_enabled)
-				opts_.compute_desc.contrast_max = log_max;
+			if (opts_.compute_desc.log_scale_enabled.load())
+				opts_.compute_desc.contrast_max.exchange(log_max);
 			else
-				opts_.compute_desc.contrast_max = static_cast<float>(pow(10.0, log_max));
-			opts_.compute_desc.contrast_enabled = true;
+				opts_.compute_desc.contrast_max.exchange(static_cast<float>(pow(10.0, log_max)));
+			opts_.compute_desc.contrast_enabled.exchange(true);
 		}
 
 		if (vm_.count("vibrometry"))
 		{
 			const int vibrometry_q = vm_["vibrometry"].as<int>();
-			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
+			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples.load())
 				throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
-			opts_.compute_desc.vibrometry_q = static_cast<unsigned short>(vibrometry_q);
-			opts_.compute_desc.vibrometry_enabled = true;
+			opts_.compute_desc.vibrometry_q.exchange(static_cast<unsigned short>(vibrometry_q));
+			opts_.compute_desc.vibrometry_enabled.exchange(true);
 		}
 	}
 

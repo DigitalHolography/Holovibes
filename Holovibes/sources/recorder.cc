@@ -1,3 +1,15 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include <exception>
 #include <cassert>
 #include <thread>
@@ -43,7 +55,7 @@ namespace holovibes
 
       if (folderLevels.empty())
         return;
-      std::cout << folderLevels.back() << '\n';
+      std::cout << folderLevels.back() << std::endl;
       folderLevels.pop_back();
 
       if (_chdir(c_str))
@@ -91,7 +103,7 @@ namespace holovibes
 	const size_t max_size = queue_.get_max_elts();
 
     std::cout << "[RECORDER] started recording " <<
-      n_images << " frames" << '\n';
+      n_images << " frames" << std::endl;
 
     for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
     {
@@ -100,18 +112,18 @@ namespace holovibes
 
 	  cur_size = queue_.get_current_elts();
 	  if (cur_size >= max_size - 1)
-		  gui::InfoManager::update_info_safe("Recording", "Queue is full, data will be lost !");
+		  gui::InfoManager::update_info("Recording", "Queue is full, data will be lost !");
 	  else if (cur_size > (max_size * 0.8f))
-		  gui::InfoManager::update_info_safe("Recording", "Queue is nearly full !");
+		  gui::InfoManager::update_info("Recording", "Queue is nearly full !");
 	  else
-		  gui::InfoManager::remove_info_safe("Recording");
+		  gui::InfoManager::remove_info("Recording");
       queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
       file_.write(buffer, size);
       emit value_change(i);
     }
 
-    std::cout << "[RECORDER] recording has been stopped" << '\n';
-	gui::InfoManager::remove_info_safe("Recording");
+    std::cout << "[RECORDER] recording has been stopped" << std::endl;
+	gui::InfoManager::remove_info("Recording");
     delete[] buffer;
   }
 

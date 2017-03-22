@@ -129,7 +129,7 @@ namespace holovibes
 		}
 		catch (std::runtime_error& e)
 		{
-			std::cout << e.what() << '\n';
+			std::cout << e.what() << std::endl;
 		}
 		if (file)
 			std::fclose(file);

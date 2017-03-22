@@ -1,15 +1,27 @@
+/* **************************************************************************** */
+/*                       ,,                     ,,  ,,                          */
+/* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
+/*   MM      MM           MM         `MA     ,V      MM                         */
+/*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
+/*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
+/* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
+/*                                                                              */
+/* **************************************************************************** */
+
 #include "compute_descriptor.hh"
 
 namespace holovibes
 {
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		algorithm(None)
-		, compute_mode(DIRECT)
+		algorithm(fft_algorithm::None)
+		, compute_mode(compute_mode::DIRECT)
 		, nsamples(2)
-		, pindex(0)
+		, pindex(1)
 		, lambda(532e-9f)
 		, zdistance(1.50f)
-		, view_mode(MODULUS)
+		, view_mode(complex_view_mode::MODULUS)
 		, unwrap_history_size(1)
 		, special_buffer_size(10)
 		, log_scale_enabled(false)
@@ -23,6 +35,10 @@ namespace holovibes
 		, average_enabled(false)
 		, contrast_min(1.f)
 		, contrast_max(65535.f)
+		, contrast_min_slice_xz(1.f)
+		, contrast_min_slice_yz(1.f)
+		, contrast_max_slice_xz(65535.f)
+		, contrast_max_slice_yz(65535.f)
 		, vibrometry_q(0)
 		, autofocus_size(3)
 		, convo_matrix_width(0)
@@ -50,28 +66,34 @@ namespace holovibes
 		, noise_zone(gui::Rectangle(10, 10))
 		, autofocus_zone(gui::Rectangle(10, 10))
 		, stft_roi_zone(gui::Rectangle(10, 10))
+		, current_window(window::MAIN_DISPLAY)
 	{
 	}
 
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
-		compute_mode = cd.compute_mode.load();
-		algorithm = cd.algorithm.load();
-		nsamples = cd.nsamples.load();
-		pindex = cd.pindex.load();
-		lambda = cd.lambda.load();
-		zdistance = cd.zdistance.load();
-		view_mode = cd.view_mode.load();
-		unwrap_history_size = cd.unwrap_history_size.load();
-		log_scale_enabled = cd.log_scale_enabled.load();
-		shift_corners_enabled = cd.shift_corners_enabled.load();
-		contrast_enabled = cd.contrast_enabled.load();
-		vibrometry_enabled = cd.vibrometry_enabled.load();
-		contrast_min = cd.contrast_min.load();
-		contrast_max = cd.contrast_max.load();
-		vibrometry_q = cd.vibrometry_q.load();
-		autofocus_size = cd.autofocus_size.load();
-		stft_enabled = cd.stft_enabled.load();
+		compute_mode.exchange(cd.compute_mode.load());
+		algorithm.exchange(cd.algorithm.load());
+		nsamples.exchange(cd.nsamples.load());
+		pindex.exchange(cd.pindex.load());
+		lambda.exchange(cd.lambda.load());
+		zdistance.exchange(cd.zdistance.load());
+		view_mode.exchange(cd.view_mode.load());
+		unwrap_history_size.exchange(cd.unwrap_history_size.load());
+		log_scale_enabled.exchange(cd.log_scale_enabled.load());
+		shift_corners_enabled.exchange(cd.shift_corners_enabled.load());
+		contrast_enabled.exchange(cd.contrast_enabled.load());
+		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
+		contrast_min.exchange(cd.contrast_min.load());
+		contrast_max.exchange(cd.contrast_max.load());
+		contrast_min_slice_xz.exchange(cd.contrast_min_slice_xz.load());
+		contrast_min_slice_yz.exchange(cd.contrast_min_slice_yz.load());
+		contrast_max_slice_xz.exchange(cd.contrast_max_slice_xz.load());
+		contrast_max_slice_yz.exchange(cd.contrast_max_slice_yz.load());
+		vibrometry_q.exchange(cd.vibrometry_q.load());
+		autofocus_size.exchange(cd.autofocus_size.load());
+		stft_enabled.exchange(cd.stft_enabled.load());
+		//TODO : to complete
 		return *this;
 	}
 

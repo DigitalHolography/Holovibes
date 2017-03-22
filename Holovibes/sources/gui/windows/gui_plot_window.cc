@@ -17,7 +17,7 @@ namespace gui
     if (s > 0)
       curve_plot_.resize_plot(s);
 
-	QSpinBox* p = findChild<QSpinBox*>("PointsNbSpinBox");
+	QSpinBox *p = findChild<QSpinBox *>("PointsNbSpinBox");
 	change_points_nb(p->value());
   }
 

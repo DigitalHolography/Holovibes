@@ -11,86 +11,76 @@
 /* **************************************************************************** */
 
 #include "texture_update.cuh"
-#include "SliceWindow.hh"
+#include "slice_widget.hh"
 
-namespace gui
-{
-	SliceWindow::SliceWindow(QPoint p, QSize s, holovibes::Queue& q) :
-		/* ~~~~~~~~~~~~ */
-		BasicOpenGLWindow(p, s, q, KindOfView::Slice),
-		Angle(0.f), Flip(0)
-	{}
+namespace gui {
 
-	SliceWindow::~SliceWindow()
-	{}
+	SliceWidget::SliceWidget(holovibes::Queue& q,
+		const uint w, const uint h, float a, QWidget* parent) :
+		BasicWidget(w, h, parent),
+		HQueue(q), Fd(HQueue.get_frame_desc()), angle (a) {}
 
-	void SliceWindow::initShaders()
-	{
-		Program = new QOpenGLShaderProgram();
-		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
-		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
-		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
-	}
+	SliceWidget::~SliceWidget() {}
 
-	void SliceWindow::initializeGL()
+	void SliceWidget::initializeGL()
 	{
 		makeCurrent();
 		initializeOpenGLFunctions();
 		glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		initShaders();
-
+		//* ---------- */
+		#pragma region Shaders
+		Program = new QOpenGLShaderProgram();
+		Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/sliceWidget.vertex.glsl");
+		Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/sliceWidget.fragment.glsl");
+		if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << std::endl;
+		#pragma endregion
+		/* ---------- */
 		if (!Vao.create()) std::cerr << "[Error] Vao create() fail" << std::endl;
 		Vao.bind();
-
+		/* ---------- */
 		#pragma region Texture
 		glGenTextures(1, &Tex);
 		glBindTexture(GL_TEXTURE_2D, Tex);
 
 		uint	size = Fd.frame_size();
-		float	*mTexture = new float[size];
-		std::memset(mTexture, 0, size * sizeof(float));
+		uint	res = Fd.frame_res();
+		ushort	*mTexture = new ushort[size];
+
+		std::memset(mTexture, 0x0, sizeof(ushort) * size);
 
 		glTexImage2D(GL_TEXTURE_2D, 0,
 			GL_RGBA,
 			Fd.width, Fd.height, 0,
-			GL_RG, GL_FLOAT, mTexture);
+			GL_RG, GL_UNSIGNED_SHORT, mTexture);
 
 		glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		delete[] mTexture;
 		cudaGraphicsGLRegisterImage(&cuResource, Tex, GL_TEXTURE_2D,
 			cudaGraphicsRegisterFlags::cudaGraphicsRegisterFlagsSurfaceLoadStore);
-		cudaGraphicsMapResources(1, &cuResource, cuStream);
-		cudaGraphicsSubResourceGetMappedArray(&cuArray, cuResource, 0, 0);
-		cuArrRD.resType = cudaResourceTypeArray;
-		cuArrRD.res.array.array = cuArray;
-		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
 		#pragma endregion
-
+		/* ---------- */
 		#pragma region Vertex Buffer Object
 		const float	data[16] = {
 			// Top-left
-			-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
-			0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
+			-vertCoord, vertCoord,	// vertex coord (-1.0f <-> 1.0f)
+			0.0f, 0.0f,				// texture coord (0.0f <-> 1.0f)
 			// Top-right
-			1.f, 1.f,
-			1.f, 0.0f,
+			vertCoord, vertCoord,
+			texCoord, 0.0f,
 			// Bottom-right
-			1.f, -1.f,
-			1.f, 1.f,
+			vertCoord, -vertCoord,
+			texCoord, texCoord,
 			// Bottom-left
-			-1.f, -1.f,
-			0.0f, 1.f
+			-vertCoord, -vertCoord,
+			0.0f, texCoord
 		};
 		glGenBuffers(1, &Vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, Vbo);
@@ -107,7 +97,7 @@ namespace gui
 		glDisableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		#pragma endregion
-
+		/* ---------- */
 		#pragma region Element Buffer Object
 		const GLuint elements[6] = {
 			0, 1, 2,
@@ -118,40 +108,70 @@ namespace gui
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		#pragma endregion
-		
-		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-		glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-		glUniform1f(glGetUniformLocation(Program->programId(), "scale"), 1.f);
-		glUniform2f(glGetUniformLocation(Program->programId(), "translate"), 0.f, 0.f);
+		/* ---------- */
 
+		glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle * (M_PI / 180.f));
+		
+		/* ---------- */
 		Vao.release();
 		Program->release();
-		
-		glViewport(0, 0, width(), height());
-		startTimer(DisplayRate);
+		glViewport(0, 0, Width, Height);
+		doneCurrent();
 	}
 
-	void SliceWindow::resizeGL(int width, int height)
+	void SliceWidget::resizeGL(int width, int height)
 	{
 		glViewport(0, 0, width, height);
+		/*
+		// unregister
+		cudaGraphicsUnregisterResource(viewCudaResource);
+		// resize
+		glBindTexture(GL_TEXTURE_2D, viewGLTexture);
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+				view.getWidth(), view.getHeight(), 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		}
+		glBindTexture(GL_TEXTURE_2D, 0);
+		// register back
+		cudaGraphicsGLRegisterImage(&viewCudaResource, viewGLTexture, GL_TEXTURE_2D,
+			cudaGraphicsRegisterFlagsWriteDiscard);
+		*/
 	}
 
-	void SliceWindow::paintGL()
+	void SliceWidget::paintGL()
 	{
 		makeCurrent();
 		glClear(GL_COLOR_BUFFER_BIT);
+		/* ----------- */
+#pragma region Cuda
+/* Map the buffer for access by CUDA. */
+		cudaGraphicsMapResources(1, &cuResource, cuStream);
+		cudaArray_t cuArr = nullptr;
 
-		textureUpdate(cuSurface,
-			Queue.get_last_images(1),
-			Queue.get_frame_desc(),
-			cuStream);
+		cudaGraphicsSubResourceGetMappedArray(&cuArr, cuResource, 0, 0);
+		cudaResourceDesc cuArrRD;
+		{
+			cuArrRD.resType = cudaResourceTypeArray;
+			cuArrRD.res.array.array = cuArr;
+		}
+		cudaSurfaceObject_t cuSurface;
+		cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
+		{
+			textureUpdate(cuSurface, HQueue.get_last_images(1), Fd.width, Fd.height);
+		}
+		cudaDestroySurfaceObject(cuSurface);
 
+		// Unmap the buffer for access by CUDA.
+		cudaGraphicsUnmapResources(1, &cuResource, cuStream);
+		cudaStreamSynchronize(cuStream);
+#pragma endregion
+		/* ----------- */
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		Program->bind();
 		Vao.bind();
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
@@ -159,40 +179,16 @@ namespace gui
 
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		Vao.release();
 		Program->release();
 		glBindTexture(GL_TEXTURE_2D, 0);
-	}
+		/*GLenum error = glGetError();
+		auto err_string = glGetString(error);
+		if (error != GL_NO_ERROR && err_string)
+			std::cerr << "[GL] " << err_string << std::endl;*/
 
-	void SliceWindow::setAngle(float a)
-	{
-		Angle = a;
-		if (Program)
-		{
-			makeCurrent();
-			Program->bind();
-			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-			Program->release();
-		}
-	}
-	
-	void SliceWindow::setFlip(int f)
-	{
-		Flip = f;
-		if (Program)
-		{
-			makeCurrent();
-			Program->bind();
-			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-			Program->release();
-		}
-	}
-
-	void SliceWindow::timerEvent(QTimerEvent *e)
-	{
-		update();
+		doneCurrent();
 	}
 
 }

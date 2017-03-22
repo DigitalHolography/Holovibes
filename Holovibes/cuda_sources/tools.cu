@@ -40,17 +40,16 @@ static __global__ void kernel_shift_corners(float		*input,
 											const uint	size_x,
 											const uint	size_y)
 {
-	uint	i = blockIdx.x * blockDim.x + threadIdx.x;
-	uint	j = blockIdx.y * blockDim.y + threadIdx.y;
-	uint	index = j * blockDim.x * gridDim.x + i;
+	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint	index = j * blockDim.x * gridDim.x + i;
 	uint	ni = 0;
 	uint	nj = 0;
 	uint	nindex = 0;
-	float	tmp;
 
 	// Superior half of the matrix
-	uint size_x2 = size_x >> 1;
-	uint size_y2 = size_y >> 1;
+	const uint size_x2 = size_x >> 1;
+	const uint size_y2 = size_y >> 1;
 	if (j >= size_y2)
 	{
 		// Left superior quarter of the matrix
@@ -61,7 +60,7 @@ static __global__ void kernel_shift_corners(float		*input,
 		nj = j - size_y2;
 		nindex = nj * size_x + ni;
 
-		tmp = input[nindex];
+		float tmp = input[nindex];
 		input[nindex] = input[index];
 		input[index] = tmp;
 	}
@@ -83,12 +82,12 @@ void shift_corners(	float			*input,
 static __global__ void kernel_log10(float		*input,
 									const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		input[index] = log10f(input[index]);
-		index += blockDim.x * gridDim.x;
+	//	index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -96,8 +95,8 @@ void apply_log10(	float			*input,
 					const uint		size,
 					cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
 }

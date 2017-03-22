@@ -16,7 +16,7 @@
 # include <surface_functions.h>
 # include <device_launch_parameters.h>
 # include "frame_desc.hh"
-
+# include "cuda_shared.cuh"
 
 void	textureUpdate(	cudaSurfaceObject_t cuSurface,
 						void* frame,
