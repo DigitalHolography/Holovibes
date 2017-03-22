@@ -27,15 +27,15 @@ namespace gui
 	{
 		public:
 			HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
-				SharedPipe& ic, CDescriptor& cd);
+				SharedPipe ic, CDescriptor& cd);
 			virtual ~HoloWindow();
 			
 		protected:
-			SharedPipe&		Ic;
+			SharedPipe		Ic;
 			CDescriptor&	Cd;
 			
 			virtual void	initShaders();
-			
+
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);

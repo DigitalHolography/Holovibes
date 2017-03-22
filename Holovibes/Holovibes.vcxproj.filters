@@ -92,31 +92,13 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_thread_recorder.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_gui_group_box.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_main_window.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_thread_recorder.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_gl_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_main_window.cc">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gui_plot_window.cc">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gui_plot_window.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
@@ -200,12 +182,6 @@
     <ClCompile Include="sources\gui\other\gui_group_box.cc">
       <Filter>c++ sources\gui\other</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\windows\gui_plot_window.cc">
-      <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\windows\main_window.cc">
-      <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
     <ClCompile Include="sources\core\holovibes.cc">
       <Filter>c++ sources\core</Filter>
     </ClCompile>
@@ -239,17 +215,8 @@
     <ClCompile Include="sources\gui\windows\SliceWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_BasicOpenGLWindow.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_SliceWindow.cc">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\HoloWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_HoloWindow.cc">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="sources\gui\selections\Rectangle.cc">
       <Filter>c++ sources\gui\selections</Filter>
@@ -260,17 +227,26 @@
     <ClCompile Include="sources\gui\windows\DirectWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\MainWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\windows\PlotWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_MainWindow.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_PlotWindow.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_MainWindow.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_PlotWindow.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_gl_window.h">
-      <Filter>c++ includes</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_main_window.h">
-      <Filter>c++ includes</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_gl_slice_window.h">
-      <Filter>c++ includes</Filter>
-    </ClInclude>
     <ClInclude Include="includes\camera_dll.hh">
       <Filter>c++ includes\other</Filter>
     </ClInclude>
@@ -418,29 +394,23 @@
     <ClInclude Include="includes\gui\windows\DirectWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_MainWindow.h">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_PlotWindow.h">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\windows\SliceWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\windows\HoloWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="main_window.ui">
-      <Filter>forms</Filter>
-    </CustomBuild>
-    <CustomBuild Include="main_window.qrc">
-      <Filter>resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gl_window.ui">
-      <Filter>forms</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gl_window.qrc">
-      <Filter>resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="plot_window.ui">
-      <Filter>forms</Filter>
-    </CustomBuild>
-    <CustomBuild Include="plot_window.qrc">
-      <Filter>resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gl_slice_window.ui">
-      <Filter>forms</Filter>
-    </CustomBuild>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
       <Filter>c++ includes\thread</Filter>
     </CustomBuild>
@@ -453,26 +423,23 @@
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\main_window.hh">
-      <Filter>c++ includes\gui\windows</Filter>
-    </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\gui_plot_window.hh">
-      <Filter>c++ includes\gui\windows</Filter>
-    </CustomBuild>
     <CustomBuild Include="includes\tools\info_manager.hh">
       <Filter>c++ includes\tools</Filter>
     </CustomBuild>
     <CustomBuild Include="includes\recorder.hh">
       <Filter>c++ includes\other</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\BasicOpenGLWindow.hh">
+    <CustomBuild Include="includes\gui\windows\MainWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\SliceWindow.hh">
+    <CustomBuild Include="includes\gui\windows\PlotWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </CustomBuild>
-    <CustomBuild Include="includes\gui\windows\HoloWindow.hh">
-      <Filter>c++ includes\gui\windows</Filter>
+    <CustomBuild Include="MainWindow.ui">
+      <Filter>forms</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlotWindow.ui">
+      <Filter>forms</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -480,9 +447,6 @@
       <Filter>resources</Filter>
     </Image>
     <Image Include="holovibes_logo.png">
-      <Filter>resources</Filter>
-    </Image>
-    <Image Include="holovibes_logo_42.png">
       <Filter>resources</Filter>
     </Image>
   </ItemGroup>

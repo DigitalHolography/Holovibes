@@ -50,6 +50,7 @@ namespace gui
 			void initShaderProgram();
 			void initBuffers();
 			void setZoneBuffer();
+			void resetZoneBuffer();
 			void setUniformColor();
 			void draw();
 
@@ -68,6 +69,5 @@ namespace gui
 
 		private:
 			bool	Enabled;
-			void	resetZoneBuffer();
 	};
 }

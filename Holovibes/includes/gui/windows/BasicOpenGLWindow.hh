@@ -46,9 +46,10 @@ namespace gui
 			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
-			const KindOfView getKindOfView() const;
-			void setKindOfSelection(KindOfSelection k);
-			const KindOfSelection getKindOfSelection() const;
+			const KindOfView		getKindOfView() const;
+			void					setKindOfSelection(KindOfSelection k);
+			const KindOfSelection	getKindOfSelection() const;
+			void					resetTransform();
 
 		protected:
 			// Fields -----------
@@ -91,6 +92,5 @@ namespace gui
 			// Transform functions
 			void	setTranslate();
 			void	setScale();
-			void	resetTransform();
 	};
 }

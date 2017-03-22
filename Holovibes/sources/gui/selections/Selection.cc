@@ -25,7 +25,7 @@ namespace gui
 			{ 1.0f, 0.0f, 0.5f, 0.4f },			// Average::Signal
 			{ 0.26f, 0.56f, 0.64f, 0.4f },		// Average::Noise
 			{ 1.0f,	0.8f, 0.0f, 0.4f },			// Autofocus
-			{ 0.9f,	0.7f, 0.1f, 0.4f },			// Filter2D
+			{ 0.f,	0.62f, 1.f, 0.4f },			// Filter2D
 			{ 1.0f,	0.87f, 0.87f, 0.4f } } },	// SliceZoom
 		Enabled(false)
 	{}
@@ -172,7 +172,7 @@ namespace gui
 				Colors[kSelection][2],
 				Colors[kSelection][3]
 			};
-			glUniform4fv(glGetUniformLocation(Program->programId(), "color"), 4, nColor);
+			glUniform4fv(glGetUniformLocation(Program->programId(), "color"), 1, nColor);
 			Program->release();
 		}
 	}

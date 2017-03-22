@@ -381,7 +381,7 @@ namespace holovibes
 		return request_stft_cuts_;
 	}
 
-	bool ICompute::get_cuts_delete_request()
+	bool	ICompute::get_cuts_delete_request()
 	{
 		return request_delete_stft_cuts_;
 	}

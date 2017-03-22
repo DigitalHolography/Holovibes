@@ -1,4 +1,4 @@
-#include "main_window.hh"
+#include "MainWindow.hh"
 #include <qstylefactory.h>
 
 namespace gui

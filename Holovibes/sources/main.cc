@@ -19,7 +19,7 @@
 #include <QtWidgets>
 #include <thread>
 #include <chrono>
-#include "main_window.hh"
+#include "MainWindow.hh"
 #include "config.hh"
 #include "camera_exception.hh"
 #include "options_descriptor.hh"

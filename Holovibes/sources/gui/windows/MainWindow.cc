@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "main_window.hh"
+#include "MainWindow.hh"
 
 namespace gui
 {
@@ -119,7 +119,6 @@ namespace gui
 	void MainWindow::notify()
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		bool is_direct = is_direct_mode();
 		if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::NONE)
 		{
@@ -518,6 +517,7 @@ namespace gui
 					holovibes_.get_output_queue(),
 					holovibes_.get_pipe(),
 					holovibes_.get_compute_desc()));
+
 				//if (!cd.flowgraphy_enabled && !is_direct_mode())
 					//holovibes_.get_pipe()->request_autocontrast();
 				cd.contrast_enabled.exchange(true);
@@ -558,7 +558,7 @@ namespace gui
 		}
 		catch (std::exception& e)
 		{
-			gl_window_.reset(nullptr);
+			mainDisplay.reset(nullptr);
 			display_error(e.what());
 		}
 	}
@@ -677,6 +677,7 @@ namespace gui
 		if (!is_direct_mode())
 		{
 			mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
+
 			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(gui::Rectangle)),
 					this, SLOT(request_stft_roi_update(gui::Rectangle)),
 					Qt::UniqueConnection);
@@ -690,8 +691,8 @@ namespace gui
 			cd.log_scale_enabled.exchange(true);
 			cd.shift_corners_enabled.exchange(false);
 			cd.filter_2d_enabled.exchange(true);
+			InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 			set_auto_contrast();
-			InfoManager::get_manager()->update_info_safe("Filter2D", "Processing...");
 			notify();
 		}
 	}
@@ -700,12 +701,12 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			cd.log_scale_enabled.exchange(false);
+			InfoManager::get_manager()->remove_info("Filter2D");
 			cd.filter_2d_enabled.exchange(false);
+			cd.log_scale_enabled.exchange(false);
 			cd.stftRoiZone(Rectangle(0, 0), holovibes::ComputeDescriptor::Set);
-			InfoManager::get_manager()->remove_info_safe("Filter2D");
+			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 			set_auto_contrast();
 			notify();
 		}
@@ -1012,7 +1013,7 @@ namespace gui
 
 				mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);
 
-				findChild<QCheckBox*>("STFTSlices")->setChecked(true);
+				findChild<QCheckBox*>("STFTCutsCheckBox")->setChecked(true);
 				cd.stft_view_enabled.exchange(true);
 				notify();
 			}
@@ -2591,10 +2592,8 @@ namespace gui
 				throw std::runtime_error("[READER] unable to read file: " + file_src_);
 
 			/*Setting value in Qt interface*/
-			if (read_depth == 8)
-				depth_spinbox->setCurrentIndex(0);
-			else
-				depth_spinbox->setCurrentIndex(1);
+			depth_spinbox->setCurrentIndex((read_depth != 8));
+
 			findChild<QSpinBox*>("ImportWidthSpinBox")->setValue(read_width);
 			if (read_height < 0)
 				read_height = -read_height;
@@ -2686,8 +2685,6 @@ namespace gui
 		QSpinBox	*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
 		QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
 		QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
-		//QRadioButton* holo = findChild<QRadioButton*>("HologramRadioButton");
-		//QRadioButton* direct = findChild<QRadioButton*>("DirectRadioButton");
 		const std::string	file_src = import_line_edit->text().toUtf8();
 		uint				width = 0, height = 0, depth = 0, underscore = 5;
 		size_t				i;

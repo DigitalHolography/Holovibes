@@ -21,12 +21,13 @@ namespace gui
 	std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
 	HoloWindow::HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
-		SharedPipe& ic, CDescriptor& cd) :
+		SharedPipe ic, CDescriptor& cd) :
 		/* ~~~~~~~~~~~~ */
 		DirectWindow(p, s, q, KindOfView::Hologram),
 		Ic(ic),
 		Cd(cd)
-	{}
+	{
+	}
 
 	HoloWindow::~HoloWindow()
 	{}
@@ -211,7 +212,6 @@ namespace gui
 					Cd.stftRoiZone(zoneSelected.getZone(), holovibes::ComputeDescriptor::Set);
 					Ic->request_filter2D_roi_update();
 					Ic->request_filter2D_roi_end();
-					zoneSelected.release();
 				}
 			}
 

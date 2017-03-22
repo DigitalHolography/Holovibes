@@ -18,7 +18,7 @@
 # include <QMainWindow>
 # include <QtWidgets>
 
-# include "ui_plot_window.h"
+# include "ui_PlotWindow.h"
 # include "gui_curve_plot.hh"
 
 /* Forward declarations. */
