@@ -140,8 +140,8 @@ namespace holovibes
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 			fd.height = compute_desc_.nsamples.load();
 			fd.depth = sizeof(float);
-			gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
-			gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
+			gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFTCutXZ");
+			gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
 			request_stft_cuts_ = false;
 		}
 		if (request_delete_stft_cuts_)
@@ -899,7 +899,7 @@ namespace holovibes
 			z_step = (z_max - z_min) / z_div;
 			focus_metric_values.clear();
 		}
-		gui::InfoManager::get_manager()->remove_info_safe("Status");
+		gui::InfoManager::get_manager()->remove_info("Status");
 		/// End of the loop, free resources and notify the new z
 		// Sometimes a value outside the initial upper and lower bounds can be found
 		// Thus checking if af_z is within initial bounds

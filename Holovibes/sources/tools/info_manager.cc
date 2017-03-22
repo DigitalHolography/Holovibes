@@ -14,35 +14,7 @@
 
 namespace gui
 {
-	InfoManager* InfoManager::instance = nullptr;
-
-	InfoManager* InfoManager::get_manager(gui::GroupBox *ui)
-	{
-		if (instance)
-			return (instance);
-		else if (ui)
-			return ((InfoManager::instance = new InfoManager(ui)));
-		else
-			throw InfoManager::ManagerNotInstantiate();
-	}
-
-	void InfoManager::update_info_safe(const std::string& key, const std::string& value)
-	{
-		if (instance)
-			instance->update_info(key, value);
-	}
-
-	void InfoManager::remove_info_safe(const std::string& key)
-	{
-		if (instance)
-			instance->remove_info(key);
-	}
-
-	void InfoManager::stop_display()
-	{
-		if (instance)
-			instance->stop_requested_ = true;
-	}
+	InfoManager *InfoManager::instance = nullptr;
 
 	InfoManager::InfoManager(gui::GroupBox *ui)
 		: ui_(ui)
@@ -55,6 +27,45 @@ namespace gui
 		this->start();
 	}
 
+	InfoManager::~InfoManager()
+	{
+		if (instance)
+			delete instance;
+	}
+
+	InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
+	{
+		if (instance)
+			return (instance);
+		else if (ui)
+			return ((InfoManager::instance = new InfoManager(ui)));
+		else
+			throw InfoManager::ManagerNotInstantiate();
+	}
+
+	void InfoManager::update_info(const std::string& key, const std::string& value)
+	{
+		if (instance)
+			instance->infos_[key] = value;
+	}
+
+	void InfoManager::remove_info(const std::string& key)
+	{
+		if (instance)
+			instance->infos_.erase(key);
+	}
+
+	void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
+	{
+		//infos_.insert(pos, );
+	}
+
+	void InfoManager::stop_display()
+	{
+		if (instance)
+			instance->stop_requested_ = true;
+	}
+
 	void InfoManager::run()
 	{
 		while (!stop_requested_)
@@ -63,13 +74,7 @@ namespace gui
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 	}
-
-	InfoManager::~InfoManager()
-	{
-		if (instance)
-			delete instance;
-	}
-
+	
 	void InfoManager::draw()
 	{
 		std::string str = "";
@@ -78,16 +83,6 @@ namespace gui
 			str += it->first + ":\n  " + it->second + "\n";
 		const QString qstr = str.c_str();
 		emit update_text(qstr);
-	}
-
-	void InfoManager::update_info(const std::string& key, const std::string& value)
-	{
-		infos_[key] = value;
-	}
-
-	void InfoManager::remove_info(const std::string& key)
-	{
-		infos_.erase(key);
 	}
 
 	void InfoManager::clear_info()

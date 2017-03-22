@@ -176,15 +176,11 @@ namespace gui
 		filter_button->setText("Filter2D");
 		findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && cd.filter_2d_enabled.load());
 
-		findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && cd.contrast_enabled.load());
+		findChild<QCheckBox *>("ContrastCheckBox")->setChecked(cd.contrast_enabled.load());
 		findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
 		findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 		findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 		findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
-		//findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-		//	->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
-		//findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-		//	->setValue(!is_direct && cd.log_scale_enabled.load() ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
 		if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
 		{
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
@@ -310,8 +306,8 @@ namespace gui
 
 	void MainWindow::display_message(QString msg)
 	{
-		InfoManager::get_manager()->remove_info_safe("Message");
-		InfoManager::get_manager()->update_info_safe("Message", msg.toStdString());
+		InfoManager::get_manager()->remove_info("Message");
+		InfoManager::get_manager()->update_info("Message", msg.toStdString());
 	}
 
 	void MainWindow::layout_toggled(bool b)
@@ -449,17 +445,17 @@ namespace gui
 		try
 		{
 			auto manager = InfoManager::get_manager();
-			manager->remove_info_safe("Input FPS");
-			manager->remove_info_safe("Info");
-			manager->remove_info_safe("Message");
-			manager->remove_info_safe("Error");
-			manager->remove_info_safe("InputQueue");
-			manager->remove_info_safe("OutputQueue");
-			manager->remove_info_safe("Rendering FPS");
-			manager->remove_info_safe("STFTQueue");
-			manager->remove_info_safe("STFT Slice Cursor");
-			manager->remove_info_safe("Status");
-			manager->update_info_safe("ImgSource", "none");
+			manager->remove_info("Input FPS");
+			manager->remove_info("Info");
+			manager->remove_info("Message");
+			manager->remove_info("Error");
+			manager->remove_info("InputQueue");
+			manager->remove_info("OutputQueue");
+			manager->remove_info("Rendering FPS");
+			manager->remove_info("STFTQueue");
+			manager->remove_info("STFT Slice Cursor");
+			manager->remove_info("Status");
+			manager->update_info("ImgSource", "None");
 		}
 		catch (std::exception& e)
 		{
@@ -490,6 +486,9 @@ namespace gui
 			QPoint pos(0, 0);
 			init_image_mode(pos, display_width_, display_height_);
 			holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
+			//holovibes_.init_compute(holovibes::ThreadCompute::PipeType::PIPE);
+			//while (!holovibes_.get_pipe());
+			//holovibes_.get_pipe()->register_observer(*this);
 			gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_capture_queue()));
 			set_convolution_mode(false);
 			notify();
@@ -603,7 +602,7 @@ namespace gui
 		close_critical_compute();
 		camera_none();
 		auto manager = InfoManager::get_manager();
-		manager->update_info_safe("Status", "Resetting...");
+		manager->update_info("Status", "Resetting...");
 		qApp->processEvents();
 		if (!is_direct_mode())
 			holovibes_.dispose_compute();
@@ -636,7 +635,7 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.ref_diff_enabled.exchange(true);
 			holovibes_.get_pipe()->request_ref_diff_refresh();
-			InfoManager::update_info_safe("Reference", "Processing... ");
+			InfoManager::update_info("Reference", "Processing... ");
 			notify();
 		}
 	}
@@ -648,7 +647,7 @@ namespace gui
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			cd.ref_sliding_enabled.exchange(true);
 			holovibes_.get_pipe()->request_ref_diff_refresh();
-			InfoManager::update_info_safe("Reference", "Processing...");
+			InfoManager::update_info("Reference", "Processing...");
 			notify();
 		}
 	}
@@ -661,7 +660,7 @@ namespace gui
 			cd.ref_diff_enabled.exchange(false);
 			cd.ref_sliding_enabled.exchange(false);
 			holovibes_.get_pipe()->request_ref_diff_refresh();
-			InfoManager::remove_info_safe("Reference");
+			InfoManager::remove_info("Reference");
 			notify();
 		}
 	}
@@ -683,7 +682,7 @@ namespace gui
 			cd.shift_corners_enabled.exchange(false);
 			cd.filter_2d_enabled.exchange(true);
 			set_auto_contrast();
-			InfoManager::update_info_safe("Filter2D", "Processing...");
+			InfoManager::update_info("Filter2D", "Processing...");
 			notify();
 		}
 	}
@@ -699,7 +698,7 @@ namespace gui
 
 			holovibes::Rectangle rect(QPoint(0, 0), QSize(0, 0));
 			cd.stftRoiZone(&rect, holovibes::ComputeDescriptor::Set);
-			InfoManager::remove_info_safe("Filter2D");
+			InfoManager::remove_info("Filter2D");
 			set_auto_contrast();
 			notify();
 		}
@@ -949,7 +948,7 @@ namespace gui
 
 		//set_contrast_mode(false);
 		cd.stft_view_enabled.exchange(false);
-		manager->remove_info_safe("STFT Slice Cursor");
+		manager->remove_info("STFT Slice Cursor");
 		disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
 		
 		holovibes_.get_pipe()->delete_stft_slice_queue();
@@ -968,7 +967,7 @@ namespace gui
 		GLWidget	*gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		auto manager = InfoManager::get_manager();
-		manager->update_info_safe("STFT Slice Cursor", "(Y,X) = (0,0)");
+		manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
 		if (checked)
 		{
 			try
@@ -1028,7 +1027,7 @@ namespace gui
 		auto manager = InfoManager::get_manager();
 		std::stringstream ss;
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info_safe("STFT Slice Cursor", ss.str());
+		manager->update_info("STFT Slice Cursor", ss.str());
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
 	}
@@ -1255,7 +1254,7 @@ namespace gui
 	void MainWindow::request_autofocus(holovibes::Rectangle zone)
 	{
 		auto manager = InfoManager::get_manager();
-		manager->update_info_safe("Status", "Autofocus processing...");
+		manager->update_info("Status", "Autofocus processing...");
 		GLWidget* gl_widget = gl_window_->findChild<GLWidget*>("GLWidget");
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
@@ -2241,14 +2240,14 @@ namespace gui
 
 	void MainWindow::display_error(const std::string msg)
 	{
-		InfoManager::get_manager()->remove_info_safe("Error");
-		InfoManager::get_manager()->update_info_safe("Error", msg);
+		InfoManager::get_manager()->remove_info("Error");
+		InfoManager::get_manager()->update_info("Error", msg);
 	}
 
 	void MainWindow::display_info(const std::string msg)
 	{
-		InfoManager::get_manager()->remove_info_safe("Info");
-		InfoManager::get_manager()->update_info_safe("Info", msg);
+		InfoManager::get_manager()->remove_info("Info");
+		InfoManager::get_manager()->update_info("Info", msg);
 	}
 
 	void MainWindow::open_file(const std::string& path)

@@ -43,8 +43,8 @@ namespace holovibes
 		//if (pipetype_ == PipeType::PIPE)
 		pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
 		//else
-		//  pipe_ = std::shared_ptr<ICompute>(new Pipeline(input_, output_, compute_desc_));
-		// PIPELINE dead code !!!
+		//	pipe_ = std::shared_ptr<ICompute>(new Pipeline(input_, output_, compute_desc_));
+		//	PIPELINE dead code !!!
 
 		memory_cv_.notify_one();
 

@@ -45,7 +45,7 @@ namespace holovibes
     enum PipeType
     {
       PIPE,
-      PIPELINE,
+	  PIPELINE
     };
 
     /*! \brief Build an ICompute instance between two queues.

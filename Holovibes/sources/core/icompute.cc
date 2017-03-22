@@ -229,7 +229,7 @@ namespace holovibes
 		/* gpu_filter2d_buffer */
 		cudaFree(gpu_filter2d_buffer);
 
-		gui::InfoManager::get_manager()->remove_info_safe("Rendering FPS");
+		gui::InfoManager::get_manager()->remove_info("Rendering FPS");
 	}
 
 	bool ICompute::update_n_parameter(unsigned short n)
@@ -891,7 +891,7 @@ namespace holovibes
 			if (diff)
 			{
 				auto fps = frame_count_ * 1000 / diff;
-				manager->update_info_safe("Rendering FPS", std::to_string(fps) + std::string(" fps"));
+				manager->update_info("Rendering FPS", std::to_string(fps) + std::string(" fps"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;
