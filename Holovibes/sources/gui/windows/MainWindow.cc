@@ -965,7 +965,7 @@ namespace gui
 		sliceXZ.reset(nullptr);
 		sliceYZ.reset(nullptr);
 
-		findChild<QCheckBox*>("STFTSlices")->setChecked(false);
+		findChild<QCheckBox*>("STFTCutsCheckBox")->setChecked(false);
 		findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 
 		mainDisplay->setCursor(Qt::ArrowCursor);
