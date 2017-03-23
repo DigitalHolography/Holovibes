@@ -44,6 +44,7 @@ namespace gui
 			Rectangle&				getZone();
 			const KindOfSelection	getKind()	const;
 			const Color				getColor()	const;
+			Rectangle				getTexZone(ushort frameSide) const;
 			const bool				isEnabled() const;
 			void					setEnabled(bool b);
 

@@ -106,7 +106,6 @@ namespace gui
 		~MainWindow();
 
 		void notify() override;
-		//void notify(bool value);
 
 		void notify_error(std::exception& e, const char* msg) override;
 	#pragma endregion
@@ -277,7 +276,6 @@ namespace gui
 		*/
 		void stft_view(bool checked);
 		void cancel_stft_slice_view();
-		void update_stft_slice_pos(QPoint pos);
 
 		/*! \} */
 		// \brief update how often the STFT is computed while STFT mode is activated
@@ -520,24 +518,6 @@ namespace gui
 	protected:
 		virtual void closeEvent(QCloseEvent* event) override;
 	private:
-		/*! \{ \name Visibility
-		**
-		** All these methods are used to enable or disable parts of the GUI
-		** in order for the user not to do actions during the executions of
-		** computations or without having no camera.
-		*/
-		void global_visibility(bool value);
-		//void phase_num_visible(bool value);
-		//void camera_visible(bool value);
-		void contrast_visible(bool value);
-		void demodulation_visibility(bool value);
-		//void record_visible(bool value);
-		//void record_but_cancel_visible(bool value);
-		//void image_ratio_visible(bool value);
-		//void average_visible(bool value);
-		//void average_record_but_cancel_visible(bool value);
-		/*! \} */
-
 		/*! \brief Change camera
 		**
 		** Delete real time OpenGL display window then destroy compute and
@@ -569,6 +549,9 @@ namespace gui
 		** \param elts tokens vector
 		*/
 		void split_string(const std::string& str, char delim, std::vector<std::string>& elts);
+
+		void cancel_stft_view(holovibes::ComputeDescriptor& cd);
+
 		/*! \brief Format batch output file name
 		**
 		** Example:
@@ -582,7 +565,6 @@ namespace gui
 		** \return path with _index up to 10^6
 		*/
 		std::string format_batch_output(const std::string& path, unsigned int index);
-		void cancel_stft_view(holovibes::ComputeDescriptor& cd);
 	#pragma endregion
 	/* ---------- */
 	#pragma region Fields

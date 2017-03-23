@@ -209,12 +209,11 @@ namespace gui
 			{
 				if (zoneSelected.getKind() == Filter2D)
 				{
-					Cd.stftRoiZone(zoneSelected.getZone(), holovibes::ComputeDescriptor::Set);
+					Cd.stftRoiZone(zoneSelected.getTexZone(Fd.width), holovibes::ComputeDescriptor::Set);
 					Ic->request_filter2D_roi_update();
 					Ic->request_filter2D_roi_end();
 				}
 			}
-
 		}
 	}
 

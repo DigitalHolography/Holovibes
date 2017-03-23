@@ -57,6 +57,14 @@ namespace gui
 		return (Colors[kSelection]);
 	}
 
+	Rectangle				Selection::getTexZone(ushort frameSide) const
+	{
+		return (Rectangle(
+			Zone.topLeft() * frameSide / 512,
+			Zone.size() * frameSide / 512
+		));
+	}
+
 	const bool				Selection::isEnabled() const
 	{
 		return (Enabled);

@@ -205,7 +205,6 @@ namespace holovibes
 	Queue&	get_stft_slice_queue(int i);
 	bool	get_cuts_request();
 	bool	get_cuts_delete_request();
-	bool	get_refresh_request();
 
   protected:
     /*! \brief Generate the ICompute vector. */

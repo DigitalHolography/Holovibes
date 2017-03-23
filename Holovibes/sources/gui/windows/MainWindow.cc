@@ -676,6 +676,7 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
+			mainDisplay->resetTransform();
 			mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
 
 			/*connect(gl_widget, SIGNAL(stft_roi_zone_selected_update(gui::Rectangle)),
@@ -958,8 +959,6 @@ namespace gui
 		cd.stft_view_enabled.exchange(false);
 		manager->remove_info("STFT Slice Cursor");
 		
-		//disconnect(gl_widget, SIGNAL(stft_slice_pos_update(QPoint)), this, SLOT(update_stft_slice_pos(QPoint)));
-
 		holovibes_.get_pipe()->delete_stft_slice_queue();
 		while (holovibes_.get_pipe()->get_cuts_delete_request());
 		sliceXZ.reset(nullptr);
@@ -1027,16 +1026,6 @@ namespace gui
 		{
 			cancel_stft_slice_view();
 		}
-	}
-
-	void MainWindow::update_stft_slice_pos(QPoint pos)
-	{
-		auto manager = InfoManager::get_manager();
-		std::stringstream ss;
-		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info("STFT Slice Cursor", ss.str());
-		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
 	}
 
 	void MainWindow::set_view_mode(const QString value)
