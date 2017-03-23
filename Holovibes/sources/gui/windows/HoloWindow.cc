@@ -209,7 +209,7 @@ namespace gui
 			{
 				if (zoneSelected.getKind() == Filter2D)
 				{
-					Cd.stftRoiZone(zoneSelected.getTexZone(Fd.width), holovibes::ComputeDescriptor::Set);
+					Cd.stftRoiZone(zoneSelected.getTexZone(Fd.width), holovibes::AccessMode::Set);
 					Ic->request_filter2D_roi_update();
 					Ic->request_filter2D_roi_end();
 				}
@@ -223,7 +223,7 @@ namespace gui
 		std::stringstream ss;
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
 		manager->update_info("STFT Slice Cursor", ss.str());
-		Cd.stftCursor(&pos, holovibes::ComputeDescriptor::Set);
+		Cd.stftCursor(&pos, holovibes::AccessMode::Set);
 	}
 
 }

@@ -10,13 +10,47 @@
 # include "observable.hh"
 # include "Rectangle.hh"
 
-using guard = std::lock_guard<std::mutex>;
-
 namespace holovibes
 {
-	const static std::string version = "v4.2.170317"; /*!< Current version of this project. */
+	static const std::string version = "v4.2.170323"; /*!< Current version of this project. */
 
-
+	using	LockGuard = std::lock_guard<std::mutex>;
+	using	Algorithm =
+	enum
+	{
+		None,
+		FFT1,
+		FFT2
+	};
+	using	Computation =
+	enum
+	{
+		Stop,
+		Direct,
+		Hologram
+	};
+	using	ComplexViewMode =
+	enum
+	{
+		Modulus,
+		SquaredModulus,
+		Argument,
+		PhaseIncrease,
+		Complex
+	};
+	using	AccessMode =
+	enum
+	{
+		Get = 1,
+		Set
+	};
+	using	WindowKind =
+	enum
+	{
+		MainDisplay,
+		SliceXZ,
+		SliceYZ
+	};
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.
@@ -47,51 +81,6 @@ namespace holovibes
 		gui::Rectangle stft_roi_zone;
 
 	public:
-		#pragma region enums
-		/*! \brief Select hologram methods. */
-		enum fft_algorithm
-		{
-			None,
-			FFT1,
-			FFT2
-		};
-
-		/*! \brief select which mode the pipe will be using*/
-		enum compute_mode
-		{
-			DIRECT,
-			HOLOGRAM,
-			NONE
-		};
-
-		/*! \brief Complex to float methods.
-		 *
-		 * Select the method to apply to transform a complex hologram frame to a
-		 * float frame. */
-		enum complex_view_mode
-		{
-			MODULUS,
-			SQUARED_MODULUS,
-			ARGUMENT,
-			PHASE_INCREASE,
-			COMPLEX
-		};
-
-		typedef
-		enum	e_access
-		{
-			Get = 1,
-			Set = 2
-		}		t_access;
-		enum window
-		{
-			MAIN_DISPLAY,
-			SLICE_XZ,
-			SLICE_YZ
-		};
-
-		#pragma endregion
-
 		/*! \brief ComputeDescriptor constructor
 		 * Initialize the compute descriptor to default values of computation. */
 		ComputeDescriptor();
@@ -101,25 +90,25 @@ namespace holovibes
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 		
-		void stftCursor(QPoint *p, t_access mode);
+		void stftCursor(QPoint *p, AccessMode m);
 
-		void signalZone(gui::Rectangle& rect, t_access mode);
+		void signalZone(gui::Rectangle& rect, AccessMode m);
 		
-		void noiseZone(gui::Rectangle& rect, t_access mode);
+		void noiseZone(gui::Rectangle& rect, AccessMode m);
 
-		void autofocusZone(gui::Rectangle& rect, t_access mode);
+		void autofocusZone(gui::Rectangle& rect, AccessMode m);
 
-		void stftRoiZone(gui::Rectangle& rect, t_access mode);
+		void stftRoiZone(gui::Rectangle& rect, AccessMode m);
 
 		#pragma region Atomics vars
 		/*! Hologram algorithm. */
-		std::atomic<enum fft_algorithm> algorithm;
+		std::atomic<Algorithm> algorithm;
 		/*! Computing mode used by the pipe */
-		std::atomic<enum compute_mode> compute_mode;
+		std::atomic<Computation> compute_mode;
 		/*! Complex to float method. */
-		std::atomic<enum complex_view_mode> view_mode;
+		std::atomic<ComplexViewMode> view_mode;
 
-		std::atomic<enum window> current_window;
+		std::atomic<WindowKind> current_window;
 
 		/*! Number of samples in which apply the fft on. */
 		std::atomic<unsigned short> nsamples;

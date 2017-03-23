@@ -190,7 +190,7 @@ namespace holovibes
 				));
 		}
 
-		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1)
+		if (compute_desc_.algorithm.load() == Algorithm::FFT1)
 		{
 			// Initialize FFT1 lens.
 			if (!autofocus_requested_)
@@ -238,7 +238,7 @@ namespace holovibes
 					modules_[1]->stream_));
 			}
 		}
-		else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+		else if (compute_desc_.algorithm.load() == Algorithm::FFT2)
 		{
 			// Initialize FFT2 lens.
 			if (!autofocus_requested_)
@@ -407,7 +407,7 @@ namespace holovibes
 			assert(!"Impossible case.");
 
 		/* Apply conversion to unsigned short. */
-		if (compute_desc_.view_mode.load() == ComputeDescriptor::MODULUS)
+		if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_modulus,
@@ -417,7 +417,7 @@ namespace holovibes
 				modules_[0]->stream_
 				));
 		}
-		else if (compute_desc_.view_mode.load() == ComputeDescriptor::SQUARED_MODULUS)
+		else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_squared_modulus,
@@ -427,7 +427,7 @@ namespace holovibes
 				modules_[0]->stream_
 				));
 		}
-		else if (compute_desc_.view_mode.load() == ComputeDescriptor::ARGUMENT)
+		else if (compute_desc_.view_mode.load() == ComplexViewMode::Argument)
 		{
 			modules_[0]->push_front_worker(std::bind(
 				complex_to_argument,
@@ -467,8 +467,8 @@ namespace holovibes
 		{
 			gui::Rectangle signalZone;
 			gui::Rectangle noiseZone;
-			compute_desc_.signalZone(signalZone, ComputeDescriptor::Get);
-			compute_desc_.noiseZone(noiseZone, ComputeDescriptor::Get);
+			compute_desc_.signalZone(signalZone, AccessMode::Get);
+			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
 			if (average_record_requested_)
 			{
 				modules_[2]->push_back_worker(std::bind(

@@ -91,9 +91,9 @@ namespace gui
 
 		resize(width(), 425);
 		// Display default values
-		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Stop);
 		notify();
-		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Direct);
 		notify();
 	}
 
@@ -120,7 +120,7 @@ namespace gui
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		bool is_direct = is_direct_mode();
-		if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::NONE)
+		if (cd.compute_mode.load() == holovibes::Computation::Stop)
 		{
 			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(false);
 			findChild<GroupBox *>("ViewGroupBox")->setEnabled(false);
@@ -129,17 +129,17 @@ namespace gui
 			findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
 			findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
 			if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
-				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
+				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Direct);
 			else
-				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::HOLOGRAM);
+				holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Hologram);
 			return;
 		}
-		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT && is_enabled_camera_)
+		else if (cd.compute_mode.load() == holovibes::Computation::Direct && is_enabled_camera_)
 		{
 			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
 			findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
 		}
-		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM && is_enabled_camera_)
+		else if (cd.compute_mode.load() == holovibes::Computation::Hologram && is_enabled_camera_)
 		{
 			findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
 			findChild<GroupBox *>("ViewGroupBox")->setEnabled(true);
@@ -162,8 +162,8 @@ namespace gui
 		findChild<QLabel *>("AverageNoiseLabel")->setText(cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");
 
 		findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
-			setEnabled(((!is_direct && (cd.view_mode.load() == holovibes::ComputeDescriptor::PHASE_INCREASE) ||
-			(cd.view_mode.load() == holovibes::ComputeDescriptor::ARGUMENT)) ? (true) : (false)));
+			setEnabled(((!is_direct && (cd.view_mode.load() == holovibes::ComplexViewMode::PhaseIncrease) ||
+			(cd.view_mode.load() == holovibes::ComplexViewMode::Argument)) ? (true) : (false)));
 
 		findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load()
 			&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load());
@@ -180,21 +180,21 @@ namespace gui
 		findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 		findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 		findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
-		if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+		if (cd.current_window.load() == holovibes::WindowKind::MainDisplay)
 		{
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
 		}
-		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+		else if (cd.current_window.load() == holovibes::WindowKind::SliceXZ)
 		{
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_xz.load()));
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_max_slice_xz.load()));
 		}
-		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+		else if (cd.current_window.load() == holovibes::WindowKind::SliceYZ)
 		{
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 				->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_yz.load()));
@@ -219,7 +219,7 @@ namespace gui
 		findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && cd.flowgraphy_level.load());
 		findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(cd.flowgraphy_level.load());
 
-		findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && cd.algorithm.load() != holovibes::ComputeDescriptor::None);
+		findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && cd.algorithm.load() != holovibes::Algorithm::None);
 		findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 		findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.signal_trig_enabled.load());
 		findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && cd.stft_enabled.load());
@@ -353,7 +353,7 @@ namespace gui
 		close_windows();
 		remove_infos();
 		findChild<QAction*>("actionSettings")->setEnabled(false);
-		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Stop);
 		notify();
 	}
 
@@ -469,14 +469,14 @@ namespace gui
 	{
 		close_critical_compute();
 		close_windows();
-		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Stop);
 		notify();
 		if (is_enabled_camera_)
 		{
 			QPoint pos(0, 4);
 			QSize size(512, 512);
 			init_image_mode(pos, size);
-			holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::DIRECT);
+			holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Direct);
 			mainDisplay.reset(new DirectWindow(
 				pos,
 				size,
@@ -493,12 +493,12 @@ namespace gui
 		if (is_enabled_camera_)
 		{
 			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			cd.compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::HOLOGRAM);
+			cd.compute_mode.exchange(holovibes::Computation::Hologram);
 			QPoint pos(0, 4);
 			QSize size(512, 512);
 			init_image_mode(pos, size);
 			uint depth = 2;
-			if (cd.view_mode.load() == holovibes::ComputeDescriptor::COMPLEX)
+			if (cd.view_mode.load() == holovibes::ComplexViewMode::Complex)
 			{
 				last_contrast_type_ = "Complex output";
 				depth = 8;
@@ -589,14 +589,14 @@ namespace gui
 
 	bool MainWindow::is_direct_mode()
 	{
-		return (holovibes_.get_compute_desc().compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT);
+		return (holovibes_.get_compute_desc().compute_mode.load() == holovibes::Computation::Direct);
 	}
 
 	void MainWindow::set_image_mode()
 	{
-		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::Computation::Direct)
 			set_direct_mode();
-		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::Computation::Hologram)
 			set_holographic_mode();
 	}
 
@@ -706,7 +706,7 @@ namespace gui
 			InfoManager::get_manager()->remove_info("Filter2D");
 			cd.filter_2d_enabled.exchange(false);
 			cd.log_scale_enabled.exchange(false);
-			cd.stftRoiZone(Rectangle(0, 0), holovibes::ComputeDescriptor::Set);
+			cd.stftRoiZone(Rectangle(0, 0), holovibes::AccessMode::Set);
 			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
 			set_auto_contrast();
 			notify();
@@ -914,11 +914,11 @@ namespace gui
 			//mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
 
 			if (value == "None")
-				cd.algorithm.exchange(holovibes::ComputeDescriptor::None);
+				cd.algorithm.exchange(holovibes::Algorithm::None);
 			else if (value == "1FFT")
-				cd.algorithm.exchange(holovibes::ComputeDescriptor::FFT1);
+				cd.algorithm.exchange(holovibes::Algorithm::FFT1);
 			else if (value == "2FFT")
-				cd.algorithm.exchange(holovibes::ComputeDescriptor::FFT2);
+				cd.algorithm.exchange(holovibes::Algorithm::FFT2);
 			else
 				assert(!"Unknow Algorithm.");
 			if (!holovibes_.get_compute_desc().flowgraphy_enabled)
@@ -1043,23 +1043,23 @@ namespace gui
 			}
 			if (value == "Magnitude")
 			{
-				cd.view_mode.exchange(holovibes::ComputeDescriptor::MODULUS);
+				cd.view_mode.exchange(holovibes::ComplexViewMode::Modulus);
 				last_contrast_type_ = value;
 			}
 			else if (value == "Squared magnitude")
 			{
-				cd.view_mode.exchange(holovibes::ComputeDescriptor::SQUARED_MODULUS);
+				cd.view_mode.exchange(holovibes::ComplexViewMode::SquaredModulus);
 				last_contrast_type_ = value;
 			}
 			else if (value == "Argument")
 			{
-				cd.view_mode.exchange(holovibes::ComputeDescriptor::ARGUMENT);
+				cd.view_mode.exchange(holovibes::ComplexViewMode::Argument);
 				last_contrast_type_ = value;
 			}
 			else if (value == "Complex output")
 			{
 				set_complex_mode(true);
-				cd.view_mode.exchange(holovibes::ComputeDescriptor::COMPLEX);
+				cd.view_mode.exchange(holovibes::ComplexViewMode::Complex);
 				last_contrast_type_ = value;
 			}
 			else
@@ -1075,7 +1075,7 @@ namespace gui
 				else
 				{
 					if (value == "Phase increase")
-						cd.view_mode.exchange(holovibes::ComputeDescriptor::PHASE_INCREASE);
+						cd.view_mode.exchange(holovibes::ComplexViewMode::PhaseIncrease);
 				}
 			}
 			if (!holovibes_.get_compute_desc().flowgraphy_enabled)
@@ -1250,7 +1250,7 @@ namespace gui
 	{
 		InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		cd.autofocusZone(zone, holovibes::ComputeDescriptor::Set);
+		cd.autofocusZone(zone, holovibes::AccessMode::Set);
 		holovibes_.get_pipe()->request_autofocus();
 		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus); // Raw Autofocus Tmp;
 		notify();
@@ -1265,7 +1265,7 @@ namespace gui
 	{
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-		cd.stftRoiZone(zone, holovibes::ComputeDescriptor::Set);
+		cd.stftRoiZone(zone, holovibes::AccessMode::Set);
 		holovibes_.get_pipe()->request_filter2D_roi_update();
 	}
 
@@ -1338,11 +1338,11 @@ namespace gui
 					cd.contrast_min.exchange(value);
 				else
 				{
-					if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+					if (cd.current_window.load() == holovibes::WindowKind::MainDisplay)
 						cd.contrast_min.exchange(pow(10, value));
-					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+					else if (cd.current_window.load() == holovibes::WindowKind::SliceXZ)
 						cd.contrast_min_slice_xz.exchange(pow(10, value));
-					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+					else if (cd.current_window.load() == holovibes::WindowKind::SliceYZ)
 						cd.contrast_min_slice_yz.exchange(pow(10, value));
 				}
 				pipe_refresh();
@@ -1362,11 +1362,11 @@ namespace gui
 					cd.contrast_max.exchange(value);
 				else
 				{
-					if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+					if (cd.current_window.load() == holovibes::WindowKind::MainDisplay)
 						cd.contrast_max.exchange(pow(10, value));
-					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+					else if (cd.current_window.load() == holovibes::WindowKind::SliceXZ)
 						cd.contrast_max_slice_xz.exchange(pow(10, value));
-					else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+					else if (cd.current_window.load() == holovibes::WindowKind::SliceYZ)
 						cd.contrast_max_slice_yz.exchange(pow(10, value));
 				}
 				pipe_refresh();
@@ -2070,7 +2070,7 @@ namespace gui
 		camera_none();
 		close_windows();
 		remove_infos();
-		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
+		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::Computation::Stop);
 		notify();
 	}
 
@@ -2311,14 +2311,14 @@ namespace gui
 			if (z_step > 0.0f)
 				z_step_ = z_step;
 
-			cd.algorithm.exchange(static_cast<holovibes::ComputeDescriptor::fft_algorithm>(
+			cd.algorithm.exchange(static_cast<holovibes::Algorithm>(
 				ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
 
 			// View
 			view_action->setChecked(!ptree.get<bool>("view.hidden", false));
 			view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-			cd.view_mode.exchange(static_cast<holovibes::ComputeDescriptor::complex_view_mode>(
+			cd.view_mode.exchange(static_cast<holovibes::ComplexViewMode>(
 				ptree.get<int>("view.view_mode", cd.view_mode.load())));
 
 			cd.log_scale_enabled.exchange(
@@ -2516,11 +2516,11 @@ namespace gui
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 		if (window_cbox->currentIndex() == 0)
-			cd.current_window.exchange(holovibes::ComputeDescriptor::window::MAIN_DISPLAY);
+			cd.current_window.exchange(holovibes::WindowKind::MainDisplay);
 		else if (window_cbox->currentIndex() == 1)
-			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_XZ);
+			cd.current_window.exchange(holovibes::WindowKind::SliceXZ);
 		else if (window_cbox->currentIndex() == 2)
-			cd.current_window.exchange(holovibes::ComputeDescriptor::window::SLICE_YZ);
+			cd.current_window.exchange(holovibes::WindowKind::SliceYZ);
 		notify();
 	}
 

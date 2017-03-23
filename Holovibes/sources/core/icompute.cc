@@ -91,8 +91,8 @@ namespace holovibes
 			input_.get_pixels() * sizeof(cufftComplex));
 
 		/* CUFFT plan3d */
-		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == Algorithm::FFT1
+			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
 			cufftPlan3d(
 			&plan3d_,
 			input_length_,                  // NX
@@ -247,8 +247,8 @@ namespace holovibes
 		/* CUFFT plan3d realloc */
 		cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;
 
-		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == Algorithm::FFT1
+			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
 			cufftPlan3d(
 			&plan3d_,
 			input_length_,                  // NX
@@ -784,7 +784,7 @@ namespace holovibes
 			{
 				// Conservation of the coordinates when cursor is outside of the window
 				QPoint cursorPos;
-				compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
+				compute_desc_.stftCursor(&cursorPos, AccessMode::Get);
 				const ushort width = input_.get_frame_desc().width;
 				const ushort height = input_.get_frame_desc().height;
 				if (static_cast<ushort>(cursorPos.x()) < width &&
@@ -920,7 +920,7 @@ namespace holovibes
 			af_env_.gpu_input_buffer_tmp,
 			compute_desc_.nsamples.load());
 
-		compute_desc_.autofocusZone(af_env_.zone, ComputeDescriptor::Get);
+		compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 		/* Compute square af zone. */
 		const unsigned int zone_width = af_env_.zone.width();
 		const unsigned int zone_height = af_env_.zone.height();

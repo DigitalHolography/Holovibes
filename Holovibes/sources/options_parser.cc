@@ -431,7 +431,7 @@ namespace holovibes
 		if (vm_.count("1fft"))
 		{
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm.exchange(ComputeDescriptor::FFT1);
+			opts_.compute_desc.algorithm.exchange(Algorithm::FFT1);
 		}
 
 		if (vm_.count("2fft"))
@@ -440,7 +440,7 @@ namespace holovibes
 				throw std::runtime_error("1fft method already selected");
 
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm.exchange(ComputeDescriptor::FFT2);
+			opts_.compute_desc.algorithm.exchange(Algorithm::FFT2);
 		}
 
 		if (vm_.count("nsamples"))
@@ -481,11 +481,11 @@ namespace holovibes
 		{
 			const std::string viewmode = vm_["viewmode"].as<std::string>();
 			if (boost::iequals(viewmode, "magnitude"))
-				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::MODULUS);
+				opts_.compute_desc.view_mode.exchange(ComplexViewMode::Modulus);
 			else if (boost::iequals(viewmode, "squaredmagnitude"))
-				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::SQUARED_MODULUS);
+				opts_.compute_desc.view_mode.exchange(ComplexViewMode::SquaredModulus);
 			else if (boost::iequals(viewmode, "argument"))
-				opts_.compute_desc.view_mode.exchange(ComputeDescriptor::ARGUMENT);
+				opts_.compute_desc.view_mode.exchange(ComplexViewMode::Argument);
 			else
 				throw std::runtime_error("unknown view mode");
 		}

@@ -199,7 +199,7 @@ namespace holovibes
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
 
 		gui::Rectangle roiZone;
-		compute_desc_.stftRoiZone(roiZone, ComputeDescriptor::Get);
+		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);
 		if (compute_desc_.stft_enabled.load() ||
 			(compute_desc_.filter_2d_enabled.load() && !roiZone.area()))
 		{
@@ -243,7 +243,7 @@ namespace holovibes
 		if (!compute_desc_.filter_2d_enabled.load() ||
 			(compute_desc_.filter_2d_enabled.load() && roiZone.area()))
 		{
-			if (compute_desc_.algorithm.load() == ComputeDescriptor::None)
+			if (compute_desc_.algorithm.load() == Algorithm::None)
 			{
 				// Add temporal FFT1 1D .
 				fn_vect_.push_back(std::bind(
@@ -252,7 +252,7 @@ namespace holovibes
 					plan1d_,
 					static_cast<cudaStream_t>(0)));
 			}
-			else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1)
+			else if (compute_desc_.algorithm.load() == Algorithm::FFT1)
 			{
 				fft1_lens(
 					gpu_lens_,
@@ -289,7 +289,7 @@ namespace holovibes
 				}
 			}
 
-			else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+			else if (compute_desc_.algorithm.load() == Algorithm::FFT2)
 			{
 				fft2_lens(
 					gpu_lens_,
@@ -403,7 +403,7 @@ namespace holovibes
 		}
 
 		/* Apply conversion to floating-point respresentation. */
-		if (compute_desc_.view_mode.load() == ComputeDescriptor::MODULUS)
+		if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_modulus,
@@ -412,7 +412,7 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
-		else if (compute_desc_.view_mode.load() == ComputeDescriptor::SQUARED_MODULUS)
+		else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_squared_modulus,
@@ -421,7 +421,7 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
-		else if (compute_desc_.view_mode.load() == ComputeDescriptor::ARGUMENT)
+		else if (compute_desc_.view_mode.load() == ComplexViewMode::Argument)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_argument,
@@ -468,7 +468,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			}
 		}
-		else if (compute_desc_.view_mode.load() == ComputeDescriptor::COMPLEX)
+		else if (compute_desc_.view_mode.load() == ComplexViewMode::Complex)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_complex,
@@ -489,7 +489,7 @@ namespace holovibes
 			}
 			unwrap_res_->reset(compute_desc_.unwrap_history_size.load());
 			unwrap_res_->reallocate(input_.get_pixels());
-			if (compute_desc_.view_mode.load() == holovibes::ComputeDescriptor::PHASE_INCREASE)
+			if (compute_desc_.view_mode.load() == holovibes::ComplexViewMode::PhaseIncrease)
 			{
 				// Phase increase
 				fn_vect_.push_back(std::bind(
@@ -588,8 +588,8 @@ namespace holovibes
 		{
 			gui::Rectangle signalZone;
 			gui::Rectangle noiseZone;
-			compute_desc_.signalZone(signalZone, ComputeDescriptor::Get);
-			compute_desc_.noiseZone(noiseZone, ComputeDescriptor::Get);
+			compute_desc_.signalZone(signalZone, AccessMode::Get);
+			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
 			if (average_record_requested_)
 			{
 				fn_vect_.push_back(std::bind(
@@ -644,7 +644,7 @@ namespace holovibes
 		{
 			float min = 0.f;
 			float max = 0.f;
-			if (compute_desc_.current_window.load() == ComputeDescriptor::window::MAIN_DISPLAY)
+			if (compute_desc_.current_window.load() == WindowKind::MainDisplay)
 				fn_vect_.push_back(std::bind(
 					autocontrast_caller,
 					gpu_float_buffer_,
@@ -655,7 +655,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
-				if (compute_desc_.current_window.load() == ComputeDescriptor::window::SLICE_XZ)
+				if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
@@ -664,7 +664,7 @@ namespace holovibes
 						std::ref(compute_desc_.contrast_min_slice_xz),
 						std::ref(compute_desc_.contrast_max_slice_xz),
 						static_cast<cudaStream_t>(0)));
-				else if (compute_desc_.current_window.load() == ComputeDescriptor::window::SLICE_YZ)
+				else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
@@ -743,7 +743,7 @@ namespace holovibes
 		float z_max = compute_desc_.autofocus_z_max.load();
 		const float z_div = static_cast<float>(compute_desc_.autofocus_z_div.load());
 		gui::Rectangle zone;
-		compute_desc_.autofocusZone(zone, ComputeDescriptor::Get);
+		compute_desc_.autofocusZone(zone, AccessMode::Get);
 
 		/* Autofocus needs to work on the same images.
 		* It will computes on copies. */
@@ -789,7 +789,7 @@ namespace holovibes
 					gpu_input_buffer_size,
 					cudaMemcpyDeviceToDevice);
 
-				if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1)
+				if (compute_desc_.algorithm.load() == Algorithm::FFT1)
 				{
 					fft1_lens(
 						gpu_lens_,
@@ -809,7 +809,7 @@ namespace holovibes
 
 					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex.load() * input_fd.frame_res();
 				}
-				else if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+				else if (compute_desc_.algorithm.load() == Algorithm::FFT2)
 				{
 					fft2_lens(
 						gpu_lens_,
@@ -832,15 +832,15 @@ namespace holovibes
 				else
 					assert(!"Impossible case");
 
-				if (compute_desc_.view_mode.load() == ComputeDescriptor::MODULUS)
+				if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
 				{
 					complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode.load() == ComputeDescriptor::SQUARED_MODULUS)
+				else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
 				{
 					complex_to_squared_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode.load() == ComputeDescriptor::ARGUMENT)
+				else if (compute_desc_.view_mode.load() == ComplexViewMode::Argument)
 				{
 					complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
@@ -921,7 +921,7 @@ namespace holovibes
 			if (input_.get_current_elts() >= input_length_)
 			{
 				for (FnType& f : fn_vect_) f();
-				if (compute_desc_.view_mode.load() != ComputeDescriptor::COMPLEX)
+				if (compute_desc_.view_mode.load() != ComplexViewMode::Complex)
 				{
 					if (!output_.enqueue(
 						gpu_output_buffer_,

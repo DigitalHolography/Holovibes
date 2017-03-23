@@ -15,13 +15,13 @@
 namespace holovibes
 {
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		algorithm(fft_algorithm::None)
-		, compute_mode(compute_mode::DIRECT)
+		algorithm(Algorithm::None)
+		, compute_mode(Computation::Direct)
 		, nsamples(2)
 		, pindex(1)
 		, lambda(532e-9f)
 		, zdistance(1.50f)
-		, view_mode(complex_view_mode::MODULUS)
+		, view_mode(ComplexViewMode::Modulus)
 		, unwrap_history_size(1)
 		, special_buffer_size(10)
 		, log_scale_enabled(false)
@@ -66,7 +66,7 @@ namespace holovibes
 		, noise_zone(gui::Rectangle(10, 10))
 		, autofocus_zone(gui::Rectangle(10, 10))
 		, stft_roi_zone(gui::Rectangle(10, 10))
-		, current_window(window::MAIN_DISPLAY)
+		, current_window(WindowKind::MainDisplay)
 	{
 	}
 
@@ -97,66 +97,66 @@ namespace holovibes
 		return *this;
 	}
 
-	void ComputeDescriptor::stftCursor(QPoint *p, t_access mode)
+	void ComputeDescriptor::stftCursor(QPoint *p, AccessMode m)
 	{
-		guard g(mutex_);
-		if (mode == Get)
+		LockGuard g(mutex_);
+		if (m == Get)
 		{
 			*p = stft_slice_cursor;
 		}
-		else if (mode == Set)
+		else if (m == Set)
 		{
 			stft_slice_cursor = *p;
 		}
 	}
 
-	void ComputeDescriptor::signalZone(gui::Rectangle& rect, t_access mode)
+	void ComputeDescriptor::signalZone(gui::Rectangle& rect, AccessMode m)
 	{
-		guard g(mutex_);
-		if (mode == Get)
+		LockGuard g(mutex_);
+		if (m == Get)
 		{
 			rect = signal_zone;
 		}
-		else if (mode == Set)
+		else if (m == Set)
 		{
 			signal_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::noiseZone(gui::Rectangle& rect, t_access mode)
+	void ComputeDescriptor::noiseZone(gui::Rectangle& rect, AccessMode m)
 	{
-		guard g(mutex_);
-		if (mode == Get)
+		LockGuard g(mutex_);
+		if (m == Get)
 		{
 			rect = noise_zone;
 		}
-		else if (mode == Set)
+		else if (m == Set)
 		{
 			noise_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::autofocusZone(gui::Rectangle& rect, t_access mode)
+	void ComputeDescriptor::autofocusZone(gui::Rectangle& rect, AccessMode m)
 	{
-		guard g(mutex_);
-		if (mode == Get)
+		LockGuard g(mutex_);
+		if (m == Get)
 		{
 			rect = autofocus_zone;
 		}
-		else if (mode == Set)
+		else if (m == Set)
 		{
 			autofocus_zone = rect;
 		}
 	}
 
-	void ComputeDescriptor::stftRoiZone(gui::Rectangle& rect, t_access mode)
+	void ComputeDescriptor::stftRoiZone(gui::Rectangle& rect, AccessMode m)
 	{
-		guard g(mutex_);
-		if (mode == Get)
+		LockGuard g(mutex_);
+		if (m == Get)
 		{
 			rect = stft_roi_zone;
 		}
-		else if (mode == Set)
+		else if (m == Set)
 		{
 			stft_roi_zone = rect;
 		}
