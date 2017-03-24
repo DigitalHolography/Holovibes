@@ -54,16 +54,7 @@ namespace gui
 		this->resize(QSize(width, height));
 		connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 		timer_.start(1000 / DISPLAY_FRAMERATE);
-		windowTitle = 
-					QString("Input : ")
-					+ QString(std::to_string(input_fd.width).c_str())
-					+ QString("x") + QString(std::to_string(input_fd.height).c_str())
-					+ QString(" ") + QString(std::to_string(static_cast<int>(input_fd.depth) << 3).c_str()) + QString("bit")
-					+ QString(" ")
-					+ QString("Output : ")
-					+ QString(std::to_string(frame_desc_.width).c_str())
-					+ QString("x") + QString(std::to_string(frame_desc_.height).c_str())
-					+ QString(" ") + QString(std::to_string(static_cast<int>(frame_desc_.depth) << 3).c_str()) + QString("bit");
+		windowTitle = "MainDisplay";
 		parent_->setWindowTitle(windowTitle);
 		// Create a new computation stream on the graphics card.
 		if (cudaStreamCreate(&cuda_stream_) != cudaSuccess)

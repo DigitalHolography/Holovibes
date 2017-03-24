@@ -30,10 +30,10 @@ __global__ void kernel_extract_angle(	const complex	*input,
  * \param cur Latest phase image.
  * \param output Where to store the unwrapped version of cur.
  * \param size Size of an image in pixels. */
-__global__ void kernel_unwrap(	float* pred,
-								float* cur,
-								float* output,
-								const size_t size);
+__global__ void kernel_unwrap(	const float		*pred,
+								const float		*cur,
+								float			*output,
+								const size_t	size);
 
 /*! Use the multiply-with-conjugate method to fill a float (angles) matrix.
  *
@@ -83,13 +83,13 @@ __global__ void kernel_correct_angles(	float			*data,
 * \param fy buffer.
 * \param z buffer. */
 
-__global__ void kernel_init_unwrap_2d(	uint	width,
-										uint	height,
-										uint	frame_res,
-										float	*input,
-										float	*fx,
-										float	*fy,
-										complex	*z);
+__global__ void kernel_init_unwrap_2d(	const uint	width,
+										const uint	height,
+										const uint	frame_res,
+										const float		*input,
+										float		*fx,
+										float		*fy,
+										complex		*z);
 
 /*! \brief  Multiply each pixels of a complex frame value by a float. Done for 2 complexes.
 */
@@ -141,9 +141,9 @@ __global__ void kernel_add_complex_frames(	complex			*output,
 /*! \brief  Calculate phi for a frame.
 */
 __global__ void kernel_unwrap2d_last_step(	float			*output,
-											const complex	*input,
+											const complex			*input,
 											const uint		size);
 
 /*! \Brief Function from mathlab in case there is NaN in result*/
-__global__ void kernel_convergence(	complex	*input1,
-									complex	*input2);
+//__global__ void kernel_convergence(	complex	*input1,
+//									complex	*input2);

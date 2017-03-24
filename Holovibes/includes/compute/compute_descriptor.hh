@@ -191,6 +191,8 @@ namespace holovibes
 		std::atomic<bool> flowgraphy_enabled;
 		/*! Is log scale post-processing enabled. */
 		std::atomic<bool> log_scale_enabled;
+		std::atomic<bool> log_scale_enabled_cut_xz;
+		std::atomic<bool> log_scale_enabled_cut_yz;
 		/*! Is FFT shift corners post-processing enabled. */
 		std::atomic<bool> shift_corners_enabled;
 		/*! Is manual contrast post-processing enabled. */

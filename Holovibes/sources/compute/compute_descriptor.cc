@@ -25,6 +25,8 @@ namespace holovibes
 		, unwrap_history_size(1)
 		, special_buffer_size(10)
 		, log_scale_enabled(false)
+		, log_scale_enabled_cut_xz(false)
+		, log_scale_enabled_cut_yz(false)
 		, shift_corners_enabled(true)
 		, contrast_enabled(false)
 		, vibrometry_enabled(false)
