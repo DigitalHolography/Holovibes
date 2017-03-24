@@ -94,11 +94,11 @@ namespace holovibes
 		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
 			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 			cufftPlan3d(
-			&plan3d_,
-			input_length_,                  // NX
-			input_.get_frame_desc().width,  // NY
-			input_.get_frame_desc().height, // NZ
-			CUFFT_C2C);
+				&plan3d_,
+				input_length_,                  // NX
+				input_.get_frame_desc().width,  // NY
+				input_.get_frame_desc().height, // NZ
+				CUFFT_C2C);
 
 		/* CUFFT plan2d */
 		cufftPlan2d(
@@ -128,7 +128,7 @@ namespace holovibes
 			int size = static_cast<int>(compute_desc_.convo_matrix.size());
 			/* gpu_kernel_buffer */
 			cudaMalloc<float>(&gpu_kernel_buffer_,
-				sizeof (float)* (size));
+				sizeof(float)* (size));
 			/* Build the kst 3x3 matrix */
 			float *kst_complex_cpu = new float[size];
 			for (int i = 0; i < size; ++i)
@@ -136,7 +136,7 @@ namespace holovibes
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
 				//kst_complex_cpu[i].y = 0;
 			}
-			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size, cudaMemcpyHostToDevice);
+			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size, cudaMemcpyHostToDevice);
 			delete[] kst_complex_cpu;
 		}
 		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
@@ -250,11 +250,11 @@ namespace holovibes
 		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
 			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
 			cufftPlan3d(
-			&plan3d_,
-			input_length_,                  // NX
-			input_.get_frame_desc().width,  // NY
-			input_.get_frame_desc().height, // NZ
-			CUFFT_C2C) ? ++err_count : 0;
+				&plan3d_,
+				input_length_,                  // NX
+				input_.get_frame_desc().width,  // NY
+				input_.get_frame_desc().height, // NZ
+				CUFFT_C2C) ? ++err_count : 0;
 
 		/* CUFFT plan1d realloc */
 		cudaDestroy<cufftResult>(&plan1d_) ? ++err_count : 0;
@@ -329,7 +329,7 @@ namespace holovibes
 				err_count++;
 			}
 		}*/
-		
+
 		if (err_count != 0)
 		{
 			abort_construct_requested_ = true;
@@ -388,8 +388,8 @@ namespace holovibes
 
 	Queue&	ICompute::get_stft_slice_queue(int i)
 	{
-		return (!i) ?	*gpu_stft_slice_queue_xz :
-						*gpu_stft_slice_queue_yz;
+		return (!i) ? *gpu_stft_slice_queue_xz :
+			*gpu_stft_slice_queue_yz;
 	}
 
 	void ICompute::refresh()
@@ -418,7 +418,7 @@ namespace holovibes
 			/* gpu_kernel_buffer */
 			cudaFree(gpu_kernel_buffer_);
 			/* gpu_kernel_buffer */
-			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof (float) * size) != CUDA_SUCCESS)
+			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof(float) * size) != CUDA_SUCCESS)
 				err_count++;
 			/* Build the kst 3x3 matrix */
 			float *kst_complex_cpu = new float[size];
@@ -427,7 +427,7 @@ namespace holovibes
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
 				//kst_complex_cpu[i].y = 0;
 			}
-			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof (float) * size,
+			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size,
 				cudaMemcpyHostToDevice) != CUDA_SUCCESS)
 				err_count++;
 			delete[] kst_complex_cpu;
@@ -488,7 +488,7 @@ namespace holovibes
 			{
 				gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
 			}
-			catch (std::exception& )
+			catch (std::exception&)
 			{
 				gpu_img_acc_ = nullptr;
 				compute_desc_.img_acc_enabled.exchange(false);
@@ -517,7 +517,7 @@ namespace holovibes
 				gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue");
 				gpu_ref_diff_queue_->set_display(false);
 			}
-			catch (std::exception& )
+			catch (std::exception&)
 			{
 				gpu_ref_diff_queue_ = nullptr;
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
@@ -664,12 +664,12 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::autocontrast_caller(	float				*input,
-										const uint			size,
-										ComputeDescriptor&	compute_desc,
-										std::atomic<float>&	min,
-										std::atomic<float>&	max,
-										cudaStream_t		stream)
+	void ICompute::autocontrast_caller(float				*input,
+		const uint			size,
+		ComputeDescriptor&	compute_desc,
+		std::atomic<float>&	min,
+		std::atomic<float>&	max,
+		cudaStream_t		stream)
 	{
 		float contrast_min = 0.f;
 		float contrast_max = 0.f;
@@ -701,8 +701,8 @@ namespace holovibes
 				ref_diff_state_ = COMPUTE;
 				if (compute_desc_.ref_diff_level.load() > 1)
 					mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
-					, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-					compute_desc_.ref_diff_level.load(), input_.get_pixels());
+						, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
+						compute_desc_.ref_diff_level.load(), input_.get_pixels());
 			}
 		}
 		if (ref_diff_state_ == COMPUTE)
@@ -727,8 +727,8 @@ namespace holovibes
 			queue_enqueue(input, gpu_ref_diff_queue_);
 			if (compute_desc_.ref_diff_level.load() > 1)
 				mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
-				, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-				compute_desc_.ref_diff_level.load(), input_.get_pixels());
+					, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
+					compute_desc_.ref_diff_level.load(), input_.get_pixels());
 			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 				input_.get_frame_desc().frame_res(), nframes,
 				static_cast<cudaStream_t>(0));
@@ -779,8 +779,7 @@ namespace holovibes
 					b,
 					static_cast<cudaStream_t>(0));
 			}
-			if (compute_desc_.stft_view_enabled.load() &&
-				gpu_stft_queue_ && gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz)
+			if (compute_desc_.stft_view_enabled.load())
 			{
 				// Conservation of the coordinates when cursor is outside of the window
 				QPoint cursorPos;
@@ -794,16 +793,14 @@ namespace holovibes
 					mouse_posy = cursorPos.y();
 				}
 				// -----------------------------------------------------
-				if (gpu_stft_slice_queue_xz && gpu_stft_slice_queue_yz && gpu_stft_queue_)
-					//stft_view_begin(static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-					stft_view_begin(gpu_stft_buffer_,
-									static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-									static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-									mouse_posx,
-									mouse_posy,
-									width,
-									height,
-									compute_desc_.nsamples.load());
+				stft_view_begin(gpu_stft_buffer_,
+					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+					mouse_posx,
+					mouse_posy,
+					width,
+					height,
+					compute_desc_.nsamples.load());
 			}
 		}
 	}
@@ -891,7 +888,7 @@ namespace holovibes
 			if (diff)
 			{
 				auto fps = frame_count_ * 1000 / diff;
-				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS ,"RenderingFps", std::to_string(fps) + std::string(" fps"));
+				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "RenderingFps", std::to_string(fps) + std::string(" fps"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;
@@ -953,10 +950,10 @@ namespace holovibes
 
 		frame_memcpy(input, af_env_.zone, input_fd.width, af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
 
-		const float focus_metric_value = focus_metric(	af_env_.gpu_float_buffer_af_zone,
-														af_env_.af_square_size,
-														stream,
-														compute_desc_.autofocus_size.load());
+		const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone,
+			af_env_.af_square_size,
+			stream,
+			compute_desc_.autofocus_size.load());
 
 		if (!std::isnan(focus_metric_value))
 			af_env_.focus_metric_values.push_back(focus_metric_value);

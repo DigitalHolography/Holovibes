@@ -49,10 +49,11 @@ void stft(	complex				*input,
 	}
 }
 
-__global__	void	kernel_stft_view_xz(const complex	*input,
-										float			*output,
-										const uint		x0,
-										const uint		y0,
+__global__	static void	kernel_stft_view(	const complex	*input,
+										float			*output_xz,
+										float			*output_yz,
+										const uint		start_x,
+										const uint		start_y,
 										const uint		frame_size,
 										const uint		output_size,
 										const uint		width,
@@ -62,45 +63,35 @@ __global__	void	kernel_stft_view_xz(const complex	*input,
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
 	{
-		const complex pixel = input[(y0 * width) + (id / width) * frame_size + id % width];
-		output[id] = hypotf(pixel.x, pixel.y);
-	}
-}
-
-__global__	void	kernel_stft_view_yz(const complex	*input,
-										float			*output,
-										const uint		x0,
-										const uint		y0,
-										const uint		frame_size,
-										const uint		output_size,
-										const uint		width,
-										const uint		height,
-										const uint		depth)
-{
-	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < output_size)
-	{
-		const complex pixel = input[x0 + id * width];
-		output[id] = hypotf(pixel.x, pixel.y);
+		complex pixel = input[start_x + id * width];
+		output_yz[id] = hypotf(pixel.x, pixel.y);
+		pixel = input[(start_y * width) + (id / width) * frame_size + id % width];
+		output_xz[id] = hypotf(pixel.x, pixel.y);
 	}
 }
 
 void	stft_view_begin(const complex	*input,
 						float			*outputxz,
 						float			*outputyz,
-						const uint		x0,
-						const uint		y0,
+						const uint		start_x,
+						const uint		start_y,
 						const uint		width,
 						const uint		height,
 						const uint		depth)
 {
 	const uint frame_size = width * height;
-	const uint output_size_xz = width * depth;
-	const uint output_size_yz = height * depth;
+	const uint output_size = width * depth;
 	const uint threads = get_max_threads_1d();
-	const uint blocks_xz = map_blocks_to_problem(output_size_xz, threads);
-	const uint blocks_yz = map_blocks_to_problem(output_size_yz, threads);
-	
-	kernel_stft_view_xz << <blocks_xz, threads, 0, 0 >> >(input, outputxz, x0, y0, frame_size, output_size_xz, width, height, depth);
-	kernel_stft_view_yz << <blocks_yz, threads, 0, 0 >> >(input, outputyz, x0, y0, frame_size, output_size_yz, width, height, depth);
+	const uint blocks = map_blocks_to_problem(output_size, threads); 
+
+	kernel_stft_view << <blocks, threads, 0, 0 >> >(input,
+													outputxz,
+													outputyz,
+													start_x,
+													start_y,
+													frame_size,
+													output_size,
+													width,
+													height,
+													depth);
 }
