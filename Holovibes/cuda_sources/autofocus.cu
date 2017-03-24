@@ -42,13 +42,14 @@ static float global_variance_intensity(	const float	*input,
 
 	// We create a matrix of <I> in order to do the substraction
 	float	*matrix_average;
-	cudaMalloc(&matrix_average, size * sizeof(float));
+	size_t size_float = size * sizeof(float);
+	cudaMalloc(&matrix_average, size_float);
 
 	float	*cpu_average_matrix = new float[size];
 	for (uint i = 0; i < size; ++i)
 		cpu_average_matrix[i] = average_input;
 
-	cudaMemcpy(matrix_average, cpu_average_matrix, size * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(matrix_average, cpu_average_matrix, size_float, cudaMemcpyHostToDevice);
 
 	delete[] cpu_average_matrix;
 	// I - <I>
@@ -91,14 +92,15 @@ static float average_local_variance(const float	*input,
 	size_t	ke_gpu_frame_pitch;
 
 	/* Allocates memory for ke_gpu_frame. */
+	const size_t square_size_complex = square_size * sizeof(complex);
 	cudaMallocPitch(&ke_gpu_frame,
 		&ke_gpu_frame_pitch,
-		square_size * sizeof(complex),
+		square_size_complex,
 		square_size);
 	cudaMemset2D(ke_gpu_frame,
 		ke_gpu_frame_pitch,
 		0,
-		square_size * sizeof(complex),
+		square_size_complex,
 		square_size);
 
 	const uint square_mat_size = mat_size * mat_size;
@@ -111,18 +113,19 @@ static float average_local_variance(const float	*input,
 	}
 
 	/* Copy the ke matrix to ke_gpu_frame. */
+	const size_t mat_size_complex = mat_size * sizeof(complex);
 	cudaMemcpy2D(
 		ke_gpu_frame,
 		ke_gpu_frame_pitch,
 		ke_complex_cpu,
-		mat_size * sizeof(complex),
-		mat_size * sizeof(complex),
+		mat_size_complex,
+		mat_size_complex,
 		mat_size,
 		cudaMemcpyHostToDevice);
 
 	delete[] ke_complex_cpu;
 
-	complex* input_complex;
+	complex *input_complex;
 	cudaMalloc(&input_complex, size * sizeof(complex));
 
 	/* Convert input float frame to complex frame. */
@@ -172,12 +175,11 @@ static __global__ void kernel_plus_operator(const float	*input_left,
 											float		*output,
 											const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = input_left[index] + input_right[index];
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -185,12 +187,11 @@ static __global__ void kernel_sqrt_operator(const float	*input,
 											float		*output,
 											const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = sqrtf(input[index]);
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -198,14 +199,14 @@ static float sobel_operator(const float	*input,
 							const uint	square_size)
 {
 	const uint size = square_size * square_size;
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	/* ks matrix with same size than input */
 	complex	*ks_gpu_frame;
 	size_t	ks_gpu_frame_pitch;
 
-	uint complex_square_size = square_size * sizeof(complex);
+	const uint complex_square_size = square_size * sizeof(complex);
 	/* Allocates memory for ks_gpu_frame. */
 	cudaMallocPitch(&ks_gpu_frame,
 		&ks_gpu_frame_pitch,
@@ -218,7 +219,7 @@ static float sobel_operator(const float	*input,
 		square_size);
 
 	/* Build the ks 3x3 matrix */
-	float ks_cpu[9] =
+	const float ks_cpu[9] =
 	{
 		1.0f, 0.0f, -1.0f,
 		2.0f, 0.0f, -2.0f,
@@ -231,7 +232,7 @@ static float sobel_operator(const float	*input,
 		ks_complex_cpu[i].x = ks_cpu[i];
 		ks_complex_cpu[i].y = 0;//ks_cpu[i];
 	}
-	uint complex_size3 = 3 * sizeof(complex);
+	const uint complex_size3 = 3 * sizeof(complex);
 	/* Copy the ks matrix to ks_gpu_frame. */
 	cudaMemcpy2D(ks_gpu_frame,
 		ks_gpu_frame_pitch,
@@ -248,15 +249,15 @@ static float sobel_operator(const float	*input,
 	/* Allocates memory for kst_gpu_frame. */
 	cudaMallocPitch(&kst_gpu_frame,
 		&kst_gpu_frame_pitch,
-		square_size * sizeof(complex),
+		complex_square_size,
 		square_size);
 	cudaMemset2D(kst_gpu_frame,
 		kst_gpu_frame_pitch,
 		0,
-		square_size * sizeof(complex),
+		complex_square_size,
 		square_size);
 	/* Build the kst 3x3 matrix */
-	float kst_cpu[9] =
+	const float kst_cpu[9] =
 	{
 		1.0f, 2.0f, 1.0f,
 		0.0f, 0.0f, 0.0f,
@@ -285,12 +286,13 @@ static float sobel_operator(const float	*input,
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
 
 	/* Allocation of convolution i * ks output */
+	const int sizefloat = size * sizeof(float);
 	float* i_ks_convolution;
-	cudaMalloc(&i_ks_convolution, size * sizeof(float));
+	cudaMalloc(&i_ks_convolution, sizefloat);
 
 	/* Allocation of convolution i * kst output */
 	float* i_kst_convolution;
-	cudaMalloc(&i_kst_convolution, size * sizeof(float));
+	cudaMalloc(&i_kst_convolution, sizefloat);
 
 	cufftHandle plan2d_x;
 	cufftHandle plan2d_k;
@@ -334,7 +336,7 @@ static float sobel_operator(const float	*input,
 	cudaFree(ks_gpu_frame);
 
 	// HEHEHEHEHEHEHEHEH
-	return (1.0f / average_magnitude);
+	return (1 / average_magnitude);
 }
 
 float focus_metric(	float			*input,
@@ -343,8 +345,8 @@ float focus_metric(	float			*input,
 					const uint		local_var_size)
 {
 	const uint	size = square_size * square_size;
-	uint			threads = get_max_threads_1d();
-	uint			blocks = map_blocks_to_problem(size, threads);
+	const uint	threads = get_max_threads_1d();
+	const uint	blocks = map_blocks_to_problem(size, threads);
 
 	/* Divide each pixels to avoid higher values than float can contains. */
 	kernel_float_divide << <blocks, threads, 0, stream >> > (input, size, static_cast<float>(size));

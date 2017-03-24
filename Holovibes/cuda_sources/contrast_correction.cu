@@ -24,7 +24,6 @@ static __global__ void apply_contrast(	float		*input,
 	if (index < size)
 	{
 		input[index] = factor * (input[index] - min);
-		//index += blockDim.x * gridDim.x;
 	}
 }
 

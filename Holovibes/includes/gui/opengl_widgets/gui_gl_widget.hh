@@ -114,7 +114,7 @@ namespace gui
 			selection_mode_ = mode;
 		}
 
-		eselection get_selection_mode(void)
+		eselection get_selection_mode(void) const
 		{
 			holovibes::ComputeDescriptor& cd = h_.get_compute_desc();
 			if (cd.stft_view_enabled.load())
