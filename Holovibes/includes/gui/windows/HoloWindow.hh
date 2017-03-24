@@ -16,10 +16,9 @@
 #include "compute_descriptor.hh"
 #include "info_manager.hh"
 #include "DirectWindow.hh"
-#include "Selection.hh"
 
 namespace gui
-{	
+{
 	using SharedPipe = std::shared_ptr<holovibes::ICompute>;
 	using CDescriptor = holovibes::ComputeDescriptor;
 

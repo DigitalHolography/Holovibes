@@ -195,8 +195,7 @@ namespace gui
 	{
 		if (e->button() == Qt::LeftButton)
 		{
-			//if (kView == Direct)
-				zoneSelected.release();
+			zoneSelected.release();
 			if (zoneSelected.getConstZone().topLeft() !=
 				zoneSelected.getConstZone().bottomRight())
 			{

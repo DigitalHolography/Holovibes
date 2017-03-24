@@ -70,9 +70,6 @@ namespace gpib
 
 namespace gui
 {
-	class PlotWindow;
-	class ThreadRecorder;
-	class ThreadCSVRecord;
 	/*! \class MainWindow
 	**
 	** Main class of the GUI. It regroup most of the Qt slots used for user actions.
@@ -323,18 +320,6 @@ namespace gui
 		/*! \brief Set z_div for autofocus
 		*/
 		void set_autofocus_mode();
-		/*! \brief Request autofocus action in pipeline
-		** \param zone selection zone for computation
-		*/
-		void request_autofocus(gui::Rectangle zone);
-		/*! \brief Request stft roi action in zone
-		** \param zone selection is region of interest
-		*/
-		void request_stft_roi_update(gui::Rectangle zone);
-		/*! \brief Indicate stft roi selection is finish
-		** \param zone selection is region of interest
-		*/
-		void request_stft_roi_end();
 		/*! \brief Request to stop the autofocus currently
 		**  occuring.
 		*/

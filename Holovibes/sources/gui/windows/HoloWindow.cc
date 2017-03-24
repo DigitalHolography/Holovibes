@@ -213,16 +213,21 @@ namespace gui
 					Ic->request_filter2D_roi_update();
 					Ic->request_filter2D_roi_end();
 				}
+				else if (zoneSelected.getKind() == Autofocus)
+				{
+					Cd.autofocusZone(zoneSelected.getTexZone(Fd.width), holovibes::AccessMode::Set);
+					Ic->request_autofocus();
+					zoneSelected.setKind(KindOfSelection::Zoom);
+				}
 			}
 		}
 	}
 
 	void	HoloWindow::updateCursorPosition(QPoint pos)
 	{
-		auto manager = InfoManager::get_manager();
 		std::stringstream ss;
 		ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
-		manager->update_info("STFT Slice Cursor", ss.str());
+		InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
 		Cd.stftCursor(&pos, holovibes::AccessMode::Set);
 	}
 

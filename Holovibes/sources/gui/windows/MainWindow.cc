@@ -1231,14 +1231,12 @@ namespace gui
 			is_enabled_autofocus_ = true;
 			mainDisplay->setKindOfSelection(KindOfSelection::Autofocus);
 			mainDisplay->resetTransform();
+			InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 			cd.autofocus_z_min.exchange(z_min);
 			cd.autofocus_z_max.exchange(z_max);
 			cd.autofocus_z_div.exchange(z_div);
 			cd.autofocus_z_iter.exchange(z_iter);
-
-			//connect(gl_widget, SIGNAL(autofocus_zone_selected(holovibes::Rectangle)),
-				//this, SLOT(request_autofocus(holovibes::Rectangle)), Qt::UniqueConnection);
-
+			
 			notify();
 			is_enabled_autofocus_ = false;
 		}
@@ -1246,31 +1244,9 @@ namespace gui
 			display_error("z min have to be strictly inferior to z max");
 	}
 
-	void MainWindow::request_autofocus(Rectangle zone)
-	{
-		InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
-		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-		cd.autofocusZone(zone, holovibes::AccessMode::Set);
-		holovibes_.get_pipe()->request_autofocus();
-		mainDisplay->setKindOfSelection(KindOfSelection::Autofocus); // Raw Autofocus Tmp;
-		notify();
-	}
-
-	void MainWindow::request_stft_roi_end()
-	{
-		holovibes_.get_pipe()->request_filter2D_roi_end();
-	}
-
-	void MainWindow::request_stft_roi_update(Rectangle zone)
-	{
-		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-		cd.stftRoiZone(zone, holovibes::AccessMode::Set);
-		holovibes_.get_pipe()->request_filter2D_roi_update();
-	}
-
 	void MainWindow::request_autofocus_stop()
 	{
+		// Ctrl + C shortcut
 		try
 		{
 			holovibes_.get_pipe()->request_autofocus_stop();
@@ -1280,7 +1256,7 @@ namespace gui
 			std::cerr << e.what() << std::endl;
 		}
 	}
-
+	
 	void MainWindow::set_contrast_mode(bool value)
 	{
 		if (!is_direct_mode())
@@ -1454,15 +1430,10 @@ namespace gui
 	{
 		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 		cd.average_enabled.exchange(value);
-		if (value)
-		{
-			mainDisplay->resetTransform();
-			mainDisplay->setKindOfSelection(KindOfSelection::Average);
-		}
-		else
-		{
-			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
-		}
+		mainDisplay->resetTransform();
+		mainDisplay->setKindOfSelection((value) ?
+			KindOfSelection::Average : KindOfSelection::Zoom);
+
 		is_enabled_average_ = value;
 		notify();
 	}
@@ -2389,6 +2360,7 @@ namespace gui
 
 	void MainWindow::save_ini(const std::string& path)
 	{
+		///import_file_stop(); // Tmp
 		boost::property_tree::ptree ptree;
 		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
 		if (cd.stft_enabled.load())
