@@ -570,7 +570,6 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
-
 		/* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
 		if (compute_desc_.shift_corners_enabled.load())

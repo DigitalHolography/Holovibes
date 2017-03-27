@@ -526,6 +526,11 @@ namespace holovibes
 		}
 	}
 
+	bool ICompute::get_request_refresh()
+	{
+		return (refresh_requested_);
+	}
+
 	void ICompute::request_refresh()
 	{
 		refresh_requested_ = true;
@@ -794,13 +799,15 @@ namespace holovibes
 				}
 				// -----------------------------------------------------
 				stft_view_begin(gpu_stft_buffer_,
-					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-					mouse_posx,
-					mouse_posy,
-					width,
-					height,
-					compute_desc_.nsamples.load());
+								static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+								static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+								mouse_posx,
+								mouse_posy,
+								width,
+								height,
+								compute_desc_.nsamples.load(),
+								compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
+								compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
 			}
 		}
 	}

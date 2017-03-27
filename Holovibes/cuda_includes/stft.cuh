@@ -61,4 +61,6 @@ void	stft_view_begin(const complex	*input,
 						const uint		y0,
 						const uint		width,
 						const uint		height,
-						const uint		depth);
+						const uint		depth,
+						const uint		acc_level_xz,
+						const uint		acc_level_yz);

@@ -34,39 +34,52 @@ void stft(	complex				*input,
 	if (stft_activated)
 		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
 	cudaStreamSynchronize(stream);
-	cudaMemcpy(
-		input,
-		stft_buf + p * frame_size,
-		complex_frame_size,
-		cudaMemcpyDeviceToDevice);
+	cudaMemcpy(	input,
+				stft_buf + p * frame_size,
+				complex_frame_size,
+				cudaMemcpyDeviceToDevice);
 
 	if (p != q)
 	{
-	cudaMemcpy(	input + frame_size,
-				stft_buf + q * frame_size,
-				complex_frame_size,
-				cudaMemcpyDeviceToDevice);
+		cudaMemcpy(	input + frame_size,
+					stft_buf + q * frame_size,
+					complex_frame_size,
+					cudaMemcpyDeviceToDevice);
 	}
 }
 
 __global__	static void	kernel_stft_view(	const complex	*input,
-										float			*output_xz,
-										float			*output_yz,
-										const uint		start_x,
-										const uint		start_y,
-										const uint		frame_size,
-										const uint		output_size,
-										const uint		width,
-										const uint		height,
-										const uint		depth)
+											float			*output_xz,
+											float			*output_yz,
+											const uint		start_x,
+											const uint		start_y,
+											const uint		frame_size,
+											const uint		output_size,
+											const uint		width,
+											const uint		height,
+											const uint		depth,
+											const uint		acc_level_xz,
+											const uint		acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
 	{
-		complex pixel = input[start_x + id * width];
-		output_yz[id] = hypotf(pixel.x, pixel.y);
-		pixel = input[(start_y * width) + (id / width) * frame_size + id % width];
-		output_xz[id] = hypotf(pixel.x, pixel.y);
+		complex pixel = make_cuComplex(0, 0);
+		int i = -1;
+		uint img_acc_level = acc_level_yz;
+		while (++i < img_acc_level)
+		{
+			pixel = cuCaddf(pixel, input[start_x + i + id * width]);
+		}
+		output_yz[id] = hypotf(pixel.x, pixel.y) / 5.f;
+		i = -1;
+		pixel = make_cuComplex(0, 0);
+		img_acc_level = acc_level_xz;
+		while (++i < img_acc_level)
+		{
+			pixel = cuCaddf(pixel, input[((start_y + i) * width) + (id / width) * frame_size + id % width]);
+		}
+		output_xz[id] = hypotf(pixel.x, pixel.y) / 5.f;
 	}
 }
 
@@ -77,7 +90,9 @@ void	stft_view_begin(const complex	*input,
 						const uint		start_y,
 						const uint		width,
 						const uint		height,
-						const uint		depth)
+						const uint		depth,
+						const uint		acc_level_xz,
+						const uint		acc_level_yz)
 {
 	const uint frame_size = width * height;
 	const uint output_size = width * depth;
@@ -93,5 +108,7 @@ void	stft_view_begin(const complex	*input,
 													output_size,
 													width,
 													height,
-													depth);
+													depth,
+													acc_level_xz,
+													acc_level_yz);
 }

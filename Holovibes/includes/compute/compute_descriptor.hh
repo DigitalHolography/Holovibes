@@ -154,7 +154,6 @@ namespace holovibes
 		std::atomic<float> autofocus_z_max;
 		/*! Pixel Size used when importing a file */
 		std::atomic<float> import_pixel_size;
-
 		/*! Size of Image Accumulation buffer. */
 		std::atomic<unsigned int> img_acc_buffer_size;
 		/*! Convolution matrix length. */
@@ -167,6 +166,8 @@ namespace holovibes
 		std::atomic<unsigned int> flowgraphy_level;
 		/*! Set Image Accumulation level. */
 		std::atomic<unsigned int> img_acc_level;
+		std::atomic<unsigned int> img_acc_cutsXZ_level;
+		std::atomic<unsigned int> img_acc_cutsYZ_level;
 		/*! Height of the matrix used inside the autofocus calculus. */
 		std::atomic<unsigned int> autofocus_size;
 		/*! Number of points of autofocus between the z range. */
@@ -217,6 +218,8 @@ namespace holovibes
 		std::atomic<bool> is_cine_file;
 		/*! Is Image Accumulation enabled. */
 		std::atomic<bool> img_acc_enabled;
+		std::atomic<bool> img_acc_cutsXZ_enabled;
+		std::atomic<bool> img_acc_cutsYZ_enabled;
 		#pragma endregion
 	};
 }

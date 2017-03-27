@@ -251,8 +251,21 @@ namespace gui
 		findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 		findChild<QLineEdit *>("BoundaryLineEdit")->setEnabled(!is_direct);
 		findChild<QLineEdit *>("BoundaryLineEdit")->clear();
-		findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
-		findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+		if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+		{
+			findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
+			findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+		}
+		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+		{
+			findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsXZ_enabled.load());
+			findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsXZ_level.load());
+		}
+		else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+		{
+			findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsYZ_enabled.load());
+			findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
+		}
 		findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
 		findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
 		findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
@@ -525,7 +538,11 @@ namespace gui
 				gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_output_queue()));
 				cd.contrast_enabled.exchange(true);
 				if (!cd.flowgraphy_enabled.load())
+				{
 					set_auto_contrast();
+					pipe_refresh();
+				}
+				while (holovibes_.get_pipe()->get_request_refresh());
 				notify();
 			}
 			catch (std::exception& e)
@@ -1171,11 +1188,16 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
-			// if (!value)
-			holovibes_.get_pipe()->request_acc_refresh();
-			// else
-			//  pipe_refresh();
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+			{
+				holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
+				holovibes_.get_pipe()->request_acc_refresh();
+			}
+			else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+				holovibes_.get_compute_desc().img_acc_cutsXZ_enabled.exchange(value);
+			else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+				holovibes_.get_compute_desc().img_acc_cutsYZ_enabled.exchange(value);
 			notify();
 		}
 	}
@@ -1184,8 +1206,16 @@ namespace gui
 	{
 		if (!is_direct_mode())
 		{
-			holovibes_.get_compute_desc().img_acc_level.exchange(value);
-			holovibes_.get_pipe()->request_acc_refresh();
+			holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (cd.current_window.load() == holovibes::ComputeDescriptor::window::MAIN_DISPLAY)
+			{
+				holovibes_.get_compute_desc().img_acc_level.exchange(value);
+				holovibes_.get_pipe()->request_acc_refresh();
+			}
+			else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_XZ)
+				holovibes_.get_compute_desc().img_acc_cutsXZ_level.exchange(value);
+			else if (cd.current_window.load() == holovibes::ComputeDescriptor::window::SLICE_YZ)
+				holovibes_.get_compute_desc().img_acc_cutsYZ_level.exchange(value);
 			notify();
 		}
 	}

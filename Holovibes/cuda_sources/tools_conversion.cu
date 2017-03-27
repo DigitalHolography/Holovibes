@@ -18,15 +18,14 @@ __global__ void img8_to_complex(complex			*output,
 								const uchar		*input,
 								const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		// Image rescaling on 2^16 colors (65535 / 255 = 257)
-		float val = static_cast<float>(input[index] * 257);
+		const float val = static_cast<float>(input[index] * 257);
 		output[index].x = val;
 		output[index].y = 0;
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -34,14 +33,13 @@ __global__ void img16_to_complex(	complex			*output,
 									const ushort	*input,
 									const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		float val = static_cast<float>(input[index]);
 		output[index].x = val;
 		output[index].y = 0;
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -49,14 +47,13 @@ __global__ void float_to_complex(	complex		*output,
 									const float	*input,
 									const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		float val = input[index];
 		output[index].x = val;
 		output[index].y = 0;
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -65,12 +62,11 @@ static __global__ void kernel_complex_to_modulus(	const complex	*input,
 													float			*output,
 													const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -79,8 +75,8 @@ void complex_to_modulus(const complex	*input,
 						const uint		size,
 						cudaStream_t	stream)
 {
-	uint threads = THREADS_128;
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = THREADS_128;
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -90,13 +86,12 @@ static __global__ void kernel_complex_to_squared_modulus(	const complex	*input,
 															float			*output,
 															const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
 		output[index] *= output[index];
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -105,8 +100,8 @@ void complex_to_squared_modulus(const complex	*input,
 								const uint		size,
 								cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -116,12 +111,11 @@ static __global__ void kernel_complex_to_argument(	const complex	*input,
 													float			*output,
 													const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = (atanf(input[index].y / input[index].x) + M_PI_2);;
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -130,8 +124,8 @@ void complex_to_argument(	const complex	*input,
 							const uint		size,
 							cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -200,7 +194,7 @@ void rescale_float(	const float		*input,
 					cudaStream_t	stream)
 {
 	const uint threads = THREADS_128;
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	// TODO : See if gpu_float_buffer_ could be used directly.
 	cudaMemcpy(output, input, sizeof(float) * size, cudaMemcpyDeviceToDevice);
@@ -208,7 +202,7 @@ void rescale_float(	const float		*input,
 	// Computing minimum and maximum values, in order to rescale properly.
 	float* gpu_local_mins;
 	float* gpu_local_maxs;
-	uint float_blocks = sizeof(float) * blocks;
+	const uint float_blocks = sizeof(float) * blocks;
 	cudaMalloc(&gpu_local_mins, float_blocks);
 	cudaMalloc(&gpu_local_maxs, float_blocks);
 
@@ -261,13 +255,11 @@ void rescale_float_unwrap2d(float			*input,
 __global__ void kernel_rescale_argument(float		*input,
 										const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	const float scale = 20860.43839105472216033376753330230712890625; //65535.0f / M_PI;
-	while (index < size)
+	if (index < size)
 	{
-		input[index] *= scale;
-		index += blockDim.x * gridDim.x;
+		input[index] *= 20860.43839105472216033376753330230712890625f; //65535.0f / M_PI;;
 	}
 }
 
@@ -288,12 +280,11 @@ static __global__ void kernel_endianness_conversion(const ushort	*input,
 													ushort			*output,
 													const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		output[index] = (input[index] << 8) | (input[index] >> 8);
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -302,8 +293,8 @@ void endianness_conversion(	const ushort	*input,
 							const uint		size,
 							cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -315,9 +306,9 @@ static __global__ void kernel_float_to_ushort(	const float	*input,
 												ushort		*output,
 												const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		if (input[index] > 65535.0f)
 			output[index] = 65535;
@@ -325,7 +316,6 @@ static __global__ void kernel_float_to_ushort(	const float	*input,
 			output[index] = 0;
 		else
 			output[index] = static_cast<ushort>(input[index]);
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -333,9 +323,9 @@ static __global__ void kernel_complex_to_ushort(const complex	*input,
 												uint			*output,
 												const uint		size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		ushort x = 0;
 		ushort y = 0;
@@ -352,7 +342,6 @@ static __global__ void kernel_complex_to_ushort(const complex	*input,
 		res ^= res;
 		res = x << 16;
 		res += y;
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -361,8 +350,8 @@ void float_to_ushort(	const float		*input,
 						const uint		size,
 						cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }
@@ -372,8 +361,8 @@ void complex_to_ushort(	const complex	*input,
 						const uint		size,
 						cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
 }
@@ -394,15 +383,14 @@ __global__ void	kernel_buffer_size_conversion(	char			*real_buffer,
 												const size_t	real_frame_desc_width,
 												const size_t	area)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < area)
+	if (index < area)
 	{
 		uint x = index % real_frame_desc_width;
 		uint y = index / real_frame_desc_width;
 		if (y < frame_desc_height && x < frame_desc_width)
 			real_buffer[index] = buffer[y * frame_desc_width + x];
-		index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -411,8 +399,8 @@ void	buffer_size_conversion(char							*real_buffer,
 	const camera::FrameDescriptor	real_frame_desc,
 	const camera::FrameDescriptor	frame_desc)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
 
 	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(	real_buffer,
 																buffer,
@@ -429,7 +417,7 @@ __global__ void kernel_accumulate_images(	const float		*input,
 											const size_t	nb_elmt,
 											const size_t	nb_pixel)
 {
-	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	size_t	i = 0;
 	int		pos = start;
 
@@ -457,8 +445,8 @@ void accumulate_images(	const float		*input,
 						const size_t	nb_pixel,
 						cudaStream_t	stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(nb_pixel, threads);
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
 
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
 }
@@ -468,14 +456,13 @@ __global__ void kernel_normalize_images(float		*image,
 										const float	min,
 										const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	if (index < size)
 	{
 		if (min < 0.f)
 			image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;
 		else
 			image[index] = (image[index] - min) / (max - min) * 65535.0f;
-		index += blockDim.x * gridDim.x;
 	}
 }
