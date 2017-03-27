@@ -28,7 +28,7 @@ namespace gui
 			HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
 				SharedPipe ic, CDescriptor& cd);
 			virtual ~HoloWindow();
-			
+
 		protected:
 			SharedPipe		Ic;
 			CDescriptor&	Cd;

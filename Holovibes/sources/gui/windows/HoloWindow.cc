@@ -196,7 +196,9 @@ namespace gui
 	{
 		DirectWindow::mouseMoveEvent(e);
 		if (!slicesAreLocked.load())
-			updateCursorPosition(e->pos());
+			updateCursorPosition(QPoint(
+				e->x() * (Fd.width / static_cast<float>(width())),
+				e->y() * (Fd.height / static_cast<float>(height()))));
 	}
 
 	void	HoloWindow::mouseReleaseEvent(QMouseEvent* e)
@@ -219,10 +221,15 @@ namespace gui
 					Ic->request_autofocus();
 					zoneSelected.setKind(KindOfSelection::Zoom);
 				}
+				else if (zoneSelected.getKind() == Signal)
+					Cd.signalZone(zoneSelected.getTexZone(Fd.width), holovibes::AccessMode::Set);
+				else if (zoneSelected.getKind() == Noise)
+					Cd.noiseZone(zoneSelected.getTexZone(Fd.width), holovibes::AccessMode::Set);
+				Ic->notify_observers();
 			}
 		}
 	}
-
+	
 	void	HoloWindow::updateCursorPosition(QPoint pos)
 	{
 		std::stringstream ss;

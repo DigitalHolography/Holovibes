@@ -114,7 +114,7 @@ namespace gui
 				break;
 		}
 	}
-
+	
 	void	BasicOpenGLWindow::setTranslate()
 	{
 		for (uint id = 0; id < 2; id++)
@@ -153,5 +153,10 @@ namespace gui
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 			Program->release();
 		}
+	}
+
+	void	BasicOpenGLWindow::resetSelection()
+	{
+		zoneSelected.resetZoneBuffer();
 	}
 }

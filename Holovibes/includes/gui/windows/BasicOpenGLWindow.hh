@@ -50,6 +50,7 @@ namespace gui
 			void					setKindOfSelection(KindOfSelection k);
 			const KindOfSelection	getKindOfSelection() const;
 			void					resetTransform();
+			void					resetSelection();
 
 		protected:
 			// Fields -----------
@@ -88,7 +89,7 @@ namespace gui
 
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent* e);
-
+			
 			// Transform functions
 			void	setTranslate();
 			void	setScale();

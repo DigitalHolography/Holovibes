@@ -368,6 +368,10 @@ namespace gui
 		void set_q_vibro(int value);
 		/*! \brief Enable or disable average/ROI mode */
 		void set_average_mode(bool value);
+
+		void activeSignalZone();
+		void activeNoiseZone();
+
 		/*! \brief Plot average/ROI computations */
 		void set_average_graphic();
 		/*! \brief Dispose average/ROI computations */

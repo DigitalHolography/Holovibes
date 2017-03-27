@@ -12,10 +12,10 @@
 
 #version 450
 
-in  vec4    passColor;
+in  vec3    passColor;
 out vec4    outColor;
 
 void main()
 {
-	outColor = passColor;
+	outColor = vec4(passColor, 0.4f);
 }

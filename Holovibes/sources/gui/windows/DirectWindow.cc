@@ -160,7 +160,6 @@ namespace gui
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-		
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
@@ -203,7 +202,9 @@ namespace gui
 					zoomInRect(zoneSelected.getConstZone());
 			}
 		}
-		else if (e->button() == Qt::RightButton)
+		else if (e->button() == Qt::RightButton &&
+			zoneSelected.getKind() != Signal &&
+			zoneSelected.getKind() != Noise)
 			resetTransform();
 	}
 

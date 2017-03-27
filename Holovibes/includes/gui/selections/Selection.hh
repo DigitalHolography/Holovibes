@@ -21,17 +21,22 @@
 
 namespace gui
 {
+	#define nbVertices 16
+	#define nbElements 12
+
 	using KindOfSelection =
 	enum
 	{
-		None = -1,
 		Zoom,
-		Average,	// Signal == 1, Noise == 2
-		Autofocus = 3,
+		// Average
+		Signal,
+		Noise,
+		// -------
+		Autofocus,
 		Filter2D,
-		SliceZoom,
+		SliceZoom
 	};
-	using Color = std::array<float, 4>;
+	using Color = std::array<float, 3>;
 	using ColorArray = std::array<Color, 6>;
 
 	class Selection : protected QOpenGLFunctions
@@ -52,7 +57,7 @@ namespace gui
 			void initBuffers();
 			void setZoneBuffer();
 			void resetZoneBuffer();
-			void setUniformColor();
+			void setZoneColor();
 			void draw();
 
 			void setKind(KindOfSelection k);
@@ -64,8 +69,8 @@ namespace gui
 		protected:
 			Rectangle				Zone;
 			KindOfSelection			kSelection;
-			GLuint					zoneBuffer, elemBuffer;
-			QOpenGLShaderProgram	*Program;
+			GLuint					zoneBuffer, colorBuffer, elemBuffer;
+			QOpenGLShaderProgram*	Program;
 			ColorArray				Colors;
 
 		private:

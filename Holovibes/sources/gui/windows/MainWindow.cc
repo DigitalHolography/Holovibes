@@ -158,8 +158,25 @@ namespace gui
 		findChild<QLineEdit *>("ROIFilePathLineEdit")->setEnabled(cd.average_enabled.load());
 		findChild<QPushButton *>("SaveROIPushButton")->setEnabled(cd.average_enabled.load());
 		findChild<QPushButton *>("LoadROIPushButton")->setEnabled(cd.average_enabled.load());
-		findChild<QLabel *>("AverageSignalLabel")->setText(cd.average_enabled.load() ? "<font color='DeepPink'>Signal</font>" : "Signal");
-		findChild<QLabel *>("AverageNoiseLabel")->setText(cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");
+
+		QPushButton* signalBtn = findChild<QPushButton *>("AverageSignalPushButton");
+		signalBtn->setEnabled(cd.average_enabled.load());
+		signalBtn->setStyleSheet((signalBtn->isEnabled() &&
+			mainDisplay->getKindOfSelection() == KindOfSelection::Signal) ? "QPushButton {color: #8E66D9;}" : "");
+		// FF0080 fushia
+		// 8E66D9 mauve
+
+		QPushButton* noiseBtn = findChild<QPushButton *>("AverageNoisePushButton");
+		noiseBtn->setEnabled(cd.average_enabled.load());
+		noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
+			mainDisplay->getKindOfSelection() == KindOfSelection::Noise) ? "QPushButton {color: #00A4AB;}" : "");
+		// 428EA3 gris-turquoise
+		// 00A4AB turquoise
+
+		/*findChild<QLabel *>("AverageSignalLabel")->setText(
+			cd.average_enabled.load() ? "<font color='DeepPink'>Signal</font>" : "Signal");
+		findChild<QLabel *>("AverageNoiseLabel")->setText(
+			cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");*/
 
 		findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 			setEnabled(((!is_direct && (cd.view_mode.load() == holovibes::ComplexViewMode::PhaseIncrease) ||
@@ -1428,13 +1445,25 @@ namespace gui
 
 	void MainWindow::set_average_mode(const bool value)
 	{
-		holovibes::ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-		cd.average_enabled.exchange(value);
+		holovibes_.get_compute_desc().average_enabled.exchange(value);
 		mainDisplay->resetTransform();
 		mainDisplay->setKindOfSelection((value) ?
-			KindOfSelection::Average : KindOfSelection::Zoom);
-
+			KindOfSelection::Signal : KindOfSelection::Zoom);
+		if (!value)
+			mainDisplay->resetSelection();
 		is_enabled_average_ = value;
+		notify();
+	}
+
+	void MainWindow::activeSignalZone()
+	{
+		mainDisplay->setKindOfSelection(KindOfSelection::Signal);
+		notify();
+	}
+
+	void MainWindow::activeNoiseZone()
+	{
+		mainDisplay->setKindOfSelection(KindOfSelection::Noise);
 		notify();
 	}
 
