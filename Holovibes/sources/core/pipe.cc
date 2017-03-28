@@ -616,7 +616,9 @@ namespace holovibes
 			}
 		}
 
-		if (compute_desc_.log_scale_enabled.load() || compute_desc_.log_scale_enabled_cut_xz.load() || compute_desc_.log_scale_enabled_cut_yz.load())
+		if (compute_desc_.log_scale_enabled.load()
+			|| compute_desc_.log_scale_enabled_cut_xz.load()
+			|| compute_desc_.log_scale_enabled_cut_yz.load())
 		{
 			if (compute_desc_.log_scale_enabled.load())
 				fn_vect_.push_back(std::bind(
@@ -845,7 +847,6 @@ namespace holovibes
 				{
 					complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				// TODO: Pop a window to warn the user
 				else
 				{
 					cudaFree(gpu_float_buffer_af_zone);

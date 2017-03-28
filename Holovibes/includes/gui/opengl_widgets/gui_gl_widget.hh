@@ -163,7 +163,6 @@ namespace gui
 		*/
 		void stft_roi_zone_selected_end();
 
-		/*TODO:*/
 		void stft_slice_pos_update(QPoint pos);
 
 	protected:

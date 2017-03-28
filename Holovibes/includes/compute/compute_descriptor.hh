@@ -36,20 +36,15 @@ namespace holovibes
 	private:
 		mutable std::mutex mutex_;
 
-		/* TODO:*/
-		//std::atomic<QPoint> stft_slice_cursor;
+		/*! STFT cuts mode cursor */
 		QPoint stft_slice_cursor;
 		/*! Average mode signal zone */
-		//std::atomic<Rectangle> signal_zone;
 		Rectangle signal_zone;
 		/*! Selected zone in which apply the autofocus algorithm. */
-		//std::atomic<Rectangle> autofocus_zone;
 		Rectangle autofocus_zone;
 		/*! Average mode noise zone */
-		//std::atomic<Rectangle> noise_zone;
 		Rectangle noise_zone;
 		/*! Selected zone in which apply the stft algorithm. */
-		//std::atomic<Rectangle> stft_roi_zone;
 		Rectangle stft_roi_zone;
 
 	public:
@@ -181,7 +176,7 @@ namespace holovibes
 		std::atomic<int> stft_steps;
 		/*! Frame number of images that will be averaged. */
 		std::atomic<int> ref_diff_level;
-		/*! TODO: */
+		/*! History of unwrap size */
 		std::atomic<int> unwrap_history_size;
 		/*! Special buffer size*/
 		std::atomic<int> special_buffer_size;

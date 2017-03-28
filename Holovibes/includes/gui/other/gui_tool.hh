@@ -32,7 +32,6 @@ namespace gui
 	{
 
 	public:
-		//TODO:
 		GuiTool(holovibes::Holovibes& holovibes, MainWindow* mainWindow);
 
 		~GuiTool();

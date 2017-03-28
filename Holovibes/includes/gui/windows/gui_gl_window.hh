@@ -75,8 +75,7 @@ namespace gui
 		/*! \brief Returns a reference to a GLWidget object. */
 		GLWidget& get_gl_widget() const
 		{
-			//TODO: : remove the dynamic cast when the widget_slice has been cleared up & its gonna SEGFAULT
-			return *(dynamic_cast<GLWidget*>(gl_widget_.get()));
+			return *(dynamic_cast<GLWidget *>(gl_widget_.get()));
 		}
 
 		public slots:

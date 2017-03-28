@@ -75,21 +75,28 @@ namespace holovibes
 		, current_window(window::MAIN_DISPLAY)
 	{
 	}
-
+	
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
 		compute_mode.exchange(cd.compute_mode.load());
-		algorithm.exchange(cd.algorithm.load());
 		nsamples.exchange(cd.nsamples.load());
 		pindex.exchange(cd.pindex.load());
 		lambda.exchange(cd.lambda.load());
 		zdistance.exchange(cd.zdistance.load());
 		view_mode.exchange(cd.view_mode.load());
 		unwrap_history_size.exchange(cd.unwrap_history_size.load());
+		special_buffer_size.exchange(cd.special_buffer_size.load());
 		log_scale_enabled.exchange(cd.log_scale_enabled.load());
+		log_scale_enabled_cut_xz.exchange(cd.log_scale_enabled_cut_xz.load());
+		log_scale_enabled_cut_yz.exchange(cd.log_scale_enabled_cut_yz.load());
 		shift_corners_enabled.exchange(cd.shift_corners_enabled.load());
 		contrast_enabled.exchange(cd.contrast_enabled.load());
 		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
+		convolution_enabled.exchange(cd.convolution_enabled.load());
+		flowgraphy_enabled.exchange(cd.flowgraphy_enabled.load());
+		stft_enabled.exchange(cd.stft_enabled.load());
+		filter_2d_enabled.exchange(cd.filter_2d_enabled.load());
+		average_enabled.exchange(cd.average_enabled.load());
 		contrast_min.exchange(cd.contrast_min.load());
 		contrast_max.exchange(cd.contrast_max.load());
 		contrast_min_slice_xz.exchange(cd.contrast_min_slice_xz.load());
@@ -98,8 +105,36 @@ namespace holovibes
 		contrast_max_slice_yz.exchange(cd.contrast_max_slice_yz.load());
 		vibrometry_q.exchange(cd.vibrometry_q.load());
 		autofocus_size.exchange(cd.autofocus_size.load());
-		stft_enabled.exchange(cd.stft_enabled.load());
-		//TODO : to complete
+		convo_matrix_width.exchange(cd.convo_matrix_width.load());
+		convo_matrix_height.exchange(cd.convo_matrix_height.load());
+		convo_matrix_z.exchange(cd.convo_matrix_z.load());
+		autofocus_z_min.exchange(cd.autofocus_z_min.load());
+		autofocus_z_max.exchange(cd.autofocus_z_max.load());
+		autofocus_z_div.exchange(cd.autofocus_z_div.load());
+		autofocus_z_iter.exchange(cd.autofocus_z_iter.load());
+		flowgraphy_level.exchange(cd.flowgraphy_level.load());
+		is_cine_file.exchange(cd.is_cine_file.load());
+		import_pixel_size.exchange(cd.import_pixel_size.load());
+		img_acc_enabled.exchange(cd.img_acc_enabled.load());
+		img_acc_cutsXZ_enabled.exchange(cd.img_acc_cutsXZ_enabled.load());
+		img_acc_cutsYZ_enabled.exchange(cd.img_acc_cutsYZ_enabled.load());
+		img_acc_buffer_size.exchange(cd.img_acc_buffer_size.load());
+		img_acc_level.exchange(cd.img_acc_level.load());
+		img_acc_cutsXZ_level.exchange(cd.img_acc_cutsXZ_level.load());
+		img_acc_cutsYZ_level.exchange(cd.img_acc_cutsYZ_level.load());
+		stft_level.exchange(cd.stft_level.load());
+		stft_steps.exchange(cd.stft_steps.load());
+		ref_diff_level.exchange(cd.ref_diff_level.load());
+		ref_diff_enabled.exchange(cd.ref_diff_enabled.load());
+		ref_sliding_enabled.exchange(cd.ref_sliding_enabled.load());
+		stft_view_enabled.exchange(cd.stft_view_enabled.load());
+		signal_trig_enabled.exchange(cd.signal_trig_enabled.load());
+		current_window.exchange(cd.current_window.load());
+		stft_slice_cursor = stft_slice_cursor;
+		signal_zone = signal_zone;
+		noise_zone = noise_zone;
+		autofocus_zone = autofocus_zone;
+		stft_roi_zone;
 		return *this;
 	}
 
