@@ -25,7 +25,7 @@
 * \param height The height of the input image.
 *
 */
-static __global__ void kernel_zone_sum(	float		*input,
+static __global__ void kernel_zone_sum(	const float	*input,
 										const uint	width,
 										float		*output,
 										const uint	zTopLeft_x,
@@ -34,22 +34,21 @@ static __global__ void kernel_zone_sum(	float		*input,
 										const uint	zone_height)
 {
 	const uint				size = zone_width * zone_height;
-	uint					tid = threadIdx.x;
-	uint					index = blockIdx.x * blockDim.x + tid;
+	const uint				tid = threadIdx.x;
+	const uint				index = blockIdx.x * blockDim.x + tid;
 	extern __shared__ float	sdata[];
 
 	// INIT
 	sdata[tid] = 0.0f;
 
 	// SUM input in sdata
-	while (index < size)
+	if (index < size)
 	{
 		int x = index % zone_width + zTopLeft_x;
 		int y = index / zone_width + zTopLeft_y;
 		int index2 = y * width + x;
 
 		sdata[tid] += input[index2];
-		index += blockDim.x * gridDim.x;
 	}
 
 	// Sum sdata in sdata[0]
@@ -84,11 +83,11 @@ std::tuple<float, float, float, float> make_average_plot(	float						*input,
 															cudaStream_t				stream)
 {
 	//const uint size = width * height;
-	uint threads = THREADS_256;
+	const uint threads = THREADS_256;
 	//uint blocks = map_blocks_to_problem(size, threads);
 
-	float* gpu_s;
-	float* gpu_n;
+	float *gpu_s;
+	float *gpu_n;
 
 	cudaMalloc(&gpu_s, sizeof(float));
 	cudaMalloc(&gpu_n, sizeof(float));

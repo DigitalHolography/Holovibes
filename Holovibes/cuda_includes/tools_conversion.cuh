@@ -157,7 +157,7 @@ void float_to_ushort(	const float		*input,
 * \param stream The CUDA stream on which to launch the operation.
 */
 void complex_to_ushort(	const complex	*input,
-						unsigned int	*output,
+						uint			*output,
 						const uint		size,
 						cudaStream_t	stream = 0);
 

@@ -571,7 +571,6 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
-
 		/* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
 		if (compute_desc_.shift_corners_enabled.load())
@@ -618,26 +617,31 @@ namespace holovibes
 			}
 		}
 
-		if (compute_desc_.log_scale_enabled.load())
+		if (compute_desc_.log_scale_enabled.load()
+			|| compute_desc_.log_scale_enabled_cut_xz.load()
+			|| compute_desc_.log_scale_enabled_cut_yz.load())
 		{
-			fn_vect_.push_back(std::bind(
-				apply_log10,
-				gpu_float_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-/*			if (compute_desc_.stft_view_enabled.load())
+			if (compute_desc_.log_scale_enabled.load())
+				fn_vect_.push_back(std::bind(
+					apply_log10,
+					gpu_float_buffer_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
+			if (compute_desc_.stft_view_enabled.load())
 			{
-				fn_vect_.push_back(std::bind(
-					apply_log10,
-					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-					output_fd.width * compute_desc_.nsamples.load(),
-					static_cast<cudaStream_t>(0)));
-				fn_vect_.push_back(std::bind(
-					apply_log10,
-					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-					output_fd.height * compute_desc_.nsamples.load(),
-					static_cast<cudaStream_t>(0)));
-			}*/
+				if (compute_desc_.log_scale_enabled_cut_xz.load())
+					fn_vect_.push_back(std::bind(
+						apply_log10,
+						static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+						output_fd.width * compute_desc_.nsamples.load(),
+						static_cast<cudaStream_t>(0)));
+				if (compute_desc_.log_scale_enabled_cut_yz.load())
+					fn_vect_.push_back(std::bind(
+						apply_log10,
+						static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+						output_fd.height * compute_desc_.nsamples.load(),
+						static_cast<cudaStream_t>(0)));
+			}
 		}
 
 		if (autocontrast_requested_)
@@ -844,7 +848,6 @@ namespace holovibes
 				{
 					complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				// TODO: Pop a window to warn the user
 				else
 				{
 					cudaFree(gpu_float_buffer_af_zone);

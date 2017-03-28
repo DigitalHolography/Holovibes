@@ -143,9 +143,20 @@ namespace holovibes
 		else
 			start_ = (start_ + 1) % max_elts_;
 		if (display_)
-			gui::InfoManager::update_info(name_,
-				std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-				+ std::string(" (") + calculate_size() + std::string(" MB)"));
+		{
+			if (name_ == "InputQueue")
+				gui::InfoManager::insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_,
+					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+					+ std::string(" (") + calculate_size() + std::string(" MB)"));
+			else if (name_ == "OutputQueue")
+				gui::InfoManager::insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_,
+					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+					+ std::string(" (") + calculate_size() + std::string(" MB)"));
+			else if (name_ == "STFTQueue")
+				gui::InfoManager::insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_,
+					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+					+ std::string(" (") + calculate_size() + std::string(" MB)"));
+		}
 		return true;
 	}
 
@@ -158,9 +169,20 @@ namespace holovibes
 			start_ = (start_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
-				gui::InfoManager::update_info(name_,
-					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-					+ std::string(" (") + calculate_size() + std::string(" MB)"));
+			{
+				if (name_ == "InputQueue")
+					gui::InfoManager::insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_,
+						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+						+ std::string(" (") + calculate_size() + std::string(" MB)"));
+				else if (name_ == "OutputQueue")
+					gui::InfoManager::insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_,
+						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+						+ std::string(" (") + calculate_size() + std::string(" MB)"));
+				else if (name_ == "STFTQueue")
+					gui::InfoManager::insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_,
+						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
+						+ std::string(" (") + calculate_size() + std::string(" MB)"));
+			}
 		}
 	}
 

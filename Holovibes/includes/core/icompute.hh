@@ -205,6 +205,7 @@ namespace holovibes
 	Queue&	get_stft_slice_queue(int i);
 	bool	get_cuts_request();
 	bool	get_cuts_delete_request();
+	bool	get_request_refresh();
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -326,17 +327,17 @@ namespace holovibes
 	std::shared_ptr<UnwrappingResources_2d> unwrap_res_2d_;
 
     /*! cufftComplex array containing n contiguous ROI of frames. */
-    cufftComplex* gpu_stft_buffer_;
+    cufftComplex *gpu_stft_buffer_;
 	std::mutex	stftGuard;
 
 	/*! cufftComplex array containing lens. */
-	cufftComplex* gpu_lens_;
+	cufftComplex *gpu_lens_;
 	/*! cufftComplex array containing kernel. */
-	float* gpu_kernel_buffer_;
+	float *gpu_kernel_buffer_;
 	/*! cufftComplex array containing tmp input. */
-	cufftComplex* gpu_tmp_input_;
+	cufftComplex *gpu_tmp_input_;
 	/*! cufftComplex queue */
-	cufftComplex* gpu_special_queue_;
+	cufftComplex *gpu_special_queue_;
 	unsigned int  gpu_special_queue_start_index;
 	unsigned int  gpu_special_queue_max_index;
     /*! CUDA FFT Plan 3D. Set to a specific CUDA stream in Pipe and Pipeline. */
@@ -354,7 +355,7 @@ namespace holovibes
     /*! \brief Number of frame in input. */
     unsigned int input_length_;
     /*! \brief Float queue for float record */
-    Queue*       fqueue_;
+    Queue *fqueue_;
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
 
@@ -370,20 +371,20 @@ namespace holovibes
     af_env        af_env_;
 
 	/*! \brief Queue for phase accumulation*/
-	Queue* gpu_img_acc_;
+	Queue *gpu_img_acc_;
 
 	/*! \brief Queue for stft */
-	Queue* gpu_stft_queue_;
-	Queue* gpu_stft_slice_queue_xz;
-	Queue* gpu_stft_slice_queue_yz;
+	Queue *gpu_stft_queue_;
+	Queue *gpu_stft_slice_queue_xz;
+	Queue *gpu_stft_slice_queue_yz;
 	
 	/* \brief Queue for the reference diff */
-	Queue* gpu_ref_diff_queue_;
+	Queue *gpu_ref_diff_queue_;
 
 	/* these states are used for take ref when we need to do action punctually in the pipe*/
 	enum state ref_diff_state_;
 
-	cufftComplex* gpu_filter2d_buffer;
+	cufftComplex *gpu_filter2d_buffer;
 
 	unsigned int ref_diff_counter;
 

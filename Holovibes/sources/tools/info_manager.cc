@@ -48,18 +48,43 @@ namespace holovibes
 		void InfoManager::update_info(const std::string& key, const std::string& value)
 		{
 			if (instance)
-				instance->infos_[key] = value;
+			{
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it != instance->infos_.end())
+					it->second = value;
+				else
+					instance->infos_.push_back(std::make_pair(key, value));
+			}
 		}
 
 		void InfoManager::remove_info(const std::string& key)
 		{
 			if (instance)
-				instance->infos_.erase(key);
+			{
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it != instance->infos_.end())
+					instance->infos_.erase(it);
+			}
 		}
 
 		void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
 		{
-			//infos_.insert(pos, );
+			if (instance)
+			{
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it == instance->infos_.end())
+				{
+					if (pos < instance->infos_.size())
+						instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
+					else
+						instance->infos_.push_back(std::make_pair(key, value));
+				}
+				else
+					update_info(key, value);
+			}
 		}
 
 		void InfoManager::stop_display()
@@ -80,8 +105,7 @@ namespace holovibes
 		void InfoManager::draw()
 		{
 			std::string str = "";
-			auto ite = infos_.end();
-			for (auto it = infos_.begin(); it != ite; ++it)
+			for (auto it = infos_.begin(); it != infos_.end(); ++it)
 				str += it->first + ":\n  " + it->second + "\n";
 			const QString qstr = str.c_str();
 			emit update_text(qstr);
@@ -89,7 +113,11 @@ namespace holovibes
 
 		void InfoManager::clear_info()
 		{
-			infos_.clear();
+			if (instance)
+			{
+				infos_.clear();
+				insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
+			}
 		}
 
 		QProgressBar* InfoManager::get_progress_bar()

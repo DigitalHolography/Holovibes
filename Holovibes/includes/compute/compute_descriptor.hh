@@ -12,7 +12,7 @@
 
 namespace holovibes
 {
-	static const std::string version = "v4.2.170323"; /*!< Current version of this project. */
+	static const std::string version = "v4.2.170328"; /*!< Current version of this project. */
 
 	using	LockGuard = std::lock_guard<std::mutex>;
 	using	Algorithm =
@@ -136,7 +136,6 @@ namespace holovibes
 		std::atomic<float> autofocus_z_max;
 		/*! Pixel Size used when importing a file */
 		std::atomic<float> import_pixel_size;
-
 		/*! Size of Image Accumulation buffer. */
 		std::atomic<unsigned int> img_acc_buffer_size;
 		/*! Convolution matrix length. */
@@ -149,6 +148,8 @@ namespace holovibes
 		std::atomic<unsigned int> flowgraphy_level;
 		/*! Set Image Accumulation level. */
 		std::atomic<unsigned int> img_acc_level;
+		std::atomic<unsigned int> img_acc_cutsXZ_level;
+		std::atomic<unsigned int> img_acc_cutsYZ_level;
 		/*! Height of the matrix used inside the autofocus calculus. */
 		std::atomic<unsigned int> autofocus_size;
 		/*! Number of points of autofocus between the z range. */
@@ -162,7 +163,7 @@ namespace holovibes
 		std::atomic<int> stft_steps;
 		/*! Frame number of images that will be averaged. */
 		std::atomic<int> ref_diff_level;
-		/*! TODO: */
+		/*! History of unwrap size */
 		std::atomic<int> unwrap_history_size;
 		/*! Special buffer size*/
 		std::atomic<int> special_buffer_size;
@@ -173,6 +174,8 @@ namespace holovibes
 		std::atomic<bool> flowgraphy_enabled;
 		/*! Is log scale post-processing enabled. */
 		std::atomic<bool> log_scale_enabled;
+		std::atomic<bool> log_scale_enabled_cut_xz;
+		std::atomic<bool> log_scale_enabled_cut_yz;
 		/*! Is FFT shift corners post-processing enabled. */
 		std::atomic<bool> shift_corners_enabled;
 		/*! Is manual contrast post-processing enabled. */
@@ -197,6 +200,8 @@ namespace holovibes
 		std::atomic<bool> is_cine_file;
 		/*! Is Image Accumulation enabled. */
 		std::atomic<bool> img_acc_enabled;
+		std::atomic<bool> img_acc_cutsXZ_enabled;
+		std::atomic<bool> img_acc_cutsYZ_enabled;
 		#pragma endregion
 	};
 }

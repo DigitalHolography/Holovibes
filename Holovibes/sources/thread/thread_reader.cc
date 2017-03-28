@@ -53,7 +53,15 @@ namespace holovibes
 		, nbr_stored_(0)
 		, thread_(&ThreadReader::thread_proc, this)
 	{
-		gui::InfoManager::get_manager()->update_info("ImgSource", "File");
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "File");
+		auto fd = get_frame_descriptor();
+		std::string input_descriptor_info = std::to_string(fd.width)
+			+ std::string("x")
+			+ std::to_string(fd.height)
+			+ std::string(" - ")
+			+ std::to_string(static_cast<int>(fd.depth * 8))
+			+ std::string("bit");
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputSource", input_descriptor_info);
 	}
 
 	void ThreadReader::clear_memory(char **buffer, char **resize_buffer)
@@ -112,7 +120,6 @@ namespace holovibes
 				{
 					if (!reader_loop(file, buffer, resize_buffer, frame_size, elts_max_nbr, pos))
 						stop_requested_ = true;
-					
 					next_game_tick += frame_frequency;
 					if (--refresh_fps == 0)
 					{
@@ -120,7 +127,7 @@ namespace holovibes
 						std::chrono::duration<float, std::milli> timelaps = endframes - beginFrames;
 						auto manager = gui::InfoManager::get_manager();
 						int fps = (fps_ / (timelaps.count() / 1000.0f));
-						manager->update_info("Input Fps", std::to_string(fps) + std::string(" fps"));
+						manager->insert_info(gui::InfoManager::InfoType::INPUT_FPS, "InputFps", std::to_string(fps) + std::string(" fps"));
 						refresh_fps = fps_;
 						beginFrames = std::chrono::high_resolution_clock::now();
 					}
@@ -195,7 +202,7 @@ namespace holovibes
 		while (!thread_.joinable())
 			continue;
 		thread_.join();
-		gui::InfoManager::get_manager()->update_info("ImgSource", "none");
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "none");
 	}
 
 	const camera::FrameDescriptor& ThreadReader::get_frame_descriptor() const
