@@ -610,10 +610,18 @@ namespace gui
 
 	void MainWindow::set_image_mode()
 	{
-		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT)
+		holovibes::ComputeDescriptor& cd = holovibes_.get_compute_desc();
+		if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::DIRECT)
 			set_direct_mode();
-		if (holovibes_.get_compute_desc().compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
+		else if (cd.compute_mode.load() == holovibes::ComputeDescriptor::compute_mode::HOLOGRAM)
 			set_holographic_mode();
+		else
+		{
+			if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
+				set_direct_mode();
+			else
+				set_holographic_mode();
+		}
 	}
 
 	void MainWindow::reset()
@@ -2279,6 +2287,7 @@ namespace gui
 					holovibes_.dispose_compute();
 				holovibes_.dispose_capture();
 				holovibes_.init_capture(camera_type);
+				is_enabled_camera_ = true;
 				set_image_mode();
 				camera_type_ = camera_type;
 				QAction* settings = findChild<QAction*>("actionSettings");
