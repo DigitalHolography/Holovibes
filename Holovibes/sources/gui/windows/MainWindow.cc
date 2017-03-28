@@ -22,8 +22,10 @@ namespace holovibes
 			mainDisplay(nullptr),
 			sliceXZ(nullptr),
 			sliceYZ(nullptr),
+			displayAngle(0.f),
 			xzAngle(0.f),
 			yzAngle(270.f),
+			displayFlip(0),
 			xzFlip(0),
 			yzFlip(1),
 			is_enabled_camera_(false),
@@ -535,7 +537,8 @@ namespace holovibes
 						holovibes_.get_output_queue(),
 						holovibes_.get_pipe(),
 						holovibes_.get_compute_desc()));
-
+					mainDisplay->setAngle(displayAngle);
+					mainDisplay->setFlip(displayFlip);
 					//if (!cd.flowgraphy_enabled && !is_direct_mode())
 						//holovibes_.get_pipe()->request_autocontrast();
 					cd.contrast_enabled.exchange(true);
@@ -572,6 +575,8 @@ namespace holovibes
 					holovibes_.get_output_queue(),
 					holovibes_.get_pipe(),
 					holovibes_.get_compute_desc()));
+				mainDisplay->setAngle(displayAngle);
+				mainDisplay->setFlip(displayFlip);
 				notify();
 			}
 			catch (std::exception& e)
@@ -1101,7 +1106,7 @@ namespace holovibes
 			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
 			QString s = c->currentText();
 
-			if (s == QString("MainDisplay"))
+			if (s == QString("mainDisplay"))
 			{
 				displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
 				mainDisplay->setAngle(displayAngle);
@@ -1126,7 +1131,8 @@ namespace holovibes
 
 			if (s == QString("mainDisplay"))
 			{
-				;
+				displayFlip = !displayFlip;
+				mainDisplay->setFlip(displayFlip);
 			}
 			else if (s == QString("sliceXZ") && sliceXZ)
 			{

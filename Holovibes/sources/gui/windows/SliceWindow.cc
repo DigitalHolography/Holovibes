@@ -19,8 +19,7 @@ namespace holovibes
 	{
 		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q) :
 			/* ~~~~~~~~~~~~ */
-			BasicOpenGLWindow(p, s, q, KindOfView::Slice),
-			Angle(0.f), Flip(0)
+			DirectWindow(p, s, q, KindOfView::Slice)
 		{}
 
 		SliceWindow::~SliceWindow()
@@ -34,7 +33,7 @@ namespace holovibes
 			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		}
 
-		void SliceWindow::initializeGL()
+		/*void SliceWindow::initializeGL()
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
@@ -131,12 +130,12 @@ namespace holovibes
 
 			glViewport(0, 0, width(), height());
 			startTimer(DisplayRate);
-		}
+		}*/
 
-		void SliceWindow::resizeGL(int width, int height)
+		/*void SliceWindow::resizeGL(int width, int height)
 		{
 			glViewport(0, 0, width, height);
-		}
+		}*/
 
 		void SliceWindow::paintGL()
 		{
@@ -168,7 +167,7 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		void SliceWindow::setAngle(float a)
+		/*void SliceWindow::setAngle(float a)
 		{
 			Angle = a;
 			if (Program)
@@ -195,7 +194,7 @@ namespace holovibes
 		void SliceWindow::timerEvent(QTimerEvent *e)
 		{
 			update();
-		}
+		}*/
 
 	}
 }

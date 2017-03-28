@@ -12,30 +12,28 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class SliceWindow : public BasicOpenGLWindow
+		class SliceWindow : public DirectWindow
 		{
 		public:
 			SliceWindow(QPoint p, QSize s, Queue& q);
 			virtual ~SliceWindow();
 
-			void	setAngle(float a);
-			void	setFlip(int f);
+			//void	setAngle(float a);
+			//void	setFlip(int f);
 
 		protected:
-			float	Angle;
-			int		Flip;
 
 			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
+			//virtual void	initializeGL();
+			//virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
-			void			timerEvent(QTimerEvent *e);
+			//void			timerEvent(QTimerEvent *e);
 		};
 	}
 }

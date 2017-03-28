@@ -155,6 +155,18 @@ namespace holovibes
 			}
 		}
 
+		void	BasicOpenGLWindow::setFlip(int f)
+		{
+			Flip = f;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+				Program->release();
+			}
+		}
+
 		void	BasicOpenGLWindow::resetTransform()
 		{
 			Translate = { 0.f, 0.f };

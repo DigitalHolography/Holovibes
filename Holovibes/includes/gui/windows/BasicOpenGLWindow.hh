@@ -54,6 +54,7 @@ namespace holovibes
 			void					resetTransform();
 			void					resetSelection();
 			void					setAngle(float a);
+			void					setFlip(int f);
 
 		protected:
 			// Fields -----------
@@ -64,6 +65,7 @@ namespace holovibes
 			std::array<float, 2>	Translate;
 			float	Scale;
 			float	Angle;
+			int		Flip;
 
 			// CUDA Objects -----
 			cudaGraphicsResource_t	cuResource;

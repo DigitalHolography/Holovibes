@@ -45,13 +45,11 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-#pragma region Shaders & Vao
 			initShaders();
 			if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
 			Vao.bind();
-#pragma endregion
 
-#pragma region Texture
+			#pragma region Texture
 			unsigned int size = Fd.frame_size();
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
@@ -78,9 +76,9 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 			glBindTexture(GL_TEXTURE_2D, 0);
-#pragma endregion
+			#pragma endregion
 
-#pragma region Vertex Buffer Object
+			#pragma region Vertex Buffer Object
 			const float	data[16] = {
 				// Top-left
 				-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
@@ -109,9 +107,9 @@ namespace holovibes
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-#pragma endregion
+			#pragma endregion
 
-#pragma region Element Buffer Object
+			#pragma region Element Buffer Object
 			const GLuint elements[6] = {
 				0, 1, 2,
 				2, 3, 0
@@ -120,14 +118,14 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#pragma endregion
+			#pragma endregion
 
 			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			if (kView == Hologram)
+			if (kView != Direct)
 			{
-				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), 0);
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), 0 * (M_PI / 180.f));
+				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
 			}
 			Program->release();
 			zoneSelected.initShaderProgram();

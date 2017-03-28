@@ -1156,7 +1156,7 @@
          </property>
          <item>
           <property name="text">
-           <string>MainDisplay</string>
+           <string>mainDisplay</string>
           </property>
          </item>
          <item>

@@ -576,6 +576,7 @@ namespace holovibes
 			float	xzAngle;
 			float	yzAngle;
 
+			int		displayFlip;
 			int		xzFlip;
 			int		yzFlip;
 
