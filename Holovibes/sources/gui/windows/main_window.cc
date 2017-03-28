@@ -410,10 +410,14 @@ namespace gui
 
 	void MainWindow::credits()
 	{
-		std::string msg =
+		std::string holovibes_credits =
 			"Holovibes " + holovibes::version + "\n\n"
 
-			"Developers:\n\n"
+
+			"Project Manager :\n"
+			"Michael Atlan\n\n";
+
+			"Developers:\n"
 
 			"Thomas Jarrossay\n"
 			"Alexandre Bartz\n"
@@ -430,13 +434,11 @@ namespace gui
 			"Pierre Pagnoux\n"
 
 			"Antoine Dillée\n"
-			"Romain Cancillière\n"
-
-			"Michael Atlan\n";
-		QMessageBox msg_box;
-		msg_box.setText(QString::fromUtf8(msg.c_str()));
-		msg_box.setIcon(QMessageBox::Information);
-		msg_box.exec();
+			"Romain Cancillière\n\n";
+		QMessageBox credit_msg_box;
+		credit_msg_box.setText(QString::fromUtf8(holovibes_credits.c_str()));
+		credit_msg_box.setIcon(QMessageBox::Information);
+		credit_msg_box.exec();
 	}
 
 	void MainWindow::configure_camera()
