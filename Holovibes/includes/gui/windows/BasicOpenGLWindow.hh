@@ -29,21 +29,23 @@
 # define DisplayRate 1000.f/30.f
 #endif
 
-namespace gui
+namespace holovibes
 {
-	using KindOfView =
-	enum
+	namespace gui
 	{
-		Direct = 1,
-		Hologram,
-		Slice
-	};
-	
-	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
-	{
+		using KindOfView =
+		enum
+		{
+			Direct = 1,
+			Hologram,
+			Slice
+		};
+
+		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
+		{
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
+			BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView		getKindOfView() const;
@@ -51,15 +53,17 @@ namespace gui
 			const KindOfSelection	getKindOfSelection() const;
 			void					resetTransform();
 			void					resetSelection();
+			void					setAngle(float a);
 
 		protected:
 			// Fields -----------
-			holovibes::Queue&				Queue;
-			const camera::FrameDescriptor&	Fd;
+			Queue&					Qu;
+			const FrameDescriptor&	Fd;
 			const KindOfView	kView;
 
 			std::array<float, 2>	Translate;
 			float	Scale;
+			float	Angle;
 
 			// CUDA Objects -----
 			cudaGraphicsResource_t	cuResource;
@@ -80,7 +84,7 @@ namespace gui
 
 			Selection	zoneSelected;
 			static std::atomic<bool>	slicesAreLocked;
-			
+
 			// Virtual Pure Functions
 			virtual void initShaders() = 0;
 			virtual void initializeGL() = 0;
@@ -89,9 +93,10 @@ namespace gui
 
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent* e);
-			
+
 			// Transform functions
 			void	setTranslate();
 			void	setScale();
-	};
+		};
+	}
 }

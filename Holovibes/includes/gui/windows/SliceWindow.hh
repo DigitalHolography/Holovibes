@@ -14,12 +14,14 @@
 
 #include "BasicOpenGLWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	class SliceWindow : public BasicOpenGLWindow
+	namespace gui
 	{
+		class SliceWindow : public BasicOpenGLWindow
+		{
 		public:
-			SliceWindow(QPoint p, QSize s, holovibes::Queue& q);
+			SliceWindow(QPoint p, QSize s, Queue& q);
 			virtual ~SliceWindow();
 
 			void	setAngle(float a);
@@ -34,5 +36,6 @@ namespace gui
 			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
 			void			timerEvent(QTimerEvent *e);
-	};
+		};
+	}
 }

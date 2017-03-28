@@ -36,7 +36,7 @@ namespace holovibes
 		unsigned int spanEnd,
 		Queue& input,
 		bool is_cine_file,
-		holovibes::Holovibes& holovibes)
+		Holovibes& holovibes)
 		: IThreadInput()
 		, file_src_(file_src)
 		, frame_desc_(frame_desc)

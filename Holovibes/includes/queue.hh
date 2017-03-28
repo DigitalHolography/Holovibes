@@ -24,6 +24,8 @@
 
 # include "frame_desc.hh"
 
+using namespace camera;
+
 namespace holovibes
 {
   /*! \brief Queue class is a custom circular FIFO data structure. It can handle
@@ -51,7 +53,7 @@ namespace holovibes
     ** images or a FrameDescriptor used for computations.
     ** \param elts Max number of elements that the queue can contain.
     **/
-    Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name);
+    Queue(const FrameDescriptor& frame_desc, const unsigned int elts, std::string name);
 
     /*! \brief Queue destructor */
     ~Queue();
@@ -63,7 +65,7 @@ namespace holovibes
     void* get_buffer();
 
     /*! \return FrameDescriptor of the Queue */
-    const camera::FrameDescriptor& get_frame_desc() const;
+    const FrameDescriptor& get_frame_desc() const;
 
     /*! \return the size of one frame (i-e element) of the Queue in pixels. */
     int get_pixels();

@@ -19,9 +19,9 @@
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
 
-__global__ void kernel_apply_lens(	complex			*input,
+__global__ void kernel_apply_lens(	complex*		input,
 									const uint		input_size,
-									const complex	*lens,
+									const complex*	lens,
 									const uint		lens_size)
 {
 	uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -36,7 +36,7 @@ __global__ void kernel_apply_lens(	complex			*input,
 	}
 }
 
-static __global__ void kernel_shift_corners(float		*input,
+static __global__ void kernel_shift_corners(float*		input,
 											const uint	size_x,
 											const uint	size_y)
 {
@@ -66,7 +66,7 @@ static __global__ void kernel_shift_corners(float		*input,
 	}
 }
 
-void shift_corners(	float			*input,
+void shift_corners(	float*			input,
 					const uint		size_x,
 					const uint		size_y,
 					cudaStream_t	stream)
@@ -79,7 +79,7 @@ void shift_corners(	float			*input,
 }
 
 /* Kernel used in apply_log10 */
-static __global__ void kernel_log10(float		*input,
+static __global__ void kernel_log10(float*		input,
 									const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -91,7 +91,7 @@ static __global__ void kernel_log10(float		*input,
 	}
 }
 
-void apply_log10(	float			*input,
+void apply_log10(	float*			input,
 					const uint		size,
 					cudaStream_t	stream)
 {
@@ -102,8 +102,8 @@ void apply_log10(	float			*input,
 }
 
 /* Kernel used in convolution_operator */
-static __global__ void kernel_complex_to_modulus(	const complex	*input,
-													float			*output,
+static __global__ void kernel_complex_to_modulus(	const complex*	input,
+													float*			output,
 													const uint		size)
 {
 	uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -115,7 +115,7 @@ static __global__ void kernel_complex_to_modulus(	const complex	*input,
 	}
 }
 
-void demodulation(	complex				*input,
+void demodulation(	complex*			input,
 					const cufftHandle	plan1d,
 					cudaStream_t		stream)
 {
@@ -124,9 +124,9 @@ void demodulation(	complex				*input,
 }
 
 
-void convolution_operator(	const complex		*x,
-							const complex		*k,
-							float				*out,
+void convolution_operator(	const complex*		x,
+							const complex*		k,
+							float*				out,
 							const uint			size,
 							const cufftHandle	plan2d_x,
 							const cufftHandle	plan2d_k,
@@ -162,12 +162,12 @@ void convolution_operator(	const complex		*x,
 	cudaFree(tmp_k);
 }
 
-void frame_memcpy(	float						*input,
+void frame_memcpy(	float*					input,
 					const gui::Rectangle&	zone,
-					const uint					input_width,
-					float						*output,
-					const uint					output_width,
-					cudaStream_t				stream)
+					const uint				input_width,
+					float*					output,
+					const uint				output_width,
+					cudaStream_t			stream)
 {
 	const float	*zone_ptr = input + (zone.topLeft().y() * input_width + zone.topLeft().x());
 	const uint	output_width_float = output_width * sizeof(float);
@@ -206,7 +206,7 @@ static __global__ void kernel_sum(const float* input, float* sum, const size_t s
 	}
 }
 
-float average_operator(	const float		*input,
+float average_operator(	const float*	input,
 						const uint		size,
 						cudaStream_t	stream)
 {
@@ -232,9 +232,9 @@ float average_operator(	const float		*input,
 	return cpu_sum /= static_cast<float>(size);
 }
 
-void phase_increase(const complex*					cur,
-					holovibes::UnwrappingResources	*resources,
-					const size_t					image_size)
+void phase_increase(const complex*			cur,
+					UnwrappingResources*	resources,
+					const size_t			image_size)
 {
 	const uint	threads = THREADS_128; // 3072 cuda cores / 24 SMM = 128 Threads per SMM
 	const uint	blocks = map_blocks_to_problem(image_size, threads);
@@ -284,12 +284,12 @@ void phase_increase(const complex*					cur,
 	resources->next_index_ = (resources->next_index_ + 1) % resources->capacity_;
 }
 
-void unwrap_2d(	float								*input,
-				const cufftHandle					plan2d,
-				holovibes::UnwrappingResources_2d	*res,
-				camera::FrameDescriptor&			fd,
-				float								*output,
-				cudaStream_t						stream)
+void unwrap_2d(	float*						input,
+				const cufftHandle			plan2d,
+				UnwrappingResources_2d*		res,
+				FrameDescriptor&	fd,
+				float*						output,
+				cudaStream_t				stream)
 {
 	uint		threads_2d = get_max_threads_2d();
 	dim3		lthreads(threads_2d, threads_2d);
@@ -325,10 +325,10 @@ void unwrap_2d(	float								*input,
 	phi_unwrap_2d(plan2d, res, fd, output, stream);
 }
 
-void gradient_unwrap_2d(const cufftHandle					plan2d,
-						holovibes::UnwrappingResources_2d	*res,
-						camera::FrameDescriptor&			fd,
-						cudaStream_t						stream)
+void gradient_unwrap_2d(const cufftHandle			plan2d,
+						UnwrappingResources_2d*		res,
+						FrameDescriptor&			fd,
+						cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
 	const uint	blocks = map_blocks_to_problem(res->image_resolution_, threads);
@@ -349,10 +349,10 @@ void gradient_unwrap_2d(const cufftHandle					plan2d,
 																						fd.frame_res());
 }
 
-void eq_unwrap_2d(	const cufftHandle					plan2d,
-					holovibes::UnwrappingResources_2d	*res,
-					camera::FrameDescriptor&			fd,
-					cudaStream_t						stream)
+void eq_unwrap_2d(	const cufftHandle			plan2d,
+					UnwrappingResources_2d*		res,
+					FrameDescriptor&			fd,
+					cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
 	const uint	blocks = map_blocks_to_problem(res->image_resolution_, threads);
@@ -375,11 +375,11 @@ void eq_unwrap_2d(	const cufftHandle					plan2d,
 															fd.frame_res());
 }
 
-void phi_unwrap_2d(	const cufftHandle					plan2d,
-					holovibes::UnwrappingResources_2d	*res,
-					camera::FrameDescriptor&			fd,
-					float								*output,
-					cudaStream_t						stream)
+void phi_unwrap_2d(	const cufftHandle			plan2d,
+					UnwrappingResources_2d*		res,
+					FrameDescriptor&			fd,
+					float*						output,
+					cudaStream_t				stream)
 {
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(res->image_resolution_, threads);
@@ -391,8 +391,8 @@ void phi_unwrap_2d(	const cufftHandle					plan2d,
 	kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (output, res->gpu_grad_eq_x_, fd.frame_res());
 }
 
-__global__ void circ_shift(	complex		*input,
-							complex		*output,
+__global__ void circ_shift(	complex*	input,
+							complex*	output,
 							const int	i, // shift on x axis
 							const int	j, // shift on y axis
 							const uint	width,
@@ -418,8 +418,8 @@ __global__ void circ_shift(	complex		*input,
 	}
 }
 
-__global__ void circ_shift_float(	float		*input,
-									float		*output,
+__global__ void circ_shift_float(	float*		input,
+									float*		output,
 									const int	i, // shift on x axis
 									const int	j, // shift on y axis
 									const uint	width,

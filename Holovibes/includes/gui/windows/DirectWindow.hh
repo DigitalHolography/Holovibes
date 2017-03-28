@@ -15,13 +15,15 @@
 #include "Selection.hh"
 #include "BasicOpenGLWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	class DirectWindow : public BasicOpenGLWindow
+	namespace gui
 	{
+		class DirectWindow : public BasicOpenGLWindow
+		{
 		public:
-			DirectWindow(QPoint p, QSize s, holovibes::Queue& q);
-			DirectWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k);
+			DirectWindow(QPoint p, QSize s, Queue& q);
+			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~DirectWindow();
 
 		protected:
@@ -38,5 +40,6 @@ namespace gui
 
 			void	zoomInRect(Rectangle zone);
 			void	wheelEvent(QWheelEvent *e);
-	};
+		};
+	}
 }

@@ -19,11 +19,11 @@
 #include "tools_compute.cuh"
 #include "tools.cuh"
 
-void fft2_lens(	complex							*lens,
-				const camera::FrameDescriptor&	fd,
-				const float						lambda,
-				const float						z,
-				cudaStream_t					stream)
+void fft2_lens(	complex					*lens,
+				const FrameDescriptor&	fd,
+				const float				lambda,
+				const float				z,
+				cudaStream_t			stream)
 {
 	uint threads_2d = get_max_threads_2d();
 	dim3 lthreads(threads_2d, threads_2d);

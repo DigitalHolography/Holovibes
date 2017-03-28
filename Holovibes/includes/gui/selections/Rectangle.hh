@@ -14,10 +14,12 @@
 
 #include <qrect.h>
 
-namespace gui
+namespace holovibes
 {
-	class Rectangle : public QRect
+	namespace gui
 	{
+		class Rectangle : public QRect
+		{
 		public:
 			Rectangle();
 			Rectangle(const Rectangle& rect);
@@ -26,5 +28,6 @@ namespace gui
 
 			uint	area() const;
 			void	checkCorners();
-	};
+		};
+	}
 }

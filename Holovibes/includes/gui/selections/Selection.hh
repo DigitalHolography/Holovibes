@@ -19,28 +19,27 @@
 #include "frame_desc.hh"
 #include "Rectangle.hh"
 
-namespace gui
+namespace holovibes
 {
-	#define nbVertices 16
-	#define nbElements 12
-
-	using KindOfSelection =
-	enum
+	namespace gui
 	{
-		Zoom,
-		// Average
-		Signal,
-		Noise,
-		// -------
-		Autofocus,
-		Filter2D,
-		SliceZoom
-	};
-	using Color = std::array<float, 3>;
-	using ColorArray = std::array<Color, 6>;
+		using KindOfSelection =
+			enum
+		{
+			Zoom,
+			// Average
+			Signal,
+			Noise,
+			// -------
+			Autofocus,
+			Filter2D,
+			SliceZoom
+		};
+		using Color = std::array<float, 3>;
+		using ColorArray = std::array<Color, 6>;
 
-	class Selection : protected QOpenGLFunctions
-	{
+		class Selection : protected QOpenGLFunctions
+		{
 		public:
 			Selection();
 			virtual ~Selection();
@@ -75,5 +74,6 @@ namespace gui
 
 		private:
 			bool	Enabled;
-	};
+		};
+	}
 }

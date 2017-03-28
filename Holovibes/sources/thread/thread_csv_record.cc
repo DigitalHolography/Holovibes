@@ -15,70 +15,73 @@
 #include "holovibes.hh"
 #include "info_manager.hh"
 
-namespace gui
+namespace holovibes
 {
-  ThreadCSVRecord::ThreadCSVRecord(holovibes::Holovibes& holo,
-    Deque& deque,
-    const std::string path,
-    const unsigned int nb_frames,
-    QObject* parent)
-    : QThread(parent)
-    , holo_(holo)
-    , deque_(deque)
-    , path_(path)
-    , nb_frames_(nb_frames)
-    , record_(true)
-  { }
-
-  ThreadCSVRecord::~ThreadCSVRecord()
-  {
-    this->stop();
-  }
-
-  void ThreadCSVRecord::stop()
-  {
-    record_ = false;
-  }
-
-  void ThreadCSVRecord::run()
-  {
-    deque_.clear();
-    QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
-	connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
-	progress_bar->setMaximum(nb_frames_);
-    holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
-
-	while (deque_.size() < nb_frames_ && record_)
+	namespace gui
 	{
-		if (deque_.size() <= nb_frames_)
-		emit value_change(static_cast<int>(deque_.size()));
-		continue;
+		ThreadCSVRecord::ThreadCSVRecord(Holovibes& holo,
+			Deque& deque,
+			const std::string path,
+			const unsigned int nb_frames,
+			QObject* parent)
+			: QThread(parent)
+			, holo_(holo)
+			, deque_(deque)
+			, path_(path)
+			, nb_frames_(nb_frames)
+			, record_(true)
+		{}
+
+		ThreadCSVRecord::~ThreadCSVRecord()
+		{
+			this->stop();
+		}
+
+		void ThreadCSVRecord::stop()
+		{
+			record_ = false;
+		}
+
+		void ThreadCSVRecord::run()
+		{
+			deque_.clear();
+			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+			connect(this, SIGNAL(value_change(int)), progress_bar, SLOT(setValue(int)));
+			progress_bar->setMaximum(nb_frames_);
+			holo_.get_pipe()->request_average_record(&deque_, nb_frames_);
+
+			while (deque_.size() < nb_frames_ && record_)
+			{
+				if (deque_.size() <= nb_frames_)
+					emit value_change(static_cast<int>(deque_.size()));
+				continue;
+			}
+			emit value_change(nb_frames_);
+			std::cout << path_ << std::endl;
+			std::ofstream of(path_);
+
+			// Header displaying
+			of << "[Phase number : " << holo_.get_compute_desc().nsamples.load()
+				<< ", p : " << holo_.get_compute_desc().pindex.load()
+				<< ", lambda : " << holo_.get_compute_desc().lambda.load()
+				<< ", z : " << holo_.get_compute_desc().zdistance.load()
+				<< "]" << std::endl;
+
+			of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
+
+			const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
+			unsigned int i = 0;
+			while (i < deque_size && record_)
+			{
+				std::tuple<float, float, float, float>& tuple = deque_[i];
+				of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
+					<< std::get<0>(tuple) << ","
+					<< std::get<1>(tuple) << ","
+					<< std::get<2>(tuple) << std::endl;
+				++i;
+			}
+
+			holo_.get_pipe()->request_average_stop();
+		}
 	}
-	emit value_change(nb_frames_);
-	std::cout << path_ << std::endl;
-    std::ofstream of(path_);
-
-    // Header displaying
-	of << "[Phase number : " << holo_.get_compute_desc().nsamples.load()
-		<< ", p : " << holo_.get_compute_desc().pindex.load()
-		<< ", lambda : " << holo_.get_compute_desc().lambda.load()
-		<< ", z : " << holo_.get_compute_desc().zdistance.load()
-		<< "]" << std::endl;
-
-    of << "[Column 1 : signal, Column 2 : noise, Column 3 : 10 * log10 (signal / noise)]" << std::endl;
-
-    const unsigned int deque_size = static_cast<unsigned int>(deque_.size());
-    unsigned int i = 0;
-    while (i < deque_size && record_)
-    {
-      std::tuple<float, float, float, float>& tuple = deque_[i];
-      of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
-        << std::get<0>(tuple) << ","
-        << std::get<1>(tuple) << ","
-        << std::get<2>(tuple) << std::endl;
-      ++i;
-    }
-
-    holo_.get_pipe()->request_average_stop();
-  }
 }

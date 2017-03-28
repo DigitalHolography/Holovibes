@@ -12,50 +12,53 @@
 
 #include "Rectangle.hh"
 
-namespace gui
+namespace holovibes
 {
-	#pragma region Constructors
-	Rectangle::Rectangle() : QRect()
-	{}
-
-	Rectangle::Rectangle(const Rectangle& rect)
-		: QRect()
+	namespace gui
 	{
-		setTopLeft(rect.topLeft());
-		setBottomRight(rect.bottomRight());
-	}
+#pragma region Constructors
+		Rectangle::Rectangle() : QRect()
+		{}
 
-	Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
-		: QRect(topleft, size)
-	{}
-
-	Rectangle::Rectangle(const uint width, const uint height)
-		: QRect(0, 0, width, height)
-	{}
-	#pragma endregion
-
-	uint	Rectangle::area() const
-	{
-		return (width() * height());
-	}
-
-	void	Rectangle::checkCorners()
-	{
-		if (width() < 0)
+		Rectangle::Rectangle(const Rectangle& rect)
+			: QRect()
 		{
-			QPoint t0pRight = topRight();
-			QPoint b0ttomLeft = bottomLeft();
-
-			setTopLeft(t0pRight);
-			setBottomRight(b0ttomLeft);
+			setTopLeft(rect.topLeft());
+			setBottomRight(rect.bottomRight());
 		}
-		if (height() < 0)
-		{
-			QPoint t0pRight = topRight();
-			QPoint b0ttomLeft = bottomLeft();
 
-			setTopLeft(b0ttomLeft);
-			setBottomRight(t0pRight);
+		Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
+			: QRect(topleft, size)
+		{}
+
+		Rectangle::Rectangle(const uint width, const uint height)
+			: QRect(0, 0, width, height)
+		{}
+#pragma endregion
+
+		uint	Rectangle::area() const
+		{
+			return (width() * height());
+		}
+
+		void	Rectangle::checkCorners()
+		{
+			if (width() < 0)
+			{
+				QPoint t0pRight = topRight();
+				QPoint b0ttomLeft = bottomLeft();
+
+				setTopLeft(t0pRight);
+				setBottomRight(b0ttomLeft);
+			}
+			if (height() < 0)
+			{
+				QPoint t0pRight = topRight();
+				QPoint b0ttomLeft = bottomLeft();
+
+				setTopLeft(b0ttomLeft);
+				setBottomRight(t0pRight);
+			}
 		}
 	}
 }

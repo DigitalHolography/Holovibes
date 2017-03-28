@@ -17,22 +17,24 @@
 #include "info_manager.hh"
 #include "DirectWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	using SharedPipe = std::shared_ptr<holovibes::ICompute>;
-	using CDescriptor = holovibes::ComputeDescriptor;
-
-	class HoloWindow : public DirectWindow
+	namespace gui
 	{
+		using SharedPipe = std::shared_ptr<ICompute>;
+		using CDescriptor = ComputeDescriptor;
+
+		class HoloWindow : public DirectWindow
+		{
 		public:
-			HoloWindow(QPoint p, QSize s, holovibes::Queue& q,
+			HoloWindow(QPoint p, QSize s, Queue& q,
 				SharedPipe ic, CDescriptor& cd);
 			virtual ~HoloWindow();
 
 		protected:
 			SharedPipe		Ic;
 			CDescriptor&	Cd;
-			
+
 			virtual void	initShaders();
 
 			void	mousePressEvent(QMouseEvent* e);
@@ -40,5 +42,6 @@ namespace gui
 			void	mouseReleaseEvent(QMouseEvent* e);
 
 			void	updateCursorPosition(QPoint pos);
-	};
+		};
+	}
 }

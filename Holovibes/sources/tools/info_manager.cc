@@ -12,86 +12,89 @@
 
 #include "info_manager.hh"
 
-namespace gui
+namespace holovibes
 {
-	InfoManager *InfoManager::instance = nullptr;
-
-	InfoManager::InfoManager(gui::GroupBox *ui)
-		: ui_(ui)
-		, progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar"))
-		, stop_requested_(false)
+	namespace gui
 	{
-		progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
-		infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
-		connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
-		this->start();
-	}
+		InfoManager *InfoManager::instance = nullptr;
 
-	InfoManager::~InfoManager()
-	{
-		if (instance)
-			delete instance;
-	}
-
-	InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
-	{
-		if (instance)
-			return (instance);
-		else if (ui)
-			return ((InfoManager::instance = new InfoManager(ui)));
-		else
-			throw InfoManager::ManagerNotInstantiate();
-	}
-
-	void InfoManager::update_info(const std::string& key, const std::string& value)
-	{
-		if (instance)
-			instance->infos_[key] = value;
-	}
-
-	void InfoManager::remove_info(const std::string& key)
-	{
-		if (instance)
-			instance->infos_.erase(key);
-	}
-
-	void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
-	{
-		//infos_.insert(pos, );
-	}
-
-	void InfoManager::stop_display()
-	{
-		if (instance)
-			instance->stop_requested_ = true;
-	}
-
-	void InfoManager::run()
-	{
-		while (!stop_requested_)
+		InfoManager::InfoManager(gui::GroupBox *ui)
+			: ui_(ui)
+			, progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar"))
+			, stop_requested_(false)
 		{
-			draw();
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
+			infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
+			connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
+			this->start();
 		}
-	}
 
-	void InfoManager::draw()
-	{
-		std::string str = "";
-		auto ite = infos_.end();
-		for (auto it = infos_.begin(); it != ite; ++it)
-			str += it->first + ":\n  " + it->second + "\n";
-		const QString qstr = str.c_str();
-		emit update_text(qstr);
-	}
+		InfoManager::~InfoManager()
+		{
+			if (instance)
+				delete instance;
+		}
 
-	void InfoManager::clear_info()
-	{
-		infos_.clear();
-	}
+		InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
+		{
+			if (instance)
+				return (instance);
+			else if (ui)
+				return ((InfoManager::instance = new InfoManager(ui)));
+			else
+				throw InfoManager::ManagerNotInstantiate();
+		}
 
-	QProgressBar* InfoManager::get_progress_bar()
-	{
-		return (progressBar_);
+		void InfoManager::update_info(const std::string& key, const std::string& value)
+		{
+			if (instance)
+				instance->infos_[key] = value;
+		}
+
+		void InfoManager::remove_info(const std::string& key)
+		{
+			if (instance)
+				instance->infos_.erase(key);
+		}
+
+		void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
+		{
+			//infos_.insert(pos, );
+		}
+
+		void InfoManager::stop_display()
+		{
+			if (instance)
+				instance->stop_requested_ = true;
+		}
+
+		void InfoManager::run()
+		{
+			while (!stop_requested_)
+			{
+				draw();
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+		}
+
+		void InfoManager::draw()
+		{
+			std::string str = "";
+			auto ite = infos_.end();
+			for (auto it = infos_.begin(); it != ite; ++it)
+				str += it->first + ":\n  " + it->second + "\n";
+			const QString qstr = str.c_str();
+			emit update_text(qstr);
+		}
+
+		void InfoManager::clear_info()
+		{
+			infos_.clear();
+		}
+
+		QProgressBar* InfoManager::get_progress_bar()
+		{
+			return (progressBar_);
+		}
 	}
 }

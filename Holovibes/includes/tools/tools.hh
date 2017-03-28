@@ -24,6 +24,8 @@
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
 
+using namespace holovibes;
+
 /*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>
 void delete_them(Container& c, const Functor& f)

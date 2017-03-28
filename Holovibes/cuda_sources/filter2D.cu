@@ -42,8 +42,8 @@ __global__ void filter2D_roi(	complex		*input,
 void filter2D(	complex							*input,
 				complex							*tmp_buffer,
 				const cufftHandle				plan2d,
-				const gui::Rectangle&		r,
-				const camera::FrameDescriptor&	desc,
+				const Rectangle&		r,
+				const FrameDescriptor&	desc,
 				cudaStream_t					stream)
 {
 	uint threads = THREADS_128;

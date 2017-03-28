@@ -13,75 +13,77 @@
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q, KindOfView k) :
-		/* ~~~~~~~~~~~~ */
-		QOpenGLWindow(), QOpenGLFunctions(),
-		Queue(q),
-		Fd(Queue.get_frame_desc()),
-		kView(k),
-		Translate{ 0.f, 0.f },
-		Scale(1.f),
-		cuResource(nullptr),
-		cuStream(nullptr),
-		cuArray(nullptr),
-		cuSurface(0),
-		cuPtrToPbo(nullptr),
-		sizeBuffer(0),
-		Program(nullptr),
-		Vao(0),
-		Vbo(0), Ebo(0), Pbo(0),
-		Tex(0),
-		zoneSelected()
+	namespace gui
 	{
-		if (cudaStreamCreate(&cuStream) != cudaSuccess)
-			cuStream = nullptr;
-		resize(s);
-		setFramePosition(p);
-		setIcon(QIcon("icon1.ico"));
-		show();
-	}
-
-	BasicOpenGLWindow::~BasicOpenGLWindow()
-	{
-		makeCurrent();
-
-		cudaGraphicsUnregisterResource(cuResource);
-		cudaStreamDestroy(cuStream);
-
-		if (Tex) glDeleteBuffers(1, &Tex);
-		if (Pbo) glDeleteBuffers(1, &Pbo);
-		if (Ebo) glDeleteBuffers(1, &Ebo);
-		if (Vbo) glDeleteBuffers(1, &Vbo);
-		Vao.destroy();
-		delete Program;
-	}
-
-	const	KindOfView	BasicOpenGLWindow::getKindOfView() const
-	{
-		return kView;
-	}
-
-	void	BasicOpenGLWindow::setKindOfSelection(KindOfSelection k)
-	{
-		zoneSelected.setKind(k);
-	}
-
-	const KindOfSelection BasicOpenGLWindow::getKindOfSelection() const
-	{
-		return zoneSelected.getKind();
-	}
-
-	void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
-	{
-		QPaintDeviceWindow::update();
-	}
-
-	void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
-	{
-		switch (e->key())
+		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			/* ~~~~~~~~~~~~ */
+			QOpenGLWindow(), QOpenGLFunctions(),
+			Qu(q),
+			Fd(Qu.get_frame_desc()),
+			kView(k),
+			Translate{ 0.f, 0.f },
+			Scale(1.f),
+			cuResource(nullptr),
+			cuStream(nullptr),
+			cuArray(nullptr),
+			cuSurface(0),
+			cuPtrToPbo(nullptr),
+			sizeBuffer(0),
+			Program(nullptr),
+			Vao(0),
+			Vbo(0), Ebo(0), Pbo(0),
+			Tex(0),
+			zoneSelected()
 		{
+			if (cudaStreamCreate(&cuStream) != cudaSuccess)
+				cuStream = nullptr;
+			resize(s);
+			setFramePosition(p);
+			setIcon(QIcon("icon1.ico"));
+			show();
+		}
+
+		BasicOpenGLWindow::~BasicOpenGLWindow()
+		{
+			makeCurrent();
+
+			cudaGraphicsUnregisterResource(cuResource);
+			cudaStreamDestroy(cuStream);
+
+			if (Tex) glDeleteBuffers(1, &Tex);
+			if (Pbo) glDeleteBuffers(1, &Pbo);
+			if (Ebo) glDeleteBuffers(1, &Ebo);
+			if (Vbo) glDeleteBuffers(1, &Vbo);
+			Vao.destroy();
+			delete Program;
+		}
+
+		const	KindOfView	BasicOpenGLWindow::getKindOfView() const
+		{
+			return kView;
+		}
+
+		void	BasicOpenGLWindow::setKindOfSelection(KindOfSelection k)
+		{
+			zoneSelected.setKind(k);
+		}
+
+		const KindOfSelection BasicOpenGLWindow::getKindOfSelection() const
+		{
+			return zoneSelected.getKind();
+		}
+
+		void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
+		{
+			QPaintDeviceWindow::update();
+		}
+
+		void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
+		{
+			switch (e->key())
+			{
 			case Qt::Key::Key_F11:
 				setWindowState(Qt::WindowFullScreen);
 				break;
@@ -96,11 +98,11 @@ namespace gui
 						Qt::ArrowCursor : Qt::CrossCursor);
 				}
 				break;
-			case Qt::Key::Key_Up :
+			case Qt::Key::Key_Up:
 				Translate[1] -= 0.1f / Scale;
 				setTranslate();
 				break;
-			case Qt::Key::Key_Down :
+			case Qt::Key::Key_Down:
 				Translate[1] += 0.1f / Scale;
 				setTranslate();
 				break;
@@ -112,51 +114,64 @@ namespace gui
 				Translate[0] -= 0.1f / Scale;
 				setTranslate();
 				break;
+			}
 		}
-	}
-	
-	void	BasicOpenGLWindow::setTranslate()
-	{
-		for (uint id = 0; id < 2; id++)
-			Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
-							(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
-								0.f : Translate[id];
-		if (Program)
-		{
-			makeCurrent();
-			Program->bind();
-			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			Program->release();
-		}
-	}
-	
-	void	BasicOpenGLWindow::setScale()
-	{
-		if (Program)
-		{
-			makeCurrent();
-			Program->bind();
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-			Program->release();
-		}
-	}
 
-	void	BasicOpenGLWindow::resetTransform()
-	{
-		Translate = { 0.f, 0.f };
-		Scale = 1.f;
-		if (Program)
+		void	BasicOpenGLWindow::setTranslate()
 		{
-			makeCurrent();
-			Program->bind();
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			Program->release();
+			for (uint id = 0; id < 2; id++)
+				Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
+				(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
+				0.f : Translate[id];
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+				Program->release();
+			}
 		}
-	}
 
-	void	BasicOpenGLWindow::resetSelection()
-	{
-		zoneSelected.resetZoneBuffer();
+		void	BasicOpenGLWindow::setScale()
+		{
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::setAngle(float a)
+		{
+			Angle = a;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::resetTransform()
+		{
+			Translate = { 0.f, 0.f };
+			Scale = 1.f;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::resetSelection()
+		{
+			zoneSelected.resetZoneBuffer();
+		}
 	}
 }

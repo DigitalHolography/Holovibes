@@ -140,8 +140,8 @@ namespace holovibes
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 			fd.height = compute_desc_.nsamples.load();
 			fd.depth = sizeof(float);
-			gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFTCutXZ");
-			gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
+			gpu_stft_slice_queue_xz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutXZ");
+			gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
 			request_stft_cuts_ = false;
 		}
 		if (request_delete_stft_cuts_)
@@ -489,7 +489,7 @@ namespace holovibes
 			}
 			unwrap_res_->reset(compute_desc_.unwrap_history_size.load());
 			unwrap_res_->reallocate(input_.get_pixels());
-			if (compute_desc_.view_mode.load() == holovibes::ComplexViewMode::PhaseIncrease)
+			if (compute_desc_.view_mode.load() == ComplexViewMode::PhaseIncrease)
 			{
 				// Phase increase
 				fn_vect_.push_back(std::bind(

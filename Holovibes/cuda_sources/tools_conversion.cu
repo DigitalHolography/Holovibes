@@ -379,8 +379,8 @@ void complex_to_ushort(	const complex	*input,
 }
 
 /*! \brief Memcpy of a complex sized frame into another buffer */
-void complex_to_complex(const complex	*input,
-						ushort			*output,
+void complex_to_complex(const complex*	input,
+						ushort*			output,
 						const uint		size,
 						cudaStream_t	stream)
 {
@@ -406,10 +406,10 @@ __global__ void	kernel_buffer_size_conversion(	char			*real_buffer,
 	}
 }
 
-void	buffer_size_conversion(char							*real_buffer,
-	const char						*buffer,
-	const camera::FrameDescriptor	real_frame_desc,
-	const camera::FrameDescriptor	frame_desc)
+void	buffer_size_conversion(	char*					real_buffer,
+								const char*				buffer,
+								const FrameDescriptor	real_frame_desc,
+								const FrameDescriptor	frame_desc)
 {
 	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
@@ -422,8 +422,8 @@ void	buffer_size_conversion(char							*real_buffer,
 																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
 }
 
-__global__ void kernel_accumulate_images(	const float		*input,
-											float			*output,
+__global__ void kernel_accumulate_images(	const float*	input,
+											float*			output,
 											const size_t	start,
 											const size_t	max_elmt,
 											const size_t	nb_elmt,
