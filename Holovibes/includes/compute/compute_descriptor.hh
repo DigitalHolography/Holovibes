@@ -14,7 +14,7 @@ using guard = std::lock_guard<std::mutex>;
 
 namespace holovibes
 {
-	const static std::string version = "v4.2.170328"; /*!< Current version of this project. */
+	const static std::string version = "v4.2.170329"; /*!< Current version of this project. */
 
 
 	/*! \brief Contains compute parameters.

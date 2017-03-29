@@ -34,7 +34,7 @@ namespace holovibes
 		+ std::string(" - ")
 		+ std::to_string(static_cast<int>(fd.depth * 8))
 		+ std::string("bit");
-	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputSource", input_descriptor_info);
+	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
   }
 
   ThreadCapture::~ThreadCapture()

@@ -104,7 +104,7 @@ namespace gui
 	{
 		std::string str = "";
 		for (auto it = infos_.begin(); it != infos_.end(); ++it)
-			str += it->first + ":\n  " + it->second + "\n";
+			str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
 		const QString qstr = str.c_str();
 		emit update_text(qstr);
 	}

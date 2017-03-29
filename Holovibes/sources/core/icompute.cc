@@ -895,7 +895,7 @@ namespace holovibes
 			if (diff)
 			{
 				auto fps = frame_count_ * 1000 / diff;
-				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "RenderingFps", std::to_string(fps) + std::string(" fps"));
+				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;

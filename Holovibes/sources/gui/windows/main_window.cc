@@ -278,7 +278,7 @@ namespace gui
 		QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 		findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 		findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
-		((is_direct) ? (InfoManager::get_manager()->remove_info("OutputSource")) : (0));
+		((is_direct) ? (InfoManager::get_manager()->remove_info("OutputFormat")) : (0));
 	}
 
 	void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -535,7 +535,8 @@ namespace gui
 					+ std::string(" - ")
 					+ std::to_string(static_cast<int>(fd.depth * 8))
 					+ std::string("bit");
-				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_SOURCE, "OutputSource", output_descriptor_info);
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 				setPhase();
 				holovibes_.get_pipe()->request_update_n(1);
 				gl_window_.reset(new GuiGLWindow(pos, display_width_, display_height_, 0.f, holovibes_, holovibes_.get_output_queue()));
