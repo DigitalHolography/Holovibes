@@ -78,9 +78,6 @@ namespace holovibes
     /* \brief Pre-allocation needed ressources for the autofocus to work. */
     void autofocus_init();
 
-    /* \brief Simple wrapper around cudaMemcpy. */
-    void cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind);
-
     /*! \brief Construct the ICompute object with 2 queues and 1 compute desc. */
     ICompute(
       Queue& input,

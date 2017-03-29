@@ -25,8 +25,8 @@
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
-#ifndef DisplayRate
-# define DisplayRate 1000.f/30.f
+#ifndef DISPLAY_RATE
+# define DISPLAY_RATE 1000.f/30.f
 #endif
 
 namespace holovibes
@@ -71,10 +71,6 @@ namespace holovibes
 			cudaGraphicsResource_t	cuResource;
 			cudaStream_t			cuStream;
 
-			cudaArray_t				cuArray;
-			cudaResourceDesc		cuArrRD;
-			cudaSurfaceObject_t		cuSurface;
-
 			void*	cuPtrToPbo;
 			size_t	sizeBuffer;
 
@@ -90,11 +86,12 @@ namespace holovibes
 			// Virtual Pure Functions
 			virtual void initShaders() = 0;
 			virtual void initializeGL() = 0;
-			virtual void resizeGL(int w, int h) = 0;
+			virtual void resizeGL(int width, int height);
 			virtual void paintGL() = 0;
 
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent* e);
+			void	wheelEvent(QWheelEvent *e);
 
 			// Transform functions
 			void	setTranslate();

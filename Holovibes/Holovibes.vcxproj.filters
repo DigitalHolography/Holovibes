@@ -191,9 +191,6 @@
     <ClCompile Include="sources\core\pipe.cc">
       <Filter>c++ sources\core</Filter>
     </ClCompile>
-    <ClCompile Include="sources\core\pipeline.cc">
-      <Filter>c++ sources\core</Filter>
-    </ClCompile>
     <ClCompile Include="sources\compute\compute_bundles.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>

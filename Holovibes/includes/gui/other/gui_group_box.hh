@@ -10,9 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
- *
- * QGroupBox overload, used to hide and show parts of the GUI  */
 #pragma once
 
 # include <QGroupBox>

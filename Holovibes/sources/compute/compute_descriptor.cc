@@ -78,6 +78,7 @@ namespace holovibes
 	
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
 	{
+		algorithm.exchange(cd.algorithm.load());
 		compute_mode.exchange(cd.compute_mode.load());
 		nsamples.exchange(cd.nsamples.load());
 		pindex.exchange(cd.pindex.load());

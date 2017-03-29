@@ -12,28 +12,30 @@
 
 #pragma once
 
-#include "DirectWindow.hh"
+#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class SliceWindow : public DirectWindow
+		class SliceWindow : public BasicOpenGLWindow
 		{
 		public:
 			SliceWindow(QPoint p, QSize s, Queue& q);
 			virtual ~SliceWindow();
-
-			//void	setAngle(float a);
-			//void	setFlip(int f);
-
+			
 		protected:
+			cudaArray_t				cuArray;
+			cudaResourceDesc		cuArrRD;
+			cudaSurfaceObject_t		cuSurface;
 
 			virtual void	initShaders();
-			//virtual void	initializeGL();
-			//virtual void	resizeGL(int width, int height);
+			virtual void	initializeGL();
 			virtual void	paintGL();
-			//void			timerEvent(QTimerEvent *e);
+
+			void mousePressEvent(QMouseEvent* e);
+			void mouseMoveEvent(QMouseEvent* e);
+			void mouseReleaseEvent(QMouseEvent* e);
 		};
 	}
 }

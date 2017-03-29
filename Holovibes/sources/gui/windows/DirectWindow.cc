@@ -122,23 +122,16 @@ namespace holovibes
 
 			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			if (kView != Direct)
-			{
-				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-			}
+			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
+			
 			Program->release();
 			zoneSelected.initShaderProgram();
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(DisplayRate);
+			startTimer(DISPLAY_RATE);
 		}
-
-		void	DirectWindow::resizeGL(int width, int height)
-		{
-			glViewport(0, 0, width, height);
-		}
-
+		
 		void	DirectWindow::paintGL()
 		{
 			makeCurrent();
@@ -177,11 +170,8 @@ namespace holovibes
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
 		{
-			if (slicesAreLocked.load())
-			{
-				if (e->button() == Qt::LeftButton)
-					zoneSelected.press(e->pos());
-			}
+			if (e->button() == Qt::LeftButton)
+				zoneSelected.press(e->pos());
 		}
 
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
@@ -222,36 +212,5 @@ namespace holovibes
 			Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
 			setScale();
 		}
-
-		void	DirectWindow::wheelEvent(QWheelEvent *e)
-		{
-			if (e->x() < width() && e->y() < height())
-			{
-				const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-				const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
-				if (e->angleDelta().y() > 0)
-				{
-					Scale += 0.1f * Scale;
-					setScale();
-					Translate[0] += xGL * 0.1 / Scale;
-					Translate[1] += -yGL * 0.1 / Scale;
-					setTranslate();
-				}
-				else if (e->angleDelta().y() < 0)
-				{
-					Scale -= 0.1f * Scale;
-					if (Scale < 1.f)
-						resetTransform();
-					else
-					{
-						setScale();
-						Translate[0] -= -xGL * 0.1 / Scale;
-						Translate[1] -= yGL * 0.1 / Scale;
-						setTranslate();
-					}
-				}
-			}
-		}
-
 	}
 }

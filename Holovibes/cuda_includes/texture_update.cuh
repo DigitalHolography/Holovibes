@@ -18,7 +18,7 @@
 # include "frame_desc.hh"
 # include "cuda_shared.cuh"
 
-void	textureUpdate(	cudaSurfaceObject_t cuSurface,
-						void* frame,
-						const camera::FrameDescriptor& Fd,
-						cudaStream_t stream);
+void	textureUpdate(	cudaSurfaceObject_t		cuSurface,
+						void*					frame,
+						const FrameDescriptor&	fd,
+						cudaStream_t			stream);

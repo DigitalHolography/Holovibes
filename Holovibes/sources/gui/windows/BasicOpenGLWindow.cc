@@ -27,8 +27,6 @@ namespace holovibes
 			Scale(1.f),
 			cuResource(nullptr),
 			cuStream(nullptr),
-			cuArray(nullptr),
-			cuSurface(0),
 			cuPtrToPbo(nullptr),
 			sizeBuffer(0),
 			Program(nullptr),
@@ -60,7 +58,7 @@ namespace holovibes
 			delete Program;
 		}
 
-		const	KindOfView	BasicOpenGLWindow::getKindOfView() const
+		const KindOfView	BasicOpenGLWindow::getKindOfView() const
 		{
 			return kView;
 		}
@@ -70,9 +68,14 @@ namespace holovibes
 			zoneSelected.setKind(k);
 		}
 
-		const KindOfSelection BasicOpenGLWindow::getKindOfSelection() const
+		const KindOfSelection	BasicOpenGLWindow::getKindOfSelection() const
 		{
 			return zoneSelected.getKind();
+		}
+		
+		void	BasicOpenGLWindow::resizeGL(int width, int height)
+		{
+			glViewport(0, 0, width, height);
 		}
 
 		void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
@@ -90,14 +93,6 @@ namespace holovibes
 			case Qt::Key::Key_Escape:
 				setWindowState(Qt::WindowNoState);
 				break;
-			case (Qt::Key::Key_Space):
-				if (kView == Hologram)
-				{
-					slicesAreLocked.exchange(!slicesAreLocked.load());
-					setCursor((slicesAreLocked.load()) ?
-						Qt::ArrowCursor : Qt::CrossCursor);
-				}
-				break;
 			case Qt::Key::Key_Up:
 				Translate[1] -= 0.1f / Scale;
 				setTranslate();
@@ -114,6 +109,36 @@ namespace holovibes
 				Translate[0] -= 0.1f / Scale;
 				setTranslate();
 				break;
+			}
+		}
+
+		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
+		{
+			if (e->x() < width() && e->y() < height())
+			{
+				const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+				const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
+				if (e->angleDelta().y() > 0)
+				{
+					Scale += 0.1f * Scale;
+					setScale();
+					Translate[0] += xGL * 0.1 / Scale;
+					Translate[1] += -yGL * 0.1 / Scale;
+					setTranslate();
+				}
+				else if (e->angleDelta().y() < 0)
+				{
+					Scale -= 0.1f * Scale;
+					if (Scale < 1.f)
+						resetTransform();
+					else
+					{
+						setScale();
+						Translate[0] -= -xGL * 0.1 / Scale;
+						Translate[1] -= yGL * 0.1 / Scale;
+						setTranslate();
+					}
+				}
 			}
 		}
 

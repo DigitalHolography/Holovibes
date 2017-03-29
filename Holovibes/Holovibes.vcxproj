@@ -346,7 +346,6 @@
     <ClCompile Include="sources\core\holovibes.cc" />
     <ClCompile Include="sources\core\icompute.cc" />
     <ClCompile Include="sources\core\pipe.cc" />
-    <ClCompile Include="sources\core\pipeline.cc" />
     <ClCompile Include="sources\gpib_dll.cc" />
     <ClCompile Include="sources\gui\other\gui_curve_plot.cc" />
     <ClCompile Include="sources\gui\other\gui_group_box.cc" />

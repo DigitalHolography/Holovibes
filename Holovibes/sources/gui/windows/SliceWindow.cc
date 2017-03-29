@@ -18,14 +18,18 @@ namespace holovibes
 	namespace gui
 	{
 		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q) :
-			/* ~~~~~~~~~~~~ */
-			DirectWindow(p, s, q, KindOfView::Slice)
+			BasicOpenGLWindow(p, s, q, KindOfView::Slice),
+			cuArray(nullptr),
+			cuSurface(0)
 		{}
 
 		SliceWindow::~SliceWindow()
-		{}
+		{
+			if (cuSurface) cudaDestroySurfaceObject(cuSurface);
+			if (cuArray) cudaFreeArray(cuArray);
+		}
 
-		void SliceWindow::initShaders()
+		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
@@ -33,7 +37,7 @@ namespace holovibes
 			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		}
 
-		/*void SliceWindow::initializeGL()
+		void	SliceWindow::initializeGL()
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
@@ -45,7 +49,7 @@ namespace holovibes
 			if (!Vao.create()) std::cerr << "[Error] Vao create() fail" << std::endl;
 			Vao.bind();
 
-#pragma region Texture
+			#pragma region Texture
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
 
@@ -76,9 +80,9 @@ namespace holovibes
 			cuArrRD.resType = cudaResourceTypeArray;
 			cuArrRD.res.array.array = cuArray;
 			cudaCreateSurfaceObject(&cuSurface, &cuArrRD);
-#pragma endregion
+			#pragma endregion
 
-#pragma region Vertex Buffer Object
+			#pragma region Vertex Buffer Object
 			const float	data[16] = {
 				// Top-left
 				-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
@@ -107,9 +111,9 @@ namespace holovibes
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-#pragma endregion
+			#pragma endregion
 
-#pragma region Element Buffer Object
+			#pragma region Element Buffer Object
 			const GLuint elements[6] = {
 				0, 1, 2,
 				2, 3, 0
@@ -118,26 +122,21 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#pragma endregion
+			#pragma endregion
 
 			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
 			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), 1.f);
-			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), 0.f, 0.f);
+			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 
 			Vao.release();
 			Program->release();
 
 			glViewport(0, 0, width(), height());
-			startTimer(DisplayRate);
-		}*/
+			startTimer(DISPLAY_RATE);
+		}
 
-		/*void SliceWindow::resizeGL(int width, int height)
-		{
-			glViewport(0, 0, width, height);
-		}*/
-
-		void SliceWindow::paintGL()
+		void	SliceWindow::paintGL()
 		{
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -167,34 +166,16 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		/*void SliceWindow::setAngle(float a)
+		void	SliceWindow::mousePressEvent(QMouseEvent* e)
+		{}
+
+		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
+		{}
+
+		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
-			Angle = a;
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-				Program->release();
-			}
+			if (e->button() == Qt::RightButton)
+				resetTransform();
 		}
-
-		void SliceWindow::setFlip(int f)
-		{
-			Flip = f;
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-				Program->release();
-			}
-		}
-
-		void SliceWindow::timerEvent(QTimerEvent *e)
-		{
-			update();
-		}*/
-
 	}
 }

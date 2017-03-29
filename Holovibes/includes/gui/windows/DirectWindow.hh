@@ -31,7 +31,6 @@ namespace holovibes
 
 			virtual void	initShaders();
 			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
 
 			void	mousePressEvent(QMouseEvent* e);
@@ -39,7 +38,6 @@ namespace holovibes
 			void	mouseReleaseEvent(QMouseEvent* e);
 
 			void	zoomInRect(Rectangle zone);
-			void	wheelEvent(QWheelEvent *e);
 		};
 	}
 }

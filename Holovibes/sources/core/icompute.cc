@@ -232,7 +232,7 @@ namespace holovibes
 		gui::InfoManager::get_manager()->remove_info("Rendering Fps");
 	}
 
-	bool ICompute::update_n_parameter(unsigned short n)
+	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_ = false;
@@ -316,19 +316,6 @@ namespace holovibes
 				err_count++;
 			}
 		}
-
-		/*if (compute_desc_.stft_view_enabled)
-		{
-			try
-			{
-				update_stft_slice_queue();
-			}
-			catch (std::exception&)
-			{
-				gpu_stft_queue_ = nullptr;
-				err_count++;
-			}
-		}*/
 
 		if (err_count != 0)
 		{
@@ -669,12 +656,12 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::autocontrast_caller(float				*input,
-		const uint			size,
-		ComputeDescriptor&	compute_desc,
-		std::atomic<float>&	min,
-		std::atomic<float>&	max,
-		cudaStream_t		stream)
+	void ICompute::autocontrast_caller(	float*				input,
+										const uint			size,
+										ComputeDescriptor&	compute_desc,
+										std::atomic<float>&	min,
+										std::atomic<float>&	max,
+										cudaStream_t		stream)
 	{
 		float contrast_min = 0.f;
 		float contrast_max = 0.f;
@@ -901,12 +888,7 @@ namespace holovibes
 			frame_count_ = 0;
 		}
 	}
-
-	void ICompute::cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
-	{
-		cudaMemcpy(dst, src, size, kind);
-	}
-
+	
 	void ICompute::autofocus_init()
 	{
 		// Autofocus needs to work on the same images. It will computes on copies.

@@ -14,7 +14,23 @@
 # include "texture_update.cuh"
 
 __global__
-void TextureUpdate_8bit(unsigned char* frame,
+static void updateSliceTexture(float* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
+{
+	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+
+	if (frame[y * texDim.x + x] > 65535.f)
+		frame[y * texDim.x + x] = 65535;
+	else if (frame[y * texDim.x + x] < 0.f)
+		frame[y * texDim.x + x] = 0;
+
+	const uchar p = static_cast<uchar>(frame[y * texDim.x + x] / 256.f);
+	//surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x << 2, y);
+	surf2Dwrite(p, cuSurface, x << 2, y);
+}
+
+/*__global__
+static void TextureUpdate_8bit(unsigned char* frame,
 						cudaSurfaceObject_t cuSurface,
 						dim3 texDim)
 {
@@ -25,7 +41,7 @@ void TextureUpdate_8bit(unsigned char* frame,
 }
 
 __global__
-void TextureUpdate_16bit(unsigned short* frame,
+static void TextureUpdate_16bit(unsigned short* frame,
 						cudaSurfaceObject_t cuSurface,
 						dim3 texDim)
 {
@@ -34,17 +50,21 @@ void TextureUpdate_16bit(unsigned short* frame,
 
 	surf2Dwrite(
 		static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x << 2, y);
-}
+}*/
 
-void textureUpdate(	cudaSurfaceObject_t cuSurface,
-					void* frame,
-					const camera::FrameDescriptor& Fd,
-					cudaStream_t stream)
+void textureUpdate(cudaSurfaceObject_t		cuSurface,
+					void*					frame,
+					const FrameDescriptor&	fd,
+					cudaStream_t			stream)
 {
-	dim3 threads(8, 8);
-	dim3 blocks(Fd.width >> 3, Fd.height >> 3);
+	dim3 threads(32, 32);
+	dim3 blocks(fd.width >> 5, fd.height >> 5);
 
-	if (Fd.depth == 1)
+	updateSliceTexture << < blocks, threads >> >(
+		reinterpret_cast<float*>(frame),
+		cuSurface, dim3(fd.width, fd.height));
+
+	/*if (Fd.depth == 1)
 	{
 		TextureUpdate_8bit << < blocks, threads >> > (
 			reinterpret_cast<unsigned char*>(frame),
@@ -57,28 +77,6 @@ void textureUpdate(	cudaSurfaceObject_t cuSurface,
 			reinterpret_cast<unsigned short*>(frame),
 			cuSurface,
 			dim3(Fd.width, Fd.height));
-	}
+	}*/
 	cudaStreamSynchronize(stream);
 }
-
-/*kernel_up_float()
-{
-	kernelTextureUpdate <<< blocks, threads >>>(reinterpret_cast<float *>(frame), cuSurface, dim3(width, height));
-	->
-	static void kernelTextureUpdate(float				*frame,
-								cudaSurfaceObject_t cuSurface,
-								dim3				texDim)
-	{
-		const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-		const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
-		
-		// Grey Mode
-		if (frame[y * texDim.x + x] > 65535.f)
-			frame[y * texDim.x + x] = 65535;
-		else if (frame[y * texDim.x + x] < 0.f)
-			frame[y * texDim.x + x] = 0;
-
-		const uchar p = static_cast<uchar>(frame[y * texDim.x + x] / 256);
-		surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x << 2, y);
-	}
-}*/

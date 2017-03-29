@@ -41,8 +41,6 @@ namespace holovibes
 			file_index_(1),
 			gpib_interface_(nullptr),
 			theme_index_(0),
-			display_width_(512),
-			display_height_(512),
 			is_enabled_autofocus_(false)
 		{
 			ui.setupUi(this);
@@ -177,11 +175,6 @@ namespace holovibes
 			// 428EA3 gris-turquoise
 			// 00A4AB turquoise
 
-			/*findChild<QLabel *>("AverageSignalLabel")->setText(
-				cd.average_enabled.load() ? "<font color='DeepPink'>Signal</font>" : "Signal");
-			findChild<QLabel *>("AverageNoiseLabel")->setText(
-				cd.average_enabled.load() ? "<font color='Turquoise'>Noise</font>" : "Noise");*/
-
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (cd.view_mode.load() == ComplexViewMode::PhaseIncrease) ||
 				(cd.view_mode.load() == ComplexViewMode::Argument)) ? (true) : (false)));
@@ -195,7 +188,7 @@ namespace holovibes
 			filter_button->setStyleSheet((!is_direct && cd.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && cd.filter_2d_enabled.load());
 
-			findChild<QCheckBox *>("ContrastCheckBox")->setChecked(cd.contrast_enabled.load());
+			findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && cd.contrast_enabled.load());
 			findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
@@ -206,20 +199,23 @@ namespace holovibes
 					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceXZ)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_xz.load()));
+					->setValue((cd.log_scale_enabled_cut_xz.load()) ? cd.contrast_min_slice_xz.load() : log10(cd.contrast_min_slice_xz.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_max_slice_xz.load()));
+					->setValue((cd.log_scale_enabled_cut_xz.load()) ? cd.contrast_max_slice_xz.load() : log10(cd.contrast_max_slice_xz.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_xz.load());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceYZ)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min_slice_yz.load()));
+					->setValue((cd.log_scale_enabled_cut_yz.load()) ? cd.contrast_min_slice_yz.load() : log10(cd.contrast_min_slice_yz.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_max_slice_yz.load()));
+					->setValue((cd.log_scale_enabled_cut_yz.load()) ? cd.contrast_max_slice_yz.load() : log10(cd.contrast_max_slice_yz.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_yz.load());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
 
@@ -267,8 +263,21 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setEnabled(!is_direct);
 			findChild<QLineEdit *>("BoundaryLineEdit")->clear();
-			findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
-			findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+			if (cd.current_window.load() == WindowKind::MainDisplay)
+			{
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+			}
+			else if (cd.current_window.load() == WindowKind::SliceXZ)
+			{
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsXZ_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsXZ_level.load());
+			}
+			else if (cd.current_window.load() == WindowKind::SliceYZ)
+			{
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsYZ_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
+			}
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
@@ -281,6 +290,7 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
+			((is_direct) ? (InfoManager::get_manager()->remove_info("OutputSource")) : (0));
 		}
 
 		void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -326,7 +336,7 @@ namespace holovibes
 		void MainWindow::display_message(QString msg)
 		{
 			InfoManager::get_manager()->remove_info("Message");
-			InfoManager::get_manager()->update_info("Message", msg.toStdString());
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::MESSAGE, "Message", msg.toStdString());
 		}
 
 		void MainWindow::layout_toggled(bool b)
@@ -455,17 +465,7 @@ namespace holovibes
 			try
 			{
 				auto manager = InfoManager::get_manager();
-				manager->remove_info("Input FPS");
-				manager->remove_info("Info");
-				manager->remove_info("Message");
-				manager->remove_info("Error");
-				manager->remove_info("InputQueue");
-				manager->remove_info("OutputQueue");
-				manager->remove_info("Rendering FPS");
-				manager->remove_info("STFTQueue");
-				manager->remove_info("STFT Slice Cursor");
-				manager->remove_info("Status");
-				manager->update_info("ImgSource", "None");
+				manager->clear_info();
 			}
 			catch (std::exception& e)
 			{
@@ -529,6 +529,12 @@ namespace holovibes
 					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 					while (!holovibes_.get_pipe());
 					holovibes_.get_pipe()->register_observer(*this);
+					auto fd = holovibes_.get_output_queue().get_frame_desc();
+					std::string output_descriptor_info = 
+						std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
+						std::string(" - ") +
+						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
+					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_SOURCE, "OutputSource", output_descriptor_info);
 					setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
 					mainDisplay.reset(new HoloWindow(
@@ -539,11 +545,15 @@ namespace holovibes
 						holovibes_.get_compute_desc()));
 					mainDisplay->setAngle(displayAngle);
 					mainDisplay->setFlip(displayFlip);
-					//if (!cd.flowgraphy_enabled && !is_direct_mode())
-						//holovibes_.get_pipe()->request_autocontrast();
+					// ----------
 					cd.contrast_enabled.exchange(true);
 					if (!cd.flowgraphy_enabled.load())
+					{
 						set_auto_contrast();
+						pipe_refresh();
+					}
+					while (holovibes_.get_pipe()->get_request_refresh());
+					// ----------
 					notify();
 				}
 				catch (std::exception& e)
@@ -626,14 +636,13 @@ namespace holovibes
 		void MainWindow::reset()
 		{
 			Config&	config = global::global_config;
-			int					device = 0;
+			int		device = 0;
 
 			close_critical_compute();
 			camera_none();
 			auto manager = InfoManager::get_manager();
 			manager->update_info("Status", "Resetting...");
 			qApp->processEvents();
-			mainDisplay.reset(nullptr);
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
@@ -701,14 +710,13 @@ namespace holovibes
 			{
 				mainDisplay->resetTransform();
 				mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
-
 				findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				cd.log_scale_enabled.exchange(true);
 				cd.shift_corners_enabled.exchange(false);
 				cd.filter_2d_enabled.exchange(true);
-				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 				set_auto_contrast();
+				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 				notify();
 			}
 		}
@@ -992,7 +1000,11 @@ namespace holovibes
 		{
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 			auto manager = InfoManager::get_manager();
-			manager->update_info("STFT Slice Cursor", "(Y,X) = (0,0)");
+			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
+
+			QComboBox* winSelection = findChild<QComboBox*>("WindowSelectionComboBox");
+			winSelection->setEnabled(checked);
+			winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
 			if (checked)
 			{
 				try
@@ -1025,9 +1037,7 @@ namespace holovibes
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
 
-					mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);
-
-					findChild<QCheckBox*>("STFTCutsCheckBox")->setChecked(true);
+					mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);					
 					cd.stft_view_enabled.exchange(true);
 					notify();
 				}
@@ -1181,12 +1191,20 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
-				// if (!value)
-				holovibes_.get_pipe()->request_acc_refresh();
-				// else
-				//  pipe_refresh();
-				notify();
+				if (!is_direct_mode())
+				{
+					holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
+					if (cd.current_window.load() == WindowKind::MainDisplay)
+					{
+						holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
+						holovibes_.get_pipe()->request_acc_refresh();
+					}
+					else if (cd.current_window.load() == WindowKind::SliceXZ)
+						holovibes_.get_compute_desc().img_acc_cutsXZ_enabled.exchange(value);
+					else if (cd.current_window.load() == WindowKind::SliceYZ)
+						holovibes_.get_compute_desc().img_acc_cutsYZ_enabled.exchange(value);
+					notify();
+				}
 			}
 		}
 
@@ -1194,9 +1212,16 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				holovibes_.get_compute_desc().img_acc_level.exchange(value);
-				holovibes_.get_pipe()->request_acc_refresh();
-				notify();
+				holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
+				if (cd.current_window.load() == WindowKind::MainDisplay)
+				{
+					holovibes_.get_compute_desc().img_acc_level.exchange(value);
+					holovibes_.get_pipe()->request_acc_refresh();
+				}
+				else if (cd.current_window.load() == WindowKind::SliceXZ)
+					holovibes_.get_compute_desc().img_acc_cutsXZ_level.exchange(value);
+				else if (cd.current_window.load() == WindowKind::SliceYZ)
+					holovibes_.get_compute_desc().img_acc_cutsYZ_level.exchange(value);
 			}
 		}
 
@@ -1310,7 +1335,6 @@ namespace holovibes
 				try
 				{
 					holovibes_.get_pipe()->request_autocontrast();
-					notify();
 				}
 				catch (std::runtime_error& e)
 				{
@@ -1324,22 +1348,31 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
 				if (cd.contrast_enabled.load())
 				{
-					if (cd.log_scale_enabled.load())
-						cd.contrast_min.exchange(value);
-					else
+					if (cd.current_window.load() == WindowKind::MainDisplay)
 					{
-						if (cd.current_window.load() == WindowKind::MainDisplay)
+						if (cd.log_scale_enabled.load())
+							cd.contrast_min.exchange(value);
+						else
 							cd.contrast_min.exchange(pow(10, value));
-						else if (cd.current_window.load() == WindowKind::SliceXZ)
+					}
+					else if (cd.current_window.load() == WindowKind::SliceXZ)
+					{
+						if (cd.log_scale_enabled_cut_xz.load())
+							cd.contrast_min_slice_xz.exchange(value);
+						else
 							cd.contrast_min_slice_xz.exchange(pow(10, value));
-						else if (cd.current_window.load() == WindowKind::SliceYZ)
+					}
+					else if (cd.current_window.load() == WindowKind::SliceYZ)
+					{
+						if (cd.log_scale_enabled_cut_yz.load())
+							cd.contrast_min_slice_yz.exchange(value);
+						else
 							cd.contrast_min_slice_yz.exchange(pow(10, value));
 					}
-					pipe_refresh();
 				}
+				pipe_refresh();
 			}
 		}
 
@@ -1347,19 +1380,29 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				ComputeDescriptor& cd = holovibes_.get_compute_desc();
+				holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
 
 				if (cd.contrast_enabled.load())
 				{
-					if (cd.log_scale_enabled.load())
-						cd.contrast_max.exchange(value);
-					else
+					if (cd.current_window.load() == WindowKind::MainDisplay)
 					{
-						if (cd.current_window.load() == WindowKind::MainDisplay)
+						if (cd.log_scale_enabled.load())
+							cd.contrast_max.exchange(value);
+						else
 							cd.contrast_max.exchange(pow(10, value));
-						else if (cd.current_window.load() == WindowKind::SliceXZ)
+					}
+					else if (cd.current_window.load() == WindowKind::SliceXZ)
+					{
+						if (cd.log_scale_enabled_cut_xz.load())
+							cd.contrast_max_slice_xz.exchange(value);
+						else
 							cd.contrast_max_slice_xz.exchange(pow(10, value));
-						else if (cd.current_window.load() == WindowKind::SliceYZ)
+					}
+					else if (cd.current_window.load() == WindowKind::SliceYZ)
+					{
+						if (cd.log_scale_enabled_cut_yz.load())
+							cd.contrast_max_slice_yz.exchange(value);
+						else
 							cd.contrast_max_slice_yz.exchange(pow(10, value));
 					}
 					pipe_refresh();
@@ -1371,13 +1414,17 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-				cd.log_scale_enabled.exchange(value);
-
+				holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
+				if (cd.current_window.load() == WindowKind::MainDisplay)
+					cd.log_scale_enabled.exchange(value);
+				else if (cd.current_window.load() == WindowKind::SliceXZ)
+					cd.log_scale_enabled_cut_xz.exchange(value);
+				else if (cd.current_window.load() == WindowKind::SliceYZ)
+					cd.log_scale_enabled_cut_yz.exchange(value);
 				if (cd.contrast_enabled.load())
 				{
-					set_contrast_min(findChild<QDoubleSpinBox*>("ContrastMinDoubleSpinBox")->value());
-					set_contrast_max(findChild<QDoubleSpinBox*>("ContrastMaxDoubleSpinBox")->value());
+					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
+					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
 				pipe_refresh();
 				notify();
@@ -1422,7 +1469,7 @@ namespace holovibes
 					notify();
 				}
 				else
-					display_error("p param has to be between 1 and n");;
+					display_error("p param has to be between 1 and n");
 			}
 		}
 
@@ -1517,16 +1564,15 @@ namespace holovibes
 
 		void MainWindow::save_roi()
 		{
-			QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFileLineEdit");
-			std::string path = path_line_edit->text().toUtf8();
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Warning", "Save ROI function not ready yet");
 
+			/*QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFileLineEdit");
+			std::string path = path_line_edit->text().toUtf8();
 			if (path != "")
 			{
 				boost::property_tree::ptree ptree;
-
-				//const GLWidget& gl_widget = gl_window_->get_gl_widget();
-				/*const gui::Rectangle& signal = gl_widget.get_signal_selection();
-				const gui::Rectangle& noise = gl_widget.get_noise_selection();
+				const Rectangle signal = mainDisplay->getSingalZone();
+				const Rectangle noise = mainDisplay->getNoiseZone();
 
 				ptree.put("signal.top_left_x", signal.topLeft().x());
 				ptree.put("signal.top_left_y", signal.topLeft().y());
@@ -1539,18 +1585,19 @@ namespace holovibes
 				ptree.put("noise.bottom_right_y", noise.bottomRight().y());
 
 				boost::property_tree::write_ini(path, ptree);
-				display_info("Roi saved in " + path);*/
+				display_info("Roi saved in " + path);
 			}
 			else
-				display_error("Invalid path");
+				display_error("Invalid path");*/
 		}
 
 		void MainWindow::load_roi()
 		{
-			QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Warning", "Load ROI function not ready yet");
+
+			/*QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
 			const std::string path = path_line_edit->text().toUtf8();
 			boost::property_tree::ptree ptree;
-
 			try
 			{
 				boost::property_tree::ini_parser::read_ini(path, ptree);
@@ -1579,7 +1626,7 @@ namespace holovibes
 			catch (std::exception& e)
 			{
 				display_error("Couldn't load ini file\n" + std::string(e.what()));
-			}
+			}*/
 		}
 
 		void MainWindow::load_convo_matrix()
@@ -1683,9 +1730,9 @@ namespace holovibes
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
 			if (path == "")
-				return;
-			Queue* queue;
+				return (display_error("No output file"));
 
+			Queue* queue;
 			try
 			{
 				if (float_output_checkbox->isChecked() && !is_direct_mode())
@@ -2070,7 +2117,7 @@ namespace holovibes
 			close_critical_compute();
 			camera_none();
 			close_windows();
-			remove_infos();
+			InfoManager::get_manager()->clear_info();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
 		}
@@ -2192,12 +2239,12 @@ namespace holovibes
 			save_ini("holovibes.ini");
 		}
 
-		void MainWindow::change_camera(const Holovibes::camera_type camera_type)
+		void MainWindow::change_camera(const Holovibes::camera_type type)
 		{
 			close_critical_compute();
 			close_windows();
 			remove_infos();
-			if (camera_type != Holovibes::NONE)
+			if (type != Holovibes::NONE)
 			{
 				try
 				{
@@ -2205,9 +2252,9 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
-					holovibes_.init_capture(camera_type);
+					holovibes_.init_capture(type);
 					set_image_mode();
-					camera_type_ = camera_type;
+					camera_type_ = type;
 					QAction* settings = findChild<QAction*>("actionSettings");
 					settings->setEnabled(true);
 					notify();
@@ -2226,13 +2273,13 @@ namespace holovibes
 		void MainWindow::display_error(const std::string msg)
 		{
 			InfoManager::get_manager()->remove_info("Error");
-			InfoManager::get_manager()->update_info("Error", msg);
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Error", msg);
 		}
 
 		void MainWindow::display_info(const std::string msg)
 		{
 			InfoManager::get_manager()->remove_info("Info");
-			InfoManager::get_manager()->update_info("Info", msg);
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
 		}
 
 		void MainWindow::open_file(const std::string& path)
@@ -2360,6 +2407,7 @@ namespace holovibes
 				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
 				config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
 				cd.import_pixel_size.exchange(config.import_pixel_size);
+				findChild<QSpinBox *>("ImportFpsSpinBox")->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
 				info_action->setChecked(!ptree.get<bool>("info.hidden", false));
@@ -2385,6 +2433,7 @@ namespace holovibes
 				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
+				notify();
 			}
 		}
 

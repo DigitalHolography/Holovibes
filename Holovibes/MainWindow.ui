@@ -1122,7 +1122,7 @@
         <widget class="QPushButton" name="FlipPushButton">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>142</x>
            <y>120</y>
            <width>41</width>
            <height>21</height>
@@ -1135,7 +1135,7 @@
         <widget class="QPushButton" name="RotatePushButton">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>98</x>
            <y>120</y>
            <width>41</width>
            <height>21</height>
@@ -1146,11 +1146,14 @@
          </property>
         </widget>
         <widget class="QComboBox" name="WindowSelectionComboBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>120</y>
-           <width>71</width>
+           <width>82</width>
            <height>21</height>
           </rect>
          </property>
