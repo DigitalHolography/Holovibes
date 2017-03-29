@@ -379,6 +379,7 @@ namespace gui
 		close_windows();
 		remove_infos();
 		findChild<QAction*>("actionSettings")->setEnabled(false);
+		is_enabled_camera_ = false;
 		holovibes_.get_compute_desc().compute_mode.exchange(holovibes::ComputeDescriptor::compute_mode::NONE);
 		notify();
 	}
@@ -652,9 +653,10 @@ namespace gui
 		cudaDeviceSynchronize();
 		cudaDeviceReset();
 		close_windows();
+		remove_infos();
 		change_camera(camera_type_);
 		load_ini(GLOBAL_INI_PATH);
-		remove_infos();
+		set_image_mode();
 		notify();
 	}
 

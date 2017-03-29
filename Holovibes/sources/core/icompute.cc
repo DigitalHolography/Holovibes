@@ -670,11 +670,11 @@ namespace holovibes
 	}
 
 	void ICompute::autocontrast_caller(float				*input,
-		const uint			size,
-		ComputeDescriptor&	compute_desc,
-		std::atomic<float>&	min,
-		std::atomic<float>&	max,
-		cudaStream_t		stream)
+										const uint			size,
+										ComputeDescriptor&	compute_desc,
+										std::atomic<float>&	min,
+										std::atomic<float>&	max,
+										cudaStream_t		stream)
 	{
 		float contrast_min = 0.f;
 		float contrast_max = 0.f;
