@@ -10,21 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#version 450
 
-# include <qrect.h>
+layout(location = 0) in vec2	xy;
+layout(location = 1) in vec2	uv;
 
-namespace holovibes
+uniform	float	scale;
+uniform	vec2	translate;
+
+out vec2	texCoord;
+
+void main()
 {
-	class Rectangle : public QRect
-	{
-		public:
-			Rectangle();
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const unsigned int width, const unsigned int height);
-
-			uint	area() const;
-			void	checkCorners();
-	};
+    texCoord = uv + translate;
+    gl_Position = vec4(scale * xy, 0.f, 1.f);
 }

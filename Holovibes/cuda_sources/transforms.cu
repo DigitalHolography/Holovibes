@@ -13,10 +13,10 @@
 #include "transforms.cuh"
 #include "frame_desc.hh"
 
-__global__ void kernel_quadratic_lens(	complex* output,
-										const camera::FrameDescriptor fd,
-										const float lambda,
-										const float dist)
+__global__ void kernel_quadratic_lens(	complex*				output,
+										const FrameDescriptor	fd,
+										const float				lambda,
+										const float				dist)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	size = fd.width * fd.height;
@@ -43,10 +43,10 @@ __global__ void kernel_quadratic_lens(	complex* output,
 	}
 }
 
-__global__ void kernel_spectral_lens(complex						*output,
-									 const camera::FrameDescriptor	fd,
-									 const float					lambda,
-									 const float					distance)
+__global__ void kernel_spectral_lens(complex*				output,
+									 const FrameDescriptor	fd,
+									 const float			lambda,
+									 const float			distance)
 {
 	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;

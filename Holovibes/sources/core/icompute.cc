@@ -91,8 +91,8 @@ namespace holovibes
 			input_.get_pixels() * sizeof(cufftComplex));
 
 		/* CUFFT plan3d */
-		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == Algorithm::FFT1
+			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
 			cufftPlan3d(
 				&plan3d_,
 				input_length_,                  // NX
@@ -150,7 +150,7 @@ namespace holovibes
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4.f;
-			gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
+			gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
 		}
 
 		if (compute_desc_.stft_enabled.load())
@@ -162,14 +162,14 @@ namespace holovibes
 
 			camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 			new_fd2.depth = 8.f;
-			gpu_stft_queue_ = new holovibes::Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
+			gpu_stft_queue_ = new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
 		}
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 			new_fd3.depth = 8.f;
-			new holovibes::Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
+			new Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
 		}
 
 		if (compute_desc_.filter_2d_enabled.load())
@@ -232,7 +232,7 @@ namespace holovibes
 		gui::InfoManager::get_manager()->remove_info("Rendering Fps");
 	}
 
-	bool ICompute::update_n_parameter(unsigned short n)
+	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_ = false;
@@ -247,8 +247,8 @@ namespace holovibes
 		/* CUFFT plan3d realloc */
 		cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;
 
-		if (compute_desc_.algorithm.load() == ComputeDescriptor::FFT1
-			|| compute_desc_.algorithm.load() == ComputeDescriptor::FFT2)
+		if (compute_desc_.algorithm.load() == Algorithm::FFT1
+			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
 			cufftPlan3d(
 				&plan3d_,
 				input_length_,                  // NX
@@ -305,7 +305,7 @@ namespace holovibes
 			{
 				if (compute_desc_.stft_view_enabled.load())
 					update_stft_slice_queue();
-				gpu_stft_queue_ = new holovibes::Queue(new_fd, n, "STFTQueue");
+				gpu_stft_queue_ = new Queue(new_fd, n, "STFTQueue");
 
 			}
 			catch (std::exception&)
@@ -316,19 +316,6 @@ namespace holovibes
 				err_count++;
 			}
 		}
-
-		/*if (compute_desc_.stft_view_enabled)
-		{
-			try
-			{
-				update_stft_slice_queue();
-			}
-			catch (std::exception&)
-			{
-				gpu_stft_queue_ = nullptr;
-				err_count++;
-			}
-		}*/
 
 		if (err_count != 0)
 		{
@@ -372,8 +359,8 @@ namespace holovibes
 		/*camera::FrameDescriptor fd = input_.get_frame_desc();
 		fd.height = compute_desc_.nsamples.load();
 		fd.depth = 2.f;
-		gpu_stft_slice_queue_xz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
-		gpu_stft_slice_queue_yz = new holovibes::Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");*/
+		gpu_stft_slice_queue_xz = new Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
+		gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");*/
 	}
 
 	bool	ICompute::get_cuts_request()
@@ -381,7 +368,7 @@ namespace holovibes
 		return request_stft_cuts_;
 	}
 
-	bool ICompute::get_cuts_delete_request()
+	bool	ICompute::get_cuts_delete_request()
 	{
 		return request_delete_stft_cuts_;
 	}
@@ -486,7 +473,7 @@ namespace holovibes
 			new_fd.depth = 4;
 			try
 			{
-				gpu_img_acc_ = new holovibes::Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
+				gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
 			}
 			catch (std::exception&)
 			{
@@ -514,7 +501,7 @@ namespace holovibes
 			new_fd.depth = 8;
 			try
 			{
-				gpu_ref_diff_queue_ = new holovibes::Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue");
+				gpu_ref_diff_queue_ = new Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue");
 				gpu_ref_diff_queue_->set_display(false);
 			}
 			catch (std::exception&)
@@ -669,7 +656,7 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::autocontrast_caller(float				*input,
+	void ICompute::autocontrast_caller(	float*				input,
 										const uint			size,
 										ComputeDescriptor&	compute_desc,
 										std::atomic<float>&	min,
@@ -788,7 +775,7 @@ namespace holovibes
 			{
 				// Conservation of the coordinates when cursor is outside of the window
 				QPoint cursorPos;
-				compute_desc_.stftCursor(&cursorPos, ComputeDescriptor::Get);
+				compute_desc_.stftCursor(&cursorPos, AccessMode::Get);
 				const ushort width = input_.get_frame_desc().width;
 				const ushort height = input_.get_frame_desc().height;
 				if (static_cast<ushort>(cursorPos.x()) < width &&
@@ -821,8 +808,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const Rectangle& signal,
-		const Rectangle& noise,
+		const gui::Rectangle& signal,
+		const gui::Rectangle& noise,
 		cudaStream_t stream)
 	{
 		average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
@@ -832,8 +819,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const Rectangle& signal,
-		const Rectangle& noise,
+		const gui::Rectangle& signal,
+		const gui::Rectangle& noise,
 		cudaStream_t stream)
 	{
 		if (average_n_ > 0)
@@ -855,8 +842,8 @@ namespace holovibes
 		const unsigned int height,
 		const unsigned int width_roi,
 		const unsigned int height_roi,
-		Rectangle& signal_zone,
-		Rectangle& noise_zone,
+		gui::Rectangle& signal_zone,
+		gui::Rectangle& noise_zone,
 		const unsigned int nsamples,
 		cudaStream_t stream)
 	{
@@ -901,12 +888,7 @@ namespace holovibes
 			frame_count_ = 0;
 		}
 	}
-
-	void ICompute::cudaMemcpyNoReturn(void* dst, const void* src, size_t size, cudaMemcpyKind kind)
-	{
-		cudaMemcpy(dst, src, size, kind);
-	}
-
+	
 	void ICompute::autofocus_init()
 	{
 		// Autofocus needs to work on the same images. It will computes on copies.
@@ -924,7 +906,7 @@ namespace holovibes
 			af_env_.gpu_input_buffer_tmp,
 			compute_desc_.nsamples.load());
 
-		compute_desc_.autofocusZone(&af_env_.zone, ComputeDescriptor::Get);
+		compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 		/* Compute square af zone. */
 		const unsigned int zone_width = af_env_.zone.width();
 		const unsigned int zone_height = af_env_.zone.height();

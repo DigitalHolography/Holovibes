@@ -12,22 +12,22 @@
 
 #pragma once
 
-#include "basic_widget.hh"
+#include <qrect.h>
 
-namespace gui {
-
-	class HoloWidget : protected BasicWidget
+namespace holovibes
+{
+	namespace gui
 	{
+		class Rectangle : public QRect
+		{
 		public:
-			HoloWidget(holovibes::Queue& q,
-						const uint w,
-						const uint h,
-						QWidget* parent = 0);
-			virtual ~HoloWidget();
+			Rectangle();
+			Rectangle(const Rectangle& rect);
+			Rectangle(const QPoint &topleft, const QSize &size);
+			Rectangle(const uint width, const uint height);
 
-		protected:
-			virtual void resizeGL(int width, int height);
-			virtual void paintGL();
-	};
-
+			uint	area() const;
+			void	checkCorners();
+		};
+	}
 }

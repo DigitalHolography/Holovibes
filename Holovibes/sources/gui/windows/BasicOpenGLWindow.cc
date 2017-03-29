@@ -10,40 +10,205 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, holovibes::Queue& q) :
-		QOpenGLWindow(), QOpenGLFunctions(),
-		winPos(p), winSize(s),
-		Queue(q),
-		cuResource(nullptr),
-		Program(nullptr),
-		Vao(0),
-		Vbo(0), Ebo(0),
-		Tex(0)
+	namespace gui
 	{
-		if (cudaStreamCreate(&cuStream) != cudaSuccess)
-			cuStream = 0;
-		resize(winSize);
-		setFramePosition(winPos);
-		setIcon(QIcon("icon1.ico"));
-		show();
+		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			/* ~~~~~~~~~~~~ */
+			QOpenGLWindow(), QOpenGLFunctions(),
+			Qu(q),
+			Fd(Qu.get_frame_desc()),
+			kView(k),
+			Translate{ 0.f, 0.f },
+			Scale(1.f),
+			cuResource(nullptr),
+			cuStream(nullptr),
+			cuPtrToPbo(nullptr),
+			sizeBuffer(0),
+			Program(nullptr),
+			Vao(0),
+			Vbo(0), Ebo(0), Pbo(0),
+			Tex(0),
+			zoneSelected()
+		{
+			if (cudaStreamCreate(&cuStream) != cudaSuccess)
+				cuStream = nullptr;
+			resize(s);
+			setFramePosition(p);
+			setIcon(QIcon("icon1.ico"));
+			show();
+		}
+
+		BasicOpenGLWindow::~BasicOpenGLWindow()
+		{
+			makeCurrent();
+
+			cudaGraphicsUnregisterResource(cuResource);
+			cudaStreamDestroy(cuStream);
+
+			if (Tex) glDeleteBuffers(1, &Tex);
+			if (Pbo) glDeleteBuffers(1, &Pbo);
+			if (Ebo) glDeleteBuffers(1, &Ebo);
+			if (Vbo) glDeleteBuffers(1, &Vbo);
+			Vao.destroy();
+			delete Program;
+		}
+
+		const KindOfView	BasicOpenGLWindow::getKindOfView() const
+		{
+			return kView;
+		}
+
+		void	BasicOpenGLWindow::setKindOfSelection(KindOfSelection k)
+		{
+			zoneSelected.setKind(k);
+		}
+
+		const KindOfSelection	BasicOpenGLWindow::getKindOfSelection() const
+		{
+			return zoneSelected.getKind();
+		}
+		
+		void	BasicOpenGLWindow::resizeGL(int width, int height)
+		{
+			glViewport(0, 0, width, height);
+		}
+
+		void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)
+		{
+			QPaintDeviceWindow::update();
+		}
+
+		void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
+		{
+			switch (e->key())
+			{
+			case Qt::Key::Key_F11:
+				setWindowState(Qt::WindowFullScreen);
+				break;
+			case Qt::Key::Key_Escape:
+				setWindowState(Qt::WindowNoState);
+				break;
+			case Qt::Key::Key_Up:
+				Translate[1] -= 0.1f / Scale;
+				setTranslate();
+				break;
+			case Qt::Key::Key_Down:
+				Translate[1] += 0.1f / Scale;
+				setTranslate();
+				break;
+			case Qt::Key::Key_Right:
+				Translate[0] += 0.1f / Scale;
+				setTranslate();
+				break;
+			case Qt::Key::Key_Left:
+				Translate[0] -= 0.1f / Scale;
+				setTranslate();
+				break;
+			}
+		}
+
+		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
+		{
+			if (e->x() < width() && e->y() < height())
+			{
+				const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
+				const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
+				if (e->angleDelta().y() > 0)
+				{
+					Scale += 0.1f * Scale;
+					setScale();
+					Translate[0] += xGL * 0.1 / Scale;
+					Translate[1] += -yGL * 0.1 / Scale;
+					setTranslate();
+				}
+				else if (e->angleDelta().y() < 0)
+				{
+					Scale -= 0.1f * Scale;
+					if (Scale < 1.f)
+						resetTransform();
+					else
+					{
+						setScale();
+						Translate[0] -= -xGL * 0.1 / Scale;
+						Translate[1] -= yGL * 0.1 / Scale;
+						setTranslate();
+					}
+				}
+			}
+		}
+
+		void	BasicOpenGLWindow::setTranslate()
+		{
+			for (uint id = 0; id < 2; id++)
+				Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
+				(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
+				0.f : Translate[id];
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::setScale()
+		{
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::setAngle(float a)
+		{
+			Angle = a;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::setFlip(int f)
+		{
+			Flip = f;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::resetTransform()
+		{
+			Translate = { 0.f, 0.f };
+			Scale = 1.f;
+			if (Program)
+			{
+				makeCurrent();
+				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
+				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+				Program->release();
+			}
+		}
+
+		void	BasicOpenGLWindow::resetSelection()
+		{
+			zoneSelected.resetZoneBuffer();
+		}
 	}
-
-	BasicOpenGLWindow::~BasicOpenGLWindow()
-	{
-		makeCurrent();
-
-		cudaGraphicsUnregisterResource(cuResource);
-		cudaStreamDestroy(cuStream);
-
-		if (Tex) glDeleteBuffers(1, &Tex);
-		if (Ebo) glDeleteBuffers(1, &Ebo);
-		if (Vbo) glDeleteBuffers(1, &Vbo);
-		Vao.destroy();
-		delete Program;
-	}
-
 }

@@ -15,10 +15,10 @@
 # include <cuda_runtime.h>
 # include <surface_functions.h>
 # include <device_launch_parameters.h>
-
+# include "frame_desc.hh"
 # include "cuda_shared.cuh"
 
-void	textureUpdate(	cudaSurfaceObject_t	cuSurface,
-						void				*frame,
-						ushort				width,
-						ushort				height);
+void	textureUpdate(	cudaSurfaceObject_t		cuSurface,
+						void*					frame,
+						const FrameDescriptor&	fd,
+						cudaStream_t			stream);

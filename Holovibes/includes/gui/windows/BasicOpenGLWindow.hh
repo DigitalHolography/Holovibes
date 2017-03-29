@@ -12,60 +12,90 @@
 
 #pragma once
 
+#include <array>
+#include <atomic>
 #include <QOpenGLWindow.h>
 #include <QOpenGLFunctions.h>
 #include <QOpenGLVertexArrayObject.h>
 #include <QOpenGLShaderProgram.h>
+#include <QEvent.h>
 #include <cuda_gl_interop.h>
 
+#include "Selection.hh"
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
-#ifndef vertCoord
-# define vertCoord 1.0f
-#endif
-#ifndef texCoord
-# define texCoord 1.0f
+#ifndef DISPLAY_RATE
+# define DISPLAY_RATE 1000.f/30.f
 #endif
 
-namespace gui
+namespace holovibes
 {
-	class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
+	namespace gui
 	{
-		Q_OBJECT
+		using KindOfView =
+		enum
+		{
+			Direct = 1,
+			Hologram,
+			Slice
+		};
+
+		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
+		{
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint pos, QSize size, holovibes::Queue& q);
+			BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
-			enum KindOfView
-			{
-				Direct = 1,
-				Hologram,
-				Slice
-			};
+			const KindOfView		getKindOfView() const;
+			void					setKindOfSelection(KindOfSelection k);
+			const KindOfSelection	getKindOfSelection() const;
+			void					resetTransform();
+			void					resetSelection();
+			void					setAngle(float a);
+			void					setFlip(int f);
 
 		protected:
 			// Fields -----------
-			QPoint	winPos;
-			QSize	winSize;
-			holovibes::Queue&	Queue;
+			Queue&					Qu;
+			const FrameDescriptor&	Fd;
+			const KindOfView	kView;
+
+			std::array<float, 2>	Translate;
+			float	Scale;
+			float	Angle;
+			int		Flip;
 
 			// CUDA Objects -----
-			struct cudaGraphicsResource*	cuResource;
-			cudaStream_t					cuStream;
+			cudaGraphicsResource_t	cuResource;
+			cudaStream_t			cuStream;
+
+			void*	cuPtrToPbo;
+			size_t	sizeBuffer;
 
 			// OpenGL Objects ---
 			QOpenGLShaderProgram	*Program;
 			QOpenGLVertexArrayObject	Vao;
-			GLuint	Vbo, Ebo;
+			GLuint	Vbo, Ebo, Pbo;
 			GLuint	Tex;
-			
-			// Virtual Pure Functions
-			virtual void initializeGL() = 0;
-			virtual void resizeGL(int w, int h) = 0;
-			virtual void paintGL() = 0;
-	};
 
-	typedef BasicOpenGLWindow::KindOfView t_KindOfView;
+			Selection	zoneSelected;
+			static std::atomic<bool>	slicesAreLocked;
+
+			// Virtual Pure Functions
+			virtual void initShaders() = 0;
+			virtual void initializeGL() = 0;
+			virtual void resizeGL(int width, int height);
+			virtual void paintGL() = 0;
+
+			void	timerEvent(QTimerEvent *e);
+			void	keyPressEvent(QKeyEvent* e);
+			void	wheelEvent(QWheelEvent *e);
+
+			// Transform functions
+			void	setTranslate();
+			void	setScale();
+		};
+	}
 }

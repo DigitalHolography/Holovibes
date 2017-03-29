@@ -14,6 +14,9 @@
 
 layout(location = 0) in vec2	xy;
 layout(location = 1) in vec2	uv;
+
+uniform	float	scale;
+uniform	vec2	translate;
 uniform float	angle;
 uniform int		flip;
 
@@ -21,11 +24,11 @@ out vec2	texCoord;
 
 mat2 rotate2d(float agl){
     return mat2(cos(agl),-sin(agl),
-                sin(agl),cos(agl));
+                sin(agl), cos(agl));
 }
 
 void main()
 {
-	texCoord = (flip == 1) ? vec2(uv.x, 1.f - uv.y) : uv;
-    gl_Position = vec4(xy * rotate2d(angle), 0.0f, 1.0f);
+	texCoord = ((flip == 1) ? vec2(uv.x, 1.f - uv.y) : uv) + translate;
+    gl_Position = vec4(rotate2d(angle) * scale * xy, 0.0f, 1.0f);
 }

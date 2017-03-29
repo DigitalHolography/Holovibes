@@ -26,15 +26,12 @@
 # include "concurrent_deque.hh"
 # include "icamera.hh"
 
+/*! \brief Containt all function and structure needed to computes data */
 namespace holovibes
 {
 	template <class T> class ConcurrentDeque;
 	class Queue;
-}
 
-/*! \brief Containt all function and structure needed to computes data */
-namespace holovibes
-{
 	/*! \brief Core class to use HoloVibes
 	 *
 	 * This class does not depends on the user interface (classes under the

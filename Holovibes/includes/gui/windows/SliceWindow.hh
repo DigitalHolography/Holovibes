@@ -14,26 +14,28 @@
 
 #include "BasicOpenGLWindow.hh"
 
-namespace gui
+namespace holovibes
 {
-	class SliceWindow : public BasicOpenGLWindow
+	namespace gui
 	{
-		Q_OBJECT
+		class SliceWindow : public BasicOpenGLWindow
+		{
 		public:
-			SliceWindow(QPoint p, QSize s, holovibes::Queue& q);
+			SliceWindow(QPoint p, QSize s, Queue& q);
 			virtual ~SliceWindow();
-
-			void	setAngle(float a);
-			void	setFlip(int f);
-
+			
 		protected:
-			const camera::FrameDescriptor&  Fd;
-			float	Angle;
-			int		Flip;
+			cudaArray_t				cuArray;
+			cudaResourceDesc		cuArrRD;
+			cudaSurfaceObject_t		cuSurface;
 
+			virtual void	initShaders();
 			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
-			void			timerEvent(QTimerEvent *e);
-	};
+
+			void mousePressEvent(QMouseEvent* e);
+			void mouseMoveEvent(QMouseEvent* e);
+			void mouseReleaseEvent(QMouseEvent* e);
+		};
+	}
 }

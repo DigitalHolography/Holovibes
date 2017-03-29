@@ -31,15 +31,15 @@ void make_sqrt_vect(float			*out,
 	delete[] vect;
 }
 
-void make_contiguous_complex(	holovibes::Queue&	input,
-								complex				*output,
-								const uint			n,
-								cudaStream_t		stream)
+void make_contiguous_complex(	Queue&			input,
+								complex*		output,
+								const uint		n,
+								cudaStream_t	stream)
 {
-	const uint						threads = get_max_threads_1d();
-	const uint						blocks = map_blocks_to_problem(input.get_pixels() * n, threads);
-	const uint						frame_resolution = input.get_pixels();
-	const camera::FrameDescriptor&	frame_desc = input.get_frame_desc();
+	const uint				threads = get_max_threads_1d();
+	const uint				blocks = map_blocks_to_problem(input.get_pixels() * n, threads);
+	const uint				frame_resolution = input.get_pixels();
+	const FrameDescriptor&	frame_desc = input.get_frame_desc();
 
 	if (input.get_start_index() + n <= input.get_max_elts())
 	{

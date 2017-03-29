@@ -28,113 +28,113 @@
 
 namespace holovibes
 {
-  // Helper functions
-  namespace
-  {
-    void createFilePath(const std::string folderName)
-    {
-      std::list<std::string> folderLevels;
-      char* c_str = (char*)folderName.c_str();
+	Recorder::Recorder(
+		Queue& queue,
+		const std::string& filepath)
+		: queue_(queue)
+		, file_()
+		, stop_requested_(false)
+	{
+		if (filepath.find('/') != std::string::npos)
+			createFilePath(filepath);
 
-      // Point to end of the string
-      char* strPtr = &c_str[strlen(c_str) - 1];
+		file_.open(filepath, std::ios::binary | std::ios::trunc);
+	}
 
-      // Create a list of the folders which do not currently exist
-      do
-      {
-        if (boost::filesystem::exists(c_str))
-          break;
-        // Break off the last folder name, store in folderLevels list
-        do
-        {
-          --strPtr;
-        } while ((*strPtr != '\\') && (*strPtr != '/') && (strPtr >= c_str));
-        folderLevels.push_front(std::string(strPtr + 1));
-        strPtr[1] = 0;
-      } while (strPtr >= c_str);
+	Recorder::~Recorder()
+	{
+		if (file_.is_open())
+			file_.close();
+		// return to the .exe directory
+		_chdir(execDir.c_str());
+	}
 
-      if (folderLevels.empty())
-        return;
-      std::cout << folderLevels.back() << std::endl;
-      folderLevels.pop_back();
+	void Recorder::record(const unsigned int n_images)
+	{
+		const size_t size = queue_.get_size();
+		char* buffer = new char[size]();
+		size_t cur_size = queue_.get_current_elts();
+		const size_t max_size = queue_.get_max_elts();
 
-      if (_chdir(c_str))
-      {
-        throw std::exception("[RECORDER] error cannot _chdir directory");
-      }
+		std::cout << "[RECORDER] started recording " <<
+			n_images << " frames" << std::endl;
 
-      // Create the folders iteratively
-      std::string startPath = boost::filesystem::current_path().string();
-      for (std::list<std::string>::iterator it = folderLevels.begin(); it != folderLevels.end(); it++)
-      {
-        if (boost::filesystem::create_directory(it->c_str()) == 0)
-          throw std::exception("[RECORDER] error cannot create directory");
+		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
+		{
+			while (queue_.get_current_elts() < 1)
+				std::this_thread::yield();
 
-        _chdir(it->c_str());
-      }
-      _chdir(startPath.c_str());
-    }
-  }
+			cur_size = queue_.get_current_elts();
+			if (cur_size >= max_size - 1)
+		  	gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
+			else if (cur_size > (max_size * 0.8f))
+				gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
+			else
+				gui::InfoManager::remove_info("Recording");
+			queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
+			file_.write(buffer, size);
+			emit value_change(i);
+		}
 
-  Recorder::Recorder(
-    Queue& queue,
-    const std::string& filepath)
-    : queue_(queue)
-    , file_()
-    , stop_requested_(false)
-  {
-    if (filepath.find('/') != std::string::npos)
-      createFilePath(filepath);
+		std::cout << "[RECORDER] recording has been stopped" << std::endl;
+		gui::InfoManager::remove_info("Recording");
+		delete[] buffer;
+	}
 
-    file_.open(filepath, std::ios::binary | std::ios::trunc);
-  }
+	void Recorder::stop()
+	{
+		stop_requested_ = true;
+	}
 
-  Recorder::~Recorder()
-  {
-    if (file_.is_open())
-      file_.close();
-  }
+	void Recorder::createFilePath(const std::string folderName)
+	{
+		std::list<std::string> folderLevels;
+		char* c_str = (char*)folderName.c_str();
 
-  void Recorder::record(const unsigned int n_images)
-  {
-    const size_t size = queue_.get_size();
-    char* buffer = new char[size]();
-	size_t cur_size = queue_.get_current_elts();
-	const size_t max_size = queue_.get_max_elts();
+		// Point to end of the string
+		char* strPtr = &c_str[strlen(c_str) - 1];
 
-    std::cout << "[RECORDER] started recording " <<
-      n_images << " frames" << std::endl;
+		// Create a list of the folders which do not currently exist
+		do
+		{
+			if (boost::filesystem::exists(c_str))
+				break;
+			// Break off the last folder name, store in folderLevels list
+			do
+			{
+				--strPtr;
+			} while ((*strPtr != '\\') && (*strPtr != '/') && (strPtr >= c_str));
+			folderLevels.push_front(std::string(strPtr + 1));
+			strPtr[1] = 0;
+		} while (strPtr >= c_str);
 
-    for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
-    {
-      while (queue_.get_current_elts() < 1)
-        std::this_thread::yield();
+		if (folderLevels.empty())
+			return;
+		std::cout << folderLevels.back() << std::endl;
+		folderLevels.pop_back();
 
-	  cur_size = queue_.get_current_elts();
-	  if (cur_size >= max_size - 1)
-		  gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
-	  else if (cur_size > (max_size * 0.8f))
-		  gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
-	  else
-		  gui::InfoManager::remove_info("Recording");
-      queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
-      file_.write(buffer, size);
-      emit value_change(i);
-    }
+		// Save the .exe directory before the record
+		execDir = boost::filesystem::current_path().string();
+		if (_chdir(c_str))
+		{
+			throw std::exception("[RECORDER] error cannot _chdir directory");
+		}
 
-    std::cout << "[RECORDER] recording has been stopped" << std::endl;
-	gui::InfoManager::remove_info("Recording");
-    delete[] buffer;
-  }
+		// Create the folders iteratively
+		std::string startPath = boost::filesystem::current_path().string();
+		for (std::list<std::string>::iterator it = folderLevels.begin(); it != folderLevels.end(); it++)
+		{
+			if (boost::filesystem::create_directory(it->c_str()) == 0)
+				throw std::exception("[RECORDER] error cannot create directory");
 
-  void Recorder::stop()
-  {
-    stop_requested_ = true;
-  }
+			_chdir(it->c_str());
+		}
+		_chdir(startPath.c_str());
+	}
 
-  bool Recorder::is_file_exist(const std::string& filepath)
-  {
-    std::ifstream ifs(filepath);
-    return ifs.good();
-  }
+	bool Recorder::is_file_exist(const std::string& filepath)
+	{
+		std::ifstream ifs(filepath);
+		return ifs.good();
+	}
 }

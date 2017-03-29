@@ -10,32 +10,15 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "holo_widget.hh"
+#version 450
 
-namespace gui {
+layout(location = 2) in vec2	vertex;
+layout(location = 3) in vec3	color;
 
-	HoloWidget::HoloWidget(holovibes::Queue& q,
-							const uint w,
-							const uint h,
-							QWidget* parent) :
-							BasicWidget(w, h, parent)
-	{
+out vec3 passColor;
 
-	}
-
-	HoloWidget::~HoloWidget()
-	{
-
-	}
-	
-	void HoloWidget::resizeGL(int width, int height)
-	{
-		glViewport(0, 0, width, height);
-	}
-
-	void HoloWidget::paintGL()
-	{
-
-	}
-
+void main()
+{
+    passColor = color;
+    gl_Position = vec4(vertex, 0.f, 1.f);
 }

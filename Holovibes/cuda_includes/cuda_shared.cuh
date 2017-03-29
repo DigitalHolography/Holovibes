@@ -23,6 +23,7 @@
 # endif
 # include <cmath>
 # include <math.h>
+
 #define M_2PI		6.28318530717959f
 #define THREADS_256	256
 #define THREADS_128	128
@@ -35,7 +36,6 @@ typedef	cufftComplex	complex;
 /* Forward declaration. */
 namespace	holovibes
 {
-	class	Rectangle;
 	class	Queue;
 	struct	UnwrappingResources;
 	struct	UnwrappingResources_2d;
@@ -45,3 +45,7 @@ namespace	camera
 {
 	struct	FrameDescriptor;
 }
+
+using namespace holovibes;
+using namespace gui;
+using namespace camera;

@@ -12,11 +12,10 @@
 
 #version 450
 
-in	vec2	texCoord;
-out	vec4	out_color;
-uniform sampler2D	tex;
+in  vec3    passColor;
+out vec4    outColor;
 
 void main()
 {
-	out_color = texture(tex, texCoord);
+	outColor = vec4(passColor, 0.4f);
 }

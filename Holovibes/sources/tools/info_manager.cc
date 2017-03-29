@@ -12,114 +12,117 @@
 
 #include "info_manager.hh"
 
-namespace gui
+namespace holovibes
 {
-	InfoManager *InfoManager::instance = nullptr;
-
-	InfoManager::InfoManager(gui::GroupBox *ui)
-		: ui_(ui)
-		, progressBar_(ui->findChild<QProgressBar *>("RecordProgressBar"))
-		, stop_requested_(false)
+	namespace gui
 	{
-		progressBar_ = ui->findChild<QProgressBar *>("RecordProgressBar");
-		infoEdit_ = ui->findChild<QTextEdit *>("InfoTextEdit");
-		connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
-		this->start();
-	}
+		InfoManager *InfoManager::instance = nullptr;
 
-	InfoManager::~InfoManager()
-	{
-		if (instance)
-			delete instance;
-	}
-
-	InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
-	{
-		if (instance)
-			return (instance);
-		else if (ui)
-			return ((InfoManager::instance = new InfoManager(ui)));
-		else
-			throw InfoManager::ManagerNotInstantiate();
-	}
-
-	void InfoManager::update_info(const std::string& key, const std::string& value)
-	{
-		if (instance)
+		InfoManager::InfoManager(gui::GroupBox *ui)
+			: ui_(ui)
+			, progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar"))
+			, stop_requested_(false)
 		{
-			auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-				[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-			if (it != instance->infos_.end())
-				it->second = value;
+			progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
+			infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
+			connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
+			this->start();
+		}
+
+		InfoManager::~InfoManager()
+		{
+			if (instance)
+				delete instance;
+		}
+
+		InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
+		{
+			if (instance)
+				return (instance);
+			else if (ui)
+				return ((InfoManager::instance = new InfoManager(ui)));
 			else
-				instance->infos_.push_back(std::make_pair(key, value));
+				throw InfoManager::ManagerNotInstantiate();
 		}
-	}
 
-	void InfoManager::remove_info(const std::string& key)
-	{
-		if (instance)
+		void InfoManager::update_info(const std::string& key, const std::string& value)
 		{
-			auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-				[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-			if (it != instance->infos_.end())
-				instance->infos_.erase(it);
-		}
-	}
-
-	void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
-	{
-		if (instance)
-		{
-			auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-				[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-			if (it == instance->infos_.end())
+			if (instance)
 			{
-				if (pos < instance->infos_.size())
-					instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it != instance->infos_.end())
+					it->second = value;
 				else
 					instance->infos_.push_back(std::make_pair(key, value));
 			}
-			else
-				update_info(key, value);
 		}
-	}
 
-	void InfoManager::stop_display()
-	{
-		if (instance)
-			instance->stop_requested_ = true;
-	}
-
-	void InfoManager::run()
-	{
-		while (!stop_requested_)
+		void InfoManager::remove_info(const std::string& key)
 		{
-			draw();
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			if (instance)
+			{
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it != instance->infos_.end())
+					instance->infos_.erase(it);
+			}
 		}
-	}
 
-	void InfoManager::draw()
-	{
-		std::string str = "";
-		for (auto it = infos_.begin(); it != infos_.end(); ++it)
-			str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
-		const QString qstr = str.c_str();
-		emit update_text(qstr);
-	}
-
-	void InfoManager::clear_info()
-	{
-		if (instance)
+		void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
 		{
-			infos_.clear();
-			insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
+			if (instance)
+			{
+				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
+				if (it == instance->infos_.end())
+				{
+					if (pos < instance->infos_.size())
+						instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
+					else
+						instance->infos_.push_back(std::make_pair(key, value));
+				}
+				else
+					update_info(key, value);
+			}
 		}
-	}
 
-	QProgressBar* InfoManager::get_progress_bar()
-	{
-		return (progressBar_);
+		void InfoManager::stop_display()
+		{
+			if (instance)
+				instance->stop_requested_ = true;
+		}
+
+		void InfoManager::run()
+		{
+			while (!stop_requested_)
+			{
+				draw();
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+		}
+
+		void InfoManager::draw()
+		{
+			std::string str = "";
+			for (auto it = infos_.begin(); it != infos_.end(); ++it)
+				str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
+			const QString qstr = str.c_str();
+			emit update_text(qstr);
+		}
+
+		void InfoManager::clear_info()
+		{
+			if (instance)
+			{
+				infos_.clear();
+				insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
+			}
+		}
+
+		QProgressBar* InfoManager::get_progress_bar()
+		{
+			return (progressBar_);
+		}
 	}
 }

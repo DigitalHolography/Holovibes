@@ -10,30 +10,55 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-# include <QGroupBox>
+#include "Rectangle.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief QGroupBox overload, used to hide and show parts of the GUI. */
-		class GroupBox : public QGroupBox
+#pragma region Constructors
+		Rectangle::Rectangle() : QRect()
+		{}
+
+		Rectangle::Rectangle(const Rectangle& rect)
+			: QRect()
 		{
-			Q_OBJECT
+			setTopLeft(rect.topLeft());
+			setBottomRight(rect.bottomRight());
+		}
 
-		public:
-			/*! \brief GroupBox constructor
-			** \param parent Qt parent
-			*/
-			GroupBox(QWidget* parent = nullptr);
-			/*! \brief GroupBox destructor */
-			~GroupBox();
+		Rectangle::Rectangle(const QPoint &topleft, const QSize &size)
+			: QRect(topleft, size)
+		{}
 
-			public slots:
-			/*! \brief Show or hide GroupBox */
-			void ShowOrHide();
-		};
+		Rectangle::Rectangle(const uint width, const uint height)
+			: QRect(0, 0, width, height)
+		{}
+#pragma endregion
+
+		uint	Rectangle::area() const
+		{
+			return (width() * height());
+		}
+
+		void	Rectangle::checkCorners()
+		{
+			if (width() < 0)
+			{
+				QPoint t0pRight = topRight();
+				QPoint b0ttomLeft = bottomLeft();
+
+				setTopLeft(t0pRight);
+				setBottomRight(b0ttomLeft);
+			}
+			if (height() < 0)
+			{
+				QPoint t0pRight = topRight();
+				QPoint b0ttomLeft = bottomLeft();
+
+				setTopLeft(b0ttomLeft);
+				setBottomRight(t0pRight);
+			}
+		}
 	}
 }

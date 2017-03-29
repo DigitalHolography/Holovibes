@@ -190,3 +190,5 @@ Holovibes/GeneratedFiles/
 # Holovibes global configuration file
 Holovibes/holovibes.ini
 
+
+Holovibes/sources/gui/opengl_widgets/

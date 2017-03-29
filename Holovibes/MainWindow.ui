@@ -1122,7 +1122,7 @@
         <widget class="QPushButton" name="FlipPushButton">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>142</x>
            <y>120</y>
            <width>41</width>
            <height>21</height>
@@ -1135,7 +1135,7 @@
         <widget class="QPushButton" name="RotatePushButton">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>98</x>
            <y>120</y>
            <width>41</width>
            <height>21</height>
@@ -1146,17 +1146,20 @@
          </property>
         </widget>
         <widget class="QComboBox" name="WindowSelectionComboBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="geometry">
           <rect>
            <x>10</x>
            <y>120</y>
-           <width>71</width>
+           <width>82</width>
            <height>21</height>
           </rect>
          </property>
          <item>
           <property name="text">
-           <string>MainDisplay</string>
+           <string>mainDisplay</string>
           </property>
          </item>
          <item>
@@ -1306,7 +1309,7 @@
           <rect>
            <x>10</x>
            <y>260</y>
-           <width>171</width>
+           <width>61</width>
            <height>20</height>
           </rect>
          </property>
@@ -1314,7 +1317,7 @@
           <string>Enable signal averaging in a ROI</string>
          </property>
          <property name="text">
-          <string>Avg. signal in ROI</string>
+          <string>Average</string>
          </property>
         </widget>
         <widget class="QLineEdit" name="ROIFilePathLineEdit">
@@ -1356,41 +1359,10 @@
           <string>Load ROI</string>
          </property>
         </widget>
-        <widget class="QLabel" name="AverageSignalLabel">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>290</y>
-           <width>41</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>8</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Signal</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="AverageNoiseLabel">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>290</y>
-           <width>31</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Noise</string>
-         </property>
-        </widget>
         <widget class="QPushButton" name="AveragePlotPushButton">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>97</x>
            <y>290</y>
            <width>41</width>
            <height>21</height>
@@ -1613,6 +1585,32 @@
          </property>
          <property name="text">
           <string>Close</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AverageSignalPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Signal</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AverageNoisePushButton">
+         <property name="geometry">
+          <rect>
+           <x>53</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Noise</string>
          </property>
         </widget>
        </widget>
@@ -2162,7 +2160,7 @@
           <number>2100000000</number>
          </property>
          <property name="value">
-          <number>20</number>
+          <number>60</number>
          </property>
         </widget>
         <widget class="QLabel" name="ImportFpsLabel">
@@ -2526,7 +2524,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2570,7 +2568,6 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionFull_screen"/>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
     <addaction name="actionSpecial"/>
@@ -2840,7 +2837,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1072</x>
-     <y>338</y>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -2856,7 +2853,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1072</x>
-     <y>368</y>
+     <y>393</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -3032,7 +3029,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>308</x>
-     <y>187</y>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3047,8 +3044,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_shifted_corners(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>187</y>
+     <x>398</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3063,8 +3060,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>83</y>
+     <x>539</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -3079,8 +3076,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_q_vibro(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>83</y>
+     <x>629</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>580</x>
@@ -3239,8 +3236,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>242</y>
+     <x>410</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -3260,22 +3257,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
-     <y>310</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionFull_screen</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>gl_full_screen()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>437</x>
      <y>310</y>
     </hint>
    </hints>
@@ -3400,7 +3381,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>539</x>
-     <y>370</y>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -3416,7 +3397,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>370</y>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -3463,8 +3444,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>280</y>
+     <x>409</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -3720,7 +3701,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>340</y>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3752,7 +3733,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>849</x>
-     <y>170</y>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3831,8 +3812,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_convo_matrix()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>539</x>
-     <y>192</y>
+     <x>529</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -3896,7 +3877,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>629</x>
-     <y>210</y>
+     <y>235</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -3927,8 +3908,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>310</y>
+     <x>409</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3943,8 +3924,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>340</y>
+     <x>409</x>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -3959,8 +3940,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_div(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>368</x>
-     <y>371</y>
+     <x>369</x>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3975,8 +3956,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_iter(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>371</y>
+     <x>409</x>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -4104,7 +4085,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>338</x>
-     <y>91</y>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4119,8 +4100,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>408</x>
-     <y>93</y>
+     <x>409</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4151,8 +4132,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_unwrapping_2d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>358</x>
-     <y>113</y>
+     <x>368</x>
+     <y>105</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4167,8 +4148,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_reference()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>103</y>
+     <x>54</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -4247,8 +4228,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>102</y>
+     <x>133</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4295,8 +4276,8 @@ p, li { white-space: pre-wrap; }
    <slot>dispose_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>310</y>
+     <x>629</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4327,8 +4308,8 @@ p, li { white-space: pre-wrap; }
    <slot>stft_signal_trig(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>387</x>
-     <y>138</y>
+     <x>397</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -4343,8 +4324,8 @@ p, li { white-space: pre-wrap; }
    <slot>setPhase()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>202</y>
+     <x>156</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -4360,7 +4341,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>358</x>
-     <y>176</y>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4397,6 +4378,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>1109</x>
      <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AverageSignalPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>activeSignalZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>368</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AverageNoisePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>activeNoiseZone()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>515</x>
+     <y>327</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -4500,5 +4513,7 @@ p, li { white-space: pre-wrap; }
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
   <slot>title_detect()</slot>
+  <slot>activeSignalZone()</slot>
+  <slot>activeNoiseZone()</slot>
  </slots>
 </ui>

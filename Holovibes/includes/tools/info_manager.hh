@@ -21,8 +21,10 @@
 
 # include <stdexcept>
 
-namespace gui
+namespace holovibes
 {
+	namespace gui
+	{
 	/*! \brief InfoManager is a singleton use to control info printed in infoLayout
 	**
 	** You can use it from anywere, using update/remove info to print what you want
@@ -101,4 +103,5 @@ namespace gui
 
 		bool stop_requested_;
 	};
+}
 }

@@ -18,9 +18,9 @@
 /*! \brief Function handling the stft algorithm which steps are \n
 
 */
-void filter2D(	complex							*input,
-				complex							*tmp_buffer,
-				const cufftHandle				plan2d,
-				const holovibes::Rectangle&		r,
-				const camera::FrameDescriptor&	desc,
-				cudaStream_t					stream = 0);
+void filter2D(	complex*				input,
+				complex*				tmp_buffer,
+				const cufftHandle		plan2d,
+				const Rectangle&		r,
+				const FrameDescriptor&	desc,
+				cudaStream_t			stream = 0);

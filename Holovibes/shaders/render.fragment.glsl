@@ -10,45 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "basic_widget.hh"
+#version 450
 
-namespace gui {
+in		vec2		texCoord;
+uniform sampler2D	tex;
 
-	BasicWidget::BasicWidget(const uint w, const uint h, QWidget* parent) :
-							QOpenGLWidget(parent),
-							QOpenGLFunctions(),
-							Width(w), Height(h),
-							cuResource(nullptr),
-							Vao(0),
-							Vbo(0), Ebo(0),
-							Tex(0),
-							Program(nullptr), Vertex(nullptr), Fragment(nullptr),
-							timer(this)
-	{
-		connect(&timer, SIGNAL(timeout()), this, SLOT(update()));
-		timer.start(1000 / 60);
-		if (cudaStreamCreate(&cuStream) != cudaSuccess)
-			cuStream = 0;
-		resize(QSize(w, h));
-	}
+out		vec4		outColor;
 
-	BasicWidget::~BasicWidget()
-	{
-		makeCurrent();
-
-		cudaGraphicsUnregisterResource(cuResource);
-		cudaStreamDestroy(cuStream);
-		
-		if (Ebo) glDeleteBuffers(1, &Ebo);
-		if (Vbo) glDeleteBuffers(1, &Vbo);
-		if (Tex) glDeleteBuffers(1, &Tex);
-		Vao.destroy();
-
-		delete Fragment;
-		delete Vertex;
-		delete Program;
-		
-		doneCurrent();
-	}
-
+void main()
+{
+	outColor = texture(tex, texCoord);
 }

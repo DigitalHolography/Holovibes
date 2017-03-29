@@ -19,11 +19,10 @@
 #include <QtWidgets>
 #include <thread>
 #include <chrono>
-#include "main_window.hh"
+#include "MainWindow.hh"
 #include "config.hh"
 #include "camera_exception.hh"
 #include "options_descriptor.hh"
-#include "gui_tool.hh"
 
 int main(int argc, char* argv[])
 {
@@ -49,7 +48,6 @@ int main(int argc, char* argv[])
 		splash.show();
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		gui::MainWindow w(h);
-		//gui::GuiTool gt(h, &w);
 		w.show();
 		splash.finish(&w);
 		h.get_compute_desc().register_observer(w);

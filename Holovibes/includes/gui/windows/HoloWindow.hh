@@ -10,56 +10,40 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
-*
-* Main class of the GUI. It regroup most of the Qt slots used for user actions. */
 #pragma once
 
-# include <QMessageBox>
-# include <string>
+#include "icompute.hh"
+#include "compute_descriptor.hh"
+#include "info_manager.hh"
+#include "DirectWindow.hh"
 
-# include "holovibes.hh"
-
-namespace gui
+namespace holovibes
 {
-	class MainWindow;
-}
-
-namespace gui
-{
-
-	class GuiTool
+	namespace gui
 	{
+		using SharedPipe = std::shared_ptr<ICompute>;
+		using CDescriptor = ComputeDescriptor;
 
-	public:
-		GuiTool(holovibes::Holovibes& holovibes, MainWindow* mainWindow);
+		class HoloWindow : public DirectWindow
+		{
+		public:
+			HoloWindow(QPoint p, QSize s, Queue& q,
+				SharedPipe ic, CDescriptor& cd);
+			virtual ~HoloWindow();
 
-		~GuiTool();
+		protected:
+			SharedPipe		Ic;
+			CDescriptor&	Cd;
 
-		/*! \brief Display error message
-		** \param msg error message
-		*/
-		//void display_error(std::string msg);
-		/*! \brief Display information message
-		** \param msg information message
-		*/
-		//void display_info(std::string msg);
+			virtual void	initShaders();
 
-		/*! \brief Check if direct button is enabled  */
-		//bool is_direct_mode();
+			void	mousePressEvent(QMouseEvent* e);
+			void	mouseMoveEvent(QMouseEvent* e);
+			void	mouseReleaseEvent(QMouseEvent* e);
 
-		/*! \brief holovibes_ getter */
-		//holovibes::Holovibes& get_holovibes();
+			void	keyPressEvent(QKeyEvent* e);
 
-		//QObject* findChild(QString name);
-
-	private:
-
-		/*! Reference to Holovibes object */
-		holovibes::Holovibes& holovibes_;
-
-		/*! Pointer to MainWindowPanel */
-		MainWindow* main_window_;
-
-	};
+			void	updateCursorPosition(QPoint pos);
+		};
+	}
 }

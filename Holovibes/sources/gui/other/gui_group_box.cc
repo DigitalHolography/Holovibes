@@ -12,22 +12,25 @@
 
 #include "gui_group_box.hh"
 
-namespace gui
+namespace holovibes
 {
-  GroupBox::GroupBox(QWidget* parent)
-    : QGroupBox(parent)
-  {
-  }
+	namespace gui
+	{
+		GroupBox::GroupBox(QWidget* parent)
+			: QGroupBox(parent)
+		{
+		}
 
-  GroupBox::~GroupBox()
-  {
-  }
+		GroupBox::~GroupBox()
+		{
+		}
 
-  void GroupBox::ShowOrHide()
-  {
-    if (this->isVisible())
-      hide();
-	else
-      show();
-  }
+		void GroupBox::ShowOrHide()
+		{
+			if (this->isVisible())
+				hide();
+			else
+				show();
+		}
+	}
 }

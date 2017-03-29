@@ -18,11 +18,11 @@
 #include "preprocessing.cuh"
 #include "transforms.cuh"
 
-void fft1_lens(	complex* lens,
-				const camera::FrameDescriptor& fd,
-				const float lambda,
-				const float z,
-				cudaStream_t stream)
+void fft1_lens(	complex*				lens,
+				const FrameDescriptor&	fd,
+				const float				lambda,
+				const float				z,
+				cudaStream_t			stream)
 {
   uint threads = 128;
   uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
@@ -30,8 +30,8 @@ void fft1_lens(	complex* lens,
   kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z);
 }
 
-void fft_1(	complex				*input,
-			const complex		*lens,
+void fft_1(	complex*			input,
+			const complex*		lens,
 			const cufftHandle	plan1D,
 			const cufftHandle	plan2D,
 			const uint			frame_resolution,
