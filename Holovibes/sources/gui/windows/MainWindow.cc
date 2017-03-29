@@ -290,7 +290,7 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
-			((is_direct) ? (InfoManager::get_manager()->remove_info("OutputSource")) : (0));
+			((is_direct) ? (InfoManager::get_manager()->remove_info("OutputFormat")) : (0));
 		}
 
 		void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -383,6 +383,7 @@ namespace holovibes
 			close_windows();
 			remove_infos();
 			findChild<QAction*>("actionSettings")->setEnabled(false);
+			is_enabled_camera_ = false;
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
 		}
@@ -534,7 +535,8 @@ namespace holovibes
 						std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
 						std::string(" - ") +
 						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
-					gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_SOURCE, "OutputSource", output_descriptor_info);
+					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
+					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 					setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
 					mainDisplay.reset(new HoloWindow(
@@ -627,10 +629,18 @@ namespace holovibes
 
 		void MainWindow::set_image_mode()
 		{
-			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Direct)
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (cd.compute_mode.load() == Computation::Direct)
 				set_direct_mode();
-			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Hologram)
+			else if (cd.compute_mode.load() == Computation::Hologram)
 				set_holographic_mode();
+			else
+			{
+				if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
+					set_direct_mode();
+				else
+					set_holographic_mode();
+			}
 		}
 
 		void MainWindow::reset()
@@ -661,9 +671,10 @@ namespace holovibes
 			cudaDeviceSynchronize();
 			cudaDeviceReset();
 			close_windows();
+			remove_infos();
 			change_camera(camera_type_);
 			load_ini(GLOBAL_INI_PATH);
-			remove_infos();
+			set_image_mode();
 			notify();
 		}
 
@@ -2253,6 +2264,7 @@ namespace holovibes
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
 					holovibes_.init_capture(type);
+					is_enabled_camera_ = true;
 					set_image_mode();
 					camera_type_ = type;
 					QAction* settings = findChild<QAction*>("actionSettings");
