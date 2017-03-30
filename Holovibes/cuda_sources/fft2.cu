@@ -93,7 +93,6 @@ void fft_2(	complex				*input,
 
 	complex* pframe = input + frame_resolution * p;
 
-	//fft_2_dc(input, input, frame_resolution, p, 0, stream);
 	cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
 
 	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
@@ -114,5 +113,4 @@ void fft_2(	complex				*input,
 		kernel_complex_divide << <blocks, threads, 0, stream >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
 	}
 	cudaStreamSynchronize(stream);
-	//fft_2_dc(input, input, frame_resolution, p, 1, stream);
 }
