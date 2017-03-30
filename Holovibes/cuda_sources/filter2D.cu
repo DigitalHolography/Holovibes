@@ -23,10 +23,10 @@ __global__ void filter2D_roi(	complex		*input,
 								const uint	width,
 								const uint	size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	// In ROI
-	while (index < size)
+	if (index < size)
 	{
 		uint mod_index = index % width;
 		if (!(index >= tl_y * width && index < br_y * width
@@ -34,7 +34,6 @@ __global__ void filter2D_roi(	complex		*input,
 		{
 			input[index] = make_cuComplex(0, 0);
 		}
-		index += blockDim.x * gridDim.x;
 	}
 }
 

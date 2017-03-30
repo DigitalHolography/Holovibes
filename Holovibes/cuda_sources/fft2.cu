@@ -19,6 +19,47 @@
 #include "tools_compute.cuh"
 #include "tools.cuh"
 
+enum mode
+{
+	APPLY_PHASE_FORWARD,
+	APPLY_PHASE_INVERSE
+};
+
+__global__ static void kernel_fft2_dc(	const complex	*input,
+										complex			*output,
+										const ushort	width,
+										const uint		frame_res,
+										const bool		mode)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;;
+	if (id < frame_res)
+	{
+		uint idx = id / width;
+		uint idy = id % width;
+		complex product;
+		if (mode == APPLY_PHASE_FORWARD)
+			product = make_cuComplex(cosf(M_PI * (idx + idy)), sinf(M_PI * (idx + idy)));
+		else if (mode == APPLY_PHASE_INVERSE)
+			product = make_cuComplex(cosf(-M_PI * (idx + idy)), sinf(-M_PI * (idx + idy)));
+		output[id] = cuCmulf(input[id], product);
+	}
+}
+
+void fft_2_dc(	const complex	*input,
+				complex			*output,
+				const ushort	width,
+				const uint		frame_res,
+				const uint		p,
+				const bool		mode,
+				cudaStream_t	stream)
+{
+	const uint	threads = THREADS_128;
+	const uint	blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_fft2_dc << <blocks, threads, 0, stream >> >(input + frame_res * p, output + frame_res * p, width, frame_res, mode);
+	cudaStreamSynchronize(stream);
+}
+
 void fft2_lens(	complex					*lens,
 				const FrameDescriptor&	fd,
 				const float				lambda,
@@ -42,7 +83,7 @@ void fft_2(	complex				*input,
 			const uint			q,
 			cudaStream_t		stream)
 {
-	const uint	n_frame_resolution = frame_resolution * nframes;
+	const uint		n_frame_resolution = frame_resolution * nframes;
 	uint			threads = THREADS_128;
 	uint			blocks = map_blocks_to_problem(frame_resolution, threads);
 
@@ -52,12 +93,13 @@ void fft_2(	complex				*input,
 
 	complex* pframe = input + frame_resolution * p;
 
-
+	//fft_2_dc(input, input, frame_resolution, p, 0, stream);
 	cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
 
 	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
 
 	cudaStreamSynchronize(stream);
+
 
 	cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
 
@@ -72,4 +114,5 @@ void fft_2(	complex				*input,
 		kernel_complex_divide << <blocks, threads, 0, stream >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
 	}
 	cudaStreamSynchronize(stream);
+	//fft_2_dc(input, input, frame_resolution, p, 1, stream);
 }

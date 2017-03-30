@@ -14,6 +14,14 @@
 
 # include "cuda_shared.cuh"
 
+void fft_2_dc(	const complex	*input,
+				complex			*output,
+				const ushort	width,
+				const uint		frame_res,
+				const uint		p,
+				const bool		mode,
+				cudaStream_t	stream);
+
 /*! \brief Find the right threads and block to call spectral lens
 * with and call it
 */

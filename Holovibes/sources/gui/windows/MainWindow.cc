@@ -200,6 +200,8 @@ namespace holovibes
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_max.load() : log10(cd.contrast_max.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceXZ)
 			{
@@ -208,6 +210,8 @@ namespace holovibes
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((cd.log_scale_enabled_cut_xz.load()) ? cd.contrast_max_slice_xz.load() : log10(cd.contrast_max_slice_xz.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_xz.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsXZ_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsXZ_level.load());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceYZ)
 			{
@@ -216,6 +220,8 @@ namespace holovibes
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((cd.log_scale_enabled_cut_yz.load()) ? cd.contrast_max_slice_yz.load() : log10(cd.contrast_max_slice_yz.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_yz.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsYZ_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
 
@@ -259,25 +265,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setValue(cd.zdistance.load());
 			findChild<QDoubleSpinBox*>("ZDoubleSpinBox")->setSingleStep(z_step_);
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
-			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!is_direct && !cd.is_cine_file.load());
+			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
-			findChild<QLineEdit *>("BoundaryLineEdit")->setEnabled(!is_direct);
-			findChild<QLineEdit *>("BoundaryLineEdit")->clear();
-			if (cd.current_window.load() == WindowKind::MainDisplay)
-			{
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
-			}
-			else if (cd.current_window.load() == WindowKind::SliceXZ)
-			{
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsXZ_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsXZ_level.load());
-			}
-			else if (cd.current_window.load() == WindowKind::SliceYZ)
-			{
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsYZ_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
-			}
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());

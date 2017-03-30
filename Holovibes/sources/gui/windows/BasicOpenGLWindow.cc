@@ -93,19 +93,19 @@ namespace holovibes
 			case Qt::Key::Key_Escape:
 				setWindowState(Qt::WindowNoState);
 				break;
-			case Qt::Key::Key_Up:
+			case Qt::Key::Key_8:
 				Translate[1] -= 0.1f / Scale;
 				setTranslate();
 				break;
-			case Qt::Key::Key_Down:
+			case Qt::Key::Key_2:
 				Translate[1] += 0.1f / Scale;
 				setTranslate();
 				break;
-			case Qt::Key::Key_Right:
+			case Qt::Key::Key_6:
 				Translate[0] += 0.1f / Scale;
 				setTranslate();
 				break;
-			case Qt::Key::Key_Left:
+			case Qt::Key::Key_4:
 				Translate[0] -= 0.1f / Scale;
 				setTranslate();
 				break;

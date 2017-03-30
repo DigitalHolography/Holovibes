@@ -297,6 +297,16 @@ namespace holovibes
 					compute_desc_.lambda.load(),
 					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
+				
+				fn_vect_.push_back(std::bind(
+					fft_2_dc,
+					gpu_input_buffer_,
+					gpu_input_buffer_,
+					input_fd.width,
+					input_fd.frame_res(),
+					pframe,
+					0, //APPLY_PHASE_FORWARD
+					static_cast<cudaStream_t>(0)));
 
 				fn_vect_.push_back(std::bind(
 					fft_2,
@@ -308,6 +318,16 @@ namespace holovibes
 					nframes,
 					pframe,
 					qframe,
+					static_cast<cudaStream_t>(0)));
+				
+				fn_vect_.push_back(std::bind(
+					fft_2_dc,
+					gpu_input_buffer_,
+					gpu_input_buffer_,
+					input_fd.width,
+					input_fd.frame_res(),
+					pframe,
+					1, //APPLY_PHASE_INVERSE
 					static_cast<cudaStream_t>(0)));
 
 				if (compute_desc_.vibrometry_enabled.load())
