@@ -33,9 +33,23 @@ namespace holovibes
 		void	HoloWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
-			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
+			Program->link();
+			Overlay.initShaderProgram();
+		}
+
+		void	HoloWindow::paintGL()
+		{
+			DirectWindow::paintGL();
+			// ---------------
+
+			if (Cd.stft_view_enabled.load() && !slicesAreLocked.load())
+			{
+				Overlay.drawCross();
+			}
+			// ---------------
+			Vao.release();
 		}
 
 		void	HoloWindow::mousePressEvent(QMouseEvent* e)
@@ -61,25 +75,25 @@ namespace holovibes
 				DirectWindow::mouseReleaseEvent(e);
 				if (e->button() == Qt::LeftButton)
 				{
-					if (zoneSelected.getConstZone().topLeft() !=
-						zoneSelected.getConstZone().bottomRight())
+					if (Overlay.getConstZone().topLeft() !=
+						Overlay.getConstZone().bottomRight())
 					{
-						if (zoneSelected.getKind() == Filter2D)
+						if (Overlay.getKind() == Filter2D)
 						{
-							Cd.stftRoiZone(zoneSelected.getTexZone(Fd.width), AccessMode::Set);
+							Cd.stftRoiZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 							Ic->request_filter2D_roi_update();
 							Ic->request_filter2D_roi_end();
 						}
-						else if (zoneSelected.getKind() == Autofocus)
+						else if (Overlay.getKind() == Autofocus)
 						{
-							Cd.autofocusZone(zoneSelected.getTexZone(Fd.width), AccessMode::Set);
+							Cd.autofocusZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 							Ic->request_autofocus();
-							zoneSelected.setKind(KindOfSelection::Zoom);
+							Overlay.setKind(KindOfOverlay::Zoom);
 						}
-						else if (zoneSelected.getKind() == Signal)
-							Cd.signalZone(zoneSelected.getTexZone(Fd.width), AccessMode::Set);
-						else if (zoneSelected.getKind() == Noise)
-							Cd.noiseZone(zoneSelected.getTexZone(Fd.width), AccessMode::Set);
+						else if (Overlay.getKind() == Signal)
+							Cd.signalZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+						else if (Overlay.getKind() == Noise)
+							Cd.noiseZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 						Ic->notify_observers();
 					}
 				}
@@ -91,11 +105,22 @@ namespace holovibes
 		void	HoloWindow::keyPressEvent(QKeyEvent* e)
 		{
 			DirectWindow::keyPressEvent(e);
-			if (e->key() == Qt::Key::Key_Space)
+			if (Cd.stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
 				slicesAreLocked.exchange(!slicesAreLocked.load());
-				setCursor((slicesAreLocked.load()) ?
-					Qt::ArrowCursor : Qt::CrossCursor);
+				makeCurrent();
+				if (slicesAreLocked.load())
+				{
+					setCursor(Qt::ArrowCursor);
+					Overlay.setKind(KindOfOverlay::Zoom);
+					Overlay.resetVerticesBuffer();
+				}
+				else
+				{
+					setCursor(Qt::CrossCursor);
+					Overlay.setKind(KindOfOverlay::Cross);
+					Overlay.initCrossBuffer();
+				}
 			}
 		}
 
@@ -105,6 +130,9 @@ namespace holovibes
 			ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
 			InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
 			Cd.stftCursor(&pos, AccessMode::Set);
+			// ---------------
+			makeCurrent();
+			Overlay.setCrossBuffer(pos, QSize(Fd.width, Fd.height));
 		}
 	}
 }

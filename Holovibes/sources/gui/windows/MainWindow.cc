@@ -47,7 +47,7 @@ namespace holovibes
 			setWindowIcon(QIcon("icon1.ico"));
 			InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
-			move(QPoint(520, 545));
+			move(QPoint(530, 560));
 
 			// Hide non default tab
 			findChild<GroupBox *>("PostProcessingGroupBox")->setHidden(true);
@@ -164,16 +164,12 @@ namespace holovibes
 			QPushButton* signalBtn = findChild<QPushButton *>("AverageSignalPushButton");
 			signalBtn->setEnabled(cd.average_enabled.load());
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
-				mainDisplay->getKindOfSelection() == KindOfSelection::Signal) ? "QPushButton {color: #8E66D9;}" : "");
-			// FF0080 fushia
-			// 8E66D9 mauve
+				mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
 
 			QPushButton* noiseBtn = findChild<QPushButton *>("AverageNoisePushButton");
 			noiseBtn->setEnabled(cd.average_enabled.load());
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
-				mainDisplay->getKindOfSelection() == KindOfSelection::Noise) ? "QPushButton {color: #00A4AB;}" : "");
-			// 428EA3 gris-turquoise
-			// 00A4AB turquoise
+				mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (cd.view_mode.load() == ComplexViewMode::PhaseIncrease) ||
@@ -711,7 +707,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				mainDisplay->resetTransform();
-				mainDisplay->setKindOfSelection(KindOfSelection::Filter2D);
+				mainDisplay->setKindOfOverlay(KindOfOverlay::Filter2D);
 				findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				cd.log_scale_enabled.exchange(true);
@@ -732,7 +728,7 @@ namespace holovibes
 				cd.filter_2d_enabled.exchange(false);
 				cd.log_scale_enabled.exchange(false);
 				cd.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
-				mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
+				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 				set_auto_contrast();
 				notify();
 			}
@@ -987,7 +983,7 @@ namespace holovibes
 			findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 
 			mainDisplay->setCursor(Qt::ArrowCursor);
-			mainDisplay->setKindOfSelection(KindOfSelection::Zoom);
+			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 
 			notify();
 		}
@@ -1009,8 +1005,8 @@ namespace holovibes
 						cancel_filter2D();
 					holovibes_.get_pipe()->create_stft_slice_queue();
 					// set positions of new windows according to the position of the main GL window
-					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 27);
-					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 8, 0);
+					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
+					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = cd.nsamples.load();
 					const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
 
@@ -1033,7 +1029,7 @@ namespace holovibes
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
 
-					mainDisplay->setKindOfSelection(KindOfSelection::SliceZoom);					
+					//mainDisplay->setKindOfOverlay(KindOfOverlay::SliceZoom);
 					cd.stft_view_enabled.exchange(true);
 					notify();
 				}
@@ -1267,7 +1263,7 @@ namespace holovibes
 			else if (z_min < z_max)
 			{
 				is_enabled_autofocus_ = true;
-				mainDisplay->setKindOfSelection(KindOfSelection::Autofocus);
+				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
 				mainDisplay->resetTransform();
 				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				cd.autofocus_z_min.exchange(z_min);
@@ -1492,8 +1488,8 @@ namespace holovibes
 		{
 			holovibes_.get_compute_desc().average_enabled.exchange(value);
 			mainDisplay->resetTransform();
-			mainDisplay->setKindOfSelection((value) ?
-				KindOfSelection::Signal : KindOfSelection::Zoom);
+			mainDisplay->setKindOfOverlay((value) ?
+				KindOfOverlay::Signal : KindOfOverlay::Zoom);
 			if (!value)
 				mainDisplay->resetSelection();
 			is_enabled_average_ = value;
@@ -1502,13 +1498,13 @@ namespace holovibes
 
 		void MainWindow::activeSignalZone()
 		{
-			mainDisplay->setKindOfSelection(KindOfSelection::Signal);
+			mainDisplay->setKindOfOverlay(KindOfOverlay::Signal);
 			notify();
 		}
 
 		void MainWindow::activeNoiseZone()
 		{
-			mainDisplay->setKindOfSelection(KindOfSelection::Noise);
+			mainDisplay->setKindOfOverlay(KindOfOverlay::Noise);
 			notify();
 		}
 

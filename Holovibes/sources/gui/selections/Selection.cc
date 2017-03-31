@@ -16,54 +16,52 @@ namespace holovibes
 {
 	namespace gui
 	{
-		Selection::Selection() :
+		HOverlay::HOverlay() :
 			Zone(1, 1),
-			kSelection(KindOfSelection::Zoom),
-			zoneBuffer(0),
+			kOverlay(KindOfOverlay::Zoom),
+			verticesBuffer(0),
+			colorBuffer(0),
 			elemBuffer(0),
 			Program(nullptr),
 			Colors{ {
-				{ 0.0f,	0.5f, 0.0f },			// Zoom
-				// Average::Signal
-				//{ 1.0f, 0.0f, 0.5f }, // Fushia
-				{ 0.557f, 0.4f, 0.85f }, // Mauve
-				// Average::Noise
-				//{ 0.26f, 0.56f, 0.64f }, // Gris-Turquoise
-				{ 0.f, 0.64f, 0.67f }, // Turquoise
-				{ 1.0f,	0.8f, 0.0f },			// Autofocus
-				{ 0.f,	0.62f, 1.f },			// Filter2D
-				{ 1.0f,	0.87f, 0.87f } } },	// SliceZoom
-				Enabled(false)
+				{ 0.0f,	0.5f, 0.0f },		// Zoom
+				{ 0.557f, 0.4f, 0.85f },	// Average::Signal
+				{ 0.f,	0.64f,	0.67f },	// Average::Noise
+				{ 1.f,	0.8f,	0.0f },		// Autofocus
+				{ 0.f,	0.62f,	1.f },		// Filter2D
+				{ 1.f,	0.87f,	0.87f },	// ?SliceZoom?
+				{ 1.f,	0.f,	0.f} } },	// Cross
+			Enabled(false)
 		{}
 
-		Selection::~Selection()
+		HOverlay::~HOverlay()
 		{
 			if (elemBuffer) glDeleteBuffers(1, &elemBuffer);
-			if (zoneBuffer) glDeleteBuffers(1, &zoneBuffer);
+			if (verticesBuffer) glDeleteBuffers(1, &verticesBuffer);
 			if (!Program) delete Program;
 		}
 
-		const Rectangle&		Selection::getConstZone() const
+		const Rectangle&		HOverlay::getConstZone() const
 		{
 			return (Zone);
 		}
 
-		Rectangle&				Selection::getZone()
+		Rectangle&				HOverlay::getZone()
 		{
 			return (Zone);
 		}
 
-		const KindOfSelection	Selection::getKind() const
+		const KindOfOverlay		HOverlay::getKind() const
 		{
-			return (kSelection);
+			return (kOverlay);
 		}
 
-		const Color				Selection::getColor() const
+		const Color				HOverlay::getColor() const
 		{
-			return (Colors[kSelection]);
+			return (Colors[kOverlay]);
 		}
 
-		Rectangle				Selection::getTexZone(ushort frameSide) const
+		Rectangle				HOverlay::getTexZone(ushort frameSide) const
 		{
 			return (Rectangle(
 				Zone.topLeft() * frameSide / 512,
@@ -71,41 +69,39 @@ namespace holovibes
 			));
 		}
 
-		const bool				Selection::isEnabled() const
+		const bool				HOverlay::isEnabled() const
 		{
 			return (Enabled);
 		}
 
-		void					Selection::setEnabled(bool b)
+		void					HOverlay::setEnabled(bool b)
 		{
 			Enabled = b;
 		}
 
-		void					Selection::setKind(KindOfSelection k)
+		void					HOverlay::setKind(KindOfOverlay k)
 		{
-			kSelection = k;
-			setZoneColor();
+			kOverlay = k;
+			setColor();
 		}
 
 		/* ------------------------------- */
 
-		void	Selection::initShaderProgram()
+		void	HOverlay::initShaderProgram()
 		{
 			initializeOpenGLFunctions();
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex,
-				"shaders/selections.vertex.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment,
-				"shaders/selections.fragment.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.overlay.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.color.glsl");
 			if (!Program->bind())
 				std::cerr << "[Error] " << Program->log().toStdString() << std::endl;
 			initBuffers();
 			Program->release();
 		}
 
-		void	Selection::initBuffers()
+		void	HOverlay::initBuffers()
 		{
-			const float data[] = {
+			const float vertices[] = {
 				0.f, 0.f,
 				0.f, 0.f,
 				0.f, 0.f,
@@ -116,9 +112,9 @@ namespace holovibes
 				0.f, 0.f,
 				0.f, 0.f
 			};
-			glGenBuffers(1, &zoneBuffer);
-			glBindBuffer(GL_ARRAY_BUFFER, zoneBuffer);
-			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_DYNAMIC_DRAW);
+			glGenBuffers(1, &verticesBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 			glDisableVertexAttribArray(2);
@@ -137,7 +133,7 @@ namespace holovibes
 			};
 			glGenBuffers(1, &colorBuffer);
 			glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-			glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), colorData, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(3);
 			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 			glDisableVertexAttribArray(3);
@@ -151,16 +147,16 @@ namespace holovibes
 			};
 			glGenBuffers(1, &elemBuffer);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemBuffer);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * sizeof(GLuint), elements, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
-		void	Selection::resetZoneBuffer()
+		void	HOverlay::resetVerticesBuffer()
 		{
 			if (Program)
 			{
 				Program->bind();
-				const float data[] = {
+				const float vertices[] = {
 					0.f, 0.f,
 					0.f, 0.f,
 					0.f, 0.f,
@@ -171,14 +167,14 @@ namespace holovibes
 					0.f, 0.f,
 					0.f, 0.f
 				};
-				glBindBuffer(GL_ARRAY_BUFFER, zoneBuffer);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, 16 * sizeof(float), data);
+				glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				Program->release();
 			}
 		}
 
-		void	Selection::setZoneBuffer()
+		void	HOverlay::setZoneBuffer()
 		{
 			if (Program)
 			{
@@ -187,41 +183,79 @@ namespace holovibes
 				const float y0 = (-((static_cast<float>(Zone.topLeft().y()) - (512 * 0.5)) / 512)) * 2.;
 				const float x1 = ((static_cast<float>(Zone.bottomRight().x()) - (512 * 0.5)) / 512) * 2.;
 				const float y1 = (-((static_cast<float>(Zone.bottomRight().y()) - (512 * 0.5)) / 512)) * 2.;
-				const float data[] = {
+				const float subVertices[] = {
 					x0, y0,
 					x1, y0,
 					x1, y1,
 					x0, y1
 				};
-				glBindBuffer(GL_ARRAY_BUFFER, zoneBuffer);
+				glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
 				glBufferSubData(GL_ARRAY_BUFFER,
-					(kSelection == Noise) ? (8 * sizeof(float)) : 0,
-					8 * sizeof(float), data);
+					(kOverlay == Noise) ? (8 * sizeof(float)) : 0,
+					sizeof(subVertices), subVertices);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				Program->release();
 			}
 		}
 
-		void	Selection::setZoneColor()
+		void	HOverlay::initCrossBuffer()
 		{
-			if (Program && kSelection != Noise)
+			if (Program)
 			{
 				Program->bind();
-				const Color tab = Colors[kSelection];
-				const float data[] = {
+				const float vertices[] = {
+					0.f, 1.f,
+					0.f, -1.f,
+					-1.f, 0.f,
+					1.f, 0.f
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				Program->release();
+			}
+		}
+
+		void	HOverlay::setCrossBuffer(QPoint pos, QSize frame)
+		{
+			if (Program)
+			{
+				Program->bind();
+				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5)) / frame.width()) * 2.;
+				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5)) / frame.height())) * 2.;
+				const float vertices[] = {
+					newX, 1.f,
+					newX, -1.f,
+					-1.f, newY,
+					1.f, newY
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, verticesBuffer);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				Program->release();
+			}
+		}
+
+		void	HOverlay::setColor()
+		{
+			if (Program && kOverlay != Noise)
+			{
+				Program->bind();
+				const Color tab = Colors[kOverlay];
+				const float color[] = {
 					tab[0], tab[1], tab[2],
 					tab[0], tab[1], tab[2],
 					tab[0], tab[1], tab[2],
 					tab[0], tab[1], tab[2],
 				};
 				glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, 12 * sizeof(float), data);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(color), color);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				Program->release();
 			}
 		}
 
-		void	Selection::draw()
+		void	HOverlay::drawSelections()
 		{
 			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemBuffer);
@@ -236,19 +270,32 @@ namespace holovibes
 			Program->release();
 		}
 
+		void	HOverlay::drawCross()
+		{
+			Program->bind();
+			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
+
+			glDrawArrays(GL_LINES, 0, 8);
+
+			glDisableVertexAttribArray(3);
+			glDisableVertexAttribArray(2);
+			Program->release();
+		}
+
 		/* ------------------------------- */
 
-		void	Selection::press(QPoint pos)
+		void	HOverlay::press(QPoint pos)
 		{
 			Zone.setTopLeft(pos);
 			Zone.setBottomRight(Zone.topLeft());
 			Enabled = true;
 		}
 
-		void	Selection::move(QPoint pos)
+		void	HOverlay::move(QPoint pos)
 		{
 			Zone.setBottomRight(pos);
-			if (kSelection == Filter2D)
+			if (kOverlay == Filter2D)
 			{
 				const int max = std::max(Zone.width(), Zone.height());
 				Zone.setBottomRight(QPoint(
@@ -262,16 +309,16 @@ namespace holovibes
 				setZoneBuffer();
 		}
 
-		void	Selection::release()
+		void	HOverlay::release()
 		{
 			Zone.checkCorners();
-			if (kSelection != Signal && kSelection != Noise)
+			if (kOverlay != Signal && kOverlay != Noise)
 			{
 				Enabled = false;
-				resetZoneBuffer();
+				resetVerticesBuffer();
 			}
 			else
-				setKind((kSelection == Signal) ? Noise : Signal);
+				setKind((kOverlay == Signal) ? Noise : Signal);
 		}
 	}
 }

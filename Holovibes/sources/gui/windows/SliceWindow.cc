@@ -32,8 +32,8 @@ namespace holovibes
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/render.vertex.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/render.fragment.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
 		}
 
@@ -99,7 +99,7 @@ namespace holovibes
 			};
 			glGenBuffers(1, &Vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(GLfloat), data, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -131,7 +131,6 @@ namespace holovibes
 
 			Vao.release();
 			Program->release();
-
 			glViewport(0, 0, width(), height());
 			startTimer(DISPLAY_RATE);
 		}
