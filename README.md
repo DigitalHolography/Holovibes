@@ -1,4 +1,4 @@
-# Holovibes v4.2.170324 #
+# Holovibes v4.2.170330 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -126,6 +126,7 @@ This mode is useful to do batch computation (call holovibes from a script).
     - Rotation and flip
     - Contrast
     - Log Scale
+    - Spacial images accumulations
 * Add: title detect for imported files
 * Add: New colors for Autofocus, 2DFilter, and Average when selected
 * Update: Record now outputs a raw with properties in title readable by title detect feature
