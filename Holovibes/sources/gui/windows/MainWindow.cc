@@ -232,6 +232,7 @@ namespace holovibes
 
 			findChild<QCheckBox*>("ImageRatioCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
 			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && cd.convo_matrix.size() == 0 ? false : true);
+			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!cd.stft_view_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && cd.average_enabled.load());
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && cd.flowgraphy_enabled.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && cd.flowgraphy_level.load());
