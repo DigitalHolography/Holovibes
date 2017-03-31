@@ -218,9 +218,6 @@
     <ClCompile Include="sources\gui\selections\Rectangle.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\Selection.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\DirectWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
@@ -241,6 +238,9 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_PlotWindow.cc">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\Overlay.cc">
+      <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -385,9 +385,6 @@
     <ClInclude Include="includes\gui\selections\Rectangle.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\Selection.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
     <ClInclude Include="includes\gui\windows\DirectWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
@@ -405,6 +402,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\Overlay.hh">
+      <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -47,7 +47,7 @@ namespace holovibes
 			setWindowIcon(QIcon("icon1.ico"));
 			InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
-			move(QPoint(530, 560));
+			move(QPoint(532, 558));
 
 			// Hide non default tab
 			findChild<GroupBox *>("PostProcessingGroupBox")->setHidden(true);

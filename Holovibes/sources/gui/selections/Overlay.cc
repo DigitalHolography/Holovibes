@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "Selection.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {

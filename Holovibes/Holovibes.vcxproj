@@ -211,7 +211,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\gui\selections\Selection.hh" />
+    <ClInclude Include="includes\gui\selections\Overlay.hh" />
     <ClInclude Include="includes\gui\selections\Rectangle.hh" />
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh" />
     <ClInclude Include="includes\gui\windows\DirectWindow.hh" />
@@ -349,7 +349,7 @@
     <ClCompile Include="sources\gpib_dll.cc" />
     <ClCompile Include="sources\gui\other\gui_curve_plot.cc" />
     <ClCompile Include="sources\gui\other\gui_group_box.cc" />
-    <ClCompile Include="sources\gui\selections\Selection.cc" />
+    <ClCompile Include="sources\gui\selections\Overlay.cc" />
     <ClCompile Include="sources\gui\selections\Rectangle.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />

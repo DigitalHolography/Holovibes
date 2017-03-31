@@ -21,7 +21,7 @@
 #include <QEvent.h>
 #include <cuda_gl_interop.h>
 
-#include "Selection.hh"
+#include "Overlay.hh"
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
