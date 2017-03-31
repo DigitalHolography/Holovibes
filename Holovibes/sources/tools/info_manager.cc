@@ -73,7 +73,7 @@ namespace holovibes
 		{
 			if (instance)
 			{
-				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+				/*auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
 					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
 				if (it == instance->infos_.end())
 				{
@@ -82,7 +82,7 @@ namespace holovibes
 					else
 						instance->infos_.push_back(std::make_pair(key, value));
 				}
-				else
+				else*/
 					update_info(key, value);
 			}
 		}
@@ -98,7 +98,7 @@ namespace holovibes
 			while (!stop_requested_)
 			{
 				draw();
-				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 		}
 
