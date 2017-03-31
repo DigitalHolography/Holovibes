@@ -267,6 +267,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
+			findChild<QLineEdit *>("BoundaryLineEdit")->clear();
+			findChild<QLineEdit *>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
@@ -527,7 +529,7 @@ namespace holovibes
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 					setPhase();
-					holovibes_.get_pipe()->request_update_n(1);
+					holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 					mainDisplay.reset(new HoloWindow(
 						pos,
 						size,
@@ -801,7 +803,7 @@ namespace holovibes
 				if (value < static_cast<int>(cd.nsamples.load()))
 				{
 					cd.pindex.exchange(value);
-					if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
+					if (!cd.flowgraphy_enabled)
 						set_auto_contrast();
 					notify();
 				}
@@ -883,10 +885,6 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				cd.lambda.exchange(static_cast<float>(value) * 1.0e-9f);
 				pipe_refresh();
-
-				// Updating the GUI
-				findChild<QLineEdit*>("BoundaryLineEdit")->clear();
-				findChild<QLineEdit*>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
 				notify();
 			}
 		}
@@ -955,8 +953,6 @@ namespace holovibes
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			if (!is_direct_mode())
 			{
-				cd.nsamples.exchange(cd.stft_level.load());
-				cd.stft_level.exchange(cd.nsamples.load());
 				cd.stft_enabled.exchange(b);
 				holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 				notify();
@@ -1319,7 +1315,8 @@ namespace holovibes
 			{
 				try
 				{
-					holovibes_.get_pipe()->request_refresh();
+					if (!holovibes_.get_pipe()->get_request_refresh())
+						holovibes_.get_pipe()->request_refresh();
 				}
 				catch (std::runtime_error& e)
 				{
@@ -1334,7 +1331,8 @@ namespace holovibes
 			{
 				try
 				{
-					holovibes_.get_pipe()->request_autocontrast();
+					if (!holovibes_.get_pipe()->get_request_refresh())
+						holovibes_.get_pipe()->request_autocontrast();
 				}
 				catch (std::runtime_error& e)
 				{
@@ -2192,10 +2190,6 @@ namespace holovibes
 			}
 			is_enabled_camera_ = true;
 			set_image_mode();
-
-			// Changing the gui
-			findChild<QLineEdit *>("BoundaryLineEdit")->clear();
-			findChild<QLineEdit *>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
 			QAction *settings = findChild<QAction*>("actionSettings");
@@ -2443,11 +2437,6 @@ namespace holovibes
 			///import_file_stop(); // Tmp
 			boost::property_tree::ptree ptree;
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			if (cd.stft_enabled.load())
-			{
-				cd.nsamples.exchange(cd.stft_level.load());
-				cd.stft_level.exchange(cd.nsamples.load());
-			}
 			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
 			GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
 			GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
