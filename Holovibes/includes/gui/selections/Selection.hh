@@ -23,7 +23,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		using KindOfSelection =
+		using KindOfOverlay =
 			enum
 		{
 			Zoom,
@@ -33,33 +33,39 @@ namespace holovibes
 			// -------
 			Autofocus,
 			Filter2D,
-			SliceZoom
+			SliceZoom,
+			Cross
 		};
 		using Color = std::array<float, 3>;
-		using ColorArray = std::array<Color, 6>;
+		using ColorArray = std::array<Color, 7>;
 
-		class Selection : protected QOpenGLFunctions
+		class HOverlay : protected QOpenGLFunctions
 		{
 		public:
-			Selection();
-			virtual ~Selection();
+			HOverlay();
+			virtual ~HOverlay();
 
 			const Rectangle&		getConstZone()	const;
 			Rectangle&				getZone();
-			const KindOfSelection	getKind()	const;
-			const Color				getColor()	const;
 			Rectangle				getTexZone(ushort frameSide) const;
+
+			const KindOfOverlay		getKind()	const;
+			const Color				getColor()	const;
 			const bool				isEnabled() const;
 			void					setEnabled(bool b);
 
 			void initShaderProgram();
 			void initBuffers();
-			void setZoneBuffer();
-			void resetZoneBuffer();
-			void setZoneColor();
-			void draw();
 
-			void setKind(KindOfSelection k);
+			void setZoneBuffer();
+			void resetVerticesBuffer();
+			void initCrossBuffer();
+			void setCrossBuffer(QPoint pos, QSize frame);
+			void drawSelections();
+			void drawCross();
+
+			void setKind(KindOfOverlay k);
+			void setColor();
 
 			void press(QPoint pos);
 			void move(QPoint pos);
@@ -67,8 +73,8 @@ namespace holovibes
 
 		protected:
 			Rectangle				Zone;
-			KindOfSelection			kSelection;
-			GLuint					zoneBuffer, colorBuffer, elemBuffer;
+			KindOfOverlay			kOverlay;
+			GLuint					verticesBuffer, colorBuffer, elemBuffer;
 			QOpenGLShaderProgram*	Program;
 			ColorArray				Colors;
 

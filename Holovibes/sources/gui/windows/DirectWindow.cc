@@ -31,9 +31,10 @@ namespace holovibes
 		void	DirectWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/direct.vertex.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/direct.fragment.glsl");
-			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
+			Program->link();
+			Overlay.initShaderProgram();
 		}
 
 		void	DirectWindow::initializeGL()
@@ -45,9 +46,10 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			initShaders();
-			if (!Vao.create()) std::cerr << "[Error] Vao create() fail\n";
+			Vao.create();
 			Vao.bind();
+			initShaders();
+			Program->bind();
 
 			#pragma region Texture
 			unsigned int size = Fd.frame_size();
@@ -122,11 +124,12 @@ namespace holovibes
 
 			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-			
+			if (kView == KindOfView::Hologram)
+			{
+				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
+			}
 			Program->release();
-			zoneSelected.initShaderProgram();
 			Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(DISPLAY_RATE);
@@ -136,7 +139,6 @@ namespace holovibes
 		{
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
-
 			Vao.bind();
 			Program->bind();
 
@@ -163,38 +165,39 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			Program->release();
-			if (zoneSelected.isEnabled())
-				zoneSelected.draw();
-			Vao.release();
+			if (Overlay.isEnabled())
+				Overlay.drawSelections();
+			if (kView == KindOfView::Direct)
+				Vao.release();
 		}
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
-				zoneSelected.press(e->pos());
+				Overlay.press(e->pos());
 		}
 
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			if (e->buttons() == Qt::LeftButton)
-				zoneSelected.move(e->pos());
+				Overlay.move(e->pos());
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
 			{
-				zoneSelected.release();
-				if (zoneSelected.getConstZone().topLeft() !=
-					zoneSelected.getConstZone().bottomRight())
+				Overlay.release();
+				if (Overlay.getConstZone().topLeft() !=
+					Overlay.getConstZone().bottomRight())
 				{
-					if (zoneSelected.getKind() == Zoom)
-						zoomInRect(zoneSelected.getConstZone());
+					if (Overlay.getKind() == Zoom)
+						zoomInRect(Overlay.getConstZone());
 				}
 			}
 			else if (e->button() == Qt::RightButton &&
-				zoneSelected.getKind() != Signal &&
-				zoneSelected.getKind() != Noise)
+				Overlay.getKind() != Signal &&
+				Overlay.getKind() != Noise)
 				resetTransform();
 		}
 

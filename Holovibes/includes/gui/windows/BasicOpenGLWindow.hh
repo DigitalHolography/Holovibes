@@ -48,13 +48,13 @@ namespace holovibes
 			BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
-			const KindOfView		getKindOfView() const;
-			void					setKindOfSelection(KindOfSelection k);
-			const KindOfSelection	getKindOfSelection() const;
-			void					resetTransform();
-			void					resetSelection();
-			void					setAngle(float a);
-			void					setFlip(int f);
+			const KindOfView	getKindOfView() const;
+			void				setKindOfOverlay(KindOfOverlay k);
+			const KindOfOverlay	getKindOfOverlay() const;
+			void				resetTransform();
+			void				resetSelection();
+			void				setAngle(float a);
+			void				setFlip(int f);
 
 		protected:
 			// Fields -----------
@@ -80,7 +80,7 @@ namespace holovibes
 			GLuint	Vbo, Ebo, Pbo;
 			GLuint	Tex;
 
-			Selection	zoneSelected;
+			HOverlay	Overlay;
 			static std::atomic<bool>	slicesAreLocked;
 
 			// Virtual Pure Functions

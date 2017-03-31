@@ -439,10 +439,11 @@
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\render.fragment.glsl" />
-    <None Include="shaders\render.vertex.glsl" />
-    <None Include="shaders\selections.fragment.glsl" />
-    <None Include="shaders\selections.vertex.glsl" />
+    <None Include="shaders\fragment.color.glsl" />
+    <None Include="shaders\fragment.tex.glsl" />
+    <None Include="shaders\vertex.direct.glsl" />
+    <None Include="shaders\vertex.holo.glsl" />
+    <None Include="shaders\vertex.overlay.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

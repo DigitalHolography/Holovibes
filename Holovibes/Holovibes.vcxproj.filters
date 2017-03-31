@@ -78,14 +78,14 @@
     <Filter Include="c++ includes\other">
       <UniqueIdentifier>{97b17fbc-5f81-435e-aef8-af9107af5eb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{8283ec4c-4ff4-4811-9775-8d76f66171d8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="c++ sources\gui\selections">
       <UniqueIdentifier>{f4e094e2-a0c9-4f08-a412-5650a373d482}</UniqueIdentifier>
     </Filter>
     <Filter Include="c++ includes\gui\selections">
       <UniqueIdentifier>{25277a71-a0d9-4ab2-a696-afc06fa90dfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{683cd658-7d68-43b9-9d3a-9373a1ed581f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -506,16 +506,19 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\render.fragment.glsl">
+    <None Include="shaders\fragment.color.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\render.vertex.glsl">
+    <None Include="shaders\fragment.tex.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\selections.fragment.glsl">
+    <None Include="shaders\vertex.direct.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\selections.vertex.glsl">
+    <None Include="shaders\vertex.holo.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\vertex.overlay.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
