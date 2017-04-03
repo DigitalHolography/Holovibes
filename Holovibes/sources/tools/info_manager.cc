@@ -73,16 +73,16 @@ namespace holovibes
 		{
 			if (instance)
 			{
-				/*auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
+				auto vector_iterator = std::find_if(instance->infos_.begin(), instance->infos_.end(),
 					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-				if (it == instance->infos_.end())
+				if (vector_iterator == instance->infos_.end())
 				{
 					if (pos < instance->infos_.size())
 						instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
 					else
 						instance->infos_.push_back(std::make_pair(key, value));
 				}
-				else*/
+				else
 					update_info(key, value);
 			}
 		}
@@ -95,27 +95,30 @@ namespace holovibes
 
 		void InfoManager::run()
 		{
-			while (!stop_requested_)
+			while (!instance->stop_requested_)
 			{
 				draw();
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			}
 		}
 
 		void InfoManager::draw()
 		{
-			std::string str = "";
-			for (auto it = infos_.begin(); it != infos_.end(); ++it)
-				str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
-			const QString qstr = str.c_str();
-			emit update_text(qstr);
+			if (instance)
+			{
+				std::string str = "";
+				for (auto it = instance->infos_.begin(); it != instance->infos_.end(); ++it)
+					str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
+				const QString qstr = str.c_str();
+				emit update_text(qstr);
+			}
 		}
 
 		void InfoManager::clear_info()
 		{
 			if (instance)
 			{
-				infos_.clear();
+				instance->infos_.clear();
 				insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
 			}
 		}

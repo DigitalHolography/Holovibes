@@ -80,6 +80,7 @@ namespace camera
     desc_.depth = 1.f;
     desc_.pixel_size = 5.5f;
     desc_.endianness = LITTLE_ENDIAN;
+	//desc_.binning = 1;
 
     exposure_time_ = 49.91f;
     gain_ = 0;
@@ -186,24 +187,48 @@ namespace camera
       return IS_SUBSAMPLING_DISABLE;
   }
 
-  int CameraIds::get_binning_mode(const std::string ui) const
+  int CameraIds::get_binning_mode(const std::string ui)
   {
-    if (ui == "2x2")
-      return IS_BINNING_2X_VERTICAL | IS_BINNING_2X_HORIZONTAL;
-    else if (ui == "3x3")
-      return IS_BINNING_3X_VERTICAL | IS_BINNING_3X_HORIZONTAL;
-    else if (ui == "4x4")
-      return IS_BINNING_4X_VERTICAL | IS_BINNING_4X_HORIZONTAL;
-    else if (ui == "5x5")
-      return IS_BINNING_5X_VERTICAL | IS_BINNING_5X_HORIZONTAL;
-    else if (ui == "6x6")
-      return IS_BINNING_6X_VERTICAL | IS_BINNING_6X_HORIZONTAL;
-    else if (ui == "8x8")
-      return IS_BINNING_8X_VERTICAL | IS_BINNING_8X_HORIZONTAL;
-    else if (ui == "16x16")
-      return IS_BINNING_16X_VERTICAL | IS_BINNING_16X_HORIZONTAL;
-    else
-      return IS_BINNING_DISABLE;
+	  if (ui == "2x2")
+	  {
+		  //desc_.binning = 2;
+		  return IS_BINNING_2X_VERTICAL | IS_BINNING_2X_HORIZONTAL;
+	  }
+	  else if (ui == "3x3")
+	  {
+		  //desc_.binning = 3;
+		  return IS_BINNING_3X_VERTICAL | IS_BINNING_3X_HORIZONTAL;
+	  }
+	  else if (ui == "4x4")
+	  {
+		  //desc_.binning = 4;
+		  return IS_BINNING_4X_VERTICAL | IS_BINNING_4X_HORIZONTAL;
+	  }
+	  else if (ui == "5x5")
+	  {
+		  //desc_.binning = 5;
+		  return IS_BINNING_5X_VERTICAL | IS_BINNING_5X_HORIZONTAL;
+	  }
+	  else if (ui == "6x6")
+	  {
+		  //desc_.binning = 6;
+		  return IS_BINNING_6X_VERTICAL | IS_BINNING_6X_HORIZONTAL;
+	  }
+	  else if (ui == "8x8")
+	  {
+		  //desc_.binning = 8;
+		  return IS_BINNING_8X_VERTICAL | IS_BINNING_8X_HORIZONTAL;
+	  }
+	  else if (ui == "16x16")
+	  {
+		  //desc_.binning = 16;
+		  return IS_BINNING_16X_VERTICAL | IS_BINNING_16X_HORIZONTAL;
+	  }
+	  else
+	  {
+		  //desc_.binning = 1;
+		  return IS_BINNING_DISABLE;
+	  }
   }
 
   int CameraIds::get_color_mode(const std::string ui)

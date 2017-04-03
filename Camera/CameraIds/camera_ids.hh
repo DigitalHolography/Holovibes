@@ -69,7 +69,7 @@ namespace camera
     /*! Retrieve binning mode code from user input string.
     * \return The corresponding API-defined code, or the binning-disabling code
     * if the value is invalid. */
-    int get_binning_mode(const std::string ui) const;
+	int get_binning_mode(const std::string ui);
 
     /*! Retrieve color mode code from user input string.
     * \return The corresponding API-defined code, or the raw 8-bit format

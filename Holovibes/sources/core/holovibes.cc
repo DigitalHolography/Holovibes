@@ -165,9 +165,14 @@ namespace holovibes
 
 	const float Holovibes::get_boundary()
 	{
-		const float n = static_cast<float>(get_cam_frame_desc().height);
-		const float d = get_cam_frame_desc().pixel_size * 0.000001f;
-		return ((n * d * d) / compute_desc_.lambda.load());
+		if (tcapture_)
+		{
+			FrameDescriptor fd = get_cam_frame_desc();
+			const float n = static_cast<float>(fd.height);
+			const float d = fd.pixel_size * /*fd.binning **/ 0.000001f;
+			return ((n * d * d) / compute_desc_.lambda.load());
+		}
+		return (0.f);
 	}
 
 	void Holovibes::init_import_mode(std::string &file_src,

@@ -73,16 +73,17 @@ void fft2_lens(	complex					*lens,
 	kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z);
 }
 
-void fft_2(	complex				*input,
-			const complex		*lens,
-			const cufftHandle	plan1d,
-			const cufftHandle	plan2d,
-			const uint			frame_resolution,
-			const uint			nframes,
-			const uint			p,
-			const uint			q,
-			cudaStream_t		stream)
+void fft_2(	complex					*input,
+			const complex			*lens,
+			const cufftHandle		plan1d,
+			const cufftHandle		plan2d,
+			const FrameDescriptor&	fd,
+			const uint				nframes,
+			const uint				p,
+			const uint				q,
+			cudaStream_t			stream)
 {
+	const uint frame_resolution = fd.frame_res();
 	const uint		n_frame_resolution = frame_resolution * nframes;
 	uint			threads = THREADS_128;
 	uint			blocks = map_blocks_to_problem(frame_resolution, threads);
@@ -93,6 +94,14 @@ void fft_2(	complex				*input,
 
 	complex* pframe = input + frame_resolution * p;
 
+	fft_2_dc(input,
+		input,
+		fd.width,
+		frame_resolution,
+		p,
+		0,
+		stream);
+
 	cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
 
 	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
@@ -101,6 +110,14 @@ void fft_2(	complex				*input,
 
 
 	cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
+
+	fft_2_dc(input,
+		input,
+		512,
+		frame_resolution,
+		p,
+		1,
+		stream);
 
 	kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
 

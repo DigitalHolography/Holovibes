@@ -35,12 +35,12 @@ void fft2_lens(	complex							*lens,
  * at output pointer. The output pointer can be another complex buffer or the
  * same as input buffer.
  */
-void fft_2(	complex				*input,
-			const complex		*lens,
-			const cufftHandle	plan1d,
-			const cufftHandle	plan2d,
-			const uint			frame_resolution,
-			const uint			nframes,
-			const uint			p,
-			const uint			q,
-			cudaStream_t		stream = 0);
+void fft_2(	complex					*input,
+			const complex			*lens,
+			const cufftHandle		plan1d,
+			const cufftHandle		plan2d,
+			const FrameDescriptor&	fd,
+			const uint				nframes,
+			const uint				p,
+			const uint				q,
+			cudaStream_t			stream = 0);

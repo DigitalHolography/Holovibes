@@ -288,7 +288,6 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 				}
 			}
-
 			else if (compute_desc_.algorithm.load() == Algorithm::FFT2)
 			{
 				fft2_lens(
@@ -297,16 +296,6 @@ namespace holovibes
 					compute_desc_.lambda.load(),
 					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
-				
-				fn_vect_.push_back(std::bind(
-					fft_2_dc,
-					gpu_input_buffer_,
-					gpu_input_buffer_,
-					input_fd.width,
-					input_fd.frame_res(),
-					pframe,
-					0, //APPLY_PHASE_FORWARD
-					static_cast<cudaStream_t>(0)));
 
 				fn_vect_.push_back(std::bind(
 					fft_2,
@@ -314,20 +303,10 @@ namespace holovibes
 					gpu_lens_,
 					plan1d_,
 					plan2d_,
-					input_fd.frame_res(),
+					input_fd,
 					nframes,
 					pframe,
 					qframe,
-					static_cast<cudaStream_t>(0)));
-				
-				fn_vect_.push_back(std::bind(
-					fft_2_dc,
-					gpu_input_buffer_,
-					gpu_input_buffer_,
-					input_fd.width,
-					input_fd.frame_res(),
-					pframe,
-					1, //APPLY_PHASE_INVERSE
 					static_cast<cudaStream_t>(0)));
 
 				if (compute_desc_.vibrometry_enabled.load())
@@ -842,13 +821,13 @@ namespace holovibes
 						z);
 
 					gpu_input_frame_ptr_ = gpu_input_buffer_tmp + compute_desc_.pindex.load() * input_fd.frame_res();
-
+					
 					fft_2(
 						gpu_input_buffer_tmp,
 						gpu_lens_,
 						plan1d_,
 						plan2d_,
-						input_fd.frame_res(),
+						input_fd,
 						compute_desc_.nsamples.load(),
 						compute_desc_.pindex.load(),
 						compute_desc_.pindex.load());

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "4.2.170330"
+#define MyAppVersion "4.2.170331"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -119,7 +119,7 @@ begin
 end;
 
 procedure Visual2015;
-var
+var                                   
   ResultCode: Integer;
 begin
     if not Exec(ExpandConstant('{tmp}\vcredist_2015_x64.exe'), '', '', SW_SHOWNORMAL,
@@ -130,7 +130,7 @@ begin
 end;
 
 [Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"
+Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppVersion}\{#MyAppExeName}"; Tasks: quicklaunchicon
 

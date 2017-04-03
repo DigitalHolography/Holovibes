@@ -97,6 +97,7 @@ namespace holovibes
 			notify();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Direct);
 			notify();
+			setFocusPolicy(Qt::StrongFocus);
 		}
 
 		MainWindow::~MainWindow()
@@ -257,8 +258,8 @@ namespace holovibes
 			findChild<QLineEdit *>("PhaseNumberLineEdit")->setEnabled(!is_direct);
 			findChild<QLineEdit *>("PhaseNumberLineEdit")->setText(QString::fromUtf8(std::to_string(cd.nsamples.load()).c_str()));
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
-			findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load() + 1);
 			findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load());
+			findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load() + 1);
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setValue(cd.lambda.load() * 1.0e9f);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
@@ -267,8 +268,7 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
-			findChild<QLineEdit *>("BoundaryLineEdit")->clear();
-			findChild<QLineEdit *>("BoundaryLineEdit")->insert(QString::number(holovibes_.get_boundary()));
+			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
@@ -356,16 +356,6 @@ namespace holovibes
 			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
 		}
 
-		void MainWindow::camera_ids()
-		{
-			change_camera(Holovibes::IDS);
-		}
-
-		void MainWindow::camera_ixon()
-		{
-			change_camera(Holovibes::IXON);
-		}
-
 		void MainWindow::camera_none()
 		{
 			if (!is_direct_mode())
@@ -377,6 +367,16 @@ namespace holovibes
 			is_enabled_camera_ = false;
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
+		}
+
+		void MainWindow::camera_ids()
+		{
+			change_camera(Holovibes::IDS);
+		}
+
+		void MainWindow::camera_ixon()
+		{
+			change_camera(Holovibes::IXON);
 		}
 
 		void MainWindow::camera_adimec()
@@ -803,9 +803,9 @@ namespace holovibes
 				if (value < static_cast<int>(cd.nsamples.load()))
 				{
 					cd.pindex.exchange(value);
+					notify();
 					if (!cd.flowgraphy_enabled)
 						set_auto_contrast();
-					notify();
 				}
 				else
 					display_error("p param has to be between 0 and n");
@@ -885,7 +885,6 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				cd.lambda.exchange(static_cast<float>(value) * 1.0e-9f);
 				pipe_refresh();
-				notify();
 			}
 		}
 
@@ -896,7 +895,6 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				cd.zdistance.exchange(static_cast<float>(value));
 				pipe_refresh();
-				notify();
 			}
 		}
 
@@ -906,7 +904,6 @@ namespace holovibes
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				set_z(cd.zdistance.load() + z_step_);
-				notify();
 			}
 		}
 
@@ -916,14 +913,12 @@ namespace holovibes
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				set_z(cd.zdistance.load() - z_step_);
-				notify();
 			}
 		}
 
 		void MainWindow::set_z_step(const double value)
 		{
 			z_step_ = value;
-			notify();
 		}
 
 		void MainWindow::set_algorithm(const QString value)
@@ -974,12 +969,11 @@ namespace holovibes
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 			auto manager = InfoManager::get_manager();
 
-			//set_contrast_mode(false);
-			cd.stft_view_enabled.exchange(false);
 			manager->remove_info("STFT Slice Cursor");
 
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			while (holovibes_.get_pipe()->get_cuts_delete_request());
+			cd.stft_view_enabled.exchange(false);
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
 
@@ -2224,7 +2218,8 @@ namespace holovibes
 
 		void MainWindow::closeEvent(QCloseEvent* event)
 		{
-			close_critical_compute();
+			if (holovibes_.get_compute_desc().compute_mode.load() != Computation::Stop)
+				close_critical_compute();
 			camera_none();
 			close_windows();
 			remove_infos();
