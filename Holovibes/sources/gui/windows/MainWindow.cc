@@ -250,6 +250,11 @@ namespace holovibes
 			findChild<QComboBox *>("AlgorithmComboBox")->setEnabled(!is_direct);
 			findChild<QComboBox *>("AlgorithmComboBox")->setCurrentIndex(cd.algorithm.load());
 			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.view_mode.load());
+			{
+				QComboBox* ptr = findChild<QComboBox*>("WindowSelectionComboBox");
+				ptr->setEnabled((cd.stft_view_enabled.load()));
+				ptr->setCurrentIndex(ptr->isEnabled() ? cd.current_window.load() : 0);
+			}
 			findChild<QPushButton *>("SetPhaseNumberPushButton")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
 			findChild<QLineEdit *>("PhaseNumberLineEdit")->setEnabled(!is_direct);
 			findChild<QLineEdit *>("PhaseNumberLineEdit")->setText(QString::fromUtf8(std::to_string(cd.nsamples.load()).c_str()));

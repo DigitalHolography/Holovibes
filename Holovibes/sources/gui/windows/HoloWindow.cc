@@ -43,7 +43,6 @@ namespace holovibes
 		{
 			DirectWindow::paintGL();
 			// ---------------
-
 			if (Cd.stft_view_enabled.load() && !slicesAreLocked.load())
 			{
 				Overlay.drawCross();

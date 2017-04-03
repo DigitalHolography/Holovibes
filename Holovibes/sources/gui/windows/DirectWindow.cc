@@ -11,14 +11,16 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
-#include "texture_update.cuh"
+#include "tools_conversion.cuh"
 
 namespace holovibes
 {
 	namespace gui
 	{
 		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q) :
-			BasicOpenGLWindow(p, s, q, KindOfView::Direct)
+			BasicOpenGLWindow(p, s, q, KindOfView::Direct),
+			texDepth(0),
+			texType(0)
 		{}
 
 		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
@@ -52,9 +54,9 @@ namespace holovibes
 			Program->bind();
 
 			#pragma region Texture
-			unsigned int size = Fd.frame_size();
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
+			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
 				(Fd.endianness == camera::BIG_ENDIAN) ?
@@ -65,8 +67,9 @@ namespace holovibes
 			/* -------------------------------------------------- */
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
-			texDepth = (Fd.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, Fd.width, Fd.height, 0, GL_RED, texDepth, nullptr);
+			texDepth = (Fd.depth == 1.f) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+			texType = (Fd.depth == 8.f) ? GL_RG : GL_RED;
+			glTexImage2D(GL_TEXTURE_2D, 0, texType, Fd.width, Fd.height, 0, texType, texDepth, nullptr);
 
 			glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 
@@ -75,8 +78,16 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			if (Fd.depth == 8.f)
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			}
 			glBindTexture(GL_TEXTURE_2D, 0);
 			#pragma endregion
 
@@ -144,13 +155,19 @@ namespace holovibes
 
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
-			cudaMemcpy(cuPtrToPbo, Qu.get_last_images(1), sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+			void* frame = Qu.get_last_images(1);
+			if (Fd.depth == 4.f)
+				float_to_ushort(static_cast<const float*>(frame), static_cast<ushort*>(cuPtrToPbo), Fd.frame_res());
+			else if (Fd.depth == 8.f)
+				complex_to_ushort(static_cast<const complex *>(frame), static_cast<uint*>(cuPtrToPbo), Fd.frame_res());
+			else
+				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 			cudaStreamSynchronize(cuStream);
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, GL_RED, texDepth, nullptr);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Fd.width, Fd.height, texType, texDepth, nullptr);
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 

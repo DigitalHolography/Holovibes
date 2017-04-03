@@ -27,7 +27,7 @@ namespace holovibes
 			virtual ~DirectWindow();
 
 		protected:
-			int	texDepth;
+			int	texDepth, texType;
 
 			virtual void	initShaders();
 			virtual void	initializeGL();
