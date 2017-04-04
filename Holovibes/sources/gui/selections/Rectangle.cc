@@ -16,7 +16,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-#pragma region Constructors
+		#pragma region Constructors
 		Rectangle::Rectangle() : QRect()
 		{}
 
@@ -34,7 +34,7 @@ namespace holovibes
 		Rectangle::Rectangle(const uint width, const uint height)
 			: QRect(0, 0, width, height)
 		{}
-#pragma endregion
+		#pragma endregion
 
 		uint	Rectangle::area() const
 		{
@@ -67,6 +67,5 @@ namespace holovibes
 			os << "\tbottomRight() : " << obj.bottomRight().x() << " " << obj.bottomRight().y() << std::endl;
 			return (os);
 		}
-
 	}
 }

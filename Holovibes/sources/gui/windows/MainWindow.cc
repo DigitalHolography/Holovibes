@@ -16,7 +16,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-#pragma region Constructor - Destructor
+		#pragma region Constructor - Destructor
 		MainWindow::MainWindow(Holovibes& holovibes, QWidget *parent)
 			: QMainWindow(parent),
 			holovibes_(holovibes),
@@ -119,8 +119,9 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			InfoManager::stop_display();
 		}
-#pragma endregion
-#pragma region Notify
+		#pragma endregion
+		/* ------------ */
+		#pragma region Notify
 		void MainWindow::notify()
 		{
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -364,8 +365,40 @@ namespace holovibes
 			InfoManager::get_manager()->remove_info("Info");
 			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
 		}
-#pragma endregion
-#pragma region Ini
+		
+		void MainWindow::credits()
+		{
+			std::string msg =
+				"Holovibes " + version + "\n\n"
+
+				"Developers:\n\n"
+
+				"Thomas Jarrossay\n"
+				"Alexandre Bartz\n"
+
+				"Cyril Cetre\n"
+				"Clement Ledant\n"
+
+				"Eric Delanghe\n"
+				"Arnaud Gaillard\n"
+				"Geoffrey Le Gourrierec\n"
+
+				"Jeffrey Bencteux\n"
+				"Thomas Kostas\n"
+				"Pierre Pagnoux\n"
+
+				"Antoine Dillée\n"
+				"Romain Cancillière\n"
+
+				"Michael Atlan\n";
+			QMessageBox msg_box;
+			msg_box.setText(QString::fromUtf8(msg.c_str()));
+			msg_box.setIcon(QMessageBox::Information);
+			msg_box.exec();
+		}
+		#pragma endregion
+		/* ------------ */
+		#pragma region Ini
 		void MainWindow::configure_holovibes()
 		{
 			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
@@ -626,8 +659,9 @@ namespace holovibes
 		{
 			QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 		}
-#pragma endregion
-#pragma region Close Compute
+		#pragma endregion
+		/* ------------ */
+		#pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -727,8 +761,9 @@ namespace holovibes
 			static_cast<void*>(event);
 			save_ini("holovibes.ini");
 		}
-#pragma endregion
-#pragma region Cameras
+		#pragma endregion
+		/* ------------ */
+		#pragma region Cameras
 		void MainWindow::change_camera(const Holovibes::camera_type type)
 		{
 			close_critical_compute();
@@ -800,40 +835,9 @@ namespace holovibes
 		{
 			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 		}
-#pragma endregion
-#pragma region Infos
-		void MainWindow::credits()
-		{
-			std::string msg =
-				"Holovibes " + version + "\n\n"
-
-				"Developers:\n\n"
-
-				"Thomas Jarrossay\n"
-				"Alexandre Bartz\n"
-
-				"Cyril Cetre\n"
-				"Clement Ledant\n"
-
-				"Eric Delanghe\n"
-				"Arnaud Gaillard\n"
-				"Geoffrey Le Gourrierec\n"
-
-				"Jeffrey Bencteux\n"
-				"Thomas Kostas\n"
-				"Pierre Pagnoux\n"
-
-				"Antoine Dillée\n"
-				"Romain Cancillière\n"
-
-				"Michael Atlan\n";
-			QMessageBox msg_box;
-			msg_box.setText(QString::fromUtf8(msg.c_str()));
-			msg_box.setIcon(QMessageBox::Information);
-			msg_box.exec();
-		}
-#pragma endregion
-#pragma region Image Mode
+		#pragma endregion
+		/* ------------ */
+		#pragma region Image Mode
 		void MainWindow::init_image_mode(QPoint& position, QSize& size)
 		{
 			holovibes_.dispose_compute();
@@ -978,8 +982,9 @@ namespace holovibes
 					set_holographic_mode();
 			}
 		}
-#pragma endregion
-#pragma region STFT
+		#pragma endregion
+		/* ------------ */
+		#pragma region STFT
 		void MainWindow::cancel_stft_slice_view()
 		{
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
@@ -1115,8 +1120,9 @@ namespace holovibes
 				cd.signal_trig_enabled.exchange(false);
 			notify();
 		}
-#pragma endregion
-#pragma region Computation
+		#pragma endregion
+		/* ------------ */
+		#pragma region Computation
 		void MainWindow::change_window()
 		{
 			QComboBox *window_cbox = findChild<QComboBox*>("WindowSelectionComboBox");
@@ -1596,8 +1602,9 @@ namespace holovibes
 				}
 			}
 		}
-#pragma endregion
-#pragma region Texture
+		#pragma endregion
+		/* ------------ */
+		#pragma region Texture
 		void MainWindow::rotateTexture()
 		{
 			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
@@ -1643,8 +1650,9 @@ namespace holovibes
 			}
 			notify();
 		}
-#pragma endregion
-#pragma region Autofocus
+		#pragma endregion
+		/* ------------ */
+		#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
@@ -1697,8 +1705,9 @@ namespace holovibes
 				std::cerr << e.what() << std::endl;
 			}
 		}
-#pragma endregion
-#pragma region Contrast - Log
+		#pragma endregion
+		/* ------------ */
+		#pragma region Contrast - Log
 		void MainWindow::set_contrast_mode(bool value)
 		{
 			if (!is_direct_mode())
@@ -1816,8 +1825,9 @@ namespace holovibes
 				notify();
 			}
 		}
-#pragma endregion
-#pragma region Vibrometry
+		#pragma endregion
+		/* ------------ */
+		#pragma region Vibrometry
 		void MainWindow::set_vibro_mode(const bool value)
 		{
 			if (!is_direct_mode())
@@ -1867,8 +1877,9 @@ namespace holovibes
 					display_error("q param has to be between 1 and phase #");
 			}
 		}
-#pragma endregion
-#pragma region Average
+		#pragma endregion
+		/* ------------ */
+		#pragma region Average
 		void MainWindow::set_average_mode(const bool value)
 		{
 			holovibes_.get_compute_desc().average_enabled.exchange(value);
@@ -2035,8 +2046,9 @@ namespace holovibes
 			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
 			roi_stop_push_button->setDisabled(true);
 		}
-#pragma endregion
-#pragma region Convolution
+		#pragma endregion
+		/* ------------ */
+		#pragma region Convolution
 		void MainWindow::browse_convo_matrix_file()
 		{
 			QString filename = QFileDialog::getOpenFileName(this,
@@ -2107,8 +2119,9 @@ namespace holovibes
 			}
 			notify();
 		}
-#pragma endregion
-#pragma region Record
+		#pragma endregion
+		/* ------------ */
+		#pragma region Record
 		void MainWindow::browse_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
@@ -2226,8 +2239,9 @@ namespace holovibes
 			if (float_checkbox->isChecked() && value == true)
 				float_checkbox->setChecked(false);
 		}
-#pragma endregion
-#pragma region Batch
+		#pragma endregion
+		/* ------------ */
+		#pragma region Batch
 		void MainWindow::browse_batch_input()
 		{
 			QString filename = QFileDialog::getOpenFileName(this,
@@ -2500,8 +2514,9 @@ namespace holovibes
 
 			return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
 		}
-#pragma endregion
-#pragma region Import
+		#pragma endregion
+		/* ------------ */
+		#pragma region Import
 		void MainWindow::import_browse_file()
 		{
 			static QString tmp_path = "";
@@ -2781,6 +2796,6 @@ namespace holovibes
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
 			import_endian_box->setCurrentIndex(endian);
 		}
-#pragma endregion
+		#pragma endregion
 	}
 }
