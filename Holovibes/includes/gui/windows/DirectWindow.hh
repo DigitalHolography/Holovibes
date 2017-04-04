@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "Selection.hh"
+#include "Overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes
@@ -27,7 +27,7 @@ namespace holovibes
 			virtual ~DirectWindow();
 
 		protected:
-			int	texDepth;
+			int	texDepth, texType;
 
 			virtual void	initShaders();
 			virtual void	initializeGL();

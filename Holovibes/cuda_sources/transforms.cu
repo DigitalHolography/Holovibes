@@ -43,7 +43,7 @@ __global__ void kernel_quadratic_lens(	complex*				output,
 	}
 }
 
-__global__ void kernel_spectral_lens(complex*				output,
+__global__ void kernel_spectral_lens(complex				*output,
 									 const FrameDescriptor	fd,
 									 const float			lambda,
 									 const float			distance)
@@ -58,12 +58,11 @@ __global__ void kernel_spectral_lens(complex*				output,
 	const float dv = 1 / ((static_cast<float>(fd.height)) * dy);
 	const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width >> 1)))) * du;
 	const float	v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height >> 1)))) * dv;
-	float		csquare;
 
 	if (index < fd.width * fd.height)
 	{
 		const float lambda2 = lambda * lambda;
-		csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
+		const float csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));
 		output[index].x = cosf(csquare);
 		output[index].y = sinf(csquare);
 	}

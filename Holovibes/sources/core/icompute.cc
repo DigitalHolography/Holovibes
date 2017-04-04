@@ -338,29 +338,12 @@ namespace holovibes
 	{
 		request_delete_stft_cuts_ = true;
 		request_refresh();
-		/*if (gpu_stft_slice_queue_xz)
-		{
-			//std::lock_guard<std::mutex> Guard(gpu_stft_slice_queue_xz->getGuard());
-			delete gpu_stft_slice_queue_xz;
-			gpu_stft_slice_queue_xz = nullptr;
-		}
-		if (gpu_stft_slice_queue_yz)
-		{
-			//std::lock_guard<std::mutex> Guard(gpu_stft_slice_queue_yz->getGuard());
-			delete gpu_stft_slice_queue_yz;
-			gpu_stft_slice_queue_yz = nullptr;
-		}*/
 	}
 
 	void	ICompute::create_stft_slice_queue()
 	{
 		request_stft_cuts_ = true;
 		request_refresh();
-		/*camera::FrameDescriptor fd = input_.get_frame_desc();
-		fd.height = compute_desc_.nsamples.load();
-		fd.depth = 2.f;
-		gpu_stft_slice_queue_xz = new Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");
-		gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFT View queue");*/
 	}
 
 	bool	ICompute::get_cuts_request()

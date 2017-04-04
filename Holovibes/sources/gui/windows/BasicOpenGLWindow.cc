@@ -33,7 +33,7 @@ namespace holovibes
 			Vao(0),
 			Vbo(0), Ebo(0), Pbo(0),
 			Tex(0),
-			zoneSelected()
+			Overlay()
 		{
 			if (cudaStreamCreate(&cuStream) != cudaSuccess)
 				cuStream = nullptr;
@@ -63,14 +63,14 @@ namespace holovibes
 			return kView;
 		}
 
-		void	BasicOpenGLWindow::setKindOfSelection(KindOfSelection k)
+		void	BasicOpenGLWindow::setKindOfOverlay(KindOfOverlay k)
 		{
-			zoneSelected.setKind(k);
+			Overlay.setKind(k);
 		}
 
-		const KindOfSelection	BasicOpenGLWindow::getKindOfSelection() const
+		const KindOfOverlay	BasicOpenGLWindow::getKindOfOverlay() const
 		{
-			return zoneSelected.getKind();
+			return Overlay.getKind();
 		}
 		
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
@@ -208,7 +208,7 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::resetSelection()
 		{
-			zoneSelected.resetZoneBuffer();
+			Overlay.resetVerticesBuffer();
 		}
 	}
 }
