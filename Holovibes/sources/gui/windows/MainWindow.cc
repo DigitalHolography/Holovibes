@@ -1531,7 +1531,7 @@ namespace holovibes
 
 		void MainWindow::browse_roi_file()
 		{
-			QString filename = QFileDialog::getSaveFileName(this,
+			QString filename = QFileDialog::getOpenFileName(this,
 				tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 
 			QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
