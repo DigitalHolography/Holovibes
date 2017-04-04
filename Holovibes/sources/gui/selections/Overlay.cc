@@ -357,10 +357,6 @@ namespace holovibes
 			}
 			else
 			{
-				if (kOverlay == Signal)
-					std::cout << "* releaseSignal : \n" << Zone;
-				else if (kOverlay == Noise)
-					std::cout << "* releaseNoise : \n" << Zone;
 				setKind((kOverlay == Signal) ? Noise : Signal);
 			}
 		}

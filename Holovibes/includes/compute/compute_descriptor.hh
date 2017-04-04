@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v4.2.170403"; /*!< Current version of this project. */
+	const static std::string version = "v4.2.170404"; /*!< Current version of this project. */
 
 	using	LockGuard = std::lock_guard<std::mutex>;
 	using	Algorithm =

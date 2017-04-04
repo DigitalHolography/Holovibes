@@ -16,6 +16,7 @@ namespace holovibes
 {
 	namespace gui
 	{
+#pragma region Constructor - Destructor
 		MainWindow::MainWindow(Holovibes& holovibes, QWidget *parent)
 			: QMainWindow(parent),
 			holovibes_(holovibes),
@@ -118,7 +119,8 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			InfoManager::stop_display();
 		}
-
+#pragma endregion
+#pragma region Notify
 		void MainWindow::notify()
 		{
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -272,8 +274,6 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
-			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(cd.autofocus_z_max.load());
-			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(cd.autofocus_z_min.load());
 			findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
 			findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(cd.is_cine_file.load());
@@ -353,9 +353,293 @@ namespace holovibes
 				this->resize(QSize(195, 60));
 		}
 
+		void MainWindow::display_error(const std::string msg)
+		{
+			InfoManager::get_manager()->remove_info("Error");
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Error", msg);
+		}
+
+		void MainWindow::display_info(const std::string msg)
+		{
+			InfoManager::get_manager()->remove_info("Info");
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
+		}
+#pragma endregion
+#pragma region Ini
 		void MainWindow::configure_holovibes()
 		{
 			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
+		}
+
+		void MainWindow::write_ini()
+		{
+			close_critical_compute();
+			save_ini("holovibes.ini");
+			notify();
+		}
+
+		void MainWindow::reload_ini()
+		{
+			close_critical_compute();
+			load_ini("holovibes.ini");
+			notify();
+		}
+
+		void MainWindow::load_ini(const std::string& path)
+		{
+			boost::property_tree::ptree ptree;
+			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
+			GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
+			GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
+			GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
+			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
+			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
+
+			QAction*	image_rendering_action = findChild<QAction*>("actionImage_rendering");
+			QAction*	view_action = findChild<QAction*>("actionView");
+			QAction*	special_action = findChild<QAction*>("actionSpecial");
+			QAction*	record_action = findChild<QAction*>("actionRecord");
+			QAction*	import_action = findChild<QAction*>("actionImport");
+			QAction*	info_action = findChild<QAction*>("actionInfo");
+
+			try
+			{
+				boost::property_tree::ini_parser::read_ini(path, ptree);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << e.what() << std::endl;
+			}
+
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+			if (!ptree.empty())
+			{
+				Config& config = global::global_config;
+				// Config
+				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
+				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
+				config.float_queue_max_size = ptree.get<int>("config.float_buffer_size", config.float_queue_max_size);
+				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
+				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
+				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
+				cd.special_buffer_size.exchange(ptree.get<int>("config.convolution_buffer_size", cd.special_buffer_size.load()));
+				cd.stft_level.exchange(ptree.get<uint>("config.stft_buffer_size", cd.stft_level.load()));
+				cd.ref_diff_level.exchange(ptree.get<uint>("config.reference_buffer_size", cd.ref_diff_level.load()));
+				cd.img_acc_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_level.load()));
+
+				// Camera type
+				const int camera_type = ptree.get<int>("image_rendering.camera", 0);
+				change_camera((Holovibes::camera_type)camera_type);
+
+				// Image rendering
+				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
+				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
+
+				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", cd.nsamples.load());
+				cd.nsamples.exchange(1);
+				/*if (p_nsample < 1)
+				cd.nsamples.exchange(1);
+				else if (p_nsample > config.input_queue_max_size)
+				cd.nsamples.exchange(config.input_queue_max_size);
+				else
+				cd.nsamples.exchange(p_nsample);*/
+
+				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
+				if (p_index >= 0 && p_index < cd.nsamples.load())
+					cd.pindex.exchange(p_index);
+
+				cd.lambda.exchange(ptree.get<float>("image_rendering.lambda", cd.lambda.load()));
+
+				cd.zdistance.exchange(ptree.get<float>("image_rendering.z_distance", cd.zdistance.load()));
+
+				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
+				if (z_step > 0.0f)
+					z_step_ = z_step;
+
+				cd.algorithm.exchange(static_cast<Algorithm>(
+					ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
+
+				// View
+				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
+				view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
+
+				cd.view_mode.exchange(static_cast<ComplexViewMode>(
+					ptree.get<int>("view.view_mode", cd.view_mode.load())));
+
+				cd.log_scale_enabled.exchange(
+					ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
+
+				cd.shift_corners_enabled.exchange(
+					ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
+
+				cd.contrast_enabled.exchange(
+					ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
+
+				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
+
+				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
+
+				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
+				//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/); //TODO
+				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
+				yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
+				//mainflip = ptree.get("view.mainWindow_flip", mainflip); //TODO
+				xzFlip = ptree.get("view.xCut_flip", xzFlip);
+				yzFlip = ptree.get("view.yCut_flip", yzFlip);
+
+				// Post Processing
+				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
+				special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
+				cd.vibrometry_q.exchange(
+					ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q.load()));
+				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
+				cd.average_enabled.exchange(is_enabled_average_);
+
+				// Record
+				record_action->setChecked(!ptree.get<bool>("record.hidden", false));
+				record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
+
+				// Import
+				import_action->setChecked(!ptree.get<bool>("import.hidden", false));
+				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+				config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
+				cd.import_pixel_size.exchange(config.import_pixel_size);
+				findChild<QSpinBox *>("ImportFpsSpinBox")->setValue(ptree.get<int>("import.fps", 60));
+
+				// Info
+				info_action->setChecked(!ptree.get<bool>("info.hidden", false));
+				info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
+				theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
+
+				// Autofocus
+				cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size.load()));
+				cd.autofocus_z_min.exchange(ptree.get<float>("autofocus.z_min", cd.autofocus_z_min.load()));
+				cd.autofocus_z_max.exchange(ptree.get<float>("autofocus.z_max", cd.autofocus_z_max.load()));
+				cd.autofocus_z_div.exchange(ptree.get<uint>("autofocus.steps", cd.autofocus_z_div.load()));
+				cd.autofocus_z_iter.exchange(ptree.get<uint>("autofocus.loops", cd.autofocus_z_iter.load()));
+
+				//flowgraphy
+				uint flowgraphy_level = ptree.get<uint>("flowgraphy.level", cd.flowgraphy_level.load());
+				if (flowgraphy_level % 2 == 0)
+					flowgraphy_level++;
+				cd.flowgraphy_level.exchange(flowgraphy_level);
+				cd.flowgraphy_enabled.exchange(ptree.get<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load()));
+
+				// Reset button
+				config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
+				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
+				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
+
+				notify();
+			}
+		}
+
+		void MainWindow::save_ini(const std::string& path)
+		{
+			///import_file_stop(); // Tmp
+			boost::property_tree::ptree ptree;
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
+			GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
+			GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
+			GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
+			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
+			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
+			Config& config = global::global_config;
+
+			// Config
+			ptree.put("config.input_buffer_size", config.input_queue_max_size);
+			ptree.put("config.output_buffer_size", config.output_queue_max_size);
+			ptree.put("config.float_buffer_size", config.float_queue_max_size);
+			ptree.put("config.input_file_buffer_size", config.reader_buf_max_size);
+			ptree.put("config.stft_buffer_size", cd.stft_level.load());
+			ptree.put("config.reference_buffer_size", cd.ref_diff_level.load());
+			ptree.put("config.accumulation_buffer_size", cd.img_acc_level.load());
+			ptree.put("config.convolution_buffer_size", cd.special_buffer_size.load());
+			ptree.put("config.frame_timeout", config.frame_timeout);
+			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
+
+			// Image rendering
+			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
+			ptree.put("image_rendering.camera", camera_type_);
+			ptree.put("image_rendering.phase_number", cd.nsamples.load());
+			ptree.put("image_rendering.p_index", cd.pindex.load());
+			ptree.put("image_rendering.lambda", cd.lambda.load());
+			ptree.put("image_rendering.z_distance", cd.zdistance.load());
+			ptree.put("image_rendering.z_step", z_step_);
+			ptree.put("image_rendering.algorithm", cd.algorithm.load());
+
+			// View
+			ptree.put<bool>("view.hidden", view_group_box->isHidden());
+			ptree.put("view.view_mode", cd.view_mode.load());
+			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
+			ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load());
+			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
+			ptree.put("view.contrast_min", cd.contrast_min.load());
+			ptree.put("view.contrast_max", cd.contrast_max.load());
+			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
+			//ptree.put("view.mainWindow_rotate", main_rotate); //TODO
+			ptree.put<float>("view.xCut_rotate", xzAngle);
+			ptree.put<float>("view.yCut_rotate", yzAngle);
+			//ptree.put("view.mainWindow_flip", mainflip); //TODO
+			ptree.put("view.xCut_flip", xzFlip);
+			ptree.put("view.yCut_flip", yzFlip);
+
+			// Post-processing
+			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
+			ptree.put("post_processing.image_ratio_q", cd.vibrometry_q.load());
+			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
+
+			// Record
+			ptree.put<bool>("record.hidden", record_group_box->isHidden());
+
+			// Import
+			ptree.put<bool>("import.hidden", import_group_box->isHidden());
+			ptree.put("import.pixel_size", cd.import_pixel_size.load());
+
+			// Info
+			ptree.put<bool>("info.hidden", info_group_box->isHidden());
+			ptree.put("info.theme_type", theme_index_);
+
+			// Autofocus
+			ptree.put("autofocus.size", cd.autofocus_size.load());
+			ptree.put("autofocus.z_min", cd.autofocus_z_min.load());
+			ptree.put("autofocus.z_max", cd.autofocus_z_max.load());
+			ptree.put("autofocus.steps", cd.autofocus_z_div.load());
+			ptree.put("autofocus.loops", cd.autofocus_z_iter.load());
+
+			//flowgraphy
+			ptree.put("flowgraphy.level", cd.flowgraphy_level.load());
+			ptree.put<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load());
+
+			//Reset
+			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
+			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
+			ptree.put("reset.device_number", config.device_number);
+
+
+			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
+		}
+
+		void MainWindow::open_file(const std::string& path)
+		{
+			QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
+		}
+#pragma endregion
+#pragma region Close Compute
+		void MainWindow::close_critical_compute()
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (cd.average_enabled.load())
+				set_average_mode(false);
+			if (cd.stft_enabled.load())
+				cancel_stft_view(cd);
+			if (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load())
+				cancel_take_reference();
+			if (cd.filter_2d_enabled.load())
+				cancel_filter2D();
+			holovibes_.dispose_compute();
 		}
 
 		void MainWindow::camera_none()
@@ -370,6 +654,111 @@ namespace holovibes
 			is_enabled_camera_ = false;
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
+		}
+
+		void MainWindow::remove_infos()
+		{
+			try
+			{
+				auto manager = InfoManager::get_manager();
+				manager->clear_info();
+			}
+			catch (std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
+		}
+
+		void MainWindow::close_windows()
+		{
+			if (sliceXZ)
+				sliceXZ.reset(nullptr);
+			if (sliceYZ)
+				sliceYZ.reset(nullptr);
+			if (plot_window_)
+				plot_window_.reset(nullptr);
+			if (mainDisplay)
+				mainDisplay.reset(nullptr);
+		}
+
+		void MainWindow::reset()
+		{
+			Config&	config = global::global_config;
+			int		device = 0;
+
+			close_critical_compute();
+			camera_none();
+			auto manager = InfoManager::get_manager();
+			manager->update_info("Status", "Resetting...");
+			qApp->processEvents();
+			if (!is_direct_mode())
+				holovibes_.dispose_compute();
+			holovibes_.dispose_capture();
+			is_enabled_camera_ = false;
+			if (config.set_cuda_device == 1)
+			{
+				if (config.auto_device_number == 1)
+				{
+					cudaGetDevice(&device);
+					config.device_number = device;
+				}
+				else
+					device = config.device_number;
+				cudaSetDevice(device);
+			}
+			cudaDeviceSynchronize();
+			cudaDeviceReset();
+			close_windows();
+			remove_infos();
+			change_camera(camera_type_);
+			load_ini(GLOBAL_INI_PATH);
+			set_image_mode();
+			notify();
+		}
+
+		void MainWindow::closeEvent(QCloseEvent* event)
+		{
+			if (holovibes_.get_compute_desc().compute_mode.load() != Computation::Stop)
+				close_critical_compute();
+			camera_none();
+			close_windows();
+			remove_infos();
+			// Avoiding "unused variable" warning.
+			static_cast<void*>(event);
+			save_ini("holovibes.ini");
+		}
+#pragma endregion
+#pragma region Cameras
+		void MainWindow::change_camera(const Holovibes::camera_type type)
+		{
+			close_critical_compute();
+			close_windows();
+			remove_infos();
+			if (type != Holovibes::NONE)
+			{
+				try
+				{
+					mainDisplay.reset(nullptr);
+					if (!is_direct_mode())
+						holovibes_.dispose_compute();
+					holovibes_.dispose_capture();
+					holovibes_.init_capture(type);
+					is_enabled_camera_ = true;
+					set_image_mode();
+					camera_type_ = type;
+					QAction* settings = findChild<QAction*>("actionSettings");
+					settings->setEnabled(true);
+					notify();
+				}
+				catch (CameraException& e)
+				{
+					display_error("[CAMERA]" + std::string(e.what()));
+				}
+				catch (std::exception& e)
+				{
+					display_error(e.what());
+				}
+			}
 		}
 
 		void MainWindow::camera_ids()
@@ -407,6 +796,12 @@ namespace holovibes
 			change_camera(Holovibes::XIQ);
 		}
 
+		void MainWindow::configure_camera()
+		{
+			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
+		}
+#pragma endregion
+#pragma region Infos
 		void MainWindow::credits()
 		{
 			std::string msg =
@@ -437,12 +832,8 @@ namespace holovibes
 			msg_box.setIcon(QMessageBox::Information);
 			msg_box.exec();
 		}
-
-		void MainWindow::configure_camera()
-		{
-			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
-		}
-
+#pragma endregion
+#pragma region Image Mode
 		void MainWindow::init_image_mode(QPoint& position, QSize& size)
 		{
 			holovibes_.dispose_compute();
@@ -453,31 +844,6 @@ namespace holovibes
 				size = mainDisplay->size();
 				mainDisplay.reset(nullptr);
 			}
-		}
-
-		void MainWindow::remove_infos()
-		{
-			try
-			{
-				auto manager = InfoManager::get_manager();
-				manager->clear_info();
-			}
-			catch (std::exception& e)
-			{
-				std::cerr << e.what() << std::endl;
-			}
-		}
-
-		void MainWindow::close_windows()
-		{
-			if (sliceXZ)
-				sliceXZ.reset(nullptr);
-			if (sliceYZ)
-				sliceYZ.reset(nullptr);
-			if (plot_window_)
-				plot_window_.reset(nullptr);
-			if (mainDisplay)
-				mainDisplay.reset(nullptr);
 		}
 
 		void MainWindow::set_direct_mode()
@@ -591,6 +957,179 @@ namespace holovibes
 				display_error(e.what());
 			}
 		}
+		
+		bool MainWindow::is_direct_mode()
+		{
+			return (holovibes_.get_compute_desc().compute_mode.load() == Computation::Direct);
+		}
+
+		void MainWindow::set_image_mode()
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (cd.compute_mode.load() == Computation::Direct)
+				set_direct_mode();
+			else if (cd.compute_mode.load() == Computation::Hologram)
+				set_holographic_mode();
+			else
+			{
+				if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
+					set_direct_mode();
+				else
+					set_holographic_mode();
+			}
+		}
+#pragma endregion
+#pragma region STFT
+		void MainWindow::cancel_stft_slice_view()
+		{
+			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+			auto manager = InfoManager::get_manager();
+
+			manager->remove_info("STFT Slice Cursor");
+
+			holovibes_.get_pipe()->delete_stft_slice_queue();
+			while (holovibes_.get_pipe()->get_cuts_delete_request());
+			cd.stft_view_enabled.exchange(false);
+			sliceXZ.reset(nullptr);
+			sliceYZ.reset(nullptr);
+
+			findChild<QCheckBox*>("STFTCutsCheckBox")->setChecked(false);
+			findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
+
+			mainDisplay->setCursor(Qt::ArrowCursor);
+			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+
+			notify();
+		}
+
+		void MainWindow::set_stft(bool b)
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (!is_direct_mode())
+			{
+				cd.stft_enabled.exchange(b);
+				holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
+				notify();
+			}
+		}
+
+		void MainWindow::update_stft_steps(int value)
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			if (!is_direct_mode())
+			{
+				cd.stft_steps.exchange(value);
+				notify();
+			}
+		}
+
+		void MainWindow::stft_view(bool checked)
+		{
+			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+			auto manager = InfoManager::get_manager();
+			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
+
+			QComboBox* winSelection = findChild<QComboBox*>("WindowSelectionComboBox");
+			winSelection->setEnabled(checked);
+			winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
+			if (checked)
+			{
+				try
+				{
+					if (cd.filter_2d_enabled.load())
+						cancel_filter2D();
+					holovibes_.get_pipe()->create_stft_slice_queue();
+					// set positions of new windows according to the position of the main GL window
+					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
+					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
+					const ushort	nImg = cd.nsamples.load();
+					const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
+
+					while (holovibes_.get_pipe()->get_cuts_request());
+					sliceXZ.reset(nullptr);
+					sliceXZ.reset(new SliceWindow(
+						xzPos,
+						QSize(mainDisplay->width(), nSize),
+						holovibes_.get_pipe()->get_stft_slice_queue(0)));
+					sliceXZ->setTitle("Slice XZ");
+					sliceXZ->setAngle(xzAngle);
+					sliceXZ->setFlip(xzFlip);
+
+					sliceYZ.reset(nullptr);
+					sliceYZ.reset(new SliceWindow(
+						yzPos,
+						QSize(nSize, mainDisplay->height()),
+						holovibes_.get_pipe()->get_stft_slice_queue(1)));
+					sliceYZ->setTitle("Slice YZ");
+					sliceYZ->setAngle(yzAngle);
+					sliceYZ->setFlip(yzFlip);
+
+					//mainDisplay->setKindOfOverlay(KindOfOverlay::SliceZoom);
+					cd.stft_view_enabled.exchange(true);
+					notify();
+				}
+				catch (std::logic_error& e)
+				{
+					std::cerr << e.what() << std::endl;
+					cancel_stft_slice_view();
+				}
+			}
+			else
+			{
+				cancel_stft_slice_view();
+			}
+		}
+
+		void MainWindow::cancel_stft_view(ComputeDescriptor& cd)
+		{
+			if (cd.signal_trig_enabled.load())
+				stft_signal_trig(false);
+			else if (cd.stft_view_enabled.load())
+				cancel_stft_slice_view();
+			cd.stft_view_enabled.exchange(false);
+			cd.stft_enabled.exchange(false);
+			cd.signal_trig_enabled.exchange(false);
+			cd.nsamples.exchange(1);
+			notify();
+		}
+
+		void MainWindow::stft_signal_trig(bool checked)
+		{
+			QCheckBox* stft = findChild<QCheckBox*>("STFTCheckBox");
+			QCheckBox* stft_view = findChild<QCheckBox*>("STFTCutsCheckBox");
+			QCheckBox* trig = findChild<QCheckBox*>("ExtTrigCheckBox");
+			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+
+			if (checked)
+			{
+				if (cd.stft_view_enabled.load())
+					cancel_stft_slice_view();
+
+				// TODO add a wait for a external signal to trigger STFT at the next step
+				set_stft(false);
+				set_stft(true);
+
+				cd.signal_trig_enabled.exchange(true);
+			}
+			else
+				cd.signal_trig_enabled.exchange(false);
+			notify();
+		}
+#pragma endregion
+#pragma region Computation
+		void MainWindow::change_window()
+		{
+			QComboBox *window_cbox = findChild<QComboBox*>("WindowSelectionComboBox");
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+			if (window_cbox->currentIndex() == 0)
+				cd.current_window.exchange(WindowKind::MainDisplay);
+			else if (window_cbox->currentIndex() == 1)
+				cd.current_window.exchange(WindowKind::SliceXZ);
+			else if (window_cbox->currentIndex() == 2)
+				cd.current_window.exchange(WindowKind::SliceYZ);
+			notify();
+		}
 
 		void MainWindow::set_convolution_mode(const bool value)
 		{
@@ -613,62 +1152,6 @@ namespace holovibes
 			holovibes_.get_compute_desc().flowgraphy_enabled.exchange(value);
 			if (!is_direct_mode())
 				pipe_refresh();
-			notify();
-		}
-
-		bool MainWindow::is_direct_mode()
-		{
-			return (holovibes_.get_compute_desc().compute_mode.load() == Computation::Direct);
-		}
-
-		void MainWindow::set_image_mode()
-		{
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			if (cd.compute_mode.load() == Computation::Direct)
-				set_direct_mode();
-			else if (cd.compute_mode.load() == Computation::Hologram)
-				set_holographic_mode();
-			else
-			{
-				if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
-					set_direct_mode();
-				else
-					set_holographic_mode();
-			}
-		}
-
-		void MainWindow::reset()
-		{
-			Config&	config = global::global_config;
-			int		device = 0;
-
-			close_critical_compute();
-			camera_none();
-			auto manager = InfoManager::get_manager();
-			manager->update_info("Status", "Resetting...");
-			qApp->processEvents();
-			if (!is_direct_mode())
-				holovibes_.dispose_compute();
-			holovibes_.dispose_capture();
-			is_enabled_camera_ = false;
-			if (config.set_cuda_device == 1)
-			{
-				if (config.auto_device_number == 1)
-				{
-					cudaGetDevice(&device);
-					config.device_number = device;
-				}
-				else
-					device = config.device_number;
-				cudaSetDevice(device);
-			}
-			cudaDeviceSynchronize();
-			cudaDeviceReset();
-			close_windows();
-			remove_infos();
-			change_camera(camera_type_);
-			load_ini(GLOBAL_INI_PATH);
-			set_image_mode();
 			notify();
 		}
 
@@ -738,6 +1221,15 @@ namespace holovibes
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 				set_auto_contrast();
 				notify();
+			}
+		}
+
+		void MainWindow::set_shifted_corners(const bool value)
+		{
+			if (!is_direct_mode())
+			{
+				holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
+				pipe_refresh();
 			}
 		}
 
@@ -932,8 +1424,6 @@ namespace holovibes
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
-				//mainDisplay->setKindOfSelection(KindOfSelection::Zoom);	// raw Zoom tmp
-
 				if (value == "None")
 					cd.algorithm.exchange(Algorithm::None);
 				else if (value == "1FFT")
@@ -948,106 +1438,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_stft(bool b)
-		{
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			if (!is_direct_mode())
-			{
-				cd.stft_enabled.exchange(b);
-				holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
-				notify();
-			}
-		}
-
-		void MainWindow::update_stft_steps(int value)
-		{
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			if (!is_direct_mode())
-			{
-				cd.stft_steps.exchange(value);
-				notify();
-			}
-		}
-
-		void MainWindow::cancel_stft_slice_view()
-		{
-			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-			auto manager = InfoManager::get_manager();
-
-			manager->remove_info("STFT Slice Cursor");
-
-			holovibes_.get_pipe()->delete_stft_slice_queue();
-			while (holovibes_.get_pipe()->get_cuts_delete_request());
-			cd.stft_view_enabled.exchange(false);
-			sliceXZ.reset(nullptr);
-			sliceYZ.reset(nullptr);
-
-			findChild<QCheckBox*>("STFTCutsCheckBox")->setChecked(false);
-			findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
-
-			mainDisplay->setCursor(Qt::ArrowCursor);
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
-
-			notify();
-		}
-
-		void MainWindow::stft_view(bool checked)
-		{
-			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-			auto manager = InfoManager::get_manager();
-			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
-
-			QComboBox* winSelection = findChild<QComboBox*>("WindowSelectionComboBox");
-			winSelection->setEnabled(checked);
-			winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
-			if (checked)
-			{
-				try
-				{
-					if (cd.filter_2d_enabled.load())
-						cancel_filter2D();
-					holovibes_.get_pipe()->create_stft_slice_queue();
-					// set positions of new windows according to the position of the main GL window
-					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
-					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
-					const ushort	nImg = cd.nsamples.load();
-					const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
-
-					while (holovibes_.get_pipe()->get_cuts_request());
-					sliceXZ.reset(nullptr);
-					sliceXZ.reset(new SliceWindow(
-						xzPos,
-						QSize(mainDisplay->width(), nSize),
-						holovibes_.get_pipe()->get_stft_slice_queue(0)));
-					sliceXZ->setTitle("Slice XZ");
-					sliceXZ->setAngle(xzAngle);
-					sliceXZ->setFlip(xzFlip);
-
-					sliceYZ.reset(nullptr);
-					sliceYZ.reset(new SliceWindow(
-						yzPos,
-						QSize(nSize, mainDisplay->height()),
-						holovibes_.get_pipe()->get_stft_slice_queue(1)));
-					sliceYZ->setTitle("Slice YZ");
-					sliceYZ->setAngle(yzAngle);
-					sliceYZ->setFlip(yzFlip);
-
-					//mainDisplay->setKindOfOverlay(KindOfOverlay::SliceZoom);
-					cd.stft_view_enabled.exchange(true);
-					notify();
-				}
-				catch (std::logic_error& e)
-				{
-					std::cerr << e.what() << std::endl;
-					cancel_stft_slice_view();
-				}
-			}
-			else
-			{
-				cancel_stft_slice_view();
-			}
-		}
-
 		void MainWindow::set_view_mode(const QString value)
 		{
 			if (!is_direct_mode())
@@ -1055,8 +1445,6 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 				bool pipeline_checked = false;
-
-				std::cout << "Value = " << value.toUtf8().constData() << std::endl;
 				if (last_contrast_type_ == "Complex output" && value != "Complex output")
 				{
 					set_complex_mode(false);
@@ -1104,52 +1492,6 @@ namespace holovibes
 				//set_enable_unwrap_box();
 				notify();
 			}
-		}
-
-		void MainWindow::rotateTexture()
-		{
-			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
-			QString s = c->currentText();
-
-			if (s == QString("mainDisplay"))
-			{
-				displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
-				mainDisplay->setAngle(displayAngle);
-			}
-			else if (s == QString("sliceXZ") && sliceXZ)
-			{
-				xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
-				sliceXZ->setAngle(xzAngle);
-			}
-			else if (s == QString("sliceYZ") && sliceYZ)
-			{
-				yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
-				sliceYZ->setAngle(yzAngle);
-			}
-			notify();
-		}
-
-		void MainWindow::flipTexture()
-		{
-			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
-			QString s = c->currentText();
-
-			if (s == QString("mainDisplay"))
-			{
-				displayFlip = !displayFlip;
-				mainDisplay->setFlip(displayFlip);
-			}
-			else if (s == QString("sliceXZ") && sliceXZ)
-			{
-				xzFlip = !xzFlip;
-				sliceXZ->setFlip(xzFlip);
-			}
-			else if (s == QString("sliceYZ") && sliceYZ)
-			{
-				yzFlip = !yzFlip;
-				sliceYZ->setFlip(yzFlip);
-			}
-			notify();
 		}
 
 		void MainWindow::set_unwrap_history_size(int value)
@@ -1220,20 +1562,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_z_min(const double value)
-		{
-			if (!is_direct_mode())
-				holovibes_.get_compute_desc().autofocus_z_min.exchange(value);
-			notify();
-		}
-
-		void MainWindow::set_z_max(const double value)
-		{
-			if (!is_direct_mode())
-				holovibes_.get_compute_desc().autofocus_z_max.exchange(value);
-			notify();
-		}
-
 		void MainWindow::set_import_pixel_size(const double value)
 		{
 			holovibes_.get_compute_desc().import_pixel_size.exchange(value);
@@ -1253,6 +1581,70 @@ namespace holovibes
 			notify();
 		}
 
+		void MainWindow::pipe_refresh()
+		{
+			if (!is_direct_mode())
+			{
+				try
+				{
+					if (!holovibes_.get_pipe()->get_request_refresh())
+						holovibes_.get_pipe()->request_refresh();
+				}
+				catch (std::runtime_error& e)
+				{
+					std::cerr << e.what() << std::endl;
+				}
+			}
+		}
+#pragma endregion
+#pragma region Texture
+		void MainWindow::rotateTexture()
+		{
+			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
+			QString s = c->currentText();
+
+			if (s == QString("mainDisplay"))
+			{
+				displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
+				mainDisplay->setAngle(displayAngle);
+			}
+			else if (s == QString("sliceXZ") && sliceXZ)
+			{
+				xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
+				sliceXZ->setAngle(xzAngle);
+			}
+			else if (s == QString("sliceYZ") && sliceYZ)
+			{
+				yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
+				sliceYZ->setAngle(yzAngle);
+			}
+			notify();
+		}
+
+		void MainWindow::flipTexture()
+		{
+			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
+			QString s = c->currentText();
+
+			if (s == QString("mainDisplay"))
+			{
+				displayFlip = !displayFlip;
+				mainDisplay->setFlip(displayFlip);
+			}
+			else if (s == QString("sliceXZ") && sliceXZ)
+			{
+				xzFlip = !xzFlip;
+				sliceXZ->setFlip(xzFlip);
+			}
+			else if (s == QString("sliceYZ") && sliceYZ)
+			{
+				yzFlip = !yzFlip;
+				sliceYZ->setFlip(yzFlip);
+			}
+			notify();
+		}
+#pragma endregion
+#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
@@ -1281,6 +1673,18 @@ namespace holovibes
 				display_error("z min have to be strictly inferior to z max");
 		}
 
+		void MainWindow::set_z_min(const double value)
+		{
+			if (!is_direct_mode())
+				holovibes_.get_compute_desc().autofocus_z_min.exchange(value);
+		}
+
+		void MainWindow::set_z_max(const double value)
+		{
+			if (!is_direct_mode())
+				holovibes_.get_compute_desc().autofocus_z_max.exchange(value);
+		}
+
 		void MainWindow::request_autofocus_stop()
 		{
 			// Ctrl + C shortcut
@@ -1293,7 +1697,8 @@ namespace holovibes
 				std::cerr << e.what() << std::endl;
 			}
 		}
-
+#pragma endregion
+#pragma region Contrast - Log
 		void MainWindow::set_contrast_mode(bool value)
 		{
 			if (!is_direct_mode())
@@ -1305,22 +1710,6 @@ namespace holovibes
 				set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				pipe_refresh();
 				notify();
-			}
-		}
-
-		void MainWindow::pipe_refresh()
-		{
-			if (!is_direct_mode())
-			{
-				try
-				{
-					if (!holovibes_.get_pipe()->get_request_refresh())
-						holovibes_.get_pipe()->request_refresh();
-				}
-				catch (std::runtime_error& e)
-				{
-					std::cerr << e.what() << std::endl;
-				}
 			}
 		}
 
@@ -1427,16 +1816,8 @@ namespace holovibes
 				notify();
 			}
 		}
-
-		void MainWindow::set_shifted_corners(const bool value)
-		{
-			if (!is_direct_mode())
-			{
-				holovibes_.get_compute_desc().shift_corners_enabled.exchange(value);
-				pipe_refresh();
-			}
-		}
-
+#pragma endregion
+#pragma region Vibrometry
 		void MainWindow::set_vibro_mode(const bool value)
 		{
 			if (!is_direct_mode())
@@ -1486,7 +1867,8 @@ namespace holovibes
 					display_error("q param has to be between 1 and phase #");
 			}
 		}
-
+#pragma endregion
+#pragma region Average
 		void MainWindow::set_average_mode(const bool value)
 		{
 			holovibes_.get_compute_desc().average_enabled.exchange(value);
@@ -1539,16 +1921,6 @@ namespace holovibes
 			roi_output_line_edit->insert(filename);
 		}
 
-		void MainWindow::browse_convo_matrix_file()
-		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
-
-			QLineEdit* matrix_output_line_edit = findChild<QLineEdit *>("ConvoMatrixPathLineEdit");
-			matrix_output_line_edit->clear();
-			matrix_output_line_edit->insert(filename);
-		}
-
 		void MainWindow::browse_roi_output_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
@@ -1563,7 +1935,6 @@ namespace holovibes
 		{
 			QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
 			std::string path = path_line_edit->text().toUtf8();
-
 			if (!path.empty())
 			{
 				boost::property_tree::ptree ptree;
@@ -1628,8 +1999,52 @@ namespace holovibes
 					display_error("Couldn't load ini file\n" + std::string(e.what()));
 				}
 			}
-			else
-				display_error("Invalid path");
+		}
+
+		void MainWindow::average_record()
+		{
+			if (plot_window_)
+			{
+				plot_window_->stop_drawing();
+				plot_window_.reset(nullptr);
+				pipe_refresh();
+			}
+
+			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
+			nb_frames_ = nb_of_frames_spin_box->value();
+			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
+			std::string output_path = output_line_edit->text().toUtf8();
+
+			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
+				holovibes_.get_average_queue(),
+				output_path,
+				nb_frames_,
+				this));
+			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
+			CSV_record_thread_->start();
+
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
+			roi_stop_push_button->setDisabled(false);
+		}
+
+		void MainWindow::finished_average_record()
+		{
+			CSV_record_thread_.reset(nullptr);
+			display_info("ROI record done");
+
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
+			roi_stop_push_button->setDisabled(true);
+		}
+#pragma endregion
+#pragma region Convolution
+		void MainWindow::browse_convo_matrix_file()
+		{
+			QString filename = QFileDialog::getOpenFileName(this,
+				tr("Matrix file"), "C://", tr("Txt files (*.txt)"));
+
+			QLineEdit* matrix_output_line_edit = findChild<QLineEdit *>("ConvoMatrixPathLineEdit");
+			matrix_output_line_edit->clear();
+			matrix_output_line_edit->insert(filename);
 		}
 
 		void MainWindow::load_convo_matrix()
@@ -1692,7 +2107,8 @@ namespace holovibes
 			}
 			notify();
 		}
-
+#pragma endregion
+#pragma region Record
 		void MainWindow::browse_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
@@ -1797,41 +2213,21 @@ namespace holovibes
 			display_info("Record done");
 		}
 
-		void MainWindow::average_record()
+		void MainWindow::set_float_visible(bool value)
 		{
-			if (plot_window_)
-			{
-				plot_window_->stop_drawing();
-				plot_window_.reset(nullptr);
-				pipe_refresh();
-			}
-
-			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
-			nb_frames_ = nb_of_frames_spin_box->value();
-			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
-			std::string output_path = output_line_edit->text().toUtf8();
-
-			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
-				holovibes_.get_average_queue(),
-				output_path,
-				nb_frames_,
-				this));
-			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
-			CSV_record_thread_->start();
-
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
-			roi_stop_push_button->setDisabled(false);
+			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+			if (complex_checkbox->isChecked() && value == true)
+				complex_checkbox->setChecked(false);
 		}
 
-		void MainWindow::finished_average_record()
+		void MainWindow::set_complex_visible(bool value)
 		{
-			CSV_record_thread_.reset(nullptr);
-			display_info("ROI record done");
-
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
-			roi_stop_push_button->setDisabled(true);
+			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+			if (float_checkbox->isChecked() && value == true)
+				float_checkbox->setChecked(false);
 		}
-
+#pragma endregion
+#pragma region Batch
 		void MainWindow::browse_batch_input()
 		{
 			QString filename = QFileDialog::getOpenFileName(this,
@@ -2062,15 +2458,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::stop_image_record()
-		{
-			if (record_thread_)
-			{
-				record_thread_->stop();
-				is_batch_interrupted_ = true;
-			}
-		}
-
 		void MainWindow::stop_csv_record()
 		{
 			if (is_enabled_average_)
@@ -2083,20 +2470,38 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_float_visible(bool value)
+		void MainWindow::stop_image_record()
 		{
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
+			if (record_thread_)
+			{
+				record_thread_->stop();
+				is_batch_interrupted_ = true;
+			}
 		}
 
-		void MainWindow::set_complex_visible(bool value)
+		void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
 		{
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
+			std::stringstream ss(str);
+			std::string item;
+
+			while (std::getline(ss, item, delim))
+				elts.push_back(item);
 		}
 
+		std::string MainWindow::format_batch_output(const std::string& path, const uint index)
+		{
+			std::string file_index;
+			std::ostringstream convert;
+			convert << std::setw(6) << std::setfill('0') << index;
+			file_index = convert.str();
+
+			std::vector<std::string> path_tokens;
+			split_string(path, '.', path_tokens);
+
+			return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
+		}
+#pragma endregion
+#pragma region Import
 		void MainWindow::import_browse_file()
 		{
 			static QString tmp_path = "";
@@ -2227,350 +2632,6 @@ namespace holovibes
 				start_spinbox->setValue(end_spinbox->value());
 		}
 
-		void MainWindow::closeEvent(QCloseEvent* event)
-		{
-			if (holovibes_.get_compute_desc().compute_mode.load() != Computation::Stop)
-				close_critical_compute();
-			camera_none();
-			close_windows();
-			remove_infos();
-			// Avoiding "unused variable" warning.
-			static_cast<void*>(event);
-			save_ini("holovibes.ini");
-		}
-
-		void MainWindow::change_camera(const Holovibes::camera_type type)
-		{
-			close_critical_compute();
-			close_windows();
-			remove_infos();
-			if (type != Holovibes::NONE)
-			{
-				try
-				{
-					mainDisplay.reset(nullptr);
-					if (!is_direct_mode())
-						holovibes_.dispose_compute();
-					holovibes_.dispose_capture();
-					holovibes_.init_capture(type);
-					is_enabled_camera_ = true;
-					set_image_mode();
-					camera_type_ = type;
-					QAction* settings = findChild<QAction*>("actionSettings");
-					settings->setEnabled(true);
-					notify();
-				}
-				catch (CameraException& e)
-				{
-					display_error("[CAMERA]" + std::string(e.what()));
-				}
-				catch (std::exception& e)
-				{
-					display_error(e.what());
-				}
-			}
-		}
-
-		void MainWindow::display_error(const std::string msg)
-		{
-			InfoManager::get_manager()->remove_info("Error");
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Error", msg);
-		}
-
-		void MainWindow::display_info(const std::string msg)
-		{
-			InfoManager::get_manager()->remove_info("Info");
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
-		}
-
-		void MainWindow::open_file(const std::string& path)
-		{
-			QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
-		}
-
-		void MainWindow::load_ini(const std::string& path)
-		{
-			boost::property_tree::ptree ptree;
-			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
-			GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
-			GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
-			GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
-			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
-			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
-
-			QAction*	image_rendering_action = findChild<QAction*>("actionImage_rendering");
-			QAction*	view_action = findChild<QAction*>("actionView");
-			QAction*	special_action = findChild<QAction*>("actionSpecial");
-			QAction*	record_action = findChild<QAction*>("actionRecord");
-			QAction*	import_action = findChild<QAction*>("actionImport");
-			QAction*	info_action = findChild<QAction*>("actionInfo");
-
-			try
-			{
-				boost::property_tree::ini_parser::read_ini(path, ptree);
-			}
-			catch (std::exception& e)
-			{
-				std::cout << e.what() << std::endl;
-			}
-
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-			if (!ptree.empty())
-			{
-				Config& config = global::global_config;
-				// Config
-				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
-				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
-				config.float_queue_max_size = ptree.get<int>("config.float_buffer_size", config.float_queue_max_size);
-				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
-				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
-				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
-				cd.special_buffer_size.exchange(ptree.get<int>("config.convolution_buffer_size", cd.special_buffer_size.load()));
-				cd.stft_level.exchange(ptree.get<uint>("config.stft_buffer_size", cd.stft_level.load()));
-				cd.ref_diff_level.exchange(ptree.get<uint>("config.reference_buffer_size", cd.ref_diff_level.load()));
-				cd.img_acc_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_level.load()));
-
-				// Camera type
-				const int camera_type = ptree.get<int>("image_rendering.camera", 0);
-				change_camera((Holovibes::camera_type)camera_type);
-
-				// Image rendering
-				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
-				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
-
-				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", cd.nsamples.load());
-				cd.nsamples.exchange(1);
-				/*if (p_nsample < 1)
-					cd.nsamples.exchange(1);
-				else if (p_nsample > config.input_queue_max_size)
-					cd.nsamples.exchange(config.input_queue_max_size);
-				else
-					cd.nsamples.exchange(p_nsample);*/
-
-				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
-				if (p_index >= 0 && p_index < cd.nsamples.load())
-					cd.pindex.exchange(p_index);
-
-				cd.lambda.exchange(ptree.get<float>("image_rendering.lambda", cd.lambda.load()));
-
-				cd.zdistance.exchange(ptree.get<float>("image_rendering.z_distance", cd.zdistance.load()));
-
-				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
-				if (z_step > 0.0f)
-					z_step_ = z_step;
-
-				cd.algorithm.exchange(static_cast<Algorithm>(
-					ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
-
-				// View
-				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
-				view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
-
-				cd.view_mode.exchange(static_cast<ComplexViewMode>(
-					ptree.get<int>("view.view_mode", cd.view_mode.load())));
-
-				cd.log_scale_enabled.exchange(
-					ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
-
-				cd.shift_corners_enabled.exchange(
-					ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
-
-				cd.contrast_enabled.exchange(
-					ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
-
-				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
-
-				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
-
-				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
-				//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/); //TODO
-				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
-				yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
-				//mainflip = ptree.get("view.mainWindow_flip", mainflip); //TODO
-				xzFlip = ptree.get("view.xCut_flip", xzFlip);
-				yzFlip = ptree.get("view.yCut_flip", yzFlip);
-
-				// Post Processing
-				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
-				special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
-				cd.vibrometry_q.exchange(
-					ptree.get<int>("post_processing.image_ratio_q", cd.vibrometry_q.load()));
-				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
-				cd.average_enabled.exchange(is_enabled_average_);
-
-				// Record
-				record_action->setChecked(!ptree.get<bool>("record.hidden", false));
-				record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
-
-				// Import
-				import_action->setChecked(!ptree.get<bool>("import.hidden", false));
-				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
-				config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
-				cd.import_pixel_size.exchange(config.import_pixel_size);
-				findChild<QSpinBox *>("ImportFpsSpinBox")->setValue(ptree.get<int>("import.fps", 60));
-
-				// Info
-				info_action->setChecked(!ptree.get<bool>("info.hidden", false));
-				info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
-				theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
-
-				// Autofocus
-				cd.autofocus_size.exchange(ptree.get<int>("autofocus.size", cd.autofocus_size.load()));
-				cd.autofocus_z_min.exchange(ptree.get<float>("autofocus.z_min", cd.autofocus_z_min.load()));
-				cd.autofocus_z_max.exchange(ptree.get<float>("autofocus.z_max", cd.autofocus_z_max.load()));
-				cd.autofocus_z_div.exchange(ptree.get<uint>("autofocus.steps", cd.autofocus_z_div.load()));
-				cd.autofocus_z_iter.exchange(ptree.get<uint>("autofocus.loops", cd.autofocus_z_iter.load()));
-
-				//flowgraphy
-				uint flowgraphy_level = ptree.get<uint>("flowgraphy.level", cd.flowgraphy_level.load());
-				if (flowgraphy_level % 2 == 0)
-					flowgraphy_level++;
-				cd.flowgraphy_level.exchange(flowgraphy_level);
-				cd.flowgraphy_enabled.exchange(ptree.get<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load()));
-
-				// Reset button
-				config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
-				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
-				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
-
-				notify();
-			}
-		}
-
-		void MainWindow::save_ini(const std::string& path)
-		{
-			///import_file_stop(); // Tmp
-			boost::property_tree::ptree ptree;
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
-			GroupBox *view_group_box = findChild<GroupBox *>("ViewGroupBox");
-			GroupBox *special_group_box = findChild<GroupBox *>("PostProcessingGroupBox");
-			GroupBox *record_group_box = findChild<GroupBox *>("RecordGroupBox");
-			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
-			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
-			Config& config = global::global_config;
-
-			// Config
-			ptree.put("config.input_buffer_size", config.input_queue_max_size);
-			ptree.put("config.output_buffer_size", config.output_queue_max_size);
-			ptree.put("config.float_buffer_size", config.float_queue_max_size);
-			ptree.put("config.input_file_buffer_size", config.reader_buf_max_size);
-			ptree.put("config.stft_buffer_size", cd.stft_level.load());
-			ptree.put("config.reference_buffer_size", cd.ref_diff_level.load());
-			ptree.put("config.accumulation_buffer_size", cd.img_acc_level.load());
-			ptree.put("config.convolution_buffer_size", cd.special_buffer_size.load());
-			ptree.put("config.frame_timeout", config.frame_timeout);
-			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
-
-			// Image rendering
-			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-			ptree.put("image_rendering.camera", camera_type_);
-			ptree.put("image_rendering.phase_number", cd.nsamples.load());
-			ptree.put("image_rendering.p_index", cd.pindex.load());
-			ptree.put("image_rendering.lambda", cd.lambda.load());
-			ptree.put("image_rendering.z_distance", cd.zdistance.load());
-			ptree.put("image_rendering.z_step", z_step_);
-			ptree.put("image_rendering.algorithm", cd.algorithm.load());
-
-			// View
-			ptree.put<bool>("view.hidden", view_group_box->isHidden());
-			ptree.put("view.view_mode", cd.view_mode.load());
-			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
-			ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load());
-			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
-			ptree.put("view.contrast_min", cd.contrast_min.load());
-			ptree.put("view.contrast_max", cd.contrast_max.load());
-			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
-			//ptree.put("view.mainWindow_rotate", main_rotate); //TODO
-			ptree.put<float>("view.xCut_rotate", xzAngle);
-			ptree.put<float>("view.yCut_rotate", yzAngle);
-			//ptree.put("view.mainWindow_flip", mainflip); //TODO
-			ptree.put("view.xCut_flip", xzFlip);
-			ptree.put("view.yCut_flip", yzFlip);
-
-			// Post-processing
-			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
-			ptree.put("post_processing.image_ratio_q", cd.vibrometry_q.load());
-			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
-
-			// Record
-			ptree.put<bool>("record.hidden", record_group_box->isHidden());
-
-			// Import
-			ptree.put<bool>("import.hidden", import_group_box->isHidden());
-			ptree.put("import.pixel_size", cd.import_pixel_size.load());
-
-			// Info
-			ptree.put<bool>("info.hidden", info_group_box->isHidden());
-			ptree.put("info.theme_type", theme_index_);
-
-			// Autofocus
-			ptree.put("autofocus.size", cd.autofocus_size.load());
-			ptree.put("autofocus.z_min", cd.autofocus_z_min.load());
-			ptree.put("autofocus.z_max", cd.autofocus_z_max.load());
-			ptree.put("autofocus.steps", cd.autofocus_z_div.load());
-			ptree.put("autofocus.loops", cd.autofocus_z_iter.load());
-
-			//flowgraphy
-			ptree.put("flowgraphy.level", cd.flowgraphy_level.load());
-			ptree.put<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load());
-
-			//Reset
-			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
-			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
-			ptree.put("reset.device_number", config.device_number);
-
-
-			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
-		}
-
-		void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
-		{
-			std::stringstream ss(str);
-			std::string item;
-
-			while (std::getline(ss, item, delim))
-				elts.push_back(item);
-		}
-
-		std::string MainWindow::format_batch_output(const std::string& path, const uint index)
-		{
-			std::string file_index;
-			std::ostringstream convert;
-			convert << std::setw(6) << std::setfill('0') << index;
-			file_index = convert.str();
-
-			std::vector<std::string> path_tokens;
-			split_string(path, '.', path_tokens);
-
-			return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
-		}
-
-		void MainWindow::hide_endianess()
-		{
-			QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthComboBox");
-			QString curr_value = depth_cbox->currentText();
-			QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndiannessComboBox");
-
-			// Changing the endianess when depth = 8 makes no sense
-			imp_cbox->setEnabled(curr_value == "16");
-		}
-
-		void MainWindow::change_window()
-		{
-			QComboBox *window_cbox = findChild<QComboBox*>("WindowSelectionComboBox");
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-			if (window_cbox->currentIndex() == 0)
-				cd.current_window.exchange(WindowKind::MainDisplay);
-			else if (window_cbox->currentIndex() == 1)
-				cd.current_window.exchange(WindowKind::SliceXZ);
-			else if (window_cbox->currentIndex() == 2)
-				cd.current_window.exchange(WindowKind::SliceYZ);
-			notify();
-		}
-
 		void MainWindow::set_import_cine_file(bool value)
 		{
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -2650,68 +2711,14 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::cancel_stft_view(ComputeDescriptor& cd)
+		void MainWindow::hide_endianess()
 		{
-			if (cd.signal_trig_enabled.load())
-				stft_signal_trig(false);
-			else if (cd.stft_view_enabled.load())
-				cancel_stft_slice_view();
-			cd.stft_view_enabled.exchange(false);
-			cd.stft_enabled.exchange(false);
-			cd.signal_trig_enabled.exchange(false);
-			cd.nsamples.exchange(1);
-			notify();
-		}
+			QComboBox* depth_cbox = findChild<QComboBox*>("ImportDepthComboBox");
+			QString curr_value = depth_cbox->currentText();
+			QComboBox* imp_cbox = findChild<QComboBox*>("ImportEndiannessComboBox");
 
-		void MainWindow::close_critical_compute()
-		{
-			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			if (cd.average_enabled.load())
-				set_average_mode(false);
-			if (cd.stft_enabled.load())
-				cancel_stft_view(cd);
-			if (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load())
-				cancel_take_reference();
-			if (cd.filter_2d_enabled.load())
-				cancel_filter2D();
-			holovibes_.dispose_compute();
-		}
-
-		void MainWindow::write_ini()
-		{
-			close_critical_compute();
-			save_ini("holovibes.ini");
-			notify();
-		}
-
-		void MainWindow::reload_ini()
-		{
-			close_critical_compute();
-			load_ini("holovibes.ini");
-			notify();
-		}
-
-		void MainWindow::stft_signal_trig(bool checked)
-		{
-			QCheckBox* stft = findChild<QCheckBox*>("STFTCheckBox");
-			QCheckBox* stft_view = findChild<QCheckBox*>("STFTCutsCheckBox");
-			QCheckBox* trig = findChild<QCheckBox*>("ExtTrigCheckBox");
-			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-
-			if (checked)
-			{
-				if (cd.stft_view_enabled.load())
-					cancel_stft_slice_view();
-
-				// TODO add a wait for a external signal to trigger STFT at the next step
-				set_stft(false);
-				set_stft(true);
-
-				cd.signal_trig_enabled.exchange(true);
-			}
-			else
-				cd.signal_trig_enabled.exchange(false);
-			notify();
+			// Changing the endianess when depth = 8 makes no sense
+			imp_cbox->setEnabled(curr_value == "16");
 		}
 
 		void MainWindow::title_detect(void)
@@ -2774,5 +2781,6 @@ namespace holovibes
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
 			import_endian_box->setCurrentIndex(endian);
 		}
+#pragma endregion
 	}
 }
