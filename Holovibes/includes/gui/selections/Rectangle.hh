@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <ostream>
 #include <qrect.h>
 
 namespace holovibes
@@ -25,9 +26,10 @@ namespace holovibes
 			Rectangle(const Rectangle& rect);
 			Rectangle(const QPoint &topleft, const QSize &size);
 			Rectangle(const uint width, const uint height);
-
+			
 			uint	area() const;
 			void	checkCorners();
 		};
+		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
 	}
 }

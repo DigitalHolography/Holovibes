@@ -30,6 +30,26 @@ namespace holovibes
 		DirectWindow::~DirectWindow()
 		{}
 
+		Rectangle	DirectWindow::getSignalZone() const
+		{
+			return (Overlay.getRectBuffer());
+		}
+
+		Rectangle	DirectWindow::getNoiseZone() const
+		{
+			return (Overlay.getRectBuffer(KindOfOverlay::Noise));
+		}
+
+		void	DirectWindow::setSignalZone(Rectangle signal)
+		{
+			Overlay.setZoneBuffer(signal, KindOfOverlay::Signal);
+		}
+
+		void	DirectWindow::setNoiseZone(Rectangle noise)
+		{
+			Overlay.setZoneBuffer(noise, KindOfOverlay::Noise);
+		}
+
 		void	DirectWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();

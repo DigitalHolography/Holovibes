@@ -118,7 +118,6 @@ namespace holovibes
 					** \param msg information message
 					*/
 					void display_message(QString message);
-
 					/*! \{ \name Menu */
 					/*! \brief Resize windows if one layout is toggled.
 					**
@@ -127,7 +126,6 @@ namespace holovibes
 					void layout_toggled(bool b);
 					/*! \brief Open holovibes configuration file */
 					void configure_holovibes();
-
 					/*! \brief Set camera to NONE
 					**
 					** Delete GL widget, destroy capture and/or compute thread then
@@ -153,10 +151,8 @@ namespace holovibes
 					/*! \brief Display program's credits */
 					void credits();
 					/* \} */
-
 					/*! \brief init the holovibes whenever changing rendering mode */
 					void init_image_mode(QPoint& position, QSize& size);
-
 					/*! \{ \name Image rendering
 					**
 					** Lots of these methods stick to the following scheme:
@@ -176,63 +172,47 @@ namespace holovibes
 					**
 					** \param value true for direct mode, false for hologram mode.
 					*/
-
 					void set_image_mode();
-
 					/*! \brief Called by set_image_mode if direct button is enabled  */
 					void set_direct_mode();
-
 					/*! \brief Called by set_image_mode if hologram button is clicked  */
 					/* */
 					void set_holographic_mode();
-
 					/*! \brief Called by set_image_mode if complex algorithm is clicked  */
 					/* */
 					void set_complex_mode(bool value);
-
 					/*! \brief Called by set_image_mode if Convolution button is clicked  */
 					/* */
 					void set_convolution_mode(const bool enable);
-
 					/*! \brief Called by set_image_mode if Flowgraphy button is clicked  */
 					/* */
 					void set_flowgraphy_mode(const bool enable);
 
-
 					/*! \brief Check if direct button is enabled  */
 					bool is_direct_mode();
-
 					/*! \brief Reset the GPU ressources and camera's record */
 					void reset();
-
 					/* launch the take reference mode that record one or several images and substract the mean of it to the others */
 					void take_reference();
-
 					/* launch the take slinding reference mode that record the last images and  substract the mean of it to the others */
 					void take_sliding_ref();
-
 					/* cancel the reference_taking mode */
 					void cancel_take_reference();
-
 					/* launch the filter2D mode that works in two steps. First, you need to select a rectangle on the displayed area and then
 					** the computation can occurs.
 					*/
 					void set_filter2D();
-
 					/* cancel the filter_2D mode */
 					void cancel_filter2D();
-
 					/*! \brief Set phase number (also called 'n' in papers)
 					** \param value new phase number
 					*/
 					void setPhase();
 					//void set_phase_number(int value);
-
 					/*! \brief Set special buffer size
 					** \param value new buffer size
 					*/
 					void set_special_buffer_size(int value);
-
 					/*! \brief Set p-th frame to be displayed in OpenGl window
 					** \param value new p
 					*/
@@ -324,20 +304,17 @@ namespace holovibes
 					void set_autofocus_mode();
 					/*! \brief Request to stop the autofocus currently
 					**  occuring.
-					*/
+						*/
 					void request_autofocus_stop();
 					/*! \brief Enable or disable contrast mode
 					** \param value true to enable coontrast, false otherwise.
 					*/
-
 					void set_import_pixel_size(const double value);
 					/*! \brief Set import_pixel_size for autofocus
 					*/
-
 					void set_contrast_mode(bool value);
-					/*! \brief Request autocontrast action in pipe
-					**
-					** It will automatically fill contrast minimum and maximum values.
+					/*! \brief Requet autocontrast action in pipe
+					**					** It will automatically fill contrast minimum and maximum values.
 					*/
 
 					void pipe_refresh();
@@ -568,7 +545,7 @@ namespace holovibes
 			uint display_height_;
 
 			/*! OpenGL windows */
-			std::unique_ptr<BasicOpenGLWindow>	mainDisplay;
+			std::unique_ptr<DirectWindow>	mainDisplay;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 

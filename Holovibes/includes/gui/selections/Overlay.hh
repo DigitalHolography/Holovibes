@@ -48,6 +48,7 @@ namespace holovibes
 			const Rectangle&		getConstZone()	const;
 			Rectangle&				getZone();
 			Rectangle				getTexZone(ushort frameSide) const;
+			Rectangle				getRectBuffer(KindOfOverlay k = Zoom) const;
 
 			const KindOfOverlay		getKind()	const;
 			const Color				getColor()	const;
@@ -58,6 +59,7 @@ namespace holovibes
 			void initBuffers();
 
 			void setZoneBuffer();
+			void setZoneBuffer(Rectangle rect, KindOfOverlay k);
 			void resetVerticesBuffer();
 			void initCrossBuffer();
 			void setCrossBuffer(QPoint pos, QSize frame);
@@ -74,7 +76,8 @@ namespace holovibes
 		protected:
 			Rectangle				Zone;
 			KindOfOverlay			kOverlay;
-			GLuint					verticesBuffer, colorBuffer, elemBuffer;
+			std::array<Rectangle, 2>	rectBuffer;
+			GLuint					verticesIndex, colorIndex, elemIndex;
 			QOpenGLShaderProgram*	Program;
 			ColorArray				Colors;
 

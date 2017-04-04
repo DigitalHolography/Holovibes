@@ -60,5 +60,13 @@ namespace holovibes
 				setBottomRight(t0pRight);
 			}
 		}
+
+		std::ostream& operator<<(std::ostream& os, const Rectangle& obj)
+		{
+			os << "\ttopLeft() : " << obj.topLeft().x() << " " << obj.topLeft().y() << std::endl;
+			os << "\tbottomRight() : " << obj.bottomRight().x() << " " << obj.bottomRight().y() << std::endl;
+			return (os);
+		}
+
 	}
 }

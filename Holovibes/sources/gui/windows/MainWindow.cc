@@ -1561,14 +1561,13 @@ namespace holovibes
 
 		void MainWindow::save_roi()
 		{
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Warning", "Save ROI function not ready yet");
-
-			/*QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFileLineEdit");
+			QLineEdit* path_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
 			std::string path = path_line_edit->text().toUtf8();
-			if (path != "")
+
+			if (!path.empty())
 			{
 				boost::property_tree::ptree ptree;
-				const Rectangle signal = mainDisplay->getSingalZone();
+				const Rectangle signal = mainDisplay->getSignalZone();
 				const Rectangle noise = mainDisplay->getNoiseZone();
 
 				ptree.put("signal.top_left_x", signal.topLeft().x());
@@ -1585,45 +1584,52 @@ namespace holovibes
 				display_info("Roi saved in " + path);
 			}
 			else
-				display_error("Invalid path");*/
+				display_error("Invalid path");
 		}
 
 		void MainWindow::load_roi()
 		{
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Warning", "Load ROI function not ready yet");
-
-			/*QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFileLineEdit");
+			QLineEdit* path_line_edit = findChild<QLineEdit*>("ROIFilePathLineEdit");
 			const std::string path = path_line_edit->text().toUtf8();
-			boost::property_tree::ptree ptree;
-			try
+
+			if (!path.empty())
 			{
-				boost::property_tree::ini_parser::read_ini(path, ptree);
+				try
+				{
+					boost::property_tree::ptree ptree;
+					boost::property_tree::ini_parser::read_ini(path, ptree);
 
-				Rectangle rectSignal;
-				Rectangle rectNoise;
+					Rectangle signal;
+					Rectangle noise;
 
-				rectSignal.setTopLeft(
-					QPoint(ptree.get<int>("signal.top_left_x", 0),
-						ptree.get<int>("signal.top_left_y", 0)));
-				rectSignal.setBottomRight(
-					QPoint(ptree.get<int>("signal.bottom_right_x", 0),
-						ptree.get<int>("signal.bottom_right_y", 0)));
+					signal.setTopLeft(
+						QPoint(ptree.get<int>("signal.top_left_x", 0),
+							ptree.get<int>("signal.top_left_y", 0)));
+					signal.setBottomRight(
+						QPoint(ptree.get<int>("signal.bottom_right_x", 0),
+							ptree.get<int>("signal.bottom_right_y", 0)));
 
-				rectNoise.setTopLeft(
-					QPoint(ptree.get<int>("noise.top_left_x", 0),
-						ptree.get<int>("noise.top_left_y", 0)));
-				rectNoise.setBottomRight(
-					QPoint(ptree.get<int>("noise.bottom_right_x", 0),
-						ptree.get<int>("noise.bottom_right_y", 0)));
+					noise.setTopLeft(
+						QPoint(ptree.get<int>("noise.top_left_x", 0),
+							ptree.get<int>("noise.top_left_y", 0)));
+					noise.setBottomRight(
+						QPoint(ptree.get<int>("noise.bottom_right_x", 0),
+							ptree.get<int>("noise.bottom_right_y", 0)));
 
-				//gl_widget.set_signal_selection(rectSignal);
-				//gl_widget.set_noise_selection(rectNoise);
-				//gl_widget.enable_selection();
+					mainDisplay->setSignalZone(signal);
+					mainDisplay->setNoiseZone(noise);
+					holovibes_.get_compute_desc().signalZone(signal, AccessMode::Set);
+					holovibes_.get_compute_desc().noiseZone(noise, AccessMode::Set);
+
+					mainDisplay->setKindOfOverlay(Signal);
+				}
+				catch (std::exception& e)
+				{
+					display_error("Couldn't load ini file\n" + std::string(e.what()));
+				}
 			}
-			catch (std::exception& e)
-			{
-				display_error("Couldn't load ini file\n" + std::string(e.what()));
-			}*/
+			else
+				display_error("Invalid path");
 		}
 
 		void MainWindow::load_convo_matrix()
