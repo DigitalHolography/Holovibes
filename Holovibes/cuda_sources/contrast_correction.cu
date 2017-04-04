@@ -13,6 +13,7 @@
 #include "contrast_correction.cuh"
 #include "hardware_limits.hh"
 #include "tools.hh"
+#include <numeric>
 
 static __global__ void apply_contrast(	float		*input,
 										const uint	size,
@@ -37,7 +38,7 @@ void manual_contrast_correction(float			*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	const float factor = dynamic_range / (max - min);
+	const float factor = dynamic_range / (max - min + FLT_EPSILON);
 	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, min);
 }
 
@@ -50,10 +51,13 @@ void auto_contrast_correction(	float			*input,
 	float	*frame_cpu = new float[size]();
 	cudaMemcpyAsync(frame_cpu, input, sizeof(float) * size, cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(stream);
-
+	//auto minmax = std::minmax_element(frame_cpu, frame_cpu + size);
+	//*min = *minmax.first;
+	//*min = *minmax.second;
 	auto minmax = std::minmax_element(frame_cpu, frame_cpu + size);
-	*min = *minmax.first;
-	*max = *minmax.second;
+	auto avg = std::accumulate(frame_cpu, frame_cpu + size, 0.0f) / static_cast<float>(size);
+	*min = avg + (*minmax.first - avg) * 0.5f;
+	*max = avg + (*minmax.second - avg) * 0.5f;
 
 	delete[] frame_cpu;
 

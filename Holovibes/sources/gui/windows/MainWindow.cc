@@ -992,6 +992,12 @@ namespace holovibes
 
 			manager->remove_info("STFT Slice Cursor");
 
+			cd.contrast_max_slice_xz.exchange(false);
+			cd.contrast_max_slice_yz.exchange(false);
+			cd.log_scale_enabled_cut_xz.exchange(false);
+			cd.log_scale_enabled_cut_yz.exchange(false);
+			cd.img_acc_cutsXZ_enabled.exchange(false);
+			cd.img_acc_cutsYZ_enabled.exchange(false);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			while (holovibes_.get_pipe()->get_cuts_delete_request());
 			cd.stft_view_enabled.exchange(false);
