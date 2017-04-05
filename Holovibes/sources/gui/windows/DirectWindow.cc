@@ -42,12 +42,12 @@ namespace holovibes
 
 		void	DirectWindow::setSignalZone(Rectangle signal)
 		{
-			Overlay.setZoneBuffer(signal, KindOfOverlay::Signal);
+			Overlay.setZoneBuffer(width(), signal, KindOfOverlay::Signal);
 		}
 
 		void	DirectWindow::setNoiseZone(Rectangle noise)
 		{
-			Overlay.setZoneBuffer(noise, KindOfOverlay::Noise);
+			Overlay.setZoneBuffer(width(), noise, KindOfOverlay::Noise);
 		}
 
 		void	DirectWindow::initShaders()
@@ -217,7 +217,7 @@ namespace holovibes
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			if (e->buttons() == Qt::LeftButton)
-				Overlay.move(e->pos());
+				Overlay.move(e->pos(), width());
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)

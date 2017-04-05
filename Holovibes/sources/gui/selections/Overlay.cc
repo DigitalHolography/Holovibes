@@ -184,15 +184,15 @@ namespace holovibes
 			}
 		}
 
-		void	HOverlay::setZoneBuffer()
+		void	HOverlay::setZoneBuffer(int side)
 		{
 			if (Program)
 			{
 				Program->bind();
-				const float x0 = ((static_cast<float>(Zone.topLeft().x()) - (512 * 0.5)) / 512) * 2.;
-				const float y0 = (-((static_cast<float>(Zone.topLeft().y()) - (512 * 0.5)) / 512)) * 2.;
-				const float x1 = ((static_cast<float>(Zone.bottomRight().x()) - (512 * 0.5)) / 512) * 2.;
-				const float y1 = (-((static_cast<float>(Zone.bottomRight().y()) - (512 * 0.5)) / 512)) * 2.;
+				const float x0 = ((static_cast<float>(Zone.topLeft().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y0 = (-((static_cast<float>(Zone.topLeft().y()) - (side * 0.5f)) / side)) * 2.f;
+				const float x1 = ((static_cast<float>(Zone.bottomRight().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y1 = (-((static_cast<float>(Zone.bottomRight().y()) - (side * 0.5f)) / side)) * 2.f;
 				const auto offset = (kOverlay == Noise) ? (8 * sizeof(float)) : 0;
 
 				rectBuffer[(kOverlay == Noise)] = Zone;
@@ -202,7 +202,6 @@ namespace holovibes
 					x1, y1,
 					x0, y1
 				};
-				
 				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex);
 				glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(subVertices), subVertices);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -210,15 +209,15 @@ namespace holovibes
 			}
 		}
 
-		void	HOverlay::setZoneBuffer(Rectangle rect, KindOfOverlay k)
+		void	HOverlay::setZoneBuffer(int side, Rectangle rect, KindOfOverlay k)
 		{
 			if (Program)
 			{
 				Program->bind();
-				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (512 * 0.5)) / 512) * 2.;
-				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (512 * 0.5)) / 512)) * 2.;
-				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (512 * 0.5)) / 512) * 2.;
-				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (512 * 0.5)) / 512)) * 2.;
+				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (side * 0.5)) / side) * 2.;
+				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (side * 0.5)) / side)) * 2.;
+				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (side * 0.5)) / side) * 2.;
+				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (side * 0.5)) / side)) * 2.;
 				const auto offset = (k == Noise) ? (8 * sizeof(float)) : 0;
 
 				rectBuffer[(k == Noise)] = rect;
@@ -330,7 +329,7 @@ namespace holovibes
 			Enabled = true;
 		}
 
-		void	HOverlay::move(QPoint pos)
+		void	HOverlay::move(QPoint pos, int side)
 		{
 			Zone.setBottomRight(pos);
 			if (kOverlay == Filter2D)
@@ -344,7 +343,7 @@ namespace holovibes
 				));
 			}
 			if (Enabled)
-				setZoneBuffer();
+				setZoneBuffer(side);
 		}
 
 		void	HOverlay::release()
