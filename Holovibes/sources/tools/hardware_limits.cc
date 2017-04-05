@@ -14,6 +14,9 @@
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
 #include <cmath>
 
 unsigned int get_max_threads_1d()

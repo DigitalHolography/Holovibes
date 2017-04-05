@@ -10,19 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <Windows.h>
-
-#include "options_parser.hh"
-#include "holovibes.hh"
-
-#undef main
-#include <QtWidgets>
-#include <thread>
-#include <chrono>
 #include "MainWindow.hh"
-#include "config.hh"
-#include "camera_exception.hh"
-#include "options_descriptor.hh"
 
 int main(int argc, char* argv[])
 {
@@ -37,8 +25,7 @@ int main(int argc, char* argv[])
 	{
 		/* --- GUI mode --- */
 		QApplication a(argc, argv);
-		QPixmap pixmap("holovibes_logo.png");
-		QSplashScreen splash(pixmap);
+		QSplashScreen splash(QPixmap("holovibes_logo.png"));
 
 		#ifndef _DEBUG
 		/* Hides the console window. */
