@@ -298,8 +298,8 @@ namespace holovibes
 					// notify will be in close_critical_compute
 					if (cd.stft_enabled.load())
 					{
+						cd.pindex.exchange(1);
 						cd.nsamples.exchange(1);
-						cd.pindex.exchange(0);
 					}
 					if (cd.flowgraphy_enabled.load() || cd.convolution_enabled.load())
 					{
@@ -883,6 +883,7 @@ namespace holovibes
 				init_image_mode(pos, size);
 				uint depth = 2;
 				ushort n = cd.nsamples.load();
+				ushort p = cd.pindex.load();
 				if (cd.view_mode.load() == ComplexViewMode::Complex)
 				{
 					last_contrast_type_ = "Complex output";
@@ -890,6 +891,8 @@ namespace holovibes
 				}
 				try
 				{
+					cd.pindex.exchange(1);
+					set_p(1);
 					cd.nsamples.exchange(1);
 					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 					while (!holovibes_.get_pipe());
@@ -903,6 +906,7 @@ namespace holovibes
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 					//setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
+					while (holovibes_.get_pipe()->get_update_n_request());
 					mainDisplay.reset(new HoloWindow(
 						pos,
 						size,
@@ -919,6 +923,7 @@ namespace holovibes
 						pipe_refresh();
 					}
 					cd.nsamples.exchange(n);
+					cd.pindex.exchange(p);
 					holovibes_.get_pipe()->request_update_n(n);
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_request_refresh());
