@@ -405,14 +405,14 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
-			close_critical_compute();
+			import_file_stop();
 			save_ini("holovibes.ini");
 			notify();
 		}
 
 		void MainWindow::reload_ini()
 		{
-			close_critical_compute();
+			import_file_stop();
 			load_ini("holovibes.ini");
 			notify();
 		}
@@ -469,13 +469,13 @@ namespace holovibes
 				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
 				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", cd.nsamples.load());
-				cd.nsamples.exchange(1);
-				/*if (p_nsample < 1)
-				cd.nsamples.exchange(1);
+				//cd.nsamples.exchange(1);
+				if (p_nsample < 1)
+					cd.nsamples.exchange(1);
 				else if (p_nsample > config.input_queue_max_size)
-				cd.nsamples.exchange(config.input_queue_max_size);
+					cd.nsamples.exchange(config.input_queue_max_size);
 				else
-				cd.nsamples.exchange(p_nsample);*/
+					cd.nsamples.exchange(p_nsample);
 
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
 				if (p_index >= 0 && p_index < cd.nsamples.load())
@@ -1317,12 +1317,12 @@ namespace holovibes
 			{
 				QSpinBox *spin_box = findChild<QSpinBox *>("PhaseNumberSpinBox");
 				int phaseNumber = spin_box->value();
-				if (!spin_box->hasFocus())
-					return;
 				phaseNumber = (phaseNumber < 1) ? 1 : phaseNumber;
 				ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 				Queue&				in = holovibes_.get_capture_queue();
 
+				if (phaseNumber == cd.nsamples.load())
+					return;
 				if (cd.stft_enabled.load()
 					|| phaseNumber <= static_cast<int>(in.get_max_elts()))
 				{
@@ -1751,7 +1751,7 @@ namespace holovibes
 				try
 				{
 					holovibes_.get_pipe()->request_autocontrast();
-					while (holovibes_.get_pipe()->get_refresh_request());
+					while (holovibes_.get_pipe()->get_autocontrast_request());
 				}
 				catch (std::runtime_error& e)
 				{
@@ -2627,11 +2627,7 @@ namespace holovibes
 				holovibes_.dispose_capture();
 				return;
 			}
-			//ushort n = cd.nsamples.load();
-			//cd.nsamples.exchange(1);
 			is_enabled_camera_ = true;
-			//set_image_mode();
-			//cd.nsamples.exchange(n);
 			set_image_mode();
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
