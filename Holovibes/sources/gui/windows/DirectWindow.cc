@@ -166,6 +166,14 @@ namespace holovibes
 			startTimer(DISPLAY_RATE);
 		}
 		
+		void	DirectWindow::resizeGL(int width, int height)
+		{
+			const int min = std::min(width, height);
+			resize(min, min);
+			setFramePosition(QPoint(0, 0));
+			glViewport(0, 0, min, min);
+		}
+
 		void	DirectWindow::paintGL()
 		{
 			makeCurrent();
