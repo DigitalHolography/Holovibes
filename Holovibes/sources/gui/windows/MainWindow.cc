@@ -961,6 +961,62 @@ namespace holovibes
 				display_error(e.what());
 			}
 		}
+
+		void MainWindow::set_view_mode(const QString value)
+		{
+			if (!is_direct_mode())
+			{
+				ComputeDescriptor& cd = holovibes_.get_compute_desc();
+
+				bool pipeline_checked = false;
+				if (last_contrast_type_ == "Complex output" && value != "Complex output")
+				{
+					set_complex_mode(false);
+				}
+				if (value == "Magnitude")
+				{
+					cd.view_mode.exchange(ComplexViewMode::Modulus);
+					last_contrast_type_ = value;
+				}
+				else if (value == "Squared magnitude")
+				{
+					cd.view_mode.exchange(ComplexViewMode::SquaredModulus);
+					last_contrast_type_ = value;
+				}
+				else if (value == "Argument")
+				{
+					cd.view_mode.exchange(ComplexViewMode::Argument);
+					last_contrast_type_ = value;
+				}
+				else if (value == "Complex output")
+				{
+					set_complex_mode(true);
+					cd.view_mode.exchange(ComplexViewMode::Complex);
+					last_contrast_type_ = value;
+				}
+				else
+				{
+					if (pipeline_checked)
+					{
+						// For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
+						display_error("Unwrapping is not available with the Pipeline.");
+						QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
+						// last_contrast_type_ exists for this sole purpose...
+						contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
+					}
+					else
+					{
+						if (value == "Phase increase")
+							cd.view_mode.exchange(ComplexViewMode::PhaseIncrease);
+					}
+				}
+				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
+					set_auto_contrast();
+
+				//set_enable_unwrap_box();
+				notify();
+			}
+		}
 		
 		bool MainWindow::is_direct_mode()
 		{
@@ -1446,62 +1502,6 @@ namespace holovibes
 					assert(!"Unknow Algorithm.");
 				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
 					set_auto_contrast();
-				notify();
-			}
-		}
-
-		void MainWindow::set_view_mode(const QString value)
-		{
-			if (!is_direct_mode())
-			{
-				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-				bool pipeline_checked = false;
-				if (last_contrast_type_ == "Complex output" && value != "Complex output")
-				{
-					set_complex_mode(false);
-				}
-				if (value == "Magnitude")
-				{
-					cd.view_mode.exchange(ComplexViewMode::Modulus);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Squared magnitude")
-				{
-					cd.view_mode.exchange(ComplexViewMode::SquaredModulus);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Argument")
-				{
-					cd.view_mode.exchange(ComplexViewMode::Argument);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Complex output")
-				{
-					set_complex_mode(true);
-					cd.view_mode.exchange(ComplexViewMode::Complex);
-					last_contrast_type_ = value;
-				}
-				else
-				{
-					if (pipeline_checked)
-					{
-						// For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
-						display_error("Unwrapping is not available with the Pipeline.");
-						QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
-						// last_contrast_type_ exists for this sole purpose...
-						contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
-					}
-					else
-					{
-						if (value == "Phase increase")
-							cd.view_mode.exchange(ComplexViewMode::PhaseIncrease);
-					}
-				}
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-					set_auto_contrast();
-
-				//set_enable_unwrap_box();
 				notify();
 			}
 		}
