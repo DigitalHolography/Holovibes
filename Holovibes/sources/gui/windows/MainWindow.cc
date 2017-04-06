@@ -1104,7 +1104,6 @@ namespace holovibes
 			cd.stft_view_enabled.exchange(false);
 			cd.stft_enabled.exchange(false);
 			cd.signal_trig_enabled.exchange(false);
-			cd.nsamples.exchange(1);
 			notify();
 		}
 
@@ -1268,16 +1267,16 @@ namespace holovibes
 					notify();
 					holovibes_.get_pipe()->request_update_n(phaseNumber);
 					while (holovibes_.get_pipe()->get_request_refresh());
-					if (cd.stft_view_enabled.load())
-					{
+					//if (cd.stft_view_enabled.load())
+					//{
 						//gl_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
 						//gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
 						//holovibes_.get_pipe()->update_stft_slice_queue();
 
-						stft_view(false);
+					//	stft_view(false);
 						//std::this_thread::sleep_for(std::chrono::milliseconds(10));
-						stft_view(true);
-					}
+					//	stft_view(true);
+					//}
 				}
 				else
 				{
