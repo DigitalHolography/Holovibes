@@ -107,6 +107,7 @@ namespace holovibes
 				return (false);
 			}
 		}
+		notify_observers();
 		return (true);
 	}
 
@@ -127,13 +128,14 @@ namespace holovibes
 
 		if (update_n_requested_)
 		{
-			update_n_requested_ = false;
 			if (!update_n_parameter(compute_desc_.nsamples.load()))
 			{
+				compute_desc_.pindex.exchange(1);
 				compute_desc_.nsamples.exchange(1);
 				update_n_parameter(1);
 				std::cerr << "Updating n failed, n updated to 1" << std::endl;
 			}
+			update_n_requested_ = false;
 		}
 		if (request_stft_cuts_)
 		{
@@ -166,9 +168,9 @@ namespace holovibes
 
 		if (update_ref_diff_requested_)
 		{
-			update_ref_diff_requested_ = false;
 			update_ref_diff_parameter();
 			ref_diff_counter = compute_desc_.ref_diff_level.load();
+			update_ref_diff_requested_ = false;
 		}
 
 		if (abort_construct_requested_)

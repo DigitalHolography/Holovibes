@@ -51,13 +51,14 @@ void auto_contrast_correction(	float			*input,
 	float	*frame_cpu = new float[size]();
 	cudaMemcpyAsync(frame_cpu, input, sizeof(float) * size, cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(stream);
-	//auto minmax = std::minmax_element(frame_cpu, frame_cpu + size);
-	//*min = *minmax.first;
-	//*min = *minmax.second;
 	auto minmax = std::minmax_element(frame_cpu, frame_cpu + size);
-	auto avg = std::accumulate(frame_cpu, frame_cpu + size, 0.0f) / static_cast<float>(size);
-	*min = avg + (*minmax.first - avg) * 0.5f;
-	*max = avg + (*minmax.second - avg) * 0.5f;
+	*min = *minmax.first;
+	*max = *minmax.second;
+	/*float *frame_cpu_end = frame_cpu + size;
+	std::pair<float *, float *> minmax = std::minmax_element(frame_cpu, frame_cpu_end);
+	float avg = std::accumulate(frame_cpu, frame_cpu_end, 0.0f) / static_cast<float>(size);
+	*min = avg + (*minmax.first - avg) * 0.3f;
+	*max = avg + (*minmax.second - avg) * 0.3f;*/
 
 	delete[] frame_cpu;
 

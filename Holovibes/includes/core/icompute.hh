@@ -204,6 +204,25 @@ namespace holovibes
 	bool	get_cuts_delete_request();
 	bool	get_request_refresh();
 
+	bool get_unwrap_1d_request()		{ return (unwrap_1d_requested_); }
+	bool get_unwrap_2d_request()		{ return (unwrap_2d_requested_); }
+	bool get_autofocus_request()		{ return (autofocus_requested_); }
+	bool get_autofocus_stop_request()	{ return (autofocus_stop_requested_); }
+	bool get_autocontrast_request()		{ return (autocontrast_requested_); }
+	bool get_refresh_request()			{ return (refresh_requested_); }
+	bool get_update_n_request()			{ return (update_n_requested_); }
+	bool get_stft_update_roi_request()	{ return (stft_update_roi_requested_); }
+	bool get_average_request()			{ return (average_requested_); }
+	bool get_average_record_request()	{ return (average_record_requested_); }
+	bool get_float_output_request()		{ return (float_output_requested_); }
+	bool get_complex_output_request()	{ return (complex_output_requested_); }
+	bool get_abort_construct_request()	{ return (abort_construct_requested_); }
+	bool get_termination_request()		{ return (termination_requested_); }
+	bool get_update_acc_request()		{ return (update_acc_requested_); }
+	bool get_update_ref_diff_request()	{ return (update_ref_diff_requested_); }
+	bool get_request_stft_cuts()		{ return (request_stft_cuts_); }
+	bool get_request_delete_stft_cuts()	{ return (request_delete_stft_cuts_); }
+
   protected:
     /*! \brief Generate the ICompute vector. */
     virtual void refresh();

@@ -75,10 +75,7 @@ namespace holovibes
 		
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
 		{
-			const int min = std::min(width, height);
-			resize(min, min);
-			setFramePosition(QPoint(0, 0));
-			glViewport(0, 0, min, min);
+			glViewport(0, 0, width, height);
 		}
 
 		void	BasicOpenGLWindow::timerEvent(QTimerEvent *e)

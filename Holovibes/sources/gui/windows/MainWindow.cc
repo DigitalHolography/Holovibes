@@ -259,9 +259,8 @@ namespace holovibes
 				ptr->setEnabled((cd.stft_view_enabled.load()));
 				ptr->setCurrentIndex(ptr->isEnabled() ? cd.current_window.load() : 0);
 			}
-			findChild<QPushButton *>("SetPhaseNumberPushButton")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
-			findChild<QLineEdit *>("PhaseNumberLineEdit")->setEnabled(!is_direct);
-			findChild<QLineEdit *>("PhaseNumberLineEdit")->setText(QString::fromUtf8(std::to_string(cd.nsamples.load()).c_str()));
+			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
+			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
 			findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load() + 1);
@@ -299,8 +298,8 @@ namespace holovibes
 					// notify will be in close_critical_compute
 					if (cd.stft_enabled.load())
 					{
+						cd.pindex.exchange(1);
 						cd.nsamples.exchange(1);
-						cd.pindex.exchange(0);
 					}
 					if (cd.flowgraphy_enabled.load() || cd.convolution_enabled.load())
 					{
@@ -717,6 +716,7 @@ namespace holovibes
 
 		void MainWindow::reset()
 		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			Config&	config = global::global_config;
 			int		device = 0;
 
@@ -728,6 +728,8 @@ namespace holovibes
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
+			cd.pindex.exchange(1);
+			cd.nsamples.exchange(1);
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device == 1)
 			{
@@ -883,6 +885,8 @@ namespace holovibes
 				QSize size(512, 512);
 				init_image_mode(pos, size);
 				uint depth = 2;
+				ushort n = cd.nsamples.load();
+				ushort p = cd.pindex.load();
 				if (cd.view_mode.load() == ComplexViewMode::Complex)
 				{
 					last_contrast_type_ = "Complex output";
@@ -890,6 +894,7 @@ namespace holovibes
 				}
 				try
 				{
+					set_p(1);
 					cd.nsamples.exchange(1);
 					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 					while (!holovibes_.get_pipe());
@@ -901,8 +906,9 @@ namespace holovibes
 						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
-					setPhase();
+					//setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
+					while (holovibes_.get_pipe()->get_update_n_request());
 					mainDisplay.reset(new HoloWindow(
 						pos,
 						size,
@@ -918,6 +924,10 @@ namespace holovibes
 						set_auto_contrast();
 						pipe_refresh();
 					}
+					cd.nsamples.exchange(n);
+					cd.pindex.exchange(p);
+					holovibes_.get_pipe()->request_update_n(n);
+					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_request_refresh());
 					// ----------
 					notify();
@@ -1112,7 +1122,8 @@ namespace holovibes
 					const ushort	nImg = cd.nsamples.load();
 					const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
 
-					while (holovibes_.get_pipe()->get_cuts_request());
+					while (holovibes_.get_pipe()->get_update_n_request());
+ 					while (holovibes_.get_pipe()->get_cuts_request());
 					sliceXZ.reset(nullptr);
 					sliceXZ.reset(new SliceWindow(
 						xzPos,
@@ -1156,7 +1167,6 @@ namespace holovibes
 			cd.stft_view_enabled.exchange(false);
 			cd.stft_enabled.exchange(false);
 			cd.signal_trig_enabled.exchange(false);
-			cd.nsamples.exchange(1);
 			notify();
 		}
 
@@ -1305,33 +1315,39 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				QLineEdit* lineEdit = findChild<QLineEdit *>("PhaseNumberLineEdit");
-				int phaseNumber = lineEdit->text().toInt();
-				phaseNumber = (phaseNumber <= 0) ? 1 : phaseNumber;
+				QSpinBox *spin_box = findChild<QSpinBox *>("PhaseNumberSpinBox");
+				int phaseNumber = spin_box->value();
+				if (!spin_box->hasFocus())
+					return;
+				phaseNumber = (phaseNumber < 1) ? 1 : phaseNumber;
 				ComputeDescriptor&	cd = holovibes_.get_compute_desc();
 				Queue&				in = holovibes_.get_capture_queue();
 
 				if (cd.stft_enabled.load()
 					|| phaseNumber <= static_cast<int>(in.get_max_elts()))
 				{
+					cd.nsamples.exchange(phaseNumber);
+					notify();
 					holovibes_.get_pipe()->request_update_n(phaseNumber);
+					while (holovibes_.get_pipe()->get_request_refresh());
 					//if (cd.stft_view_enabled.load())
 					//{
-						//_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
+						//gl_win_stft_0->resize((value > 120 ? value : 120) * 2, gl_window_->height());
 						//gl_win_stft_1->resize(gl_window_->width(), (value > 120 ? value : 120) * 2);
 						//holovibes_.get_pipe()->update_stft_slice_queue();
 
-						//stft_view(false);
+					//	stft_view(false);
 						//std::this_thread::sleep_for(std::chrono::milliseconds(10));
-						//stft_view(true);
+					//	stft_view(true);
 					//}
-					notify();
 				}
 				else
 				{
-					lineEdit->setText(
-						QString::fromUtf8(
-							std::to_string(static_cast<const int>(in.get_max_elts())).c_str()));
+					spin_box->setValue(in.get_max_elts());
+					cd.nsamples.exchange(in.get_max_elts());
+					notify();
+					holovibes_.get_pipe()->request_update_n(in.get_max_elts());
+					while (holovibes_.get_pipe()->get_request_refresh());
 				}
 			}
 		}
@@ -1734,8 +1750,8 @@ namespace holovibes
 			{
 				try
 				{
-					if (!holovibes_.get_pipe()->get_request_refresh())
-						holovibes_.get_pipe()->request_autocontrast();
+					holovibes_.get_pipe()->request_autocontrast();
+					while (holovibes_.get_pipe()->get_refresh_request());
 				}
 				catch (std::runtime_error& e)
 				{
@@ -1827,8 +1843,9 @@ namespace holovibes
 					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
-				pipe_refresh();
 				notify();
+				//set_auto_contrast();
+				pipe_refresh();
 			}
 		}
 		#pragma endregion
@@ -2546,7 +2563,7 @@ namespace holovibes
 			close_critical_compute();
 			camera_none();
 			close_windows();
-			InfoManager::get_manager()->clear_info();
+			remove_infos();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
 		}
@@ -2580,13 +2597,7 @@ namespace holovibes
 				display_error(e.what());
 				return;
 			}
-
-			if (depth_spinbox->currentIndex() == 1)
-				depth_multi = 2;
-			else if (depth_spinbox->currentIndex() == 2)
-				depth_multi = 4;
-			else if (depth_spinbox->currentIndex() == 3)
-				depth_multi = 8;
+			depth_multi = pow(2, depth_spinbox->currentIndex());
 			FrameDescriptor frame_desc = {
 				static_cast<ushort>(width_spinbox->value()),
 				static_cast<ushort>(height_spinbox->value()),
@@ -2595,9 +2606,6 @@ namespace holovibes
 				(big_endian_checkbox->currentText() == QString("Big Endian") ?
 					endianness::BIG_ENDIAN : endianness::LITTLE_ENDIAN) };
 			is_enabled_camera_ = false;
-			mainDisplay.reset(nullptr);
-			holovibes_.dispose_compute();
-			holovibes_.dispose_capture();
 			try
 			{
 				holovibes_.init_import_mode(
@@ -2619,7 +2627,11 @@ namespace holovibes
 				holovibes_.dispose_capture();
 				return;
 			}
+			//ushort n = cd.nsamples.load();
+			//cd.nsamples.exchange(1);
 			is_enabled_camera_ = true;
+			//set_image_mode();
+			//cd.nsamples.exchange(n);
 			set_image_mode();
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
