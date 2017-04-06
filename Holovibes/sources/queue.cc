@@ -121,7 +121,7 @@ namespace holovibes
 			stream_);
 		if (cuda_status != CUDA_SUCCESS)
 		{
- 			std::cerr << "Queue: couldn't enqueue" << std::endl;
+   			std::cerr << "Queue: couldn't enqueue" << std::endl;
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			if (display_)
 				gui::InfoManager::update_info(name_, "couldn't enqueue");

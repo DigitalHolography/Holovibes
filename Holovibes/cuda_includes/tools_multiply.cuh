@@ -18,10 +18,10 @@
 # include <cuda_runtime.h>
 # include <cufft.h>
 
-# ifndef _USE_MATH_DEFINES
+/*# ifndef _USE_MATH_DEFINES
 #  define _USE_MATH_DEFINES
 # endif
-# include <math.h>
+# include <math.h>*/
 
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *

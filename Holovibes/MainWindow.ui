@@ -554,27 +554,20 @@
           <string>Steps</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="PhaseNumberLineEdit">
+        <widget class="QSpinBox" name="PhaseNumberSpinBox">
          <property name="geometry">
           <rect>
            <x>100</x>
            <y>170</y>
-           <width>41</width>
+           <width>81</width>
            <height>22</height>
           </rect>
          </property>
-        </widget>
-        <widget class="QPushButton" name="SetPhaseNumberPushButton">
-         <property name="geometry">
-          <rect>
-           <x>149</x>
-           <y>170</y>
-           <width>31</width>
-           <height>21</height>
-          </rect>
+         <property name="singleStep">
+          <number>1</number>
          </property>
-         <property name="text">
-          <string>Set</string>
+         <property name="value">
+          <number>1</number>
          </property>
         </widget>
         <zorder>TakeRefPushButton</zorder>
@@ -604,8 +597,7 @@
         <zorder>RefLabel</zorder>
         <zorder>STFTStepsSpinBox</zorder>
         <zorder>STFTStepsLabel</zorder>
-        <zorder>PhaseNumberLineEdit</zorder>
-        <zorder>SetPhaseNumberPushButton</zorder>
+        <zorder>PhaseNumberSpinBox</zorder>
        </widget>
       </item>
       <item>
@@ -3013,7 +3005,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>258</y>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3125,7 +3117,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>228</y>
+     <y>250</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3252,8 +3244,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>225</y>
+     <x>410</x>
+     <y>251</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3332,8 +3324,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>629</x>
-     <y>291</y>
+     <x>539</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3413,7 +3405,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>730</x>
-     <y>307</y>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -3477,7 +3469,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>790</x>
-     <y>307</y>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -3509,7 +3501,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>307</y>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -3669,7 +3661,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>277</y>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3780,8 +3772,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_direct_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>57</y>
+     <x>79</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -3797,7 +3789,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>197</x>
-     <y>57</y>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3860,8 +3852,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_flowgraphy_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>539</x>
-     <y>247</y>
+     <x>549</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -4085,7 +4077,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>338</x>
-     <y>175</y>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4101,7 +4093,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>175</y>
+     <y>201</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4164,8 +4156,8 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_take_reference()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>172</x>
-     <y>105</y>
+     <x>179</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4260,8 +4252,8 @@ p, li { white-space: pre-wrap; }
    <slot>update_stft_steps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>163</x>
-     <y>75</y>
+     <x>170</x>
+     <y>101</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -4314,22 +4306,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>445</x>
      <y>132</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>SetPhaseNumberPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setPhase()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>156</x>
-     <y>215</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -4410,6 +4386,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>446</x>
      <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PhaseNumberSpinBox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setPhase()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>120</x>
+     <y>212</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>223</x>
+     <y>229</y>
     </hint>
    </hints>
   </connection>
@@ -4509,11 +4501,11 @@ p, li { white-space: pre-wrap; }
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
   <slot>stft_signal_trig(bool)</slot>
-  <slot>setPhase()</slot>
   <slot>rotateTexture()</slot>
   <slot>flipTexture()</slot>
   <slot>title_detect()</slot>
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
+  <slot>setPhase()</slot>
  </slots>
 </ui>
