@@ -716,6 +716,7 @@ namespace holovibes
 
 		void MainWindow::reset()
 		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			Config&	config = global::global_config;
 			int		device = 0;
 
@@ -727,6 +728,8 @@ namespace holovibes
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
+			cd.pindex.exchange(1);
+			cd.nsamples.exchange(1);
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device == 1)
 			{
@@ -891,7 +894,6 @@ namespace holovibes
 				}
 				try
 				{
-					cd.pindex.exchange(1);
 					set_p(1);
 					cd.nsamples.exchange(1);
 					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
