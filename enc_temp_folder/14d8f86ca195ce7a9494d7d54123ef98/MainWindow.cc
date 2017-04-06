@@ -952,6 +952,7 @@ namespace holovibes
 			{
 				if (value == true)
 					depth = 8;
+				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);

@@ -311,6 +311,9 @@
          <property name="decimals">
           <number>5</number>
          </property>
+         <property name="maximum">
+          <double>100.000000000000000</double>
+         </property>
          <property name="singleStep">
           <double>0.010000000000000</double>
          </property>
@@ -379,7 +382,7 @@
           <number>4</number>
          </property>
          <property name="maximum">
-          <double>9999.999900000000707</double>
+          <double>10000.000000000000000</double>
          </property>
          <property name="singleStep">
           <double>0.010000000000000</double>
@@ -562,6 +565,9 @@
            <width>81</width>
            <height>22</height>
           </rect>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
          </property>
          <property name="singleStep">
           <number>1</number>
