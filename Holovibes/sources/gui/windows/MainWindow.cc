@@ -2627,11 +2627,7 @@ namespace holovibes
 				holovibes_.dispose_capture();
 				return;
 			}
-			//ushort n = cd.nsamples.load();
-			//cd.nsamples.exchange(1);
 			is_enabled_camera_ = true;
-			//set_image_mode();
-			//cd.nsamples.exchange(n);
 			set_image_mode();
 			if (depth_spinbox->currentText() == QString("16") && cine->isChecked() == false)
 				big_endian_checkbox->setEnabled(true);
