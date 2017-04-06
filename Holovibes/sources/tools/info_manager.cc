@@ -45,6 +45,16 @@ namespace holovibes
 				throw InfoManager::ManagerNotInstantiate();
 		}
 
+		void InfoManager::insertInputSource(int width, int height, int depth)
+		{
+			std::string output_descriptor_info =
+				std::to_string(width) + std::string("x") + std::to_string(height) +
+				std::string(" - ") +
+				std::to_string(static_cast<int>(depth * 8)) + std::string("bit");
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
+			InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
+		}
+
 		void InfoManager::update_info(const std::string& key, const std::string& value)
 		{
 			if (instance)

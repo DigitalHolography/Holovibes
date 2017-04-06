@@ -900,12 +900,9 @@ namespace holovibes
 					while (!holovibes_.get_pipe());
 					holovibes_.get_pipe()->register_observer(*this);
 					auto fd = holovibes_.get_output_queue().get_frame_desc();
-					std::string output_descriptor_info = 
-						std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
-						std::string(" - ") +
-						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
-					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
-					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
+					
+					InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
+
 					//setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
 					while (holovibes_.get_pipe()->get_update_n_request());

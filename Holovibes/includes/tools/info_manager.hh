@@ -76,6 +76,9 @@ namespace holovibes
 
 		/*! Draw all current information */
 		void draw();
+
+		static void insertInputSource(int width, int height, int depth);
+
 		/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information
 		** \param value is your information linked to key */
