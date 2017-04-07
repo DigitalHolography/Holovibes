@@ -890,7 +890,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cout << "catch createPipe :" << std::endl;
+				std::cerr << "catch createPipe :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -913,7 +913,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cout << "catch createHoloWindow :" << std::endl;
+				std::cerr << "catch createHoloWindow :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -948,7 +948,8 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cout << "catch set_holographic" << std::endl;
+				std::cerr << "catch set_holographic :" << std::endl;
+				std::cerr << e.what() << std::endl;
 			}
 		}
 
@@ -974,7 +975,8 @@ namespace holovibes
 			catch (std::runtime_error& e)
 			{
 				mainDisplay.reset(nullptr);
-				display_error(e.what());
+				std::cerr << "catch refreshViewMode :" << std::endl;
+				std::cerr << e.what() << std::endl;
 			}
 		}
 
