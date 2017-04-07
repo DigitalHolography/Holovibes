@@ -35,7 +35,6 @@ namespace holovibes
 	{
 		pipe_->request_termination();
 
-		delete pipe_.get();
 		if (thread_.joinable())
 			thread_.join();
 	}
@@ -49,7 +48,6 @@ namespace holovibes
 		catch (std::exception& e)
 		{
 			throw std::logic_error(e.what());
-			return;
 		}
 
 		memory_cv_.notify_one();
