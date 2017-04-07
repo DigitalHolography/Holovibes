@@ -12,6 +12,7 @@
 
 #include "thread_compute.hh"
 #include "pipe.hh"
+#include <iostream>
 
 namespace holovibes
 {
@@ -34,17 +35,22 @@ namespace holovibes
 	{
 		pipe_->request_termination();
 
+		delete pipe_.get();
 		if (thread_.joinable())
 			thread_.join();
 	}
 
 	void ThreadCompute::thread_proc()
 	{
-		//if (pipetype_ == PipeType::PIPE)
-		pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
-		//else
-		//	pipe_ = std::shared_ptr<ICompute>(new Pipeline(input_, output_, compute_desc_));
-		//	PIPELINE dead code !!!
+		try
+		{
+			pipe_ = std::shared_ptr<ICompute>(new Pipe(input_, output_, compute_desc_));
+		}
+		catch (std::exception& e)
+		{
+			throw std::logic_error(e.what());
+			return;
+		}
 
 		memory_cv_.notify_one();
 

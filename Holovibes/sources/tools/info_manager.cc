@@ -118,7 +118,8 @@ namespace holovibes
 			{
 				std::string str = "";
 				for (auto it = instance->infos_.begin(); it != instance->infos_.end(); *it++)
-					str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
+					if (it->first != "" && it->second != "")
+						str += it->first + ((it->first != "") ? ":\n  " : "") + it->second + "\n";
 				const QString qstr = str.c_str();
 				emit update_text(qstr);
 			}

@@ -48,17 +48,18 @@ namespace holovibes
 		, gpu_float_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
 	{
-		/* gpu_input_buffer */
-		cudaMalloc<cufftComplex>(&gpu_input_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels() * input_length_);
-		/* gpu_output_buffer */
-		cudaMalloc<unsigned short>(&gpu_output_buffer_,
-			sizeof(cufftComplex)* input_.get_pixels());
+		int err = 0;
+		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
 
-		/* gpu_float_buffer */
-		cudaMalloc<float>(&gpu_float_buffer_,
-			sizeof(float) * input_.get_pixels());
-
+		if (cudaMalloc<cufftComplex>(&gpu_input_buffer_, complex_pixels * input_length_) != cudaSuccess)
+			err++;
+		if (cudaMalloc<unsigned short>(&gpu_output_buffer_, complex_pixels) != cudaSuccess)
+			err++;
+		if (cudaMalloc<float>(&gpu_float_buffer_, sizeof(float) * input_.get_pixels()) != cudaSuccess)
+			err++;
+		if (err != 0)
+			throw std::exception("Pipe : cannot create pipe, cudaMalloc fail");
+		
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan1d_, static_cast<cudaStream_t>(0));
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
@@ -69,15 +70,12 @@ namespace holovibes
 
 	Pipe::~Pipe()
 	{
-		/* gpu_float_buffer */
-		cudaFree(gpu_float_buffer_);
-
-		/* gpu_output_buffer */
-		cudaFree(gpu_output_buffer_);
-
-		/* gpu_input_buffer */
-		cudaFree(gpu_input_buffer_);
-
+		if (gpu_float_buffer_)
+			cudaFree(gpu_float_buffer_);
+		if (gpu_output_buffer_)
+			cudaFree(gpu_output_buffer_);
+		if (gpu_input_buffer_)
+			cudaFree(gpu_input_buffer_);
 	}
 
 	bool Pipe::update_n_parameter(unsigned short n)
@@ -433,31 +431,38 @@ namespace holovibes
 
 			if (unwrap_2d_requested_)
 			{
-				if (!unwrap_res_2d_)
+				try
 				{
-					unwrap_res_2d_.reset(new UnwrappingResources_2d(
-						input_.get_pixels()));
+					if (!unwrap_res_2d_)
+					{
+						unwrap_res_2d_.reset(new UnwrappingResources_2d(
+							input_.get_pixels()));
+					}
+					if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
+						unwrap_res_2d_->reallocate(input_.get_pixels());
+
+					fn_vect_.push_back(std::bind(
+						unwrap_2d,
+						gpu_float_buffer_,
+						plan2d_,
+						unwrap_res_2d_.get(),
+						input_.get_frame_desc(),
+						unwrap_res_2d_->gpu_angle_,
+						static_cast<cudaStream_t>(0)));
+
+					// Converting angle information in floating-point representation.
+					fn_vect_.push_back(std::bind(
+						rescale_float_unwrap2d,
+						unwrap_res_2d_->gpu_angle_,
+						gpu_float_buffer_,
+						unwrap_res_2d_->minmax_buffer_,
+						input_fd.frame_res(),
+						static_cast<cudaStream_t>(0)));
 				}
-				if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-					unwrap_res_2d_->reallocate(input_.get_pixels());
-
-				fn_vect_.push_back(std::bind(
-					unwrap_2d,
-					gpu_float_buffer_,
-					plan2d_,
-					unwrap_res_2d_.get(),
-					input_.get_frame_desc(),
-					unwrap_res_2d_->gpu_angle_,
-					static_cast<cudaStream_t>(0)));
-
-				// Converting angle information in floating-point representation.
-				fn_vect_.push_back(std::bind(
-					rescale_float_unwrap2d,
-					unwrap_res_2d_->gpu_angle_,
-					gpu_float_buffer_,
-					unwrap_res_2d_->minmax_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
+				catch (std::exception& e)
+				{
+					std::cout << e.what() << std::endl;
+				}
 			}
 			else
 			{
@@ -482,71 +487,78 @@ namespace holovibes
 		else
 		{
 			//Unwrap_res is a ressource for phase_increase
-			if (!unwrap_res_)
+			try
 			{
-				unwrap_res_.reset(new UnwrappingResources(
-					compute_desc_.unwrap_history_size.load(),
-					input_.get_pixels()));
-			}
-			unwrap_res_->reset(compute_desc_.unwrap_history_size.load());
-			unwrap_res_->reallocate(input_.get_pixels());
-			if (compute_desc_.view_mode.load() == ComplexViewMode::PhaseIncrease)
-			{
-				// Phase increase
-				fn_vect_.push_back(std::bind(
-					phase_increase,
-					gpu_input_frame_ptr_,
-					unwrap_res_.get(),
-					input_fd.frame_res()));
-			}
-			else
-			{
-				// Fallback on modulus mode.
-				fn_vect_.push_back(std::bind(
-					complex_to_modulus,
-					gpu_input_frame_ptr_,
-					gpu_float_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
-			};
-
-			if (unwrap_2d_requested_)
-			{
-				if (!unwrap_res_2d_)
+				if (!unwrap_res_)
 				{
-					unwrap_res_2d_.reset(new UnwrappingResources_2d(
+					unwrap_res_.reset(new UnwrappingResources(
+						compute_desc_.unwrap_history_size.load(),
 						input_.get_pixels()));
 				}
-				if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-					unwrap_res_2d_->reallocate(input_.get_pixels());
+				unwrap_res_->reset(compute_desc_.unwrap_history_size.load());
+				unwrap_res_->reallocate(input_.get_pixels());
+				if (compute_desc_.view_mode.load() == ComplexViewMode::PhaseIncrease)
+				{
+					// Phase increase
+					fn_vect_.push_back(std::bind(
+						phase_increase,
+						gpu_input_frame_ptr_,
+						unwrap_res_.get(),
+						input_fd.frame_res()));
+				}
+				else
+				{
+					// Fallback on modulus mode.
+					fn_vect_.push_back(std::bind(
+						complex_to_modulus,
+						gpu_input_frame_ptr_,
+						gpu_float_buffer_,
+						input_fd.frame_res(),
+						static_cast<cudaStream_t>(0)));
+				};
 
-				fn_vect_.push_back(std::bind(
-					unwrap_2d,
-					unwrap_res_->gpu_angle_current_,
-					plan2d_,
-					unwrap_res_2d_.get(),
-					input_.get_frame_desc(),
-					unwrap_res_2d_->gpu_angle_,
-					static_cast<cudaStream_t>(0)));
+				if (unwrap_2d_requested_)
+				{
+					if (!unwrap_res_2d_)
+					{
+						unwrap_res_2d_.reset(new UnwrappingResources_2d(
+							input_.get_pixels()));
+					}
+					if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
+						unwrap_res_2d_->reallocate(input_.get_pixels());
 
-				// Converting angle information in floating-point representation.
-				fn_vect_.push_back(std::bind(
-					rescale_float_unwrap2d,
-					unwrap_res_2d_->gpu_angle_,
-					gpu_float_buffer_,
-					unwrap_res_2d_->minmax_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
+					fn_vect_.push_back(std::bind(
+						unwrap_2d,
+						unwrap_res_->gpu_angle_current_,
+						plan2d_,
+						unwrap_res_2d_.get(),
+						input_.get_frame_desc(),
+						unwrap_res_2d_->gpu_angle_,
+						static_cast<cudaStream_t>(0)));
+
+					// Converting angle information in floating-point representation.
+					fn_vect_.push_back(std::bind(
+						rescale_float_unwrap2d,
+						unwrap_res_2d_->gpu_angle_,
+						gpu_float_buffer_,
+						unwrap_res_2d_->minmax_buffer_,
+						input_fd.frame_res(),
+						static_cast<cudaStream_t>(0)));
+				}
+				else
+				{
+					// Converting angle information in floating-point representation.
+					fn_vect_.push_back(std::bind(
+						rescale_float,
+						unwrap_res_->gpu_angle_current_,
+						gpu_float_buffer_,
+						input_fd.frame_res(),
+						static_cast<cudaStream_t>(0)));
+				}
 			}
-			else
+			catch (std::exception& e)
 			{
-				// Converting angle information in floating-point representation.
-				fn_vect_.push_back(std::bind(
-					rescale_float,
-					unwrap_res_->gpu_angle_current_,
-					gpu_float_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
+				std::cout << e.what() << std::endl;
 			}
 		}
 

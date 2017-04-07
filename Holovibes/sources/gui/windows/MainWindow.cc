@@ -888,10 +888,10 @@ namespace holovibes
 				holovibes_.get_pipe()->request_update_n(1);
 				while (holovibes_.get_pipe()->get_update_n_request());
 			}
-			catch (std::runtime_error& e)
+			catch (std::system_error& e)
 			{
 				std::cerr << "catch createPipe :" << std::endl;
-				std::cerr << e.what() << std::endl;
+				std::cerr << e.code() << std::endl;
 			}
 		}
 

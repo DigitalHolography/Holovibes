@@ -18,6 +18,7 @@
 # include <QThread>
 #include <thread>
 #include <chrono>
+#include <utility>
 
 # include <stdexcept>
 
@@ -96,7 +97,19 @@ namespace holovibes
 		static InfoManager *instance;
 
 		/*! Store all informations */
-		std::vector<std::pair<std::string, std::string>>  infos_;
+		std::vector<std::pair<std::string, std::string>>  infos_ = { {std::make_pair("", "")},
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") },
+		{ std::make_pair("", "") }};
 		/*! ui where find infoProgressBar and infoTextEdit */
 		gui::GroupBox*  ui_;
 		/*! infoProgressBar, you can get it with get_progress_bar() */

@@ -79,7 +79,7 @@ namespace holovibes
 		, af_env_({ 0 })
 		, past_time_(std::chrono::high_resolution_clock::now())
 	{
-
+		int err = 0;
 		/* if stft, we don't need to allocate more than one frame */
 		// if (compute_desc_.stft_enabled)
 		//    input_length_ = 1;
@@ -87,8 +87,8 @@ namespace holovibes
 		input_length_ = desc.nsamples.load();
 
 		/* gpu_lens */
-		cudaMalloc(&gpu_lens_,
-			input_.get_pixels() * sizeof(cufftComplex));
+		if (cudaMalloc(&gpu_lens_, input_.get_pixels() * sizeof(cufftComplex)) != cudaSuccess)
+			err++;
 
 		/* CUFFT plan3d */
 		if (compute_desc_.algorithm.load() == Algorithm::FFT1
@@ -875,45 +875,59 @@ namespace holovibes
 	void ICompute::autofocus_init()
 	{
 		// Autofocus needs to work on the same images. It will computes on copies.
-		af_env_.gpu_input_size = sizeof(cufftComplex)* input_.get_pixels() * input_length_;
-		cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
-		cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size);
+		try
+		{
+			af_env_.gpu_input_size = sizeof(cufftComplex) * input_.get_pixels() * input_length_;
+			cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
+			if (cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size) != cudaSuccess)
+				throw std::exception("Autofocus : cudaMalloc fail");
 
-		// Wait input_length_ images in queue input_, before call make_contiguous_complex
-		while (input_.get_current_elts() < input_length_)
-			continue;
+			// Wait input_length_ images in queue input_, before call make_contiguous_complex
+			while (input_.get_current_elts() < input_length_)
+				continue;
 
-		// Fill gpu_input complex tmp buffer.
-		make_contiguous_complex(
-			input_,
-			af_env_.gpu_input_buffer_tmp,
-			compute_desc_.nsamples.load());
+			// Fill gpu_input complex tmp buffer.
+			make_contiguous_complex(
+				input_,
+				af_env_.gpu_input_buffer_tmp,
+				compute_desc_.nsamples.load());
 
-		compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
-		/* Compute square af zone. */
-		const unsigned int zone_width = af_env_.zone.width();
-		const unsigned int zone_height = af_env_.zone.height();
+			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
+			/* Compute square af zone. */
+			const unsigned int zone_width = af_env_.zone.width();
+			const unsigned int zone_height = af_env_.zone.height();
 
-		af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
+			af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
 
-		const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
+			const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 
-		cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
-		cudaMalloc(&af_env_.gpu_float_buffer_af_zone, af_size * sizeof(float));
+			cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
+			if (cudaMalloc(&af_env_.gpu_float_buffer_af_zone, af_size * sizeof(float)) != cudaSuccess)
+				throw std::exception("Autofocus : cudaMalloc fail");
+			/* Initialize z_*  */
+			af_env_.z_min = compute_desc_.autofocus_z_min.load();
+			af_env_.z_max = compute_desc_.autofocus_z_max.load();
 
-		/* Initialize z_*  */
-		af_env_.z_min = compute_desc_.autofocus_z_min.load();
-		af_env_.z_max = compute_desc_.autofocus_z_max.load();
+			const float z_div = static_cast<float>(compute_desc_.autofocus_z_div.load());
 
-		const float z_div = static_cast<float>(compute_desc_.autofocus_z_div.load());
+			af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
 
-		af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
+			af_env_.af_z = 0.0f;
 
-		af_env_.af_z = 0.0f;
+			af_env_.z_iter = compute_desc_.autofocus_z_iter.load();
+			af_env_.z = af_env_.z_min;
+			af_env_.focus_metric_values.clear();
+		}
+		catch (std::exception e)
+		{
+			cudaFree(af_env_.gpu_input_buffer_tmp);
+			cudaFree(af_env_.gpu_float_buffer_af_zone);
 
-		af_env_.z_iter = compute_desc_.autofocus_z_iter.load();
-		af_env_.z = af_env_.z_min;
-		af_env_.focus_metric_values.clear();
+			af_env_.gpu_input_buffer_tmp = nullptr;
+			af_env_.gpu_float_buffer_af_zone = nullptr;
+
+			std::cout << e.what() << std::endl;
+		}
 	}
 
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
