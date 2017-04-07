@@ -515,10 +515,10 @@ namespace holovibes
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
 
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
-				//main_rotate = ptree.get("view.mainWindow_rotate", main_rotate/* / 90*/); //TODO
+				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
 				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
 				yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
-				//mainflip = ptree.get("view.mainWindow_flip", mainflip); //TODO
+				displayFlip = ptree.get("view.mainWindow_flip", displayFlip);
 				xzFlip = ptree.get("view.xCut_flip", xzFlip);
 				yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
@@ -571,7 +571,6 @@ namespace holovibes
 
 		void MainWindow::save_ini(const std::string& path)
 		{
-			///import_file_stop(); // Tmp
 			boost::property_tree::ptree ptree;
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			GroupBox *image_rendering_group_box = findChild<GroupBox *>("ImageRenderingGroupBox");
@@ -613,10 +612,10 @@ namespace holovibes
 			ptree.put("view.contrast_min", cd.contrast_min.load());
 			ptree.put("view.contrast_max", cd.contrast_max.load());
 			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
-			//ptree.put("view.mainWindow_rotate", main_rotate); //TODO
+			ptree.put("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
 			ptree.put<float>("view.yCut_rotate", yzAngle);
-			//ptree.put("view.mainWindow_flip", mainflip); //TODO
+			ptree.put("view.mainWindow_flip", displayFlip);
 			ptree.put("view.xCut_flip", xzFlip);
 			ptree.put("view.yCut_flip", yzFlip);
 
