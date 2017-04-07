@@ -498,6 +498,8 @@ namespace holovibes
 
 				cd.view_mode.exchange(static_cast<ComplexViewMode>(
 					ptree.get<int>("view.view_mode", cd.view_mode.load())));
+				last_contrast_type_ = (cd.view_mode == ComplexViewMode::Complex) ?
+					"Complex output" : last_contrast_type_;
 
 				cd.log_scale_enabled.exchange(
 					ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
@@ -842,8 +844,6 @@ namespace holovibes
 		#pragma region Image Mode
 		void MainWindow::init_image_mode(QPoint& position, QSize& size)
 		{
-			holovibes_.dispose_compute();
-
 			if (mainDisplay)
 			{
 				position = mainDisplay->framePosition();
@@ -873,101 +873,129 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_holographic_mode()
+		void MainWindow::createPipe()
 		{
-			close_critical_compute();
-			close_windows();
-			if (is_enabled_camera_)
-			{
-				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-				cd.compute_mode.exchange(Computation::Hologram);
-				QPoint pos(0, 4);
-				QSize size(512, 512);
-				init_image_mode(pos, size);
-				uint depth = 2;
-				ushort n = cd.nsamples.load();
-				ushort p = cd.pindex.load();
-				if (cd.view_mode.load() == ComplexViewMode::Complex)
-				{
-					last_contrast_type_ = "Complex output";
-					depth = 8;
-				}
-				try
-				{
-					cd.pindex.exchange(0);
-					cd.nsamples.exchange(1);
-					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
-					while (!holovibes_.get_pipe());
-					holovibes_.get_pipe()->register_observer(*this);
-					auto fd = holovibes_.get_output_queue().get_frame_desc();
-					std::string output_descriptor_info = 
-						std::to_string(fd.width) + std::string("x") + std::to_string(fd.height) +
-						std::string(" - ") +
-						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
-					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
-					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
-					holovibes_.get_pipe()->request_update_n(1);
-					while (holovibes_.get_pipe()->get_update_n_request());
-					mainDisplay.reset(new HoloWindow(
-						pos,
-						size,
-						holovibes_.get_output_queue(),
-						holovibes_.get_pipe(),
-						holovibes_.get_compute_desc()));
-					mainDisplay->setAngle(displayAngle);
-					mainDisplay->setFlip(displayFlip);
-					// ----------
-					cd.contrast_enabled.exchange(true);
-					if (!cd.flowgraphy_enabled.load())
-					{
-						set_auto_contrast();
-						pipe_refresh();
-					}
-					cd.nsamples.exchange(n);
-					cd.pindex.exchange(p);
-					holovibes_.get_pipe()->request_update_n(n);
-					while (holovibes_.get_pipe()->get_update_n_request());
-					while (holovibes_.get_pipe()->get_request_refresh());
-					// ----------
-					notify();
-				}
-				catch (std::exception& e)
-				{
-					mainDisplay.reset(nullptr);
-					display_error(e.what());
-				}
-			}
-		}
-
-		void MainWindow::set_complex_mode(bool value)
-		{
-			close_critical_compute();
-			close_windows();
-			QPoint pos(0, 0);
-			QSize size(512, 512);
-			init_image_mode(pos, size);
-			uint depth = 2;
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			const uint depth = (cd.view_mode.load() == ComplexViewMode::Complex) ? 8 : 2;
+			/* ---------- */
 			try
 			{
-				if (value == true)
-					depth = 8;
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
+				/* ---------- */
+				cd.pindex.exchange(0);
+				cd.nsamples.exchange(1);
+				holovibes_.get_pipe()->request_update_n(1);
+				while (holovibes_.get_pipe()->get_update_n_request());
+			}
+			catch (std::runtime_error& e)
+			{
+				std::cout << "catch createPipe :" << std::endl;
+				std::cerr << e.what() << std::endl;
+			}
+		}
+
+		void MainWindow::createHoloWindow()
+		{
+			QPoint pos(0, 0);
+			QSize size(512, 512);
+			init_image_mode(pos, size);
+			/* ---------- */
+			try
+			{
 				mainDisplay.reset(new HoloWindow(
-					pos,
-					size,
+					pos, size,
 					holovibes_.get_output_queue(),
 					holovibes_.get_pipe(),
 					holovibes_.get_compute_desc()));
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
+			}
+			catch (std::runtime_error& e)
+			{
+				std::cout << "catch createHoloWindow :" << std::endl;
+				std::cerr << e.what() << std::endl;
+			}
+		}
+
+		void MainWindow::set_holographic_mode()
+		{
+			close_critical_compute();
+			close_windows();
+			/* ---------- */
+			try
+			{
+				auto& cd = holovibes_.get_compute_desc();
+				ushort n = cd.nsamples.load();
+				ushort p = cd.pindex.load();
+
+				cd.compute_mode.exchange(Computation::Hologram);
+				/* ---------- */
+				createPipe();
+				createHoloWindow();
+				/* ---------- */
+				cd.nsamples.exchange(n);
+				cd.pindex.exchange(p);
+				holovibes_.get_pipe()->request_update_n(n);
+				while (holovibes_.get_pipe()->get_update_n_request());
+				/* ---------- */
+				auto& fd = holovibes_.get_output_queue().get_frame_desc();
+				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
+				/* ---------- */
+				cd.contrast_enabled.exchange(true);
+				set_auto_contrast();
 				notify();
 			}
-			catch (std::exception& e)
+			catch (std::runtime_error& e)
+			{
+				std::cout << "catch set_holographic" << std::endl;
+			}
+		}
+
+		void MainWindow::refreshViewMode()
+		{
+			close_critical_compute();
+			close_windows();
+			/* ---------- */
+			try
+			{
+				auto& cd = holovibes_.get_compute_desc();
+				ushort n = cd.nsamples.load();
+				ushort p = cd.pindex.load();
+				/* ---------- */
+				createPipe();
+				createHoloWindow();
+				/* ---------- */
+				cd.nsamples.exchange(n);
+				cd.pindex.exchange(p);
+				holovibes_.get_pipe()->request_update_n(n);
+				while (holovibes_.get_pipe()->get_update_n_request());
+			}
+			catch (std::runtime_error& e)
 			{
 				mainDisplay.reset(nullptr);
 				display_error(e.what());
+			}
+		}
+
+		void MainWindow::set_view_mode(const QString value)
+		{
+			if (!is_direct_mode())
+			{
+				ComputeDescriptor& cd = holovibes_.get_compute_desc();
+				QComboBox* ptr = findChild<QComboBox*>("ViewModeComboBox");
+
+				cd.view_mode.exchange(static_cast<ComplexViewMode>(ptr->currentIndex()));
+				if ((last_contrast_type_ == "Complex output" && value != "Complex output") ||
+					(last_contrast_type_ != "Complex output" && value == "Complex output"))
+				{
+					refreshViewMode();
+				}
+				last_contrast_type_ = value;
+
+				set_auto_contrast();
+				notify();
 			}
 		}
 		
@@ -1162,8 +1190,7 @@ namespace holovibes
 			else
 			{
 				holovibes_.get_compute_desc().convolution_enabled.exchange(value);
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled && !is_direct_mode())
-					set_auto_contrast();
+				set_auto_contrast();
 			}
 			notify();
 		}
@@ -1309,9 +1336,7 @@ namespace holovibes
 						cd.flowgraphy_level.exchange(cd.special_buffer_size.load());
 				}
 				notify();
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-					set_auto_contrast();
-				notify();
+				set_auto_contrast();
 			}
 		}
 
@@ -1326,8 +1351,7 @@ namespace holovibes
 				{
 					cd.pindex.exchange(value);
 					notify();
-					if (!cd.flowgraphy_enabled)
-						set_auto_contrast();
+					set_auto_contrast();
 				}
 				else
 					display_error("p param has to be between 0 and n");
@@ -1373,12 +1397,10 @@ namespace holovibes
 				{
 					cd.pindex.exchange(cd.pindex.load() + 1);
 					notify();
-					if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-						set_auto_contrast();
+					set_auto_contrast();
 				}
 				else
 					display_error("p param has to be between 1 and n");
-				notify();
 			}
 		}
 
@@ -1391,9 +1413,8 @@ namespace holovibes
 				if (cd.pindex.load() > 0)
 				{
 					cd.pindex.exchange(cd.pindex.load() - 1);
-					if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-						set_auto_contrast();
 					notify();
+					set_auto_contrast();
 				}
 				else
 					display_error("p param has to be between 1 and n");
@@ -1459,65 +1480,8 @@ namespace holovibes
 					cd.algorithm.exchange(Algorithm::FFT2);
 				else
 					assert(!"Unknow Algorithm.");
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-					set_auto_contrast();
 				notify();
-			}
-		}
-
-		void MainWindow::set_view_mode(const QString value)
-		{
-			if (!is_direct_mode())
-			{
-				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
-				bool pipeline_checked = false;
-				if (last_contrast_type_ == "Complex output" && value != "Complex output")
-				{
-					set_complex_mode(false);
-				}
-				if (value == "Magnitude")
-				{
-					cd.view_mode.exchange(ComplexViewMode::Modulus);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Squared magnitude")
-				{
-					cd.view_mode.exchange(ComplexViewMode::SquaredModulus);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Argument")
-				{
-					cd.view_mode.exchange(ComplexViewMode::Argument);
-					last_contrast_type_ = value;
-				}
-				else if (value == "Complex output")
-				{
-					set_complex_mode(true);
-					cd.view_mode.exchange(ComplexViewMode::Complex);
-					last_contrast_type_ = value;
-				}
-				else
-				{
-					if (pipeline_checked)
-					{
-						// For now, phase unwrapping is only usable with the Pipe, not the Pipeline.
-						display_error("Unwrapping is not available with the Pipeline.");
-						QComboBox* contrast_type = findChild<QComboBox*>("viewModeComboBox");
-						// last_contrast_type_ exists for this sole purpose...
-						contrast_type->setCurrentIndex(contrast_type->findText(last_contrast_type_));
-					}
-					else
-					{
-						if (value == "Phase increase")
-							cd.view_mode.exchange(ComplexViewMode::PhaseIncrease);
-					}
-				}
-				if (!holovibes_.get_compute_desc().flowgraphy_enabled)
-					set_auto_contrast();
-
-				//set_enable_unwrap_box();
-				notify();
+				set_auto_contrast();
 			}
 		}
 
@@ -1745,7 +1709,8 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast()
 		{
-			if (!is_direct_mode())
+			if (!is_direct_mode() &&
+				!holovibes_.get_compute_desc().flowgraphy_enabled.load())
 			{
 				try
 				{

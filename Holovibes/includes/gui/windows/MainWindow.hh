@@ -176,7 +176,7 @@ namespace holovibes
 			void set_holographic_mode();
 			/*! \brief Called by set_image_mode if complex algorithm is clicked  */
 			/* */
-			void set_complex_mode(bool value);
+			void refreshViewMode();
 			/*! \brief Called by set_image_mode if Convolution button is clicked  */
 			/* */
 			void set_convolution_mode(const bool enable);
@@ -528,6 +528,10 @@ namespace holovibes
 			** \return path with _index up to 10^6
 			*/
 			std::string format_batch_output(const std::string& path, unsigned int index);
+
+			void	createPipe();
+			void	createHoloWindow();
+
 			#pragma endregion
 			/* ---------- */
 			#pragma region Fields
