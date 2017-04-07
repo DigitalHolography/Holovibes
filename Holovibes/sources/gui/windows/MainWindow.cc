@@ -894,7 +894,7 @@ namespace holovibes
 				}
 				try
 				{
-					set_p(1);
+					cd.pindex.exchange(0);
 					cd.nsamples.exchange(1);
 					holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 					while (!holovibes_.get_pipe());
@@ -906,7 +906,6 @@ namespace holovibes
 						std::to_string(static_cast<int>(fd.depth * 8)) + std::string("bit");
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
 					InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
-					//setPhase();
 					holovibes_.get_pipe()->request_update_n(1);
 					while (holovibes_.get_pipe()->get_update_n_request());
 					mainDisplay.reset(new HoloWindow(
@@ -1751,7 +1750,7 @@ namespace holovibes
 				try
 				{
 					holovibes_.get_pipe()->request_autocontrast();
-					while (holovibes_.get_pipe()->get_autocontrast_request());
+					while (holovibes_.get_pipe()->get_refresh_request());
 				}
 				catch (std::runtime_error& e)
 				{
@@ -2679,7 +2678,6 @@ namespace holovibes
 			fpos_t			pos = 0;
 			size_t			length = 0;
 			char			buffer[44];
-			double			pixel_size = 0;
 
 			try
 			{
@@ -2721,11 +2719,9 @@ namespace holovibes
 				depth_spinbox->setCurrentIndex((read_depth != 8));
 
 				findChild<QSpinBox*>("ImportWidthSpinBox")->setValue(read_width);
-				if (read_height < 0)
-					read_height = -read_height;
+				read_height = std::abs(read_height);
 				findChild<QSpinBox*>("ImportHeightSpinBox")->setValue(read_height);
-				pixel_size = (1 / static_cast<double>(read_pixelpermeter_x)) * 1000000;
-				cd.import_pixel_size.exchange(pixel_size);
+				cd.import_pixel_size.exchange((1 / static_cast<double>(read_pixelpermeter_x)) * 1e6);
 				findChild<QComboBox*>("ImportEndiannessComboBox")->setCurrentIndex(0); // Little Endian
 
 				/*Unused fonction ready to read framerate in exposure*/
