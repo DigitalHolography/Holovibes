@@ -84,7 +84,7 @@ namespace holovibes
 		}
 
 		/*! \brief Returns the camera name. */
-		/* const std::string& */const char* get_camera_name()
+		const char* get_camera_name()
 		{
 			assert(camera_initialized_ && "camera not initialized");
 			return camera_.get()->get_name();
@@ -243,5 +243,7 @@ namespace holovibes
 		   is that QT's functions actually change the current directory so
 		   saving holovibes.ini in "$PWD" isn't working*/
 		std::string launch_path;
+
+		mutable std::mutex mutex_;
 	};
 }

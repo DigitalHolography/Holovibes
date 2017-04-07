@@ -125,22 +125,25 @@ namespace holovibes
 		assert(tcapture_ && "capture thread not initialized");
 		assert(input_ && "input queue not initialized");
 
-		camera::FrameDescriptor output_frame_desc = input_->get_frame_desc();
+		camera::FrameDescriptor output_fd = input_->get_frame_desc();
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
-		output_frame_desc.depth = depth;
-		output_.reset(new Queue(output_frame_desc, global::global_config.output_queue_max_size, "OutputQueue"));
+		output_fd.depth = depth;
+		output_.reset(new Queue(
+			output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
 
 		tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
 		std::cout << "[CUDA] compute thread started" << std::endl;
 
 		// A wait_for is necessary here in order for the pipe to finish
 		// its allocations before getting it.
-		std::mutex mutex;
-		std::unique_lock<std::mutex> lck(mutex);
+		std::unique_lock<std::mutex> lock(mutex_);
 
 		std::cout << "Pipe is initializing ";
-		while (tcompute_->get_memory_cv().wait_for(lck, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+		while (tcompute_->get_memory_cv().wait_for(
+			lock, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+		{
 			std::cout << ".";
+		}
 		std::cout << std::endl;
 	}
 
