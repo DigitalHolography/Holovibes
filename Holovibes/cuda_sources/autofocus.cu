@@ -43,8 +43,8 @@ static float global_variance_intensity(	const float	*input,
 	// We create a matrix of <I> in order to do the substraction
 	float	*matrix_average;
 	size_t size_float = size * sizeof(float);
-	cudaMalloc(&matrix_average, size_float);
-
+	if (cudaMalloc(&matrix_average, size_float) != cudaSuccess)
+		return (0.f);
 	float	*cpu_average_matrix = new float[size];
 	for (uint i = 0; i < size; ++i)
 		cpu_average_matrix[i] = average_input;
@@ -61,7 +61,8 @@ static float global_variance_intensity(	const float	*input,
 	// And we take the average
 	const float global_variance = average_operator(matrix_average, size);
 
-	cudaFree(matrix_average);
+	if (matrix_average)
+		cudaFree(matrix_average);
 
 	return global_variance;
 }
@@ -93,15 +94,17 @@ static float average_local_variance(const float	*input,
 
 	/* Allocates memory for ke_gpu_frame. */
 	const size_t square_size_complex = square_size * sizeof(complex);
-	cudaMallocPitch(&ke_gpu_frame,
+	if (cudaMallocPitch(&ke_gpu_frame,
 		&ke_gpu_frame_pitch,
 		square_size_complex,
-		square_size);
-	cudaMemset2D(ke_gpu_frame,
-		ke_gpu_frame_pitch,
-		0,
-		square_size_complex,
-		square_size);
+		square_size) == cudaSuccess)
+		cudaMemset2D(ke_gpu_frame,
+			ke_gpu_frame_pitch,
+			0,
+			square_size_complex,
+			square_size);
+	else
+		return (0.f);
 
 	const uint square_mat_size = mat_size * mat_size;
 	complex* ke_complex_cpu = new complex[square_mat_size];
@@ -126,14 +129,22 @@ static float average_local_variance(const float	*input,
 	delete[] ke_complex_cpu;
 
 	complex *input_complex;
-	cudaMalloc(&input_complex, size * sizeof(complex));
-
+	if (cudaMalloc(&input_complex, size * sizeof(complex)) != cudaSuccess)
+	{
+		cudaFree(ke_gpu_frame);
+		return (0.f);
+	}
 	/* Convert input float frame to complex frame. */
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
 
 	/* Allocation of convolution i * ke output */
 	float	*i_ke_convolution;
-	cudaMalloc(&i_ke_convolution, size * sizeof(float));
+	if (cudaMalloc(&i_ke_convolution, size * sizeof(float)) != cudaSuccess)
+	{
+		cudaFree(input_complex);
+		cudaFree(ke_gpu_frame);
+		return (0.f);
+	}
 
 	cufftHandle plan2d_x;
 	cufftHandle plan2d_k;
@@ -163,7 +174,6 @@ static float average_local_variance(const float	*input,
 	cufftDestroy(plan2d_k);
 
 	cudaFree(i_ke_convolution);
-
 	cudaFree(input_complex);
 	cudaFree(ke_gpu_frame);
 
@@ -208,15 +218,17 @@ static float sobel_operator(const float	*input,
 
 	const uint complex_square_size = square_size * sizeof(complex);
 	/* Allocates memory for ks_gpu_frame. */
-	cudaMallocPitch(&ks_gpu_frame,
+	if (cudaMallocPitch(&ks_gpu_frame,
 		&ks_gpu_frame_pitch,
 		complex_square_size,
-		square_size);
-	cudaMemset2D(ks_gpu_frame,
-		ks_gpu_frame_pitch,
-		0,
-		complex_square_size,
-		square_size);
+		square_size) == cudaSuccess)
+		cudaMemset2D(ks_gpu_frame,
+			ks_gpu_frame_pitch,
+			0,
+			complex_square_size,
+			square_size);
+	else
+		return (0.f);
 
 	/* Build the ks 3x3 matrix */
 	const float ks_cpu[9] =
@@ -247,15 +259,20 @@ static float sobel_operator(const float	*input,
 	size_t	kst_gpu_frame_pitch;
 
 	/* Allocates memory for kst_gpu_frame. */
-	cudaMallocPitch(&kst_gpu_frame,
+	if (cudaMallocPitch(&kst_gpu_frame,
 		&kst_gpu_frame_pitch,
 		complex_square_size,
-		square_size);
-	cudaMemset2D(kst_gpu_frame,
-		kst_gpu_frame_pitch,
-		0,
-		complex_square_size,
-		square_size);
+		square_size) == cudaSuccess)
+		cudaMemset2D(kst_gpu_frame,
+			kst_gpu_frame_pitch,
+			0,
+			complex_square_size,
+			square_size);
+	else
+	{
+		cudaFree(ks_gpu_frame);
+		return (0.f);
+	}
 	/* Build the kst 3x3 matrix */
 	const float kst_cpu[9] =
 	{
@@ -280,7 +297,12 @@ static float sobel_operator(const float	*input,
 		3,
 		cudaMemcpyHostToDevice);
 	complex	*input_complex;
-	cudaMalloc(&input_complex, size * sizeof(complex));
+	if (cudaMalloc(&input_complex, size * sizeof(complex)) != cudaSuccess)
+	{
+		cudaFree(ks_gpu_frame);
+		cudaFree(kst_gpu_frame);
+		return (0.f);
+	}
 
 	/* Convert input float frame to complex frame. */
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
@@ -288,11 +310,24 @@ static float sobel_operator(const float	*input,
 	/* Allocation of convolution i * ks output */
 	const int sizefloat = size * sizeof(float);
 	float* i_ks_convolution;
-	cudaMalloc(&i_ks_convolution, sizefloat);
+	if (cudaMalloc(&i_ks_convolution, sizefloat) != cudaSuccess)
+	{
+		cudaFree(ks_gpu_frame);
+		cudaFree(kst_gpu_frame);
+		cudaFree(input_complex);
+		return (0.f);
+	}
 
 	/* Allocation of convolution i * kst output */
-	float* i_kst_convolution;
-	cudaMalloc(&i_kst_convolution, sizefloat);
+	float *i_kst_convolution;
+	if (cudaMalloc(&i_kst_convolution, sizefloat) != cudaSuccess)
+	{
+		cudaFree(ks_gpu_frame);
+		cudaFree(kst_gpu_frame);
+		cudaFree(input_complex);
+		cudaFree(i_ks_convolution);
+		return (0.f);
+	}
 
 	cufftHandle plan2d_x;
 	cufftHandle plan2d_k;

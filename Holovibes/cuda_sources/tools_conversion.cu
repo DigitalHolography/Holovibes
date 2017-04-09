@@ -203,8 +203,13 @@ void rescale_float(	const float		*input,
 	float* gpu_local_min;
 	float* gpu_local_max;
 	const uint float_blocks = sizeof(float) * blocks;
-	cudaMalloc(&gpu_local_min, float_blocks);
-	cudaMalloc(&gpu_local_max, float_blocks);
+	if (cudaMalloc(&gpu_local_min, float_blocks) != cudaSuccess)
+		return;
+	if (cudaMalloc(&gpu_local_max, float_blocks) != cudaSuccess)
+	{
+		cudaFree(gpu_local_min);
+		return;
+	}
 
 	/* We have to hardcode the template parameter, unfortunately.
 	 * It must be equal to the number of threads per block. */

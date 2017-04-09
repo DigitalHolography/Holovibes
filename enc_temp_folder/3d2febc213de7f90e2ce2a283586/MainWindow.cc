@@ -1536,7 +1536,16 @@ namespace holovibes
 
 		void MainWindow::set_import_pixel_size(const double value)
 		{
-			holovibes_.get_compute_desc().import_pixel_size.exchange(value);
+			if (!is_direct_mode())
+			{
+				Config& config = global::global_config;
+				ComputeDescriptor& cd = holovibes_.get_compute_desc();
+				FrameDescriptor fd = holovibes_.get_capture_queue().get_frame_desc();
+
+				holovibes_.get_compute_desc().import_pixel_size.exchange(value);
+				config.import_pixel_size = cd.import_pixel_size.load();
+				fd.pixel_size = cd.import_pixel_size.load();
+			}
 		}
 
 		void MainWindow::set_z_iter(const int value)

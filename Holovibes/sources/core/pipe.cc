@@ -751,6 +751,7 @@ namespace holovibes
 	void Pipe::autofocus_caller(float* input, cudaStream_t stream)
 	{
 		/* Fill gpu_input complex buffer. */
+		int err = 0;
 		make_contiguous_complex(
 			input_,
 			gpu_input_buffer_,
@@ -766,7 +767,8 @@ namespace holovibes
 		* It will computes on copies. */
 		cufftComplex* gpu_input_buffer_tmp;
 		const size_t gpu_input_buffer_size = input_.get_pixels() * compute_desc_.nsamples.load() * sizeof(cufftComplex);
-		cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size);
+		if (cudaMalloc(&gpu_input_buffer_tmp, gpu_input_buffer_size) != cudaSuccess)
+			err++;
 		float z_step = (z_max - z_min) / z_div;
 
 		/* Compute square af zone. */
@@ -779,8 +781,10 @@ namespace holovibes
 				static_cast<float>(zone_width) : static_cast<float>(zone_height)))));
 		const unsigned int af_size = af_square_size * af_square_size;
 
-		cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float));
-		cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
+		if (cudaMalloc(&gpu_float_buffer_af_zone, af_size * sizeof(float)) == cudaSuccess)
+			cudaMemset(gpu_float_buffer_af_zone, 0, af_size * sizeof(float));
+		else
+			err++;
 
 		/// The main loop that calculates all z, and find the max one
 		// z_step will decrease and zmin and zmax will merge into
@@ -794,7 +798,11 @@ namespace holovibes
 
 		unsigned int max_pos = 0;
 		const unsigned int z_iter = compute_desc_.autofocus_z_iter.load();
-
+		if (err != 0)
+		{
+			std::cerr << "Autofocus : cannot allocate gpu memory" << std::endl;
+			return;
+		}
 		for (unsigned i = 0; i < z_iter; ++i)
 		{
 			for (float z = z_min; !autofocus_stop_requested_ && z < z_max; z += z_step)
@@ -924,8 +932,10 @@ namespace holovibes
 			compute_desc_.zdistance.exchange(af_z);
 		compute_desc_.notify_observers();
 
-		cudaFree(gpu_float_buffer_af_zone);
-		cudaFree(gpu_input_buffer_tmp);
+		if (gpu_float_buffer_af_zone)
+			cudaFree(gpu_float_buffer_af_zone);
+		if (gpu_input_buffer_tmp)
+			cudaFree(gpu_input_buffer_tmp);
 	}
 
 	void Pipe::exec()
