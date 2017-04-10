@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-# include "tools.hh"
 # include "texture_update.cuh"
 
 __global__
@@ -24,9 +23,8 @@ static void updateSliceTexture(float* frame, cudaSurfaceObject_t cuSurface, dim3
 	else if (frame[y * texDim.x + x] < 0.f)
 		frame[y * texDim.x + x] = 0;
 
-	const uchar p = static_cast<uchar>(frame[y * texDim.x + x] / 256.f);
-	//surf2Dwrite(make_uchar4(p, p, p, 0xff), cuSurface, x << 2, y);
-	surf2Dwrite(p, cuSurface, x << 2, y);
+	surf2Dwrite(static_cast<uchar>(frame[y * texDim.x + x] / 256.f),
+		cuSurface, x << 2, y);
 }
 
 /*__global__
@@ -52,10 +50,10 @@ static void TextureUpdate_16bit(unsigned short* frame,
 		static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x << 2, y);
 }*/
 
-void textureUpdate(cudaSurfaceObject_t		cuSurface,
-					void*					frame,
-					const FrameDescriptor&	fd,
-					cudaStream_t			stream)
+void textureUpdate(cudaSurfaceObject_t	cuSurface,
+				void*					frame,
+				const FrameDescriptor&	fd,
+				cudaStream_t			stream)
 {
 	dim3 threads(32, 32);
 	dim3 blocks(fd.width >> 5, fd.height >> 5);

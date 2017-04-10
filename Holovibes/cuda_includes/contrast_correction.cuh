@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
+# include "Common.cuh"
 
 /*! \brief Make the contrast of the image depending of the
 * maximum and minimum input given by the user.
@@ -27,12 +27,12 @@
 * \param max Maximum pixel value of the input image.
 *
 */
-void manual_contrast_correction(	float			*input,
-									const uint		size,
-									const ushort	dynamic_range,
-									const float		min,
-									const float		max,
-									cudaStream_t	stream = 0);
+void manual_contrast_correction(float			*input,
+								const uint		size,
+								const ushort	dynamic_range,
+								const float		min,
+								const float		max,
+								cudaStream_t	stream = 0);
 
 /*! \brief Find the minimum pixel value of an image and the maximum one.
 *
@@ -42,21 +42,21 @@ void manual_contrast_correction(	float			*input,
 * \param max Maximum pixel value found.
 *
 */
-void auto_contrast_correction(	float			*input,
+void auto_contrast_correction(float			*input,
+							const uint		size,
+							float			*min,
+							float			*max,
+							cudaStream_t	stream = 0);
+
+void auto_contrast_correction_cuts(ushort		*input,
 								const uint		size,
 								float			*min,
 								float			*max,
-								cudaStream_t	stream = 0);
+								cudaStream_t	stream);
 
-void auto_contrast_correction_cuts(	ushort			*input,
+void manual_contrast_correction_cuts(ushort			*input,
 									const uint		size,
-									float			*min,
-									float			*max,
+									const ushort	dynamic_range,
+									const float		min,
+									const float		max,
 									cudaStream_t	stream);
-
-void manual_contrast_correction_cuts(	ushort			*input,
-										const uint		size,
-										const ushort	dynamic_range,
-										const float		min,
-										const float		max,
-										cudaStream_t	stream);

@@ -11,17 +11,15 @@
 /* **************************************************************************** */
 
 #include "filter2D.cuh"
-#include "hardware_limits.hh"
-#include "frame_desc.hh"
-#include "tools.hh"
 
-__global__ void filter2D_roi(	complex		*input,
-								const uint	tl_x,
-								const uint	tl_y,
-								const uint	br_x,
-								const uint	br_y,
-								const uint	width,
-								const uint	size)
+__global__
+void filter2D_roi(cuComplex	*input,
+				const uint	tl_x,
+				const uint	tl_y,
+				const uint	br_x,
+				const uint	br_y,
+				const uint	width,
+				const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -38,12 +36,12 @@ __global__ void filter2D_roi(	complex		*input,
 }
 
 
-void filter2D(	complex							*input,
-				complex							*tmp_buffer,
-				const cufftHandle				plan2d,
-				const Rectangle&		r,
-				const FrameDescriptor&	desc,
-				cudaStream_t					stream)
+void filter2D(cuComplex				*input,
+			cuComplex				*tmp_buffer,
+			const cufftHandle		plan2d,
+			const Rectangle&		r,
+			const FrameDescriptor&	desc,
+			cudaStream_t			stream)
 {
 	uint threads = THREADS_128;
 	uint blocks = map_blocks_to_problem(desc.frame_res(), threads);
@@ -66,7 +64,7 @@ void filter2D(	complex							*input,
 		desc.width,
 		desc.width * desc.height);
 
-	cudaMemcpy(tmp_buffer, input, size * sizeof (complex), cudaMemcpyDeviceToDevice);
+	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
 	circ_shift << <blocks, threads, 0, stream >> >(
 		tmp_buffer,

@@ -10,6 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "options_parser.hh"
 #include "MainWindow.hh"
 
 int main(int argc, char* argv[])

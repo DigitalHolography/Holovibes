@@ -10,15 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "contrast_correction.cuh"
-#include "hardware_limits.hh"
-#include "tools.hh"
 #include <numeric>
+#include "contrast_correction.cuh"
 
-static __global__ void apply_contrast(	float		*input,
-										const uint	size,
-										const float	factor,
-										const float	min)
+static __global__
+void apply_contrast(float		*input,
+					const uint	size,
+					const float	factor,
+					const float	min)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -42,11 +41,11 @@ void manual_contrast_correction(float			*input,
 	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, min);
 }
 
-void auto_contrast_correction(	float			*input,
-								const uint		size,
-								float			*min,
-								float			*max,
-								cudaStream_t	stream)
+void auto_contrast_correction(float			*input,
+							const uint		size,
+							float			*min,
+							float			*max,
+							cudaStream_t	stream)
 {
 	float	*frame_cpu = new float[size]();
 	cudaMemcpyAsync(frame_cpu, input, sizeof(float) * size, cudaMemcpyDeviceToHost);

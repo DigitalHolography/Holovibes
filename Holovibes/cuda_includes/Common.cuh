@@ -12,40 +12,13 @@
 
 #pragma once
 
-# include <cuda_runtime.h>
 # include <cufft.h>
-# include <iostream>
 # include <device_launch_parameters.h>
-# include "compute_descriptor.hh"
 
-# ifndef _USE_MATH_DEFINES
-#  define _USE_MATH_DEFINES
-# endif
-# include <cmath>
-# include <math.h>
+# include "compute_descriptor.hh"
+# include "queue.hh"
+# include "tools.cuh"
 
 #define M_2PI		6.28318530717959f
 #define THREADS_256	256
 #define THREADS_128	128
-
-typedef	unsigned int	uint;
-typedef	unsigned short	ushort;
-typedef	unsigned char	uchar;
-typedef	cufftComplex	complex;
-
-/* Forward declaration. */
-namespace	holovibes
-{
-	class	Queue;
-	struct	UnwrappingResources;
-	struct	UnwrappingResources_2d;
-}
-
-namespace	camera
-{
-	struct	FrameDescriptor;
-}
-
-using namespace holovibes;
-using namespace gui;
-using namespace camera;

@@ -29,43 +29,40 @@
 # include <sys/stat.h>
 # include <thread>
 # include <vector>
+# include <sstream>
 
-# include "../GPIB/gpib_controller.hh"
-# include "../GPIB/gpib_exceptions.hh"
+// without namespace
+# include "tools.hh"
+
+// namespace camera
 # include "camera_exception.hh"
+
+// namespace gpib
+# include "gpib_dll.hh"
+# include "IVisaInterface.hh"
+# include "gpib_controller.hh"
+# include "gpib_exceptions.hh"
+
+// namespace holovibes
+# include "holovibes.hh"
+# include "queue.hh"
 # include "compute_descriptor.hh"
 # include "config.hh"
 # include "custom_exception.hh"
-# include "DirectWindow.hh"
-# include "gpib_dll.hh"
-# include "holovibes.hh"
-# include "HoloWindow.hh"
-# include "IVisaInterface.hh"
 # include "info_manager.hh"
-# include "options_parser.hh"
 # include "observer.hh"
 # include "options_descriptor.hh"
-# include "PlotWindow.hh"
-# include "queue.hh"
+
+// namespace gui
+# include "DirectWindow.hh"
+# include "HoloWindow.hh"
 # include "SliceWindow.hh"
-# include "sstream"
+# include "PlotWindow.hh"
 # include "thread_csv_record.hh"
 # include "thread_recorder.hh"
-# include "tools.hh"
 # include "ui_MainWindow.h"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
-
-/* Forward declarations. */
-namespace camera
-{
-	class CameraException;
-}
-
-namespace gpib
-{
-	class VisaInterface;
-}
 
 namespace holovibes
 {

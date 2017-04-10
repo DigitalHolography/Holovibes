@@ -413,7 +413,7 @@ namespace holovibes
 		void MainWindow::reload_ini()
 		{
 			import_file_stop();
-			load_ini("holovibes.ini");
+			load_ini(GLOBAL_INI_PATH);
 			notify();
 		}
 

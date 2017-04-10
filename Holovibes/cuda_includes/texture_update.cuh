@@ -12,13 +12,10 @@
 
 #pragma once
 
-# include <cuda_runtime.h>
 # include <surface_functions.h>
-# include <device_launch_parameters.h>
-# include "frame_desc.hh"
-# include "cuda_shared.cuh"
+# include "Common.cuh"
 
-void	textureUpdate(	cudaSurfaceObject_t		cuSurface,
-						void*					frame,
-						const FrameDescriptor&	fd,
-						cudaStream_t			stream);
+void	textureUpdate(cudaSurfaceObject_t	cuSurface,
+					void*					frame,
+					const FrameDescriptor&	fd,
+					cudaStream_t			stream);

@@ -26,7 +26,6 @@
 # include "pipeline_utils.hh"
 # include "Rectangle.hh"
 # include "observable.hh"
-//# include "sMainWindow.hh"
 
 /* Forward declarations. */
 namespace holovibes

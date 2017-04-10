@@ -11,10 +11,7 @@
 /* **************************************************************************** */
 
 #include "preprocessing.cuh"
-#include "hardware_limits.hh"
-#include "tools.hh"
 #include "tools_conversion.cuh"
-#include "queue.hh"
 
 
 void make_sqrt_vect(float			*out,
@@ -31,10 +28,10 @@ void make_sqrt_vect(float			*out,
 	delete[] vect;
 }
 
-void make_contiguous_complex(	Queue&			input,
-								complex*		output,
-								const uint		n,
-								cudaStream_t	stream)
+void make_contiguous_complex(Queue&			input,
+							cuComplex*		output,
+							const uint		n,
+							cudaStream_t	stream)
 {
 	const uint				threads = get_max_threads_1d();
 	const uint				blocks = map_blocks_to_problem(input.get_pixels() * n, threads);

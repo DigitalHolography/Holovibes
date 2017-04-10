@@ -12,9 +12,12 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
+# include "tools.hh"
+# include "compute_bundles.hh"
+# include "compute_bundles_2d.hh"
 
-//using namespace holovibes;
+using namespace gui;
+using namespace camera;
 
 /*! \brief  Apply a previously computed lens to image(s).
  *
@@ -27,10 +30,11 @@
  * \param lens The precomputed lens to apply.
  * \param lens_size The number of elements in the lens matrix.
  */
-__global__ void kernel_apply_lens(	complex*		input,
-									const uint		input_size,
-									const complex*	lens,
-									const uint		lens_size);
+__global__
+void kernel_apply_lens(cuComplex*		input,
+					const uint			input_size,
+					const cuComplex*	lens,
+					const uint			lens_size);
 
 /*! \brief Shifts in-place the corners of an image.
  *
@@ -43,10 +47,10 @@ __global__ void kernel_apply_lens(	complex*		input,
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
-void shift_corners(	float*			input,
-					const uint		size_x,
-					const uint		size_y,
-					cudaStream_t	stream = 0);
+void shift_corners(float*		input,
+				const uint		size_x,
+				const uint		size_y,
+				cudaStream_t	stream = 0);
 
 /*! \brief Compute the log base-10 of every element of the input.
 *
@@ -54,9 +58,9 @@ void shift_corners(	float*			input,
 * \param size The number of elements to process.
 * \param stream The CUDA stream on which to launch the operation.
 */
-void apply_log10(	float*			input,
-					const uint		size,
-					cudaStream_t	stream = 0);
+void apply_log10(float*			input,
+				const uint		size,
+				cudaStream_t	stream = 0);
 
 /*! \brief Allows demodulation in real time. Considering that we need (exactly like
 *   an STFT) put every pixel in a particular order to apply an FFT and then reconstruct
@@ -71,9 +75,9 @@ void apply_log10(	float*			input,
 * \param nsamples number of frames that will be used.
 
 */
-void demodulation(	complex*			input,
-					const cufftHandle	plan,
-					cudaStream_t		stream = 0);
+void demodulation(cuComplex*		input,
+				const cufftHandle	plan,
+				cudaStream_t		stream = 0);
 
 /*! \brief Apply the convolution operator to 2 complex matrices.
 *
@@ -85,13 +89,13 @@ void demodulation(	complex*			input,
 * \param plan2d_k Externally prepared plan for k
 * \param stream The CUDA stream on which to launch the operation.
 */
-void convolution_operator(	const complex*		x,
-							const complex*		k,
-							float*				out,
-							const uint			size,
-							const cufftHandle	plan2d_x,
-							const cufftHandle	plan2d_k,
-							cudaStream_t		stream = 0);
+void convolution_operator(const cuComplex*	x,
+						const cuComplex*	k,
+						float*				out,
+						const uint			size,
+						const cufftHandle	plan2d_x,
+						const cufftHandle	plan2d_k,
+						cudaStream_t		stream = 0);
 
 /*! \brief Extract a part of the input image to the output.
 *
@@ -102,12 +106,12 @@ void convolution_operator(	const complex*		x,
 * \param output_width In pixels, the desired width of the cropped image
 * \param stream The CUDA stream on which to launch the operation.
 */
-void frame_memcpy(	float*				input,
-					const Rectangle&	zone,
-					const uint			input_width,
-					float*				output,
-					const uint			output_width,
-					cudaStream_t		stream = 0);
+void frame_memcpy(float*			input,
+				const gui::Rectangle&	zone,
+				const uint			input_width,
+				float*				output,
+				const uint			output_width,
+				cudaStream_t		stream = 0);
 
 /*! \brief Make the average of every element contained in the input.
  *
@@ -117,9 +121,9 @@ void frame_memcpy(	float*				input,
  *
  * \return The average value of the *size* first elements.
  */
-float average_operator(	const float*	input,
-						const uint		size,
-						cudaStream_t	stream = 0);
+float average_operator(const float*	input,
+					const uint		size,
+					cudaStream_t	stream = 0);
 
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
@@ -131,17 +135,17 @@ float average_operator(	const float*	input,
 * two-by-two differences that exceed this cutoff value and performs
 * cumulative adjustments in order to 'smooth' the signal.
 */
-void phase_increase(const complex*			cur,
+void phase_increase(const cuComplex*		cur,
 					UnwrappingResources*	resources,
 					const size_t			image_size);
 
 /*! Main function for unwrap_2d calculations*/
-void unwrap_2d(	float*						input,
-				const cufftHandle			plan2d,
-				UnwrappingResources_2d*		res,
-				FrameDescriptor&			fd,
-				float*						output,
-				cudaStream_t				stream);
+void unwrap_2d(float*					input,
+			const cufftHandle			plan2d,
+			UnwrappingResources_2d*		res,
+			FrameDescriptor&			fd,
+			float*						output,
+			cudaStream_t				stream);
 
 /*! Gradient calculation for unwrap_2d calculations*/
 void gradient_unwrap_2d(const cufftHandle		plan2d,
@@ -150,34 +154,38 @@ void gradient_unwrap_2d(const cufftHandle		plan2d,
 						cudaStream_t			stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
-void eq_unwrap_2d(	const cufftHandle		plan2d,
-					UnwrappingResources_2d*	res,
-					FrameDescriptor&		fd,
-					cudaStream_t			stream);
+void eq_unwrap_2d(const cufftHandle		plan2d,
+				UnwrappingResources_2d*	res,
+				FrameDescriptor&		fd,
+				cudaStream_t			stream);
 
 /*! Phi calculation for unwrap_2d calculations*/
-void phi_unwrap_2d(	const cufftHandle		plan2d,
-					UnwrappingResources_2d*	res,
-					FrameDescriptor&		fd,
-					float*					output,
-					cudaStream_t			stream);
+void phi_unwrap_2d(const cufftHandle	plan2d,
+				UnwrappingResources_2d*	res,
+				FrameDescriptor&		fd,
+				float*					output,
+				cudaStream_t			stream);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
 **   and the size of the frame.
 */
-__global__ void circ_shift(	complex*	input,
-							complex*	output,
-							const int	i, // shift on x axis
-							const int	j, // shift on y axis
-							const uint	width,
-							const uint	height,
-							const uint	size);
+__global__
+void circ_shift(cuComplex*	input,
+				cuComplex*	output,
+				const int	i, // shift on x axis
+				const int	j, // shift on y axis
+				const uint	width,
+				const uint	height,
+				const uint	size);
 
-/*  \brief Circularly shifts the elements in input given a point(i,j) given float output & inputs*/
-__global__ void circ_shift_float(	float*		input,
-									float*		output,
-									const int	i, // shift on x axis
-									const int	j, // shift on y axis
-									const uint	width,
-									const uint	height,
-									const uint	size);
+/*  \brief Circularly shifts the elements in input given a point(i,j)
+**	given float output & inputs.
+*/
+__global__
+void circ_shift_float(float*	input,
+					float*		output,
+					const int	i, // shift on x axis
+					const int	j, // shift on y axis
+					const uint	width,
+					const uint	height,
+					const uint	size);

@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
+# include "Common.cuh"
 
 /*! \brief Compute a lens to apply to an image used by the fft1
 *
@@ -21,10 +21,11 @@
 * \param lambda Laser dependent wave lenght
 * \param dist z choosen
 */
-__global__ void kernel_quadratic_lens(	complex							*output,
-										const camera::FrameDescriptor	fd,
-										const float						lambda,
-										const float						dist);
+__global__
+void kernel_quadratic_lens(cuComplex			*output,
+						const FrameDescriptor	fd,
+						const float				lambda,
+						const float				dist);
 
 /*! \brief Compute a lens to apply to an image used by the fft2
 *
@@ -33,7 +34,8 @@ __global__ void kernel_quadratic_lens(	complex							*output,
 * \param lambda Laser dependent wave lenght
 * \param dist z choosen
 */
-__global__ void kernel_spectral_lens(	complex							*output,
-										const camera::FrameDescriptor	fd,
-										const float						lambda,
-										const float						distance);
+__global__
+void kernel_spectral_lens(cuComplex				*output,
+						const FrameDescriptor	fd,
+						const float				lambda,
+						const float				distance);

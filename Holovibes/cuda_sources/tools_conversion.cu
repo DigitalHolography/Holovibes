@@ -11,12 +11,11 @@
 /* **************************************************************************** */
 
 #include "tools_conversion.cuh"
-#include "hardware_limits.hh"
-#include "tools.hh"
 
-__global__ void img8_to_complex(complex			*output,
-								const uchar		*input,
-								const uint		size)
+__global__
+void img8_to_complex(cuComplex		*output,
+					const uchar		*input,
+					const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -29,9 +28,10 @@ __global__ void img8_to_complex(complex			*output,
 	}
 }
 
-__global__ void img16_to_complex(	complex			*output,
-									const ushort	*input,
-									const uint		size)
+__global__
+void img16_to_complex(cuComplex		*output,
+					const ushort	*input,
+					const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -43,9 +43,10 @@ __global__ void img16_to_complex(	complex			*output,
 	}
 }
 
-__global__ void float_to_complex(	complex		*output,
-									const float	*input,
-									const uint	size)
+__global__
+void float_to_complex(cuComplex	*output,
+					const float	*input,
+					const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -58,9 +59,10 @@ __global__ void float_to_complex(	complex		*output,
 }
 
 /* Kernel function wrapped by complex_to_modulus. */
-static __global__ void kernel_complex_to_modulus(	const complex	*input,
-													float			*output,
-													const uint		size)
+static __global__
+void kernel_complex_to_modulus(const cuComplex	*input,
+							float				*output,
+							const uint			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -70,7 +72,7 @@ static __global__ void kernel_complex_to_modulus(	const complex	*input,
 	}
 }
 
-void complex_to_modulus(const complex	*input,
+void complex_to_modulus(const cuComplex	*input,
 						float			*output,
 						const uint		size,
 						cudaStream_t	stream)
@@ -82,9 +84,10 @@ void complex_to_modulus(const complex	*input,
 }
 
 /* Kernel function wrapped in complex_to_squared_modulus. */
-static __global__ void kernel_complex_to_squared_modulus(	const complex	*input,
-															float			*output,
-															const uint		size)
+static __global__
+void kernel_complex_to_squared_modulus(const cuComplex	*input,
+									float				*output,
+									const uint			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -95,7 +98,7 @@ static __global__ void kernel_complex_to_squared_modulus(	const complex	*input,
 	}
 }
 
-void complex_to_squared_modulus(const complex	*input,
+void complex_to_squared_modulus(const cuComplex	*input,
 								float			*output,
 								const uint		size,
 								cudaStream_t	stream)
@@ -107,9 +110,10 @@ void complex_to_squared_modulus(const complex	*input,
 }
 
 /* Kernel function wrapped in complex_to_argument. */
-static __global__ void kernel_complex_to_argument(	const complex	*input,
-													float			*output,
-													const uint		size)
+static __global__
+void kernel_complex_to_argument(const cuComplex	*input,
+								float			*output,
+								const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -119,10 +123,10 @@ static __global__ void kernel_complex_to_argument(	const complex	*input,
 	}
 }
 
-void complex_to_argument(	const complex	*input,
-							float			*output,
-							const uint		size,
-							cudaStream_t	stream)
+void complex_to_argument(const cuComplex	*input,
+						float			*output,
+						const uint		size,
+						cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -142,10 +146,11 @@ void complex_to_argument(	const complex	*input,
  * \param max Array of Size floats, which will contain local maxima.
  */
 template <uint Size>
-static __global__ void kernel_minmax(	const float		*data,
-										const size_t	size,
-										float			*min,
-										float			*max)
+static __global__
+void kernel_minmax(const float	*data,
+				const size_t	size,
+				float			*min,
+				float			*max)
 {
 	__shared__ float local_min[Size];
 	__shared__ float local_max[Size];
@@ -175,11 +180,12 @@ static __global__ void kernel_minmax(	const float		*data,
 }
 
 template <typename T>
-static __global__ void kernel_rescale(	T				*data,
-										const size_t	size,
-										const T			min,
-										const T			max,
-										const T			new_max)
+static __global__
+void kernel_rescale(T				*data,
+					const size_t	size,
+					const T			min,
+					const T			max,
+					const T			new_max)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	if (index > size)
@@ -188,10 +194,10 @@ static __global__ void kernel_rescale(	T				*data,
 	data[index] = (data[index] + fabsf(min)) * new_max / (fabsf(max) + fabsf(min));
 }
 
-void rescale_float(	const float		*input,
-					float			*output,
-					const uint		size,
-					cudaStream_t	stream)
+void rescale_float(const float	*input,
+				float			*output,
+				const uint		size,
+				cudaStream_t	stream)
 {
 	const uint threads = THREADS_128;
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -257,8 +263,9 @@ void rescale_float_unwrap2d(float			*input,
 		frame_res);
 }
 
-__global__ void kernel_rescale_argument(float		*input,
-										const uint	size)
+__global__
+void kernel_rescale_argument(float		*input,
+							const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -268,9 +275,9 @@ __global__ void kernel_rescale_argument(float		*input,
 	}
 }
 
-void rescale_argument(	float			*input,
-						const uint		frame_res,
-						cudaStream_t	stream)
+void rescale_argument(float			*input,
+					const uint		frame_res,
+					cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -281,9 +288,10 @@ void rescale_argument(	float			*input,
 /*! \brief Kernel function wrapped in endianness_conversion, making
  ** the call easier
  **/
-static __global__ void kernel_endianness_conversion(const ushort	*input,
-													ushort			*output,
-													const uint		size)
+static __global__
+void kernel_endianness_conversion(const ushort	*input,
+								ushort			*output,
+								const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -293,10 +301,10 @@ static __global__ void kernel_endianness_conversion(const ushort	*input,
 	}
 }
 
-void endianness_conversion(	const ushort	*input,
-							ushort			*output,
-							const uint		size,
-							cudaStream_t	stream)
+void endianness_conversion(const ushort	*input,
+						ushort			*output,
+						const uint		size,
+						cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -307,9 +315,10 @@ void endianness_conversion(	const ushort	*input,
 /*! \brief Kernel function wrapped in float_to_ushort, making
  ** the call easier
  **/
-static __global__ void kernel_float_to_ushort(	const float	*input,
-												ushort		*output,
-												const uint	size)
+static __global__
+void kernel_float_to_ushort(const float	*input,
+							ushort		*output,
+							const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -324,9 +333,10 @@ static __global__ void kernel_float_to_ushort(	const float	*input,
 	}
 }
 
-static __global__ void kernel_complex_to_ushort(const complex	*input,
-												uint			*output,
-												const uint		size)
+static __global__
+void kernel_complex_to_ushort(const cuComplex	*input,
+							uint				*output,
+							const uint			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -350,10 +360,10 @@ static __global__ void kernel_complex_to_ushort(const complex	*input,
 	}
 }
 
-void float_to_ushort(	const float		*input,
-						ushort			*output,
-						const uint		size,
-						cudaStream_t	stream)
+void float_to_ushort(const float	*input,
+					ushort			*output,
+					const uint		size,
+					cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -361,10 +371,10 @@ void float_to_ushort(	const float		*input,
 	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
-void complex_to_ushort(	const complex	*input,
-						uint			*output,
-						const uint		size,
-						cudaStream_t	stream)
+void complex_to_ushort(const cuComplex	*input,
+					uint				*output,
+					const uint			size,
+					cudaStream_t		stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
@@ -373,7 +383,7 @@ void complex_to_ushort(	const complex	*input,
 }
 
 /*! \brief Memcpy of a complex sized frame into another buffer */
-void complex_to_complex(const complex*	input,
+void complex_to_complex(const cuComplex	*input,
 						ushort*			output,
 						const uint		size,
 						cudaStream_t	stream)
@@ -381,12 +391,13 @@ void complex_to_complex(const complex*	input,
 	cudaMemcpy(output, input, size, cudaMemcpyDeviceToDevice);
 }
 
-__global__ void	kernel_buffer_size_conversion(	char			*real_buffer,
-												const char		*buffer,
-												const size_t	frame_desc_width,
-												const size_t	frame_desc_height,
-												const size_t	real_frame_desc_width,
-												const size_t	area)
+__global__
+void kernel_buffer_size_conversion(char			*real_buffer,
+								const char		*buffer,
+								const size_t	frame_desc_width,
+								const size_t	frame_desc_height,
+								const size_t	real_frame_desc_width,
+								const size_t	area)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -399,10 +410,10 @@ __global__ void	kernel_buffer_size_conversion(	char			*real_buffer,
 	}
 }
 
-void	buffer_size_conversion(	char*					real_buffer,
-								const char*				buffer,
-								const FrameDescriptor	real_frame_desc,
-								const FrameDescriptor	frame_desc)
+void buffer_size_conversion(char*					real_buffer,
+							const char*				buffer,
+							const FrameDescriptor	real_frame_desc,
+							const FrameDescriptor	frame_desc)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem((frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth)), threads);
@@ -415,12 +426,13 @@ void	buffer_size_conversion(	char*					real_buffer,
 																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
 }
 
-__global__ void kernel_accumulate_images(	const float*	input,
-											float*			output,
-											const size_t	start,
-											const size_t	max_elmt,
-											const size_t	nb_elmt,
-											const size_t	nb_pixel)
+__global__
+void kernel_accumulate_images(const float	*input,
+							float			*output,
+							const size_t	start,
+							const size_t	max_elmt,
+							const size_t	nb_elmt,
+							const size_t	nb_pixel)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	size_t	i = 0;
@@ -442,13 +454,13 @@ __global__ void kernel_accumulate_images(	const float*	input,
 /*! \brief Kernel function wrapped in accumulate_images, making
 ** the call easier
 **/
-void accumulate_images(	const float		*input,
-						float			*output,
-						const size_t	start,
-						const size_t	max_elmt,
-						const size_t	nb_elmt,
-						const size_t	nb_pixel,
-						cudaStream_t	stream)
+void accumulate_images(const float	*input,
+					float			*output,
+					const size_t	start,
+					const size_t	max_elmt,
+					const size_t	nb_elmt,
+					const size_t	nb_pixel,
+					cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
@@ -456,10 +468,11 @@ void accumulate_images(	const float		*input,
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
 }
 
-__global__ void kernel_normalize_images(float		*image,
-										const float	max,
-										const float	min,
-										const uint	size)
+__global__
+void kernel_normalize_images(float		*image,
+							const float	max,
+							const float	min,
+							const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 

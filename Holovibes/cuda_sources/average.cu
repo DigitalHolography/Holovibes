@@ -10,13 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <qpoint.h>
-
 #include "average.cuh"
-#include "tools.hh"
-#include "tools.cuh"
 #include "tools_conversion.cuh"
-#include "hardware_limits.hh"
 
 /*! \brief  Sume 2 zone of input image
 *
@@ -25,13 +20,14 @@
 * \param height The height of the input image.
 *
 */
-static __global__ void kernel_zone_sum(	const float	*input,
-										const uint	width,
-										float		*output,
-										const uint	zTopLeft_x,
-										const uint	zTopLeft_y,
-										const uint	zone_width,
-										const uint	zone_height)
+static __global__ 
+void kernel_zone_sum(const float	*input,
+					const uint		width,
+					float			*output,
+					const uint		zTopLeft_x,
+					const uint		zTopLeft_y,
+					const uint		zone_width,
+					const uint		zone_height)
 {
 	const uint				size = zone_width * zone_height;
 	const uint				tid = threadIdx.x;
@@ -75,12 +71,12 @@ static __global__ void kernel_zone_sum(	const float	*input,
 		*output = sdata[0];
 }
 
-std::tuple<float, float, float, float> make_average_plot(	float						*input,
-															const uint					width,
-															const uint					height,
-															const gui::Rectangle&	signal,
-															const gui::Rectangle&	noise,
-															cudaStream_t				stream)
+Tuple4f make_average_plot(float				*input,
+						const uint			width,
+						const uint			height,
+						const Rectangle&	signal,
+						const Rectangle&	noise,
+						cudaStream_t		stream)
 {
 	//const uint size = width * height;
 	const uint threads = THREADS_256;
@@ -125,39 +121,24 @@ std::tuple<float, float, float, float> make_average_plot(	float						*input,
 	cudaFree(gpu_n);
 	cudaFree(gpu_s);
 
-	return std::tuple < float, float, float, float > { cpu_s, cpu_n, moy, 10 * log10f(moy)};
+	return Tuple4f{ cpu_s, cpu_n, moy, 10 * log10f(moy)};
 }
 
-std::tuple<float, float, float, float> make_average_stft_plot(	complex					*cbuf,
-																float					*fbuf,
-																complex					*stft_buffer,
-																const uint				width,
-																const uint				height,
-																const uint				width_roi,
-																const uint				height_roi,
-																gui::Rectangle&	signal_zone,
-																gui::Rectangle&	noise_zone,
-																const uint				pindex,
-																const uint				nsamples,
-																cudaStream_t			stream)
+Tuple4f make_average_stft_plot(cuComplex	*cbuf,
+							float			*fbuf,
+							cuComplex		*stft_buffer,
+							const uint		width,
+							const uint		height,
+							const uint		width_roi,
+							const uint		height_roi,
+							Rectangle&		signal_zone,
+							Rectangle&		noise_zone,
+							const uint		pindex,
+							const uint		nsamples,
+							cudaStream_t	stream)
 {
-	std::tuple<float, float, float, float> res;
-
-	const uint size = width * height;
-	//uint threads = 128;
-	//uint blocks = map_blocks_to_problem(size, threads);
-
-	// Reconstruct Roi
-	/*kernel_reconstruct_roi << <blocks, threads, 0, stream >> >(
-	  stft_buffer,
-	  cbuf,
-	  width_roi,
-	  height_roi,
-	  width,
-	  width,
-	  height,
-	  pindex,
-	  nsamples);*/
+	Tuple4f		res;
+	const uint	size = width * height;
 
 	complex_to_modulus(cbuf, fbuf, size, stream);
 

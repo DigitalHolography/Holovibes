@@ -12,8 +12,7 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
-# include "compute_descriptor.hh"
+# include "Common.cuh"
 
 /*! \brief Precompute the sqrt q sqrt vector of values in
 * range 0 to n.
@@ -23,7 +22,7 @@
 * this array should have size greater or equal to n.
 */
 void make_sqrt_vect(float			*out,
-					const			ushort n,
+					const ushort	n,
 					cudaStream_t	stream = 0);
 
 /*! \brief Ensure the contiguity of images extracted from
@@ -47,7 +46,7 @@ void make_sqrt_vect(float			*out,
  * this function would need an unsigned short buffer that is unused
  * anywhere else.
  */
-void make_contiguous_complex(	holovibes::Queue&	input,
-								complex				*output,
-								const uint			n,
-								cudaStream_t		stream = 0);
+void make_contiguous_complex(Queue&			input,
+							cuComplex		*output,
+							const uint		n,
+							cudaStream_t	stream = 0);

@@ -11,36 +11,34 @@
 /* **************************************************************************** */
 
 #include "flowgraphy.cuh"
-#include "hardware_limits.hh"
-#include "tools.hh"
 
-
-__global__ void kernel_flowgraphy(	complex			*input,
-									const complex	*gpu_special_queue,
-									const uint		gpu_special_queue_buffer_length,
-									const complex	*gpu_special_queue_end,
-									const uint		start_index,
-									const uint		max_index,
-									const uint		frame_resolution,
-									const uint		i_width,
-									const uint		nsamples,
-									const uint		n_i)
+__global__
+void kernel_flowgraphy(cuComplex	*input,
+					const cuComplex	*gpu_special_queue,
+					const uint		gpu_special_queue_buffer_length,
+					const cuComplex	*gpu_special_queue_end,
+					const uint		start_index,
+					const uint		max_index,
+					const uint		frame_resolution,
+					const uint		i_width,
+					const uint		nsamples,
+					const uint		n_i)
 {
 	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
-	complex M = make_cuComplex(0, 0);
-	complex D = make_cuComplex(0, 0);
+	cuComplex M = make_cuComplex(0, 0);
+	cuComplex D = make_cuComplex(0, 0);
 	//uint size = frame_resolution * nsamples;
 	while (index < frame_resolution)
 	{
 		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nsamples >> 1)) % gpu_special_queue_buffer_length;
-		complex b = gpu_special_queue[deplacement];
+		cuComplex b = gpu_special_queue[deplacement];
 
 		for (int k = 0; k < nsamples; ++k)
 		for (int j = 0; j < nsamples; ++j)
 		for (int i = 0; i < nsamples; ++i)
 		{
 			deplacement = (index + i + (j * i_width) + (((k + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length; // while x while y, on peut virer le modulo
-			complex a = gpu_special_queue[deplacement];
+			cuComplex a = gpu_special_queue[deplacement];
 			M.x += a.x;
 			M.y += a.y;
 			float diffx = a.x - b.x;
@@ -58,14 +56,14 @@ __global__ void kernel_flowgraphy(	complex			*input,
 }
 
 
-void convolution_flowgraphy(complex			*input,
-							complex			*gpu_special_queue,
-							uint&			gpu_special_queue_start_index,
-							const uint		gpu_special_queue_max_index,
-							const uint		frame_resolution,
-							const uint		frame_width,
-							const uint		nframes,
-							cudaStream_t	stream)
+void convolution_flowgraphy(cuComplex	*input,
+						cuComplex		*gpu_special_queue,
+						uint&			gpu_special_queue_start_index,
+						const uint		gpu_special_queue_max_index,
+						const uint		frame_resolution,
+						const uint		frame_width,
+						const uint		nframes,
+						cudaStream_t	stream)
 {
 	// const uint n_frame_resolution = frame_resolution * nframes;
 	uint threads = get_max_threads_1d();
@@ -80,12 +78,12 @@ void convolution_flowgraphy(complex			*input,
 	cudaMemcpy(
 		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
 		input,
-		sizeof(complex) * frame_resolution,
+		sizeof(cuComplex) * frame_resolution,
 		cudaMemcpyDeviceToDevice);
 
 	uint n = static_cast<uint>(nframes * nframes * nframes - 3);
 	uint  gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
-	complex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
+	cuComplex* gpu_special_queue_end = gpu_special_queue + gpu_special_queue_buffer_length;
 
 	kernel_flowgraphy <<<blocks, threads, 0, stream>>>(	input,
 														gpu_special_queue,

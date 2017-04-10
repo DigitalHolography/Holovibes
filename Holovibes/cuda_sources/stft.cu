@@ -11,23 +11,19 @@
 /* **************************************************************************** */
 
 #include "stft.cuh"
-#include "hardware_limits.hh"
-#include "frame_desc.hh"
-#include "tools.hh"
-#include "tools.cuh"
 
-void stft(	complex				*input,
-			complex				*gpu_queue,
-			complex				*stft_buf,
-			const cufftHandle	plan1d,
-			const uint			tft_level,
-			const uint			p,
-			const uint			q,
-			const uint			frame_size,
-			const bool			stft_activated,
-			cudaStream_t		stream)
+void stft(cuComplex			*input,
+		cuComplex			*gpu_queue,
+		cuComplex			*stft_buf,
+		const cufftHandle	plan1d,
+		const uint			tft_level,
+		const uint			p,
+		const uint			q,
+		const uint			frame_size,
+		const bool			stft_activated,
+		cudaStream_t		stream)
 {
-	const uint complex_frame_size = sizeof(complex) * frame_size;
+	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
 	// FFT 1D
 	if (stft_activated)
 		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
@@ -46,23 +42,24 @@ void stft(	complex				*input,
 	}
 }
 
-__global__	static void	kernel_stft_view(	const complex	*input,
-											float			*output_xz,
-											float			*output_yz,
-											const uint		start_x,
-											const uint		start_y,
-											const uint		frame_size,
-											const uint		output_size,
-											const uint		width,
-											const uint		height,
-											const uint		depth,
-											const uint		acc_level_xz,
-											const uint		acc_level_yz)
+__global__
+static void	kernel_stft_view(const cuComplex	*input,
+							float				*output_xz,
+							float				*output_yz,
+							const uint			start_x,
+							const uint			start_y,
+							const uint			frame_size,
+							const uint			output_size,
+							const uint			width,
+							const uint			height,
+							const uint			depth,
+							const uint			acc_level_xz,
+							const uint			acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
 	{
-		complex pixel = make_cuComplex(0, 0);
+		cuComplex pixel = make_cuComplex(0, 0);
 		int i = -1;
 		uint img_acc_level = acc_level_yz;
 		while (++i < img_acc_level)
@@ -81,16 +78,16 @@ __global__	static void	kernel_stft_view(	const complex	*input,
 	}
 }
 
-void	stft_view_begin(const complex	*input,
-						float			*outputxz,
-						float			*outputyz,
-						const uint		start_x,
-						const uint		start_y,
-						const uint		width,
-						const uint		height,
-						const uint		depth,
-						const uint		acc_level_xz,
-						const uint		acc_level_yz)
+void stft_view_begin(const cuComplex	*input,
+					float				*outputxz,
+					float				*outputyz,
+					const uint			start_x,
+					const uint			start_y,
+					const uint			width,
+					const uint			height,
+					const uint			depth,
+					const uint			acc_level_xz,
+					const uint			acc_level_yz)
 {
 	const uint frame_size = width * height;
 	const uint output_size = width * depth;

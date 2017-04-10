@@ -142,7 +142,7 @@
     <ClInclude Include="cuda_includes\average.cuh" />
     <ClInclude Include="cuda_includes\contrast_correction.cuh" />
     <ClInclude Include="cuda_includes\convolution.cuh" />
-    <ClInclude Include="cuda_includes\cuda_shared.cuh" />
+    <ClInclude Include="cuda_includes\Common.cuh" />
     <ClInclude Include="cuda_includes\fft1.cuh" />
     <ClInclude Include="cuda_includes\fft2.cuh" />
     <ClInclude Include="cuda_includes\filter2D.cuh" />
@@ -153,7 +153,6 @@
     <ClInclude Include="cuda_includes\tools.cuh" />
     <ClInclude Include="cuda_includes\tools_compute.cuh" />
     <ClInclude Include="cuda_includes\tools_conversion.cuh" />
-    <ClInclude Include="cuda_includes\tools_multiply.cuh" />
     <ClInclude Include="cuda_includes\tools_unwrap.cuh" />
     <ClInclude Include="cuda_includes\transforms.cuh" />
     <ClInclude Include="cuda_includes\vibrometry.cuh" />

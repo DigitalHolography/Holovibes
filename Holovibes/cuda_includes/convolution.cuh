@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
+# include "Common.cuh"
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
             
@@ -29,8 +29,8 @@
 * \param k_height kernel's height
 * \param k_z kernel's depth
 */
-void convolution_kernel(cufftComplex	*input,
-						cufftComplex	*gpu_special_queue,
+void convolution_kernel(cuComplex		*input,
+						cuComplex		*gpu_special_queue,
 						const uint		frame_resolution,
 						const uint		frame_width,
 						const float		*kernel,

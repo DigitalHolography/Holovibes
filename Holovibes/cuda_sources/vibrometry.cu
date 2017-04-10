@@ -11,13 +11,12 @@
 /* **************************************************************************** */
 
 #include "vibrometry.cuh"
-#include "hardware_limits.hh"
-#include "tools.hh"
 
-static __global__ void kernel_frame_ratio(	const complex	*frame_p,
-											const complex	*frame_q,
-											complex			*output,
-											const uint		size)
+static __global__
+void kernel_frame_ratio(const cuComplex	*frame_p,
+						const cuComplex	*frame_q,
+						cuComplex		*output,
+						const uint		size)
 {
   uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -40,11 +39,11 @@ static __global__ void kernel_frame_ratio(	const complex	*frame_p,
   }
 }
 
-void frame_ratio(	const complex	*frame_p,
-					const complex	*frame_q,
-					complex			*output,
-					const uint		size,
-					cudaStream_t	stream)
+void frame_ratio(const cuComplex	*frame_p,
+				const cuComplex		*frame_q,
+				cuComplex			*output,
+				const uint			size,
+				cudaStream_t		stream)
 {
   uint threads = get_max_threads_1d();
   uint blocks = map_blocks_to_problem(size, threads);

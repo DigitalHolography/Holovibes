@@ -29,7 +29,6 @@ namespace camera
 	 * in the rendering window and the holograms computations. */
 	struct FrameDescriptor
 	{
-	public:
 		//!< Obtain the total frame size in bytes.
 		unsigned int frame_size() const
 		{

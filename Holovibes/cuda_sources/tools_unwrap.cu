@@ -12,9 +12,10 @@
 
 #include "tools_unwrap.cuh"
 
-__global__ void kernel_extract_angle(	const complex	*input,
-										float			*output,
-										const size_t	size)
+__global__
+void kernel_extract_angle(const cuComplex	*input,
+						float				*output,
+						const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	if (index < size)
@@ -24,10 +25,11 @@ __global__ void kernel_extract_angle(	const complex	*input,
 	}
 }
 
-__global__ void kernel_unwrap(	const float		*pred,
-								const float		*cur,
-								float			*output,
-								const size_t	size)
+__global__
+void kernel_unwrap(const float	*pred,
+				const float		*cur,
+				float			*output,
+				const size_t	size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	if (index < size)
@@ -46,15 +48,16 @@ __global__ void kernel_unwrap(	const float		*pred,
 	}
 }
 
-__global__ void kernel_compute_angle_mult(	const complex	*pred,
-											const complex	*cur,
-											float			*output,
-											const size_t	size)
+__global__
+void kernel_compute_angle_mult(const cuComplex	*pred,
+							const cuComplex		*cur,
+							float				*output,
+							const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	if (index < size)
 	{
-		complex conj_prod;
+		cuComplex conj_prod;
 		conj_prod = cur[index];
 
 		conj_prod.x *= pred[index].x;
@@ -67,25 +70,27 @@ __global__ void kernel_compute_angle_mult(	const complex	*pred,
 	}
 }
 
-__global__ void kernel_compute_angle_diff(	const complex	*pred,
-											const complex	*cur,
-											float			*output,
-											const size_t	size)
+__global__
+void kernel_compute_angle_diff(const cuComplex	*pred,
+							const cuComplex		*cur,
+							float				*output,
+							const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	if (index < size)
 	{
-		complex diff = cur[index];
+		cuComplex diff = cur[index];
 		diff.x -= pred[index].x;
 		diff.y -= pred[index].y;
 		output[index] = std::atan2(diff.y, diff.x);
 	}
 }
 
-__global__ void kernel_correct_angles(	float			*data,
-										const float		*corrections,
-										const size_t	image_size,
-										const size_t	history_size)
+__global__
+void kernel_correct_angles(float		*data,
+						const float		*corrections,
+						const size_t	image_size,
+						const size_t	history_size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	const size_t size = history_size * image_size;
@@ -96,13 +101,14 @@ __global__ void kernel_correct_angles(	float			*data,
 			data[index] += corrections[correction_idx];
 }
 
-__global__ void kernel_init_unwrap_2d(	const uint	width,
-										const uint	height,
-										const uint	frame_res,
-										const float	*input,
-										float		*fx,
-										float		*fy,
-										complex		*z)
+__global__
+void kernel_init_unwrap_2d(const uint	width,
+						const uint		height,
+						const uint		frame_res,
+						const float		*input,
+						float			*fx,
+						float			*fy,
+						cuComplex		*z)
 {
 	const uint i = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -119,11 +125,12 @@ __global__ void kernel_init_unwrap_2d(	const uint	width,
 	}
 }
 
-__global__ void kernel_multiply_complexes_by_floats_(	const float	*input1,
-														const float	*input2,
-														complex		*output1,
-														complex		*output2,
-														const uint	size)
+__global__
+void kernel_multiply_complexes_by_floats_(const float	*input1,
+										const float		*input2,
+										cuComplex		*output1,
+										cuComplex		*output2,
+										const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -136,17 +143,18 @@ __global__ void kernel_multiply_complexes_by_floats_(	const float	*input1,
 	}
 }
 
-__global__ void kernel_multiply_complexes_by_single_complex(complex			*output1,
-															complex			*output2,
-															const complex	input,
-															const uint		size)
+__global__
+void kernel_multiply_complexes_by_single_complex(cuComplex	*output1,
+											cuComplex		*output2,
+											const cuComplex	input,
+											const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		const complex cpy_o1 = output1[index];
-		const complex cpy_o2 = output2[index];
+		const cuComplex cpy_o1 = output1[index];
+		const cuComplex cpy_o2 = output2[index];
 
 		output1[index].x = cpy_o1.x * input.x - cpy_o1.y * input.y;
 		output1[index].y = cpy_o1.x * input.y + cpy_o1.y * input.x;
@@ -156,22 +164,24 @@ __global__ void kernel_multiply_complexes_by_single_complex(complex			*output1,
 	}
 }
 
-__global__ void kernel_multiply_complex_by_single_complex(	complex			*output,
-															const complex	input,
-															const uint		size)
+__global__
+void kernel_multiply_complex_by_single_complex(cuComplex	*output,
+											const cuComplex	input,
+											const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		const complex cpy_o1 = output[index];
+		const cuComplex cpy_o1 = output[index];
 
 		output[index].x = cpy_o1.x * input.x - cpy_o1.y * input.y;
 		output[index].y = cpy_o1.x * input.y + cpy_o1.y * input.x;
 	}
 }
 
-__global__ void kernel_conjugate_complex(complex* output, const uint size)
+__global__
+void kernel_conjugate_complex(cuComplex* output, const uint size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -181,17 +191,18 @@ __global__ void kernel_conjugate_complex(complex* output, const uint size)
 	}
 }
 
-__global__ void kernel_multiply_complex_frames_by_complex_frame(complex			*output1,
-																complex			*output2,
-																const complex	*input,
-																const uint		size)
+__global__
+void kernel_multiply_complex_frames_by_complex_frame(cuComplex		*output1,
+													cuComplex		*output2,
+													const cuComplex	*input,
+													const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		const complex cpy_o1 = output1[index];
-		const complex cpy_o2 = output2[index];
+		const cuComplex cpy_o1 = output1[index];
+		const cuComplex cpy_o2 = output2[index];
 
 		output1[index].x = cpy_o1.x * input[index].x - cpy_o1.y * input[index].y;
 		output1[index].y = cpy_o1.x * input[index].y + cpy_o1.y * input[index].x;
@@ -200,11 +211,12 @@ __global__ void kernel_multiply_complex_frames_by_complex_frame(complex			*outpu
 	}
 }
 
-__global__ void kernel_norm_ratio(	const float	*input1,
-									const float	*input2,
-									complex		*output1,
-									complex		*output2,
-									const uint	size)
+__global__
+	void kernel_norm_ratio(const float	*input1,
+						const float	*input2,
+						cuComplex		*output1,
+						cuComplex		*output2,
+						const uint	size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -232,9 +244,10 @@ __global__ void kernel_norm_ratio(	const float	*input1,
 	}
 }
 
-__global__ void kernel_add_complex_frames(	complex			*output,
-											const complex	*input,
-											const uint		size)
+__global__
+void kernel_add_complex_frames(cuComplex	*output,
+							const cuComplex	*input,
+							const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -245,22 +258,13 @@ __global__ void kernel_add_complex_frames(	complex			*output,
 	}
 }
 
-__global__ void kernel_unwrap2d_last_step(	float			*output,
-											const complex	*input,
-											const uint		size)
+__global__
+void kernel_unwrap2d_last_step(float		*output,
+							const cuComplex	*input,
+							const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 		output[index] = input[index].y / -M_2PI;
 }
-
-// Is this function really used ?
-
-//__global__ void kernel_convergence(complex* input1, complex* input2)
-//{
-//	input1[0].x = 0;
-//	input1[0].y = 0;
-//	input2[0].x = 0;
-//	input2[0].y = 0;
-//}

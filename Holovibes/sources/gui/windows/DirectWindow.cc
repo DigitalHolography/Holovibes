@@ -187,7 +187,7 @@ namespace holovibes
 			if (Fd.depth == 4.f)
 				float_to_ushort(static_cast<const float*>(frame), static_cast<ushort*>(cuPtrToPbo), Fd.frame_res());
 			else if (Fd.depth == 8.f)
-				complex_to_ushort(static_cast<const complex *>(frame), static_cast<uint*>(cuPtrToPbo), Fd.frame_res());
+				complex_to_ushort(static_cast<const cuComplex*>(frame), static_cast<uint*>(cuPtrToPbo), Fd.frame_res());
 			else
 				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 			cudaGraphicsUnmapResources(1, &cuResource, cuStream);

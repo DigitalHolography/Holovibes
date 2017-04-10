@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "cuda_shared.cuh"
+#include "Common.cuh"
 
 /*! \brief Function handling the stft algorithm which steps are \n
  * 1 : Aplly lens on the input queue \n
@@ -43,24 +43,24 @@
  *
  *\endverbatim
  */
-void stft(	complex				*input,
-			complex				*gpu_queue,
-			complex				*stft_buf,
-			const cufftHandle	plan1d,
-			const uint			stft_level,
-			const uint			p,
-			const uint			q,
-			const uint			frame_size,
-			const bool			stft_activated,
-			cudaStream_t		stream = 0);
+void stft(cuComplex			*input,
+		cuComplex			*gpu_queue,
+		cuComplex			*stft_buf,
+		const cufftHandle	plan1d,
+		const uint			stft_level,
+		const uint			p,
+		const uint			q,
+		const uint			frame_size,
+		const bool			stft_activated,
+		cudaStream_t		stream = 0);
 
-void	stft_view_begin(const complex	*input,
-						float			*outputxz,
-						float			*outputyz,
-						const uint		x0,
-						const uint		y0,
-						const uint		width,
-						const uint		height,
-						const uint		depth,
-						const uint		acc_level_xz,
-						const uint		acc_level_yz);
+void stft_view_begin(const cuComplex	*input,
+					float				*outputxz,
+					float				*outputyz,
+					const uint			x0,
+					const uint			y0,
+					const uint			width,
+					const uint			height,
+					const uint			depth,
+					const uint			acc_level_xz,
+					const uint			acc_level_yz);

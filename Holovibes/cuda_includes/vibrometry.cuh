@@ -12,7 +12,7 @@
 
 #pragma once
 
-# include "cuda_shared.cuh"
+# include "Common.cuh"
 
 /*! \brief For each pixel (P and Q) of the two images, this function
 * will output on output (O) : \n
@@ -22,8 +22,8 @@
 * \param frame_p the numerator image
 * \param frame_q the denominator image
 */
-void frame_ratio(	const complex	*frame_p,
-					const complex	*frame_q,
-					complex			*output,
-					const uint		size,
-					cudaStream_t	stream = 0);
+void frame_ratio(const cuComplex	*frame_p,
+				const cuComplex		*frame_q,
+				cuComplex			*output,
+				const uint			size,
+				cudaStream_t		stream = 0);

@@ -87,6 +87,12 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{683cd658-7d68-43b9-9d3a-9373a1ed581f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="cuda includes\tools">
+      <UniqueIdentifier>{249366fa-75ef-46da-87ee-a95a529fe6c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cuda sources\tools">
+      <UniqueIdentifier>{32549d3d-7a61-4ec8-b18b-18e04cf1b3f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
@@ -355,21 +361,6 @@
     <ClInclude Include="cuda_includes\stft.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_includes\tools.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda_includes\tools_compute.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda_includes\tools_conversion.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda_includes\tools_multiply.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda_includes\tools_unwrap.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_includes\transforms.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
@@ -377,9 +368,6 @@
       <Filter>cuda includes</Filter>
     </ClInclude>
     <ClInclude Include="cuda_includes\texture_update.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
-    <ClInclude Include="cuda_includes\cuda_shared.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\Rectangle.hh">
@@ -405,6 +393,21 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\Overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\Common.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_unwrap.cuh">
+      <Filter>cuda includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools.cuh">
+      <Filter>cuda includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_compute.cuh">
+      <Filter>cuda includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\tools_conversion.cuh">
+      <Filter>cuda includes\tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -483,18 +486,6 @@
     <CudaCompile Include="cuda_sources\stft.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
-    <CudaCompile Include="cuda_sources\tools.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda_sources\tools_compute.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda_sources\tools_conversion.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda_sources\tools_unwrap.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
     <CudaCompile Include="cuda_sources\transforms.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
@@ -503,6 +494,18 @@
     </CudaCompile>
     <CudaCompile Include="cuda_sources\texture_update.cu">
       <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_unwrap.cu">
+      <Filter>cuda sources\tools</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_conversion.cu">
+      <Filter>cuda sources\tools</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools_compute.cu">
+      <Filter>cuda sources\tools</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\tools.cu">
+      <Filter>cuda sources\tools</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
