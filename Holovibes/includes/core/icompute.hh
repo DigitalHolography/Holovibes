@@ -204,24 +204,24 @@ namespace holovibes
 	bool	get_cuts_delete_request();
 	bool	get_request_refresh();
 
-	bool get_unwrap_1d_request()		{ return (unwrap_1d_requested_); }
-	bool get_unwrap_2d_request()		{ return (unwrap_2d_requested_); }
-	bool get_autofocus_request()		{ return (autofocus_requested_); }
-	bool get_autofocus_stop_request()	{ return (autofocus_stop_requested_); }
-	bool get_autocontrast_request()		{ return (autocontrast_requested_); }
-	bool get_refresh_request()			{ return (refresh_requested_); }
-	bool get_update_n_request()			{ return (update_n_requested_); }
-	bool get_stft_update_roi_request()	{ return (stft_update_roi_requested_); }
-	bool get_average_request()			{ return (average_requested_); }
-	bool get_average_record_request()	{ return (average_record_requested_); }
-	bool get_float_output_request()		{ return (float_output_requested_); }
-	bool get_complex_output_request()	{ return (complex_output_requested_); }
-	bool get_abort_construct_request()	{ return (abort_construct_requested_); }
-	bool get_termination_request()		{ return (termination_requested_); }
-	bool get_update_acc_request()		{ return (update_acc_requested_); }
-	bool get_update_ref_diff_request()	{ return (update_ref_diff_requested_); }
-	bool get_request_stft_cuts()		{ return (request_stft_cuts_); }
-	bool get_request_delete_stft_cuts()	{ return (request_delete_stft_cuts_); }
+	bool get_unwrap_1d_request()		{ return (unwrap_1d_requested_.load()); }
+	bool get_unwrap_2d_request()		{ return (unwrap_2d_requested_.load()); }
+	bool get_autofocus_request()		{ return (autofocus_requested_.load()); }
+	bool get_autofocus_stop_request()	{ return (autofocus_stop_requested_.load()); }
+	bool get_autocontrast_request()		{ return (autocontrast_requested_.load()); }
+	bool get_refresh_request()			{ return (refresh_requested_.load()); }
+	bool get_update_n_request()			{ return (update_n_requested_.load()); }
+	bool get_stft_update_roi_request()	{ return (stft_update_roi_requested_.load()); }
+	bool get_average_request()			{ return (average_requested_.load()); }
+	bool get_average_record_request()	{ return (average_record_requested_.load()); }
+	bool get_float_output_request()		{ return (float_output_requested_.load()); }
+	bool get_complex_output_request()	{ return (complex_output_requested_.load()); }
+	bool get_abort_construct_request()	{ return (abort_construct_requested_.load()); }
+	bool get_termination_request()		{ return (termination_requested_.load()); }
+	bool get_update_acc_request()		{ return (update_acc_requested_.load()); }
+	bool get_update_ref_diff_request()	{ return (update_ref_diff_requested_.load()); }
+	bool get_request_stft_cuts()		{ return (request_stft_cuts_.load()); }
+	bool get_request_delete_stft_cuts()	{ return (request_delete_stft_cuts_.load()); }
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -414,24 +414,24 @@ namespace holovibes
 
 	std::mutex request_guard_;
 	/*! \{ \name request flags */
-	bool unwrap_1d_requested_;
-	bool unwrap_2d_requested_;
-	bool autofocus_requested_;
-	bool autofocus_stop_requested_;
-	bool autocontrast_requested_;
-	bool refresh_requested_;
-	bool update_n_requested_;
-	bool stft_update_roi_requested_;
-	bool average_requested_;
-	bool average_record_requested_;
-	bool float_output_requested_;
-	bool complex_output_requested_;
-	bool abort_construct_requested_;
-	bool termination_requested_;
-	bool update_acc_requested_;
-	bool update_ref_diff_requested_;
-	bool request_stft_cuts_;
-	bool request_delete_stft_cuts_;
+	std::atomic<bool> unwrap_1d_requested_;
+	std::atomic<bool> unwrap_2d_requested_;
+	std::atomic<bool> autofocus_requested_;
+	std::atomic<bool> autofocus_stop_requested_;
+	std::atomic<bool> autocontrast_requested_;
+	std::atomic<bool> refresh_requested_;
+	std::atomic<bool> update_n_requested_;
+	std::atomic<bool> stft_update_roi_requested_;
+	std::atomic<bool> average_requested_;
+	std::atomic<bool> average_record_requested_;
+	std::atomic<bool> float_output_requested_;
+	std::atomic<bool> complex_output_requested_;
+	std::atomic<bool> abort_construct_requested_;
+	std::atomic<bool> termination_requested_;
+	std::atomic<bool> update_acc_requested_;
+	std::atomic<bool> update_ref_diff_requested_;
+	std::atomic<bool> request_stft_cuts_;
+	std::atomic<bool> request_delete_stft_cuts_;
 	/*! \} */
   };
 }

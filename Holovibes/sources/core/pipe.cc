@@ -120,11 +120,11 @@ namespace holovibes
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
-		//refresh_requested_ = false;
+		//refresh_requested_.exchange(false);
 		/* Clean current vector. */
 		fn_vect_.clear();
 
-		if (update_n_requested_)
+		if (update_n_requested_.load())
 		{
 			if (!update_n_parameter(compute_desc_.nsamples.load()))
 			{
@@ -133,18 +133,18 @@ namespace holovibes
 				update_n_parameter(1);
 				std::cerr << "Updating n failed, n updated to 1" << std::endl;
 			}
-			update_n_requested_ = false;
+			update_n_requested_.exchange(false);
 		}
-		if (request_stft_cuts_)
+		if (request_stft_cuts_.load())
 		{
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 			fd.height = compute_desc_.nsamples.load();
 			fd.depth = sizeof(float);
 			gpu_stft_slice_queue_xz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutXZ");
 			gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
-			request_stft_cuts_ = false;
+			request_stft_cuts_.exchange(false);
 		}
-		if (request_delete_stft_cuts_)
+		if (request_delete_stft_cuts_.load())
 		{
 			if (gpu_stft_slice_queue_xz)
 			{
@@ -156,32 +156,32 @@ namespace holovibes
 				delete gpu_stft_slice_queue_yz;
 				gpu_stft_slice_queue_yz = nullptr;
 			}
-			request_delete_stft_cuts_ = false;
+			request_delete_stft_cuts_.exchange(false);
 		}
-		if (update_acc_requested_)
+		if (update_acc_requested_.load())
 		{
-			update_acc_requested_ = false;
+			update_acc_requested_.exchange(false);
 			update_acc_parameter();
 		}
 
-		if (update_ref_diff_requested_)
+		if (update_ref_diff_requested_.load())
 		{
 			update_ref_diff_parameter();
 			ref_diff_counter = compute_desc_.ref_diff_level.load();
-			update_ref_diff_requested_ = false;
+			update_ref_diff_requested_.exchange(false);
 		}
 
-		if (abort_construct_requested_)
+		if (abort_construct_requested_.load())
 			return;
 
-		if (autofocus_requested_)
+		if (autofocus_requested_.load())
 		{
 			fn_vect_.push_back(std::bind(
 				&Pipe::autofocus_caller,
 				this,
 				gpu_float_buffer_,
 				static_cast<cudaStream_t>(0)));
-			autofocus_requested_ = false;
+			autofocus_requested_.exchange(false);
 			request_refresh();
 			return;
 		}
@@ -392,7 +392,7 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
-		if (complex_output_requested_)
+		if (complex_output_requested_.load())
 		{
 			fn_vect_.push_back(std::bind(
 				&Pipe::record_complex,
@@ -429,7 +429,7 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 
-			if (unwrap_2d_requested_)
+			if (unwrap_2d_requested_.load())
 			{
 				try
 				{
@@ -517,7 +517,7 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 				};
 
-				if (unwrap_2d_requested_)
+				if (unwrap_2d_requested_.load())
 				{
 					if (!unwrap_res_2d_)
 					{
@@ -596,13 +596,13 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
-		if (average_requested_)
+		if (average_requested_.load())
 		{
 			gui::Rectangle signalZone;
 			gui::Rectangle noiseZone;
 			compute_desc_.signalZone(signalZone, AccessMode::Get);
 			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
-			if (average_record_requested_)
+			if (average_record_requested_.load())
 			{
 				fn_vect_.push_back(std::bind(
 					&Pipe::average_record_caller,
@@ -614,7 +614,7 @@ namespace holovibes
 					noiseZone,
 					static_cast<cudaStream_t>(0)));
 
-				average_record_requested_ = false;
+				average_record_requested_.exchange(false);
 			}
 			else
 			{
@@ -657,7 +657,7 @@ namespace holovibes
 			}
 		}
 
-		if (autocontrast_requested_)
+		if (autocontrast_requested_.load())
 		{
 			float min = 0.f;
 			float max = 0.f;
@@ -691,7 +691,7 @@ namespace holovibes
 						std::ref(compute_desc_.contrast_max_slice_yz),
 						static_cast<cudaStream_t>(0)));
 			}
-			autocontrast_requested_ = false;
+			autocontrast_requested_.exchange(false);
 			request_refresh();
 		}
 
@@ -726,7 +726,7 @@ namespace holovibes
 			}
 		}
 
-		if (float_output_requested_)
+		if (float_output_requested_.load())
 		{
 			fn_vect_.push_back(std::bind(
 				&Pipe::record_float,
@@ -746,7 +746,7 @@ namespace holovibes
 			gpu_output_buffer_,
 			input_fd.frame_res(),
 			static_cast<cudaStream_t>(0)));
-		refresh_requested_ = false;
+		refresh_requested_.exchange(false);
 	}
 
 	void Pipe::autofocus_caller(float* input, cudaStream_t stream)
@@ -806,7 +806,7 @@ namespace holovibes
 		}
 		for (unsigned i = 0; i < z_iter; ++i)
 		{
-			for (float z = z_min; !autofocus_stop_requested_ && z < z_max; z += z_step)
+			for (float z = z_min; !autofocus_stop_requested_.load() && z < z_max; z += z_step)
 			{
 				/* Make input frames copies. */
 				cudaMemcpy(
@@ -943,7 +943,7 @@ namespace holovibes
 	{
 		if (global::global_config.flush_on_refresh)
 			input_.flush();
-		while (!termination_requested_)
+		while (!termination_requested_.load())
 		{
 			if (input_.get_current_elts() >= input_length_)
 			{
@@ -969,7 +969,7 @@ namespace holovibes
 					}
 				}
 				input_.dequeue();
-				if (refresh_requested_)
+				if (refresh_requested_.load())
 					refresh();
 			}
 		}

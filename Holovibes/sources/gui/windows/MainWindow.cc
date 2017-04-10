@@ -283,6 +283,7 @@ namespace holovibes
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
 			((is_direct) ? (InfoManager::get_manager()->remove_info("OutputFormat")) : (0));
+			QCoreApplication::processEvents();
 		}
 
 		void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -404,6 +405,7 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
+			import_file_stop();
 			save_ini("holovibes.ini");
 			notify();
 		}
@@ -465,7 +467,9 @@ namespace holovibes
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
 				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
+
 				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", cd.nsamples.load());
+				//cd.nsamples.exchange(1);
 				if (p_nsample < 1)
 					cd.nsamples.exchange(1);
 				else if (p_nsample > config.input_queue_max_size)
@@ -478,23 +482,38 @@ namespace holovibes
 					cd.pindex.exchange(p_index);
 
 				cd.lambda.exchange(ptree.get<float>("image_rendering.lambda", cd.lambda.load()));
+
 				cd.zdistance.exchange(ptree.get<float>("image_rendering.z_distance", cd.zdistance.load()));
+
 				const float z_step = ptree.get<float>("image_rendering.z_step", z_step_);
 				if (z_step > 0.0f)
 					z_step_ = z_step;
-				cd.algorithm.exchange(static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
+
+				cd.algorithm.exchange(static_cast<Algorithm>(
+					ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
 
 				// View
 				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
 				view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
+
 				cd.view_mode.exchange(static_cast<ComplexViewMode>(
 					ptree.get<int>("view.view_mode", cd.view_mode.load())));
-				last_contrast_type_ = (cd.view_mode == ComplexViewMode::Complex) ? "Complex output" : last_contrast_type_;
-				cd.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
-				cd.shift_corners_enabled.exchange(ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
-				cd.contrast_enabled.exchange(ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
+				last_contrast_type_ = (cd.view_mode == ComplexViewMode::Complex) ?
+					"Complex output" : last_contrast_type_;
+
+				cd.log_scale_enabled.exchange(
+					ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
+
+				cd.shift_corners_enabled.exchange(
+					ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
+
+				cd.contrast_enabled.exchange(
+					ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
+
 				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
+
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
+
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
 				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
@@ -545,6 +564,8 @@ namespace holovibes
 				config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
 				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
+
+				notify();
 			}
 		}
 
@@ -726,9 +747,7 @@ namespace holovibes
 			cudaDeviceReset();
 			close_windows();
 			remove_infos();
-			//change_camera(camera_type_);
 			load_ini(GLOBAL_INI_PATH);
-			//set_image_mode();
 			notify();
 		}
 
@@ -858,16 +877,16 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				cd.pindex.exchange(0);
-				cd.nsamples.exchange(1);
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
 				/* ---------- */
+				cd.pindex.exchange(0);
+				cd.nsamples.exchange(1);
 				holovibes_.get_pipe()->request_update_n(1);
 				while (holovibes_.get_pipe()->get_update_n_request());
 			}
-			catch (std::logic_error& e)
+			catch (std::runtime_error& e)
 			{
 				std::cerr << "catch createPipe :" << std::endl;
 				std::cerr << e.what() << std::endl;
@@ -1331,7 +1350,7 @@ namespace holovibes
 				{
 					cd.pindex.exchange(value);
 					notify();
-					//	set_auto_contrast();
+					//set_auto_contrast();
 
 				}
 				else

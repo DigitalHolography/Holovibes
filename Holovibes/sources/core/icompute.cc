@@ -235,7 +235,7 @@ namespace holovibes
 	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
-		abort_construct_requested_ = false;
+		abort_construct_requested_.exchange(false);
 
 		/* if stft, we don't need to allocate more than one frame */
 		if (!compute_desc_.stft_enabled.load())
@@ -319,7 +319,7 @@ namespace holovibes
 
 		if (err_count != 0)
 		{
-			abort_construct_requested_ = true;
+			abort_construct_requested_.exchange(true);
 			allocation_failed(err_count,
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
 			return (false);
@@ -337,25 +337,25 @@ namespace holovibes
 	void	ICompute::delete_stft_slice_queue()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		request_delete_stft_cuts_ = true;
+		request_delete_stft_cuts_.exchange(true);
 		request_refresh();
 	}
 
 	void	ICompute::create_stft_slice_queue()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		request_stft_cuts_ = true;
+		request_stft_cuts_.exchange(true);
 		request_refresh();
 	}
 
 	bool	ICompute::get_cuts_request()
 	{
-		return request_stft_cuts_;
+		return request_stft_cuts_.load();
 	}
 
 	bool	ICompute::get_cuts_delete_request()
 	{
-		return request_delete_stft_cuts_;
+		return request_delete_stft_cuts_.load();
 	}
 
 	Queue&	ICompute::get_stft_slice_queue(int i)
@@ -367,7 +367,7 @@ namespace holovibes
 	void ICompute::refresh()
 	{
 		unsigned int err_count = 0;
-		if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
+		if (!float_output_requested_.load() && !complex_output_requested_.load() && fqueue_)
 		{
 			delete fqueue_;
 			fqueue_ = nullptr;
@@ -500,25 +500,25 @@ namespace holovibes
 
 	bool ICompute::get_request_refresh()
 	{
-		return (refresh_requested_);
+		return (refresh_requested_.load());
 	}
 
 	void ICompute::request_refresh()
 	{
-		refresh_requested_ = true;
+		refresh_requested_.exchange(true);
 	}
 
 	void ICompute::request_acc_refresh()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		update_acc_requested_ = true;
+		update_acc_requested_.exchange(true);
 		request_refresh();
 	}
 
 	void ICompute::request_ref_diff_refresh()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		update_ref_diff_requested_ = true;
+		update_ref_diff_requested_.exchange(true);
 		request_refresh();
 	}
 
@@ -526,14 +526,14 @@ namespace holovibes
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
 		fqueue_ = fqueue;
-		float_output_requested_ = true;
+		float_output_requested_.exchange(true);
 		request_refresh();
 	}
 
 	void ICompute::request_float_output_stop()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		float_output_requested_ = false;
+		float_output_requested_.exchange(false);
 		request_refresh();
 	}
 
@@ -541,65 +541,65 @@ namespace holovibes
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
 		fqueue_ = fqueue;
-		complex_output_requested_ = true;
+		complex_output_requested_.exchange(true);
 		request_refresh();
 	}
 
 	void ICompute::request_complex_output_stop()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		complex_output_requested_ = false;
+		complex_output_requested_.exchange(false);
 		request_refresh();
 	}
 
 	void ICompute::request_termination()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		termination_requested_ = true;
+		termination_requested_.exchange(true);
 	}
 
 	void ICompute::request_autocontrast()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		autocontrast_requested_ = true;
+		autocontrast_requested_.exchange(true);
 		request_refresh();
 	}
 
 	void ICompute::request_filter2D_roi_update()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		stft_update_roi_requested_ = true;
+		stft_update_roi_requested_.exchange(true);
 		request_update_n(compute_desc_.nsamples.load());
 	}
 
 	void ICompute::request_filter2D_roi_end()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		stft_update_roi_requested_ = false;
+		stft_update_roi_requested_.exchange(false);
 		request_update_n(compute_desc_.nsamples.load());
 		compute_desc_.log_scale_enabled.exchange(false);
 		notify_observers();
-		autocontrast_requested_ = true;
+		autocontrast_requested_.exchange(true);
 	}
 
 	void ICompute::request_autofocus()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		autofocus_requested_ = true;
-		autofocus_stop_requested_ = false;
+		autofocus_requested_.exchange(true);
+		autofocus_stop_requested_.exchange(false);
 		request_refresh();
 	}
 
 	void ICompute::request_autofocus_stop()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		autofocus_stop_requested_ = true;
+		autofocus_stop_requested_.exchange(true);
 	}
 
 	void ICompute::request_update_n(const unsigned short n)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		update_n_requested_ = true;
+		update_n_requested_.exchange(true);
 		compute_desc_.nsamples.exchange(n);
 		request_refresh();
 	}
@@ -614,13 +614,13 @@ namespace holovibes
 	void ICompute::request_unwrapping_1d(const bool value)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		unwrap_1d_requested_ = value;
+		unwrap_1d_requested_.exchange(value);
 	}
 
 	void ICompute::request_unwrapping_2d(const bool value)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		unwrap_2d_requested_ = value;
+		unwrap_2d_requested_.exchange(value);
 	}
 
 	void ICompute::request_average(
@@ -633,14 +633,14 @@ namespace holovibes
 			output->resize(compute_desc_.nsamples.load());
 		average_output_ = output;
 
-		average_requested_ = true;
+		average_requested_.exchange(true);
 		request_refresh();
 	}
 
 	void ICompute::request_average_stop()
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
-		average_requested_ = false;
+		average_requested_.exchange(false);
 		request_refresh();
 	}
 
@@ -655,8 +655,8 @@ namespace holovibes
 		average_output_ = output;
 		average_n_ = n;
 
-		average_requested_ = true;
-		average_record_requested_ = true;
+		average_requested_.exchange(true);
+		average_record_requested_.exchange(true);
 		request_refresh();
 	}
 
@@ -969,7 +969,7 @@ namespace holovibes
 
 		af_env_.z += af_env_.z_step;
 
-		if (autofocus_stop_requested_ || af_env_.z > af_env_.z_max)
+		if (autofocus_stop_requested_.load() || af_env_.z > af_env_.z_max)
 		{
 			// Find max z
 			auto biggest = std::max_element(af_env_.focus_metric_values.begin(), af_env_.focus_metric_values.end());
@@ -997,7 +997,7 @@ namespace holovibes
 		}
 
 		// End of the loop, free resources and notify the new z
-		if (autofocus_stop_requested_ || af_env_.z_iter <= 0)
+		if (autofocus_stop_requested_.load() || af_env_.z_iter <= 0)
 		{
 			compute_desc_.zdistance.exchange(af_env_.af_z);
 			compute_desc_.notify_observers();
