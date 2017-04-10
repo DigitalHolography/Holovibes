@@ -52,7 +52,5 @@ namespace camera
 
 		//!< To each camera software its endianness. Useful for 16-bit cameras.
 		e_endianness endianness;
-
-		//int binning; //!< binning of the camera -> affects boundary
 	};
 }

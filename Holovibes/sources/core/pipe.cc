@@ -120,7 +120,7 @@ namespace holovibes
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
-		refresh_requested_ = false;
+		//refresh_requested_ = false;
 		/* Clean current vector. */
 		fn_vect_.clear();
 
@@ -707,22 +707,22 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
-					fn_vect_.push_back(std::bind(
-						manual_contrast_correction,
-						static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-						output_fd.width * compute_desc_.nsamples.load(),
-						65535,
-						compute_desc_.contrast_min_slice_xz.load(),
-						compute_desc_.contrast_max_slice_xz.load(),
-						static_cast<cudaStream_t>(0)));
-					fn_vect_.push_back(std::bind(
-						manual_contrast_correction,
-						static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-						output_fd.width * compute_desc_.nsamples.load(),
-						65535,
-						compute_desc_.contrast_min_slice_yz.load(),
-						compute_desc_.contrast_max_slice_yz.load(),
-						static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+					output_fd.width * compute_desc_.nsamples.load(),
+					65535,
+					compute_desc_.contrast_min_slice_xz.load(),
+					compute_desc_.contrast_max_slice_xz.load(),
+					static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+					output_fd.width * compute_desc_.nsamples.load(),
+					65535,
+					compute_desc_.contrast_min_slice_yz.load(),
+					compute_desc_.contrast_max_slice_yz.load(),
+					static_cast<cudaStream_t>(0)));
 			}
 		}
 
@@ -746,6 +746,7 @@ namespace holovibes
 			gpu_output_buffer_,
 			input_fd.frame_res(),
 			static_cast<cudaStream_t>(0)));
+		refresh_requested_ = false;
 	}
 
 	void Pipe::autofocus_caller(float* input, cudaStream_t stream)

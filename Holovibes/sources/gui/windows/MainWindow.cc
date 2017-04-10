@@ -268,7 +268,6 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setValue(cd.lambda.load() * 1.0e9f);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setValue(cd.zdistance.load());
-			findChild<QDoubleSpinBox*>("ZDoubleSpinBox")->setSingleStep(z_step_);
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
@@ -893,7 +892,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "catch createHoloWindow :" << std::endl;
+				std::cerr << "error createHoloWindow :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -928,7 +927,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "catch set_holographic :" << std::endl;
+				std::cerr << "cannot set_holographic :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -955,7 +954,7 @@ namespace holovibes
 			catch (std::runtime_error& e)
 			{
 				mainDisplay.reset(nullptr);
-				std::cerr << "catch refreshViewMode :" << std::endl;
+				std::cerr << "error refreshViewMode :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -1332,7 +1331,8 @@ namespace holovibes
 				{
 					cd.pindex.exchange(value);
 					notify();
-					set_auto_contrast();
+					//	set_auto_contrast();
+
 				}
 				else
 					display_error("p param has to be between 0 and n");
@@ -1445,6 +1445,7 @@ namespace holovibes
 		void MainWindow::set_z_step(const double value)
 		{
 			z_step_ = value;
+			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setSingleStep(value);
 		}
 
 		void MainWindow::set_algorithm(const QString value)

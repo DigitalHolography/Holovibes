@@ -57,8 +57,7 @@ namespace camera
     ** means aggregating 2 pixels horizontally and 4 vertically
     ** to obtain one pixel in the output image.
     */
-    WORD hz_binning_;
-    WORD vt_binning_;
+    WORD binning_;
 
     /* Region Of Interest (ROI) selection.
     ** The ROI shall be no greater than the camera's frame dimensions.

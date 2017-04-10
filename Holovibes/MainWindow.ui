@@ -417,7 +417,7 @@
           </rect>
          </property>
          <property name="toolTip">
-          <string>allow to read a cine file</string>
+          <string/>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>

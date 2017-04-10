@@ -70,9 +70,7 @@ namespace camera
 		framerate_ = 30000; // 30 * 1e3;
 		framerate_mode_ = 1;
 
-		hz_binning_ = 1;
-		vt_binning_ = 1;
-		//desc_.binning = vt_binning_;
+		binning_ = 1;
 
 		p0_x_ = 1;
 		p0_y_ = 1;
@@ -114,12 +112,11 @@ namespace camera
 		framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * 1000; // 1e3;
 		framerate_mode_ = pt.get<WORD>("pco-edge.framerate_mode", framerate_mode_);
 
-		hz_binning_ = pt.get<WORD>("pco-edge.binning_hz", hz_binning_);
-		vt_binning_ = pt.get<WORD>("pco-edge.binning_vt", vt_binning_);
-		//desc_.binning = vt_binning_;
+		binning_ = pt.get<WORD>("pco-edge.binning_hz", binning_);
 		// Updating frame descriptor's dimensions accordingly.
-		desc_.width /= hz_binning_;
-		desc_.height /= vt_binning_;
+		desc_.pixel_size *= binning_;
+		desc_.width /= binning_;
+		desc_.height /= binning_;
 
 		{
 			// Making sure ROI settings are valid.
@@ -174,7 +171,7 @@ namespace camera
 
 		status |= PCO_SetConversionFactor(device_, conversion_factor_);
 
-		status |= PCO_SetBinning(device_, hz_binning_, vt_binning_);
+		status |= PCO_SetBinning(device_, binning_, binning_);
 
 		status |= PCO_SetROI(device_, p0_x_, p0_y_, p1_x_, p1_y_);
 

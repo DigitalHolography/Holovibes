@@ -61,7 +61,7 @@ namespace camera
      * spatial resolution of the total image.
      * The binning_ field enables a x2 square binning.
      */
-    bool binning_;
+    bool binning_enabled_;
 
     /*! This feature uses a special image sensor control method, allowing
     * greater sensitivity in the near infrared spectral range.

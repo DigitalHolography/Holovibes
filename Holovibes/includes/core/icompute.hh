@@ -412,6 +412,7 @@ namespace holovibes
 	int		frame_res_xz_;
 	int		frame_res_yz_;
 
+	std::mutex request_guard_;
 	/*! \{ \name request flags */
 	bool unwrap_1d_requested_;
 	bool unwrap_2d_requested_;

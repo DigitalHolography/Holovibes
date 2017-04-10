@@ -336,12 +336,14 @@ namespace holovibes
 
 	void	ICompute::delete_stft_slice_queue()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		request_delete_stft_cuts_ = true;
 		request_refresh();
 	}
 
 	void	ICompute::create_stft_slice_queue()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		request_stft_cuts_ = true;
 		request_refresh();
 	}
@@ -508,18 +510,21 @@ namespace holovibes
 
 	void ICompute::request_acc_refresh()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		update_acc_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_ref_diff_refresh()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		update_ref_diff_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_float_output(Queue* fqueue)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		fqueue_ = fqueue;
 		float_output_requested_ = true;
 		request_refresh();
@@ -527,12 +532,14 @@ namespace holovibes
 
 	void ICompute::request_float_output_stop()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		float_output_requested_ = false;
 		request_refresh();
 	}
 
 	void ICompute::request_complex_output(Queue* fqueue)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		fqueue_ = fqueue;
 		complex_output_requested_ = true;
 		request_refresh();
@@ -540,29 +547,34 @@ namespace holovibes
 
 	void ICompute::request_complex_output_stop()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		complex_output_requested_ = false;
 		request_refresh();
 	}
 
 	void ICompute::request_termination()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		termination_requested_ = true;
 	}
 
 	void ICompute::request_autocontrast()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		autocontrast_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_filter2D_roi_update()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		stft_update_roi_requested_ = true;
 		request_update_n(compute_desc_.nsamples.load());
 	}
 
 	void ICompute::request_filter2D_roi_end()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		stft_update_roi_requested_ = false;
 		request_update_n(compute_desc_.nsamples.load());
 		compute_desc_.log_scale_enabled.exchange(false);
@@ -572,6 +584,7 @@ namespace holovibes
 
 	void ICompute::request_autofocus()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		autofocus_requested_ = true;
 		autofocus_stop_requested_ = false;
 		request_refresh();
@@ -579,11 +592,13 @@ namespace holovibes
 
 	void ICompute::request_autofocus_stop()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		autofocus_stop_requested_ = true;
 	}
 
 	void ICompute::request_update_n(const unsigned short n)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		update_n_requested_ = true;
 		compute_desc_.nsamples.exchange(n);
 		request_refresh();
@@ -591,23 +606,27 @@ namespace holovibes
 
 	void ICompute::request_update_unwrap_size(const unsigned size)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		compute_desc_.unwrap_history_size.exchange(size);
 		request_refresh();
 	}
 
 	void ICompute::request_unwrapping_1d(const bool value)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		unwrap_1d_requested_ = value;
 	}
 
 	void ICompute::request_unwrapping_2d(const bool value)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		unwrap_2d_requested_ = value;
 	}
 
 	void ICompute::request_average(
 		ConcurrentDeque<std::tuple<float, float, float, float>>* output)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		assert(output != nullptr);
 
 		if (compute_desc_.stft_enabled.load())
@@ -620,6 +639,7 @@ namespace holovibes
 
 	void ICompute::request_average_stop()
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		average_requested_ = false;
 		request_refresh();
 	}
@@ -628,6 +648,7 @@ namespace holovibes
 		ConcurrentDeque<std::tuple<float, float, float, float>>* output,
 		const unsigned int n)
 	{
+		std::lock_guard<std::mutex> lock(request_guard_);
 		assert(output != nullptr);
 		assert(n != 0);
 
@@ -769,15 +790,15 @@ namespace holovibes
 				}
 				// -----------------------------------------------------
 				stft_view_begin(gpu_stft_buffer_,
-								static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-								static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
-								mouse_posx,
-								mouse_posy,
-								width,
-								height,
-								compute_desc_.nsamples.load(),
-								compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
-								compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
+					static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+					static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+					mouse_posx,
+					mouse_posy,
+					width,
+					height,
+					compute_desc_.nsamples.load(),
+					compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
+					compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
 			}
 		}
 	}
