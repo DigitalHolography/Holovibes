@@ -489,8 +489,7 @@ namespace holovibes
 				if (z_step > 0.0f)
 					z_step_ = z_step;
 
-				cd.algorithm.exchange(static_cast<Algorithm>(
-					ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
+				cd.algorithm.exchange(static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", cd.algorithm.load())));
 
 				// View
 				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
@@ -501,18 +500,20 @@ namespace holovibes
 				last_contrast_type_ = (cd.view_mode == ComplexViewMode::Complex) ?
 					"Complex output" : last_contrast_type_;
 
-				cd.log_scale_enabled.exchange(
-					ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
+				cd.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
+				//cd.log_scale_enabled_cut_xz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load()));
+				//cd.log_scale_enabled_cut_yz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load()));
 
-				cd.shift_corners_enabled.exchange(
-					ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
+				cd.shift_corners_enabled.exchange(ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
 
-				cd.contrast_enabled.exchange(
-					ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
+				cd.contrast_enabled.exchange(ptree.get<bool>("view.contrast_enabled", cd.contrast_enabled.load()));
 
 				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
-
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
+				//cd.contrast_min_slice_xz.exchange(ptree.get("view.contrast_min_slice_xz", cd.contrast_min_slice_xz.load()));
+				//cd.contrast_max_slice_xz.exchange(ptree.get("view.contrast_max_slice_xz", cd.contrast_max_slice_xz.load()));
+				//cd.contrast_min_slice_yz.exchange(ptree.get("view.contrast_min_slice_yz", cd.contrast_min_slice_yz.load()));
+				//cd.contrast_max_slice_yz.exchange(ptree.get("view.contrast_max_slice_yz", cd.contrast_max_slice_yz.load()));
 
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
@@ -607,10 +608,17 @@ namespace holovibes
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
 			ptree.put("view.view_mode", cd.view_mode.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
+			//ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load());
+			//ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load());
+			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
 			ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load());
 			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
 			ptree.put("view.contrast_min", cd.contrast_min.load());
 			ptree.put("view.contrast_max", cd.contrast_max.load());
+			//ptree.put("view.contrast_min_slice_xz", cd.contrast_min_slice_xz.load());
+			//ptree.put("view.contrast_max_slice_xz", cd.contrast_max_slice_xz.load());
+			//ptree.put("view.contrast_min_slice_yz", cd.contrast_min_slice_yz.load());
+			//ptree.put("view.contrast_max_slice_yz", cd.contrast_max_slice_yz.load());
 			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
 			ptree.put("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
@@ -1354,7 +1362,7 @@ namespace holovibes
 
 				}
 				else
-					display_error("p param has to be between 0 and n");
+					display_error("p param has to be between 1 and #img");
 			}
 		}
 
@@ -1400,7 +1408,7 @@ namespace holovibes
 					set_auto_contrast();
 				}
 				else
-					display_error("p param has to be between 1 and n");
+					display_error("p param has to be between 1 and #img");
 			}
 		}
 
@@ -1417,7 +1425,7 @@ namespace holovibes
 					set_auto_contrast();
 				}
 				else
-					display_error("p param has to be between 1 and n");
+					display_error("p param has to be between 1 and #img");
 			}
 		}
 
