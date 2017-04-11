@@ -19,7 +19,7 @@ void img8_to_complex(cuComplex		*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		// Image rescaling on 2^16 colors (65535 / 255 = 257)
 		const float val = static_cast<float>(input[index] * 257);
@@ -35,7 +35,7 @@ void img16_to_complex(cuComplex		*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		float val = static_cast<float>(input[index]);
 		output[index].x = val;
@@ -50,7 +50,7 @@ void float_to_complex(cuComplex	*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		float val = input[index];
 		output[index].x = val;
@@ -66,7 +66,7 @@ void kernel_complex_to_modulus(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
 	}
@@ -91,7 +91,7 @@ void kernel_complex_to_squared_modulus(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
 		output[index] *= output[index];
@@ -117,7 +117,7 @@ void kernel_complex_to_argument(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = (atanf(input[index].y / input[index].x) + M_PI_2);;
 	}
@@ -269,7 +269,7 @@ void kernel_rescale_argument(float		*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		input[index] *= 20860.43839105472216033376753330230712890625f; //65535.0f / M_PI;;
 	}
@@ -295,7 +295,7 @@ void kernel_endianness_conversion(const ushort	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = (input[index] << 8) | (input[index] >> 8);
 	}
@@ -322,7 +322,7 @@ void kernel_float_to_ushort(const float	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		if (input[index] > 65535.0f)
 			output[index] = 65535;
@@ -340,7 +340,7 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		ushort x = 0;
 		ushort y = 0;
@@ -401,7 +401,7 @@ void kernel_buffer_size_conversion(char			*real_buffer,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < area)
+	//if (index < area)
 	{
 		uint x = index % real_frame_desc_width;
 		uint y = index / real_frame_desc_width;
@@ -438,7 +438,7 @@ void kernel_accumulate_images(const float	*input,
 	size_t	i = 0;
 	int		pos = start;
 
-	if (index < nb_pixel)
+	//if (index < nb_pixel)
 	{
 		output[index] = 0;
 		while (i++ < nb_elmt)
@@ -476,7 +476,7 @@ void kernel_normalize_images(float		*image,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		if (min < 0.f)
 			image[index] = (image[index] + fabs(min)) / (fabs(min) + max) * 65535.0f;

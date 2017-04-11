@@ -57,7 +57,7 @@ static void	kernel_stft_view(const cuComplex	*input,
 							const uint			acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < output_size)
+	//if (id < output_size)
 	{
 		cuComplex pixel = make_cuComplex(0, 0);
 		int i = -1;

@@ -29,7 +29,7 @@ void kernel_quadratic_lens(cuComplex*			output,
 	uint		j;
 	float		csquare;
 
-	if (index < size)
+	//if (index < size)
 	{
 		i = index % fd.width;
 		j = index / fd.height;
@@ -60,7 +60,7 @@ void kernel_spectral_lens(cuComplex				*output,
 	const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width >> 1)))) * du;
 	const float	v = (j - static_cast<float>(lrintf(static_cast<float>(fd.height >> 1)))) * dv;
 
-	if (index < fd.width * fd.height)
+	//if (index < fd.width * fd.height)
 	{
 		const float lambda2 = lambda * lambda;
 		const float csquare = c * sqrtf(abs(1.0f - lambda2 * u * u - lambda2 * v * v));

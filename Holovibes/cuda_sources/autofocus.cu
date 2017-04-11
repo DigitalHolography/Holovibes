@@ -22,7 +22,7 @@ void kernel_minus_operator(const float	*input_left,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = input_left[index] - input_right[index];
 	}
@@ -70,7 +70,7 @@ void kernel_float_to_complex(const float	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index].x = input[index];
 		output[index].y = input[index];
@@ -185,7 +185,7 @@ void kernel_plus_operator(const float	*input_left,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = input_left[index] + input_right[index];
 	}
@@ -198,7 +198,7 @@ void kernel_sqrt_operator(const float	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		output[index] = sqrtf(input[index]);
 	}

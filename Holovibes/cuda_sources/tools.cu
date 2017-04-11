@@ -20,15 +20,15 @@ void kernel_apply_lens(cuComplex		*input,
 					const cuComplex		*lens,
 					const uint			lens_size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < input_size)
+	//while (index < input_size)
 	{
 		uint	index2 = index % lens_size; // necessary if more than one frame
 		float	tmp_x = input[index].x;
 		input[index].x = input[index].x * lens[index2].x - input[index].y * lens[index2].y;
 		input[index].y = input[index].y * lens[index2].x + tmp_x * lens[index2].y;
-		index += blockDim.x * gridDim.x;
+		//index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -82,7 +82,7 @@ void kernel_log10(float		*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	if (index < size)
+	//if (index < size)
 	{
 		input[index] = log10f(input[index]);
 	//	index += blockDim.x * gridDim.x;
@@ -105,12 +105,12 @@ void kernel_complex_to_modulus(const cuComplex	*input,
 							float				*output,
 							const uint			size)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	while (index < size)
+	//while (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
-		index += blockDim.x * gridDim.x;
+		//index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -400,13 +400,13 @@ void circ_shift(cuComplex	*input,
 				const uint	height,
 				const uint	size)
 {
-	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	int		index_x = 0;
 	int		index_y = 0;
 	int		shift_x = 0;
 	int		shift_y = 0;
 	// In ROI
-	while (index < size)
+	//while (index < size)
 	{
 		index_x = index % width;
 		index_y = index / height;
@@ -415,7 +415,7 @@ void circ_shift(cuComplex	*input,
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
 		output[(width * shift_y) + shift_x] = input[index];
-		index += blockDim.x * gridDim.x;
+		//index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -428,13 +428,13 @@ void circ_shift_float(float		*input,
 					const uint	height,
 					const uint	size)
 {
-	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	int		index_x = 0;
 	int		index_y = 0;
 	int		shift_x = 0;
 	int		shift_y = 0;
 	// In ROI
-	while (index < size)
+	//while (index < size)
 	{
 		index_x = index % width;
 		index_y = index / height;
@@ -443,6 +443,6 @@ void circ_shift_float(float		*input,
 		shift_x = (shift_x < 0) ? (width + shift_x) : shift_x;
 		shift_y = (shift_y < 0) ? (height + shift_y) : shift_y;
 		output[(width * shift_y) + shift_x] = input[index];
-		index += blockDim.x * gridDim.x;
+		//index += blockDim.x * gridDim.x;
 	}
 }

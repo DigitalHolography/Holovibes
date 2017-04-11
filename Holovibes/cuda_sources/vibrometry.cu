@@ -18,9 +18,9 @@ void kernel_frame_ratio(const cuComplex	*frame_p,
 						cuComplex		*output,
 						const uint		size)
 {
-  uint index = blockIdx.x * blockDim.x + threadIdx.x;
+  const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-  while (index < size)
+  //while (index < size)
   {
     /* frame_p: a + ib */
     const float a = frame_p[index].x;
@@ -35,7 +35,7 @@ void kernel_frame_ratio(const cuComplex	*frame_p,
     output[index].x = (a * c + b * d) / q_squared_modulus;
     output[index].y = (b * c - a * d) / q_squared_modulus;
 
-    index += blockDim.x * gridDim.x;
+   // index += blockDim.x * gridDim.x;
   }
 }
 

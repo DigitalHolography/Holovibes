@@ -10,8 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "compute_bundles_2d.hh"
 #include <exception>
+#include "compute_bundles_2d.hh"
 
 namespace holovibes
 {
@@ -77,14 +77,12 @@ namespace holovibes
 	{
 		if (ptr)
 			cudaFree(ptr);
-		if (cudaMalloc(&ptr, size) != cudaSuccess)
-			return (false);
-		return (true);
+		return (cudaMalloc(&ptr, size) == cudaSuccess);
 	}
 
 	void UnwrappingResources_2d::reallocate(const size_t image_size)
 	{
-		int err = 0;
+		bool err = 0;
 		image_resolution_ = image_size;
 
 		err |= cudaRealloc(gpu_fx_, sizeof(float) * image_resolution_);
@@ -99,7 +97,7 @@ namespace holovibes
 			delete[] minmax_buffer_;
 		minmax_buffer_ = nullptr;
 		minmax_buffer_ = new float[image_resolution_]();
-		if (err != 0 || minmax_buffer_ == nullptr)
+		if (err || minmax_buffer_ == nullptr)
 			throw std::exception("Cannot reallocate UnwrappingResources2d");
 	}
 }
