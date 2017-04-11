@@ -485,7 +485,7 @@ namespace holovibes
 			**
 			** \param camera_type new camera type
 			*/
-			void change_camera(Holovibes::camera_type camera_type);
+			void change_camera(CameraKind c);
 			/*! \brief Display error message
 			** \param msg error message
 			*/
@@ -569,7 +569,7 @@ namespace holovibes
 			/*! z step used for keyboard shortcuts */
 			double z_step_;
 			/*! current camera type */
-			Holovibes::camera_type camera_type_;
+			CameraKind kCamera;
 
 			/*! Index of the last contrast type chosen in the affiliated QComboBox. */
 			QString last_contrast_type_;

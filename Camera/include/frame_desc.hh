@@ -17,11 +17,12 @@
 
 namespace camera
 {
-	typedef enum endianness
+	using	Endianness =
+	enum
 	{
-		BIG_ENDIAN,
-		LITTLE_ENDIAN
-	} e_endianness;
+		LittleEndian,
+		BigEndian
+	};
 
 	/*! This structure contains everything related to the format of the images
 	 * captured by the current camera.
@@ -50,6 +51,6 @@ namespace camera
 		float pixel_size; //!< Size of pixels in micrometers.
 
 		//!< To each camera software its endianness. Useful for 16-bit cameras.
-		e_endianness endianness;
+		Endianness byteEndian;
 	};
 }

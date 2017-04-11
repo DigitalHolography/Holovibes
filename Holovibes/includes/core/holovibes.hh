@@ -31,7 +31,7 @@ namespace holovibes
 {
 	template <class T> class ConcurrentDeque;
 	class Queue;
-
+	
 	/*! \brief Core class to use HoloVibes
 	 *
 	 * This class does not depends on the user interface (classes under the
@@ -50,18 +50,7 @@ namespace holovibes
 		 *
 		 * The non hardcoded-way would be to search for DLL and build a list of
 		 * available cameras. */
-		enum camera_type
-		{
-			NONE,
-			ADIMEC,
-			EDGE,
-			IDS,
-			IXON,
-			PIKE,
-			PIXELFLY,
-			XIQ,
-		};
-
+		
 		/*! \brief Construct the holovibes object. */
 		Holovibes();
 
@@ -72,7 +61,7 @@ namespace holovibes
 		 *
 		 * Launch the capture thread to continuously acquire frames in input
 		 * buffer. */
-		void Holovibes::init_capture(const enum camera_type c);
+		void Holovibes::init_capture(const CameraKind c);
 
 		/*! \brief Request the capture thread to stop - Free ressources. */
 		void dispose_capture();

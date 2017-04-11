@@ -34,7 +34,7 @@ namespace holovibes
 			is_batch_img_(true),
 			is_batch_interrupted_(false),
 			z_step_(0.01f),
-			camera_type_(Holovibes::NONE),
+			kCamera(CameraKind::NONE),
 			last_contrast_type_("Magnitude"),
 			plot_window_(nullptr),
 			record_thread_(nullptr),
@@ -462,7 +462,7 @@ namespace holovibes
 
 				// Camera type
 				const int camera_type = ptree.get<int>("image_rendering.camera", 0);
-				change_camera((Holovibes::camera_type)camera_type);
+				change_camera(static_cast<CameraKind>(camera_type));
 
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
@@ -596,7 +596,7 @@ namespace holovibes
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
-			ptree.put("image_rendering.camera", camera_type_);
+			ptree.put("image_rendering.camera", kCamera);
 			ptree.put("image_rendering.phase_number", cd.nsamples.load());
 			ptree.put("image_rendering.p_index", cd.pindex.load());
 			ptree.put("image_rendering.lambda", cd.lambda.load());
@@ -773,12 +773,12 @@ namespace holovibes
 		#pragma endregion
 		/* ------------ */
 		#pragma region Cameras
-		void MainWindow::change_camera(const Holovibes::camera_type type)
+		void MainWindow::change_camera(CameraKind c)
 		{
 			close_critical_compute();
 			close_windows();
 			remove_infos();
-			if (type != Holovibes::NONE)
+			if (c != CameraKind::NONE)
 			{
 				try
 				{
@@ -786,10 +786,10 @@ namespace holovibes
 					if (!is_direct_mode())
 						holovibes_.dispose_compute();
 					holovibes_.dispose_capture();
-					holovibes_.init_capture(type);
+					holovibes_.init_capture(c);
 					is_enabled_camera_ = true;
 					set_image_mode();
-					camera_type_ = type;
+					kCamera = c;
 					QAction* settings = findChild<QAction*>("actionSettings");
 					settings->setEnabled(true);
 					notify();
@@ -807,37 +807,37 @@ namespace holovibes
 
 		void MainWindow::camera_ids()
 		{
-			change_camera(Holovibes::IDS);
+			change_camera(CameraKind::IDS);
 		}
 
 		void MainWindow::camera_ixon()
 		{
-			change_camera(Holovibes::IXON);
+			change_camera(CameraKind::Ixon);
 		}
 
 		void MainWindow::camera_adimec()
 		{
-			change_camera(Holovibes::ADIMEC);
+			change_camera(CameraKind::Adimec);
 		}
 
 		void MainWindow::camera_edge()
 		{
-			change_camera(Holovibes::EDGE);
+			change_camera(CameraKind::Edge);
 		}
 
 		void MainWindow::camera_pike()
 		{
-			change_camera(Holovibes::PIKE);
+			change_camera(CameraKind::Pike);
 		}
 
 		void MainWindow::camera_pixelfly()
 		{
-			change_camera(Holovibes::PIXELFLY);
+			change_camera(CameraKind::Pixelfly);
 		}
 
 		void MainWindow::camera_xiq()
 		{
-			change_camera(Holovibes::XIQ);
+			change_camera(CameraKind::xiQ);
 		}
 
 		void MainWindow::configure_camera()
@@ -2577,7 +2577,7 @@ namespace holovibes
 				static_cast<float>(depth_multi),
 				static_cast<float>(cd.import_pixel_size.load()),
 				(big_endian_checkbox->currentText() == QString("Big Endian") ?
-					endianness::BIG_ENDIAN : endianness::LITTLE_ENDIAN) };
+					Endianness::BigEndian : Endianness::LittleEndian) };
 			is_enabled_camera_ = false;
 			try
 			{

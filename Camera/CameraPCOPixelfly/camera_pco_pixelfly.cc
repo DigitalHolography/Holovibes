@@ -75,7 +75,7 @@ namespace camera
 
 		/* Fill frame descriptor const values. */
 		desc_.depth = 2;
-		desc_.endianness = LITTLE_ENDIAN;
+		desc_.byteEndian = Endianness::LittleEndian;
 		desc_.pixel_size = 6.45f;
 		desc_.width = 2048;
 		desc_.height = 2048;

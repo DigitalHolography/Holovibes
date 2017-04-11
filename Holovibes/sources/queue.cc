@@ -29,7 +29,7 @@ namespace holovibes
 		, start_(0)
 		, display_(true)
 		, is_big_endian_(frame_desc.depth >= 2 &&
-			frame_desc.endianness == camera::BIG_ENDIAN)
+			frame_desc.byteEndian == Endianness::BigEndian)
 		, name_(name)
 		, buffer_(nullptr)
 	{
@@ -39,7 +39,7 @@ namespace holovibes
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
-		frame_desc_.endianness = camera::LITTLE_ENDIAN;
+		frame_desc_.byteEndian = Endianness::LittleEndian;
 		cudaStreamCreate(&stream_);
 	}
 

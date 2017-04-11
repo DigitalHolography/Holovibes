@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 					static_cast<float>(opts.file_image_depth >> 3),
 					static_cast<float>(global::global_config.import_pixel_size),
 					(opts.file_is_big_endian ?
-						camera::endianness::BIG_ENDIAN : camera::endianness::LITTLE_ENDIAN)
+					Endianness::BigEndian : Endianness::LittleEndian)
 				};
 				h.init_import_mode(
 					opts.file_src,

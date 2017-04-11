@@ -27,6 +27,18 @@ namespace holovibes
 	const static std::string version = "v4.2.170410"; /*!< Current version of this project. */
 
 	using	LockGuard = std::lock_guard<std::mutex>;
+	using	CameraKind =
+	enum
+	{
+		NONE,
+		Adimec,
+		Edge,
+		IDS,
+		Ixon,
+		Pike,
+		Pixelfly,
+		xiQ
+	};
 	using	Algorithm =
 	enum
 	{

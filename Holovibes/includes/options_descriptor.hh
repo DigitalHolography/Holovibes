@@ -18,7 +18,6 @@
 
 # include <string>
 
-# include "holovibes.hh"
 # include "compute_descriptor.hh"
 
 namespace holovibes
@@ -56,8 +55,8 @@ namespace holovibes
     /*! \brief GL Window height. */
     unsigned int  gl_window_height;
     /*! \brief Selected camera */
-    Holovibes::camera_type camera;
-
+	CameraKind camera;
+	
     /*! \brief File path to import. */
     std::string		file_src;
     /*! \brief File image width. */

@@ -79,7 +79,7 @@ namespace holovibes
 			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
-				(Fd.endianness == camera::BIG_ENDIAN) ?
+				(Fd.byteEndian == Endianness::BigEndian) ?
 				GL_TRUE : GL_FALSE);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 			cudaGraphicsGLRegisterBuffer(&cuResource, Pbo,

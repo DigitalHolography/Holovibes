@@ -13,6 +13,7 @@
 #include <boost\algorithm\string.hpp>
 #include <boost\lexical_cast.hpp>
 #include <cassert>
+#include <iostream>
 
 #include "options_parser.hh"
 #include "config.hh"
@@ -313,17 +314,17 @@ namespace holovibes
 			const std::string& camera = vm_["cameramodel"].as<std::string>();
 
 			if (boost::iequals(camera, "xiq"))
-				opts_.camera = Holovibes::XIQ;
+				opts_.camera = CameraKind::xiQ;
 			else if (boost::iequals(camera, "ids"))
-				opts_.camera = Holovibes::IDS;
+				opts_.camera = CameraKind::IDS;
 			else if (boost::iequals(camera, "pike"))
-				opts_.camera = Holovibes::PIKE;
+				opts_.camera = CameraKind::Pike;
 			else if (boost::iequals(camera, "pixelfly"))
-				opts_.camera = Holovibes::PIXELFLY;
+				opts_.camera = CameraKind::Pixelfly;
 			else if (boost::iequals(camera, "ixon"))
-				opts_.camera = Holovibes::IXON;
+				opts_.camera = CameraKind::Ixon;
 			else if (boost::iequals(camera, "edge"))
-				opts_.camera = Holovibes::EDGE;
+				opts_.camera = CameraKind::Edge;
 			else
 				throw std::runtime_error("unknown camera model");
 		}

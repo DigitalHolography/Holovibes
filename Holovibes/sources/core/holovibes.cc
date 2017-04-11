@@ -42,24 +42,24 @@ namespace holovibes
 	{
 	}
 
-	void Holovibes::init_capture(const enum camera_type c)
+	void Holovibes::init_capture(const CameraKind c)
 	{
 		camera_initialized_ = false;
 		try
 		{
-			if (c == ADIMEC)
+			if (c == CameraKind::Adimec)
 				camera_ = camera::CameraDLL::load_camera("CameraAdimec.dll");
-			else if (c == EDGE)
+			else if (c == CameraKind::Edge)
 				camera_ = camera::CameraDLL::load_camera("CameraPCOEdge.dll");
-			else if (c == IDS)
+			else if (c == CameraKind::IDS)
 				camera_ = camera::CameraDLL::load_camera("CameraIds.dll");
-			else if (c == IXON)
+			else if (c == CameraKind::Ixon)
 				camera_ = camera::CameraDLL::load_camera("CameraIxon.dll");
-			else if (c == PIKE)
+			else if (c == CameraKind::Pike)
 				camera_ = camera::CameraDLL::load_camera("CameraPike.dll");
-			else if (c == PIXELFLY)
+			else if (c == CameraKind::Pixelfly)
 				camera_ = camera::CameraDLL::load_camera("CameraPCOPixelfly.dll");
-			else if (c == XIQ)
+			else if (c == CameraKind::xiQ)
 				camera_ = camera::CameraDLL::load_camera("CameraXiq.dll");
 			else
 				assert(!"Impossible case");
