@@ -132,16 +132,18 @@ void convolution_operator(	const complex*		x,
 							const cufftHandle	plan2d_k,
 							cudaStream_t		stream)
 {
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(size, threads);
+	uint	threads = get_max_threads_1d();
+	uint	blocks = map_blocks_to_problem(size, threads);
 
 	/* The convolution operator is used only when using autofocus feature.
 	 * It could be optimized but it's useless since it will be used occasionnally. */
 	complex *tmp_x;
 	complex *tmp_k;
 	uint	complex_size = size * sizeof(complex);
-	cudaMalloc<complex>(&tmp_x, complex_size);
-	cudaMalloc<complex>(&tmp_k, complex_size);
+	if (cudaMalloc<complex>(&tmp_x, complex_size) != cudaSuccess)
+		return;
+	if (cudaMalloc<complex>(&tmp_k, complex_size) != cudaSuccess)
+		return;
 
 	cufftExecC2C(plan2d_x, const_cast<complex*>(x), tmp_x, CUFFT_FORWARD);
 	cufftExecC2C(plan2d_k, const_cast<complex*>(k), tmp_k, CUFFT_FORWARD);
@@ -215,8 +217,10 @@ float average_operator(	const float*	input,
 	float		*gpu_sum;
 	float		cpu_sum = 0.0f;
 
-	cudaMalloc<float>(&gpu_sum, sizeof(float));
-	cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
+	if (cudaMalloc<float>(&gpu_sum, sizeof(float)) == cudaSuccess)
+		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
+	else
+		return (0.f);
 	cudaStreamSynchronize(stream);
 
 	// A SpanSize of 4 has been determined to be an optimal choice here.

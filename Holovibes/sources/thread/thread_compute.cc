@@ -47,7 +47,8 @@ namespace holovibes
 		}
 		catch (std::exception& e)
 		{
-			throw std::logic_error(e.what());
+			std::cerr << e.what() << std::endl;
+			return;
 		}
 
 		memory_cv_.notify_one();

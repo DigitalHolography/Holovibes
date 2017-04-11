@@ -75,7 +75,7 @@ void complex_to_modulus(const complex	*input,
 						const uint		size,
 						cudaStream_t	stream)
 {
-	const uint threads = THREADS_128;
+	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
@@ -264,7 +264,7 @@ __global__ void kernel_rescale_argument(float		*input,
 
 	if (index < size)
 	{
-		input[index] *= 20860.43839105472216033376753330230712890625f; //65535.0f / M_PI;;
+		input[index] *= 65535.0f / M_PI;
 	}
 }
 

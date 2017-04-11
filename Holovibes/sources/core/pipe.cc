@@ -58,7 +58,7 @@ namespace holovibes
 		if (cudaMalloc<float>(&gpu_float_buffer_, sizeof(float) * input_.get_pixels()) != cudaSuccess)
 			err++;
 		if (err != 0)
-			throw std::exception("Pipe : cannot create pipe, cudaMalloc fail");
+			throw std::exception(cudaGetErrorString(cudaGetLastError()));
 		
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan1d_, static_cast<cudaStream_t>(0));

@@ -273,8 +273,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
-			findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
-			findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
+			//findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
+			//findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportWidthSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportHeightSpinBox")->setEnabled(!cd.is_cine_file.load());
@@ -885,12 +885,12 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
+				cd.pindex.exchange(0);
+				cd.nsamples.exchange(1);
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
 				/* ---------- */
-				cd.pindex.exchange(0);
-				cd.nsamples.exchange(1);
 				holovibes_.get_pipe()->request_update_n(1);
 				while (holovibes_.get_pipe()->get_update_n_request());
 			}
@@ -1651,8 +1651,8 @@ namespace holovibes
 		{
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
-			const uint	z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
-			const uint	z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
+			//const uint	z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
+			//const uint	z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			if (cd.stft_enabled.load())
@@ -1665,8 +1665,8 @@ namespace holovibes
 				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				cd.autofocus_z_min.exchange(z_min);
 				cd.autofocus_z_max.exchange(z_max);
-				cd.autofocus_z_div.exchange(z_div);
-				cd.autofocus_z_iter.exchange(z_iter);
+				//cd.autofocus_z_div.exchange(z_div);
+				//cd.autofocus_z_iter.exchange(z_iter);
 
 				notify();
 				is_enabled_autofocus_ = false;
