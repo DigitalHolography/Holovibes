@@ -29,7 +29,7 @@ static void kernel_fft2_dc(const cuComplex	*input,
 						const bool			mode)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;;
-	//if (id < frame_res)
+	if (id < frame_res)
 	{
 		uint idx = id / width;
 		uint idy = id % width;

@@ -18,7 +18,7 @@ void kernel_extract_angle(const cuComplex	*input,
 						const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
-	//if (index < size)
+	if (index < size)
 	{
 		// We use std::atan2 in order to obtain results in [-pi; pi].
 		output[index] = std::atan2(input[index].y, input[index].x);
@@ -32,7 +32,7 @@ void kernel_unwrap(const float	*pred,
 				const size_t	size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
-	//if (index < size)
+	if (index < size)
 	{
 		const float local_diff = cur[index] - pred[index];
 		// Unwrapping //
@@ -55,7 +55,7 @@ void kernel_compute_angle_mult(const cuComplex	*pred,
 							const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
-	//if (index < size)
+	if (index < size)
 	{
 		cuComplex conj_prod;
 		conj_prod = cur[index];
@@ -77,7 +77,7 @@ void kernel_compute_angle_diff(const cuComplex	*pred,
 							const size_t		size)
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
-	//if (index < size)
+	if (index < size)
 	{
 		cuComplex diff = cur[index];
 		diff.x -= pred[index].x;
@@ -94,7 +94,7 @@ void kernel_correct_angles(float		*data,
 {
 	const uint index = blockDim.x * blockIdx.x + threadIdx.x;
 	const size_t size = history_size * image_size;
-	//if (index < image_size)
+	if (index < image_size)
 		for (auto correction_idx = index;
 			correction_idx < size;
 			correction_idx += image_size)
@@ -114,7 +114,7 @@ void kernel_init_unwrap_2d(const uint	width,
 	const uint j = blockIdx.y * blockDim.y + threadIdx.y;
 	const uint index = j * blockDim.x * gridDim.x + i;
 
-	//if (index < frame_res)
+	if (index < frame_res)
 	{
 		fx[index] = (i - static_cast<float>(lrintf(static_cast<float>(width >> 1))));
 		fy[index] = (j - static_cast<float>(lrintf(static_cast<float>(height >> 1))));
@@ -134,7 +134,7 @@ void kernel_multiply_complexes_by_floats_(const float	*input1,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		output1[index].x *= input1[index];
 		output1[index].y *= input1[index];
@@ -151,7 +151,7 @@ void kernel_multiply_complexes_by_single_complex(cuComplex	*output1,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		const cuComplex cpy_o1 = output1[index];
 		const cuComplex cpy_o2 = output2[index];
@@ -171,7 +171,7 @@ void kernel_multiply_complex_by_single_complex(cuComplex	*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		const cuComplex cpy_o1 = output[index];
 
@@ -185,7 +185,7 @@ void kernel_conjugate_complex(cuComplex* output, const uint size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		output[index].y = -output[index].y;
 	}
@@ -199,7 +199,7 @@ void kernel_multiply_complex_frames_by_complex_frame(cuComplex		*output1,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		const cuComplex cpy_o1 = output1[index];
 		const cuComplex cpy_o2 = output2[index];
@@ -220,7 +220,7 @@ __global__
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		const float norm = input1[index] * input1[index] + input2[index] * input2[index];
 
@@ -251,7 +251,7 @@ void kernel_add_complex_frames(cuComplex	*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		output[index].x += input[index].x;
 		output[index].y += input[index].y;
@@ -265,6 +265,6 @@ void kernel_unwrap2d_last_step(float		*output,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 		output[index] = input[index].y / -M_2PI;
 }

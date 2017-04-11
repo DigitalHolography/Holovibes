@@ -82,7 +82,7 @@ void kernel_log10(float		*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//if (index < size)
+	if (index < size)
 	{
 		input[index] = log10f(input[index]);
 	//	index += blockDim.x * gridDim.x;
