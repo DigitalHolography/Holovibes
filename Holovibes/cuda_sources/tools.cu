@@ -139,9 +139,9 @@ void convolution_operator(	const cuComplex		*x,
 	cuComplex *tmp_x;
 	cuComplex *tmp_k;
 	uint	complex_size = size * sizeof(cuComplex);
-	if (cudaMalloc<complex>(&tmp_x, complex_size) != cudaSuccess)
+	if (cudaMalloc<cuComplex>(&tmp_x, complex_size) != cudaSuccess)
 		return;
-	if (cudaMalloc<complex>(&tmp_k, complex_size) != cudaSuccess)
+	if (cudaMalloc<cuComplex>(&tmp_k, complex_size) != cudaSuccess)
 		return;
 
 	cufftExecC2C(plan2d_x, const_cast<cuComplex*>(x), tmp_x, CUFFT_FORWARD);

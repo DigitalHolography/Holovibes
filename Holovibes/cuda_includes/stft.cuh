@@ -54,11 +54,11 @@ void stft(cuComplex			*input,
 		const bool			stft_activated,
 		cudaStream_t		stream = 0);
 
-void stft_moment(	complex			*input, 
-					complex			*output,
-					const uint		frame_res,
-					ushort			pmin,
-					const ushort	pmax);
+void stft_moment(cuComplex		*input,
+				cuComplex		*output,
+				const uint		frame_res,
+				ushort			pmin,
+				const ushort	pmax);
 
 void stft_view_begin(const cuComplex	*input,
 					float				*outputxz,
