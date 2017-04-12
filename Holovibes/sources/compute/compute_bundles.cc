@@ -32,7 +32,7 @@ namespace holovibes
 		int		err = 0;
 		auto	nb_unwrap_elts = image_size * capacity_;
 
-		if (cudaMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts) == cudaSuccess)
+		if (cudaMalloc(&gpu_unwrap_buffer_, sizeof(float) * nb_unwrap_elts) != cudaSuccess)
 			err++;
 		if (cudaMalloc(&gpu_predecessor_, sizeof(cufftComplex) * image_size) != cudaSuccess)
 			err++;

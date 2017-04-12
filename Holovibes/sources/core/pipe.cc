@@ -482,6 +482,7 @@ namespace holovibes
 				gpu_output_buffer_,
 				input_fd.frame_res() << 3, // frame_res() * 8
 				static_cast<cudaStream_t>(0)));
+			refresh_requested_.exchange(false);
 			return;
 		}
 		else
