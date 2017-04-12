@@ -21,7 +21,7 @@
 /*! \brief CURVE_GET is a macro generating curve_get_X function whoose return std::get<X> of tuple give 
 **
 ** This macro is use to instance 4 function curve_get_{0-3} in order to create ptr on */
-# define CURVE_GET(X) float curve_get_ ## X(const std::tuple<float, float, float, float>& a) { return std::get<X>(a); }
+# define CURVE_GET(X) float curve_get_ ## X(const holovibes::Tuple4f& a) { return std::get<X>(a); }
 CURVE_GET(0)
 CURVE_GET(1)
 CURVE_GET(2)
@@ -31,7 +31,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		CurvePlot::CurvePlot(ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
+		CurvePlot::CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
 			const QString title,
 			const unsigned int width,
 			const unsigned int height,
@@ -121,14 +121,13 @@ namespace holovibes
 
 		void CurvePlot::auto_scale()
 		{
-			using elt_t = std::tuple<float, float, float, float>;
-			std::vector<elt_t> tmp = average_vector_;
+			std::vector<Tuple4f> tmp = average_vector_;
 
 			//float curr = 0.0f;
 
 			auto minmax = std::minmax_element(tmp.cbegin(),
 				tmp.cend(),
-				[&](const elt_t& lhs, const elt_t& rhs)
+				[&](const Tuple4f& lhs, const Tuple4f& rhs)
 			{
 				return curve_get_(lhs) < curve_get_(rhs);
 			});

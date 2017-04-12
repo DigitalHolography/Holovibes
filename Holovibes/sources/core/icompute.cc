@@ -624,7 +624,7 @@ namespace holovibes
 	}
 
 	void ICompute::request_average(
-		ConcurrentDeque<std::tuple<float, float, float, float>>* output)
+		ConcurrentDeque<Tuple4f>* output)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
 		assert(output != nullptr);
@@ -645,7 +645,7 @@ namespace holovibes
 	}
 
 	void ICompute::request_average_record(
-		ConcurrentDeque<std::tuple<float, float, float, float>>* output,
+		ConcurrentDeque<Tuple4f>* output,
 		const unsigned int n)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);

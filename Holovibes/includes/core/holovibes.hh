@@ -24,12 +24,11 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "concurrent_deque.hh"
-# include "icamera.hh"
+#include "icamera.hh"
 
 /*! \brief Containt all function and structure needed to computes data */
 namespace holovibes
 {
-	template <class T> class ConcurrentDeque;
 	class Queue;
 	
 	/*! \brief Core class to use HoloVibes
@@ -67,17 +66,10 @@ namespace holovibes
 		void dispose_capture();
 
 		/*! \brief Check if camera is initialized. */
-		bool is_camera_initialized()
-		{
-			return camera_.operator bool();
-		}
+		bool is_camera_initialized();
 
 		/*! \brief Returns the camera name. */
-		const char* get_camera_name()
-		{
-			assert(camera_initialized_ && "camera not initialized");
-			return camera_.get()->get_name();
-		}
+		const char* get_camera_name();
 
 		/*! \{ \name Queue getters
 		 *
@@ -94,13 +86,6 @@ namespace holovibes
 		}
 		/*! \} */
 
-		/*! Used to display frames */
-		/*Queue& get_complex_output_queue()
-		{
-			return *complex_output_;
-		}*/
-		/*! \} */
-
 		/*! \brief Launch the recorder
 		 *
 		 * \param filepath File path to record frames
@@ -113,9 +98,7 @@ namespace holovibes
 		 *
 		 * - direct: use input_ queue
 		 * - hologram: use output_ queue. */
-		void recorder(
-			const std::string& filepath,
-			const unsigned int rec_n_images);
+		void recorder(const std::string& filepath, const unsigned int rec_n_images);
 
 		/*! \brief Request the recorder thread to stop */
 		void dispose_recorder();
@@ -178,7 +161,7 @@ namespace holovibes
 			return camera_->get_ini_path();
 		}
 
-		ConcurrentDeque<std::tuple<float, float, float, float>>& get_average_queue()
+		ConcurrentDeque<Tuple4f>& get_average_queue()
 		{
 			return average_queue_;
 		}
@@ -225,7 +208,7 @@ namespace holovibes
 		 * Average are computes in ThreadCompute and use in CurvePlot
 		 * \note see void MainWindow::set_average_graphic() for example
 		 */
-		ConcurrentDeque<std::tuple<float, float, float, float>> average_queue_;
+		ConcurrentDeque<Tuple4f> average_queue_;
 
 		/* \brief Store the path of holovibes when it is launched.
 		   so that holovibes.ini is saved at the right place. The problem

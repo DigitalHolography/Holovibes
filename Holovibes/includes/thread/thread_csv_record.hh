@@ -39,7 +39,7 @@ namespace holovibes
 		{
 			Q_OBJECT
 
-				typedef ConcurrentDeque<std::tuple<float, float, float, float>> Deque;
+				typedef ConcurrentDeque<Tuple4f> Deque;
 
 		signals:
 

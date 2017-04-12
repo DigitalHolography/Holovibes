@@ -12,10 +12,7 @@
 
 #pragma once
 
-# include <tuple>
 # include "Common.cuh"
-
-using Tuple4f = std::tuple<float, float, float, float>;
 
 /*! \brief  Make the average plot on the 2 selected zones
 *

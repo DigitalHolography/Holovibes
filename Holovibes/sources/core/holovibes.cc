@@ -16,9 +16,7 @@
 #include <boost/filesystem.hpp>
 
 #include "holovibes.hh"
-#include "frame_desc.hh"
 #include "queue.hh"
-#include "icamera.hh"
 #include "config.hh"
 #include "camera_dll.hh"
 #include "tools.hh"
@@ -101,9 +99,18 @@ namespace holovibes
 		std::cout << "[CAPTURE] capture thread stopped" << std::endl;
 	}
 
-	void Holovibes::recorder(
-		const std::string& filepath,
-		const unsigned int rec_n_images)
+	bool Holovibes::is_camera_initialized()
+	{
+		return camera_.operator bool();
+	}
+
+	const char* Holovibes::get_camera_name()
+	{
+		assert(camera_initialized_ && "camera not initialized");
+		return camera_.get()->get_name();
+	}
+
+	void Holovibes::recorder(const std::string& filepath, const unsigned int rec_n_images)
 	{
 
 		assert(camera_initialized_ && "camera not initialized");

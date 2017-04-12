@@ -23,13 +23,7 @@
 # include <iostream>
 # include <array>
 # include <float.h>
-
-/* Forward declaration. */
-namespace holovibes
-{
-  template <class T>
-  class ConcurrentDeque;
-}
+# include "concurrent_deque.hh"
 
 namespace holovibes
 {
@@ -49,7 +43,7 @@ namespace holovibes
 			** \param height height of the plot in pixels
 			** \param parent Qt parent
 			*/
-			CurvePlot(ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
+			CurvePlot(ConcurrentDeque<Tuple4f>& data_vect,
 				const QString title,
 				const unsigned int width,
 				const unsigned int height,
@@ -120,7 +114,7 @@ namespace holovibes
 
 		private:
 			/*! Reference to Deque containing average/ROI data */
-			ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect_;
+			ConcurrentDeque<Tuple4f>& data_vect_;
 			/*! QwtPlot */
 			QwtPlot plot_;
 			/*! Plot's curve */
@@ -130,9 +124,9 @@ namespace holovibes
 			/*! QTimer used to draw every TIMER_FREQ milliseconds */
 			QTimer timer_;
 			/*! Ptr to function (curve_get_X) who get value of curve in tuple */
-			float(*curve_get_)(const std::tuple<float, float, float, float>&);
+			float(*curve_get_)(const Tuple4f&);
 			/*! Local copy of data_vect data */
-			std::vector<std::tuple<float, float, float, float>> average_vector_;
+			std::vector<Tuple4f> average_vector_;
 		};
 	}
 }

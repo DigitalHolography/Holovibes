@@ -49,7 +49,7 @@ namespace holovibes
 			** \param title title of the window
 			** \param parent Qt parent
 			*/
-			PlotWindow(ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
+			PlotWindow(ConcurrentDeque<Tuple4f>& data_vect,
 				const QString title,
 				QWidget* parent = nullptr);
 

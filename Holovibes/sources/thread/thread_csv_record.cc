@@ -73,7 +73,7 @@ namespace holovibes
 			unsigned int i = 0;
 			while (i < deque_size && record_)
 			{
-				std::tuple<float, float, float, float>& tuple = deque_[i];
+				Tuple4f& tuple = deque_[i];
 				of << std::fixed << std::setw(11) << std::setprecision(10) << std::setfill('0')
 					<< std::get<0>(tuple) << ","
 					<< std::get<1>(tuple) << ","

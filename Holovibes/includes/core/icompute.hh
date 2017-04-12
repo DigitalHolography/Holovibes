@@ -30,11 +30,15 @@
 /* Forward declarations. */
 namespace holovibes
 {
-  struct UnwrappingResources;
-  struct UnwrappingResources_2d;
-  class Queue;
-  template <class T> class ConcurrentDeque;
-  class ComputeDescriptor;
+	# ifndef TUPLE4F
+	# define TUPLE4F
+		using	Tuple4f = std::tuple<float, float, float, float>;
+	# endif
+	struct UnwrappingResources;
+	struct UnwrappingResources_2d;
+	class Queue;
+	template <class T> class ConcurrentDeque;
+	class ComputeDescriptor;
 }
 
 namespace holovibes
@@ -139,7 +143,7 @@ namespace holovibes
     * average_ratio).
     * \note This method is only used by the GUI to draw the average graph. */
     void request_average(
-      ConcurrentDeque<std::tuple<float, float, float, float>>* output);
+      ConcurrentDeque<Tuple4f>* output);
     /*! \brief Request the ICompute to stop the average compute. */
     void request_average_stop();
 
@@ -151,7 +155,7 @@ namespace holovibes
     * \note This method is used to record n samples and then automatically
     * refresh the ICompute. */
     void request_average_record(
-      ConcurrentDeque<std::tuple<float, float, float, float>>* output,
+      ConcurrentDeque<Tuple4f>* output,
       const unsigned int n);
 
     /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
@@ -374,7 +378,7 @@ namespace holovibes
     /*! \brief index of current element trait in stft */
     unsigned int curr_elt_stft_;
 
-    ConcurrentDeque<std::tuple<float, float, float, float>>* average_output_;
+    ConcurrentDeque<Tuple4f>* average_output_;
     unsigned int average_n_;
     /*! \} */
     /*! \{ \name fps_count */

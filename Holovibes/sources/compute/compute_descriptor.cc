@@ -14,6 +14,8 @@
 
 namespace holovibes
 {
+	using	LockGuard = std::lock_guard<std::mutex>;
+
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
 		algorithm(Algorithm::None)
 		, compute_mode(Computation::Direct)

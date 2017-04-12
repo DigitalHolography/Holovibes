@@ -17,7 +17,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		PlotWindow::PlotWindow(ConcurrentDeque<std::tuple<float, float, float, float>>& data_vect,
+		PlotWindow::PlotWindow(ConcurrentDeque<Tuple4f>& data_vect,
 			const QString title,
 			QWidget* parent)
 			: QMainWindow(parent)
