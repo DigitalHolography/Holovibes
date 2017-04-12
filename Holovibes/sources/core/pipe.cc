@@ -338,7 +338,15 @@ namespace holovibes
 				this,
 				gpu_input_buffer_,
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
-
+			
+			if (compute_desc_.p_accu_enabled.load())
+			{
+				fn_vect_.push_back(std::bind(stft_moment, gpu_stft_buffer_,
+					gpu_input_frame_ptr_,
+					input_fd.frame_res(),
+					compute_desc_.p_accu_min_level.load(),
+					compute_desc_.p_accu_max_level.load()));
+			}
 			// Image ratio Ip/Iq chackbox
 			if (compute_desc_.vibrometry_enabled.load())
 			{
@@ -509,6 +517,7 @@ namespace holovibes
 				else
 				{
 					// Fallback on modulus mode.
+
 					fn_vect_.push_back(std::bind(
 						complex_to_modulus,
 						gpu_input_frame_ptr_,

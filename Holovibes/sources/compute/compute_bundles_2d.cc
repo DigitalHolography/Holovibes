@@ -30,21 +30,21 @@ namespace holovibes
 	{
 		int err = 0;
 
-		if (cudaMalloc(&gpu_fx_, sizeof(float) * image_resolution_))
+		if (cudaMalloc(&gpu_fx_, sizeof(float) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_fy_, sizeof(float) * image_resolution_))
+		if (cudaMalloc(&gpu_fy_, sizeof(float) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_shift_fx_, sizeof(float) * image_resolution_))
+		if (cudaMalloc(&gpu_shift_fx_, sizeof(float) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_shift_fy_, sizeof(float) * image_resolution_))
+		if (cudaMalloc(&gpu_shift_fy_, sizeof(float) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_angle_, sizeof(float) * image_resolution_))
+		if (cudaMalloc(&gpu_angle_, sizeof(float) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_z_, sizeof(cufftComplex) * image_resolution_))
+		if (cudaMalloc(&gpu_z_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_))
+		if (cudaMalloc(&gpu_grad_eq_x_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
 			err++;
-		if (cudaMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_))
+		if (cudaMalloc(&gpu_grad_eq_y_, sizeof(cufftComplex) * image_resolution_) != cudaSuccess)
 			err++;
 		if (err != 0)
 			throw std::exception("Cannot allocate UnwrappingResources2d");

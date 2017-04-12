@@ -1123,7 +1123,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QSpinBox" name="spinBox">
+        <widget class="QSpinBox" name="PMinAccuSpinBox">
          <property name="geometry">
           <rect>
            <x>90</x>
@@ -1132,8 +1132,14 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
         </widget>
-        <widget class="QSpinBox" name="spinBox_2">
+        <widget class="QSpinBox" name="PMaxAccuSpinBox">
          <property name="geometry">
           <rect>
            <x>140</x>
@@ -1142,8 +1148,14 @@
            <height>22</height>
           </rect>
          </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
         </widget>
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="PAccuCheckBox">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1182,9 +1194,9 @@
         <zorder>FlipPushButton</zorder>
         <zorder>RotatePushButton</zorder>
         <zorder>WindowSelectionComboBox</zorder>
-        <zorder>spinBox</zorder>
-        <zorder>spinBox_2</zorder>
-        <zorder>checkBox</zorder>
+        <zorder>PMinAccuSpinBox</zorder>
+        <zorder>PMaxAccuSpinBox</zorder>
+        <zorder>PAccuCheckBox</zorder>
        </widget>
       </item>
       <item>
@@ -2996,7 +3008,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>280</y>
+     <y>310</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3108,7 +3120,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>250</y>
+     <y>280</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3220,7 +3232,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>410</x>
-     <y>267</y>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -3236,7 +3248,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>410</x>
-     <y>251</y>
+     <y>281</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3428,7 +3440,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>305</y>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -3892,7 +3904,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>335</y>
+     <y>365</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -3908,7 +3920,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>365</y>
+     <y>395</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -4364,6 +4376,54 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>PAccuCheckBox</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>247</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMaxAccuSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>379</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMinAccuSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>331</x>
+     <y>240</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4466,5 +4526,6 @@ p, li { white-space: pre-wrap; }
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>
+  <slot>set_p_accu()</slot>
  </slots>
 </ui>

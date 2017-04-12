@@ -224,7 +224,12 @@ namespace holovibes
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
-
+			
+			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(cd.p_accu_enabled.load());
+			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(cd.stft_enabled.load());
+			findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(cd.p_accu_max_level.load());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(cd.nsamples.load());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(cd.p_accu_min_level.load());
 			QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 			p_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
 			p_vibro->setValue(cd.pindex.load() + 1);
@@ -1142,6 +1147,12 @@ namespace holovibes
 				stft_signal_trig(false);
 			else if (cd.stft_view_enabled.load())
 				cancel_stft_slice_view();
+			if (cd.p_accu_enabled.load())
+			{
+				cd.p_accu_enabled.exchange(false);
+				cd.p_accu_max_level.exchange(1);
+				cd.p_accu_min_level.exchange(1);
+			}
 			cd.stft_view_enabled.exchange(false);
 			cd.stft_enabled.exchange(false);
 			cd.signal_trig_enabled.exchange(false);
@@ -1346,6 +1357,18 @@ namespace holovibes
 				set_auto_contrast();
 			}
 		}
+
+		void MainWindow::set_p_accu()
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			
+			cd.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
+			cd.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
+			cd.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
+			notify();
+			set_auto_contrast();
+		}
+			
 
 		void MainWindow::set_p(int value)
 		{

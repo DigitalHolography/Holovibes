@@ -30,7 +30,7 @@ void fft1_lens(	complex*				lens,
   kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z);
 }
 
-void fft_1(	complex*			input,
+void fft_1(	complex				*input,
 			const complex*		lens,
 			const cufftHandle	plan1D,
 			const cufftHandle	plan2D,

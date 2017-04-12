@@ -35,12 +35,10 @@ __global__ static void kernel_fft2_dc(	const complex	*input,
 	if (id < frame_res)
 	{
 		const float	pi_pxl = M_PI * (id / width + id % width);
-		complex		product;
 		if (mode == APPLY_PHASE_FORWARD)
-			product = make_cuComplex(cosf(pi_pxl), sinf(pi_pxl));
+			output[id] = cuCmulf(input[id], make_cuComplex(cosf(pi_pxl), sinf(pi_pxl)));
 		else if (mode == APPLY_PHASE_INVERSE)
-			product = make_cuComplex(cosf(-pi_pxl), sinf(-pi_pxl));
-		output[id] = cuCmulf(input[id], product);
+			output[id] = cuCmulf(input[id], make_cuComplex(cosf(-pi_pxl), sinf(-pi_pxl)));
 	}
 }
 
@@ -115,7 +113,7 @@ void fft_2(	complex					*input,
 
 	if (p != q)
 	{
-		complex* qframe = input + frame_resolution * q;
+		complex *qframe = input + frame_resolution * q;
 		cufftExecC2C(plan2d, qframe, qframe, CUFFT_FORWARD);
 		kernel_apply_lens << <blocks, threads, 0, stream >> >(qframe, frame_resolution, lens, frame_resolution);
 		cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);

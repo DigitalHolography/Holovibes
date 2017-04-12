@@ -16,6 +16,38 @@
 #include "tools.hh"
 #include "tools.cuh"
 
+__global__ static void kernel_stft_moment(	complex			*input,
+											complex			*output,
+											const uint		frame_res,
+											ushort			pmin,
+											const ushort	pmax)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		output[id] = make_cuComplex(0.f, 0.f);
+		while (pmin <= pmax)
+		{
+			complex *current_pframe = input + (frame_res * pmin);
+			output[id].x += current_pframe[id].x;
+			output[id].y += current_pframe[id].y;
+			++pmin;
+		}
+	}
+}
+
+void stft_moment(	complex			*input, 
+					complex			*output,
+					const uint		frame_res,
+					ushort			pmin,
+					const ushort	pmax)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax);
+}
+
 void stft(	complex				*input,
 			complex				*gpu_queue,
 			complex				*stft_buf,

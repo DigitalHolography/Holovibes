@@ -43,6 +43,13 @@
  *
  *\endverbatim
  */
+
+void stft_moment(	complex			*input, 
+					complex			*output,
+					const uint		frame_res,
+					ushort			pmin,
+					const ushort	pmax);
+
 void stft(	complex				*input,
 			complex				*gpu_queue,
 			complex				*stft_buf,
