@@ -199,6 +199,7 @@ namespace holovibes
 			/*! \brief Set p-th frame to be displayed in OpenGl window
 			** \param value new p
 			*/
+			void set_p_accu();
 			void set_p(int value);
 			/*! \brief Increment flography level */
 			void set_flowgraphy_level(const int value);

@@ -52,6 +52,7 @@ namespace holovibes
 		, gpu_stft_slice_queue_yz(nullptr)
 		, gpu_ref_diff_queue_(nullptr)
 		, gpu_filter2d_buffer(nullptr)
+		, gpu_tmp_input_(nullptr)
 		, plan3d_(0)
 		, plan2d_(0)
 		, plan1d_(0)
@@ -119,16 +120,14 @@ namespace holovibes
 			|| compute_desc_.flowgraphy_enabled.load())
 		{
 			/* gpu_tmp_input */
-			cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples.load());
+			if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
+				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples.load()) != cudaSuccess)
+				err++;
 		}
 		if (compute_desc_.convolution_enabled.load())
 		{
 			/* kst_size */
 			int size = static_cast<int>(compute_desc_.convo_matrix.size());
-			/* gpu_kernel_buffer */
-			cudaMalloc<float>(&gpu_kernel_buffer_,
-				sizeof(float)* (size));
 			/* Build the kst 3x3 matrix */
 			float *kst_complex_cpu = new float[size];
 			for (int i = 0; i < size; ++i)
@@ -136,14 +135,19 @@ namespace holovibes
 				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
 				//kst_complex_cpu[i].y = 0;
 			}
-			cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size, cudaMemcpyHostToDevice);
+			/* gpu_kernel_buffer */
+			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof(float) * size) == cudaSuccess)
+				cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size, cudaMemcpyHostToDevice);
+			else
+				err++;
 			delete[] kst_complex_cpu;
 		}
 		if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
 		{
 			/* gpu_tmp_input */
-			cudaMalloc<cufftComplex>(&gpu_special_queue_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load());
+			if (cudaMalloc<cufftComplex>(&gpu_special_queue_,
+				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size.load()) != cudaSuccess)
+				err++;
 		}
 
 		if (compute_desc_.img_acc_enabled.load())
@@ -174,10 +178,12 @@ namespace holovibes
 
 		if (compute_desc_.filter_2d_enabled.load())
 		{
-			cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
-				sizeof(cufftComplex)* input_.get_pixels());
+			if (cudaMalloc<cufftComplex>(&gpu_filter2d_buffer,
+				sizeof(cufftComplex)* input_.get_pixels()) != cudaSuccess)
+				err++;
 		}
-
+		if (err != 0)
+			throw std::exception(cudaGetErrorString(cudaGetLastError()));
 	}
 
 	ICompute::~ICompute()

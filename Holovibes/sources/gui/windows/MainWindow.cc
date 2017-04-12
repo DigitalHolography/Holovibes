@@ -224,7 +224,12 @@ namespace holovibes
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
-
+			
+			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(cd.p_accu_enabled.load());
+			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(cd.stft_enabled.load());
+			findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(cd.p_accu_max_level.load());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(cd.nsamples.load());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(cd.p_accu_min_level.load());
 			QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 			p_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
 			p_vibro->setValue(cd.pindex.load() + 1);
@@ -273,8 +278,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
-			findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
-			findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
+			//findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
+			//findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportWidthSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportHeightSpinBox")->setEnabled(!cd.is_cine_file.load());
@@ -885,12 +890,12 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
+				cd.pindex.exchange(0);
+				cd.nsamples.exchange(1);
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
 				/* ---------- */
-				cd.pindex.exchange(0);
-				cd.nsamples.exchange(1);
 				holovibes_.get_pipe()->request_update_n(1);
 				while (holovibes_.get_pipe()->get_update_n_request());
 			}
@@ -1142,6 +1147,12 @@ namespace holovibes
 				stft_signal_trig(false);
 			else if (cd.stft_view_enabled.load())
 				cancel_stft_slice_view();
+			if (cd.p_accu_enabled.load())
+			{
+				cd.p_accu_enabled.exchange(false);
+				cd.p_accu_max_level.exchange(1);
+				cd.p_accu_min_level.exchange(1);
+			}
 			cd.stft_view_enabled.exchange(false);
 			cd.stft_enabled.exchange(false);
 			cd.signal_trig_enabled.exchange(false);
@@ -1346,6 +1357,17 @@ namespace holovibes
 				set_auto_contrast();
 			}
 		}
+
+		void MainWindow::set_p_accu()
+		{
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			
+			cd.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
+			cd.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
+			cd.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
+			notify();
+		}
+			
 
 		void MainWindow::set_p(int value)
 		{
@@ -1651,8 +1673,8 @@ namespace holovibes
 		{
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
-			const uint	z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
-			const uint	z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
+			//const uint	z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
+			//const uint	z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			if (cd.stft_enabled.load())
@@ -1665,8 +1687,8 @@ namespace holovibes
 				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				cd.autofocus_z_min.exchange(z_min);
 				cd.autofocus_z_max.exchange(z_max);
-				cd.autofocus_z_div.exchange(z_div);
-				cd.autofocus_z_iter.exchange(z_iter);
+				//cd.autofocus_z_div.exchange(z_div);
+				//cd.autofocus_z_iter.exchange(z_iter);
 
 				notify();
 				is_enabled_autofocus_ = false;

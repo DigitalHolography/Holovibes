@@ -51,15 +51,14 @@ static void TextureUpdate_16bit(unsigned short* frame,
 }*/
 
 void textureUpdate(cudaSurfaceObject_t	cuSurface,
-				void*					frame,
+				void					*frame,
 				const FrameDescriptor&	fd,
 				cudaStream_t			stream)
 {
 	dim3 threads(32, 32);
 	dim3 blocks(fd.width >> 5, fd.height >> 5);
-
-	updateSliceTexture << < blocks, threads >> >(
-		reinterpret_cast<float*>(frame),
+	updateSliceTexture << < blocks, threads, 0 >> >(
+		reinterpret_cast<float *>(frame),
 		cuSurface, dim3(fd.width, fd.height));
 
 	/*if (Fd.depth == 1)

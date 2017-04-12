@@ -57,4 +57,3 @@ void fft_1(cuComplex*			input,
 
 	cudaStreamSynchronize(stream);
 }
-

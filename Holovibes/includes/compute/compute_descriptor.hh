@@ -228,6 +228,9 @@ namespace holovibes
 		std::atomic<bool> img_acc_enabled;
 		std::atomic<bool> img_acc_cutsXZ_enabled;
 		std::atomic<bool> img_acc_cutsYZ_enabled;
+		std::atomic<ushort> p_accu_enabled;
+		std::atomic<ushort> p_accu_min_level;
+		std::atomic<ushort> p_accu_max_level;
 		#pragma endregion
 	};
 }
