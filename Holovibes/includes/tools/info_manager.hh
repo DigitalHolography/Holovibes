@@ -12,15 +12,10 @@
 
 #pragma once
 
-# include "gui_group_box.hh"
-# include <QProgressBar>
-# include <QTextBrowser>
-# include <QThread>
-#include <thread>
-#include <chrono>
-#include <utility>
-
-# include <stdexcept>
+#include <QProgressBar>
+#include <QTextBrowser>
+#include <QThread>
+#include "gui_group_box.hh"
 
 namespace holovibes
 {
@@ -40,8 +35,10 @@ namespace holovibes
 		/*! Throwed if try instance InfoManager more once*/
 		class ManagerNotInstantiate : std::exception
 		{
-			/* std::string& */
-			const char *what() { return /*std::string*/("InfoManager is not instantiate, use InfoManager::get_manager with arg"); }
+			const char *what()
+			{
+				return ("InfoManager is not instantiate, use InfoManager::get_manager with arg");
+			}
 		};
 		/*! ctr */
 		InfoManager(gui::GroupBox *ui);
@@ -96,20 +93,6 @@ namespace holovibes
 		/*! The singleton*/
 		static InfoManager *instance;
 
-		/*! Store all informations */
-		std::vector<std::pair<std::string, std::string>>  infos_ = { {std::make_pair("", "")},
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") },
-		{ std::make_pair("", "") }};
 		/*! ui where find infoProgressBar and infoTextEdit */
 		gui::GroupBox*  ui_;
 		/*! infoProgressBar, you can get it with get_progress_bar() */
@@ -118,6 +101,9 @@ namespace holovibes
 		QTextEdit*      infoEdit_;
 
 		bool stop_requested_;
+
+		/*! Store all informations */
+		std::vector<std::pair<std::string, std::string>>  infos_;;
 	};
 }
 }

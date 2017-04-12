@@ -19,7 +19,6 @@
 # include <QVector>
 # include <qwt_plot.h>
 # include <qwt_plot_curve.h>
-# include <tuple>
 # include <iostream>
 # include <array>
 # include <float.h>

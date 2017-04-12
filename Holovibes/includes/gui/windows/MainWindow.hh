@@ -17,18 +17,13 @@
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/ini_parser.hpp>
 # include <cstring>
-# include <fstream>
-# include <iomanip>
-# include <iostream>
 # include <QDesktopServices>
 # include <QFileDialog>
 # include <QMainWindow>
 # include <QMessageBox>
 # include <QShortcut>
-# include <string>
 # include <sys/stat.h>
 # include <thread>
-# include <vector>
 # include <sstream>
 
 // without namespace
@@ -45,16 +40,11 @@
 
 // namespace holovibes
 # include "holovibes.hh"
-# include "queue.hh"
-# include "compute_descriptor.hh"
-# include "config.hh"
 # include "custom_exception.hh"
 # include "info_manager.hh"
-# include "observer.hh"
 # include "options_descriptor.hh"
 
 // namespace gui
-# include "DirectWindow.hh"
 # include "HoloWindow.hh"
 # include "SliceWindow.hh"
 # include "PlotWindow.hh"

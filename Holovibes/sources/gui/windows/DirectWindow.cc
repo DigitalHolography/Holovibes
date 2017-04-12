@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
-#include "tools_conversion.cuh"
 
 namespace holovibes
 {

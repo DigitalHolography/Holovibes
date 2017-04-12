@@ -22,11 +22,9 @@ void kernel_quadratic_lens(cuComplex*			output,
 	const uint	size = fd.width * fd.height;
 	const float	c = M_PI / (lambda * dist);
 	const float	dx = fd.pixel_size * 1.0e-6f;
-	const float	dy = dx; //fd.pixel_size * 1.0e-6f;
-	float		x;
-	float		y;
-	uint		i;
-	uint		j;
+	const float	dy = dx;
+	float		x, y;
+	uint		i, j;
 	float		csquare;
 
 	if (index < size)
@@ -39,7 +37,6 @@ void kernel_quadratic_lens(cuComplex*			output,
 		csquare = c * (x * x + y * y);
 		output[index].x = cosf(csquare);
 		output[index].y = sinf(csquare);
-		//index += blockDim.x * gridDim.x;
 	}
 }
 
@@ -54,7 +51,7 @@ void kernel_spectral_lens(cuComplex				*output,
 	const uint	index = j * blockDim.x * gridDim.x + i;
 	const float c = M_2PI * distance / lambda;
 	const float dx = fd.pixel_size * 1.0e-6f;
-	const float dy = dx; //fd.pixel_size * 1.0e-6f;
+	const float dy = dx;
 	const float du = 1 / ((static_cast<float>(fd.width)) * dx);
 	const float dv = 1 / ((static_cast<float>(fd.height)) * dy);
 	const float u = (i - static_cast<float>(lrintf(static_cast<float>(fd.width >> 1)))) * du;

@@ -18,7 +18,6 @@
 # include <atomic>
 # include <mutex>
 # include <tuple>
-# include <QPoint>
 
 # include "observable.hh"
 # include "Rectangle.hh"
@@ -27,8 +26,8 @@ namespace holovibes
 {
 	const static std::string version = "v4.2.170410"; /*!< Current version of this project. */
 	#ifndef TUPLE4F
-	#define TUPLE4F
-	using	Tuple4f =	std::tuple<float, float, float, float>;
+	# define TUPLE4F
+		using	Tuple4f =	std::tuple<float, float, float, float>;
 	#endif
 	using	CameraKind =
 	enum

@@ -13,8 +13,6 @@
 #pragma once
 
 #include "icompute.hh"
-#include "compute_descriptor.hh"
-#include "info_manager.hh"
 #include "DirectWindow.hh"
 
 namespace holovibes

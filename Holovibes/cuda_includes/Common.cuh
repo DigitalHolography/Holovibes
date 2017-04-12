@@ -12,12 +12,11 @@
 
 #pragma once
 
-# include <cufft.h>
 # include <device_launch_parameters.h>
 
-# include "compute_descriptor.hh"
-# include "queue.hh"
 # include "tools.cuh"
+# include "queue.hh"
+# include "compute_descriptor.hh"
 
 #define M_2PI		6.28318530717959f
 #define THREADS_256	256

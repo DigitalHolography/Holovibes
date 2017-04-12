@@ -60,7 +60,7 @@ namespace holovibes
 			// Fields -----------
 			Queue&					Qu;
 			const FrameDescriptor&	Fd;
-			const KindOfView	kView;
+			const KindOfView		kView;
 
 			std::array<float, 2>	Translate;
 			float	Scale;

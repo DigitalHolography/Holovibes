@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include "Overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes

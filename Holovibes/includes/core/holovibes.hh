@@ -24,7 +24,7 @@
 # include "recorder.hh"
 # include "compute_descriptor.hh"
 # include "concurrent_deque.hh"
-#include "icamera.hh"
+# include "icamera.hh"
 
 /*! \brief Containt all function and structure needed to computes data */
 namespace holovibes

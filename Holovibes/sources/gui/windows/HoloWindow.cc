@@ -11,8 +11,7 @@
 /* **************************************************************************** */
 
 #include <sstream>
-#include <boost/algorithm/string.hpp>
-#include "texture_update.cuh"
+#include "info_manager.hh"
 #include "HoloWindow.hh"
 
 namespace holovibes

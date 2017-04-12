@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <thread>
+#include <chrono>
 #include "info_manager.hh"
 
 namespace holovibes
@@ -18,10 +20,24 @@ namespace holovibes
 	{
 		InfoManager *InfoManager::instance = nullptr;
 
-		InfoManager::InfoManager(gui::GroupBox *ui)
-			: ui_(ui)
-			, progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar"))
-			, stop_requested_(false)
+		InfoManager::InfoManager(gui::GroupBox *ui) :
+			ui_(ui),
+			progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar")),
+			stop_requested_(false),
+			infos_{
+				{ { std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
+				{ std::make_pair("", "") } } }
 		{
 			progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
 			infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
