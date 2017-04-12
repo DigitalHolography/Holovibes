@@ -1366,7 +1366,6 @@ namespace holovibes
 			cd.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			cd.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
 			notify();
-			set_auto_contrast();
 		}
 			
 

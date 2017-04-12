@@ -987,7 +987,7 @@
           <string>Accumulate n images</string>
          </property>
          <property name="text">
-          <string>Img. Accu.</string>
+          <string>Img. Acc.</string>
          </property>
          <property name="checked">
           <bool>false</bool>
@@ -1126,9 +1126,9 @@
         <widget class="QSpinBox" name="PMinAccuSpinBox">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>71</x>
            <y>200</y>
-           <width>42</width>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -1142,9 +1142,9 @@
         <widget class="QSpinBox" name="PMaxAccuSpinBox">
          <property name="geometry">
           <rect>
-           <x>140</x>
+           <x>131</x>
            <y>200</y>
-           <width>42</width>
+           <width>51</width>
            <height>22</height>
           </rect>
          </property>
@@ -1165,7 +1165,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>p accu.</string>
+          <string>p Acc.</string>
          </property>
         </widget>
         <zorder>PhaseUnwrap2DCheckBox</zorder>
