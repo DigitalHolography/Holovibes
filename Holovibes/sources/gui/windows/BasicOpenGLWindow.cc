@@ -18,7 +18,6 @@ namespace holovibes
 	namespace gui
 	{
 		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
-			/* ~~~~~~~~~~~~ */
 			QOpenGLWindow(), QOpenGLFunctions(),
 			Qu(q),
 			Fd(Qu.get_frame_desc()),
@@ -208,6 +207,7 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::resetSelection()
 		{
+			makeCurrent();
 			Overlay.resetVerticesBuffer();
 		}
 	}

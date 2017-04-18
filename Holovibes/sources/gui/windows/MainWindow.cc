@@ -25,7 +25,7 @@ namespace holovibes
 			sliceYZ(nullptr),
 			displayAngle(0.f),
 			xzAngle(0.f),
-			yzAngle(270.f),
+			yzAngle(90.f),
 			displayFlip(0),
 			xzFlip(0),
 			yzFlip(1),
@@ -48,7 +48,7 @@ namespace holovibes
 			setWindowIcon(QIcon("icon1.ico"));
 			InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
-			move(QPoint(532, 558));
+			move(QPoint(532, 554));
 
 			// Hide non default tab
 			findChild<GroupBox *>("PostProcessingGroupBox")->setHidden(true);
@@ -1057,6 +1057,7 @@ namespace holovibes
 			findChild<QCheckBox*>("STFTCheckBox")->setEnabled(true);
 
 			mainDisplay->setCursor(Qt::ArrowCursor);
+			mainDisplay->resetSelection();
 			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 
 			notify();
@@ -1103,7 +1104,7 @@ namespace holovibes
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = cd.nsamples.load();
-					const uint		nSize = (nImg < 128 ? 128 : nImg) * 2;
+					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
  					while (holovibes_.get_pipe()->get_cuts_request());
@@ -1125,7 +1126,7 @@ namespace holovibes
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
 
-					//mainDisplay->setKindOfOverlay(KindOfOverlay::SliceZoom);
+					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					cd.stft_view_enabled.exchange(true);
 					notify();
 				}
@@ -1367,7 +1368,6 @@ namespace holovibes
 			cd.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
 			notify();
 		}
-			
 
 		void MainWindow::set_p(int value)
 		{

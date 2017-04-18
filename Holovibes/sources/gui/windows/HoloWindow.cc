@@ -42,7 +42,7 @@ namespace holovibes
 		{
 			DirectWindow::paintGL();
 			// ---------------
-			if (Cd.stft_view_enabled.load() && !slicesAreLocked.load())
+			if (Cd.stft_view_enabled.load())// && !slicesAreLocked.load())
 			{
 				Overlay.drawCross();
 			}
@@ -100,8 +100,16 @@ namespace holovibes
 				resetTransform();
 		}
 
+		void	HoloWindow::wheelEvent(QWheelEvent *e)
+		{
+			if (!Cd.stft_view_enabled.load())
+				BasicOpenGLWindow::wheelEvent(e);
+		}
+
 		void	HoloWindow::keyPressEvent(QKeyEvent* e)
 		{
+			static bool initCross = false;
+
 			DirectWindow::keyPressEvent(e);
 			if (Cd.stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
@@ -110,14 +118,15 @@ namespace holovibes
 				if (slicesAreLocked.load())
 				{
 					setCursor(Qt::ArrowCursor);
-					Overlay.setKind(KindOfOverlay::Zoom);
-					Overlay.resetVerticesBuffer();
 				}
 				else
 				{
 					setCursor(Qt::CrossCursor);
-					Overlay.setKind(KindOfOverlay::Cross);
-					Overlay.initCrossBuffer();
+					if (!initCross)
+					{
+						Overlay.initCrossBuffer();
+						initCross = true;
+					}
 				}
 			}
 		}
