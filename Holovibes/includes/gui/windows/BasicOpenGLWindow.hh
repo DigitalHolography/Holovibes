@@ -89,8 +89,9 @@ namespace holovibes
 			virtual void resizeGL(int width, int height);
 			virtual void paintGL() = 0;
 
+			// Event functions
 			void	timerEvent(QTimerEvent *e);
-			void	keyPressEvent(QKeyEvent* e);
+			void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
 
 			// Transform functions

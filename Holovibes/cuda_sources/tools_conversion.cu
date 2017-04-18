@@ -333,6 +333,17 @@ void kernel_float_to_ushort(const float	*input,
 	}
 }
 
+void float_to_ushort(const float	*input,
+	ushort			*output,
+	const uint		size,
+	cudaStream_t	stream)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
+}
+
 static __global__
 void kernel_complex_to_ushort(const cuComplex	*input,
 							uint				*output,
@@ -353,22 +364,12 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 			y = 65535;
 		else if (input[index].y >= 0.0f)
 			y = static_cast<ushort>(input[index].y * input[index].x);
+
 		auto& res = output[index];
 		res ^= res;
 		res = x << 16;
 		res += y;
 	}
-}
-
-void float_to_ushort(const float	*input,
-					ushort			*output,
-					const uint		size,
-					cudaStream_t	stream)
-{
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(size, threads);
-
-	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
 void complex_to_ushort(const cuComplex	*input,

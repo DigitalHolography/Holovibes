@@ -543,10 +543,7 @@ namespace holovibes
 			int		displayFlip;
 			int		xzFlip;
 			int		yzFlip;
-
-			//std::lock_guard<std::mutex> g(mutex_);
-			std::mutex mutex_;
-
+			
 			/*! true if a autofocus is enabled, false otherwise */
 			bool is_enabled_autofocus_;
 			/*! true if a camera is loaded, false otherwise */
