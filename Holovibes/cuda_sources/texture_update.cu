@@ -13,42 +13,42 @@
 # include "texture_update.cuh"
 
 __global__
-static void updateSliceTexture(float* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
+static void updateFloatSlice(float* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
 	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint index = y * texDim.x + x;
 
-	if (frame[y * texDim.x + x] > 65535.f)
-		frame[y * texDim.x + x] = 65535;
-	else if (frame[y * texDim.x + x] < 0.f)
-		frame[y * texDim.x + x] = 0;
+	if (frame[index] > 65535.f)
+		frame[index] = 65535.f;
+	else if (frame[index] < 0.f)
+		frame[index] = 0.f;
 
-	surf2Dwrite(static_cast<uchar>(frame[y * texDim.x + x] / 256.f),
-		cuSurface, x << 2, y);
-}
-
-/*__global__
-static void TextureUpdate_8bit(unsigned char* frame,
-						cudaSurfaceObject_t cuSurface,
-						dim3 texDim)
-{
-	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
-	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
-
-	surf2Dwrite(frame[y * texDim.x + x], cuSurface, x << 2, y);
+	surf2Dwrite(static_cast<uchar>(frame[index] / 256.f), cuSurface, x << 2, y);
+	//surf2Dwrite(frame[index], cuSurface, x << 2, y);
 }
 
 __global__
-static void TextureUpdate_16bit(unsigned short* frame,
-						cudaSurfaceObject_t cuSurface,
-						dim3 texDim)
+static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
-	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint xId = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint yId = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint index = yId * texDim.x + xId;
 
-	surf2Dwrite(
-		static_cast<unsigned char>(frame[y * texDim.x + x] >> 8), cuSurface, x << 2, y);
-}*/
+
+	if (frame[index].x > 65535.f)
+		frame[index].x = 65535.f;
+	else if (frame[index].x < 0.f)
+		frame[index].x = 0.f;
+
+	if (frame[index].y > 65535.f)
+		frame[index].y = 65535.f;
+	else if (frame[index].y < 0.f)
+		frame[index].y = 0.f;
+	float pix = hypotf(frame[index].x, frame[index].y);
+
+	surf2Dwrite(pix, cuSurface, xId << 2, yId);
+}
 
 void textureUpdate(cudaSurfaceObject_t	cuSurface,
 				void					*frame,
@@ -57,23 +57,21 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 {
 	dim3 threads(32, 32);
 	dim3 blocks(fd.width >> 5, fd.height >> 5);
-	updateSliceTexture << < blocks, threads, 0 >> >(
-		reinterpret_cast<float *>(frame),
-		cuSurface, dim3(fd.width, fd.height));
 
-	/*if (Fd.depth == 1)
+	if (fd.depth == 8.f)
 	{
-		TextureUpdate_8bit << < blocks, threads >> > (
-			reinterpret_cast<unsigned char*>(frame),
+		updateComplexSlice << < blocks, threads, 0 >> > (
+			reinterpret_cast<cuComplex*>(frame),
 			cuSurface,
-			dim3(Fd.width, Fd.height));
+			dim3(fd.width, fd.height));
 	}
-	else if (Fd.depth == 2)
+	else
 	{
-		TextureUpdate_16bit << < blocks, threads >> > (
-			reinterpret_cast<unsigned short*>(frame),
+		updateFloatSlice << < blocks, threads, 0 >> > (
+			reinterpret_cast<float*>(frame),
 			cuSurface,
-			dim3(Fd.width, Fd.height));
-	}*/
+			dim3(fd.width, fd.height));
+	}
+
 	cudaStreamSynchronize(stream);
 }

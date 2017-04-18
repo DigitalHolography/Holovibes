@@ -139,7 +139,9 @@ namespace holovibes
 		{
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 			fd.height = compute_desc_.nsamples.load();
-			fd.depth = sizeof(float);
+
+			fd.depth = (compute_desc_.view_mode == ComplexViewMode::Complex) ?
+				sizeof(cuComplex) : sizeof(float);
 			gpu_stft_slice_queue_xz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutXZ");
 			gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
 			request_stft_cuts_.exchange(false);
@@ -491,6 +493,55 @@ namespace holovibes
 				input_fd.frame_res() << 3, // frame_res() * 8
 				static_cast<cudaStream_t>(0)));
 			refresh_requested_.exchange(false);
+			if (autocontrast_requested_.load())
+			{
+				if (compute_desc_.stft_view_enabled.load())
+				{
+					if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
+						fn_vect_.push_back(std::bind(
+							autocontrast_caller,
+							static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+							output_fd.width * compute_desc_.nsamples.load(),
+							std::ref(compute_desc_),
+							std::ref(compute_desc_.contrast_min_slice_xz),
+							std::ref(compute_desc_.contrast_max_slice_xz),
+							static_cast<cudaStream_t>(0)));
+					else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
+						fn_vect_.push_back(std::bind(
+							autocontrast_caller,
+							static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+							output_fd.width * compute_desc_.nsamples.load(),
+							std::ref(compute_desc_),
+							std::ref(compute_desc_.contrast_min_slice_yz),
+							std::ref(compute_desc_.contrast_max_slice_yz),
+							static_cast<cudaStream_t>(0)));
+
+				}
+				autocontrast_requested_.exchange(false);
+				//request_refresh();
+			}
+			if (compute_desc_.contrast_enabled.load())
+			{
+				if (compute_desc_.stft_view_enabled.load())
+				{
+					fn_vect_.push_back(std::bind(
+						manual_contrast_correction,
+						static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
+						output_fd.width * compute_desc_.nsamples.load(),
+						65535,
+						compute_desc_.contrast_min_slice_xz.load(),
+						compute_desc_.contrast_max_slice_xz.load(),
+						static_cast<cudaStream_t>(0)));
+					fn_vect_.push_back(std::bind(
+						manual_contrast_correction,
+						static_cast<float *>(gpu_stft_slice_queue_yz->get_last_images(1)),
+						output_fd.width * compute_desc_.nsamples.load(),
+						65535,
+						compute_desc_.contrast_min_slice_yz.load(),
+						compute_desc_.contrast_max_slice_yz.load(),
+						static_cast<cudaStream_t>(0)));
+				}
+			}
 			return;
 		}
 		else
@@ -667,6 +718,7 @@ namespace holovibes
 			}
 		}
 
+		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
 			float min = 0.f;
@@ -704,17 +756,17 @@ namespace holovibes
 			autocontrast_requested_.exchange(false);
 			request_refresh();
 		}
-
+		/* ***************** */
 		if (compute_desc_.contrast_enabled.load())
 		{
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					gpu_float_buffer_,
-					output_fd.frame_res(),
-					65535,
-					compute_desc_.contrast_min.load(),
-					compute_desc_.contrast_max.load(),
-					static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back(std::bind(
+				manual_contrast_correction,
+				gpu_float_buffer_,
+				output_fd.frame_res(),
+				65535,
+				compute_desc_.contrast_min.load(),
+				compute_desc_.contrast_max.load(),
+				static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
 				fn_vect_.push_back(std::bind(
