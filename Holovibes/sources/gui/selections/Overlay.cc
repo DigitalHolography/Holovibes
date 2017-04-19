@@ -25,14 +25,14 @@ namespace holovibes
 			elemIndex(0),
 			Program(nullptr),
 			Colors{ {
-				{ 0.0f,	0.5f,	0.0f },		// Zoom
+				{ 0.f,	0.5f,	0.f },		// Zoom
 				{ 0.557f, 0.4f, 0.85f },	// Average::Signal
 				{ 0.f,	0.64f,	0.67f },	// Average::Noise
-				{ 1.f,	0.8f,	0.0f },		// Autofocus
+				{ 1.f,	0.8f,	0.f },		// Autofocus
 				{ 0.f,	0.62f,	1.f },		// Filter2D
 				{ 1.f,	0.87f,	0.87f },	// ?SliceZoom?
 				{ 1.f,	0.f,	0.f} } },	// Cross
-				Enabled(false)
+			Enabled(false)
 		{}
 
 		HOverlay::~HOverlay()
@@ -234,10 +234,10 @@ namespace holovibes
 			if (Program)
 			{
 				Program->bind();
-				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (side * 0.5)) / side) * 2.;
-				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (side * 0.5)) / side)) * 2.;
-				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (side * 0.5)) / side) * 2.;
-				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (side * 0.5)) / side)) * 2.;
+				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (side * 0.5f)) / side)) * 2.f;
+				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (side * 0.5f)) / side)) * 2.f;
 				const auto offset = (k == Noise) ? (8 * sizeof(float)) : 0;
 
 				rectBuffer[(k == Noise)] = rect;
@@ -260,8 +260,8 @@ namespace holovibes
 			if (Program)
 			{
 				Program->bind();
-				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5)) / frame.width()) * 2.;
-				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5)) / frame.height())) * 2.;
+				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
+				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
 				const float vertices[] = {
 					newX, 1.f,
 					newX, -1.f,
