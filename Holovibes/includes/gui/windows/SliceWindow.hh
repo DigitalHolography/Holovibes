@@ -21,13 +21,15 @@ namespace holovibes
 		class SliceWindow : public BasicOpenGLWindow
 		{
 		public:
-			SliceWindow(QPoint p, QSize s, Queue& q);
+			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~SliceWindow();
+			void	setPIndex(ushort pId);
 			
 		protected:
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
+			ushort	pIndex;			
 
 			virtual void	initShaders();
 			virtual void	initializeGL();

@@ -128,7 +128,7 @@ namespace holovibes
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 			glDisableVertexAttribArray(2);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+			/* ---------- */
 			const float colorData[] = {
 				0.f, 0.5f, 0.f,
 				0.f, 0.5f, 0.f,
@@ -147,7 +147,7 @@ namespace holovibes
 			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 			glDisableVertexAttribArray(3);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+			/* ---------- */
 			const GLuint elements[] = {
 				0, 1, 2,
 				2, 3, 0,
@@ -159,6 +159,26 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
+
+		void	HOverlay::initCrossBuffer()
+		{
+			if (Program)
+			{
+				Program->bind();
+				const float vertices[] = {
+					0.f, 1.f,
+					0.f, -1.f,
+					-1.f, 0.f,
+					1.f, 0.f
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				Program->release();
+			}
+		}
+
+		/* ------------------------------- */
 
 		void	HOverlay::resetVerticesBuffer()
 		{
@@ -235,24 +255,6 @@ namespace holovibes
 			}
 		}
 
-		void	HOverlay::initCrossBuffer()
-		{
-			if (Program)
-			{
-				Program->bind();
-				const float vertices[] = {
-					0.f, 1.f,
-					0.f, -1.f,
-					-1.f, 0.f,
-					1.f, 0.f
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program->release();
-			}
-		}
-
 		void	HOverlay::setCrossBuffer(QPoint pos, QSize frame)
 		{
 			if (Program)
@@ -292,6 +294,8 @@ namespace holovibes
 			}
 		}
 
+		/* ------------------------------- */
+
 		void	HOverlay::drawSelections()
 		{
 			Program->bind();
@@ -307,13 +311,13 @@ namespace holovibes
 			Program->release();
 		}
 
-		void	HOverlay::drawCross()
+		void	HOverlay::drawCross(GLuint offset, GLsizei count)
 		{
 			Program->bind();
 			glEnableVertexAttribArray(2);
 			glEnableVertexAttribArray(3);
 
-			glDrawArrays(GL_LINES, 0, 8);
+			glDrawArrays(GL_LINES, offset, count);
 
 			glDisableVertexAttribArray(3);
 			glDisableVertexAttribArray(2);

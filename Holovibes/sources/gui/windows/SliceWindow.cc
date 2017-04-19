@@ -17,10 +17,11 @@ namespace holovibes
 {
 	namespace gui
 	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q) :
-			BasicOpenGLWindow(p, s, q, KindOfView::Slice),
+		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
-			cuSurface(0)
+			cuSurface(0),
+			pIndex(0)
 		{}
 
 		SliceWindow::~SliceWindow()
@@ -29,12 +30,26 @@ namespace holovibes
 			if (cuArray) cudaFreeArray(cuArray);
 		}
 
+		void	SliceWindow::setPIndex(ushort pId)
+		{
+			pIndex = pId;
+			if (Program)
+			{
+				makeCurrent();
+				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
+				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
+				Overlay.setCrossBuffer(p, s);
+			}
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
-			if (!Program->bind()) std::cerr << "[Error] " << Program->log().toStdString() << '\n';
+			Program->link();
+			Overlay.initShaderProgram();
+			Overlay.setKind(KindOfOverlay::Cross);
 		}
 
 		void	SliceWindow::initializeGL()
@@ -44,10 +59,10 @@ namespace holovibes
 			glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			initShaders();
-
-			if (!Vao.create()) std::cerr << "[Error] Vao create() fail" << std::endl;
+			Vao.create();
 			Vao.bind();
+			initShaders();
+			Program->bind();
 
 			#pragma region Texture
 			glGenTextures(1, &Tex);
@@ -68,8 +83,16 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			if (Fd.depth == 8.f)
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+			}
 
 			glBindTexture(GL_TEXTURE_2D, 0);
 			delete[] mTexture;
@@ -129,8 +152,8 @@ namespace holovibes
 			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 
-			Vao.release();
 			Program->release();
+			Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(DISPLAY_RATE);
 		}
@@ -139,7 +162,7 @@ namespace holovibes
 		{
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
-
+			
 			textureUpdate(cuSurface,
 				Qu.get_last_images(1),
 				Qu.get_frame_desc(),
@@ -147,9 +170,9 @@ namespace holovibes
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			Program->bind();
 			Vao.bind();
 
+			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -159,9 +182,11 @@ namespace holovibes
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			Program->release();
+
+			Overlay.drawCross(2, (kView == SliceXZ) ? 2 : 0);
 
 			Vao.release();
-			Program->release();
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 

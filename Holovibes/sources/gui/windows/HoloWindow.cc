@@ -42,9 +42,9 @@ namespace holovibes
 		{
 			DirectWindow::paintGL();
 			// ---------------
-			if (Cd.stft_view_enabled.load())// && !slicesAreLocked.load())
+			if (Cd.stft_view_enabled.load())
 			{
-				Overlay.drawCross();
+				Overlay.drawCross(4, 0);
 			}
 			// ---------------
 			Vao.release();

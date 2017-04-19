@@ -1112,19 +1112,23 @@ namespace holovibes
 					sliceXZ.reset(new SliceWindow(
 						xzPos,
 						QSize(mainDisplay->width(), nSize),
-						holovibes_.get_pipe()->get_stft_slice_queue(0)));
+						holovibes_.get_pipe()->get_stft_slice_queue(0),
+						KindOfView::SliceXZ));
 					sliceXZ->setTitle("Slice XZ");
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
+					sliceXZ->setPIndex(cd.pindex.load());
 
 					sliceYZ.reset(nullptr);
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
 						QSize(nSize, mainDisplay->height()),
-						holovibes_.get_pipe()->get_stft_slice_queue(1)));
+						holovibes_.get_pipe()->get_stft_slice_queue(1),
+						KindOfView::SliceYZ));
 					sliceYZ->setTitle("Slice YZ");
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
+					sliceYZ->setPIndex(cd.pindex.load());
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					cd.stft_view_enabled.exchange(true);
@@ -1379,9 +1383,13 @@ namespace holovibes
 				if (value < static_cast<int>(cd.nsamples.load()))
 				{
 					cd.pindex.exchange(value);
+					
+					if (cd.stft_view_enabled.load())
+					{
+						sliceXZ->setPIndex(cd.pindex);
+						sliceYZ->setPIndex(cd.pindex);
+					}
 					notify();
-					//set_auto_contrast();
-
 				}
 				else
 					display_error("p param has to be between 1 and #img");
