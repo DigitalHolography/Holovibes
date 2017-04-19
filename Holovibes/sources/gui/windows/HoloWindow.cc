@@ -44,7 +44,7 @@ namespace holovibes
 			// ---------------
 			if (Cd.stft_view_enabled.load())
 			{
-				Overlay.drawCross(4, 0);
+				Overlay.drawCross(0, 4);
 			}
 			// ---------------
 			Vao.release();

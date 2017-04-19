@@ -184,7 +184,7 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program->release();
 
-			Overlay.drawCross(2, (kView == SliceXZ) ? 2 : 0);
+			Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
 
 			Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);
