@@ -82,6 +82,7 @@ namespace holovibes
 		*
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
+		void *get_enqueue_buffer();
 		virtual void exec();
 
 		/*! \brief Realloc all buffer with the new nsamples and update ICompute */
@@ -102,13 +103,13 @@ namespace holovibes
 		 * * fields cufftHandle are allocated in GPU memory
 		 */
 		 /*! cufftComplex array containing n contiguous frames. */
-		cufftComplex* gpu_input_buffer_;
+		cufftComplex	*gpu_input_buffer_;
 		/*! Output frame containing n frames ordered in frequency. */
-		unsigned short* gpu_output_buffer_;
+		void			*gpu_output_buffer_;
 		/*! GPU float frame */
-		float* gpu_float_buffer_;
+		float			*gpu_float_buffer_;
 
 		/*! Input frame pointer. */
-		cufftComplex* gpu_input_frame_ptr_;
+		cufftComplex	*gpu_input_frame_ptr_;
 	};
 }

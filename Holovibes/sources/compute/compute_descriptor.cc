@@ -18,9 +18,9 @@ namespace holovibes
 
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
 		algorithm(Algorithm::None)
-		, compute_mode(Computation::Direct)
-		, nsamples(2)
-		, pindex(1)
+		, compute_mode(Computation::Stop)
+		, nsamples(1)
+		, pindex(0)
 		, lambda(532e-9f)
 		, zdistance(1.50f)
 		, view_mode(ComplexViewMode::Modulus)
@@ -137,11 +137,75 @@ namespace holovibes
 		signal_trig_enabled.exchange(cd.signal_trig_enabled.load());
 		current_window.exchange(cd.current_window.load());
 		stft_slice_cursor = stft_slice_cursor;
-		signal_zone = signal_zone;
-		noise_zone = noise_zone;
-		autofocus_zone = autofocus_zone;
-		stft_roi_zone;
+		signal_zone = cd.signal_zone;
+		noise_zone = cd.noise_zone;
+		autofocus_zone = cd.autofocus_zone;
+		stft_roi_zone = cd.stft_roi_zone;
 		return *this;
+	}
+
+	void ComputeDescriptor::reset()
+	{
+		algorithm.exchange(Algorithm::None);
+		nsamples.exchange(1);
+		pindex.exchange(0);
+		lambda.exchange(532e-9f);
+		zdistance.exchange(1.50f);
+		view_mode.exchange(ComplexViewMode::Modulus);
+		unwrap_history_size.exchange(1);
+		special_buffer_size.exchange(10);
+		log_scale_enabled.exchange(false);
+		log_scale_enabled_cut_xz.exchange(false);
+		log_scale_enabled_cut_yz.exchange(false);
+		shift_corners_enabled.exchange(false);
+		contrast_enabled.exchange(false);
+		vibrometry_enabled.exchange(false);
+		convolution_enabled.exchange(false);
+		flowgraphy_enabled.exchange(false);
+		stft_enabled.exchange(false);
+		filter_2d_enabled.exchange(false);
+		average_enabled.exchange(false);
+		contrast_min.exchange(1.f);
+		contrast_max.exchange(65535.f);
+		contrast_min_slice_xz.exchange(1.f);
+		contrast_min_slice_yz.exchange(1.f);
+		contrast_max_slice_xz.exchange(65535.f);
+		contrast_max_slice_yz.exchange(65535.f);
+		vibrometry_q.exchange(0);
+		autofocus_size.exchange(3);
+		convo_matrix_width.exchange(0);
+		convo_matrix_height.exchange(0);
+		convo_matrix_z.exchange(0);
+		autofocus_z_min.exchange(0.f);
+		autofocus_z_max.exchange(1.f);
+		autofocus_z_div.exchange(10);
+		autofocus_z_iter.exchange(3);
+		flowgraphy_level.exchange(3);
+		is_cine_file.exchange(false);
+		import_pixel_size.exchange(5.42f);
+		img_acc_enabled.exchange(false);
+		img_acc_cutsXZ_enabled.exchange(false);
+		img_acc_cutsYZ_enabled.exchange(false);
+		img_acc_buffer_size.exchange(20);
+		img_acc_level.exchange(1);
+		img_acc_cutsXZ_level.exchange(1);
+		img_acc_cutsYZ_level.exchange(1);
+		p_accu_enabled.exchange(false);
+		p_accu_min_level.exchange(1);
+		p_accu_max_level.exchange(1);
+		stft_level.exchange(16);
+		stft_steps.exchange(1);
+		ref_diff_level.exchange(15);
+		ref_diff_enabled.exchange(false);
+		ref_sliding_enabled.exchange(false);
+		stft_view_enabled.exchange(false);
+		signal_trig_enabled.exchange(false);
+		stft_slice_cursor = QPoint(0, 0);
+		signal_zone = gui::Rectangle(10, 10);
+		noise_zone = gui::Rectangle(10, 10);
+		autofocus_zone = gui::Rectangle(10, 10);
+		stft_roi_zone = gui::Rectangle(10, 10);
+		current_window.exchange(WindowKind::MainDisplay);
 	}
 
 	void ComputeDescriptor::stftCursor(QPoint *p, AccessMode m)

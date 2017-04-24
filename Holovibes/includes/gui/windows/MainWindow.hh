@@ -524,46 +524,44 @@ namespace holovibes
 			/* ---------- */
 			#pragma region Fields
 		private:
-			Ui::MainWindow ui;
-			/*! Reference to Holovibes object */
-			Holovibes& holovibes_;
 
-			uint display_width_;
-			uint display_height_;
+			enum ImportType
+			{
+				None,
+				Camera,
+				File,
+			};
+
+			std::mutex		mutex_;
+			Ui::MainWindow	ui;
+			Holovibes&		 holovibes_;
+
 
 			/*! OpenGL windows */
 			std::unique_ptr<DirectWindow>	mainDisplay;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 
-			float	displayAngle;
-			float	xzAngle;
-			float	yzAngle;
+			float		displayAngle;
+			float		xzAngle;
+			float		yzAngle;
 
-			int		displayFlip;
-			int		xzFlip;
-			int		yzFlip;
+			int			displayFlip;
+			int			xzFlip;
+			int			yzFlip;
 
-			//std::lock_guard<std::mutex> g(mutex_);
-			std::mutex mutex_;
-
-			/*! true if a autofocus is enabled, false otherwise */
-			bool is_enabled_autofocus_;
-			/*! true if a camera is loaded, false otherwise */
-			bool is_enabled_camera_;
-			/*! true if average mode is enabled, false otherwise */
-			bool is_enabled_average_;
-			/*! true if batch record is an image batch record, false if it is an average/ROI record */
-			bool is_batch_img_;
-			/*! true if batch has been interrupted by user, false otherwise */
-			bool is_batch_interrupted_;
-			/*! z step used for keyboard shortcuts */
-			double z_step_;
+			bool		is_enabled_autofocus_;
+			bool		is_enabled_camera_;
+			bool		is_enabled_average_;
+			bool		is_batch_img_;
+			bool		is_batch_interrupted_;
+			double		z_step_;
 			/*! current camera type */
-			CameraKind kCamera;
+			CameraKind	kCamera;
+			int			import_type_;
 
 			/*! Index of the last contrast type chosen in the affiliated QComboBox. */
-			QString last_contrast_type_;
+			QString		last_contrast_type_;
 
 			/*! Plot/graphic window of average/ROI computations */
 			std::unique_ptr<PlotWindow> plot_window_;

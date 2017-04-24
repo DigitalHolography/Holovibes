@@ -42,7 +42,8 @@ namespace holovibes
 			file_index_(1),
 			gpib_interface_(nullptr),
 			theme_index_(0),
-			is_enabled_autofocus_(false)
+			is_enabled_autofocus_(false),
+			import_type_(ImportType::None)
 		{
 			ui.setupUi(this);
 			setWindowIcon(QIcon("icon1.ico"));
@@ -94,9 +95,9 @@ namespace holovibes
 
 			resize(width(), 425);
 			// Display default values
-			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
-			notify();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Direct);
+			notify();
+			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
 			setFocusPolicy(Qt::StrongFocus);
 		}
@@ -134,10 +135,10 @@ namespace holovibes
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
-				if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
+				/*if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
 					holovibes_.get_compute_desc().compute_mode.exchange(Computation::Direct);
 				else
-					holovibes_.get_compute_desc().compute_mode.exchange(Computation::Hologram);
+					holovibes_.get_compute_desc().compute_mode.exchange(Computation::Hologram);*/
 				return;
 			}
 			else if (cd.compute_mode.load() == Computation::Direct && is_enabled_camera_)
@@ -232,12 +233,12 @@ namespace holovibes
 			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(cd.p_accu_min_level.load());
 			QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 			p_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
-			p_vibro->setValue(cd.pindex.load() + 1);
-			p_vibro->setMaximum(cd.nsamples.load());
+			p_vibro->setValue(cd.pindex.load());
+			p_vibro->setMaximum(cd.nsamples.load() - 1);
 			QSpinBox *q_vibro = findChild<QSpinBox *>("ImageRatioQSpinBox");
 			q_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
-			q_vibro->setValue(cd.vibrometry_q.load() + 1);
-			q_vibro->setMaximum(cd.nsamples.load());
+			q_vibro->setValue(cd.vibrometry_q.load());
+			q_vibro->setMaximum(cd.nsamples.load() - 1);
 
 			findChild<QCheckBox*>("ImageRatioCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
 			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && cd.convo_matrix.size() == 0 ? false : true);
@@ -267,8 +268,8 @@ namespace holovibes
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
-			findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load());
-			findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load() + 1);
+			findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load() - 1);
+			findChild<QSpinBox *>("PSpinBox")->setValue(cd.pindex.load());
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setValue(cd.lambda.load() * 1.0e9f);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
@@ -278,8 +279,6 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(cd.import_pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(cd.special_buffer_size.load());
-			//findChild<QSpinBox *>("AutofocusStepsSpinBox")->setValue(cd.autofocus_z_div.load());
-			//findChild<QSpinBox *>("AutofocusLoopsSpinBox")->setValue(cd.autofocus_z_iter.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportWidthSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportHeightSpinBox")->setEnabled(!cd.is_cine_file.load());
@@ -287,7 +286,6 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
-			((is_direct) ? (InfoManager::get_manager()->remove_info("OutputFormat")) : (0));
 			QCoreApplication::processEvents();
 		}
 
@@ -303,7 +301,7 @@ namespace holovibes
 					// notify will be in close_critical_compute
 					if (cd.stft_enabled.load())
 					{
-						cd.pindex.exchange(1);
+						cd.pindex.exchange(0);
 						cd.nsamples.exchange(1);
 					}
 					if (cd.flowgraphy_enabled.load() || cd.convolution_enabled.load())
@@ -410,7 +408,7 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
-			import_file_stop();
+			//import_file_stop();
 			save_ini("holovibes.ini");
 			notify();
 		}
@@ -419,6 +417,10 @@ namespace holovibes
 		{
 			import_file_stop();
 			load_ini(GLOBAL_INI_PATH);
+			if (import_type_ == ImportType::File)
+				import_file();
+			else if (import_type_ == ImportType::Camera)
+				change_camera(kCamera);
 			notify();
 		}
 
@@ -432,12 +434,12 @@ namespace holovibes
 			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
 			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
 
-			QAction*	image_rendering_action = findChild<QAction*>("actionImage_rendering");
-			QAction*	view_action = findChild<QAction*>("actionView");
-			QAction*	special_action = findChild<QAction*>("actionSpecial");
-			QAction*	record_action = findChild<QAction*>("actionRecord");
-			QAction*	import_action = findChild<QAction*>("actionImport");
-			QAction*	info_action = findChild<QAction*>("actionInfo");
+			QAction	*image_rendering_action = findChild<QAction *>("actionImage_rendering");
+			QAction	*view_action = findChild<QAction *>("actionView");
+			QAction	*special_action = findChild<QAction *>("actionSpecial");
+			QAction	*record_action = findChild<QAction *>("actionRecord");
+			QAction	*import_action = findChild<QAction *>("actionImport");
+			QAction	*info_action = findChild<QAction *>("actionInfo");
 
 			try
 			{
@@ -446,6 +448,7 @@ namespace holovibes
 			catch (std::exception& e)
 			{
 				std::cout << e.what() << std::endl;
+				return;
 			}
 
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -466,8 +469,8 @@ namespace holovibes
 				cd.img_acc_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_level.load()));
 
 				// Camera type
-				const int camera_type = ptree.get<int>("image_rendering.camera", 0);
-				change_camera(static_cast<CameraKind>(camera_type));
+				//const int camera_type = ptree.get<int>("image_rendering.camera", 0);
+				//change_camera(static_cast<CameraKind>(camera_type));
 
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
@@ -481,7 +484,13 @@ namespace holovibes
 					cd.nsamples.exchange(config.input_queue_max_size);
 				else
 					cd.nsamples.exchange(p_nsample);
-
+				try
+				{
+					holovibes_.get_pipe()->request_update_n(cd.nsamples.load());\
+				}
+				catch (std::exception& e)
+				{
+				}
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
 				if (p_index >= 0 && p_index < cd.nsamples.load())
 					cd.pindex.exchange(p_index);
@@ -586,7 +595,7 @@ namespace holovibes
 			GroupBox *import_group_box = findChild<GroupBox *>("ImportGroupBox");
 			GroupBox *info_group_box = findChild<GroupBox *>("InfoGroupBox");
 			Config& config = global::global_config;
-
+			
 			// Config
 			ptree.put("config.input_buffer_size", config.input_queue_max_size);
 			ptree.put("config.output_buffer_size", config.output_queue_max_size);
@@ -608,7 +617,7 @@ namespace holovibes
 			ptree.put("image_rendering.z_distance", cd.zdistance.load());
 			ptree.put("image_rendering.z_step", z_step_);
 			ptree.put("image_rendering.algorithm", cd.algorithm.load());
-
+			
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
 			ptree.put("view.view_mode", cd.view_mode.load());
@@ -676,7 +685,7 @@ namespace holovibes
 		/* ------------ */
 		#pragma region Close Compute
 		void MainWindow::close_critical_compute()
-		{
+		{ 
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			if (cd.average_enabled.load())
 				set_average_mode(false);
@@ -742,7 +751,7 @@ namespace holovibes
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
-			cd.pindex.exchange(1);
+			cd.pindex.exchange(0);
 			cd.nsamples.exchange(1);
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device == 1)
@@ -794,6 +803,7 @@ namespace holovibes
 					holovibes_.init_capture(c);
 					is_enabled_camera_ = true;
 					set_image_mode();
+					import_type_ = ImportType::Camera;
 					kCamera = c;
 					QAction* settings = findChild<QAction*>("actionSettings");
 					settings->setEnabled(true);
@@ -864,6 +874,8 @@ namespace holovibes
 
 		void MainWindow::set_direct_mode()
 		{
+			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Direct)
+				return;
 			close_critical_compute();
 			close_windows();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
@@ -873,11 +885,23 @@ namespace holovibes
 				QPoint pos(0, 4);
 				QSize size(512, 512);
 				init_image_mode(pos, size);
+				auto& cd = holovibes_.get_compute_desc();
 				holovibes_.get_compute_desc().compute_mode.exchange(Computation::Direct);
+				try
+				{
+					holovibes_.get_pipe();
+				}
+				catch (std::exception& e)
+				{
+					save_ini(GLOBAL_INI_PATH);
+					createPipe();
+				}
 				mainDisplay.reset(new DirectWindow(
 					pos,
 					size,
 					holovibes_.get_capture_queue()));
+				auto& fd = holovibes_.get_capture_queue().get_frame_desc();
+				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
 			}
@@ -886,12 +910,17 @@ namespace holovibes
 		void MainWindow::createPipe()
 		{
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
-			const uint depth = (cd.view_mode.load() == ComplexViewMode::Complex) ? 8 : 2;
+			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
+			
+			if (cd.view_mode.load() == ComplexViewMode::Complex)
+				depth = 8;
+			else if (cd.compute_mode.load() == Computation::Hologram)
+				depth = 2;
 			/* ---------- */
 			try
 			{
-				cd.pindex.exchange(0);
-				cd.nsamples.exchange(1);
+				if (cd.compute_mode.load() == Computation::Direct)
+					cd.reset();
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
@@ -901,7 +930,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "catch createPipe :" << std::endl;
+				std::cerr << "cannot create Pipe :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -931,23 +960,31 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
+			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Hologram)
+				return;
 			close_critical_compute();
 			close_windows();
 			/* ---------- */
 			try
 			{
 				auto& cd = holovibes_.get_compute_desc();
-				ushort n = cd.nsamples.load();
-				ushort p = cd.pindex.load();
 
 				cd.compute_mode.exchange(Computation::Hologram);
 				/* ---------- */
-				createPipe();
+				try
+				{
+					holovibes_.get_pipe();
+				}
+				catch (std::exception& e)
+				{
+					cd.pindex.exchange(0);
+					cd.nsamples.exchange(1);
+					createPipe();
+					load_ini(GLOBAL_INI_PATH);
+				}
 				createHoloWindow();
 				/* ---------- */
-				cd.nsamples.exchange(n);
-				cd.pindex.exchange(p);
-				holovibes_.get_pipe()->request_update_n(n);
+				holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 				while (holovibes_.get_pipe()->get_update_n_request());
 				/* ---------- */
 				auto& fd = holovibes_.get_output_queue().get_frame_desc();
@@ -959,7 +996,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "cannot set_holographic :" << std::endl;
+				std::cerr << "cannot set holographic mode :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
 		}
@@ -1371,7 +1408,6 @@ namespace holovibes
 
 		void MainWindow::set_p(int value)
 		{
-			value--;
 			if (!is_direct_mode())
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -1380,8 +1416,6 @@ namespace holovibes
 				{
 					cd.pindex.exchange(value);
 					notify();
-					//set_auto_contrast();
-
 				}
 				else
 					display_error("p param has to be between 1 and #img");
@@ -1863,25 +1897,23 @@ namespace holovibes
 
 		void MainWindow::set_p_vibro(int value)
 		{
-			value--;
 			if (!is_direct_mode())
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
-
+				if (!cd.vibrometry_enabled.load())
+					return;
 				if (value < static_cast<int>(cd.nsamples.load()) && value >= 0)
 				{
 					cd.pindex.exchange(value);
 					pipe_refresh();
-					notify();
 				}
 				else
-					display_error("p param has to be between 1 and n");
+					display_error("p param has to be between 0 and n");
 			}
 		}
 
 		void MainWindow::set_q_vibro(int value)
 		{
-			value--;
 			if (!is_direct_mode())
 			{
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
@@ -1892,7 +1924,7 @@ namespace holovibes
 					pipe_refresh();
 				}
 				else
-					display_error("q param has to be between 1 and phase #");
+					display_error("q param has to be between 0 and phase #");
 			}
 		}
 		#pragma endregion
@@ -2203,8 +2235,8 @@ namespace holovibes
 					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 					pipe->request_complex_output(queue);
 				}
-				else if (is_direct_mode())
-					queue = &holovibes_.get_capture_queue();
+				//else if (is_direct_mode())
+					//queue = &holovibes_.get_capture_queue();
 				else
 					queue = &holovibes_.get_output_queue();
 
@@ -2628,8 +2660,10 @@ namespace holovibes
 				big_endian_checkbox->setEnabled(true);
 			QAction *settings = findChild<QAction*>("actionSettings");
 			settings->setEnabled(false);
+			import_type_ = ImportType::File;
 			if (holovibes_.get_tcapture()->stop_requested_)
 			{
+				import_type_ = ImportType::None;
 				is_enabled_camera_ = false;
 				mainDisplay.reset(nullptr);
 				holovibes_.dispose_compute();
