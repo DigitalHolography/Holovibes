@@ -194,6 +194,11 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 			findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
+			{
+				QComboBox* ptr = findChild<QComboBox*>("WindowSelectionComboBox");
+				ptr->setEnabled((cd.stft_view_enabled.load()));
+				ptr->setCurrentIndex(ptr->isEnabled() ? cd.current_window.load() : 0);
+			}
 			if (cd.current_window.load() == WindowKind::MainDisplay)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
@@ -260,11 +265,6 @@ namespace holovibes
 			findChild<QComboBox *>("AlgorithmComboBox")->setEnabled(!is_direct);
 			findChild<QComboBox *>("AlgorithmComboBox")->setCurrentIndex(cd.algorithm.load());
 			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.view_mode.load());
-			{
-				QComboBox* ptr = findChild<QComboBox*>("WindowSelectionComboBox");
-				ptr->setEnabled((cd.stft_view_enabled.load()));
-				ptr->setCurrentIndex(ptr->isEnabled() ? cd.current_window.load() : 0);
-			}
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
@@ -1155,6 +1155,7 @@ namespace holovibes
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
 					sliceXZ->setPIndex(cd.pindex.load());
+					sliceXZ->setCd(&cd);
 
 					sliceYZ.reset(nullptr);
 					sliceYZ.reset(new SliceWindow(
@@ -1166,6 +1167,7 @@ namespace holovibes
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
 					sliceYZ->setPIndex(cd.pindex.load());
+					sliceYZ->setCd(&cd);
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					cd.stft_view_enabled.exchange(true);

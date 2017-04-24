@@ -130,6 +130,13 @@ namespace holovibes
 				}
 			}
 		}
+		
+		void	HoloWindow::focusInEvent(QFocusEvent *e)
+		{
+			QOpenGLWindow::focusInEvent(e);
+			Cd.current_window.exchange(WindowKind::MainDisplay);
+			Cd.notify_observers();
+		}
 
 		void	HoloWindow::updateCursorPosition(QPoint pos)
 		{

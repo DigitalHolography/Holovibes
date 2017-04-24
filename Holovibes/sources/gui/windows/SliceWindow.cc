@@ -42,6 +42,11 @@ namespace holovibes
 			}
 		}
 
+		void	SliceWindow::setCd(ComputeDescriptor* cd)
+		{
+			Cd = cd;
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
@@ -203,6 +208,13 @@ namespace holovibes
 		{
 			if (e->button() == Qt::RightButton)
 				resetTransform();
+		}
+	
+		void	SliceWindow::focusInEvent(QFocusEvent* e)
+		{
+			QWindow::focusInEvent(e);
+			Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::SliceXZ : WindowKind::SliceYZ);
+			Cd->notify_observers();
 		}
 	}
 }

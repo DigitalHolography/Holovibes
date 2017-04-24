@@ -24,20 +24,24 @@ namespace holovibes
 			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~SliceWindow();
 			void	setPIndex(ushort pId);
+			void	setCd(ComputeDescriptor* cd);
 			
 		protected:
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
-			ushort	pIndex;			
+			ushort		pIndex;
+
+			ComputeDescriptor	*Cd;
 
 			virtual void	initShaders();
 			virtual void	initializeGL();
 			virtual void	paintGL();
 
-			void mousePressEvent(QMouseEvent* e);
-			void mouseMoveEvent(QMouseEvent* e);
-			void mouseReleaseEvent(QMouseEvent* e);
+			void mousePressEvent(QMouseEvent*);
+			void mouseMoveEvent(QMouseEvent*);
+			void mouseReleaseEvent(QMouseEvent*);
+			void focusInEvent(QFocusEvent*);
 		};
 	}
 }
