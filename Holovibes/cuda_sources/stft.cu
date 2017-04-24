@@ -12,6 +12,38 @@
 
 #include "stft.cuh"
 
+// Short-Time Fourier Transform
+void stft(cuComplex			*input,
+		cuComplex			*gpu_queue,
+		cuComplex			*stft_buf,
+		const cufftHandle	plan1d,
+		const uint			tft_level,
+		const uint			p,
+		const uint			q,
+		const uint			frame_size,
+		const bool			stft_activated,
+		cudaStream_t		stream)
+{
+	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
+	// FFT 1D
+	if (stft_activated)
+		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
+	cudaStreamSynchronize(stream);
+	cudaMemcpy(	input,
+				stft_buf + p * frame_size,
+				complex_frame_size,
+				cudaMemcpyDeviceToDevice);
+
+	if (p != q)
+	{
+		cudaMemcpy(	input + frame_size,
+					stft_buf + q * frame_size,
+					complex_frame_size,
+					cudaMemcpyDeviceToDevice);
+	}
+}
+
+#pragma region moment
 __global__
 static void kernel_stft_moment(cuComplex	*input,
 							cuComplex		*output,
@@ -44,99 +76,106 @@ void stft_moment(cuComplex		*input,
 
 	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax);
 }
+#pragma endregion
 
-void stft(cuComplex			*input,
-		cuComplex			*gpu_queue,
-		cuComplex			*stft_buf,
-		const cufftHandle	plan1d,
-		const uint			tft_level,
-		const uint			p,
-		const uint			q,
-		const uint			frame_size,
-		const bool			stft_activated,
-		cudaStream_t		stream)
-{
-	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
-	// FFT 1D
-	if (stft_activated)
-		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
-	cudaStreamSynchronize(stream);
-	cudaMemcpy(	input,
-				stft_buf + p * frame_size,
-				complex_frame_size,
-				cudaMemcpyDeviceToDevice);
-
-	if (p != q)
-	{
-		cudaMemcpy(	input + frame_size,
-					stft_buf + q * frame_size,
-					complex_frame_size,
-					cudaMemcpyDeviceToDevice);
-	}
-}
 
 __global__
-static void	kernel_stft_view(const cuComplex	*input,
-							float				*output_xz,
-							float				*output_yz,
-							const uint			start_x,
-							const uint			start_y,
-							const uint			frame_size,
-							const uint			output_size,
-							const uint			width,
-							const uint			height,
-							const uint			depth,
-							const uint			acc_level_xz,
-							const uint			acc_level_yz)
+static void	fill_64bit_slices(
+	const cuComplex	*input,
+	cuComplex		*output_xz,
+	cuComplex		*output_yz,
+	const uint		start_x,
+	const uint		start_y,
+	const uint		frame_size,
+	const uint		output_size,
+	const uint		width,
+	const uint		height,
+	const uint		acc_level_xz,
+	const uint		acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
 	{
-		cuComplex pixel = make_cuComplex(0, 0);
-		int i = -1;
-		uint img_acc_level = acc_level_yz;
-		while (++i < img_acc_level)
-		{
-			pixel = cuCaddf(pixel, input[start_x + i + id * width]);
-		}
-		output_yz[id] = hypotf(pixel.x, pixel.y) / 5.f;
-		i = -1;
-		pixel = make_cuComplex(0, 0);
-		img_acc_level = acc_level_xz;
-		while (++i < img_acc_level)
-		{
-			pixel = cuCaddf(pixel, input[((start_y + i) * width) + (id / width) * frame_size + id % width]);
-		}
-		output_xz[id] = hypotf(pixel.x, pixel.y) / 5.f;
+		output_xz[id] = input[start_x * width + (id / width) * frame_size + id % width];
+		output_yz[id] = input[start_x + id * width];
 	}
 }
 
-void stft_view_begin(const cuComplex	*input,
-					float				*outputxz,
-					float				*outputyz,
-					const uint			start_x,
-					const uint			start_y,
-					const uint			width,
-					const uint			height,
-					const uint			depth,
-					const uint			acc_level_xz,
-					const uint			acc_level_yz)
+__global__
+static void	fill_32bit_slices(const cuComplex	*input,
+	float				*output_xz,
+	float				*output_yz,
+	const uint			x0,
+	const uint			y0,
+	const uint			frame_size,
+	const uint			output_size,
+	const uint			width,
+	const uint			height,
+	const uint			acc_level_xz,
+	const uint			acc_level_yz)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < output_size)
+	{
+		uint i = 0;
+		uint img_acc_level = acc_level_yz;
+		cuComplex pixel = make_cuComplex(0, 0);
+		while (i < img_acc_level)
+		{
+			pixel = cuCaddf(pixel, input[x0 + i + id * width]);
+			++i;
+		}
+		 output_yz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(img_acc_level);
+		/* ********** */
+		i = 0;
+		img_acc_level = acc_level_xz;
+		pixel = make_cuComplex(0, 0);
+		while (i < img_acc_level)
+		{
+			pixel = cuCaddf(pixel,
+				input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
+			++i;
+		}
+		output_xz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(img_acc_level);
+	}
+}
+
+void stft_view_begin(
+	const cuComplex	*input,
+	void			*output_xz,
+	void			*output_yz,
+	const ushort	x0,
+	const ushort	y0,
+	const ushort	width,
+	const ushort	height,
+	const uint		viewmode,
+	const ushort	nsamples,
+	const uint		acc_level_xz,
+	const uint		acc_level_yz)
 {
 	const uint frame_size = width * height;
-	const uint output_size = width * depth;
+	const uint output_size = width * nsamples;
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
-	kernel_stft_view << <blocks, threads, 0, 0 >> >(input,
-													outputxz,
-													outputyz,
-													start_x,
-													start_y,
-													frame_size,
-													output_size,
-													width,
-													height,
-													depth,
-													acc_level_xz,
-													acc_level_yz);
+	if (static_cast<ComplexViewMode>(viewmode) == ComplexViewMode::Complex)
+		fill_64bit_slices << <blocks, threads, 0, 0 >> >(
+			input,
+			reinterpret_cast<cuComplex*>(output_xz),
+			reinterpret_cast<cuComplex*>(output_yz),
+			x0, y0,
+			frame_size,
+			output_size,
+			width, height,
+			acc_level_xz, acc_level_yz);
+	else
+		fill_32bit_slices <<<blocks, threads, 0, 0>>>(
+			input,
+			reinterpret_cast<float*>(output_xz),
+			reinterpret_cast<float*>(output_yz),
+			x0, y0,
+			frame_size,
+			output_size,
+			width, height,
+			acc_level_xz, acc_level_yz);
 }

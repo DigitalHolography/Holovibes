@@ -25,14 +25,14 @@ namespace holovibes
 			elemIndex(0),
 			Program(nullptr),
 			Colors{ {
-				{ 0.0f,	0.5f,	0.0f },		// Zoom
+				{ 0.f,	0.5f,	0.f },		// Zoom
 				{ 0.557f, 0.4f, 0.85f },	// Average::Signal
 				{ 0.f,	0.64f,	0.67f },	// Average::Noise
-				{ 1.f,	0.8f,	0.0f },		// Autofocus
+				{ 1.f,	0.8f,	0.f },		// Autofocus
 				{ 0.f,	0.62f,	1.f },		// Filter2D
 				{ 1.f,	0.87f,	0.87f },	// ?SliceZoom?
 				{ 1.f,	0.f,	0.f} } },	// Cross
-				Enabled(false)
+			Enabled(false)
 		{}
 
 		HOverlay::~HOverlay()
@@ -128,7 +128,7 @@ namespace holovibes
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 			glDisableVertexAttribArray(2);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+			/* ---------- */
 			const float colorData[] = {
 				0.f, 0.5f, 0.f,
 				0.f, 0.5f, 0.f,
@@ -147,7 +147,7 @@ namespace holovibes
 			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 			glDisableVertexAttribArray(3);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+			/* ---------- */
 			const GLuint elements[] = {
 				0, 1, 2,
 				2, 3, 0,
@@ -159,6 +159,26 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
+
+		void	HOverlay::initCrossBuffer()
+		{
+			if (Program)
+			{
+				Program->bind();
+				const float vertices[] = {
+					0.f, 1.f,
+					0.f, -1.f,
+					-1.f, 0.f,
+					1.f, 0.f
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				Program->release();
+			}
+		}
+
+		/* ------------------------------- */
 
 		void	HOverlay::resetVerticesBuffer()
 		{
@@ -214,10 +234,10 @@ namespace holovibes
 			if (Program)
 			{
 				Program->bind();
-				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (side * 0.5)) / side) * 2.;
-				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (side * 0.5)) / side)) * 2.;
-				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (side * 0.5)) / side) * 2.;
-				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (side * 0.5)) / side)) * 2.;
+				const float x0 = ((static_cast<float>(rect.topLeft().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y0 = (-((static_cast<float>(rect.topLeft().y()) - (side * 0.5f)) / side)) * 2.f;
+				const float x1 = ((static_cast<float>(rect.bottomRight().x()) - (side * 0.5f)) / side) * 2.f;
+				const float y1 = (-((static_cast<float>(rect.bottomRight().y()) - (side * 0.5f)) / side)) * 2.f;
 				const auto offset = (k == Noise) ? (8 * sizeof(float)) : 0;
 
 				rectBuffer[(k == Noise)] = rect;
@@ -235,31 +255,13 @@ namespace holovibes
 			}
 		}
 
-		void	HOverlay::initCrossBuffer()
-		{
-			if (Program)
-			{
-				Program->bind();
-				const float vertices[] = {
-					0.f, 1.f,
-					0.f, -1.f,
-					-1.f, 0.f,
-					1.f, 0.f
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program->release();
-			}
-		}
-
 		void	HOverlay::setCrossBuffer(QPoint pos, QSize frame)
 		{
 			if (Program)
 			{
 				Program->bind();
-				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5)) / frame.width()) * 2.;
-				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5)) / frame.height())) * 2.;
+				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
+				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
 				const float vertices[] = {
 					newX, 1.f,
 					newX, -1.f,
@@ -292,6 +294,8 @@ namespace holovibes
 			}
 		}
 
+		/* ------------------------------- */
+
 		void	HOverlay::drawSelections()
 		{
 			Program->bind();
@@ -307,13 +311,13 @@ namespace holovibes
 			Program->release();
 		}
 
-		void	HOverlay::drawCross()
+		void	HOverlay::drawCross(GLuint offset, GLsizei count)
 		{
 			Program->bind();
 			glEnableVertexAttribArray(2);
 			glEnableVertexAttribArray(3);
 
-			glDrawArrays(GL_LINES, 0, 8);
+			glDrawArrays(GL_LINES, offset, count);
 
 			glDisableVertexAttribArray(3);
 			glDisableVertexAttribArray(2);

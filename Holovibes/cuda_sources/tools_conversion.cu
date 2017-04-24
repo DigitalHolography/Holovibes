@@ -328,9 +328,9 @@ void kernel_float_to_ushort(const float	*input,
 		if (depth != 1.f)
 		{
 			ushort *out = reinterpret_cast<ushort *>(output);
-			if (input[index] > 65535.0f)
+			if (input[index] > 65535.f)
 				out[index] = 65535;
-			else if (input[index] < 0.0f)
+			else if (input[index] < 0.f)
 				out[index] = 0;
 			else
 				out[index] = static_cast<ushort>(input[index]);
@@ -341,6 +341,18 @@ void kernel_float_to_ushort(const float	*input,
 			out[index] = static_cast<uchar>(input[index]);
 		}
 	}
+}
+
+void float_to_ushort(const float	*input,
+					void			*output,
+					const uint		size,
+					const float		depth,
+					cudaStream_t	stream)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
 }
 
 static __global__
@@ -363,23 +375,12 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 			y = 65535;
 		else if (input[index].y >= 0.0f)
 			y = static_cast<ushort>(input[index].y * input[index].x);
+
 		auto& res = output[index];
 		res ^= res;
 		res = x << 16;
 		res += y;
 	}
-}
-
-void float_to_ushort(const float	*input,
-					void			*output,
-					const uint		size,
-					const float		depth,
-					cudaStream_t	stream)
-{
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(size, threads);
-
-	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
 }
 
 void complex_to_ushort(const cuComplex	*input,

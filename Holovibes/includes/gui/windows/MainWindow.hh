@@ -556,6 +556,7 @@ namespace holovibes
 			bool		is_batch_img_;
 			bool		is_batch_interrupted_;
 			double		z_step_;
+
 			/*! current camera type */
 			CameraKind	kCamera;
 			int			import_type_;

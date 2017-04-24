@@ -64,7 +64,7 @@ namespace holovibes
 			void initCrossBuffer();
 			void setCrossBuffer(QPoint pos, QSize frame);
 			void drawSelections();
-			void drawCross();
+			void drawCross(GLuint offset, GLsizei count);
 
 			void setKind(KindOfOverlay k);
 			void setColor();
