@@ -50,10 +50,11 @@ namespace holovibes
 	{
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
+		camera::FrameDescriptor fd = output_.get_frame_desc();
 
 		if (cudaMalloc<cufftComplex>(&gpu_input_buffer_, complex_pixels * input_length_) != cudaSuccess)
 			err++;
-		if (cudaMalloc<unsigned short>(&gpu_output_buffer_, complex_pixels) != cudaSuccess)
+		if (cudaMalloc(&gpu_output_buffer_, fd.depth * input_.get_pixels()) != cudaSuccess)
 			err++;
 		if (cudaMalloc<float>(&gpu_float_buffer_, sizeof(float) * input_.get_pixels()) != cudaSuccess)
 			err++;
@@ -80,6 +81,8 @@ namespace holovibes
 
 	bool Pipe::update_n_parameter(unsigned short n)
 	{
+		const int p = compute_desc_.pindex.load();
+		compute_desc_.pindex.exchange(0);
 		if (!ICompute::update_n_parameter(n))
 			return (false);
 		/* gpu_input_buffer */
@@ -105,6 +108,7 @@ namespace holovibes
 				return (false);
 			}
 		}
+		compute_desc_.pindex.exchange(p);
 		notify_observers();
 		return (true);
 	}
@@ -128,7 +132,7 @@ namespace holovibes
 		{
 			if (!update_n_parameter(compute_desc_.nsamples.load()))
 			{
-				compute_desc_.pindex.exchange(1);
+				compute_desc_.pindex.exchange(0);
 				compute_desc_.nsamples.exchange(1);
 				update_n_parameter(1);
 				std::cerr << "Updating n failed, n updated to 1" << std::endl;
@@ -487,7 +491,7 @@ namespace holovibes
 			fn_vect_.push_back(std::bind(
 				complex_to_complex,
 				gpu_input_frame_ptr_,
-				gpu_output_buffer_,
+				reinterpret_cast<ushort *>(gpu_output_buffer_),
 				input_fd.frame_res() << 3, // frame_res() * 8
 				static_cast<cudaStream_t>(0)));
 			refresh_requested_.exchange(false);
@@ -755,6 +759,7 @@ namespace holovibes
 			gpu_float_buffer_,
 			gpu_output_buffer_,
 			input_fd.frame_res(),
+			output_fd.depth,
 			static_cast<cudaStream_t>(0)));
 		refresh_requested_.exchange(false);
 	}
@@ -806,6 +811,7 @@ namespace holovibes
 		auto biggest = focus_metric_values.begin();
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
 		unsigned int max_pos = 0;
 		const unsigned int z_iter = compute_desc_.autofocus_z_iter.load();
@@ -905,7 +911,7 @@ namespace holovibes
 						compute_desc_.contrast_max.load());
 				}
 
-				float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res());
+				float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res(), output_fd.depth);
 				output_.enqueue(gpu_output_buffer_, cudaMemcpyDeviceToDevice);
 
 				frame_memcpy(gpu_float_buffer_, zone, input_fd.width, gpu_float_buffer_af_zone, af_square_size);
@@ -949,6 +955,13 @@ namespace holovibes
 			cudaFree(gpu_input_buffer_tmp);
 	}
 
+	void *Pipe::get_enqueue_buffer()
+	{
+		if (compute_desc_.view_mode.load() != ComplexViewMode::Complex)
+			return (gpu_output_buffer_);
+		return (gpu_input_frame_ptr_);
+	}
+
 	void Pipe::exec()
 	{
 		if (global::global_config.flush_on_refresh)
@@ -958,25 +971,12 @@ namespace holovibes
 			if (input_.get_current_elts() >= input_length_)
 			{
 				for (FnType& f : fn_vect_) f();
-				if (compute_desc_.view_mode.load() != ComplexViewMode::Complex)
+				if (!output_.enqueue(
+					get_enqueue_buffer(),
+					cudaMemcpyDeviceToDevice))
 				{
-					if (!output_.enqueue(
-						gpu_output_buffer_,
-						cudaMemcpyDeviceToDevice))
-					{
-						input_.dequeue();
-						break;
-					}
-				}
-				else
-				{
-					if (!output_.enqueue(
-						gpu_input_frame_ptr_,
-						cudaMemcpyDeviceToDevice))
-					{
-						input_.dequeue();
-						break;
-					}
+					input_.dequeue();
+					break;
 				}
 				input_.dequeue();
 				if (refresh_requested_.load())

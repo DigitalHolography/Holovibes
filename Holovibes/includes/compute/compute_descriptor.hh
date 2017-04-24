@@ -116,6 +116,8 @@ namespace holovibes
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 		
+		void reset();
+
 		void stftCursor(QPoint *p, AccessMode m);
 
 		void signalZone(gui::Rectangle& rect, AccessMode m);

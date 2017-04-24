@@ -317,19 +317,29 @@ void endianness_conversion(const ushort	*input,
  **/
 static __global__
 void kernel_float_to_ushort(const float	*input,
-							ushort		*output,
-							const uint	size)
+							void		*output,
+							const uint	size,
+							const float	depth)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		if (input[index] > 65535.0f)
-			output[index] = 65535;
-		else if (input[index] < 0.0f)
-			output[index] = 0;
+		if (depth != 1.f)
+		{
+			ushort *out = reinterpret_cast<ushort *>(output);
+			if (input[index] > 65535.0f)
+				out[index] = 65535;
+			else if (input[index] < 0.0f)
+				out[index] = 0;
+			else
+				out[index] = static_cast<ushort>(input[index]);
+		}
 		else
-			output[index] = static_cast<ushort>(input[index]);
+		{
+			uchar *out = reinterpret_cast<uchar *>(output);
+			out[index] = static_cast<uchar>(input[index]);
+		}
 	}
 }
 
@@ -361,14 +371,15 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 }
 
 void float_to_ushort(const float	*input,
-					ushort			*output,
+					void			*output,
 					const uint		size,
+					const float		depth,
 					cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size);
+	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
 }
 
 void complex_to_ushort(const cuComplex	*input,

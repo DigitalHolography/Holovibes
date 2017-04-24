@@ -141,8 +141,9 @@ void endianness_conversion(const ushort	*input,
  * \param stream The CUDA stream on which to launch the operation.
  */
 void float_to_ushort(const float	*input,
-					ushort			*output,
+					void			*output,
 					const uint		size,
+					const float		depth,
 					cudaStream_t	stream = 0);
 
 

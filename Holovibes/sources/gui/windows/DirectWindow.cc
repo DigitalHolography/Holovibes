@@ -184,7 +184,7 @@ namespace holovibes
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 			void* frame = Qu.get_last_images(1);
 			if (Fd.depth == 4.f)
-				float_to_ushort(static_cast<const float*>(frame), static_cast<ushort*>(cuPtrToPbo), Fd.frame_res());
+				float_to_ushort(static_cast<const float*>(frame), cuPtrToPbo, Fd.frame_res(), Fd.depth);
 			else if (Fd.depth == 8.f)
 				complex_to_ushort(static_cast<const cuComplex*>(frame), static_cast<uint*>(cuPtrToPbo), Fd.frame_res());
 			else
@@ -249,8 +249,8 @@ namespace holovibes
 		{
 			const QPoint center = zone.center();
 
-			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5) / Scale;
-			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5) / Scale;
+			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
+			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;
 			setTranslate();
 
 			const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
