@@ -40,8 +40,8 @@ namespace holovibes
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
 			void	wheelEvent(QWheelEvent *e);
-
 			void	keyPressEvent(QKeyEvent* e);
+			void	focusInEvent(QFocusEvent *e);
 
 			void	updateCursorPosition(QPoint pos);
 		};

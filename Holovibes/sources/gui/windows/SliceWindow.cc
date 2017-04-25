@@ -21,7 +21,8 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
-			pIndex(0)
+			pIndex(0),
+			Cd(nullptr)
 		{}
 
 		SliceWindow::~SliceWindow()
@@ -40,6 +41,11 @@ namespace holovibes
 				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
 				Overlay.setCrossBuffer(p, s);
 			}
+		}
+
+		void	SliceWindow::setCd(ComputeDescriptor* cd)
+		{
+			Cd = cd;
 		}
 
 		void	SliceWindow::initShaders()
@@ -203,6 +209,16 @@ namespace holovibes
 		{
 			if (e->button() == Qt::RightButton)
 				resetTransform();
+		}
+	
+		void	SliceWindow::focusInEvent(QFocusEvent* e)
+		{
+			QWindow::focusInEvent(e);
+			if (Cd)
+			{
+				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::SliceXZ : WindowKind::SliceYZ);
+				Cd->notify_observers();
+			}
 		}
 	}
 }
