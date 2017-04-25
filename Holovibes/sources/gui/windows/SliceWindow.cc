@@ -21,7 +21,8 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
-			pIndex(0)
+			pIndex(0),
+			Cd(nullptr)
 		{}
 
 		SliceWindow::~SliceWindow()
@@ -213,8 +214,11 @@ namespace holovibes
 		void	SliceWindow::focusInEvent(QFocusEvent* e)
 		{
 			QWindow::focusInEvent(e);
-			Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::SliceXZ : WindowKind::SliceYZ);
-			Cd->notify_observers();
+			if (Cd)
+			{
+				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::SliceXZ : WindowKind::SliceYZ);
+				Cd->notify_observers();
+			}
 		}
 	}
 }
