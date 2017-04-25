@@ -81,8 +81,8 @@ namespace holovibes
 
 	bool Pipe::update_n_parameter(unsigned short n)
 	{
-		const int p = compute_desc_.pindex.load();
-		compute_desc_.pindex.exchange(0);
+		//const int p = compute_desc_.pindex.load();
+		//compute_desc_.pindex.exchange(0);
 		if (!ICompute::update_n_parameter(n))
 			return (false);
 		/* gpu_input_buffer */
@@ -108,14 +108,46 @@ namespace holovibes
 				return (false);
 			}
 		}
-		compute_desc_.pindex.exchange(p);
 		notify_observers();
 		return (true);
 	}
 
+	void Pipe::direct_refresh()
+	{
+		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
+		if (abort_construct_requested_.load())
+		{
+			refresh_requested_.exchange(false);
+			return;
+		}
+		fn_vect_.push_back(std::bind(
+			make_contiguous_complex,
+			std::ref(input_),
+			gpu_input_buffer_,
+			input_length_,
+			static_cast<cudaStream_t>(0)));
+		gpu_input_frame_ptr_ = gpu_input_buffer_;
+		fn_vect_.push_back(std::bind(
+			complex_to_modulus,
+			gpu_input_frame_ptr_,
+			gpu_float_buffer_,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+		fn_vect_.push_back(std::bind(
+			float_to_ushort,
+			gpu_float_buffer_,
+			gpu_output_buffer_,
+			input_fd.frame_res(),
+			output_fd.depth,
+			static_cast<cudaStream_t>(0)));
+		refresh_requested_.exchange(false);
+	}
+
 	void Pipe::refresh()
 	{
-		ICompute::refresh();
+		if (compute_desc_.compute_mode.load() != Computation::Direct)
+			ICompute::refresh();
 		/* As the Pipe uses a single CUDA stream for its computations,
 		 * we have to explicitly use the default stream (0).
 		 * Because std::bind does not allow optional parameters to be
@@ -127,7 +159,12 @@ namespace holovibes
 		//refresh_requested_.exchange(false);
 		/* Clean current vector. */
 		fn_vect_.clear();
-
+		if (compute_desc_.compute_mode.load() == Computation::Direct)
+		{
+			update_n_requested_.exchange(false);
+			direct_refresh();
+			return;
+		}
 		if (update_n_requested_.load())
 		{
 			if (!update_n_parameter(compute_desc_.nsamples.load()))
@@ -139,6 +176,7 @@ namespace holovibes
 			}
 			update_n_requested_.exchange(false);
 		}
+
 		if (request_stft_cuts_.load())
 		{
 			camera::FrameDescriptor fd = output_.get_frame_desc();
@@ -178,7 +216,10 @@ namespace holovibes
 		}
 
 		if (abort_construct_requested_.load())
+		{
+			refresh_requested_.exchange(false);
 			return;
+		}
 
 		if (autofocus_requested_.load())
 		{

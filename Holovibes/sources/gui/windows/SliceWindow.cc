@@ -32,7 +32,7 @@ namespace holovibes
 
 		void	SliceWindow::setPIndex(ushort pId)
 		{
-			pIndex = pId;
+			pIndex = pId + 1;
 			if (Program)
 			{
 				makeCurrent();

@@ -606,7 +606,7 @@ namespace holovibes
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
 		update_n_requested_.exchange(true);
-		compute_desc_.nsamples.exchange(n);
+		//compute_desc_.nsamples.exchange(n);
 		request_refresh();
 	}
 

@@ -477,7 +477,6 @@ namespace holovibes
 				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
 				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", cd.nsamples.load());
-				//cd.nsamples.exchange(1);
 				if (p_nsample < 1)
 					cd.nsamples.exchange(1);
 				else if (p_nsample > config.input_queue_max_size)
@@ -893,7 +892,6 @@ namespace holovibes
 				}
 				catch (std::exception& e)
 				{
-					save_ini(GLOBAL_INI_PATH);
 					createPipe();
 				}
 				mainDisplay.reset(new DirectWindow(
@@ -919,8 +917,6 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				if (cd.compute_mode.load() == Computation::Direct)
-					cd.reset();
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
@@ -969,6 +965,8 @@ namespace holovibes
 			{
 				auto& cd = holovibes_.get_compute_desc();
 
+				ushort p = cd.pindex.load();
+				ushort n = cd.nsamples.load();
 				cd.compute_mode.exchange(Computation::Hologram);
 				/* ---------- */
 				try
@@ -980,10 +978,10 @@ namespace holovibes
 					cd.pindex.exchange(0);
 					cd.nsamples.exchange(1);
 					createPipe();
-					load_ini(GLOBAL_INI_PATH);
 				}
 				createHoloWindow();
 				/* ---------- */
+				cd.nsamples.exchange(n);
 				holovibes_.get_pipe()->request_update_n(cd.nsamples.load());
 				while (holovibes_.get_pipe()->get_update_n_request());
 				/* ---------- */
@@ -993,6 +991,7 @@ namespace holovibes
 				cd.contrast_enabled.exchange(true);
 				set_auto_contrast();
 				notify();
+				cd.pindex.exchange(p);
 			}
 			catch (std::runtime_error& e)
 			{

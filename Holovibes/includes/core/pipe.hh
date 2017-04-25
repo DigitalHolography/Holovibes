@@ -69,7 +69,8 @@ namespace holovibes
 
 	protected:
 		/*! \brief Generate the ICompute vector. */
-		virtual void refresh();
+		void			direct_refresh();
+		virtual void	refresh();
 
 		/*! \brief Execute one processing iteration.
 		*
