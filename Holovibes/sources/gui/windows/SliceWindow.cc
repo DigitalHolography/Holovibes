@@ -55,6 +55,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
 			Overlay.initShaderProgram();
+			Overlay.initCrossBuffer();
 			Overlay.setKind(KindOfOverlay::Cross);
 		}
 
@@ -162,6 +163,9 @@ namespace holovibes
 			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
 
 			Program->release();
+
+			setPIndex(pIndex);
+
 			Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(DISPLAY_RATE);

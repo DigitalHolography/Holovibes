@@ -1155,7 +1155,7 @@ namespace holovibes
 					sliceXZ->setFlip(xzFlip);
 					sliceXZ->setPIndex(cd.pindex.load());
 					sliceXZ->setCd(&cd);
-
+					
 					sliceYZ.reset(nullptr);
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
@@ -1170,6 +1170,7 @@ namespace holovibes
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					cd.stft_view_enabled.exchange(true);
+					set_auto_contrast();
 					notify();
 				}
 				catch (std::logic_error& e)
