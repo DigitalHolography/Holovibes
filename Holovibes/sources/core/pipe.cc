@@ -108,6 +108,7 @@ namespace holovibes
 				return (false);
 			}
 		}
+		//compute_desc_.pindex.exchange(p);
 		notify_observers();
 		return (true);
 	}

@@ -304,6 +304,7 @@ namespace holovibes
 			void pipe_refresh();
 			// Safe pipe refresh
 
+			void set_auto_contrast_cuts();
 			void set_auto_contrast();
 			/*! \brief Set contrast minimum value
 			** \param value new contrast minimum value

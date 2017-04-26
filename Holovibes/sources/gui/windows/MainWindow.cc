@@ -1120,6 +1120,16 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::set_auto_contrast_cuts()
+		{
+			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+			cd.current_window.exchange(WindowKind::SliceXZ);
+			set_auto_contrast();
+			while (holovibes_.get_pipe()->get_autocontrast_request());
+			cd.current_window.exchange(WindowKind::SliceYZ);
+			set_auto_contrast();
+		}
+
 		void MainWindow::stft_view(bool checked)
 		{
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
@@ -1170,7 +1180,7 @@ namespace holovibes
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					cd.stft_view_enabled.exchange(true);
-					set_auto_contrast();
+					set_auto_contrast_cuts();
 					notify();
 				}
 				catch (std::logic_error& e)

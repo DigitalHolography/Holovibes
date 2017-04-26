@@ -75,12 +75,16 @@ namespace holovibes
 		{
 			if (instance)
 			{
-				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-				if (it != instance->infos_.end())
-					it->second = value;
-				else
-					instance->infos_.push_back(std::make_pair(key, value));
+				int i;
+				for (i = 0; i < instance->infos_.size(); ++i)
+				{
+					if (instance->infos_[i].first == key)
+					{
+						instance->infos_[i].second = value;
+						return;
+					}
+				}
+				instance->infos_.push_back(std::make_pair(key, value));
 			}
 		}
 
