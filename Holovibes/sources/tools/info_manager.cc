@@ -10,8 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <thread>
-#include <chrono>
 #include "info_manager.hh"
 
 namespace holovibes
@@ -21,6 +19,8 @@ namespace holovibes
 		InfoManager *InfoManager::instance = nullptr;
 
 		InfoManager::InfoManager(gui::GroupBox *ui) :
+			delError(nullptr),
+			flag(Null),
 			ui_(ui),
 			progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar")),
 			stop_requested_(false),
@@ -61,6 +61,36 @@ namespace holovibes
 				throw InfoManager::ManagerNotInstantiate();
 		}
 
+		void InfoManager::startDelError(const std::string& key)
+		{
+			if (!delError && flag == Null)
+			{
+				delError = new std::thread(&InfoManager::taskDelError,key);
+				flag = Operating;
+			}
+		}
+
+		void InfoManager::taskDelError(const std::string& key)
+		{
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(3s);
+
+			InfoManager::remove_info(key);
+		}
+
+		std::thread* InfoManager::getDelErrorThread()
+		{
+			return (delError);
+		}
+
+		void InfoManager::joinDelErrorThread()
+		{
+			delError->join();
+			delete delError;
+			delError = nullptr;
+			flag = Null;
+		}
+
 		void InfoManager::insertInputSource(int width, int height, int depth)
 		{
 			std::string output_descriptor_info =
@@ -96,6 +126,8 @@ namespace holovibes
 					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
 				if (it != instance->infos_.end())
 					instance->infos_.erase(it);
+				if (key == "Error" || key == "Info")
+					instance->flag = Finish;
 			}
 		}
 
@@ -127,6 +159,10 @@ namespace holovibes
 		{
 			while (!instance->stop_requested_)
 			{
+				if (instance->flag == Finish)
+				{
+					instance->joinDelErrorThread();
+				}
 				draw();
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			}

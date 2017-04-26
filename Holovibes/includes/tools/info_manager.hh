@@ -15,6 +15,8 @@
 #include <QProgressBar>
 #include <QTextBrowser>
 #include <QThread>
+#include <thread>
+#include <chrono>
 #include "gui_group_box.hh"
 
 namespace holovibes
@@ -45,6 +47,18 @@ namespace holovibes
 		/*! dtr */
 		~InfoManager();
 
+		using ThreadState =
+		enum
+		{
+			Null,
+			Operating,
+			Finish
+		};
+
+		std::thread*	delError;
+		ThreadState		flag;
+		static void		taskDelError(const std::string& key);
+
 		void run() override;
 	public:
 
@@ -64,6 +78,10 @@ namespace holovibes
 			MESSAGE,
 			INFO
 		};
+
+		void			startDelError(const std::string& key);
+		std::thread*	getDelErrorThread();
+		void			joinDelErrorThread();
 
 		/*! Get the singleton, it's creat on first call
 		** \param ui must containt infoProgressBar and infoTextEdit in child*/

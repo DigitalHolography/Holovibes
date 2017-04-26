@@ -358,14 +358,14 @@ namespace holovibes
 
 		void MainWindow::display_error(const std::string msg)
 		{
-			InfoManager::get_manager()->remove_info("Error");
 			InfoManager::get_manager()->insert_info(InfoManager::InfoType::ERR, "Error", msg);
+			InfoManager::get_manager()->startDelError("Error");
 		}
 
 		void MainWindow::display_info(const std::string msg)
 		{
-			InfoManager::get_manager()->remove_info("Info");
 			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
+			InfoManager::get_manager()->startDelError("Info");
 		}
 		
 		void MainWindow::credits()
@@ -487,7 +487,7 @@ namespace holovibes
 				{
 					holovibes_.get_pipe()->request_update_n(cd.nsamples.load());\
 				}
-				catch (std::exception& e)
+				catch (std::exception&)
 				{
 				}
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
@@ -672,7 +672,7 @@ namespace holovibes
 			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
 			ptree.put("reset.device_number", config.device_number);
 
-
+			
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
 		}
 
@@ -890,7 +890,7 @@ namespace holovibes
 				{
 					holovibes_.get_pipe();
 				}
-				catch (std::exception& e)
+				catch (std::exception&)
 				{
 					createPipe();
 				}
@@ -973,7 +973,7 @@ namespace holovibes
 				{
 					holovibes_.get_pipe();
 				}
-				catch (std::exception& e)
+				catch (std::exception&)
 				{
 					cd.pindex.exchange(0);
 					cd.nsamples.exchange(1);
