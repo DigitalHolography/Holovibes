@@ -873,8 +873,6 @@ namespace holovibes
 
 		void MainWindow::set_direct_mode()
 		{
-			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Direct)
-				return;
 			close_critical_compute();
 			close_windows();
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
@@ -956,8 +954,6 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
-			if (holovibes_.get_compute_desc().compute_mode.load() == Computation::Hologram)
-				return;
 			close_critical_compute();
 			close_windows();
 			/* ---------- */
