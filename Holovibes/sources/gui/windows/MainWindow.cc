@@ -483,13 +483,6 @@ namespace holovibes
 					cd.nsamples.exchange(config.input_queue_max_size);
 				else
 					cd.nsamples.exchange(p_nsample);
-				try
-				{
-					holovibes_.get_pipe()->request_update_n(cd.nsamples.load());\
-				}
-				catch (std::exception&)
-				{
-				}
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", cd.pindex.load());
 				if (p_index >= 0 && p_index < cd.nsamples.load())
 					cd.pindex.exchange(p_index);
@@ -514,8 +507,8 @@ namespace holovibes
 					"Complex output" : last_contrast_type_;
 
 				cd.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
-				//cd.log_scale_enabled_cut_xz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load()));
-				//cd.log_scale_enabled_cut_yz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load()));
+				cd.log_scale_enabled_cut_xz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load()));
+				cd.log_scale_enabled_cut_yz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load()));
 
 				cd.shift_corners_enabled.exchange(ptree.get<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load()));
 
@@ -523,10 +516,6 @@ namespace holovibes
 
 				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
-				//cd.contrast_min_slice_xz.exchange(ptree.get("view.contrast_min_slice_xz", cd.contrast_min_slice_xz.load()));
-				//cd.contrast_max_slice_xz.exchange(ptree.get("view.contrast_max_slice_xz", cd.contrast_max_slice_xz.load()));
-				//cd.contrast_min_slice_yz.exchange(ptree.get("view.contrast_min_slice_yz", cd.contrast_min_slice_yz.load()));
-				//cd.contrast_max_slice_yz.exchange(ptree.get("view.contrast_max_slice_yz", cd.contrast_max_slice_yz.load()));
 
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
@@ -621,17 +610,13 @@ namespace holovibes
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
 			ptree.put("view.view_mode", cd.view_mode.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
-			//ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load());
-			//ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load());
+			ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load());
+			ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
 			ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load());
 			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
 			ptree.put("view.contrast_min", cd.contrast_min.load());
 			ptree.put("view.contrast_max", cd.contrast_max.load());
-			//ptree.put("view.contrast_min_slice_xz", cd.contrast_min_slice_xz.load());
-			//ptree.put("view.contrast_max_slice_xz", cd.contrast_max_slice_xz.load());
-			//ptree.put("view.contrast_min_slice_yz", cd.contrast_min_slice_yz.load());
-			//ptree.put("view.contrast_max_slice_yz", cd.contrast_max_slice_yz.load());
 			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
 			ptree.put("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);

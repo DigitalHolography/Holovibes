@@ -18,44 +18,44 @@
 
 namespace holovibes
 {
-  ThreadCapture::ThreadCapture(
-    camera::ICamera& camera,
-    Queue& input)
-    : IThreadInput()
-    , camera_(camera)
-    , queue_(input)
-    , thread_(&ThreadCapture::thread_proc, this)
-  {
-    gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
-	auto fd = get_frame_descriptor();
-	std::string input_descriptor_info = std::to_string(fd.width)
-		+ std::string("x")
-		+ std::to_string(fd.height)
-		+ std::string(" - ")
-		+ std::to_string(static_cast<int>(fd.depth * 8))
-		+ std::string("bit");
-	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
-  }
+	ThreadCapture::ThreadCapture(
+		camera::ICamera& camera,
+		Queue& input)
+		: IThreadInput()
+		, camera_(camera)
+		, queue_(input)
+		, thread_(&ThreadCapture::thread_proc, this)
+	{
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", camera_.get_name());
+		auto fd = get_frame_descriptor();
+		std::string input_descriptor_info = std::to_string(fd.width)
+			+ std::string("x")
+			+ std::to_string(fd.height)
+			+ std::string(" - ")
+			+ std::to_string(static_cast<int>(fd.depth * 8))
+			+ std::string("bit");
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
+	}
 
-  ThreadCapture::~ThreadCapture()
-  {
-    stop_requested_ = true;
+	ThreadCapture::~ThreadCapture()
+	{
+		stop_requested_ = true;
 
-    while (!thread_.joinable())
-      continue;
-    thread_.join();
-    gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "None");
-  }
+		while (!thread_.joinable())
+			continue;
+		thread_.join();
+		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "None");
+	}
 
-  void ThreadCapture::thread_proc()
-  {
-	  SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
-    while (!stop_requested_)
-      queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
-  }
+	void ThreadCapture::thread_proc()
+	{
+		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
+		while (!stop_requested_)
+			queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
+	}
 
-  const camera::FrameDescriptor& ThreadCapture::get_frame_descriptor() const
-  {
-    return camera_.get_frame_descriptor();
-  }
+	const camera::FrameDescriptor& ThreadCapture::get_frame_descriptor() const
+	{
+		return camera_.get_frame_descriptor();
+	}
 }
