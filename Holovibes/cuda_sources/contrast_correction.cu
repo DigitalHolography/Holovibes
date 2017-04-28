@@ -43,6 +43,7 @@ void manual_contrast_correction(float			*input,
 
 void auto_contrast_correction(float			*input,
 							const uint		size,
+							const uint		offset,
 							float			*min,
 							float			*max,
 							cudaStream_t	stream)
@@ -50,7 +51,7 @@ void auto_contrast_correction(float			*input,
 	float	*frame_cpu = new float[size];
 	cudaMemcpyAsync(frame_cpu, input, sizeof(float) * size, cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(stream);
-	auto minmax = std::minmax_element(frame_cpu, frame_cpu + size);
+	auto minmax = std::minmax_element(frame_cpu + offset, frame_cpu + size);
 	*min = *minmax.first;
 	*max = *minmax.second;
 	/*float *frame_cpu_end = frame_cpu + size;

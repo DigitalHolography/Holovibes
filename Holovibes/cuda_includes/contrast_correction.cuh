@@ -44,19 +44,7 @@ void manual_contrast_correction(float			*input,
 */
 void auto_contrast_correction(float			*input,
 							const uint		size,
+							const uint		width,
 							float			*min,
 							float			*max,
 							cudaStream_t	stream = 0);
-
-void auto_contrast_correction_cuts(ushort		*input,
-								const uint		size,
-								float			*min,
-								float			*max,
-								cudaStream_t	stream);
-
-void manual_contrast_correction_cuts(ushort			*input,
-									const uint		size,
-									const ushort	dynamic_range,
-									const float		min,
-									const float		max,
-									cudaStream_t	stream);

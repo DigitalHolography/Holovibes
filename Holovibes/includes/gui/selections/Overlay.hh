@@ -24,7 +24,7 @@ namespace holovibes
 	namespace gui
 	{
 		using KindOfOverlay =
-			enum
+		enum
 		{
 			Zoom,
 			// Average

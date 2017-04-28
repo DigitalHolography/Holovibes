@@ -72,9 +72,9 @@ namespace holovibes
 			OUTPUT_SOURCE,
 			OUTPUT_QUEUE,
 			RENDERING_FPS,
+			THROUGHPUT,
 			STFT_SLICE_CURSOR,
 			STFT_QUEUE,
-			STFT_THROUGHTPUT,
 			ERR,
 			INFO
 		};

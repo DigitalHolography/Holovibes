@@ -510,6 +510,11 @@ namespace holovibes
 
 				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
+				cd.cuts_contrast_p_offset.exchange(ptree.get<float>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load()));
+				if (cd.cuts_contrast_p_offset.load() < 0)
+					cd.cuts_contrast_p_offset.exchange(0);
+				else if (cd.cuts_contrast_p_offset.load() > cd.nsamples.load() - 1)
+					cd.cuts_contrast_p_offset.exchange(cd.nsamples.load() - 1);
 
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
 
@@ -610,6 +615,7 @@ namespace holovibes
 			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
 			ptree.put("view.contrast_min", cd.contrast_min.load());
 			ptree.put("view.contrast_max", cd.contrast_max.load());
+			ptree.put<float>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load());
 			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
 			ptree.put("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
@@ -853,6 +859,7 @@ namespace holovibes
 		{
 			close_critical_compute();
 			close_windows();
+			InfoManager::get_manager()->remove_info("Throughput");
 			holovibes_.get_compute_desc().compute_mode.exchange(Computation::Stop);
 			notify();
 			if (is_enabled_camera_)
@@ -1408,8 +1415,8 @@ namespace holovibes
 					
 					if (cd.stft_view_enabled.load())
 					{
-						sliceXZ->setPIndex(cd.pindex);
-						sliceYZ->setPIndex(cd.pindex);
+						sliceXZ->setPIndex(cd.pindex.load());
+						sliceYZ->setPIndex(cd.pindex.load());
 					}
 					notify();
 				}

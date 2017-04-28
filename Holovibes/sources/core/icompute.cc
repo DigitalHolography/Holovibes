@@ -667,6 +667,7 @@ namespace holovibes
 
 	void ICompute::autocontrast_caller(	float*				input,
 										const uint			size,
+										const uint			offset,
 										ComputeDescriptor&	compute_desc,
 										std::atomic<float>&	min,
 										std::atomic<float>&	max,
@@ -674,7 +675,7 @@ namespace holovibes
 	{
 		float contrast_min = 0.f;
 		float contrast_max = 0.f;
-		auto_contrast_correction(input, size, &contrast_min, &contrast_max, stream);
+		auto_contrast_correction(input, size, offset, &contrast_min, &contrast_max, stream);
 		min.exchange(contrast_min);
 		max.exchange(contrast_max);
 		compute_desc.notify_observers();
@@ -894,8 +895,8 @@ namespace holovibes
 			{
 				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
-				int voxelPerSeconds = (fps / compute_desc_.stft_steps) * output_fd.frame_res() * compute_desc_.nsamples.load();
-				manager->insert_info(gui::InfoManager::InfoType::STFT_THROUGHTPUT, "STFTThroughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVx/s"));
+				long long voxelPerSeconds = (fps / compute_desc_.stft_steps) * output_fd.frame_res() * compute_desc_.nsamples.load();
+				manager->insert_info(gui::InfoManager::InfoType::THROUGHPUT, "Throughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVoxel/s"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;

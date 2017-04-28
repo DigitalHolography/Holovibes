@@ -245,6 +245,7 @@ namespace holovibes
     * descriptor. */
     static void autocontrast_caller(float				*input,
 									const uint			size,
+									const uint			offset,
 									ComputeDescriptor&	compute_desc,
 									std::atomic<float>&	min,
 									std::atomic<float>&	max,

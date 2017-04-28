@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v4.3.170427"; /*!< Current version of this project. */
+	const static std::string version = "v4.3.170428"; /*!< Current version of this project. */
 	#ifndef TUPLE4F
 	# define TUPLE4F
 		using	Tuple4f =	std::tuple<float, float, float, float>;
@@ -115,8 +115,6 @@ namespace holovibes
 		 * The assignment operator is explicitely defined because std::atomic type
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
-		
-		void reset();
 
 		void stftCursor(QPoint *p, AccessMode m);
 
@@ -158,6 +156,7 @@ namespace holovibes
 		std::atomic<float> contrast_min_slice_yz;
 		std::atomic<float> contrast_max_slice_xz;
 		std::atomic<float> contrast_max_slice_yz;
+		std::atomic<float> cuts_contrast_p_offset;
 		/*! Z minimal range for autofocus. */
 		std::atomic<float> autofocus_z_min;
 		/*! Z maximal range for autofocus. */

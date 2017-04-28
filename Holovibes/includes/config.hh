@@ -26,11 +26,11 @@ namespace holovibes
 		Config()
 		{
 			this->input_queue_max_size = 128;
-			this->output_queue_max_size = 50;
+			this->output_queue_max_size = 256;
 			this->float_queue_max_size = 20;
 			this->flush_on_refresh = 1;
 			this->frame_timeout = 100000;
-			this->reader_buf_max_size = 20;
+			this->reader_buf_max_size = 64;
 			this->unwrap_history_size = 20;
 			this->import_pixel_size = 5.42f;
 			this->set_cuda_device = 1;
