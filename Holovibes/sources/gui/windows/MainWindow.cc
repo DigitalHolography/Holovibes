@@ -329,12 +329,6 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::display_message(QString msg)
-		{
-			InfoManager::get_manager()->remove_info("Message");
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::MESSAGE, "Message", msg.toStdString());
-		}
-
 		void MainWindow::layout_toggled(bool b)
 		{
 			uint childCount = 0;
@@ -518,6 +512,7 @@ namespace holovibes
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
 
 				cd.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", cd.img_acc_enabled.load()));
+
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
 				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
 				yzAngle = ptree.get<float>("view.yCut_rotate", yzAngle);
@@ -558,9 +553,7 @@ namespace holovibes
 
 				//flowgraphy
 				uint flowgraphy_level = ptree.get<uint>("flowgraphy.level", cd.flowgraphy_level.load());
-				if (flowgraphy_level % 2 == 0)
-					flowgraphy_level++;
-				cd.flowgraphy_level.exchange(flowgraphy_level);
+				cd.flowgraphy_level.exchange((flowgraphy_level % 2 == 0) ? (flowgraphy_level + 1) : (flowgraphy_level));
 				cd.flowgraphy_enabled.exchange(ptree.get<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load()));
 
 				// Reset button

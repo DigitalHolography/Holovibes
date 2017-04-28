@@ -97,10 +97,6 @@ namespace holovibes
 			/* ---------- */
 			#pragma region Public Slots
 		public slots:
-			/*! \brief Display information message
-			** \param msg information message
-			*/
-			void display_message(QString message);
 			/*! \{ \name Menu */
 			/*! \brief Resize windows if one layout is toggled.
 			**

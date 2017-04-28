@@ -62,15 +62,15 @@ namespace holovibes
 			else
 				assert(!"Impossible case");
 
-			std::cout << "(Holovibes) Prepared to initialize camera." << std::endl;
+			std::cout << "(Holovibes) Initializing camera..." << std::endl;
 			camera_->init_camera();
-			std::cout << "(Holovibes) Prepared to reset queues." << std::endl;
+			std::cout << "(Holovibes) Resetting queues..." << std::endl;
 			input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
-			std::cout << "(Holovibes) Prepared to start initialization." << std::endl;
+			std::cout << "(Holovibes) Starting initialization..." << std::endl;
 			camera_->start_acquisition();
 			tcapture_.reset(new ThreadCapture(*camera_, *input_));
 
-			std::cout << "[CAPTURE] capture thread started" << std::endl;
+			std::cout << "[CAPTURE] Capture thread started" << std::endl;
 			camera_initialized_ = true;
 		}
 		catch (std::exception& e)
@@ -96,7 +96,7 @@ namespace holovibes
 		camera_.reset();
 		camera_initialized_ = false;
 
-		std::cout << "[CAPTURE] capture thread stopped" << std::endl;
+		std::cout << "[CAPTURE] Capture thread stopped" << std::endl;
 	}
 
 	bool Holovibes::is_camera_initialized()
@@ -106,31 +106,31 @@ namespace holovibes
 
 	const char* Holovibes::get_camera_name()
 	{
-		assert(camera_initialized_ && "camera not initialized");
+		assert(camera_initialized_ && "Camera not initialized");
 		return camera_.get()->get_name();
 	}
 
 	void Holovibes::recorder(const std::string& filepath, const unsigned int rec_n_images)
 	{
 
-		assert(camera_initialized_ && "camera not initialized");
-		assert(tcapture_ && "capture thread not initialized");
+		assert(camera_initialized_ && "Camera not initialized");
+		assert(tcapture_ && "Capture thread not initialized");
 
 		Recorder* recorder = new Recorder(
 			*((tcompute_) ? output_ : input_),
 			filepath);
 
-		std::cout << "[RECORDER] recorder Start" << std::endl;
+		std::cout << "[RECORDER] Recorder Start" << std::endl;
 		recorder->record(rec_n_images);
 		delete recorder;
-		std::cout << "[RECORDER] recorder Stop" << std::endl;
+		std::cout << "[RECORDER] Recorder Stop" << std::endl;
 	}
 
 	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, const unsigned int& depth)
 	{
-		assert(camera_initialized_ && "camera not initialized");
-		assert(tcapture_ && "capture thread not initialized");
-		assert(input_ && "input queue not initialized");
+		assert(camera_initialized_ && "Camera not initialized");
+		assert(tcapture_ && "Capture thread not initialized");
+		assert(input_ && "Input queue not initialized");
 
 		camera::FrameDescriptor output_fd = input_->get_frame_desc();
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
@@ -139,7 +139,7 @@ namespace holovibes
 			output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
 
 		tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
-		std::cout << "[CUDA] compute thread started" << std::endl;
+		std::cout << "[CUDA] Compute thread started" << std::endl;
 
 		// A wait_for is necessary here in order for the pipe to finish
 		// its allocations before getting it.
@@ -152,6 +152,7 @@ namespace holovibes
 			std::cout << ".";
 		}
 		std::cout << std::endl;
+		std::cout << "Pipe initialized." << std::endl;
 	}
 
 	void Holovibes::dispose_compute()

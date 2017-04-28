@@ -164,7 +164,7 @@ namespace holovibes
 
 			Program->release();
 
-			setPIndex(pIndex);
+			setPIndex(pIndex - 1);
 
 			Vao.release();
 			glViewport(0, 0, width(), height());

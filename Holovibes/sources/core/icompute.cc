@@ -886,13 +886,16 @@ namespace holovibes
 		if (++frame_count_ >= 100)
 		{
 			auto time = std::chrono::high_resolution_clock::now();
-			auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
+			long long diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
 			auto manager = gui::InfoManager::get_manager();
+			const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
 			if (diff)
 			{
-				auto fps = frame_count_ * 1000 / diff;
+				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
+				int voxelPerSeconds = (fps / compute_desc_.stft_steps) * output_fd.frame_res() * compute_desc_.nsamples.load();
+				manager->insert_info(gui::InfoManager::InfoType::STFT_THROUGHTPUT, "STFTThroughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVx/s"));
 			}
 			past_time_ = time;
 			frame_count_ = 0;

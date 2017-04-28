@@ -74,8 +74,8 @@ namespace holovibes
 			RENDERING_FPS,
 			STFT_SLICE_CURSOR,
 			STFT_QUEUE,
+			STFT_THROUGHTPUT,
 			ERR,
-			MESSAGE,
 			INFO
 		};
 
