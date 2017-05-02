@@ -13,18 +13,13 @@
 # include "texture_update.cuh"
 
 __global__
-static void updateFloatSlice(float* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
+static void updateFloatSlice(ushort* frame, cudaSurfaceObject_t cuSurface, dim3 texDim)
 {
 	const uint x = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint y = blockIdx.y * blockDim.y + threadIdx.y;
 	const uint index = y * texDim.x + x;
 
-	if (frame[index] > 65535.f)
-		frame[index] = 65535.f;
-	else if (frame[index] < 0.f)
-		frame[index] = 0.f;
-
-	surf2Dwrite(static_cast<uchar>(frame[index] / 256.f), cuSurface, x << 2, y);
+	surf2Dwrite(static_cast<uchar>(frame[index] >> 8), cuSurface, x << 2, y);
 	//surf2Dwrite(frame[index], cuSurface, x << 2, y);
 }
 
@@ -61,14 +56,14 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 	if (fd.depth == 8.f)
 	{
 		updateComplexSlice << < blocks, threads, 0 >> > (
-			reinterpret_cast<cuComplex*>(frame),
+			reinterpret_cast<cuComplex *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
 	}
 	else
 	{
 		updateFloatSlice << < blocks, threads, 0 >> > (
-			reinterpret_cast<float*>(frame),
+			reinterpret_cast<ushort *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
 	}

@@ -79,13 +79,13 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, Tex);
 
 			uint	size = Fd.frame_size();
-			float	*mTexture = new float[size];
-			std::memset(mTexture, 0, size * sizeof(float));
+			ushort	*mTexture = new ushort[size];
+			std::memset(mTexture, 0, size * sizeof(ushort));
 
 			glTexImage2D(GL_TEXTURE_2D, 0,
 				GL_RGBA,
 				Fd.width, Fd.height, 0,
-				GL_RG, GL_FLOAT, mTexture);
+				GL_RG, GL_UNSIGNED_SHORT, mTexture);
 
 			glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
 			glGenerateMipmap(GL_TEXTURE_2D);
@@ -175,7 +175,6 @@ namespace holovibes
 		{
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
-			
 			textureUpdate(cuSurface,
 				Qu.get_last_images(1),
 				Qu.get_frame_desc(),

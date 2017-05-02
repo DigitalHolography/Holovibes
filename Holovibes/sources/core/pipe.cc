@@ -860,6 +860,22 @@ namespace holovibes
 			input_fd.frame_res(),
 			output_fd.depth,
 			static_cast<cudaStream_t>(0)));
+
+		if (compute_desc_.stft_view_enabled.load())
+		{
+			fn_vect_.push_back(std::bind(
+				float_to_ushort,
+				reinterpret_cast<float *>(get_stft_slice_queue(0).get_last_images(1)),
+				get_stft_slice_queue(0).get_last_images(1),
+				get_stft_slice_queue(0).get_frame_desc().frame_res(),
+				2, static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back(std::bind(
+				float_to_ushort,
+				reinterpret_cast<float *>(get_stft_slice_queue(1).get_last_images(1)),
+				get_stft_slice_queue(1).get_last_images(1),
+				get_stft_slice_queue(0).get_frame_desc().frame_res(),
+				2, static_cast<cudaStream_t>(0)));
+		}
 		refresh_requested_.exchange(false);
 	}
 
