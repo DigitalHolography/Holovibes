@@ -102,7 +102,8 @@ static void	fill_64bit_slices(
 }
 
 __global__
-static void	fill_32bit_slices(const cuComplex	*input,
+static void	fill_32bit_slices(
+	const cuComplex	*input,
 	float				*output_xz,
 	float				*output_yz,
 	const uint			x0,

@@ -973,6 +973,7 @@ namespace holovibes
 				set_auto_contrast();
 				notify();
 				cd.pindex.exchange(p);
+				set_stft(true);
 			}
 			catch (std::runtime_error& e)
 			{
