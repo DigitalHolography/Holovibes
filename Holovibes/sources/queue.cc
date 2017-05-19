@@ -112,7 +112,7 @@ namespace holovibes
 	{
 		MutexGuard mGuard(mutex_);
 
-		const unsigned int end_ = (start_ + curr_elts_) % max_elts_;
+		const uint end_ = (start_ + curr_elts_) % max_elts_;
 		char* new_elt_adress = buffer_ + (end_ * size_);
 		cudaError_t cuda_status = cudaMemcpyAsync(new_elt_adress,
 			elt,
@@ -134,8 +134,8 @@ namespace holovibes
 		}
 		if (is_big_endian_)
 			endianness_conversion(
-				reinterpret_cast<unsigned short *>(new_elt_adress),
-				reinterpret_cast<unsigned short *>(new_elt_adress),
+				reinterpret_cast<ushort *>(new_elt_adress),
+				reinterpret_cast<ushort *>(new_elt_adress),
 				frame_desc_.frame_res(), stream_);
 
 		if (curr_elts_ < max_elts_)

@@ -116,7 +116,7 @@ namespace holovibes
 			#pragma endregion
 
 			#pragma region Vertex Buffer Object
-			const float	data[16] = {
+			const float	data[] = {
 				// Top-left
 				-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
 				0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
@@ -147,13 +147,13 @@ namespace holovibes
 			#pragma endregion
 
 			#pragma region Element Buffer Object
-			const GLuint elements[6] = {
+			const GLuint elements[] = {
 				0, 1, 2,
 				2, 3, 0
 			};
 			glGenBuffers(1, &Ebo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
 

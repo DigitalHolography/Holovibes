@@ -79,6 +79,7 @@ namespace holovibes
 		, stft_roi_zone(gui::Rectangle(10, 10))
 		, current_window(WindowKind::MainDisplay)
 		, cuts_contrast_p_offset(1)
+		, vision_3d(false)
 	{
 	}
 	

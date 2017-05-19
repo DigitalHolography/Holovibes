@@ -1048,6 +1048,32 @@ namespace holovibes
 					set_holographic_mode();
 			}
 		}
+
+		void MainWindow::set_vision_3d(bool checked)
+		{
+			ComputeDescriptor&		cd = holovibes_.get_compute_desc();
+			const FrameDescriptor&	fd = holovibes_.get_capture_queue().get_frame_desc();
+
+			if (checked)
+			{
+				QPoint pos(0, 0);
+				QSize size(512, 512);
+				mainDisplay.reset(nullptr);
+				holovibes_.get_pipe()->create_3d_vision_queue();
+				while (holovibes_.get_pipe()->get_request_3d_vision());
+				cd.vision_3d.exchange(true);
+				vision3D.reset(new Vision3DWindow(pos, size, holovibes_.get_output_queue(), cd, fd, holovibes_.get_pipe()->get_3d_vision_queue()));
+				notify();
+			}
+			else
+			{
+				cd.vision_3d.exchange(false);
+				holovibes_.get_pipe()->delete_3d_vision_queue();
+				while (holovibes_.get_pipe()->get_request_delete_3d_vision());
+				vision3D.reset(nullptr);
+				set_holographic_mode();
+			}
+		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region STFT

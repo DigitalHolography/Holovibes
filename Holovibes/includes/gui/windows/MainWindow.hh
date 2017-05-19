@@ -29,6 +29,7 @@
 // without namespace
 # include "tools.hh"
 
+
 // namespace camera
 # include "camera_exception.hh"
 
@@ -43,6 +44,7 @@
 # include "custom_exception.hh"
 # include "info_manager.hh"
 # include "options_descriptor.hh"
+# include "3DVision.hh"
 
 // namespace gui
 # include "HoloWindow.hh"
@@ -157,6 +159,7 @@ namespace holovibes
 			/*! \brief Called by set_image_mode if hologram button is clicked  */
 			/* */
 			void set_holographic_mode();
+			void set_vision_3d(bool checked);
 			/*! \brief Called by set_image_mode if complex algorithm is clicked  */
 			/* */
 			void refreshViewMode();
@@ -536,6 +539,7 @@ namespace holovibes
 
 			/*! OpenGL windows */
 			std::unique_ptr<DirectWindow>	mainDisplay;
+			std::unique_ptr<Vision3DWindow>	vision3D;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 

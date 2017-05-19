@@ -53,7 +53,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;C:\Users\Philadelphia\Documents\glm-0.9.8.4\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
       <AdditionalOptions>/FS /D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -99,7 +99,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;C:\Users\Philadelphia\Documents\glm-0.9.8.4\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WarningLevel>Level3</WarningLevel>
@@ -160,6 +160,7 @@
     <ClInclude Include="cuda_includes\vibrometry.cuh" />
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
+    <ClInclude Include="includes\3DVision.hh" />
     <ClInclude Include="includes\camera_dll.hh" />
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
@@ -339,6 +340,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="sources\3DVision.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />
@@ -440,8 +442,10 @@
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\fragment.3d.glsl" />
     <None Include="shaders\fragment.color.glsl" />
     <None Include="shaders\fragment.tex.glsl" />
+    <None Include="shaders\vertex.3d.glsl" />
     <None Include="shaders\vertex.direct.glsl" />
     <None Include="shaders\vertex.holo.glsl" />
     <None Include="shaders\vertex.overlay.glsl" />

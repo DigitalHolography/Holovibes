@@ -49,7 +49,8 @@ static void kernel_stft_moment(cuComplex	*input,
 							cuComplex		*output,
 							const uint		frame_res,
 							ushort			pmin,
-							const ushort	pmax)
+							ushort			pmax,
+							const uint		nsamples)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -69,29 +70,29 @@ void stft_moment(cuComplex		*input,
 				cuComplex		*output,
 				const uint		frame_res,
 				ushort			pmin,
-				const ushort	pmax)
+				const ushort	pmax,
+				const uint		nsamples)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax);
+	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax, nsamples);
 }
 #pragma endregion
 
 
 __global__
-static void	fill_64bit_slices(
-	const cuComplex	*input,
-	cuComplex		*output_xz,
-	cuComplex		*output_yz,
-	const uint		start_x,
-	const uint		start_y,
-	const uint		frame_size,
-	const uint		output_size,
-	const uint		width,
-	const uint		height,
-	const uint		acc_level_xz,
-	const uint		acc_level_yz)
+static void	fill_64bit_slices(const cuComplex	*input,
+							cuComplex		*output_xz,
+							cuComplex		*output_yz,
+							const uint		start_x,
+							const uint		start_y,
+							const uint		frame_size,
+							const uint		output_size,
+							const uint		width,
+							const uint		height,
+							const uint		acc_level_xz,
+							const uint		acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
@@ -103,16 +104,16 @@ static void	fill_64bit_slices(
 
 __global__
 static void	fill_32bit_slices(const cuComplex	*input,
-	float				*output_xz,
-	float				*output_yz,
-	const uint			x0,
-	const uint			y0,
-	const uint			frame_size,
-	const uint			output_size,
-	const uint			width,
-	const uint			height,
-	const uint			acc_level_xz,
-	const uint			acc_level_yz)
+							float				*output_xz,
+							float				*output_yz,
+							const uint			x0,
+							const uint			y0,
+							const uint			frame_size,
+							const uint			output_size,
+							const uint			width,
+							const uint			height,
+							const uint			acc_level_xz,
+							const uint			acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
@@ -140,18 +141,37 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	}
 }
 
-void stft_view_begin(
-	const cuComplex	*input,
-	void			*output_xz,
-	void			*output_yz,
-	const ushort	x0,
-	const ushort	y0,
-	const ushort	width,
-	const ushort	height,
-	const uint		viewmode,
-	const ushort	nsamples,
-	const uint		acc_level_xz,
-	const uint		acc_level_yz)
+__global__ static void kernel_stft_block_to_float(const cufftComplex	*input,
+												float					*output,
+												const uint				size)
+{
+	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < size)
+	{
+		output[id] = hypotf(input[id].x, input[id].y);
+	}
+}
+
+void stft_block_to_float(const cufftComplex	*input,
+						float				*output,
+						const uint			size)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+	kernel_stft_block_to_float << <blocks, threads, 0, 0 >> > (input, output, size);
+}
+
+void stft_view_begin(const cuComplex	*input,
+					void			*output_xz,
+					void			*output_yz,
+					const ushort	x0,
+					const ushort	y0,
+					const ushort	width,
+					const ushort	height,
+					const uint		viewmode,
+					const ushort	nsamples,
+					const uint		acc_level_xz,
+					const uint		acc_level_yz)
 {
 	const uint frame_size = width * height;
 	const uint output_size = width * nsamples;

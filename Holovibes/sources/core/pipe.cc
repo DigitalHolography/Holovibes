@@ -178,6 +178,26 @@ namespace holovibes
 			update_n_requested_.exchange(false);
 		}
 
+		if (request_3d_vision_.load())
+		{
+
+			camera::FrameDescriptor fd = output_.get_frame_desc();
+
+			fd.depth = sizeof(float);
+			gpu_3d_vision = new Queue(fd, compute_desc_.nsamples.load(), "3DQueue");
+			request_3d_vision_.exchange(false);
+		}
+
+		if (request_delete_3d_vision_.load())
+		{
+			if (gpu_3d_vision)
+			{
+				delete gpu_3d_vision;
+				gpu_3d_vision = nullptr;
+			}
+			request_delete_3d_vision_.exchange(false);
+		}
+
 		if (request_stft_cuts_.load())
 		{
 			camera::FrameDescriptor fd = output_.get_frame_desc();
@@ -189,6 +209,7 @@ namespace holovibes
 			gpu_stft_slice_queue_yz = new Queue(fd, compute_desc_.nsamples.load(), "STFTCutYZ");
 			request_stft_cuts_.exchange(false);
 		}
+
 		if (request_delete_stft_cuts_.load())
 		{
 			if (gpu_stft_slice_queue_xz)
@@ -203,6 +224,7 @@ namespace holovibes
 			}
 			request_delete_stft_cuts_.exchange(false);
 		}
+
 		if (update_acc_requested_.load())
 		{
 			update_acc_requested_.exchange(false);
@@ -393,7 +415,8 @@ namespace holovibes
 					gpu_input_frame_ptr_,
 					input_fd.frame_res(),
 					compute_desc_.p_accu_min_level.load(),
-					compute_desc_.p_accu_max_level.load()));
+					compute_desc_.p_accu_max_level.load(),
+					compute_desc_.nsamples.load()));
 			}
 			// Image ratio Ip/Iq chackbox
 			if (compute_desc_.vibrometry_enabled.load())
@@ -460,12 +483,20 @@ namespace holovibes
 		/* Apply conversion to floating-point respresentation. */
 		if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
 		{
-			fn_vect_.push_back(std::bind(
-				complex_to_modulus,
-				gpu_input_frame_ptr_,
-				gpu_float_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
+			if (compute_desc_.vision_3d.load())
+				fn_vect_.push_back(std::bind(
+					complex_to_modulus,
+					gpu_stft_buffer_,
+					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()),
+					input_fd.frame_res() * compute_desc_.nsamples.load(),
+					static_cast<cudaStream_t>(0)));
+			else
+				fn_vect_.push_back(std::bind(
+					complex_to_modulus,
+					gpu_input_frame_ptr_,
+					gpu_float_buffer_,
+					input_fd.frame_res(),
+					static_cast<cudaStream_t>(0)));
 		}
 		else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
 		{
@@ -835,6 +866,17 @@ namespace holovibes
 					65535,
 					compute_desc_.contrast_min_slice_yz.load(),
 					compute_desc_.contrast_max_slice_yz.load(),
+					static_cast<cudaStream_t>(0)));
+			}
+			else if (compute_desc_.vision_3d.load())
+			{
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
+					output_fd.frame_res(),
+					65535,
+					compute_desc_.contrast_min.load(),
+					compute_desc_.contrast_max.load(),
 					static_cast<cudaStream_t>(0)));
 			}
 		}

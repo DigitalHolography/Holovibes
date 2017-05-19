@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v4.3.170428"; /*!< Current version of this project. */
+	const static std::string version = "v4.3.170516"; /*!< Current version of this project. */
 	#ifndef TUPLE4F
 	# define TUPLE4F
 		using	Tuple4f =	std::tuple<float, float, float, float>;
@@ -128,13 +128,14 @@ namespace holovibes
 
 		#pragma region Atomics vars
 		/*! Hologram algorithm. */
-		std::atomic<Algorithm> algorithm;
+		std::atomic<Algorithm>			algorithm;
 		/*! Computing mode used by the pipe */
-		std::atomic<Computation> compute_mode;
+		std::atomic<Computation>		compute_mode;
 		/*! Complex to float method. */
-		std::atomic<ComplexViewMode> view_mode;
+		std::atomic<ComplexViewMode>	view_mode;
+		std::atomic<bool>				vision_3d;
 
-		std::atomic<WindowKind> current_window;
+		std::atomic<WindowKind>			current_window;
 
 		/*! Number of samples in which apply the fft on. */
 		std::atomic<unsigned short> nsamples;

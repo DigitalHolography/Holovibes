@@ -58,7 +58,12 @@ void stft_moment(cuComplex		*input,
 				cuComplex		*output,
 				const uint		frame_res,
 				ushort			pmin,
-				const ushort	pmax);
+				const ushort	pmax,
+				const uint		nsamples);
+
+void stft_block_to_float(const cufftComplex	*input,
+						float				*output,
+						const uint			size);
 
 void stft_view_begin(const cuComplex	*input,
 					void				*output_xz,

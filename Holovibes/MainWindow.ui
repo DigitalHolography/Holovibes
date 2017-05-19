@@ -1168,6 +1168,22 @@
           <string>p Acc.</string>
          </property>
         </widget>
+        <widget class="QCheckBox" name="Vision3D_CheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>100</y>
+           <width>70</width>
+           <height>30</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Vision3D</string>
+         </property>
+        </widget>
         <zorder>PhaseUnwrap2DCheckBox</zorder>
         <zorder>LogScaleCheckBox</zorder>
         <zorder>FFTShiftCheckBox</zorder>
@@ -1197,6 +1213,7 @@
         <zorder>PMinAccuSpinBox</zorder>
         <zorder>PMaxAccuSpinBox</zorder>
         <zorder>PAccuCheckBox</zorder>
+        <zorder>Vision3D_CheckBox</zorder>
        </widget>
       </item>
       <item>
@@ -4424,6 +4441,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>Vision3D_CheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_vision_3d(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>369</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4527,5 +4560,6 @@ p, li { white-space: pre-wrap; }
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>
   <slot>set_p_accu()</slot>
+  <slot>set_vision_3d(bool)</slot>
  </slots>
 </ui>

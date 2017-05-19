@@ -248,6 +248,9 @@
     <ClCompile Include="sources\gui\selections\Overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
+    <ClCompile Include="sources\3DVision.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -409,6 +412,9 @@
     <ClInclude Include="cuda_includes\tools_conversion.cuh">
       <Filter>cuda includes\tools</Filter>
     </ClInclude>
+    <ClInclude Include="includes\3DVision.hh">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -522,6 +528,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\vertex.overlay.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\vertex.3d.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\fragment.3d.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

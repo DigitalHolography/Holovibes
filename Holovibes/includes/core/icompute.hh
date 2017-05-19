@@ -142,8 +142,7 @@ namespace holovibes
     * \param output std::vector to fill with (average_signal, average_noise,
     * average_ratio).
     * \note This method is only used by the GUI to draw the average graph. */
-    void request_average(
-      ConcurrentDeque<Tuple4f>* output);
+    void request_average(ConcurrentDeque<Tuple4f>* output);
     /*! \brief Request the ICompute to stop the average compute. */
     void request_average_stop();
 
@@ -154,9 +153,7 @@ namespace holovibes
     * \param n number of samples to record.
     * \note This method is used to record n samples and then automatically
     * refresh the ICompute. */
-    void request_average_record(
-      ConcurrentDeque<Tuple4f>* output,
-      const unsigned int n);
+    void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
 
     /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
     void request_float_output(Queue* fqueue);
@@ -199,13 +196,16 @@ namespace holovibes
     * refresh method is called. */
     virtual void exec() = 0;
 
-	void	create_stft_slice_queue();
-	void	delete_stft_slice_queue();
-	void	update_stft_slice_queue();
-	Queue&	get_stft_slice_queue(int i);
-	bool	get_cuts_request();
-	bool	get_cuts_delete_request();
-	bool	get_request_refresh();
+	void			create_stft_slice_queue();
+	void			delete_stft_slice_queue();
+	void			create_3d_vision_queue();
+	void			delete_3d_vision_queue();
+	void			update_stft_slice_queue();
+	Queue&			get_stft_slice_queue(int i);
+	bool			get_cuts_request();
+	bool			get_cuts_delete_request();
+	bool			get_request_refresh();
+	Queue&			get_3d_vision_queue();
 
 	bool get_unwrap_1d_request()		{ return (unwrap_1d_requested_.load()); }
 	bool get_unwrap_2d_request()		{ return (unwrap_2d_requested_.load()); }
@@ -224,7 +224,10 @@ namespace holovibes
 	bool get_update_acc_request()		{ return (update_acc_requested_.load()); }
 	bool get_update_ref_diff_request()	{ return (update_ref_diff_requested_.load()); }
 	bool get_request_stft_cuts()		{ return (request_stft_cuts_.load()); }
-	bool get_request_delete_stft_cuts()	{ return (request_delete_stft_cuts_.load()); }
+	bool get_request_delete_stft_cuts() { return (request_delete_stft_cuts_.load()); }
+	bool get_request_3d_vision()		{ return (request_3d_vision_.load()); }
+	bool get_request_delete_3d_vision()	{ return (request_delete_3d_vision_.load()); }
+
 
   protected:
     /*! \brief Generate the ICompute vector. */
@@ -395,6 +398,7 @@ namespace holovibes
 
 	/*! \brief Queue for stft */
 	Queue *gpu_stft_queue_;
+	Queue *gpu_3d_vision;
 	Queue *gpu_stft_slice_queue_xz;
 	Queue *gpu_stft_slice_queue_yz;
 	
@@ -436,6 +440,8 @@ namespace holovibes
 	std::atomic<bool> update_ref_diff_requested_;
 	std::atomic<bool> request_stft_cuts_;
 	std::atomic<bool> request_delete_stft_cuts_;
+	std::atomic<bool> request_3d_vision_;
+	std::atomic<bool> request_delete_3d_vision_;
 	/*! \} */
   };
 }

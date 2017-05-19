@@ -354,6 +354,20 @@ namespace holovibes
 		request_refresh();
 	}
 
+	void	ICompute::create_3d_vision_queue()
+	{
+		std::lock_guard<std::mutex> lock(request_guard_);
+		request_3d_vision_.exchange(true);
+		request_refresh();
+	}
+
+	void	ICompute::delete_3d_vision_queue()
+	{
+		std::lock_guard<std::mutex> lock(request_guard_);
+		request_delete_3d_vision_.exchange(true);
+		request_refresh();
+	}
+
 	bool	ICompute::get_cuts_request()
 	{
 		return request_stft_cuts_.load();
@@ -368,6 +382,11 @@ namespace holovibes
 	{
 		return (!i) ? *gpu_stft_slice_queue_xz :
 			*gpu_stft_slice_queue_yz;
+	}
+
+	Queue& ICompute::get_3d_vision_queue()
+	{
+		return (*gpu_3d_vision);
 	}
 
 	void ICompute::refresh()
@@ -651,7 +670,7 @@ namespace holovibes
 
 	void ICompute::request_average_record(
 		ConcurrentDeque<Tuple4f>* output,
-		const unsigned int n)
+		const uint n)
 	{
 		std::lock_guard<std::mutex> lock(request_guard_);
 		assert(output != nullptr);
