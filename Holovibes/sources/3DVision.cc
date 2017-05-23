@@ -23,21 +23,21 @@ namespace holovibes
 			fragment_shader_(""),
 			queue_(stft_queue),
 			compute_desc_(cd),
-			colorbufferobject_(0),
+			colorBufferObject_(0),
+			vertexBufferObject_(0),
 			voxel_(fd.frame_res() * compute_desc_.nsamples.load()),
 			frame_desc_(fd),
+			color_buffer_(nullptr),
 			translate(glm::vec3(0, 0, 10)),
 			rotate(glm::vec3(M_PI, 0, M_PI)),
-			scale(1),
-			gpu_color_buffer_(nullptr),
-			color_buffer_(nullptr)
+			scale(1)
 		{
-			color_buffer_ = new GLfloat[voxel_];
 		}
 
 		Vision3DWindow::~Vision3DWindow()
 		{
-			delete[] color_buffer_;
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		}
 
 		GLfloat *Vision3DWindow::get_vertex_buffer()
@@ -58,14 +58,12 @@ namespace holovibes
 
 		GLuint	Vision3DWindow::push_gl_matrix(glm::mat4 matrix, char *name)
 		{
-			GLuint	matrix_id;
-
-			matrix_id = glGetUniformLocation(Program->programId(), name);
+			GLuint matrix_id = glGetUniformLocation(Program->programId(), name);
 			glUniformMatrix4fv(matrix_id, 1, GL_FALSE, glm::value_ptr(matrix));
 			return (matrix_id);
 		}
 
-		void Vision3DWindow::load_matrix(glm::vec3 Translate, glm::vec3 const & Rotate, float scale)
+		GLuint Vision3DWindow::load_matrix(glm::vec3 Translate, glm::vec3 const & Rotate, float scale)
 		{
 			glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 2048.f / 2048.f, 0.1f, 100.f);
 			glm::mat4 View = glm::translate(glm::mat4(1.0f), -Translate);
@@ -74,27 +72,29 @@ namespace holovibes
 			View = glm::rotate(View, Rotate.x, glm::vec3(0.0f, 1.0f, 0.0f));
 			glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(scale));
 			glm::mat4 MVP = Projection * View * Model;
-			push_gl_matrix(MVP, "MVP");
+			GLuint matrix_id = glGetUniformLocation(Program->programId(), "MVP");
+			glUniformMatrix4fv(matrix_id, 1, GL_FALSE, glm::value_ptr(MVP));
+			return (matrix_id);
 		}
 
-		GLuint Vision3DWindow::create_gl_buffer(GLuint *gl_buffer, const void *data, size_t nb_vertex, size_t elts_per_vec)
+		GLuint Vision3DWindow::create_gl_buffer(GLuint *gl_buffer, const void *data, size_t nb_vertex, size_t elts_per_vec, GLenum type)
 		{
-			static GLuint index = 0;
+			static GLuint index;
 
 			glGenBuffers(1, gl_buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, *gl_buffer);
-			glBufferData(GL_ARRAY_BUFFER, nb_vertex * sizeof(GLfloat), data, GL_STREAM_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, nb_vertex * sizeof(GLfloat), data, type);
 			glEnableVertexAttribArray(index);
 			glVertexAttribPointer(index, elts_per_vec, GL_FLOAT, GL_FALSE, 0, NULL);
 			glDisableVertexAttribArray(index);
-			index++;
-			return (index - 1);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			return (index++);
 		}
 
 		void Vision3DWindow::initializeGL()
 		{
-			makeCurrent();
 			initializeOpenGLFunctions();
+			//glClearColor(0.6f, 0.6f, 0.8f, 1.f);
 			glClearColor(0.f, 0.f, 0.f, 0.f);
 
 			glEnable(GL_BLEND);
@@ -104,42 +104,37 @@ namespace holovibes
 
 			GLfloat	*vertex_buffer = get_vertex_buffer();
 
-			cudaMemcpy(color_buffer_, queue_.get_buffer(), voxel_ * sizeof(GLfloat), cudaMemcpyDeviceToHost);
-
 			Vao.create();
 			Vao.bind();
 			initShaders();
-			create_gl_buffer(&Vbo, vertex_buffer, voxel_ * 3, 3);
-			create_gl_buffer(&colorbufferobject_, color_buffer_, voxel_, 1);
+			create_gl_buffer(&vertexBufferObject_, vertex_buffer, voxel_ * 3, 3, GL_STATIC_DRAW);
+			create_gl_buffer(&colorBufferObject_, color_buffer_, voxel_, 1, GL_DYNAMIC_DRAW);
+			cudaGraphicsGLRegisterBuffer(&cuResource, colorBufferObject_,
+				cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
+			cudaGraphicsMapResources(1, &cuResource, cuStream);
+			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 
 			delete[] vertex_buffer;
 
 			startTimer(DISPLAY_RATE);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, colorBufferObject_);
 		}
 
 		void Vision3DWindow::paintGL()
 		{
-			makeCurrent();
+			uint offset = compute_desc_.pindex.load() * frame_desc_.frame_res();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-			//Program->bind();
 			load_matrix(translate, rotate, scale);
 
-			cudaMemcpyAsync(color_buffer_, queue_.get_buffer(), voxel_ * sizeof(GLfloat), cudaMemcpyDeviceToHost);
+			cudaMemcpy(cuPtrToPbo, queue_.get_buffer(), sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+			cudaStreamSynchronize(cuStream);
 
-			glBindBuffer(GL_ARRAY_BUFFER, colorbufferobject_);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, voxel_ * sizeof(GLfloat), color_buffer_);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBufferSubData(GL_ARRAY_BUFFER, offset, sizeBuffer, color_buffer_);
 
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glDrawArrays(GL_POINTS, compute_desc_.pindex.load() * frame_desc_.frame_res(), voxel_);
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
-
-			//Program->release();
-
+			glDrawArrays(GL_POINTS, offset, voxel_);
 		}
 
 		void Vision3DWindow::keyPressEvent(QKeyEvent *e)
@@ -147,22 +142,22 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_8:
-				translate.y -= 0.1f;
+				translate.y += 0.1f * scale;
 				break;
 			case Qt::Key::Key_2:
-				translate.y += 0.1f;
+				translate.y -= 0.1f * scale;
 				break;
 			case Qt::Key::Key_6:
-				translate.x -= 0.1f;
+				translate.x += 0.1f * scale;
 				break;
 			case Qt::Key::Key_4:
-				translate.x += 0.1f;
+				translate.x -= 0.1f * scale;
 				break;
 			case Qt::Key::Key_7:
-				translate.z -= 0.1f;
+				translate.z -= 0.1f * scale;
 				break;
 			case Qt::Key::Key_9:
-				translate.z += 0.1f;
+				translate.z += 0.1f * scale;
 				break;
 			case Qt::Key::Key_A:
 				rotate.x += 0.1f * M_PI;
@@ -188,6 +183,7 @@ namespace holovibes
 				scale = 1.f;
 				break;
 			}
+			load_matrix(translate, rotate, scale);
 		}
 
 		void Vision3DWindow::keyReleaseEvent(QKeyEvent *e)

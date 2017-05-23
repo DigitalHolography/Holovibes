@@ -841,14 +841,26 @@ namespace holovibes
 		/* ***************** */
 		if (compute_desc_.contrast_enabled.load())
 		{
-			fn_vect_.push_back(std::bind(
-				manual_contrast_correction,
-				gpu_float_buffer_,
-				output_fd.frame_res(),
-				65535,
-				compute_desc_.contrast_min.load(),
-				compute_desc_.contrast_max.load(),
-				static_cast<cudaStream_t>(0)));
+			if (compute_desc_.vision_3d.load())
+			{
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
+					output_fd.frame_res(),
+					65535,
+					compute_desc_.contrast_min.load(),
+					compute_desc_.contrast_max.load(),
+					static_cast<cudaStream_t>(0)));
+			}
+			else
+				fn_vect_.push_back(std::bind(
+					manual_contrast_correction,
+					gpu_float_buffer_,
+					output_fd.frame_res(),
+					65535,
+					compute_desc_.contrast_min.load(),
+					compute_desc_.contrast_max.load(),
+					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
 				fn_vect_.push_back(std::bind(
@@ -868,17 +880,6 @@ namespace holovibes
 					compute_desc_.contrast_max_slice_yz.load(),
 					static_cast<cudaStream_t>(0)));
 			}
-			else if (compute_desc_.vision_3d.load())
-			{
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-					output_fd.frame_res(),
-					65535,
-					compute_desc_.contrast_min.load(),
-					compute_desc_.contrast_max.load(),
-					static_cast<cudaStream_t>(0)));
-			}
 		}
 
 		if (float_output_requested_.load())
@@ -895,13 +896,14 @@ namespace holovibes
 				&Pipe::fps_count,
 				this));
 
-		fn_vect_.push_back(std::bind(
-			float_to_ushort,
-			gpu_float_buffer_,
-			gpu_output_buffer_,
-			input_fd.frame_res(),
-			output_fd.depth,
-			static_cast<cudaStream_t>(0)));
+		if (!compute_desc_.vision_3d.load())
+			fn_vect_.push_back(std::bind(
+				float_to_ushort,
+				gpu_float_buffer_,
+				gpu_output_buffer_,
+				input_fd.frame_res(),
+				output_fd.depth,
+				static_cast<cudaStream_t>(0)));
 
 		if (compute_desc_.stft_view_enabled.load())
 		{
