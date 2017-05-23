@@ -112,7 +112,7 @@ namespace camera
 		framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * 1000; // 1e3;
 		framerate_mode_ = pt.get<WORD>("pco-edge.framerate_mode", framerate_mode_);
 
-		binning_ = pt.get<WORD>("pco-edge.binning_hz", binning_);
+		binning_ = pt.get<WORD>("pco-edge.binning", binning_);
 		// Updating frame descriptor's dimensions accordingly.
 		desc_.pixel_size *= binning_;
 		desc_.width /= binning_;

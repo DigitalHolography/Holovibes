@@ -1190,7 +1190,7 @@ namespace holovibes
 				cd.p_accu_min_level.exchange(1);
 			}
 			cd.stft_view_enabled.exchange(false);
-			cd.stft_enabled.exchange(false);
+			set_stft(false);
 			cd.signal_trig_enabled.exchange(false);
 			notify();
 		}
