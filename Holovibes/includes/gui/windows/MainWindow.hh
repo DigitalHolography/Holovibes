@@ -107,7 +107,7 @@ namespace holovibes
 			void layout_toggled(bool b);
 			/*! \brief Open holovibes configuration file */
 			void configure_holovibes();
-			/*! \brief Set camera to NONE
+			/*! \brief Set camera to None
 			**
 			** Delete GL widget, destroy capture and/or compute thread then
 			** set visibility to false.

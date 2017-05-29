@@ -17,70 +17,76 @@ namespace holovibes
 	using	LockGuard = std::lock_guard<std::mutex>;
 
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		algorithm(Algorithm::None)
-		, compute_mode(Computation::Stop)
-		, nsamples(1)
-		, pindex(0)
-		, lambda(532e-9f)
-		, zdistance(1.50f)
-		, view_mode(ComplexViewMode::Modulus)
-		, unwrap_history_size(1)
-		, special_buffer_size(10)
-		, log_scale_enabled(false)
-		, log_scale_enabled_cut_xz(false)
-		, log_scale_enabled_cut_yz(false)
-		, shift_corners_enabled(false)
-		, contrast_enabled(false)
-		, vibrometry_enabled(false)
-		, convolution_enabled(false)
-		, flowgraphy_enabled(false)
-		, stft_enabled(false)
-		, filter_2d_enabled(false)
-		, average_enabled(false)
-		, contrast_min(1.f)
-		, contrast_max(65535.f)
-		, contrast_min_slice_xz(1.f)
-		, contrast_min_slice_yz(1.f)
-		, contrast_max_slice_xz(65535.f)
-		, contrast_max_slice_yz(65535.f)
-		, vibrometry_q(0)
-		, autofocus_size(3)
-		, convo_matrix_width(0)
-		, convo_matrix_height(0)
-		, convo_matrix_z(0)
-		, autofocus_z_min(0.f)
-		, autofocus_z_max(1.f)
-		, autofocus_z_div(10)
-		, autofocus_z_iter(3)
-		, flowgraphy_level(3)
-		, is_cine_file(false)
-		, import_pixel_size(5.42f)
-		, img_acc_enabled(false)
-		, img_acc_cutsXZ_enabled(false)
-		, img_acc_cutsYZ_enabled(false)
-		, img_acc_buffer_size(20)
-		, img_acc_level(1)
-		, img_acc_cutsXZ_level(1)
-		, img_acc_cutsYZ_level(1)
-		, p_accu_enabled(false)
-		, p_accu_min_level(1)
-		, p_accu_max_level(1)
-		, stft_level(16)
-		, stft_steps(1)
-		, ref_diff_level(15)
-		, ref_diff_enabled(false)
-		, ref_sliding_enabled(false)
-		, stft_view_enabled(false)
-		, signal_trig_enabled(false)
-		, stft_slice_cursor(QPoint(0, 0))
-		, signal_zone(gui::Rectangle(10, 10))
-		, noise_zone(gui::Rectangle(10, 10))
-		, autofocus_zone(gui::Rectangle(10, 10))
-		, stft_roi_zone(gui::Rectangle(10, 10))
-		, current_window(WindowKind::MainDisplay)
-		, cuts_contrast_p_offset(1)
-		, vision_3d(false)
+		algorithm(Algorithm::None),
+		compute_mode(Computation::Stop),
+		nsamples(1),
+		pindex(0),
+		lambda(532e-9f),
+		zdistance(1.50f),
+		view_mode(ComplexViewMode::Modulus),
+		unwrap_history_size(1),
+		special_buffer_size(10),
+		log_scale_enabled(false),
+		log_scale_enabled_cut_xz(false),
+		log_scale_enabled_cut_yz(false),
+		shift_corners_enabled(false),
+		contrast_enabled(false),
+		vibrometry_enabled(false),
+		convolution_enabled(false),
+		flowgraphy_enabled(false),
+		stft_enabled(false),
+		filter_2d_enabled(false),
+		average_enabled(false),
+		contrast_min(1.f),
+		contrast_max(65535.f),
+		contrast_min_slice_xz(1.f),
+		contrast_min_slice_yz(1.f),
+		contrast_max_slice_xz(65535.f),
+		contrast_max_slice_yz(65535.f),
+		vibrometry_q(0),
+		autofocus_size(3),
+		convo_matrix_width(0),
+		convo_matrix_height(0),
+		convo_matrix_z(0),
+		autofocus_z_min(0.f),
+		autofocus_z_max(1.f),
+		autofocus_z_div(10),
+		autofocus_z_iter(3),
+		flowgraphy_level(3),
+		is_cine_file(false),
+		import_pixel_size(5.42f),
+		img_acc_enabled(false),
+		img_acc_cutsXZ_enabled(false),
+		img_acc_cutsYZ_enabled(false),
+		img_acc_buffer_size(20),
+		img_acc_level(1),
+		img_acc_cutsXZ_level(1),
+		img_acc_cutsYZ_level(1),
+		p_accu_enabled(false),
+		p_accu_min_level(1),
+		p_accu_max_level(1),
+		stft_level(16),
+		stft_steps(1),
+		ref_diff_level(15),
+		ref_diff_enabled(false),
+		ref_sliding_enabled(false),
+		stft_view_enabled(false),
+		signal_trig_enabled(false),
+		stft_slice_cursor(QPoint(0, 0)),
+		signal_zone(gui::Rectangle(10, 10)),
+		noise_zone(gui::Rectangle(10, 10)),
+		autofocus_zone(gui::Rectangle(10, 10)),
+		stft_roi_zone(gui::Rectangle(10, 10)),
+		current_window(WindowKind::MainDisplay),
+		cuts_contrast_p_offset(1),
+		vision_3d_enabled(false)
 	{
+
+	}
+
+	ComputeDescriptor::~ComputeDescriptor()
+	{
+
 	}
 	
 	ComputeDescriptor& ComputeDescriptor::operator=(const ComputeDescriptor& cd)
@@ -139,6 +145,7 @@ namespace holovibes
 		signal_trig_enabled.exchange(cd.signal_trig_enabled.load());
 		current_window.exchange(cd.current_window.load());
 		cuts_contrast_p_offset.exchange(cd.cuts_contrast_p_offset.load());
+		vision_3d_enabled.exchange(cd.vision_3d_enabled.load());
 		stft_slice_cursor = cd.stft_slice_cursor;
 		signal_zone = cd.signal_zone;
 		noise_zone = cd.noise_zone;
@@ -211,6 +218,4 @@ namespace holovibes
 			stft_roi_zone = rect;
 		}
 	}
-
-
 }

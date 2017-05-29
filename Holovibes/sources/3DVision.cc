@@ -3,7 +3,7 @@
 /* `7MMF'  `7MMF'       `7MM       `7MMF'   `7MF'db *MM                         */
 /*   MM      MM           MM         `MA     ,V      MM                         */
 /*   MM      MM  ,pW"Wq.  MM  ,pW"Wq. VM:   ,V `7MM  MM,dMMb.   .gP"Ya  ,pP"Ybd */
-/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8I   `" */
+/*   MMmmmmmmMM 6W'   `Wb MM 6W'   `Wb MM.  M'   MM  MM    `Mb ,M'   Yb 8x   `" */
 /*   MM      MM 8M     M8 MM 8M     M8 `MM A'    MM  MM     M8 8M"""""" `YMMMa. */
 /*   MM      MM YA.   ,A9 MM YA.   ,A9  :MM;     MM  MM.   ,M9 YM.    , L.   I8 */
 /* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
@@ -19,39 +19,44 @@ namespace holovibes
 	{
 		Vision3DWindow::Vision3DWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, const FrameDescriptor& fd, Queue& stft_queue) :
 			BasicOpenGLWindow(p, s, q, KindOfView::Vision3D),
-			vertex_shader_(""),
-			fragment_shader_(""),
+			vertex_shader_path_("shaders/vertex.3d.glsl"),
+			fragment_shader_path_("shaders/fragment.3d.glsl"),
 			queue_(stft_queue),
 			compute_desc_(cd),
 			colorBufferObject_(0),
 			vertexBufferObject_(0),
-			voxel_(fd.frame_res() * compute_desc_.nsamples.load()),
+			voxel_(fd.frame_res() * cd.nsamples.load()),
 			frame_desc_(fd),
 			color_buffer_(nullptr),
 			translate(glm::vec3(0, 0, 10)),
 			rotate(glm::vec3(M_PI, 0, M_PI)),
-			scale(1)
+			scale(10 / static_cast<float>(fd.width))
 		{
+			cuResource = nullptr;
 		}
 
 		Vision3DWindow::~Vision3DWindow()
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			cudaGraphicsUnmapResources(1, &cuResource, cuStream);
+			if (cuResource)
+				cudaGraphicsUnmapResources(1, &cuResource, cuStream);
 		}
 
-		GLfloat *Vision3DWindow::get_vertex_buffer()
+		GLint *Vision3DWindow::get_vertex_buffer()
 		{
-			GLfloat *vertex_buffer = new GLfloat[voxel_ * 3];
+			GLint *vertex_buffer = new GLint[voxel_ * 3];
+			ushort middle_samples = compute_desc_.nsamples.load() / 2;
+			ushort middle_width = frame_desc_.width / 2;
+			ushort middle_height = frame_desc_.height / 2;
 
-			for (int k = 0; k < compute_desc_.nsamples.load(); ++k)
-				for (int j = 0; j < frame_desc_.height; ++j)
-					for (int i = 0; i < frame_desc_.width; ++i)
+			for (ushort z = 0; z < compute_desc_.nsamples.load(); ++z)
+				for (ushort y = 0; y < frame_desc_.height; ++y)
+					for (ushort x = 0; x < frame_desc_.width; ++x)
 					{
-						int index = i * 3 + j * frame_desc_.width * 3 + k * frame_desc_.frame_res() * 3;
-						vertex_buffer[index] = (i - frame_desc_.width / 2) * SPACE_BETWEEN_POINTS;
-						vertex_buffer[index + 1] = (j - frame_desc_.height / 2) * SPACE_BETWEEN_POINTS;
-						vertex_buffer[index + 2] = (k - compute_desc_.nsamples.load() / 2) * SPACE_BETWEEN_POINTS;
+						uint index = (x + y * frame_desc_.width + z * frame_desc_.frame_res()) * 3;
+						vertex_buffer[index] = (x - middle_width);
+						vertex_buffer[index + 1] = (y - middle_height);
+						vertex_buffer[index + 2] = (z - middle_samples);
 					}
 			return (vertex_buffer);
 		}
@@ -77,49 +82,51 @@ namespace holovibes
 			return (matrix_id);
 		}
 
-		GLuint Vision3DWindow::create_gl_buffer(GLuint *gl_buffer, const void *data, size_t nb_vertex, size_t elts_per_vec, GLenum type)
-		{
-			static GLuint index;
-
-			glGenBuffers(1, gl_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, *gl_buffer);
-			glBufferData(GL_ARRAY_BUFFER, nb_vertex * sizeof(GLfloat), data, type);
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index, elts_per_vec, GL_FLOAT, GL_FALSE, 0, NULL);
-			glDisableVertexAttribArray(index);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			return (index++);
-		}
-
 		void Vision3DWindow::initializeGL()
 		{
-			initializeOpenGLFunctions();
-			//glClearColor(0.6f, 0.6f, 0.8f, 1.f);
-			glClearColor(0.f, 0.f, 0.f, 0.f);
+			GLint	*vertex_buffer = get_vertex_buffer();
 
+			initializeOpenGLFunctions();
+
+			glClearColor(0.f, 0.f, 0.f, 0.f);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
 
-			GLfloat	*vertex_buffer = get_vertex_buffer();
 
 			Vao.create();
 			Vao.bind();
 			initShaders();
-			create_gl_buffer(&vertexBufferObject_, vertex_buffer, voxel_ * 3, 3, GL_STATIC_DRAW);
-			create_gl_buffer(&colorBufferObject_, color_buffer_, voxel_, 1, GL_DYNAMIC_DRAW);
+
+			glGenBuffers(1, &vertexBufferObject_);
+			glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject_);
+			glBufferData(GL_ARRAY_BUFFER, voxel_ * 3 * sizeof(GLint), vertex_buffer, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_INT, GL_FALSE, 0, NULL);
+			glDisableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glGenBuffers(1, &colorBufferObject_);
+			glBindBuffer(GL_ARRAY_BUFFER, colorBufferObject_);
+			glBufferData(GL_ARRAY_BUFFER, voxel_ * sizeof(GLint), color_buffer_, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 0, NULL);
+			glDisableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 			cudaGraphicsGLRegisterBuffer(&cuResource, colorBufferObject_,
 				cudaGraphicsMapFlags::cudaGraphicsMapFlagsNone);
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 
-			delete[] vertex_buffer;
-
-			startTimer(DISPLAY_RATE);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glBindBuffer(GL_ARRAY_BUFFER, colorBufferObject_);
+
+			startTimer(DISPLAY_RATE);
+
+			delete[] vertex_buffer;
 		}
 
 		void Vision3DWindow::paintGL()
@@ -133,49 +140,50 @@ namespace holovibes
 			cudaStreamSynchronize(cuStream);
 
 			glBufferSubData(GL_ARRAY_BUFFER, offset, sizeBuffer, color_buffer_);
-
 			glDrawArrays(GL_POINTS, offset, voxel_);
 		}
 
 		void Vision3DWindow::keyPressEvent(QKeyEvent *e)
 		{
+			float rotation_step = 0.1f * static_cast<float>(M_PI);
+			float scale_step = 0.1f * scale;
 			switch (e->key())
 			{
 			case Qt::Key::Key_8:
-				translate.y += 0.1f * scale;
+				translate.y += scale_step;
 				break;
 			case Qt::Key::Key_2:
-				translate.y -= 0.1f * scale;
+				translate.y -= scale_step;
 				break;
 			case Qt::Key::Key_6:
-				translate.x += 0.1f * scale;
+				translate.x += scale_step;
 				break;
 			case Qt::Key::Key_4:
-				translate.x -= 0.1f * scale;
+				translate.x -= scale_step;
 				break;
 			case Qt::Key::Key_7:
-				translate.z -= 0.1f * scale;
+				translate.z -= scale_step;
 				break;
 			case Qt::Key::Key_9:
-				translate.z += 0.1f * scale;
+				translate.z += scale_step;
 				break;
 			case Qt::Key::Key_A:
-				rotate.x += 0.1f * M_PI;
+				rotate.x += rotation_step;
 				break;
 			case Qt::Key::Key_D:
-				rotate.x -= 0.1f * M_PI;
+				rotate.x -= rotation_step;
 				break;
 			case Qt::Key::Key_W:
-				rotate.y += 0.1f * M_PI;
+				rotate.y -= rotation_step;
 				break;
 			case Qt::Key::Key_S:
-				rotate.y -= 0.1f * M_PI;
+				rotate.y += rotation_step;
 				break;
 			case Qt::Key::Key_Q:
-				rotate.z += 0.1f * M_PI;
+				rotate.z -= rotation_step;
 				break;
 			case Qt::Key::Key_E:
-				rotate.z -= 0.1f * M_PI;
+				rotate.z += rotation_step;
 				break;
 			case Qt::Key::Key_Space:
 				rotate = glm::vec3(M_PI, 0, M_PI);
@@ -193,21 +201,19 @@ namespace holovibes
 
 		void Vision3DWindow::wheelEvent(QWheelEvent *e)
 		{
+			float scale_step = 0.1f * scale;
+
 			if (e->angleDelta().y() > 0)
-			{
-				scale += 0.1f * scale;
-			}
+				scale += scale_step;
 			else if (e->angleDelta().y() < 0)
-			{
-				scale -= 0.1f * scale;
-			}
+				scale -= scale_step;
 		}
 
 		void Vision3DWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
-			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.3d.glsl");
-			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.3d.glsl");
+			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, vertex_shader_path_.c_str());
+			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, fragment_shader_path_.c_str());
 			Program->bind();
 		}
 	}

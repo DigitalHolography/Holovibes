@@ -181,7 +181,7 @@ namespace holovibes
 				(cd.view_mode.load() == ComplexViewMode::Argument)) ? (true) : (false)));
 
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load()
-				&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load());
+				&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setChecked(!is_direct && cd.stft_view_enabled.load());
 
 			QPushButton *filter_button = findChild<QPushButton *>("Filter2DPushButton");
@@ -230,12 +230,12 @@ namespace holovibes
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
-			
 			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(cd.p_accu_enabled.load());
 			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(cd.stft_enabled.load());
 			findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(cd.p_accu_max_level.load());
 			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(cd.nsamples.load());
 			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(cd.p_accu_min_level.load());
+
 			QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 			p_vibro->setEnabled(!is_direct && cd.vibrometry_enabled.load());
 			p_vibro->setValue(cd.pindex.load());
@@ -252,10 +252,9 @@ namespace holovibes
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && cd.flowgraphy_enabled.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && cd.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(cd.flowgraphy_level.load());
-
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && cd.algorithm.load() != Algorithm::None);
 			findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
-			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.signal_trig_enabled.load());
+			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.signal_trig_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && cd.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setValue(cd.stft_steps.load());
@@ -283,9 +282,14 @@ namespace holovibes
 			findChild<QSpinBox *>("ImportWidthSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QSpinBox *>("ImportHeightSpinBox")->setEnabled(!cd.is_cine_file.load());
 			findChild<QComboBox *>("ImportDepthComboBox")->setEnabled(!cd.is_cine_file.load());
+			
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
-			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(cd.signal_trig_enabled.load());
+			
+			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && cd.signal_trig_enabled.load());
+			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load() && !cd.stft_view_enabled.load());
+			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(cd.vision_3d_enabled.load());
+
 			QCoreApplication::processEvents();
 		}
 
@@ -672,6 +676,8 @@ namespace holovibes
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			if (cd.average_enabled.load())
 				set_average_mode(false);
+			if (cd.vision_3d_enabled.load())
+				set_vision_3d(false);
 			if (cd.stft_enabled.load())
 				cancel_stft_view(cd);
 			if (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load())
@@ -973,6 +979,7 @@ namespace holovibes
 				set_auto_contrast();
 				notify();
 				cd.pindex.exchange(p);
+				set_stft(true);
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1054,24 +1061,25 @@ namespace holovibes
 			ComputeDescriptor&		cd = holovibes_.get_compute_desc();
 			const FrameDescriptor&	fd = holovibes_.get_capture_queue().get_frame_desc();
 
-			if (checked)
+			if (checked && cd.stft_enabled.load())
 			{
 				QPoint pos(0, 0);
 				QSize size(512, 512);
 				mainDisplay.reset(nullptr);
 				holovibes_.get_pipe()->create_3d_vision_queue();
 				while (holovibes_.get_pipe()->get_request_3d_vision());
-				cd.vision_3d.exchange(true);
+				cd.vision_3d_enabled.exchange(true);
 				vision3D.reset(new Vision3DWindow(pos, size, holovibes_.get_output_queue(), cd, fd, holovibes_.get_pipe()->get_3d_vision_queue()));
 				notify();
 			}
 			else
 			{
-				cd.vision_3d.exchange(false);
+				cd.vision_3d_enabled.exchange(false);
 				holovibes_.get_pipe()->delete_3d_vision_queue();
 				while (holovibes_.get_pipe()->get_request_delete_3d_vision());
 				vision3D.reset(nullptr);
 				set_holographic_mode();
+				notify();
 			}
 		}
 		#pragma endregion
@@ -1215,7 +1223,7 @@ namespace holovibes
 				cd.p_accu_min_level.exchange(1);
 			}
 			cd.stft_view_enabled.exchange(false);
-			cd.stft_enabled.exchange(false);
+			set_stft(false);
 			cd.signal_trig_enabled.exchange(false);
 			notify();
 		}

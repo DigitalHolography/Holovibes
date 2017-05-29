@@ -73,7 +73,7 @@ namespace holovibes
 		, request_stft_cuts_(false)
 		, request_delete_stft_cuts_(false)
 		, average_output_(nullptr)
-		, ref_diff_state_(ENQUEUE)
+		, ref_diff_state_(ref_state::ENQUEUE)
 		, ref_diff_counter(0)
 		, stft_frame_counter(1)
 		, average_n_(0)
@@ -81,17 +81,15 @@ namespace holovibes
 		, past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
-		/* if stft, we don't need to allocate more than one frame */
-		// if (compute_desc_.stft_enabled)
-		//    input_length_ = 1;
-		// else
-		input_length_ = desc.nsamples.load();
 
-		/* gpu_lens */
+		if (desc.compute_mode.load() == Computation::Direct)
+			input_length_ = 1;
+		else
+			input_length_ = desc.nsamples.load();
+
 		if (cudaMalloc(&gpu_lens_, input_.get_pixels() * sizeof(cufftComplex)) != cudaSuccess)
 			err++;
 
-		/* CUFFT plan3d */
 		if (compute_desc_.algorithm.load() == Algorithm::FFT1
 			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
 			cufftPlan3d(
@@ -101,7 +99,6 @@ namespace holovibes
 				input_.get_frame_desc().height, // NZ
 				CUFFT_C2C);
 
-		/* CUFFT plan2d */
 		cufftPlan2d(
 			&plan2d_,
 			input_.get_frame_desc().width,
@@ -501,7 +498,7 @@ namespace holovibes
 		{
 			delete  gpu_ref_diff_queue_;
 			gpu_ref_diff_queue_ = nullptr;
-			ref_diff_state_ = ENQUEUE;
+			ref_diff_state_ = ref_state::ENQUEUE;
 
 		}
 
@@ -713,20 +710,20 @@ namespace holovibes
 
 	void ICompute::handle_reference(cufftComplex *input, const unsigned int nframes)
 	{
-		if (ref_diff_state_ == ENQUEUE)
+		if (ref_diff_state_ == ref_state::ENQUEUE)
 		{
 			queue_enqueue(input, gpu_ref_diff_queue_);
 			ref_diff_counter--;
 			if (ref_diff_counter == 0)
 			{
-				ref_diff_state_ = COMPUTE;
+				ref_diff_state_ = ref_state::COMPUTE;
 				if (compute_desc_.ref_diff_level.load() > 1)
 					mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
 						, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 						compute_desc_.ref_diff_level.load(), input_.get_pixels());
 			}
 		}
-		if (ref_diff_state_ == COMPUTE)
+		if (ref_diff_state_ == ref_state::COMPUTE)
 		{
 			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 				input_.get_frame_desc().frame_res(), nframes,
@@ -736,14 +733,14 @@ namespace holovibes
 
 	void ICompute::handle_sliding_reference(cufftComplex *input, const unsigned int nframes)
 	{
-		if (ref_diff_state_ == ENQUEUE)
+		if (ref_diff_state_ == ref_state::ENQUEUE)
 		{
 			queue_enqueue(input, gpu_ref_diff_queue_);
 			ref_diff_counter--;
 			if (ref_diff_counter == 0)
-				ref_diff_state_ = COMPUTE;
+				ref_diff_state_ = ref_state::COMPUTE;
 		}
-		else if (ref_diff_state_ == COMPUTE)
+		else if (ref_diff_state_ == ref_state::COMPUTE)
 		{
 			queue_enqueue(input, gpu_ref_diff_queue_);
 			if (compute_desc_.ref_diff_level.load() > 1)

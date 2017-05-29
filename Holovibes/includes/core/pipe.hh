@@ -16,8 +16,6 @@
  * in a single container. */
 #pragma once
 
-# include <tuple>
-
 # include "icompute.hh"
 
 namespace holovibes
@@ -60,17 +58,10 @@ namespace holovibes
 		 * \param input Input queue containing acquired frames.
 		 * \param output Output queue where computed frames will be stored.
 		 * \param desc ComputeDescriptor that contains computation parameters. */
-		Pipe(
-			Queue& input,
-			Queue& output,
-			ComputeDescriptor& desc);
-
+		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
 	protected:
-		/*! \brief Generate the ICompute vector. */
-		void			direct_refresh();
-		virtual void	refresh();
 
 		/*! \brief Execute one processing iteration.
 		*
@@ -83,34 +74,21 @@ namespace holovibes
 		*
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
-		void *get_enqueue_buffer();
-		virtual void exec();
 
-		/*! \brief Realloc all buffer with the new nsamples and update ICompute */
-		virtual bool update_n_parameter(unsigned short n);
-
-		/*! \brief Doing the ol'dirty way that was working */
-		void autofocus_caller(float* input, cudaStream_t stream) override;
+		void			direct_refresh();
+		virtual void	refresh();
+		void			*get_enqueue_buffer();
+		virtual void	exec();
+		virtual bool	update_n_parameter(unsigned short n);
+		void			request_queues();
+		void			autofocus_caller(float* input, cudaStream_t stream) override;
 
 	private:
-		/*! \brief Core of the pipe */
-		FnVector fn_vect_;
+		FnVector		fn_vect_;
 
-		/*! \{ \name Memory buffers pointers
-
-		 *
-		 * * fields with gpu prefix are allocated in GPU memory
-		 * * fields with cpu prefix are allocated in CPU memory
-		 * * fields cufftHandle are allocated in GPU memory
-		 */
-		 /*! cufftComplex array containing n contiguous frames. */
 		cufftComplex	*gpu_input_buffer_;
-		/*! Output frame containing n frames ordered in frequency. */
 		void			*gpu_output_buffer_;
-		/*! GPU float frame */
 		float			*gpu_float_buffer_;
-
-		/*! Input frame pointer. */
 		cufftComplex	*gpu_input_frame_ptr_;
 	};
 }

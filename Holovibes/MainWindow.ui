@@ -1041,7 +1041,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>80</y>
+           <y>75</y>
            <width>81</width>
            <height>30</height>
           </rect>
@@ -1060,7 +1060,7 @@
          <property name="geometry">
           <rect>
            <x>100</x>
-           <y>80</y>
+           <y>75</y>
            <width>70</width>
            <height>30</height>
           </rect>
@@ -1073,7 +1073,7 @@
          <property name="geometry">
           <rect>
            <x>142</x>
-           <y>120</y>
+           <y>123</y>
            <width>41</width>
            <height>21</height>
           </rect>
@@ -1086,7 +1086,7 @@
          <property name="geometry">
           <rect>
            <x>98</x>
-           <y>120</y>
+           <y>123</y>
            <width>41</width>
            <height>21</height>
           </rect>
@@ -1102,7 +1102,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>123</y>
            <width>81</width>
            <height>21</height>
           </rect>
@@ -1168,15 +1168,15 @@
           <string>p Acc.</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="Vision3D_CheckBox">
+        <widget class="QCheckBox" name="Vision3DCheckBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>100</y>
-           <width>70</width>
+           <x>10</x>
+           <y>95</y>
+           <width>81</width>
            <height>30</height>
           </rect>
          </property>
@@ -1213,7 +1213,7 @@
         <zorder>PMinAccuSpinBox</zorder>
         <zorder>PMaxAccuSpinBox</zorder>
         <zorder>PAccuCheckBox</zorder>
-        <zorder>Vision3D_CheckBox</zorder>
+        <zorder>Vision3DCheckBox</zorder>
        </widget>
       </item>
       <item>
@@ -4442,7 +4442,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>Vision3D_CheckBox</sender>
+   <sender>Vision3DCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_vision_3d(bool)</slot>

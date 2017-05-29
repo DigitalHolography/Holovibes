@@ -27,7 +27,6 @@
 # include "Rectangle.hh"
 # include "observable.hh"
 
-/* Forward declarations. */
 namespace holovibes
 {
 	# ifndef TUPLE4F
@@ -54,7 +53,6 @@ namespace holovibes
     friend class ThreadCompute;
   public:
 
-    /*! \brief Contains all the information related to the autofocus. */
     struct af_env
     {
       float					z;
@@ -71,117 +69,46 @@ namespace holovibes
 		unsigned int		af_square_size;
     };
 
-	/* these states are used for take ref when we need to do action punctually in the pipe*/
-	enum state
+	enum ref_state
 	{
 		ENQUEUE,
 		COMPUTE
 	};
 
-    /* \brief Pre-allocation needed ressources for the autofocus to work. */
     void autofocus_init();
 
-    /*! \brief Construct the ICompute object with 2 queues and 1 compute desc. */
     ICompute(
       Queue& input,
       Queue& output,
       ComputeDescriptor& desc);
-
-    /*! \brief Destroy the ICompute object. */
     virtual ~ICompute();
 
-	/*! \brief Realloc the image accumulation buffer */
+    void request_refresh();
+	void request_acc_refresh();
+	void request_ref_diff_refresh();
+    void request_autofocus();
+    void request_autofocus_stop();
+    void request_autocontrast();
+    void request_filter2D_roi_update();
+    void request_filter2D_roi_end();
+    void request_update_n(const unsigned short n);
+    void request_update_unwrap_size(const unsigned size);
+    void request_unwrapping_1d(const bool value);
+	void request_unwrapping_2d(const bool value);
+    void request_average(ConcurrentDeque<Tuple4f>* output);
+    void request_average_stop();
+    void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
+    void request_float_output(Queue* fqueue);
+    void request_float_output_stop();
+	void request_complex_output(Queue* fqueue);
+	void request_complex_output_stop();
+	void request_termination();
+	void queue_enqueue(void* input, Queue* queue);
+	void stft_handler(cufftComplex* input, cufftComplex* output);
 	void update_acc_parameter();
-
-	/*! \brief Realloc the images_reference_buffer */
 	void update_ref_diff_parameter();
 
-    /*! \{ \name ICompute request methods */
-    /*! \brief Request the ICompute to refresh. */
-    void request_refresh();
-
-	/*! \brief Request to refresh the accumulation queue. */
-	void request_acc_refresh();
-
-	/*! \brief Request to refresh the reference queue. */
-	void request_ref_diff_refresh();
-
-    /*! \brief Request the ICompute to apply the autofocus algorithm. */
-    void request_autofocus();
-
-    /*! \brief Request the ICompute to stop the occuring autofocus. */
-    void request_autofocus_stop();
-
-    /*! \brief Request the ICompute to apply the autocontrast algorithm. */
-    void request_autocontrast();
-
-    /*! \brief Request the ICompute to apply the stft algorithm in the border. And call request_update_n */
-    void request_filter2D_roi_update();
-
-    /*! \brief Request the ICompute to apply the stft algorithm in full window. And call request_update_n */
-    void request_filter2D_roi_end();
-
-    /*! \brief Request the ICompute to update the nsamples parameter.
-    *
-    * Use this method when the user has requested the nsamples parameter to be
-    * updated. The ICompute will automatically resize FFT buffers to contains
-    * nsamples frames. */
-    void request_update_n(const unsigned short n);
-
-    /*! Set the size of the unwrapping history window. */
-    void request_update_unwrap_size(const unsigned size);
-
-    /*! The boolean will determine activation/deactivation of the unwrapping 1d */
-    void request_unwrapping_1d(const bool value);
-
-	/*! The boolean will determine activation/deactivation of the unwrapping 2d */
-	void request_unwrapping_2d(const bool value);
-
-    /*! \brief Request the ICompute to fill the output vector.
-    *
-    * \param output std::vector to fill with (average_signal, average_noise,
-    * average_ratio).
-    * \note This method is only used by the GUI to draw the average graph. */
-    void request_average(ConcurrentDeque<Tuple4f>* output);
-    /*! \brief Request the ICompute to stop the average compute. */
-    void request_average_stop();
-
-    /*! \brief Request the ICompute to fill the output vector with n samples.
-    *
-    * \param output std::vector to fill with (average_signal, average_noise,
-    * average_ratio).
-    * \param n number of samples to record.
-    * \note This method is used to record n samples and then automatically
-    * refresh the ICompute. */
-    void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
-
-    /*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
-    void request_float_output(Queue* fqueue);
-
-    /*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
-    void request_float_output_stop();
-
-	/*! \brief Request the ICompute to start record gpu_float_buf_ (Stop output). */
-	void request_complex_output(Queue* fqueue);
-
-	/*! \brief Request the ICompute to stop the record gpu_float_buf_ (Relaunch output). */
-	void request_complex_output_stop();
-
-	/*! \brief Add current img to img_phase queue*/
-	void queue_enqueue(void* input, Queue* queue);
-	
-	/* \brief handle all the stft workaround. Allow us to use a counter to compute STFT asynchronously */
-	void stft_handler(cufftComplex* input, cufftComplex* output);
-
-    /*! \brief Ask for the end of the execution loop. */
-    void request_termination();
-    /*! \} */ // End of requests group.
-
     /*! \brief Return true while ICompute is recording float. */
-    bool is_requested_float_output() const
-    {
-      return (float_output_requested_);
-    }
 
     /*! \brief Execute one iteration of the ICompute.
     *
@@ -207,36 +134,32 @@ namespace holovibes
 	bool			get_request_refresh();
 	Queue&			get_3d_vision_queue();
 
-	bool get_unwrap_1d_request()		{ return (unwrap_1d_requested_.load()); }
-	bool get_unwrap_2d_request()		{ return (unwrap_2d_requested_.load()); }
-	bool get_autofocus_request()		{ return (autofocus_requested_.load()); }
-	bool get_autofocus_stop_request()	{ return (autofocus_stop_requested_.load()); }
-	bool get_autocontrast_request()		{ return (autocontrast_requested_.load()); }
-	bool get_refresh_request()			{ return (refresh_requested_.load()); }
-	bool get_update_n_request()			{ return (update_n_requested_.load()); }
-	bool get_stft_update_roi_request()	{ return (stft_update_roi_requested_.load()); }
-	bool get_average_request()			{ return (average_requested_.load()); }
-	bool get_average_record_request()	{ return (average_record_requested_.load()); }
-	bool get_float_output_request()		{ return (float_output_requested_.load()); }
-	bool get_complex_output_request()	{ return (complex_output_requested_.load()); }
-	bool get_abort_construct_request()	{ return (abort_construct_requested_.load()); }
-	bool get_termination_request()		{ return (termination_requested_.load()); }
-	bool get_update_acc_request()		{ return (update_acc_requested_.load()); }
-	bool get_update_ref_diff_request()	{ return (update_ref_diff_requested_.load()); }
-	bool get_request_stft_cuts()		{ return (request_stft_cuts_.load()); }
-	bool get_request_delete_stft_cuts() { return (request_delete_stft_cuts_.load()); }
-	bool get_request_3d_vision()		{ return (request_3d_vision_.load()); }
-	bool get_request_delete_3d_vision()	{ return (request_delete_3d_vision_.load()); }
+	bool get_unwrap_1d_request()		const { return (unwrap_1d_requested_.load()); }
+	bool get_unwrap_2d_request()		const { return (unwrap_2d_requested_.load()); }
+	bool get_autofocus_request()		const { return (autofocus_requested_.load()); }
+	bool get_autofocus_stop_request()	const { return (autofocus_stop_requested_.load()); }
+	bool get_autocontrast_request()		const { return (autocontrast_requested_.load()); }
+	bool get_refresh_request()			const { return (refresh_requested_.load()); }
+	bool get_update_n_request()			const { return (update_n_requested_.load()); }
+	bool get_stft_update_roi_request()	const { return (stft_update_roi_requested_.load()); }
+	bool get_average_request()			const { return (average_requested_.load()); }
+	bool get_average_record_request()	const { return (average_record_requested_.load()); }
+	bool get_float_output_request()		const { return (float_output_requested_.load()); }
+	bool get_complex_output_request()	const { return (complex_output_requested_.load()); }
+	bool get_abort_construct_request()	const { return (abort_construct_requested_.load()); }
+	bool get_termination_request()		const { return (termination_requested_.load()); }
+	bool get_update_acc_request()		const { return (update_acc_requested_.load()); }
+	bool get_update_ref_diff_request()	const { return (update_ref_diff_requested_.load()); }
+	bool get_request_stft_cuts()		const { return (request_stft_cuts_.load()); }
+	bool get_request_delete_stft_cuts() const { return (request_delete_stft_cuts_.load()); }
+	bool get_request_3d_vision()		const { return (request_3d_vision_.load()); }
+	bool get_request_delete_3d_vision()	const { return (request_delete_3d_vision_.load()); }
 
 
   protected:
-    /*! \brief Generate the ICompute vector. */
+
     virtual void refresh();
-
-	/*! \brief In case an allocation error occured */
 	virtual void allocation_failed(const int& err_count, std::exception& e);
-
-    /*! \brief Realloc all buffer with the new nsamples and update ICompute */
     virtual bool update_n_parameter(unsigned short n);
 
     /*! \{ \name caller methods (helpers)
@@ -244,8 +167,6 @@ namespace holovibes
     * For some features, it might be necessary to do special treatment. For
     * example, store a returned value in a std::vector. */
 
-    /*! \brief Call autocontrast algorithm and then update the compute
-    * descriptor. */
     static void autocontrast_caller(float				*input,
 									const uint			size,
 									const uint			offset,
@@ -293,127 +214,70 @@ namespace holovibes
     * \param height Height of one frame
     * \param signal Signal zone
     * \param noise Noise zone */
-    void average_stft_caller(
-      cufftComplex* input,
-      const unsigned int width,
-      const unsigned int height,
-      const unsigned int width_roi,
-      const unsigned int height_roi,
-      gui::Rectangle& signal_zone,
-      gui::Rectangle& noise_zone,
-      const unsigned int nsamples,
-      cudaStream_t stream);
+    void average_stft_caller(cufftComplex* input,
+							const unsigned int width,
+							const unsigned int height,
+							const unsigned int width_roi,
+							const unsigned int height_roi,
+							gui::Rectangle& signal_zone,
+							gui::Rectangle& noise_zone,
+							const unsigned int nsamples,
+							cudaStream_t stream);
 
-    /*! \see request_autofocus
-    * \brief Autofocus caller looks like the ICompute refresh method.
-    *
-    * The autofocus caller generates multiple holograms (with variable z) on the
-    * same image set. Computes the focus_metric on each hologram and sets the
-    * proper value of z in ComputeDescriptor. */
     virtual void autofocus_caller(float* input, cudaStream_t stream);
-    /*! \} */ // End of callers group
-
-    /*! \brief Add frame in fqueue_. */
     void record_float(float* float_output, cudaStream_t stream);
-
-	/*! \brief Add frame in fqueue_. */
 	void record_complex(cufftComplex* complex_output, cudaStream_t stream);
-
-	/* \brief handle all the reference workaround when take_ref button is pushed. */
 	void handle_reference(cufftComplex* input, const unsigned int nframes);
-
-	/* /* \brief handle all the reference workaround when slinding button is pushed. */ 
 	void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
-
-    /*! \brief Print fps each 100 frames
-    **
-    ** Use InfoManager */
     void fps_count();
 
-    /*! \{ \name Disable copy/assignments. */
     ICompute& operator=(const ICompute&) = delete;
     ICompute(const ICompute&) = delete;
-    /*! \} */
 
   protected:
-    /*! \brief Shared (GUI/CLI) ComputeDescriptor */
-    ComputeDescriptor& compute_desc_;
-    /*! \brief Input frame queue : 16-bit frames. */
-    Queue& input_;
-    /*! \brief Output frame queue : 16-bit frames. */
-    Queue& output_;
+    ComputeDescriptor&	compute_desc_;
 
-    /*! All buffers needed for phase unwrapping are here. */
-    std::shared_ptr<UnwrappingResources> unwrap_res_;
+    Queue&	input_;
+    Queue&	output_;
 
-	/*! All buffers needed for phase unwrapping 2d are here. */
-	std::shared_ptr<UnwrappingResources_2d> unwrap_res_2d_;
+    std::shared_ptr<UnwrappingResources>	unwrap_res_;
+	std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 
-    /*! cufftComplex array containing n contiguous ROI of frames. */
-    cufftComplex *gpu_stft_buffer_;
-	std::mutex	stftGuard;
+	std::mutex		stftGuard;
+    cufftComplex	*gpu_stft_buffer_;
+	cufftComplex	*gpu_tmp_input_;
+	cufftComplex	*gpu_special_queue_;
+	cufftComplex	*gpu_lens_;
+	cufftHandle		plan3d_;
+	cufftHandle		plan2d_;
+	cufftHandle		plan1d_;
+	cufftHandle		plan1d_stft_;
+	float			*gpu_kernel_buffer_;
+	uint			gpu_special_queue_start_index;
+	uint			gpu_special_queue_max_index;
 
-	/*! cufftComplex array containing lens. */
-	cufftComplex *gpu_lens_;
-	/*! cufftComplex array containing kernel. */
-	float *gpu_kernel_buffer_;
-	/*! cufftComplex array containing tmp input. */
-	cufftComplex *gpu_tmp_input_;
-	/*! cufftComplex queue */
-	cufftComplex *gpu_special_queue_;
-	unsigned int  gpu_special_queue_start_index;
-	unsigned int  gpu_special_queue_max_index;
-    /*! CUDA FFT Plan 3D. Set to a specific CUDA stream in Pipe and Pipeline. */
-    cufftHandle plan3d_;
-    /*! CUDA FFT Plan 2D. Set to a specific CUDA stream in Pipe and Pipeline. */
-    cufftHandle plan2d_;
-    /*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
-    cufftHandle plan1d_;
-
-	/*! CUDA FFT Plan 1D. Set to a specific CUDA stream in Pipe and Pipeline. */
-	cufftHandle plan1d_stft_;
-
-    /*! \} */
-
-    /*! \brief Number of frame in input. */
-    unsigned int input_length_;
-    /*! \brief Float queue for float record */
+    uint input_length_;
     Queue *fqueue_;
-    /*! \brief index of current element trait in stft */
-    unsigned int curr_elt_stft_;
+    uint curr_elt_stft_;
 
     ConcurrentDeque<Tuple4f>* average_output_;
-    unsigned int average_n_;
-    /*! \} */
-    /*! \{ \name fps_count */
-    std::chrono::time_point<std::chrono::steady_clock> past_time_;
-  
-	unsigned int frame_count_;
-    /*! \} */
-    /*! \brief containt all var needed by auto_focus */
-    af_env        af_env_;
+    std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
-	/*! \brief Queue for phase accumulation*/
+	uint	average_n_;
+	uint	frame_count_;
+    af_env	af_env_;
+
 	Queue *gpu_img_acc_;
-
-	/*! \brief Queue for stft */
 	Queue *gpu_stft_queue_;
 	Queue *gpu_3d_vision;
 	Queue *gpu_stft_slice_queue_xz;
 	Queue *gpu_stft_slice_queue_yz;
-	
-	/* \brief Queue for the reference diff */
 	Queue *gpu_ref_diff_queue_;
 
-	/* these states are used for take ref when we need to do action punctually in the pipe*/
-	enum state ref_diff_state_;
-
+	enum ref_state ref_diff_state_;
 	cufftComplex *gpu_filter2d_buffer;
-
-	unsigned int ref_diff_counter;
-
-	unsigned int stft_frame_counter;
-
+	uint	ref_diff_counter;
+	uint	stft_frame_counter;
 	int		slice_width_;
 	int		slice_height_;
 	int		slice_depth_;
@@ -421,7 +285,7 @@ namespace holovibes
 	int		frame_res_yz_;
 
 	std::mutex request_guard_;
-	/*! \{ \name request flags */
+
 	std::atomic<bool> unwrap_1d_requested_;
 	std::atomic<bool> unwrap_2d_requested_;
 	std::atomic<bool> autofocus_requested_;
@@ -442,6 +306,5 @@ namespace holovibes
 	std::atomic<bool> request_delete_stft_cuts_;
 	std::atomic<bool> request_3d_vision_;
 	std::atomic<bool> request_delete_3d_vision_;
-	/*! \} */
   };
 }

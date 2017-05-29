@@ -108,79 +108,14 @@ namespace holovibes
 				return (false);
 			}
 		}
-		//compute_desc_.pindex.exchange(p);
 		notify_observers();
 		return (true);
 	}
 
-	void Pipe::direct_refresh()
+	void Pipe::request_queues()
 	{
-		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
-		if (abort_construct_requested_.load())
-		{
-			refresh_requested_.exchange(false);
-			return;
-		}
-		fn_vect_.push_back(std::bind(
-			make_contiguous_complex,
-			std::ref(input_),
-			gpu_input_buffer_,
-			input_length_,
-			static_cast<cudaStream_t>(0)));
-		gpu_input_frame_ptr_ = gpu_input_buffer_;
-		fn_vect_.push_back(std::bind(
-			complex_to_modulus,
-			gpu_input_frame_ptr_,
-			gpu_float_buffer_,
-			input_fd.frame_res(),
-			static_cast<cudaStream_t>(0)));
-		fn_vect_.push_back(std::bind(
-			float_to_ushort,
-			gpu_float_buffer_,
-			gpu_output_buffer_,
-			input_fd.frame_res(),
-			output_fd.depth,
-			static_cast<cudaStream_t>(0)));
-		refresh_requested_.exchange(false);
-	}
-
-	void Pipe::refresh()
-	{
-		if (compute_desc_.compute_mode.load() != Computation::Direct)
-			ICompute::refresh();
-		/* As the Pipe uses a single CUDA stream for its computations,
-		 * we have to explicitly use the default stream (0).
-		 * Because std::bind does not allow optional parameters to be
-		 * deduced and bound, we have to use static_cast<cudaStream_t>(0) systematically. */
-
-		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
-
-		//refresh_requested_.exchange(false);
-		/* Clean current vector. */
-		fn_vect_.clear();
-		if (compute_desc_.compute_mode.load() == Computation::Direct)
-		{
-			update_n_requested_.exchange(false);
-			direct_refresh();
-			return;
-		}
-		if (update_n_requested_.load())
-		{
-			if (!update_n_parameter(compute_desc_.nsamples.load()))
-			{
-				compute_desc_.pindex.exchange(0);
-				compute_desc_.nsamples.exchange(1);
-				update_n_parameter(1);
-				std::cerr << "Updating n failed, n updated to 1" << std::endl;
-			}
-			update_n_requested_.exchange(false);
-		}
-
 		if (request_3d_vision_.load())
 		{
-
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 
 			fd.depth = sizeof(float);
@@ -224,6 +159,76 @@ namespace holovibes
 			}
 			request_delete_stft_cuts_.exchange(false);
 		}
+	}
+
+	void Pipe::direct_refresh()
+	{
+		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
+
+		if (abort_construct_requested_.load())
+		{
+			refresh_requested_.exchange(false);
+			return;
+		}
+		fn_vect_.push_back(std::bind(
+			make_contiguous_complex,
+			std::ref(input_),
+			gpu_input_buffer_,
+			input_length_,
+			static_cast<cudaStream_t>(0)));
+		gpu_input_frame_ptr_ = gpu_input_buffer_;
+		fn_vect_.push_back(std::bind(
+			complex_to_modulus,
+			gpu_input_frame_ptr_,
+			gpu_float_buffer_,
+			input_fd.frame_res(),
+			static_cast<cudaStream_t>(0)));
+		fn_vect_.push_back(std::bind(
+			float_to_ushort,
+			gpu_float_buffer_,
+			gpu_output_buffer_,
+			input_fd.frame_res(),
+			output_fd.depth,
+			static_cast<cudaStream_t>(0)));
+		refresh_requested_.exchange(false);
+	}
+
+	void Pipe::refresh()
+	{
+		if (compute_desc_.compute_mode.load() == Computation::Direct)
+		{
+			fn_vect_.clear();	
+			update_n_requested_.exchange(false);
+			direct_refresh();
+			return;
+		}
+		if (compute_desc_.compute_mode.load() != Computation::Direct)
+			ICompute::refresh();
+		/* As the Pipe uses a single CUDA stream for its computations,
+		 * we have to explicitly use the default stream (0).
+		 * Because std::bind does not allow optional parameters to be
+		 * deduced and bound, we have to use static_cast<cudaStream_t>(0) systematically. */
+
+		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
+		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
+
+		//refresh_requested_.exchange(false);
+		/* Clean current vector. */
+		fn_vect_.clear();
+		if (update_n_requested_.load())
+		{
+			if (!update_n_parameter(compute_desc_.nsamples.load()))
+			{
+				compute_desc_.pindex.exchange(0);
+				compute_desc_.nsamples.exchange(1);
+				update_n_parameter(1);
+				std::cerr << "Updating #img failed, #img updated to 1" << std::endl;
+			}
+			update_n_requested_.exchange(false);
+		}
+
+		request_queues();
 
 		if (update_acc_requested_.load())
 		{
@@ -483,7 +488,7 @@ namespace holovibes
 		/* Apply conversion to floating-point respresentation. */
 		if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
 		{
-			if (compute_desc_.vision_3d.load())
+			if (compute_desc_.vision_3d_enabled.load())
 				fn_vect_.push_back(std::bind(
 					complex_to_modulus,
 					gpu_stft_buffer_,
@@ -800,26 +805,37 @@ namespace holovibes
 		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
-			float min = 0.f;
-			float max = 0.f;
 			if (compute_desc_.current_window.load() == WindowKind::MainDisplay)
-				fn_vect_.push_back(std::bind(
-					autocontrast_caller,
-					gpu_float_buffer_,
-					output_fd.frame_res(),
-					0,
-					std::ref(compute_desc_),
-					std::ref(compute_desc_.contrast_min),
-					std::ref(compute_desc_.contrast_max),
-					static_cast<cudaStream_t>(0)));
+			{
+				if (compute_desc_.vision_3d_enabled.load())
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
+						output_fd.frame_res() * compute_desc_.nsamples.load(),
+						0,
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min),
+						std::ref(compute_desc_.contrast_max),
+						static_cast<cudaStream_t>(0)));
+				else
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						gpu_float_buffer_,
+						output_fd.frame_res(),
+						0,
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min),
+						std::ref(compute_desc_.contrast_max),
+						static_cast<cudaStream_t>(0)));
+			}
 			if (compute_desc_.stft_view_enabled.load())
 			{
 				if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						static_cast<float *>(gpu_stft_slice_queue_xz->get_last_images(1)),
-						output_fd.width * compute_desc_.nsamples.load(),
-						output_fd.width * compute_desc_.cuts_contrast_p_offset.load(),
+						static_cast<uint>(output_fd.width * compute_desc_.nsamples.load()),
+						static_cast<uint>(output_fd.width * compute_desc_.cuts_contrast_p_offset.load()),
 						std::ref(compute_desc_),
 						std::ref(compute_desc_.contrast_min_slice_xz),
 						std::ref(compute_desc_.contrast_max_slice_xz),
@@ -841,17 +857,15 @@ namespace holovibes
 		/* ***************** */
 		if (compute_desc_.contrast_enabled.load())
 		{
-			if (compute_desc_.vision_3d.load())
-			{
+			if (compute_desc_.vision_3d_enabled.load())
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
 					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-					output_fd.frame_res(),
+					output_fd.frame_res() * compute_desc_.nsamples.load(),
 					65535,
 					compute_desc_.contrast_min.load(),
 					compute_desc_.contrast_max.load(),
 					static_cast<cudaStream_t>(0)));
-			}
 			else
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
@@ -896,7 +910,7 @@ namespace holovibes
 				&Pipe::fps_count,
 				this));
 
-		if (!compute_desc_.vision_3d.load())
+		if (!compute_desc_.vision_3d_enabled.load())
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
 				gpu_float_buffer_,
@@ -912,13 +926,13 @@ namespace holovibes
 				reinterpret_cast<float *>(get_stft_slice_queue(0).get_last_images(1)),
 				get_stft_slice_queue(0).get_last_images(1),
 				get_stft_slice_queue(0).get_frame_desc().frame_res(),
-				2, static_cast<cudaStream_t>(0)));
+				2.f, static_cast<cudaStream_t>(0)));
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
 				reinterpret_cast<float *>(get_stft_slice_queue(1).get_last_images(1)),
 				get_stft_slice_queue(1).get_last_images(1),
 				get_stft_slice_queue(0).get_frame_desc().frame_res(),
-				2, static_cast<cudaStream_t>(0)));
+				2.f, static_cast<cudaStream_t>(0)));
 		}
 		refresh_requested_.exchange(false);
 	}

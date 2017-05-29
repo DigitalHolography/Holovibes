@@ -141,37 +141,17 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	}
 }
 
-__global__ static void kernel_stft_block_to_float(const cufftComplex	*input,
-												float					*output,
-												const uint				size)
-{
-	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < size)
-	{
-		output[id] = hypotf(input[id].x, input[id].y);
-	}
-}
-
-void stft_block_to_float(const cufftComplex	*input,
-						float				*output,
-						const uint			size)
-{
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(size, threads);
-	kernel_stft_block_to_float << <blocks, threads, 0, 0 >> > (input, output, size);
-}
-
 void stft_view_begin(const cuComplex	*input,
-					void			*output_xz,
-					void			*output_yz,
-					const ushort	x0,
-					const ushort	y0,
-					const ushort	width,
-					const ushort	height,
-					const uint		viewmode,
-					const ushort	nsamples,
-					const uint		acc_level_xz,
-					const uint		acc_level_yz)
+					void				*output_xz,
+					void				*output_yz,
+					const ushort		x0,
+					const ushort		y0,
+					const ushort		width,
+					const ushort		height,
+					const uint			viewmode,
+					const ushort		nsamples,
+					const uint			acc_level_xz,
+					const uint			acc_level_yz)
 {
 	const uint frame_size = width * height;
 	const uint output_size = width * nsamples;

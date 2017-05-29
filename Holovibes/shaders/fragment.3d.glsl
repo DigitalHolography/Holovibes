@@ -17,7 +17,5 @@ out vec4	outColor;
 
 void main()
 {
-	vec3 color = vec3(passColor / 65535.f);
-	outColor = vec4(color, 1.f);
-	//outColor = vec4(1, 1, 1, 1);
+	outColor = vec4(passColor / 65535.f);
 }

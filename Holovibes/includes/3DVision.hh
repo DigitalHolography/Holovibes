@@ -13,15 +13,12 @@
 #pragma once
 
 # include "BasicOpenGLWindow.hh"
-# include "stft.cuh"
 # include <glm/vec3.hpp>
 # include <glm/vec4.hpp>
 # include <glm/vec3.hpp>
 # include <glm/gtc/matrix_transform.hpp>
 # include <glm/glm.hpp>
 # include <glm/gtc/type_ptr.hpp>
-
-# define SPACE_BETWEEN_POINTS 0.2f
 
 namespace holovibes
 {
@@ -43,8 +40,8 @@ namespace holovibes
 
 
 		private:
-			std::string				vertex_shader_;
-			std::string				fragment_shader_;
+			std::string				vertex_shader_path_;
+			std::string				fragment_shader_path_;
 			Queue&					queue_;
 			ComputeDescriptor&		compute_desc_;
 			const FrameDescriptor&	frame_desc_;
@@ -59,8 +56,7 @@ namespace holovibes
 			glm::vec3				rotate;
 			float					scale;
 
-			GLfloat	*get_vertex_buffer();
-			GLuint	create_gl_buffer(GLuint *gl_buffer, const void *data, size_t nb_vertex, size_t elts_per_vec, GLenum type);
+			GLint	*get_vertex_buffer();
 			GLuint	load_matrix(glm::vec3 Translate, glm::vec3 const & Rotate, float scale);
 			GLuint	push_gl_matrix(glm::mat4 mat, char *name);
 		};
