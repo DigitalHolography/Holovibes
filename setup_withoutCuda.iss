@@ -2,11 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-<<<<<<< HEAD
-#define MyAppVersion "4.3.170516"
-=======
-#define MyAppVersion "4.3.170523"
->>>>>>> master
+#define MyAppVersion "4.3.170531"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
