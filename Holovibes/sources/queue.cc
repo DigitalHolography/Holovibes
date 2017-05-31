@@ -22,18 +22,18 @@ namespace holovibes
 
 	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)
 		: frame_desc_(frame_desc)
-		, size_(frame_desc_.frame_size())
-		, pixels_(frame_desc_.frame_res())
+		, frame_size_(frame_desc_.frame_size())
+		, frame_resolution_(frame_desc_.frame_res())
 		, max_elts_(elts)
 		, curr_elts_(0)
-		, start_(0)
+		, start_index_(0)
 		, display_(true)
 		, is_big_endian_(frame_desc.depth >= 2 &&
 			frame_desc.byteEndian == Endianness::BigEndian)
 		, name_(name)
-		, buffer_(nullptr)
+		, data_buffer_(nullptr)
 	{
-		if (cudaMalloc(&buffer_, size_ * elts) != CUDA_SUCCESS)
+		if (cudaMalloc(&data_buffer_, frame_size_ * elts) != CUDA_SUCCESS)
 		{
 			std::cerr << "Queue: couldn't allocate queue" << std::endl;
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
@@ -47,20 +47,20 @@ namespace holovibes
 	{
 		if (display_)
 			gui::InfoManager::remove_info(name_);
-		if (buffer_)
-			if (cudaFree(buffer_) != CUDA_SUCCESS)
+		if (data_buffer_)
+			if (cudaFree(data_buffer_) != CUDA_SUCCESS)
 				std::cerr << "Queue: couldn't free queue" << std::endl;
 		cudaStreamDestroy(stream_);
 	}
 
 	size_t Queue::get_size() const
 	{
-		return size_;
+		return frame_size_;
 	}
 
 	void* Queue::get_buffer()
 	{
-		return buffer_;
+		return data_buffer_;
 	}
 
 	const camera::FrameDescriptor& Queue::get_frame_desc() const
@@ -70,7 +70,7 @@ namespace holovibes
 
 	int Queue::get_pixels()
 	{
-		return pixels_;
+		return frame_resolution_;
 	}
 
 	unsigned int Queue::get_max_elts() const
@@ -81,42 +81,42 @@ namespace holovibes
 	void* Queue::get_start()
 	{
 		MutexGuard mGuard(mutex_);
-		return buffer_ + start_ * size_;
+		return data_buffer_ + start_index_ * frame_size_;
 	}
 
 	unsigned int Queue::get_start_index()
 	{
 		MutexGuard mGuard(mutex_);
-		return start_;
+		return start_index_;
 	}
 
 	void* Queue::get_end()
 	{
 		MutexGuard mGuard(mutex_);
-		return buffer_ + ((start_ + curr_elts_) % max_elts_) * size_;
+		return data_buffer_ + ((start_index_ + curr_elts_) % max_elts_) * frame_size_;
 	}
 
 	void* Queue::get_last_images(const unsigned n)
 	{
 		MutexGuard mGuard(mutex_);
-		return buffer_ + ((start_ + curr_elts_ - n) % max_elts_) * size_;
+		return data_buffer_ + ((start_index_ + curr_elts_ - n) % max_elts_) * frame_size_;
 	}
 
 	unsigned int Queue::get_end_index()
 	{
 		MutexGuard mGuard(mutex_);
-		return (start_ + curr_elts_) % max_elts_;
+		return (start_index_ + curr_elts_) % max_elts_;
 	}
 
 	bool Queue::enqueue(void* elt, cudaMemcpyKind cuda_kind)
 	{
 		MutexGuard mGuard(mutex_);
 
-		const uint end_ = (start_ + curr_elts_) % max_elts_;
-		char* new_elt_adress = buffer_ + (end_ * size_);
-		cudaError_t cuda_status = cudaMemcpyAsync(new_elt_adress,
+		const uint	end_ = (start_index_ + curr_elts_) % max_elts_;
+		char		*new_elt_adress = data_buffer_ + (end_ * frame_size_);
+		cudaError_t	cuda_status = cudaMemcpyAsync(new_elt_adress,
 			elt,
-			size_,
+			frame_size_,
 			cuda_kind,
 			stream_);
 		if (cuda_status != CUDA_SUCCESS)
@@ -125,10 +125,10 @@ namespace holovibes
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			if (display_)
 				gui::InfoManager::update_info(name_, "couldn't enqueue");
-			if (buffer_)
+			if (data_buffer_)
 			{
-				cudaFree(buffer_);
-				buffer_ = nullptr;
+				cudaFree(data_buffer_);
+				data_buffer_ = nullptr;
 			}
 			return false;
 		}
@@ -141,7 +141,7 @@ namespace holovibes
 		if (curr_elts_ < max_elts_)
 			++curr_elts_;
 		else
-			start_ = (start_ + 1) % max_elts_;
+			start_index_ = (start_index_ + 1) % max_elts_;
 		if (display_)
 		{
 			if (name_ == "InputQueue")
@@ -164,9 +164,9 @@ namespace holovibes
 	{
 		if (curr_elts_ > 0)
 		{
-			void* first_img = buffer_ + start_ * size_;
-			cudaMemcpyAsync(dest, first_img, size_, cuda_kind, stream_);
-			start_ = (start_ + 1) % max_elts_;
+			void* first_img = data_buffer_ + start_index_ * frame_size_;
+			cudaMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream_);
+			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
 			{
@@ -192,7 +192,7 @@ namespace holovibes
 
 		if (curr_elts_ > 0)
 		{
-			start_ = (start_ + 1) % max_elts_;
+			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 		}
 	}
@@ -202,7 +202,7 @@ namespace holovibes
 		MutexGuard mGuard(mutex_);
 
 		curr_elts_ = 0;
-		start_ = 0;
+		start_index_ = 0;
 	}
 
 	void Queue::set_display(bool value)

@@ -1170,11 +1170,11 @@
         </widget>
         <widget class="QCheckBox" name="Vision3DCheckBox">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="geometry">
           <rect>
-           <x>10</x>
+           <x>100</x>
            <y>95</y>
            <width>81</width>
            <height>30</height>
@@ -1182,6 +1182,9 @@
          </property>
          <property name="text">
           <string>Vision3D</string>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
         </widget>
         <zorder>PhaseUnwrap2DCheckBox</zorder>

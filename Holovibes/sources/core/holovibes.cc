@@ -24,15 +24,15 @@
 namespace holovibes
 {
 	Holovibes::Holovibes()
-		: camera_()
-		, camera_initialized_(false)
-		, tcapture_()
-		, tcompute_()
-		, input_()
-		, output_()
-		, compute_desc_()
-		, average_queue_()
-		, launch_path(boost::filesystem::current_path().generic_string())
+		: camera_(),
+		camera_initialized_(false),
+		tcapture_(),
+		tcompute_(),
+		input_(),
+		output_(),
+		compute_desc_(),
+		average_queue_(),
+		launch_path(boost::filesystem::current_path().generic_string())
 	{
 	}
 
@@ -205,16 +205,16 @@ namespace holovibes
 			real_frame_desc.height = size;
 			input_.reset(new Queue(real_frame_desc, q_max_size_, "InputQueue"));
 			tcapture_.reset(
-				new ThreadReader(file_src
-					, real_frame_desc
-					, frame_desc
-					, loop
-					, fps
-					, spanStart
-					, spanEnd
-					, *input_
-					, compute_desc_.is_cine_file.load()
-					, holovibes));
+				new ThreadReader(file_src,
+					real_frame_desc,
+					frame_desc,
+					loop,
+					fps,
+					spanStart,
+					spanEnd,
+					*input_,
+					compute_desc_.is_cine_file.load(),
+					holovibes));
 			std::cout << "[CAPTURE] reader thread started" << std::endl;
 			camera_initialized_ = true;
 		}

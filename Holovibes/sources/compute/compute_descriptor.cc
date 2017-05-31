@@ -73,12 +73,12 @@ namespace holovibes
 		stft_view_enabled(false),
 		signal_trig_enabled(false),
 		stft_slice_cursor(QPoint(0, 0)),
-		signal_zone(gui::Rectangle(10, 10)),
-		noise_zone(gui::Rectangle(10, 10)),
-		autofocus_zone(gui::Rectangle(10, 10)),
-		stft_roi_zone(gui::Rectangle(10, 10)),
+		signal_zone(gui::Rectangle(0, 0)),
+		noise_zone(gui::Rectangle(0, 0)),
+		autofocus_zone(gui::Rectangle(0, 0)),
+		stft_roi_zone(gui::Rectangle(0, 0)),
 		current_window(WindowKind::MainDisplay),
-		cuts_contrast_p_offset(1),
+		cuts_contrast_p_offset(2),
 		vision_3d_enabled(false)
 	{
 

@@ -135,10 +135,6 @@ namespace holovibes
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
-				/*if (findChild<QRadioButton *>("DirectRadioButton")->isChecked())
-					holovibes_.get_compute_desc().compute_mode.exchange(Computation::Direct);
-				else
-					holovibes_.get_compute_desc().compute_mode.exchange(Computation::Hologram);*/
 				return;
 			}
 			else if (cd.compute_mode.load() == Computation::Direct && is_enabled_camera_)
@@ -264,7 +260,7 @@ namespace holovibes
 			findChild<QComboBox *>("AlgorithmComboBox")->setEnabled(!is_direct);
 			findChild<QComboBox *>("AlgorithmComboBox")->setCurrentIndex(cd.algorithm.load());
 			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.view_mode.load());
-			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load());
+			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
 			findChild<QSpinBox *>("PSpinBox")->setMaximum(cd.nsamples.load() - 1);
@@ -287,8 +283,8 @@ namespace holovibes
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && cd.signal_trig_enabled.load());
-			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load() && !cd.stft_view_enabled.load());
-			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(cd.vision_3d_enabled.load());
+			//findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load() && !cd.stft_view_enabled.load());
+			//findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(cd.vision_3d_enabled.load());
 
 			QCoreApplication::processEvents();
 		}
@@ -406,7 +402,6 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
-			//import_file_stop();
 			save_ini("holovibes.ini");
 			notify();
 		}
@@ -458,6 +453,7 @@ namespace holovibes
 				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
 				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
 				config.float_queue_max_size = ptree.get<int>("config.float_buffer_size", config.float_queue_max_size);
+				config.stft_cuts_output_buffer_size = ptree.get<int>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
@@ -591,6 +587,7 @@ namespace holovibes
 			ptree.put("config.output_buffer_size", config.output_queue_max_size);
 			ptree.put("config.float_buffer_size", config.float_queue_max_size);
 			ptree.put("config.input_file_buffer_size", config.reader_buf_max_size);
+			ptree.put("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 			ptree.put("config.stft_buffer_size", cd.stft_level.load());
 			ptree.put("config.reference_buffer_size", cd.ref_diff_level.load());
 			ptree.put("config.accumulation_buffer_size", cd.img_acc_level.load());
@@ -1354,6 +1351,7 @@ namespace holovibes
 				cd.log_scale_enabled.exchange(false);
 				cd.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->resetTransform();
 				set_auto_contrast();
 				notify();
 			}
@@ -1744,8 +1742,6 @@ namespace holovibes
 		{
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
-			//const uint	z_div = findChild<QSpinBox*>("AutofocusStepsSpinBox")->value();
-			//const uint	z_iter = findChild<QSpinBox*>("AutofocusLoopsSpinBox")->value();
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			if (cd.stft_enabled.load())
@@ -1758,8 +1754,6 @@ namespace holovibes
 				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				cd.autofocus_z_min.exchange(z_min);
 				cd.autofocus_z_max.exchange(z_max);
-				//cd.autofocus_z_div.exchange(z_div);
-				//cd.autofocus_z_iter.exchange(z_iter);
 
 				notify();
 				is_enabled_autofocus_ = false;
@@ -2821,6 +2815,7 @@ namespace holovibes
 			QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
 			QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
 			const std::string	file_src = import_line_edit->text().toUtf8();
+			std::string err_msg = "Cannot detect title properties";
 			uint				width = 0, height = 0, depth = 0, underscore = 5;
 			size_t				i;
 			bool				mode, endian;
@@ -2829,12 +2824,12 @@ namespace holovibes
 				if (file_src[i] == '_')
 					underscore--;
 			if (underscore)
-				return (display_error("Cannot detect title properties"));
+				return (display_error(err_msg));
 			if (file_src[++i] == '_' && i++)
 				if (file_src[i] == 'D' || file_src[i] == 'H')
 					mode = ((file_src[i] == 'D') ? (false) : (true));
 				else
-					return (display_error("Cannot detect title properties"));
+					return (display_error(err_msg));
 			if (file_src[++i] == '_')
 			{
 				width = std::atoi(&file_src[++i]);
@@ -2842,7 +2837,7 @@ namespace holovibes
 					++i;
 			}
 			else
-				return (display_error("Cannot detect title properties"));
+				return (display_error(err_msg));
 			if (file_src[i++] == '_')
 			{
 				height = std::atoi(&file_src[i++]);
@@ -2850,7 +2845,7 @@ namespace holovibes
 					++i;
 			}
 			else
-				return (display_error("Cannot detect title properties"));
+				return (display_error(err_msg));
 			if (file_src[i++] == '_')
 			{
 				depth = std::atoi(&file_src[i++]);
@@ -2858,16 +2853,16 @@ namespace holovibes
 					++i;
 			}
 			else
-				return (display_error("Cannot detect title properties"));
+				return (display_error(err_msg));
 			if (file_src[i++] == '_')
 			{
 				if (file_src[i] == 'e' || file_src[i] == 'E')
 					endian = ((file_src[i] == 'e') ? (false) : (true));
 				else
-					return (display_error("Cannot detect title properties"));
+					return (display_error(err_msg));
 			}
 			if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
-				return (display_error("Cannot detect title properties"));
+				return (display_error(err_msg));
 			import_width_box->setValue(width);
 			import_height_box->setValue(height);
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
