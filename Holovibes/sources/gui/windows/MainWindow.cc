@@ -2245,7 +2245,8 @@ namespace holovibes
 			if (path == "")
 				return (display_error("No output file"));
 
-			Queue* queue;
+			Queue* queue = nullptr;
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			try
 			{
 				if (float_output_checkbox->isChecked() && !is_direct_mode())
@@ -2266,23 +2267,32 @@ namespace holovibes
 					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 					pipe->request_complex_output(queue);
 				}
-				//else if (is_direct_mode())
-					//queue = &holovibes_.get_capture_queue();
 				else
-					queue = &holovibes_.get_output_queue();
+				{
+					if (cd.current_window == WindowKind::MainDisplay)
+						queue = &holovibes_.get_output_queue();
+					else if (cd.current_window == WindowKind::SliceXZ)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+					else if (cd.current_window == WindowKind::SliceYZ)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+				}
+				if (queue)
+				{
+					path = set_record_filename_properties(queue->get_frame_desc(), path);
+					record_thread_.reset(new ThreadRecorder(
+						*queue,
+						path,
+						nb_of_frames,
+						this));
 
-				path = set_record_filename_properties(queue->get_frame_desc(), path);
-				record_thread_.reset(new ThreadRecorder(
-					*queue,
-					path,
-					nb_of_frames,
-					this));
+					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
+					record_thread_->start();
 
-				connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
-				record_thread_->start();
-
-				QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
-				cancel_button->setDisabled(false);
+					QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
+					cancel_button->setDisabled(false);
+				}
+				else
+					throw std::exception("Unable to launch record");
 			}
 			catch (std::exception& e)
 			{
