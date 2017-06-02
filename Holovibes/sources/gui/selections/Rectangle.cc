@@ -41,7 +41,7 @@ namespace holovibes
 			return (width() * height());
 		}
 
-		void	Rectangle::checkCorners()
+		void	Rectangle::checkCorners(ushort frameSide, KindOfOverlay kO)
 		{
 			if (width() < 0)
 			{
@@ -58,6 +58,32 @@ namespace holovibes
 
 				setTopLeft(b0ttomLeft);
 				setBottomRight(t0pRight);
+			}
+			if (kO == Filter2D)
+			{
+				if (topRight().x() > frameSide)
+				{
+					setTopRight(QPoint(frameSide, topRight().y()));
+
+					const int min = std::min(width(), height());
+					setBottomRight(QPoint(
+						topLeft().x() +
+						min * ((topLeft().x() < bottomRight().x()) * 2 - 1),
+						topLeft().y() +
+						min * ((topLeft().y() < bottomRight().y()) * 2 - 1)
+					));
+				}
+				if (bottomRight().y() > frameSide)
+				{
+					setBottomRight(QPoint(bottomRight().x(), frameSide));
+					const int min = std::min(width(), height());
+					setBottomRight(QPoint(
+						topLeft().x() +
+						min * ((topLeft().x() < bottomRight().x()) * 2 - 1),
+						topLeft().y() +
+						min * ((topLeft().y() < bottomRight().y()) * 2 - 1)
+					));
+				}
 			}
 		}
 

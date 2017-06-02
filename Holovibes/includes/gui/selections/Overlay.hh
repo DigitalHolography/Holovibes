@@ -23,19 +23,6 @@ namespace holovibes
 {
 	namespace gui
 	{
-		using KindOfOverlay =
-		enum
-		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross
-		};
 		using Color = std::array<float, 3>;
 		using ColorArray = std::array<Color, 7>;
 
@@ -71,7 +58,7 @@ namespace holovibes
 
 			void press(QPoint pos);
 			void move(QPoint pos, int side);
-			void release();
+			void release(ushort frameSide);
 
 		protected:
 			Rectangle				Zone;

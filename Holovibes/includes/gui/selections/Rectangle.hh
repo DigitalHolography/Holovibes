@@ -19,6 +19,19 @@ namespace holovibes
 {
 	namespace gui
 	{
+		using KindOfOverlay =
+		enum
+		{
+			Zoom,
+			// Average
+			Signal,
+			Noise,
+			// -------
+			Autofocus,
+			Filter2D,
+			SliceZoom,
+			Cross
+		};
 		class Rectangle : public QRect
 		{
 		public:
@@ -28,7 +41,7 @@ namespace holovibes
 			Rectangle(const uint width, const uint height);
 			
 			uint	area() const;
-			void	checkCorners();
+			void	checkCorners(ushort frameSide, KindOfOverlay);
 		};
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
 	}

@@ -338,21 +338,21 @@ namespace holovibes
 			Zone.setBottomRight(pos);
 			if (kOverlay == Filter2D)
 			{
-				const int max = std::max(Zone.width(), Zone.height());
+				const int min = std::min(Zone.width(), Zone.height());
 				Zone.setBottomRight(QPoint(
 					Zone.topLeft().x() +
-					max * ((Zone.topLeft().x() < Zone.bottomRight().x()) * 2 - 1),
+					min * ((Zone.topLeft().x() < Zone.bottomRight().x()) * 2 - 1),
 					Zone.topLeft().y() +
-					max * ((Zone.topLeft().y() < Zone.bottomRight().y()) * 2 - 1)
+					min * ((Zone.topLeft().y() < Zone.bottomRight().y()) * 2 - 1)
 				));
 			}
 			if (Enabled)
 				setZoneBuffer(side);
 		}
 
-		void	HOverlay::release()
+		void	HOverlay::release(ushort frameSide)
 		{
-			Zone.checkCorners();
+			Zone.checkCorners(frameSide, kOverlay);
 			if (kOverlay != Signal && kOverlay != Noise)
 			{
 				Enabled = false;

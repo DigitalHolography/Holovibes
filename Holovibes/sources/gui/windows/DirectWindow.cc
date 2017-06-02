@@ -231,7 +231,7 @@ namespace holovibes
 		{
 			if (e->button() == Qt::LeftButton)
 			{
-				Overlay.release();
+				Overlay.release(width());
 				if (Overlay.getConstZone().topLeft() !=
 					Overlay.getConstZone().bottomRight())
 				{
