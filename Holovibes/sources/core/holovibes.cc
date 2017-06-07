@@ -135,9 +135,18 @@ namespace holovibes
 		camera::FrameDescriptor output_fd = input_->get_frame_desc();
 		/* depth is 2 by default execpt when we want dynamic complex dislay*/
 		output_fd.depth = depth;
-		output_.reset(new Queue(
-			output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
-
+		try
+		{
+			output_.reset(new Queue(
+				output_fd, global::global_config.output_queue_max_size, "OutputQueue"));
+		}
+		catch (std::logic_error& e)
+		{
+			std::cerr << e.what() << std::endl;
+			tcapture_.reset(nullptr);
+			input_.reset(nullptr);
+			return;
+		}
 		tcompute_.reset(new ThreadCompute(compute_desc_, *input_, *output_, pipetype));
 		std::cout << "[CUDA] Compute thread started" << std::endl;
 

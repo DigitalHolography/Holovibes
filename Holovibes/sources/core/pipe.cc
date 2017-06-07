@@ -142,8 +142,8 @@ namespace holovibes
 				sizeof(cuComplex) : sizeof(ushort);
 			gpu_stft_slice_queue_xz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			gpu_stft_slice_queue_yz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * sizeof(float));
-			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * sizeof(float));
+			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * ((compute_desc_.view_mode == ComplexViewMode::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
+			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * ((compute_desc_.view_mode == ComplexViewMode::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
 
 			cudaMalloc(&gpu_ushort_cut_xz_, fd.frame_size());
 			cudaMalloc(&gpu_ushort_cut_yz_, fd.frame_size());
@@ -584,56 +584,7 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 			refresh_requested_.exchange(false);
 			if (autocontrast_requested_.load())
-			{
-				if (compute_desc_.stft_view_enabled.load())
-				{
-					if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
-						fn_vect_.push_back(std::bind(
-							autocontrast_caller,
-							static_cast<float *>(gpu_float_cut_xz_),
-							output_fd.width * compute_desc_.nsamples.load(),
-							output_fd.width,
-							std::ref(compute_desc_),
-							std::ref(compute_desc_.contrast_min_slice_xz),
-							std::ref(compute_desc_.contrast_max_slice_xz),
-							static_cast<cudaStream_t>(0)));
-					else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
-						fn_vect_.push_back(std::bind(
-							autocontrast_caller,
-							static_cast<float *>(gpu_float_cut_yz_),
-							output_fd.width * compute_desc_.nsamples.load(),
-							output_fd.width,
-							std::ref(compute_desc_),
-							std::ref(compute_desc_.contrast_min_slice_yz),
-							std::ref(compute_desc_.contrast_max_slice_yz),
-							static_cast<cudaStream_t>(0)));
-
-				}
 				autocontrast_requested_.exchange(false);
-				//request_refresh();
-			}
-			if (compute_desc_.contrast_enabled.load())
-			{
-				if (compute_desc_.stft_view_enabled.load())
-				{
-					fn_vect_.push_back(std::bind(
-						manual_contrast_correction,
-						static_cast<float *>(gpu_float_cut_xz_),
-						output_fd.width * compute_desc_.nsamples.load(),
-						65535,
-						compute_desc_.contrast_min_slice_xz.load(),
-						compute_desc_.contrast_max_slice_xz.load(),
-						static_cast<cudaStream_t>(0)));
-					fn_vect_.push_back(std::bind(
-						manual_contrast_correction,
-						static_cast<float *>(gpu_float_cut_yz_),
-						output_fd.width * compute_desc_.nsamples.load(),
-						65535,
-						compute_desc_.contrast_min_slice_yz.load(),
-						compute_desc_.contrast_max_slice_yz.load(),
-						static_cast<cudaStream_t>(0)));
-				}
-			}
 			return;
 		}
 		else
@@ -931,13 +882,13 @@ namespace holovibes
 		{
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
-				gpu_float_cut_xz_,
+				reinterpret_cast<float *>(gpu_float_cut_xz_),
 				gpu_ushort_cut_xz_,
 				get_stft_slice_queue(0).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
-				gpu_float_cut_yz_,
+				reinterpret_cast<float *>(gpu_float_cut_yz_),
 				gpu_ushort_cut_yz_,
 				get_stft_slice_queue(1).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));
@@ -1159,7 +1110,16 @@ namespace holovibes
 					input_.dequeue();
 					break;
 				}
-				if (compute_desc_.stft_view_enabled.load())
+				if (compute_desc_.view_mode == ComplexViewMode::Complex && compute_desc_.stft_view_enabled.load())
+				{
+					gpu_stft_slice_queue_xz->enqueue(
+						gpu_float_cut_xz_,
+						cudaMemcpyDeviceToDevice);
+					gpu_stft_slice_queue_yz->enqueue(
+						gpu_float_cut_yz_,
+						cudaMemcpyDeviceToDevice);
+				}
+				else if (compute_desc_.stft_view_enabled.load())
 				{
 					gpu_stft_slice_queue_xz->enqueue(
 						gpu_ushort_cut_xz_,

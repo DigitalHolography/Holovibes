@@ -23,11 +23,11 @@
 namespace camera
 {
 	CameraAdimec::CameraAdimec()
-		: Camera("adimec.ini")
-		, board_(nullptr)
-		, info_(new BIBA())
-		, last_buf(0)
-		, quad_bank_(BFQTabBank0)
+		: Camera("adimec.ini"),
+		board_(nullptr),
+		info_(new BIBA()),
+		last_buf(0),
+		quad_bank_(BFQTabBank0)
 	{
 		name_ = "Adimec Quartz-2A750 M";
 		/* Dimensions are initialized as there were no ROI; they will be updated
@@ -156,12 +156,10 @@ namespace camera
 		if (status != CI_OK)
 		{
 			std::cerr << "[CAMERA] " << err_mess << " : " << status << std::endl;
-
 			if (flag & CloseFlag::BUFFER)
 				BiBufferFree(board_, info_);
 			if (flag & CloseFlag::BOARD)
 				BiBrdClose(board_);
-
 			throw cam_ex;
 		}
 	}
@@ -171,10 +169,9 @@ namespace camera
 		/* Values here are hardcoded to avoid being dependent on a default .bfml file,
 		 * which may be modified accidentally. When possible, these default values
 		 * were taken from the default mode for the Adimec-A2750 camera. */
-
 		queue_size_ = 64;
-		exposure_time_ = 0x0539;
 
+		exposure_time_ = 0x0539;
 		frame_period_ = 0x056C;
 
 		roi_x_ = 0;
@@ -195,8 +192,6 @@ namespace camera
 
 		roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
 		roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
-		//roi_width_ = pt.get<BFU32>("adimec.roi_width", roi_width_);
-		//roi_height_ = pt.get<BFU32>("adimec.roi_height", roi_height_);
 	}
 
 	void CameraAdimec::bind_params()
@@ -216,12 +211,12 @@ namespace camera
 		if (BFCXPWriteReg(board_, CloseFlag::ALL, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
 			std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
-		/* After setup the profiles of the camera in SysReg, these lines are reading into the registers of the camera to set the good */
+		/* After setting up the profile of the camera in SysReg, these lines are reading into the registers of the camera to set width and height */
 		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_WIDTH, &roi_width_) != BF_OK)
-			std::cerr << "[CAMERA] Could not read the roi width into the registers of the camera " << std::endl;
+			std::cerr << "[CAMERA] Cannot read the roi width of the registers of the camera " << std::endl;
 
 		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_HEIGHT, &roi_height_) != BF_OK)
-			std::cerr << "[CAMERA] Could not read the roi height into the registers of the camera " << std::endl;
+			std::cerr << "[CAMERA] Cannot read the roi height of the registers of the camera " << std::endl;
 		desc_.width = roi_width_;
 		desc_.height = roi_height_;
 	}

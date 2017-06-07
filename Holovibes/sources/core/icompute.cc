@@ -38,49 +38,49 @@ namespace holovibes
 		Queue& input,
 		Queue& output,
 		ComputeDescriptor& desc)
-		: compute_desc_(desc)
-		, input_(input)
-		, output_(output)
-		, unwrap_res_(nullptr)
-		, unwrap_res_2d_(nullptr)
-		, gpu_stft_buffer_(nullptr)
-		, gpu_lens_(nullptr)
-		, gpu_kernel_buffer_(nullptr)
-		, gpu_special_queue_(nullptr)
-		, gpu_stft_queue_(nullptr)
-		, gpu_stft_slice_queue_xz(nullptr)
-		, gpu_stft_slice_queue_yz(nullptr)
-		, gpu_ref_diff_queue_(nullptr)
-		, gpu_filter2d_buffer(nullptr)
-		, gpu_tmp_input_(nullptr)
-		, plan3d_(0)
-		, plan2d_(0)
-		, plan1d_(0)
-		, unwrap_1d_requested_(false)
-		, unwrap_2d_requested_(false)
-		, plan1d_stft_(0)
-		, autofocus_requested_(false)
-		, autocontrast_requested_(false)
-		, refresh_requested_(false)
-		, update_n_requested_(false)
-		, stft_update_roi_requested_(false)
-		, average_requested_(false)
-		, average_record_requested_(false)
-		, abort_construct_requested_(false)
-		, termination_requested_(false)
-		, update_acc_requested_(false)
-		, update_ref_diff_requested_(false)
-		, request_stft_cuts_(false)
-		, request_delete_stft_cuts_(false)
-		, average_output_(nullptr)
-		, ref_diff_state_(ref_state::ENQUEUE)
-		, ref_diff_counter(0)
-		, stft_frame_counter(1)
-		, average_n_(0)
-		, af_env_({ 0 })
-		, past_time_(std::chrono::high_resolution_clock::now())
-		, gpu_float_cut_xz_(nullptr)
-		, gpu_float_cut_yz_(nullptr)
+		: compute_desc_(desc),
+		input_(input),
+		output_(output),
+		unwrap_res_(nullptr),
+		unwrap_res_2d_(nullptr),
+		gpu_stft_buffer_(nullptr),
+		gpu_lens_(nullptr),
+		gpu_kernel_buffer_(nullptr),
+		gpu_special_queue_(nullptr),
+		gpu_stft_queue_(nullptr),
+		gpu_stft_slice_queue_xz(nullptr),
+		gpu_stft_slice_queue_yz(nullptr),
+		gpu_ref_diff_queue_(nullptr),
+		gpu_filter2d_buffer(nullptr),
+		gpu_tmp_input_(nullptr),
+		plan3d_(0),
+		plan2d_(0),
+		plan1d_(0),
+		unwrap_1d_requested_(false),
+		unwrap_2d_requested_(false),
+		plan1d_stft_(0),
+		autofocus_requested_(false),
+		autocontrast_requested_(false),
+		refresh_requested_(false),
+		update_n_requested_(false),
+		stft_update_roi_requested_(false),
+		average_requested_(false),
+		average_record_requested_(false),
+		abort_construct_requested_(false),
+		termination_requested_(false),
+		update_acc_requested_(false),
+		update_ref_diff_requested_(false),
+		request_stft_cuts_(false),
+		request_delete_stft_cuts_(false),
+		average_output_(nullptr),
+		ref_diff_state_(ref_state::ENQUEUE),
+		ref_diff_counter(0),
+		stft_frame_counter(1),
+		average_n_(0),
+		af_env_({ 0 }),
+		past_time_(std::chrono::high_resolution_clock::now()),
+		gpu_float_cut_xz_(nullptr),
+		gpu_float_cut_yz_(nullptr)
 	{
 		int err = 0;
 

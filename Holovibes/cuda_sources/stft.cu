@@ -83,16 +83,16 @@ void stft_moment(cuComplex		*input,
 
 __global__
 static void	fill_64bit_slices(const cuComplex	*input,
-							cuComplex		*output_xz,
-							cuComplex		*output_yz,
-							const uint		start_x,
-							const uint		start_y,
-							const uint		frame_size,
-							const uint		output_size,
-							const uint		width,
-							const uint		height,
-							const uint		acc_level_xz,
-							const uint		acc_level_yz)
+							cuComplex			*output_xz,
+							cuComplex			*output_yz,
+							const uint			start_x,
+							const uint			start_y,
+							const uint			frame_size,
+							const uint			output_size,
+							const uint			width,
+							const uint			height,
+							const uint			acc_level_xz,
+							const uint			acc_level_yz)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
@@ -119,25 +119,15 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	if (id < output_size)
 	{
 		uint i = 0;
-		uint img_acc_level = acc_level_yz;
 		cuComplex pixel = make_cuComplex(0, 0);
-		while (i < img_acc_level)
-		{
+		for (int i = 0; i < acc_level_yz; ++i)
 			pixel = cuCaddf(pixel, input[x0 + i + id * width]);
-			++i;
-		}
-		 output_yz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(img_acc_level);
+		output_yz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(acc_level_yz);
 		/* ********** */
-		i = 0;
-		img_acc_level = acc_level_xz;
 		pixel = make_cuComplex(0, 0);
-		while (i < img_acc_level)
-		{
-			pixel = cuCaddf(pixel,
-				input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
-			++i;
-		}
-		output_xz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(img_acc_level);
+		for (int i = 0; i < acc_level_xz; ++i)
+			pixel = cuCaddf(pixel, input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
+		output_xz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(acc_level_xz);
 	}
 }
 
@@ -161,8 +151,8 @@ void stft_view_begin(const cuComplex	*input,
 	if (static_cast<ComplexViewMode>(viewmode) == ComplexViewMode::Complex)
 		fill_64bit_slices << <blocks, threads, 0, 0 >> >(
 			input,
-			reinterpret_cast<cuComplex*>(output_xz),
-			reinterpret_cast<cuComplex*>(output_yz),
+			reinterpret_cast<cuComplex *>(output_xz),
+			reinterpret_cast<cuComplex *>(output_yz),
 			x0, y0,
 			frame_size,
 			output_size,
@@ -171,8 +161,8 @@ void stft_view_begin(const cuComplex	*input,
 	else
 		fill_32bit_slices <<<blocks, threads, 0, 0>>>(
 			input,
-			reinterpret_cast<float*>(output_xz),
-			reinterpret_cast<float*>(output_yz),
+			reinterpret_cast<float *>(output_xz),
+			reinterpret_cast<float *>(output_yz),
 			x0, y0,
 			frame_size,
 			output_size,

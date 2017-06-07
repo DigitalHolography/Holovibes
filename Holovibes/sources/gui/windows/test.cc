@@ -19,7 +19,6 @@ namespace holovibes
 	{
 		void MainWindow::set_night()
 		{
-			theme_index_ = 1;
 			qApp->setStyle(QStyleFactory::create("Fusion"));
 
 			QPalette darkPalette;
@@ -43,14 +42,15 @@ namespace holovibes
 			qApp->setPalette(darkPalette);
 
 			qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
+			theme_index_ = 1;
 		}
 
 		void MainWindow::set_classic()
 		{
-			theme_index_ = 0;
 			qApp->setPalette(this->style()->standardPalette());
 			qApp->setStyle(QStyleFactory::create("WindowsVista"));
 			qApp->setStyleSheet("");
+			theme_index_ = 0;
 		}
 	}
 }

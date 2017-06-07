@@ -15,5 +15,5 @@
 
 namespace global
 {
-  holovibes::Config global_config;
+	holovibes::Config global_config;
 }

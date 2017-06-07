@@ -190,11 +190,11 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && cd.contrast_enabled.load());
 			findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && cd.contrast_enabled.load());
-			{
-				QComboBox* ptr = findChild<QComboBox*>("WindowSelectionComboBox");
-				ptr->setEnabled((cd.stft_view_enabled.load()));
-				ptr->setCurrentIndex(ptr->isEnabled() ? cd.current_window.load() : 0);
-			}
+
+			QComboBox *window_selection = findChild<QComboBox*>("WindowSelectionComboBox");
+			window_selection->setEnabled((cd.stft_view_enabled.load()));
+			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd.current_window.load() : 0);
+
 			if (cd.current_window.load() == WindowKind::MainDisplay)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
@@ -241,7 +241,7 @@ namespace holovibes
 			q_vibro->setValue(cd.vibrometry_q.load());
 			q_vibro->setMaximum(cd.nsamples.load() - 1);
 
-			findChild<QCheckBox*>("ImageRatioCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
+			findChild<QCheckBox *>("ImageRatioCheckBox")->setChecked(!is_direct && cd.vibrometry_enabled.load());
 			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && cd.convo_matrix.size() == 0 ? false : true);
 			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!cd.stft_view_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && cd.average_enabled.load());

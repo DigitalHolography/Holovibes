@@ -70,7 +70,7 @@ namespace holovibes
 
 		GLuint Vision3DWindow::load_matrix(glm::vec3 Translate, glm::vec3 const & Rotate, float scale)
 		{
-			glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 2048.f / 2048.f, 0.1f, 100.f);
+			glm::mat4 Projection = glm::perspective(glm::radians(45.0f), frame_desc_.width / static_cast<float>(frame_desc_.height), 0.1f, 100.f);
 			glm::mat4 View = glm::translate(glm::mat4(1.0f), -Translate);
 			View = glm::rotate(View, Rotate.z, glm::vec3(0.0f, 0.0f, -1.0f));
 			View = glm::rotate(View, Rotate.y, glm::vec3(-1.0f, 0.0f, 0.0f));

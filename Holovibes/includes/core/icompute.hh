@@ -244,10 +244,10 @@ namespace holovibes
 		std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 
 		std::mutex		stftGuard;
-		float			*gpu_float_cut_xz_;
-		float			*gpu_float_cut_yz_;
-		ushort			*gpu_ushort_cut_xz_;
-		ushort			*gpu_ushort_cut_yz_;
+		void			*gpu_float_cut_xz_;
+		void			*gpu_float_cut_yz_;
+		void			*gpu_ushort_cut_xz_;
+		void			*gpu_ushort_cut_yz_;
 		cufftComplex	*gpu_stft_buffer_;
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
