@@ -45,7 +45,7 @@ namespace holovibes
 			void initShaderProgram();
 			void initBuffers();
 
-			void setZoneBuffer(int side);
+			void setZoneBuffer(QSize size);
 			void setZoneBuffer(int side, Rectangle rect, KindOfOverlay k);
 			void resetVerticesBuffer();
 			void initCrossBuffer();
@@ -57,7 +57,7 @@ namespace holovibes
 			void setColor();
 
 			void press(QPoint pos);
-			void move(QPoint pos, int side);
+			void move(QPoint pos, QSize size);
 			void release(ushort frameSide);
 
 		protected:

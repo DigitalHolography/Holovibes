@@ -204,15 +204,17 @@ namespace holovibes
 			}
 		}
 
-		void	HOverlay::setZoneBuffer(int side)
+		void	HOverlay::setZoneBuffer(QSize size)
 		{
 			if (Program)
 			{
 				Program->bind();
-				const float x0 = ((static_cast<float>(Zone.topLeft().x()) - (side * 0.5f)) / side) * 2.f;
-				const float y0 = (-((static_cast<float>(Zone.topLeft().y()) - (side * 0.5f)) / side)) * 2.f;
-				const float x1 = ((static_cast<float>(Zone.bottomRight().x()) - (side * 0.5f)) / side) * 2.f;
-				const float y1 = (-((static_cast<float>(Zone.bottomRight().y()) - (side * 0.5f)) / side)) * 2.f;
+				const float w = static_cast<float>(size.width());
+				const float h = static_cast<float>(size.height());
+				const float x0 = ((static_cast<float>(Zone.topLeft().x()) - (w * 0.5f)) / w) * 2.f;
+				const float y0 = (-((static_cast<float>(Zone.topLeft().y()) - (h * 0.5f)) / h)) * 2.f;
+				const float x1 = ((static_cast<float>(Zone.bottomRight().x()) - (w * 0.5f)) / w) * 2.f;
+				const float y1 = (-((static_cast<float>(Zone.bottomRight().y()) - (h * 0.5f)) / h)) * 2.f;
 				const auto offset = (kOverlay == Noise) ? (8 * sizeof(float)) : 0;
 
 				rectBuffer[(kOverlay == Noise)] = Zone;
@@ -333,7 +335,7 @@ namespace holovibes
 			Enabled = true;
 		}
 
-		void	HOverlay::move(QPoint pos, int side)
+		void	HOverlay::move(QPoint pos, QSize size)
 		{
 			Zone.setBottomRight(pos);
 			if (kOverlay == Filter2D)
@@ -347,7 +349,7 @@ namespace holovibes
 				));
 			}
 			if (Enabled)
-				setZoneBuffer(side);
+				setZoneBuffer(size);
 		}
 
 		void	HOverlay::release(ushort frameSide)

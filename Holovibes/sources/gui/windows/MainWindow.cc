@@ -869,7 +869,7 @@ namespace holovibes
 			notify();
 			if (is_enabled_camera_)
 			{
-				QPoint pos(0, 4);
+				QPoint pos(0, 0);
 				QSize size(512, 512);
 				init_image_mode(pos, size);
 				auto& cd = holovibes_.get_compute_desc();

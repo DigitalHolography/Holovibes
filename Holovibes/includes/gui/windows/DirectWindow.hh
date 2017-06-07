@@ -38,7 +38,7 @@ namespace holovibes
 			virtual void	initializeGL();
 			virtual void	resizeGL(int width, int height);
 			virtual void	paintGL();
-
+			
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);

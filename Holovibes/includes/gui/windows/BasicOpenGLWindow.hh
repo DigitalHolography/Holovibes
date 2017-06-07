@@ -56,6 +56,8 @@ namespace holovibes
 
 		protected:
 			// Fields -----------
+
+			Qt::WindowState			State;
 			Queue&					Qu;
 			const FrameDescriptor&	Fd;
 			const KindOfView		kView;
@@ -95,6 +97,8 @@ namespace holovibes
 			// Transform functions
 			void	setTranslate();
 			void	setScale();
+
+			void	updateDisplaySquare();
 		};
 	}
 }

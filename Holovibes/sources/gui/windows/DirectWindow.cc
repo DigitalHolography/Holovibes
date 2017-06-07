@@ -129,7 +129,7 @@ namespace holovibes
 			};
 			glGenBuffers(1, &Vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_DYNAMIC_DRAW);
 
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
@@ -167,11 +167,20 @@ namespace holovibes
 			startTimer(1000 / static_cast<float>(compute_desc_.display_rate.load()));
 		}
 		
-		void	DirectWindow::resizeGL(int width, int height)
+		void	DirectWindow::resizeGL(int w, int h)
 		{
-			const int min = std::min(width, height);
-			resize(min, min);
+			const int min = std::min(w, h);
+
 			setFramePosition(QPoint(0, 0));
+
+			if (State == Qt::WindowNoState)
+			{
+				if ((min != width() || min != height()))
+					resize(min, min);
+			}
+			else if (State == Qt::WindowFullScreen)
+				resize(w, h);
+
 			glViewport(0, 0, min, min);
 		}
 
@@ -226,7 +235,7 @@ namespace holovibes
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			if (e->buttons() == Qt::LeftButton)
-				Overlay.move(e->pos(), width());
+				Overlay.move(e->pos(), size());
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)

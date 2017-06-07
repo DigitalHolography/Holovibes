@@ -45,4 +45,6 @@ namespace holovibes
 		};
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
 	}
+	std::ostream& operator<<(std::ostream& os, const QPoint& p);
+	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

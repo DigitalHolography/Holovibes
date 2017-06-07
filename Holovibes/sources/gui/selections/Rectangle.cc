@@ -94,4 +94,16 @@ namespace holovibes
 			return (os);
 		}
 	}
+
+	std::ostream& operator<<(std::ostream& os, const QPoint& p)
+	{
+		os << "x: " << p.x() << ", y: " << p.y();
+		return os;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const QSize& s)
+	{
+		os << "width: " << s.width() << ", height: " << s.height();
+		return os;
+	}
 }
