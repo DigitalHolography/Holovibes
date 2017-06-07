@@ -124,7 +124,7 @@ namespace holovibes
 			glEnableVertexAttribArray(1);
 			glBindBuffer(GL_ARRAY_BUFFER, colorBufferObject_);
 
-			startTimer(DISPLAY_RATE);
+			startTimer(1000 / static_cast<float>(compute_desc_.display_rate.load()));
 
 			delete[] vertex_buffer;
 		}

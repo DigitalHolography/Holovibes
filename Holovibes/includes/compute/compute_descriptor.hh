@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v4.3.170531"; /*!< Current version of this project. */
+	const static std::string version = "v4.3.170607"; /*!< Current version of this project. */
 
 	#ifndef TUPLE4F
 	# define TUPLE4F
@@ -182,6 +182,8 @@ namespace holovibes
 		std::atomic<ushort>				p_accu_enabled;
 		std::atomic<ushort>				p_accu_min_level;
 		std::atomic<ushort>				p_accu_max_level;
+		std::atomic<ushort>				display_rate;
+
 		#pragma endregion
 	};
 }

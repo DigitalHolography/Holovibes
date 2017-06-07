@@ -25,10 +25,6 @@
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
-#ifndef DISPLAY_RATE
-# define DISPLAY_RATE (1000.f / 30.f)
-#endif
-
 namespace holovibes
 {
 	namespace gui

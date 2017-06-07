@@ -168,7 +168,7 @@ namespace holovibes
 
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(DISPLAY_RATE);
+			startTimer(1000 / static_cast<float>(Cd->display_rate.load()));
 		}
 
 		void	SliceWindow::paintGL()

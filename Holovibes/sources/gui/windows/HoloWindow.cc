@@ -21,7 +21,7 @@ namespace holovibes
 		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
 		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, CDescriptor& cd) :
-			DirectWindow(p, s, q, KindOfView::Hologram),
+			DirectWindow(p, s, q, cd, KindOfView::Hologram),
 			Ic(ic),
 			Cd(cd)
 		{}
