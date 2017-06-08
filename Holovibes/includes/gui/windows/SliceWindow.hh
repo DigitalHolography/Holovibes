@@ -24,16 +24,13 @@ namespace holovibes
 			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~SliceWindow();
 			void	setPIndex(ushort pId);
-			void	setCd(ComputeDescriptor* cd);
 			
 		protected:
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
 			ushort		pIndex;
-
-			ComputeDescriptor	*Cd;
-
+			
 			virtual void	initShaders();
 			virtual void	initializeGL();
 			virtual void	paintGL();

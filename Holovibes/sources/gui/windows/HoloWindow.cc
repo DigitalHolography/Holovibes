@@ -20,10 +20,9 @@ namespace holovibes
 	{
 		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, CDescriptor& cd) :
-			DirectWindow(p, s, q, cd, KindOfView::Hologram),
-			Ic(ic),
-			Cd(cd)
+		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic) :
+			DirectWindow(p, s, q, KindOfView::Hologram),
+			Ic(ic)
 		{}
 
 		HoloWindow::~HoloWindow()
@@ -42,7 +41,7 @@ namespace holovibes
 		{
 			DirectWindow::paintGL();
 			// ---------------
-			if (Cd.stft_view_enabled.load())
+			if (Cd->stft_view_enabled.load())
 			{
 				Overlay.drawCross(0, 4);
 			}
@@ -52,15 +51,15 @@ namespace holovibes
 
 		void	HoloWindow::mousePressEvent(QMouseEvent* e)
 		{
-			if (!Cd.stft_view_enabled.load())
+			if (!Cd->stft_view_enabled.load())
 				DirectWindow::mousePressEvent(e);
 		}
 
 		void	HoloWindow::mouseMoveEvent(QMouseEvent* e)
 		{
-			if (!Cd.stft_view_enabled.load())
+			if (!Cd->stft_view_enabled.load())
 				DirectWindow::mouseMoveEvent(e);
-			else if (Cd.stft_view_enabled.load() && !slicesAreLocked.load())
+			else if (Cd->stft_view_enabled.load() && !slicesAreLocked.load())
 				updateCursorPosition(QPoint(
 					e->x() * (Fd.width / static_cast<float>(width())),
 					e->y() * (Fd.height / static_cast<float>(height()))));
@@ -68,7 +67,7 @@ namespace holovibes
 
 		void	HoloWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
-			if (!Cd.stft_view_enabled.load())
+			if (!Cd->stft_view_enabled.load())
 			{
 				DirectWindow::mouseReleaseEvent(e);
 				if (e->button() == Qt::LeftButton)
@@ -78,20 +77,20 @@ namespace holovibes
 					{
 						if (Overlay.getKind() == Filter2D)
 						{
-							Cd.stftRoiZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->stftRoiZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 							Ic->request_filter2D_roi_update();
 							Ic->request_filter2D_roi_end();
 						}
 						else if (Overlay.getKind() == Autofocus)
 						{
-							Cd.autofocusZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->autofocusZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 							Ic->request_autofocus();
 							Overlay.setKind(KindOfOverlay::Zoom);
 						}
 						else if (Overlay.getKind() == Signal)
-							Cd.signalZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->signalZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 						else if (Overlay.getKind() == Noise)
-							Cd.noiseZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->noiseZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
 						Ic->notify_observers();
 					}
 				}
@@ -102,7 +101,7 @@ namespace holovibes
 
 		void	HoloWindow::wheelEvent(QWheelEvent *e)
 		{
-			if (!Cd.stft_view_enabled.load())
+			if (!Cd->stft_view_enabled.load())
 				BasicOpenGLWindow::wheelEvent(e);
 		}
 
@@ -111,7 +110,7 @@ namespace holovibes
 			static bool initCross = false;
 
 			DirectWindow::keyPressEvent(e);
-			if (Cd.stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
+			if (Cd->stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
 				slicesAreLocked.exchange(!slicesAreLocked.load());
 				makeCurrent();
@@ -134,8 +133,8 @@ namespace holovibes
 		void	HoloWindow::focusInEvent(QFocusEvent *e)
 		{
 			QOpenGLWindow::focusInEvent(e);
-			Cd.current_window.exchange(WindowKind::MainDisplay);
-			Cd.notify_observers();
+			Cd->current_window.exchange(WindowKind::MainDisplay);
+			Cd->notify_observers();
 		}
 
 		void	HoloWindow::updateCursorPosition(QPoint pos)
@@ -143,7 +142,7 @@ namespace holovibes
 			std::stringstream ss;
 			ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
 			InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
-			Cd.stftCursor(&pos, AccessMode::Set);
+			Cd->stftCursor(&pos, AccessMode::Set);
 			// ---------------
 			makeCurrent();
 			Overlay.setCrossBuffer(pos, QSize(Fd.width, Fd.height));

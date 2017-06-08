@@ -115,7 +115,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\BitFlow SDK 6.30\Bin64;C:\BitFlow SDK 6.30\Lib64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\BitFlow SDK 6.30\Lib64\Cid.lib;C:\BitFlow SDK 6.30\Lib64\BFD.lib;C:\BitFlow SDK 6.30\Lib64\BFDiskIO.lib;C:\BitFlow SDK 6.30\Lib64\BFEr.lib;C:\BitFlow SDK 6.30\Lib64\BFOS.lib;C:\BitFlow SDK 6.30\Lib64\BFS.lib;C:\BitFlow SDK 6.30\Lib64\BufferInterface.lib;C:\BitFlow SDK 6.30\Lib64\Gn2d.lib;C:\BitFlow SDK 6.30\Lib64\R2d.lib;C:\BitFlow SDK 6.30\Lib64\R64d.lib;C:\BitFlow SDK 6.30\Lib64\Bid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Cid.lib;BFD.lib;BFDiskIO.lib;BFEr.lib;BFOS.lib;BFS.lib;BufferInterface.lib;Gn2d.lib;R2d.lib;R64d.lib;Bid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,8 +151,8 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\BitFlow SDK 6.30\Bin64;C:\local\boost_1_63_0\lib64-msvc-14.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\BitFlow SDK 6.30\Lib64\BFD.lib;C:\BitFlow SDK 6.30\Lib64\BFEr.lib;C:\BitFlow SDK 6.30\Lib64\BFOS.lib;C:\BitFlow SDK 6.30\Lib64\BFS.lib;C:\BitFlow SDK 6.30\Lib64\Bid.lib;C:\BitFlow SDK 6.30\Lib64\BufferInterface.lib;C:\BitFlow SDK 6.30\Lib64\Gn2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\BitFlow SDK 6.30\Lib64;C:\BitFlow SDK 6.30\Bin64;C:\local\boost_1_63_0\lib64-msvc-14.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>BFD.lib;BFEr.lib;BFOS.lib;BFS.lib;Bid.lib;BufferInterface.lib;Gn2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

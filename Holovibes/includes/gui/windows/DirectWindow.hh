@@ -21,8 +21,8 @@ namespace holovibes
 		class DirectWindow : public BasicOpenGLWindow
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd);
-			DirectWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, KindOfView k);
+			DirectWindow(QPoint p, QSize s, Queue& q);
+			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~DirectWindow();
 
 			Rectangle	getSignalZone() const;
@@ -44,9 +44,6 @@ namespace holovibes
 			void	mouseReleaseEvent(QMouseEvent* e);
 
 			void	zoomInRect(Rectangle zone);
-
-		private:
-			ComputeDescriptor&	compute_desc_;
 		};
 	}
 }

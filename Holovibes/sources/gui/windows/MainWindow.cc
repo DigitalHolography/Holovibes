@@ -461,7 +461,7 @@ namespace holovibes
 				cd.stft_level.exchange(ptree.get<uint>("config.stft_buffer_size", cd.stft_level.load()));
 				cd.ref_diff_level.exchange(ptree.get<uint>("config.reference_buffer_size", cd.ref_diff_level.load()));
 				cd.img_acc_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", cd.img_acc_level.load()));
-				cd.display_rate.exchange(ptree.get<ushort>("config.display_rate", cd.display_rate.load()));
+				cd.display_rate.exchange(ptree.get<float>("config.display_rate", cd.display_rate.load()));
 
 				// Camera type
 				//const int camera_type = ptree.get<int>("image_rendering.camera", 0);
@@ -595,7 +595,7 @@ namespace holovibes
 			ptree.put("config.convolution_buffer_size", cd.special_buffer_size.load());
 			ptree.put("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
-			ptree.put<ushort>("config.display_rate", cd.display_rate.load());
+			ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate.load()));
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
@@ -882,11 +882,11 @@ namespace holovibes
 				{
 					createPipe();
 				}
-				mainDisplay.reset(new DirectWindow(
-					pos,
-					size,
-					holovibes_.get_capture_queue(),
-					cd));
+				mainDisplay.reset(
+					new DirectWindow(
+						pos, size,
+						holovibes_.get_capture_queue()));
+				mainDisplay->setCd(&holovibes_.get_compute_desc());
 				auto& fd = holovibes_.get_capture_queue().get_frame_desc();
 				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
@@ -928,11 +928,12 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				mainDisplay.reset(new HoloWindow(
-					pos, size,
-					holovibes_.get_output_queue(),
-					holovibes_.get_pipe(),
-					holovibes_.get_compute_desc()));
+				mainDisplay.reset(
+					new HoloWindow(
+						pos, size,
+						holovibes_.get_output_queue(),
+						holovibes_.get_pipe()));
+				mainDisplay->setCd(&holovibes_.get_compute_desc());
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
 			}

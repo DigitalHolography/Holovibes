@@ -182,7 +182,7 @@ namespace holovibes
 		std::atomic<ushort>				p_accu_enabled;
 		std::atomic<ushort>				p_accu_min_level;
 		std::atomic<ushort>				p_accu_max_level;
-		std::atomic<ushort>				display_rate;
+		std::atomic<float>				display_rate;
 
 		#pragma endregion
 	};

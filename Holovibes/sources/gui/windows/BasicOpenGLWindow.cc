@@ -23,6 +23,7 @@ namespace holovibes
 			QOpenGLWindow(), QOpenGLFunctions(),
 			State(Qt::WindowNoState),
 			Qu(q),
+			Cd(nullptr),
 			Fd(Qu.get_frame_desc()),
 			kView(k),
 			Translate{ 0.f, 0.f },
@@ -261,6 +262,11 @@ namespace holovibes
 		{
 			makeCurrent();
 			Overlay.resetVerticesBuffer();
+		}
+
+		void	BasicOpenGLWindow::setCd(ComputeDescriptor* cd)
+		{
+			Cd = cd;
 		}
 	}
 }

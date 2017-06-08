@@ -21,8 +21,7 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
-			pIndex(0),
-			Cd(nullptr)
+			pIndex(0)
 		{}
 
 		SliceWindow::~SliceWindow()
@@ -42,12 +41,7 @@ namespace holovibes
 				Overlay.setCrossBuffer(p, s);
 			}
 		}
-
-		void	SliceWindow::setCd(ComputeDescriptor* cd)
-		{
-			Cd = cd;
-		}
-
+		
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
@@ -168,7 +162,7 @@ namespace holovibes
 
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / static_cast<float>(Cd->display_rate.load()));
+			startTimer(1000 / Cd->display_rate.load());
 		}
 
 		void	SliceWindow::paintGL()

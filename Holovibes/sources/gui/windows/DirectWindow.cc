@@ -16,16 +16,14 @@ namespace holovibes
 {
 	namespace gui
 	{
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd) :
+		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q) :
 			BasicOpenGLWindow(p, s, q, KindOfView::Direct),
 			texDepth(0),
-			texType(0),
-			compute_desc_(cd)
+			texType(0)
 		{}
 
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, KindOfView k) :
-			BasicOpenGLWindow(p, s, q, k),
-			compute_desc_(cd)
+		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			BasicOpenGLWindow(p, s, q, k)
 		{}
 
 		DirectWindow::~DirectWindow()
@@ -164,7 +162,7 @@ namespace holovibes
 			Program->release();
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / static_cast<float>(compute_desc_.display_rate.load()));
+			startTimer(1000 / Cd->display_rate.load());
 		}
 		
 		void	DirectWindow::resizeGL(int w, int h)

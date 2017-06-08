@@ -20,18 +20,15 @@ namespace holovibes
 	namespace gui
 	{
 		using SharedPipe = std::shared_ptr<ICompute>;
-		using CDescriptor = ComputeDescriptor;
 
 		class HoloWindow : public DirectWindow
 		{
 		public:
-			HoloWindow(QPoint p, QSize s, Queue& q,
-				SharedPipe ic, CDescriptor& cd);
+			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic);
 			virtual ~HoloWindow();
 
 		protected:
 			SharedPipe		Ic;
-			CDescriptor&	Cd;
 
 			virtual void	initShaders();
 			virtual void	paintGL();

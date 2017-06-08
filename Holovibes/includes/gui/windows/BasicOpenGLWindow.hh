@@ -54,11 +54,14 @@ namespace holovibes
 			void				setAngle(float a);
 			void				setFlip(int f);
 
+			void	setCd(ComputeDescriptor* cd);
+
 		protected:
 			// Fields -----------
 
 			Qt::WindowState			State;
 			Queue&					Qu;
+			ComputeDescriptor		*Cd;
 			const FrameDescriptor&	Fd;
 			const KindOfView		kView;
 
