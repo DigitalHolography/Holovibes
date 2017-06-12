@@ -62,7 +62,8 @@ namespace holovibes
 		{
 			makeCurrent();
 			initializeOpenGLFunctions();
-			glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
+			//glClearColor(0.128f, 0.128f, 0.128f, 1.0f);
+			glClearColor(0.f, 0.f, 0.f, 1.0f);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
