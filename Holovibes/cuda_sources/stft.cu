@@ -59,8 +59,8 @@ static void kernel_stft_moment(cuComplex	*input,
 		while (pmin <= pmax)
 		{
 			cuComplex *current_pframe = input + (frame_res * pmin);
-			output[id].x += current_pframe[id].x;
-			output[id].y += current_pframe[id].y;
+			output[id].x += hypotf(current_pframe[id].x, current_pframe[id].y);
+			output[id].y = 0.f;
 			++pmin;
 		}
 	}
