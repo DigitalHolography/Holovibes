@@ -60,7 +60,6 @@ static void kernel_stft_moment(cuComplex	*input,
 		{
 			cuComplex *current_pframe = input + (frame_res * pmin);
 			output[id].x += hypotf(current_pframe[id].x, current_pframe[id].y);
-			output[id].y = 0.f;
 			++pmin;
 		}
 	}
@@ -118,7 +117,6 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
 	{
-		uint i = 0;
 		cuComplex pixel = make_cuComplex(0, 0);
 		for (int i = 0; i < acc_level_yz; ++i)
 			pixel = cuCaddf(pixel, input[x0 + i + id * width]);

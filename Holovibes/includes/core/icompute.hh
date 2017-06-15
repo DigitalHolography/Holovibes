@@ -282,6 +282,7 @@ namespace holovibes
 		cufftComplex	*gpu_filter2d_buffer;
 		uint			ref_diff_counter;
 		uint			stft_frame_counter;
+		bool			stft_handle;
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;

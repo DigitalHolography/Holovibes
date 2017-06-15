@@ -415,13 +415,11 @@ namespace holovibes
 				this,
 				gpu_input_frame_ptr_,
 				gpu_stft_queue_));
-
 			fn_vect_.push_back(std::bind(
 				&ICompute::stft_handler,
 				this,
 				gpu_input_buffer_,
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
-			
 			if (compute_desc_.p_accu_enabled.load())
 			{
 				fn_vect_.push_back(std::bind(stft_moment,
@@ -1097,37 +1095,64 @@ namespace holovibes
 
 	void Pipe::exec()
 	{
+		uint steps_counter = 0;
 		if (global::global_config.flush_on_refresh)
 			input_.flush();
 		while (!termination_requested_.load())
 		{
 			if (input_.get_current_elts() >= input_length_)
 			{
-				for (FnType& f : fn_vect_) f();
-				if (!output_.enqueue(
-					get_enqueue_buffer(),
-					cudaMemcpyDeviceToDevice))
+				for (FnType& f : fn_vect_)
 				{
-					input_.dequeue();
-					break;
+					f();
+					if (stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
+					{
+						stft_handle = false;
+						break;
+					}
+					if (stft_handle)
+						stft_handle = false;
 				}
-				if (compute_desc_.view_mode == ComplexViewMode::Complex && compute_desc_.stft_view_enabled.load())
+				if (compute_desc_.stft_enabled.load())
 				{
-					gpu_stft_slice_queue_xz->enqueue(
-						gpu_float_cut_xz_,
-						cudaMemcpyDeviceToDevice);
-					gpu_stft_slice_queue_yz->enqueue(
-						gpu_float_cut_yz_,
-						cudaMemcpyDeviceToDevice);
+					if (stft_frame_counter == compute_desc_.stft_steps.load())
+					{
+						if (!output_.enqueue(
+							get_enqueue_buffer(),
+							cudaMemcpyDeviceToDevice))
+						{
+							input_.dequeue();
+							break;
+						}
+						if (compute_desc_.view_mode == ComplexViewMode::Complex && compute_desc_.stft_view_enabled.load())
+						{
+							gpu_stft_slice_queue_xz->enqueue(
+								gpu_float_cut_xz_,
+								cudaMemcpyDeviceToDevice);
+							gpu_stft_slice_queue_yz->enqueue(
+								gpu_float_cut_yz_,
+								cudaMemcpyDeviceToDevice);
+						}
+						else if (compute_desc_.stft_view_enabled.load())
+						{
+							gpu_stft_slice_queue_xz->enqueue(
+								gpu_ushort_cut_xz_,
+								cudaMemcpyDeviceToDevice);
+							gpu_stft_slice_queue_yz->enqueue(
+								gpu_ushort_cut_yz_,
+								cudaMemcpyDeviceToDevice);
+						}
+					}
 				}
-				else if (compute_desc_.stft_view_enabled.load())
+				else
 				{
-					gpu_stft_slice_queue_xz->enqueue(
-						gpu_ushort_cut_xz_,
-						cudaMemcpyDeviceToDevice);
-					gpu_stft_slice_queue_yz->enqueue(
-						gpu_ushort_cut_yz_,
-						cudaMemcpyDeviceToDevice);
+					if (!output_.enqueue(
+						get_enqueue_buffer(),
+						cudaMemcpyDeviceToDevice))
+					{
+						input_.dequeue();
+						break;
+					}
 				}
 				input_.dequeue();
 				if (refresh_requested_.load())

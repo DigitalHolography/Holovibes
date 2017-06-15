@@ -80,7 +80,8 @@ namespace holovibes
 		af_env_({ 0 }),
 		past_time_(std::chrono::high_resolution_clock::now()),
 		gpu_float_cut_xz_(nullptr),
-		gpu_float_cut_yz_(nullptr)
+		gpu_float_cut_yz_(nullptr),
+		stft_handle(false)
 	{
 		int err = 0;
 
@@ -781,7 +782,7 @@ namespace holovibes
 				b,
 				static_cast<cudaStream_t>(0));
 		}
-		if (compute_desc_.stft_view_enabled.load())
+		if (compute_desc_.stft_view_enabled.load() && b == true)
 		{
 			// Conservation of the coordinates when cursor is outside of the window
 			QPoint cursorPos;
@@ -806,7 +807,33 @@ namespace holovibes
 				compute_desc_.nsamples.load(),
 				compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
 				compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
+			if (autocontrast_requested_.load())
+			{
+				if (compute_desc_.stft_view_enabled.load())
+				{
+					if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
+						autocontrast_caller(
+							static_cast<float *>(gpu_float_cut_xz_),
+							static_cast<uint>(width * compute_desc_.nsamples.load()),
+							static_cast<uint>(width * compute_desc_.cuts_contrast_p_offset.load()),
+							std::ref(compute_desc_),
+							std::ref(compute_desc_.contrast_min_slice_xz),
+							std::ref(compute_desc_.contrast_max_slice_xz),
+							static_cast<cudaStream_t>(0));
+					else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
+						autocontrast_caller(
+							static_cast<float *>(gpu_float_cut_yz_),
+							width * compute_desc_.nsamples.load(),
+							width * compute_desc_.cuts_contrast_p_offset.load(),
+							std::ref(compute_desc_),
+							std::ref(compute_desc_.contrast_min_slice_yz),
+							std::ref(compute_desc_.contrast_max_slice_yz),
+							static_cast<cudaStream_t>(0));
+				}
+				autocontrast_requested_.exchange(false);
+			}
 		}
+		stft_handle = true;
 	}
 
 	void ICompute::queue_enqueue(void* input, Queue* queue)
@@ -894,7 +921,7 @@ namespace holovibes
 			{
 				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
-				long long voxelPerSeconds = (fps / compute_desc_.stft_steps) * output_fd.frame_res() * compute_desc_.nsamples.load();
+				long long voxelPerSeconds = fps * output_fd.frame_res() * compute_desc_.nsamples.load();
 				manager->insert_info(gui::InfoManager::InfoType::THROUGHPUT, "Throughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVoxel/s"));
 			}
 			past_time_ = time;
