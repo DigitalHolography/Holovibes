@@ -36,6 +36,7 @@ namespace holovibes
 		{
 		public:
 			Rectangle();
+			Rectangle(const QRect& rect);
 			Rectangle(const Rectangle& rect);
 			Rectangle(const QPoint &topleft, const QSize &size);
 			Rectangle(const uint width, const uint height);
@@ -44,6 +45,7 @@ namespace holovibes
 			void	checkCorners(ushort frameSide, KindOfOverlay);
 		};
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
+		Rectangle operator-(Rectangle& rec, const QPoint& point);
 	}
 	std::ostream& operator<<(std::ostream& os, const QPoint& p);
 	std::ostream& operator<<(std::ostream& os, const QSize& s);

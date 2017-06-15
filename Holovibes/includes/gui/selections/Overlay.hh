@@ -34,7 +34,7 @@ namespace holovibes
 
 			const Rectangle&		getConstZone()	const;
 			Rectangle&				getZone();
-			Rectangle				getTexZone(ushort frameSide) const;
+			Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
 			Rectangle				getRectBuffer(KindOfOverlay k = Zoom) const;
 
 			const KindOfOverlay		getKind()	const;
@@ -59,6 +59,8 @@ namespace holovibes
 			void press(QPoint pos);
 			void move(QPoint pos, QSize size);
 			void release(ushort frameSide);
+
+			void resizeFilterZone(QPoint winpos, QSize screen);
 
 		protected:
 			Rectangle				Zone;

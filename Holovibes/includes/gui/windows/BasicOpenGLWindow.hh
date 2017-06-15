@@ -59,7 +59,8 @@ namespace holovibes
 		protected:
 			// Fields -----------
 
-			Qt::WindowState			State;
+			Qt::WindowState			winState;
+			QPoint					winPos;
 			Queue&					Qu;
 			ComputeDescriptor		*Cd;
 			const FrameDescriptor&	Fd;

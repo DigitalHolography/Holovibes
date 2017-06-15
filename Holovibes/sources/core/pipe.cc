@@ -424,7 +424,8 @@ namespace holovibes
 			
 			if (compute_desc_.p_accu_enabled.load())
 			{
-				fn_vect_.push_back(std::bind(stft_moment, gpu_stft_buffer_,
+				fn_vect_.push_back(std::bind(stft_moment,
+					gpu_stft_buffer_,
 					gpu_input_frame_ptr_,
 					input_fd.frame_res(),
 					compute_desc_.p_accu_min_level.load(),

@@ -21,7 +21,8 @@ namespace holovibes
 	{
 		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
 			QOpenGLWindow(), QOpenGLFunctions(),
-			State(Qt::WindowNoState),
+			winState(Qt::WindowNoState),
+			winPos(p),
 			Qu(q),
 			Cd(nullptr),
 			Fd(Qu.get_frame_desc()),
@@ -92,14 +93,16 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
-				State = Qt::WindowFullScreen;
-				setWindowState(State);
-				updateDisplaySquare();
+				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
+				winState = Qt::WindowFullScreen;
+				setWindowState(winState);
+				//updateDisplaySquare();
 				break;
 			case Qt::Key::Key_Escape:
-				State = Qt::WindowNoState;
-				setWindowState(State);
-				updateDisplaySquare();
+				winPos = QPoint(0, 0);
+				winState = Qt::WindowNoState;
+				setWindowState(winState);
+				//updateDisplaySquare();
 				break;
 			case Qt::Key::Key_8:
 				Translate[1] -= 0.1f / Scale;
@@ -130,32 +133,27 @@ namespace holovibes
 				makeCurrent();
 				Program->bind();
 
-				if (State == Qt::WindowFullScreen)
+				if (winState == Qt::WindowFullScreen)
 				{
-					const float x_ = 1.f - (static_cast<float>((screen.width() / 2 - screen.height() / 2)) /
-						static_cast<float>((screen.width() / 2)));
-					std::cout << x_ << std::endl;
+					const float x_ = 1.f - (
+						static_cast<float>((screen.width() / 2 - screen.height() / 2)) /
+						static_cast<float>((screen.width() / 2))
+					);
 					vec = {
-						-x_, 1.f,
-						0.0f, 0.0f,
-						x_, 1.f,
-						1.f, 0.0f,
-						x_, -1.f,
-						1.f, 1.f,
-						-x_, -1.f,
-						0.0f, 1.f };
+						-x_, 1.f, 0.f, 0.f,
+						 x_, 1.f, 1.f, 0.f,
+						 x_, -1.f, 1.f, 1.f,
+						-x_, -1.f, 0.f, 1.f
+					};
 				}
 				else
 				{
 					vec = {
-						-1.f, 1.f,
-						0.0f, 0.0f,
-						1.f, 1.f,
-						1.f, 0.0f,
-						1.f, -1.f,
-						1.f, 1.f,
-						-1.f, -1.f,
-						0.0f, 1.f };
+						-1.f, 1.f, 0.f, 0.f,
+						 1.f, 1.f, 1.f, 0.f,
+						 1.f, -1.f, 1.f, 1.f,
+						-1.f, -1.f, 0.f, 1.f
+					};
 				}
 				glBindBuffer(GL_ARRAY_BUFFER, Vbo);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, 16 * sizeof(float), vec.data());

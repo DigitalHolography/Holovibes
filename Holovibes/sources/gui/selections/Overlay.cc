@@ -62,11 +62,11 @@ namespace holovibes
 			return (Colors[kOverlay]);
 		}
 
-		Rectangle		HOverlay::getTexZone(ushort frameSide) const
+		Rectangle		HOverlay::getTexZone(ushort winSide, ushort frameSide) const
 		{
 			return (Rectangle(
-				Zone.topLeft() * frameSide / 512,
-				Zone.size() * frameSide / 512
+				Zone.topLeft() * frameSide / winSide,
+				Zone.size() * frameSide / winSide
 			));
 		}
 		
@@ -364,6 +364,11 @@ namespace holovibes
 			{
 				setKind((kOverlay == Signal) ? Noise : Signal);
 			}
+		}
+
+		void	HOverlay::resizeFilterZone(QPoint winpos, QSize screen)
+		{
+			Zone - winpos;
 		}
 	}
 }

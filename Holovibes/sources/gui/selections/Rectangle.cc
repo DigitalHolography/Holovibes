@@ -20,6 +20,9 @@ namespace holovibes
 		Rectangle::Rectangle() : QRect()
 		{}
 
+		Rectangle::Rectangle(const QRect& rect) : QRect(rect)
+		{}
+
 		Rectangle::Rectangle(const Rectangle& rect)
 			: QRect()
 		{
@@ -89,9 +92,18 @@ namespace holovibes
 
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj)
 		{
-			os << "\ttopLeft() : " << obj.topLeft().x() << " " << obj.topLeft().y() << std::endl;
-			os << "\tbottomRight() : " << obj.bottomRight().x() << " " << obj.bottomRight().y() << std::endl;
+			os << "topLeft() : " << obj.topLeft().x() << " " << obj.topLeft().y() << std::endl;
+			os << "bottomRight() : " << obj.bottomRight().x() << " " << obj.bottomRight().y() << std::endl;
 			return (os);
+		}
+
+		Rectangle operator-(Rectangle& rec, const QPoint& point)
+		{
+			Rectangle ret = {0, 0};
+
+			ret.setTopLeft(rec.topLeft() - point);
+			ret.setBottomRight(rec.bottomRight() - point);
+			return ret;
 		}
 	}
 

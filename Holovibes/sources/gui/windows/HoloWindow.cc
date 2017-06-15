@@ -73,24 +73,31 @@ namespace holovibes
 				if (e->button() == Qt::LeftButton)
 				{
 					if (Overlay.getConstZone().topLeft() !=
-						Overlay.getConstZone().bottomRight())
+						Overlay.getConstZone().bottomRight() && 
+						Overlay.getKind() != Zoom)
 					{
+						Rectangle texZone = Overlay.getTexZone(height(), Fd.width);
 						if (Overlay.getKind() == Filter2D)
 						{
-							Cd->stftRoiZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							/*if (winState == Qt::WindowFullScreen)
+							{
+								texZone.setLeft(texZone.left() - winPos.x());
+								texZone.setRight(texZone.right() - winPos.x());
+							}*/
+							Cd->stftRoiZone(texZone, AccessMode::Set);
 							Ic->request_filter2D_roi_update();
 							Ic->request_filter2D_roi_end();
 						}
 						else if (Overlay.getKind() == Autofocus)
 						{
-							Cd->autofocusZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->autofocusZone(texZone, AccessMode::Set);
 							Ic->request_autofocus();
 							Overlay.setKind(KindOfOverlay::Zoom);
 						}
 						else if (Overlay.getKind() == Signal)
-							Cd->signalZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->signalZone(texZone, AccessMode::Set);
 						else if (Overlay.getKind() == Noise)
-							Cd->noiseZone(Overlay.getTexZone(Fd.width), AccessMode::Set);
+							Cd->noiseZone(texZone, AccessMode::Set);
 						Ic->notify_observers();
 					}
 				}

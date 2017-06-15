@@ -77,7 +77,7 @@ namespace holovibes
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
 			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
-			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STATIC_DRAW);	//GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
 				(Fd.byteEndian == Endianness::BigEndian) ?
 				GL_TRUE : GL_FALSE);
@@ -96,7 +96,7 @@ namespace holovibes
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	// GL_NEAREST ~ GL_LINEAR
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			if (Fd.depth == 8.f)
 			{
@@ -170,15 +170,16 @@ namespace holovibes
 		{
 			const int min = std::min(w, h);
 
-			setFramePosition(QPoint(0, 0));
+			//setFramePosition(QPoint(0, 0));
+			setFramePosition(winPos);
 
-			if (State == Qt::WindowNoState)
+			//if (winState == Qt::WindowNoState)
 			{
 				if ((min != width() || min != height()))
 					resize(min, min);
 			}
-			else if (State == Qt::WindowFullScreen)
-				resize(w, h);
+			/*else if (winState == Qt::WindowFullScreen)
+				resize(w, h);*/
 
 			glViewport(0, 0, min, min);
 		}
