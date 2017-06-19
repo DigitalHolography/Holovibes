@@ -282,7 +282,7 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			
-			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && cd.signal_trig_enabled.load());
+			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct);
 			//findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load() && !cd.stft_view_enabled.load());
 			//findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(cd.vision_3d_enabled.load());
 
@@ -1218,11 +1218,7 @@ namespace holovibes
 			else if (cd.stft_view_enabled.load())
 				cancel_stft_slice_view();
 			if (cd.p_accu_enabled.load())
-			{
 				cd.p_accu_enabled.exchange(false);
-				cd.p_accu_max_level.exchange(1);
-				cd.p_accu_min_level.exchange(1);
-			}
 			cd.stft_view_enabled.exchange(false);
 			set_stft(false);
 			cd.signal_trig_enabled.exchange(false);
@@ -1238,11 +1234,10 @@ namespace holovibes
 
 			if (checked)
 			{
-				if (cd.stft_view_enabled.load())
-					cancel_stft_slice_view();
-
-				// TODO add a wait for a external signal to trigger STFT at the next step
-				set_stft(false);
+				if (cd.stft_enabled.load())
+					cancel_stft_view(cd);
+				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", nullptr);
+				
 				set_stft(true);
 
 				cd.signal_trig_enabled.exchange(true);
@@ -2371,6 +2366,7 @@ namespace holovibes
 			// Getting the path to the input batch file, and the number of frames to record.
 			const std::string input_path = batch_input_line_edit->text().toUtf8();
 			const uint frame_nb = frame_nb_spin_box->value();
+			std::string formatted_path;
 
 			try
 			{
@@ -2382,8 +2378,8 @@ namespace holovibes
 				// Only loading the dll at runtime
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
-				std::string formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
-				formatted_path = format_batch_output(path, file_index_);
+				formatted_path = set_record_filename_properties(q->get_frame_desc(), path);
+				formatted_path = format_batch_output(formatted_path, file_index_);
 
 				is_enabled_camera_ = false;
 

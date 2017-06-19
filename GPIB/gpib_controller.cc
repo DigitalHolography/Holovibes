@@ -285,6 +285,19 @@ namespace gpib
 		}
 	}
 
+	void VisaInterface::send_signal_trig()
+	{
+		/*std::string address_msg("GPIB0::");
+		address_msg.append(boost::lexical_cast<std::string>(address));
+		address_msg.append("::INSTR");
+		pimpl_->status_ = viOpen(pimpl_->default_rm_,
+			(ViString)(address_msg.c_str()),
+			VI_NULL,
+			VI_NULL,
+			&(pimpl_->sessions_.back().first));*/
+		viAssertTrigger(pimpl_->default_rm_, VI_TRIG_PROT_DEFAULT);
+	}
+
 	IVisaInterface* new_gpib_controller(const std::string path)
 	{
 		return new VisaInterface(path);

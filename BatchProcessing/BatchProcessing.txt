@@ -1,0 +1,44 @@
+#Block
+#InstrumentAddress 20
+TRIG:SOUR BUS
+TRIG:SLOP POS
+VOLT 1
+FREQ 100
+*TRG
+#WAIT 200
+#Capture 
+#Block
+#InstrumentAddress 20
+VOLT 2
+FREQ 200
+*TRG
+#WAIT 200
+#Capture 
+#Block
+#InstrumentAddress 20
+VOLT 3
+FREQ 300
+*TRG
+#WAIT 200 
+#Capture
+#Block
+#InstrumentAddress 20
+VOLT 1
+FREQ 100
+*TRG
+#WAIT 200
+#Capture 
+#Block
+#InstrumentAddress 20
+VOLT 2
+FREQ 200
+*TRG
+#WAIT 200
+#Capture 
+#Block
+#InstrumentAddress 20
+VOLT 3
+FREQ 300
+*TRG
+#WAIT 200 
+#Capture

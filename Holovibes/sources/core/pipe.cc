@@ -1102,16 +1102,12 @@ namespace holovibes
 		{
 			if (input_.get_current_elts() >= input_length_)
 			{
+				stft_handle = false;
 				for (FnType& f : fn_vect_)
 				{
 					f();
 					if (stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
-					{
-						stft_handle = false;
 						break;
-					}
-					if (stft_handle)
-						stft_handle = false;
 				}
 				if (compute_desc_.stft_enabled.load())
 				{

@@ -63,6 +63,8 @@ namespace gpib
     /*! Parse the file and report any error in the format. */
     void parse_file(std::ifstream& in);
 
+	void send_signal_trig();
+
   private:
     /*! To decouple dependencies between the GPIB controller and Holovibes,
      * a kind of Pimpl idiom is used. In this case, we do not use an intermediate
