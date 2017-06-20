@@ -151,11 +151,8 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
-
-			glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-			glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
+			
+			setTransform();
 
 			Program->release();
 

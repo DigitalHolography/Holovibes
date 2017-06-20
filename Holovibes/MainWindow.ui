@@ -656,7 +656,7 @@
         <widget class="QCheckBox" name="FFTShiftCheckBox">
          <property name="geometry">
           <rect>
-           <x>90</x>
+           <x>100</x>
            <y>170</y>
            <width>81</width>
            <height>31</height>
@@ -1074,7 +1074,7 @@
           <rect>
            <x>142</x>
            <y>123</y>
-           <width>41</width>
+           <width>42</width>
            <height>21</height>
           </rect>
          </property>
@@ -1085,9 +1085,9 @@
         <widget class="QPushButton" name="RotatePushButton">
          <property name="geometry">
           <rect>
-           <x>98</x>
+           <x>97</x>
            <y>123</y>
-           <width>41</width>
+           <width>42</width>
            <height>21</height>
           </rect>
          </property>
@@ -2539,7 +2539,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

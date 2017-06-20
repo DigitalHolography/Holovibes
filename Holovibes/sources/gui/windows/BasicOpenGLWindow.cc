@@ -12,6 +12,9 @@
 
 #include <QApplication.h>
 #include <qdesktopwidget.h>
+
+#include <glm\gtc\type_ptr.hpp>
+
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 
@@ -27,8 +30,10 @@ namespace holovibes
 			Cd(nullptr),
 			Fd(Qu.get_frame_desc()),
 			kView(k),
-			Translate{ 0.f, 0.f },
+			Translate(0.f, 0.f, 0.f, 0.f),
 			Scale(1.f),
+			Angle(0.f),
+			Flip(0),
 			cuResource(nullptr),
 			cuStream(nullptr),
 			cuPtrToPbo(nullptr),
@@ -89,76 +94,35 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 		{
-			static const QRect screen = QApplication::desktop()->availableGeometry();
+			const QRect screen = QApplication::desktop()->availableGeometry();
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
 				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
 				winState = Qt::WindowFullScreen;
 				setWindowState(winState);
-				//updateDisplaySquare();
 				break;
 			case Qt::Key::Key_Escape:
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
-				//updateDisplaySquare();
 				break;
 			case Qt::Key::Key_8:
 				Translate[1] -= 0.1f / Scale;
-				setTranslate();
+				setTransform();
 				break;
 			case Qt::Key::Key_2:
 				Translate[1] += 0.1f / Scale;
-				setTranslate();
+				setTransform();
 				break;
 			case Qt::Key::Key_6:
 				Translate[0] += 0.1f / Scale;
-				setTranslate();
+				setTransform();
 				break;
 			case Qt::Key::Key_4:
 				Translate[0] -= 0.1f / Scale;
-				setTranslate();
+				setTransform();
 				break;
-			}
-		}
-
-		void	BasicOpenGLWindow::updateDisplaySquare()
-		{
-			if (Program && Vbo)
-			{
-				const QRect			screen = QApplication::desktop()->availableGeometry();
-				std::vector<float>	vec;
-
-				makeCurrent();
-				Program->bind();
-
-				if (winState == Qt::WindowFullScreen)
-				{
-					const float x_ = 1.f - (
-						static_cast<float>((screen.width() / 2 - screen.height() / 2)) /
-						static_cast<float>((screen.width() / 2))
-					);
-					vec = {
-						-x_, 1.f, 0.f, 0.f,
-						 x_, 1.f, 1.f, 0.f,
-						 x_, -1.f, 1.f, 1.f,
-						-x_, -1.f, 0.f, 1.f
-					};
-				}
-				else
-				{
-					vec = {
-						-1.f, 1.f, 0.f, 0.f,
-						 1.f, 1.f, 1.f, 0.f,
-						 1.f, -1.f, 1.f, 1.f,
-						-1.f, -1.f, 0.f, 1.f
-					};
-				}
-				glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, 16 * sizeof(float), vec.data());
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program->release();
 			}
 		}
 
@@ -171,10 +135,9 @@ namespace holovibes
 				if (e->angleDelta().y() > 0)
 				{
 					Scale += 0.1f * Scale;
-					setScale();
 					Translate[0] += xGL * 0.1 / Scale;
 					Translate[1] += -yGL * 0.1 / Scale;
-					setTranslate();
+					setTransform();
 				}
 				else if (e->angleDelta().y() < 0)
 				{
@@ -183,77 +146,64 @@ namespace holovibes
 						resetTransform();
 					else
 					{
-						setScale();
 						Translate[0] -= -xGL * 0.1 / Scale;
 						Translate[1] -= yGL * 0.1 / Scale;
-						setTranslate();
+						setTransform();
 					}
 				}
 			}
 		}
-
-		void	BasicOpenGLWindow::setTranslate()
-		{
-			for (uint id = 0; id < 2; id++)
-				Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
-				(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
-				0.f : Translate[id];
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-				Program->release();
-			}
-		}
-
-		void	BasicOpenGLWindow::setScale()
-		{
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-				Program->release();
-			}
-		}
-
+				
 		void	BasicOpenGLWindow::setAngle(float a)
 		{
 			Angle = a;
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-				Program->release();
-			}
+			setTransform();
 		}
 
 		void	BasicOpenGLWindow::setFlip(int f)
 		{
 			Flip = f;
+			setTransform();
+		}
+
+		void	BasicOpenGLWindow::setTransform()
+		{
+			const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (Flip == 1)), glm::vec3(0.f, 1.f, 0.f));
+			const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(Angle), glm::vec3(0.f, 0.f, 1.f));
+			const glm::mat4 rotYZ = rotY * rotZ;
+
+			const glm::mat4 scl = glm::scale(glm::mat4(1.f), glm::vec3(Scale, Scale, 1.f));
+			glm::mat4 mvp = rotYZ * scl;
+
+			for (uint id = 0; id < 2; id++)
+				Translate[id] = ((Translate[id] > 0 && Translate[id] < FLT_EPSILON) ||
+				(Translate[id] < 0 && Translate[id] > -FLT_EPSILON)) ?
+				0.f : Translate[id];
+
+			glm::vec4 trs = rotYZ * Translate;
+
 			if (Program)
 			{
 				makeCurrent();
 				Program->bind();
+				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle);
 				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
+				glUniform2f(
+					glGetUniformLocation(Program->programId(), "translate"),
+					trs[0], trs[1]);
+				glUniformMatrix4fv(
+					glGetUniformLocation(Program->programId(), "mvp"),
+					1, GL_FALSE,
+					glm::value_ptr(mvp));
 				Program->release();
 			}
 		}
 
 		void	BasicOpenGLWindow::resetTransform()
 		{
-			Translate = { 0.f, 0.f };
+			Translate = { 0.f, 0.f, 0.f, 0.f };
 			Scale = 1.f;
-			if (Program)
-			{
-				makeCurrent();
-				Program->bind();
-				glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-				glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-				Program->release();
-			}
+			setTransform();
 		}
 
 		void	BasicOpenGLWindow::resetSelection()

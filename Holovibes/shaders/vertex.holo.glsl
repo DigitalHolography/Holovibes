@@ -15,20 +15,18 @@
 layout(location = 0) in vec2	xy;
 layout(location = 1) in vec2	uv;
 
-uniform	float	scale;
 uniform	vec2	translate;
 uniform float	angle;
 uniform int		flip;
+uniform mat4	mvp;
 
 out vec2	texCoord;
 
-mat2 rotate2d(float agl){
-    return mat2(cos(agl),-sin(agl),
-                sin(agl), cos(agl));
-}
-
 void main()
 {
-	texCoord = ((flip == 1) ? vec2(uv.x, 1.f - uv.y) : uv) + translate;
-    gl_Position = vec4(rotate2d(angle) * scale * xy, 0.0f, 1.0f);
+	if (flip == 1 && (angle == 90.f || angle == 270.f))
+		texCoord = uv - translate;
+	else
+		texCoord = uv + translate;
+    gl_Position = vec4((mvp * vec4(xy, 0.f, 1.f)).xy, 0.f, 1.f);
 }

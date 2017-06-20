@@ -152,14 +152,9 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
+			
+			setTransform();
 
-			glUniform1f(glGetUniformLocation(Program->programId(), "scale"), Scale);
-			glUniform2f(glGetUniformLocation(Program->programId(), "translate"), Translate[0], Translate[1]);
-			if (kView == KindOfView::Hologram)
-			{
-				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), Flip);
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), Angle * (M_PI / 180.f));
-			}
 			Program->release();
 			Vao.release();
 			glViewport(0, 0, width(), height());
@@ -170,16 +165,10 @@ namespace holovibes
 		{
 			const int min = std::min(w, h);
 
-			//setFramePosition(QPoint(0, 0));
 			setFramePosition(winPos);
 
-			//if (winState == Qt::WindowNoState)
-			{
-				if ((min != width() || min != height()))
-					resize(min, min);
-			}
-			/*else if (winState == Qt::WindowFullScreen)
-				resize(w, h);*/
+			if ((min != width() || min != height()))
+				resize(min, min);
 
 			glViewport(0, 0, min, min);
 		}
@@ -262,13 +251,12 @@ namespace holovibes
 
 			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
 			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;
-			setTranslate();
 
 			const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
 			const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
-
 			Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
-			setScale();
+
+			setTransform();
 		}
 	}
 }

@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <array>
 #include <atomic>
 #include <QOpenGLWindow.h>
 #include <QOpenGLFunctions.h>
@@ -20,6 +19,8 @@
 #include <QOpenGLShaderProgram.h>
 #include <QEvent.h>
 #include <cuda_gl_interop.h>
+
+#include <glm\gtc\matrix_transform.hpp>
 
 #include "Overlay.hh"
 #include "tools_conversion.cuh"
@@ -49,15 +50,18 @@ namespace holovibes
 			const KindOfView	getKindOfView() const;
 			void				setKindOfOverlay(KindOfOverlay k);
 			const KindOfOverlay	getKindOfOverlay() const;
-			void				resetTransform();
 			void				resetSelection();
-			void				setAngle(float a);
-			void				setFlip(int f);
 
 			void	setCd(ComputeDescriptor* cd);
 
+			// Transform functions ------
+			void	setTransform();
+			void	resetTransform();
+			void	setAngle(float a);
+			void	setFlip(int f);
+
 		protected:
-			// Fields -----------
+			// Fields -------------------
 
 			Qt::WindowState			winState;
 			QPoint					winPos;
@@ -66,19 +70,19 @@ namespace holovibes
 			const FrameDescriptor&	Fd;
 			const KindOfView		kView;
 
-			std::array<float, 2>	Translate;
-			float	Scale;
-			float	Angle;
-			int		Flip;
+			glm::vec4	Translate;
+			float		Scale;
+			float		Angle;
+			int			Flip;
 
-			// CUDA Objects -----
+			// CUDA Objects -------------
 			cudaGraphicsResource_t	cuResource;
 			cudaStream_t			cuStream;
 
 			void*	cuPtrToPbo;
 			size_t	sizeBuffer;
 
-			// OpenGL Objects ---
+			// OpenGL Objects -----------
 			QOpenGLShaderProgram	*Program;
 			QOpenGLVertexArrayObject	Vao;
 			GLuint	Vbo, Ebo, Pbo;
@@ -87,22 +91,16 @@ namespace holovibes
 			HOverlay	Overlay;
 			static std::atomic<bool>	slicesAreLocked;
 
-			// Virtual Pure Functions
+			// Virtual Pure Functions ---
 			virtual void initShaders() = 0;
 			virtual void initializeGL() = 0;
 			virtual void resizeGL(int width, int height);
 			virtual void paintGL() = 0;
 
-			// Event functions
+			// Event functions ----------
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
-
-			// Transform functions
-			void	setTranslate();
-			void	setScale();
-
-			void	updateDisplaySquare();
 		};
 	}
 }

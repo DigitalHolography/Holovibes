@@ -204,6 +204,8 @@ namespace holovibes
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_level.load());
+				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
+				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceXZ)
 			{
@@ -214,6 +216,8 @@ namespace holovibes
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_xz.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsXZ_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsXZ_level.load());
+				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
+				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(xzFlip)).c_str());
 			}
 			else if (cd.current_window.load() == WindowKind::SliceYZ)
 			{
@@ -224,6 +228,8 @@ namespace holovibes
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && cd.log_scale_enabled_cut_yz.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && cd.img_acc_cutsYZ_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(cd.img_acc_cutsYZ_level.load());
+				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
+				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(cd.shift_corners_enabled.load());
 			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(cd.p_accu_enabled.load());
