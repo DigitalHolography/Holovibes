@@ -1107,19 +1107,22 @@
            <height>21</height>
           </rect>
          </property>
+         <property name="currentText">
+          <string>XY view</string>
+         </property>
          <item>
           <property name="text">
-           <string>mainDisplay</string>
+           <string>XY view</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>sliceXZ</string>
+           <string>XZ view</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>sliceYZ</string>
+           <string>YZ view</string>
           </property>
          </item>
         </widget>

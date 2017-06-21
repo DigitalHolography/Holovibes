@@ -138,12 +138,12 @@ namespace holovibes
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 			fd.height = compute_desc_.nsamples.load();
 
-			fd.depth = (compute_desc_.view_mode == ComplexViewMode::Complex) ?
+			fd.depth = (compute_desc_.img_type == ImgType::Complex) ?
 				sizeof(cuComplex) : sizeof(ushort);
 			gpu_stft_slice_queue_xz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			gpu_stft_slice_queue_yz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * ((compute_desc_.view_mode == ComplexViewMode::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
-			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * ((compute_desc_.view_mode == ComplexViewMode::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
+			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
+			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
 
 			cudaMalloc(&gpu_ushort_cut_xz_, fd.frame_size());
 			cudaMalloc(&gpu_ushort_cut_yz_, fd.frame_size());
@@ -493,7 +493,7 @@ namespace holovibes
 		}
 
 		/* Apply conversion to floating-point respresentation. */
-		if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
+		if (compute_desc_.img_type.load() == ImgType::Modulus)
 		{
 			if (compute_desc_.vision_3d_enabled.load())
 				fn_vect_.push_back(std::bind(
@@ -510,7 +510,7 @@ namespace holovibes
 					input_fd.frame_res(),
 					static_cast<cudaStream_t>(0)));
 		}
-		else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
+		else if (compute_desc_.img_type.load() == ImgType::SquaredModulus)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_squared_modulus,
@@ -519,7 +519,7 @@ namespace holovibes
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
-		else if (compute_desc_.view_mode.load() == ComplexViewMode::Argument)
+		else if (compute_desc_.img_type.load() == ImgType::Argument)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_argument,
@@ -573,7 +573,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			}
 		}
-		else if (compute_desc_.view_mode.load() == ComplexViewMode::Complex)
+		else if (compute_desc_.img_type.load() == ImgType::Complex)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_complex,
@@ -599,7 +599,7 @@ namespace holovibes
 				}
 				unwrap_res_->reset(compute_desc_.unwrap_history_size.load());
 				unwrap_res_->reallocate(input_.get_pixels());
-				if (compute_desc_.view_mode.load() == ComplexViewMode::PhaseIncrease)
+				if (compute_desc_.img_type.load() == ImgType::PhaseIncrease)
 				{
 					// Phase increase
 					fn_vect_.push_back(std::bind(
@@ -763,7 +763,7 @@ namespace holovibes
 		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
-			if (compute_desc_.current_window.load() == WindowKind::MainDisplay)
+			if (compute_desc_.current_window.load() == WindowKind::XYview)
 			{
 				if (compute_desc_.vision_3d_enabled.load())
 					fn_vect_.push_back(std::bind(
@@ -788,7 +788,7 @@ namespace holovibes
 			}
 			if (compute_desc_.stft_view_enabled.load())
 			{
-				if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
+				if (compute_desc_.current_window.load() == WindowKind::XZview)
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						static_cast<float *>(gpu_float_cut_xz_),
@@ -798,7 +798,7 @@ namespace holovibes
 						std::ref(compute_desc_.contrast_min_slice_xz),
 						std::ref(compute_desc_.contrast_max_slice_xz),
 						static_cast<cudaStream_t>(0)));
-				else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
+				else if (compute_desc_.current_window.load() == WindowKind::YZview)
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						static_cast<float *>(gpu_float_cut_yz_),
@@ -1005,15 +1005,15 @@ namespace holovibes
 				else
 					assert(!"Impossible case");
 
-				if (compute_desc_.view_mode.load() == ComplexViewMode::Modulus)
+				if (compute_desc_.img_type.load() == ImgType::Modulus)
 				{
 					complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode.load() == ComplexViewMode::SquaredModulus)
+				else if (compute_desc_.img_type.load() == ImgType::SquaredModulus)
 				{
 					complex_to_squared_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
-				else if (compute_desc_.view_mode.load() == ComplexViewMode::Argument)
+				else if (compute_desc_.img_type.load() == ImgType::Argument)
 				{
 					complex_to_argument(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}
@@ -1088,7 +1088,7 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		if (compute_desc_.view_mode.load() != ComplexViewMode::Complex)
+		if (compute_desc_.img_type.load() != ImgType::Complex)
 			return (gpu_output_buffer_);
 		return (gpu_input_frame_ptr_);
 	}
@@ -1120,7 +1120,7 @@ namespace holovibes
 							input_.dequeue();
 							break;
 						}
-						if (compute_desc_.view_mode == ComplexViewMode::Complex && compute_desc_.stft_view_enabled.load())
+						if (compute_desc_.img_type == ImgType::Complex && compute_desc_.stft_view_enabled.load())
 						{
 							gpu_stft_slice_queue_xz->enqueue(
 								gpu_float_cut_xz_,

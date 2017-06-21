@@ -173,8 +173,8 @@ namespace holovibes
 				mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
-				setEnabled(((!is_direct && (cd.view_mode.load() == ComplexViewMode::PhaseIncrease) ||
-				(cd.view_mode.load() == ComplexViewMode::Argument)) ? (true) : (false)));
+				setEnabled(((!is_direct && (cd.img_type.load() == ImgType::PhaseIncrease) ||
+				(cd.img_type.load() == ImgType::Argument)) ? (true) : (false)));
 
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load()
 				&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load() && !cd.vision_3d_enabled.load());
@@ -195,7 +195,7 @@ namespace holovibes
 			window_selection->setEnabled((cd.stft_view_enabled.load()));
 			window_selection->setCurrentIndex(window_selection->isEnabled() ? cd.current_window.load() : 0);
 
-			if (cd.current_window.load() == WindowKind::MainDisplay)
+			if (cd.current_window.load() == WindowKind::XYview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 					->setValue((cd.log_scale_enabled.load()) ? cd.contrast_min.load() : log10(cd.contrast_min.load()));
@@ -207,7 +207,7 @@ namespace holovibes
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
-			else if (cd.current_window.load() == WindowKind::SliceXZ)
+			else if (cd.current_window.load() == WindowKind::XZview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 					->setValue((cd.log_scale_enabled_cut_xz.load()) ? cd.contrast_min_slice_xz.load() : log10(cd.contrast_min_slice_xz.load()));
@@ -219,7 +219,7 @@ namespace holovibes
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(xzFlip)).c_str());
 			}
-			else if (cd.current_window.load() == WindowKind::SliceYZ)
+			else if (cd.current_window.load() == WindowKind::YZview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
 					->setValue((cd.log_scale_enabled_cut_yz.load()) ? cd.contrast_min_slice_yz.load() : log10(cd.contrast_min_slice_yz.load()));
@@ -265,7 +265,7 @@ namespace holovibes
 			findChild<QPushButton *>("CancelRefPushButton")->setEnabled(!is_direct && (cd.ref_diff_enabled.load() || cd.ref_sliding_enabled.load()));
 			findChild<QComboBox *>("AlgorithmComboBox")->setEnabled(!is_direct);
 			findChild<QComboBox *>("AlgorithmComboBox")->setCurrentIndex(cd.algorithm.load());
-			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.view_mode.load());
+			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(cd.img_type.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(cd.nsamples.load());
 			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
@@ -502,9 +502,9 @@ namespace holovibes
 				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
 				view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
 
-				cd.view_mode.exchange(static_cast<ComplexViewMode>(
-					ptree.get<int>("view.view_mode", cd.view_mode.load())));
-				last_contrast_type_ = (cd.view_mode == ComplexViewMode::Complex) ?
+				cd.img_type.exchange(static_cast<ImgType>(
+					ptree.get<int>("view.view_mode", cd.img_type.load())));
+				last_contrast_type_ = (cd.img_type == ImgType::Complex) ?
 					"Complex output" : last_contrast_type_;
 
 				cd.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
@@ -615,7 +615,7 @@ namespace holovibes
 			
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
-			ptree.put("view.view_mode", cd.view_mode.load());
+			ptree.put("view.view_mode", cd.img_type.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
 			ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load());
 			ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load());
@@ -905,7 +905,7 @@ namespace holovibes
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
 			
-			if (cd.view_mode.load() == ComplexViewMode::Complex)
+			if (cd.img_type.load() == ImgType::Complex)
 				depth = 8;
 			else if (cd.compute_mode.load() == Computation::Hologram)
 				depth = 2;
@@ -1029,7 +1029,7 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				QComboBox* ptr = findChild<QComboBox*>("ViewModeComboBox");
 
-				cd.view_mode.exchange(static_cast<ComplexViewMode>(ptr->currentIndex()));
+				cd.img_type.exchange(static_cast<ImgType>(ptr->currentIndex()));
 				if ((last_contrast_type_ == "Complex output" && value != "Complex output") ||
 					(last_contrast_type_ != "Complex output" && value == "Complex output"))
 				{
@@ -1145,10 +1145,10 @@ namespace holovibes
 		void MainWindow::set_auto_contrast_cuts()
 		{
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
-			cd.current_window.exchange(WindowKind::SliceXZ);
+			cd.current_window.exchange(WindowKind::XZview);
 			set_auto_contrast();
 			while (holovibes_.get_pipe()->get_autocontrast_request());
-			cd.current_window.exchange(WindowKind::SliceYZ);
+			cd.current_window.exchange(WindowKind::YZview);
 			set_auto_contrast();
 		}
 
@@ -1261,11 +1261,11 @@ namespace holovibes
 			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			if (window_cbox->currentIndex() == 0)
-				cd.current_window.exchange(WindowKind::MainDisplay);
+				cd.current_window.exchange(WindowKind::XYview);
 			else if (window_cbox->currentIndex() == 1)
-				cd.current_window.exchange(WindowKind::SliceXZ);
+				cd.current_window.exchange(WindowKind::XZview);
 			else if (window_cbox->currentIndex() == 2)
-				cd.current_window.exchange(WindowKind::SliceYZ);
+				cd.current_window.exchange(WindowKind::YZview);
 			notify();
 		}
 
@@ -1617,14 +1617,14 @@ namespace holovibes
 				if (!is_direct_mode())
 				{
 					holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
-					if (cd.current_window.load() == WindowKind::MainDisplay)
+					if (cd.current_window.load() == WindowKind::XYview)
 					{
 						holovibes_.get_compute_desc().img_acc_enabled.exchange(value);
 						holovibes_.get_pipe()->request_acc_refresh();
 					}
-					else if (cd.current_window.load() == WindowKind::SliceXZ)
+					else if (cd.current_window.load() == WindowKind::XZview)
 						holovibes_.get_compute_desc().img_acc_cutsXZ_enabled.exchange(value);
-					else if (cd.current_window.load() == WindowKind::SliceYZ)
+					else if (cd.current_window.load() == WindowKind::YZview)
 						holovibes_.get_compute_desc().img_acc_cutsYZ_enabled.exchange(value);
 					notify();
 				}
@@ -1636,14 +1636,14 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
-				if (cd.current_window.load() == WindowKind::MainDisplay)
+				if (cd.current_window.load() == WindowKind::XYview)
 				{
 					holovibes_.get_compute_desc().img_acc_level.exchange(value);
 					holovibes_.get_pipe()->request_acc_refresh();
 				}
-				else if (cd.current_window.load() == WindowKind::SliceXZ)
+				else if (cd.current_window.load() == WindowKind::XZview)
 					holovibes_.get_compute_desc().img_acc_cutsXZ_level.exchange(value);
-				else if (cd.current_window.load() == WindowKind::SliceYZ)
+				else if (cd.current_window.load() == WindowKind::YZview)
 					holovibes_.get_compute_desc().img_acc_cutsYZ_level.exchange(value);
 			}
 		}
@@ -1687,20 +1687,19 @@ namespace holovibes
 		#pragma region Texture
 		void MainWindow::rotateTexture()
 		{
-			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
-			QString s = c->currentText();
+			WindowKind curWin = holovibes_.get_compute_desc().current_window.load();
 
-			if (s == QString("mainDisplay"))
+			if (curWin == WindowKind::XYview)
 			{
 				displayAngle = (displayAngle == 270.f) ? 0.f : displayAngle + 90.f;
 				mainDisplay->setAngle(displayAngle);
 			}
-			else if (s == QString("sliceXZ") && sliceXZ)
+			else if (sliceXZ && curWin == WindowKind::XZview)
 			{
 				xzAngle = (xzAngle == 270.f) ? 0.f : xzAngle + 90.f;
 				sliceXZ->setAngle(xzAngle);
 			}
-			else if (s == QString("sliceYZ") && sliceYZ)
+			else if (sliceYZ && curWin == WindowKind::YZview)
 			{
 				yzAngle = (yzAngle == 270.f) ? 0.f : yzAngle + 90.f;
 				sliceYZ->setAngle(yzAngle);
@@ -1710,20 +1709,19 @@ namespace holovibes
 
 		void MainWindow::flipTexture()
 		{
-			QComboBox *c = findChild<QComboBox*>("WindowSelectionComboBox");
-			QString s = c->currentText();
+			WindowKind curWin = holovibes_.get_compute_desc().current_window.load();
 
-			if (s == QString("mainDisplay"))
+			if (curWin == WindowKind::XYview)
 			{
 				displayFlip = !displayFlip;
 				mainDisplay->setFlip(displayFlip);
 			}
-			else if (s == QString("sliceXZ") && sliceXZ)
+			else if (sliceXZ && curWin == WindowKind::XZview)
 			{
 				xzFlip = !xzFlip;
 				sliceXZ->setFlip(xzFlip);
 			}
-			else if (s == QString("sliceYZ") && sliceYZ)
+			else if (sliceYZ && curWin == WindowKind::YZview)
 			{
 				yzFlip = !yzFlip;
 				sliceYZ->setFlip(yzFlip);
@@ -1822,21 +1820,21 @@ namespace holovibes
 				ComputeDescriptor& cd = holovibes_.get_compute_desc();
 				if (cd.contrast_enabled.load())
 				{
-					if (cd.current_window.load() == WindowKind::MainDisplay)
+					if (cd.current_window.load() == WindowKind::XYview)
 					{
 						if (cd.log_scale_enabled.load())
 							cd.contrast_min.exchange(value);
 						else
 							cd.contrast_min.exchange(pow(10, value));
 					}
-					else if (cd.current_window.load() == WindowKind::SliceXZ)
+					else if (cd.current_window.load() == WindowKind::XZview)
 					{
 						if (cd.log_scale_enabled_cut_xz.load())
 							cd.contrast_min_slice_xz.exchange(value);
 						else
 							cd.contrast_min_slice_xz.exchange(pow(10, value));
 					}
-					else if (cd.current_window.load() == WindowKind::SliceYZ)
+					else if (cd.current_window.load() == WindowKind::YZview)
 					{
 						if (cd.log_scale_enabled_cut_yz.load())
 							cd.contrast_min_slice_yz.exchange(value);
@@ -1856,21 +1854,21 @@ namespace holovibes
 
 				if (cd.contrast_enabled.load())
 				{
-					if (cd.current_window.load() == WindowKind::MainDisplay)
+					if (cd.current_window.load() == WindowKind::XYview)
 					{
 						if (cd.log_scale_enabled.load())
 							cd.contrast_max.exchange(value);
 						else
 							cd.contrast_max.exchange(pow(10, value));
 					}
-					else if (cd.current_window.load() == WindowKind::SliceXZ)
+					else if (cd.current_window.load() == WindowKind::XZview)
 					{
 						if (cd.log_scale_enabled_cut_xz.load())
 							cd.contrast_max_slice_xz.exchange(value);
 						else
 							cd.contrast_max_slice_xz.exchange(pow(10, value));
 					}
-					else if (cd.current_window.load() == WindowKind::SliceYZ)
+					else if (cd.current_window.load() == WindowKind::YZview)
 					{
 						if (cd.log_scale_enabled_cut_yz.load())
 							cd.contrast_max_slice_yz.exchange(value);
@@ -1887,11 +1885,11 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				holovibes::ComputeDescriptor &cd = holovibes_.get_compute_desc();
-				if (cd.current_window.load() == WindowKind::MainDisplay)
+				if (cd.current_window.load() == WindowKind::XYview)
 					cd.log_scale_enabled.exchange(value);
-				else if (cd.current_window.load() == WindowKind::SliceXZ)
+				else if (cd.current_window.load() == WindowKind::XZview)
 					cd.log_scale_enabled_cut_xz.exchange(value);
-				else if (cd.current_window.load() == WindowKind::SliceYZ)
+				else if (cd.current_window.load() == WindowKind::YZview)
 					cd.log_scale_enabled_cut_yz.exchange(value);
 				if (cd.contrast_enabled.load())
 				{
@@ -2264,11 +2262,11 @@ namespace holovibes
 				}
 				else
 				{
-					if (cd.current_window == WindowKind::MainDisplay)
+					if (cd.current_window == WindowKind::XYview)
 						queue = &holovibes_.get_output_queue();
-					else if (cd.current_window == WindowKind::SliceXZ)
+					else if (cd.current_window == WindowKind::XZview)
 						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-					else if (cd.current_window == WindowKind::SliceYZ)
+					else if (cd.current_window == WindowKind::YZview)
 						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 				}
 				if (queue)

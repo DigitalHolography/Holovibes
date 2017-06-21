@@ -211,7 +211,7 @@ namespace holovibes
 			QWindow::focusInEvent(e);
 			if (Cd)
 			{
-				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::SliceXZ : WindowKind::SliceYZ);
+				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview);
 				Cd->notify_observers();
 			}
 		}

@@ -23,7 +23,7 @@ namespace holovibes
 		pindex(0),
 		lambda(532e-9f),
 		zdistance(1.50f),
-		view_mode(ComplexViewMode::Modulus),
+		img_type(ImgType::Modulus),
 		unwrap_history_size(1),
 		special_buffer_size(10),
 		log_scale_enabled(false),
@@ -77,7 +77,7 @@ namespace holovibes
 		noise_zone(gui::Rectangle(0, 0)),
 		autofocus_zone(gui::Rectangle(0, 0)),
 		stft_roi_zone(gui::Rectangle(0, 0)),
-		current_window(WindowKind::MainDisplay),
+		current_window(WindowKind::XYview),
 		cuts_contrast_p_offset(2),
 		vision_3d_enabled(false),
 		display_rate(30)
@@ -98,7 +98,7 @@ namespace holovibes
 		pindex.exchange(cd.pindex.load());
 		lambda.exchange(cd.lambda.load());
 		zdistance.exchange(cd.zdistance.load());
-		view_mode.exchange(cd.view_mode.load());
+		img_type.exchange(cd.img_type.load());
 		unwrap_history_size.exchange(cd.unwrap_history_size.load());
 		special_buffer_size.exchange(cd.special_buffer_size.load());
 		log_scale_enabled.exchange(cd.log_scale_enabled.load());

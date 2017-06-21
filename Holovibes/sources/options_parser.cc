@@ -482,11 +482,11 @@ namespace holovibes
 		{
 			const std::string viewmode = vm_["viewmode"].as<std::string>();
 			if (boost::iequals(viewmode, "magnitude"))
-				opts_.compute_desc.view_mode.exchange(ComplexViewMode::Modulus);
+				opts_.compute_desc.img_type.exchange(ImgType::Modulus);
 			else if (boost::iequals(viewmode, "squaredmagnitude"))
-				opts_.compute_desc.view_mode.exchange(ComplexViewMode::SquaredModulus);
+				opts_.compute_desc.img_type.exchange(ImgType::SquaredModulus);
 			else if (boost::iequals(viewmode, "argument"))
-				opts_.compute_desc.view_mode.exchange(ComplexViewMode::Argument);
+				opts_.compute_desc.img_type.exchange(ImgType::Argument);
 			else
 				throw std::runtime_error("unknown view mode");
 		}

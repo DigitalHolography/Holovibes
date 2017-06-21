@@ -803,7 +803,7 @@ namespace holovibes
 				mouse_posy,
 				width,
 				height,
-				compute_desc_.view_mode.load(),
+				compute_desc_.img_type.load(),
 				compute_desc_.nsamples.load(),
 				compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
 				compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
@@ -811,7 +811,7 @@ namespace holovibes
 			{
 				if (compute_desc_.stft_view_enabled.load())
 				{
-					if (compute_desc_.current_window.load() == WindowKind::SliceXZ)
+					if (compute_desc_.current_window.load() == WindowKind::XZview)
 						autocontrast_caller(
 							static_cast<float *>(gpu_float_cut_xz_),
 							static_cast<uint>(width * compute_desc_.nsamples.load()),
@@ -820,7 +820,7 @@ namespace holovibes
 							std::ref(compute_desc_.contrast_min_slice_xz),
 							std::ref(compute_desc_.contrast_max_slice_xz),
 							static_cast<cudaStream_t>(0));
-					else if (compute_desc_.current_window.load() == WindowKind::SliceYZ)
+					else if (compute_desc_.current_window.load() == WindowKind::YZview)
 						autocontrast_caller(
 							static_cast<float *>(gpu_float_cut_yz_),
 							width * compute_desc_.nsamples.load(),

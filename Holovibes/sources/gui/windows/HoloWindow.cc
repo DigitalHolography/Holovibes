@@ -140,7 +140,7 @@ namespace holovibes
 		void	HoloWindow::focusInEvent(QFocusEvent *e)
 		{
 			QOpenGLWindow::focusInEvent(e);
-			Cd->current_window.exchange(WindowKind::MainDisplay);
+			Cd->current_window.exchange(WindowKind::XYview);
 			Cd->notify_observers();
 		}
 
