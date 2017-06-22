@@ -192,8 +192,6 @@ namespace gpib
 		{
 			if (cmd.type == Command::COMMAND)
 			{
-				/* If this is the first time a command is issued, the connexion
-				* with the VISA interface must be set up. */
 				if (!pimpl_->buffer_)
 				{
 					try
@@ -205,8 +203,6 @@ namespace gpib
 						throw;
 					}
 				}
-				/* If a connexion to this instrument address is not opened,
-				* do it and register the new session. */
 				if (std::find_if(pimpl_->sessions_.begin(),
 					pimpl_->sessions_.end(),
 					[&cmd](instrument& instr)
@@ -216,8 +212,6 @@ namespace gpib
 				{
 					initialize_instr(cmd.address);
 				}
-
-				// Get the session and send it the command through VISA.
 				auto ses = std::find_if(pimpl_->sessions_.begin(),
 					pimpl_->sessions_.end(),
 					[&cmd](instrument& instr)
@@ -226,7 +220,7 @@ namespace gpib
 				});
 				std::string trig_command = "*TRG";
 				viWrite(ses->first,
-					(ViBuf)(trig_command.c_str()), //ViBuf it's so crap type, that no c++ cast works
+					(ViBuf)(trig_command.c_str()),
 					static_cast<ViInt32>(trig_command.size()),
 					pimpl_->ret_count_);
 			}

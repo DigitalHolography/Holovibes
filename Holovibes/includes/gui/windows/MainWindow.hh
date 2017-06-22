@@ -533,8 +533,9 @@ namespace holovibes
 				File,
 			};
 
-			Ui::MainWindow	ui;
-			Holovibes&		holovibes_;
+			Ui::MainWindow		ui;
+			Holovibes&			holovibes_;
+			ComputeDescriptor&	compute_desc_;
 
 
 			/*! OpenGL windows */
