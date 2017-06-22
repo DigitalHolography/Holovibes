@@ -44,7 +44,8 @@ namespace gpib
 	};
 
 	VisaInterface::VisaInterface(const std::string& path)
-		: pimpl_{ new VisaPimpl() }
+		: pimpl_{ new VisaPimpl() },
+		path_(path)
 	{
 		// Batch input file parsing
 		if (path.compare("") == 0)
@@ -183,6 +184,57 @@ namespace gpib
 		return true;
 	}
 
+	bool VisaInterface::execute_next_trig()
+	{
+		Command& cmd = batch_cmds_.back();
+
+		do
+		{
+			if (cmd.type == Command::COMMAND)
+			{
+				/* If this is the first time a command is issued, the connexion
+				* with the VISA interface must be set up. */
+				if (!pimpl_->buffer_)
+				{
+					try
+					{
+						initialize_line();
+					}
+					catch (const std::exception& /*e*/)
+					{
+						throw;
+					}
+				}
+				/* If a connexion to this instrument address is not opened,
+				* do it and register the new session. */
+				if (std::find_if(pimpl_->sessions_.begin(),
+					pimpl_->sessions_.end(),
+					[&cmd](instrument& instr)
+				{
+					return instr.second == cmd.address;
+				}) == pimpl_->sessions_.end())
+				{
+					initialize_instr(cmd.address);
+				}
+
+				// Get the session and send it the command through VISA.
+				auto ses = std::find_if(pimpl_->sessions_.begin(),
+					pimpl_->sessions_.end(),
+					[&cmd](instrument& instr)
+				{
+					return instr.second == cmd.address;
+				});
+				std::string trig_command = "*TRG";
+				viWrite(ses->first,
+					(ViBuf)(trig_command.c_str()), //ViBuf it's so crap type, that no c++ cast works
+					static_cast<ViInt32>(trig_command.size()),
+					pimpl_->ret_count_);
+			}
+		} while (cmd.type != Command::COMMAND);
+
+		return true;
+	}
+
 	void VisaInterface::initialize_line()
 	{
 		pimpl_->buffer_ = new ViByte[BUF_SIZE];
@@ -206,8 +258,8 @@ namespace gpib
 	void VisaInterface::parse_file(std::ifstream& in)
 	{
 		std::string line;
-		unsigned line_num = 0;
-		unsigned cur_address = 0;
+		unsigned int line_num = 0;
+		unsigned int cur_address = 0;
 
 		while (in >> line)
 		{
@@ -225,7 +277,7 @@ namespace gpib
 				try
 				{
 					in >> line;
-					unsigned address = boost::lexical_cast<unsigned>(line);
+					unsigned int address = boost::lexical_cast<unsigned>(line);
 					cur_address = address;
 					batch_cmds_.pop_front();
 				}
@@ -241,7 +293,7 @@ namespace gpib
 				try
 				{
 					in >> line;
-					unsigned wait = boost::lexical_cast<unsigned>(line);
+					unsigned int wait = boost::lexical_cast<unsigned>(line);
 
 					cmd.type = Command::WAIT;
 					cmd.address = 0;
@@ -283,19 +335,6 @@ namespace gpib
 			// We just read a blank file...
 			throw GpibBlankFileError();
 		}
-	}
-
-	void VisaInterface::send_signal_trig()
-	{
-		/*std::string address_msg("GPIB0::");
-		address_msg.append(boost::lexical_cast<std::string>(address));
-		address_msg.append("::INSTR");
-		pimpl_->status_ = viOpen(pimpl_->default_rm_,
-			(ViString)(address_msg.c_str()),
-			VI_NULL,
-			VI_NULL,
-			&(pimpl_->sessions_.back().first));*/
-		viAssertTrigger(pimpl_->default_rm_, VI_TRIG_PROT_DEFAULT);
 	}
 
 	IVisaInterface* new_gpib_controller(const std::string path)

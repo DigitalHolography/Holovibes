@@ -35,12 +35,11 @@ namespace holovibes
 			is_batch_interrupted_(false),
 			z_step_(0.01f),
 			kCamera(CameraKind::NONE),
-			last_contrast_type_("Magnitude"),
+			last_img_type_("Magnitude"),
 			plot_window_(nullptr),
 			record_thread_(nullptr),
 			CSV_record_thread_(nullptr),
 			file_index_(1),
-			gpib_interface_(nullptr),
 			theme_index_(0),
 			is_enabled_autofocus_(false),
 			import_type_(ImportType::None)
@@ -177,7 +176,7 @@ namespace holovibes
 				(cd.img_type.load() == ImgType::Argument)) ? (true) : (false)));
 
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load()
-				&& !cd.filter_2d_enabled.load() && !cd.signal_trig_enabled.load() && !cd.vision_3d_enabled.load());
+				&& !cd.filter_2d_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setChecked(!is_direct && cd.stft_view_enabled.load());
 
 			QPushButton *filter_button = findChild<QPushButton *>("Filter2DPushButton");
@@ -256,7 +255,7 @@ namespace holovibes
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(cd.flowgraphy_level.load());
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && cd.algorithm.load() != Algorithm::None);
 			findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
-			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.signal_trig_enabled.load() && !cd.vision_3d_enabled.load());
+			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !cd.stft_view_enabled.load() && !cd.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && cd.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setValue(cd.stft_steps.load());
@@ -288,7 +287,7 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !cd.is_cine_file.load());
 			
-			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct);
+			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load());
 			//findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && cd.stft_enabled.load() && !cd.stft_view_enabled.load());
 			//findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(cd.vision_3d_enabled.load());
 
@@ -351,9 +350,9 @@ namespace holovibes
 				childCount += !var->isHidden();
 
 			if (childCount > 0)
-				this->resize(QSize(childCount * 195, 425));
+				resize(QSize(childCount * 195, 425));
 			else
-				this->resize(QSize(195, 60));
+				resize(QSize(195, 60));
 		}
 
 		void MainWindow::display_error(const std::string msg)
@@ -504,8 +503,8 @@ namespace holovibes
 
 				cd.img_type.exchange(static_cast<ImgType>(
 					ptree.get<int>("view.view_mode", cd.img_type.load())));
-				last_contrast_type_ = (cd.img_type == ImgType::Complex) ?
-					"Complex output" : last_contrast_type_;
+				last_img_type_ = (cd.img_type == ImgType::Complex) ?
+					"Complex output" : last_img_type_;
 
 				cd.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", cd.log_scale_enabled.load()));
 				cd.log_scale_enabled_cut_xz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load()));
@@ -517,7 +516,7 @@ namespace holovibes
 
 				cd.contrast_min.exchange(ptree.get<float>("view.contrast_min", cd.contrast_min.load()));
 				cd.contrast_max.exchange(ptree.get<float>("view.contrast_max", cd.contrast_max.load()));
-				cd.cuts_contrast_p_offset.exchange(ptree.get<float>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load()));
+				cd.cuts_contrast_p_offset.exchange(ptree.get<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load()));
 				if (cd.cuts_contrast_p_offset.load() < 0)
 					cd.cuts_contrast_p_offset.exchange(0);
 				else if (cd.cuts_contrast_p_offset.load() > cd.nsamples.load() - 1)
@@ -590,52 +589,52 @@ namespace holovibes
 			Config& config = global::global_config;
 			
 			// Config
-			ptree.put("config.input_buffer_size", config.input_queue_max_size);
-			ptree.put("config.output_buffer_size", config.output_queue_max_size);
-			ptree.put("config.float_buffer_size", config.float_queue_max_size);
-			ptree.put("config.input_file_buffer_size", config.reader_buf_max_size);
-			ptree.put("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
-			ptree.put("config.stft_buffer_size", cd.stft_level.load());
-			ptree.put("config.reference_buffer_size", cd.ref_diff_level.load());
-			ptree.put("config.accumulation_buffer_size", cd.img_acc_level.load());
-			ptree.put("config.convolution_buffer_size", cd.special_buffer_size.load());
-			ptree.put("config.frame_timeout", config.frame_timeout);
+			ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
+			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
+			ptree.put<uint>("config.float_buffer_size", config.float_queue_max_size);
+			ptree.put<uint>("config.input_file_buffer_size", config.reader_buf_max_size);
+			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
+			ptree.put<int>("config.stft_buffer_size", cd.stft_level.load());
+			ptree.put<int>("config.reference_buffer_size", cd.ref_diff_level.load());
+			ptree.put<uint>("config.accumulation_buffer_size", cd.img_acc_level.load());
+			ptree.put<int>("config.convolution_buffer_size", cd.special_buffer_size.load());
+			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
 			ptree.put<ushort>("config.display_rate", static_cast<ushort>(cd.display_rate.load()));
 
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
 			ptree.put("image_rendering.camera", kCamera);
-			ptree.put("image_rendering.phase_number", cd.nsamples.load());
-			ptree.put("image_rendering.p_index", cd.pindex.load());
-			ptree.put("image_rendering.lambda", cd.lambda.load());
-			ptree.put("image_rendering.z_distance", cd.zdistance.load());
-			ptree.put("image_rendering.z_step", z_step_);
-			ptree.put("image_rendering.algorithm", cd.algorithm.load());
+			ptree.put<ushort>("image_rendering.phase_number", cd.nsamples.load());
+			ptree.put<ushort>("image_rendering.p_index", cd.pindex.load());
+			ptree.put<float>("image_rendering.lambda", cd.lambda.load());
+			ptree.put<float>("image_rendering.z_distance", cd.zdistance.load());
+			ptree.put<double>("image_rendering.z_step", z_step_);
+			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", cd.algorithm.load());
 			
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
-			ptree.put("view.view_mode", cd.img_type.load());
+			ptree.put<holovibes::ImgType>("view.view_mode", cd.img_type.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
 			ptree.put<bool>("view.log_scale_enabled_cut_xz", cd.log_scale_enabled_cut_xz.load());
 			ptree.put<bool>("view.log_scale_enabled_cut_yz", cd.log_scale_enabled_cut_yz.load());
 			ptree.put<bool>("view.log_scale_enabled", cd.log_scale_enabled.load());
 			ptree.put<bool>("view.shift_corners_enabled", cd.shift_corners_enabled.load());
 			ptree.put<bool>("view.contrast_enabled", cd.contrast_enabled.load());
-			ptree.put("view.contrast_min", cd.contrast_min.load());
-			ptree.put("view.contrast_max", cd.contrast_max.load());
-			ptree.put<float>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load());
+			ptree.put<float>("view.contrast_min", cd.contrast_min.load());
+			ptree.put<float>("view.contrast_max", cd.contrast_max.load());
+			ptree.put<ushort>("view.cuts_contrast_p_offset", cd.cuts_contrast_p_offset.load());
 			ptree.put<bool>("view.accumulation_enabled", cd.img_acc_enabled.load());
-			ptree.put("view.mainWindow_rotate", displayAngle);
+			ptree.put<float>("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
 			ptree.put<float>("view.yCut_rotate", yzAngle);
-			ptree.put("view.mainWindow_flip", displayFlip);
-			ptree.put("view.xCut_flip", xzFlip);
-			ptree.put("view.yCut_flip", yzFlip);
+			ptree.put<int>("view.mainWindow_flip", displayFlip);
+			ptree.put<int>("view.xCut_flip", xzFlip);
+			ptree.put<int>("view.yCut_flip", yzFlip);
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
-			ptree.put("post_processing.image_ratio_q", cd.vibrometry_q.load());
+			ptree.put<ushort>("post_processing.image_ratio_q", cd.vibrometry_q.load());
 			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
 
 			// Record
@@ -643,27 +642,27 @@ namespace holovibes
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
-			ptree.put("import.pixel_size", cd.import_pixel_size.load());
+			ptree.put<float>("import.pixel_size", cd.import_pixel_size.load());
 
 			// Info
 			ptree.put<bool>("info.hidden", info_group_box->isHidden());
-			ptree.put("info.theme_type", theme_index_);
+			ptree.put<ushort>("info.theme_type", theme_index_);
 
 			// Autofocus
-			ptree.put("autofocus.size", cd.autofocus_size.load());
-			ptree.put("autofocus.z_min", cd.autofocus_z_min.load());
-			ptree.put("autofocus.z_max", cd.autofocus_z_max.load());
-			ptree.put("autofocus.steps", cd.autofocus_z_div.load());
-			ptree.put("autofocus.loops", cd.autofocus_z_iter.load());
+			ptree.put<uint>("autofocus.size", cd.autofocus_size.load());
+			ptree.put<float>("autofocus.z_min", cd.autofocus_z_min.load());
+			ptree.put<float>("autofocus.z_max", cd.autofocus_z_max.load());
+			ptree.put<uint>("autofocus.steps", cd.autofocus_z_div.load());
+			ptree.put<uint>("autofocus.loops", cd.autofocus_z_iter.load());
 
 			//flowgraphy
-			ptree.put("flowgraphy.level", cd.flowgraphy_level.load());
+			ptree.put<uint>("flowgraphy.level", cd.flowgraphy_level.load());
 			ptree.put<bool>("flowgraphy.enable", cd.flowgraphy_enabled.load());
 
 			//Reset
 			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
 			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
-			ptree.put("reset.device_number", config.device_number);
+			ptree.put<uint>("reset.device_number", config.device_number);
 
 			
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
@@ -1030,12 +1029,12 @@ namespace holovibes
 				QComboBox* ptr = findChild<QComboBox*>("ViewModeComboBox");
 
 				cd.img_type.exchange(static_cast<ImgType>(ptr->currentIndex()));
-				if ((last_contrast_type_ == "Complex output" && value != "Complex output") ||
-					(last_contrast_type_ != "Complex output" && value == "Complex output"))
+				if ((last_img_type_ == "Complex output" && value != "Complex output") ||
+					(last_img_type_ != "Complex output" && value == "Complex output"))
 				{
 					refreshViewMode();
 				}
-				last_contrast_type_ = value;
+				last_img_type_ = value;
 
 				set_auto_contrast();
 				notify();
@@ -1237,19 +1236,21 @@ namespace holovibes
 			QCheckBox* stft_view = findChild<QCheckBox*>("STFTCutsCheckBox");
 			QCheckBox* trig = findChild<QCheckBox*>("ExtTrigCheckBox");
 			ComputeDescriptor&	cd = holovibes_.get_compute_desc();
+			QLineEdit* trigger_line_edit = findChild<QLineEdit*>("TriggerPathLineEdit");
+			const std::string input_path = trigger_line_edit->text().toUtf8();
 
 			if (checked)
 			{
-				if (cd.stft_enabled.load())
-					cancel_stft_view(cd);
-				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", nullptr);
-				
-				set_stft(true);
-
+				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+				holovibes_.get_pipe()->set_gpib_interface(gpib_interface_);
+				gpib_interface_->execute_next_block();
 				cd.signal_trig_enabled.exchange(true);
 			}
 			else
+			{
+				gpib_interface_.reset();
 				cd.signal_trig_enabled.exchange(false);
+			}
 			notify();
 		}
 		#pragma endregion
@@ -2326,6 +2327,7 @@ namespace holovibes
 		#pragma endregion
 		/* ------------ */
 		#pragma region Batch
+
 		void MainWindow::browse_batch_input()
 		{
 			QString filename = QFileDialog::getOpenFileName(this,
@@ -2334,6 +2336,16 @@ namespace holovibes
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			batch_input_line_edit->clear();
 			batch_input_line_edit->insert(filename);
+		}
+
+		void MainWindow::browse_trigger_config_file()
+		{
+			QString filename = QFileDialog::getOpenFileName(this,
+				tr("Trigger config file"), "C://", tr("All files (*)"));
+
+			QLineEdit* trigger_line_edit = findChild<QLineEdit*>("TriggerPathLineEdit");
+			trigger_line_edit->clear();
+			trigger_line_edit->insert(filename);
 		}
 
 		void MainWindow::image_batch_record()
@@ -2371,21 +2383,25 @@ namespace holovibes
 			const std::string input_path = batch_input_line_edit->text().toUtf8();
 			const uint frame_nb = frame_nb_spin_box->value();
 			std::string formatted_path;
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
 
 			try
 			{
-				Queue* q;
-				if (is_direct_mode())
-					q = &holovibes_.get_capture_queue();
-				else
+				Queue* q = nullptr;
+				
+				if (cd.current_window == WindowKind::XYview)
 					q = &holovibes_.get_output_queue();
+				else if (cd.current_window == WindowKind::XZview)
+					q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+				else if (cd.current_window == WindowKind::YZview)
+					q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 				// Only loading the dll at runtime
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
-				formatted_path = set_record_filename_properties(q->get_frame_desc(), path);
-				formatted_path = format_batch_output(formatted_path, file_index_);
+				formatted_path = format_batch_output(path, file_index_);
+				formatted_path = set_record_filename_properties(q->get_frame_desc(), formatted_path);
 
-				is_enabled_camera_ = false;
+				//is_enabled_camera_ = false;
 
 				if (gpib_interface_->execute_next_block()) // More blocks to come, use batch_next_block method.
 				{
@@ -2470,13 +2486,18 @@ namespace holovibes
 			else
 				path = findChild<QLineEdit*>("ROIOutputPathLineEdit")->text().toUtf8();
 
-			Queue* q;
-			if (is_direct_mode())
-				q = &holovibes_.get_capture_queue();
-			else
+			ComputeDescriptor& cd = holovibes_.get_compute_desc();
+			Queue *q = nullptr;
+
+			if (cd.current_window == WindowKind::XYview)
 				q = &holovibes_.get_output_queue();
+			else if (cd.current_window == WindowKind::XZview)
+				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+			else if (cd.current_window == WindowKind::YZview)
+				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 
 			std::string output_filename = format_batch_output(path, file_index_);
+			output_filename = set_record_filename_properties(q->get_frame_desc(), output_filename);
 			const uint frame_nb = frame_nb_spin_box->value();
 			if (is_batch_img_)
 			{
@@ -2492,9 +2513,7 @@ namespace holovibes
 						record_thread_->start();
 					}
 					else
-					{
 						batch_finished_record(true);
-					}
 				}
 				catch (const gpib::GpibInstrError& e)
 				{
@@ -2545,7 +2564,7 @@ namespace holovibes
 			gpib_interface_.reset();
 
 			file_index_ = 1;
-			is_enabled_camera_ = true;
+			//is_enabled_camera_ = true;
 			if (no_error)
 				display_info("Batch record done");
 

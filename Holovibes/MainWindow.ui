@@ -1055,7 +1055,7 @@
         </widget>
         <widget class="QCheckBox" name="ExtTrigCheckBox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1067,6 +1067,9 @@
          </property>
          <property name="text">
           <string>Ext. trig</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
         <widget class="QPushButton" name="FlipPushButton">
@@ -1683,7 +1686,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>150</y>
+           <y>140</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1693,7 +1696,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>180</y>
+           <y>170</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1709,7 +1712,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>180</y>
+           <y>170</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1725,7 +1728,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>250</y>
+           <y>220</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1738,7 +1741,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>280</y>
+           <y>250</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1754,7 +1757,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>280</y>
+           <y>250</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1767,7 +1770,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>350</y>
+           <y>300</y>
            <width>151</width>
            <height>21</height>
           </rect>
@@ -1777,7 +1780,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>180</y>
+           <y>170</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1793,7 +1796,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>280</y>
+           <y>250</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1831,7 +1834,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>130</y>
+           <y>120</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -1844,7 +1847,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>150</y>
+           <y>140</y>
            <width>20</width>
            <height>21</height>
           </rect>
@@ -1857,7 +1860,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>350</y>
+           <y>300</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1876,7 +1879,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>250</y>
+           <y>220</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1889,7 +1892,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>330</y>
+           <y>280</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -1902,7 +1905,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>230</y>
+           <y>200</y>
            <width>171</width>
            <height>16</height>
           </rect>
@@ -1963,6 +1966,45 @@
          </property>
          <property name="text">
           <string>Output :</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="TriggerConfigFileLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>330</y>
+           <width>171</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Trigger config file:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="TriggerPathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>350</y>
+           <width>151</width>
+           <height>21</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="TriggerBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>350</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Allow batch file reading</string>
+         </property>
+         <property name="text">
+          <string>...</string>
          </property>
         </widget>
        </widget>
@@ -3431,7 +3473,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>730</x>
-     <y>330</y>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -3495,7 +3537,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>790</x>
-     <y>330</y>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -3527,7 +3569,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>330</y>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -3687,7 +3729,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>300</y>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3735,7 +3777,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>382</y>
+     <y>350</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3751,7 +3793,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>849</x>
-     <y>195</y>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3962,8 +4004,8 @@ p, li { white-space: pre-wrap; }
      <y>72</y>
     </hint>
     <hint type="destinationlabel">
-     <x>885</x>
-     <y>377</y>
+     <x>1109</x>
+     <y>55</y>
     </hint>
    </hints>
   </connection>
@@ -4463,6 +4505,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>TriggerBrowseToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>browse_trigger_config_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>843</x>
+     <y>393</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>891</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4567,5 +4625,6 @@ p, li { white-space: pre-wrap; }
   <slot>setPhase()</slot>
   <slot>set_p_accu()</slot>
   <slot>set_vision_3d(bool)</slot>
+  <slot>browse_trigger_config_file()</slot>
  </slots>
 </ui>

@@ -78,7 +78,7 @@ namespace holovibes
 		autofocus_zone(gui::Rectangle(0, 0)),
 		stft_roi_zone(gui::Rectangle(0, 0)),
 		current_window(WindowKind::XYview),
-		cuts_contrast_p_offset(2),
+		cuts_contrast_p_offset(4),
 		vision_3d_enabled(false),
 		display_rate(30)
 	{

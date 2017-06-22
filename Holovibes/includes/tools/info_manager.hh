@@ -121,7 +121,7 @@ namespace holovibes
 		bool stop_requested_;
 
 		/*! Store all informations */
-		std::vector<std::pair<std::string, std::string>>  infos_;;
+		std::vector<std::pair<std::string, std::string>>  infos_;
 	};
 }
 }

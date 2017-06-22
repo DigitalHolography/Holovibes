@@ -76,7 +76,7 @@ namespace holovibes
 			emit value_change(i);
 		}
 
-		std::cout << "[RECORDER] recording has been stopped" << std::endl;
+		std::cout << "[RECORDER] record done !" << std::endl;
 		gui::InfoManager::remove_info("Recording");
 		delete[] buffer;
 	}

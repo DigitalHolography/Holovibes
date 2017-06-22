@@ -391,6 +391,11 @@ namespace holovibes
 		return (*gpu_3d_vision);
 	}
 
+	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)
+	{
+		gpib_interface_ = gpib_interface;
+	}
+
 	void ICompute::refresh()
 	{
 		unsigned int err_count = 0;

@@ -115,20 +115,20 @@ namespace holovibes
 			const float	data[16] = {
 				// Top-left
 				-1.f, 1.f,		// vertex coord (-1.0f <-> 1.0f)
-				0.0f, 0.0f,		// texture coord (0.0f <-> 1.0f)
+				0.f, 0.f,		// texture coord (0.0f <-> 1.0f)
 				// Top-right
 				1.f, 1.f,
-				1.f, 0.0f,
+				1.f, 0.f,
 				// Bottom-right
 				1.f, -1.f,
 				1.f, 1.f,
 				// Bottom-left
 				-1.f, -1.f,
-				0.0f, 1.f
+				0.f, 1.f
 			};
 			glGenBuffers(1, &Vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, Vbo);
-			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), data, GL_STATIC_DRAW);
 
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);

@@ -26,8 +26,8 @@
 Tuple4f make_average_plot(float*			input,
 						const uint			width,
 						const uint			height,
-						const Rectangle&	signal,
-						const Rectangle&	noise,
+						const gui::Rectangle&	signal,
+						const gui::Rectangle&	noise,
 						cudaStream_t		stream = 0);
 
 /*! \brief  Make the average plot on the 2 select zones
@@ -41,8 +41,8 @@ Tuple4f make_average_stft_plot(cuComplex*	cbuf,
 							const uint		height,
 							const uint		width_roi,
 							const uint		height_roi,
-							Rectangle&		signal_zone,
-							Rectangle&		noise_zone,
+							gui::Rectangle&		signal_zone,
+							gui::Rectangle&		noise_zone,
 							const uint		pindex,
 							const uint		nsamples,
 							cudaStream_t	stream = 0);

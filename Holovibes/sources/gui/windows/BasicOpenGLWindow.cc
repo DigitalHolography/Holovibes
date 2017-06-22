@@ -49,6 +49,7 @@ namespace holovibes
 			resize(s);
 			setFramePosition(p);
 			setIcon(QIcon("icon1.ico"));
+			setTitle(QString("HoloVibes"));
 			show();
 		}
 

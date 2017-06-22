@@ -79,11 +79,6 @@ namespace holovibes
 						Rectangle texZone = Overlay.getTexZone(height(), Fd.width);
 						if (Overlay.getKind() == Filter2D)
 						{
-							/*if (winState == Qt::WindowFullScreen)
-							{
-								texZone.setLeft(texZone.left() - winPos.x());
-								texZone.setRight(texZone.right() - winPos.x());
-							}*/
 							Cd->stftRoiZone(texZone, AccessMode::Set);
 							Ic->request_filter2D_roi_update();
 							Ic->request_filter2D_roi_end();

@@ -379,6 +379,7 @@ namespace holovibes
 			void finished_average_record();
 			/*! \brief Browse batch instruction file */
 			void browse_batch_input();
+			void browse_trigger_config_file();
 			/*! \brief Configure image batch record */
 			void image_batch_record();
 			/*! \brief Configure average/ROI batch record */
@@ -515,7 +516,7 @@ namespace holovibes
 			** \param index index of the file
 			** \return path with _index up to 10^6
 			*/
-			std::string format_batch_output(const std::string& path, unsigned int index);
+			std::string format_batch_output(const std::string& path, uint index);
 
 			void	createPipe();
 			void	createHoloWindow();
@@ -532,9 +533,8 @@ namespace holovibes
 				File,
 			};
 
-			std::mutex		mutex_;
 			Ui::MainWindow	ui;
-			Holovibes&		 holovibes_;
+			Holovibes&		holovibes_;
 
 
 			/*! OpenGL windows */
@@ -558,30 +558,21 @@ namespace holovibes
 			bool		is_batch_interrupted_;
 			double		z_step_;
 
-			/*! current camera type */
 			CameraKind	kCamera;
-			int			import_type_;
+			ImportType	import_type_;
 
 			/*! Index of the last contrast type chosen in the affiliated QComboBox. */
-			QString		last_contrast_type_;
+			QString		last_img_type_;
 
 			/*! Plot/graphic window of average/ROI computations */
-			std::unique_ptr<PlotWindow> plot_window_;
+			std::unique_ptr<PlotWindow>				plot_window_;
+			std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
+			std::unique_ptr<ThreadRecorder>			record_thread_;
+			std::unique_ptr<ThreadCSVRecord>		CSV_record_thread_;
 
-			/*! Image record thread */
-			std::unique_ptr<ThreadRecorder> record_thread_;
-			/*! ROI/average record thread */
-			std::unique_ptr<ThreadCSVRecord> CSV_record_thread_;
-			/*! Number of frames to record */
-			unsigned int nb_frames_;
-
-			/*! File index used in batch recording */
-			unsigned int file_index_;
-
-			/* index used to record curent theme (0:classic 1:night)*/
-			unsigned short theme_index_;
-
-			std::shared_ptr<gpib::IVisaInterface> gpib_interface_;
+			uint	nb_frames_;
+			uint	file_index_;
+			ushort	theme_index_;
 
 			/*! \{ \name Shortcuts */
 			QShortcut	*z_up_shortcut_;

@@ -1113,6 +1113,8 @@ namespace holovibes
 				{
 					if (stft_frame_counter == compute_desc_.stft_steps.load())
 					{
+						if (compute_desc_.signal_trig_enabled.load())
+							gpib_interface_->execute_next_trig();
 						if (!output_.enqueue(
 							get_enqueue_buffer(),
 							cudaMemcpyDeviceToDevice))

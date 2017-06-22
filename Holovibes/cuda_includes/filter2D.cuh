@@ -20,6 +20,6 @@
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
 			const cufftHandle		plan2d,
-			const Rectangle&		r,
+			const gui::Rectangle&	r,
 			const FrameDescriptor&	fd,
 			cudaStream_t			stream = 0);

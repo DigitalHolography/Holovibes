@@ -26,6 +26,7 @@
 # include "pipeline_utils.hh"
 # include "Rectangle.hh"
 # include "observable.hh"
+# include "gpib_controller.hh"
 
 namespace holovibes
 {
@@ -133,6 +134,7 @@ namespace holovibes
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
 		Queue&			get_3d_vision_queue();
+		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
 		bool get_unwrap_1d_request()		const { return (unwrap_1d_requested_.load()); }
 		bool get_unwrap_2d_request()		const { return (unwrap_2d_requested_.load()); }
@@ -242,6 +244,7 @@ namespace holovibes
 
 		std::shared_ptr<UnwrappingResources>	unwrap_res_;
 		std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
+		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		std::mutex		stftGuard;
 		void			*gpu_float_cut_xz_;
