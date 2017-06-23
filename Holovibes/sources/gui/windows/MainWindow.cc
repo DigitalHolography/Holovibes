@@ -892,6 +892,8 @@ namespace holovibes
 		{
 			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
 			
+			if (compute_desc_.compute_mode.load() != Computation::Direct)
+				compute_desc_.stft_enabled.exchange(true);
 			if (compute_desc_.img_type.load() == ImgType::Complex)
 				depth = 8;
 			else if (compute_desc_.compute_mode.load() == Computation::Hologram)
@@ -942,7 +944,6 @@ namespace holovibes
 			try
 			{
 				compute_desc_.compute_mode.exchange(Computation::Hologram);
-				compute_desc_.stft_enabled.exchange(true);
 				/* ---------- */
 				createPipe();
 				createHoloWindow();
@@ -968,16 +969,10 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				ushort n = compute_desc_.nsamples.load();
-				ushort p = compute_desc_.pindex.load();
 				/* ---------- */
 				createPipe();
 				createHoloWindow();
 				/* ---------- */
-				compute_desc_.nsamples.exchange(n);
-				compute_desc_.pindex.exchange(p);
-				holovibes_.get_pipe()->request_update_n(n);
-				while (holovibes_.get_pipe()->get_update_n_request());
 			}
 			catch (std::runtime_error& e)
 			{
@@ -985,6 +980,7 @@ namespace holovibes
 				std::cerr << "error refreshViewMode :" << std::endl;
 				std::cerr << e.what() << std::endl;
 			}
+			notify();
 		}
 
 		void MainWindow::set_view_mode(const QString value)

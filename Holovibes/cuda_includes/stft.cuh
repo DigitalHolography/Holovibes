@@ -75,4 +75,5 @@ void stft_view_begin(const cuComplex	*input,
 					const uint			viewmode,
 					const ushort		nsamples,
 					const uint			acc_level_xz,
-					const uint			acc_level_yz);
+					const uint			acc_level_yz,
+					const uint			img_type);

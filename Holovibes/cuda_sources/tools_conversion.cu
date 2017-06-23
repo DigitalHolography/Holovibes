@@ -119,7 +119,7 @@ void kernel_complex_to_argument(const cuComplex	*input,
 
 	if (index < size)
 	{
-		output[index] = (atanf(input[index].y / input[index].x) + M_PI_2);;
+		output[index] = (atanf(input[index].y / input[index].x) + M_PI_2);
 	}
 }
 

@@ -811,7 +811,8 @@ namespace holovibes
 				compute_desc_.img_type.load(),
 				compute_desc_.nsamples.load(),
 				compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
-				compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1);
+				compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1,
+				compute_desc_.img_type.load());
 			if (autocontrast_requested_.load())
 			{
 				if (compute_desc_.stft_view_enabled.load())

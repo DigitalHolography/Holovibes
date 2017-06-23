@@ -117,7 +117,8 @@ static void	fill_32bit_slices(const cuComplex	*input,
 							const uint			width,
 							const uint			height,
 							const uint			acc_level_xz,
-							const uint			acc_level_yz)
+							const uint			acc_level_yz,
+							const uint			img_type)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < output_size)
@@ -125,12 +126,30 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		cuComplex pixel = make_cuComplex(0, 0);
 		for (int i = 0; i < acc_level_yz; ++i)
 			pixel = cuCaddf(pixel, input[x0 + i + id * width]);
-		output_yz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(acc_level_yz);
+		if (img_type == ImgType::Modulus)
+			output_yz[id] = hypotf(pixel.x, pixel.y);
+		else if (img_type == ImgType::SquaredModulus)
+		{
+			output_yz[id] = hypotf(pixel.x, pixel.y);
+			output_yz[id] *= output_yz[id];
+		}
+		else if (img_type == ImgType::Argument)
+			output_yz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
+		output_yz[id] /= static_cast<float>(acc_level_yz);
 		/* ********** */
 		pixel = make_cuComplex(0, 0);
 		for (int i = 0; i < acc_level_xz; ++i)
 			pixel = cuCaddf(pixel, input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
-		output_xz[id] = hypotf(pixel.x, pixel.y) / static_cast<float>(acc_level_xz);
+		if (img_type == ImgType::Modulus)
+			output_xz[id] = hypotf(pixel.x, pixel.y);
+		else if (img_type == ImgType::SquaredModulus)
+		{
+			output_xz[id] = hypotf(pixel.x, pixel.y);
+			output_xz[id] *= output_xz[id];
+		}
+		else if (img_type == ImgType::Argument)
+			output_xz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
+		output_xz[id] /= static_cast<float>(acc_level_xz);
 	}
 }
 
@@ -144,7 +163,8 @@ void stft_view_begin(const cuComplex	*input,
 					const uint			viewmode,
 					const ushort		nsamples,
 					const uint			acc_level_xz,
-					const uint			acc_level_yz)
+					const uint			acc_level_yz,
+					const uint			img_type)
 {
 	const uint frame_size = width * height;
 	const uint output_size = width * nsamples;
@@ -170,5 +190,6 @@ void stft_view_begin(const cuComplex	*input,
 			frame_size,
 			output_size,
 			width, height,
-			acc_level_xz, acc_level_yz);
+			acc_level_xz, acc_level_yz,
+			img_type);
 }
