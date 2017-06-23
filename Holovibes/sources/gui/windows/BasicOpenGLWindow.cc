@@ -49,7 +49,6 @@ namespace holovibes
 			resize(s);
 			setFramePosition(p);
 			setIcon(QIcon("icon1.ico"));
-			setTitle(QString("HoloVibes"));
 			show();
 		}
 
@@ -129,7 +128,8 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
 		{
-			if (e->x() < width() && e->y() < height())
+			if (kView != KindOfView::SliceXZ && kView != KindOfView::SliceYZ &&
+				e->x() < width() && e->y() < height())
 			{
 				const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
 				const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;

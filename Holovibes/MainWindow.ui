@@ -34,7 +34,7 @@
    <enum>Qt::ClickFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>HoloVibes</string>
+   <string>Holovibes</string>
   </property>
   <property name="animated">
    <bool>true</bool>

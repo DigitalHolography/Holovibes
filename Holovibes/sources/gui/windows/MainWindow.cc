@@ -880,6 +880,7 @@ namespace holovibes
 					new DirectWindow(
 						pos, size,
 						holovibes_.get_capture_queue()));
+				mainDisplay->setTitle(QString("XZ view"));
 				mainDisplay->setCd(&compute_desc_);
 				const FrameDescriptor& fd = holovibes_.get_capture_queue().get_frame_desc();
 				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
@@ -925,6 +926,7 @@ namespace holovibes
 						pos, size,
 						holovibes_.get_output_queue(),
 						holovibes_.get_pipe()));
+				mainDisplay->setTitle(QString("XZ view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
@@ -1144,7 +1146,7 @@ namespace holovibes
 						QSize(mainDisplay->width(), nSize),
 						holovibes_.get_pipe()->get_stft_slice_queue(0),
 						KindOfView::SliceXZ));
-					sliceXZ->setTitle("Slice XZ");
+					sliceXZ->setTitle("XZ view");
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
 					sliceXZ->setPIndex(compute_desc_.pindex.load());
@@ -1156,7 +1158,7 @@ namespace holovibes
 						QSize(nSize, mainDisplay->height()),
 						holovibes_.get_pipe()->get_stft_slice_queue(1),
 						KindOfView::SliceYZ));
-					sliceYZ->setTitle("Slice YZ");
+					sliceYZ->setTitle("YZ view");
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
 					sliceYZ->setPIndex(compute_desc_.pindex.load());
