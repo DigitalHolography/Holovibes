@@ -43,9 +43,7 @@ namespace holovibes
 			theme_index_(0),
 			is_enabled_autofocus_(false),
 			import_type_(ImportType::None),
-			compute_desc_(holovibes_.get_compute_desc()),
-			old_pindex_(0),
-			old_samples_(1)
+			compute_desc_(holovibes_.get_compute_desc())
 		{
 			ui.setupUi(this);
 			setWindowIcon(QIcon("icon1.ico"));
@@ -1209,10 +1207,16 @@ namespace holovibes
 
 			if (checked)
 			{
-				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
-				holovibes_.get_pipe()->set_gpib_interface(gpib_interface_);
-				gpib_interface_->execute_next_block();
-				compute_desc_.signal_trig_enabled.exchange(true);
+				try
+				{
+					gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
+					holovibes_.get_pipe()->set_gpib_interface(gpib_interface_);
+					compute_desc_.signal_trig_enabled.exchange(true);
+				}
+				catch (const std::exception& e)
+				{
+					std::cerr << e.what() << std::endl;
+				}
 			}
 			else
 			{

@@ -49,12 +49,12 @@ namespace gpib
 	{
 		// Batch input file parsing
 		if (path.compare("") == 0)
-			throw GpibNoFilepath();
+			throw std::exception("GPIB : No Filepath");
 
 		std::ifstream in;
 		in.open(path);
 		if (!in.is_open())
-			throw GpibInvalidPath(path);
+			throw std::exception("GPIB : Invalid Filepath");
 
 		try
 		{

@@ -17,5 +17,5 @@ out vec4    outColor;
 
 void main()
 {
-	outColor = vec4(passColor, 0.8f);
+	outColor = vec4(passColor, 0.7f);
 }

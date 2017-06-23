@@ -25,6 +25,11 @@ void stft(cuComplex			*input,
 		cudaStream_t		stream)
 {
 	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
+
+	// Signal trig here ?
+	/* if (compute_desc_.signal_trig_enabled.load())
+		 gpib_interface_->execute_next_trig();*/
+
 	// FFT 1D
 	if (stft_activated)
 		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
