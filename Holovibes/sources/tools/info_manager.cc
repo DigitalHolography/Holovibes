@@ -91,7 +91,7 @@ namespace holovibes
 			flag = Null;
 		}
 
-		void InfoManager::insertInputSource(int width, int height, int depth)
+		void InfoManager::insertInputSource(const int width, const int height, const int depth)
 		{
 			std::string output_descriptor_info =
 				std::to_string(width) + std::string("x") + std::to_string(height) +
@@ -120,24 +120,30 @@ namespace holovibes
 
 		void InfoManager::remove_info(const std::string& key)
 		{
+			int i = 0;
+
 			if (instance)
 			{
-				auto it = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-				if (it != instance->infos_.end())
-					instance->infos_.erase(it);
+				for (i = 0; i < instance->infos_.size(); ++i)
+					if (instance->infos_[i].first == key)
+						break;
+				if (i != instance->infos_.size())
+					instance->infos_.erase(instance->infos_.begin() + i);
 				if (key == "Error" || key == "Info")
 					instance->flag = Finish;
 			}
 		}
 
-		void InfoManager::insert_info(uint pos, const std::string& key, const std::string& value)
+		void InfoManager::insert_info(const uint pos, const std::string& key, const std::string& value)
 		{
+			int i = 0;
+
 			if (instance)
 			{
-				auto vector_iterator = std::find_if(instance->infos_.begin(), instance->infos_.end(),
-					[key](const std::pair<std::string, std::string>& element) { return element.first == key; });
-				if (vector_iterator == instance->infos_.end())
+				for (i = 0; i < instance->infos_.size(); ++i)
+					if (instance->infos_[i].first == key)
+						break;
+				if (i == instance->infos_.size())
 				{
 					if (pos < instance->infos_.size())
 						instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
@@ -181,7 +187,7 @@ namespace holovibes
 			}
 		}
 
-		void InfoManager::clear_info()
+		void InfoManager::clear_infos()
 		{
 			if (instance)
 			{

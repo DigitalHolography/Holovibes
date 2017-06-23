@@ -100,9 +100,6 @@ namespace holovibes
 		 * - hologram: use output_ queue. */
 		void recorder(const std::string& filepath, const unsigned int rec_n_images);
 
-		/*! \brief Request the recorder thread to stop */
-		void dispose_recorder();
-
 		/*! \brief Launch the ThreadCompute
 		 * \see ThreadCompute
 		 * \see Pipe

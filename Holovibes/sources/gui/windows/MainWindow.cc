@@ -28,7 +28,7 @@ namespace holovibes
 			yzAngle(90.f),
 			displayFlip(0),
 			xzFlip(0),
-			yzFlip(1),
+			yzFlip(0),
 			is_enabled_camera_(false),
 			is_enabled_average_(false),
 			is_batch_img_(true),
@@ -43,7 +43,9 @@ namespace holovibes
 			theme_index_(0),
 			is_enabled_autofocus_(false),
 			import_type_(ImportType::None),
-			compute_desc_(holovibes_.get_compute_desc())
+			compute_desc_(holovibes_.get_compute_desc()),
+			old_pindex_(0),
+			old_samples_(1)
 		{
 			ui.setupUi(this);
 			setWindowIcon(QIcon("icon1.ico"));
@@ -65,6 +67,8 @@ namespace holovibes
 			load_ini(GLOBAL_INI_PATH);
 
 			set_night();
+
+			InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::IMG_SOURCE, "ImgSource", "None");
 
 			// Keyboard shortcuts
 			z_up_shortcut_ = new QShortcut(QKeySequence("Up"), this);
@@ -705,8 +709,8 @@ namespace holovibes
 		{
 			try
 			{
-				auto manager = InfoManager::get_manager();
-				manager->clear_info();
+				InfoManager *manager = InfoManager::get_manager();
+				manager->clear_infos();
 			}
 			catch (std::exception& e)
 			{
@@ -733,7 +737,7 @@ namespace holovibes
 
 			close_critical_compute();
 			camera_none();
-			auto manager = InfoManager::get_manager();
+			InfoManager *manager = InfoManager::get_manager();
 			manager->update_info("Status", "Resetting...");
 			qApp->processEvents();
 			if (!is_direct_mode())
@@ -873,20 +877,13 @@ namespace holovibes
 				QSize size(512, 512);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode.exchange(Computation::Direct);
-				try
-				{
-					holovibes_.get_pipe();
-				}
-				catch (std::exception&)
-				{
-					createPipe();
-				}
+				createPipe();
 				mainDisplay.reset(
 					new DirectWindow(
 						pos, size,
 						holovibes_.get_capture_queue()));
 				mainDisplay->setCd(&compute_desc_);
-				auto& fd = holovibes_.get_capture_queue().get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_capture_queue().get_frame_desc();
 				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
@@ -907,9 +904,6 @@ namespace holovibes
 				holovibes_.init_compute(ThreadCompute::PipeType::PIPE, depth);
 				while (!holovibes_.get_pipe());
 				holovibes_.get_pipe()->register_observer(*this);
-				/* ---------- */
-				holovibes_.get_pipe()->request_update_n(1);
-				while (holovibes_.get_pipe()->get_update_n_request());
 			}
 			catch (std::runtime_error& e)
 			{
@@ -949,34 +943,18 @@ namespace holovibes
 			/* ---------- */
 			try
 			{
-				ushort p = compute_desc_.pindex.load();
-				ushort n = compute_desc_.nsamples.load();
 				compute_desc_.compute_mode.exchange(Computation::Hologram);
+				compute_desc_.stft_enabled.exchange(true);
 				/* ---------- */
-				try
-				{
-					holovibes_.get_pipe();
-				}
-				catch (std::exception&)
-				{
-					compute_desc_.pindex.exchange(0);
-					compute_desc_.nsamples.exchange(1);
-					createPipe();
-				}
+				createPipe();
 				createHoloWindow();
 				/* ---------- */
-				compute_desc_.nsamples.exchange(n);
-				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
-				while (holovibes_.get_pipe()->get_update_n_request());
-				/* ---------- */
-				auto& fd = holovibes_.get_output_queue().get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_output_queue().get_frame_desc();
 				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
 				/* ---------- */
 				compute_desc_.contrast_enabled.exchange(true);
 				set_auto_contrast();
 				notify();
-				compute_desc_.pindex.exchange(p);
-				set_stft(true);
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1080,7 +1058,7 @@ namespace holovibes
 		#pragma region STFT
 		void MainWindow::cancel_stft_slice_view()
 		{
-			auto manager = InfoManager::get_manager();
+			InfoManager *manager = InfoManager::get_manager();
 
 			manager->remove_info("STFT Slice Cursor");
 
@@ -1110,8 +1088,17 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.stft_enabled.exchange(b);
-				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
+				try
+				{
+					compute_desc_.stft_enabled.exchange(b);
+					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
+				}
+				catch (std::exception& e)
+				{
+					compute_desc_.stft_enabled.exchange(!b);
+					std::cerr << "Cannot set stft : ";
+					std::cerr << e.what() << std::endl;
+				}
 				notify();
 			}
 		}
@@ -1136,7 +1123,7 @@ namespace holovibes
 
 		void MainWindow::stft_view(bool checked)
 		{
-			auto manager = InfoManager::get_manager();
+			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
 
 			QComboBox* winSelection = findChild<QComboBox*>("WindowSelectionComboBox");

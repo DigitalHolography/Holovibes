@@ -80,31 +80,26 @@ namespace holovibes
 
 	void* Queue::get_start()
 	{
-		MutexGuard mGuard(mutex_);
 		return data_buffer_ + start_index_ * frame_size_;
 	}
 
 	unsigned int Queue::get_start_index()
 	{
-		MutexGuard mGuard(mutex_);
 		return start_index_;
 	}
 
 	void* Queue::get_end()
 	{
-		MutexGuard mGuard(mutex_);
 		return data_buffer_ + ((start_index_ + curr_elts_) % max_elts_) * frame_size_;
 	}
 
 	void* Queue::get_last_images(const unsigned n)
 	{
-		MutexGuard mGuard(mutex_);
 		return data_buffer_ + ((start_index_ + curr_elts_ - n) % max_elts_) * frame_size_;
 	}
 
 	unsigned int Queue::get_end_index()
 	{
-		MutexGuard mGuard(mutex_);
 		return (start_index_ + curr_elts_) % max_elts_;
 	}
 

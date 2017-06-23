@@ -147,6 +147,7 @@ namespace holovibes
 		current_window.exchange(cd.current_window.load());
 		cuts_contrast_p_offset.exchange(cd.cuts_contrast_p_offset.load());
 		vision_3d_enabled.exchange(cd.vision_3d_enabled.load());
+		display_rate.exchange(cd.display_rate.load());
 		stft_slice_cursor = cd.stft_slice_cursor;
 		signal_zone = cd.signal_zone;
 		noise_zone = cd.noise_zone;

@@ -28,5 +28,5 @@ void main()
 		texCoord = uv - translate;
 	else
 		texCoord = uv + translate;
-    gl_Position = vec4((mvp * vec4(xy, 0.f, 1.f)).xy, 0.f, 1.f);
+	gl_Position = vec4((mvp * vec4(xy, 0.f, 1.f)).xy, 0.f, 1.f);
 }

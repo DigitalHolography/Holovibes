@@ -60,8 +60,6 @@ namespace holovibes
 			void move(QPoint pos, QSize size);
 			void release(ushort frameSide);
 
-			void resizeFilterZone(QPoint winpos, QSize screen);
-
 		protected:
 			Rectangle				Zone;
 			KindOfOverlay			kOverlay;

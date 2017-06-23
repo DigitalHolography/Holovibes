@@ -65,7 +65,8 @@ namespace holovibes
 		cufftSetStream(plan1d_, static_cast<cudaStream_t>(0));
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 		cufftSetStream(plan3d_, static_cast<cudaStream_t>(0));
-
+		if (compute_desc_.stft_enabled.load() && compute_desc_.compute_mode.load() != Computation::Direct)
+			update_n_requested_.exchange(true);
 		refresh();
 	}
 

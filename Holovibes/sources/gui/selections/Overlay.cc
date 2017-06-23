@@ -365,10 +365,5 @@ namespace holovibes
 				setKind((kOverlay == Signal) ? Noise : Signal);
 			}
 		}
-
-		void	HOverlay::resizeFilterZone(QPoint winpos, QSize screen)
-		{
-			Zone - winpos;
-		}
 	}
 }

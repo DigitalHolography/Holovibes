@@ -93,18 +93,15 @@ namespace holovibes
 		/*! Draw all current information */
 		void draw();
 
-		static void insertInputSource(int width, int height, int depth);
+		static void insertInputSource(const int width, const int height, const int depth);
 
 		/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information
 		** \param value is your information linked to key */
 		static void update_info(const std::string& key, const std::string& value);
-		/*! Remove information, and call draw */
 		static void remove_info(const std::string& key);
-		/*! Insert an information, and call draw */
-		static void insert_info(uint pos, const std::string& key, const std::string& value);
-		/*! Remove all information, and call draw */
-		void clear_info();
+		static void insert_info(const uint pos, const std::string& key, const std::string& value);
+		void clear_infos();
 		/*! Return progress_bar, you can use it as you want */
 		QProgressBar *get_progress_bar();
 	private:

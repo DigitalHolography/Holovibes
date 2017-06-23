@@ -467,7 +467,7 @@ namespace holovibes
 
 	void ICompute::allocation_failed(const int& err_count, std::exception& e)
 	{
-		auto cuda_error = cudaGetErrorString(cudaGetLastError());
+		const char *cuda_error = cudaGetErrorString(cudaGetLastError());
 		std::cout
 			<< "[ERROR] ICompute l" << __LINE__ << std::endl
 			<< " error message: " << e.what()
@@ -919,7 +919,7 @@ namespace holovibes
 		{
 			auto time = std::chrono::high_resolution_clock::now();
 			long long diff = std::chrono::duration_cast<std::chrono::milliseconds>(time - past_time_).count();
-			auto manager = gui::InfoManager::get_manager();
+			InfoManager *manager = gui::InfoManager::get_manager();
 			const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
 			if (diff)
