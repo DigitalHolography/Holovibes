@@ -1,4 +1,4 @@
-# Holovibes v4.3.170523 #
+# Holovibes v4.3.170623 #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -16,7 +16,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](https://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
-* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk620.zip) Framegrabber for the adimec V6.20
+* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk630.zip) Framegrabber for the adimec V6.30
 
 ### CUDA ###
 
@@ -27,9 +27,9 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [Visual C++ Redistributable Packages for Visual Studio 2013](http://www.microsoft.com/en-US/download/details.aspx?id=40784)
 * [Visual C++ Redistributable Packages for Visual Studio 2015](https://www.microsoft.com/fr-fr/download/details.aspx?id=48145)
 
-### Qt 5.8.0 ###
+### Qt 5.9.0 ###
 
-* [Qt OpenSource Windows x64 5.8.0](https://download.qt.io/archive/qt/5.8/5.8.0/)
+* [Qt OpenSource Windows x64 5.9.0](https://download.qt.io/archive/qt/5.9/5.9.0/)
 
 ### VISA ###
 
