@@ -2584,7 +2584,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3073,7 +3073,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>298</x>
-     <y>310</y>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3185,7 +3185,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>319</x>
-     <y>280</y>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -3313,7 +3313,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>410</x>
-     <y>281</y>
+     <y>276</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -3393,7 +3393,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>539</x>
-     <y>309</y>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
      <x>478</x>
@@ -3473,7 +3473,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>730</x>
-     <y>300</y>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -3537,7 +3537,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>790</x>
-     <y>300</y>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -3569,7 +3569,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>300</y>
+     <y>295</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -3645,7 +3645,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionImage_rendering</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3661,7 +3661,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionImport</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3677,7 +3677,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionView</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3693,7 +3693,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionSpecial</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3709,7 +3709,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionRecord</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3729,7 +3729,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>270</y>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3777,7 +3777,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>850</x>
-     <y>350</y>
+     <y>345</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3793,7 +3793,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>849</x>
-     <y>190</y>
+     <y>185</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -3821,7 +3821,7 @@ p, li { white-space: pre-wrap; }
    <sender>actionInfo</sender>
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>layout_toggled(bool)</slot>
+   <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>
@@ -3840,8 +3840,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_direct_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>75</y>
+     <x>86</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -3857,7 +3857,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>197</x>
-     <y>75</y>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
@@ -3921,7 +3921,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>549</x>
-     <y>270</y>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -4113,7 +4113,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>338</x>
-     <y>199</y>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4129,7 +4129,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>409</x>
-     <y>201</y>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4192,8 +4192,8 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_take_reference()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>179</x>
-     <y>130</y>
+     <x>186</x>
+     <y>125</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4288,8 +4288,8 @@ p, li { white-space: pre-wrap; }
    <slot>update_stft_steps(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>170</x>
-     <y>101</y>
+     <x>177</x>
+     <y>96</y>
     </hint>
     <hint type="destinationlabel">
      <x>224</x>
@@ -4320,8 +4320,8 @@ p, li { white-space: pre-wrap; }
    <slot>stft_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>130</y>
+     <x>318</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>444</x>
@@ -4337,7 +4337,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>397</x>
-     <y>134</y>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>445</x>
@@ -4448,8 +4448,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>291</x>
-     <y>247</y>
+     <x>298</x>
+     <y>244</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4496,8 +4496,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_vision_3d(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>151</y>
+     <x>408</x>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4577,7 +4577,7 @@ p, li { white-space: pre-wrap; }
   <slot>import_start_spinbox_update()</slot>
   <slot>import_end_spinbox_update()</slot>
   <slot>camera_adimec()</slot>
-  <slot>layout_toggled(bool)</slot>
+  <slot>layout_toggled()</slot>
   <slot>set_unwrap_history_size(int)</slot>
   <slot>set_unwrapping_1d(bool)</slot>
   <slot>reset()</slot>

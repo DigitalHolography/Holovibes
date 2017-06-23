@@ -12,9 +12,6 @@
 
 #include <BiApi.h>
 #include <iostream>
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
 #include <cmath>
 #include <cstdlib>
 
@@ -142,16 +139,16 @@ namespace camera
 			BiCirBufferStatusSet(board_, info_, last_buf, BIHOLD);
 		}
 
-		if (hd.pBufData == reinterpret_cast<void*>(0xcccccccccccccccc))
+		if (hd.pBufData == reinterpret_cast<void *>(0xcccccccccccccccc))
 			return (get_frame());
 
 		return hd.pBufData;
 	}
 
 	void CameraAdimec::err_check(const BFRC status,
-		const std::string err_mess,
-		const CameraException cam_ex,
-		const int flag)
+								const std::string err_mess,
+								const CameraException cam_ex,
+								const int flag)
 	{
 		if (status != CI_OK)
 		{
@@ -183,13 +180,9 @@ namespace camera
 	void CameraAdimec::load_ini_params()
 	{
 		const boost::property_tree::ptree& pt = get_ini_pt();
-
 		queue_size_ = pt.get<BFU32>("bitflow.queue_size", queue_size_);
-
 		exposure_time_ = pt.get<BFU32>("adimec.exposure_time", exposure_time_);
-
 		frame_period_ = pt.get<BFU32>("adimec.frame_period", frame_period_);
-
 		roi_x_ = pt.get<BFU32>("adimec.roi_x", roi_x_);
 		roi_y_ = pt.get<BFU32>("adimec.roi_y", roi_y_);
 	}
@@ -211,7 +204,8 @@ namespace camera
 		if (BFCXPWriteReg(board_, CloseFlag::ALL, RegAdress::EXPOSURE_TIME, exposure_time_) != BF_OK)
 			std::cerr << "[CAMERA] Could not set exposure time to " << exposure_time_ << std::endl;
 
-		/* After setting up the profile of the camera in SysReg, these lines are reading into the registers of the camera to set width and height */
+		/* After setting up the profile of the camera in SysReg, we read into the registers
+		 * of the camera to set width and height */
 		if (BFCXPReadReg(board_, CloseFlag::ALL, RegAdress::ROI_WIDTH, &roi_width_) != BF_OK)
 			std::cerr << "[CAMERA] Cannot read the roi width of the registers of the camera " << std::endl;
 

@@ -60,7 +60,7 @@ namespace holovibes
 			findChild<QAction *>("actionRecord")->setChecked(false);
 			findChild<QAction *>("actionInfo")->setChecked(false);
 
-			layout_toggled(false);
+			layout_toggled();
 
 			load_ini(GLOBAL_INI_PATH);
 
@@ -336,7 +336,7 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::layout_toggled(bool b)
+		void MainWindow::layout_toggled()
 		{
 			uint childCount = 0;
 			std::vector<GroupBox *> v;
@@ -1385,7 +1385,6 @@ namespace holovibes
 
 		void MainWindow::set_p_accu()
 		{
-			
 			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
@@ -2245,20 +2244,6 @@ namespace holovibes
 				holovibes_.get_pipe()->request_complex_output_stop();
 			display_info("Record done");
 		}
-
-		void MainWindow::set_float_visible(bool value)
-		{
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
-		}
-
-		void MainWindow::set_complex_visible(bool value)
-		{
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
-		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Batch
@@ -2271,6 +2256,20 @@ namespace holovibes
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			batch_input_line_edit->clear();
 			batch_input_line_edit->insert(filename);
+		}
+
+		void MainWindow::set_float_visible(bool value)
+		{
+			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+			if (complex_checkbox->isChecked() && value == true)
+				complex_checkbox->setChecked(false);
+		}
+		
+		void MainWindow::set_complex_visible(bool value)
+		{
+			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+			if (float_checkbox->isChecked() && value == true)
+				float_checkbox->setChecked(false);
 		}
 
 		void MainWindow::browse_trigger_config_file()
@@ -2762,13 +2761,13 @@ namespace holovibes
 
 		void MainWindow::title_detect(void)
 		{
-			QLineEdit	*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-			QSpinBox	*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
-			QSpinBox	*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
-			QComboBox	*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
-			QComboBox	*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
+			QLineEdit			*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+			QSpinBox			*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
+			QSpinBox			*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
+			QComboBox			*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
+			QComboBox			*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
 			const std::string	file_src = import_line_edit->text().toUtf8();
-			std::string err_msg = "Cannot detect title properties";
+			std::string			err_msg = "Cannot detect title properties";
 			uint				width = 0, height = 0, depth = 0, underscore = 5;
 			size_t				i;
 			bool				mode, endian;
@@ -2816,6 +2815,7 @@ namespace holovibes
 			}
 			if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
 				return (display_error(err_msg));
+
 			import_width_box->setValue(width);
 			import_height_box->setValue(height);
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
