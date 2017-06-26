@@ -2036,7 +2036,7 @@ namespace holovibes
 			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
 			CSV_record_thread_->start();
 
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
 			roi_stop_push_button->setDisabled(false);
 		}
 
@@ -2045,7 +2045,7 @@ namespace holovibes
 			CSV_record_thread_.reset(nullptr);
 			display_info("ROI record done");
 
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOuputStopPushButton");
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
 			roi_stop_push_button->setDisabled(true);
 		}
 		#pragma endregion

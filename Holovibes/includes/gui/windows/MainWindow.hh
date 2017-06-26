@@ -199,6 +199,8 @@ namespace holovibes
 			void csv_batch_record();
 			void batch_record(const std::string& path);
 			void stop_image_record();
+			void finished_image_record();
+			void finished_average_record();
 			void stop_csv_record();
 			void set_complex_visible(bool value);
 			void set_float_visible(bool value);
@@ -244,8 +246,6 @@ namespace holovibes
 			void		batch_finished_record(bool no_error);
 			void		batch_next_record();
 			void		batch_finished_record();
-			void		finished_average_record();
-			void		finished_image_record();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
 
