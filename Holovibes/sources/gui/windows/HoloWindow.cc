@@ -89,7 +89,16 @@ namespace holovibes
 							Ic->request_autofocus();
 							Overlay.setKind(KindOfOverlay::Zoom);
 						}
-						// TO DO SCRAP FIX ------
+						// TO DO ~ SCRAP FIX ------
+						// Noise & Signal are reversed to "fix" PlotWindow graph render
+						// An another solution must be found to correct this bug.
+						// Normal code :
+						/*
+						else if (Overlay.getKind() == Signal)
+							Cd->signalZone(texZone, AccessMode::Set);
+						else if (Overlay.getKind() == Noise)
+							Cd->noiseZone(texZone, AccessMode::Set);
+						*/
 						else if (Overlay.getKind() == Noise)
 							Cd->signalZone(texZone, AccessMode::Set);
 						else if (Overlay.getKind() == Signal)
