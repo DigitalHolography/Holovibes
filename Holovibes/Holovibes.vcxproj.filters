@@ -206,9 +206,6 @@
     <ClCompile Include="sources\compute\compute_descriptor.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\windows\test.cc">
-      <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
     <ClCompile Include="sources\module.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
