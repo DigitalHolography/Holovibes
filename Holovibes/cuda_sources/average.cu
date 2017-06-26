@@ -102,10 +102,10 @@ Tuple4f make_average_plot(float				*input,
 	const uint noise_width = noise.width();
 	const uint noise_height = noise.height();
 
-	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
-		noise.topLeft().x(), noise.topLeft().y(), noise_width, noise_height);
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_s,
 		signal.topLeft().x(), signal.topLeft().y(), signal_width, signal_height);
+	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
+		noise.topLeft().x(), noise.topLeft().y(), noise_width, noise_height);
 
 	float cpu_s;
 	float cpu_n;

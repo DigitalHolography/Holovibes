@@ -89,10 +89,12 @@ namespace holovibes
 							Ic->request_autofocus();
 							Overlay.setKind(KindOfOverlay::Zoom);
 						}
-						else if (Overlay.getKind() == Signal)
-							Cd->signalZone(texZone, AccessMode::Set);
+						// TO DO SCRAP FIX ------
 						else if (Overlay.getKind() == Noise)
+							Cd->signalZone(texZone, AccessMode::Set);
+						else if (Overlay.getKind() == Signal)
 							Cd->noiseZone(texZone, AccessMode::Set);
+						// ----------------------
 						Ic->notify_observers();
 					}
 				}
