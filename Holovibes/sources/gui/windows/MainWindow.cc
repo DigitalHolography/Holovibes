@@ -995,6 +995,8 @@ namespace holovibes
 					(last_img_type_ != "Complex output" && value == "Complex output"))
 				{
 					refreshViewMode();
+					if (compute_desc_.stft_view_enabled.load())
+						set_auto_contrast_cuts();
 				}
 				last_img_type_ = value;
 
@@ -1157,7 +1159,7 @@ namespace holovibes
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					compute_desc_.stft_view_enabled.exchange(true);
-					set_auto_contrast();
+					set_auto_contrast_cuts();
 					notify();
 				}
 				catch (std::logic_error& e)
@@ -1730,6 +1732,15 @@ namespace holovibes
 				pipe_refresh();
 				notify();
 			}
+		}
+
+		void MainWindow::set_auto_contrast_cuts()
+		 {
+			compute_desc_.current_window.exchange(WindowKind::XZview);
+			set_auto_contrast();
+			while (holovibes_.get_pipe()->get_autocontrast_request());
+			compute_desc_.current_window.exchange(WindowKind::YZview);
+			set_auto_contrast();
 		}
 
 		void MainWindow::set_auto_contrast()

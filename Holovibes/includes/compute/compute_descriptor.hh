@@ -24,7 +24,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v4.3.170626"; /*!< Current version of this project. */
+	const static std::string version = "v5.0"; /*!< Current version of this project. */
 
 	#ifndef TUPLE4F
 	# define TUPLE4F

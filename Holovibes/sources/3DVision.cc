@@ -167,7 +167,7 @@ namespace holovibes
 			case Qt::Key::Key_9:
 				translate.z += translate_step;
 				break;
-			case Qt::Key::Key_A:
+			case Qt::Key::Key_Q:
 				rotate.x += rotation_step;
 				break;
 			case Qt::Key::Key_D:
@@ -179,7 +179,7 @@ namespace holovibes
 			case Qt::Key::Key_S:
 				rotate.y += rotation_step;
 				break;
-			case Qt::Key::Key_Q:
+			case Qt::Key::Key_A:
 				rotate.z -= rotation_step;
 				break;
 			case Qt::Key::Key_E:
