@@ -126,7 +126,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		cuComplex pixel = make_cuComplex(0, 0);
 		for (int i = 0; i < acc_level_yz; ++i)
 			pixel = cuCaddf(pixel, input[x0 + i + id * width]);
-		if (img_type == ImgType::Modulus)
+		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease)
 			output_yz[id] = hypotf(pixel.x, pixel.y);
 		else if (img_type == ImgType::SquaredModulus)
 		{
@@ -140,7 +140,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		pixel = make_cuComplex(0, 0);
 		for (int i = 0; i < acc_level_xz; ++i)
 			pixel = cuCaddf(pixel, input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
-		if (img_type == ImgType::Modulus)
+		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease)
 			output_xz[id] = hypotf(pixel.x, pixel.y);
 		else if (img_type == ImgType::SquaredModulus)
 		{
