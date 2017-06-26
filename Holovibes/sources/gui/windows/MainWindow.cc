@@ -183,7 +183,7 @@ namespace holovibes
 
 			QPushButton *filter_button = findChild<QPushButton *>("Filter2DPushButton");
 			filter_button->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load()
-				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.stft_view_enabled.load());
+				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
@@ -206,6 +206,8 @@ namespace holovibes
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_level.load());
+				findChild<QPushButton*>("RotatePushButton")->setEnabled(!compute_desc_.vision_3d_enabled.load());
+				findChild<QPushButton*>("FlipPushButton")->setEnabled(!compute_desc_.vision_3d_enabled.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
@@ -251,12 +253,12 @@ namespace holovibes
 
 			findChild<QCheckBox *>("ImageRatioCheckBox")->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
 			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() == 0 ? false : true);
-			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!compute_desc_.stft_view_enabled.load());
+			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && compute_desc_.flowgraphy_enabled.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
-			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None);
+			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
 			findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
@@ -291,8 +293,8 @@ namespace holovibes
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file.load());
 			
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load());
-			//findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
-			//findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
+			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
+			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
 
 			QCoreApplication::processEvents();
 		}
@@ -880,7 +882,7 @@ namespace holovibes
 					new DirectWindow(
 						pos, size,
 						holovibes_.get_capture_queue()));
-				mainDisplay->setTitle(QString("XZ view"));
+				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				const FrameDescriptor& fd = holovibes_.get_capture_queue().get_frame_desc();
 				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
@@ -926,7 +928,7 @@ namespace holovibes
 						pos, size,
 						holovibes_.get_output_queue(),
 						holovibes_.get_pipe()));
-				mainDisplay->setTitle(QString("XZ view"));
+				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
@@ -968,13 +970,10 @@ namespace holovibes
 		{
 			close_critical_compute();
 			close_windows();
-			/* ---------- */
 			try
 			{
-				/* ---------- */
 				createPipe();
 				createHoloWindow();
-				/* ---------- */
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1032,11 +1031,12 @@ namespace holovibes
 			{
 				QPoint pos(0, 0);
 				QSize size(512, 512);
+				set_average_mode(false);
 				mainDisplay.reset(nullptr);
 				holovibes_.get_pipe()->create_3d_vision_queue();
 				while (holovibes_.get_pipe()->get_request_3d_vision());
-				compute_desc_.vision_3d_enabled.exchange(true);
 				vision3D.reset(new Vision3DWindow(pos, size, holovibes_.get_output_queue(), compute_desc_, fd, holovibes_.get_pipe()->get_3d_vision_queue()));
+				compute_desc_.vision_3d_enabled.exchange(true);
 				notify();
 			}
 			else
@@ -1108,15 +1108,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_auto_contrast_cuts()
-		{
-			compute_desc_.current_window.exchange(WindowKind::XZview);
-			set_auto_contrast();
-			while (holovibes_.get_pipe()->get_autocontrast_request());
-			compute_desc_.current_window.exchange(WindowKind::YZview);
-			set_auto_contrast();
-		}
-
 		void MainWindow::stft_view(bool checked)
 		{
 			InfoManager *manager = InfoManager::get_manager();
@@ -1166,7 +1157,7 @@ namespace holovibes
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					compute_desc_.stft_view_enabled.exchange(true);
-					set_auto_contrast_cuts();
+					set_auto_contrast();
 					notify();
 				}
 				catch (std::logic_error& e)

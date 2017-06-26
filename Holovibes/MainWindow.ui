@@ -150,7 +150,7 @@
           <string>index of the image displayed</string>
          </property>
          <property name="minimum">
-          <number>1</number>
+          <number>0</number>
          </property>
         </widget>
         <widget class="QLabel" name="PLabel">
@@ -1176,7 +1176,7 @@
         </widget>
         <widget class="QCheckBox" name="Vision3DCheckBox">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="geometry">
           <rect>
@@ -1190,7 +1190,7 @@
           <string>Vision3D</string>
          </property>
          <property name="checkable">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
         </widget>
         <zorder>PhaseUnwrap2DCheckBox</zorder>
@@ -2584,7 +2584,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1335</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

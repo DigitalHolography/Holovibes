@@ -764,51 +764,46 @@ namespace holovibes
 		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
-			if (compute_desc_.current_window.load() == WindowKind::XYview)
-			{
-				if (compute_desc_.vision_3d_enabled.load())
-					fn_vect_.push_back(std::bind(
-						autocontrast_caller,
-						reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-						output_fd.frame_res() * compute_desc_.nsamples.load(),
-						0,
-						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min),
-						std::ref(compute_desc_.contrast_max),
-						static_cast<cudaStream_t>(0)));
-				else
-					fn_vect_.push_back(std::bind(
-						autocontrast_caller,
-						gpu_float_buffer_,
-						output_fd.frame_res(),
-						0,
-						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min),
-						std::ref(compute_desc_.contrast_max),
-						static_cast<cudaStream_t>(0)));
-			}
+			if (compute_desc_.vision_3d_enabled.load())
+				fn_vect_.push_back(std::bind(
+					autocontrast_caller,
+					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
+					output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
+					0,
+					std::ref(compute_desc_),
+					std::ref(compute_desc_.contrast_min),
+					std::ref(compute_desc_.contrast_max),
+					static_cast<cudaStream_t>(0)));
+			else
+				fn_vect_.push_back(std::bind(
+					autocontrast_caller,
+					gpu_float_buffer_,
+					output_fd.frame_res(),
+					0,
+					std::ref(compute_desc_),
+					std::ref(compute_desc_.contrast_min),
+					std::ref(compute_desc_.contrast_max),
+					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
-				if (compute_desc_.current_window.load() == WindowKind::XZview)
-					fn_vect_.push_back(std::bind(
-						autocontrast_caller,
-						static_cast<float *>(gpu_float_cut_xz_),
-						static_cast<uint>(output_fd.width * compute_desc_.nsamples.load()),
-						static_cast<uint>(output_fd.width * compute_desc_.cuts_contrast_p_offset.load()),
-						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min_slice_xz),
-						std::ref(compute_desc_.contrast_max_slice_xz),
-						static_cast<cudaStream_t>(0)));
-				else if (compute_desc_.current_window.load() == WindowKind::YZview)
-					fn_vect_.push_back(std::bind(
-						autocontrast_caller,
-						static_cast<float *>(gpu_float_cut_yz_),
-						output_fd.width * compute_desc_.nsamples.load(),
-						output_fd.width * compute_desc_.cuts_contrast_p_offset.load(),
-						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min_slice_yz),
-						std::ref(compute_desc_.contrast_max_slice_yz),
-						static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+					autocontrast_caller,
+					static_cast<float *>(gpu_float_cut_xz_),
+					static_cast<uint>(output_fd.width * compute_desc_.nsamples.load()),
+					static_cast<uint>(output_fd.width * compute_desc_.cuts_contrast_p_offset.load()),
+					std::ref(compute_desc_),
+					std::ref(compute_desc_.contrast_min_slice_xz),
+					std::ref(compute_desc_.contrast_max_slice_xz),
+					static_cast<cudaStream_t>(0)));
+				fn_vect_.push_back(std::bind(
+					autocontrast_caller,
+					static_cast<float *>(gpu_float_cut_yz_),
+					output_fd.width * compute_desc_.nsamples.load(),
+					output_fd.width * compute_desc_.cuts_contrast_p_offset.load(),
+					std::ref(compute_desc_),
+					std::ref(compute_desc_.contrast_min_slice_yz),
+					std::ref(compute_desc_.contrast_max_slice_yz),
+					static_cast<cudaStream_t>(0)));
 			}
 			autocontrast_requested_.exchange(false);
 			request_refresh();
@@ -820,7 +815,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
 					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-					output_fd.frame_res() * compute_desc_.nsamples.load(),
+					output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
 					65535,
 					compute_desc_.contrast_min.load(),
 					compute_desc_.contrast_max.load(),

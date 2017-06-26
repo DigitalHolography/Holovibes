@@ -136,7 +136,7 @@ namespace holovibes
 
 			load_matrix(translate, rotate, scale);
 
-			cudaMemcpy(cuPtrToPbo, queue_.get_buffer(), sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
+			cudaMemcpy((char *)cuPtrToPbo + offset, (char *)queue_.get_buffer() + offset, sizeBuffer - offset, cudaMemcpyKind::cudaMemcpyDeviceToDevice);
 			cudaStreamSynchronize(cuStream);
 
 			glBufferSubData(GL_ARRAY_BUFFER, offset, sizeBuffer, color_buffer_);
@@ -146,26 +146,26 @@ namespace holovibes
 		void Vision3DWindow::keyPressEvent(QKeyEvent *e)
 		{
 			float rotation_step = 0.1f * static_cast<float>(M_PI);
-			float scale_step = 0.1f * scale;
+			float translate_step = 10.f * scale;
 			switch (e->key())
 			{
 			case Qt::Key::Key_8:
-				translate.y += scale_step;
+				translate.y += translate_step;
 				break;
 			case Qt::Key::Key_2:
-				translate.y -= scale_step;
+				translate.y -= translate_step;
 				break;
 			case Qt::Key::Key_6:
-				translate.x += scale_step;
+				translate.x += translate_step;
 				break;
 			case Qt::Key::Key_4:
-				translate.x -= scale_step;
+				translate.x -= translate_step;
 				break;
 			case Qt::Key::Key_7:
-				translate.z -= scale_step;
+				translate.z -= translate_step;
 				break;
 			case Qt::Key::Key_9:
-				translate.z += scale_step;
+				translate.z += translate_step;
 				break;
 			case Qt::Key::Key_A:
 				rotate.x += rotation_step;

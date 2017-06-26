@@ -171,7 +171,7 @@ void stft_view_begin(const cuComplex	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
-	if (static_cast<ImgType>(viewmode) == ImgType::Complex)
+	if (viewmode == ImgType::Complex)
 		fill_64bit_slices << <blocks, threads, 0, 0 >> >(
 			input,
 			reinterpret_cast<cuComplex *>(output_xz),
