@@ -759,7 +759,6 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 			}
 		}
-		refresh_requested_.exchange(false);
 		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
@@ -769,7 +768,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-						output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
+						output_fd.frame_res() * compute_desc_.nsamples.load(),
 						0,
 						std::ref(compute_desc_),
 						std::ref(compute_desc_.contrast_min),
@@ -892,6 +891,7 @@ namespace holovibes
 				get_stft_slice_queue(1).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));
 		}
+		refresh_requested_.exchange(false);
 	}
 
 	void Pipe::autofocus_caller(float* input, cudaStream_t stream)

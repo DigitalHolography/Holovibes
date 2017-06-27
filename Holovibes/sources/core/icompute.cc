@@ -836,7 +836,7 @@ namespace holovibes
 							std::ref(compute_desc_.contrast_max_slice_yz),
 							static_cast<cudaStream_t>(0));
 				}
-				autocontrast_requested_.exchange(false);
+				//autocontrast_requested_.exchange(false);
 				request_refresh();
 			}
 		}
