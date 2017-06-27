@@ -46,7 +46,7 @@ namespace holovibes
 			compute_desc_(holovibes_.get_compute_desc())
 		{
 			ui.setupUi(this);
-			setWindowIcon(QIcon("icon1.ico"));
+			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
 			move(QPoint(532, 554));
@@ -1196,7 +1196,7 @@ namespace holovibes
 			QLineEdit* trigger_line_edit = findChild<QLineEdit*>("TriggerPathLineEdit");
 			const std::string input_path = trigger_line_edit->text().toUtf8();
 
-			if (checked)
+			if (checked && !input_path.empty())
 			{
 				try
 				{

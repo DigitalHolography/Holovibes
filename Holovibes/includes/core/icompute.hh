@@ -251,6 +251,7 @@ namespace holovibes
 		void			*gpu_float_cut_yz_;
 		void			*gpu_ushort_cut_xz_;
 		void			*gpu_ushort_cut_yz_;
+		float			*gpu_float_buffer_;
 		cufftComplex	*gpu_stft_buffer_;
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;

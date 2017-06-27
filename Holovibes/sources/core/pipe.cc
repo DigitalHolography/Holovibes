@@ -45,7 +45,6 @@ namespace holovibes
 		, fn_vect_()
 		, gpu_input_buffer_(nullptr)
 		, gpu_output_buffer_(nullptr)
-		, gpu_float_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
 	{
 		int err = 0;
@@ -760,50 +759,55 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 			}
 		}
-
+		refresh_requested_.exchange(false);
 		/* ***************** */
 		if (autocontrast_requested_.load())
 		{
-			if (compute_desc_.vision_3d_enabled.load())
-				fn_vect_.push_back(std::bind(
-					autocontrast_caller,
-					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
-					output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
-					0,
-					std::ref(compute_desc_),
-					std::ref(compute_desc_.contrast_min),
-					std::ref(compute_desc_.contrast_max),
-					static_cast<cudaStream_t>(0)));
-			else
-				fn_vect_.push_back(std::bind(
-					autocontrast_caller,
-					gpu_float_buffer_,
-					output_fd.frame_res(),
-					0,
-					std::ref(compute_desc_),
-					std::ref(compute_desc_.contrast_min),
-					std::ref(compute_desc_.contrast_max),
-					static_cast<cudaStream_t>(0)));
+			if (compute_desc_.current_window.load() == WindowKind::XYview)
+			{
+				if (compute_desc_.vision_3d_enabled.load())
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
+						output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
+						0,
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min),
+						std::ref(compute_desc_.contrast_max),
+						static_cast<cudaStream_t>(0)));
+				else
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						gpu_float_buffer_,
+						output_fd.frame_res(),
+						0,
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min),
+						std::ref(compute_desc_.contrast_max),
+						static_cast<cudaStream_t>(0)));
+			}
 			if (compute_desc_.stft_view_enabled.load())
 			{
-				fn_vect_.push_back(std::bind(
-					autocontrast_caller,
-					static_cast<float *>(gpu_float_cut_xz_),
-					static_cast<uint>(output_fd.width * compute_desc_.nsamples.load()),
-					static_cast<uint>(output_fd.width * compute_desc_.cuts_contrast_p_offset.load()),
-					std::ref(compute_desc_),
-					std::ref(compute_desc_.contrast_min_slice_xz),
-					std::ref(compute_desc_.contrast_max_slice_xz),
-					static_cast<cudaStream_t>(0)));
-				fn_vect_.push_back(std::bind(
-					autocontrast_caller,
-					static_cast<float *>(gpu_float_cut_yz_),
-					output_fd.width * compute_desc_.nsamples.load(),
-					output_fd.width * compute_desc_.cuts_contrast_p_offset.load(),
-					std::ref(compute_desc_),
-					std::ref(compute_desc_.contrast_min_slice_yz),
-					std::ref(compute_desc_.contrast_max_slice_yz),
-					static_cast<cudaStream_t>(0)));
+				if (compute_desc_.current_window.load() == WindowKind::XZview)
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						static_cast<float *>(gpu_float_cut_xz_),
+						static_cast<uint>(output_fd.width * compute_desc_.nsamples.load()),
+						static_cast<uint>(output_fd.width * compute_desc_.cuts_contrast_p_offset.load()),
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min_slice_xz),
+						std::ref(compute_desc_.contrast_max_slice_xz),
+						static_cast<cudaStream_t>(0)));
+				else if (compute_desc_.current_window.load() == WindowKind::YZview)
+					fn_vect_.push_back(std::bind(
+						autocontrast_caller,
+						static_cast<float *>(gpu_float_cut_yz_),
+						output_fd.width * compute_desc_.nsamples.load(),
+						output_fd.width * compute_desc_.cuts_contrast_p_offset.load(),
+						std::ref(compute_desc_),
+						std::ref(compute_desc_.contrast_min_slice_yz),
+						std::ref(compute_desc_.contrast_max_slice_yz),
+						static_cast<cudaStream_t>(0)));
 			}
 			autocontrast_requested_.exchange(false);
 			request_refresh();
@@ -888,7 +892,6 @@ namespace holovibes
 				get_stft_slice_queue(1).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));
 		}
-		refresh_requested_.exchange(false);
 	}
 
 	void Pipe::autofocus_caller(float* input, cudaStream_t stream)

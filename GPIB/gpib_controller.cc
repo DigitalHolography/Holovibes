@@ -47,10 +47,6 @@ namespace gpib
 		: pimpl_{ new VisaPimpl() },
 		path_(path)
 	{
-		// Batch input file parsing
-		if (path.compare("") == 0)
-			throw std::exception("GPIB : No Filepath");
-
 		std::ifstream in;
 		in.open(path);
 		if (!in.is_open())

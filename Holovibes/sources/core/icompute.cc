@@ -837,6 +837,7 @@ namespace holovibes
 							static_cast<cudaStream_t>(0));
 				}
 				autocontrast_requested_.exchange(false);
+				request_refresh();
 			}
 		}
 		stft_handle = true;

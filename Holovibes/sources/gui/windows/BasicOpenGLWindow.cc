@@ -48,7 +48,7 @@ namespace holovibes
 				cuStream = nullptr;
 			resize(s);
 			setFramePosition(p);
-			setIcon(QIcon("icon1.ico"));
+			setIcon(QIcon("Holovibes.ico"));
 			show();
 		}
 
