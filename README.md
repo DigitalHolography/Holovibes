@@ -120,6 +120,19 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
+### v.5.0.0
+
+* Update: Qt 5.8 -> 5.9
+* Update: STFT is enabled by default
+* Add Beta feature: 3D view
+* Phase accumulation
+* Add: STFT cuts:
+    - Record
+    - Image type (Modulus / Squared Modulus / Argument / Complex)
+* Full screen
+* External Trigger (STFT)
+* Update: Rotation and Flip mechanism
+
 ### v.4.3.0
 
 * Add: STFT cuts :
