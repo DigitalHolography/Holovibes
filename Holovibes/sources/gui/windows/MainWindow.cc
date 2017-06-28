@@ -293,6 +293,7 @@ namespace holovibes
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file.load());
 			
 			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load());
+			findChild<QCheckBox *>("ExtTrigCheckBox")->setChecked(compute_desc_.signal_trig_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
 
@@ -877,6 +878,7 @@ namespace holovibes
 				QSize size(512, 512);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode.exchange(Computation::Direct);
+				set_integer_visible(true);
 				createPipe();
 				mainDisplay.reset(
 					new DirectWindow(
@@ -1381,6 +1383,7 @@ namespace holovibes
 			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
+			set_auto_contrast();
 			notify();
 		}
 
@@ -2265,6 +2268,9 @@ namespace holovibes
 			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
 			if (complex_checkbox->isChecked() && value == true)
 				complex_checkbox->setChecked(false);
+			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
+			if (integer_checkbox->isChecked() && value == true)
+				integer_checkbox->setChecked(false);
 		}
 		
 		void MainWindow::set_complex_visible(bool value)
@@ -2272,6 +2278,21 @@ namespace holovibes
 			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
 			if (float_checkbox->isChecked() && value == true)
 				float_checkbox->setChecked(false);
+			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
+			if (integer_checkbox->isChecked() && value == true)
+				integer_checkbox->setChecked(false);
+		}
+
+		void MainWindow::set_integer_visible(bool value)
+		{
+			if (is_direct_mode())
+				findChild<QCheckBox*>("RecordIntegerOutputCheckBox")->setChecked(true);
+			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
+			if (float_checkbox->isChecked() && value == true)
+				float_checkbox->setChecked(false);
+			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+			if (complex_checkbox->isChecked() && value == true)
+				complex_checkbox->setChecked(false);
 		}
 
 		void MainWindow::browse_trigger_config_file()

@@ -1187,7 +1187,7 @@
           </rect>
          </property>
          <property name="text">
-          <string>Vision3D</string>
+          <string>3D view</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -1686,7 +1686,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>140</y>
+           <y>150</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1696,7 +1696,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>170</y>
+           <y>180</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1712,7 +1712,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>170</y>
+           <y>180</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1728,7 +1728,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>220</y>
+           <y>230</y>
            <width>151</width>
            <height>22</height>
           </rect>
@@ -1741,7 +1741,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>250</y>
+           <y>260</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1757,7 +1757,7 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>250</y>
+           <y>260</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1770,7 +1770,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>300</y>
+           <y>310</y>
            <width>151</width>
            <height>21</height>
           </rect>
@@ -1780,7 +1780,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>170</y>
+           <y>180</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1796,7 +1796,7 @@
          <property name="geometry">
           <rect>
            <x>70</x>
-           <y>250</y>
+           <y>260</y>
            <width>51</width>
            <height>21</height>
           </rect>
@@ -1809,8 +1809,8 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>80</y>
-           <width>81</width>
+           <y>90</y>
+           <width>111</width>
            <height>21</height>
           </rect>
          </property>
@@ -1824,7 +1824,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Float</string>
+          <string>32bit float</string>
          </property>
          <property name="tristate">
           <bool>false</bool>
@@ -1834,7 +1834,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>120</y>
+           <y>130</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -1847,7 +1847,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>140</y>
+           <y>150</y>
            <width>20</width>
            <height>21</height>
           </rect>
@@ -1860,7 +1860,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>300</y>
+           <y>310</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1879,7 +1879,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>220</y>
+           <y>230</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -1892,7 +1892,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>280</y>
+           <y>290</y>
            <width>171</width>
            <height>20</height>
           </rect>
@@ -1905,7 +1905,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>200</y>
+           <y>210</y>
            <width>171</width>
            <height>16</height>
           </rect>
@@ -1933,8 +1933,8 @@
         <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
          <property name="geometry">
           <rect>
-           <x>100</x>
-           <y>80</y>
+           <x>10</x>
+           <y>110</y>
            <width>111</width>
            <height>21</height>
           </rect>
@@ -1949,7 +1949,7 @@
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Complex</string>
+          <string>64bit complex</string>
          </property>
          <property name="tristate">
           <bool>false</bool>
@@ -1959,7 +1959,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
+           <y>50</y>
            <width>91</width>
            <height>16</height>
           </rect>
@@ -2005,6 +2005,34 @@
          </property>
          <property name="text">
           <string>...</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="RecordIntegerOutputCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>16bit integer</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
          </property>
         </widget>
        </widget>
@@ -2353,7 +2381,7 @@
           <number>1</number>
          </property>
          <property name="maximum">
-          <number>65536</number>
+          <number>2100000000</number>
          </property>
          <property name="value">
           <number>1</number>
@@ -4080,8 +4108,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_complex_visible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>860</x>
-     <y>116</y>
+     <x>790</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>888</x>
@@ -4096,8 +4124,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_float_visible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>720</x>
-     <y>115</y>
+     <x>790</x>
+     <y>140</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4521,6 +4549,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>RecordIntegerOutputCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_integer_visible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>730</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>886</x>
+     <y>139</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -4626,5 +4670,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_p_accu()</slot>
   <slot>set_vision_3d(bool)</slot>
   <slot>browse_trigger_config_file()</slot>
+  <slot>set_integer_visible(bool)</slot>
  </slots>
 </ui>

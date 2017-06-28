@@ -198,12 +198,16 @@ namespace holovibes
 			void image_batch_record();
 			void csv_batch_record();
 			void batch_record(const std::string& path);
+			void batch_next_record();
+			void batch_finished_record(bool no_error);
+			void batch_finished_record();
 			void stop_image_record();
 			void finished_image_record();
 			void finished_average_record();
 			void stop_csv_record();
 			void set_complex_visible(bool value);
 			void set_float_visible(bool value);
+			void set_integer_visible(bool value);
 			void import_browse_file();
 			void import_file();
 			void import_file_stop();
@@ -243,9 +247,6 @@ namespace holovibes
 			void		seek_cine_header_data(std::string &file_src, Holovibes& holovibes);
 			void		close_critical_compute();
 			void		remove_infos();
-			void		batch_finished_record(bool no_error);
-			void		batch_next_record();
-			void		batch_finished_record();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
 

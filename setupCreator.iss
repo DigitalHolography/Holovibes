@@ -35,7 +35,7 @@ DiskSpanning=yes
 UninstallDisplayName=Holovibes
 UninstallDisplayIcon={app}\{#MyAppVersion}\Holovibes.exe
 UninstallFilesDir={app}\{#MyAppVersion}
-SetupIconFile="x64\Release\icon1.ico"
+SetupIconFile="x64\Release\Holovibes.ico"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -77,7 +77,7 @@ Source: "x64\Release\ixon.ini"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "x64\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "x64\Release\icon1.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\Holovibes.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\holovibes_logo.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\fragment.color.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\fragment.3d.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
@@ -86,6 +86,28 @@ Source: "Holovibes\shaders\vertex.direct.glsl"; DestDir: "{app}\{#MyAppVersion}\
 Source: "Holovibes\shaders\vertex.3d.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\vertex.holo.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\vertex.overlay.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
+Source: "InstructionFiles\BatchInstructions.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
+Source: "InstructionFiles\TriggerWithBurst.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
+Source: "InstructionFiles\TriggerWithSweep.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_blur_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_edge_detect_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_edge_repousse_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_gaussian_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_gradient_x-_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_gradient_x+_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_laplacien_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_prewitt_sobel_2.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_prewitt_sobel_edge_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_repoussage_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_sodel_xy_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\kernel_test_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_blur_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_gaussian_2_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_gaussian_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_gradient_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "convolution_kernel_sample\matrix_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
 Source: "{#QwtPath}\qwt.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QwtPath}\qwtd.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
