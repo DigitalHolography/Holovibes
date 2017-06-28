@@ -142,6 +142,10 @@ namespace holovibes
 			{
 				findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
+				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(false);
+				findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setChecked(false);
+				findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setChecked(false);
+				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(false);
 			}
 			else if (compute_desc_.compute_mode.load() == Computation::Hologram && is_enabled_camera_)
 			{
@@ -149,6 +153,8 @@ namespace holovibes
 				findChild<GroupBox *>("ViewGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
+				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(true);
+				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(true);
 			}
 			findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setEnabled(!is_direct);
 			findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setEnabled(!is_direct);
@@ -878,7 +884,6 @@ namespace holovibes
 				QSize size(512, 512);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode.exchange(Computation::Direct);
-				set_integer_visible(true);
 				createPipe();
 				mainDisplay.reset(
 					new DirectWindow(
