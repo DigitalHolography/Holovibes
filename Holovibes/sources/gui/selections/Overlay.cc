@@ -340,7 +340,7 @@ namespace holovibes
 			Zone.setBottomRight(pos);
 			if (kOverlay == Filter2D)
 			{
-				const int min = std::min(Zone.width(), Zone.height());
+				const int min = std::min(std::abs(Zone.width()), std::abs(Zone.height()));
 				Zone.setBottomRight(QPoint(
 					Zone.topLeft().x() +
 					min * ((Zone.topLeft().x() < Zone.bottomRight().x()) * 2 - 1),
@@ -366,4 +366,4 @@ namespace holovibes
 			}
 		}
 	}
-}
+} 
