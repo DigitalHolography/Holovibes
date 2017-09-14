@@ -40,6 +40,12 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <property name="leftMargin">
      <number>6</number>
@@ -66,6 +72,12 @@
       </property>
       <item>
        <widget class="gui::GroupBox" name="ImageRenderingGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>8</pointsize>
@@ -391,22 +403,6 @@
           <double>5.420000000000000</double>
          </property>
         </widget>
-        <widget class="QLabel" name="ImageRenderingLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + D</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="QCheckBox" name="STFTCheckBox">
          <property name="geometry">
           <rect>
@@ -597,7 +593,6 @@
         <zorder>BoundaryLineEdit</zorder>
         <zorder>PixelSizeLabel</zorder>
         <zorder>PixelSizeDoubleSpinBox</zorder>
-        <zorder>ImageRenderingLabel</zorder>
         <zorder>STFTCheckBox</zorder>
         <zorder>CancelRefPushButton</zorder>
         <zorder>Filter2DPushButton</zorder>
@@ -613,6 +608,12 @@
        <widget class="gui::GroupBox" name="ViewGroupBox">
         <property name="enabled">
          <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="font">
          <font>
@@ -928,22 +929,6 @@
          </property>
          <property name="text">
           <string>Run</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="ViewLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>41</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + V</string>
-         </property>
-         <property name="text">
-          <string/>
          </property>
         </widget>
         <widget class="QSpinBox" name="ImgAccuSpinBox">
@@ -1312,7 +1297,6 @@
         <zorder>AutofocusZMinDoubleSpinBox</zorder>
         <zorder>AutofocusZMinLabel</zorder>
         <zorder>AutofocusRunPushButton</zorder>
-        <zorder>ViewLabel</zorder>
         <zorder>ImgAccuSpinBox</zorder>
         <zorder>ImgAccuCheckBox</zorder>
         <zorder>PhaseUnwrapLabel</zorder>
@@ -1335,6 +1319,12 @@
       </item>
       <item>
        <widget class="gui::GroupBox" name="PostProcessingGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -1684,22 +1674,6 @@
           <string>Kernel buffer Size</string>
          </property>
         </widget>
-        <widget class="QLabel" name="PostProcessingLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>91</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + P</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="QPushButton" name="AverageClosePlotPushButton">
          <property name="geometry">
           <rect>
@@ -1746,6 +1720,12 @@
       </item>
       <item>
        <widget class="gui::GroupBox" name="RecordGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string notr="true"/>
         </property>
@@ -2022,22 +2002,6 @@
           <string>ROI output:</string>
          </property>
         </widget>
-        <widget class="QLabel" name="RecordLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>51</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + R</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
          <property name="geometry">
           <rect>
@@ -2147,6 +2111,12 @@
       </item>
       <item>
        <widget class="gui::GroupBox" name="ImportGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="toolTip">
          <string notr="true"/>
         </property>
@@ -2584,22 +2554,6 @@
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="ImportLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>51</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + I</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="QPushButton" name="TitleDetectPushButton">
          <property name="geometry">
           <rect>
@@ -2617,6 +2571,18 @@
       </item>
       <item>
        <widget class="gui::GroupBox" name="InfoGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="baseSize">
          <size>
           <width>0</width>
@@ -2641,73 +2607,81 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <widget class="QTextEdit" name="InfoTextEdit">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>30</y>
-           <width>161</width>
-           <height>311</height>
-          </rect>
-         </property>
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMaximumSize</enum>
+           </property>
+           <item>
+            <widget class="QTextEdit" name="InfoTextEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>44</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContents</enum>
+             </property>
+             <property name="readOnly">
+              <bool>false</bool>
+             </property>
+             <property name="html">
+              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-        <widget class="QProgressBar" name="RecordProgressBar">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>350</y>
-           <width>161</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <number>1</number>
-         </property>
-         <property name="textVisible">
-          <bool>true</bool>
-         </property>
-         <property name="textDirection">
-          <enum>QProgressBar::TopToBottom</enum>
-         </property>
-         <property name="format">
-          <string>%v/%m</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="InfoLabel">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>41</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="toolTip">
-          <string>Alt + N</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QProgressBar" name="RecordProgressBar">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>10</horstretch>
+               <verstretch>7</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>1</width>
+               <height>1</height>
+              </size>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+             <property name="textVisible">
+              <bool>true</bool>
+             </property>
+             <property name="textDirection">
+              <enum>QProgressBar::TopToBottom</enum>
+             </property>
+             <property name="format">
+              <string>%v/%m</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -3023,6 +2997,102 @@ p, li { white-space: pre-wrap; }
    </slots>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>DirectRadioButton</tabstop>
+  <tabstop>HologramRadioButton</tabstop>
+  <tabstop>STFTCheckBox</tabstop>
+  <tabstop>STFTStepsSpinBox</tabstop>
+  <tabstop>TakeRefPushButton</tabstop>
+  <tabstop>SlidingRefPushButton</tabstop>
+  <tabstop>CancelRefPushButton</tabstop>
+  <tabstop>Filter2DPushButton</tabstop>
+  <tabstop>CancelFilter2DPushButton</tabstop>
+  <tabstop>AlgorithmComboBox</tabstop>
+  <tabstop>PhaseNumberSpinBox</tabstop>
+  <tabstop>PSpinBox</tabstop>
+  <tabstop>WaveLengthDoubleSpinBox</tabstop>
+  <tabstop>ZDoubleSpinBox</tabstop>
+  <tabstop>ZStepDoubleSpinBox</tabstop>
+  <tabstop>PixelSizeDoubleSpinBox</tabstop>
+  <tabstop>BoundaryLineEdit</tabstop>
+  <tabstop>ViewModeComboBox</tabstop>
+  <tabstop>PhaseUnwrap2DCheckBox</tabstop>
+  <tabstop>STFTCutsCheckBox</tabstop>
+  <tabstop>ExtTrigCheckBox</tabstop>
+  <tabstop>Vision3DCheckBox</tabstop>
+  <tabstop>WindowSelectionComboBox</tabstop>
+  <tabstop>RotatePushButton</tabstop>
+  <tabstop>FlipPushButton</tabstop>
+  <tabstop>ImgAccuCheckBox</tabstop>
+  <tabstop>ImgAccuSpinBox</tabstop>
+  <tabstop>LogScaleCheckBox</tabstop>
+  <tabstop>FFTShiftCheckBox</tabstop>
+  <tabstop>PAccuCheckBox</tabstop>
+  <tabstop>PMinAccuSpinBox</tabstop>
+  <tabstop>PMaxAccuSpinBox</tabstop>
+  <tabstop>ContrastCheckBox</tabstop>
+  <tabstop>ContrastMaxDoubleSpinBox</tabstop>
+  <tabstop>AutoContrastPushButton</tabstop>
+  <tabstop>ContrastMinDoubleSpinBox</tabstop>
+  <tabstop>AutofocusRunPushButton</tabstop>
+  <tabstop>AutofocusZMinDoubleSpinBox</tabstop>
+  <tabstop>AutofocusZMaxDoubleSpinBox</tabstop>
+  <tabstop>ImageRatioCheckBox</tabstop>
+  <tabstop>ImageRatioPSpinBox</tabstop>
+  <tabstop>ImageRatioQSpinBox</tabstop>
+  <tabstop>ConvoMatrixPathLineEdit</tabstop>
+  <tabstop>ConvoMatrixBrowseToolButton</tabstop>
+  <tabstop>ConvoLoadMatrixPushButton</tabstop>
+  <tabstop>ConvoCheckBox</tabstop>
+  <tabstop>KernelBufferSizeSpinBox</tabstop>
+  <tabstop>FlowgraphyLevelSpinBox</tabstop>
+  <tabstop>FlowgraphyCheckBox</tabstop>
+  <tabstop>AverageCheckBox</tabstop>
+  <tabstop>AverageSignalPushButton</tabstop>
+  <tabstop>AverageNoisePushButton</tabstop>
+  <tabstop>AveragePlotPushButton</tabstop>
+  <tabstop>AverageClosePlotPushButton</tabstop>
+  <tabstop>ROIFilePathLineEdit</tabstop>
+  <tabstop>ROIFileBrowseToolButton</tabstop>
+  <tabstop>SaveROIPushButton</tabstop>
+  <tabstop>LoadROIPushButton</tabstop>
+  <tabstop>NumberOfFramesSpinBox</tabstop>
+  <tabstop>RecordIntegerOutputCheckBox</tabstop>
+  <tabstop>RecordFloatOutputCheckBox</tabstop>
+  <tabstop>RecordComplexOutputCheckBox</tabstop>
+  <tabstop>ImageOutputPathLineEdit</tabstop>
+  <tabstop>ImageOutputBrowseToolButton</tabstop>
+  <tabstop>ImageOutputRecPushButton</tabstop>
+  <tabstop>ImageOutputBatchPushButton</tabstop>
+  <tabstop>ImageOutputStopPushButton</tabstop>
+  <tabstop>ROIOutputPathLineEdit</tabstop>
+  <tabstop>ROIOutputToolButton</tabstop>
+  <tabstop>ROIOutputRecPushButton</tabstop>
+  <tabstop>ROIOutputBatchPushButton</tabstop>
+  <tabstop>ROIOutputStopPushButton</tabstop>
+  <tabstop>BatchInputPathLineEdit</tabstop>
+  <tabstop>BatchInputBrowseToolButton</tabstop>
+  <tabstop>TriggerPathLineEdit</tabstop>
+  <tabstop>TriggerBrowseToolButton</tabstop>
+  <tabstop>CineFileCheckBox</tabstop>
+  <tabstop>ImportPathLineEdit</tabstop>
+  <tabstop>InputBrowseToolButton</tabstop>
+  <tabstop>ImportPushButton</tabstop>
+  <tabstop>ClosePushButton</tabstop>
+  <tabstop>TitleDetectPushButton</tabstop>
+  <tabstop>ImportWidthSpinBox</tabstop>
+  <tabstop>ImportHeightSpinBox</tabstop>
+  <tabstop>ImportFpsSpinBox</tabstop>
+  <tabstop>ImportDepthComboBox</tabstop>
+  <tabstop>ImportEndiannessComboBox</tabstop>
+  <tabstop>ImportStartSpinBox</tabstop>
+  <tabstop>ImportEndSpinBox</tabstop>
+  <tabstop>InfoTextEdit</tabstop>
+  <tabstop>InputBrowsePushButton_2</tabstop>
+  <tabstop>ImportPushButton_2</tabstop>
+  <tabstop>InputPathLineEdit_2</tabstop>
+  <tabstop>ClosePushButton_2</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
