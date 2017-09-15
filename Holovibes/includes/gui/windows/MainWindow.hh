@@ -143,6 +143,8 @@ namespace holovibes
 			void setPhase();
 			void set_special_buffer_size(int value);
 			void set_p_accu();
+			void set_x_accu();
+			void set_y_accu();
 			void set_p(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();

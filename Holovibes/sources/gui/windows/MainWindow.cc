@@ -243,10 +243,19 @@ namespace holovibes
 			}
 			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
 			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
-			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(compute_desc_.p_accu_max_level.load());
-			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
 			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level.load());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
+
+			findChild<QCheckBox *>("XAccuCheckBox")->setChecked(compute_desc_.x_accu_enabled.load());
+			findChild<QSpinBox *>("XMinAccuSpinBox")->setMaximum(compute_desc_.x_accu_max_level.load());
+			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMinimum(compute_desc_.x_accu_min_level.load());
+
+			findChild<QCheckBox *>("YAccuCheckBox")->setChecked(compute_desc_.y_accu_enabled.load());
+			findChild<QSpinBox *>("YMinAccuSpinBox")->setMaximum(compute_desc_.y_accu_max_level.load());
+			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMinimum(compute_desc_.y_accu_min_level.load());
+
+			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(compute_desc_.stft_enabled.load());
 
 			QSpinBox *p_vibro = findChild<QSpinBox *>("ImageRatioPSpinBox");
 			p_vibro->setEnabled(!is_direct && compute_desc_.vibrometry_enabled.load());
@@ -1388,6 +1397,24 @@ namespace holovibes
 			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
+			set_auto_contrast();
+			notify();
+		}
+
+		void MainWindow::set_x_accu()
+		{
+			compute_desc_.x_accu_enabled.exchange(findChild<QCheckBox *>("XAccuCheckBox")->isChecked());
+			compute_desc_.x_accu_min_level.exchange(findChild<QSpinBox *>("XMinAccuSpinBox")->value());
+			compute_desc_.x_accu_max_level.exchange(findChild<QSpinBox *>("XMaxAccuSpinBox")->value());
+			set_auto_contrast();
+			notify();
+		}
+
+		void MainWindow::set_y_accu()
+		{
+			compute_desc_.y_accu_enabled.exchange(findChild<QCheckBox *>("YAccuCheckBox")->isChecked());
+			compute_desc_.y_accu_min_level.exchange(findChild<QSpinBox *>("YMinAccuSpinBox")->value());
+			compute_desc_.y_accu_max_level.exchange(findChild<QSpinBox *>("YMaxAccuSpinBox")->value());
 			set_auto_contrast();
 			notify();
 		}
