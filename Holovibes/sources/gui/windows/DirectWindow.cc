@@ -164,17 +164,20 @@ namespace holovibes
 		void	DirectWindow::resizeGL(int w, int h)
 		{
 			const int min = std::min(w, h);
+			if (winState == Qt::WindowFullScreen)
+				return;
 
 			setFramePosition(winPos);
 
 			if ((min != width() || min != height()))
 				resize(min, min);
-
-			glViewport(0, 0, min, min);
 		}
 
 		void	DirectWindow::paintGL()
 		{
+			// Makes sure the screen is displayed as a square even in fullscreen
+			glViewport(0, 0, std::min(width(), height()), std::min(width(), height()));
+
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
 			Vao.bind();
@@ -218,13 +221,29 @@ namespace holovibes
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
-				Overlay.press(e->pos());
+			{
+				auto pos = e->pos();
+				if (width() > height())
+				{
+					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
+					pos.setX(static_cast<double>(pos.x()) * multiplier);
+				}
+				Overlay.press(pos);
+			}
 		}
 
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
 			if (e->buttons() == Qt::LeftButton)
-				Overlay.move(e->pos(), size());
+			{
+				auto pos = e->pos();
+				if (width() > height())
+				{
+					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
+					pos.setX(static_cast<double>(pos.x()) * multiplier);
+				}
+				Overlay.move(pos, size());
+			}
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
