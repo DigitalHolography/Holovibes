@@ -503,9 +503,9 @@ namespace holovibes
 				throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
 			if (opts_.compute_desc.log_scale_enabled.load())
-				opts_.compute_desc.contrast_min.exchange(static_cast<float>(log_min));
+				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(log_min));
 			else
-				opts_.compute_desc.contrast_min.exchange(static_cast<float>(pow(10.0, log_min)));
+				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(pow(10.0, log_min)));
 			opts_.compute_desc.contrast_enabled.exchange(true);
 		}
 
@@ -517,9 +517,9 @@ namespace holovibes
 				throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
 
 			if (opts_.compute_desc.log_scale_enabled.load())
-				opts_.compute_desc.contrast_max.exchange(log_max);
+				opts_.compute_desc.contrast_max_slice_xy.exchange(log_max);
 			else
-				opts_.compute_desc.contrast_max.exchange(static_cast<float>(pow(10.0, log_max)));
+				opts_.compute_desc.contrast_max_slice_xy.exchange(static_cast<float>(pow(10.0, log_max)));
 			opts_.compute_desc.contrast_enabled.exchange(true);
 		}
 

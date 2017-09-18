@@ -667,7 +667,7 @@ namespace holovibes
 
 
 		/*Compute Accumulation buffer into gpu_float_buffer*/
-		if (compute_desc_.img_acc_enabled.load())
+		if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
 			/*Add image to phase accumulation buffer*/
 
@@ -683,7 +683,7 @@ namespace holovibes
 				gpu_float_buffer_,
 				gpu_img_acc_->get_start_index(),
 				gpu_img_acc_->get_max_elts(),
-				compute_desc_.img_acc_level.load(),
+				compute_desc_.img_acc_slice_xy_level.load(),
 				input_fd.frame_res(),
 				static_cast<cudaStream_t>(0)));
 		}
@@ -771,8 +771,8 @@ namespace holovibes
 						output_fd.frame_res() * compute_desc_.nsamples.load(),
 						0,
 						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min),
-						std::ref(compute_desc_.contrast_max),
+						std::ref(compute_desc_.contrast_min_slice_xy),
+						std::ref(compute_desc_.contrast_max_slice_xy),
 						static_cast<cudaStream_t>(0)));
 				else
 					fn_vect_.push_back(std::bind(
@@ -781,8 +781,8 @@ namespace holovibes
 						output_fd.frame_res(),
 						0,
 						std::ref(compute_desc_),
-						std::ref(compute_desc_.contrast_min),
-						std::ref(compute_desc_.contrast_max),
+						std::ref(compute_desc_.contrast_min_slice_xy),
+						std::ref(compute_desc_.contrast_max_slice_xy),
 						static_cast<cudaStream_t>(0)));
 			}
 			if (compute_desc_.stft_view_enabled.load())
@@ -820,8 +820,8 @@ namespace holovibes
 					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex.load(),
 					output_fd.frame_res() * (compute_desc_.nsamples.load() - compute_desc_.pindex.load()),
 					65535,
-					compute_desc_.contrast_min.load(),
-					compute_desc_.contrast_max.load(),
+					compute_desc_.contrast_min_slice_xy.load(),
+					compute_desc_.contrast_max_slice_xy.load(),
 					static_cast<cudaStream_t>(0)));
 			else
 				fn_vect_.push_back(std::bind(
@@ -829,8 +829,8 @@ namespace holovibes
 					gpu_float_buffer_,
 					output_fd.frame_res(),
 					65535,
-					compute_desc_.contrast_min.load(),
-					compute_desc_.contrast_max.load(),
+					compute_desc_.contrast_min_slice_xy.load(),
+					compute_desc_.contrast_max_slice_xy.load(),
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
@@ -1037,8 +1037,8 @@ namespace holovibes
 						gpu_float_buffer_,
 						input_fd.frame_res(),
 						65535,
-						compute_desc_.contrast_min.load(),
-						compute_desc_.contrast_max.load());
+						compute_desc_.contrast_min_slice_xy.load(),
+						compute_desc_.contrast_max_slice_xy.load());
 				}
 
 				float_to_ushort(gpu_float_buffer_, gpu_output_buffer_, input_fd.frame_res(), output_fd.depth);

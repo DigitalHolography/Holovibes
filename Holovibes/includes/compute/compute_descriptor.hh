@@ -117,6 +117,7 @@ namespace holovibes
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
 		void stftCursor(QPoint *p, AccessMode m);
+
 		void signalZone(gui::Rectangle& rect, AccessMode m);
 		void noiseZone(gui::Rectangle& rect, AccessMode m);
 		void autofocusZone(gui::Rectangle& rect, AccessMode m);
@@ -128,30 +129,41 @@ namespace holovibes
 		std::atomic<ImgType>		img_type;
 		std::atomic<bool>			vision_3d_enabled;
 		std::atomic<WindowKind>		current_window;
+		//!<  Number of images used by SFTF i.e. depth of the SFTF cube
 		std::atomic<ushort>			nsamples;
+		//!< index in the depth axis
 		std::atomic<ushort>			pindex;
 		std::atomic<ushort>			vibrometry_q;
 		std::atomic<float>			lambda;
 		std::vector<float>			convo_matrix;
+		//!< z value used by fresnel transform
 		std::atomic<float>			zdistance;
-		std::atomic<float>			contrast_min;
-		std::atomic<float>			contrast_max;
+
+		//!< minimum constrast value in xy view
+		std::atomic<float>			contrast_min_slice_xy;
+		//!< maximum constrast value in xy view
+		std::atomic<float>			contrast_max_slice_xy;
+		//!< minimum constrast value in xz view
 		std::atomic<float>			contrast_min_slice_xz;
-		std::atomic<float>			contrast_min_slice_yz;
+		//!< maximum constrast value in xz view
 		std::atomic<float>			contrast_max_slice_xz;
+		//!< minimum constrast value in yz view
+		std::atomic<float>			contrast_min_slice_yz;
+		//!< maximum constrast value in yz view
 		std::atomic<float>			contrast_max_slice_yz;
-		std::atomic<ushort>			cuts_contrast_p_offset;
+
+		//!< minimum autofocus value in xy view
 		std::atomic<float>			autofocus_z_min;
+		//!< maximum constrast value in xy view
 		std::atomic<float>			autofocus_z_max;
+
+		std::atomic<ushort>			cuts_contrast_p_offset;
 		std::atomic<float>			import_pixel_size;
 		std::atomic<uint>			img_acc_buffer_size;
 		std::atomic<uint>			convo_matrix_width;
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;
 		std::atomic<uint>			flowgraphy_level;
-		std::atomic<uint>			img_acc_level;
-		std::atomic<uint>			img_acc_cutsXZ_level;
-		std::atomic<uint>			img_acc_cutsYZ_level;
 		std::atomic<uint>			autofocus_size;
 		std::atomic<uint>			autofocus_z_div;
 		std::atomic<uint>			autofocus_z_iter;
@@ -175,19 +187,45 @@ namespace holovibes
 		std::atomic<bool>			stft_view_enabled;
 		std::atomic<bool>			average_enabled;
 		std::atomic<bool>			signal_trig_enabled;
+
+		//!< is file a .cine
 		std::atomic<bool>			is_cine_file;
-		std::atomic<bool>			img_acc_enabled;
-		std::atomic<bool>			img_acc_cutsXZ_enabled;
-		std::atomic<bool>			img_acc_cutsYZ_enabled;
+
+
+		//!< is img average in view XY enabled (average of output over time)
+		std::atomic<bool>			img_acc_slice_xy_enabled;
+		//!< is img average in view XZ enabled (average of output over time)
+		std::atomic<bool>			img_acc_slice_xz_enabled;
+		//!< is img average in view YZ enabled (average of output over time)
+		std::atomic<bool>			img_acc_slice_yz_enabled;
+		//!< number of image in view XY to average
+		std::atomic<uint>			img_acc_slice_xy_level;
+		//!< number of image in view XZ to average
+		std::atomic<uint>			img_acc_slice_xz_level;
+		//!< number of image in view YZ to average
+		std::atomic<uint>			img_acc_slice_yz_level;
+
+		//!< is p average enabled (average image over multiple depth index)
 		std::atomic<bool>			p_accu_enabled;
+		//!< minimum p value for p average
 		std::atomic<ushort>			p_accu_min_level;
+		//!< maximum p value for p average
 		std::atomic<ushort>			p_accu_max_level;
+		
+		//!< is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
+		//!< x index of first selected column
 		std::atomic<ushort>			x_accu_min_level;
+		//!< x index of second selected column
 		std::atomic<ushort>			x_accu_max_level;
+
+		//!< is y average in view XZ enabled (average of lines between both selected lines)
 		std::atomic<bool>			y_accu_enabled;
+		//!< y index of first selected line
 		std::atomic<ushort>			y_accu_min_level;
+		//!< y index of second selected line
 		std::atomic<ushort>			y_accu_max_level;
+
 		std::atomic<float>			display_rate;
 
 		#pragma endregion

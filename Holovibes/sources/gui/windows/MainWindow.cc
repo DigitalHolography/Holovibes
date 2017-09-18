@@ -209,12 +209,12 @@ namespace holovibes
 			if (compute_desc_.current_window.load() == WindowKind::XYview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_min.load() : log10(compute_desc_.contrast_min.load()));
+					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_max.load() : log10(compute_desc_.contrast_max.load()));
+					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled.load());
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_level.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_xy_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setEnabled(!compute_desc_.vision_3d_enabled.load());
 				findChild<QPushButton*>("FlipPushButton")->setEnabled(!compute_desc_.vision_3d_enabled.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
@@ -227,8 +227,8 @@ namespace holovibes
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((compute_desc_.log_scale_enabled_cut_xz.load()) ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled_cut_xz.load());
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_cutsXZ_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_cutsXZ_level.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_xz_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(xzFlip)).c_str());
 			}
@@ -239,8 +239,8 @@ namespace holovibes
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
 					->setValue((compute_desc_.log_scale_enabled_cut_yz.load()) ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz.load()));
 				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled_cut_yz.load());
-				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_cutsYZ_enabled.load());
-				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_cutsYZ_level.load());
+				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled.load());
+				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_yz_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
@@ -354,8 +354,8 @@ namespace holovibes
 				}
 				if (err_ptr->get_kind() == error_kind::fail_accumulation)
 				{
-					compute_desc_.img_acc_enabled.exchange(false);
-					compute_desc_.img_acc_level.exchange(1);
+					compute_desc_.img_acc_slice_xy_enabled.exchange(false);
+					compute_desc_.img_acc_slice_xy_level.exchange(1);
 				}
 				close_critical_compute();
 
@@ -499,7 +499,7 @@ namespace holovibes
 				compute_desc_.special_buffer_size.exchange(ptree.get<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size.load()));
 				compute_desc_.stft_level.exchange(ptree.get<uint>("config.stft_buffer_size", compute_desc_.stft_level.load()));
 				compute_desc_.ref_diff_level.exchange(ptree.get<uint>("config.reference_buffer_size", compute_desc_.ref_diff_level.load()));
-				compute_desc_.img_acc_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_level.load()));
+				compute_desc_.img_acc_slice_xy_level.exchange(ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level.load()));
 				compute_desc_.display_rate.exchange(ptree.get<float>("config.display_rate", compute_desc_.display_rate.load()));
 
 				// Camera type
@@ -548,15 +548,15 @@ namespace holovibes
 
 				compute_desc_.contrast_enabled.exchange(ptree.get<bool>("view.contrast_enabled", compute_desc_.contrast_enabled.load()));
 
-				compute_desc_.contrast_min.exchange(ptree.get<float>("view.contrast_min", compute_desc_.contrast_min.load()));
-				compute_desc_.contrast_max.exchange(ptree.get<float>("view.contrast_max", compute_desc_.contrast_max.load()));
+				compute_desc_.contrast_min_slice_xy.exchange(ptree.get<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy.load()));
+				compute_desc_.contrast_max_slice_xy.exchange(ptree.get<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy.load()));
 				compute_desc_.cuts_contrast_p_offset.exchange(ptree.get<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset.load()));
 				if (compute_desc_.cuts_contrast_p_offset.load() < 0)
 					compute_desc_.cuts_contrast_p_offset.exchange(0);
 				else if (compute_desc_.cuts_contrast_p_offset.load() > compute_desc_.nsamples.load() - 1)
 					compute_desc_.cuts_contrast_p_offset.exchange(compute_desc_.nsamples.load() - 1);
 
-				compute_desc_.img_acc_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", compute_desc_.img_acc_enabled.load()));
+				compute_desc_.img_acc_slice_xy_enabled.exchange(ptree.get<bool>("view.accumulation_enabled", compute_desc_.img_acc_slice_xy_enabled.load()));
 
 				displayAngle = ptree.get("view.mainWindow_rotate", displayAngle);
 				xzAngle = ptree.get<float>("view.xCut_rotate", xzAngle);
@@ -629,7 +629,7 @@ namespace holovibes
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 			ptree.put<int>("config.stft_buffer_size", compute_desc_.stft_level.load());
 			ptree.put<int>("config.reference_buffer_size", compute_desc_.ref_diff_level.load());
-			ptree.put<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_level.load());
+			ptree.put<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level.load());
 			ptree.put<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size.load());
 			ptree.put<uint>("config.frame_timeout", config.frame_timeout);
 			ptree.put<bool>("config.flush_on_refresh", config.flush_on_refresh);
@@ -654,10 +654,10 @@ namespace holovibes
 			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_enabled.load());
 			ptree.put<bool>("view.shift_corners_enabled", compute_desc_.shift_corners_enabled.load());
 			ptree.put<bool>("view.contrast_enabled", compute_desc_.contrast_enabled.load());
-			ptree.put<float>("view.contrast_min", compute_desc_.contrast_min.load());
-			ptree.put<float>("view.contrast_max", compute_desc_.contrast_max.load());
+			ptree.put<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy.load());
+			ptree.put<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy.load());
 			ptree.put<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset.load());
-			ptree.put<bool>("view.accumulation_enabled", compute_desc_.img_acc_enabled.load());
+			ptree.put<bool>("view.accumulation_enabled", compute_desc_.img_acc_slice_xy_enabled.load());
 			ptree.put<float>("view.mainWindow_rotate", displayAngle);
 			ptree.put<float>("view.xCut_rotate", xzAngle);
 			ptree.put<float>("view.yCut_rotate", yzAngle);
@@ -1098,8 +1098,8 @@ namespace holovibes
 			compute_desc_.contrast_max_slice_yz.exchange(false);
 			compute_desc_.log_scale_enabled_cut_xz.exchange(false);
 			compute_desc_.log_scale_enabled_cut_yz.exchange(false);
-			compute_desc_.img_acc_cutsXZ_enabled.exchange(false);
-			compute_desc_.img_acc_cutsYZ_enabled.exchange(false);
+			compute_desc_.img_acc_slice_xz_enabled.exchange(false);
+			compute_desc_.img_acc_slice_yz_enabled.exchange(false);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
 			while (holovibes_.get_pipe()->get_cuts_delete_request());
 			compute_desc_.stft_view_enabled.exchange(false);
@@ -1611,13 +1611,13 @@ namespace holovibes
 				{
 					if (compute_desc_.current_window.load() == WindowKind::XYview)
 					{
-						compute_desc_.img_acc_enabled.exchange(value);
+						compute_desc_.img_acc_slice_xy_enabled.exchange(value);
 						holovibes_.get_pipe()->request_acc_refresh();
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::XZview)
-						compute_desc_.img_acc_cutsXZ_enabled.exchange(value);
+						compute_desc_.img_acc_slice_xz_enabled.exchange(value);
 					else if (compute_desc_.current_window.load() == WindowKind::YZview)
-						compute_desc_.img_acc_cutsYZ_enabled.exchange(value);
+						compute_desc_.img_acc_slice_yz_enabled.exchange(value);
 					notify();
 				}
 			}
@@ -1629,13 +1629,13 @@ namespace holovibes
 			{
 				if (compute_desc_.current_window.load() == WindowKind::XYview)
 				{
-					compute_desc_.img_acc_level.exchange(value);
+					compute_desc_.img_acc_slice_xy_level.exchange(value);
 					holovibes_.get_pipe()->request_acc_refresh();
 				}
 				else if (compute_desc_.current_window.load() == WindowKind::XZview)
-					compute_desc_.img_acc_cutsXZ_level.exchange(value);
+					compute_desc_.img_acc_slice_xz_level.exchange(value);
 				else if (compute_desc_.current_window.load() == WindowKind::YZview)
-					compute_desc_.img_acc_cutsYZ_level.exchange(value);
+					compute_desc_.img_acc_slice_yz_level.exchange(value);
 			}
 		}
 
@@ -1820,9 +1820,9 @@ namespace holovibes
 					if (compute_desc_.current_window.load() == WindowKind::XYview)
 					{
 						if (compute_desc_.log_scale_enabled.load())
-							compute_desc_.contrast_min.exchange(value);
+							compute_desc_.contrast_min_slice_xy.exchange(value);
 						else
-							compute_desc_.contrast_min.exchange(pow(10, value));
+							compute_desc_.contrast_min_slice_xy.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::XZview)
 					{
@@ -1852,9 +1852,9 @@ namespace holovibes
 					if (compute_desc_.current_window.load() == WindowKind::XYview)
 					{
 						if (compute_desc_.log_scale_enabled.load())
-							compute_desc_.contrast_max.exchange(value);
+							compute_desc_.contrast_max_slice_xy.exchange(value);
 						else
-							compute_desc_.contrast_max.exchange(pow(10, value));
+							compute_desc_.contrast_max_slice_xy.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::XZview)
 					{

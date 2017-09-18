@@ -150,11 +150,11 @@ namespace holovibes
 				err++;
 		}
 
-		if (compute_desc_.img_acc_enabled.load())
+		if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4.f;
-			gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_level.load(), "AccumulationQueue");
+			gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueue");
 		}
 
 		if (compute_desc_.stft_enabled.load())
@@ -484,19 +484,19 @@ namespace holovibes
 			delete gpu_img_acc_;
 			gpu_img_acc_ = nullptr;
 		}
-		if (compute_desc_.img_acc_enabled.load())
+		if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4;
 			try
 			{
-				gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_level.load(), "Accumulation");
+				gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "Accumulation");
 			}
 			catch (std::exception&)
 			{
 				gpu_img_acc_ = nullptr;
-				compute_desc_.img_acc_enabled.exchange(false);
-				compute_desc_.img_acc_level.exchange(1);
+				compute_desc_.img_acc_slice_xy_enabled.exchange(false);
+				compute_desc_.img_acc_slice_xy_level.exchange(1);
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
@@ -812,8 +812,8 @@ namespace holovibes
 				height,
 				compute_desc_.img_type.load(),
 				compute_desc_.nsamples.load(),
-				compute_desc_.img_acc_cutsXZ_enabled.load() ? compute_desc_.img_acc_cutsXZ_level.load() : 1,
-				compute_desc_.img_acc_cutsYZ_enabled.load() ? compute_desc_.img_acc_cutsYZ_level.load() : 1,
+				compute_desc_.img_acc_slice_xz_enabled.load() ? compute_desc_.img_acc_slice_xz_level.load() : 1,
+				compute_desc_.img_acc_slice_yz_enabled.load() ? compute_desc_.img_acc_slice_yz_level.load() : 1,
 				compute_desc_.img_type.load());
 			if (autocontrast_requested_.load())
 			{

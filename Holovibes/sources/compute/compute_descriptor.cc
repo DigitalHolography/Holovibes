@@ -37,8 +37,8 @@ namespace holovibes
 		stft_enabled(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
-		contrast_min(1.f),
-		contrast_max(65535.f),
+		contrast_min_slice_xy(1.f),
+		contrast_max_slice_xy(65535.f),
 		contrast_min_slice_xz(1.f),
 		contrast_min_slice_yz(1.f),
 		contrast_max_slice_xz(65535.f),
@@ -55,13 +55,13 @@ namespace holovibes
 		flowgraphy_level(3),
 		is_cine_file(false),
 		import_pixel_size(5.42f),
-		img_acc_enabled(false),
-		img_acc_cutsXZ_enabled(false),
-		img_acc_cutsYZ_enabled(false),
+		img_acc_slice_xy_enabled(false),
+		img_acc_slice_xz_enabled(false),
+		img_acc_slice_yz_enabled(false),
 		img_acc_buffer_size(20),
-		img_acc_level(1),
-		img_acc_cutsXZ_level(1),
-		img_acc_cutsYZ_level(1),
+		img_acc_slice_xy_level(1),
+		img_acc_slice_xz_level(1),
+		img_acc_slice_yz_level(1),
 		p_accu_enabled(false),
 		p_accu_min_level(1),
 		p_accu_max_level(1),
@@ -118,8 +118,8 @@ namespace holovibes
 		stft_enabled.exchange(cd.stft_enabled.load());
 		filter_2d_enabled.exchange(cd.filter_2d_enabled.load());
 		average_enabled.exchange(cd.average_enabled.load());
-		contrast_min.exchange(cd.contrast_min.load());
-		contrast_max.exchange(cd.contrast_max.load());
+		contrast_min_slice_xy.exchange(cd.contrast_min_slice_xy.load());
+		contrast_max_slice_xy.exchange(cd.contrast_max_slice_xy.load());
 		contrast_min_slice_xz.exchange(cd.contrast_min_slice_xz.load());
 		contrast_min_slice_yz.exchange(cd.contrast_min_slice_yz.load());
 		contrast_max_slice_xz.exchange(cd.contrast_max_slice_xz.load());
@@ -136,13 +136,13 @@ namespace holovibes
 		flowgraphy_level.exchange(cd.flowgraphy_level.load());
 		is_cine_file.exchange(cd.is_cine_file.load());
 		import_pixel_size.exchange(cd.import_pixel_size.load());
-		img_acc_enabled.exchange(cd.img_acc_enabled.load());
-		img_acc_cutsXZ_enabled.exchange(cd.img_acc_cutsXZ_enabled.load());
-		img_acc_cutsYZ_enabled.exchange(cd.img_acc_cutsYZ_enabled.load());
+		img_acc_slice_xy_enabled.exchange(cd.img_acc_slice_xy_enabled.load());
+		img_acc_slice_xz_enabled.exchange(cd.img_acc_slice_xz_enabled.load());
+		img_acc_slice_yz_enabled.exchange(cd.img_acc_slice_yz_enabled.load());
 		img_acc_buffer_size.exchange(cd.img_acc_buffer_size.load());
-		img_acc_level.exchange(cd.img_acc_level.load());
-		img_acc_cutsXZ_level.exchange(cd.img_acc_cutsXZ_level.load());
-		img_acc_cutsYZ_level.exchange(cd.img_acc_cutsYZ_level.load());
+		img_acc_slice_xy_level.exchange(cd.img_acc_slice_xy_level.load());
+		img_acc_slice_xz_level.exchange(cd.img_acc_slice_xz_level.load());
+		img_acc_slice_yz_level.exchange(cd.img_acc_slice_yz_level.load());
 		stft_level.exchange(cd.stft_level.load());
 		stft_steps.exchange(cd.stft_steps.load());
 		ref_diff_level.exchange(cd.ref_diff_level.load());
