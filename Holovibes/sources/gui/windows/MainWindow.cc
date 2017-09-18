@@ -943,7 +943,8 @@ namespace holovibes
 					new HoloWindow(
 						pos, size,
 						holovibes_.get_output_queue(),
-						holovibes_.get_pipe()));
+						holovibes_.get_pipe(),
+						&compute_desc_));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setAngle(displayAngle);

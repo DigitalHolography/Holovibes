@@ -20,9 +20,10 @@ namespace holovibes
 	{
 		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic) :
+		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, ComputeDescriptor *desc) :
 			DirectWindow(p, s, q, KindOfView::Hologram),
-			Ic(ic)
+			Ic(ic),
+			desc_(desc)
 		{}
 
 		HoloWindow::~HoloWindow()
@@ -43,7 +44,31 @@ namespace holovibes
 			// ---------------
 			if (Cd->stft_view_enabled.load())
 			{
-				Overlay.drawCross(0, 4);
+				QPoint top_left;
+				desc_->stftCursor(&top_left, AccessMode::Get);
+				if (desc_ && (desc_->x_accu_enabled || desc_->y_accu_enabled))
+				{
+					QPoint bottom_right(top_left);
+					if (desc_->x_accu_enabled)
+					{
+						top_left.setX(desc_->x_accu_min_level);
+						bottom_right.setX(desc_->x_accu_max_level);
+					}
+					if (desc_->y_accu_enabled)
+					{
+						top_left.setY(desc_->y_accu_min_level);
+						bottom_right.setY(desc_->y_accu_max_level);
+					}
+					Overlay.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
+					Overlay.drawCross(0, 4);
+					Overlay.setCrossBuffer(bottom_right, QSize(Fd.width, Fd.height));
+					Overlay.drawCross(0, 4);
+				}
+				else
+				{
+					Overlay.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
+					Overlay.drawCross(0, 4);
+				}
 			}
 			// ---------------
 			Vao.release();
