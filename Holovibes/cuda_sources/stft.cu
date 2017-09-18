@@ -110,8 +110,10 @@ __global__
 static void	fill_32bit_slices(const cuComplex	*input,
 							float				*output_xz,
 							float				*output_yz,
-							const uint			x0,
-							const uint			y0,
+							const uint			xmin,
+							const uint			ymin,
+							const uint			xmax,
+							const uint			ymax,
 							const uint			frame_size,
 							const uint			output_size,
 							const uint			width,
@@ -124,8 +126,8 @@ static void	fill_32bit_slices(const cuComplex	*input,
 	if (id < output_size)
 	{
 		cuComplex pixel = make_cuComplex(0, 0);
-		for (int i = 0; i < acc_level_yz; ++i)
-			pixel = cuCaddf(pixel, input[x0 + i + id * width]);
+		for (int i = xmin; i <= xmax; ++i)
+			pixel = cuCaddf(pixel, input[i + id * width]);
 		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease)
 			output_yz[id] = hypotf(pixel.x, pixel.y);
 		else if (img_type == ImgType::SquaredModulus)
@@ -135,11 +137,11 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		}
 		else if (img_type == ImgType::Argument)
 			output_yz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
-		output_yz[id] /= static_cast<float>(acc_level_yz);
+		output_yz[id] /= static_cast<float>(xmax - xmin + 1);
 		/* ********** */
 		pixel = make_cuComplex(0, 0);
-		for (int i = 0; i < acc_level_xz; ++i)
-			pixel = cuCaddf(pixel, input[((y0 + i) * width) + (id / width) * frame_size + id % width]);
+		for (int i = ymin; i <= ymax; ++i)
+			pixel = cuCaddf(pixel, input[(i * width) + (id / width) * frame_size + id % width]);
 		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease)
 			output_xz[id] = hypotf(pixel.x, pixel.y);
 		else if (img_type == ImgType::SquaredModulus)
@@ -149,15 +151,17 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		}
 		else if (img_type == ImgType::Argument)
 			output_xz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
-		output_xz[id] /= static_cast<float>(acc_level_xz);
+		output_xz[id] /= static_cast<float>(ymax - ymin + 1);
 	}
 }
 
 void stft_view_begin(const cuComplex	*input,
 					void				*output_xz,
 					void				*output_yz,
-					const ushort		x0,
-					const ushort		y0,
+					const ushort		xmin,
+					const ushort		ymin,
+					const ushort		xmax,
+					const ushort		ymax,
 					const ushort		width,
 					const ushort		height,
 					const uint			viewmode,
@@ -176,7 +180,7 @@ void stft_view_begin(const cuComplex	*input,
 			input,
 			reinterpret_cast<cuComplex *>(output_xz),
 			reinterpret_cast<cuComplex *>(output_yz),
-			x0, y0,
+			xmin, ymin,
 			frame_size,
 			output_size,
 			width, height,
@@ -186,7 +190,7 @@ void stft_view_begin(const cuComplex	*input,
 			input,
 			reinterpret_cast<float *>(output_xz),
 			reinterpret_cast<float *>(output_yz),
-			x0, y0,
+			xmin, ymin, xmax, ymax,
 			frame_size,
 			output_size,
 			width, height,
