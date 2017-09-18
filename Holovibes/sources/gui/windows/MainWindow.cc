@@ -127,6 +127,9 @@ namespace holovibes
 		#pragma region Notify
 		void MainWindow::notify()
 		{
+			static bool running = false;
+			bool first = !running;
+			running = true;
 			const bool is_direct = is_direct_mode();
 			if (compute_desc_.compute_mode.load() == Computation::Stop)
 			{
@@ -250,10 +253,18 @@ namespace holovibes
 			findChild<QCheckBox *>("XAccuCheckBox")->setChecked(compute_desc_.x_accu_enabled.load());
 			findChild<QSpinBox *>("XMinAccuSpinBox")->setMaximum(compute_desc_.x_accu_max_level.load());
 			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMinimum(compute_desc_.x_accu_min_level.load());
+			int new_x_min = compute_desc_.x_accu_min_level.load();
+			int new_x_max = compute_desc_.x_accu_max_level.load();
+			findChild<QSpinBox *>("XMinAccuSpinBox")->setValue(new_x_min);
+			findChild<QSpinBox *>("XMaxAccuSpinBox")->setValue(new_x_max);
 
 			findChild<QCheckBox *>("YAccuCheckBox")->setChecked(compute_desc_.y_accu_enabled.load());
 			findChild<QSpinBox *>("YMinAccuSpinBox")->setMaximum(compute_desc_.y_accu_max_level.load());
 			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMinimum(compute_desc_.y_accu_min_level.load());
+			int new_y_min = compute_desc_.y_accu_min_level.load();
+			int new_y_max = compute_desc_.y_accu_max_level.load();
+			findChild<QSpinBox *>("YMinAccuSpinBox")->setValue(new_y_min);
+			findChild<QSpinBox *>("YMaxAccuSpinBox")->setValue(new_y_max);
 
 			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(compute_desc_.stft_enabled.load());
 
@@ -313,6 +324,11 @@ namespace holovibes
 			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
 
 			QCoreApplication::processEvents();
+			if (first)
+			{
+				running = false;
+				set_auto_contrast();
+			}
 		}
 
 		void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -944,7 +960,8 @@ namespace holovibes
 						pos, size,
 						holovibes_.get_output_queue(),
 						holovibes_.get_pipe(),
-						&compute_desc_));
+						&compute_desc_,
+						this));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setAngle(displayAngle);
@@ -1398,7 +1415,6 @@ namespace holovibes
 			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
-			set_auto_contrast();
 			notify();
 		}
 
@@ -1407,7 +1423,6 @@ namespace holovibes
 			compute_desc_.x_accu_enabled.exchange(findChild<QCheckBox *>("XAccuCheckBox")->isChecked());
 			compute_desc_.x_accu_min_level.exchange(findChild<QSpinBox *>("XMinAccuSpinBox")->value());
 			compute_desc_.x_accu_max_level.exchange(findChild<QSpinBox *>("XMaxAccuSpinBox")->value());
-			set_auto_contrast();
 			notify();
 		}
 

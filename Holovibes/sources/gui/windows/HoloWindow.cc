@@ -13,6 +13,7 @@
 #include <sstream>
 #include "info_manager.hh"
 #include "HoloWindow.hh"
+#include "MainWindow.hh"
 
 namespace holovibes
 {
@@ -20,10 +21,11 @@ namespace holovibes
 	{
 		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, ComputeDescriptor *desc) :
+		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, ComputeDescriptor *desc, MainWindow *main_window) :
 			DirectWindow(p, s, q, KindOfView::Hologram),
 			Ic(ic),
-			desc_(desc)
+			desc_(desc),
+			main_window_(main_window)
 		{}
 
 		HoloWindow::~HoloWindow()
@@ -82,12 +84,13 @@ namespace holovibes
 
 		void	HoloWindow::mouseMoveEvent(QMouseEvent* e)
 		{
+			QPoint pos(e->x() * (Fd.width / static_cast<float>(width())),
+				e->y() * (Fd.height / static_cast<float>(height())));
+			mouse_position = pos;
 			if (!Cd->stft_view_enabled.load())
 				DirectWindow::mouseMoveEvent(e);
 			else if (Cd->stft_view_enabled.load() && !slicesAreLocked.load())
-				updateCursorPosition(QPoint(
-					e->x() * (Fd.width / static_cast<float>(width())),
-					e->y() * (Fd.height / static_cast<float>(height()))));
+				updateCursorPosition(pos);
 		}
 
 		void	HoloWindow::mouseReleaseEvent(QMouseEvent* e)
@@ -150,6 +153,23 @@ namespace holovibes
 			DirectWindow::keyPressEvent(e);
 			if (Cd->stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
+				if (!slicesAreLocked && desc_)
+				{
+					std::cout << "last:" << last_clicked.x() << "," << last_clicked.y() << std::endl;
+					std::cout << "new:" << mouse_position.x() << "," << mouse_position.y() << std::endl;
+					desc_->x_accu_min_level = std::min(mouse_position.x(), last_clicked.x());
+					desc_->y_accu_min_level = std::min(mouse_position.y(), last_clicked.y());
+					desc_->x_accu_max_level = std::max(mouse_position.x(), last_clicked.x());
+					desc_->y_accu_max_level = std::max(mouse_position.y(), last_clicked.y());
+					std::cout << desc_->x_accu_min_level << " ";
+					std::cout << desc_->x_accu_max_level << " ";
+					std::cout << desc_->y_accu_min_level << " ";
+					std::cout << desc_->y_accu_max_level << std::endl << std::endl;
+					last_clicked = mouse_position;
+					main_window_->notify();
+				}
+				else
+					updateCursorPosition(mouse_position);
 				slicesAreLocked.exchange(!slicesAreLocked.load());
 				makeCurrent();
 				if (slicesAreLocked.load())
