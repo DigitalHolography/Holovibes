@@ -2711,7 +2711,7 @@ namespace holovibes
 			QAction *settings = findChild<QAction*>("actionSettings");
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
-			if (holovibes_.get_tcapture()->stop_requested_)
+			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
 				import_type_ = ImportType::None;
 				is_enabled_camera_ = false;

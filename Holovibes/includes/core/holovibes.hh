@@ -158,6 +158,9 @@ namespace holovibes
 			return camera_->get_ini_path();
 		}
 
+		/*! \brief Getter onto average_queue
+		 * 
+		 * Used when computing the average of the noise or signal in a given area */
 		ConcurrentDeque<Tuple4f>& get_average_queue()
 		{
 			return average_queue_;
