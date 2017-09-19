@@ -26,9 +26,9 @@ namespace holovibes
 		img_type(ImgType::Modulus),
 		unwrap_history_size(1),
 		special_buffer_size(10),
-		log_scale_enabled(false),
-		log_scale_enabled_cut_xz(false),
-		log_scale_enabled_cut_yz(false),
+		log_scale_slice_xy_enabled(false),
+		log_scale_slice_xz_enabled(false),
+		log_scale_slice_yz_enabled(false),
 		shift_corners_enabled(false),
 		contrast_enabled(false),
 		vibrometry_enabled(false),
@@ -58,7 +58,6 @@ namespace holovibes
 		img_acc_slice_xy_enabled(false),
 		img_acc_slice_xz_enabled(false),
 		img_acc_slice_yz_enabled(false),
-		img_acc_buffer_size(20),
 		img_acc_slice_xy_level(1),
 		img_acc_slice_xz_level(1),
 		img_acc_slice_yz_level(1),
@@ -107,9 +106,9 @@ namespace holovibes
 		img_type.exchange(cd.img_type.load());
 		unwrap_history_size.exchange(cd.unwrap_history_size.load());
 		special_buffer_size.exchange(cd.special_buffer_size.load());
-		log_scale_enabled.exchange(cd.log_scale_enabled.load());
-		log_scale_enabled_cut_xz.exchange(cd.log_scale_enabled_cut_xz.load());
-		log_scale_enabled_cut_yz.exchange(cd.log_scale_enabled_cut_yz.load());
+		log_scale_slice_xy_enabled.exchange(cd.log_scale_slice_xy_enabled.load());
+		log_scale_slice_xz_enabled.exchange(cd.log_scale_slice_xz_enabled.load());
+		log_scale_slice_yz_enabled.exchange(cd.log_scale_slice_yz_enabled.load());
 		shift_corners_enabled.exchange(cd.shift_corners_enabled.load());
 		contrast_enabled.exchange(cd.contrast_enabled.load());
 		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
@@ -139,7 +138,6 @@ namespace holovibes
 		img_acc_slice_xy_enabled.exchange(cd.img_acc_slice_xy_enabled.load());
 		img_acc_slice_xz_enabled.exchange(cd.img_acc_slice_xz_enabled.load());
 		img_acc_slice_yz_enabled.exchange(cd.img_acc_slice_yz_enabled.load());
-		img_acc_buffer_size.exchange(cd.img_acc_buffer_size.load());
 		img_acc_slice_xy_level.exchange(cd.img_acc_slice_xy_level.load());
 		img_acc_slice_xz_level.exchange(cd.img_acc_slice_xz_level.load());
 		img_acc_slice_yz_level.exchange(cd.img_acc_slice_yz_level.load());

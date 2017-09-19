@@ -733,11 +733,11 @@ namespace holovibes
 			}
 		}
 
-		if (compute_desc_.log_scale_enabled.load()
-			|| compute_desc_.log_scale_enabled_cut_xz.load()
-			|| compute_desc_.log_scale_enabled_cut_yz.load())
+		if (compute_desc_.log_scale_slice_xy_enabled.load()
+			|| compute_desc_.log_scale_slice_xz_enabled.load()
+			|| compute_desc_.log_scale_slice_yz_enabled.load())
 		{
-			if (compute_desc_.log_scale_enabled.load())
+			if (compute_desc_.log_scale_slice_xy_enabled.load())
 				fn_vect_.push_back(std::bind(
 					apply_log10,
 					gpu_float_buffer_,
@@ -745,13 +745,13 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
-				if (compute_desc_.log_scale_enabled_cut_xz.load())
+				if (compute_desc_.log_scale_slice_xz_enabled.load())
 					fn_vect_.push_back(std::bind(
 						apply_log10,
 						static_cast<float *>(gpu_float_cut_xz_),
 						output_fd.width * compute_desc_.nsamples.load(),
 						static_cast<cudaStream_t>(0)));
-				if (compute_desc_.log_scale_enabled_cut_yz.load())
+				if (compute_desc_.log_scale_slice_yz_enabled.load())
 					fn_vect_.push_back(std::bind(
 						apply_log10,
 						static_cast<float *>(gpu_float_cut_yz_),

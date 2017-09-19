@@ -194,7 +194,7 @@ namespace holovibes
 			findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
 			findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
-			findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled.load());
+			findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QPushButton *>("AutoContrastPushButton")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
@@ -206,10 +206,10 @@ namespace holovibes
 			if (compute_desc_.current_window.load() == WindowKind::XYview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy.load()));
+					->setValue((compute_desc_.log_scale_slice_xy_enabled.load()) ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled.load()) ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy.load()));
-				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled.load());
+					->setValue((compute_desc_.log_scale_slice_xy_enabled.load()) ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_xy_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setEnabled(!compute_desc_.vision_3d_enabled.load());
@@ -220,10 +220,10 @@ namespace holovibes
 			else if (compute_desc_.current_window.load() == WindowKind::XZview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled_cut_xz.load()) ? compute_desc_.contrast_min_slice_xz.load() : log10(compute_desc_.contrast_min_slice_xz.load()));
+					->setValue((compute_desc_.log_scale_slice_xz_enabled.load()) ? compute_desc_.contrast_min_slice_xz.load() : log10(compute_desc_.contrast_min_slice_xz.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled_cut_xz.load()) ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz.load()));
-				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled_cut_xz.load());
+					->setValue((compute_desc_.log_scale_slice_xz_enabled.load()) ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_xz_enabled.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_xz_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
@@ -232,10 +232,10 @@ namespace holovibes
 			else if (compute_desc_.current_window.load() == WindowKind::YZview)
 			{
 				findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled_cut_yz.load()) ? compute_desc_.contrast_min_slice_yz.load() : log10(compute_desc_.contrast_min_slice_yz.load()));
+					->setValue((compute_desc_.log_scale_slice_yz_enabled.load()) ? compute_desc_.contrast_min_slice_yz.load() : log10(compute_desc_.contrast_min_slice_yz.load()));
 				findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")
-					->setValue((compute_desc_.log_scale_enabled_cut_yz.load()) ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz.load()));
-				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_enabled_cut_yz.load());
+					->setValue((compute_desc_.log_scale_slice_yz_enabled.load()) ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz.load()));
+				findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_yz_enabled.load());
 				findChild<QCheckBox *>("ImgAccuCheckBox")->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled.load());
 				findChild<QSpinBox *>("ImgAccuSpinBox")->setValue(compute_desc_.img_acc_slice_yz_level.load());
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
@@ -534,9 +534,9 @@ namespace holovibes
 				last_img_type_ = (compute_desc_.img_type == ImgType::Complex) ?
 					"Complex output" : last_img_type_;
 
-				compute_desc_.log_scale_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_enabled.load()));
-				compute_desc_.log_scale_enabled_cut_xz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_enabled_cut_xz.load()));
-				compute_desc_.log_scale_enabled_cut_yz.exchange(ptree.get<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_enabled_cut_yz.load()));
+				compute_desc_.log_scale_slice_xy_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled.load()));
+				compute_desc_.log_scale_slice_xz_enabled.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled.load()));
+				compute_desc_.log_scale_slice_yz_enabled.exchange(ptree.get<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled.load()));
 
 				compute_desc_.shift_corners_enabled.exchange(ptree.get<bool>("view.shift_corners_enabled", compute_desc_.shift_corners_enabled.load()));
 
@@ -642,10 +642,9 @@ namespace holovibes
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
 			ptree.put<holovibes::ImgType>("view.view_mode", compute_desc_.img_type.load());
-			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_enabled.load());
-			ptree.put<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_enabled_cut_xz.load());
-			ptree.put<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_enabled_cut_yz.load());
-			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_enabled.load());
+			ptree.put<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled.load());
+			ptree.put<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled.load());
+			ptree.put<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled.load());
 			ptree.put<bool>("view.shift_corners_enabled", compute_desc_.shift_corners_enabled.load());
 			ptree.put<bool>("view.contrast_enabled", compute_desc_.contrast_enabled.load());
 			ptree.put<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy.load());
@@ -1090,8 +1089,8 @@ namespace holovibes
 
 			compute_desc_.contrast_max_slice_xz.exchange(false);
 			compute_desc_.contrast_max_slice_yz.exchange(false);
-			compute_desc_.log_scale_enabled_cut_xz.exchange(false);
-			compute_desc_.log_scale_enabled_cut_yz.exchange(false);
+			compute_desc_.log_scale_slice_xz_enabled.exchange(false);
+			compute_desc_.log_scale_slice_yz_enabled.exchange(false);
 			compute_desc_.img_acc_slice_xz_enabled.exchange(false);
 			compute_desc_.img_acc_slice_yz_enabled.exchange(false);
 			holovibes_.get_pipe()->delete_stft_slice_queue();
@@ -1324,7 +1323,7 @@ namespace holovibes
 				mainDisplay->resetTransform();
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Filter2D);
 				findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
-				compute_desc_.log_scale_enabled.exchange(true);
+				compute_desc_.log_scale_slice_xy_enabled.exchange(true);
 				compute_desc_.shift_corners_enabled.exchange(false);
 				compute_desc_.filter_2d_enabled.exchange(true);
 				set_auto_contrast();
@@ -1339,7 +1338,7 @@ namespace holovibes
 			{
 				InfoManager::get_manager()->remove_info("Filter2D");
 				compute_desc_.filter_2d_enabled.exchange(false);
-				compute_desc_.log_scale_enabled.exchange(false);
+				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
 				compute_desc_.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 				mainDisplay->resetTransform();
@@ -1814,21 +1813,21 @@ namespace holovibes
 				{
 					if (compute_desc_.current_window.load() == WindowKind::XYview)
 					{
-						if (compute_desc_.log_scale_enabled.load())
+						if (compute_desc_.log_scale_slice_xy_enabled.load())
 							compute_desc_.contrast_min_slice_xy.exchange(value);
 						else
 							compute_desc_.contrast_min_slice_xy.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::XZview)
 					{
-						if (compute_desc_.log_scale_enabled_cut_xz.load())
+						if (compute_desc_.log_scale_slice_xz_enabled.load())
 							compute_desc_.contrast_min_slice_xz.exchange(value);
 						else
 							compute_desc_.contrast_min_slice_xz.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::YZview)
 					{
-						if (compute_desc_.log_scale_enabled_cut_yz.load())
+						if (compute_desc_.log_scale_slice_yz_enabled.load())
 							compute_desc_.contrast_min_slice_yz.exchange(value);
 						else
 							compute_desc_.contrast_min_slice_yz.exchange(pow(10, value));
@@ -1846,21 +1845,21 @@ namespace holovibes
 				{
 					if (compute_desc_.current_window.load() == WindowKind::XYview)
 					{
-						if (compute_desc_.log_scale_enabled.load())
+						if (compute_desc_.log_scale_slice_xy_enabled.load())
 							compute_desc_.contrast_max_slice_xy.exchange(value);
 						else
 							compute_desc_.contrast_max_slice_xy.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::XZview)
 					{
-						if (compute_desc_.log_scale_enabled_cut_xz.load())
+						if (compute_desc_.log_scale_slice_xz_enabled.load())
 							compute_desc_.contrast_max_slice_xz.exchange(value);
 						else
 							compute_desc_.contrast_max_slice_xz.exchange(pow(10, value));
 					}
 					else if (compute_desc_.current_window.load() == WindowKind::YZview)
 					{
-						if (compute_desc_.log_scale_enabled_cut_yz.load())
+						if (compute_desc_.log_scale_slice_yz_enabled.load())
 							compute_desc_.contrast_max_slice_yz.exchange(value);
 						else
 							compute_desc_.contrast_max_slice_yz.exchange(pow(10, value));
@@ -1875,11 +1874,11 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				if (compute_desc_.current_window.load() == WindowKind::XYview)
-					compute_desc_.log_scale_enabled.exchange(value);
+					compute_desc_.log_scale_slice_xy_enabled.exchange(value);
 				else if (compute_desc_.current_window.load() == WindowKind::XZview)
-					compute_desc_.log_scale_enabled_cut_xz.exchange(value);
+					compute_desc_.log_scale_slice_xz_enabled.exchange(value);
 				else if (compute_desc_.current_window.load() == WindowKind::YZview)
-					compute_desc_.log_scale_enabled_cut_yz.exchange(value);
+					compute_desc_.log_scale_slice_yz_enabled.exchange(value);
 				if (compute_desc_.contrast_enabled.load())
 				{
 					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());

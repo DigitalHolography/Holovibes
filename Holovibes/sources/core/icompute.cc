@@ -599,7 +599,7 @@ namespace holovibes
 	{
 		stft_update_roi_requested_.exchange(false);
 		request_update_n(compute_desc_.nsamples.load());
-		compute_desc_.log_scale_enabled.exchange(false);
+		compute_desc_.log_scale_slice_xy_enabled.exchange(false);
 		notify_observers();
 		autocontrast_requested_.exchange(true);
 	}

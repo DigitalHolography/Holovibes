@@ -31,8 +31,10 @@ namespace holovibes
 		using	Tuple4f =	std::tuple<float, float, float, float>;
 	#endif
 
-	using	CameraKind =
-	enum
+	/*!
+	 * \brief	Difference kind of camera supported by Holovibes
+	 */
+	enum CameraKind
 	{
 		NONE,
 		Adimec,
@@ -43,37 +45,44 @@ namespace holovibes
 		Pixelfly,
 		xiQ
 	};
-	using	Algorithm =
-	enum
+
+	/*! \brief	Rendering mode for Hologram */
+	enum Algorithm
 	{
-		None,
-		FFT1,
-		FFT2
+		None, /**< Nothing Applied */
+		FFT1, /**< Fresnel Transform */
+		FFT2  /**< Angular spectrum propagation */
 	};
-	using	Computation =
-	enum
+
+	/*! \bried	Input processes */
+	enum Computation
 	{
-		Stop,
-		Direct,
-		Hologram
+		Stop, /**< Input not displayed */
+		Direct, /**< Interferogram recorded */
+		Hologram /**< Reconstruction of the object */
 	};
-	using	ImgType =
-	enum
+
+	/*! \brief	Displaying type of the image */
+	enum ImgType
 	{
-		Modulus,
-		SquaredModulus,
-		Argument,
-		PhaseIncrease,
+		Modulus, /**< Modulus of the complex data */
+		SquaredModulus, /**< Modulus taken to its square value */
+		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
+		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
 		Complex
 	};
+
 	using	AccessMode =
 	enum
 	{
 		Get = 1,
 		Set
 	};
-	using	WindowKind =
-	enum
+
+	/*!
+	 * \brief	Represents the kind of slice displayed by the window
+	 */
+	enum WindowKind
 	{
 		XYview,
 		XZview,
@@ -96,13 +105,20 @@ namespace holovibes
 	class ComputeDescriptor : public Observable
 	{
 	private:
+		/*! \brief The lock used in the zone accessors */
 		mutable std::mutex	mutex_;
 
+
+		/*! \brief	The position of the point used to obtain XZ and YZ views */
 		QPoint				stft_slice_cursor;
 
+		/*! \brief	The zone to average the signal */
 		gui::Rectangle		signal_zone;
+		/*! \brief	The zone to average the noise */
 		gui::Rectangle		noise_zone;
+		/*! \brief	The zone used to compute automatically the z-value */
 		gui::Rectangle		autofocus_zone;
+		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		gui::Rectangle		stft_roi_zone;
 
 	public:
@@ -116,56 +132,80 @@ namespace holovibes
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
+		/*!
+		 * \brief	Accessor to Stft slice cursor to obtain XZ and YZ views
+		 * \param			p	If non-null, a QPoint to process.
+		 * \param 		  	m	An AccessMode to process.
+		 */
+
 		void stftCursor(QPoint *p, AccessMode m);
+
+		/*!
+		 * @{
+		 *
+		 * \brief	Accessor to the selected zone
+		 *
+		 * \param			rect	The rectangle to process
+		 * \param 		  	m   	An AccessMode to process.
+		 */
 
 		void signalZone(gui::Rectangle& rect, AccessMode m);
 		void noiseZone(gui::Rectangle& rect, AccessMode m);
 		void autofocusZone(gui::Rectangle& rect, AccessMode m);
 		void stftRoiZone(gui::Rectangle& rect, AccessMode m);
 
+		//! @}
 		#pragma region Atomics vars
+		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;
+		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode;
+		//! type of the image displayed
 		std::atomic<ImgType>		img_type;
+
+		//! is 3d reconstruction enabled
 		std::atomic<bool>			vision_3d_enabled;
+		//! Last window selected
 		std::atomic<WindowKind>		current_window;
-		//!<  Number of images used by SFTF i.e. depth of the SFTF cube
+		//! Number of images used by SFTF i.e. depth of the SFTF cube
 		std::atomic<ushort>			nsamples;
-		//!< index in the depth axis
+		//! index in the depth axis
 		std::atomic<ushort>			pindex;
 		std::atomic<ushort>			vibrometry_q;
+		//! wave length of the laser
 		std::atomic<float>			lambda;
 		std::vector<float>			convo_matrix;
-		//!< z value used by fresnel transform
+		//! z value used by fresnel transform
 		std::atomic<float>			zdistance;
 
-		//!< minimum constrast value in xy view
+		//! minimum constrast value in xy view
 		std::atomic<float>			contrast_min_slice_xy;
-		//!< maximum constrast value in xy view
+		//! maximum constrast value in xy view
 		std::atomic<float>			contrast_max_slice_xy;
-		//!< minimum constrast value in xz view
+		//! minimum constrast value in xz view
 		std::atomic<float>			contrast_min_slice_xz;
-		//!< maximum constrast value in xz view
+		//! maximum constrast value in xz view
 		std::atomic<float>			contrast_max_slice_xz;
-		//!< minimum constrast value in yz view
+		//! minimum constrast value in yz view
 		std::atomic<float>			contrast_min_slice_yz;
-		//!< maximum constrast value in yz view
+		//! maximum constrast value in yz view
 		std::atomic<float>			contrast_max_slice_yz;
 
-		//!< minimum autofocus value in xy view
+		//! minimum autofocus value in xy view
 		std::atomic<float>			autofocus_z_min;
-		//!< maximum constrast value in xy view
+		//! maximum constrast value in xy view
 		std::atomic<float>			autofocus_z_max;
 
 		std::atomic<ushort>			cuts_contrast_p_offset;
 		std::atomic<float>			import_pixel_size;
-		std::atomic<uint>			img_acc_buffer_size;
 		std::atomic<uint>			convo_matrix_width;
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;
 		std::atomic<uint>			flowgraphy_level;
 		std::atomic<uint>			autofocus_size;
+		/*! \brief	Number of divison of zmax - zmin used by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_div;
+		/*! \brief	Number of loops done by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_iter;
 		std::atomic<int>			stft_level;
 		std::atomic<int>			stft_steps;
@@ -174,59 +214,70 @@ namespace holovibes
 		std::atomic<int>			special_buffer_size;
 		std::atomic<bool>			convolution_enabled;
 		std::atomic<bool>			flowgraphy_enabled;
-		std::atomic<bool>			log_scale_enabled;
-		std::atomic<bool>			log_scale_enabled_cut_xz;
-		std::atomic<bool>			log_scale_enabled_cut_yz;
+		//! is log scale in slice XY enabled
+		std::atomic<bool>			log_scale_slice_xy_enabled;
+		//! is log scale in slice XZ enabled
+		std::atomic<bool>			log_scale_slice_xz_enabled;
+		//! is log scale in slice YZ enabled
+		std::atomic<bool>			log_scale_slice_yz_enabled;
+		//! is shift fft enabled (switching representation diagram) 
 		std::atomic<bool>			shift_corners_enabled;
+		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
+		//! is stft enabled. If not, it does a DFT. TODO: remove this parameter and always use stft instead of DFT.
 		std::atomic<bool>			stft_enabled;
 		std::atomic<bool>			vibrometry_enabled;
 		std::atomic<bool>			ref_diff_enabled;
 		std::atomic<bool>			ref_sliding_enabled;
+		//! allows to limit the computations to a selected zone
 		std::atomic<bool>			filter_2d_enabled;
+		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled;
+		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled;
 		std::atomic<bool>			signal_trig_enabled;
 
-		//!< is file a .cine
+		//! is file a .cine
 		std::atomic<bool>			is_cine_file;
 
+		//! Number of frame per seconds displayed
+		std::atomic<float>			display_rate;
 
-		//!< is img average in view XY enabled (average of output over time)
+
+
+		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
 		std::atomic<bool>			img_acc_slice_xy_enabled;
-		//!< is img average in view XZ enabled (average of output over time)
+		//! is img average in view XZ enabled
 		std::atomic<bool>			img_acc_slice_xz_enabled;
-		//!< is img average in view YZ enabled (average of output over time)
+		//! is img average in view YZ enabled
 		std::atomic<bool>			img_acc_slice_yz_enabled;
-		//!< number of image in view XY to average
+		//! number of image in view XY to average
 		std::atomic<uint>			img_acc_slice_xy_level;
-		//!< number of image in view XZ to average
+		//! number of image in view XZ to average
 		std::atomic<uint>			img_acc_slice_xz_level;
-		//!< number of image in view YZ to average
+		//! number of image in view YZ to average
 		std::atomic<uint>			img_acc_slice_yz_level;
 
-		//!< is p average enabled (average image over multiple depth index)
+		//! is p average enabled (average image over multiple depth index)
 		std::atomic<bool>			p_accu_enabled;
-		//!< minimum p value for p average
+		//! minimum p value for p average
 		std::atomic<ushort>			p_accu_min_level;
-		//!< maximum p value for p average
+		//! maximum p value for p average
 		std::atomic<ushort>			p_accu_max_level;
 		
-		//!< is x average in view YZ enabled (average of columns between both selected columns)
+		//! is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
-		//!< x index of first selected column
+		//! x index of first selected column
 		std::atomic<ushort>			x_accu_min_level;
-		//!< x index of second selected column
+		//! x index of second selected column
 		std::atomic<ushort>			x_accu_max_level;
 
-		//!< is y average in view XZ enabled (average of lines between both selected lines)
+		//! is y average in view XZ enabled (average of lines between both selected lines)
 		std::atomic<bool>			y_accu_enabled;
-		//!< y index of first selected line
+		//! y index of first selected line
 		std::atomic<ushort>			y_accu_min_level;
-		//!< y index of second selected line
+		//! y index of second selected line
 		std::atomic<ushort>			y_accu_max_level;
-
-		std::atomic<float>			display_rate;
 
 		#pragma endregion
 	};

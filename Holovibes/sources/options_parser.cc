@@ -491,7 +491,7 @@ namespace holovibes
 				throw std::runtime_error("unknown view mode");
 		}
 
-		opts_.compute_desc.log_scale_enabled.exchange(vm_.count("log") > 0);
+		opts_.compute_desc.log_scale_slice_xy_enabled.exchange(vm_.count("log") > 0);
 
 		opts_.compute_desc.shift_corners_enabled.exchange(vm_.count("nofftshift"));
 
@@ -502,7 +502,7 @@ namespace holovibes
 			if (log_min < -100.0f || log_min > 100.0f)
 				throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
-			if (opts_.compute_desc.log_scale_enabled.load())
+			if (opts_.compute_desc.log_scale_slice_xy_enabled.load())
 				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(log_min));
 			else
 				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(pow(10.0, log_min)));
@@ -516,7 +516,7 @@ namespace holovibes
 			if (log_max < -100.0f || log_max > 100.0f)
 				throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
 
-			if (opts_.compute_desc.log_scale_enabled.load())
+			if (opts_.compute_desc.log_scale_slice_xy_enabled.load())
 				opts_.compute_desc.contrast_max_slice_xy.exchange(log_max);
 			else
 				opts_.compute_desc.contrast_max_slice_xy.exchange(static_cast<float>(pow(10.0, log_max)));
