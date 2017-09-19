@@ -241,7 +241,15 @@ namespace holovibes
 		if (update_acc_requested_.load())
 		{
 			update_acc_requested_.exchange(false);
-			update_acc_parameter();
+			update_acc_parameter(gpu_img_acc_xy_, compute_desc_.img_acc_slice_xy_enabled, compute_desc_.img_acc_slice_xy_level, input_.get_frame_desc());
+			FrameDescriptor new_fd_xz = input_.get_frame_desc();
+			FrameDescriptor new_fd_yz = input_.get_frame_desc();
+			new_fd_xz.height = compute_desc_.nsamples;
+			new_fd_yz.width = compute_desc_.nsamples;
+			if (gpu_img_acc_yz_)
+				update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
+			if (gpu_img_acc_xz_)
+				update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
 		}
 
 		if (update_ref_diff_requested_.load())
@@ -668,25 +676,20 @@ namespace holovibes
 
 		/*Compute Accumulation buffer into gpu_float_buffer*/
 		if (compute_desc_.img_acc_slice_xy_enabled.load())
-		{
-			/*Add image to phase accumulation buffer*/
-
-			fn_vect_.push_back(std::bind(
-				&ICompute::queue_enqueue,
-				this,
+			enqueue_buffer(gpu_img_acc_xy_,
 				gpu_float_buffer_,
-				gpu_img_acc_));
-
-			fn_vect_.push_back(std::bind(
-				accumulate_images,
-				static_cast<float *>(gpu_img_acc_->get_buffer()),
-				gpu_float_buffer_,
-				gpu_img_acc_->get_start_index(),
-				gpu_img_acc_->get_max_elts(),
-				compute_desc_.img_acc_slice_xy_level.load(),
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		}
+				compute_desc_.img_acc_slice_xy_level.load(), 
+				input_fd.frame_res());
+		if (compute_desc_.img_acc_slice_yz_enabled.load())
+			enqueue_buffer(gpu_img_acc_yz_,
+				static_cast<float*>(gpu_float_cut_yz_),
+				compute_desc_.img_acc_slice_yz_level.load(),
+				input_fd.height * compute_desc_.nsamples);
+		if (compute_desc_.img_acc_slice_xz_enabled.load())
+			enqueue_buffer(gpu_img_acc_xz_,
+				static_cast<float*>(gpu_float_cut_xz_),
+				compute_desc_.img_acc_slice_xz_level.load(),
+				input_fd.width * compute_desc_.nsamples);
 		/* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
 		if (compute_desc_.shift_corners_enabled.load())
@@ -1156,5 +1159,31 @@ namespace holovibes
 					refresh();
 			}
 		}
+	}
+
+
+	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
+	{
+		if (!queue)
+		{
+			std::cout << "Error: queue is null" << std::endl;
+			return;
+		}
+		/*Add image to phase accumulation buffer*/
+
+		fn_vect_.push_back(std::bind(
+			&ICompute::queue_enqueue,
+			this,
+			buffer,
+			queue));
+		fn_vect_.push_back(std::bind(
+			accumulate_images,
+			static_cast<float *>(queue->get_buffer()),
+			buffer,
+			queue->get_start_index(),
+			queue->get_max_elts(),
+			nb_images,
+			nb_pixels,
+			static_cast<cudaStream_t>(0)));
 	}
 }

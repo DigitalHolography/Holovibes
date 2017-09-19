@@ -150,11 +150,23 @@ namespace holovibes
 				err++;
 		}
 
-		if (compute_desc_.img_acc_slice_xy_enabled.load())
+		//if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4.f;
-			gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueue");
+			gpu_img_acc_xy_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueueXY");
+			if (!gpu_img_acc_xy_)
+				std::cerr << "Error: can't allocate queue" << std::endl;
+			auto fd_yz = new_fd;
+			fd_yz.width = compute_desc_.nsamples;
+			gpu_img_acc_yz_ = new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level.load(), "AccumulationQueueYZ");
+			if (!gpu_img_acc_yz_)
+				std::cerr << "Error: can't allocate queue" << std::endl;
+			auto fd_xz = new_fd;
+			fd_xz.height = compute_desc_.nsamples;
+			gpu_img_acc_xz_ = new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level.load(), "AccumulationQueueXZ");
+			if (!gpu_img_acc_xz_)
+				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
 
 		if (compute_desc_.stft_enabled.load())
@@ -221,7 +233,9 @@ namespace holovibes
 		cudaFree(gpu_kernel_buffer_);
 
 		/* gpu_img_acc */
-		delete gpu_img_acc_;
+		delete gpu_img_acc_xy_;
+		delete gpu_img_acc_yz_;
+		delete gpu_img_acc_xz_;
 
 		/* gpu_stft_queue */
 		gpu_stft_slice_queue_xz.reset(nullptr);
@@ -477,26 +491,32 @@ namespace holovibes
 		notify_error_observers(e, cuda_error);
 	}
 
-	void ICompute::update_acc_parameter()
+	void ICompute::update_acc_parameter(
+		Queue*& gpu_img_acc,
+		std::atomic<bool>& enabled,
+		std::atomic<uint>& queue_length, 
+		FrameDescriptor new_fd)
 	{
-		if (gpu_img_acc_ != nullptr)
+		//TODO check why the queue isn't reallocated when needed
+		if (gpu_img_acc != nullptr && false)
 		{
-			delete gpu_img_acc_;
-			gpu_img_acc_ = nullptr;
+			delete gpu_img_acc;
+			gpu_img_acc = nullptr;
 		}
-		if (compute_desc_.img_acc_slice_xy_enabled.load())
+		if (enabled)
 		{
-			camera::FrameDescriptor new_fd = input_.get_frame_desc();
 			new_fd.depth = 4;
 			try
 			{
-				gpu_img_acc_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "Accumulation");
+				gpu_img_acc = new Queue(new_fd, queue_length, "Accumulation");
+				if (!gpu_img_acc)
+					std::cout << "error: couldn't allocate queue" << std::endl;
 			}
 			catch (std::exception&)
 			{
-				gpu_img_acc_ = nullptr;
-				compute_desc_.img_acc_slice_xy_enabled.exchange(false);
-				compute_desc_.img_acc_slice_xy_level.exchange(1);
+				gpu_img_acc = nullptr;
+				enabled.exchange(false);
+				enabled.exchange(1);
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
@@ -815,6 +835,7 @@ namespace holovibes
 				compute_desc_.img_acc_slice_xz_enabled.load() ? compute_desc_.img_acc_slice_xz_level.load() : 1,
 				compute_desc_.img_acc_slice_yz_enabled.load() ? compute_desc_.img_acc_slice_yz_level.load() : 1,
 				compute_desc_.img_type.load());
+
 			if (autocontrast_requested_.load())
 			{
 				if (compute_desc_.stft_view_enabled.load())

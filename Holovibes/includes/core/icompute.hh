@@ -27,6 +27,7 @@
 # include "Rectangle.hh"
 # include "observable.hh"
 # include "gpib_controller.hh"
+# include "frame_desc.hh"
 
 namespace holovibes
 {
@@ -106,7 +107,14 @@ namespace holovibes
 		void request_termination();
 		void queue_enqueue(void* input, Queue* queue);
 		void stft_handler(cufftComplex* input, cufftComplex* output);
-		void update_acc_parameter();
+		/*!
+		 * \brief Updates the queues size
+		 */
+		void update_acc_parameter(
+			Queue*& gpu_img_acc,
+			std::atomic<bool>& enabled,
+			std::atomic<uint>& queue_length,
+			camera::FrameDescriptor new_fd);
 		void update_ref_diff_parameter();
 
 		/*! \brief Return true while ICompute is recording float. */
@@ -275,7 +283,9 @@ namespace holovibes
 		uint	frame_count_;
 		af_env	af_env_;
 
-		Queue	*gpu_img_acc_;
+		Queue	*gpu_img_acc_xy_;
+		Queue	*gpu_img_acc_yz_;
+		Queue	*gpu_img_acc_xz_;
 		Queue	*gpu_stft_queue_;
 		Queue	*gpu_3d_vision;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;

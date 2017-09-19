@@ -89,5 +89,7 @@ namespace holovibes
 		cufftComplex	*gpu_input_buffer_;
 		void			*gpu_output_buffer_;
 		cufftComplex	*gpu_input_frame_ptr_;
+
+		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
 	};
 }
