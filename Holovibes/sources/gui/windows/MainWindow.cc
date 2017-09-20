@@ -16,6 +16,33 @@ namespace holovibes
 {
 	namespace gui
 	{
+		namespace {
+			void spinBoxDecimalPointReplacement(QDoubleSpinBox *doubleSpinBox)
+			{
+				class DoubleValidator : public QValidator
+				{
+					const QValidator *old;
+				public:
+					DoubleValidator(const QValidator *old_)
+						: QValidator(const_cast<QValidator*>(old_)), old(old_)
+					{}
+
+					void fixup(QString & input) const
+					{
+						input.replace(".", QLocale().decimalPoint());
+						input.replace(",", QLocale().decimalPoint());
+						old->fixup(input);
+					}
+					QValidator::State validate(QString & input, int & pos) const
+					{
+						fixup(input);
+						return old->validate(input, pos);
+					}
+				};
+				QLineEdit *lineEdit = doubleSpinBox->findChild<QLineEdit*>();
+				lineEdit->setValidator(new DoubleValidator(lineEdit->validator()));
+			}
+		}
 		#pragma region Constructor - Destructor
 		MainWindow::MainWindow(Holovibes& holovibes, QWidget *parent)
 			: QMainWindow(parent),
@@ -46,6 +73,8 @@ namespace holovibes
 			compute_desc_(holovibes_.get_compute_desc())
 		{
 			ui.setupUi(this);
+
+
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(findChild<GroupBox *>("InfoGroupBox"));
 
@@ -102,6 +131,16 @@ namespace holovibes
 			compute_desc_.compute_mode.exchange(Computation::Stop);
 			notify();
 			setFocusPolicy(Qt::StrongFocus);
+
+			// spinBox allow ',' and '.' as decimal point
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ZDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox"));
+			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox"));
 		}
 
 		MainWindow::~MainWindow()
@@ -122,6 +161,8 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			InfoManager::stop_display();
 		}
+
+		
 		#pragma endregion
 		/* ------------ */
 		#pragma region Notify
