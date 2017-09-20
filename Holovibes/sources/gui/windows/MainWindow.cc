@@ -1156,6 +1156,13 @@ namespace holovibes
 			{
 				try
 				{
+					auto NbImg_spin_box = findChild<QSpinBox *>("PhaseNumberSpinBox");
+					Queue& input_queue = holovibes_.get_capture_queue();
+					if (!b && NbImg_spin_box->value() > input_queue.get_max_elts())
+					{
+						NbImg_spin_box->setValue(input_queue.get_max_elts());
+						compute_desc_.nsamples.exchange(input_queue.get_max_elts());
+					}
 					compute_desc_.stft_enabled.exchange(b);
 					compute_desc_.p_accu_enabled.exchange(b && findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
