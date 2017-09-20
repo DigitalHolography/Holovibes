@@ -338,7 +338,7 @@ namespace holovibes
 			findChild<QComboBox *>("ViewModeComboBox")->setCurrentIndex(compute_desc_.img_type.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QSpinBox *>("PhaseNumberSpinBox")->setValue(compute_desc_.nsamples.load());
-			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct);
+			findChild<QSpinBox *>("PSpinBox")->setEnabled(!is_direct && !compute_desc_.p_accu_enabled);
 			findChild<QSpinBox *>("PSpinBox")->setMaximum(compute_desc_.nsamples.load() - 1);
 			findChild<QSpinBox *>("PSpinBox")->setValue(compute_desc_.pindex.load());
 			findChild<QDoubleSpinBox *>("WaveLengthDoubleSpinBox")->setEnabled(!is_direct);
@@ -1157,6 +1157,7 @@ namespace holovibes
 				try
 				{
 					compute_desc_.stft_enabled.exchange(b);
+					compute_desc_.p_accu_enabled.exchange(b && findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
 				}
 				catch (std::exception& e)
@@ -1450,6 +1451,7 @@ namespace holovibes
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
 			notify();
+			set_auto_contrast();
 		}
 
 		void MainWindow::set_x_accu()
