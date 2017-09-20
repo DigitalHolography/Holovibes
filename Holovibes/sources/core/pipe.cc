@@ -246,10 +246,8 @@ namespace holovibes
 			FrameDescriptor new_fd_yz = input_.get_frame_desc();
 			new_fd_xz.height = compute_desc_.nsamples;
 			new_fd_yz.width = compute_desc_.nsamples;
-			if (gpu_img_acc_yz_)
-				update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
-			if (gpu_img_acc_xz_)
-				update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
+			update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
+			update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
 		}
 
 		if (update_ref_diff_requested_.load())

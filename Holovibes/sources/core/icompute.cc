@@ -150,18 +150,24 @@ namespace holovibes
 				err++;
 		}
 
-		//if (compute_desc_.img_acc_slice_xy_enabled.load())
+		camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		new_fd.depth = 4.f;
+		if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
-			camera::FrameDescriptor new_fd = input_.get_frame_desc();
-			new_fd.depth = 4.f;
 			gpu_img_acc_xy_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueueXY");
 			if (!gpu_img_acc_xy_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
+		}
+		if (compute_desc_.img_acc_slice_yz_enabled.load())
+		{
 			auto fd_yz = new_fd;
 			fd_yz.width = compute_desc_.nsamples;
 			gpu_img_acc_yz_ = new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level.load(), "AccumulationQueueYZ");
 			if (!gpu_img_acc_yz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
+		}
+		if (compute_desc_.img_acc_slice_xz_enabled.load())
+		{
 			auto fd_xz = new_fd;
 			fd_xz.height = compute_desc_.nsamples;
 			gpu_img_acc_xz_ = new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level.load(), "AccumulationQueueXZ");
@@ -492,29 +498,27 @@ namespace holovibes
 	}
 
 	void ICompute::update_acc_parameter(
-		Queue*& gpu_img_acc,
+		Queue*& queue,
 		std::atomic<bool>& enabled,
 		std::atomic<uint>& queue_length, 
 		FrameDescriptor new_fd)
 	{
-		//TODO check why the queue isn't reallocated when needed
-		if (gpu_img_acc != nullptr && false)
-		{
-			delete gpu_img_acc;
-			gpu_img_acc = nullptr;
-		}
+		if (queue && queue->get_max_elts() == queue_length)
+			return;
+		delete queue;
+		queue = nullptr;
 		if (enabled)
 		{
 			new_fd.depth = 4;
 			try
 			{
-				gpu_img_acc = new Queue(new_fd, queue_length, "Accumulation");
-				if (!gpu_img_acc)
+				queue = new Queue(new_fd, queue_length, "Accumulation");
+				if (!queue)
 					std::cout << "error: couldn't allocate queue" << std::endl;
 			}
 			catch (std::exception&)
 			{
-				gpu_img_acc = nullptr;
+				queue = nullptr;
 				enabled.exchange(false);
 				enabled.exchange(1);
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
