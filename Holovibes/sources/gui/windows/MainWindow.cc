@@ -1601,17 +1601,14 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (!is_direct_mode())
-				{
-					if (compute_desc_.current_window.load() == WindowKind::XYview)
-						compute_desc_.img_acc_slice_xy_enabled.exchange(value);
-					else if (compute_desc_.current_window.load() == WindowKind::XZview)
-						compute_desc_.img_acc_slice_xz_enabled.exchange(value);
-					else if (compute_desc_.current_window.load() == WindowKind::YZview)
-						compute_desc_.img_acc_slice_yz_enabled.exchange(value);
-					holovibes_.get_pipe()->request_acc_refresh();
-					notify();
-				}
+				if (compute_desc_.current_window.load() == WindowKind::XYview)
+					compute_desc_.img_acc_slice_xy_enabled.exchange(value);
+				else if (compute_desc_.current_window.load() == WindowKind::XZview)
+					compute_desc_.img_acc_slice_xz_enabled.exchange(value);
+				else if (compute_desc_.current_window.load() == WindowKind::YZview)
+					compute_desc_.img_acc_slice_yz_enabled.exchange(value);
+				holovibes_.get_pipe()->request_acc_refresh();
+				notify();
 			}
 		}
 
@@ -1620,14 +1617,12 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				if (compute_desc_.current_window.load() == WindowKind::XYview)
-				{
 					compute_desc_.img_acc_slice_xy_level.exchange(value);
-					holovibes_.get_pipe()->request_acc_refresh();
-				}
 				else if (compute_desc_.current_window.load() == WindowKind::XZview)
 					compute_desc_.img_acc_slice_xz_level.exchange(value);
 				else if (compute_desc_.current_window.load() == WindowKind::YZview)
 					compute_desc_.img_acc_slice_yz_level.exchange(value);
+				holovibes_.get_pipe()->request_acc_refresh();
 			}
 		}
 

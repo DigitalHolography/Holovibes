@@ -503,7 +503,7 @@ namespace holovibes
 		std::atomic<uint>& queue_length, 
 		FrameDescriptor new_fd)
 	{
-		if (queue && queue->get_max_elts() == queue_length)
+		if (enabled && queue && queue->get_max_elts() == queue_length)
 			return;
 		delete queue;
 		queue = nullptr;
