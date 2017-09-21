@@ -196,7 +196,6 @@ namespace holovibes
 			{
 				uint pmin = Cd->p_accu_min_level;
 				uint pmax = Cd->p_accu_max_level;
-				std::cout << pmin << " " << pmax << std::endl;
 				QPoint p = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
 				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
 				Overlay.setCrossBuffer(p, s);
@@ -221,7 +220,7 @@ namespace holovibes
 			uint depth = (kView == SliceXZ) ? this->height() : this->width();
 			mouse_position.setX((mouse_position.x() * Cd->nsamples) / depth);
 			mouse_position.setY((mouse_position.y() * Cd->nsamples) / depth);
-			if (!slicesAreLocked && Cd)
+			if (!is_pslice_locked && Cd)
 			{
 				uint p = (kView == SliceXZ) ? mouse_position.y() : mouse_position.x();
 				uint last_p = (kView == SliceXZ) ? last_clicked.y() : last_clicked.x();
@@ -253,11 +252,11 @@ namespace holovibes
 		{
 			if (e->key() == Qt::Key::Key_Space)
 			{
-				if (!slicesAreLocked && Cd)
+				if (!is_pslice_locked && Cd)
 					last_clicked = mouse_position;
-				slicesAreLocked.exchange(!slicesAreLocked.load());
+				is_pslice_locked = !is_pslice_locked;
 				makeCurrent();
-				setCursor(slicesAreLocked ? Qt::ArrowCursor : Qt::CrossCursor);
+				setCursor(is_pslice_locked ? Qt::ArrowCursor : Qt::CrossCursor);
 			}
 		}
 	}

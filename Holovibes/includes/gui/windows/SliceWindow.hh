@@ -35,6 +35,7 @@ namespace holovibes
 			MainWindow *main_window_;
 			QPoint last_clicked;
 			QPoint mouse_position;
+			bool is_pslice_locked = true;
 			
 			virtual void	initShaders();
 			virtual void	initializeGL();

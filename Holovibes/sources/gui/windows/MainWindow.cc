@@ -1464,6 +1464,7 @@ namespace holovibes
 		{
 			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
 			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
+			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level);
 			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
 			notify();
 			set_auto_contrast();
