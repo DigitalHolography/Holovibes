@@ -26,7 +26,7 @@ namespace holovibes
 		class HoloWindow : public DirectWindow
 		{
 		public:
-			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, ComputeDescriptor *desc = nullptr, MainWindow *main_window = nullptr);
+			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window = nullptr);
 			virtual ~HoloWindow();
 
 		protected:
@@ -44,7 +44,6 @@ namespace holovibes
 
 			void	updateCursorPosition(QPoint pos);
 		private:
-			ComputeDescriptor *desc_;
 			MainWindow *main_window_;
 			QPoint last_clicked;
 			QPoint mouse_position;

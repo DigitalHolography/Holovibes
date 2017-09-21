@@ -21,10 +21,9 @@ namespace holovibes
 	{
 		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
 
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, ComputeDescriptor *desc, MainWindow *main_window) :
+		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window) :
 			DirectWindow(p, s, q, KindOfView::Hologram),
 			Ic(ic),
-			desc_(desc),
 			main_window_(main_window)
 		{}
 
@@ -47,19 +46,19 @@ namespace holovibes
 			if (Cd->stft_view_enabled.load())
 			{
 				QPoint top_left;
-				desc_->stftCursor(&top_left, AccessMode::Get);
-				if (desc_ && (desc_->x_accu_enabled || desc_->y_accu_enabled))
+				Cd->stftCursor(&top_left, AccessMode::Get);
+				if (Cd && (Cd->x_accu_enabled || Cd->y_accu_enabled))
 				{
 					QPoint bottom_right(top_left);
-					if (desc_->x_accu_enabled)
+					if (Cd->x_accu_enabled)
 					{
-						top_left.setX(desc_->x_accu_min_level);
-						bottom_right.setX(desc_->x_accu_max_level);
+						top_left.setX(Cd->x_accu_min_level);
+						bottom_right.setX(Cd->x_accu_max_level);
 					}
-					if (desc_->y_accu_enabled)
+					if (Cd->y_accu_enabled)
 					{
-						top_left.setY(desc_->y_accu_min_level);
-						bottom_right.setY(desc_->y_accu_max_level);
+						top_left.setY(Cd->y_accu_min_level);
+						bottom_right.setY(Cd->y_accu_max_level);
 					}
 					Overlay.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
 					Overlay.drawCross(0, 4);
@@ -153,7 +152,7 @@ namespace holovibes
 			DirectWindow::keyPressEvent(e);
 			if (Cd->stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
-				if (!slicesAreLocked && desc_)
+				if (!slicesAreLocked && Cd)
 					last_clicked = mouse_position;
 				else
 					updateCursorPosition(mouse_position);
@@ -191,12 +190,12 @@ namespace holovibes
 			// ---------------
 			makeCurrent();
 			Overlay.setCrossBuffer(pos, QSize(Fd.width, Fd.height));
-			if (!slicesAreLocked && desc_)
+			if (!slicesAreLocked && Cd)
 			{
-				desc_->x_accu_min_level = std::min(mouse_position.x(), last_clicked.x());
-				desc_->y_accu_min_level = std::min(mouse_position.y(), last_clicked.y());
-				desc_->x_accu_max_level = std::max(mouse_position.x(), last_clicked.x());
-				desc_->y_accu_max_level = std::max(mouse_position.y(), last_clicked.y());
+				Cd->x_accu_min_level = std::min(mouse_position.x(), last_clicked.x());
+				Cd->y_accu_min_level = std::min(mouse_position.y(), last_clicked.y());
+				Cd->x_accu_max_level = std::max(mouse_position.x(), last_clicked.x());
+				Cd->y_accu_max_level = std::max(mouse_position.y(), last_clicked.y());
 				main_window_->notify();
 			}
 		}

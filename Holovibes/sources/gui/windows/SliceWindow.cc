@@ -12,17 +12,21 @@
 
 #include "texture_update.cuh"
 #include "SliceWindow.hh"
+#include "MainWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window) :
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
-			pIndex(0)
-		{}
+			pIndex(0),
+			main_window_(main_window)
+		{
+			Overlay.initCrossBuffer();
+		}
 
 		SliceWindow::~SliceWindow()
 		{
@@ -188,7 +192,21 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program->release();
 
-			Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+			if (Cd->p_accu_enabled)
+			{
+				uint pmin = Cd->p_accu_min_level;
+				uint pmax = Cd->p_accu_max_level;
+				std::cout << pmin << " " << pmax << std::endl;
+				QPoint p = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
+				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
+				Overlay.setCrossBuffer(p, s);
+				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+				p = (kView == SliceXZ) ? QPoint(0, pmax) : QPoint(pmax, 0);
+				Overlay.setCrossBuffer(p, s);
+				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+			}
+			else
+				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
 
 			Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -198,7 +216,22 @@ namespace holovibes
 		{}
 
 		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
-		{}
+		{
+			mouse_position = e->pos();
+			uint depth = (kView == SliceXZ) ? this->height() : this->width();
+			mouse_position.setX((mouse_position.x() * Cd->nsamples) / depth);
+			mouse_position.setY((mouse_position.y() * Cd->nsamples) / depth);
+			if (!slicesAreLocked && Cd)
+			{
+				uint p = (kView == SliceXZ) ? mouse_position.y() : mouse_position.x();
+				uint last_p = (kView == SliceXZ) ? last_clicked.y() : last_clicked.x();
+				Cd->pindex = p;
+				Cd->p_accu_max_level = std::max(p, last_p);
+				Cd->p_accu_min_level = std::min(p, last_p);
+				main_window_->notify();
+				main_window_->set_auto_contrast();
+			}
+		}
 
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
@@ -213,6 +246,18 @@ namespace holovibes
 			{
 				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview);
 				Cd->notify_observers();
+			}
+		}
+
+		void	SliceWindow::keyPressEvent(QKeyEvent* e)
+		{
+			if (e->key() == Qt::Key::Key_Space)
+			{
+				if (!slicesAreLocked && Cd)
+					last_clicked = mouse_position;
+				slicesAreLocked.exchange(!slicesAreLocked.load());
+				makeCurrent();
+				setCursor(slicesAreLocked ? Qt::ArrowCursor : Qt::CrossCursor);
 			}
 		}
 	}

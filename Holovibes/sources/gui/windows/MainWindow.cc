@@ -282,17 +282,24 @@ namespace holovibes
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
-			findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
-			findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
-			findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(compute_desc_.p_accu_max_level.load());
-			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level.load());
-			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
-
 			{
+				// Modifying one of these pairs will call a signal that reads the other one from the SpinBox
+				// So we need to block them to keep the values, as well as preventing too many autocontrast calls
 				const QSignalBlocker blocker_xmin(findChild<QSpinBox *>("XMinAccuSpinBox"));
 				const QSignalBlocker blocker_xmax(findChild<QSpinBox *>("XMaxAccuSpinBox"));
 				const QSignalBlocker blocker_ymin(findChild<QSpinBox *>("YMinAccuSpinBox"));
 				const QSignalBlocker blocker_ymax(findChild<QSpinBox *>("YMaxAccuSpinBox"));
+				const QSignalBlocker blocker_pmin(findChild<QSpinBox *>("PMinAccuSpinBox"));
+				const QSignalBlocker blocker_pmax(findChild<QSpinBox *>("PMaxAccuSpinBox"));
+
+				findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
+				findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
+				findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(compute_desc_.p_accu_max_level.load());
+				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level.load());
+				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
+				findChild<QSpinBox *>("PMinAccuSpinBox")->setValue(compute_desc_.p_accu_min_level.load());
+				findChild<QSpinBox *>("PMaxAccuSpinBox")->setValue(compute_desc_.p_accu_max_level.load());
+
 				findChild<QCheckBox *>("XAccuCheckBox")->setChecked(compute_desc_.x_accu_enabled.load());
 				findChild<QSpinBox *>("XMinAccuSpinBox")->setMaximum(compute_desc_.x_accu_max_level.load());
 				findChild<QSpinBox *>("XMaxAccuSpinBox")->setMinimum(compute_desc_.x_accu_min_level.load());
@@ -994,7 +1001,6 @@ namespace holovibes
 						pos, size,
 						holovibes_.get_output_queue(),
 						holovibes_.get_pipe(),
-						&compute_desc_,
 						this));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
@@ -1214,7 +1220,8 @@ namespace holovibes
 						xzPos,
 						QSize(mainDisplay->width(), nSize),
 						holovibes_.get_pipe()->get_stft_slice_queue(0),
-						KindOfView::SliceXZ));
+						KindOfView::SliceXZ,
+						this));
 					sliceXZ->setTitle("XZ view");
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
@@ -1226,7 +1233,8 @@ namespace holovibes
 						yzPos,
 						QSize(nSize, mainDisplay->height()),
 						holovibes_.get_pipe()->get_stft_slice_queue(1),
-						KindOfView::SliceYZ));
+						KindOfView::SliceYZ,
+						this));
 					sliceYZ->setTitle("YZ view");
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);

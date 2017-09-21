@@ -18,10 +18,12 @@ namespace holovibes
 {
 	namespace gui
 	{
+		class MainWindow;
+
 		class SliceWindow : public BasicOpenGLWindow
 		{
 		public:
-			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k);
+			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
 			void	setPIndex(ushort pId);
 			
@@ -30,6 +32,9 @@ namespace holovibes
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
 			ushort		pIndex;
+			MainWindow *main_window_;
+			QPoint last_clicked;
+			QPoint mouse_position;
 			
 			virtual void	initShaders();
 			virtual void	initializeGL();
@@ -39,6 +44,7 @@ namespace holovibes
 			void mouseMoveEvent(QMouseEvent*);
 			void mouseReleaseEvent(QMouseEvent*);
 			void focusInEvent(QFocusEvent*);
+			void keyPressEvent(QKeyEvent* e);
 		};
 	}
 }
