@@ -294,8 +294,6 @@ namespace holovibes
 
 				findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
 				findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
-				findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(compute_desc_.p_accu_max_level.load());
-				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level.load());
 				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
 				findChild<QSpinBox *>("PMinAccuSpinBox")->setValue(compute_desc_.p_accu_min_level.load());
 				findChild<QSpinBox *>("PMaxAccuSpinBox")->setValue(compute_desc_.p_accu_max_level.load());
@@ -1164,7 +1162,7 @@ namespace holovibes
 				{
 					auto NbImg_spin_box = findChild<QSpinBox *>("PhaseNumberSpinBox");
 					Queue& input_queue = holovibes_.get_capture_queue();
-					if (!b && NbImg_spin_box->value() > input_queue.get_max_elts())
+					if (!b && NbImg_spin_box->value() > (int) input_queue.get_max_elts())
 					{
 						NbImg_spin_box->setValue(input_queue.get_max_elts());
 						compute_desc_.nsamples.exchange(input_queue.get_max_elts());
@@ -1440,6 +1438,9 @@ namespace holovibes
 					holovibes_.get_pipe()->request_update_n(in.get_max_elts());
 					while (holovibes_.get_pipe()->get_request_refresh());
 				}
+				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples);
+				findChild<QSpinBox *>("PMinAccuSpinBox")->setMaximum(compute_desc_.nsamples);
+				set_p_accu();
 			}
 		}
 
@@ -1462,11 +1463,18 @@ namespace holovibes
 
 		void MainWindow::set_p_accu()
 		{
-			compute_desc_.p_accu_enabled.exchange(findChild<QCheckBox *>("PAccuCheckBox")->isChecked());
-			compute_desc_.p_accu_min_level.exchange(findChild<QSpinBox *>("PMinAccuSpinBox")->value());
-			findChild<QSpinBox *>("PMaxAccuSpinBox")->setMinimum(compute_desc_.p_accu_min_level);
-			compute_desc_.p_accu_max_level.exchange(findChild<QSpinBox *>("PMaxAccuSpinBox")->value());
+			auto boxMax = findChild<QSpinBox *>("PMaxAccuSpinBox");
+			auto boxMin = findChild<QSpinBox *>("PMinAccuSpinBox");
+			auto checkBox = findChild<QCheckBox *>("PAccuCheckBox");
+			compute_desc_.p_accu_enabled.exchange(checkBox->isChecked());
+			compute_desc_.p_accu_min_level.exchange(boxMin->value());
+			compute_desc_.p_accu_max_level.exchange(boxMax->value());
 			notify();
+			QPalette palette = checkBox->palette();
+			if (compute_desc_.p_accu_min_level > compute_desc_.p_accu_max_level)
+				palette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
+			boxMax->setPalette(palette);
+			boxMin->setPalette(palette);
 			set_auto_contrast();
 		}
 

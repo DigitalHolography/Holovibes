@@ -428,13 +428,15 @@ namespace holovibes
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
 			if (compute_desc_.p_accu_enabled.load())
 			{
-				fn_vect_.push_back(std::bind(stft_moment,
-					gpu_stft_buffer_,
-					gpu_input_frame_ptr_,
-					input_fd.frame_res(),
-					compute_desc_.p_accu_min_level.load(),
-					compute_desc_.p_accu_max_level.load(),
-					compute_desc_.nsamples.load()));
+				if (compute_desc_.p_accu_min_level <= compute_desc_.p_accu_max_level
+					&& compute_desc_.p_accu_max_level <= compute_desc_.nsamples)
+					fn_vect_.push_back(std::bind(stft_moment,
+						gpu_stft_buffer_,
+						gpu_input_frame_ptr_,
+						input_fd.frame_res(),
+						compute_desc_.p_accu_min_level.load(),
+						compute_desc_.p_accu_max_level.load(),
+						compute_desc_.nsamples.load()));
 			}
 			// Image ratio Ip/Iq chackbox
 			if (compute_desc_.vibrometry_enabled.load())
