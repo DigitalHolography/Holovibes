@@ -60,9 +60,7 @@ namespace holovibes
 						top_left.setY(Cd->y_accu_min_level);
 						bottom_right.setY(Cd->y_accu_max_level);
 					}
-					Overlay.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
-					Overlay.drawCross(0, 4);
-					Overlay.setCrossBuffer(bottom_right, QSize(Fd.width, Fd.height));
+					Overlay.setDoubleCrossBuffer(top_left, bottom_right, QSize(Fd.width, Fd.height));
 					Overlay.drawCross(0, 4);
 				}
 				else
