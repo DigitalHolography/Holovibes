@@ -234,7 +234,7 @@ namespace holovibes
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
-			findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
+			findChild<QGroupBox *>("ContrastCheckBox")->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
@@ -329,7 +329,7 @@ namespace holovibes
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
-			findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
+			//findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
