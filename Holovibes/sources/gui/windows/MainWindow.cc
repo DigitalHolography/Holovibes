@@ -1468,12 +1468,10 @@ namespace holovibes
 			compute_desc_.p_accu_enabled.exchange(checkBox->isChecked());
 			compute_desc_.p_accu_min_level.exchange(boxMin->value());
 			compute_desc_.p_accu_max_level.exchange(boxMax->value());
-			notify();
-			QPalette palette = checkBox->palette();
 			if (compute_desc_.p_accu_min_level > compute_desc_.p_accu_max_level)
-				palette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
-			boxMax->setPalette(palette);
-			boxMin->setPalette(palette);
+				boxMax->setValue(boxMin->value());
+
+			notify();
 			set_auto_contrast();
 		}
 
