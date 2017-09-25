@@ -192,20 +192,21 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program->release();
 
+			QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
 			if (Cd->p_accu_enabled)
 			{
 				uint pmin = Cd->p_accu_min_level;
 				uint pmax = Cd->p_accu_max_level;
 				QPoint p = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
-				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
-				Overlay.setCrossBuffer(p, s);
-				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
-				p = (kView == SliceXZ) ? QPoint(0, pmax) : QPoint(pmax, 0);
-				Overlay.setCrossBuffer(p, s);
-				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+				QPoint p2 = (kView == SliceXZ) ? QPoint(0, pmax) : QPoint(pmax, 0);
+				Overlay.setDoubleCrossBuffer(p, p2, s);
 			}
 			else
-				Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+			{
+				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
+				Overlay.setCrossBuffer(p, s);
+			}
+			Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
 
 			Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);

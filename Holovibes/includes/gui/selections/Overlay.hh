@@ -50,6 +50,7 @@ namespace holovibes
 			void resetVerticesBuffer();
 			void initCrossBuffer();
 			void setCrossBuffer(QPoint pos, QSize frame);
+			void setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
 			void drawSelections();
 			void drawCross(GLuint offset, GLsizei count);
 
@@ -67,6 +68,7 @@ namespace holovibes
 			GLuint					verticesIndex, colorIndex, elemIndex;
 			QOpenGLShaderProgram*	Program;
 			ColorArray				Colors;
+			bool					doubleCross_ = false;
 
 		private:
 			bool	Enabled;
