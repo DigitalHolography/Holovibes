@@ -196,7 +196,6 @@ namespace holovibes
 			void browse_roi_output_file();
 			void average_record();
 			void browse_batch_input();
-			void browse_trigger_config_file();
 			void image_batch_record();
 			void csv_batch_record();
 			void batch_record(const std::string& path);

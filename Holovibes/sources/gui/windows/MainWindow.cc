@@ -2365,16 +2365,6 @@ namespace holovibes
 				complex_checkbox->setChecked(false);
 		}
 
-		void MainWindow::browse_trigger_config_file()
-		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("Trigger config file"), "C://", tr("All files (*)"));
-
-			QLineEdit* trigger_line_edit = findChild<QLineEdit*>("TriggerPathLineEdit");
-			trigger_line_edit->clear();
-			trigger_line_edit->insert(filename);
-		}
-
 		void MainWindow::image_batch_record()
 		{
 			QLineEdit* output_path = findChild<QLineEdit*>("ImageOutputPathLineEdit");
