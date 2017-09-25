@@ -76,7 +76,6 @@ namespace holovibes
 		ref_diff_enabled(false),
 		ref_sliding_enabled(false),
 		stft_view_enabled(false),
-		signal_trig_enabled(false),
 		stft_slice_cursor(QPoint(0, 0)),
 		signal_zone(gui::Rectangle(0, 0)),
 		noise_zone(gui::Rectangle(0, 0)),
@@ -147,7 +146,6 @@ namespace holovibes
 		ref_diff_enabled.exchange(cd.ref_diff_enabled.load());
 		ref_sliding_enabled.exchange(cd.ref_sliding_enabled.load());
 		stft_view_enabled.exchange(cd.stft_view_enabled.load());
-		signal_trig_enabled.exchange(cd.signal_trig_enabled.load());
 		current_window.exchange(cd.current_window.load());
 		cuts_contrast_p_offset.exchange(cd.cuts_contrast_p_offset.load());
 		vision_3d_enabled.exchange(cd.vision_3d_enabled.load());

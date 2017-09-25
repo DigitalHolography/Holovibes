@@ -235,7 +235,6 @@ namespace holovibes
 		std::atomic<bool>			stft_view_enabled;
 		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled;
-		std::atomic<bool>			signal_trig_enabled;
 
 		//! is file a .cine
 		std::atomic<bool>			is_cine_file;

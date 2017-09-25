@@ -51,7 +51,6 @@ namespace gpib
 		{}
 
 		virtual bool execute_next_block() = 0;
-		virtual bool execute_next_trig() = 0;
 	};
 
 	/* \brief See icamera.hh to have more information about this */

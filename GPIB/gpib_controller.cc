@@ -180,51 +180,6 @@ namespace gpib
 		return true;
 	}
 
-	bool VisaInterface::execute_next_trig()
-	{
-		Command& cmd = batch_cmds_.back();
-
-		do
-		{
-			if (cmd.type == Command::COMMAND)
-			{
-				if (!pimpl_->buffer_)
-				{
-					try
-					{
-						initialize_line();
-					}
-					catch (const std::exception& /*e*/)
-					{
-						throw;
-					}
-				}
-				if (std::find_if(pimpl_->sessions_.begin(),
-					pimpl_->sessions_.end(),
-					[&cmd](instrument& instr)
-				{
-					return instr.second == cmd.address;
-				}) == pimpl_->sessions_.end())
-				{
-					initialize_instr(cmd.address);
-				}
-				auto ses = std::find_if(pimpl_->sessions_.begin(),
-					pimpl_->sessions_.end(),
-					[&cmd](instrument& instr)
-				{
-					return instr.second == cmd.address;
-				});
-				std::string trig_command = "*TRG";
-				viWrite(ses->first,
-					(ViBuf)(trig_command.c_str()),
-					static_cast<ViInt32>(trig_command.size()),
-					pimpl_->ret_count_);
-			}
-		} while (cmd.type != Command::COMMAND);
-
-		return true;
-	}
-
 	void VisaInterface::initialize_line()
 	{
 		pimpl_->buffer_ = new ViByte[BUF_SIZE];

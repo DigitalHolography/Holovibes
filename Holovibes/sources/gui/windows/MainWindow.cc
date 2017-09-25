@@ -362,8 +362,6 @@ namespace holovibes
 			QString depth_value = findChild<QComboBox *>("ImportDepthComboBox")->currentText();
 			findChild<QComboBox *>("ImportEndiannessComboBox")->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file.load());
 			
-			findChild<QCheckBox *>("ExtTrigCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load());
-			findChild<QCheckBox *>("ExtTrigCheckBox")->setChecked(compute_desc_.signal_trig_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
 
@@ -1161,7 +1159,7 @@ namespace holovibes
 				{
 					auto NbImg_spin_box = findChild<QSpinBox *>("PhaseNumberSpinBox");
 					Queue& input_queue = holovibes_.get_capture_queue();
-					if (!b && NbImg_spin_box->value() > (int) input_queue.get_max_elts())
+					if (!b && static_cast<unsigned int>(NbImg_spin_box->value()) > input_queue.get_max_elts())
 					{
 						NbImg_spin_box->setValue(input_queue.get_max_elts());
 						compute_desc_.nsamples.exchange(input_queue.get_max_elts());
@@ -1257,46 +1255,15 @@ namespace holovibes
 
 		void MainWindow::cancel_stft_view(ComputeDescriptor& cd)
 		{
-			if (compute_desc_.signal_trig_enabled.load())
-				stft_signal_trig(false);
-			else if (compute_desc_.stft_view_enabled.load())
+			if (compute_desc_.stft_view_enabled.load())
 				cancel_stft_slice_view();
 			if (compute_desc_.p_accu_enabled.load())
 				compute_desc_.p_accu_enabled.exchange(false);
 			compute_desc_.stft_view_enabled.exchange(false);
 			set_stft(false);
-			compute_desc_.signal_trig_enabled.exchange(false);
 			notify();
 		}
 
-		void MainWindow::stft_signal_trig(bool checked)
-		{
-			QCheckBox* stft = findChild<QCheckBox*>("STFTCheckBox");
-			QCheckBox* stft_view = findChild<QCheckBox*>("STFTCutsCheckBox");
-			QCheckBox* trig = findChild<QCheckBox*>("ExtTrigCheckBox");
-			QLineEdit* trigger_line_edit = findChild<QLineEdit*>("TriggerPathLineEdit");
-			const std::string input_path = trigger_line_edit->text().toUtf8();
-
-			if (checked && !input_path.empty())
-			{
-				try
-				{
-					gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
-					holovibes_.get_pipe()->set_gpib_interface(gpib_interface_);
-					compute_desc_.signal_trig_enabled.exchange(true);
-				}
-				catch (const std::exception& e)
-				{
-					std::cerr << e.what() << std::endl;
-				}
-			}
-			else
-			{
-				gpib_interface_.reset();
-				compute_desc_.signal_trig_enabled.exchange(false);
-			}
-			notify();
-		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Computation

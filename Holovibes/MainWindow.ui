@@ -1038,25 +1038,6 @@
           <string>STFT cuts</string>
          </property>
         </widget>
-        <widget class="QCheckBox" name="ExtTrigCheckBox">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="geometry">
-          <rect>
-           <x>100</x>
-           <y>75</y>
-           <width>70</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Ext. trig</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
         <widget class="QPushButton" name="FlipPushButton">
          <property name="geometry">
           <rect>
@@ -1301,7 +1282,6 @@
         <zorder>ImgAccuCheckBox</zorder>
         <zorder>PhaseUnwrapLabel</zorder>
         <zorder>STFTCutsCheckBox</zorder>
-        <zorder>ExtTrigCheckBox</zorder>
         <zorder>FlipPushButton</zorder>
         <zorder>RotatePushButton</zorder>
         <zorder>WindowSelectionComboBox</zorder>
@@ -3018,7 +2998,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>PhaseUnwrap2DCheckBox</tabstop>
   <tabstop>STFTCutsCheckBox</tabstop>
-  <tabstop>ExtTrigCheckBox</tabstop>
   <tabstop>Vision3DCheckBox</tabstop>
   <tabstop>WindowSelectionComboBox</tabstop>
   <tabstop>RotatePushButton</tabstop>
@@ -4536,22 +4515,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ExtTrigCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>stft_signal_trig(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>397</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>445</x>
-     <y>132</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>RotatePushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4692,22 +4655,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>222</x>
      <y>346</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TriggerBrowseToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>browse_trigger_config_file()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>843</x>
-     <y>393</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>891</x>
-     <y>399</y>
     </hint>
    </hints>
   </connection>

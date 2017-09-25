@@ -222,7 +222,6 @@ namespace holovibes
 			void write_ini();
 			void set_classic();
 			void set_night();
-			void stft_signal_trig(bool checked);
 			void title_detect();
 			void rotateTexture();
 			void flipTexture();
