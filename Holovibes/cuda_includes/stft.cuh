@@ -54,6 +54,7 @@ void stft(cuComplex			*input,
 		const bool			stft_activated,
 		cudaStream_t		stream = 0);
 
+/// Computes the average frame for pmin <= p <= pmax
 void stft_moment(cuComplex		*input,
 				cuComplex		*output,
 				const uint		frame_res,

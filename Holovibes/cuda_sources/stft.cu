@@ -58,6 +58,7 @@ static void kernel_stft_moment(cuComplex	*input,
 							const uint		nsamples)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint nb_slices_p = pmax - pmin + 1;
 	if (id < frame_res)
 	{
 		output[id] = make_cuComplex(0.f, 0.f);
@@ -67,6 +68,7 @@ static void kernel_stft_moment(cuComplex	*input,
 			output[id].x += hypotf(current_pframe[id].x, current_pframe[id].y);
 			++pmin;
 		}
+		output[id].x /= nb_slices_p;
 	}
 }
 

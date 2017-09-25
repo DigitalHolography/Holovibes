@@ -289,14 +289,13 @@ namespace holovibes
 				const QSignalBlocker blocker_xmax(findChild<QSpinBox *>("XMaxAccuSpinBox"));
 				const QSignalBlocker blocker_ymin(findChild<QSpinBox *>("YMinAccuSpinBox"));
 				const QSignalBlocker blocker_ymax(findChild<QSpinBox *>("YMaxAccuSpinBox"));
-				const QSignalBlocker blocker_pmin(findChild<QSpinBox *>("PMinAccuSpinBox"));
-				const QSignalBlocker blocker_pmax(findChild<QSpinBox *>("PMaxAccuSpinBox"));
 
 				findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
 				findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
 				findChild<QSpinBox *>("PMaxAccuSpinBox")->setMaximum(compute_desc_.nsamples.load());
+				auto p_max = compute_desc_.p_accu_max_level.load();
 				findChild<QSpinBox *>("PMinAccuSpinBox")->setValue(compute_desc_.p_accu_min_level.load());
-				findChild<QSpinBox *>("PMaxAccuSpinBox")->setValue(compute_desc_.p_accu_max_level.load());
+				findChild<QSpinBox *>("PMaxAccuSpinBox")->setValue(p_max);
 
 				findChild<QCheckBox *>("XAccuCheckBox")->setChecked(compute_desc_.x_accu_enabled.load());
 				findChild<QSpinBox *>("XMinAccuSpinBox")->setMaximum(compute_desc_.x_accu_max_level.load());
@@ -368,7 +367,7 @@ namespace holovibes
 			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
 
-			QCoreApplication::processEvents();
+			//QCoreApplication::processEvents();
 		}
 
 		void MainWindow::notify_error(std::exception& e, const char* msg)
@@ -1841,11 +1840,13 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast_cuts()
 		 {
+			auto current_window = compute_desc_.current_window.load();
 			compute_desc_.current_window.exchange(WindowKind::XZview);
 			set_auto_contrast();
 			while (holovibes_.get_pipe()->get_autocontrast_request());
 			compute_desc_.current_window.exchange(WindowKind::YZview);
 			set_auto_contrast();
+			compute_desc_.current_window.exchange(current_window);
 		}
 
 		void MainWindow::set_auto_contrast()
