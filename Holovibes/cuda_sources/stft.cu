@@ -44,6 +44,31 @@ void stft(cuComplex			*input,
 	}
 }
 
+__global__
+static void kernel_composite(cuComplex	*input,
+							cuComplex		*output,
+							const uint		frame_res,
+							ushort			*p_array)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		output[id] = make_cuComplex(0.f, 0.f);
+		ushort p = p_array[id % 3];
+		cuComplex *current_pframe = input + (frame_res * p);
+		output[id].x += hypotf(current_pframe[id / 3].x, current_pframe[id / 3].y);
+	}
+}
+void composite(cuComplex	*input,
+			cuComplex		*output,
+			const uint		frame_res,
+			ushort			*p_array)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, p_array);
+}
 #pragma region moment
 __global__
 static void kernel_stft_moment(cuComplex	*input,

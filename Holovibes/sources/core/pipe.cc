@@ -422,17 +422,26 @@ namespace holovibes
 		// STFT Checkbox
 		if (compute_desc_.stft_enabled.load())
 		{
-			fn_vect_.push_back(std::bind(
+			/*fn_vect_.push_back(std::bind(
 				&ICompute::queue_enqueue,
 				this,
 				gpu_input_frame_ptr_,
-				gpu_stft_queue_));
+				gpu_stft_queue_));*/
 			fn_vect_.push_back(std::bind(
 				&ICompute::stft_handler,
 				this,
 				gpu_input_buffer_,
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
-			if (compute_desc_.p_accu_enabled.load())
+			if (compute_desc_.img_type == ImgType::Composite)
+			{
+				ushort p[] = { 40, 50, 60 };
+				fn_vect_.push_back(std::bind(composite,
+					gpu_stft_buffer_,
+					gpu_input_frame_ptr_,
+					input_fd.frame_size() / sizeof(float),
+					p));
+			}
+			else if (compute_desc_.p_accu_enabled.load())
 			{
 				if (compute_desc_.p_accu_min_level <= compute_desc_.p_accu_max_level
 					&& compute_desc_.p_accu_max_level <= compute_desc_.nsamples)
@@ -751,7 +760,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					apply_log10,
 					gpu_float_buffer_,
-					input_fd.frame_res(),
+					input_fd.frame_size() / sizeof(float),
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
@@ -788,7 +797,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						gpu_float_buffer_,
-						output_fd.frame_res(),
+						output_fd.frame_size() / sizeof(float),
 						0,
 						std::ref(compute_desc_),
 						std::ref(compute_desc_.contrast_min_slice_xy),
@@ -837,7 +846,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
 					gpu_float_buffer_,
-					output_fd.frame_res(),
+					output_fd.frame_size() / sizeof(float),
 					65535,
 					compute_desc_.contrast_min_slice_xy.load(),
 					compute_desc_.contrast_max_slice_xy.load(),
