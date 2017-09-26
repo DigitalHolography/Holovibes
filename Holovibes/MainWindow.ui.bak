@@ -9,19 +9,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1137</width>
-    <height>767</height>
+    <width>1185</width>
+    <height>392</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1305</width>
+    <width>1335</width>
     <height>16777215</height>
    </size>
   </property>
@@ -594,14 +588,14 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+         <sizepolicy hsizetype="Maximum" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -625,10 +619,10 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
-          <number>5</number>
+          <number>1</number>
          </property>
          <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
+          <enum>QLayout::SetMaximumSize</enum>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -774,12 +768,6 @@
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_5">
-           <property name="horizontalSpacing">
-            <number>6</number>
-           </property>
-           <property name="verticalSpacing">
-            <number>1</number>
-           </property>
            <item row="1" column="0">
             <widget class="QCheckBox" name="YAccuCheckBox">
              <property name="text">
@@ -909,16 +897,16 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="spacing">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="leftMargin">
-             <number>5</number>
+             <number>0</number>
             </property>
             <property name="topMargin">
              <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>5</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
              <number>0</number>
@@ -1026,7 +1014,7 @@
             <item>
              <widget class="QGroupBox" name="ContrastCheckBox">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -1045,19 +1033,19 @@
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
                <property name="leftMargin">
-                <number>5</number>
+                <number>0</number>
                </property>
                <property name="topMargin">
-                <number>2</number>
+                <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>5</number>
+                <number>0</number>
                </property>
                <property name="bottomMargin">
-                <number>2</number>
+                <number>0</number>
                </property>
                <property name="spacing">
-                <number>2</number>
+                <number>0</number>
                </property>
                <item row="1" column="1">
                 <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
@@ -1130,7 +1118,13 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QLabel" name="AutofocusZMinLabel">
+               <widget class="QLabel" name="AutofocusZRangeLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
                  <string>z range:</string>
                 </property>
@@ -1173,22 +1167,6 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
        </widget>
       </item>
@@ -1204,12 +1182,6 @@
          <size>
           <width>185</width>
           <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>277</width>
-          <height>16777215</height>
          </size>
         </property>
         <property name="baseSize">
@@ -1236,393 +1208,404 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>5</number>
+        <widget class="QLabel" name="ImageRatioPLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>31</width>
+           <height>21</height>
+          </rect>
          </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
+         <property name="text">
+          <string>p:</string>
          </property>
-         <property name="leftMargin">
+        </widget>
+        <widget class="QSpinBox" name="ImageRatioPSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>60</y>
+           <width>61</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImageRatioQSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>60</y>
+           <width>61</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImageRatioQLabel">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>60</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>q:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="ImageRatioCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>171</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>ratio</string>
+         </property>
+         <property name="text">
+          <string>Image ratio Ip/Iq</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="AverageCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>260</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Enable signal averaging in a ROI</string>
+         </property>
+         <property name="text">
+          <string>Average</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ROIFilePathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>320</y>
+           <width>101</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="SaveROIPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>350</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Record Roi result</string>
+         </property>
+         <property name="text">
+          <string>Save ROI</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="LoadROIPushButton">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>350</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Load ROI</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AveragePlotPushButton">
+         <property name="geometry">
+          <rect>
+           <x>97</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>launch ROI fonctionnality</string>
+         </property>
+         <property name="text">
+          <string>Plot</string>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="ROIFileBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>320</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ROIFileLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>320</y>
+           <width>51</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>ROI file:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="ConvoCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>160</y>
+           <width>91</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>apply spation-temporal kernels to outputs</string>
+         </property>
+         <property name="text">
+          <string>Convolution</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ConvoMatrixLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>171</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Convolution matrix file :</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ConvoMatrixPathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>130</y>
+           <width>151</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="ConvoMatrixBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>130</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ConvoLoadMatrixPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>160</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Load Matrix</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="FlowgraphyCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>220</y>
+           <width>91</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>Flowgraphy</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="FlowgraphyLevelSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>220</y>
+           <width>51</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>n flowgraphy level (can't be higher than special queue)</string>
+         </property>
+         <property name="minimum">
+          <number>3</number>
+         </property>
+         <property name="maximum">
+          <number>999</number>
+         </property>
+         <property name="singleStep">
           <number>2</number>
          </property>
-         <property name="topMargin">
-          <number>2</number>
+         <property name="value">
+          <number>3</number>
          </property>
-         <property name="rightMargin">
-          <number>2</number>
+        </widget>
+        <widget class="QLabel" name="FlowgraphyLevelLabel">
+         <property name="geometry">
+          <rect>
+           <x>97</x>
+           <y>220</y>
+           <width>31</width>
+           <height>21</height>
+          </rect>
          </property>
-         <property name="bottomMargin">
-          <number>2</number>
+         <property name="text">
+          <string>Level</string>
          </property>
-         <item>
-          <widget class="QGroupBox" name="ImageRatioCheckBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Image ratio Ip/Iq</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <property name="spacing">
-             <number>2</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <item>
-               <widget class="QLabel" name="ImageRatioPLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>p:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="ImageRatioPSpinBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
-              <item>
-               <widget class="QLabel" name="ImageRatioQLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="text">
-                 <string>q:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="ImageRatioQSpinBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="ConvoMatrixLabel">
-             <property name="text">
-              <string>Convolution matrix file :</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLineEdit" name="ConvoMatrixPathLineEdit">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="placeholderText">
-                <string>Convolution matrix file</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="ConvoMatrixBrowseToolButton">
-               <property name="text">
-                <string>...</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QPushButton" name="ConvoLoadMatrixPushButton">
-               <property name="text">
-                <string>Load Matrix</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="ConvoCheckBox">
-               <property name="toolTip">
-                <string>apply spation-temporal kernels to outputs</string>
-               </property>
-               <property name="text">
-                <string>Convolution</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_9">
-           <item>
-            <widget class="QLabel" name="KernelBufferSizeLabel">
-             <property name="text">
-              <string>Kernel buffer Size</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="KernelBufferSizeSpinBox">
-             <property name="toolTip">
-              <string>buffer used to apply convolution &amp; flowgraphy</string>
-             </property>
-             <property name="minimum">
-              <number>3</number>
-             </property>
-             <property name="maximum">
-              <number>2048</number>
-             </property>
-             <property name="value">
-              <number>10</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QCheckBox" name="FlowgraphyCheckBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="text">
-              <string>Flowgraphy</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="FlowgraphyLevelLabel">
-             <property name="text">
-              <string>Level</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="FlowgraphyLevelSpinBox">
-             <property name="toolTip">
-              <string>n flowgraphy level (can't be higher than special queue)</string>
-             </property>
-             <property name="minimum">
-              <number>3</number>
-             </property>
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="singleStep">
-              <number>2</number>
-             </property>
-             <property name="value">
-              <number>3</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="AverageCheckBox">
-           <property name="toolTip">
-            <string>Enable signal averaging in a ROI</string>
-           </property>
-           <property name="text">
-            <string>Average</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QPushButton" name="AverageSignalPushButton">
-             <property name="text">
-              <string>Signal</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AverageNoisePushButton">
-             <property name="text">
-              <string>Noise</string>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AveragePlotPushButton">
-             <property name="toolTip">
-              <string>launch ROI fonctionnality</string>
-             </property>
-             <property name="text">
-              <string>Plot</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AverageClosePlotPushButton">
-             <property name="toolTip">
-              <string>launch ROI fonctionnality</string>
-             </property>
-             <property name="text">
-              <string>Close</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_12">
-           <item>
-            <widget class="QLabel" name="ROIFileLabel">
-             <property name="text">
-              <string>ROI file:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="ROIFilePathLineEdit"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="ROIFileBrowseToolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_13">
-           <item>
-            <widget class="QPushButton" name="SaveROIPushButton">
-             <property name="toolTip">
-              <string>Record Roi result</string>
-             </property>
-             <property name="text">
-              <string>Save ROI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="LoadROIPushButton">
-             <property name="text">
-              <string>Load ROI</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        </widget>
+        <widget class="QSpinBox" name="KernelBufferSizeSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>120</x>
+           <y>190</y>
+           <width>61</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>buffer used to apply convolution &amp; flowgraphy</string>
+         </property>
+         <property name="minimum">
+          <number>3</number>
+         </property>
+         <property name="maximum">
+          <number>2048</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="KernelBufferSizeLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>190</y>
+           <width>101</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Kernel buffer Size</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AverageClosePlotPushButton">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>launch ROI fonctionnality</string>
+         </property>
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AverageSignalPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Signal</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="AverageNoisePushButton">
+         <property name="geometry">
+          <rect>
+           <x>53</x>
+           <y>290</y>
+           <width>41</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Noise</string>
+         </property>
+        </widget>
+        <zorder>ImageRatioPSpinBox</zorder>
+        <zorder>ImageRatioQSpinBox</zorder>
+        <zorder>ImageRatioQLabel</zorder>
+        <zorder>ImageRatioCheckBox</zorder>
+        <zorder>AverageCheckBox</zorder>
+        <zorder>ROIFilePathLineEdit</zorder>
+        <zorder>SaveROIPushButton</zorder>
+        <zorder>LoadROIPushButton</zorder>
+        <zorder>AveragePlotPushButton</zorder>
+        <zorder>ROIFileBrowseToolButton</zorder>
+        <zorder>ROIFileLabel</zorder>
+        <zorder>ConvoCheckBox</zorder>
+        <zorder>ConvoMatrixLabel</zorder>
+        <zorder>ConvoMatrixPathLineEdit</zorder>
+        <zorder>ConvoMatrixBrowseToolButton</zorder>
+        <zorder>ConvoLoadMatrixPushButton</zorder>
+        <zorder>FlowgraphyCheckBox</zorder>
+        <zorder>FlowgraphyLevelSpinBox</zorder>
+        <zorder>FlowgraphyLevelLabel</zorder>
+        <zorder>KernelBufferSizeSpinBox</zorder>
+        <zorder>KernelBufferSizeLabel</zorder>
+        <zorder>AverageClosePlotPushButton</zorder>
+        <zorder>AverageSignalPushButton</zorder>
+        <zorder>AverageNoisePushButton</zorder>
+        <zorder>ImageRatioPLabel</zorder>
        </widget>
       </item>
       <item>
        <widget class="gui::GroupBox" name="RecordGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1645,325 +1628,336 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_10">
-         <property name="spacing">
-          <number>4</number>
+        <widget class="QLabel" name="NumberOfFramesLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>91</width>
+           <height>16</height>
+          </rect>
          </property>
-         <property name="leftMargin">
-          <number>2</number>
+         <property name="text">
+          <string># of frames:</string>
          </property>
-         <property name="topMargin">
-          <number>2</number>
+        </widget>
+        <widget class="QSpinBox" name="NumberOfFramesSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>110</x>
+           <y>30</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
          </property>
-         <property name="rightMargin">
-          <number>2</number>
+         <property name="toolTip">
+          <string># of frames to record</string>
          </property>
-         <property name="bottomMargin">
-          <number>2</number>
+         <property name="minimum">
+          <number>1</number>
          </property>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_23">
-           <item>
-            <widget class="QLabel" name="NumberOfFramesLabel">
-             <property name="text">
-              <string># of frames:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="NumberOfFramesSpinBox">
-             <property name="toolTip">
-              <string># of frames to record</string>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>10000000</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_24">
-           <item>
-            <widget class="QLabel" name="OutputLabel">
-             <property name="text">
-              <string>Output encoding:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
-             <item>
-              <widget class="QCheckBox" name="RecordIntegerOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>16bit integer</string>
-               </property>
-               <property name="checked">
-                <bool>false</bool>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="RecordFloatOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>32bit float</string>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>64bit complex</string>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="title">
-            <string>Image output:</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_20">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLineEdit" name="ImageOutputPathLineEdit"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="ImageOutputBrowseToolButton">
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_21">
-              <item>
-               <widget class="QPushButton" name="ImageOutputRecPushButton">
-                <property name="text">
-                 <string>Rec.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ImageOutputBatchPushButton">
-                <property name="text">
-                 <string>Batch</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ImageOutputStopPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Stop</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="title">
-            <string>ROI output:</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_18">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLineEdit" name="ROIOutputPathLineEdit">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QToolButton" name="ROIOutputToolButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_19">
-              <item>
-               <widget class="QPushButton" name="ROIOutputRecPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Rec.</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ROIOutputBatchPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Batch</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ROIOutputStopPushButton">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>Stop</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="title">
-            <string>Batch input:</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_9">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_22">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLineEdit" name="BatchInputPathLineEdit"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="BatchInputBrowseToolButton">
-                <property name="toolTip">
-                 <string>Allow batch file reading</string>
-                </property>
-                <property name="text">
-                 <string>...</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-        <zorder>ConvoMatrixLabel</zorder>
-        <zorder>groupBox_2</zorder>
-        <zorder>groupBox_3</zorder>
-        <zorder>groupBox_4</zorder>
-        <zorder>horizontalLayoutWidget_17</zorder>
-        <zorder>verticalSpacer_4</zorder>
-        <zorder>horizontalLayoutWidget_18</zorder>
+         <property name="maximum">
+          <number>10000000</number>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ImageOutputPathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>150</y>
+           <width>151</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ImageOutputRecPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>180</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Rec.</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ImageOutputStopPushButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>180</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Stop</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ROIOutputPathLineEdit">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>230</y>
+           <width>151</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ROIOutputRecPushButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>260</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Rec.</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ROIOutputStopPushButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>260</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Stop</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="BatchInputPathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>310</y>
+           <width>151</width>
+           <height>21</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ImageOutputBatchPushButton">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>180</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Batch</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ROIOutputBatchPushButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>260</y>
+           <width>51</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Batch</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="RecordFloatOutputCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>90</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>32bit float</string>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImageOutpuLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>130</y>
+           <width>171</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Image output:</string>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="ImageOutputBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>150</y>
+           <width>20</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="BatchInputBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>310</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Allow batch file reading</string>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="ROIOutputToolButton">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>230</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="BatchInputLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>290</y>
+           <width>171</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Batch input:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ROIOuputLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>210</y>
+           <width>171</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>ROI output:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>64bit complex</string>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QLabel" name="OutputLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>50</y>
+           <width>91</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Output :</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="RecordIntegerOutputCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>111</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>record with 32 bit float output</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>16bit integer</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -1992,315 +1986,488 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6">
+        <widget class="QLineEdit" name="ImportPathLineEdit">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>50</y>
+           <width>151</width>
+           <height>22</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ImportPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>80</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Import</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="ClosePushButton">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>80</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Close</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImportWidthLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>170</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Width:</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImportWidthSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>170</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65536</number>
+         </property>
+         <property name="value">
+          <number>2048</number>
+         </property>
+        </widget>
+        <widget class="gui::GroupBox" name="Record_3">
+         <property name="geometry">
+          <rect>
+           <x>806</x>
+           <y>61</y>
+           <width>194</width>
+           <height>299</height>
+          </rect>
+         </property>
+         <property name="title">
+          <string>Import</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <widget class="QPushButton" name="InputBrowsePushButton_2">
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>30</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>browse</string>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="InputPathLineEdit_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>60</y>
+            <width>171</width>
+            <height>22</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLabel" name="inputFileLabel_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>30</y>
+            <width>91</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Image input:</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="ImportPushButton_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>90</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Import</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="ClosePushButton_2">
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>90</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Close</string>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QLabel" name="ImportHeightLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>200</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Height:</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImportHeightSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>200</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65536</number>
+         </property>
+         <property name="value">
+          <number>2048</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImportFpsSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>230</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2100000000</number>
+         </property>
+         <property name="value">
+          <number>60</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImportFpsLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>230</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>FPS:</string>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="ImportEndiannessComboBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>290</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="currentText">
+          <string>Little Endian</string>
+         </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_16">
-           <item>
-            <widget class="QLabel" name="ImageInputLabel">
-             <property name="text">
-              <string>Image input:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="CineFileCheckBox">
-             <property name="toolTip">
-              <string>allow to read a cine file</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Cine file</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="text">
+           <string>Little Endian</string>
+          </property>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
-           <item>
-            <widget class="QLineEdit" name="ImportPathLineEdit">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string>Select a raw file</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="InputBrowseToolButton">
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="text">
+           <string>Big Endian</string>
+          </property>
+         </item>
+        </widget>
+        <widget class="QLabel" name="ImportEndiannessLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>290</y>
+           <width>81</width>
+           <height>16</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Endianness:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImportDepthLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>260</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Depth (bit):</string>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="ImportDepthComboBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>260</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>bit depth for a pixel</string>
+         </property>
+         <property name="currentText">
+          <string>8</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>8</string>
+          </property>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QPushButton" name="ImportPushButton">
-             <property name="text">
-              <string>Import</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QPushButton" name="TitleDetectPushButton">
-             <property name="text">
-              <string>Title Detect</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QPushButton" name="ClosePushButton">
-             <property name="text">
-              <string>Close</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="text">
+           <string>16</string>
+          </property>
          </item>
          <item>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="PixelSizeLabel">
-             <property name="text">
-              <string>Px size (µm):</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="PixelSizeDoubleSpinBox">
-             <property name="toolTip">
-              <string>step between each modification of z</string>
-             </property>
-             <property name="locale">
-              <locale language="English" country="UnitedStates"/>
-             </property>
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="value">
-              <double>5.420000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="ImportWidthLabel">
-             <property name="text">
-              <string>Width:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="ImportWidthSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>2048</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="ImportHeightLabel">
-             <property name="text">
-              <string>Height:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="ImportHeightSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>2048</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="ImportFpsLabel">
-             <property name="text">
-              <string>FPS:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="ImportFpsSpinBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>60</number>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="ImportDepthLabel">
-             <property name="text">
-              <string>Depth (bit):</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QComboBox" name="ImportDepthComboBox">
-             <property name="toolTip">
-              <string>bit depth for a pixel</string>
-             </property>
-             <property name="currentText">
-              <string>8</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>8</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>16</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>32 (float)</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>64 (complex)</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="ImportEndiannessLabel">
-             <property name="text">
-              <string>Endianness:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QComboBox" name="ImportEndiannessComboBox">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="currentText">
-              <string>Little Endian</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>Little Endian</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Big Endian</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ImportStartLabel">
-             <property name="text">
-              <string>Start:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="ImportStartSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0">
-            <widget class="QLabel" name="ImportEndLabel_2">
-             <property name="text">
-              <string>End:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="1">
-            <widget class="QSpinBox" name="ImportEndSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>2100000000</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="text">
+           <string>32 (float)</string>
+          </property>
          </item>
          <item>
-          <spacer name="verticalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
+          <property name="text">
+           <string>64 (complex)</string>
+          </property>
          </item>
-        </layout>
+        </widget>
+        <widget class="QLabel" name="ImportStartLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>320</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Start:</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImportStartSpinBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>320</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2100000000</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="ImportEndSpinBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>350</y>
+           <width>91</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2100000000</number>
+         </property>
+         <property name="value">
+          <number>2100000000</number>
+         </property>
+        </widget>
+        <widget class="QToolButton" name="InputBrowseToolButton">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>50</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImageInputLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>30</y>
+           <width>81</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Image input:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="ImportEndLabel_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>350</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>End:</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="CineFileCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>100</x>
+           <y>30</y>
+           <width>71</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>allow to read a cine file</string>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Cine file</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="tristate">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="TitleDetectPushButton">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>110</y>
+           <width>81</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Title Detect</string>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PixelSizeDoubleSpinBox">
+         <property name="geometry">
+          <rect>
+           <x>90</x>
+           <y>140</y>
+           <width>91</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>step between each modification of z</string>
+         </property>
+         <property name="decimals">
+          <number>4</number>
+         </property>
+         <property name="maximum">
+          <double>10000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="value">
+          <double>5.420000000000000</double>
+         </property>
+        </widget>
+        <widget class="QLabel" name="PixelSizeLabel">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>140</y>
+           <width>101</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Px size (µm):</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
        <widget class="gui::GroupBox" name="InfoGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -2329,14 +2496,14 @@
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,10">
+        <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,1">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
          <item>
           <widget class="QTextEdit" name="InfoTextEdit">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2359,7 +2526,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QProgressBar" name="RecordProgressBar">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -2399,7 +2566,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1137</width>
+     <width>1185</width>
      <height>18</height>
     </rect>
    </property>
@@ -2957,6 +3124,22 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ImageRatioCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_vibro_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>62</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>470</x>
      <y>0</y>
     </hint>
    </hints>
@@ -4382,22 +4565,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>447</x>
      <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageRatioCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_vibro_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>74</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>289</y>
     </hint>
    </hints>
   </connection>
