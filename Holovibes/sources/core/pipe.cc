@@ -140,10 +140,16 @@ namespace holovibes
 
 			fd.depth = (compute_desc_.img_type == ImgType::Complex) ?
 				sizeof(cuComplex) : sizeof(ushort);
+			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
+			if (compute_desc_.img_type == ImgType::Composite)
+			{
+				fd.depth = 12;
+				buffer_depth = 3 * sizeof(float);
+			}
 			gpu_stft_slice_queue_xz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			gpu_stft_slice_queue_yz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
-			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float))));
+			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * buffer_depth);
+			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * buffer_depth);
 
 			cudaMalloc(&gpu_ushort_cut_xz_, fd.frame_size());
 			cudaMalloc(&gpu_ushort_cut_yz_, fd.frame_size());
@@ -501,7 +507,8 @@ namespace holovibes
 		}
 
 		/* Apply conversion to floating-point respresentation. */
-		if (compute_desc_.img_type.load() == ImgType::Modulus)
+		if (compute_desc_.img_type.load() == ImgType::Modulus
+		 || compute_desc_.img_type.load() == ImgType::Composite)
 		{
 			if (compute_desc_.vision_3d_enabled.load())
 				fn_vect_.push_back(std::bind(
@@ -1007,7 +1014,8 @@ namespace holovibes
 				else
 					assert(!"Impossible case");
 
-				if (compute_desc_.img_type.load() == ImgType::Modulus)
+				if (compute_desc_.img_type.load() == ImgType::Modulus
+				 || compute_desc_.img_type.load() == ImgType::Composite)
 				{
 					complex_to_modulus(gpu_input_frame_ptr_, gpu_float_buffer_, input_fd.frame_res());
 				}

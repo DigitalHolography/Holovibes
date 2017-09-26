@@ -69,7 +69,8 @@ namespace holovibes
 		SquaredModulus, /**< Modulus taken to its square value */
 		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
 		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
-		Complex
+		Complex,
+		Composite /**< Displays different frequency intervals on color chanels*/
 	};
 
 	using	AccessMode =

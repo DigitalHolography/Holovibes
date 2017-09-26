@@ -88,7 +88,11 @@ namespace holovibes
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			texDepth = (Fd.depth == 1.f) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+			if (Fd.depth >= 12)
+				texDepth = GL_UNSIGNED_INT;
 			texType = (Fd.depth == 8.f) ? GL_RG : GL_RED;
+			if (Fd.depth >= 12)
+				texType = GL_RGB;
 			glTexImage2D(GL_TEXTURE_2D, 0, texType, Fd.width, Fd.height, 0, texType, texDepth, nullptr);
 
 			glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
@@ -103,7 +107,7 @@ namespace holovibes
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
 			}
-			else
+			else if (Fd.depth < 8)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_RED);

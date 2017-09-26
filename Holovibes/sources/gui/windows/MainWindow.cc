@@ -961,12 +961,15 @@ namespace holovibes
 
 		void MainWindow::createPipe()
 		{
+
 			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
 			
 			if (compute_desc_.compute_mode.load() != Computation::Direct)
 				compute_desc_.stft_enabled.exchange(true);
 			if (compute_desc_.img_type.load() == ImgType::Complex)
 				depth = 8;
+			else if (compute_desc_.img_type.load() == ImgType::Composite)
+				depth = 12;
 			else if (compute_desc_.compute_mode.load() == Computation::Hologram)
 				depth = 2;
 			/* ---------- */
@@ -1053,6 +1056,17 @@ namespace holovibes
 			notify();
 		}
 
+		namespace
+		{
+			bool need_refresh(const QString& last_type, const QString& new_type)
+			{
+				std::vector<QString> types_needing_refresh({ "Complex output", "Composite image" });
+				for (auto& type : types_needing_refresh)
+					if ((last_type == type) != (new_type == type))
+						return true;
+				return false;
+			}
+		}
 		void MainWindow::set_view_mode(const QString value)
 		{
 			if (!is_direct_mode())
@@ -1060,8 +1074,7 @@ namespace holovibes
 				QComboBox* ptr = findChild<QComboBox*>("ViewModeComboBox");
 
 				compute_desc_.img_type.exchange(static_cast<ImgType>(ptr->currentIndex()));
-				if ((last_img_type_ == "Complex output" && value != "Complex output") ||
-					(last_img_type_ != "Complex output" && value == "Complex output"))
+				if (need_refresh(last_img_type_, value))
 				{
 					refreshViewMode();
 					if (compute_desc_.stft_view_enabled.load())

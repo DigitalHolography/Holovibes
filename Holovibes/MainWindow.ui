@@ -715,6 +715,11 @@
            <string>Complex output</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>Composite image</string>
+          </property>
+         </item>
         </widget>
         <widget class="QCheckBox" name="ContrastCheckBox">
          <property name="geometry">
