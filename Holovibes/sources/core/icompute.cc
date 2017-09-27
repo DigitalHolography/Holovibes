@@ -191,7 +191,9 @@ namespace holovibes
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 			new_fd3.depth = 8.f;
+			/* Useless line. Maybe forgot gpu_ref_queue_ ?
 			new Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
+			*/
 		}
 
 		if (compute_desc_.filter_2d_enabled.load())

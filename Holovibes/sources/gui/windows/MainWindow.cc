@@ -1238,6 +1238,7 @@ namespace holovibes
 
 					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
 					compute_desc_.stft_view_enabled.exchange(true);
+					compute_desc_.average_enabled.exchange(false);
 					set_auto_contrast_cuts();
 					notify();
 				}
@@ -2008,12 +2009,31 @@ namespace holovibes
 
 		void MainWindow::browse_roi_file()
 		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+			/* This function is used for both opening and saving a ROI file.
+			   The default QFileDialog show "Open" or "Save" as accept button,
+			   thus it would be confusing to the user to click on "Save" if he
+			   wants to load a file.
+			   So a custom QFileDialog is used where the accept button is labeled "Select"
+			
+			   The code below is much shorter but show the wrong label:
+			   QString filename = QFileDialog::getSaveFileName(this,
+			      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+				*/
 
-			QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
-			roi_output_line_edit->clear();
-			roi_output_line_edit->insert(filename);
+			QFileDialog dialog(this);
+			dialog.setFileMode(QFileDialog::AnyFile);
+			dialog.setNameFilter(tr("Ini files (*.ini)"));
+			dialog.setDirectory("C:\\");
+			dialog.setWindowTitle("ROI output file");
+
+			dialog.setLabelText(QFileDialog::Accept, "Select");
+			if (dialog.exec()) {
+				QString filename = dialog.selectedFiles()[0];
+
+				QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
+				roi_output_line_edit->clear();
+				roi_output_line_edit->insert(filename);
+			}
 		}
 
 		void MainWindow::browse_roi_output_file()
@@ -2105,19 +2125,14 @@ namespace holovibes
 				pipe_refresh();
 			}
 
-			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
-			nb_frames_ = nb_of_frames_spin_box->value();
-			Queue* q = nullptr;
-				
-			if (compute_desc_.current_window == WindowKind::XYview)
-				q = &holovibes_.get_output_queue();
-			else if (compute_desc_.current_window == WindowKind::XZview)
-				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-			else if (compute_desc_.current_window == WindowKind::YZview)
-				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
-
 			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
 			std::string output_path_tmp = output_line_edit->text().toUtf8();
+			if (output_path_tmp == "")
+				return;
+
+			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
+			nb_frames_ = nb_of_frames_spin_box->value();
+			Queue* q = &holovibes_.get_output_queue();
 			std::string output_path = set_record_filename_properties(q->get_frame_desc(), output_path_tmp);
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 				holovibes_.get_average_queue(),
