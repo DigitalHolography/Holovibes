@@ -310,10 +310,10 @@ namespace holovibes
 
 		void	HOverlay::setColor()
 		{
-			if (Program && kOverlay != Noise)
+			Program->bind();
+			const Color tab = Colors[kOverlay];
+			if (Program && kOverlay == Cross)
 			{
-				Program->bind();
-				const Color tab = Colors[kOverlay];
 				const float color[] = {
 					tab[0], tab[1], tab[2],
 					tab[0], tab[1], tab[2],
@@ -327,14 +327,32 @@ namespace holovibes
 				glBindBuffer(GL_ARRAY_BUFFER, colorIndex);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(color), color);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program->release();
 			}
+			else if (Program && kOverlay != Noise)
+			{
+				const float color[] = {
+					tab[0], tab[1], tab[2],
+					tab[0], tab[1], tab[2],
+					tab[0], tab[1], tab[2],
+					tab[0], tab[1], tab[2],
+					0.f, 0.64f, 0.67f,
+					0.f, 0.64f, 0.67f,
+					0.f, 0.64f, 0.67f,
+					0.f, 0.64f, 0.67f
+				};
+				glBindBuffer(GL_ARRAY_BUFFER, colorIndex);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(color), color);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+			Program->release();
 		}
 
 		/* ------------------------------- */
 
 		void	HOverlay::drawSelections()
 		{
+			if (kOverlay == Cross)
+				return;
 			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex);
 			glEnableVertexAttribArray(2);
@@ -353,6 +371,7 @@ namespace holovibes
 			Program->bind();
 			glEnableVertexAttribArray(2);
 			glEnableVertexAttribArray(3);
+			bool blendWasDisabled = !glIsEnabled(GL_BLEND);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
 
@@ -409,8 +428,10 @@ namespace holovibes
 			}
 			else
 				glDrawArrays(GL_LINES, offset, count);
-
-			glDisable(GL_BLEND);
+			
+			if (blendWasDisabled)
+				glDisable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDisableVertexAttribArray(3);
 			glDisableVertexAttribArray(2);
 			Program->release();
