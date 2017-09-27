@@ -2107,9 +2107,18 @@ namespace holovibes
 
 			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 			nb_frames_ = nb_of_frames_spin_box->value();
-			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
-			std::string output_path = output_line_edit->text().toUtf8();
+			Queue* q = nullptr;
+				
+			if (compute_desc_.current_window == WindowKind::XYview)
+				q = &holovibes_.get_output_queue();
+			else if (compute_desc_.current_window == WindowKind::XZview)
+				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+			else if (compute_desc_.current_window == WindowKind::YZview)
+				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 
+			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
+			std::string output_path_tmp = output_line_edit->text().toUtf8();
+			std::string output_path = set_record_filename_properties(q->get_frame_desc(), output_path_tmp);
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 				holovibes_.get_average_queue(),
 				output_path,
