@@ -111,14 +111,25 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Eric Delanghe <edelangh@student.42.fr>
 * Arnaud GAILLARD <arnaud.gaillard@epita.fr>
 * Geoffrey LEGOURRIEREC <geoffrey.legourrierec@epita.fr>
-* Antoine DillÃ©e <antoined_78@hotmail.fr>
+* Antoine Dillée <antoined_78@hotmail.fr>
 * Romain Cancilliere <romain.cancilliere@gmail.com>
 * Clement Ledant <clement.ledant@gmail.com>
 * Cyril CETRE <cyril.cetre@epita.fr>
 * Thomas JARROSSAY <tjarross@student.42.fr>
 * Alexandre BARTZ <abartz@student.42.fr>
+* Eloi Charpentier <eloi.charpentier@epita.fr>
+* Julien Gautier <julien.gautier@epita.fr>
+* Florian Lapeyre <florian.lapeyre@epita.fr>
 
 ## Changelog ##
+
+### v.5.1.1
+
+### v.5.1.0
+
+* fix 2D filter selection
+* Add black bar in fullscreen mode
+* 
 
 ### v.5.0.0
 
@@ -215,7 +226,7 @@ Alexandre B., Thomas J. are now working on the project until July 2017.
 
 ## September 2016 -- January 2017 ##
 
-Cyril, ClÃ©ment are now working on the project until January 2017.
+Cyril, Clément are now working on the project until January 2017.
 
 
 ### v.1.5.0
