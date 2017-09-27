@@ -607,7 +607,6 @@ namespace holovibes
 				special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
 				compute_desc_.vibrometry_q.exchange(
 					ptree.get<int>("post_processing.image_ratio_q", compute_desc_.vibrometry_q.load()));
-				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
 				compute_desc_.average_enabled.exchange(is_enabled_average_);
 
 				// Record
@@ -704,7 +703,6 @@ namespace holovibes
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
 			ptree.put<ushort>("post_processing.image_ratio_q", compute_desc_.vibrometry_q.load());
-			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
 
 			// Record
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
@@ -2118,12 +2116,12 @@ namespace holovibes
 
 		void MainWindow::average_record()
 		{
-			if (plot_window_)
+			/*if (plot_window_)
 			{
 				plot_window_->stop_drawing();
 				plot_window_.reset(nullptr);
 				pipe_refresh();
-			}
+			}*/
 
 			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
 			std::string output_path_tmp = output_line_edit->text().toUtf8();
@@ -2398,12 +2396,12 @@ namespace holovibes
 
 		void MainWindow::csv_batch_record()
 		{
-			if (plot_window_)
+			/*if (plot_window_)
 			{
 				plot_window_->stop_drawing();
 				plot_window_.reset(nullptr);
 				pipe_refresh();
-			}
+			}*/
 
 			QLineEdit* output_path = findChild<QLineEdit*>("ROIOutputPathLineEdit");
 
