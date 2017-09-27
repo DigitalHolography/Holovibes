@@ -2008,12 +2008,32 @@ namespace holovibes
 
 		void MainWindow::browse_roi_file()
 		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+			/* This function is used for both opening and saving a ROI file.
+			   The default QFileDialog show "Open" or "Save" as accept button,
+			   thus it would be confusing to the user to click on "Save" if he
+			   wants to load a file.
+			   So a custom QFileDialog is used where the accept button is labeled "Select"
+			
+			   The code below is much shorter but show the wrong label:
+			   QString filename = QFileDialog::getSaveFileName(this,
+			      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+				*/
 
-			QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
-			roi_output_line_edit->clear();
-			roi_output_line_edit->insert(filename);
+			QFileDialog dialog(this);
+			dialog.setFileMode(QFileDialog::AnyFile);
+			dialog.setNameFilter(tr("Ini files (*.ini)"));
+			dialog.setDirectory("C:\\");
+			dialog.setWindowTitle("ROI output file");
+
+			dialog.setLabelText(QFileDialog::Accept, "Select");
+			if (dialog.exec()) {
+				QString filename = dialog.selectedFiles()[0];
+
+				QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
+				roi_output_line_edit->clear();
+				roi_output_line_edit->insert(filename);
+			}
+			
 		}
 
 		void MainWindow::browse_roi_output_file()

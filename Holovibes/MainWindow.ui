@@ -84,6 +84,12 @@
       </property>
       <item>
        <widget class="gui::GroupBox" name="ImageRenderingGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>185</width>
@@ -594,15 +600,21 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-          <horstretch>0</horstretch>
+         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>210</width>
           <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>190</width>
+          <height>0</height>
          </size>
         </property>
         <property name="font">
@@ -625,22 +637,22 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <property name="spacing">
-          <number>5</number>
+          <number>2</number>
          </property>
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="topMargin">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="rightMargin">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>0</number>
+          <number>2</number>
          </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -894,18 +906,52 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QComboBox" name="WindowSelectionComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="currentText">
+            <string>XY view</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>XY view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>XZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>YZ view</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="title">
-            <string>Window specific</string>
+           <property name="autoFillBackground">
+            <bool>true</bool>
            </property>
-           <property name="checkable">
-            <bool>false</bool>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="lineWidth">
+            <number>2</number>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="spacing">
@@ -915,41 +961,19 @@
              <number>5</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="rightMargin">
              <number>5</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <widget class="QComboBox" name="WindowSelectionComboBox">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="currentText">
-                 <string>XY view</string>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>XY view</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>XZ view</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>YZ view</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
+              <property name="spacing">
+               <number>2</number>
+              </property>
               <item>
                <widget class="QPushButton" name="FlipPushButton">
                 <property name="text">
@@ -1045,24 +1069,33 @@
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
                <property name="leftMargin">
-                <number>5</number>
+                <number>2</number>
                </property>
                <property name="topMargin">
                 <number>2</number>
                </property>
                <property name="rightMargin">
-                <number>5</number>
+                <number>2</number>
                </property>
                <property name="bottomMargin">
                 <number>2</number>
                </property>
-               <property name="spacing">
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
                 <number>2</number>
                </property>
                <item row="1" column="1">
                 <widget class="QDoubleSpinBox" name="ContrastMinDoubleSpinBox">
                  <property name="enabled">
                   <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>1</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
                  <property name="minimum">
                   <double>-100.000000000000000</double>
@@ -1081,13 +1114,16 @@
                   <bool>true</bool>
                  </property>
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>1</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="statusTip">
+                  <string>The lower and upper limit of the contrast</string>
+                 </property>
                  <property name="text">
-                  <string>Range:</string>
+                  <string>Rng</string>
                  </property>
                 </widget>
                </item>
@@ -1095,6 +1131,12 @@
                 <widget class="QDoubleSpinBox" name="ContrastMaxDoubleSpinBox">
                  <property name="enabled">
                   <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>1</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
                  <property name="minimum">
                   <double>-100.000000000000000</double>
@@ -1109,8 +1151,17 @@
                </item>
                <item row="0" column="0" colspan="3">
                 <widget class="QPushButton" name="AutoContrastPushButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="text">
                   <string>Auto</string>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -1196,7 +1247,7 @@
        <widget class="gui::GroupBox" name="PostProcessingGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
@@ -1560,6 +1611,9 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QLabel" name="ROIFileLabel">
              <property name="text">
@@ -1568,7 +1622,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="ROIFilePathLineEdit"/>
+            <widget class="QLineEdit" name="ROIFilePathLineEdit">
+             <property name="placeholderText">
+              <string>Select a ROI file</string>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QToolButton" name="ROIFileBrowseToolButton">
@@ -1623,13 +1681,19 @@
        <widget class="gui::GroupBox" name="RecordGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
           <width>180</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>185</width>
           <height>0</height>
          </size>
         </property>
@@ -1691,6 +1755,9 @@
             <widget class="QLabel" name="OutputLabel">
              <property name="text">
               <string>Output encoding:</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -1766,7 +1833,13 @@
             <string>Image output:</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
             <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
              <number>2</number>
             </property>
             <property name="bottomMargin">
@@ -1957,20 +2030,17 @@
           </spacer>
          </item>
         </layout>
-        <zorder>ConvoMatrixLabel</zorder>
         <zorder>groupBox_2</zorder>
         <zorder>groupBox_3</zorder>
         <zorder>groupBox_4</zorder>
-        <zorder>horizontalLayoutWidget_17</zorder>
         <zorder>verticalSpacer_4</zorder>
-        <zorder>horizontalLayoutWidget_18</zorder>
        </widget>
       </item>
       <item>
        <widget class="gui::GroupBox" name="ImportGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
@@ -1993,6 +2063,21 @@
          <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_16">
            <item>
@@ -2076,21 +2161,48 @@
           </layout>
          </item>
          <item>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="PixelSizeLabel">
-             <property name="text">
-              <string>Px size (µm):</string>
+          <layout class="QGridLayout" name="gridLayout_6">
+           <property name="horizontalSpacing">
+            <number>9</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>4</number>
+           </property>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="ImportWidthSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>2048</number>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
             <widget class="QDoubleSpinBox" name="PixelSizeDoubleSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
-              <string>step between each modification of z</string>
+              <string>pixel size of the camera</string>
              </property>
              <property name="locale">
               <locale language="English" country="UnitedStates"/>
+             </property>
+             <property name="suffix">
+              <string> µm</string>
              </property>
              <property name="decimals">
               <number>4</number>
@@ -2106,83 +2218,22 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="ImportWidthLabel">
-             <property name="text">
-              <string>Width:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="ImportWidthSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>2048</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="ImportHeightLabel">
-             <property name="text">
-              <string>Height:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="ImportHeightSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>2048</number>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="ImportFpsLabel">
-             <property name="text">
-              <string>FPS:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QSpinBox" name="ImportFpsSpinBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>60</number>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="ImportDepthLabel">
-             <property name="text">
-              <string>Depth (bit):</string>
-             </property>
-            </widget>
-           </item>
            <item row="4" column="1">
             <widget class="QComboBox" name="ImportDepthComboBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="toolTip">
               <string>bit depth for a pixel</string>
              </property>
              <property name="currentText">
               <string>8</string>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
              </property>
              <item>
               <property name="text">
@@ -2206,10 +2257,148 @@
              </item>
             </widget>
            </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="ImportDepthLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>83</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Depth (bit)</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="PixelSizeLabel">
+             <property name="text">
+              <string>Pixel size</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="ImportHeightSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+             <property name="value">
+              <number>2048</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="ImportFpsLabel">
+             <property name="text">
+              <string>FPS</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="ImportWidthLabel">
+             <property name="text">
+              <string>Width</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="ImportStartSpinBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>2100000000</number>
+             </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="ImportStartLabel">
+             <property name="text">
+              <string>Start</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QSpinBox" name="ImportFpsSpinBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>2100000000</number>
+             </property>
+             <property name="value">
+              <number>60</number>
+             </property>
+            </widget>
+           </item>
            <item row="5" column="0">
             <widget class="QLabel" name="ImportEndiannessLabel">
              <property name="text">
-              <string>Endianness:</string>
+              <string>Endianness</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="ImportHeightLabel">
+             <property name="text">
+              <string>Height</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -2217,6 +2406,12 @@
             <widget class="QComboBox" name="ImportEndiannessComboBox">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="currentText">
               <string>Little Endian</string>
@@ -2233,33 +2428,13 @@
              </item>
             </widget>
            </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="ImportStartLabel">
-             <property name="text">
-              <string>Start:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <widget class="QSpinBox" name="ImportStartSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2100000000</number>
-             </property>
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
            <item row="7" column="0">
             <widget class="QLabel" name="ImportEndLabel_2">
              <property name="text">
-              <string>End:</string>
+              <string>End</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -2267,6 +2442,12 @@
             <widget class="QSpinBox" name="ImportEndSpinBox">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -2300,8 +2481,8 @@
       <item>
        <widget class="gui::GroupBox" name="InfoGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>2</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
@@ -2341,11 +2522,17 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="frameShadow">
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
            <property name="readOnly">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="html">
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2400,7 +2587,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1137</width>
-     <height>18</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
