@@ -308,6 +308,14 @@ namespace holovibes
 				findChild<QSpinBox *>("YMaxAccuSpinBox")->setMinimum(compute_desc_.y_accu_min_level.load());
 				findChild<QSpinBox *>("YMinAccuSpinBox")->setValue(compute_desc_.y_accu_min_level.load());
 				findChild<QSpinBox *>("YMaxAccuSpinBox")->setValue(compute_desc_.y_accu_max_level.load());
+
+				findChild<QCheckBox *>("XAccuCheckBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+				findChild<QSpinBox *>("XMinAccuSpinBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+				findChild<QSpinBox *>("XMaxAccuSpinBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+				findChild<QCheckBox *>("YAccuCheckBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+				findChild<QSpinBox *>("YMinAccuSpinBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+				findChild<QSpinBox *>("YMaxAccuSpinBox")->setEnabled(!is_direct && compute_desc_.stft_view_enabled.load());
+
 			}
 
 			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(compute_desc_.stft_enabled.load());

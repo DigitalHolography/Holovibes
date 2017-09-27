@@ -429,7 +429,7 @@ namespace holovibes
 			if (compute_desc_.p_accu_enabled.load())
 			{
 				if (compute_desc_.p_accu_min_level <= compute_desc_.p_accu_max_level
-					&& compute_desc_.p_accu_max_level <= compute_desc_.nsamples)
+					&& compute_desc_.p_accu_max_level < compute_desc_.nsamples)
 					fn_vect_.push_back(std::bind(stft_moment,
 						gpu_stft_buffer_,
 						gpu_input_frame_ptr_,
