@@ -55,7 +55,10 @@ namespace holovibes
 			err++;
 		if (cudaMalloc(&gpu_output_buffer_, fd.depth * input_.get_pixels()) != cudaSuccess)
 			err++;
-		if (cudaMalloc<float>(&gpu_float_buffer_, sizeof(float) * input_.get_pixels()) != cudaSuccess)
+		uint float_buffer_size = sizeof(float) * input_.get_pixels();
+		if (compute_desc_.img_type == ImgType::Composite)
+			float_buffer_size *= 3;
+		if (cudaMalloc<float>(&gpu_float_buffer_, float_buffer_size) != cudaSuccess)
 			err++;
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -141,11 +144,6 @@ namespace holovibes
 			fd.depth = (compute_desc_.img_type == ImgType::Complex) ?
 				sizeof(cuComplex) : sizeof(ushort);
 			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
-			if (compute_desc_.img_type == ImgType::Composite)
-			{
-				fd.depth = 12;
-				buffer_depth = 3 * sizeof(float);
-			}
 			gpu_stft_slice_queue_xz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			gpu_stft_slice_queue_yz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
 			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * buffer_depth);
@@ -422,26 +420,17 @@ namespace holovibes
 		// STFT Checkbox
 		if (compute_desc_.stft_enabled.load())
 		{
-			/*fn_vect_.push_back(std::bind(
+			fn_vect_.push_back(std::bind(
 				&ICompute::queue_enqueue,
 				this,
 				gpu_input_frame_ptr_,
-				gpu_stft_queue_));*/
+				gpu_stft_queue_));
 			fn_vect_.push_back(std::bind(
 				&ICompute::stft_handler,
 				this,
 				gpu_input_buffer_,
 				static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
-			if (compute_desc_.img_type == ImgType::Composite)
-			{
-				ushort p[] = { 40, 50, 60 };
-				fn_vect_.push_back(std::bind(composite,
-					gpu_stft_buffer_,
-					gpu_input_frame_ptr_,
-					input_fd.frame_size() / sizeof(float),
-					p));
-			}
-			else if (compute_desc_.p_accu_enabled.load())
+			if (compute_desc_.p_accu_enabled.load())
 			{
 				if (compute_desc_.p_accu_min_level <= compute_desc_.p_accu_max_level
 					&& compute_desc_.p_accu_max_level <= compute_desc_.nsamples)
@@ -516,8 +505,15 @@ namespace holovibes
 		}
 
 		/* Apply conversion to floating-point respresentation. */
-		if (compute_desc_.img_type.load() == ImgType::Modulus
-		 || compute_desc_.img_type.load() == ImgType::Composite)
+		if (compute_desc_.img_type == ImgType::Composite)
+		{
+			fn_vect_.push_back(std::bind(composite,
+				gpu_stft_buffer_,
+				gpu_float_buffer_,
+				input_fd.frame_res(),
+				40, 50, 60));
+		}
+		else if (compute_desc_.img_type.load() == ImgType::Modulus)
 		{
 			if (compute_desc_.vision_3d_enabled.load())
 				fn_vect_.push_back(std::bind(
@@ -760,7 +756,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					apply_log10,
 					gpu_float_buffer_,
-					input_fd.frame_size() / sizeof(float),
+					input_fd.frame_res(),
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
@@ -797,7 +793,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						gpu_float_buffer_,
-						output_fd.frame_size() / sizeof(float),
+						output_fd.frame_res(),
 						0,
 						std::ref(compute_desc_),
 						std::ref(compute_desc_.contrast_min_slice_xy),
@@ -846,7 +842,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
 					gpu_float_buffer_,
-					output_fd.frame_size() / sizeof(float),
+					output_fd.frame_res(),
 					65535,
 					compute_desc_.contrast_min_slice_xy.load(),
 					compute_desc_.contrast_max_slice_xy.load(),
@@ -891,7 +887,7 @@ namespace holovibes
 				float_to_ushort,
 				gpu_float_buffer_,
 				gpu_output_buffer_,
-				input_fd.frame_res(),
+				compute_desc_.img_type == ImgType::Composite ? input_fd.frame_res() * 3 : input_fd.frame_res(),
 				output_fd.depth,
 				static_cast<cudaStream_t>(0)));
 

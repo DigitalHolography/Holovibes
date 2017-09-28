@@ -964,6 +964,8 @@ namespace holovibes
 
 			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
 			
+			if (compute_desc_.compute_mode.load() == Computation::Hologram)
+				depth = 2;
 			if (compute_desc_.compute_mode.load() != Computation::Direct)
 			{
 				compute_desc_.stft_enabled.exchange(true);
@@ -972,8 +974,6 @@ namespace holovibes
 				else if (compute_desc_.img_type.load() == ImgType::Composite)
 					depth = 12;
 			}
-			if (compute_desc_.compute_mode.load() == Computation::Hologram)
-				depth = 2;
 			/* ---------- */
 			try
 			{

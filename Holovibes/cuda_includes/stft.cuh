@@ -61,12 +61,6 @@ void stft_moment(cuComplex		*input,
 				ushort			pmin,
 				const ushort	pmax,
 				const uint		nsamples);
-/// Computes 3 different p slices and put them in each color
-void composite(cuComplex	*input,
-			cuComplex		*output,
-			const uint		frame_res,
-			ushort			*p_array);
-
 void stft_block_to_float(const cufftComplex	*input,
 						float				*output,
 						const uint			size);

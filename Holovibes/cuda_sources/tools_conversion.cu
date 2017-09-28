@@ -312,6 +312,39 @@ void endianness_conversion(const ushort	*input,
 	kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
 }
 
+__global__
+static void kernel_composite(cuComplex	*input,
+							float			*output,
+							const uint		frame_res,
+							ushort			p0,
+							ushort			p1,
+							ushort			p2)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	ushort p_array[] = { p0, p1, p2 };
+	if (id < frame_res)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			ushort p = p_array[i];
+			cuComplex *current_pframe = input + (frame_res * p);
+			output[id * 3 + i] = hypotf(current_pframe[id].x, current_pframe[id].y);
+		}
+	}
+}
+void composite(cuComplex	*input,
+			float			*output,
+			const uint		frame_res,
+			ushort			p0,
+			ushort			p1,
+			ushort			p2)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, p0, p1, p2);
+}
+
 /*! \brief Kernel function wrapped in float_to_ushort, making
  ** the call easier
  **/

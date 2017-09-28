@@ -176,6 +176,15 @@ void	buffer_size_conversion(char					*real_buffer,
 							const FrameDescriptor	real_fd,
 							const FrameDescriptor	fd);
 
+/// Computes 3 different p slices and put them in each color
+void composite(cuComplex	*input,
+			float			*output,
+			const uint		frame_res,
+			ushort			p0,
+			ushort			p1,
+			ushort			p2);
+
+
 /*! \brief Cuda Kernel for buffer_size_conversion*/
 __global__
 void	kernel_buffer_size_conversion(char			*real_buffer,
