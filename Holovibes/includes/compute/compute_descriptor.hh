@@ -18,6 +18,7 @@
 # include <atomic>
 # include <mutex>
 # include <tuple>
+# include <qmap.h>
 
 # include "observable.hh"
 # include "Rectangle.hh"
@@ -88,6 +89,18 @@ namespace holovibes
 		XZview,
 		YZview
 	};
+
+	/*! \brief	Type of encoding for the recorded output */
+	enum OutputType
+	{
+		Integer_16b,
+		Complex_64b
+	};
+	const static QMap<QString, OutputType> outputTypeMap({
+		{"16bits integer", OutputType::Integer_16b},
+		{"64bits complex", OutputType::Complex_64b}
+	});
+
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.

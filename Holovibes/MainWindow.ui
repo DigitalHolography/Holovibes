@@ -1690,68 +1690,17 @@
             </widget>
            </item>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
-             <item>
-              <widget class="QCheckBox" name="RecordIntegerOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>16bit integer</string>
-               </property>
-               <property name="checked">
-                <bool>false</bool>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="RecordFloatOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>32bit float</string>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="RecordComplexOutputCheckBox">
-               <property name="toolTip">
-                <string>record with 32 bit float output</string>
-               </property>
-               <property name="layoutDirection">
-                <enum>Qt::LeftToRight</enum>
-               </property>
-               <property name="autoFillBackground">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>64bit complex</string>
-               </property>
-               <property name="tristate">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="QComboBox" name="RecordOutputTypeComboBox">
+             <property name="currentText">
+              <string/>
+             </property>
+             <property name="currentIndex">
+              <number>-1</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContents</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -3919,38 +3868,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>RecordComplexOutputCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_complex_visible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>767</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>888</x>
-     <y>112</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>RecordFloatOutputCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_float_visible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>767</x>
-     <y>136</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImgAccuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -4235,22 +4152,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>223</x>
      <y>229</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>RecordIntegerOutputCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_integer_visible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>730</x>
-     <y>113</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>886</x>
-     <y>139</y>
     </hint>
    </hints>
   </connection>

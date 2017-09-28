@@ -141,6 +141,9 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox"));
+
+			// Populate OutputTypeComboBox
+			findChild<QComboBox *>("RecordOutputTypeComboBox")->addItems(QStringList(outputTypeMap.keys()));
 		}
 
 		MainWindow::~MainWindow()
@@ -183,10 +186,6 @@ namespace holovibes
 			{
 				findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(false);
 			}
 			else if (compute_desc_.compute_mode.load() == Computation::Hologram && is_enabled_camera_)
 			{
@@ -194,11 +193,7 @@ namespace holovibes
 				findChild<GroupBox *>("ViewGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(true);
 			}
-			findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setEnabled(!is_direct);
-			findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setEnabled(!is_direct);
 
 			findChild<QLineEdit *>("ROIOutputPathLineEdit")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
@@ -2259,8 +2254,8 @@ namespace holovibes
 		{
 			QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 			QLineEdit* path_line_edit = findChild<QLineEdit*>("ImageOutputPathLineEdit");
-			QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
+			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
@@ -2270,16 +2265,17 @@ namespace holovibes
 			Queue* queue = nullptr;
 			try
 			{
-				if (float_output_checkbox->isChecked() && !is_direct_mode())
+				switch (output_type)
 				{
-					std::shared_ptr<ICompute> pipe = holovibes_.get_pipe();
-					FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
-
-					frame_desc.depth = sizeof(float);
-					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
-					pipe->request_float_output(queue);
-				}
-				else if (complex_output_checkbox->isChecked() && !is_direct_mode())
+				case holovibes::Integer_16b:
+					if (compute_desc_.current_window == WindowKind::XYview)
+						queue = &holovibes_.get_output_queue();
+					else if (compute_desc_.current_window == WindowKind::XZview)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+					else if (compute_desc_.current_window == WindowKind::YZview)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+					break;
+				case holovibes::Complex_64b:
 				{
 					std::shared_ptr<ICompute> pipe = holovibes_.get_pipe();
 					FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
@@ -2287,15 +2283,10 @@ namespace holovibes
 					frame_desc.depth = sizeof(cufftComplex);
 					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 					pipe->request_complex_output(queue);
+					break;
 				}
-				else
-				{
-					if (compute_desc_.current_window == WindowKind::XYview)
-						queue = &holovibes_.get_output_queue();
-					else if (compute_desc_.current_window == WindowKind::XZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-					else if (compute_desc_.current_window == WindowKind::YZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+				default:
+					break;
 				}
 				if (queue)
 				{
@@ -2323,18 +2314,26 @@ namespace holovibes
 
 		void MainWindow::finished_image_record()
 		{
-			QCheckBox* float_output_checkbox = findChild<QCheckBox *>("RecordFloatOutputCheckBox");
-			QCheckBox* complex_output_checkbox = findChild<QCheckBox *>("RecordComplexOutputCheckBox");
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
+			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 			record_thread_.reset(nullptr);
 
 			progress_bar->setMaximum(1);
 			progress_bar->setValue(1);
-			if (float_output_checkbox->isChecked() && !is_direct_mode())
-				holovibes_.get_pipe()->request_float_output_stop();
-			if (complex_output_checkbox->isChecked() && !is_direct_mode())
-				holovibes_.get_pipe()->request_complex_output_stop();
+			if (!is_direct_mode()) {
+				switch (output_type)
+				{
+				case holovibes::Integer_16b:
+					break;
+				case holovibes::Complex_64b:
+					holovibes_.get_pipe()->request_complex_output_stop();
+					break;
+				default:
+					break;
+				}
+			}
 			display_info("Record done");
 		}
 		#pragma endregion
@@ -2349,38 +2348,6 @@ namespace holovibes
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			batch_input_line_edit->clear();
 			batch_input_line_edit->insert(filename);
-		}
-
-		void MainWindow::set_float_visible(bool value)
-		{
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
-			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
-			if (integer_checkbox->isChecked() && value == true)
-				integer_checkbox->setChecked(false);
-		}
-		
-		void MainWindow::set_complex_visible(bool value)
-		{
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
-			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
-			if (integer_checkbox->isChecked() && value == true)
-				integer_checkbox->setChecked(false);
-		}
-
-		void MainWindow::set_integer_visible(bool value)
-		{
-			if (is_direct_mode())
-				findChild<QCheckBox*>("RecordIntegerOutputCheckBox")->setChecked(true);
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
 		}
 
 		void MainWindow::image_batch_record()
