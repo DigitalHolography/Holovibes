@@ -55,10 +55,10 @@ namespace holovibes
 			err++;
 		if (cudaMalloc(&gpu_output_buffer_, fd.depth * input_.get_pixels()) != cudaSuccess)
 			err++;
-		uint float_buffer_size = sizeof(float) * input_.get_pixels();
+		gpu_float_buffer_size_ = sizeof(float) * input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
-			float_buffer_size *= 3;
-		if (cudaMalloc<float>(&gpu_float_buffer_, float_buffer_size) != cudaSuccess)
+			gpu_float_buffer_size_ *= 3;
+		if (cudaMalloc<float>(&gpu_float_buffer_, gpu_float_buffer_size_) != cudaSuccess)
 			err++;
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
@@ -842,7 +842,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					manual_contrast_correction,
 					gpu_float_buffer_,
-					output_fd.frame_res(),
+					gpu_float_buffer_size_ / sizeof(float),
 					65535,
 					compute_desc_.contrast_min_slice_xy.load(),
 					compute_desc_.contrast_max_slice_xy.load(),
