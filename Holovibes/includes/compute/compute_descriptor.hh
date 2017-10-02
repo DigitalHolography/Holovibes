@@ -279,6 +279,23 @@ namespace holovibes
 		//! y index of second selected line
 		std::atomic<ushort>			y_accu_max_level;
 
+		//! Composite images
+		//! \{
+		struct Component
+		{
+			//! p interval for the component
+			//! \{
+			std::atomic<ushort>		p_min;
+			std::atomic<ushort>		p_max;
+			//! \}
+			//! Weight associated to the component
+			std::atomic<float>		weight = 1;
+		};
+		struct Component component_r;
+		struct Component component_g;
+		struct Component component_b;
+		//! \}
+
 		#pragma endregion
 	};
 }

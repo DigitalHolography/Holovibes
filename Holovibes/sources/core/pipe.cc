@@ -205,6 +205,28 @@ namespace holovibes
 			static_cast<cudaStream_t>(0)));
 		refresh_requested_.exchange(false);
 	}
+	
+	namespace
+	{
+		void composite_caller(cufftComplex *input,
+				float *output,
+				uint frame_res,
+				ComputeDescriptor* cd)
+		{
+			composite(input,
+				output,
+				frame_res,
+				cd->component_r.p_min,
+				cd->component_r.p_max,
+				cd->component_r.weight,
+				cd->component_g.p_min,
+				cd->component_g.p_max,
+				cd->component_g.weight,
+				cd->component_b.p_min,
+				cd->component_b.p_max,
+				cd->component_b.weight);
+		}
+	}
 
 	void Pipe::refresh()
 	{
@@ -511,11 +533,11 @@ namespace holovibes
 		/* Apply conversion to floating-point respresentation. */
 		if (compute_desc_.img_type == ImgType::Composite)
 		{
-			fn_vect_.push_back(std::bind(composite,
+			fn_vect_.push_back(std::bind(composite_caller,
 				gpu_stft_buffer_,
 				gpu_float_buffer_,
 				input_fd.frame_res(),
-				40, 50, 60));
+				&compute_desc_));
 		}
 		else if (compute_desc_.img_type.load() == ImgType::Modulus)
 		{

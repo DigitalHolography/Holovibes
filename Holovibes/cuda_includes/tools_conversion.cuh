@@ -178,11 +178,17 @@ void	buffer_size_conversion(char					*real_buffer,
 
 /// Computes 3 different p slices and put them in each color
 void composite(cuComplex	*input,
-			float			*output,
-			const uint		frame_res,
-			ushort			p0,
-			ushort			p1,
-			ushort			p2);
+	float			*output,
+	const uint		frame_res,
+	ushort			pmin_r,
+	ushort			pmax_r,
+	float			weight_r,
+	ushort			pmin_g,
+	ushort			pmax_g,
+	float			weight_g,
+	ushort			pmin_b,
+	ushort			pmax_b,
+	float			weight_b);
 
 
 /*! \brief Cuda Kernel for buffer_size_conversion*/
