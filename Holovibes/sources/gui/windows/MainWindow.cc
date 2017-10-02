@@ -575,7 +575,8 @@ namespace holovibes
 				compute_desc_.img_type.exchange(static_cast<ImgType>(
 					ptree.get<int>("view.view_mode", compute_desc_.img_type.load())));
 				last_img_type_ = (compute_desc_.img_type == ImgType::Complex) ?
-					"Complex output" : last_img_type_;
+					"Complex output" : (compute_desc_.img_type == ImgType::Composite) ?
+						"Composite image" : last_img_type_;
 
 				compute_desc_.log_scale_slice_xy_enabled.exchange(ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled.load()));
 				compute_desc_.log_scale_slice_xz_enabled.exchange(ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled.load()));
@@ -972,7 +973,7 @@ namespace holovibes
 				if (compute_desc_.img_type.load() == ImgType::Complex)
 					depth = 8;
 				else if (compute_desc_.img_type.load() == ImgType::Composite)
-					depth = 12;
+					depth = 6;
 			}
 			/* ---------- */
 			try
