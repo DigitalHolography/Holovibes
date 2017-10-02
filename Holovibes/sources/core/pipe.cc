@@ -245,7 +245,11 @@ namespace holovibes
 		if (update_acc_requested_.load())
 		{
 			update_acc_requested_.exchange(false);
-			update_acc_parameter(gpu_img_acc_xy_, compute_desc_.img_acc_slice_xy_enabled, compute_desc_.img_acc_slice_xy_level, input_.get_frame_desc());
+			update_acc_parameter(gpu_img_acc_xy_,
+					compute_desc_.img_acc_slice_xy_enabled,
+					compute_desc_.img_acc_slice_xy_level,
+					input_.get_frame_desc(),
+					compute_desc_.img_type == ImgType::Composite ? 12.f : 4.f);
 			FrameDescriptor new_fd_xz = input_.get_frame_desc();
 			FrameDescriptor new_fd_yz = input_.get_frame_desc();
 			new_fd_xz.height = compute_desc_.nsamples;
@@ -690,8 +694,8 @@ namespace holovibes
 		if (compute_desc_.img_acc_slice_xy_enabled.load())
 			enqueue_buffer(gpu_img_acc_xy_,
 				gpu_float_buffer_,
-				compute_desc_.img_acc_slice_xy_level.load(), 
-				input_fd.frame_res());
+				compute_desc_.img_acc_slice_xy_level.load(),
+				gpu_float_buffer_size_ / sizeof(float));
 		if (compute_desc_.img_acc_slice_yz_enabled.load())
 			enqueue_buffer(gpu_img_acc_yz_,
 				static_cast<float*>(gpu_float_cut_yz_),
@@ -756,7 +760,7 @@ namespace holovibes
 				fn_vect_.push_back(std::bind(
 					apply_log10,
 					gpu_float_buffer_,
-					input_fd.frame_res(),
+					gpu_float_buffer_size_ / sizeof(float),
 					static_cast<cudaStream_t>(0)));
 			if (compute_desc_.stft_view_enabled.load())
 			{
@@ -887,7 +891,7 @@ namespace holovibes
 				float_to_ushort,
 				gpu_float_buffer_,
 				gpu_output_buffer_,
-				compute_desc_.img_type == ImgType::Composite ? input_fd.frame_res() * 3 : input_fd.frame_res(),
+				gpu_float_buffer_size_ / sizeof(float),
 				output_fd.depth,
 				static_cast<cudaStream_t>(0)));
 

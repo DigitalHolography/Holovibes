@@ -154,6 +154,8 @@ namespace holovibes
 		new_fd.depth = 4.f;
 		if (compute_desc_.img_acc_slice_xy_enabled.load())
 		{
+			if (compute_desc_.img_type == ImgType::Composite)
+				new_fd.depth = 12.f;
 			gpu_img_acc_xy_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueueXY");
 			if (!gpu_img_acc_xy_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
@@ -501,7 +503,8 @@ namespace holovibes
 		Queue*& queue,
 		std::atomic<bool>& enabled,
 		std::atomic<uint>& queue_length, 
-		FrameDescriptor new_fd)
+		FrameDescriptor new_fd,
+		float depth)
 	{
 		if (enabled && queue && queue->get_max_elts() == queue_length)
 			return;
@@ -509,7 +512,7 @@ namespace holovibes
 		queue = nullptr;
 		if (enabled)
 		{
-			new_fd.depth = 4;
+			new_fd.depth = depth;
 			try
 			{
 				queue = new Queue(new_fd, queue_length, "Accumulation");

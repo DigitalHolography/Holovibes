@@ -114,7 +114,8 @@ namespace holovibes
 			Queue*& gpu_img_acc,
 			std::atomic<bool>& enabled,
 			std::atomic<uint>& queue_length,
-			camera::FrameDescriptor new_fd);
+			camera::FrameDescriptor new_fd,
+			float depth = 4.f);
 		void update_ref_diff_parameter();
 
 		/*! \brief Return true while ICompute is recording float. */
