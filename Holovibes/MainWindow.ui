@@ -1758,7 +1758,7 @@
               <item>
                <widget class="QPushButton" name="ImageOutputStopPushButton">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Stop</string>
@@ -1837,7 +1837,7 @@
               <item>
                <widget class="QPushButton" name="ROIOutputStopPushButton">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Stop</string>

@@ -2120,10 +2120,17 @@ namespace holovibes
 				pipe_refresh();
 			}
 
-			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
-			nb_frames_ = nb_of_frames_spin_box->value();
 			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
+			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
+
+			nb_frames_ = nb_of_frames_spin_box->value();
 			std::string output_path = output_line_edit->text().toUtf8();
+			if (output_path == "")
+			{
+				roi_stop_push_button->setDisabled(true);
+				return display_error("No output file");
+			}
 
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 				holovibes_.get_average_queue(),
@@ -2133,7 +2140,6 @@ namespace holovibes
 			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
 			CSV_record_thread_->start();
 
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
 			roi_stop_push_button->setDisabled(false);
 		}
 
@@ -2241,13 +2247,13 @@ namespace holovibes
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (i = filename.length(); i >= 0; --i)
+			for (i = filename.length(); i-- != 0;)
 				if (filename[i] == '.')
 					break;
-
+			i++;
 			if (i != 0)
 				filename.insert(i, sub_str, 0, sub_str.length());
-			return (filename);
+			return filename;
 		}
 
 		void MainWindow::set_record()
@@ -2259,8 +2265,12 @@ namespace holovibes
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
+			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
 			if (path == "")
+			{
+				cancel_button->setDisabled(true);
 				return (display_error("No output file"));
+			}
 
 			Queue* queue = nullptr;
 			try
@@ -2300,7 +2310,6 @@ namespace holovibes
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					record_thread_->start();
 
-					QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
 					cancel_button->setDisabled(false);
 				}
 				else
@@ -2317,6 +2326,9 @@ namespace holovibes
 			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
 			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
+
+			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
+			cancel_button->setDisabled(true);
 
 			record_thread_.reset(nullptr);
 
@@ -2377,6 +2389,8 @@ namespace holovibes
 
 		void MainWindow::batch_record(const std::string& path)
 		{
+			if (path == "")
+				return display_error("No output file");
 			file_index_ = 1;
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
@@ -2615,8 +2629,10 @@ namespace holovibes
 
 			std::vector<std::string> path_tokens;
 			split_string(path, '.', path_tokens);
-
-			return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
+			std::string ret = path_tokens[0] + "_" + file_index;
+			if (path_tokens.size() > 1)
+				ret += "." + path_tokens[1];
+			return ret;
 		}
 		#pragma endregion
 		/* ------------ */
