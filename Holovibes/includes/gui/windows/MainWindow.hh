@@ -206,9 +206,6 @@ namespace holovibes
 			void finished_image_record();
 			void finished_average_record();
 			void stop_csv_record();
-			void set_complex_visible(bool value);
-			void set_float_visible(bool value);
-			void set_integer_visible(bool value);
 			void import_browse_file();
 			void import_file();
 			void import_file_stop();

@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 	if (opts.is_gui_enabled)
 	{
 		/* --- GUI mode --- */
+		QLocale::setDefault(QLocale("en_US"));
 		QApplication a(argc, argv);
 		QSplashScreen splash(QPixmap("holovibes_logo.png"));
 

@@ -141,6 +141,9 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox"));
+
+			// Populate OutputTypeComboBox
+			findChild<QComboBox *>("RecordOutputTypeComboBox")->addItems(QStringList(outputTypeMap.keys()));
 		}
 
 		MainWindow::~MainWindow()
@@ -183,10 +186,6 @@ namespace holovibes
 			{
 				findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setChecked(false);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(false);
 			}
 			else if (compute_desc_.compute_mode.load() == Computation::Hologram && is_enabled_camera_)
 			{
@@ -194,11 +193,7 @@ namespace holovibes
 				findChild<GroupBox *>("ViewGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setChecked(true);
-				findChild<QCheckBox *>("RecordIntegerOutputCheckBox")->setEnabled(true);
 			}
-			findChild<QCheckBox *>("RecordFloatOutputCheckBox")->setEnabled(!is_direct);
-			findChild<QCheckBox *>("RecordComplexOutputCheckBox")->setEnabled(!is_direct);
 
 			findChild<QLineEdit *>("ROIOutputPathLineEdit")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
@@ -234,7 +229,7 @@ namespace holovibes
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			findChild<QPushButton *>("CancelFilter2DPushButton")->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
-			findChild<QCheckBox *>("ContrastCheckBox")->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
+			findChild<QGroupBox *>("ContrastCheckBox")->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QCheckBox *>("LogScaleCheckBox")->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
 			findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
@@ -321,7 +316,7 @@ namespace holovibes
 			q_vibro->setValue(compute_desc_.vibrometry_q.load());
 			q_vibro->setMaximum(compute_desc_.nsamples.load() - 1);
 
-			findChild<QCheckBox *>("ImageRatioCheckBox")->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
+			findChild<QGroupBox *>("ImageRatioCheckBox")->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
 			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() == 0 ? false : true);
 			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && compute_desc_.average_enabled.load());
@@ -329,7 +324,7 @@ namespace holovibes
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
-			findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
+			//findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
@@ -2024,12 +2019,32 @@ namespace holovibes
 
 		void MainWindow::browse_roi_file()
 		{
-			QString filename = QFileDialog::getOpenFileName(this,
-				tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+			/* This function is used for both opening and saving a ROI file.
+			   The default QFileDialog show "Open" or "Save" as accept button,
+			   thus it would be confusing to the user to click on "Save" if he
+			   wants to load a file.
+			   So a custom QFileDialog is used where the accept button is labeled "Select"
+			
+			   The code below is much shorter but show the wrong label:
+			   QString filename = QFileDialog::getSaveFileName(this,
+			      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+				*/
 
-			QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
-			roi_output_line_edit->clear();
-			roi_output_line_edit->insert(filename);
+			QFileDialog dialog(this);
+			dialog.setFileMode(QFileDialog::AnyFile);
+			dialog.setNameFilter(tr("Ini files (*.ini)"));
+			dialog.setDirectory("C:\\");
+			dialog.setWindowTitle("ROI output file");
+
+			dialog.setLabelText(QFileDialog::Accept, "Select");
+			if (dialog.exec()) {
+				QString filename = dialog.selectedFiles()[0];
+
+				QLineEdit* roi_output_line_edit = findChild<QLineEdit *>("ROIFilePathLineEdit");
+				roi_output_line_edit->clear();
+				roi_output_line_edit->insert(filename);
+			}
+			
 		}
 
 		void MainWindow::browse_roi_output_file()
@@ -2121,10 +2136,17 @@ namespace holovibes
 				pipe_refresh();
 			}
 
-			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
-			nb_frames_ = nb_of_frames_spin_box->value();
 			QLineEdit* output_line_edit = findChild<QLineEdit*>("ROIOutputPathLineEdit");
+			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
+			QSpinBox* nb_of_frames_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
+
+			nb_frames_ = nb_of_frames_spin_box->value();
 			std::string output_path = output_line_edit->text().toUtf8();
+			if (output_path == "")
+			{
+				roi_stop_push_button->setDisabled(true);
+				return display_error("No output file");
+			}
 
 			CSV_record_thread_.reset(new ThreadCSVRecord(holovibes_,
 				holovibes_.get_average_queue(),
@@ -2134,7 +2156,6 @@ namespace holovibes
 			connect(CSV_record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_average_record()));
 			CSV_record_thread_->start();
 
-			QPushButton* roi_stop_push_button = findChild<QPushButton*>("ROIOutputStopPushButton");
 			roi_stop_push_button->setDisabled(false);
 		}
 
@@ -2242,40 +2263,45 @@ namespace holovibes
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (i = filename.length(); i >= 0; --i)
+			for (i = filename.length(); i-- != 0;)
 				if (filename[i] == '.')
 					break;
-
+			i++;
 			if (i != 0)
 				filename.insert(i, sub_str, 0, sub_str.length());
-			return (filename);
+			return filename;
 		}
 
 		void MainWindow::set_record()
 		{
 			QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 			QLineEdit* path_line_edit = findChild<QLineEdit*>("ImageOutputPathLineEdit");
-			QCheckBox* float_output_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			QCheckBox* complex_output_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
+			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
+			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
+			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
 			if (path == "")
+			{
+				cancel_button->setDisabled(true);
 				return (display_error("No output file"));
+			}
 
 			Queue* queue = nullptr;
 			try
 			{
-				if (float_output_checkbox->isChecked() && !is_direct_mode())
+				switch (output_type)
 				{
-					std::shared_ptr<ICompute> pipe = holovibes_.get_pipe();
-					FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
-
-					frame_desc.depth = sizeof(float);
-					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "FloatQueue");
-					pipe->request_float_output(queue);
-				}
-				else if (complex_output_checkbox->isChecked() && !is_direct_mode())
+				case holovibes::Integer_16b:
+					if (compute_desc_.current_window == WindowKind::XYview)
+						queue = &holovibes_.get_output_queue();
+					else if (compute_desc_.current_window == WindowKind::XZview)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+					else if (compute_desc_.current_window == WindowKind::YZview)
+						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+					break;
+				case holovibes::Complex_64b:
 				{
 					std::shared_ptr<ICompute> pipe = holovibes_.get_pipe();
 					FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
@@ -2283,15 +2309,10 @@ namespace holovibes
 					frame_desc.depth = sizeof(cufftComplex);
 					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
 					pipe->request_complex_output(queue);
+					break;
 				}
-				else
-				{
-					if (compute_desc_.current_window == WindowKind::XYview)
-						queue = &holovibes_.get_output_queue();
-					else if (compute_desc_.current_window == WindowKind::XZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-					else if (compute_desc_.current_window == WindowKind::YZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+				default:
+					break;
 				}
 				if (queue)
 				{
@@ -2305,7 +2326,6 @@ namespace holovibes
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					record_thread_->start();
 
-					QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
 					cancel_button->setDisabled(false);
 				}
 				else
@@ -2319,18 +2339,29 @@ namespace holovibes
 
 		void MainWindow::finished_image_record()
 		{
-			QCheckBox* float_output_checkbox = findChild<QCheckBox *>("RecordFloatOutputCheckBox");
-			QCheckBox* complex_output_checkbox = findChild<QCheckBox *>("RecordComplexOutputCheckBox");
-			QProgressBar*   progress_bar = InfoManager::get_manager()->get_progress_bar();
+			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
+			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
+
+			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
+			cancel_button->setDisabled(true);
 
 			record_thread_.reset(nullptr);
 
 			progress_bar->setMaximum(1);
 			progress_bar->setValue(1);
-			if (float_output_checkbox->isChecked() && !is_direct_mode())
-				holovibes_.get_pipe()->request_float_output_stop();
-			if (complex_output_checkbox->isChecked() && !is_direct_mode())
-				holovibes_.get_pipe()->request_complex_output_stop();
+			if (!is_direct_mode()) {
+				switch (output_type)
+				{
+				case holovibes::Integer_16b:
+					break;
+				case holovibes::Complex_64b:
+					holovibes_.get_pipe()->request_complex_output_stop();
+					break;
+				default:
+					break;
+				}
+			}
 			display_info("Record done");
 		}
 		#pragma endregion
@@ -2345,38 +2376,6 @@ namespace holovibes
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			batch_input_line_edit->clear();
 			batch_input_line_edit->insert(filename);
-		}
-
-		void MainWindow::set_float_visible(bool value)
-		{
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
-			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
-			if (integer_checkbox->isChecked() && value == true)
-				integer_checkbox->setChecked(false);
-		}
-		
-		void MainWindow::set_complex_visible(bool value)
-		{
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
-			QCheckBox* integer_checkbox = findChild<QCheckBox*>("RecordIntegerOutputCheckBox");
-			if (integer_checkbox->isChecked() && value == true)
-				integer_checkbox->setChecked(false);
-		}
-
-		void MainWindow::set_integer_visible(bool value)
-		{
-			if (is_direct_mode())
-				findChild<QCheckBox*>("RecordIntegerOutputCheckBox")->setChecked(true);
-			QCheckBox* float_checkbox = findChild<QCheckBox*>("RecordFloatOutputCheckBox");
-			if (float_checkbox->isChecked() && value == true)
-				float_checkbox->setChecked(false);
-			QCheckBox* complex_checkbox = findChild<QCheckBox*>("RecordComplexOutputCheckBox");
-			if (complex_checkbox->isChecked() && value == true)
-				complex_checkbox->setChecked(false);
 		}
 
 		void MainWindow::image_batch_record()
@@ -2406,6 +2405,8 @@ namespace holovibes
 
 		void MainWindow::batch_record(const std::string& path)
 		{
+			if (path == "")
+				return display_error("No output file");
 			file_index_ = 1;
 			QLineEdit* batch_input_line_edit = findChild<QLineEdit*>("BatchInputPathLineEdit");
 			QSpinBox * frame_nb_spin_box = findChild<QSpinBox*>("NumberOfFramesSpinBox");
@@ -2644,8 +2645,10 @@ namespace holovibes
 
 			std::vector<std::string> path_tokens;
 			split_string(path, '.', path_tokens);
-
-			return path_tokens[0] + "_" + file_index + "." + path_tokens[1];
+			std::string ret = path_tokens[0] + "_" + file_index;
+			if (path_tokens.size() > 1)
+				ret += "." + path_tokens[1];
+			return ret;
 		}
 		#pragma endregion
 		/* ------------ */

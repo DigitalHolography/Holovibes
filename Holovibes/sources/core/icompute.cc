@@ -193,7 +193,9 @@ namespace holovibes
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 			new_fd3.depth = 8.f;
+			/* Useless line. Maybe forgot gpu_ref_queue_ ?
 			new Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
+			*/
 		}
 
 		if (compute_desc_.filter_2d_enabled.load())
@@ -627,6 +629,7 @@ namespace holovibes
 		stft_update_roi_requested_.exchange(false);
 		request_update_n(compute_desc_.nsamples.load());
 		compute_desc_.log_scale_slice_xy_enabled.exchange(false);
+		compute_desc_.shift_corners_enabled.exchange(true);
 		notify_observers();
 		autocontrast_requested_.exchange(true);
 	}
