@@ -1011,6 +1011,12 @@ namespace holovibes
 			af_env_.z_iter = compute_desc_.autofocus_z_iter.load();
 			af_env_.z = af_env_.z_min;
 			af_env_.focus_metric_values.clear();
+			af_env_.old_nsamples = compute_desc_.nsamples.load();
+			af_env_.old_p = compute_desc_.pindex.load();
+			af_env_.nsamples = 2;
+			af_env_.p = 1;
+			update_n_parameter(af_env_.nsamples);
+			compute_desc_.pindex.exchange(af_env_.p);
 		}
 		catch (std::exception e)
 		{
@@ -1026,6 +1032,8 @@ namespace holovibes
 
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
 	{
+		if (compute_desc_.stft_enabled.load() && gpu_stft_queue_->get_current_elts() < af_env_.nsamples)
+			return;
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 
 		frame_memcpy(input, af_env_.zone, input_fd.width, af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
@@ -1043,7 +1051,7 @@ namespace holovibes
 		else
 		{
 			std::cout << "Nan ";
-			//af_env_.focus_metric_values.push_back(0);
+			af_env_.focus_metric_values.push_back(0);
 		}
 		std::cout << std::endl;
 

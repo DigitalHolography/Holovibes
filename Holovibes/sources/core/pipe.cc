@@ -420,14 +420,11 @@ namespace holovibes
 		// STFT Checkbox
 		if (compute_desc_.stft_enabled.load())
 		{
-			if (af_env_.gpu_input_buffer_tmp == nullptr)
-			{
-				fn_vect_.push_back(std::bind(
-					&ICompute::queue_enqueue,
-					this,
-					gpu_input_frame_ptr_,
-					gpu_stft_queue_));
-			}
+			fn_vect_.push_back(std::bind(
+				&ICompute::queue_enqueue,
+				this,
+				gpu_input_frame_ptr_,
+				gpu_stft_queue_));
 			fn_vect_.push_back(std::bind(
 				&ICompute::stft_handler,
 				this,

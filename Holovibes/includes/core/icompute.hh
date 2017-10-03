@@ -69,6 +69,10 @@ namespace holovibes
 			cufftComplex		*gpu_input_buffer_tmp;
 			size_t				gpu_input_size;
 			unsigned int		af_square_size;
+			unsigned int		nsamples;
+			unsigned int		p;
+			unsigned int		old_nsamples;
+			unsigned int		old_p;
 		};
 
 		enum ref_state
