@@ -984,7 +984,7 @@ namespace holovibes
 			make_contiguous_complex(
 				input_,
 				af_env_.gpu_input_buffer_tmp,
-				compute_desc_.nsamples.load());
+				input_length_);
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 			/* Compute square af zone. */
@@ -1036,14 +1036,24 @@ namespace holovibes
 			compute_desc_.autofocus_size.load());
 
 		if (!std::isnan(focus_metric_value))
+		{
 			af_env_.focus_metric_values.push_back(focus_metric_value);
+			std::cout << "z = " << af_env_.z;
+		}
 		else
-			af_env_.focus_metric_values.push_back(0);
+		{
+			std::cout << "Nan ";
+			//af_env_.focus_metric_values.push_back(0);
+		}
+		std::cout << std::endl;
 
 		af_env_.z += af_env_.z_step;
 
 		if (autofocus_stop_requested_.load() || af_env_.z > af_env_.z_max)
 		{
+			for (auto f : af_env_.focus_metric_values)
+				std::cout << f << " ";
+			std::cout << std::endl;
 			// Find max z
 			auto biggest = std::max_element(af_env_.focus_metric_values.begin(), af_env_.focus_metric_values.end());
 			const float z_div = static_cast<float>(compute_desc_.autofocus_z_div.load());

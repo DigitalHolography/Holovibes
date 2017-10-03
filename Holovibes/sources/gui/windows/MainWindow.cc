@@ -1740,9 +1740,7 @@ namespace holovibes
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
 
-			if (compute_desc_.stft_enabled.load())
-				display_error("You can't call autofocus in stft mode.");
-			else if (z_min < z_max)
+			if (z_min < z_max)
 			{
 				is_enabled_autofocus_ = true;
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);

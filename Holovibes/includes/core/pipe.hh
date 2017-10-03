@@ -81,7 +81,7 @@ namespace holovibes
 		virtual void	exec();
 		virtual bool	update_n_parameter(unsigned short n);
 		void			request_queues();
-		void			autofocus_caller(float* input, cudaStream_t stream) override;
+		//void			autofocus_caller(float* input, cudaStream_t stream) override;
 
 	private:
 		FnVector		fn_vect_;
