@@ -364,6 +364,41 @@ namespace holovibes
 			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
 			findChild<GroupBox *>("CompositeGroupBox")->setHidden(!isComposite);
 
+			// Composite
+			QSpinBox *min_boxes[3];
+			QSpinBox *max_boxes[3];
+			QDoubleSpinBox *weight_boxes[3];
+			min_boxes[0] = findChild<QSpinBox *>("PMinSpinBox_R");
+			min_boxes[1] = findChild<QSpinBox *>("PMinSpinBox_G");
+			min_boxes[2] = findChild<QSpinBox *>("PMinSpinBox_B");
+			max_boxes[0] = findChild<QSpinBox *>("PMaxSpinBox_R");
+			max_boxes[1] = findChild<QSpinBox *>("PMaxSpinBox_G");
+			max_boxes[2] = findChild<QSpinBox *>("PMaxSpinBox_B");
+			weight_boxes[0] = findChild<QDoubleSpinBox *>("WeightSpinBox_R");
+			weight_boxes[1] = findChild<QDoubleSpinBox *>("WeightSpinBox_G");
+			weight_boxes[2] = findChild<QDoubleSpinBox *>("WeightSpinBox_B");
+			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+
+			// These values must be copied before setting the box values, otherwise they'd be overwritten by the observers
+			ushort pmin[3];
+			ushort pmax[3];
+			ushort weight[3];
+			for (int i = 0; i < 3; i++)
+			{
+				pmin[i] = components[i]->p_min;
+				pmax[i] = components[i]->p_max;
+				weight[i] = components[i]->weight;
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				min_boxes[i]->setValue(pmin[i]);
+				max_boxes[i]->setValue(pmax[i]);
+				weight_boxes[i]->setValue(weight[i]);
+			}
+			findChild<QCheckBox *>("RenormalizationCheckBox")->setChecked(compute_desc_.composite_auto_weights_);
+
+
+
 			//QCoreApplication::processEvents();
 		}
 
@@ -643,6 +678,18 @@ namespace holovibes
 				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
+				// Composite
+				compute_desc_.component_r.p_min = ptree.get<ushort>("composite.pmin_r", 0);
+				compute_desc_.component_r.p_max = ptree.get<ushort>("composite.pmax_r", 0);
+				compute_desc_.component_r.weight = ptree.get<float>("composite.weight_r", 1);
+				compute_desc_.component_g.p_min = ptree.get<ushort>("composite.pmin_g", 0);
+				compute_desc_.component_g.p_max = ptree.get<ushort>("composite.pmax_g", 0);
+				compute_desc_.component_g.weight = ptree.get<float>("composite.weight_g", 1);
+				compute_desc_.component_b.p_min = ptree.get<ushort>("composite.pmin_b", 0);
+				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax_b", 0);
+				compute_desc_.component_b.weight = ptree.get<float>("composite.weight_b", 1);
+				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
+
 				notify();
 			}
 		}
@@ -723,6 +770,18 @@ namespace holovibes
 			ptree.put<float>("autofocus.z_max", compute_desc_.autofocus_z_max.load());
 			ptree.put<uint>("autofocus.steps", compute_desc_.autofocus_z_div.load());
 			ptree.put<uint>("autofocus.loops", compute_desc_.autofocus_z_iter.load());
+
+			// Composite
+			ptree.put<ushort>("composite.pmin_r", compute_desc_.component_r.p_min);
+			ptree.put<ushort>("composite.pmax_r", compute_desc_.component_r.p_max);
+			ptree.put<float>("composite.weight_r", compute_desc_.component_r.weight);
+			ptree.put<ushort>("composite.pmin_g", compute_desc_.component_g.p_min);
+			ptree.put<ushort>("composite.pmax_g", compute_desc_.component_g.p_max);
+			ptree.put<float>("composite.weight_g", compute_desc_.component_g.weight);
+			ptree.put<ushort>("composite.pmin_b", compute_desc_.component_b.p_min);
+			ptree.put<ushort>("composite.pmax_b", compute_desc_.component_b.p_max);
+			ptree.put<float>("composite.weight_b", compute_desc_.component_b.weight);
+			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
 
 			//flowgraphy
 			ptree.put<uint>("flowgraphy.level", compute_desc_.flowgraphy_level.load());

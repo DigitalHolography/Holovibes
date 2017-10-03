@@ -1250,14 +1250,14 @@
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="2" column="0">
+              <item row="3" column="0">
                <widget class="QLabel" name="label_5">
                 <property name="text">
                  <string>G</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="4" column="1">
                <widget class="QSpinBox" name="PMinSpinBox_B">
                 <property name="minimum">
                  <number>0</number>
@@ -1270,14 +1270,14 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
+              <item row="2" column="0">
                <widget class="QLabel" name="label_4">
                 <property name="text">
                  <string>R</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="3" column="2">
                <widget class="QSpinBox" name="PMaxSpinBox_G">
                 <property name="minimum">
                  <number>0</number>
@@ -1290,14 +1290,14 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="4" column="0">
                <widget class="QLabel" name="label_6">
                 <property name="text">
                  <string>B</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
+              <item row="3" column="1">
                <widget class="QSpinBox" name="PMinSpinBox_G">
                 <property name="minimum">
                  <number>0</number>
@@ -1310,7 +1310,7 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
+              <item row="2" column="2">
                <widget class="QSpinBox" name="PMaxSpinBox_R">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1329,7 +1329,7 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="4" column="2">
                <widget class="QSpinBox" name="PMaxSpinBox_B">
                 <property name="minimum">
                  <number>0</number>
@@ -1342,7 +1342,7 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
+              <item row="2" column="1">
                <widget class="QSpinBox" name="PMinSpinBox_R">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1358,6 +1358,20 @@
                 </property>
                 <property name="value">
                  <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>p min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>p max</string>
                 </property>
                </widget>
               </item>
@@ -1415,13 +1429,25 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_G"/>
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_R"/>
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_B"/>
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
