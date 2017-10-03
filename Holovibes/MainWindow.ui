@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1137</width>
+    <width>1290</width>
     <height>481</height>
    </rect>
   </property>
@@ -1159,6 +1159,271 @@
          </item>
          <item>
           <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="gui::GroupBox" name="CompositeGroupBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>210</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>190</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>Composite</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>P intervals</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>1</number>
+              </property>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>G</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QSpinBox" name="PMinSpinBox_B">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="PMinSpinBox_R">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>R</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QSpinBox" name="PMaxSpinBox_G">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>B</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="PMinSpinBox_G">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QSpinBox" name="PMaxSpinBox_R">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QSpinBox" name="PMaxSpinBox_B">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+           <zorder>PMaxSpinBox_G</zorder>
+           <zorder>PMinSpinBox_G</zorder>
+           <zorder>PMaxSpinBox_B</zorder>
+           <zorder>XAccuCheckBox_2</zorder>
+           <zorder>PMinSpinBox_R</zorder>
+           <zorder>PAccuCheckBox_2</zorder>
+           <zorder>PMaxSpinBox_R</zorder>
+           <zorder>YAccuCheckBox_2</zorder>
+           <zorder>PMinSpinBox_B</zorder>
+           <zorder></zorder>
+           <zorder></zorder>
+           <zorder></zorder>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Normalization</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <widget class="QCheckBox" name="RenormalizationCheckBox">
+              <property name="text">
+               <string>Automatic renormalization</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>G</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>R</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>B</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_G"/>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_R"/>
+              </item>
+              <item row="3" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_B"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -2462,7 +2727,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1137</width>
+     <width>1290</width>
      <height>22</height>
     </rect>
    </property>
@@ -2769,6 +3034,374 @@ p, li { white-space: pre-wrap; }
  <resources/>
  <connections>
   <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>28</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIDS</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ids()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPike</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pike()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>250</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPixelfly</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_pixelfly()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionXIQ</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_xiq()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNone</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_none()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>123</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCredits</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>credits()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSettings</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_camera()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>87</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionIXon</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_ixon()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_edge()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>59</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConfigure</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>configure_holovibes()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>50</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAdimec</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_adimec()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>550</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImage_rendering</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionImport</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionView</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSpecial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRecord</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>505</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionInfo</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReset</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNight</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_night()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClassic</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_classic()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionReload_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>reload_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave_ini</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>write_ini()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>ImportStartSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -2861,22 +3494,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>640</x>
      <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>28</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -3025,86 +3642,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionIDS</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_ids()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>195</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionPike</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_pike()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>250</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionPixelfly</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_pixelfly()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>360</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionXIQ</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_xiq()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionNone</sender>
-   <signal>triggered(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_none()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>123</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ContrastMinDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
@@ -3137,22 +3674,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionCredits</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>credits()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ZStepDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
@@ -3164,38 +3685,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSettings</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>configure_camera()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionIXon</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_ixon()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
      <y>324</y>
     </hint>
    </hints>
@@ -3213,38 +3702,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>478</x>
      <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionEdge</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_edge()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionConfigure</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>configure_holovibes()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>50</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -3441,102 +3898,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionAdimec</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>camera_adimec()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>550</x>
-     <y>197</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionImage_rendering</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionImport</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionView</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSpecial</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionRecord</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>505</x>
-     <y>179</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ROIOutputToolButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -3629,22 +3990,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>1058</x>
      <y>208</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionInfo</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>layout_toggled()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>583</x>
-     <y>180</y>
     </hint>
    </hints>
   </connection>
@@ -3825,54 +4170,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionReset</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reset()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionNight</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_night()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionClassic</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_classic()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ImgAccuCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
@@ -3953,22 +4250,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>actionReload_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>reload_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Filter2DPushButton</sender>
    <signal>pressed()</signal>
    <receiver>MainWindow</receiver>
@@ -4013,22 +4294,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>225</x>
      <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionSave_ini</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>write_ini()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>211</y>
     </hint>
    </hints>
   </connection>
