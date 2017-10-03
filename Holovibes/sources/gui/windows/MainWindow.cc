@@ -82,6 +82,7 @@ namespace holovibes
 
 			// Hide non default tab
 			findChild<GroupBox *>("PostProcessingGroupBox")->setHidden(true);
+			findChild<GroupBox *>("CompositeGroupBox")->setHidden(true);
 			findChild<GroupBox *>("RecordGroupBox")->setHidden(true);
 			findChild<GroupBox *>("InfoGroupBox")->setHidden(true);
 
@@ -359,6 +360,9 @@ namespace holovibes
 			
 			findChild<QCheckBox *>("Vision3DCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			findChild<QCheckBox *>("Vision3DCheckBox")->setChecked(compute_desc_.vision_3d_enabled.load());
+
+			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
+			findChild<GroupBox *>("CompositeGroupBox")->setHidden(!isComposite);
 
 			//QCoreApplication::processEvents();
 		}
@@ -1490,6 +1494,63 @@ namespace holovibes
 					display_error("p param has to be between 1 and #img");
 			}
 		}
+		void MainWindow::set_composite_intervals_min()
+		{
+			QSpinBox *min_boxes[3];
+			QSpinBox *max_boxes[3];
+			min_boxes[0] = findChild<QSpinBox *>("PMinSpinBox_R");
+			min_boxes[1] = findChild<QSpinBox *>("PMinSpinBox_G");
+			min_boxes[2] = findChild<QSpinBox *>("PMinSpinBox_B");
+			max_boxes[0] = findChild<QSpinBox *>("PMaxSpinBox_R");
+			max_boxes[1] = findChild<QSpinBox *>("PMaxSpinBox_G");
+			max_boxes[2] = findChild<QSpinBox *>("PMaxSpinBox_B");
+			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			for (int i = 0; i < 3; i++)
+			{
+				ushort new_p = std::max(static_cast<ushort>(0),
+					std::min(static_cast<ushort>(min_boxes[i]->value()), compute_desc_.nsamples.load()));
+				components[i]->p_min = new_p;
+				if (components[i]->p_max < new_p)
+					max_boxes[i]->setValue(new_p);
+			}
+		}
+		void MainWindow::set_composite_intervals_max()
+		{
+			QSpinBox *min_boxes[3];
+			QSpinBox *max_boxes[3];
+			min_boxes[0] = findChild<QSpinBox *>("PMinSpinBox_R");
+			min_boxes[1] = findChild<QSpinBox *>("PMinSpinBox_G");
+			min_boxes[2] = findChild<QSpinBox *>("PMinSpinBox_B");
+			max_boxes[0] = findChild<QSpinBox *>("PMaxSpinBox_R");
+			max_boxes[1] = findChild<QSpinBox *>("PMaxSpinBox_G");
+			max_boxes[2] = findChild<QSpinBox *>("PMaxSpinBox_B");
+			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			for (int i = 0; i < 3; i++)
+			{
+				ushort new_p = std::max(static_cast<ushort>(0),
+					std::min(static_cast<ushort>(max_boxes[i]->value()), compute_desc_.nsamples.load()));
+				components[i]->p_max = new_p;
+				if (components[i]->p_min > new_p)
+					min_boxes[i]->setValue(new_p);
+			}
+		}
+
+		void MainWindow::set_composite_weights()
+		{
+			QDoubleSpinBox *boxes[3];
+			boxes[0] = findChild<QDoubleSpinBox *>("WeightSpinBox_R");
+			boxes[1] = findChild<QDoubleSpinBox *>("WeightSpinBox_G");
+			boxes[2] = findChild<QDoubleSpinBox *>("WeightSpinBox_B");
+			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			for (int i = 0; i < 3; i++)
+				components[i]->weight = boxes[i]->value();
+		}
+
+		void MainWindow::set_composite_auto_weights(bool value)
+		{
+			compute_desc_.composite_auto_weights_ = value;
+		}
+
 
 		void MainWindow::set_flowgraphy_level(const int value)
 		{

@@ -145,6 +145,10 @@ namespace holovibes
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();
+			void set_composite_intervals_min();
+			void set_composite_intervals_max();
+			void set_composite_weights();
+			void set_composite_auto_weights(bool value);
 			void set_p(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();

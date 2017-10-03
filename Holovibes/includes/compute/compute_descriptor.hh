@@ -304,9 +304,10 @@ namespace holovibes
 			//! Weight associated to the component
 			std::atomic<float>		weight = 1;
 		};
-		struct Component component_r;
-		struct Component component_g;
-		struct Component component_b;
+		struct Component			component_r;
+		struct Component			component_g;
+		struct Component			component_b;
+		std::atomic<bool>			composite_auto_weights_;
 		//! \}
 
 		#pragma endregion
