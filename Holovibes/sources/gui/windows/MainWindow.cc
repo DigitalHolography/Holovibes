@@ -1566,8 +1566,8 @@ namespace holovibes
 			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
-				ushort new_p = std::max(static_cast<ushort>(0),
-					std::min(static_cast<ushort>(min_boxes[i]->value()), compute_desc_.nsamples.load()));
+				ushort new_p = std::max(0,
+					std::min(min_boxes[i]->value(), compute_desc_.nsamples.load() - 1));
 				components[i]->p_min = new_p;
 				if (components[i]->p_max < new_p)
 					max_boxes[i]->setValue(new_p);
@@ -1586,8 +1586,8 @@ namespace holovibes
 			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
-				ushort new_p = std::max(static_cast<ushort>(0),
-					std::min(static_cast<ushort>(max_boxes[i]->value()), compute_desc_.nsamples.load()));
+				ushort new_p = std::max(0,
+					std::min(max_boxes[i]->value(), compute_desc_.nsamples.load() - 1));
 				components[i]->p_max = new_p;
 				if (components[i]->p_min > new_p)
 					min_boxes[i]->setValue(new_p);

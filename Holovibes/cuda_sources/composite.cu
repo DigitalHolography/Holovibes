@@ -20,14 +20,18 @@ static void kernel_composite(cuComplex			*input,
 							const uint			frame_res,
 							ushort				pmin_r,
 							ushort				pmax_r,
+							float				weight_r,
 							ushort				pmin_g,
 							ushort				pmax_g,
+							float				weight_g,
 							ushort				pmin_b,
-							ushort				pmax_b)
+							ushort				pmax_b,
+							float				weight_b)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	ushort pmin[] = { pmin_r, pmin_g, pmin_b };
 	ushort pmax[] = { pmax_r, pmax_g, pmax_b };
+	float weight[] = { weight_r, weight_g, weight_b };
 	if (id < frame_res)
 	{
 		for (int i = 0; i < 3; i++)
@@ -38,7 +42,7 @@ static void kernel_composite(cuComplex			*input,
 				cuComplex *current_pframe = input + (frame_res * p);
 				res += hypotf(current_pframe[id].x, current_pframe[id].y);
 			}
-			output[id * 3 + i] = res / (pmax[i] - pmin[i] + 1);
+			output[id * 3 + i] = res * weight[i] / (pmax[i] - pmin[i] + 1);
 		}
 	}
 }
@@ -134,10 +138,13 @@ void composite(cuComplex	*input,
 		frame_res,
 		pmin_r,
 		pmax_r,
+		normalize ? 1 : weight_r,
 		pmin_g,
 		pmax_g,
+		normalize ? 1 : weight_g,
 		pmin_b,
-		pmax_b);
+		pmax_b,
+		normalize ? 1 : weight_b);
 	if (normalize)
 	{
 		const ushort line_size = 1024;
