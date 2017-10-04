@@ -382,7 +382,7 @@ namespace holovibes
 			// These values must be copied before setting the box values, otherwise they'd be overwritten by the observers
 			ushort pmin[3];
 			ushort pmax[3];
-			ushort weight[3];
+			float weight[3];
 			for (int i = 0; i < 3; i++)
 			{
 				pmin[i] = components[i]->p_min;

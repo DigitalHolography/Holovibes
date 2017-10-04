@@ -412,6 +412,9 @@
     <ClInclude Include="includes\3DVision.hh">
       <Filter>c++ includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\composite.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -509,6 +512,9 @@
     </CudaCompile>
     <CudaCompile Include="cuda_sources\tools.cu">
       <Filter>cuda sources\tools</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\composite.cu">
+      <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

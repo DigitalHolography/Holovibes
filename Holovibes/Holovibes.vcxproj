@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="cuda_includes\autofocus.cuh" />
     <ClInclude Include="cuda_includes\average.cuh" />
+    <ClInclude Include="cuda_includes\composite.cuh" />
     <ClInclude Include="cuda_includes\contrast_correction.cuh" />
     <ClInclude Include="cuda_includes\convolution.cuh" />
     <ClInclude Include="cuda_includes\Common.cuh" />
@@ -425,6 +426,7 @@
   <ItemGroup>
     <CudaCompile Include="cuda_sources\autofocus.cu" />
     <CudaCompile Include="cuda_sources\average.cu" />
+    <CudaCompile Include="cuda_sources\composite.cu" />
     <CudaCompile Include="cuda_sources\contrast_correction.cu" />
     <CudaCompile Include="cuda_sources\convolution.cu" />
     <CudaCompile Include="cuda_sources\fft1.cu" />

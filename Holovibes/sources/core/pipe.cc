@@ -26,6 +26,7 @@
 #include "filter2D.cuh"
 #include "stft.cuh"
 #include "convolution.cuh"
+#include "composite.cuh"
 #include "flowgraphy.cuh"
 #include "tools.cuh"
 #include "autofocus.cuh"
