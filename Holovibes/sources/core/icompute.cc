@@ -615,7 +615,6 @@ namespace holovibes
 	void ICompute::request_autocontrast()
 	{
 		autocontrast_requested_.exchange(true);
-		request_refresh();
 	}
 
 	void ICompute::request_filter2D_roi_update()

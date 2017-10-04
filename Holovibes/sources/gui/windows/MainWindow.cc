@@ -1954,7 +1954,6 @@ namespace holovibes
 				try
 				{
 					holovibes_.get_pipe()->request_autocontrast();
-					while (holovibes_.get_pipe()->get_refresh_request());
 				}
 				catch (std::runtime_error& e)
 				{
