@@ -1608,6 +1608,7 @@ namespace holovibes
 		void MainWindow::set_composite_auto_weights(bool value)
 		{
 			compute_desc_.composite_auto_weights_ = value;
+			set_auto_contrast();
 		}
 
 
