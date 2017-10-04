@@ -1378,17 +1378,6 @@
              </layout>
             </item>
            </layout>
-           <zorder>PMaxSpinBox_G</zorder>
-           <zorder>PMinSpinBox_G</zorder>
-           <zorder>PMaxSpinBox_B</zorder>
-           <zorder>XAccuCheckBox_2</zorder>
-           <zorder>PMinSpinBox_R</zorder>
-           <zorder>PAccuCheckBox_2</zorder>
-           <zorder>PMaxSpinBox_R</zorder>
-           <zorder>YAccuCheckBox_2</zorder>
-           <zorder>PMinSpinBox_B</zorder>
-           <zorder></zorder>
-           <zorder></zorder>
            <zorder></zorder>
           </widget>
          </item>
@@ -1400,6 +1389,11 @@
            <layout class="QVBoxLayout" name="verticalLayout_14">
             <item>
              <widget class="QCheckBox" name="RenormalizationCheckBox">
+              <property name="font">
+               <font>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Automatic renormalization</string>
               </property>

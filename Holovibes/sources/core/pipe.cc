@@ -213,9 +213,14 @@ namespace holovibes
 				uint frame_res,
 				ComputeDescriptor* cd)
 		{
+			ComputeDescriptor::Component *comps[] = { &cd->component_r, &cd->component_g, &cd->component_b };
+			for (ComputeDescriptor::Component* component : comps)
+				if (component->p_max < component->p_min || component->p_max >= cd->nsamples)
+					return;
 			composite(input,
 				output,
 				frame_res,
+				cd->composite_auto_weights_,
 				cd->component_r.p_min,
 				cd->component_r.p_max,
 				cd->component_r.weight,
@@ -735,7 +740,8 @@ namespace holovibes
 			fn_vect_.push_back(std::bind(
 				shift_corners,
 				gpu_float_buffer_,
-				output_fd.width,
+				//gpu_float_buffer_size_ / output_fd.height,
+				output_fd.width * (compute_desc_.img_type == ImgType::Composite ? 3 : 1),
 				output_fd.height,
 				static_cast<cudaStream_t>(0)));
 		}
