@@ -741,8 +741,7 @@ namespace holovibes
 			fn_vect_.push_back(std::bind(
 				shift_corners,
 				gpu_float_buffer_,
-				//gpu_float_buffer_size_ / output_fd.height,
-				output_fd.width * (compute_desc_.img_type == ImgType::Composite ? 3 : 1),
+				gpu_float_buffer_size_ / (sizeof(float) * output_fd.height),
 				output_fd.height,
 				static_cast<cudaStream_t>(0)));
 		}
@@ -826,7 +825,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						autocontrast_caller,
 						gpu_float_buffer_,
-						output_fd.frame_res(),
+						gpu_float_buffer_size_ / sizeof(float),
 						0,
 						std::ref(compute_desc_),
 						std::ref(compute_desc_.contrast_min_slice_xy),
