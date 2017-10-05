@@ -68,11 +68,14 @@ namespace holovibes
 			float				*gpu_float_buffer_af_zone;
 			cufftComplex		*gpu_input_buffer_tmp;
 			size_t				gpu_input_size;
+			size_t				gpu_frame_size;
 			unsigned int		af_square_size;
 			unsigned int		nsamples;
 			unsigned int		p;
 			unsigned int		old_nsamples;
 			unsigned int		old_p;
+			unsigned int		stft_index;
+			bool				running;
 		};
 
 		enum ref_state
@@ -80,8 +83,6 @@ namespace holovibes
 			ENQUEUE,
 			COMPUTE
 		};
-
-		void autofocus_init();
 
 		ICompute(
 			Queue& input,
@@ -238,7 +239,9 @@ namespace holovibes
 			const unsigned int nsamples,
 			cudaStream_t stream);
 
-		virtual void autofocus_caller(float* input, cudaStream_t stream);
+		void autofocus_copy(cuComplex *input_buffer);
+		void autofocus_init();
+		void autofocus_caller(float* input, cudaStream_t stream);
 		void record_float(float* float_output, cudaStream_t stream);
 		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);

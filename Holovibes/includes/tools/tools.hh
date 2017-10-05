@@ -27,6 +27,7 @@
 # include "Rectangle.hh"
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
+# include "cufft.h"
 
 using namespace holovibes;
 
@@ -79,4 +80,8 @@ namespace holovibes
 	unsigned short	nearest_window_size(const camera::FrameDescriptor frame);
 	/*! \brief Calculate the nearest power of two */
 	unsigned short	nearest_size(const unsigned short n);
+	/*! \brief Prints a float buffer allocated on gpu*/
+	void print_gpu_buffer(const float* buf, std::size_t nb_elts);
+	/*! \brief Prints a complex buffer allocated on gpu*/
+	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts);
 }
