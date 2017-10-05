@@ -263,7 +263,7 @@ namespace holovibes
 			return;
 		}
 
-		if (autofocus_requested_.load() && af_env_.gpu_input_buffer_tmp == nullptr)
+		if (autofocus_requested_.load() && af_env_.state == STOPPED)
 		{
 			fn_vect_.push_back(std::bind(
 				&Pipe::autofocus_init,
@@ -275,30 +275,35 @@ namespace holovibes
 		}
 
 		// Fill input complex buffer, one frame at a time.
-
-		if (compute_desc_.stft_enabled.load() && af_env_.stft_index == 1)
-		{
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				af_env_.gpu_input_buffer_tmp + input_.get_pixels(),
-				input_length_,
-				static_cast<cudaStream_t>(0)));
-			af_env_.stft_index++;
-			request_refresh();
-			return;
-		}
-		else
+		if (af_env_.state == af_state::STOPPED)
 			fn_vect_.push_back(std::bind(
 				make_contiguous_complex,
 				std::ref(input_),
 				gpu_input_buffer_,
 				input_length_,
 				static_cast<cudaStream_t>(0)));
+		else if (af_env_.state == af_state::COPYING)
+		{
+			af_env_.stft_index--;
+			fn_vect_.push_back(std::bind(
+				make_contiguous_complex,
+				std::ref(input_),
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+				input_length_,
+				static_cast<cudaStream_t>(0)));
+			if (af_env_.stft_index == 0)
+			{
+				af_env_.state = af_state::RUNNING;
+				af_env_.stft_index = af_env_.nsamples;
+			}
+			request_refresh();
+			return;
+		}
+
 		const float z = af_env_.gpu_input_buffer_tmp != nullptr ? af_env_.z : compute_desc_.zdistance.load();
 
 		fn_vect_.push_back(std::bind(
-			&Pipe::autofocus_copy,
+			&Pipe::autofocus_restore,
 			this,
 			gpu_input_buffer_));
 		unsigned int nframes = compute_desc_.nsamples.load();
@@ -875,7 +880,7 @@ namespace holovibes
 		}
 
 
-		if (af_env_.gpu_input_buffer_tmp != nullptr)
+		if (af_env_.state == af_state::RUNNING)
 			fn_vect_.push_back(std::bind(
 				&Pipe::autofocus_caller,
 				this,

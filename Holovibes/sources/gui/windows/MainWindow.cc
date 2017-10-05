@@ -68,7 +68,6 @@ namespace holovibes
 			CSV_record_thread_(nullptr),
 			file_index_(1),
 			theme_index_(0),
-			is_enabled_autofocus_(false),
 			import_type_(ImportType::None),
 			compute_desc_(holovibes_.get_compute_desc())
 		{
@@ -215,6 +214,12 @@ namespace holovibes
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
 				mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
+			QPushButton* autofocusBtn = findChild<QPushButton *>("AutofocusRunPushButton");
+			autofocusBtn->setStyleSheet((autofocusBtn->isEnabled() &&
+				mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
+			autofocusBtn->setText((autofocusBtn->isEnabled() &&
+				mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
+
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
 				(compute_desc_.img_type.load() == ImgType::Argument)) ? (true) : (false)));
@@ -324,7 +329,6 @@ namespace holovibes
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
-			//findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
@@ -1740,20 +1744,24 @@ namespace holovibes
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
 
-			if (z_min < z_max)
+			if (mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
 			{
-				is_enabled_autofocus_ = true;
+				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->resetTransform();
+
+				notify();
+			}
+			else if (z_min >= z_max)
+				display_error("z min have to be strictly inferior to z max");
+			else
+			{
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
 				mainDisplay->resetTransform();
-				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				compute_desc_.autofocus_z_min.exchange(z_min);
 				compute_desc_.autofocus_z_max.exchange(z_max);
 
 				notify();
-				is_enabled_autofocus_ = false;
 			}
-			else
-				display_error("z min have to be strictly inferior to z max");
 		}
 
 		void MainWindow::set_z_min(const double value)

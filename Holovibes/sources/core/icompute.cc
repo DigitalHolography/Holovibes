@@ -966,70 +966,53 @@ namespace holovibes
 		}
 	}
 
-	void ICompute::autofocus_copy(cuComplex *input_buffer)
-	{
-		if (af_env_.running)
-		{
-			if (compute_desc_.stft_enabled.load())
-			{
-				if (af_env_.stft_index == 3)
-				{
-					cudaMemcpy(input_buffer,
-						af_env_.gpu_input_buffer_tmp + input_.get_pixels(),
-						af_env_.gpu_frame_size,
-						cudaMemcpyDeviceToDevice);
-					af_env_.stft_index--;
-				}
-				else
-				{
-					cudaMemcpy(input_buffer,
-						af_env_.gpu_input_buffer_tmp,
-						af_env_.gpu_frame_size,
-						cudaMemcpyDeviceToDevice);
-					af_env_.stft_index++;
-				}
-			}
-			else
-				cudaMemcpy(input_buffer,
-					af_env_.gpu_input_buffer_tmp,
-					af_env_.gpu_input_size,
-					cudaMemcpyDeviceToDevice);
-		}
-	}
-	
 	void ICompute::autofocus_init()
 	{
 		// Autofocus needs to work on the same images. It will computes on copies.
 		try
 		{
+			af_env_.state = af_state::RUNNING;
 			if (compute_desc_.stft_enabled.load())
 			{
+				// Saving stft parameters
 				af_env_.old_nsamples = compute_desc_.nsamples.load();
 				af_env_.old_p = compute_desc_.pindex.load();
+				af_env_.old_steps = compute_desc_.stft_steps.load();
+
+				// Setting new parameters for faster autofocus
 				af_env_.nsamples = 2;
 				af_env_.p = 1;
-				af_env_.stft_index = 1;
 				compute_desc_.nsamples.exchange(af_env_.nsamples);
 				compute_desc_.pindex.exchange(af_env_.p);
 				update_n_parameter(af_env_.nsamples);
+
+				// Setting the steps and the frame_counter in order to call autofocus_caller only
+				// once stft_queue_ is fully updated and stft is computed
+				compute_desc_.stft_steps.exchange(compute_desc_.nsamples);
+				stft_frame_counter = af_env_.nsamples;
+
+				af_env_.stft_index = af_env_.nsamples - 1;
+				af_env_.state = af_state::COPYING;
+
 				notify_observers();
 			}
 
 			af_env_.gpu_frame_size = sizeof(cufftComplex) * input_.get_pixels();
-			af_env_.gpu_input_size = af_env_.gpu_frame_size * input_length_;
-			if (compute_desc_.stft_enabled.load())
-				af_env_.gpu_input_size *= 2;
-			cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
+			// When stft, we want to save 'nsamples' frame, in order to entirely fill the stft_queue_
+			af_env_.gpu_input_size = af_env_.gpu_frame_size * compute_desc_.nsamples;
+			cudaFree(af_env_.gpu_input_buffer_tmp);
 			if (cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size) != cudaSuccess)
 				throw std::exception("Autofocus : cudaMalloc fail");
 
 			// Wait input_length_ images in queue input_, before call make_contiguous_complex
+			//	(case when autofocus called instantly after changing the number of image in non-stft mode)
 			while (input_.get_current_elts() < input_length_)
 				continue;
 
+			// If stft, it saves only one frames in the end of gpu_input_buffer_tmp
 			make_contiguous_complex(
 				input_,
-				af_env_.gpu_input_buffer_tmp,
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
 				input_length_);
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
@@ -1041,7 +1024,7 @@ namespace holovibes
 
 			const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 
-			cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
+			cudaFree(af_env_.gpu_float_buffer_af_zone);
 			if (cudaMalloc(&af_env_.gpu_float_buffer_af_zone, af_size * sizeof(float)) != cudaSuccess)
 				throw std::exception("Autofocus : cudaMalloc fail");
 			/* Initialize z_*  */
@@ -1057,34 +1040,56 @@ namespace holovibes
 			af_env_.z_iter = compute_desc_.autofocus_z_iter.load();
 			af_env_.z = af_env_.z_min;
 			af_env_.focus_metric_values.clear();
-			af_env_.running = true;
 		}
 		catch (std::exception e)
 		{
-			cudaFree(af_env_.gpu_input_buffer_tmp);
-			cudaFree(af_env_.gpu_float_buffer_af_zone);
-
-			af_env_.gpu_input_buffer_tmp = nullptr;
-			af_env_.gpu_float_buffer_af_zone = nullptr;
-			af_env_.running = false;
-			af_env_.stft_index = 0;
-
+			autofocus_reset();
 			std::cout << e.what() << std::endl;
 		}
 	}
 
+	void ICompute::autofocus_restore(cuComplex *input_buffer)
+	{
+		if (af_env_.state == af_state::RUNNING)
+		{
+			if (compute_desc_.stft_enabled.load())
+			{
+				af_env_.stft_index--;
+
+				cudaMemcpy(input_buffer,
+					af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+					af_env_.gpu_frame_size,
+					cudaMemcpyDeviceToDevice);
+
+				// Resetting the stft_index just before the call of autofocus_caller
+				if (af_env_.stft_index == 0)
+					af_env_.stft_index = af_env_.nsamples;
+			}
+			else
+				cudaMemcpy(input_buffer,
+					af_env_.gpu_input_buffer_tmp,
+					af_env_.gpu_input_size,
+					cudaMemcpyDeviceToDevice);
+		}
+	}
+	
+
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
 	{
-		if (compute_desc_.stft_enabled.load() && af_env_.stft_index != 2)
+		// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updated
+		if (compute_desc_.stft_enabled.load() && af_env_.stft_index != af_env_.nsamples)
 		{
-			request_refresh();
+			autofocus_reset();
+			std::cout << "Autofocus: Caller called at a wrong moment." << std::endl;
 			return;
 		}
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 
+		// Copying the square zone into the tmp buffer
 		frame_memcpy(input, af_env_.zone, input_fd.width, af_env_.gpu_float_buffer_af_zone, af_env_.af_square_size, stream);
 
+		// Evaluating function
 		const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone,
 			af_env_.af_square_size,
 			stream,
@@ -1092,12 +1097,10 @@ namespace holovibes
 
 		if (!std::isnan(focus_metric_value))
 			af_env_.focus_metric_values.push_back(focus_metric_value);
-		else
-			af_env_.focus_metric_values.push_back(0);
-		std::cout << std::endl;
 
 		af_env_.z += af_env_.z_step;
 
+		// End of loop
 		if (autofocus_stop_requested_.load() || af_env_.z > af_env_.z_max)
 		{
 			// Find max z
@@ -1106,7 +1109,19 @@ namespace holovibes
 
 			/* Case the max has not been found. */
 			if (biggest == af_env_.focus_metric_values.end())
-				biggest = af_env_.focus_metric_values.begin();
+			{
+				// Restoring old stft parameters
+				if (compute_desc_.stft_enabled.load())
+				{
+					compute_desc_.stft_steps.exchange(af_env_.old_steps);
+					compute_desc_.nsamples.exchange(af_env_.old_nsamples);
+					compute_desc_.pindex.exchange(af_env_.old_p);
+					update_n_parameter(compute_desc_.nsamples.load());
+				}
+				autofocus_reset();
+				std::cout << "Autofocus: Couldn't find a good z" << std::endl;
+				return;
+			}
 			long long max_pos = std::distance(af_env_.focus_metric_values.begin(), biggest);
 
 			// This is our temp max
@@ -1125,25 +1140,35 @@ namespace holovibes
 			}
 		}
 
-		// End of the loop, free resources and notify the new z
+		// End of autofocus, free resources and notify the new z
 		if (autofocus_stop_requested_.load() || af_env_.z_iter <= 0)
 		{
+			// Restoring old stft parameters
 			if (compute_desc_.stft_enabled.load())
 			{
+				compute_desc_.stft_steps.exchange(af_env_.old_steps);
 				compute_desc_.nsamples.exchange(af_env_.old_nsamples);
 				compute_desc_.pindex.exchange(af_env_.old_p);
 				update_n_parameter(compute_desc_.nsamples.load());
 			}
+
 			compute_desc_.zdistance.exchange(af_env_.af_z);
 			compute_desc_.notify_observers();
 
-			// if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
-			cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
-			cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
-			af_env_.focus_metric_values.clear();
-			af_env_.stft_index = 0;
-			af_env_.running = false;
+			autofocus_reset();
 		}
 		request_refresh();
+	}
+
+	void ICompute::autofocus_reset()
+	{
+		// if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
+		cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
+		cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
+
+		//Resetting af_env_ for next use
+		af_env_.focus_metric_values.clear();
+		af_env_.stft_index = 0;
+		af_env_.state = af_state::STOPPED;
 	}
 }
