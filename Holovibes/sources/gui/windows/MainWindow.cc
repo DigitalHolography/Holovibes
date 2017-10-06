@@ -385,8 +385,8 @@ namespace holovibes
 			float weight[3];
 			for (int i = 0; i < 3; i++)
 			{
-				pmin[i] = components[i]->p_min;
-				pmax[i] = components[i]->p_max;
+				pmax[i] = std::min(compute_desc_.nsamples.load(), components[i]->p_max.load());
+				pmin[i] = std::min(components[i]->p_min.load(), components[i]->p_max.load());
 				weight[i] = components[i]->weight;
 			}
 			for (int i = 0; i < 3; i++)
@@ -1572,6 +1572,7 @@ namespace holovibes
 				if (components[i]->p_max < new_p)
 					max_boxes[i]->setValue(new_p);
 			}
+			notify();
 		}
 		void MainWindow::set_composite_intervals_max()
 		{
@@ -1592,6 +1593,7 @@ namespace holovibes
 				if (components[i]->p_min > new_p)
 					min_boxes[i]->setValue(new_p);
 			}
+			notify();
 		}
 
 		void MainWindow::set_composite_weights()
