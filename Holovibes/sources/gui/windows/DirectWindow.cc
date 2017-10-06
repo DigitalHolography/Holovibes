@@ -76,7 +76,7 @@ namespace holovibes
 			#pragma region Texture
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
+			const uint size = Fd.frame_size() * 1 / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STATIC_DRAW);	//GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
 				(Fd.byteEndian == Endianness::BigEndian) ?

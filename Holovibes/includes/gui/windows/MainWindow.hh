@@ -142,6 +142,7 @@ namespace holovibes
 			void cancel_filter2D();
 			void setPhase();
 			void set_special_buffer_size(int value);
+			void update_lense_view(bool value);
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();
@@ -270,6 +271,7 @@ namespace holovibes
 			std::unique_ptr<Vision3DWindow>	vision3D;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
+			std::unique_ptr<DirectWindow>	lense_window;
 
 			float		displayAngle;
 			float		xzAngle;

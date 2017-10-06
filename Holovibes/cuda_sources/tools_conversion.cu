@@ -377,9 +377,9 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 			y = static_cast<ushort>(input[index].y * input[index].x);
 
 		auto& res = output[index];
-		res ^= res;
 		res = x << 16;
-		res += y;
+		res |= y;
+		printf("%d %d\n", x, y);
 	}
 }
 

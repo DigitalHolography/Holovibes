@@ -385,6 +385,10 @@ namespace holovibes
 					compute_desc_.lambda.load(),
 					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
+				fn_vect_.push_back([=]() {
+					if (gpu_lense_queue_)
+						gpu_lense_queue_->enqueue(gpu_lens_, cudaMemcpyDeviceToDevice);
+				});
 				// Add FFT1.
 				fn_vect_.push_back(std::bind(
 					fft_1,
@@ -1151,7 +1155,7 @@ namespace holovibes
 				for (FnType& f : fn_vect_)
 				{
 					f();
-					if (stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
+					if (false && stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
 						break;
 				}
 				if (compute_desc_.stft_enabled.load())

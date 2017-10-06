@@ -1084,4 +1084,15 @@ namespace holovibes
 			request_refresh();
 		}
 	}
+
+	Queue *ICompute::get_lense_queue()
+	{
+		if (!gpu_lense_queue_ && compute_desc_.gpu_lense_display_enabled)
+		{
+			auto fd = input_.get_frame_desc();
+			fd.depth = 8;
+			gpu_lense_queue_ = std::make_unique<Queue>(fd, 32, "GPU lense queue");
+		}
+		return gpu_lense_queue_.get();
+	}
 }
