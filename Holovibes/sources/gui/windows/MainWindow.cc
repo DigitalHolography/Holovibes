@@ -488,7 +488,7 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
-			save_ini("holovibes.ini");
+			save_ini(GLOBAL_INI_PATH);
 			notify();
 		}
 
@@ -855,7 +855,7 @@ namespace holovibes
 			remove_infos();
 			// Avoiding "unused variable" warning.
 			static_cast<void*>(event);
-			save_ini("holovibes.ini");
+			save_ini(GLOBAL_INI_PATH);
 		}
 		#pragma endregion
 		/* ------------ */
