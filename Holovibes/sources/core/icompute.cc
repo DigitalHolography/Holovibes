@@ -1163,8 +1163,8 @@ namespace holovibes
 	void ICompute::autofocus_reset()
 	{
 		// if gpu_input_buffer_tmp is freed before is used by cudaMemcpyNoReturn
-		cudaDestroy<cudaError_t>(&(af_env_.gpu_float_buffer_af_zone));
-		cudaDestroy<cudaError_t>(&(af_env_.gpu_input_buffer_tmp));
+		cudaFree(af_env_.gpu_float_buffer_af_zone);
+		cudaFree(af_env_.gpu_input_buffer_tmp);
 
 		//Resetting af_env_ for next use
 		af_env_.focus_metric_values.clear();
