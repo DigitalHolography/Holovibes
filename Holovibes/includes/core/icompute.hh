@@ -55,20 +55,43 @@ namespace holovibes
 		friend class ThreadCompute;
 	public:
 
+		/*! \brief Describing the autofocus state */
+		enum af_state
+		{
+			STOPPED, /**< Autofocus not requested */
+			COPYING, /**< Copying frames when autofocus is used with stft */
+			RUNNING /**< Autofocus running after everything initialized correctly*/
+		};
+
 		struct af_env
 		{
-			float				z;
-			float				z_min;
-			float				z_max;
-			float				z_step;
-			unsigned int		z_iter;
-			float				af_z;
-			std::vector<float>	focus_metric_values;
-			gui::Rectangle		zone;
-			float				*gpu_float_buffer_af_zone;
-			cufftComplex		*gpu_input_buffer_tmp;
-			size_t				gpu_input_size;
-			unsigned int		af_square_size;
+			float				z; /**< intern z used for autofocus computation */
+			float				z_min; /**< minimal z for each loop */
+			float				z_max; /**< maximal z for each loop */
+
+			float				z_step; /**< value incrementing z at each iteration */
+			unsigned int		z_iter; /**< number of loops remaining */
+			float				af_z; /**< best z found during last loop */
+
+			std::vector<float>	focus_metric_values; /**< vector containing the values given by the evaluating function*/
+
+			gui::Rectangle		zone; /**< zone where autofocus is applied */
+			unsigned int		af_square_size; /** size of the square zone where autofocus is applied */
+			float				*gpu_float_buffer_af_zone; /**< zone of gpu_float_buffer_ where autocus is applied */
+
+			size_t				gpu_input_size; /**< size of gpu_input_buffer_tmp */
+			size_t				gpu_frame_size; /**< size of one frame inside gpu_input_buffer_tmp */
+			cufftComplex		*gpu_input_buffer_tmp; /**< buffer saving the frames to work on the same images at each iteration. It contains #img when stft is disabled, and an hardcoded number when enabled. */
+
+			unsigned int		nsamples; /**< hardcoded value of frames to save when stft is enabled. Must be grater than 2. */
+			unsigned int		p; /**< hardcoded value of p when stft is enabled */
+
+			unsigned int		old_nsamples; /**< old value of nsamples */
+			unsigned int		old_p; /**< old value of p*/
+
+			unsigned int		old_steps; /**< old value of stft steps*/
+			int					stft_index; /**< current index of the frame to save/copy when stft is enabled. We need it since the input_length_ is equal to 1 when stft */
+			enum af_state		state; /**< state of autofocus process */
 		};
 
 		enum ref_state
@@ -76,8 +99,6 @@ namespace holovibes
 			ENQUEUE,
 			COMPUTE
 		};
-
-		void autofocus_init();
 
 		ICompute(
 			Queue& input,
@@ -235,7 +256,21 @@ namespace holovibes
 			const unsigned int nsamples,
 			cudaStream_t stream);
 
-		virtual void autofocus_caller(float* input, cudaStream_t stream);
+		/*! \brief restores the input frames saved in the gpu_input_buffer_
+		* \param input_buffer Destination buffer (gpu_input_buffer_) */
+		void autofocus_restore(cuComplex *input_buffer);
+
+		/*! \brief Initialize the structure af_env_ */
+		void autofocus_init();
+
+		/*! \brief This is the main part of the autofocus. It will copy
+		* the square area where autofocus is applied, call the evaluating function, and updates every value for next iteration.
+		* \param input buffer of float containing the image where autofocus is applied (gpu_float_buffer_) */
+		void autofocus_caller(float* input, cudaStream_t stream);
+
+		/*! \brief Resetting the structure af_env_ for next use */
+		void autofocus_reset();
+
 		void record_float(float* float_output, cudaStream_t stream);
 		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);

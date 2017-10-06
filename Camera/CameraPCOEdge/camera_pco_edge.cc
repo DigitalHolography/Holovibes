@@ -95,7 +95,7 @@ namespace camera
 		/* Fill frame descriptor const values. */
 		desc_.depth = 2.f;
 		desc_.byteEndian = Endianness::LittleEndian;
-		desc_.pixel_size = 6.45f;
+		pixel_size_ = 6.45f;
 		desc_.width = 2048;
 		desc_.height = 2048;
 	}
@@ -114,7 +114,7 @@ namespace camera
 
 		binning_ = pt.get<WORD>("pco-edge.binning", binning_);
 		// Updating frame descriptor's dimensions accordingly.
-		desc_.pixel_size *= binning_;
+		pixel_size_ *= binning_;
 		desc_.width /= binning_;
 		desc_.height /= binning_;
 

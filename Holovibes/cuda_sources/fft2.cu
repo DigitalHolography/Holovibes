@@ -55,13 +55,14 @@ void fft2_lens(cuComplex			*lens,
 			const FrameDescriptor&	fd,
 			const float				lambda,
 			const float				z,
+			const float				pixel_size,
 			cudaStream_t			stream)
 {
 	uint threads_2d = get_max_threads_2d();
 	dim3 lthreads(threads_2d, threads_2d);
 	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
-	kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z);
+	kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
 }
 
 void fft_2(cuComplex			*input,

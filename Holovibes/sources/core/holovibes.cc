@@ -64,6 +64,7 @@ namespace holovibes
 
 			std::cout << "(Holovibes) Initializing camera..." << std::endl;
 			camera_->init_camera();
+			compute_desc_.pixel_size.exchange(camera_->get_pixel_size());
 			std::cout << "(Holovibes) Resetting queues..." << std::endl;
 			input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
 			std::cout << "(Holovibes) Starting initialization..." << std::endl;
@@ -189,7 +190,7 @@ namespace holovibes
 		{
 			FrameDescriptor fd = get_cam_frame_desc();
 			const float n = static_cast<float>(fd.height);
-			const float d = fd.pixel_size * 0.000001f;
+			const float d = compute_desc_.pixel_size * 0.000001f;
 			return ((n * d * d) / compute_desc_.lambda.load());
 		}
 		return (0.f);

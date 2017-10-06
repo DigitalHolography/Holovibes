@@ -187,15 +187,22 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>steps</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QSpinBox" name="STFTStepsSpinBox">
              <property name="toolTip">
               <string># of images picked at each iteration</string>
              </property>
              <property name="readOnly">
               <bool>false</bool>
-             </property>
-             <property name="suffix">
-              <string> steps</string>
              </property>
              <property name="minimum">
               <number>1</number>

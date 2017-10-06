@@ -33,7 +33,6 @@ namespace holovibes
 			this->frame_timeout = 100000;
 			this->reader_buf_max_size = 64;
 			this->unwrap_history_size = 20;
-			this->import_pixel_size = 5.42f;
 			this->set_cuda_device = 1;
 			this->auto_device_number = 1;
 			this->device_number = 0;
@@ -56,7 +55,6 @@ namespace holovibes
 			this->frame_timeout = o.frame_timeout;
 			this->reader_buf_max_size = o.reader_buf_max_size;
 			this->unwrap_history_size = o.unwrap_history_size;
-			this->import_pixel_size = o.import_pixel_size;
 			this->set_cuda_device = o.set_cuda_device;
 			this->auto_device_number = o.auto_device_number;
 			this->device_number = o.device_number;
@@ -81,8 +79,6 @@ namespace holovibes
 		 * Determines how far, meaning how many iterations back, phase corrections
 		 * are taken in order to be applied to the current phase image. */
 		unsigned int unwrap_history_size;
-		/*! \brief default import pixel size, can't be found in .raw*/
-		float        import_pixel_size;
 		/* \brief Determines if Cuda device has to be set*/
 		bool		set_cuda_device;
 		/* \brief Determines if Cuda device number is automaticly set*/

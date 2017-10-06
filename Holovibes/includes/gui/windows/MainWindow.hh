@@ -279,7 +279,6 @@ namespace holovibes
 			int			xzFlip;
 			int			yzFlip;
 
-			bool		is_enabled_autofocus_;
 			bool		is_enabled_camera_;
 			bool		is_enabled_average_;
 			bool		is_batch_img_;

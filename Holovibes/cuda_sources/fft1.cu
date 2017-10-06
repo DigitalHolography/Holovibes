@@ -18,12 +18,13 @@ void fft1_lens(cuComplex*			lens,
 			const FrameDescriptor&	fd,
 			const float				lambda,
 			const float				z,
+			const float				pixel_size,
 			cudaStream_t			stream)
 {
   uint threads = 128;
   uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-  kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z);
+  kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
 }
 
 void fft_1(cuComplex*			input,

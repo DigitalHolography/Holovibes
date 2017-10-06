@@ -34,7 +34,7 @@ namespace camera
 		// Technically the camera is 11-bits, but each pixel value is encoded on 16 bits.
 		desc_.depth = 2.f;
 		desc_.byteEndian = Endianness::LittleEndian;
-		desc_.pixel_size = 12;
+		pixel_size_ = 12;
 
 		load_default_params();
 		if (ini_file_is_open())

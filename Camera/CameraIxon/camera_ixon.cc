@@ -135,7 +135,7 @@ namespace camera
     desc_.width = 1024;
     desc_.height = 1024;
     desc_.depth = 2.f;
-    desc_.pixel_size = 8.0f;
+    pixel_size_ = 8.0f;
     desc_.byteEndian = Endianness::LittleEndian;
 
     exposure_time_ = 0.1f;

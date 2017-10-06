@@ -78,7 +78,7 @@ namespace camera
 		desc_.width = 2048;
 		desc_.height = 2048;
 		desc_.depth = 1.f;
-		desc_.pixel_size = 5.5f;
+		pixel_size_ = 5.5f;
 		desc_.byteEndian = Endianness::LittleEndian;
 
 		exposure_time_ = 49.91f;
@@ -141,7 +141,7 @@ namespace camera
 		if (binning_ != -1)
 		{
 			status |= is_SetBinning(cam_, binning_);
-			desc_.pixel_size *= std::atoi(pt.get<std::string>("ids.binning", "1x1").c_str());
+			pixel_size_ *= std::atoi(pt.get<std::string>("ids.binning", "1x1").c_str());
 		}
 
 		// Image format/Color mode

@@ -97,9 +97,12 @@ namespace holovibes
 		Integer_16b,
 		Complex_64b
 	};
+
+	/*! \see OutputType
+	*   \brief Link between OutputType and the GUI button display */
 	const static QMap<QString, OutputType> outputTypeMap({
-		{"16bits integer", OutputType::Integer_16b},
-		{"64bits complex", OutputType::Complex_64b}
+		{"16bit integer", OutputType::Integer_16b},
+		{"64bit complex", OutputType::Complex_64b}
 	});
 
 	/*! \brief Contains compute parameters.
@@ -211,7 +214,7 @@ namespace holovibes
 		std::atomic<float>			autofocus_z_max;
 
 		std::atomic<ushort>			cuts_contrast_p_offset;
-		std::atomic<float>			import_pixel_size;
+		std::atomic<float>			pixel_size;
 		std::atomic<uint>			convo_matrix_width;
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;

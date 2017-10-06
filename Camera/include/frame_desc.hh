@@ -38,7 +38,6 @@ namespace camera
 		unsigned short		width;		//!< Width of the frame in pixels.
 		unsigned short		height;		//!< Height of the frame in pixels.
 		float				depth;		//!< Byte depth during acquisition.
-		float				pixel_size;	//!< Size of pixels in micrometers.
 		Endianness			byteEndian;	//!< To each camera software its endianness. Useful for 16-bit cameras.
 	};
 }

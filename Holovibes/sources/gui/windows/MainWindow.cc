@@ -68,7 +68,6 @@ namespace holovibes
 			CSV_record_thread_(nullptr),
 			file_index_(1),
 			theme_index_(0),
-			is_enabled_autofocus_(false),
 			import_type_(ImportType::None),
 			compute_desc_(holovibes_.get_compute_desc())
 		{
@@ -92,7 +91,14 @@ namespace holovibes
 
 			layout_toggled();
 
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+			}
 
 			set_night();
 
@@ -181,6 +187,7 @@ namespace holovibes
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
+				findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.pixel_size.load());
 				return;
 			}
 			else if (compute_desc_.compute_mode.load() == Computation::Direct && is_enabled_camera_)
@@ -209,12 +216,18 @@ namespace holovibes
 			QPushButton* signalBtn = findChild<QPushButton *>("AverageSignalPushButton");
 			signalBtn->setEnabled(compute_desc_.average_enabled.load());
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
 
 			QPushButton* noiseBtn = findChild<QPushButton *>("AverageNoisePushButton");
 			noiseBtn->setEnabled(compute_desc_.average_enabled.load());
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
+
+			QPushButton* autofocusBtn = findChild<QPushButton *>("AutofocusRunPushButton");
+			autofocusBtn->setStyleSheet((autofocusBtn->isEnabled() &&
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
+			autofocusBtn->setText((autofocusBtn->isEnabled() &&
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
@@ -325,7 +338,6 @@ namespace holovibes
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
 			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
-			//findChild<QLabel *>("AutofocusLabel")->setText((is_enabled_autofocus_) ? "<font color='Yellow'>Autofocus:</font>" : "Autofocus:");
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
@@ -346,8 +358,9 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setValue(compute_desc_.zdistance.load());
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
+
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!compute_desc_.is_cine_file.load());
-			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.import_pixel_size.load());
+			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(compute_desc_.special_buffer_size.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(compute_desc_.is_cine_file.load());
@@ -514,14 +527,21 @@ namespace holovibes
 
 		void MainWindow::write_ini()
 		{
-			save_ini("holovibes.ini");
+			save_ini(GLOBAL_INI_PATH);
 			notify();
 		}
 
 		void MainWindow::reload_ini()
 		{
 			import_file_stop();
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << e.what() << std::endl;
+			}
 			if (import_type_ == ImportType::File)
 				import_file();
 			else if (import_type_ == ImportType::Camera)
@@ -546,15 +566,7 @@ namespace holovibes
 			QAction	*import_action = findChild<QAction *>("actionImport");
 			QAction	*info_action = findChild<QAction *>("actionInfo");
 
-			try
-			{
-				boost::property_tree::ini_parser::read_ini(path, ptree);
-			}
-			catch (std::exception& e)
-			{
-				std::cout << e.what() << std::endl;
-				return;
-			}
+			boost::property_tree::ini_parser::read_ini(path, ptree);
 
 			if (!ptree.empty())
 			{
@@ -652,8 +664,7 @@ namespace holovibes
 				// Import
 				import_action->setChecked(!ptree.get<bool>("import.hidden", false));
 				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
-				config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
-				compute_desc_.import_pixel_size.exchange(config.import_pixel_size);
+				compute_desc_.pixel_size.exchange(ptree.get<float>("import.pixel_size", compute_desc_.pixel_size));
 				findChild<QSpinBox *>("ImportFpsSpinBox")->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
@@ -758,7 +769,7 @@ namespace holovibes
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
-			ptree.put<float>("import.pixel_size", compute_desc_.import_pixel_size.load());
+			ptree.put<float>("import.pixel_size", compute_desc_.pixel_size.load());
 
 			// Info
 			ptree.put<bool>("info.hidden", info_group_box->isHidden());
@@ -888,7 +899,14 @@ namespace holovibes
 			cudaDeviceReset();
 			close_windows();
 			remove_infos();
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+			}
 			notify();
 		}
 
@@ -901,7 +919,7 @@ namespace holovibes
 			remove_infos();
 			// Avoiding "unused variable" warning.
 			static_cast<void*>(event);
-			save_ini("holovibes.ini");
+			save_ini(GLOBAL_INI_PATH);
 		}
 		#pragma endregion
 		/* ------------ */
@@ -1793,7 +1811,7 @@ namespace holovibes
 
 		void MainWindow::set_import_pixel_size(const double value)
 		{
-			compute_desc_.import_pixel_size.exchange(value);
+			compute_desc_.pixel_size.exchange(value);
 		}
 
 		void MainWindow::set_z_iter(const int value)
@@ -1879,22 +1897,24 @@ namespace holovibes
 			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
 			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
 
-			if (compute_desc_.stft_enabled.load())
-				display_error("You can't call autofocus in stft mode.");
-			else if (z_min < z_max)
+			if (mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
 			{
-				is_enabled_autofocus_ = true;
+				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->resetTransform();
+
+				notify();
+			}
+			else if (z_min >= z_max)
+				display_error("z min have to be strictly inferior to z max");
+			else
+			{
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
 				mainDisplay->resetTransform();
-				InfoManager::get_manager()->update_info("Status", "Autofocus processing...");
 				compute_desc_.autofocus_z_min.exchange(z_min);
 				compute_desc_.autofocus_z_max.exchange(z_max);
 
 				notify();
-				is_enabled_autofocus_ = false;
 			}
-			else
-				display_error("z min have to be strictly inferior to z max");
 		}
 
 		void MainWindow::set_z_min(const double value)
@@ -2805,7 +2825,6 @@ namespace holovibes
 
 		void MainWindow::import_file()
 		{
-			import_file_stop();
 			QLineEdit *import_line_edit = findChild<QLineEdit *>("ImportPathLineEdit");
 			QSpinBox *width_spinbox = findChild<QSpinBox *>("ImportWidthSpinBox");
 			QSpinBox *height_spinbox = findChild<QSpinBox *>("ImportHeightSpinBox");
@@ -2815,7 +2834,11 @@ namespace holovibes
 			QComboBox *depth_spinbox = findChild<QComboBox *>("ImportDepthComboBox");
 			QComboBox *big_endian_checkbox = findChild<QComboBox *>("ImportEndiannessComboBox");
 			QCheckBox *cine = findChild<QCheckBox *>("CineFileCheckBox");
+			QDoubleSpinBox *pixel_size_spinbox = findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox");
+
 			compute_desc_.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
+			compute_desc_.pixel_size.exchange(pixel_size_spinbox->value());
+			import_file_stop();
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
@@ -2836,7 +2859,6 @@ namespace holovibes
 				static_cast<ushort>(width_spinbox->value()),
 				static_cast<ushort>(height_spinbox->value()),
 				static_cast<float>(depth_multi),
-				static_cast<float>(compute_desc_.import_pixel_size.load()),
 				(big_endian_checkbox->currentText() == QString("Big Endian") ?
 					Endianness::BigEndian : Endianness::LittleEndian) };
 			is_enabled_camera_ = false;
@@ -2956,7 +2978,7 @@ namespace holovibes
 				findChild<QSpinBox*>("ImportWidthSpinBox")->setValue(read_width);
 				read_height = std::abs(read_height);
 				findChild<QSpinBox*>("ImportHeightSpinBox")->setValue(read_height);
-				compute_desc_.import_pixel_size.exchange((1 / static_cast<double>(read_pixelpermeter_x)) * 1e6);
+				compute_desc_.pixel_size.exchange((1 / static_cast<double>(read_pixelpermeter_x)) * 1e6);
 				findChild<QComboBox*>("ImportEndiannessComboBox")->setCurrentIndex(0); // Little Endian
 
 				/*Unused fonction ready to read framerate in exposure*/

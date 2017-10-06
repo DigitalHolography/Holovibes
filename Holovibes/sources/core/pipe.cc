@@ -299,26 +299,49 @@ namespace holovibes
 			return;
 		}
 
-		if (autofocus_requested_.load())
+		if (autofocus_requested_.load() && af_env_.state == STOPPED)
 		{
 			fn_vect_.push_back(std::bind(
-				&Pipe::autofocus_caller,
-				this,
-				gpu_float_buffer_,
-				static_cast<cudaStream_t>(0)));
+				&Pipe::autofocus_init,
+				this
+			));
 			autofocus_requested_.exchange(false);
 			request_refresh();
 			return;
 		}
 
 		// Fill input complex buffer, one frame at a time.
-		fn_vect_.push_back(std::bind(
-			make_contiguous_complex,
-			std::ref(input_),
-			gpu_input_buffer_,
-			input_length_,
-			static_cast<cudaStream_t>(0)));
+		if (af_env_.state == af_state::STOPPED)
+			fn_vect_.push_back(std::bind(
+				make_contiguous_complex,
+				std::ref(input_),
+				gpu_input_buffer_,
+				input_length_,
+				static_cast<cudaStream_t>(0)));
+		else if (af_env_.state == af_state::COPYING)
+		{
+			af_env_.stft_index--;
+			fn_vect_.push_back(std::bind(
+				make_contiguous_complex,
+				std::ref(input_),
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+				input_length_,
+				static_cast<cudaStream_t>(0)));
+			if (af_env_.stft_index == 0)
+			{
+				af_env_.state = af_state::RUNNING;
+				af_env_.stft_index = af_env_.nsamples;
+			}
+			request_refresh();
+			return;
+		}
 
+		const float z = af_env_.gpu_input_buffer_tmp != nullptr ? af_env_.z : compute_desc_.zdistance.load();
+
+		fn_vect_.push_back(std::bind(
+			&Pipe::autofocus_restore,
+			this,
+			gpu_input_buffer_));
 		unsigned int nframes = compute_desc_.nsamples.load();
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
@@ -383,8 +406,8 @@ namespace holovibes
 					gpu_lens_,
 					input_fd,
 					compute_desc_.lambda.load(),
-					compute_desc_.zdistance.load(),
-					static_cast<cudaStream_t>(0));
+					z,
+					compute_desc_.pixel_size);
 				// Add FFT1.
 				fn_vect_.push_back(std::bind(
 					fft_1,
@@ -419,8 +442,8 @@ namespace holovibes
 					gpu_lens_,
 					input_fd,
 					compute_desc_.lambda.load(),
-					compute_desc_.zdistance.load(),
-					static_cast<cudaStream_t>(0));
+					z,
+					compute_desc_.pixel_size);
 
 				fn_vect_.push_back(std::bind(
 					fft_2,
@@ -897,6 +920,14 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			}
 		}
+
+
+		if (af_env_.state == af_state::RUNNING)
+			fn_vect_.push_back(std::bind(
+				&Pipe::autofocus_caller,
+				this,
+				gpu_float_buffer_,
+				static_cast<cudaStream_t>(0)));
 
 		if (float_output_requested_.load())
 		{
