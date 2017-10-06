@@ -101,8 +101,8 @@ namespace holovibes
 	/*! \see OutputType
 	*   \brief Link between OutputType and the GUI button display */
 	const static QMap<QString, OutputType> outputTypeMap({
-		{"16bit integer", OutputType::Integer_16b},
-		{"64bit complex", OutputType::Complex_64b}
+		{"16-bit integer", OutputType::Integer_16b},
+		{"64-bit complex", OutputType::Complex_64b}
 	});
 
 	/*! \brief Contains compute parameters.
