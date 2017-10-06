@@ -90,7 +90,14 @@ namespace holovibes
 
 			layout_toggled();
 
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+			}
 
 			set_night();
 
@@ -208,18 +215,18 @@ namespace holovibes
 			QPushButton* signalBtn = findChild<QPushButton *>("AverageSignalPushButton");
 			signalBtn->setEnabled(compute_desc_.average_enabled.load());
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
 
 			QPushButton* noiseBtn = findChild<QPushButton *>("AverageNoisePushButton");
 			noiseBtn->setEnabled(compute_desc_.average_enabled.load());
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			QPushButton* autofocusBtn = findChild<QPushButton *>("AutofocusRunPushButton");
 			autofocusBtn->setStyleSheet((autofocusBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
 			autofocusBtn->setText((autofocusBtn->isEnabled() &&
-				mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
+				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
@@ -488,7 +495,14 @@ namespace holovibes
 		void MainWindow::reload_ini()
 		{
 			import_file_stop();
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << e.what() << std::endl;
+			}
 			if (import_type_ == ImportType::File)
 				import_file();
 			else if (import_type_ == ImportType::Camera)
@@ -513,15 +527,7 @@ namespace holovibes
 			QAction	*import_action = findChild<QAction *>("actionImport");
 			QAction	*info_action = findChild<QAction *>("actionInfo");
 
-			try
-			{
-				boost::property_tree::ini_parser::read_ini(path, ptree);
-			}
-			catch (std::exception& e)
-			{
-				std::cout << e.what() << std::endl;
-				return;
-			}
+			boost::property_tree::ini_parser::read_ini(path, ptree);
 
 			if (!ptree.empty())
 			{
@@ -829,7 +835,14 @@ namespace holovibes
 			cudaDeviceReset();
 			close_windows();
 			remove_infos();
-			load_ini(GLOBAL_INI_PATH);
+			try
+			{
+				load_ini(GLOBAL_INI_PATH);
+			}
+			catch (std::exception& e)
+			{
+				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+			}
 			notify();
 		}
 
