@@ -56,7 +56,7 @@ void local_extremums(float	*input,
 			end = size;
 		float min = input[begin];
 		float max = input[begin];
-		while (begin++ < end)
+		while (++begin < end)
 		{
 			float elt = input[begin];
 			if (elt < min)
@@ -82,7 +82,7 @@ void global_extremums(float	*input,
 		float max_elt = input[2 * i + 1];
 		if (min_elt < min)
 			min = min_elt;
-		if (max_elt > max)
+		else if (max_elt > max)
 			max = max_elt;
 	}
 	output[0] = min;
