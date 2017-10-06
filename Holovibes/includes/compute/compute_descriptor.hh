@@ -213,7 +213,7 @@ namespace holovibes
 		std::atomic<float>			autofocus_z_max;
 
 		std::atomic<ushort>			cuts_contrast_p_offset;
-		std::atomic<float>			import_pixel_size;
+		std::atomic<float>			pixel_size;
 		std::atomic<uint>			convo_matrix_width;
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;

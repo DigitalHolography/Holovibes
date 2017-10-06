@@ -16,12 +16,13 @@ __global__
 void kernel_quadratic_lens(cuComplex*			output,
 						const FrameDescriptor	fd,
 						const float				lambda,
-						const float				dist)
+						const float				dist,
+						const float				pixel_size)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	size = fd.width * fd.height;
 	const float	c = M_PI / (lambda * dist);
-	const float	dx = fd.pixel_size * 1.0e-6f;
+	const float	dx = pixel_size * 1.0e-6f;
 	const float	dy = dx;
 	float		x, y;
 	uint		i, j;
@@ -44,13 +45,14 @@ __global__
 void kernel_spectral_lens(cuComplex				*output,
 						const FrameDescriptor	fd,
 						const float				lambda,
-						const float				distance)
+						const float				distance,
+						const float				pixel_size)
 {
 	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
 	const uint	index = j * blockDim.x * gridDim.x + i;
 	const float c = M_2PI * distance / lambda;
-	const float dx = fd.pixel_size * 1.0e-6f;
+	const float dx = pixel_size * 1.0e-6f;
 	const float dy = dx;
 	const float du = 1 / ((static_cast<float>(fd.width)) * dx);
 	const float dv = 1 / ((static_cast<float>(fd.height)) * dy);

@@ -371,7 +371,7 @@ namespace holovibes
 					input_fd,
 					compute_desc_.lambda.load(),
 					z,
-					static_cast<cudaStream_t>(0));
+					compute_desc_.pixel_size);
 				// Add FFT1.
 				fn_vect_.push_back(std::bind(
 					fft_1,
@@ -407,7 +407,7 @@ namespace holovibes
 					input_fd,
 					compute_desc_.lambda.load(),
 					z,
-					static_cast<cudaStream_t>(0));
+					compute_desc_.pixel_size);
 
 				fn_vect_.push_back(std::bind(
 					fft_2,

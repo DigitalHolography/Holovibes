@@ -99,7 +99,7 @@ namespace camera
     desc_.width = 2048;
     desc_.height = 2048;
     desc_.depth = 1.f;
-    desc_.pixel_size = 7.4f;
+    pixel_size_ = 7.4f;
     desc_.byteEndian = Endianness::BigEndian;
 
     subsampling_ = 0;

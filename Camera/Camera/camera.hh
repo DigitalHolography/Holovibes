@@ -50,6 +50,11 @@ namespace camera
       return desc_;
     }
 
+    const float get_pixel_size() const override
+    {
+      return pixel_size_;
+    }
+
     const char* get_name() const override
     {
       return name_.c_str();
@@ -69,6 +74,7 @@ namespace camera
       : desc_()
       , name_("Unknown")
       , exposure_time_(0.0f)
+	  , pixel_size_(0.0f)
       , dll_instance_(nullptr)
       , create_logfile_(nullptr)
       , log_msg_(nullptr)
@@ -154,6 +160,7 @@ namespace camera
     std::string name_;
 
     float exposure_time_;
+	float pixel_size_;
 
     HINSTANCE dll_instance_; //!< Handle to the CamUtils DLL.
 

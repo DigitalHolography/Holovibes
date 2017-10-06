@@ -54,7 +54,7 @@ namespace holovibes
 		autofocus_z_iter(3),
 		flowgraphy_level(3),
 		is_cine_file(false),
-		import_pixel_size(5.42f),
+		pixel_size(5.42f),
 		img_acc_slice_xy_enabled(false),
 		img_acc_slice_xz_enabled(false),
 		img_acc_slice_yz_enabled(false),
@@ -133,7 +133,7 @@ namespace holovibes
 		autofocus_z_iter.exchange(cd.autofocus_z_iter.load());
 		flowgraphy_level.exchange(cd.flowgraphy_level.load());
 		is_cine_file.exchange(cd.is_cine_file.load());
-		import_pixel_size.exchange(cd.import_pixel_size.load());
+		pixel_size.exchange(cd.pixel_size.load());
 		img_acc_slice_xy_enabled.exchange(cd.img_acc_slice_xy_enabled.load());
 		img_acc_slice_xz_enabled.exchange(cd.img_acc_slice_xz_enabled.load());
 		img_acc_slice_yz_enabled.exchange(cd.img_acc_slice_yz_enabled.load());

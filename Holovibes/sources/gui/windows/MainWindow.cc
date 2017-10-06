@@ -179,6 +179,7 @@ namespace holovibes
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("InfoGroupBox")->setEnabled(true);
+				findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.pixel_size.load());
 				return;
 			}
 			else if (compute_desc_.compute_mode.load() == Computation::Direct && is_enabled_camera_)
@@ -349,8 +350,9 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setEnabled(!is_direct);
 			findChild<QDoubleSpinBox *>("ZDoubleSpinBox")->setValue(compute_desc_.zdistance.load());
 			findChild<QDoubleSpinBox *>("ZStepDoubleSpinBox")->setEnabled(!is_direct);
+
 			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setEnabled(!compute_desc_.is_cine_file.load());
-			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.import_pixel_size.load());
+			findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox")->setValue(compute_desc_.pixel_size.load());
 			findChild<QLineEdit *>("BoundaryLineEdit")->setText(QString::number(holovibes_.get_boundary()));
 			findChild<QSpinBox *>("KernelBufferSizeSpinBox")->setValue(compute_desc_.special_buffer_size.load());
 			findChild<QCheckBox *>("CineFileCheckBox")->setChecked(compute_desc_.is_cine_file.load());
@@ -616,8 +618,7 @@ namespace holovibes
 				// Import
 				import_action->setChecked(!ptree.get<bool>("import.hidden", false));
 				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
-				config.import_pixel_size = ptree.get<float>("import.pixel_size", config.import_pixel_size);
-				compute_desc_.import_pixel_size.exchange(config.import_pixel_size);
+				compute_desc_.pixel_size.exchange(ptree.get<float>("import.pixel_size", compute_desc_.pixel_size));
 				findChild<QSpinBox *>("ImportFpsSpinBox")->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
@@ -710,7 +711,7 @@ namespace holovibes
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
-			ptree.put<float>("import.pixel_size", compute_desc_.import_pixel_size.load());
+			ptree.put<float>("import.pixel_size", compute_desc_.pixel_size.load());
 
 			// Info
 			ptree.put<bool>("info.hidden", info_group_box->isHidden());
@@ -1658,7 +1659,7 @@ namespace holovibes
 
 		void MainWindow::set_import_pixel_size(const double value)
 		{
-			compute_desc_.import_pixel_size.exchange(value);
+			compute_desc_.pixel_size.exchange(value);
 		}
 
 		void MainWindow::set_z_iter(const int value)
@@ -2673,7 +2674,6 @@ namespace holovibes
 
 		void MainWindow::import_file()
 		{
-			import_file_stop();
 			QLineEdit *import_line_edit = findChild<QLineEdit *>("ImportPathLineEdit");
 			QSpinBox *width_spinbox = findChild<QSpinBox *>("ImportWidthSpinBox");
 			QSpinBox *height_spinbox = findChild<QSpinBox *>("ImportHeightSpinBox");
@@ -2683,7 +2683,11 @@ namespace holovibes
 			QComboBox *depth_spinbox = findChild<QComboBox *>("ImportDepthComboBox");
 			QComboBox *big_endian_checkbox = findChild<QComboBox *>("ImportEndiannessComboBox");
 			QCheckBox *cine = findChild<QCheckBox *>("CineFileCheckBox");
+			QDoubleSpinBox *pixel_size_spinbox = findChild<QDoubleSpinBox *>("PixelSizeDoubleSpinBox");
+
 			compute_desc_.stft_steps.exchange(std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f));
+			compute_desc_.pixel_size.exchange(pixel_size_spinbox->value());
+			import_file_stop();
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
@@ -2704,7 +2708,6 @@ namespace holovibes
 				static_cast<ushort>(width_spinbox->value()),
 				static_cast<ushort>(height_spinbox->value()),
 				static_cast<float>(depth_multi),
-				static_cast<float>(compute_desc_.import_pixel_size.load()),
 				(big_endian_checkbox->currentText() == QString("Big Endian") ?
 					Endianness::BigEndian : Endianness::LittleEndian) };
 			is_enabled_camera_ = false;
@@ -2824,7 +2827,7 @@ namespace holovibes
 				findChild<QSpinBox*>("ImportWidthSpinBox")->setValue(read_width);
 				read_height = std::abs(read_height);
 				findChild<QSpinBox*>("ImportHeightSpinBox")->setValue(read_height);
-				compute_desc_.import_pixel_size.exchange((1 / static_cast<double>(read_pixelpermeter_x)) * 1e6);
+				compute_desc_.pixel_size.exchange((1 / static_cast<double>(read_pixelpermeter_x)) * 1e6);
 				findChild<QComboBox*>("ImportEndiannessComboBox")->setCurrentIndex(0); // Little Endian
 
 				/*Unused fonction ready to read framerate in exposure*/

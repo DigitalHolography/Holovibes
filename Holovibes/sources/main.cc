@@ -56,7 +56,6 @@ int main(int argc, char* argv[])
 					static_cast<unsigned short>(opts.file_image_width),
 					static_cast<unsigned short>(opts.file_image_height),
 					static_cast<float>(opts.file_image_depth >> 3),
-					static_cast<float>(global::global_config.import_pixel_size),
 					(opts.file_is_big_endian ?
 					Endianness::BigEndian : Endianness::LittleEndian)
 				};

@@ -76,7 +76,7 @@ namespace camera
 		/* Fill frame descriptor const values. */
 		desc_.depth = 2;
 		desc_.byteEndian = Endianness::LittleEndian;
-		desc_.pixel_size = 6.45f;
+		pixel_size_ = 6.45f;
 		desc_.width = 2048;
 		desc_.height = 2048;
 	}
@@ -103,7 +103,7 @@ namespace camera
 		status |= PCO_SetIRSensitivity(device_, ir_sensitivity_);
 		{
 			WORD binning = (binning_enabled_ ? 2 : 1);
-			desc_.pixel_size *= binning;
+			pixel_size_ *= binning;
 			status |= PCO_SetBinning(device_, binning, binning);
 		}
 		{

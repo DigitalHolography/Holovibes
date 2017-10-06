@@ -80,7 +80,7 @@ namespace camera
     /* Fill the frame descriptor. */
     desc_.width = 2048;
     desc_.height = 2048;
-    desc_.pixel_size = 5.5f;
+    pixel_size_ = 5.5f;
     desc_.depth = 1;
     desc_.byteEndian = Endianness::BigEndian;
 
