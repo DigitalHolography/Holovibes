@@ -68,7 +68,7 @@ static void kernel_sum_one_line(float			*input,
 		float sum = 0;
 		while(index_begin < index_end)
 			sum += input[pixel_depth * (index_begin++) + offset];
-		sums_per_line[id * pixel_depth + offset] = sum;
+		sums_per_line[id] = sum;
 	}
 }
 
@@ -153,7 +153,7 @@ void composite(cuComplex	*input,
 		float *sums_per_line = nullptr;
 		const uchar pixel_depth = 3;
 		cudaMalloc(&averages, sizeof(float) * pixel_depth);
-		cudaMalloc(&sums_per_line, sizeof(float) * lines);
+		cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
 		blocks = map_blocks_to_problem(lines * pixel_depth, threads);
 		kernel_sum_one_line << <blocks, threads, 0, 0 >> > (output,
 			frame_res,
