@@ -1174,4 +1174,15 @@ namespace holovibes
 		af_env_.stft_index = 0;
 		af_env_.state = af_state::STOPPED;
 	}
+
+	Queue *ICompute::get_lens_queue()
+	{
+		if (!gpu_lens_queue_ && compute_desc_.gpu_lens_display_enabled)
+		{
+			auto fd = input_.get_frame_desc();
+			fd.depth = 8;
+			gpu_lens_queue_ = std::make_unique<Queue>(fd, 16, "GPU lens queue");
+		}
+		return gpu_lens_queue_.get();
+	}
 }

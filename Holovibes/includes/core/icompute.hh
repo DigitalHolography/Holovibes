@@ -164,6 +164,7 @@ namespace holovibes
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
 		Queue&			get_3d_vision_queue();
+		Queue*			get_lens_queue();
 		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
 		bool get_unwrap_1d_request()		const { return (unwrap_1d_requested_.load()); }
@@ -325,6 +326,7 @@ namespace holovibes
 		Queue	*gpu_img_acc_xz_;
 		Queue	*gpu_stft_queue_;
 		Queue	*gpu_3d_vision;
+		std::unique_ptr<Queue>	gpu_lens_queue_;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_yz;
 		Queue	*gpu_ref_diff_queue_;

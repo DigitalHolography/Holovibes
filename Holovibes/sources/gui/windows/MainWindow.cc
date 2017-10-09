@@ -860,14 +860,11 @@ namespace holovibes
 
 		void MainWindow::close_windows()
 		{
-			if (sliceXZ)
-				sliceXZ.reset(nullptr);
-			if (sliceYZ)
-				sliceYZ.reset(nullptr);
-			if (plot_window_)
-				plot_window_.reset(nullptr);
-			if (mainDisplay)
-				mainDisplay.reset(nullptr);
+			sliceXZ.reset(nullptr);
+			sliceYZ.reset(nullptr);
+			plot_window_.reset(nullptr);
+			mainDisplay.reset(nullptr);
+			lens_window.reset(nullptr);
 		}
 
 		void MainWindow::reset()
@@ -1518,6 +1515,34 @@ namespace holovibes
 				}
 				notify();
 				set_auto_contrast();
+			}
+		}
+
+		void MainWindow::update_lens_view(bool value)
+		{
+			if (value)
+			{
+				try
+				{
+					// set positions of new windows according to the position of the main GL window
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->height() + 300, 0);
+
+					lens_window.reset(new DirectWindow(
+						pos,
+						QSize(mainDisplay->width(), mainDisplay->height()),
+						*holovibes_.get_pipe()->get_lens_queue()));
+					lens_window->setTitle("Lens view");
+					lens_window->setCd(&compute_desc_);
+				}
+				catch (std::exception& e)
+				{
+					std::cerr << e.what() << std::endl;
+					cancel_stft_slice_view();
+				}
+			}
+			else
+			{
+				lens_window = nullptr;
 			}
 		}
 
