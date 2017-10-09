@@ -232,6 +232,15 @@ namespace holovibes
 				cd->component_b.p_max,
 				cd->component_b.weight);
 		}
+		void enqueue_lense(Queue *queue, cuComplex *lense_buffer, const FrameDescriptor& input_fd)
+		{
+			if (queue)
+			{
+				cuComplex* copied_lense_ptr = static_cast<cuComplex*>(queue->get_end());
+				queue->enqueue(lense_buffer, cudaMemcpyDeviceToDevice);
+				normalize_complex(copied_lense_ptr, input_fd.frame_res());
+			}
+		}
 	}
 
 	void Pipe::refresh()
@@ -385,10 +394,6 @@ namespace holovibes
 					compute_desc_.lambda.load(),
 					compute_desc_.zdistance.load(),
 					static_cast<cudaStream_t>(0));
-				fn_vect_.push_back([=]() {
-					if (gpu_lense_queue_)
-						gpu_lense_queue_->enqueue(gpu_lens_, cudaMemcpyDeviceToDevice);
-				});
 				// Add FFT1.
 				fn_vect_.push_back(std::bind(
 					fft_1,
@@ -452,6 +457,9 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 				}
 			}
+			fn_vect_.push_back([=]() {
+				enqueue_lense(gpu_lense_queue_.get(), gpu_lens_, input_fd);
+			});
 		}
 		// STFT Checkbox
 		if (compute_desc_.stft_enabled.load())
@@ -1052,6 +1060,8 @@ namespace holovibes
 				}
 				else
 					assert(!"Impossible case");
+
+				enqueue_lense(gpu_lense_queue_.get(), gpu_lens_, input_fd);
 
 				if (compute_desc_.img_type.load() == ImgType::Modulus
 				 || compute_desc_.img_type.load() == ImgType::Composite)

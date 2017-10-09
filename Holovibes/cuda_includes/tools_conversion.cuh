@@ -226,6 +226,11 @@ void kernel_normalize_images(float		*image,
 							const float	max,
 							const float	min,
 							const uint	size);
+__global__
+void kernel_normalize_complex(cuComplex		*image,
+							const uint	size);
+void normalize_complex(cuComplex		*image,
+						const uint	size);
 
 void rescale_float_unwrap2d(float			*input,
 							float			*output,

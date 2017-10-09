@@ -1091,7 +1091,7 @@ namespace holovibes
 		{
 			auto fd = input_.get_frame_desc();
 			fd.depth = 8;
-			gpu_lense_queue_ = std::make_unique<Queue>(fd, 32, "GPU lense queue");
+			gpu_lense_queue_ = std::make_unique<Queue>(fd, 16, "GPU lense queue");
 		}
 		return gpu_lense_queue_.get();
 	}

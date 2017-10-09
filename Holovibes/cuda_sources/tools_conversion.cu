@@ -364,22 +364,22 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 
 	if (index < size)
 	{
+		cuComplex pixel = input[index];
 		ushort x = 0;
 		ushort y = 0;
-		if (input[index].x > 65535.0f)
+		if (pixel.x > 65535.0f)
 			x = 65535;
-		else if (input[index].x >= 1.0f)
-			x = static_cast<ushort>(input[index].x * input[index].x);
+		else if (pixel.x >= 1.0f)
+			x = static_cast<ushort>(pixel.x * pixel.x);
 
-		if (input[index].y > 65535.0f)
+		if (pixel.y > 65535.0f)
 			y = 65535;
-		else if (input[index].y >= 0.0f)
-			y = static_cast<ushort>(input[index].y * input[index].x);
+		else if (pixel.y >= 0.0f)
+			y = static_cast<ushort>(pixel.y * pixel.x);
 
 		auto& res = output[index];
 		res = x << 16;
 		res |= y;
-		printf("%d %d\n", x, y);
 	}
 }
 
@@ -495,4 +495,22 @@ void kernel_normalize_images(float		*image,
 		else
 			image[index] = (image[index] - min) / (max - min) * 65535.0f;
 	}
+}
+
+__global__
+void kernel_normalize_complex(cuComplex		*image,
+							const uint	size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < size)
+		image[index].x *= 65535;
+}
+
+void normalize_complex(cuComplex		*image,
+						const uint	size)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(size, threads);
+	kernel_normalize_complex << <blocks, threads, 0, 0 >> > (image, size);
 }
