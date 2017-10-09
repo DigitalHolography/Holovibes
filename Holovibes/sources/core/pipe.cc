@@ -336,7 +336,7 @@ namespace holovibes
 			return;
 		}
 
-		const float z = af_env_.gpu_input_buffer_tmp != nullptr ? af_env_.z : compute_desc_.zdistance.load();
+		const float z = af_env_.state == af_state::RUNNING ? af_env_.z : compute_desc_.zdistance.load();
 
 		fn_vect_.push_back(std::bind(
 			&Pipe::autofocus_restore,

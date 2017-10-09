@@ -1082,7 +1082,7 @@ namespace holovibes
 		if (compute_desc_.stft_enabled.load() && af_env_.stft_index != af_env_.nsamples)
 		{
 			autofocus_reset();
-			std::cout << "Autofocus: Caller called at a wrong moment." << std::endl;
+			std::cout << "Autofocus: shouldn't be called there. You should report this bug." << std::endl;
 			return;
 		}
 
@@ -1121,7 +1121,8 @@ namespace holovibes
 					update_n_parameter(compute_desc_.nsamples.load());
 				}
 				autofocus_reset();
-				std::cout << "Autofocus: Couldn't find a good z" << std::endl;
+				std::cout << "Autofocus: Couldn't find a good value for z" << std::endl;
+				request_refresh();
 				return;
 			}
 			long long max_pos = std::distance(af_env_.focus_metric_values.begin(), biggest);
