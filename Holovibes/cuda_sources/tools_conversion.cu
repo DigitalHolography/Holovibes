@@ -370,12 +370,12 @@ void kernel_complex_to_ushort(const cuComplex	*input,
 		if (pixel.x > 65535.0f)
 			x = 65535;
 		else if (pixel.x >= 1.0f)
-			x = static_cast<ushort>(pixel.x * pixel.x);
+			x = static_cast<ushort>(pixel.x);
 
 		if (pixel.y > 65535.0f)
 			y = 65535;
 		else if (pixel.y >= 0.0f)
-			y = static_cast<ushort>(pixel.y * pixel.x);
+			y = static_cast<ushort>(pixel.y);
 
 		auto& res = output[index];
 		res = x << 16;
@@ -504,7 +504,12 @@ void kernel_normalize_complex(cuComplex		*image,
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
-		image[index].x *= 65535;
+	{
+		image[index].x += 1;
+		image[index].x *= 65535 / 2;
+		image[index].y += 1;
+		image[index].y *= 65535 / 2;
+	}
 }
 
 void normalize_complex(cuComplex		*image,

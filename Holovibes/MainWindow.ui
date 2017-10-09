@@ -716,9 +716,9 @@
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QCheckBox" name="LenseViewCheckBox">
+            <widget class="QCheckBox" name="LensViewCheckBox">
              <property name="text">
-              <string>Lense view</string>
+              <string>Lens view</string>
              </property>
             </widget>
            </item>
@@ -4875,10 +4875,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>LenseViewCheckBox</sender>
+   <sender>LensViewCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_lense_view(bool)</slot>
+   <slot>update_lens_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>342</x>
@@ -5002,6 +5002,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals_max()</slot>
   <slot>set_composite_weights()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
-  <slot>update_lense_view(bool)</slot>
+  <slot>update_lens_view(bool)</slot>
  </slots>
 </ui>

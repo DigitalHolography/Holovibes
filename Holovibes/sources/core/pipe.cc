@@ -232,13 +232,13 @@ namespace holovibes
 				cd->component_b.p_max,
 				cd->component_b.weight);
 		}
-		void enqueue_lense(Queue *queue, cuComplex *lense_buffer, const FrameDescriptor& input_fd)
+		void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const FrameDescriptor& input_fd)
 		{
 			if (queue)
 			{
-				cuComplex* copied_lense_ptr = static_cast<cuComplex*>(queue->get_end());
-				queue->enqueue(lense_buffer, cudaMemcpyDeviceToDevice);
-				normalize_complex(copied_lense_ptr, input_fd.frame_res());
+				cuComplex* copied_lens_ptr = static_cast<cuComplex*>(queue->get_end());
+				queue->enqueue(lens_buffer, cudaMemcpyDeviceToDevice);
+				normalize_complex(copied_lens_ptr, input_fd.frame_res());
 			}
 		}
 	}
@@ -458,7 +458,7 @@ namespace holovibes
 				}
 			}
 			fn_vect_.push_back([=]() {
-				enqueue_lense(gpu_lense_queue_.get(), gpu_lens_, input_fd);
+				enqueue_lens(gpu_lens_queue_.get(), gpu_lens_, input_fd);
 			});
 		}
 		// STFT Checkbox
@@ -1061,7 +1061,7 @@ namespace holovibes
 				else
 					assert(!"Impossible case");
 
-				enqueue_lense(gpu_lense_queue_.get(), gpu_lens_, input_fd);
+				enqueue_lens(gpu_lens_queue_.get(), gpu_lens_, input_fd);
 
 				if (compute_desc_.img_type.load() == ImgType::Modulus
 				 || compute_desc_.img_type.load() == ImgType::Composite)
