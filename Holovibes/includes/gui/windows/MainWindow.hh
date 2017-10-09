@@ -104,6 +104,7 @@ namespace holovibes
 			void camera_pike();
 			void camera_pixelfly();
 			void camera_xiq();
+			void camera_photon_focus();
 			void configure_camera();
 			void credits();
 			void init_image_mode(QPoint& position, QSize& size);
