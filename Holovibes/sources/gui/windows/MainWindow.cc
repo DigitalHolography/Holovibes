@@ -97,7 +97,7 @@ namespace holovibes
 			}
 			catch (std::exception& e)
 			{
-				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
 
 			set_night();
@@ -228,6 +228,8 @@ namespace holovibes
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
 			autofocusBtn->setText((autofocusBtn->isEnabled() &&
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
+			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(compute_desc_.autofocus_z_min.load());
+			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(compute_desc_.autofocus_z_max.load());
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
 				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
@@ -1894,9 +1896,6 @@ namespace holovibes
 		#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
-			const float	z_max = findChild<QDoubleSpinBox*>("AutofocusZMaxDoubleSpinBox")->value();
-			const float	z_min = findChild<QDoubleSpinBox*>("AutofocusZMinDoubleSpinBox")->value();
-
 			if (mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
 			{
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
@@ -1904,14 +1903,12 @@ namespace holovibes
 
 				notify();
 			}
-			else if (z_min >= z_max)
+			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
 				display_error("z min have to be strictly inferior to z max");
 			else
 			{
 				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
 				mainDisplay->resetTransform();
-				compute_desc_.autofocus_z_min.exchange(z_min);
-				compute_desc_.autofocus_z_max.exchange(z_max);
 
 				notify();
 			}
