@@ -123,6 +123,12 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
+### v.5.2.0
+
+* Add: Composite image
+* Add: Autofocus reworked, working in STFT
+* Add: lens displayed as complex numbers
+
 ### v.5.1.1
 
 * Add: FFT shift enable automatically after filter2D selection
@@ -142,6 +148,10 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 * Fix: 2D filter selection direction was inversed when cursor was not in the bottom-right quadrant
 * Fix: Both ',' and '.' are supported as decimal separator
+
+## September 2017 - December 2017 ##
+
+Eloi C., Florian L., and Julien G. are now working on the project until December 2017.
 
 ### v.5.0.0
 
@@ -178,7 +188,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Update: Pop-ups are now displayed in info bar
 * Several bugs fixed
 
-## January 2016 -- July 2017 ##
+## January 2017 -- July 2017 ##
 
 Alexandre B., Thomas J. are now working on the project until July 2017.
 
