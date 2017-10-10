@@ -2197,6 +2197,7 @@ namespace holovibes
 			QFileDialog dialog(this);
 			dialog.setFileMode(QFileDialog::AnyFile);
 			dialog.setNameFilter(tr("Ini files (*.ini)"));
+			dialog.setDefaultSuffix(".ini");
 			dialog.setDirectory("C:\\");
 			dialog.setWindowTitle("ROI output file");
 
@@ -2426,7 +2427,7 @@ namespace holovibes
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (int i = filename.length(); i >= 0; --i)
+			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
 				if (filename[i] == '.')
 				{
 					filename.insert(i, sub_str, 0, sub_str.length());
