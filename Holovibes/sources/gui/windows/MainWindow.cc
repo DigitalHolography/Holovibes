@@ -2419,7 +2419,6 @@ namespace holovibes
 		std::string MainWindow::set_record_filename_properties(FrameDescriptor fd, std::string filename)
 		{
 			std::string mode = (is_direct_mode() ? "D" : "H");
-			size_t i;
 
 			std::string sub_str = "_" + mode
 				+ "_" + std::to_string(fd.width)
@@ -2427,12 +2426,13 @@ namespace holovibes
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (i = filename.length(); i-- != 0;)
+			for (int i = filename.length(); i >= 0; --i)
 				if (filename[i] == '.')
-					break;
-			i++;
-			if (i != 0)
-				filename.insert(i, sub_str, 0, sub_str.length());
+				{
+					filename.insert(i, sub_str, 0, sub_str.length());
+					return filename;
+				}
+			filename += sub_str;
 			return filename;
 		}
 
