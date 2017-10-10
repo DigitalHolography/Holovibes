@@ -52,7 +52,7 @@ namespace camera
 	private:
 		PvResult result_; // containing the result status of each function called in the photonfocus sdk
 		PvDevice device_; // The connected camera
-		std::unique_ptr<PvGenParameterArray> device_params_; // Parameters of the device, used to control the streaming
+		PvGenParameterArray *device_params_; // Parameters of the device, used to control the streaming
 		PvStream stream_; // The stream linked with the device. We need it as attribute to close it properly.
 		std::unique_ptr<PvPipeline> pipeline_; // Wrapper around PvStream to control it more easily.
 

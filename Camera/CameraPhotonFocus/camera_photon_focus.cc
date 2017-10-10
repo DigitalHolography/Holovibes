@@ -19,7 +19,6 @@ namespace camera
 	CameraPhotonFocus::CameraPhotonFocus()
 		: Camera("photonfocus.ini")
 		, device_params_(nullptr)
-		, pipeline_(nullptr)
 	{
 		name_ = "MV1-D1312IE-100-G2-12";
 
@@ -76,7 +75,7 @@ namespace camera
 			throw CameraException(CameraException::NOT_CONNECTED);
 
 		// Retrieving information about the camera model
-		device_params_.reset(device_.GetGenParameters());
+		device_params_ = device_.GetGenParameters();
 
 		// Automatically find and set the optimal packet size
 		result_ = device_.NegotiatePacketSize();
@@ -97,7 +96,7 @@ namespace camera
 		// before sending the AcquisitionStart command
 		device_params_->SetIntegerValue("TLParamsLocked", 1);
 
-		DumpGenParameterArray(device_params_.get());
+		//DumpGenParameterArray(device_params_);
 
 		result_ = device_params_->ExecuteCommand("AcquisitionStart");
 		if (!result_.IsOK())
