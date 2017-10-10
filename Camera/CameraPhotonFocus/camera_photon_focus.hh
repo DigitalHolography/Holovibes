@@ -14,6 +14,13 @@
 
 #include <camera.hh>
 
+#include <PvDevice.h>
+#include <PvPipeline.h>
+#include <PvBuffer.h>
+#include <PvStream.h>
+#include <PvSystem.h>
+#include <PvInterface.h>
+
 #include "camera_exception.hh"
 
 namespace camera
@@ -24,8 +31,7 @@ namespace camera
 		CameraPhotonFocus();
 
 		virtual ~CameraPhotonFocus()
-		{
-		}
+		{}
 
 		virtual void init_camera() override;
 		virtual void start_acquisition() override;
@@ -38,7 +44,20 @@ namespace camera
 		virtual void load_default_params() override;
 		virtual void bind_params() override;
 
-	private:
+		//Debugging function to display information about the frame captured, like padding or offset
+		void display_image(PvImage *image);
 
+		bool DumpGenParameterArray(PvGenParameterArray *aArray);
+
+	private:
+		PvResult result_; // containing the result status of each function called in the photonfocus sdk
+		PvDevice device_; // The connected camera
+		std::unique_ptr<PvGenParameterArray> device_params_; // Parameters of the device, used to control the streaming
+		PvStream stream_; // The stream linked with the device. We need it as attribute to close it properly.
+		std::unique_ptr<PvPipeline> pipeline_; // Wrapper around PvStream to control it more easily.
+
+		unsigned short offset_x_;
+		unsigned short offset_y_;
+		float frame_rate_;
 	};
 }
