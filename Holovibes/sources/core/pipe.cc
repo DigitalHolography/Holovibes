@@ -571,6 +571,32 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
+
+		// XY repositioning
+		// TODO check if we're repositioning
+		fn_vect_.push_back([=]() {
+			auto frame_res = input_fd.frame_res();
+			if (last_frame_)
+			{
+				if (!convolution_)
+				{
+					float *tmp = nullptr;
+					cudaMalloc<float>(&tmp, frame_res);
+					convolution_.reset(tmp);
+				}
+				cudaStreamSynchronize(0);
+				// TODO reposition to be done here
+			}
+			else
+			{
+				cufftComplex *tmp = nullptr;
+				cudaMalloc<cufftComplex>(&tmp, frame_res);
+				last_frame_.reset(tmp);
+			}
+			cudaMemcpyAsync(last_frame_.get(), gpu_input_frame_ptr_, frame_res, cudaMemcpyDeviceToDevice, 0);
+		});
+
+
 		/* Apply conversion to floating-point respresentation. */
 		if (compute_desc_.img_type == ImgType::Composite)
 		{

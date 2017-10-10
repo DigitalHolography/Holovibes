@@ -415,6 +415,9 @@
     <ClInclude Include="cuda_includes\composite.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="includes\tools\cuda_unique_ptr.hh">
+      <Filter>c++ includes\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -539,5 +542,6 @@
     <None Include="shaders\fragment.3d.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
