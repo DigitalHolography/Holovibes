@@ -19,6 +19,7 @@ namespace camera
 	CameraPhotonFocus::CameraPhotonFocus()
 		: Camera("photonfocus.ini")
 		, device_params_(nullptr)
+		, output_image_(nullptr)
 	{
 		name_ = "MV1-D1312IE-100-G2-12";
 
@@ -88,6 +89,8 @@ namespace camera
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
 
 		bind_params();
+
+		output_image_ = new unsigned char[desc_.frame_size()];
 	}
 
 	void CameraPhotonFocus::start_acquisition()
@@ -119,6 +122,7 @@ namespace camera
 		pipeline_->Stop();
 		stream_.Close();
 		device_.Disconnect();
+		delete[] output_image_;
 	}
 
 	void* CameraPhotonFocus::get_frame()
@@ -136,38 +140,56 @@ namespace camera
 			throw CameraException(CameraException::CANT_GET_FRAME);
 		
 		//Processing buffer to retrieve a frame
-
-		unsigned char *output_image = new unsigned char[desc_.frame_res()];
 		if (buffer->GetPayloadType() == PvPayloadTypeImage)
 		{
-			// Get image specific buffer interface
 			PvImage *image = buffer->GetImage();
-
-
-			memcpy(output_image, image->GetDataPointer(), desc_.frame_res());
-			
-			//display_image(image);
+			unsigned char *raw_buffer = image->GetDataPointer();
+			memcpy(output_image_, raw_buffer, desc_.frame_size());
 		}
 
 		pipeline_->ReleaseBuffer(buffer);
-		return output_image;
+		return output_image_;
 	}
 
 	void CameraPhotonFocus::load_default_params()
 	{
 		desc_.width = 1024;
 		desc_.height = 1024;
-		pixel_size_ = 8.0f;
 		desc_.depth = 1.0f;
 		desc_.byteEndian = Endianness::LittleEndian;
 
+		pixel_size_ = 8.0f;
+
+		pixel_type_ = PvPixelType::PvPixelMono8;
+
 		exposure_time_ = 5000;
 
+		frame_rate_enable_ = true;
 		frame_rate_ = 60.0f;
+
+
 	}
 
 	void CameraPhotonFocus::load_ini_params()
 	{
+		/* Use the default value in case of fail. */
+		const boost::property_tree::ptree& pt = get_ini_pt();
+
+		name_ = pt.get<std::string>("photonfocus.name", name_);
+
+		desc_.width = pt.get<unsigned short>("photonfocus.roi_width", desc_.width);
+		desc_.height = pt.get<unsigned short>("photonfocus.roi_height", desc_.height);
+
+		offset_x_ = pt.get<unsigned short>("photonfocus.roi_startx", offset_x_);
+		offset_y_ = pt.get<unsigned short>("photonfocus.roi_starty", offset_y_);
+
+		pixel_type_ = get_pixel_type(pt.get<std::string>("photonfocus.pixel_type", ""));
+
+		exposure_time_ = pt.get<float>("photonfocus.exposure_time", exposure_time_);
+
+		frame_rate_enable_ = pt.get<bool>("photonfocus.frame_rate_enable", frame_rate_enable_);
+		if (frame_rate_enable_)
+			frame_rate_ = pt.get<float>("photonfocus.frame_rate", frame_rate_);
 	}
 
 	void CameraPhotonFocus::bind_params()
@@ -213,18 +235,46 @@ namespace camera
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 
+		result_ = device_params_->SetEnumValue("PixelFormat", pixel_type_);
+		if (!result_.IsOK())
+			throw CameraException(CameraException::CANT_SET_CONFIG);
+
+		// Setting exposure time BEFORE frame rate, since exposure time change the allowed boundaries of the frame rate value.
 		result_ = device_params_->SetFloatValue("ExposureTime", exposure_time_);
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_SET_CONFIG);
 
-		result_ = device_params_->SetFloatValue("AcquisitionFrameRate", frame_rate_);
+		result_ = device_params_->SetBooleanValue("AcquisitionFrameRateEnable", frame_rate_enable_);
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_SET_CONFIG);
+
+		if (frame_rate_enable_)
+		{
+			result_ = device_params_->SetFloatValue("AcquisitionFrameRate", frame_rate_);
+			if (!result_.IsOK())
+				throw CameraException(CameraException::CANT_SET_CONFIG);
+		}
 	}
 
 	ICamera* new_camera_device()
 	{
 		return new CameraPhotonFocus();
+	}
+
+	PvPixelType CameraPhotonFocus::get_pixel_type(std::string input)
+	{
+		// pixel_type not found in config file
+		if (input == "")
+			return pixel_type_;
+		if (input == "Mono8")
+			return PvPixelMono8;
+
+		desc_.depth = 2.0f;
+		if (input == "Mono10")
+			return PvPixelMono10;
+		if (input == "Mono12")
+			return PvPixelMono12;
+		throw CameraException(CameraException::CANT_SET_CONFIG);
 	}
 
 	void CameraPhotonFocus::display_image(PvImage *image)
@@ -245,12 +295,10 @@ namespace camera
 		std::cout << std::endl;
 	}
 
-	bool CameraPhotonFocus::DumpGenParameterArray(PvGenParameterArray *aArray)
+	void CameraPhotonFocus::DumpGenParameterArray(PvGenParameterArray *aArray, std::string Param)
 	{
 		// Getting array size
 		PvUInt32 lParameterArrayCount = aArray->GetCount();
-		std::cout << std::endl;
-		std::cout << "Array has " << lParameterArrayCount << " parameters" << std::endl;
 
 		// Traverse through Array and print out parameters available
 		for (PvUInt32 x = 0; x < lParameterArrayCount; x++)
@@ -260,15 +308,13 @@ namespace camera
 
 			// Don't show invisible parameters - display everything up to Guru
 			if (!lGenParameter->IsVisible(PvGenVisibilityGuru))
-			{
 				continue;
-			}
 
 			// Get and print parameter's name
 			PvString lGenParameterName, lCategory;
 			lGenParameter->GetCategory(lCategory);
 			lGenParameter->GetName(lGenParameterName);
-			if (lCategory.GetAscii() != "Root\\ImageFormatControl")
+			if (Param != "" && lCategory.GetAscii() != Param)
 				continue;
 			std::cout << lCategory.GetAscii() << ":" << lGenParameterName.GetAscii() << ", ";
 
@@ -345,7 +391,5 @@ namespace camera
 			}
 			std::cout << std::endl;
 		}
-
-		return true;
 	}
 }

@@ -44,10 +44,17 @@ namespace camera
 		virtual void load_default_params() override;
 		virtual void bind_params() override;
 
-		//Debugging function to display information about the frame captured, like padding or offset
+		// Convert string read from config file to PvPixelType enum. Set default value if input is empty
+		PvPixelType get_pixel_type(std::string input);
+
+		//Debugging function to display information about the image. Debug purpose
 		void display_image(PvImage *image);
 
-		bool DumpGenParameterArray(PvGenParameterArray *aArray);
+		/* \brief Display every parameter of a gen parameter array. Debug purpose
+		*  \param aArray GenParameterArray to display
+		*  \param Param Limit the display to a category of parameters
+		*/
+		void DumpGenParameterArray(PvGenParameterArray *aArray, std::string Param = "");
 
 	private:
 		PvResult result_; // containing the result status of each function called in the photonfocus sdk
@@ -56,8 +63,15 @@ namespace camera
 		PvStream stream_; // The stream linked with the device. We need it as attribute to close it properly.
 		std::unique_ptr<PvPipeline> pipeline_; // Wrapper around PvStream to control it more easily.
 
-		unsigned short offset_x_;
-		unsigned short offset_y_;
-		float frame_rate_;
+		unsigned char *output_image_; // Output buffer
+
+		/* Image Format */
+		unsigned short offset_x_; // x coordinate of the top-left corner of ROI
+		unsigned short offset_y_; // y coordinate of the top-left corner of ROI
+		PvPixelType pixel_type_; // Encoding format of pixels
+
+		/* Acquisition Control */
+		bool frame_rate_enable_; // enables constant frame rate
+		float frame_rate_; // fps. Computed automatically if frame_rate_enable_ is not set
 	};
 }
