@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "5.2.0"
+#define MyAppVersion "5.2.2"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -63,6 +63,7 @@ Source: "x64\Release\CameraIxon.dll"; DestDir: "{app}\{#MyAppVersion}";Component
 Source: "x64\Release\CameraPCOEdge.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraPCOPixelfly.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraPike.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraPhotonFocus.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraXiq.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
@@ -74,6 +75,7 @@ Source: "x64\Release\adimec.ini"; DestDir: "{app}\{#MyAppVersion}";Components: p
 Source: "x64\Release\edge.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\ids.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\ixon.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\photonfocus.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

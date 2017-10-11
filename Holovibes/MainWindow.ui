@@ -2791,9 +2791,10 @@ p, li { white-space: pre-wrap; }
      </property>
      <addaction name="actionNone"/>
      <addaction name="actionAdimec"/>
+     <addaction name="actionIXon"/>
      <addaction name="actionEdge"/>
      <addaction name="actionIDS"/>
-     <addaction name="actionIXon"/>
+     <addaction name="actionPhotonFocus"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
@@ -2838,7 +2839,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>IDS</string>
+    <string>IDS CMOSIS CMV 4000</string>
    </property>
   </action>
   <action name="actionPike">
@@ -2846,7 +2847,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Pike</string>
+    <string>PIKE F421</string>
    </property>
   </action>
   <action name="actionPixelfly">
@@ -2854,7 +2855,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Pixelfly</string>
+    <string>PCO Pixelfly</string>
    </property>
   </action>
   <action name="actionXIQ">
@@ -2862,7 +2863,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>XIQ</string>
+    <string>XIMEA xiQ MQ042 m/RG CM</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -2982,12 +2983,12 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionIXon">
    <property name="text">
-    <string>iXon</string>
+    <string>ANDOR iXon + 885</string>
    </property>
   </action>
   <action name="actionEdge">
    <property name="text">
-    <string>Edge 4.2 LT</string>
+    <string>PCO Edge 4.2 LT</string>
    </property>
   </action>
   <action name="actionImport">
@@ -3006,7 +3007,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAdimec">
    <property name="text">
-    <string>Adimec</string>
+    <string>ADIMEC Quartz 2A2750 M</string>
    </property>
   </action>
   <action name="actionInfo">
@@ -3056,6 +3057,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionSave_ini">
    <property name="text">
     <string>Save .ini</string>
+   </property>
+  </action>
+  <action name="actionPhotonFocus">
+   <property name="text">
+    <string>PHOTON FOCUS MV1-D1312IE-100-G2-12</string>
    </property>
   </action>
  </widget>
@@ -4248,8 +4254,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>82</y>
+     <x>65</x>
+     <y>93</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4897,6 +4903,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionPhotonFocus</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_photon_focus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>629</x>
+     <y>278</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>644</x>
+     <y>240</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5010,5 +5032,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_weights()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
+  <slot>camera_photon_focus()</slot>
  </slots>
 </ui>
