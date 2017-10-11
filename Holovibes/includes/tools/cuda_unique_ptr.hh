@@ -27,15 +27,11 @@ namespace holovibes
 	public:
 		using base = std::unique_ptr<T, std::function<void(T*)>>;
 		CudaUniquePtr()
-			: base(nullptr, [&](T *ptr) {
-			cudaFree(ptr);
-		})
+			: base(nullptr, cudaFree)
 		{}
 
 		CudaUniquePtr(T *ptr)
-			: base(ptr, [&](T *ptr) {
-			cudaFree(ptr);
-		})
+			: base(ptr, cudaFree)
 		{}
 	};
 }

@@ -31,6 +31,7 @@
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
+#include "tools_compute.cuh"
 #include "tools.hh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
@@ -575,16 +576,31 @@ namespace holovibes
 		// XY repositioning
 		// TODO check if we're repositioning
 		fn_vect_.push_back([=]() {
+			// TODO divide the frame by 65535 in some other buffer to avoid precision loss
 			auto frame_res = input_fd.frame_res();
 			if (last_frame_)
 			{
 				if (!convolution_)
 				{
 					float *tmp = nullptr;
-					cudaMalloc<float>(&tmp, frame_res);
+					cudaMalloc<float>(&tmp, frame_res * sizeof(float));
 					convolution_.reset(tmp);
 				}
 				cudaStreamSynchronize(0);
+				cufftHandle plan2d_x;
+				cufftHandle plan2d_k;
+				cufftPlan2d(&plan2d_x, input_fd.width, input_fd.height, CUFFT_C2C);
+				cufftPlan2d(&plan2d_k, input_fd.width, input_fd.height, CUFFT_C2C);
+				convolution_operator(gpu_input_frame_ptr_,
+					last_frame_.get(),
+					convolution_.get(),
+					frame_res,
+					plan2d_x,
+					plan2d_k);
+				/*float test[1024];
+				cudaMemcpy(test, last_frame_.get(), 1024 * 4, cudaMemcpyDeviceToHost);//*/
+				cufftDestroy(plan2d_x);
+				cufftDestroy(plan2d_k);
 				// TODO reposition to be done here
 			}
 			else
