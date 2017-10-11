@@ -44,7 +44,8 @@ namespace holovibes
 		Ixon,
 		Pike,
 		Pixelfly,
-		xiQ
+		xiQ,
+		PhotonFocus
 	};
 
 	/*! \brief	Rendering mode for Hologram */

@@ -991,6 +991,11 @@ namespace holovibes
 			change_camera(CameraKind::xiQ);
 		}
 
+		void MainWindow::camera_photon_focus()
+		{
+			change_camera(CameraKind::PhotonFocus);
+		}
+
 		void MainWindow::configure_camera()
 		{
 			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
