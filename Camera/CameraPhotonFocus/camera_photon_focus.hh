@@ -63,7 +63,7 @@ namespace camera
 		PvStream stream_; // The stream linked with the device. We need it as attribute to close it properly.
 		std::unique_ptr<PvPipeline> pipeline_; // Wrapper around PvStream to control it more easily.
 
-		unsigned char *output_image_; // Output buffer
+		std::unique_ptr<PvUInt8[]> output_image_; // Output buffer
 
 		/* Image Format */
 		unsigned short offset_x_; // x coordinate of the top-left corner of ROI

@@ -28,14 +28,14 @@ int main(int argc, char* argv[])
 		QLocale::setDefault(QLocale("en_US"));
 		QApplication a(argc, argv);
 		QSplashScreen splash(QPixmap("holovibes_logo.png"));
+		splash.show();
 
 		#ifndef _DEBUG
 		/* Hides the console window. */
 		//ShowWindow(GetConsoleWindow(), SW_HIDE);
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		#endif /* !_DEBUG */
 
-		splash.show();
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		gui::MainWindow w(h);
 		w.show();
 		splash.finish(&w);

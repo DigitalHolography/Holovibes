@@ -19,7 +19,6 @@ namespace camera
 	CameraPhotonFocus::CameraPhotonFocus()
 		: Camera("photonfocus.ini")
 		, device_params_(nullptr)
-		, output_image_(nullptr)
 	{
 		name_ = "MV1-D1312IE-100-G2-12";
 
@@ -90,7 +89,7 @@ namespace camera
 
 		bind_params();
 
-		output_image_ = new unsigned char[desc_.frame_size()];
+		output_image_ = std::make_unique<PvUInt8[]>(desc_.frame_size());
 	}
 
 	void CameraPhotonFocus::start_acquisition()
@@ -104,6 +103,15 @@ namespace camera
 		result_ = device_params_->ExecuteCommand("AcquisitionStart");
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
+		
+		for (int i = 0; i < 20; ++i) {
+			PvBuffer *buffer = nullptr;
+			PvResult  operation_result;
+			result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
+			if (!result_.IsOK() || !operation_result.IsOK())
+				std::cout << result_.GetCode() << std::endl;
+			pipeline_->ReleaseBuffer(buffer);
+		}
 	}
 
 	void CameraPhotonFocus::stop_acquisition()
@@ -122,7 +130,6 @@ namespace camera
 		pipeline_->Stop();
 		stream_.Close();
 		device_.Disconnect();
-		delete[] output_image_;
 	}
 
 	void* CameraPhotonFocus::get_frame()
@@ -130,25 +137,29 @@ namespace camera
 		// Retrieve next buffer		
 		PvBuffer *buffer = nullptr;
 		PvResult  operation_result;
-		result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
 
+		result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
+		
 		// Connection problem or Timeout
-		if (!result_.IsOK())
+		if (result_.IsOK()) {
+			if (operation_result.IsOK()) {
+				//Processing buffer to retrieve a frame
+				if (buffer->GetPayloadType() == PvPayloadTypeImage)
+				{
+					PvImage *image = buffer->GetImage();
+					unsigned char *raw_buffer = image->GetDataPointer();
+					memcpy(output_image_.get(), raw_buffer, desc_.frame_size());
+				}
+			}
+
+			pipeline_->ReleaseBuffer(buffer);
+			if (!operation_result.IsOK())
+				throw CameraException(CameraException::CANT_GET_FRAME);
+		}
+		else
 			throw CameraException(CameraException::CANT_GET_FRAME);
 		//Problem related to the stream initialization
-		if (!operation_result.IsOK())
-			throw CameraException(CameraException::CANT_GET_FRAME);
-		
-		//Processing buffer to retrieve a frame
-		if (buffer->GetPayloadType() == PvPayloadTypeImage)
-		{
-			PvImage *image = buffer->GetImage();
-			unsigned char *raw_buffer = image->GetDataPointer();
-			memcpy(output_image_, raw_buffer, desc_.frame_size());
-		}
-
-		pipeline_->ReleaseBuffer(buffer);
-		return output_image_;
+		return output_image_.get();
 	}
 
 	void CameraPhotonFocus::load_default_params()
@@ -194,29 +205,6 @@ namespace camera
 
 	void CameraPhotonFocus::bind_params()
 	{
-		pipeline_ = std::make_unique<PvPipeline>(&stream_);
-
-		// Retrieving the maximum buffer size of the camera model
-		PvInt64 lSize = 0;
-		result_ = device_params_->GetIntegerValue("PayloadSize", lSize);
-		if (!result_.IsOK())
-			throw CameraException(CameraException::CANT_START_ACQUISITION);
-
-		// Set the Buffer size and the Buffer count
-		pipeline_->SetBufferSize(static_cast<PvUInt32>(lSize));
-		result_ = pipeline_->SetBufferCount(16); // Increase for high frame rate without missing block IDs
-		if (!result_.IsOK())
-			throw CameraException(CameraException::CANT_START_ACQUISITION);
-
-		// Have to set the Device IP destination to the Stream
-		result_ = device_.SetStreamDestination(stream_.GetLocalIPAddress(), stream_.GetLocalPort());
-		if (!result_.IsOK())
-			throw CameraException(CameraException::CANT_START_ACQUISITION);
-
-		result_ = pipeline_->Start();
-		if (!result_.IsOK())
-			throw CameraException(CameraException::CANT_START_ACQUISITION);
-
 		/* Setting device configuration */
 
 		result_ = device_params_->SetIntegerValue("Width", desc_.width);
@@ -254,6 +242,31 @@ namespace camera
 			if (!result_.IsOK())
 				throw CameraException(CameraException::CANT_SET_CONFIG);
 		}
+
+		pipeline_ = std::make_unique<PvPipeline>(&stream_);
+
+		// Retrieving the maximum buffer size of the camera model
+		PvInt64 lSize = 0;
+		result_ = device_params_->GetIntegerValue("PayloadSize", lSize);
+		if (!result_.IsOK())
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
+
+		// Set the Buffer size and the Buffer count
+		//pipeline_->SetBufferSize(static_cast<PvUInt32>(lSize));
+		//pipeline_->SetBufferSize(PvBuffer::GetRequiredSize());
+
+		result_ = pipeline_->SetBufferCount(16); // Increase for high frame rate without missing block IDs
+		if (!result_.IsOK())
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
+
+		// Have to set the Device IP destination to the Stream
+		result_ = device_.SetStreamDestination(stream_.GetLocalIPAddress(), stream_.GetLocalPort());
+		if (!result_.IsOK())
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
+
+		result_ = pipeline_->Start();
+		if (!result_.IsOK())
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
 	}
 
 	ICamera* new_camera_device()
