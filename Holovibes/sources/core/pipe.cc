@@ -602,6 +602,15 @@ namespace holovibes
 				cufftDestroy(plan2d_x);
 				cufftDestroy(plan2d_k);
 				// TODO reposition to be done here
+				uint max = 0;
+				gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
+				int x = max % input_fd.width;
+				int y = max / input_fd.width;
+				if (x > input_fd.width / 2)
+					x -= input_fd.width;
+				if (y > input_fd.height / 2)
+					y -= input_fd.height;
+				//std::cout << x << ", " << y << std::endl;
 			}
 			else
 			{
@@ -793,6 +802,8 @@ namespace holovibes
 				std::cout << e.what() << std::endl;
 			}
 		}
+
+		//fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), input_fd.frame_res() * 4, cudaMemcpyDeviceToDevice); });
 
 
 		/*Compute Accumulation buffer into gpu_float_buffer*/

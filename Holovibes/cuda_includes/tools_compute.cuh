@@ -85,3 +85,14 @@ void mean_images(cuComplex		*input,
 				uint			n,
 				uint			frame_size,
 				cudaStream_t	stream = 0);
+
+/*! \brief Finds the extremums in input
+ *
+ */
+void gpu_extremums(float			*input,
+					const uint		size,
+					float			*min,
+					float			*max,
+					uint			*min_index,
+					uint			*max_index,
+					cudaStream_t	stream = 0);

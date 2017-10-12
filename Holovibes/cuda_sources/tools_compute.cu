@@ -127,3 +127,112 @@ void mean_images(cuComplex		*input,
 
 	kernel_mean_images << <blocks, threads, 0, stream >> >(input, output, n, frame_size);
 }
+
+
+struct extr_index
+{
+	float extr;
+	uint index;
+};
+
+static __global__
+void local_extremums(float	*input,
+							struct extr_index	*output,
+							uint	block_size,
+							uint	size)
+{
+	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
+	uint begin = id * block_size;
+	if (begin < size)
+	{
+		uint min_id = begin;
+		uint max_id = begin;
+		uint end = begin + block_size;
+		if (end > size)
+			end = size;
+		float min = input[begin];
+		float max = input[begin];
+		while (++begin < end)
+		{
+			float elt = input[begin];
+			if (elt < min)
+			{
+				min = elt;
+				min_id = begin;
+			}
+			else if (elt > max)
+			{
+				max_id = begin;
+				max = elt;
+			}
+		}
+		output[2 * id].index = min_id;
+		output[2 * id].extr = min;
+		output[2 * id + 1].index = max_id;
+		output[2 * id + 1].extr = max;
+	}
+}
+
+static __global__
+void global_extremums(struct extr_index	*input,
+							struct extr_index	*output,
+							uint	block_size)
+{
+	struct extr_index min;
+	struct extr_index max;
+	for (uint i = 1; i < block_size; i++)
+	{
+		struct extr_index current_min = input[2 * i];
+		struct extr_index current_max = input[2 * i + 1];
+		if (current_min.extr < min.extr)
+			min = current_min;
+		else if (current_max.extr > max.extr)
+			max = current_max;
+	}
+	output[0] = min;
+	output[1] = max;
+}
+
+
+void gpu_extremums(float			*input,
+					const uint		size,
+					float			*min,
+					float			*max,
+					uint			*min_index,
+					uint			*max_index,
+					cudaStream_t	stream)
+{
+	const uint threads = get_max_threads_1d();
+	const ushort block_size = 1024;
+	const ushort nb_blocks = size / block_size + 1;
+
+	struct extr_index *local_extr = nullptr;
+	struct extr_index *global_extr = nullptr;
+	cudaMalloc(&local_extr, sizeof(struct extr_index) * 2 * nb_blocks);
+	cudaMalloc(&global_extr, sizeof(struct extr_index) * 2);
+
+	uint blocks = map_blocks_to_problem(nb_blocks, threads);
+	local_extremums << <threads, blocks, 0, 0 >> > (input,
+		local_extr,
+		block_size,
+		size);
+	global_extremums << <1, 1, 0, 0 >> > (local_extr,
+		global_extr,
+		block_size);
+
+	struct extr_index extremum[2];
+	cudaMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
+
+	cudaFree(local_extr);
+	cudaFree(global_extr);
+
+	if (min)
+		*min = extremum[0].extr;
+	if (max)
+		*max = extremum[1].extr;
+
+	if (min_index)
+		*min_index = extremum[0].index;
+	if (max_index)
+		*max_index = extremum[1].index;
+}
