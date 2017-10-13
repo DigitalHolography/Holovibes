@@ -23,6 +23,41 @@ namespace holovibes
 {
 	namespace gui
 	{
+
+		using Color = std::array<float, 3>;
+
+		class Overlay : protected QOpenGLFunctions
+		{
+		public:
+			Overlay();
+			virtual ~Overlay();
+
+			const Rectangle&		getZone()	const;
+			Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
+
+			const KindOfOverlay		getKind()	const;
+			const Color				getColor()	const;
+
+			void initShaderProgram();
+
+			void setZoneBuffer(QSize size);
+			void setZoneBuffer(int side, Rectangle rect, KindOfOverlay k);
+			void resetVerticesBuffer();
+			virtual void draw() = 0;
+
+			void press(QPoint pos);
+			void move(QPoint pos, QSize size);
+			void release(ushort frameSide);
+
+		protected:
+			Rectangle				Zone;
+			KindOfOverlay			kOverlay;
+			GLuint					verticesIndex, colorIndex, elemIndex;
+			QOpenGLShaderProgram*	Program;
+			Color					color_;
+		};
+
+		/*
 		using Color = std::array<float, 3>;
 		using ColorArray = std::array<Color, 7>;
 
@@ -71,7 +106,7 @@ namespace holovibes
 			bool					doubleCross_ = false;
 
 		private:
-			bool	Enabled;
-		};
+			bool	Enabled; 
+		}; */
 	}
 }
