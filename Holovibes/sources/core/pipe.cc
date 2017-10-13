@@ -597,11 +597,10 @@ namespace holovibes
 					frame_res,
 					plan2d_x,
 					plan2d_k);
-				/*float test[1024];
-				cudaMemcpy(test, last_frame_.get(), 1024 * 4, cudaMemcpyDeviceToHost);//*/
+				/*float test[2048];
+				cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//*/
 				cufftDestroy(plan2d_x);
 				cufftDestroy(plan2d_k);
-				// TODO reposition to be done here
 				uint max = 0;
 				gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 				int x = max % input_fd.width;
@@ -610,7 +609,9 @@ namespace holovibes
 					x -= input_fd.width;
 				if (y > input_fd.height / 2)
 					y -= input_fd.height;
-				//std::cout << x << ", " << y << std::endl;
+				std::cout << x << ", " << y << std::endl;
+				shift_x = (shift_x + x + input_fd.width) % input_fd.width;
+				shift_y = (shift_y + y + input_fd.height) % input_fd.height;
 			}
 			else
 			{
@@ -804,6 +805,7 @@ namespace holovibes
 		}
 
 		//fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), input_fd.frame_res() * 4, cudaMemcpyDeviceToDevice); });
+		//fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, input_fd.width, input_fd.height, shift_x, shift_y); });
 
 
 		/*Compute Accumulation buffer into gpu_float_buffer*/

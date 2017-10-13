@@ -179,8 +179,8 @@ void circ_shift(cuComplex*	input,
 				const uint	size);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
-**	given float output & inputs.
-*/
+ *	given float output & inputs.
+ */
 __global__
 void circ_shift_float(float*	input,
 					float*		output,
@@ -189,3 +189,12 @@ void circ_shift_float(float*	input,
 					const uint	width,
 					const uint	height,
 					const uint	size);
+
+/* \brief Translates the image by shift_x and shift_y
+ *
+ */
+void complex_translation(float		*frame,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y);

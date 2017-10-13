@@ -93,6 +93,8 @@ namespace holovibes
 
 		CudaUniquePtr<cufftComplex>		last_frame_;
 		CudaUniquePtr<float>			convolution_;
+		uint			shift_x;
+		uint			shift_y;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

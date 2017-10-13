@@ -178,8 +178,8 @@ void global_extremums(struct extr_index	*input,
 							struct extr_index	*output,
 							uint	block_size)
 {
-	struct extr_index min;
-	struct extr_index max;
+	struct extr_index min = input[0];
+	struct extr_index max = input[1];
 	for (uint i = 1; i < block_size; i++)
 	{
 		struct extr_index current_min = input[2 * i];

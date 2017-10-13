@@ -450,3 +450,46 @@ void circ_shift_float(float		*input,
 		//index += blockDim.x * gridDim.x;
 	}
 }
+
+__global__
+void kernel_translation(float		*input,
+						float		*output,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y)
+{
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < width * height)
+	{
+		const int new_x = index % width;
+		const int new_y = index / width;
+		const int old_x = (new_x - shift_x + width) % width;
+		const int old_y = (new_y - shift_y + height) % height;
+		output[index] = input[old_y * width + old_x];
+	}
+}
+
+void complex_translation(float		*frame,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y)
+{
+	// We have to use a temporary buffer to avoid overwriting pixels that haven't moved yet
+	float *tmp_buffer;
+	if (cudaMalloc(&tmp_buffer, width * height * sizeof(float)) != cudaSuccess)
+	{
+		std::cout << "Can't callocate buffer for repositioning" << std::endl;
+		return;
+	}
+
+
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(width * height, threads);
+
+	kernel_translation << <blocks, threads, 0, 0 >> > (frame, tmp_buffer, width, height, shift_x, shift_y);
+	cudaStreamSynchronize(0);
+	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
+	cudaFree(tmp_buffer);
+}
