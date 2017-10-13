@@ -123,6 +123,9 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Florian Lapeyre <florian.lapeyre@epita.fr>
 
 ## Changelog ##
+### v.5.2.2
+
+* Fix: PhotonFocus camera bug on first frames
 
 ### v.5.2.2
 
@@ -141,7 +144,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Add: Change output type checkboxes into a comboBox
 
 * Remove: average enabled in holovibes.ini
-* Remove: 32bits float outpute type
+* Remove: 32bits float output type
 
 ### v.5.1.0
 
