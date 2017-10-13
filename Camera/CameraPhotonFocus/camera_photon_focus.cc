@@ -130,12 +130,19 @@ namespace camera
 
 		// Retrieve next buffer		
 		result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
-		
+
+		// Displaying blockId to show lost frames
+		//std::cout << buffer->GetBlockID() << " ";
+
 		// Connection problem or Timeout
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_GET_FRAME);
 		if (operation_result.IsOK()) {
 			//Processing buffer to retrieve a frame
+
+			// Displaying blockId to show lost frames
+			//std::cout << buffer->GetBlockID();
+
 			if (buffer->GetPayloadType() == PvPayloadTypeImage)
 			{
 				PvImage *image = buffer->GetImage();
@@ -143,6 +150,9 @@ namespace camera
 				memcpy(output_image_.get(), raw_buffer, desc_.frame_size());
 			}
 		}
+
+		//std::cout << std::endl;
+
 		pipeline_->ReleaseBuffer(buffer);
 		return output_image_.get();
 	}
