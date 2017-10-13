@@ -103,15 +103,6 @@ namespace camera
 		result_ = device_params_->ExecuteCommand("AcquisitionStart");
 		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
-		
-		for (int i = 0; i < 20; ++i) {
-			PvBuffer *buffer = nullptr;
-			PvResult  operation_result;
-			result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
-			if (!result_.IsOK() || !operation_result.IsOK())
-				std::cout << result_.GetCode() << std::endl;
-			pipeline_->ReleaseBuffer(buffer);
-		}
 	}
 
 	void CameraPhotonFocus::stop_acquisition()
@@ -134,31 +125,25 @@ namespace camera
 
 	void* CameraPhotonFocus::get_frame()
 	{
-		// Retrieve next buffer		
 		PvBuffer *buffer = nullptr;
 		PvResult  operation_result;
 
+		// Retrieve next buffer		
 		result_ = pipeline_->RetrieveNextBuffer(&buffer, FRAME_TIMEOUT, &operation_result);
 		
 		// Connection problem or Timeout
-		if (result_.IsOK()) {
-			if (operation_result.IsOK()) {
-				//Processing buffer to retrieve a frame
-				if (buffer->GetPayloadType() == PvPayloadTypeImage)
-				{
-					PvImage *image = buffer->GetImage();
-					unsigned char *raw_buffer = image->GetDataPointer();
-					memcpy(output_image_.get(), raw_buffer, desc_.frame_size());
-				}
-			}
-
-			pipeline_->ReleaseBuffer(buffer);
-			if (!operation_result.IsOK())
-				throw CameraException(CameraException::CANT_GET_FRAME);
-		}
-		else
+		if (!result_.IsOK())
 			throw CameraException(CameraException::CANT_GET_FRAME);
-		//Problem related to the stream initialization
+		if (operation_result.IsOK()) {
+			//Processing buffer to retrieve a frame
+			if (buffer->GetPayloadType() == PvPayloadTypeImage)
+			{
+				PvImage *image = buffer->GetImage();
+				unsigned char *raw_buffer = image->GetDataPointer();
+				memcpy(output_image_.get(), raw_buffer, desc_.frame_size());
+			}
+		}
+		pipeline_->ReleaseBuffer(buffer);
 		return output_image_.get();
 	}
 
@@ -252,8 +237,7 @@ namespace camera
 			throw CameraException(CameraException::CANT_START_ACQUISITION);
 
 		// Set the Buffer size and the Buffer count
-		//pipeline_->SetBufferSize(static_cast<PvUInt32>(lSize));
-		//pipeline_->SetBufferSize(PvBuffer::GetRequiredSize());
+		pipeline_->SetBufferSize(static_cast<PvUInt32>(lSize));
 
 		result_ = pipeline_->SetBufferCount(16); // Increase for high frame rate without missing block IDs
 		if (!result_.IsOK())
