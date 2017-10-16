@@ -12,39 +12,39 @@
 
 #pragma once
 
-#include <ostream>
-#include <qrect.h>
+#include "compute_descriptor.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
-		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross
-		};
-		class Rectangle : public QRect
+		class OverlayManager
 		{
 		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
+			OverlayManager(WindowKind view);
+			~OverlayManager();
+
+
+			void create_autofocus();
+			void create_zoom();
+			void create_filter2D();
+			void create_noise();
+			void create_signal();
+			void create_cross();
+
+			void disable_all(KindOfOverlay ko);
+
+			void press(QPoint pos);
+			void move(QPoint pos, QSize size);
+			void release(ushort frameSide);
+
+		private:
+			void create_overlay(std::shared_ptr<Overlay> new_overlay);
+
+			std::vector<std::shared_ptr<Overlay>> overlays_;
+			WindowKind view_;
+			std::shared_ptr<Overlay> current_overlay_;
 		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

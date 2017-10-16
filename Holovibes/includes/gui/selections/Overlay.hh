@@ -29,84 +29,37 @@ namespace holovibes
 		class Overlay : protected QOpenGLFunctions
 		{
 		public:
-			Overlay();
+			Overlay(KindOfOverlay overlay);
 			virtual ~Overlay();
 
 			const Rectangle&		getZone()	const;
-			Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
+			//Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
 
-			const KindOfOverlay		getKind()	const;
-			const Color				getColor()	const;
+			const KindOfOverlay		getKind()		const;
+			const Color				getColor()		const;
+			const bool				isDisplayed()	const;
+			const bool				isActive()		const;
+			void					disable();
 
-			void initShaderProgram();
+			void initProgram();
 
-			void setZoneBuffer(QSize size);
-			void setZoneBuffer(int side, Rectangle rect, KindOfOverlay k);
-			void resetVerticesBuffer();
+			//void setZone(int side, Rectangle rect);
+
+			virtual void init() = 0;
 			virtual void draw() = 0;
 
 			void press(QPoint pos);
-			void move(QPoint pos, QSize size);
-			void release(ushort frameSide);
+			virtual void move(QPoint pos, QSize size) = 0;
+			virtual void release(ushort frameSide);
 
 		protected:
-			Rectangle				Zone;
-			KindOfOverlay			kOverlay;
-			GLuint					verticesIndex, colorIndex, elemIndex;
-			QOpenGLShaderProgram*	Program;
+			Rectangle				zone_;
+			KindOfOverlay			kOverlay_;
+			GLuint					verticesIndex_, colorIndex_, elemIndex_;
+			QOpenGLShaderProgram*	Program_;
 			Color					color_;
+			bool					active_;
+			bool					display_;
 		};
-
-		/*
-		using Color = std::array<float, 3>;
-		using ColorArray = std::array<Color, 7>;
-
-		class HOverlay : protected QOpenGLFunctions
-		{
-		public:
-			HOverlay();
-			virtual ~HOverlay();
-
-			const Rectangle&		getConstZone()	const;
-			Rectangle&				getZone();
-			Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
-			Rectangle				getRectBuffer(KindOfOverlay k = Zoom) const;
-
-			const KindOfOverlay		getKind()	const;
-			const Color				getColor()	const;
-			const bool				isEnabled() const;
-			void					setEnabled(bool b);
-
-			void initShaderProgram();
-			void initBuffers();
-
-			void setZoneBuffer(QSize size);
-			void setZoneBuffer(int side, Rectangle rect, KindOfOverlay k);
-			void resetVerticesBuffer();
-			void initCrossBuffer();
-			void setCrossBuffer(QPoint pos, QSize frame);
-			void setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
-			void drawSelections();
-			void drawCross(GLuint offset, GLsizei count);
-
-			void setKind(KindOfOverlay k);
-			void setColor();
-
-			void press(QPoint pos);
-			void move(QPoint pos, QSize size);
-			void release(ushort frameSide);
-
-		protected:
-			Rectangle				Zone;
-			KindOfOverlay			kOverlay;
-			std::array<Rectangle, 2>	rectBuffer;
-			GLuint					verticesIndex, colorIndex, elemIndex;
-			QOpenGLShaderProgram*	Program;
-			ColorArray				Colors;
-			bool					doubleCross_ = false;
-
-		private:
-			bool	Enabled; 
-		}; */
 	}
 }

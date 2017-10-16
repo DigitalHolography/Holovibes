@@ -12,39 +12,27 @@
 
 #pragma once
 
-#include <ostream>
-#include <qrect.h>
+#include "Overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
-		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross
-		};
-		class Rectangle : public QRect
+		class RectOverlay : public Overlay
 		{
 		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
+			RectOverlay(KindOfOverlay overlay);
+			virtual ~RectOverlay();
+
+			void init() override;
+			void draw() override;
+
+			void setBuffer(QSize win_size);
+
+			virtual void checkCorners(ushort frameSide);
+
+			virtual void move(QPoint pos, QSize win_size) override;
+			virtual void release(ushort frameSide) override;
 		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

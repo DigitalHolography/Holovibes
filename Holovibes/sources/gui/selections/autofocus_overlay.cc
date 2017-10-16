@@ -10,41 +10,23 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include <ostream>
-#include <qrect.h>
+#include "autofocus_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
+		AutofocusOverlay::AutofocusOverlay()
+			: RectOverlay(KindOfOverlay::Autofocus)
 		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross
-		};
-		class Rectangle : public QRect
+			color_ = { 1.f, 0.6f, 1.f };
+		}
+
+		void AutofocusOverlay::release(ushort frameSide)
 		{
-		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
-		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
+			RectOverlay::release(frameSide);
+
+			// handle Autofocus
+		}
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

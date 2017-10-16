@@ -10,41 +10,23 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include <ostream>
-#include <qrect.h>
+#include "zoom_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
+		ZoomOverlay::ZoomOverlay()
+			: RectOverlay(KindOfOverlay::Zoom)
 		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross
-		};
-		class Rectangle : public QRect
+			color_ = { 0.f, 0.5f, 0.f };
+		}
+
+		void ZoomOverlay::release(ushort frameSide)
 		{
-		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
-		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
+			RectOverlay::release(frameSide);
+
+			// handle Zoom
+		}
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }
