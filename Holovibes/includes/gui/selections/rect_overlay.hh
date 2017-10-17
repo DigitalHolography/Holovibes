@@ -21,7 +21,7 @@ namespace holovibes
 		class RectOverlay : public Overlay
 		{
 		public:
-			RectOverlay(KindOfOverlay overlay);
+			RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 			virtual ~RectOverlay();
 
 			void init() override;
@@ -29,10 +29,11 @@ namespace holovibes
 
 			void setBuffer(QSize win_size);
 
-			virtual void checkCorners(ushort frameSide);
+			void checkCorners();
 
 			virtual void move(QPoint pos, QSize win_size) override;
-			virtual void release(ushort frameSide) override;
+		protected:
+			Rectangle getTexZone(ushort frameSide) const;
 		};
 	}
 }

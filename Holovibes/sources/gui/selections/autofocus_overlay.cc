@@ -24,9 +24,23 @@ namespace holovibes
 
 		void AutofocusOverlay::release(ushort frameSide)
 		{
-			RectOverlay::release(frameSide);
+			checkCorners();
+
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
+
+			Rectangle texZone = getTexZone(frameSide);
 
 			// handle Autofocus
+			if (parent_->getKindOfView() == Hologram)
+			{
+				auto window = dynamic_cast<HoloWindow *>(parent_.get());
+				if (window)
+				{
+					parent_->getCd->autofocusZone(texZone, AccessMode::Set);
+					window->getPipe->request_autofocus();
+				}
+			}
 		}
 	}
 }

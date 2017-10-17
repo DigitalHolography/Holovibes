@@ -55,7 +55,6 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			Overlay.initShaderProgram();
 		}
 
 		void	DirectWindow::initializeGL()
@@ -214,10 +213,8 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			Program->release();
-			if (Overlay.isEnabled())
-				Overlay.drawSelections();
-			if (kView == KindOfView::Direct)
-				Vao.release();
+			overlay_manager_.draw();
+			Vao.release();
 		}
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
@@ -230,7 +227,7 @@ namespace holovibes
 					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
 					pos.setX(static_cast<double>(pos.x()) * multiplier);
 				}
-				Overlay.press(pos);
+				overlay_manager_.press(pos);
 			}
 		}
 
@@ -244,25 +241,15 @@ namespace holovibes
 					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
 					pos.setX(static_cast<double>(pos.x()) * multiplier);
 				}
-				Overlay.move(pos, size());
+				overlay_manager_.move(pos, size());
 			}
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
-			{
-				Overlay.release(width());
-				if (Overlay.getConstZone().topLeft() !=
-					Overlay.getConstZone().bottomRight())
-				{
-					if (Overlay.getKind() == Zoom)
-						zoomInRect(Overlay.getConstZone());
-				}
-			}
-			else if (e->button() == Qt::RightButton &&
-				Overlay.getKind() != Signal &&
-				Overlay.getKind() != Noise)
+				overlay_manager_.release(Fd.width);
+			else if (e->button() == Qt::RightButton && overlay_manager_.getKind() == KindOfOverlay::Zoom)
 				resetTransform();
 		}
 

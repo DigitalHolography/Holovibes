@@ -22,7 +22,7 @@
 
 #include <glm\gtc\matrix_transform.hpp>
 
-#include "Overlay.hh"
+#include "overlay_manager.hh"
 #include "tools_conversion.cuh"
 #include "queue.hh"
 
@@ -48,11 +48,10 @@ namespace holovibes
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView	getKindOfView() const;
-			void				setKindOfOverlay(KindOfOverlay k);
-			const KindOfOverlay	getKindOfOverlay() const;
 			void				resetSelection();
 
 			void	setCd(ComputeDescriptor* cd);
+			ComputeDescriptor* getCd();
 
 			// Transform functions ------
 			void	setTransform();
@@ -88,7 +87,7 @@ namespace holovibes
 			GLuint	Vbo, Ebo, Pbo;
 			GLuint	Tex;
 
-			HOverlay	Overlay;
+			OverlayManager	overlay_manager_;
 			static std::atomic<bool>	slicesAreLocked;
 
 			// Virtual Pure Functions ---

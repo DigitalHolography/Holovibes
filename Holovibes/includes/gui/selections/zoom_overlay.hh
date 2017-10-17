@@ -21,7 +21,7 @@ namespace holovibes
 		class ZoomOverlay : public RectOverlay
 		{
 		public:
-			ZoomOverlay();
+			ZoomOverlay(BasicOpenGLWindow* parent);
 			virtual ~ZoomOverlay();
 
 			void release(ushort frameSide) override;

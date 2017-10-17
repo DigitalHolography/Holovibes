@@ -16,8 +16,12 @@
 #include <iostream>
 #include <QOpenGLShaderProgram.h>
 #include <QOpenGLFunctions.h>
+#include <memory>
 #include "frame_desc.hh"
 #include "Rectangle.hh"
+#include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
@@ -29,11 +33,10 @@ namespace holovibes
 		class Overlay : protected QOpenGLFunctions
 		{
 		public:
-			Overlay(KindOfOverlay overlay);
+			Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 			virtual ~Overlay();
 
 			const Rectangle&		getZone()	const;
-			//Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
 
 			const KindOfOverlay		getKind()		const;
 			const Color				getColor()		const;
@@ -50,7 +53,7 @@ namespace holovibes
 
 			void press(QPoint pos);
 			virtual void move(QPoint pos, QSize size) = 0;
-			virtual void release(ushort frameSide);
+			virtual void release(ushort frameside) = 0;
 
 		protected:
 			Rectangle				zone_;
@@ -60,6 +63,7 @@ namespace holovibes
 			Color					color_;
 			bool					active_;
 			bool					display_;
+			std::shared_ptr<BasicOpenGLWindow> parent_;
 		};
 	}
 }

@@ -24,9 +24,9 @@ namespace holovibes
 {
 	namespace gui
 	{
-		OverlayManager::OverlayManager(WindowKind view)
-			: view_(view)
-			, current_overlay_(nullptr)
+		OverlayManager::OverlayManager(BasicOpenGLWindow* parent)
+			: current_overlay_(nullptr)
+			, parent_(parent)
 		{
 
 		}
@@ -42,32 +42,32 @@ namespace holovibes
 
 		void OverlayManager::create_autofocus()
 		{
-			create_overlay(std::make_shared<AutofocusOverlay>());
+			create_overlay(std::make_shared<AutofocusOverlay>(parent_));
 		}
 
 		void OverlayManager::create_zoom()
 		{
-			create_overlay(std::make_shared<ZoomOverlay>());
+			create_overlay(std::make_shared<ZoomOverlay>(parent_));
 		}
 
 		void OverlayManager::create_filter2D()
 		{
-			create_overlay(std::make_shared<Filter2DOverlay>());
+			create_overlay(std::make_shared<Filter2DOverlay>(parent_));
 		}
 
 		void OverlayManager::create_noise()
 		{
-			create_overlay(std::make_shared<NoiseOverlay>());
+			create_overlay(std::make_shared<NoiseOverlay>(parent_));
 		}
 
 		void OverlayManager::create_signal()
 		{
-			create_overlay(std::make_shared<SignalOverlay>());
+			create_overlay(std::make_shared<SignalOverlay>(parent_));
 		}
 
 		void OverlayManager::create_cross()
 		{
-			create_overlay(std::make_shared<CrossOverlay>(view_));
+			create_overlay(std::make_shared<CrossOverlay>(parent_));
 		}
 
 		void OverlayManager::press(QPoint pos)
@@ -93,6 +93,71 @@ namespace holovibes
 			for (auto o : overlays_)
 				if (o->getKind() == ko)
 					o->disable();
+		}
+
+		void OverlayManager::draw()
+		{
+			for (auto o : overlays_)
+				if (o->isActive() && o->isDisplayed())
+				{
+					if (o->getKind() == Cross)
+						drawCross(o);
+					else
+						o->draw();
+				}
+		}
+
+		void OverlayManager::drawCross(std::shared_ptr<Overlay> cross)
+		{
+			CrossOverlay *cross_overlay = dynamic_cast<CrossOverlay *>(cross);
+			if (!cross_overlay)
+				return
+		}
+
+		void OverlayManager::clean()
+		{
+			// Delete all disabled overlays
+			overlays_.erase(
+				std::remove_if(
+					overlays_.begin(),
+					overlays_.end(),
+					[](auto overlay) { return overlay->isDisable(); }));
+		}
+
+		void OverlayManager::reset()
+		{
+			for (auto o : overlays_)
+				o->disable();
+			switch (parent_->getKindOfView())
+			{
+			case Direct:
+			case Hologram:
+				create_zoom();
+				break;
+			default:
+				//Single cross
+				break;
+			}
+		}
+
+		const Rectangle& OverlayManager::getZone() const
+		{
+			return current_overlay_->getZone();
+		}
+
+		KindOfOverlay OverlayManager::getKind() const
+		{
+			return current_overlay_->getKind();
+		}
+
+		bool OverlayManager::setCrossBuffer(QPoint pos, QSize frame)
+		{
+			
+		}
+
+		bool OverlayManager::setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame)
+		{
+			
 		}
 	}
 }

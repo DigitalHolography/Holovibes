@@ -30,6 +30,7 @@ namespace holovibes
 			void		setSignalZone(Rectangle signal);
 			void		setNoiseZone(Rectangle noise);
 
+			void	zoomInRect(Rectangle zone);
 
 		protected:
 			int	texDepth, texType;
@@ -42,8 +43,6 @@ namespace holovibes
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
-
-			void	zoomInRect(Rectangle zone);
 		};
 	}
 }

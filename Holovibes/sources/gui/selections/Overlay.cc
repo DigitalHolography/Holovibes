@@ -16,7 +16,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		Overlay::Overlay(KindOfOverlay overlay)
+		Overlay::Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
 			: zone_(0, 0)
 			, kOverlay_(overlay)
 			, verticesIndex_(0)
@@ -25,6 +25,7 @@ namespace holovibes
 			, Program_(nullptr)
 			, active_(true)
 			, display_(false)
+			, parent_(parent)
 		{
 			initProgram();
 		}

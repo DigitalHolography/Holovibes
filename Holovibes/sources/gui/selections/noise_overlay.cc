@@ -24,9 +24,17 @@ namespace holovibes
 
 		void NoiseOverlay::release(ushort frameSide)
 		{
-			RectOverlay::release(frameSide);
+			checkCorners();
+
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
+			Rectangle texZone = getTexZone(frameSide);
 
 			// handle Noise
+			if (parent_->getKindOfView() == Hologram)
+				// TODO: fix plot window
+				parent_->getCd->signalZone(texZone, AccessMode::Set);
+
 		}
 	}
 }

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "compute_descriptor.hh"
+#include "BasicOpenGLWindow.hh"
 #include "Overlay.hh"
 
 namespace holovibes
@@ -22,7 +22,7 @@ namespace holovibes
 		class OverlayManager
 		{
 		public:
-			OverlayManager(WindowKind view);
+			OverlayManager(BasicOpenGLWindow* parent);
 			~OverlayManager();
 
 
@@ -34,17 +34,27 @@ namespace holovibes
 			void create_cross();
 
 			void disable_all(KindOfOverlay ko);
+			void reset();
 
 			void press(QPoint pos);
 			void move(QPoint pos, QSize size);
 			void release(ushort frameSide);
 
+			void draw();
+			void clean();
+			const Rectangle& getZone() const;
+			KindOfOverlay getKind() const;
+			bool setCrossBuffer(QPoint pos, QSize frame);
+			bool setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
+
 		private:
 			void create_overlay(std::shared_ptr<Overlay> new_overlay);
 
+			void drawCross(std::shared_ptr<Overlay> cross);
+
 			std::vector<std::shared_ptr<Overlay>> overlays_;
-			WindowKind view_;
 			std::shared_ptr<Overlay> current_overlay_;
+			std::shared_ptr<BasicOpenGLWindow> parent_;
 		};
 	}
 }

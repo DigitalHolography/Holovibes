@@ -21,10 +21,10 @@ namespace holovibes
 		class Filter2DOverlay : public RectOverlay
 		{
 		public:
-			Filter2DOverlay();
+			Filter2DOverlay(BasicOpenGLWindow* parent);
 			virtual ~Filter2DOverlay();
 
-			void checkCorners(ushort frameSide) override;
+			void checkCorners(ushort frameSide);
 			void make_square();
 
 			void move(QPoint pos, QSize win_size) override;

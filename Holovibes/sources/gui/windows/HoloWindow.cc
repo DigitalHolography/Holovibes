@@ -30,19 +30,21 @@ namespace holovibes
 		HoloWindow::~HoloWindow()
 		{}
 
+		std::shared_ptr<ICompute> HoloWindow::getPipe()
+		{
+			return Ic;
+		}
+
 		void	HoloWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			Overlay.initShaderProgram();
 		}
 
 		void	HoloWindow::paintGL()
 		{
-			DirectWindow::paintGL();
-			// ---------------
 			if (Cd->stft_view_enabled.load())
 			{
 				QPoint top_left;
@@ -60,17 +62,13 @@ namespace holovibes
 						top_left.setY(Cd->y_accu_min_level);
 						bottom_right.setY(Cd->y_accu_max_level);
 					}
-					Overlay.setDoubleCrossBuffer(top_left, bottom_right, QSize(Fd.width, Fd.height));
-					Overlay.drawCross(0, 4);
+					overlay_manager_.setDoubleCrossBuffer(top_left, bottom_right, QSize(Fd.width, Fd.height));
 				}
 				else
-				{
-					Overlay.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
-					Overlay.drawCross(0, 4);
-				}
+					overlay_manager_.setCrossBuffer(top_left, QSize(Fd.width, Fd.height));
 			}
-			// ---------------
-			Vao.release();
+
+			DirectWindow::paintGL();
 		}
 
 		void	HoloWindow::mousePressEvent(QMouseEvent* e)
@@ -84,55 +82,16 @@ namespace holovibes
 			QPoint pos(e->x() * (Fd.width / static_cast<float>(width())),
 				e->y() * (Fd.height / static_cast<float>(height())));
 			mouse_position = pos;
-			if (!Cd->stft_view_enabled.load())
-				DirectWindow::mouseMoveEvent(e);
-			else if (Cd->stft_view_enabled.load() && !slicesAreLocked.load())
+			if (Cd->stft_view_enabled.load() && !slicesAreLocked.load())
 				updateCursorPosition(pos);
+			else if (!Cd->stft_view_enabled.load())
+				DirectWindow::mouseMoveEvent(e);
 		}
 
 		void	HoloWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (!Cd->stft_view_enabled.load())
-			{
 				DirectWindow::mouseReleaseEvent(e);
-				if (e->button() == Qt::LeftButton)
-				{
-					if (Overlay.getConstZone().topLeft() !=
-						Overlay.getConstZone().bottomRight() && 
-						Overlay.getKind() != Zoom)
-					{
-						Rectangle texZone = Overlay.getTexZone(height(), Fd.width);
-						if (Overlay.getKind() == Filter2D)
-						{
-							Cd->stftRoiZone(texZone, AccessMode::Set);
-							Ic->request_filter2D_roi_update();
-							Ic->request_filter2D_roi_end();
-						}
-						else if (Overlay.getKind() == Autofocus)
-						{
-							Cd->autofocusZone(texZone, AccessMode::Set);
-							Ic->request_autofocus();
-							Overlay.setKind(KindOfOverlay::Zoom);
-						}
-						// TO DO ~ SCRAP FIX ------
-						// Noise & Signal are reversed to "fix" PlotWindow graph render
-						// An another solution must be found to correct this bug.
-						// Normal code :
-						/*
-						else if (Overlay.getKind() == Signal)
-							Cd->signalZone(texZone, AccessMode::Set);
-						else if (Overlay.getKind() == Noise)
-							Cd->noiseZone(texZone, AccessMode::Set);
-						*/
-						else if (Overlay.getKind() == Noise)
-							Cd->signalZone(texZone, AccessMode::Set);
-						else if (Overlay.getKind() == Signal)
-							Cd->noiseZone(texZone, AccessMode::Set);
-						// ----------------------
-						Ic->notify_observers();
-					}
-				}
-			}
 			else if (e->button() == Qt::RightButton)
 				resetTransform();
 		}
@@ -187,7 +146,8 @@ namespace holovibes
 			Cd->stftCursor(&pos, AccessMode::Set);
 			// ---------------
 			makeCurrent();
-			Overlay.setCrossBuffer(pos, QSize(Fd.width, Fd.height));
+			if (!overlay_manager_.setCrossBuffer(pos, QSize(Fd.width, Fd.height)))
+				return;
 			if (!slicesAreLocked && Cd)
 			{
 				Cd->x_accu_min_level = std::min(mouse_position.x(), last_clicked.x());

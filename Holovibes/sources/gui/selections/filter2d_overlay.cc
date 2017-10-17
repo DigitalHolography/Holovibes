@@ -16,8 +16,8 @@ namespace holovibes
 {
 	namespace gui
 	{
-		Filter2DOverlay::Filter2DOverlay()
-			: RectOverlay(KindOfOverlay::Filter2D)
+		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Filter2D, parent)
 		{
 			color_ = { 0.f, 0.62f, 1.f };
 		}
@@ -63,14 +63,29 @@ namespace holovibes
 			// Making it a square again
 			make_square();
 
-			RectOverlay::checkCorners(frameSide);
+			RectOverlay::checkCorners();
 		}
 
 		void Filter2DOverlay::release(ushort frameSide)
 		{
-			RectOverlay::release(frameSide);
+			checkCorners(parent_->width());
+
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
+
+			Rectangle texZone = getTexZone(frameSide);
 
 			// handle Filter2D
+			if (parent_->getKindOfView() == Hologram)
+			{
+				auto window = dynamic_cast<HoloWindow *>(parent_.get());
+				if (window)
+				{
+					window->getCd()->stftRoiZone(texZone, AccessMode::Set);
+					window->getPipe()->request_filter2D_roi_update();
+					window->getPipe()->request_filter2D_roi_end();
+				}
+			}
 		}
 	}
 }

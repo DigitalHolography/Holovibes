@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "compute_descriptor.hh"
+#include "BasicOpenGLWindow.hh"
 #include "Overlay.hh"
 
 namespace holovibes
@@ -22,7 +22,7 @@ namespace holovibes
 		class CrossOverlay : public Overlay
 		{
 		public:
-			CrossOverlay(WindowKind view);
+			CrossOverlay(KindOfView view, BasicOpenGLWindow* parent);
 			virtual ~CrossOverlay();
 
 			void setBuffer(QPoint pos, QSize frame);
@@ -40,6 +40,8 @@ namespace holovibes
 			{}
 
 		private:
+			void drawCross(GLuint offset, GLsizei count);
+
 			bool doubleCross_;
 		};
 	}

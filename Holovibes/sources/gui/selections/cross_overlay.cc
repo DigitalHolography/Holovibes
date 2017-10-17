@@ -16,8 +16,8 @@ namespace holovibes
 {
 	namespace gui
 	{
-		CrossOverlay::CrossOverlay(WindowKind view)
-			: Overlay(KindOfOverlay::Cross)
+		CrossOverlay::CrossOverlay(KindOfView view, BasicOpenGLWindow* parent)
+			: Overlay(KindOfOverlay::Cross, parent)
 			, doubleCross_(false)
 		{
 			color_ = { 1.f, 0.f, 0.f };
@@ -94,6 +94,88 @@ namespace holovibes
 
 		void CrossOverlay::draw()
 		{
+			switch (parent_->getKindOfView())
+			{
+			case Hologram:
+				drawCross(0, 4);
+				break;
+			case SliceXZ:
+				drawCross(2, 2);
+			case SliceYZ:
+				drawCross(0, 2);
+			default:
+				break;
+			}
+		}
+		
+		void CrossOverlay::drawCross(GLuint offset, GLsizei count)
+		{
+			Program_->bind();
+			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
+			bool blendWasDisabled = !glIsEnabled(GL_BLEND);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+
+			float linesOppacity = 0.5f;
+			float redAreaOppacity = 0.05f;
+
+			glBlendColor(0, 0, 0, linesOppacity);
+
+			if (doubleCross_)
+			{
+				glBlendColor(0, 0, 0, redAreaOppacity);
+
+				if (count == 2)
+				{
+					if (offset == 0)
+					{
+						glDrawArrays(GL_TRIANGLES, 0, 3);
+						glDrawArrays(GL_TRIANGLES, 1, 3);
+					}
+					else
+					{
+						glDrawArrays(GL_TRIANGLES, 4, 3);
+						glDrawArrays(GL_TRIANGLES, 5, 3);
+					}
+				}
+				else if (count == 4)
+				{
+					glDrawArrays(GL_TRIANGLES, 0, 3);
+					glDrawArrays(GL_TRIANGLES, 1, 3);
+					glDrawArrays(GL_TRIANGLES, 4, 3);
+					glDrawArrays(GL_TRIANGLES, 5, 3);
+
+					// this should have been coded using glDrawElements,
+					// but for some reason it doesn't work...
+					// So I had to change the point order to use glDrawArrays
+
+					/*
+					int indexes[] = { 0, 1, 4,
+					2, 3, 6 };
+					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indexes);
+					int indexes2[] = { 2, 3, 6,
+					3, 6, 7 };
+					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indexes2);
+					*/
+				}
+
+				glBlendColor(0, 0, 0, linesOppacity);
+
+				if (count == 4)
+					glDrawArrays(GL_LINES, 0, 8);
+				else
+					glDrawArrays(GL_LINES, offset == 0 ? 0 : 4, 4);
+			}
+			else
+				glDrawArrays(GL_LINES, offset, count);
+
+			if (blendWasDisabled)
+				glDisable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glDisableVertexAttribArray(3);
+			glDisableVertexAttribArray(2);
+			Program_->release();
 		}
 	}
 }

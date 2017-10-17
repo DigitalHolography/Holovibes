@@ -16,9 +16,14 @@ namespace holovibes
 {
 	namespace gui
 	{
-		RectOverlay::RectOverlay(KindOfOverlay overlay)
-			: Overlay(overlay)
+		RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
+			: Overlay(overlay, parent)
 		{
+		}
+
+		Rectangle RectOverlay::getTexZone(ushort frameSide) const
+		{
+			return Rectangle(zone_.topLeft() * frameSide / parent_->width(), zone_.size() * frameSide / parent_->width());
 		}
 
 		void RectOverlay::init()
@@ -85,7 +90,7 @@ namespace holovibes
 			Program_->release();
 		}
 
-		void RectOverlay::checkCorners(ushort frameSide)
+		void RectOverlay::checkCorners()
 		{
 			if (zone_.width() < 0)
 			{
@@ -135,11 +140,6 @@ namespace holovibes
 			zone_.setBottomRight(pos);
 			if (display_)
 				setBuffer(win_size);
-		}
-
-		void RectOverlay::release(ushort frameSide)
-		{
-			checkCorners(frameSide);
 		}
 	}
 }
