@@ -47,12 +47,10 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < size)
-	{
-		output[index].x = input1[index].x * input2[index].x;
-		output[index].y = input1[index].y * input2[index].y;
-		//index += blockDim.x * gridDim.x;
-	}
+	output[index].x = (input1[index].x * input2[index].x) - (input1[index].y * input2[index].y);
+	output[index].y = (input1[index].y * input2[index].x) + (input1[index].x * input2[index].y);
+	//output[index].x = input1[index].x * input2[index].x;
+	//output[index].y = input1[index].y * input2[index].y;
 }
 
 __global__
@@ -63,11 +61,7 @@ void kernel_multiply_frames_float(const float	*input1,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < size)
-	{
-		output[index] = input1[index] * input2[index];
-		//index += blockDim.x * gridDim.x;
-	}
+	output[index] = input1[index] * input2[index];
 }
 
 __global__
@@ -78,11 +72,7 @@ void kernel_substract_ref(cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < size)
-	{
-		input[index].x -= reference[index % frame_size].x;
-		//index += blockDim.x * gridDim.x;
-	}
+	input[index].x -= reference[index % frame_size].x;
 }
 
 void substract_ref(cuComplex	*input,
@@ -105,15 +95,11 @@ void kernel_mean_images(cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < frame_size)
-	{
-		float tmp = 0;
-		for (int i = 0; i < n; i++)
-			tmp += input[index + i * frame_size].x;
-		tmp /= n;
-		output[index].x = tmp;
-		//index += blockDim.x * gridDim.x;
-	}
+	float tmp = 0;
+	for (int i = 0; i < n; i++)
+		tmp += input[index + i * frame_size].x;
+	tmp /= n;
+	output[index].x = tmp;
 }
 
 void mean_images(cuComplex		*input,

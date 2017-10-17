@@ -123,44 +123,56 @@ void demodulation(cuComplex			*input,
 }
 
 
-void convolution_operator(	const cuComplex		*x,
-							const cuComplex		*k,
+void convolution_operator(	const cuComplex		*a,
+							const cuComplex		*b,
 							float				*out,
 							const uint			size,
-							const cufftHandle	plan2d_x,
-							const cufftHandle	plan2d_k,
+							const cufftHandle	plan2d_a,
+							const cufftHandle	plan2d_b,
 							cudaStream_t		stream)
 {
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
 
-	/* The convolution operator is used only when using autofocus feature.
-	 * It could be optimized but it's useless since it will be used occasionnally. */
-	cuComplex *tmp_x;
-	cuComplex *tmp_k;
+	/* The convolution operator could be optimized. */
+	cuComplex *tmp_a;
+	cuComplex *tmp_b;
 	uint	complex_size = size * sizeof(cuComplex);
-	if (cudaMalloc<cuComplex>(&tmp_x, complex_size) != cudaSuccess)
+	if (cudaMalloc<cuComplex>(&tmp_a, complex_size) != cudaSuccess)
 		return;
-	if (cudaMalloc<cuComplex>(&tmp_k, complex_size) != cudaSuccess)
+	if (cudaMalloc<cuComplex>(&tmp_b, complex_size) != cudaSuccess)
 		return;
+	
+	cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a, CUFFT_FORWARD);
+	cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b, CUFFT_FORWARD);
+	
+    /*float* abs_a = (float*)malloc(size * sizeof(float));
+	float* abs_b = (float*)malloc(size * sizeof(float));
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, abs_a, size);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_b, abs_b, size);
+	cufftExecR2C(plan2d_a, abs_a, tmp_a);
+	cufftExecR2C(plan2d_b, abs_b, tmp_b);
 
-	cufftExecC2C(plan2d_x, const_cast<cuComplex*>(x), tmp_x, CUFFT_FORWARD);
-	cufftExecC2C(plan2d_k, const_cast<cuComplex*>(k), tmp_k, CUFFT_FORWARD);
+	free(abs_a);
+	free(abs_b);*/
+
+	cudaStreamSynchronize(stream);
+	cuComplex *tmp_c;
+	if(cudaMalloc<cuComplex>(&tmp_c, complex_size) != cudaSuccess)
+		return;
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_c, size);
 
 	cudaStreamSynchronize(stream);
 
-	kernel_multiply_frames_complex << <blocks, threads, 0, stream >> >(tmp_x, tmp_k, tmp_x, size);
+	cufftExecC2C(plan2d_a, tmp_c, tmp_c, CUFFT_INVERSE);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_x, tmp_x, tmp_x, CUFFT_INVERSE);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_c, out, size);
 
-	cudaStreamSynchronize(stream);
-
-	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(tmp_x, out, size);
-
-	cudaFree(tmp_x);
-	cudaFree(tmp_k);
+	cudaFree(tmp_a);
+	cudaFree(tmp_b);
+	cudaFree(tmp_c);
 }
 
 void frame_memcpy(float				*input,
