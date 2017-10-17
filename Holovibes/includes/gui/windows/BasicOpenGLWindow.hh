@@ -48,10 +48,12 @@ namespace holovibes
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView	getKindOfView() const;
+			const KindOfOverlay getKindOfOverlay() const;
 			void				resetSelection();
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
+			OverlayManager getOverlayManager();
 
 			// Transform functions ------
 			void	setTransform();

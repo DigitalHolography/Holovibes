@@ -11,13 +11,15 @@
 /* **************************************************************************** */
 
 #include "autofocus_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		AutofocusOverlay::AutofocusOverlay()
-			: RectOverlay(KindOfOverlay::Autofocus)
+		AutofocusOverlay::AutofocusOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Autofocus, parent)
 		{
 			color_ = { 1.f, 0.6f, 1.f };
 		}
@@ -37,8 +39,8 @@ namespace holovibes
 				auto window = dynamic_cast<HoloWindow *>(parent_.get());
 				if (window)
 				{
-					parent_->getCd->autofocusZone(texZone, AccessMode::Set);
-					window->getPipe->request_autofocus();
+					parent_->getCd()->autofocusZone(texZone, AccessMode::Set);
+					window->getPipe()->request_autofocus();
 				}
 			}
 		}

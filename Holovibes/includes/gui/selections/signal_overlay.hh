@@ -21,8 +21,7 @@ namespace holovibes
 		class SignalOverlay : public RectOverlay
 		{
 		public:
-			SignalOverlay();
-			virtual ~SignalOverlay();
+			SignalOverlay(BasicOpenGLWindow *parent);
 
 			void release(ushort frameSide) override;
 		};

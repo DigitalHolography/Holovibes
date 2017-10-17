@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include "zoom_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
 
 namespace holovibes
 {
@@ -31,17 +33,21 @@ namespace holovibes
 
 			// handle Zoom
 			// Since we cannot zoom in slice yet, we have to cast here.
-			if (parent_->getKindOfView() == Direct)
+			switch (parent_->getKindOfView())
 			{
-				auto window = dynamic_cast<DirectWindow *>(parent_.get());
+			case Direct:
+			case Hologram:
+			{
+				DirectWindow* window = dynamic_cast<DirectWindow *>(parent_.get());
 				if (window)
 					window->zoomInRect(zone_);
+				break;
 			}
-			else if (parent_->getKindOfView() == Hologram)
-			{
-				auto window = dynamic_cast<HoloWindow *>(parent_.get());
-				if (window)
-					window->zoomInRect(zone_);
+			// Not implemented yet
+			case SliceXZ:
+			case SliceYZ:
+			default:
+				break;
 			}
 		}
 	}

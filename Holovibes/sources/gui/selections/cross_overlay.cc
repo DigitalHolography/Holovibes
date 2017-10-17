@@ -11,12 +11,13 @@
 /* **************************************************************************** */
 
 #include "cross_overlay.hh"
+#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		CrossOverlay::CrossOverlay(KindOfView view, BasicOpenGLWindow* parent)
+		CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
 			: Overlay(KindOfOverlay::Cross, parent)
 			, doubleCross_(false)
 		{

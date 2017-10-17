@@ -19,14 +19,13 @@
 #include <memory>
 #include "frame_desc.hh"
 #include "Rectangle.hh"
-#include "BasicOpenGLWindow.hh"
-#include "DirectWindow.hh"
-#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
+
+		class BasicOpenGLWindow;
 
 		using Color = std::array<float, 3>;
 

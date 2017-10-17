@@ -104,8 +104,6 @@ namespace holovibes
 
 		void	HoloWindow::keyPressEvent(QKeyEvent* e)
 		{
-			static bool initCross = false;
-
 			DirectWindow::keyPressEvent(e);
 			if (Cd->stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
@@ -122,11 +120,6 @@ namespace holovibes
 				else
 				{
 					setCursor(Qt::CrossCursor);
-					if (!initCross)
-					{
-						Overlay.initCrossBuffer();
-						initCross = true;
-					}
 				}
 			}
 		}

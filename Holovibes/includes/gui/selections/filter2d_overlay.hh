@@ -22,7 +22,6 @@ namespace holovibes
 		{
 		public:
 			Filter2DOverlay(BasicOpenGLWindow* parent);
-			virtual ~Filter2DOverlay();
 
 			void checkCorners(ushort frameSide);
 			void make_square();

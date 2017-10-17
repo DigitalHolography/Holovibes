@@ -21,8 +21,7 @@ namespace holovibes
 		class AutofocusOverlay : public RectOverlay
 		{
 		public:
-			AutofocusOverlay();
-			virtual ~AutofocusOverlay();
+			AutofocusOverlay(BasicOpenGLWindow* parent);
 
 			void release(ushort frameSide) override;
 		};

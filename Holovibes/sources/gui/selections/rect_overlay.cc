@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "rect_overlay.hh"
+#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {

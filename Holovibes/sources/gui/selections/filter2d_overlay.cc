@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include "filter2d_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {

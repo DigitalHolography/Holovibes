@@ -22,7 +22,6 @@ namespace holovibes
 		{
 		public:
 			ZoomOverlay(BasicOpenGLWindow* parent);
-			virtual ~ZoomOverlay();
 
 			void release(ushort frameSide) override;
 		};

@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
 #include "Overlay.hh"
 
 namespace holovibes
@@ -49,8 +48,6 @@ namespace holovibes
 
 		private:
 			void create_overlay(std::shared_ptr<Overlay> new_overlay);
-
-			void drawCross(std::shared_ptr<Overlay> cross);
 
 			std::vector<std::shared_ptr<Overlay>> overlays_;
 			std::shared_ptr<Overlay> current_overlay_;

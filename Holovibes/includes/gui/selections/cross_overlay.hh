@@ -22,8 +22,7 @@ namespace holovibes
 		class CrossOverlay : public Overlay
 		{
 		public:
-			CrossOverlay(KindOfView view, BasicOpenGLWindow* parent);
-			virtual ~CrossOverlay();
+			CrossOverlay(BasicOpenGLWindow* parent);
 
 			void setBuffer(QPoint pos, QSize frame);
 			void setDoubleBuffer(QPoint pos1, QPoint pos2, QSize frame);

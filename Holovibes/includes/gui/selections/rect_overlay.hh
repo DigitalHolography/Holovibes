@@ -22,7 +22,6 @@ namespace holovibes
 		{
 		public:
 			RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
-			virtual ~RectOverlay();
 
 			void init() override;
 			void draw() override;

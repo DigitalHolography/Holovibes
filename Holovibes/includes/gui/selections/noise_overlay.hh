@@ -21,8 +21,7 @@ namespace holovibes
 		class NoiseOverlay : public RectOverlay
 		{
 		public:
-			NoiseOverlay();
-			virtual ~NoiseOverlay();
+			NoiseOverlay(BasicOpenGLWindow* parent);
 
 			void release(ushort frameSide) override;
 		};

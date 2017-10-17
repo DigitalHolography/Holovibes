@@ -1242,7 +1242,6 @@ namespace holovibes
 
 			mainDisplay->setCursor(Qt::ArrowCursor);
 			mainDisplay->resetSelection();
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 
 			notify();
 		}
@@ -1332,7 +1331,10 @@ namespace holovibes
 					sliceYZ->setPIndex(compute_desc_.pindex.load());
 					sliceYZ->setCd(&compute_desc_);
 
-					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
+					mainDisplay->getOverlayManager().create_cross();
+					sliceXZ->getOverlayManager().create_cross();
+					sliceYZ->getOverlayManager().create_cross();
+
 					compute_desc_.stft_view_enabled.exchange(true);
 					set_auto_contrast_cuts();
 					notify();
@@ -1438,7 +1440,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				mainDisplay->resetTransform();
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Filter2D);
+				mainDisplay->getOverlayManager().create_filter2D();
 				findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
 				compute_desc_.log_scale_slice_xy_enabled.exchange(true);
 				compute_desc_.shift_corners_enabled.exchange(false);
@@ -1457,7 +1459,8 @@ namespace holovibes
 				compute_desc_.filter_2d_enabled.exchange(false);
 				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
 				compute_desc_.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->getOverlayManager().disable_all(Filter2D);
+				mainDisplay->getOverlayManager().create_zoom();
 				mainDisplay->resetTransform();
 				set_auto_contrast();
 				notify();
@@ -1926,9 +1929,11 @@ namespace holovibes
 		#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
-			if (mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
+			// If current overlay is Autofocus, disable it
+			if (mainDisplay->getKindOfOverlay() == Autofocus)
 			{
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->getOverlayManager().disable_all(Autofocus);
+				mainDisplay->getOverlayManager().create_zoom();
 				mainDisplay->resetTransform();
 
 				notify();
@@ -1937,9 +1942,8 @@ namespace holovibes
 				display_error("z min have to be strictly inferior to z max");
 			else
 			{
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
+				mainDisplay->getOverlayManager().create_autofocus();
 				mainDisplay->resetTransform();
-
 				notify();
 			}
 		}
@@ -2148,9 +2152,9 @@ namespace holovibes
 		{
 			compute_desc_.average_enabled.exchange(value);
 			mainDisplay->resetTransform();
-			mainDisplay->setKindOfOverlay((value) ?
-				KindOfOverlay::Signal : KindOfOverlay::Zoom);
-			if (!value)
+			if (value)
+				mainDisplay->getOverlayManager().create_signal();
+			else
 				mainDisplay->resetSelection();
 			is_enabled_average_ = value;
 			notify();
@@ -2158,13 +2162,13 @@ namespace holovibes
 
 		void MainWindow::activeSignalZone()
 		{
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Signal);
+			mainDisplay->getOverlayManager().create_signal();
 			notify();
 		}
 
 		void MainWindow::activeNoiseZone()
 		{
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Noise);
+			mainDisplay->getOverlayManager().create_noise();
 			notify();
 		}
 
@@ -2288,7 +2292,7 @@ namespace holovibes
 					compute_desc_.signalZone(signal, AccessMode::Set);
 					compute_desc_.noiseZone(noise, AccessMode::Set);
 
-					mainDisplay->setKindOfOverlay(Signal);
+					mainDisplay->getOverlayManager().create_signal();
 				}
 				catch (std::exception& e)
 				{

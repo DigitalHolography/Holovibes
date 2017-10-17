@@ -31,22 +31,24 @@ namespace holovibes
 
 		Rectangle	DirectWindow::getSignalZone() const
 		{
-			return (Overlay.getRectBuffer());
+			//return (Overlay.getRectBuffer());
+			return Rectangle(0, 0);
 		}
 
 		Rectangle	DirectWindow::getNoiseZone() const
 		{
-			return (Overlay.getRectBuffer(KindOfOverlay::Noise));
+			//return (Overlay.getRectBuffer(KindOfOverlay::Noise));
+			return Rectangle(0, 0);
 		}
 
 		void	DirectWindow::setSignalZone(Rectangle signal)
 		{
-			Overlay.setZoneBuffer(width(), signal, KindOfOverlay::Signal);
+			//Overlay.setZoneBuffer(width(), signal, KindOfOverlay::Signal);
 		}
 
 		void	DirectWindow::setNoiseZone(Rectangle noise)
 		{
-			Overlay.setZoneBuffer(width(), noise, KindOfOverlay::Noise);
+			//Overlay.setZoneBuffer(width(), noise, KindOfOverlay::Noise);
 		}
 
 		void	DirectWindow::initShaders()

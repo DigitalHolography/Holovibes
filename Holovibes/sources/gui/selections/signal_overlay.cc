@@ -11,13 +11,14 @@
 /* **************************************************************************** */
 
 #include "signal_overlay.hh"
+#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		SignalOverlay::SignalOverlay()
-			: RectOverlay(KindOfOverlay::Signal)
+		SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Signal, parent)
 		{
 			color_ = { 0.557f, 0.4f, 0.85f };
 		}
@@ -34,7 +35,7 @@ namespace holovibes
 			// handle Signal
 			if (parent_->getKindOfView() == Hologram)
 				// TODO: fix plot window
-				parent_->getCd->noiseZone(texZone, AccessMode::Set);
+				parent_->getCd()->noiseZone(texZone, AccessMode::Set);
 
 		}
 	}

@@ -42,32 +42,32 @@ namespace holovibes
 
 		void OverlayManager::create_autofocus()
 		{
-			create_overlay(std::make_shared<AutofocusOverlay>(parent_));
+			create_overlay(std::make_shared<AutofocusOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::create_zoom()
 		{
-			create_overlay(std::make_shared<ZoomOverlay>(parent_));
+			create_overlay(std::make_shared<ZoomOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::create_filter2D()
 		{
-			create_overlay(std::make_shared<Filter2DOverlay>(parent_));
+			create_overlay(std::make_shared<Filter2DOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::create_noise()
 		{
-			create_overlay(std::make_shared<NoiseOverlay>(parent_));
+			create_overlay(std::make_shared<NoiseOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::create_signal()
 		{
-			create_overlay(std::make_shared<SignalOverlay>(parent_));
+			create_overlay(std::make_shared<SignalOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::create_cross()
 		{
-			create_overlay(std::make_shared<CrossOverlay>(parent_));
+			create_overlay(std::make_shared<CrossOverlay>(parent_.get()));
 		}
 
 		void OverlayManager::press(QPoint pos)
@@ -99,19 +99,7 @@ namespace holovibes
 		{
 			for (auto o : overlays_)
 				if (o->isActive() && o->isDisplayed())
-				{
-					if (o->getKind() == Cross)
-						drawCross(o);
-					else
-						o->draw();
-				}
-		}
-
-		void OverlayManager::drawCross(std::shared_ptr<Overlay> cross)
-		{
-			CrossOverlay *cross_overlay = dynamic_cast<CrossOverlay *>(cross);
-			if (!cross_overlay)
-				return
+					o->draw();
 		}
 
 		void OverlayManager::clean()
@@ -121,7 +109,7 @@ namespace holovibes
 				std::remove_if(
 					overlays_.begin(),
 					overlays_.end(),
-					[](auto overlay) { return overlay->isDisable(); }));
+					[](auto overlay) { return !overlay->isActive(); }));
 		}
 
 		void OverlayManager::reset()
@@ -152,12 +140,12 @@ namespace holovibes
 
 		bool OverlayManager::setCrossBuffer(QPoint pos, QSize frame)
 		{
-			
+			return false;
 		}
 
 		bool OverlayManager::setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame)
 		{
-			
+			return false;
 		}
 	}
 }

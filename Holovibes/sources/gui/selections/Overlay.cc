@@ -11,6 +11,9 @@
 /* **************************************************************************** */
 
 #include "Overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
