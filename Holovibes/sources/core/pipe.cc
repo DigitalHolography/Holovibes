@@ -750,7 +750,7 @@ namespace holovibes
 			}
 		}
 
-		stabilization_.enqueue_post_img_type();
+		stabilization_.insert_post_img_type();
 
 
 		// Inserts the output buffers into the accumulation queues

@@ -46,17 +46,21 @@ namespace holovibes
 			**
 			** Should be called just after gpu_float_buffer is computed
 			*/
-			void enqueue_post_img_type();
+			void insert_post_img_type();
 
 		private:
 
-			void enqueue_average();
+			void insert_average();
+			void insert_stabilization();
 
 			/// Buffer to keep the last frame, will be replaced by an average
 			CudaUniquePtr<cufftComplex>		last_frame_;
 
 			/// Buffer to keep the convolution product
 			CudaUniquePtr<float>			convolution_;
+
+			/// Buffer used to temporaly store the average, to compare it with current frame
+			CudaUniquePtr<float>			float_buffer_average_;
 
 			/// Current image shift
 			/// {

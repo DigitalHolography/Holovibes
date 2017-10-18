@@ -33,7 +33,13 @@ Stabilization::Stabilization(FnVector& fn_vect,
 	, cd_(cd)
 {}
 
-void Stabilization::enqueue_post_img_type()
+void Stabilization::insert_post_img_type()
+{
+	insert_stabilization();
+	insert_average();
+}
+
+void Stabilization::insert_stabilization()
 {
 	if (cd_.xy_stabilization_enabled.load())
 	{
@@ -97,10 +103,9 @@ void Stabilization::enqueue_post_img_type()
 			// Visualization of image
 			fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y); });
 	}
-	enqueue_average();
 }
 
-void Stabilization::enqueue_average()
+void Stabilization::insert_average()
 {
 	bool queue_needed = cd_.img_acc_slice_xy_enabled || cd_.xy_stabilization_enabled;
 	if (queue_needed)
@@ -128,15 +133,23 @@ void Stabilization::enqueue_average()
 		fn_vect_.push_back([=]() {
 			if (accumulation_queue_)
 			{
-				accumulation_queue_->enqueue(gpu_float_buffer_, cudaMemcpyDeviceToDevice);
+				if (!float_buffer_average_)
+				{
+					float *tmp = nullptr;
+					cudaMalloc<float>(&tmp, accumulation_queue_->get_frame_desc().frame_size());
+					float_buffer_average_.reset(tmp);
+				}
 				accumulate_images(
 					static_cast<float *>(accumulation_queue_->get_buffer()),
-					gpu_float_buffer_,
+					float_buffer_average_.get(),
 					accumulation_queue_->get_start_index(),
 					accumulation_queue_->get_max_elts(),
 					cd_.img_acc_slice_xy_level.load(),
 					accumulation_queue_->get_frame_desc().frame_size() / sizeof(float),
 					0);
+				// TODO stabilize here
+				accumulation_queue_->enqueue(gpu_float_buffer_, cudaMemcpyDeviceToDevice);
+				cudaMemcpy(gpu_float_buffer_, float_buffer_average_.get(), accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
 			}
 		});
 	}
