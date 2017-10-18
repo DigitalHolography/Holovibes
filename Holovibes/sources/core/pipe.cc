@@ -574,58 +574,59 @@ namespace holovibes
 
 
 		// XY repositioning
-		// TODO check if we're repositioning
-		fn_vect_.push_back([=]() {
-			// TODO divide the frame by 65535 in some other buffer to avoid precision loss
-			auto frame_res = input_fd.frame_res();
-			if (last_frame_)
-			{
-				if (!convolution_)
+		if (compute_desc_.xy_stabilization_enabled.load())
+		{
+			fn_vect_.push_back([=]() {
+				auto frame_res = input_fd.frame_res();
+				if (last_frame_)
 				{
-					float *tmp = nullptr;
-					cudaMalloc<float>(&tmp, frame_res * sizeof(float));
-					convolution_.reset(tmp);
-				}
-				cudaStreamSynchronize(0);
-				cufftHandle plan2d_a;
-				cufftHandle plan2d_b;
+					if (!convolution_)
+					{
+						float *tmp = nullptr;
+						cudaMalloc<float>(&tmp, frame_res * sizeof(float));
+						convolution_.reset(tmp);
+					}
+					cudaStreamSynchronize(0);
+					cufftHandle plan2d_a;
+					cufftHandle plan2d_b;
 
-				cufftPlan2d(&plan2d_a, input_fd.width, input_fd.height, CUFFT_C2C); // C2C
-				cufftPlan2d(&plan2d_b, input_fd.width, input_fd.height, CUFFT_C2C);
-				convolution_operator(gpu_input_frame_ptr_,
-					//gpu_input_frame_ptr_,
-					last_frame_.get(),
-					convolution_.get(),
-					frame_res,
-					plan2d_a,
-					plan2d_b);
-				/*float test[2048];
-				cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//*/
-				cufftDestroy(plan2d_a);
-				cufftDestroy(plan2d_b);
-				uint max = 0;
-				gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
-				// x y: Coordinates of maximum of the correlation function
-				int x = max % input_fd.width;
-				int y = max / input_fd.width;
-				if (x > input_fd.width / 2)
-					x -= input_fd.width;
-				if (y > input_fd.height / 2)
-					y -= input_fd.height;
-				std::cout << x << ", " << y << std::endl;
-				/*shift_x = (shift_x + x + input_fd.width) % input_fd.width;
-				shift_y = (shift_y + y + input_fd.height) % input_fd.height;*/
-				shift_x = x;
-				shift_y = y;
-			}
-			else
-			{
-				cufftComplex *tmp = nullptr;
-				cudaMalloc<cufftComplex>(&tmp, frame_res);
-				last_frame_.reset(tmp);
-			}
-			cudaMemcpyAsync(last_frame_.get(), gpu_input_frame_ptr_, frame_res, cudaMemcpyDeviceToDevice, 0);
-		});
+					cufftPlan2d(&plan2d_a, input_fd.width, input_fd.height, CUFFT_C2C); // C2C
+					cufftPlan2d(&plan2d_b, input_fd.width, input_fd.height, CUFFT_C2C);
+					convolution_operator(gpu_input_frame_ptr_,
+						//gpu_input_frame_ptr_,
+						last_frame_.get(),
+						convolution_.get(),
+						frame_res,
+						plan2d_a,
+						plan2d_b);
+					/*float test[2048];
+					cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//*/
+					cufftDestroy(plan2d_a);
+					cufftDestroy(plan2d_b);
+					uint max = 0;
+					gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
+					// x y: Coordinates of maximum of the correlation function
+					int x = max % input_fd.width;
+					int y = max / input_fd.width;
+					if (x > input_fd.width / 2)
+						x -= input_fd.width;
+					if (y > input_fd.height / 2)
+						y -= input_fd.height;
+					std::cout << x << ", " << y << std::endl;
+					/*shift_x = (shift_x + x + input_fd.width) % input_fd.width;
+					shift_y = (shift_y + y + input_fd.height) % input_fd.height;*/
+					shift_x = x;
+					shift_y = y;
+				}
+				else
+				{
+					cufftComplex *tmp = nullptr;
+					cudaMalloc<cufftComplex>(&tmp, frame_res);
+					last_frame_.reset(tmp);
+				}
+				cudaMemcpyAsync(last_frame_.get(), gpu_input_frame_ptr_, frame_res, cudaMemcpyDeviceToDevice, 0);
+			});
+		}
 
 
 		/* Apply conversion to floating-point respresentation. */
@@ -809,10 +810,12 @@ namespace holovibes
 			}
 		}
 		// Visualization of convolution matrix
-		fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), input_fd.frame_res() * 4, cudaMemcpyDeviceToDevice); });
+		if (compute_desc_.xy_stabilization_show_convolution.load() && compute_desc_.xy_stabilization_enabled.load())
+			fn_vect_.push_back([=]() {
+				cudaMemcpy(gpu_float_buffer_, convolution_.get(), input_fd.frame_res() * 4, cudaMemcpyDeviceToDevice);
+			});
 		// Visualization of image
 		//fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, input_fd.width, input_fd.height, shift_x /*+ 650*/, shift_y /*- 450*/); });
-
 
 		/*Compute Accumulation buffer into gpu_float_buffer*/
 		if (compute_desc_.img_acc_slice_xy_enabled.load())

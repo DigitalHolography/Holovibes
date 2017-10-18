@@ -183,6 +183,7 @@ namespace holovibes
 			{
 				findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ViewGroupBox")->setEnabled(false);
+				findChild<GroupBox *>("MotionFocusGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
@@ -202,6 +203,7 @@ namespace holovibes
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
 			}
+			findChild<GroupBox *>("MotionFocusGroupBox")->setEnabled(true);
 
 			findChild<QLineEdit *>("ROIOutputPathLineEdit")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
@@ -1836,6 +1838,15 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::set_xy_stabilization_enable(bool value)
+		{
+			compute_desc_.xy_stabilization_enabled.exchange(value);
+			pipe_refresh();
+			while (holovibes_.get_pipe()->get_refresh_request())
+				continue;
+			set_auto_contrast();
+		}
+
 		void MainWindow::set_import_pixel_size(const double value)
 		{
 			compute_desc_.pixel_size.exchange(value);
@@ -1937,6 +1948,15 @@ namespace holovibes
 
 				notify();
 			}
+		}
+
+		void MainWindow::set_xy_stabilization_show_convolution(bool value)
+		{
+			compute_desc_.xy_stabilization_show_convolution.exchange(value);
+			pipe_refresh();
+			while (holovibes_.get_pipe()->get_refresh_request())
+				continue;
+			set_auto_contrast();
 		}
 
 		void MainWindow::set_z_min(const double value)
@@ -2418,11 +2438,24 @@ namespace holovibes
 
 		std::string MainWindow::set_record_filename_properties(FrameDescriptor fd, std::string filename)
 		{
-			std::string mode = (is_direct_mode() ? "D" : "H");
+			std::string sub_str = "_";
+
+			if (is_direct_mode())
+				sub_str += "D";
+			else
+			{
+				if (compute_desc_.current_window == WindowKind::XYview)
+					sub_str += "XY";
+				else if (compute_desc_.current_window == WindowKind::XZview)
+					sub_str += "XZ";
+				else
+					sub_str += "YZ";
+				sub_str += "_H";
+			}
+
 			size_t i;
 
-			std::string sub_str = "_" + mode
-				+ "_" + std::to_string(fd.width)
+			sub_str += "_" + std::to_string(fd.width)
 				+ "_" + std::to_string(fd.height)
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
