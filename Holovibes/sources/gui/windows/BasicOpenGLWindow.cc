@@ -82,7 +82,7 @@ namespace holovibes
 			return Cd;
 		}
 
-		OverlayManager BasicOpenGLWindow::getOverlayManager()
+		OverlayManager& BasicOpenGLWindow::getOverlayManager()
 		{
 			return overlay_manager_;
 		}

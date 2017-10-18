@@ -53,7 +53,7 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
-			OverlayManager getOverlayManager();
+			OverlayManager& getOverlayManager();
 
 			// Transform functions ------
 			void	setTransform();

@@ -30,14 +30,14 @@ namespace holovibes
 			, display_(false)
 			, parent_(parent)
 		{
-			initProgram();
 		}
 
 		Overlay::~Overlay()
 		{
 			if (elemIndex_) glDeleteBuffers(1, &elemIndex_);
 			if (verticesIndex_) glDeleteBuffers(1, &verticesIndex_);
-			//if (!Program_) delete Program_;
+			if (colorIndex_) glDeleteBuffers(1, &colorIndex_);
+			delete Program_;
 		}
 
 		const Rectangle& Overlay::getZone() const
@@ -77,7 +77,7 @@ namespace holovibes
 			display_ = true;
 		}
 
-		void	Overlay::initProgram()
+		void Overlay::initProgram()
 		{
 			initializeOpenGLFunctions();
 			Program_ = new QOpenGLShaderProgram();
@@ -87,6 +87,13 @@ namespace holovibes
 				std::cerr << "[Error] " << Program_->log().toStdString() << std::endl;
 			init();
 			Program_->release();
+		}
+
+		void Overlay::print()
+		{
+			std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_
+				<< ", active: " << active_ << ", display: " << display_
+				<< std::endl;
 		}
 	}
 } 

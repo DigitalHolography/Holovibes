@@ -31,6 +31,7 @@ namespace holovibes
 			void create_noise();
 			void create_signal();
 			void create_cross();
+			void create_default();
 
 			void disable_all(KindOfOverlay ko);
 			void reset();
@@ -46,12 +47,18 @@ namespace holovibes
 			bool setCrossBuffer(QPoint pos, QSize frame);
 			bool setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
 
+			void printVector();
+
 		private:
 			void create_overlay(std::shared_ptr<Overlay> new_overlay);
 
 			std::vector<std::shared_ptr<Overlay>> overlays_;
 			std::shared_ptr<Overlay> current_overlay_;
-			std::shared_ptr<BasicOpenGLWindow> parent_;
+
+			// When we delete BasicOpenGlWindow which contains an instance of this,
+			// we cannot have a pointer to it otherwise it will never be destroyed.
+			// We could use weak_ptr instead of raw pointer.
+			BasicOpenGLWindow* parent_;
 		};
 	}
 }

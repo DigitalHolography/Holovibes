@@ -21,7 +21,7 @@ namespace holovibes
 		AutofocusOverlay::AutofocusOverlay(BasicOpenGLWindow* parent)
 			: RectOverlay(KindOfOverlay::Autofocus, parent)
 		{
-			color_ = { 1.f, 0.6f, 1.f };
+			color_ = { 1.f, 0.8f, 0.f };
 		}
 
 		void AutofocusOverlay::release(ushort frameSide)
@@ -36,13 +36,14 @@ namespace holovibes
 			// handle Autofocus
 			if (parent_->getKindOfView() == Hologram)
 			{
-				auto window = dynamic_cast<HoloWindow *>(parent_.get());
+				auto window = dynamic_cast<HoloWindow *>(parent_);
 				if (window)
 				{
 					parent_->getCd()->autofocusZone(texZone, AccessMode::Set);
 					window->getPipe()->request_autofocus();
 				}
 			}
+			active_ = false;
 		}
 	}
 }

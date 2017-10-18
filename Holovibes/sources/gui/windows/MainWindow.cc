@@ -1332,9 +1332,6 @@ namespace holovibes
 					sliceYZ->setCd(&compute_desc_);
 
 					mainDisplay->getOverlayManager().create_cross();
-					sliceXZ->getOverlayManager().create_cross();
-					sliceYZ->getOverlayManager().create_cross();
-
 					compute_desc_.stft_view_enabled.exchange(true);
 					set_auto_contrast_cuts();
 					notify();
@@ -2094,6 +2091,7 @@ namespace holovibes
 					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
+				mainDisplay->getOverlayManager().printVector();
 				notify();
 				//set_auto_contrast();
 				pipe_refresh();

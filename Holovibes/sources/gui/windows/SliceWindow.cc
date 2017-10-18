@@ -204,6 +204,7 @@ namespace holovibes
 				overlay_manager_.setCrossBuffer(p, s);
 			}
 			overlay_manager_.draw();
+			//overlay_manager_.clean();
 
 			Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);

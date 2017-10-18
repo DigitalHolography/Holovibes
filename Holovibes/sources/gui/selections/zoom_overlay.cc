@@ -38,7 +38,7 @@ namespace holovibes
 			case Direct:
 			case Hologram:
 			{
-				DirectWindow* window = dynamic_cast<DirectWindow *>(parent_.get());
+				DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
 				if (window)
 					window->zoomInRect(zone_);
 				break;
@@ -49,6 +49,7 @@ namespace holovibes
 			default:
 				break;
 			}
+			active_ = false;
 		}
 	}
 }

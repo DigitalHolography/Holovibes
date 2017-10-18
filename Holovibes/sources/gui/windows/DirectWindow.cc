@@ -57,6 +57,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
+			overlay_manager_.create_zoom();
 		}
 
 		void	DirectWindow::initializeGL()
@@ -216,6 +217,7 @@ namespace holovibes
 
 			Program->release();
 			overlay_manager_.draw();
+			//overlay_manager_.clean();
 			Vao.release();
 		}
 

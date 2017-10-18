@@ -54,6 +54,8 @@ namespace holovibes
 			virtual void move(QPoint pos, QSize size) = 0;
 			virtual void release(ushort frameside) = 0;
 
+			void print();
+
 		protected:
 			Rectangle				zone_;
 			KindOfOverlay			kOverlay_;
@@ -62,7 +64,7 @@ namespace holovibes
 			Color					color_;
 			bool					active_;
 			bool					display_;
-			std::shared_ptr<BasicOpenGLWindow> parent_;
+			BasicOpenGLWindow*		parent_;
 		};
 	}
 }

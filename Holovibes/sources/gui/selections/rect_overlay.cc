@@ -73,7 +73,7 @@ namespace holovibes
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-			// Program_ realsed by caller (initProgram)
+			// Program_ released by caller (initProgram)
 		}
 
 		void RectOverlay::draw()
@@ -85,8 +85,8 @@ namespace holovibes
 
 			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
-			glDisableVertexAttribArray(3);
 			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(3);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program_->release();
 		}
