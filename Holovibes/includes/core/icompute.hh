@@ -321,7 +321,6 @@ namespace holovibes
 		uint	frame_count_;
 		af_env	af_env_;
 
-		Queue	*gpu_img_acc_xy_;
 		Queue	*gpu_img_acc_yz_;
 		Queue	*gpu_img_acc_xz_;
 		Queue	*gpu_stft_queue_;

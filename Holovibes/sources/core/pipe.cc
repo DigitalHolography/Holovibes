@@ -284,11 +284,6 @@ namespace holovibes
 		if (update_acc_requested_.load())
 		{
 			update_acc_requested_.exchange(false);
-			update_acc_parameter(gpu_img_acc_xy_,
-					compute_desc_.img_acc_slice_xy_enabled,
-					compute_desc_.img_acc_slice_xy_level,
-					input_.get_frame_desc(),
-					compute_desc_.img_type == ImgType::Composite ? 12.f : 4.f);
 			FrameDescriptor new_fd_xz = input_.get_frame_desc();
 			FrameDescriptor new_fd_yz = input_.get_frame_desc();
 			new_fd_xz.height = compute_desc_.nsamples;
@@ -757,12 +752,11 @@ namespace holovibes
 
 		stabilization_.enqueue_post_img_type();
 
-		/*Compute Accumulation buffer into gpu_float_buffer*/
-		if (compute_desc_.img_acc_slice_xy_enabled.load())
-			enqueue_buffer(gpu_img_acc_xy_,
-				gpu_float_buffer_,
-				compute_desc_.img_acc_slice_xy_level.load(),
-				gpu_float_buffer_size_ / sizeof(float));
+
+		// Inserts the output buffers into the accumulation queues
+		// and rewrite the average into the output buffer
+		// For the XY view, this happens in stabilization.cc,
+		// as the average is used in the intermediate computations
 		if (compute_desc_.img_acc_slice_yz_enabled.load())
 			enqueue_buffer(gpu_img_acc_yz_,
 				static_cast<float*>(gpu_float_cut_yz_),

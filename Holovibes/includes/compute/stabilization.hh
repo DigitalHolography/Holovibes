@@ -19,6 +19,7 @@
 # include "cuda_unique_ptr.hh"
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
+#include "queue.hh"
 
 namespace holovibes
 {
@@ -48,6 +49,9 @@ namespace holovibes
 			void enqueue_post_img_type();
 
 		private:
+
+			void enqueue_average();
+
 			/// Buffer to keep the last frame, will be replaced by an average
 			CudaUniquePtr<cufftComplex>		last_frame_;
 
@@ -59,6 +63,8 @@ namespace holovibes
 			uint							shift_x;
 			uint							shift_y;
 			/// }
+
+			std::unique_ptr<Queue>			accumulation_queue_;
 
 			/// Pipe data
 			/// {

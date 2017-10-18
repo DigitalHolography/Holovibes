@@ -14,6 +14,7 @@
 #include "compute_descriptor.hh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "tools_conversion.cuh"
 #include <iostream>
 #include <cufft.h>
 
@@ -95,5 +96,48 @@ void Stabilization::enqueue_post_img_type()
 		else
 			// Visualization of image
 			fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y); });
+	}
+	enqueue_average();
+}
+
+void Stabilization::enqueue_average()
+{
+	bool queue_needed = cd_.img_acc_slice_xy_enabled || cd_.xy_stabilization_enabled;
+	if (queue_needed)
+	{
+		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_size())
+		{
+			auto new_fd = fd_;
+			new_fd.depth = cd_.img_type == ImgType::Composite ? 12.0 : 4.0;
+			try
+			{
+				accumulation_queue_.reset(new Queue(new_fd, cd_.img_acc_slice_xy_level.load(), "AccumulationQueueXY"));
+			}
+			catch (std::logic_error&)
+			{
+				accumulation_queue_.reset(nullptr);
+			}
+			if (!accumulation_queue_)
+				std::cerr << "Error: can't allocate queue" << std::endl;
+		}
+	}
+	else if (!queue_needed)
+		accumulation_queue_.reset(nullptr);
+	if (accumulation_queue_)
+	{
+		fn_vect_.push_back([=]() {
+			if (accumulation_queue_)
+			{
+				accumulation_queue_->enqueue(gpu_float_buffer_, cudaMemcpyDeviceToDevice);
+				accumulate_images(
+					static_cast<float *>(accumulation_queue_->get_buffer()),
+					gpu_float_buffer_,
+					accumulation_queue_->get_start_index(),
+					accumulation_queue_->get_max_elts(),
+					cd_.img_acc_slice_xy_level.load(),
+					accumulation_queue_->get_frame_desc().frame_size() / sizeof(float),
+					0);
+			}
+		});
 	}
 }
