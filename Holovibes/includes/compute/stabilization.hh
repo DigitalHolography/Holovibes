@@ -23,9 +23,15 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
-
 	namespace compute
 	{
+
+		/*! \class Stabilization
+		**
+		** Class that manages the stabilization of the image
+		** It manages its own buffer, initialized when needed
+		** It should be a member of the Pipe class
+		*/
 		class Stabilization
 		{
 		public:
@@ -35,19 +41,33 @@ namespace holovibes
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
+			/*! \brief Enqueue the appropriate functions
+			**
+			** Should be called just after gpu_float_buffer is computed
+			*/
 			void enqueue_post_img_type();
 
 		private:
+			/// Buffer to keep the last frame, will be replaced by an average
 			CudaUniquePtr<cufftComplex>		last_frame_;
+
+			/// Buffer to keep the convolution product
 			CudaUniquePtr<float>			convolution_;
+
+			/// Current image shift
+			/// {
 			uint							shift_x;
 			uint							shift_y;
+			/// }
 
+			/// Pipe data
+			/// {
 			FnVector& fn_vect_;
 			cuComplex* const& gpu_complex_frame_;
 			float* const& gpu_float_buffer_;
 			const camera::FrameDescriptor& fd_;
 			const ComputeDescriptor& cd_;
+			/// }
 		};
 	}
 }
