@@ -167,6 +167,7 @@
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
     <ClInclude Include="includes\compute\compute_descriptor.hh" />
+    <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
     <ClInclude Include="includes\config.hh" />
     <ClInclude Include="includes\core\holovibes.hh" />
@@ -348,6 +349,7 @@
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />
     <ClCompile Include="sources\compute\compute_descriptor.cc" />
+    <ClCompile Include="sources\compute\stabilization.cc" />
     <ClCompile Include="sources\config.cc" />
     <ClCompile Include="sources\core\holovibes.cc" />
     <ClCompile Include="sources\core\icompute.cc" />

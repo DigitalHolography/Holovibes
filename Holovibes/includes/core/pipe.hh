@@ -18,6 +18,7 @@
 
 # include "cuda_unique_ptr.hh"
 # include "icompute.hh"
+# include "stabilization.hh"
 
 namespace holovibes
 {
@@ -91,10 +92,7 @@ namespace holovibes
 		void			*gpu_output_buffer_;
 		cufftComplex	*gpu_input_frame_ptr_;
 
-		CudaUniquePtr<cufftComplex>		last_frame_;
-		CudaUniquePtr<float>			convolution_;
-		uint			shift_x;
-		uint			shift_y;
+		compute::Stabilization stabilization_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

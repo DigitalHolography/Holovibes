@@ -248,6 +248,9 @@
     <ClCompile Include="sources\3DVision.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\stabilization.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -417,6 +420,9 @@
     </ClInclude>
     <ClInclude Include="includes\tools\cuda_unique_ptr.hh">
       <Filter>c++ includes\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\stabilization.hh">
+      <Filter>c++ includes\compute</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
