@@ -104,8 +104,8 @@ namespace holovibes
 
 		cufftPlan2d(
 			&plan2d_,
-			input_.get_frame_desc().width,
 			input_.get_frame_desc().height,
+			input_.get_frame_desc().width,
 			CUFFT_C2C);
 
 		/* CUFFT plan1d temporal*/

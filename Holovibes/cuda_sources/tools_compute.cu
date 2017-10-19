@@ -32,11 +32,18 @@ void kernel_float_divide(float		*input,
 						const float	divider)
 {
   const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-  //while (index < size)
-  {
+  if (index < size)
     input[index] /= divider;
-    //index += blockDim.x * gridDim.x;
-  }
+}
+
+void gpu_float_divide(float		*input,
+	const uint	size,
+	const float	divider)
+{
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_float_divide << <blocks, threads, 0, 0 >> >(input, size, divider);
 }
 
 __global__

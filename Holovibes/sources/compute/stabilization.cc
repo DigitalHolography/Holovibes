@@ -33,18 +33,14 @@ Stabilization::Stabilization(FnVector& fn_vect,
 	, cd_(cd)
 {}
 
-void Stabilization::insert_pre_img_type()
+void Stabilization::insert_post_img_type()
 {
 	if (cd_.xy_stabilization_enabled.load())
 	{
 		insert_convolution();
 		insert_extremums();
-	}
-}
-void Stabilization::insert_post_img_type()
-{
-	if (cd_.xy_stabilization_enabled.load())
 		insert_stabilization();
+	}
 	insert_average();
 }
 
@@ -60,16 +56,15 @@ void Stabilization::insert_convolution()
 				cudaMalloc<float>(&tmp, frame_res * sizeof(float));
 				convolution_.reset(tmp);
 			}
-			cudaStreamSynchronize(0);
 			compute_convolution();
 		}
 		else
 		{
-			cufftComplex *tmp = nullptr;
-			cudaMalloc<cufftComplex>(&tmp, frame_res * sizeof(cuComplex));
+			float *tmp = nullptr;
+			cudaMalloc<float>(&tmp, frame_res * sizeof(float));
 			last_frame_.reset(tmp);
 		}
-		cudaMemcpyAsync(last_frame_.get(), gpu_complex_frame_, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
+		cudaMemcpy(last_frame_.get(), gpu_float_buffer_, frame_res * sizeof(float), cudaMemcpyDeviceToDevice);
 	});
 }
 
@@ -77,23 +72,28 @@ void Stabilization::compute_convolution()
 {
 	cufftHandle plan2d_a;
 	cufftHandle plan2d_b;
+	cufftHandle plan2d_inverse;
 
-	cufftPlan2d(&plan2d_a, fd_.width, fd_.height, CUFFT_C2C); // C2C
-	cufftPlan2d(&plan2d_b, fd_.width, fd_.height, CUFFT_C2C);
+	cufftPlan2d(&plan2d_a, fd_.height, fd_.width, CUFFT_R2C);
+	cufftPlan2d(&plan2d_b, fd_.height, fd_.width, CUFFT_R2C);
+	cufftPlan2d(&plan2d_inverse, fd_.height, fd_.width, CUFFT_C2C);
 
-	shift_corners_complex(last_frame_.get(), fd_.width, fd_.height);
-	cudaStreamSynchronize(0);
 
-	convolution_operator(gpu_complex_frame_,
-		last_frame_.get(),
+	//fn_vect_.push_back([=]() {gpu_float_divide(gpu_float_buffer_, fd_.frame_res(), 65536); });
+	gpu_float_divide(gpu_float_buffer_, fd_.frame_res(), 65536);
+	convolution_float(gpu_float_buffer_,
+		gpu_float_buffer_,
+		//last_frame_.get(),
 		convolution_.get(),
 		fd_.frame_res(),
 		plan2d_a,
-		plan2d_b);
-	///*float test[2048];
-	//cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//
+		plan2d_b,
+		plan2d_inverse);
+	float tmp[2048];
+	cudaMemcpy(tmp, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);
 	cufftDestroy(plan2d_a);
 	cufftDestroy(plan2d_b);
+	cufftDestroy(plan2d_inverse);
 }
 
 void Stabilization::insert_extremums()
