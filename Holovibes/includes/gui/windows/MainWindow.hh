@@ -244,6 +244,7 @@ namespace holovibes
 			void		cancel_stft_view(ComputeDescriptor& cd);
 			std::string	format_batch_output(const std::string& path, uint index);
 			std::string	set_record_filename_properties(FrameDescriptor fd, std::string filename);
+			OutputType	get_record_output_type();
 			void		createPipe();
 			void		createHoloWindow();
 			void		close_windows();

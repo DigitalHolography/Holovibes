@@ -95,16 +95,11 @@ namespace holovibes
 	/*! \brief	Type of encoding for the recorded output */
 	enum OutputType
 	{
+		Integer_8b,
 		Integer_16b,
+		Color_24b,
 		Complex_64b
 	};
-
-	/*! \see OutputType
-	*   \brief Link between OutputType and the GUI button display */
-	const static QMap<QString, OutputType> outputTypeMap({
-		{"16-bit integer", OutputType::Integer_16b},
-		{"64-bit complex", OutputType::Complex_64b}
-	});
 
 	/*! \brief Contains compute parameters.
 	 *

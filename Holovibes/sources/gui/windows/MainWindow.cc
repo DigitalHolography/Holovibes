@@ -148,9 +148,6 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox"));
-
-			// Populate OutputTypeComboBox
-			findChild<QComboBox *>("RecordOutputTypeComboBox")->addItems(QStringList(outputTypeMap.keys()));
 		}
 
 		MainWindow::~MainWindow()
@@ -2442,12 +2439,31 @@ namespace holovibes
 			return filename;
 		}
 
+		OutputType MainWindow::get_record_output_type()
+		{
+			if (is_direct_mode())
+			{
+				float depth = holovibes_.get_output_queue().get_frame_desc().depth;
+				if (depth == 1.f)
+					return Integer_8b;
+				if (depth == 2.f)
+					return Integer_16b;
+				if (depth == 8.f)
+					return Complex_64b;
+				return Integer_16b;
+			}
+			if (compute_desc_.compute_mode.load() == Composite)
+				return Color_24b;
+			if (compute_desc_.compute_mode.load() == Complex)
+				return Complex_64b;
+			return Integer_16b;
+		}
+
 		void MainWindow::set_record()
 		{
 			QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 			QLineEdit* path_line_edit = findChild<QLineEdit*>("ImageOutputPathLineEdit");
-			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
-			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			OutputType output_type = get_record_output_type();
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
@@ -2463,6 +2479,7 @@ namespace holovibes
 			{
 				switch (output_type)
 				{
+				case holovibes::Integer_8b:
 				case holovibes::Integer_16b:
 					if (compute_desc_.current_window == WindowKind::XYview)
 						queue = &holovibes_.get_output_queue();
@@ -2481,6 +2498,7 @@ namespace holovibes
 					pipe->request_complex_output(queue);
 					break;
 				}
+				// Record 24-bit not implemented yet
 				default:
 					break;
 				}
@@ -2509,8 +2527,7 @@ namespace holovibes
 
 		void MainWindow::finished_image_record()
 		{
-			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
-			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			OutputType output_type = get_record_output_type();
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
@@ -2523,8 +2540,6 @@ namespace holovibes
 			if (!is_direct_mode()) {
 				switch (output_type)
 				{
-				case holovibes::Integer_16b:
-					break;
 				case holovibes::Complex_64b:
 					holovibes_.get_pipe()->request_complex_output_stop();
 					break;

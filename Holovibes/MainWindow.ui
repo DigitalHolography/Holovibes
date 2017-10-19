@@ -1988,33 +1988,6 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_24">
-           <item>
-            <widget class="QLabel" name="OutputLabel">
-             <property name="text">
-              <string>Output encoding:</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="RecordOutputTypeComboBox">
-             <property name="currentText">
-              <string/>
-             </property>
-             <property name="currentIndex">
-              <number>-1</number>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToContents</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
           <widget class="QGroupBox" name="groupBox_3">
            <property name="title">
             <string>Image output:</string>
@@ -4910,8 +4883,8 @@ p, li { white-space: pre-wrap; }
    <slot>camera_photon_focus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>629</x>
-     <y>278</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
