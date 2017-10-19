@@ -47,11 +47,16 @@ namespace holovibes
 			** Should be called just after gpu_float_buffer is computed
 			*/
 			void insert_post_img_type();
+			void insert_pre_img_type();
 
 		private:
 
 			void insert_average();
+			void insert_convolution();
 			void insert_stabilization();
+			void insert_extremums();
+
+			void compute_convolution();
 
 			/// Buffer to keep the last frame, will be replaced by an average
 			CudaUniquePtr<cufftComplex>		last_frame_;

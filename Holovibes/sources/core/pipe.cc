@@ -568,6 +568,7 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
+		stabilization_.insert_pre_img_type();
 
 		/* Apply conversion to floating-point respresentation. */
 		if (compute_desc_.img_type == ImgType::Composite)

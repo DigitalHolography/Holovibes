@@ -47,6 +47,10 @@ void kernel_apply_lens(cuComplex*		input,
  * \param size_y The height of data, in pixels.
  * \param stream The CUDA stream on which to launch the operation.
  */
+void shift_corners_complex(cuComplex*		input,
+				const uint		size_x,
+				const uint		size_y,
+				cudaStream_t	stream = 0);
 void shift_corners(float*		input,
 				const uint		size_x,
 				const uint		size_y,

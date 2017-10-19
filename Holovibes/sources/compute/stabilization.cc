@@ -33,77 +33,105 @@ Stabilization::Stabilization(FnVector& fn_vect,
 	, cd_(cd)
 {}
 
+void Stabilization::insert_pre_img_type()
+{
+	if (cd_.xy_stabilization_enabled.load())
+	{
+		insert_convolution();
+		insert_extremums();
+	}
+}
 void Stabilization::insert_post_img_type()
 {
-	insert_stabilization();
+	if (cd_.xy_stabilization_enabled.load())
+		insert_stabilization();
 	insert_average();
 }
 
+void Stabilization::insert_convolution()
+{
+	fn_vect_.push_back([=]() {
+		auto frame_res = fd_.frame_res();
+		if (last_frame_)
+		{
+			if (!convolution_)
+			{
+				float *tmp = nullptr;
+				cudaMalloc<float>(&tmp, frame_res * sizeof(float));
+				convolution_.reset(tmp);
+			}
+			cudaStreamSynchronize(0);
+			compute_convolution();
+		}
+		else
+		{
+			cufftComplex *tmp = nullptr;
+			cudaMalloc<cufftComplex>(&tmp, frame_res * sizeof(cuComplex));
+			last_frame_.reset(tmp);
+		}
+		cudaMemcpyAsync(last_frame_.get(), gpu_complex_frame_, frame_res * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
+	});
+}
+
+void Stabilization::compute_convolution()
+{
+	cufftHandle plan2d_a;
+	cufftHandle plan2d_b;
+
+	cufftPlan2d(&plan2d_a, fd_.width, fd_.height, CUFFT_C2C); // C2C
+	cufftPlan2d(&plan2d_b, fd_.width, fd_.height, CUFFT_C2C);
+
+	shift_corners_complex(last_frame_.get(), fd_.width, fd_.height);
+	cudaStreamSynchronize(0);
+
+	convolution_operator(gpu_complex_frame_,
+		last_frame_.get(),
+		convolution_.get(),
+		fd_.frame_res(),
+		plan2d_a,
+		plan2d_b);
+	///*float test[2048];
+	//cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//
+	cufftDestroy(plan2d_a);
+	cufftDestroy(plan2d_b);
+}
+
+void Stabilization::insert_extremums()
+{
+	fn_vect_.push_back([=]() {
+		if (convolution_)
+		{
+			const auto frame_res = fd_.frame_res();
+			uint max = 0;
+			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
+			// x y: Coordinates of maximum of the correlation function
+			int x = max % fd_.width;
+			int y = max / fd_.width;
+			if (x > fd_.width / 2)
+				x -= fd_.width;
+			if (y > fd_.height / 2)
+				y -= fd_.height;
+			std::cout << x << ", " << y << std::endl;
+			//shift_x = (shift_x + x + fd.width) % fd.width;
+			//shift_y = (shift_y + y + fd.height) % fd.height;
+			shift_x = x;
+			shift_y = y;
+		}
+	});
+}
+
+
 void Stabilization::insert_stabilization()
 {
-	if (cd_.xy_stabilization_enabled.load())
-	{
-		fn_vect_.push_back([=]() {
-			auto frame_res = fd_.frame_res();
-			if (last_frame_)
-			{
-				if (!convolution_)
-				{
-					float *tmp = nullptr;
-					cudaMalloc<float>(&tmp, frame_res * sizeof(float));
-					convolution_.reset(tmp);
-				}
-				cudaStreamSynchronize(0);
-				cufftHandle plan2d_a;
-				cufftHandle plan2d_b;
-
-				cufftPlan2d(&plan2d_a, fd_.width, fd_.height, CUFFT_C2C); // C2C
-				cufftPlan2d(&plan2d_b, fd_.width, fd_.height, CUFFT_C2C);
-				convolution_operator(gpu_complex_frame_,
-					//gpu_input_frame_ptr_,
-					last_frame_.get(),
-					convolution_.get(),
-					frame_res,
-					plan2d_a,
-					plan2d_b);
-				///*float test[2048];
-				//cudaMemcpy(test, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);//
-				cufftDestroy(plan2d_a);
-				cufftDestroy(plan2d_b);
-				uint max = 0;
-				gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
-				// x y: Coordinates of maximum of the correlation function
-				int x = max % fd_.width;
-				int y = max / fd_.width;
-				if (x > fd_.width / 2)
-					x -= fd_.width;
-				if (y > fd_.height / 2)
-					y -= fd_.height;
-				std::cout << x << ", " << y << std::endl;
-				//shift_x = (shift_x + x + fd.width) % fd.width;
-				//shift_y = (shift_y + y + fd.height) % fd.height;
-				shift_x = x;
-				shift_y = y;
-			}
-			else
-			{
-				cufftComplex *tmp = nullptr;
-				cudaMalloc<cufftComplex>(&tmp, frame_res);
-				last_frame_.reset(tmp);
-			}
-			cudaMemcpyAsync(last_frame_.get(), gpu_complex_frame_, frame_res, cudaMemcpyDeviceToDevice, 0);
-		});
-	}
 	// Visualization of convolution matrix
-	if (cd_.xy_stabilization_enabled.load())
-	{
-		if (cd_.xy_stabilization_show_convolution.load())
-			fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), fd_.frame_res() * 4, cudaMemcpyDeviceToDevice); });
-		else
-			// Visualization of image
-			fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y); });
-	}
+	if (cd_.xy_stabilization_show_convolution.load())
+		fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), fd_.frame_res() * 4, cudaMemcpyDeviceToDevice); });
+	else if (false)
+		// Visualization of image
+		fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y); });
 }
+
+
 
 void Stabilization::insert_average()
 {
@@ -139,17 +167,19 @@ void Stabilization::insert_average()
 					cudaMalloc<float>(&tmp, accumulation_queue_->get_frame_desc().frame_size());
 					float_buffer_average_.reset(tmp);
 				}
-				accumulate_images(
-					static_cast<float *>(accumulation_queue_->get_buffer()),
-					float_buffer_average_.get(),
-					accumulation_queue_->get_start_index(),
-					accumulation_queue_->get_max_elts(),
-					cd_.img_acc_slice_xy_level.load(),
-					accumulation_queue_->get_frame_desc().frame_size() / sizeof(float),
-					0);
+				if (cd_.img_acc_slice_xy_enabled)
+					accumulate_images(
+						static_cast<float *>(accumulation_queue_->get_buffer()),
+						float_buffer_average_.get(),
+						accumulation_queue_->get_start_index(),
+						accumulation_queue_->get_max_elts(),
+						cd_.img_acc_slice_xy_level.load(),
+						accumulation_queue_->get_frame_desc().frame_size() / sizeof(float),
+						0);
 				// TODO stabilize here
 				accumulation_queue_->enqueue(gpu_float_buffer_, cudaMemcpyDeviceToDevice);
-				cudaMemcpy(gpu_float_buffer_, float_buffer_average_.get(), accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
+				if (cd_.img_acc_slice_xy_enabled)
+					cudaMemcpy(gpu_float_buffer_, float_buffer_average_.get(), accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
 			}
 		});
 	}

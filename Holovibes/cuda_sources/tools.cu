@@ -33,6 +33,49 @@ void kernel_apply_lens(cuComplex		*input,
 }
 
 static __global__
+void kernel_shift_corners_complex(cuComplex		*input,
+								const uint		size_x,
+								const uint		size_y)
+{
+	const uint	i = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	j = blockIdx.y * blockDim.y + threadIdx.y;
+	const uint	index = j * blockDim.x * gridDim.x + i;
+	uint	ni = 0;
+	uint	nj = 0;
+	uint	nindex = 0;
+
+	// Superior half of the matrix
+	const uint size_x2 = size_x >> 1;
+	const uint size_y2 = size_y >> 1;
+	if (j >= size_y2)
+	{
+		// Left superior quarter of the matrix
+		if (i < size_x2)
+			ni = i + size_x2;
+		else // Right superior quarter
+			ni = i - size_x2;
+		nj = j - size_y2;
+		nindex = nj * size_x + ni;
+
+		cuComplex tmp = input[nindex];
+		input[nindex] = input[index];
+		input[index] = tmp;
+	}
+}
+
+void shift_corners_complex(cuComplex		*input,
+						const uint			size_x,
+						const uint			size_y,
+						cudaStream_t		stream)
+{
+	uint threads_2d = get_max_threads_2d();
+	dim3 lthreads(threads_2d, threads_2d);
+	dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
+
+	kernel_shift_corners_complex << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
+}
+
+static __global__
 void kernel_shift_corners(float		*input,
 						const uint	size_x,
 						const uint	size_y)
@@ -157,22 +200,20 @@ void convolution_operator(	const cuComplex		*a,
 	free(abs_b);*/
 
 	cudaStreamSynchronize(stream);
-	cuComplex *tmp_c;
-	if(cudaMalloc<cuComplex>(&tmp_c, complex_size) != cudaSuccess)
-		return;
-	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_c, size);
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_a, size);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_a, tmp_c, tmp_c, CUFFT_INVERSE);
+	cufftExecC2C(plan2d_a, tmp_a, tmp_a, CUFFT_INVERSE);
 
 	cudaStreamSynchronize(stream);
 
-	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_c, out, size);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
+
+	cudaStreamSynchronize(stream);
 
 	cudaFree(tmp_a);
 	cudaFree(tmp_b);
-	cudaFree(tmp_c);
 }
 
 void frame_memcpy(float				*input,
