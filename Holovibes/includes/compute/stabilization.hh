@@ -55,7 +55,7 @@ namespace holovibes
 			void insert_stabilization();
 			void insert_extremums();
 
-			void compute_convolution();
+			void compute_convolution(const float* x, const float* y, float* out);
 
 			/// Buffer to keep the last frame, will be replaced by an average
 			CudaUniquePtr<float>			last_frame_;

@@ -12,9 +12,13 @@
 
 #include "stabilization.hh"
 #include "compute_descriptor.hh"
+#include "Rectangle.hh"
+
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
+#include "stabilization.cuh"
+
 #include <iostream>
 #include <cufft.h>
 
@@ -47,50 +51,54 @@ void Stabilization::insert_post_img_type()
 void Stabilization::insert_convolution()
 {
 	fn_vect_.push_back([=]() {
+		gui::Rectangle zone = cd_.getStabilizationZone();
 		auto frame_res = fd_.frame_res();
 		if (last_frame_)
 		{
 			if (!convolution_)
-			{
-				float *tmp = nullptr;
-				cudaMalloc<float>(&tmp, frame_res * sizeof(float));
-				convolution_.reset(tmp);
-			}
-			compute_convolution();
+				convolution_.resize(zone.area());
+			compute_convolution(gpu_float_buffer_, gpu_float_buffer_, convolution_.get());
 		}
 		else
-		{
-			float *tmp = nullptr;
-			cudaMalloc<float>(&tmp, frame_res * sizeof(float));
-			last_frame_.reset(tmp);
-		}
+			last_frame_.resize(frame_res);
 		cudaMemcpy(last_frame_.get(), gpu_float_buffer_, frame_res * sizeof(float), cudaMemcpyDeviceToDevice);
 	});
 }
 
-void Stabilization::compute_convolution()
+void Stabilization::compute_convolution(const float* x, const float* y, float* out)
 {
 	cufftHandle plan2d_a;
 	cufftHandle plan2d_b;
 	cufftHandle plan2d_inverse;
 
-	cufftPlan2d(&plan2d_a, fd_.height, fd_.width, CUFFT_R2C);
-	cufftPlan2d(&plan2d_b, fd_.height, fd_.width, CUFFT_R2C);
-	cufftPlan2d(&plan2d_inverse, fd_.height, fd_.width, CUFFT_C2C);
+	gui::Rectangle zone = cd_.getStabilizationZone();
+	CudaUniquePtr<float> selected_x(zone.area());
+	CudaUniquePtr<float> selected_y(zone.area());
+	if (!selected_x || !selected_y)
+		return;
+
+	extract_frame(x, selected_x.get(), fd_.width, zone);
+	extract_frame(y, selected_y.get(), fd_.width, zone);
 
 
-	//fn_vect_.push_back([=]() {gpu_float_divide(gpu_float_buffer_, fd_.frame_res(), 65536); });
-	gpu_float_divide(gpu_float_buffer_, fd_.frame_res(), 65536);
-	convolution_float(gpu_float_buffer_,
-		gpu_float_buffer_,
-		//last_frame_.get(),
-		convolution_.get(),
-		fd_.frame_res(),
+	cufftPlan2d(&plan2d_a, zone.height(), zone.height(), CUFFT_R2C);
+	cufftPlan2d(&plan2d_b, zone.height(), zone.width(), CUFFT_R2C);
+	cufftPlan2d(&plan2d_inverse, zone.height(), zone.width(), CUFFT_C2C);
+
+	float tmp[2048];
+	//cudaMemcpy(tmp, selected_x.get(), 2048 * 4, cudaMemcpyDeviceToHost);
+	gpu_float_divide(selected_x.get(), zone.area(), 65536);
+	gpu_float_divide(selected_y.get(), zone.area(), 65536);
+	convolution_float(
+		selected_x.get(),
+		selected_y.get(),
+		out,
+		zone.area(),
 		plan2d_a,
 		plan2d_b,
 		plan2d_inverse);
-	float tmp[2048];
-	cudaMemcpy(tmp, convolution_.get(), 2048 * 4, cudaMemcpyDeviceToHost);
+	float tmp2[2048];
+	//cudaMemcpy(tmp2, x, 2048 * 4, cudaMemcpyDeviceToHost);
 	cufftDestroy(plan2d_a);
 	cufftDestroy(plan2d_b);
 	cufftDestroy(plan2d_inverse);
@@ -101,16 +109,17 @@ void Stabilization::insert_extremums()
 	fn_vect_.push_back([=]() {
 		if (convolution_)
 		{
-			const auto frame_res = fd_.frame_res();
+			gui::Rectangle zone = cd_.getStabilizationZone();
+			const auto frame_res = zone.area();
 			uint max = 0;
 			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 			// x y: Coordinates of maximum of the correlation function
-			int x = max % fd_.width;
-			int y = max / fd_.width;
-			if (x > fd_.width / 2)
-				x -= fd_.width;
-			if (y > fd_.height / 2)
-				y -= fd_.height;
+			int x = max % zone.width();
+			int y = max / zone.width();
+			if (x > zone.width() / 2)
+				x -= zone.width();
+			if (y > zone.height() / 2)
+				y -= zone.height();
 			std::cout << x << ", " << y << std::endl;
 			//shift_x = (shift_x + x + fd.width) % fd.width;
 			//shift_y = (shift_y + y + fd.height) % fd.height;
@@ -125,10 +134,21 @@ void Stabilization::insert_stabilization()
 {
 	// Visualization of convolution matrix
 	if (cd_.xy_stabilization_show_convolution.load())
-		fn_vect_.push_back([=]() {cudaMemcpy(gpu_float_buffer_, convolution_.get(), fd_.frame_res() * 4, cudaMemcpyDeviceToDevice); });
+	{
+		fn_vect_.push_back([=]()
+		{
+			gui::Rectangle zone = cd_.getStabilizationZone();
+			gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
+		});
+	}
 	else if (false)
+	{
 		// Visualization of image
-		fn_vect_.push_back([=]() { complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y); });
+		fn_vect_.push_back([=]()
+		{
+			complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
+		});
+	}
 }
 
 

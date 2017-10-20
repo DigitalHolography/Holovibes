@@ -10,41 +10,16 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
- *
- * std::unique_ptr "specialization" for cudaFree */
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <cuda_runtime.h>
+#include "Rectangle.hh"
 
-namespace holovibes
-{
-	template<typename T>
-	class CudaUniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
-	{
-	public:
-		using base = std::unique_ptr<T, std::function<void(T*)>>;
-		CudaUniquePtr()
-			: base(nullptr, cudaFree)
-		{}
+void extract_frame(const float	*input,
+				float			*output,
+				const uint		input_w,
+				const holovibes::gui::Rectangle&	frame);
 
-		CudaUniquePtr(T *ptr)
-			: base(ptr, cudaFree)
-		{}
-
-		CudaUniquePtr(std::size_t size)
-			: base(nullptr, cudaFree)
-		{
-			resize(size);
-		}
-
-		void resize(std::size_t size)
-		{
-			T* tmp;
-			cudaMalloc(&tmp, size * sizeof(T));
-			reset(tmp);
-		}
-	};
-}
+void gpu_resize(const float		*input,
+				float			*output,
+				QPoint			old_size,
+				QPoint			new_size);

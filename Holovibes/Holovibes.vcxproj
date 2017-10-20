@@ -152,6 +152,7 @@
     <ClInclude Include="cuda_includes\filter2D.cuh" />
     <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
+    <ClInclude Include="cuda_includes\stabilization.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />
     <ClInclude Include="cuda_includes\texture_update.cuh" />
     <ClInclude Include="cuda_includes\tools.cuh" />
@@ -437,6 +438,7 @@
     <CudaCompile Include="cuda_sources\filter2D.cu" />
     <CudaCompile Include="cuda_sources\flowgraphy.cu" />
     <CudaCompile Include="cuda_sources\preprocessing.cu" />
+    <CudaCompile Include="cuda_sources\stabilization.cu" />
     <CudaCompile Include="cuda_sources\stft.cu" />
     <CudaCompile Include="cuda_sources\texture_update.cu" />
     <CudaCompile Include="cuda_sources\tools.cu" />

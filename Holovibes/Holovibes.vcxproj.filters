@@ -424,6 +424,9 @@
     <ClInclude Include="includes\compute\stabilization.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\stabilization.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -523,6 +526,9 @@
       <Filter>cuda sources\tools</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\composite.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\stabilization.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

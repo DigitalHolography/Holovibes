@@ -137,6 +137,8 @@ namespace holovibes
 		gui::Rectangle		autofocus_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		gui::Rectangle		stft_roi_zone;
+		/*! \brief	The area on which we'll run the convolution to stabilize*/
+		gui::Rectangle		stabilization_zone;
 
 	public:
 		/*! \brief ComputeDescriptor constructor
@@ -170,6 +172,9 @@ namespace holovibes
 		void noiseZone(gui::Rectangle& rect, AccessMode m);
 		void autofocusZone(gui::Rectangle& rect, AccessMode m);
 		void stftRoiZone(gui::Rectangle& rect, AccessMode m);
+
+		gui::Rectangle getStabilizationZone() const;
+		void setStabilizationZone(const gui::Rectangle& rect);
 
 		//! @}
 		#pragma region Atomics vars
