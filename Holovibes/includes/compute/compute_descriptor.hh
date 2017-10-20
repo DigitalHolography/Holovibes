@@ -247,7 +247,7 @@ namespace holovibes
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled;
 		//! is gpu lens display activated
-		std::atomic<bool>			gpu_lens_display_enabled = true;
+		std::atomic<bool>			gpu_lens_display_enabled { true };
 		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled;
 
@@ -303,7 +303,7 @@ namespace holovibes
 			std::atomic<ushort>		p_max;
 			//! \}
 			//! Weight associated to the component
-			std::atomic<float>		weight = 1;
+			std::atomic<float>		weight { 1.f };
 		};
 		struct Component			component_r;
 		struct Component			component_g;

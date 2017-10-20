@@ -67,7 +67,7 @@ namespace camera
 
 		triggermode_ = 0;
 
-		framerate_ = 30 * 1e3;
+		framerate_ = 30 * static_cast<DWORD>(1e3);
 		framerate_mode_ = 1;
 
 		binning_ = 1;
@@ -77,7 +77,7 @@ namespace camera
 		p1_x_ = 2048;
 		p1_y_ = 2048;
 
-		pixel_rate_ = 110 * 1e6;
+		pixel_rate_ = 110 * static_cast<DWORD>(1e6);
 
 		conversion_factor_ = 46;
 
@@ -109,7 +109,7 @@ namespace camera
 
 		triggermode_ = pt.get<WORD>("pco-edge.trigger_mode", triggermode_);
 
-		framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * 1e3;
+		framerate_ = pt.get<DWORD>("pco-edge.framerate", framerate_) * static_cast<DWORD>(1e3);
 		framerate_mode_ = pt.get<WORD>("pco-edge.framerate_mode", framerate_mode_);
 
 		binning_ = pt.get<WORD>("pco-edge.binning", binning_);
@@ -146,13 +146,13 @@ namespace camera
 				std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
 		}
 
-		pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * 1e6;
+		pixel_rate_ = pt.get<DWORD>("pco-edge.pixel_rate", pixel_rate_) * static_cast<DWORD>(1e6);
 
 		conversion_factor_ = static_cast<WORD>(
 			pt.get<float>("pco-edge.conversion_factor", conversion_factor_) * 100);
 
-		timeouts_[0] = pt.get<unsigned int>("pco-edge.timeout_command", timeouts_[0]) * 1e3;
-		timeouts_[1] = pt.get<unsigned int>("pco-edge.timeout_img_acq", timeouts_[1]) * 1e3;
+		timeouts_[0] = pt.get<unsigned int>("pco-edge.timeout_command", timeouts_[0]) * static_cast<unsigned>(1e3);
+		timeouts_[1] = pt.get<unsigned int>("pco-edge.timeout_img_acq", timeouts_[1]) * static_cast<unsigned>(1e3);
 
 		load_pco_signal_params(pt, io_0_conf, 0);
 		load_pco_signal_params(pt, io_1_conf, 1);
