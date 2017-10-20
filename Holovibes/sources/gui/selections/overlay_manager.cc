@@ -43,7 +43,7 @@ namespace holovibes
 		void OverlayManager::create_autofocus()
 		{
 			if (current_overlay_)
-			current_overlay_->disable();
+				current_overlay_->disable();
 			create_overlay(std::make_shared<AutofocusOverlay>(parent_));
 		}
 
@@ -55,7 +55,7 @@ namespace holovibes
 		void OverlayManager::create_filter2D()
 		{
 			if (current_overlay_)
-			current_overlay_->disable();
+				current_overlay_->disable();
 			create_overlay(std::make_shared<Filter2DOverlay>(parent_));
 		}
 
@@ -113,9 +113,14 @@ namespace holovibes
 
 		void OverlayManager::draw()
 		{
-			for (auto o : overlays_)
-				if (o->isActive() && o->isDisplayed())
+			//if (overlays_.size() > 1)
+				
+			for (auto o : overlays_) {
+				if (o->isActive() && o->isDisplayed()) {
+					o->print();
 					o->draw();
+				}
+			}
 		}
 
 		void OverlayManager::clean()
@@ -175,8 +180,10 @@ namespace holovibes
 
 		void OverlayManager::printVector()
 		{
+			std::cout << std::endl;
 			for (auto o : overlays_)
 				o->print();
+			std::cout << std::endl;
 		}
 	}
 }

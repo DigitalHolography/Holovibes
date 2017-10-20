@@ -23,6 +23,7 @@ namespace holovibes
 		public:
 			SignalOverlay(BasicOpenGLWindow *parent);
 
+			void addShaders() override;
 			void release(ushort frameSide) override;
 		};
 	}

@@ -10,21 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#version 450
 
-#include "rect_overlay.hh"
+in  vec3    passColor;
+out vec4    outColor;
 
-namespace holovibes
+void main()
 {
-	namespace gui
-	{
-		class ZoomOverlay : public RectOverlay
-		{
-		public:
-			ZoomOverlay(BasicOpenGLWindow* parent);
-
-			void addShaders() override;
-			void release(ushort frameSide) override;
-		};
-	}
+	outColor = vec4(passColor, 0.7f);
 }

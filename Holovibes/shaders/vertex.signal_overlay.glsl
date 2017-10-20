@@ -10,21 +10,15 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#version 450
 
-#include "rect_overlay.hh"
+layout(location = 10) in vec2	vertex;
+layout(location = 11) in vec3	color;
 
-namespace holovibes
+out vec3 passColor;
+
+void main()
 {
-	namespace gui
-	{
-		class ZoomOverlay : public RectOverlay
-		{
-		public:
-			ZoomOverlay(BasicOpenGLWindow* parent);
-
-			void addShaders() override;
-			void release(ushort frameSide) override;
-		};
-	}
+    passColor = color;
+    gl_Position = vec4(vertex, 0.f, 1.f);
 }

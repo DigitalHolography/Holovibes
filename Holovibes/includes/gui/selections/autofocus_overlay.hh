@@ -23,6 +23,7 @@ namespace holovibes
 		public:
 			AutofocusOverlay(BasicOpenGLWindow* parent);
 
+			void addShaders() override;
 			void release(ushort frameSide) override;
 		};
 	}

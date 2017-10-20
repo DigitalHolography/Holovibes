@@ -22,6 +22,13 @@ namespace holovibes
 			: RectOverlay(KindOfOverlay::Autofocus, parent)
 		{
 			color_ = { 1.f, 0.8f, 0.f };
+			verticesShader_ = 6;
+			colorShader_ = 7;
+		}
+
+		void AutofocusOverlay::addShaders()
+		{
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.autofocus_overlay.glsl");
 		}
 
 		void AutofocusOverlay::release(ushort frameSide)

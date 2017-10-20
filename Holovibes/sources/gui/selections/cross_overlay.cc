@@ -22,6 +22,13 @@ namespace holovibes
 			, doubleCross_(false)
 		{
 			color_ = { 1.f, 0.f, 0.f };
+			verticesShader_ = 8;
+			colorShader_ = 9;
+		}
+
+		void CrossOverlay::addShaders()
+		{
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.cross_overlay.glsl");
 		}
 
 		void CrossOverlay::setBuffer(QPoint pos, QSize frame)
@@ -112,8 +119,8 @@ namespace holovibes
 		void CrossOverlay::drawCross(GLuint offset, GLsizei count)
 		{
 			Program_->bind();
-			glEnableVertexAttribArray(2);
-			glEnableVertexAttribArray(3);
+			glEnableVertexAttribArray(verticesShader_);
+			glEnableVertexAttribArray(colorShader_);
 			bool blendWasDisabled = !glIsEnabled(GL_BLEND);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
@@ -174,8 +181,8 @@ namespace holovibes
 			if (blendWasDisabled)
 				glDisable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glDisableVertexAttribArray(3);
-			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(colorShader_);
+			glDisableVertexAttribArray(verticesShader_);
 			Program_->release();
 		}
 	}

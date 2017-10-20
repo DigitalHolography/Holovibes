@@ -41,9 +41,9 @@ namespace holovibes
 			glGenBuffers(1, &verticesIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-			glDisableVertexAttribArray(2);
+			glEnableVertexAttribArray(verticesShader_);
+			glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+			glDisableVertexAttribArray(verticesShader_);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 			// Set color
@@ -56,9 +56,9 @@ namespace holovibes
 			glGenBuffers(1, &colorIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
-			glEnableVertexAttribArray(3);
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-			glDisableVertexAttribArray(3);
+			glEnableVertexAttribArray(colorShader_);
+			glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+			glDisableVertexAttribArray(colorShader_);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 			// Set vertices order
@@ -83,10 +83,10 @@ namespace holovibes
 			glEnableVertexAttribArray(2);
 			glEnableVertexAttribArray(3);
 
-			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0));
 
-			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(3);
+			glDisableVertexAttribArray(2);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program_->release();
 		}
@@ -138,6 +138,7 @@ namespace holovibes
 
 		void RectOverlay::move(QPoint pos, QSize win_size)
 		{
+			display_ = true;
 			zone_.setBottomRight(pos);
 			if (display_)
 				setBuffer(win_size);

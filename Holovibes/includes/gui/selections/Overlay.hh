@@ -16,6 +16,8 @@
 #include <iostream>
 #include <QOpenGLShaderProgram.h>
 #include <QOpenGLFunctions.h>
+#include <QOpenGLVertexArrayObject>
+
 #include <memory>
 #include "frame_desc.hh"
 #include "Rectangle.hh"
@@ -47,7 +49,6 @@ namespace holovibes
 
 			//void setZone(int side, Rectangle rect);
 
-			virtual void init() = 0;
 			virtual void draw() = 0;
 
 			void press(QPoint pos);
@@ -57,14 +58,22 @@ namespace holovibes
 			void print();
 
 		protected:
+			virtual void init() = 0;
+			virtual void addShaders() = 0;
+
 			Rectangle				zone_;
 			KindOfOverlay			kOverlay_;
+			//GLuint					Vao;
 			GLuint					verticesIndex_, colorIndex_, elemIndex_;
+			//QOpenGLVertexArrayObject	Vao_;
 			QOpenGLShaderProgram*	Program_;
 			Color					color_;
 			bool					active_;
 			bool					display_;
 			BasicOpenGLWindow*		parent_;
+
+			unsigned short			verticesShader_;
+			unsigned short			colorShader_;
 		};
 	}
 }

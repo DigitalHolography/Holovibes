@@ -22,6 +22,13 @@ namespace holovibes
 			: RectOverlay(KindOfOverlay::Filter2D, parent)
 		{
 			color_ = { 0.f, 0.62f, 1.f };
+			verticesShader_ = 4;
+			colorShader_ = 5;
+		}
+
+		void Filter2DOverlay::addShaders()
+		{
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.filter2d_overlay.glsl");
 		}
 
 		void Filter2DOverlay::make_square()

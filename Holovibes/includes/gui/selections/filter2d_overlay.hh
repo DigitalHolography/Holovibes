@@ -26,6 +26,7 @@ namespace holovibes
 			void checkCorners(ushort frameSide);
 			void make_square();
 
+			void addShaders() override;
 			void move(QPoint pos, QSize win_size) override;
 			void release(ushort frameSide) override;
 		};

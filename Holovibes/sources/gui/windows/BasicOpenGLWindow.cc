@@ -86,6 +86,11 @@ namespace holovibes
 		{
 			return overlay_manager_;
 		}
+
+		QOpenGLVertexArrayObject& BasicOpenGLWindow::getVao()
+		{
+			return Vao;
+		}
 		
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
 		{

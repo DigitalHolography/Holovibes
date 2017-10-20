@@ -21,6 +21,13 @@ namespace holovibes
 			: RectOverlay(KindOfOverlay::Signal, parent)
 		{
 			color_ = { 0.557f, 0.4f, 0.85f };
+			verticesShader_ = 10;
+			colorShader_ = 11;
+		}
+
+		void SignalOverlay::addShaders()
+		{
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.signal_overlay.glsl");
 		}
 
 		void SignalOverlay::release(ushort frameSide)

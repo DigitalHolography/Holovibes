@@ -21,6 +21,13 @@ namespace holovibes
 			: RectOverlay(KindOfOverlay::Noise, parent)
 		{
 			color_ = { 0.f, 0.64f, 0.67f };
+			verticesShader_ = 12;
+			colorShader_ = 13;
+		}
+
+		void NoiseOverlay::addShaders()
+		{
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.noise_overlay.glsl");
 		}
 
 		void NoiseOverlay::release(ushort frameSide)
