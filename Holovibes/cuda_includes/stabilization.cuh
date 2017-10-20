@@ -14,11 +14,13 @@
 
 #include "Rectangle.hh"
 
+/// Extract the part of *input described by frame
 void extract_frame(const float	*input,
 				float			*output,
 				const uint		input_w,
 				const holovibes::gui::Rectangle&	frame);
 
+/// Resize the image
 void gpu_resize(const float		*input,
 				float			*output,
 				QPoint			old_size,

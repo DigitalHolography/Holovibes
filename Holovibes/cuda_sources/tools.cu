@@ -106,11 +106,8 @@ void kernel_complex_to_modulus(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < size)
-	{
+	if (index < size)
 		output[index] = hypotf(input[index].x, input[index].y);
-		//index += blockDim.x * gridDim.x;
-	}
 }
 
 void demodulation(cuComplex			*input,
@@ -145,20 +142,21 @@ void convolution_float(		const float			*a,
 		return;
 	
 	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a);
+	cuStreamSynchronize(0);
 	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b);
 	
+
 	cudaStreamSynchronize(stream);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_a, size);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_inverse, tmp_a, tmp_a, CUFFT_INVERSE);
+	cufftExecC2R(plan2d_inverse, tmp_a, out);
 
 	cudaStreamSynchronize(stream);
 
-	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
-
-	cudaStreamSynchronize(stream);
+	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
+	//cudaStreamSynchronize(stream);
 
 	cudaFree(tmp_a);
 	cudaFree(tmp_b);

@@ -37,7 +37,6 @@ namespace holovibes
 		{
 		public:
 			Stabilization(FnVector& fn_vect,
-				cuComplex* const& gpu_complex_frame,
 				float* const& gpu_float_buffer,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
@@ -76,10 +75,13 @@ namespace holovibes
 
 			/// Pipe data
 			/// {
+			/// Vector function in which we insert the processing
 			FnVector& fn_vect_;
-			cuComplex* const& gpu_complex_frame_;
+			/// The whole image for this frame
 			float* const& gpu_float_buffer_;
+			/// Describes the frame size
 			const camera::FrameDescriptor& fd_;
+
 			const ComputeDescriptor& cd_;
 			/// }
 		};

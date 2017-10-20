@@ -48,7 +48,7 @@ namespace holovibes
 		, gpu_input_buffer_(nullptr)
 		, gpu_output_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
-		, stabilization_(fn_vect_, gpu_input_frame_ptr_, gpu_float_buffer_, input.get_frame_desc(), desc)
+		, stabilization_(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc)
 	{
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();

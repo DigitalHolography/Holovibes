@@ -26,12 +26,10 @@ using holovibes::compute::Stabilization;
 
 
 Stabilization::Stabilization(FnVector& fn_vect,
-	cuComplex* const& gpu_complex_frame,
 	float* const& gpu_float_buffer,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd)
 	: fn_vect_(fn_vect)
-	, gpu_complex_frame_(gpu_complex_frame)
 	, gpu_float_buffer_(gpu_float_buffer)
 	, fd_(fd)
 	, cd_(cd)
@@ -57,7 +55,7 @@ void Stabilization::insert_convolution()
 		{
 			if (!convolution_)
 				convolution_.resize(zone.area());
-			compute_convolution(gpu_float_buffer_, gpu_float_buffer_, convolution_.get());
+			compute_convolution(gpu_float_buffer_, last_frame_.get(), convolution_.get());
 		}
 		else
 			last_frame_.resize(frame_res);
@@ -83,12 +81,11 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 
 	cufftPlan2d(&plan2d_a, zone.height(), zone.height(), CUFFT_R2C);
 	cufftPlan2d(&plan2d_b, zone.height(), zone.width(), CUFFT_R2C);
-	cufftPlan2d(&plan2d_inverse, zone.height(), zone.width(), CUFFT_C2C);
+	cufftPlan2d(&plan2d_inverse, zone.height(), zone.width(), CUFFT_C2R);
 
-	float tmp[2048];
-	//cudaMemcpy(tmp, selected_x.get(), 2048 * 4, cudaMemcpyDeviceToHost);
 	gpu_float_divide(selected_x.get(), zone.area(), 65536);
 	gpu_float_divide(selected_y.get(), zone.area(), 65536);
+	constexpr uint s = 64;
 	convolution_float(
 		selected_x.get(),
 		selected_y.get(),
@@ -97,8 +94,16 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_a,
 		plan2d_b,
 		plan2d_inverse);
-	float tmp2[2048];
-	//cudaMemcpy(tmp2, x, 2048 * 4, cudaMemcpyDeviceToHost);
+	//float _x[s];
+	//cudaMemcpy(_x, x, s * 4, cudaMemcpyDeviceToHost);
+	//float _y[s];
+	//cudaMemcpy(_y, y, s * 4, cudaMemcpyDeviceToHost);
+	float _x[s];
+	cudaMemcpy(_x, selected_x.get(), s * 4, cudaMemcpyDeviceToHost);
+	float _y[s];
+	cudaMemcpy(_y, selected_y.get(), s * 4, cudaMemcpyDeviceToHost);
+	float _conv[s];
+	cudaMemcpy(_conv, convolution_.get(), s * 4, cudaMemcpyDeviceToHost);
 	cufftDestroy(plan2d_a);
 	cufftDestroy(plan2d_b);
 	cufftDestroy(plan2d_inverse);
@@ -141,7 +146,7 @@ void Stabilization::insert_stabilization()
 			gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
 		});
 	}
-	else if (false)
+	else
 	{
 		// Visualization of image
 		fn_vect_.push_back([=]()

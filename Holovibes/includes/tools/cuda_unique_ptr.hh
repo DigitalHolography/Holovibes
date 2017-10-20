@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <functional>
+#include <iostream>
 #include <cuda_runtime.h>
 
 namespace holovibes
@@ -43,7 +44,12 @@ namespace holovibes
 		void resize(std::size_t size)
 		{
 			T* tmp;
-			cudaMalloc(&tmp, size * sizeof(T));
+			auto code = cudaMalloc(&tmp, size * sizeof(T));
+			if (code != cudaSuccess)
+			{
+				std::cout << "cudaMalloc error:" << cudaGetErrorString(code) << std::endl;
+				tmp = nullptr;
+			}
 			reset(tmp);
 		}
 	};

@@ -53,11 +53,13 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 									const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-
-	const float new_x = (input1[index].x * input2[index].x) - (input1[index].y * input2[index].y);
-	const float new_y = (input1[index].y * input2[index].x) + (input1[index].x * input2[index].y);
-	output[index].x = new_x;
-	output[index].y = new_y;
+	if (index < size)
+	{
+		const float new_x = (input1[index].x * input2[index].x) - (input1[index].y * input2[index].y);
+		const float new_y = (input1[index].y * input2[index].x) + (input1[index].x * input2[index].y);
+		output[index].x = new_x;
+		output[index].y = new_y;
+	}
 	//output[index].x = input1[index].x * input2[index].x;
 	//output[index].y = input1[index].y * input2[index].y;
 }
