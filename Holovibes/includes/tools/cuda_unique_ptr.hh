@@ -22,6 +22,7 @@
 
 namespace holovibes
 {
+	/// A smart pointer made for ressources that need to be cudaFreed
 	template<typename T>
 	class CudaUniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
 	{
@@ -35,12 +36,14 @@ namespace holovibes
 			: base(ptr, cudaFree)
 		{}
 
+		/// Allocates an array of size sizeof(T) * size
 		CudaUniquePtr(std::size_t size)
 			: base(nullptr, cudaFree)
 		{
 			resize(size);
 		}
 
+		/// Allocates an array of size sizeof(T) * size, free the old pointer if not null
 		void resize(std::size_t size)
 		{
 			T* tmp;

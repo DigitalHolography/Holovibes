@@ -13,6 +13,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
+#include "cuda_unique_ptr.hh"
 
 __global__
 void kernel_apply_lens(cuComplex		*input,
@@ -132,34 +133,26 @@ void convolution_float(		const float			*a,
 	uint	blocks = map_blocks_to_problem(size, threads);
 
 	/* The convolution operator could be optimized. */
-	cuComplex *tmp_a;
-	cuComplex *tmp_b;
-	uint	complex_size = size * sizeof(cuComplex);
-	uint	float_size = size * sizeof(float);
-	if (cudaMalloc<cuComplex>(&tmp_a, complex_size) != cudaSuccess)
-		return;
-	if (cudaMalloc<cuComplex>(&tmp_b, complex_size) != cudaSuccess)
+	holovibes::CudaUniquePtr<cuComplex> tmp_a(size);
+	holovibes::CudaUniquePtr<cuComplex> tmp_b(size);
+	if (!tmp_a || !tmp_b)
 		return;
 	
-	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a);
-	cuStreamSynchronize(0);
-	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b);
+	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get());
+	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get());
 	
 
 	cudaStreamSynchronize(stream);
-	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_a, size);
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2R(plan2d_inverse, tmp_a, out);
+	cufftExecC2R(plan2d_inverse, tmp_a.get(), out);
 
 	cudaStreamSynchronize(stream);
 
 	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
 	//cudaStreamSynchronize(stream);
-
-	cudaFree(tmp_a);
-	cudaFree(tmp_b);
 }
 
 
@@ -175,16 +168,14 @@ void convolution_operator(	const cuComplex		*a,
 	uint	blocks = map_blocks_to_problem(size, threads);
 
 	/* The convolution operator could be optimized. */
-	cuComplex *tmp_a;
-	cuComplex *tmp_b;
-	uint	complex_size = size * sizeof(cuComplex);
-	if (cudaMalloc<cuComplex>(&tmp_a, complex_size) != cudaSuccess)
-		return;
-	if (cudaMalloc<cuComplex>(&tmp_b, complex_size) != cudaSuccess)
+
+	holovibes::CudaUniquePtr<cuComplex> tmp_a(size);
+	holovibes::CudaUniquePtr<cuComplex> tmp_b(size);
+	if (!tmp_a || !tmp_b)
 		return;
 	
-	cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a, CUFFT_FORWARD);
-	cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b, CUFFT_FORWARD);
+	cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a.get(), CUFFT_FORWARD);
+	cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b.get(), CUFFT_FORWARD);
 	
     /*float* abs_a = (float*)malloc(size * sizeof(float));
 	float* abs_b = (float*)malloc(size * sizeof(float));
@@ -197,20 +188,17 @@ void convolution_operator(	const cuComplex		*a,
 	free(abs_b);*/
 
 	cudaStreamSynchronize(stream);
-	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a, tmp_b, tmp_a, size);
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_a, tmp_a, tmp_a, CUFFT_INVERSE);
+	cufftExecC2C(plan2d_a, tmp_a.get(), tmp_a.get(), CUFFT_INVERSE);
 
 	cudaStreamSynchronize(stream);
 
-	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a.get(), out, size);
 
 	cudaStreamSynchronize(stream);
-
-	cudaFree(tmp_a);
-	cudaFree(tmp_b);
 }
 
 void frame_memcpy(float				*input,
