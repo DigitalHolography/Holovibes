@@ -50,15 +50,13 @@ namespace holovibes
 
 		private:
 
-			void insert_average();
+			void insert_average_compute();
 			void insert_convolution();
-			void insert_stabilization();
 			void insert_extremums();
+			void insert_stabilization();
+			void insert_float_buffer_overwrite();
 
 			void compute_convolution(const float* x, const float* y, float* out);
-
-			/// Buffer to keep the last frame, will be replaced by an average
-			CudaArray<float>				last_frame_;
 
 			/// Buffer to keep the convolution product
 			CudaArray<float>				convolution_;

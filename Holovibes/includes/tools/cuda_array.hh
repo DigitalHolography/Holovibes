@@ -57,7 +57,7 @@ namespace holovibes
 		}
 
 		/// Is the array size greater or equal to size
-		bool is_large_enough(std::size_t size)
+		bool is_large_enough(std::size_t size) const
 		{
 			return size_ >= size;
 		}
