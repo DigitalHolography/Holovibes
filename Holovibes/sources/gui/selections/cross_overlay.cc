@@ -22,13 +22,6 @@ namespace holovibes
 			, doubleCross_(false)
 		{
 			color_ = { 1.f, 0.f, 0.f };
-			verticesShader_ = 8;
-			colorShader_ = 9;
-		}
-
-		void CrossOverlay::addShaders()
-		{
-			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.cross_overlay.glsl");
 		}
 
 		void CrossOverlay::setBuffer(QPoint pos, QSize frame)

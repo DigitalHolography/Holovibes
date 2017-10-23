@@ -23,10 +23,11 @@ namespace holovibes
 		public:
 			Filter2DOverlay(BasicOpenGLWindow* parent);
 
+			/*! \brief Check if corners are not swapped, and if they don't go out of bounds. */
 			void checkCorners(ushort frameSide);
+			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
 			void make_square();
 
-			void addShaders() override;
 			void move(QPoint pos, QSize win_size) override;
 			void release(ushort frameSide) override;
 		};

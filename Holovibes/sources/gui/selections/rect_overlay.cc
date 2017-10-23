@@ -32,6 +32,7 @@ namespace holovibes
 			// Program_ already bound by caller (initProgram)
 
 			// Set vertices position
+			Vao_.bind();
 			const float vertices[] = {
 				0.f, 0.f,
 				0.f, 0.f,
@@ -64,84 +65,86 @@ namespace holovibes
 			// Set vertices order
 			const GLuint elements[] = {
 				0, 1, 2,
-				2, 3, 0,
-				4, 5, 6,
-				6, 7, 4
+				2, 3, 0
 			};
 			glGenBuffers(1, &elemIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			Vao_.release();
 
 			// Program_ released by caller (initProgram)
 		}
 
 		void RectOverlay::draw()
 		{
+			Vao_.bind();
 			Program_->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-			glEnableVertexAttribArray(2);
-			glEnableVertexAttribArray(3);
+			glEnableVertexAttribArray(colorShader_);
+			glEnableVertexAttribArray(verticesShader_);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)(0));
 
-			glDisableVertexAttribArray(3);
-			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(verticesShader_);
+			glDisableVertexAttribArray(colorShader_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program_->release();
+			Vao_.release();
 		}
 
 		void RectOverlay::checkCorners()
 		{
 			if (zone_.width() < 0)
 			{
-				QPoint t0pRight = zone_.topRight();
-				QPoint b0ttomLeft = zone_.bottomLeft();
+				QPoint topRight = zone_.topRight();
+				QPoint bottomLeft = zone_.bottomLeft();
 
-				zone_.setTopLeft(t0pRight);
-				zone_.setBottomRight(b0ttomLeft);
+				zone_.setTopLeft(topRight);
+				zone_.setBottomRight(bottomLeft);
 			}
 			if (zone_.height() < 0)
 			{
-				QPoint t0pRight = zone_.topRight();
-				QPoint b0ttomLeft = zone_.bottomLeft();
+				QPoint topRight = zone_.topRight();
+				QPoint bottomLeft = zone_.bottomLeft();
 
-				zone_.setTopLeft(b0ttomLeft);
-				zone_.setBottomRight(t0pRight);
+				zone_.setTopLeft(bottomLeft);
+				zone_.setBottomRight(topRight);
 			}
 		}
 
 		void RectOverlay::setBuffer(QSize win_size)
 		{
-			if (Program_)
-			{
-				Program_->bind();
-				const float w = static_cast<float>(win_size.width());
-				const float h = static_cast<float>(win_size.height());
-				const float x0 = ((static_cast<float>(zone_.topLeft().x()) - (w * 0.5f)) / w) * 2.f;
-				const float y0 = (-((static_cast<float>(zone_.topLeft().y()) - (h * 0.5f)) / h)) * 2.f;
-				const float x1 = ((static_cast<float>(zone_.bottomRight().x()) - (w * 0.5f)) / w) * 2.f;
-				const float y1 = (-((static_cast<float>(zone_.bottomRight().y()) - (h * 0.5f)) / h)) * 2.f;
+			Program_->bind();
+			const float w = win_size.width();
+			const float h = win_size.height();
 
-				const float subVertices[] = {
-					x0, y0,
-					x1, y0,
-					x1, y1,
-					x0, y1
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(subVertices), subVertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program_->release();
-			}
+			// Normalizing the zone to (-1; 1)
+			const float x0 = 2.f * zone_.topLeft().x() / w - 1.f;
+			const float y0 = -(2.f * zone_.topLeft().y() / h - 1.f);
+			const float x1 = 2.f * zone_.bottomRight().x() / w - 1.f;
+			const float y1 = -(2.f * zone_.bottomRight().y() / h - 1.f);
+
+			const float subVertices[] = {
+				x0, y0,
+				x1, y0,
+				x1, y1,
+				x0, y1
+			};
+
+			// Updating the buffer at verticesIndex_ with new coordinates
+			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(subVertices), subVertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			Program_->release();
 		}
 
 		void RectOverlay::move(QPoint pos, QSize win_size)
 		{
 			display_ = true;
 			zone_.setBottomRight(pos);
-			if (display_)
-				setBuffer(win_size);
+			setBuffer(win_size);
 		}
 	}
 }

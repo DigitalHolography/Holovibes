@@ -22,13 +22,6 @@ namespace holovibes
 			: RectOverlay(KindOfOverlay::Zoom, parent)
 		{
 			color_ = { 0.f, 0.5f, 0.f };
-			verticesShader_ = 2;
-			colorShader_ = 3;
-		}
-
-		void ZoomOverlay::addShaders()
-		{
-			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.zoom_overlay.glsl");
 		}
 
 		void ZoomOverlay::release(ushort frameSide)
@@ -56,7 +49,7 @@ namespace holovibes
 			default:
 				break;
 			}
-			active_ = false;
+			disable();
 		}
 	}
 }

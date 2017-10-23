@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Interface for all overlays.*/
 #pragma once
 
 #include <array>
@@ -37,42 +40,66 @@ namespace holovibes
 			Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 			virtual ~Overlay();
 
+			/*! \brief Get the zone selected */
 			const Rectangle&		getZone()	const;
 
+			/*! \brief Get the kind of overlay */
 			const KindOfOverlay		getKind()		const;
-			const Color				getColor()		const;
+
+			/*! \brief Return if the overlay should be displayed */
 			const bool				isDisplayed()	const;
+			/*! \brief Return if the overlay have to be deleted */
 			const bool				isActive()		const;
+			/*! \brief Disable this overlay */
 			void					disable();
 
+			/*! \brief Initialize shaders and Vao/Vbo of the overlay */
 			void initProgram();
 
 			//void setZone(int side, Rectangle rect);
 
+			/*! \brief Call opengl function to draw the overlay */
 			virtual void draw() = 0;
 
+			/*! \brief Called when the user press the mouse button */
 			void press(QPoint pos);
+			/*! \brief Called when the user moves the mouse */
 			virtual void move(QPoint pos, QSize size) = 0;
+			/*! \brief Called when the user release the mouse button */
 			virtual void release(ushort frameside) = 0;
 
+			/*! \brief Prints informations about the overlay. Debug purpose */
 			void print();
 
 		protected:
+			/*! \brief Initialize Vao/Vbo */
 			virtual void init() = 0;
-			virtual void addShaders() = 0;
 
+			//! Zone selected by the users.
 			Rectangle				zone_;
+			//! Kind of overlay
 			KindOfOverlay			kOverlay_;
-			//GLuint					Vao;
+			//! Indexes of the buffers in opengl
 			GLuint					verticesIndex_, colorIndex_, elemIndex_;
-			//QOpenGLVertexArrayObject	Vao_;
-			QOpenGLShaderProgram*	Program_;
+			//! Specific Vao of the overlay
+			QOpenGLVertexArrayObject	Vao_;
+			//! The opengl shader program
+			std::unique_ptr<QOpenGLShaderProgram>	Program_;
+			//! The color of the overlay
 			Color					color_;
+			/*! If the overlay is activated or not. 
+			 *  Since we don't want the overlay to remove itself from the vector of overlays,
+			 *  We set this boolean, and remove it later by iterating through the vector.
+			 */
 			bool					active_;
+			//! If the overlay should be displayed or not
 			bool					display_;
+			//! Pointer to the parent to access Compute descriptor and Pipe
 			BasicOpenGLWindow*		parent_;
 
+			//! Location of the vertices buffer in the shader/vertexattrib. Set to 2
 			unsigned short			verticesShader_;
+			//! Location of the color buffer in the shader/vertexattrib. Set to 3
 			unsigned short			colorShader_;
 		};
 	}

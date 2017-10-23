@@ -26,16 +26,19 @@ namespace holovibes
 			, verticesIndex_(0)
 			, colorIndex_(0)
 			, elemIndex_(0)
-			//, Vao_()
-			, Program_(nullptr)
 			, active_(true)
 			, display_(false)
 			, parent_(parent)
+			, verticesShader_(2)
+			, colorShader_(3)
 		{
 		}
 
 		Overlay::~Overlay()
 		{
+			glDeleteBuffers(1, &elemIndex_);
+			glDeleteBuffers(1, &verticesIndex_);
+			glDeleteBuffers(1, &colorIndex_);
 		}
 
 		const Rectangle& Overlay::getZone() const
@@ -46,11 +49,6 @@ namespace holovibes
 		const KindOfOverlay Overlay::getKind() const
 		{
 			return kOverlay_;
-		}
-
-		const Color Overlay::getColor() const
-		{
-			return color_;
 		}
 
 		const bool Overlay::isDisplayed() const
@@ -65,10 +63,6 @@ namespace holovibes
 
 		void Overlay::disable()
 		{
-			glDeleteBuffers(1, &elemIndex_);
-			glDeleteBuffers(1, &verticesIndex_);
-			glDeleteBuffers(1, &colorIndex_);
-			delete Program_;
 			active_ = false;
 		}
 
@@ -81,9 +75,10 @@ namespace holovibes
 		void Overlay::initProgram()
 		{
 			initializeOpenGLFunctions();
-			Program_ = new QOpenGLShaderProgram();
-			addShaders();
+			Program_ = std::make_unique<QOpenGLShaderProgram>();
+			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.overlay.glsl");
 			Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.color.glsl");
+			Vao_.create();
 			if (!Program_->bind())
 				std::cerr << "[Error] " << Program_->log().toStdString() << std::endl;
 			init();

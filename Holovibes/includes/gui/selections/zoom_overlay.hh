@@ -23,7 +23,6 @@ namespace holovibes
 		public:
 			ZoomOverlay(BasicOpenGLWindow* parent);
 
-			void addShaders() override;
 			void release(ushort frameSide) override;
 		};
 	}

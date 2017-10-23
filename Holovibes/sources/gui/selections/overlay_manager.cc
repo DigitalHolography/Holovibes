@@ -113,13 +113,9 @@ namespace holovibes
 
 		void OverlayManager::draw()
 		{
-			//if (overlays_.size() > 1)
-				
 			for (auto o : overlays_) {
-				if (o->isActive() && o->isDisplayed()) {
-					o->print();
+				if (o->isActive() && o->isDisplayed())
 					o->draw();
-				}
 			}
 		}
 

@@ -29,7 +29,6 @@ namespace holovibes
 
 			void init() override;
 			void draw() override;
-			void addShaders() override;
 
 			// Not called when using cross
 			void move(QPoint pos, QSize win_size) override
