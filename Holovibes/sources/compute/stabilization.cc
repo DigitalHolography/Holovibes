@@ -51,10 +51,9 @@ void Stabilization::insert_convolution()
 	fn_vect_.push_back([=]() {
 		gui::Rectangle zone = cd_.getStabilizationZone();
 		auto frame_res = fd_.frame_res();
-		if (last_frame_)
+		if (last_frame_.is_large_enough(frame_res))
 		{
-			if (!convolution_)
-				convolution_.resize(zone.area());
+			convolution_.ensure_minimum_size(zone.area());
 			compute_convolution(gpu_float_buffer_, last_frame_.get(), convolution_.get());
 		}
 		else
@@ -108,10 +107,10 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 void Stabilization::insert_extremums()
 {
 	fn_vect_.push_back([=]() {
-		if (convolution_)
+		gui::Rectangle zone = cd_.getStabilizationZone();
+		const auto frame_res = zone.area();
+		if (convolution_.is_large_enough(frame_res))
 		{
-			gui::Rectangle zone = cd_.getStabilizationZone();
-			const auto frame_res = zone.area();
 			uint max = 0;
 			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 			// x y: Coordinates of maximum of the correlation function
@@ -146,9 +145,9 @@ void Stabilization::insert_stabilization()
 		// Visualization of convolution matrix
 		fn_vect_.push_back([=]()
 		{
-			if (convolution_)
+			gui::Rectangle zone = cd_.getStabilizationZone();
+			if (convolution_.is_large_enough(zone.area()))
 			{
-				gui::Rectangle zone = cd_.getStabilizationZone();
 				gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
 			}
 		});

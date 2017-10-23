@@ -17,9 +17,10 @@
 # include <qglobal.h>
 # include <cuComplex.h>
 # include "cuda_unique_ptr.hh"
+# include "cuda_array.hh"
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
-#include "queue.hh"
+# include "queue.hh"
 
 namespace holovibes
 {
@@ -57,13 +58,13 @@ namespace holovibes
 			void compute_convolution(const float* x, const float* y, float* out);
 
 			/// Buffer to keep the last frame, will be replaced by an average
-			CudaUniquePtr<float>			last_frame_;
+			CudaArray<float>				last_frame_;
 
 			/// Buffer to keep the convolution product
-			CudaUniquePtr<float>			convolution_;
+			CudaArray<float>				convolution_;
 
 			/// Buffer used to temporaly store the average, to compare it with current frame
-			CudaUniquePtr<float>			float_buffer_average_;
+			CudaArray<float>				float_buffer_average_;
 
 			/// Current image shift
 			/// {

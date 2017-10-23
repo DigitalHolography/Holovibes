@@ -427,6 +427,9 @@
     <ClInclude Include="cuda_includes\stabilization.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="includes\tools\cuda_array.hh">
+      <Filter>c++ includes\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
