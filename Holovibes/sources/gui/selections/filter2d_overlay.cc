@@ -40,12 +40,10 @@ namespace holovibes
 
 		void Filter2DOverlay::move(QPoint pos, QSize win_size)
 		{
+			display_ = true;
 			zone_.setBottomRight(pos);
-
 			make_square();
-
-			if (display_)
-				setBuffer(win_size);
+			setBuffer(win_size);
 		}
 
 		void Filter2DOverlay::checkCorners(ushort frameSide)
