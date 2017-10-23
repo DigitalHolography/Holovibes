@@ -110,8 +110,7 @@ namespace holovibes
 			{
 				if (!slicesAreLocked && Cd)
 					last_clicked = mouse_position;
-				else
-					updateCursorPosition(mouse_position);
+				updateCursorPosition(mouse_position);
 				slicesAreLocked.exchange(!slicesAreLocked.load());
 				makeCurrent();
 				if (slicesAreLocked.load())
