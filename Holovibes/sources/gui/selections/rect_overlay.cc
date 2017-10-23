@@ -31,8 +31,9 @@ namespace holovibes
 		{
 			// Program_ already bound by caller (initProgram)
 
-			// Set vertices position
 			Vao_.bind();
+
+			// Set vertices position
 			const float vertices[] = {
 				0.f, 0.f,
 				0.f, 0.f,
@@ -113,9 +114,10 @@ namespace holovibes
 			}
 		}
 
-		void RectOverlay::setBuffer(QSize win_size)
+		void RectOverlay::setBuffer()
 		{
 			Program_->bind();
+			QSize win_size = parent_->size();
 			const float w = win_size.width();
 			const float h = win_size.height();
 
@@ -140,11 +142,19 @@ namespace holovibes
 			Program_->release();
 		}
 
-		void RectOverlay::move(QPoint pos, QSize win_size)
+		void RectOverlay::move(QPoint pos)
 		{
 			display_ = true;
 			zone_.setBottomRight(pos);
-			setBuffer(win_size);
+			setBuffer();
+		}
+
+		void RectOverlay::setZone(Rectangle rect, ushort frameside)
+		{
+			auto zone = Rectangle(rect.topLeft() * parent_->width() / frameside, rect.size() * parent_->width() / frameside);
+			zone_.setTopLeft(zone.topLeft());
+			move(zone.bottomRight());
+			release(frameside);
 		}
 	}
 }

@@ -51,7 +51,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			overlay_manager_.create_cross();
+			overlay_manager_.create_default();
 		}
 
 		void	SliceWindow::initializeGL()
@@ -65,8 +65,8 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			Vao.create();
-			Vao.bind();
+			//Vao.create();
+			//Vao.bind();
 			initShaders();
 			Program->bind();
 
@@ -159,7 +159,7 @@ namespace holovibes
 
 			setPIndex(pIndex - 1);
 
-			Vao.release();
+			//Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -175,7 +175,7 @@ namespace holovibes
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			Vao.bind();
+			//Vao.bind();
 
 			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
@@ -206,7 +206,7 @@ namespace holovibes
 			overlay_manager_.draw();
 			//overlay_manager_.clean();
 
-			Vao.release();
+			//Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 

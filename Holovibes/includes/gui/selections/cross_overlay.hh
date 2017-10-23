@@ -31,11 +31,15 @@ namespace holovibes
 			void draw() override;
 
 			// Not called when using cross
-			void move(QPoint pos, QSize win_size) override
+			void move(QPoint pos) override
 			{}
 
 			// Not called when using cross
 			void release(ushort frameSide) override
+			{}
+
+			// Not called when using cross
+			void setZone(Rectangle rect, ushort frameside) override
 			{}
 
 		private:

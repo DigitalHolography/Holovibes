@@ -24,40 +24,57 @@ namespace holovibes
 			OverlayManager(BasicOpenGLWindow* parent);
 			~OverlayManager();
 
-
-			void create_autofocus();
-			void create_zoom();
-			void create_filter2D();
-			void create_noise();
-			void create_signal();
-			void create_cross();
+			/*! \brief Create an overlay depending on the value passed to the template. */
+			template <KindOfOverlay ko>
+			void create_overlay();
+			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
 			void create_default();
 
+			/*! \brief Disable all the overlay of kind ko*/
 			void disable_all(KindOfOverlay ko);
-			void reset();
 
+			/*! \brief Try to set the current overlay to the first active overlay of a given type. */
+			bool set_current(KindOfOverlay ko);
+			/* \brief Disable all the overlays. If def is set, it will create a default overlay. */
+			void reset(bool def = true);
+			/*! \brief Create an overlay, and set its zone. */
+			void set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko);
+
+			/*! \brief Call the press function of the current overlay. */
 			void press(QPoint pos);
-			void move(QPoint pos, QSize size);
+			/*! \brief Call the move function of the current overlay. */
+			void move(QPoint pos);
+			/*! \brief Call the release function of the current overlay. */
 			void release(ushort frameSide);
 
+			/*! \brief Draw every overlay that should be displayed. */
 			void draw();
+			/*! \brief Deletes from the vector every disabled overlay. */
 			void clean();
+			/*! \brief Get the zone of the current overlay. */
 			const Rectangle& getZone() const;
+			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
+			/*! \brief Set the buffer for the Cross overylay. */
 			bool setCrossBuffer(QPoint pos, QSize frame);
+			/*! \brief Set the buffer for the double Cross overlay. */
 			bool setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
 
+			/*! \brief Prints every overlay in the vector. Debug purpose. */
 			void printVector();
 
 		private:
+			//! Push in the vector the newly created overlay, set the current overlay, and call its init function.
 			void create_overlay(std::shared_ptr<Overlay> new_overlay);
 
+			//! Containing every created overlay.
 			std::vector<std::shared_ptr<Overlay>> overlays_;
+			//! Current overlay used by the user.
 			std::shared_ptr<Overlay> current_overlay_;
 
-			// When we delete BasicOpenGlWindow which contains an instance of this,
-			// we cannot have a pointer to it otherwise it will never be destroyed.
-			// We could use weak_ptr instead of raw pointer.
+			/*! When we delete BasicOpenGlWindow which contains an instance of this,
+			 * we cannot have a pointer to it otherwise it will never be destroyed.
+			 * We could use weak_ptr instead of raw pointer. */
 			BasicOpenGLWindow* parent_;
 		};
 	}

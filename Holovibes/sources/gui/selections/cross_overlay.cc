@@ -26,71 +26,99 @@ namespace holovibes
 
 		void CrossOverlay::setBuffer(QPoint pos, QSize frame)
 		{
-			if (Program_)
-			{
-				Program_->bind();
-				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-				const float vertices[] = {
-					newX, 1.f,
-					newX, -1.f,
-					-1.f, newY,
-					1.f, newY,
-					newX, 1.f,
-					newX, -1.f,
-					-1.f, newY,
-					1.f, newY,
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program_->release();
-			}
+			Program_->bind();
+			const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
+			const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
+			const float vertices[] = {
+				newX, 1.f,
+				newX, -1.f,
+				-1.f, newY,
+				1.f, newY,
+				newX, 1.f,
+				newX, -1.f,
+				-1.f, newY,
+				1.f, newY,
+			};
+			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			Program_->release();
+			display_ = true;
 		}
 
 		void CrossOverlay::setDoubleBuffer(QPoint pos, QPoint pos2, QSize frame)
 		{
-			if (Program_)
-			{
-				Program_->bind();
-				const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-				const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-				const float newX2 = ((static_cast<float>(pos2.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-				const float newY2 = (-((static_cast<float>(pos2.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-				const float vertices[] = {
-					newX, 1.f,
-					newX, -1.f,
-					newX2, 1.f,
-					newX2, -1.f,
-					-1.f, newY,
-					1.f, newY,
-					-1.f, newY2,
-					1.f, newY2,
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program_->release();
-			}
+			Program_->bind();
+			const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
+			const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
+			const float newX2 = ((static_cast<float>(pos2.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
+			const float newY2 = (-((static_cast<float>(pos2.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
+			const float vertices[] = {
+				newX, 1.f,
+				newX, -1.f,
+				newX2, 1.f,
+				newX2, -1.f,
+				-1.f, newY,
+				1.f, newY,
+				-1.f, newY2,
+				1.f, newY2,
+			};
+			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			Program_->release();
 			doubleCross_ = true;
+			display_ = true;
 		}
 
 		void CrossOverlay::init()
 		{
-			if (Program_)
-			{
-				Program_->bind();
-				const float vertices[] = {
-					0.f, 1.f,
-					0.f, -1.f,
-					-1.f, 0.f,
-					1.f, 0.f
-				};
-				glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				Program_->release();
-			}
+			// Program_ already bound by caller (initProgram)
+			
+			Vao_.bind();
+
+			// Set vertices position
+			const float vertices[] = {
+				0.f, 1.f,
+				0.f, -1.f,
+				-1.f, 0.f,
+				1.f, 0.f,
+				// Second cross
+				0.f, 0.f,
+				0.f, 0.f,
+				0.f, 0.f,
+				0.f, 0.f
+			};
+			glGenBuffers(1, &verticesIndex_);
+			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(verticesShader_);
+			glVertexAttribPointer(verticesShader_, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+			glDisableVertexAttribArray(verticesShader_);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Set color
+			const float colorData[] = {
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2]
+			};
+			glGenBuffers(1, &colorIndex_);
+			glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(colorShader_);
+			glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+			glDisableVertexAttribArray(colorShader_);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			Vao_.release();
+
+			// Program_ released by caller (initProgram)
 		}
 
 		void CrossOverlay::draw()
@@ -111,6 +139,7 @@ namespace holovibes
 		
 		void CrossOverlay::drawCross(GLuint offset, GLsizei count)
 		{
+			Vao_.bind();
 			Program_->bind();
 			glEnableVertexAttribArray(verticesShader_);
 			glEnableVertexAttribArray(colorShader_);
@@ -177,6 +206,7 @@ namespace holovibes
 			glDisableVertexAttribArray(colorShader_);
 			glDisableVertexAttribArray(verticesShader_);
 			Program_->release();
+			Vao_.release();
 		}
 	}
 }

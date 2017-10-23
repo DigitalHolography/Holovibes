@@ -64,9 +64,12 @@ namespace holovibes
 			/*! \brief Called when the user press the mouse button */
 			void press(QPoint pos);
 			/*! \brief Called when the user moves the mouse */
-			virtual void move(QPoint pos, QSize size) = 0;
+			virtual void move(QPoint pos) = 0;
 			/*! \brief Called when the user release the mouse button */
 			virtual void release(ushort frameside) = 0;
+
+			/*! \brief Set the zone, buffers, and call release */
+			virtual void setZone(Rectangle rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose */
 			void print();

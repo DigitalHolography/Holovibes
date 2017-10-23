@@ -31,24 +31,26 @@ namespace holovibes
 
 		Rectangle	DirectWindow::getSignalZone() const
 		{
-			//return (Overlay.getRectBuffer());
-			return Rectangle(0, 0);
+			Rectangle rect;
+			Cd->signalZone(rect, Get);
+			return rect;
 		}
 
 		Rectangle	DirectWindow::getNoiseZone() const
 		{
-			//return (Overlay.getRectBuffer(KindOfOverlay::Noise));
-			return Rectangle(0, 0);
+			Rectangle rect;
+			Cd->noiseZone(rect, Get);
+			return rect;
 		}
 
 		void	DirectWindow::setSignalZone(Rectangle signal)
 		{
-			//Overlay.setZoneBuffer(width(), signal, KindOfOverlay::Signal);
+			overlay_manager_.set_zone(Fd.width, signal, Signal);
 		}
 
 		void	DirectWindow::setNoiseZone(Rectangle noise)
 		{
-			//Overlay.setZoneBuffer(width(), noise, KindOfOverlay::Noise);
+			overlay_manager_.set_zone(Fd.width, noise, Noise);
 		}
 
 		void	DirectWindow::initShaders()
@@ -57,7 +59,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			overlay_manager_.create_zoom();
+			overlay_manager_.create_default();
 		}
 
 		void	DirectWindow::initializeGL()
@@ -245,7 +247,7 @@ namespace holovibes
 					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
 					pos.setX(static_cast<double>(pos.x()) * multiplier);
 				}
-				overlay_manager_.move(pos, size());
+				overlay_manager_.move(pos);
 			}
 		}
 

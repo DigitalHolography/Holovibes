@@ -36,8 +36,7 @@ namespace holovibes
 			Direct = 1,
 			Hologram,
 			SliceXZ,
-			SliceYZ,
-			Vision3D
+			SliceYZ
 		};
 
 		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions

@@ -33,8 +33,7 @@ namespace holovibes
 
 			// handle Noise
 			if (parent_->getKindOfView() == Hologram)
-				// TODO: fix plot window
-				parent_->getCd()->signalZone(texZone, AccessMode::Set);
+				parent_->getCd()->noiseZone(texZone, AccessMode::Set);
 
 		}
 	}

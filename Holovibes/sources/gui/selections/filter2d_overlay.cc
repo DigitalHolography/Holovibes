@@ -38,12 +38,12 @@ namespace holovibes
 			));
 		}
 
-		void Filter2DOverlay::move(QPoint pos, QSize win_size)
+		void Filter2DOverlay::move(QPoint pos)
 		{
 			display_ = true;
 			zone_.setBottomRight(pos);
 			make_square();
-			setBuffer(win_size);
+			setBuffer();
 		}
 
 		void Filter2DOverlay::checkCorners(ushort frameSide)
