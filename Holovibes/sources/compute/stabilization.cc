@@ -94,10 +94,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_a,
 		plan2d_b,
 		plan2d_inverse);
-	//float _x[s];
-	//cudaMemcpy(_x, x, s * 4, cudaMemcpyDeviceToHost);
-	//float _y[s];
-	//cudaMemcpy(_y, y, s * 4, cudaMemcpyDeviceToHost);
 	float _x[s];
 	cudaMemcpy(_x, selected_x.get(), s * 4, cudaMemcpyDeviceToHost);
 	float _y[s];
@@ -125,11 +121,19 @@ void Stabilization::insert_extremums()
 				x -= zone.width();
 			if (y > zone.height() / 2)
 				y -= zone.height();
-			std::cout << x << ", " << y << std::endl;
 			//shift_x = (shift_x + x + fd.width) % fd.width;
 			//shift_y = (shift_y + y + fd.height) % fd.height;
-			shift_x = x;
-			shift_y = y;
+
+			static int old_x = 0;
+			static int old_y = 0;
+
+			shift_x = old_x - x;
+			shift_y = old_y - y;
+
+			old_x = x;
+			old_y = y;
+
+			std::cout << shift_x << ", " << shift_y << std::endl;
 		}
 	});
 }
@@ -137,13 +141,16 @@ void Stabilization::insert_extremums()
 
 void Stabilization::insert_stabilization()
 {
-	// Visualization of convolution matrix
 	if (cd_.xy_stabilization_show_convolution.load())
 	{
+		// Visualization of convolution matrix
 		fn_vect_.push_back([=]()
 		{
-			gui::Rectangle zone = cd_.getStabilizationZone();
-			gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
+			if (convolution_)
+			{
+				gui::Rectangle zone = cd_.getStabilizationZone();
+				gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
+			}
 		});
 	}
 	else

@@ -142,14 +142,14 @@ void convolution_float(		const float			*a,
 	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get());
 	
 
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 
 	cudaStreamSynchronize(stream);
 
 	cufftExecC2R(plan2d_inverse, tmp_a.get(), out);
 
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(0);
 
 	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
 	//cudaStreamSynchronize(stream);

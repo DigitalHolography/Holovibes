@@ -67,8 +67,8 @@ namespace holovibes
 
 			/// Current image shift
 			/// {
-			uint							shift_x;
-			uint							shift_y;
+			int							shift_x;
+			int							shift_y;
 			/// }
 
 			std::unique_ptr<Queue>			accumulation_queue_;
