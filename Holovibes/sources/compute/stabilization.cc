@@ -69,8 +69,8 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 	cufftHandle plan2d_inverse;
 
 	gui::Rectangle zone = cd_.getStabilizationZone();
-	CudaUniquePtr<float> selected_x(zone.area());
-	CudaUniquePtr<float> selected_y(zone.area());
+	cuda_tools::UniquePtr<float> selected_x(zone.area());
+	cuda_tools::UniquePtr<float> selected_y(zone.area());
 	if (!selected_x || !selected_y)
 		return;
 

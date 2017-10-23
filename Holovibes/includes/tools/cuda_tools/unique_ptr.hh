@@ -10,9 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * std::unique_ptr "specialization" for cudaFree */
 #pragma once
 
-#include <vector>
 #include <memory>
 #include <functional>
 #include <iostream>
@@ -20,56 +22,41 @@
 
 namespace holovibes
 {
-	/// Array class for cuda buffers that ocasionally need to be resized
-	template <typename T>
-	class CudaArray : public CudaUniquePtr<T>
+	namespace cuda_tools
 	{
-	public:
-		using base = CudaUniquePtr<T>;
-
-		/// Intantiate an empty / nullptr array
-		CudaArray()
-			: base()
-			, size_(0)
-		{}
-
-		/// Creates an array of size sizeof(T) * size
-		CudaArray(std::size_t size)
-			: base(size)
-			, size_(size)
-		{}
-
-		/// Realloc the array only if needed
-		/// 
-		/// \return if the resize succeeded
-		bool ensure_minimum_size(std::size_t size)
+		/// A smart pointer made for ressources that need to be cudaFreed
+		template<typename T>
+		class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
 		{
-			if (size <= size_)
-				return true;
-			resize(size);
-			if (get())
+		public:
+			using base = std::unique_ptr<T, std::function<void(T*)>>;
+			UniquePtr()
+				: base(nullptr, cudaFree)
+			{}
+
+			UniquePtr(T *ptr)
+				: base(ptr, cudaFree)
+			{}
+
+			/// Allocates an array of size sizeof(T) * size
+			UniquePtr(std::size_t size)
+				: base(nullptr, cudaFree)
 			{
-				size_ = size;
-				return true;
+				resize(size);
 			}
-			size_ = 0;
-			return false;
-		}
 
-		/// Is the array size greater or equal to size
-		bool is_large_enough(std::size_t size) const
-		{
-			return size_ >= size;
-		}
-
-		/// Resize the array
-		void resize(std::size_t size)
-		{
-			base::resize(size);
-			size_ = size;
-		}
-
-	private:
-		std::size_t size_;
-	};
+			/// Allocates an array of size sizeof(T) * size, free the old pointer if not null
+			void resize(std::size_t size)
+			{
+				T* tmp;
+				auto code = cudaMalloc(&tmp, size * sizeof(T));
+				if (code != cudaSuccess)
+				{
+					std::cout << "cudaMalloc error:" << cudaGetErrorString(code) << std::endl;
+					tmp = nullptr;
+				}
+				reset(tmp);
+			}
+		};
+	}
 }

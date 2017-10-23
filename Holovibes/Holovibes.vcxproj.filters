@@ -93,6 +93,9 @@
     <Filter Include="cuda sources\tools">
       <UniqueIdentifier>{32549d3d-7a61-4ec8-b18b-18e04cf1b3f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c++ includes\tools\cuda_tools">
+      <UniqueIdentifier>{5f0ae4f7-914c-4a7a-84db-5c196c648d98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
@@ -418,17 +421,17 @@
     <ClInclude Include="cuda_includes\composite.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\tools\cuda_unique_ptr.hh">
-      <Filter>c++ includes\tools</Filter>
-    </ClInclude>
     <ClInclude Include="includes\compute\stabilization.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
     <ClInclude Include="cuda_includes\stabilization.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\tools\cuda_array.hh">
-      <Filter>c++ includes\tools</Filter>
+    <ClInclude Include="includes\tools\cuda_tools\unique_ptr.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\array.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

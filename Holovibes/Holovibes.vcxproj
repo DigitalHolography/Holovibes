@@ -265,8 +265,8 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\tools\cuda_array.hh" />
-    <ClInclude Include="includes\tools\cuda_unique_ptr.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\array.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\unique_ptr.hh" />
     <ClInclude Include="includes\tools\hardware_limits.hh" />
     <CustomBuild Include="includes\tools\info_manager.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>

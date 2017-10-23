@@ -13,7 +13,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
-#include "cuda_unique_ptr.hh"
+#include "cuda_tools/unique_ptr.hh"
 
 __global__
 void kernel_apply_lens(cuComplex		*input,
@@ -133,8 +133,8 @@ void convolution_float(		const float			*a,
 	uint	blocks = map_blocks_to_problem(size, threads);
 
 	/* The convolution operator could be optimized. */
-	holovibes::CudaUniquePtr<cuComplex> tmp_a(size);
-	holovibes::CudaUniquePtr<cuComplex> tmp_b(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
 		return;
 	
@@ -169,8 +169,8 @@ void convolution_operator(	const cuComplex		*a,
 
 	/* The convolution operator could be optimized. */
 
-	holovibes::CudaUniquePtr<cuComplex> tmp_a(size);
-	holovibes::CudaUniquePtr<cuComplex> tmp_b(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
 		return;
 	

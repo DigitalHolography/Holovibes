@@ -16,7 +16,7 @@
  * in a single container. */
 #pragma once
 
-# include "cuda_unique_ptr.hh"
+# include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
 # include "stabilization.hh"
 
