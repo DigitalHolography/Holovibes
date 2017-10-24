@@ -31,22 +31,26 @@ namespace holovibes
 
 		Rectangle	DirectWindow::getSignalZone() const
 		{
-			return (Overlay.getRectBuffer());
+			Rectangle rect;
+			Cd->signalZone(rect, Get);
+			return rect;
 		}
 
 		Rectangle	DirectWindow::getNoiseZone() const
 		{
-			return (Overlay.getRectBuffer(KindOfOverlay::Noise));
+			Rectangle rect;
+			Cd->noiseZone(rect, Get);
+			return rect;
 		}
 
 		void	DirectWindow::setSignalZone(Rectangle signal)
 		{
-			Overlay.setZoneBuffer(width(), signal, KindOfOverlay::Signal);
+			overlay_manager_.set_zone(Fd.width, signal, Signal);
 		}
 
 		void	DirectWindow::setNoiseZone(Rectangle noise)
 		{
-			Overlay.setZoneBuffer(width(), noise, KindOfOverlay::Noise);
+			overlay_manager_.set_zone(Fd.width, noise, Noise);
 		}
 
 		void	DirectWindow::initShaders()
@@ -55,7 +59,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			Overlay.initShaderProgram();
+			overlay_manager_.create_default();
 		}
 
 		void	DirectWindow::initializeGL()
@@ -68,8 +72,8 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			Vao.create();
-			Vao.bind();
+			//Vao.create();
+			//Vao.bind();
 			initShaders();
 			Program->bind();
 
@@ -158,7 +162,7 @@ namespace holovibes
 			setTransform();
 
 			Program->release();
-			Vao.release();
+			//Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -182,7 +186,7 @@ namespace holovibes
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
-			Vao.bind();
+			//Vao.bind();
 			Program->bind();
 
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
@@ -214,10 +218,8 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			Program->release();
-			if (Overlay.isEnabled())
-				Overlay.drawSelections();
-			if (kView == KindOfView::Direct)
-				Vao.release();
+			overlay_manager_.draw();
+			//Vao.release();
 		}
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
@@ -230,7 +232,7 @@ namespace holovibes
 					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
 					pos.setX(static_cast<double>(pos.x()) * multiplier);
 				}
-				Overlay.press(pos);
+				overlay_manager_.press(pos);
 			}
 		}
 
@@ -244,25 +246,15 @@ namespace holovibes
 					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
 					pos.setX(static_cast<double>(pos.x()) * multiplier);
 				}
-				Overlay.move(pos, size());
+				overlay_manager_.move(pos);
 			}
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			if (e->button() == Qt::LeftButton)
-			{
-				Overlay.release(width());
-				if (Overlay.getConstZone().topLeft() !=
-					Overlay.getConstZone().bottomRight())
-				{
-					if (Overlay.getKind() == Zoom)
-						zoomInRect(Overlay.getConstZone());
-				}
-			}
-			else if (e->button() == Qt::RightButton &&
-				Overlay.getKind() != Signal &&
-				Overlay.getKind() != Noise)
+				overlay_manager_.release(Fd.width);
+			else if (e->button() == Qt::RightButton && overlay_manager_.getKind() == KindOfOverlay::Zoom)
 				resetTransform();
 		}
 

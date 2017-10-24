@@ -12,37 +12,34 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class RectOverlay : public Overlay
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+			virtual ~RectOverlay()
+			{}
 
-			void	zoomInRect(Rectangle zone);
+			void init() override;
+			void draw() override;
 
+			/*! \brief Change the coordinates in the vertex buffer to match the current zone. */
+			void setBuffer();
+
+			/*! \brief Check if corners are not swapped, i.e. if topleft is really in the top left corner */
+			void checkCorners();
+
+			virtual void move(QPoint pos) override;
+			virtual void setZone(Rectangle rect, ushort frameside) override;
 		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			/*! \brief Return the real zone, taking into account the window resizing */
+			Rectangle getTexZone(ushort frameSide) const;
 		};
 	}
 }

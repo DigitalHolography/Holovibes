@@ -12,37 +12,18 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "rect_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class SignalOverlay : public RectOverlay
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			SignalOverlay(BasicOpenGLWindow *parent);
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
-
-			void	zoomInRect(Rectangle zone);
-
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			void release(ushort frameSide) override;
 		};
 	}
 }

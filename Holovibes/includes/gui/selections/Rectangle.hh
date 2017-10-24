@@ -19,8 +19,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		using KindOfOverlay =
-		enum
+		enum KindOfOverlay
 		{
 			Zoom,
 			// Average
@@ -42,7 +41,6 @@ namespace holovibes
 			Rectangle(const uint width, const uint height);
 			
 			uint	area() const;
-			void	checkCorners(ushort frameSide, KindOfOverlay);
 		};
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
 		Rectangle operator-(Rectangle& rec, const QPoint& point);

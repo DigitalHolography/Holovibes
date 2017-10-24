@@ -10,39 +10,46 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
+#include "zoom_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "DirectWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		ZoomOverlay::ZoomOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Zoom, parent)
 		{
-		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			color_ = { 0.f, 0.5f, 0.f };
+		}
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+		void ZoomOverlay::release(ushort frameSide)
+		{
+			checkCorners();
 
-			void	zoomInRect(Rectangle zone);
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
 
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-		};
+			// handle Zoom
+			// Since we cannot zoom in slice yet, we have to cast here.
+			switch (parent_->getKindOfView())
+			{
+			case Direct:
+			case Hologram:
+			{
+				DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
+				if (window)
+					window->zoomInRect(zone_);
+				break;
+			}
+			// Not implemented yet
+			case SliceXZ:
+			case SliceYZ:
+			default:
+				break;
+			}
+			disable();
+		}
 	}
 }

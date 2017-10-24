@@ -12,37 +12,24 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "rect_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class Filter2DOverlay : public RectOverlay
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			Filter2DOverlay(BasicOpenGLWindow* parent);
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+			/*! \brief Check if corners are not swapped, and if they don't go out of bounds. */
+			void checkCorners(ushort frameSide);
+			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
+			void make_square();
 
-			void	zoomInRect(Rectangle zone);
-
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			void move(QPoint pos) override;
+			void release(ushort frameSide) override;
 		};
 	}
 }

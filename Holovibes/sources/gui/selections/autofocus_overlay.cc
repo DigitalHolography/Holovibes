@@ -10,39 +10,40 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
+#include "autofocus_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		AutofocusOverlay::AutofocusOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Autofocus, parent)
 		{
-		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			color_ = { 1.f, 0.8f, 0.f };
+		}
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+		void AutofocusOverlay::release(ushort frameSide)
+		{
+			checkCorners();
 
-			void	zoomInRect(Rectangle zone);
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
 
-		protected:
-			int	texDepth, texType;
+			Rectangle texZone = getTexZone(frameSide);
 
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-		};
+			// handle Autofocus
+			if (parent_->getKindOfView() == Hologram)
+			{
+				auto window = dynamic_cast<HoloWindow *>(parent_);
+				if (window)
+				{
+					parent_->getCd()->autofocusZone(texZone, AccessMode::Set);
+					window->getPipe()->request_autofocus();
+				}
+			}
+			active_ = false;
+		}
 	}
 }

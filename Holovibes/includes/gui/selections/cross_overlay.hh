@@ -13,36 +13,39 @@
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
+#include "Overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class CrossOverlay : public Overlay
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			CrossOverlay(BasicOpenGLWindow* parent);
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+			void setBuffer(QPoint pos, QSize frame);
+			void setDoubleBuffer(QPoint pos1, QPoint pos2, QSize frame);
 
-			void	zoomInRect(Rectangle zone);
+			void init() override;
+			void draw() override;
 
-		protected:
-			int	texDepth, texType;
+			// Not called when using cross
+			void move(QPoint pos) override
+			{}
 
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			// Not called when using cross
+			void release(ushort frameSide) override
+			{}
+
+			// Not called when using cross
+			void setZone(Rectangle rect, ushort frameside) override
+			{}
+
+		private:
+			void drawCross(GLuint offset, GLsizei count);
+
+			bool doubleCross_;
 		};
 	}
 }

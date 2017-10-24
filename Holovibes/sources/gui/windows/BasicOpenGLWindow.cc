@@ -42,7 +42,7 @@ namespace holovibes
 			Vao(0),
 			Vbo(0), Ebo(0), Pbo(0),
 			Tex(0),
-			Overlay()
+			overlay_manager_(this)
 		{
 			if (cudaStreamCreate(&cuStream) != cudaSuccess)
 				cuStream = nullptr;
@@ -72,14 +72,24 @@ namespace holovibes
 			return kView;
 		}
 
-		void	BasicOpenGLWindow::setKindOfOverlay(KindOfOverlay k)
+		const KindOfOverlay BasicOpenGLWindow::getKindOfOverlay() const
 		{
-			Overlay.setKind(k);
+			return overlay_manager_.getKind();
 		}
 
-		const KindOfOverlay	BasicOpenGLWindow::getKindOfOverlay() const
+		ComputeDescriptor* BasicOpenGLWindow::getCd()
 		{
-			return Overlay.getKind();
+			return Cd;
+		}
+
+		OverlayManager& BasicOpenGLWindow::getOverlayManager()
+		{
+			return overlay_manager_;
+		}
+
+		QOpenGLVertexArrayObject& BasicOpenGLWindow::getVao()
+		{
+			return Vao;
 		}
 		
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
@@ -210,7 +220,7 @@ namespace holovibes
 		void	BasicOpenGLWindow::resetSelection()
 		{
 			makeCurrent();
-			Overlay.resetVerticesBuffer();
+			overlay_manager_.reset();
 		}
 
 		void	BasicOpenGLWindow::setCd(ComputeDescriptor* cd)

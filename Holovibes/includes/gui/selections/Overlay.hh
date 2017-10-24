@@ -10,12 +10,18 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Interface for all overlays.*/
 #pragma once
 
 #include <array>
 #include <iostream>
 #include <QOpenGLShaderProgram.h>
 #include <QOpenGLFunctions.h>
+#include <QOpenGLVertexArrayObject>
+
+#include <memory>
 #include "frame_desc.hh"
 #include "Rectangle.hh"
 
@@ -23,55 +29,81 @@ namespace holovibes
 {
 	namespace gui
 	{
-		using Color = std::array<float, 3>;
-		using ColorArray = std::array<Color, 7>;
 
-		class HOverlay : protected QOpenGLFunctions
+		class BasicOpenGLWindow;
+
+		using Color = std::array<float, 3>;
+
+		class Overlay : protected QOpenGLFunctions
 		{
 		public:
-			HOverlay();
-			virtual ~HOverlay();
+			Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
+			virtual ~Overlay();
 
-			const Rectangle&		getConstZone()	const;
-			Rectangle&				getZone();
-			Rectangle				getTexZone(ushort winSide, ushort frameSide) const;
-			Rectangle				getRectBuffer(KindOfOverlay k = Zoom) const;
+			/*! \brief Get the zone selected */
+			const Rectangle&		getZone()	const;
 
-			const KindOfOverlay		getKind()	const;
-			const Color				getColor()	const;
-			const bool				isEnabled() const;
-			void					setEnabled(bool b);
+			/*! \brief Get the kind of overlay */
+			const KindOfOverlay		getKind()		const;
 
-			void initShaderProgram();
-			void initBuffers();
+			/*! \brief Return if the overlay should be displayed */
+			const bool				isDisplayed()	const;
+			/*! \brief Return if the overlay have to be deleted */
+			const bool				isActive()		const;
+			/*! \brief Disable this overlay */
+			void					disable();
 
-			void setZoneBuffer(QSize size);
-			void setZoneBuffer(int side, Rectangle rect, KindOfOverlay k);
-			void resetVerticesBuffer();
-			void initCrossBuffer();
-			void setCrossBuffer(QPoint pos, QSize frame);
-			void setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
-			void drawSelections();
-			void drawCross(GLuint offset, GLsizei count);
+			/*! \brief Initialize shaders and Vao/Vbo of the overlay */
+			void initProgram();
 
-			void setKind(KindOfOverlay k);
-			void setColor();
+			//void setZone(int side, Rectangle rect);
 
+			/*! \brief Call opengl function to draw the overlay */
+			virtual void draw() = 0;
+
+			/*! \brief Called when the user press the mouse button */
 			void press(QPoint pos);
-			void move(QPoint pos, QSize size);
-			void release(ushort frameSide);
+			/*! \brief Called when the user moves the mouse */
+			virtual void move(QPoint pos) = 0;
+			/*! \brief Called when the user release the mouse button */
+			virtual void release(ushort frameside) = 0;
+
+			/*! \brief Set the zone, buffers, and call release */
+			virtual void setZone(Rectangle rect, ushort frameside) = 0;
+
+			/*! \brief Prints informations about the overlay. Debug purpose */
+			void print();
 
 		protected:
-			Rectangle				Zone;
-			KindOfOverlay			kOverlay;
-			std::array<Rectangle, 2>	rectBuffer;
-			GLuint					verticesIndex, colorIndex, elemIndex;
-			QOpenGLShaderProgram*	Program;
-			ColorArray				Colors;
-			bool					doubleCross_ = false;
+			/*! \brief Initialize Vao/Vbo */
+			virtual void init() = 0;
 
-		private:
-			bool	Enabled;
+			//! Zone selected by the users.
+			Rectangle				zone_;
+			//! Kind of overlay
+			KindOfOverlay			kOverlay_;
+			//! Indexes of the buffers in opengl
+			GLuint					verticesIndex_, colorIndex_, elemIndex_;
+			//! Specific Vao of the overlay
+			QOpenGLVertexArrayObject	Vao_;
+			//! The opengl shader program
+			std::unique_ptr<QOpenGLShaderProgram>	Program_;
+			//! The color of the overlay
+			Color					color_;
+			/*! If the overlay is activated or not. 
+			 *  Since we don't want the overlay to remove itself from the vector of overlays,
+			 *  We set this boolean, and remove it later by iterating through the vector.
+			 */
+			bool					active_;
+			//! If the overlay should be displayed or not
+			bool					display_;
+			//! Pointer to the parent to access Compute descriptor and Pipe
+			BasicOpenGLWindow*		parent_;
+
+			//! Location of the vertices buffer in the shader/vertexattrib. Set to 2
+			unsigned short			verticesShader_;
+			//! Location of the color buffer in the shader/vertexattrib. Set to 3
+			unsigned short			colorShader_;
 		};
 	}
 }

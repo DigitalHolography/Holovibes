@@ -10,39 +10,31 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
+#include "signal_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		SignalOverlay::SignalOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Signal, parent)
 		{
-		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			color_ = { 0.557f, 0.4f, 0.85f };
+		}
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+		void SignalOverlay::release(ushort frameSide)
+		{
+			checkCorners();
 
-			void	zoomInRect(Rectangle zone);
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
 
-		protected:
-			int	texDepth, texType;
+			Rectangle texZone = getTexZone(frameSide);
 
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-		};
+			// handle Signal
+			if (parent_->getKindOfView() == Hologram)
+				parent_->getCd()->signalZone(texZone, AccessMode::Set);
+		}
 	}
 }
