@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
@@ -905,7 +905,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
 			}
