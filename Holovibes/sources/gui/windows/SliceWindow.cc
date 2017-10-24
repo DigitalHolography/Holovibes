@@ -204,7 +204,6 @@ namespace holovibes
 				overlay_manager_.setCrossBuffer(p, s);
 			}
 			overlay_manager_.draw();
-			//overlay_manager_.clean();
 
 			//Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -226,7 +225,7 @@ namespace holovibes
 				Cd->pindex = p;
 				Cd->p_accu_max_level = std::max(p, last_p);
 				Cd->p_accu_min_level = std::min(p, last_p);
-				main_window_->notify();
+				Cd->notify_observers();
 				main_window_->set_auto_contrast();
 			}
 		}

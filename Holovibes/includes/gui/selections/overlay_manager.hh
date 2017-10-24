@@ -30,15 +30,13 @@ namespace holovibes
 			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
 			void create_default();
 
-			/*! \brief Disable all the overlay of kind ko*/
-			void disable_all(KindOfOverlay ko);
-
-			/*! \brief Try to set the current overlay to the first active overlay of a given type. */
-			bool set_current(KindOfOverlay ko);
-			/* \brief Disable all the overlays. If def is set, it will create a default overlay. */
-			void reset(bool def = true);
 			/*! \brief Create an overlay, and set its zone. */
 			void set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko);
+
+			/*! \brief Disable all the overlay of kind ko*/
+			void disable_all(KindOfOverlay ko);
+			/*! \brief Disable all the overlays. If def is set, it will create a default overlay. */
+			void reset(bool def = true);
 
 			/*! \brief Call the press function of the current overlay. */
 			void press(QPoint pos);
@@ -49,8 +47,6 @@ namespace holovibes
 
 			/*! \brief Draw every overlay that should be displayed. */
 			void draw();
-			/*! \brief Deletes from the vector every disabled overlay. */
-			void clean();
 			/*! \brief Get the zone of the current overlay. */
 			const Rectangle& getZone() const;
 			/*! \brief Get the kind of the current overlay. */
@@ -60,12 +56,22 @@ namespace holovibes
 			/*! \brief Set the buffer for the double Cross overlay. */
 			bool setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
 
-			/*! \brief Prints every overlay in the vector. Debug purpose. */
-			void printVector();
+			# ifdef _DEBUG
+				/*! \brief Prints every overlay in the vector. Debug purpose. */
+				void printVector();
+			# endif
 
 		private:
 			//! Push in the vector the newly created overlay, set the current overlay, and call its init function.
 			void create_overlay(std::shared_ptr<Overlay> new_overlay);
+
+			/*! \brief Set the current overlay and notify observers to update gui. */
+			void set_current(std::shared_ptr<Overlay> new_overlay);
+			/*! \brief Try to set the current overlay to the first active overlay of a given type. */
+			bool set_current(KindOfOverlay ko);
+
+			/*! \brief Deletes from the vector every disabled overlay. */
+			void clean();
 
 			//! Containing every created overlay.
 			std::vector<std::shared_ptr<Overlay>> overlays_;

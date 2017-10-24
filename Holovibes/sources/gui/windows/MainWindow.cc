@@ -224,10 +224,16 @@ namespace holovibes
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			QPushButton* autofocusBtn = findChild<QPushButton *>("AutofocusRunPushButton");
-			autofocusBtn->setStyleSheet((autofocusBtn->isEnabled() &&
-				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
-			autofocusBtn->setText((autofocusBtn->isEnabled() &&
-				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
+			if (autofocusBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
+			{
+				autofocusBtn->setStyleSheet("QPushButton {color: #FFCC00;}");
+				autofocusBtn->setText("Cancel Autofocus");
+			}
+			else
+			{
+				autofocusBtn->setStyleSheet("");
+				autofocusBtn->setText("Run Autofocus");
+			}
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(compute_desc_.autofocus_z_min.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(compute_desc_.autofocus_z_max.load());
 
@@ -1333,6 +1339,7 @@ namespace holovibes
 
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled.exchange(true);
+					compute_desc_.average_enabled.exchange(false);
 					set_auto_contrast_cuts();
 					notify();
 				}
@@ -1931,8 +1938,6 @@ namespace holovibes
 			{
 				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				mainDisplay->getOverlayManager().create_default();
-				mainDisplay->resetTransform();
-
 				notify();
 			}
 			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
@@ -1940,7 +1945,6 @@ namespace holovibes
 			else
 			{
 				mainDisplay->getOverlayManager().create_overlay<Autofocus>();
-				mainDisplay->resetTransform();
 				notify();
 			}
 		}

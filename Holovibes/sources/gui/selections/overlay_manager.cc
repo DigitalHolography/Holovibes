@@ -42,29 +42,27 @@ namespace holovibes
 		template <>
 		void OverlayManager::create_overlay<Zoom>()
 		{
-			create_overlay(std::make_shared<ZoomOverlay>(parent_));
+			if (!set_current(Zoom))
+				create_overlay(std::make_shared<ZoomOverlay>(parent_));
 		}
 
 		template <>
 		void OverlayManager::create_overlay<Filter2D>()
 		{
-			if (current_overlay_)
-				current_overlay_->disable();
-			create_overlay(std::make_shared<Filter2DOverlay>(parent_));
+			if (!set_current(Filter2D))
+				create_overlay(std::make_shared<Filter2DOverlay>(parent_));
 		}
 
 		template <>
 		void OverlayManager::create_overlay<Autofocus>()
 		{
-			reset(false);
-			create_overlay(std::make_shared<AutofocusOverlay>(parent_));
+			if (!set_current(Autofocus))
+				create_overlay(std::make_shared<AutofocusOverlay>(parent_));
 		}
 
 		template <>
 		void OverlayManager::create_overlay<Noise>()
 		{
-			if (current_overlay_ && current_overlay_->getKind() != Signal && current_overlay_->getKind() != Noise)
-				current_overlay_->disable();
 			if (!set_current(Noise))
 				create_overlay(std::make_shared<NoiseOverlay>(parent_));
 		}
@@ -72,8 +70,6 @@ namespace holovibes
 		template <>
 		void OverlayManager::create_overlay<Signal>()
 		{
-			if (current_overlay_ && current_overlay_->getKind() != Noise && current_overlay_->getKind() != Signal)
-				current_overlay_->disable();
 			if (!set_current(Signal))
 				create_overlay(std::make_shared<SignalOverlay>(parent_));
 		}
@@ -81,15 +77,15 @@ namespace holovibes
 		template <>
 		void OverlayManager::create_overlay<Cross>()
 		{
-			if (current_overlay_)
-				current_overlay_->disable();
-			create_overlay(std::make_shared<CrossOverlay>(parent_));
+			if (!set_current(Cross))
+				create_overlay(std::make_shared<CrossOverlay>(parent_));
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
 		{
+			clean();
 			overlays_.push_back(new_overlay);
-			current_overlay_ = new_overlay;
+			set_current(new_overlay);
 			current_overlay_->initProgram();
 		}
 
@@ -98,10 +94,16 @@ namespace holovibes
 			for (auto o : overlays_)
 				if (o->getKind() == ko && o->isActive())
 				{
-					current_overlay_ = o;
+					set_current(o);
 					return true;
 				}
 			return false;
+		}
+
+		void OverlayManager::set_current(std::shared_ptr<Overlay> new_overlay)
+		{
+			current_overlay_ = new_overlay;
+			parent_->getCd()->notify_observers();
 		}
 
 		void OverlayManager::set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko)
@@ -166,8 +168,6 @@ namespace holovibes
 					overlays_.end(),
 					[](std::shared_ptr<Overlay> overlay) { return !overlay->isActive(); }),
 				overlays_.end());
-			if (overlays_.empty())
-				create_default();
 		}
 
 		void OverlayManager::reset(bool def)
@@ -184,7 +184,8 @@ namespace holovibes
 			{
 			case Direct:
 			case Hologram:
-				create_overlay<Zoom>();
+				if (!set_current(Cross))
+					create_overlay<Zoom>();
 				break;
 			case SliceXZ:
 			case SliceYZ:
@@ -223,6 +224,7 @@ namespace holovibes
 			return true;
 		}
 
+		# ifdef _DEBUG
 		void OverlayManager::printVector()
 		{
 			std::cout << std::endl;
@@ -230,5 +232,6 @@ namespace holovibes
 				o->print();
 			std::cout << std::endl;
 		}
+		# endif
 	}
 }

@@ -219,7 +219,6 @@ namespace holovibes
 
 			Program->release();
 			overlay_manager_.draw();
-			//overlay_manager_.clean();
 			//Vao.release();
 		}
 
