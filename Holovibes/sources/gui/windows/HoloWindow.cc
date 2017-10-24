@@ -108,9 +108,10 @@ namespace holovibes
 			DirectWindow::keyPressEvent(e);
 			if (Cd->stft_view_enabled.load() && e->key() == Qt::Key::Key_Space)
 			{
-				if (!slicesAreLocked && Cd)
+				if (!slicesAreLocked)
 					last_clicked = mouse_position;
-				updateCursorPosition(mouse_position);
+				else
+					updateCursorPosition(mouse_position);
 				slicesAreLocked.exchange(!slicesAreLocked.load());
 				makeCurrent();
 				if (slicesAreLocked.load())
