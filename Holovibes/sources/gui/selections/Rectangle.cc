@@ -45,47 +45,6 @@ namespace holovibes
 			return (width() * height());
 		}
 
-		void	Rectangle::checkCorners(ushort frameSide, KindOfOverlay kO)
-		{
-			if (kO == Filter2D)
-			{
-				if (bottomRight().x() < 0)
-					setBottomRight(QPoint(0, bottomRight().y()));
-				if (bottomRight().y() < 0)
-					setBottomRight(QPoint(bottomRight().x(), 0));
-
-				if (bottomRight().x() > frameSide)
-					setBottomRight(QPoint(frameSide, bottomRight().y()));
-				if (bottomRight().y() > frameSide)
-					setBottomRight(QPoint(bottomRight().x(), frameSide));
-
-				const int length = std::min(std::abs(width()), std::abs(height()));
-				setBottomRight(QPoint(
-					topLeft().x() +
-					length * ((topLeft().x() < bottomRight().x()) * 2 - 1),
-					topLeft().y() +
-					length * ((topLeft().y() < bottomRight().y()) * 2 - 1)
-				));
-			}
-			if (width() < 0)
-			{
-				QPoint t0pRight = topRight();
-				QPoint b0ttomLeft = bottomLeft();
-
-				setTopLeft(t0pRight);
-				setBottomRight(b0ttomLeft);
-			}
-			if (height() < 0)
-			{
-				QPoint t0pRight = topRight();
-				QPoint b0ttomLeft = bottomLeft();
-
-				setTopLeft(b0ttomLeft);
-				setBottomRight(t0pRight);
-			}
-			// std::cout << *this;
-		}
-
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj)
 		{
 			os << "topLeft() : " << obj.topLeft().x() << " " << obj.topLeft().y() << std::endl;

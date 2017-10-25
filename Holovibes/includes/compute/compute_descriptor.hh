@@ -25,7 +25,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v5.2.0"; /*!< Current version of this project. */
+	const static std::string version = "v5.2.3"; /*!< Current version of this project. */
 
 	#ifndef TUPLE4F
 	# define TUPLE4F
@@ -44,7 +44,8 @@ namespace holovibes
 		Ixon,
 		Pike,
 		Pixelfly,
-		xiQ
+		xiQ,
+		PhotonFocus
 	};
 
 	/*! \brief	Rendering mode for Hologram */
@@ -94,16 +95,11 @@ namespace holovibes
 	/*! \brief	Type of encoding for the recorded output */
 	enum OutputType
 	{
+		Integer_8b,
 		Integer_16b,
+		Color_24b,
 		Complex_64b
 	};
-
-	/*! \see OutputType
-	*   \brief Link between OutputType and the GUI button display */
-	const static QMap<QString, OutputType> outputTypeMap({
-		{"16-bit integer", OutputType::Integer_16b},
-		{"64-bit complex", OutputType::Complex_64b}
-	});
 
 	/*! \brief Contains compute parameters.
 	 *
@@ -256,7 +252,7 @@ namespace holovibes
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled;
 		//! is gpu lens display activated
-		std::atomic<bool>			gpu_lens_display_enabled = true;
+		std::atomic<bool>			gpu_lens_display_enabled { true };
 		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled;
 
@@ -314,7 +310,7 @@ namespace holovibes
 			std::atomic<ushort>		p_max;
 			//! \}
 			//! Weight associated to the component
-			std::atomic<float>		weight = 1;
+			std::atomic<float>		weight { 1.f };
 		};
 		struct Component			component_r;
 		struct Component			component_g;

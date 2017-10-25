@@ -36,4 +36,4 @@ void convolution_flowgraphy(cuComplex	*input,
 						const uint		frame_resolution,
 						const uint		frame_width,
 						const uint		nframes,
-						cudaStream_t	stream);
+						cudaStream_t	stream = 0);

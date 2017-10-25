@@ -29,6 +29,8 @@ namespace holovibes
 			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window = nullptr);
 			virtual ~HoloWindow();
 
+			SharedPipe getPipe();
+
 		protected:
 			SharedPipe		Ic;
 

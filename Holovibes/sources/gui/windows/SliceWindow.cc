@@ -25,7 +25,6 @@ namespace holovibes
 			pIndex(0),
 			main_window_(main_window)
 		{
-			Overlay.initCrossBuffer();
 		}
 
 		SliceWindow::~SliceWindow()
@@ -42,7 +41,7 @@ namespace holovibes
 				makeCurrent();
 				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
 				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
-				Overlay.setCrossBuffer(p, s);
+				overlay_manager_.setCrossBuffer(p, s);
 			}
 		}
 		
@@ -52,9 +51,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			Overlay.initShaderProgram();
-			Overlay.initCrossBuffer();
-			Overlay.setKind(KindOfOverlay::Cross);
+			overlay_manager_.create_default();
 		}
 
 		void	SliceWindow::initializeGL()
@@ -68,8 +65,8 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			Vao.create();
-			Vao.bind();
+			//Vao.create();
+			//Vao.bind();
 			initShaders();
 			Program->bind();
 
@@ -162,7 +159,7 @@ namespace holovibes
 
 			setPIndex(pIndex - 1);
 
-			Vao.release();
+			//Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -178,7 +175,7 @@ namespace holovibes
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			Vao.bind();
+			//Vao.bind();
 
 			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
@@ -199,16 +196,16 @@ namespace holovibes
 				uint pmax = Cd->p_accu_max_level;
 				QPoint p = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
 				QPoint p2 = (kView == SliceXZ) ? QPoint(0, pmax) : QPoint(pmax, 0);
-				Overlay.setDoubleCrossBuffer(p, p2, s);
+				overlay_manager_.setDoubleCrossBuffer(p, p2, s);
 			}
 			else
 			{
 				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
-				Overlay.setCrossBuffer(p, s);
+				overlay_manager_.setCrossBuffer(p, s);
 			}
-			Overlay.drawCross((kView == SliceXZ) ? 2 : 0, 2);
+			overlay_manager_.draw();
 
-			Vao.release();
+			//Vao.release();
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
@@ -228,7 +225,7 @@ namespace holovibes
 				Cd->pindex = p;
 				Cd->p_accu_max_level = std::max(p, last_p);
 				Cd->p_accu_min_level = std::min(p, last_p);
-				main_window_->notify();
+				Cd->notify_observers();
 				main_window_->set_auto_contrast();
 			}
 		}

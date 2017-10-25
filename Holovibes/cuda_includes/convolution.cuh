@@ -39,4 +39,4 @@ void convolution_kernel(cuComplex		*input,
 						const uint		k_z,
 						uint&			gpu_special_queue_start_index,
 						const uint&		gpu_special_queue_max_index,
-						cudaStream_t	stream);
+						cudaStream_t	stream = 0);

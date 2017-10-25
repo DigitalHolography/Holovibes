@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
@@ -148,9 +148,6 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox"));
 			spinBoxDecimalPointReplacement(findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox"));
-
-			// Populate OutputTypeComboBox
-			findChild<QComboBox *>("RecordOutputTypeComboBox")->addItems(QStringList(outputTypeMap.keys()));
 		}
 
 		MainWindow::~MainWindow()
@@ -226,10 +223,16 @@ namespace holovibes
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
 			QPushButton* autofocusBtn = findChild<QPushButton *>("AutofocusRunPushButton");
-			autofocusBtn->setStyleSheet((autofocusBtn->isEnabled() &&
-				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "QPushButton {color: #FFCC00;}" : "");
-			autofocusBtn->setText((autofocusBtn->isEnabled() &&
-				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus) ? "Cancel Autofocus" : "Run Autofocus");
+			if (autofocusBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
+			{
+				autofocusBtn->setStyleSheet("QPushButton {color: #FFCC00;}");
+				autofocusBtn->setText("Cancel Autofocus");
+			}
+			else
+			{
+				autofocusBtn->setStyleSheet("");
+				autofocusBtn->setText("Run Autofocus");
+			}
 			findChild<QDoubleSpinBox *>("AutofocusZMinDoubleSpinBox")->setValue(compute_desc_.autofocus_z_min.load());
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(compute_desc_.autofocus_z_max.load());
 
@@ -341,7 +344,7 @@ namespace holovibes
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && compute_desc_.flowgraphy_enabled.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			findChild<QSpinBox *>("FlowgraphyLevelSpinBox")->setValue(compute_desc_.flowgraphy_level.load());
-			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load());
+			findChild<QPushButton *>("AutofocusRunPushButton")->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("STFTCheckBox")->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			findChild<QSpinBox *>("STFTStepsSpinBox")->setEnabled(!is_direct);
@@ -904,7 +907,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
 			}
@@ -991,6 +994,11 @@ namespace holovibes
 		void MainWindow::camera_xiq()
 		{
 			change_camera(CameraKind::xiQ);
+		}
+
+		void MainWindow::camera_photon_focus()
+		{
+			change_camera(CameraKind::PhotonFocus);
 		}
 
 		void MainWindow::configure_camera()
@@ -1239,7 +1247,6 @@ namespace holovibes
 
 			mainDisplay->setCursor(Qt::ArrowCursor);
 			mainDisplay->resetSelection();
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
 
 			notify();
 		}
@@ -1329,8 +1336,9 @@ namespace holovibes
 					sliceYZ->setPIndex(compute_desc_.pindex.load());
 					sliceYZ->setCd(&compute_desc_);
 
-					mainDisplay->setKindOfOverlay(KindOfOverlay::Cross);
+					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled.exchange(true);
+					compute_desc_.average_enabled.exchange(false);
 					set_auto_contrast_cuts();
 					notify();
 				}
@@ -1435,7 +1443,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				mainDisplay->resetTransform();
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Filter2D);
+				mainDisplay->getOverlayManager().create_overlay<Filter2D>();
 				findChild<QPushButton*>("Filter2DPushButton")->setStyleSheet("QPushButton {color: #009FFF;}");
 				compute_desc_.log_scale_slice_xy_enabled.exchange(true);
 				compute_desc_.shift_corners_enabled.exchange(false);
@@ -1454,7 +1462,8 @@ namespace holovibes
 				compute_desc_.filter_2d_enabled.exchange(false);
 				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
 				compute_desc_.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
+				mainDisplay->getOverlayManager().disable_all(Filter2D);
+				mainDisplay->getOverlayManager().create_default();
 				mainDisplay->resetTransform();
 				set_auto_contrast();
 				notify();
@@ -1932,20 +1941,18 @@ namespace holovibes
 		#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
-			if (mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
+			// If current overlay is Autofocus, disable it
+			if (mainDisplay->getKindOfOverlay() == Autofocus)
 			{
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Zoom);
-				mainDisplay->resetTransform();
-
+				mainDisplay->getOverlayManager().disable_all(Autofocus);
+				mainDisplay->getOverlayManager().create_default();
 				notify();
 			}
 			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
 				display_error("z min have to be strictly inferior to z max");
 			else
 			{
-				mainDisplay->setKindOfOverlay(KindOfOverlay::Autofocus);
-				mainDisplay->resetTransform();
-
+				mainDisplay->getOverlayManager().create_overlay<Autofocus>();
 				notify();
 			}
 		}
@@ -2163,9 +2170,9 @@ namespace holovibes
 		{
 			compute_desc_.average_enabled.exchange(value);
 			mainDisplay->resetTransform();
-			mainDisplay->setKindOfOverlay((value) ?
-				KindOfOverlay::Signal : KindOfOverlay::Zoom);
-			if (!value)
+			if (value)
+				mainDisplay->getOverlayManager().create_overlay<Signal>();
+			else
 				mainDisplay->resetSelection();
 			is_enabled_average_ = value;
 			notify();
@@ -2173,13 +2180,13 @@ namespace holovibes
 
 		void MainWindow::activeSignalZone()
 		{
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Signal);
+			mainDisplay->getOverlayManager().create_overlay<Signal>();
 			notify();
 		}
 
 		void MainWindow::activeNoiseZone()
 		{
-			mainDisplay->setKindOfOverlay(KindOfOverlay::Noise);
+			mainDisplay->getOverlayManager().create_overlay<Noise>();
 			notify();
 		}
 
@@ -2217,6 +2224,7 @@ namespace holovibes
 			QFileDialog dialog(this);
 			dialog.setFileMode(QFileDialog::AnyFile);
 			dialog.setNameFilter(tr("Ini files (*.ini)"));
+			dialog.setDefaultSuffix(".ini");
 			dialog.setDirectory("C:\\");
 			dialog.setWindowTitle("ROI output file");
 
@@ -2299,10 +2307,8 @@ namespace holovibes
 
 					mainDisplay->setSignalZone(signal);
 					mainDisplay->setNoiseZone(noise);
-					compute_desc_.signalZone(signal, AccessMode::Set);
-					compute_desc_.noiseZone(noise, AccessMode::Set);
 
-					mainDisplay->setKindOfOverlay(Signal);
+					mainDisplay->getOverlayManager().create_overlay<Signal>();
 				}
 				catch (std::exception& e)
 				{
@@ -2460,21 +2466,41 @@ namespace holovibes
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
 				+ "_" + "e"; // Holovibes record only in little endian
 
-			for (i = filename.length(); i-- != 0;)
+			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
 				if (filename[i] == '.')
-					break;
-			i++;
-			if (i != 0)
-				filename.insert(i, sub_str, 0, sub_str.length());
+				{
+					filename.insert(i, sub_str, 0, sub_str.length());
+					return filename;
+				}
+			filename += sub_str;
 			return filename;
+		}
+
+		OutputType MainWindow::get_record_output_type()
+		{
+			if (is_direct_mode())
+			{
+				float depth = holovibes_.get_output_queue().get_frame_desc().depth;
+				if (depth == 1.f)
+					return Integer_8b;
+				if (depth == 2.f)
+					return Integer_16b;
+				if (depth == 8.f)
+					return Complex_64b;
+				return Integer_16b;
+			}
+			if (compute_desc_.compute_mode.load() == Composite)
+				return Color_24b;
+			if (compute_desc_.compute_mode.load() == Complex)
+				return Complex_64b;
+			return Integer_16b;
 		}
 
 		void MainWindow::set_record()
 		{
 			QSpinBox*  nb_of_frames_spinbox = findChild<QSpinBox*>("NumberOfFramesSpinBox");
 			QLineEdit* path_line_edit = findChild<QLineEdit*>("ImageOutputPathLineEdit");
-			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
-			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			OutputType output_type = get_record_output_type();
 
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
@@ -2490,6 +2516,7 @@ namespace holovibes
 			{
 				switch (output_type)
 				{
+				case holovibes::Integer_8b:
 				case holovibes::Integer_16b:
 					if (compute_desc_.current_window == WindowKind::XYview)
 						queue = &holovibes_.get_output_queue();
@@ -2508,6 +2535,7 @@ namespace holovibes
 					pipe->request_complex_output(queue);
 					break;
 				}
+				// Record 24-bit not implemented yet
 				default:
 					break;
 				}
@@ -2536,8 +2564,7 @@ namespace holovibes
 
 		void MainWindow::finished_image_record()
 		{
-			QComboBox* output_type_combobox = findChild<QComboBox*>("RecordOutputTypeComboBox");
-			OutputType output_type = outputTypeMap.value(output_type_combobox->currentText());
+			OutputType output_type = get_record_output_type();
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 			QPushButton* cancel_button = findChild<QPushButton *>("ImageOutputStopPushButton");
@@ -2550,8 +2577,6 @@ namespace holovibes
 			if (!is_direct_mode()) {
 				switch (output_type)
 				{
-				case holovibes::Integer_16b:
-					break;
 				case holovibes::Complex_64b:
 					holovibes_.get_pipe()->request_complex_output_stop();
 					break;

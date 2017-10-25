@@ -152,26 +152,26 @@ void phase_increase(const cuComplex*		cur,
 void unwrap_2d(float*					input,
 			const cufftHandle			plan2d,
 			UnwrappingResources_2d*		res,
-			FrameDescriptor&			fd,
+			const FrameDescriptor&		fd,
 			float*						output,
-			cudaStream_t				stream);
+			cudaStream_t				stream = 0);
 
 /*! Gradient calculation for unwrap_2d calculations*/
 void gradient_unwrap_2d(const cufftHandle		plan2d,
 						UnwrappingResources_2d*	res,
-						FrameDescriptor&		fd,
+						const FrameDescriptor&		fd,
 						cudaStream_t			stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
 void eq_unwrap_2d(const cufftHandle		plan2d,
 				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				const FrameDescriptor&		fd,
 				cudaStream_t			stream);
 
 /*! Phi calculation for unwrap_2d calculations*/
 void phi_unwrap_2d(const cufftHandle	plan2d,
 				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				const FrameDescriptor&		fd,
 				float*					output,
 				cudaStream_t			stream);
 
