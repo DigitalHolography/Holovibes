@@ -2094,7 +2094,6 @@ namespace holovibes
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
 				notify();
-				sliceYZ->getOverlayManager().printVector();
 				//set_auto_contrast();
 				pipe_refresh();
 			}
