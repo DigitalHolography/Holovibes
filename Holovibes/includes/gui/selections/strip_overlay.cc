@@ -26,6 +26,7 @@ namespace holovibes
 			, nsamples_(nsamples)
 		{
 			color_ = color;
+			alpha_ = 0.4f;
 			display_ = true;
 		}
 

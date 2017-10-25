@@ -46,6 +46,9 @@ namespace holovibes
 			void drawCross(GLuint offset, GLsizei count);
 
 			bool doubleCross_;
+
+			//! transparency of the area between lines
+			float area_alpha_;
 		};
 	}
 }

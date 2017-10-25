@@ -84,6 +84,7 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
 			glEnableVertexAttribArray(colorShader_);
 			glEnableVertexAttribArray(verticesShader_);
+			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 

@@ -80,31 +80,33 @@ namespace holovibes
 			virtual void init() = 0;
 
 			//! Zone selected by the users.
-			Rectangle				zone_;
+			Rectangle zone_;
 			//! Kind of overlay
-			KindOfOverlay			kOverlay_;
+			KindOfOverlay kOverlay_;
 			//! Indexes of the buffers in opengl
-			GLuint					verticesIndex_, colorIndex_, elemIndex_;
+			GLuint verticesIndex_, colorIndex_, elemIndex_;
 			//! Specific Vao of the overlay
-			QOpenGLVertexArrayObject	Vao_;
+			QOpenGLVertexArrayObject Vao_;
 			//! The opengl shader program
-			std::unique_ptr<QOpenGLShaderProgram>	Program_;
-			//! The color of the overlay
-			Color					color_;
+			std::unique_ptr<QOpenGLShaderProgram> Program_;
+			//! The color of the overlay. Each component must be between 0 and 1.
+			Color color_;
+			//! Transparency of the overlay, between 0 and 1
+			float alpha_;
 			/*! If the overlay is activated or not. 
 			 *  Since we don't want the overlay to remove itself from the vector of overlays,
 			 *  We set this boolean, and remove it later by iterating through the vector.
 			 */
-			bool					active_;
+			bool active_;
 			//! If the overlay should be displayed or not
-			bool					display_;
+			bool display_;
 			//! Pointer to the parent to access Compute descriptor and Pipe
-			BasicOpenGLWindow*		parent_;
+			BasicOpenGLWindow* parent_;
 
 			//! Location of the vertices buffer in the shader/vertexattrib. Set to 2
-			unsigned short			verticesShader_;
+			unsigned short verticesShader_;
 			//! Location of the color buffer in the shader/vertexattrib. Set to 3
-			unsigned short			colorShader_;
+			unsigned short colorShader_;
 		};
 	}
 }

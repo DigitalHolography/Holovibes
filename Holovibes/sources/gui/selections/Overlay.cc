@@ -26,6 +26,7 @@ namespace holovibes
 			, verticesIndex_(0)
 			, colorIndex_(0)
 			, elemIndex_(0)
+			, alpha_(0.7f)
 			, active_(true)
 			, display_(false)
 			, parent_(parent)

@@ -22,6 +22,9 @@ namespace holovibes
 			, doubleCross_(false)
 		{
 			color_ = { 1.f, 0.f, 0.f };
+			// corresponding to the line transparency
+			alpha_ = 0.5f;
+			area_alpha_ = 0.05f;
 		}
 
 		void CrossOverlay::setBuffer(QPoint pos, QSize frame)
@@ -44,6 +47,7 @@ namespace holovibes
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			Program_->release();
 			display_ = true;
+			doubleCross_ = false;
 		}
 
 		void CrossOverlay::setDoubleBuffer(QPoint pos, QPoint pos2, QSize frame)
@@ -143,18 +147,12 @@ namespace holovibes
 			Program_->bind();
 			glEnableVertexAttribArray(verticesShader_);
 			glEnableVertexAttribArray(colorShader_);
-			bool blendWasDisabled = !glIsEnabled(GL_BLEND);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
 
-			float linesOppacity = 0.5f;
-			float redAreaOppacity = 0.05f;
-
-			glBlendColor(0, 0, 0, linesOppacity);
+			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
 
 			if (doubleCross_)
 			{
-				glBlendColor(0, 0, 0, redAreaOppacity);
+				glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), area_alpha_);
 
 				if (count == 2)
 				{
@@ -190,7 +188,7 @@ namespace holovibes
 					*/
 				}
 
-				glBlendColor(0, 0, 0, linesOppacity);
+				glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
 
 				if (count == 4)
 					glDrawArrays(GL_LINES, 0, 8);
@@ -199,10 +197,6 @@ namespace holovibes
 			}
 			else
 				glDrawArrays(GL_LINES, offset, count);
-
-			if (blendWasDisabled)
-				glDisable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glDisableVertexAttribArray(colorShader_);
 			glDisableVertexAttribArray(verticesShader_);
 			Program_->release();
