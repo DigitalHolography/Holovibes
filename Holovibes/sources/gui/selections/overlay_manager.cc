@@ -82,12 +82,11 @@ namespace holovibes
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
 		}
 
-		void OverlayManager::create_strip_overlay(std::atomic<ushort>& pmin,
-			std::atomic<ushort>& pmax,
+		void OverlayManager::create_strip_overlay(Component& component,
 			std::atomic<ushort>& nsamples,
 			Color color)
 		{
-			auto strip = std::make_shared<StripOverlay>(parent_, pmin, pmax, nsamples, color);
+			auto strip = std::make_shared<StripOverlay>(parent_, component, nsamples, color);
 			strip->initProgram();
 			overlays_.push_back(strip);
 		}

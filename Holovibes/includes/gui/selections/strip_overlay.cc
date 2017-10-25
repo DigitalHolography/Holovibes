@@ -18,13 +18,11 @@ namespace holovibes
 	namespace gui
 	{
 		StripOverlay::StripOverlay(BasicOpenGLWindow* parent,
-			std::atomic<ushort>& pmin,
-			std::atomic<ushort>& pmax,
+			Component& component,
 			std::atomic<ushort>& nsamples,
 			Color color)
 			: RectOverlay(KindOfOverlay::Strip, parent)
-			, pmin_(pmin)
-			, pmax_(pmax)
+			, component_(component)
 			, nsamples_(nsamples)
 		{
 			color_ = color;
@@ -40,18 +38,20 @@ namespace holovibes
 
 		void StripOverlay::compute_zone()
 		{
+			ushort pmin = component_.p_min.load();
+			ushort pmax = component_.p_max.load() + 1;
 			if (parent_->getKindOfView() == SliceXZ)
 			{
 				float ratio = parent_->height() / (nsamples_.load() - 1);
-				QPoint topleft(0, ratio * pmin_.load());
-				QPoint bottomRight(parent_->width(), ratio * pmax_.load());
+				QPoint topleft(0, ratio * pmin);
+				QPoint bottomRight(parent_->width(), ratio * pmax);
 				zone_ = QRect(topleft, bottomRight);
 			}
 			else
 			{
 				float ratio = parent_->width() / (nsamples_.load() - 1);
-				QPoint topleft(ratio * pmin_.load(), 0);
-				QPoint bottomRight(ratio * pmax_.load(), parent_->height());
+				QPoint topleft(ratio * pmin, 0);
+				QPoint bottomRight(ratio * pmax, parent_->height());
 				zone_ = QRect(topleft, bottomRight);
 			}
 		}

@@ -44,6 +44,16 @@ namespace holovibes
 				overlay_manager_.setCrossBuffer(p, s);
 			}
 		}
+
+		void	SliceWindow::create_strip_overlays()
+		{
+			Color red{ 1.f, 0.f, 0.f };
+			Color green{ 0.f, 1.f, 0.f };
+			Color blue{ 0.f, 0.f, 1.f };
+			overlay_manager_.create_strip_overlay(Cd->component_r, Cd->nsamples, red);
+			overlay_manager_.create_strip_overlay(Cd->component_g, Cd->nsamples, green);
+			overlay_manager_.create_strip_overlay(Cd->component_b, Cd->nsamples, blue);
+		}
 		
 		void	SliceWindow::initShaders()
 		{
@@ -51,7 +61,10 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			overlay_manager_.create_default();
+			if (Cd->img_type.load() == Composite)
+				create_strip_overlays();
+			else
+				overlay_manager_.create_default();
 		}
 
 		void	SliceWindow::initializeGL()
@@ -213,6 +226,8 @@ namespace holovibes
 
 		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
 		{
+			if (Cd->img_type.load() == Composite)
+				return;
 			mouse_position = e->pos();
 			uint depth = (kView == SliceXZ) ? this->height() : this->width();
 			mouse_position.setX((mouse_position.x() * Cd->nsamples) / depth);
@@ -247,7 +262,7 @@ namespace holovibes
 
 		void	SliceWindow::keyPressEvent(QKeyEvent* e)
 		{
-			if (e->key() == Qt::Key::Key_Space)
+			if (e->key() == Qt::Key::Key_Space && Cd->img_type.load() != Composite)
 			{
 				if (!is_pslice_locked && Cd)
 					last_clicked = mouse_position;

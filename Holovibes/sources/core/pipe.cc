@@ -214,8 +214,8 @@ namespace holovibes
 				uint frame_res,
 				ComputeDescriptor* cd)
 		{
-			ComputeDescriptor::Component *comps[] = { &cd->component_r, &cd->component_g, &cd->component_b };
-			for (ComputeDescriptor::Component* component : comps)
+			Component *comps[] = { &cd->component_r, &cd->component_g, &cd->component_b };
+			for (Component* component : comps)
 				if (component->p_max < component->p_min || component->p_max >= cd->nsamples)
 					return;
 			composite(input,

@@ -395,7 +395,7 @@ namespace holovibes
 			weight_boxes[0] = findChild<QDoubleSpinBox *>("WeightSpinBox_R");
 			weight_boxes[1] = findChild<QDoubleSpinBox *>("WeightSpinBox_G");
 			weight_boxes[2] = findChild<QDoubleSpinBox *>("WeightSpinBox_B");
-			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 
 			// These values must be copied before setting the box values, otherwise they'd be overwritten by the observers
 			ushort pmin[3];
@@ -1337,15 +1337,6 @@ namespace holovibes
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled.exchange(true);
 					compute_desc_.average_enabled.exchange(false);
-					if (compute_desc_.img_type.load() == Composite)
-					{
-						Color blue = { 0.f, 0.f, 1.f };
-						sliceYZ->getOverlayManager().create_strip_overlay(
-							compute_desc_.component_b.p_min,
-							compute_desc_.component_b.p_max,
-							compute_desc_.nsamples,
-							blue);
-					}
 					
 					set_auto_contrast_cuts();
 					notify();
@@ -1627,7 +1618,7 @@ namespace holovibes
 			max_boxes[0] = findChild<QSpinBox *>("PMaxSpinBox_R");
 			max_boxes[1] = findChild<QSpinBox *>("PMaxSpinBox_G");
 			max_boxes[2] = findChild<QSpinBox *>("PMaxSpinBox_B");
-			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
 				ushort new_p = std::max(0,
@@ -1648,7 +1639,7 @@ namespace holovibes
 			max_boxes[0] = findChild<QSpinBox *>("PMaxSpinBox_R");
 			max_boxes[1] = findChild<QSpinBox *>("PMaxSpinBox_G");
 			max_boxes[2] = findChild<QSpinBox *>("PMaxSpinBox_B");
-			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
 				ushort new_p = std::max(0,
@@ -1666,7 +1657,7 @@ namespace holovibes
 			boxes[0] = findChild<QDoubleSpinBox *>("WeightSpinBox_R");
 			boxes[1] = findChild<QDoubleSpinBox *>("WeightSpinBox_G");
 			boxes[2] = findChild<QDoubleSpinBox *>("WeightSpinBox_B");
-			ComputeDescriptor::Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
+			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 				components[i]->weight = boxes[i]->value();
 		}

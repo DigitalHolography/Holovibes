@@ -101,6 +101,18 @@ namespace holovibes
 		Complex_64b
 	};
 
+	/*! \brief  Component of a range of color in composite images*/
+	struct Component
+	{
+		//! p interval for the component
+		//! \{
+		std::atomic<ushort>		p_min;
+		std::atomic<ushort>		p_max;
+		//! \}
+		//! Weight associated to the component
+		std::atomic<float>		weight{ 1.f };
+	};
+
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.
@@ -295,19 +307,9 @@ namespace holovibes
 
 		//! Composite images
 		//! \{
-		struct Component
-		{
-			//! p interval for the component
-			//! \{
-			std::atomic<ushort>		p_min;
-			std::atomic<ushort>		p_max;
-			//! \}
-			//! Weight associated to the component
-			std::atomic<float>		weight { 1.f };
-		};
-		struct Component			component_r;
-		struct Component			component_g;
-		struct Component			component_b;
+		Component			component_r;
+		Component			component_g;
+		Component			component_b;
 		std::atomic<bool>			composite_auto_weights_;
 		//! \}
 

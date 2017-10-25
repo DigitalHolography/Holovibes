@@ -23,8 +23,7 @@ namespace holovibes
 		{
 		public:
 			StripOverlay(BasicOpenGLWindow* parent,
-				std::atomic<ushort>& pmin,
-				std::atomic<ushort>& pmax,
+				Component& component,
 				std::atomic<ushort>& nsamples,
 				Color color);
 
@@ -39,8 +38,7 @@ namespace holovibes
 			void compute_zone();
 
 		private:
-			std::atomic<ushort>& pmin_;
-			std::atomic<ushort>& pmax_;
+			Component& component_;
 			std::atomic<ushort>& nsamples_;
 		};
 	}
