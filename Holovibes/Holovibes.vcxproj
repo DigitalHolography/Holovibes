@@ -224,6 +224,7 @@
     <ClInclude Include="includes\gui\selections\Rectangle.hh" />
     <ClInclude Include="includes\gui\selections\rect_overlay.hh" />
     <ClInclude Include="includes\gui\selections\signal_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\strip_overlay.hh" />
     <ClInclude Include="includes\gui\selections\zoom_overlay.hh" />
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh" />
     <ClInclude Include="includes\gui\windows\DirectWindow.hh" />
@@ -350,6 +351,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="includes\gui\selections\strip_overlay.cc" />
     <ClCompile Include="sources\3DVision.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />

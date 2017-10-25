@@ -12,34 +12,36 @@
 
 #pragma once
 
-#include "Overlay.hh"
+#include <atomic>
+#include "rect_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class RectOverlay : public Overlay
+		class StripOverlay : public RectOverlay
 		{
 		public:
-			RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
+			StripOverlay(BasicOpenGLWindow* parent,
+				std::atomic<ushort>& pmin,
+				std::atomic<ushort>& pmax,
+				std::atomic<ushort>& nsamples,
+				Color color);
 
-			virtual ~RectOverlay()
+			void release(ushort frameSide) override
 			{}
 
-			virtual void init() override;
-			virtual void draw() override;
+			void move(QPoint pos) override
+			{}
 
-			/*! \brief Change the coordinates in the vertex buffer to match the current zone. */
-			void setBuffer();
+			void draw() override;
 
-			/*! \brief Check if corners are not swapped, i.e. if topleft is really in the top left corner */
-			void checkCorners();
+			void compute_zone();
 
-			virtual void move(QPoint pos) override;
-			virtual void setZone(Rectangle rect, ushort frameside) override;
-		protected:
-			/*! \brief Return the real zone, taking into account the window resizing */
-			Rectangle getTexZone(ushort frameSide) const;
+		private:
+			std::atomic<ushort>& pmin_;
+			std::atomic<ushort>& pmax_;
+			std::atomic<ushort>& nsamples_;
 		};
 	}
 }

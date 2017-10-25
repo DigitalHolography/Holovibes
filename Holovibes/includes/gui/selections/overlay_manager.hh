@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <atomic>
 #include "Overlay.hh"
 
 namespace holovibes
@@ -29,6 +30,11 @@ namespace holovibes
 			void create_overlay();
 			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
 			void create_default();
+			/*! \brief Create a strip overlay, used for composite. */
+			void create_strip_overlay(std::atomic<ushort>& pmin,
+				std::atomic<ushort>& pmax,
+				std::atomic<ushort>& nsamples,
+				Color color);
 
 			/*! \brief Create an overlay, and set its zone. */
 			void set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko);

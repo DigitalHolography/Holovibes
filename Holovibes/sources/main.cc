@@ -9,7 +9,6 @@
 /* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
 /*                                                                              */
 /* **************************************************************************** */
-
 #include "options_parser.hh"
 #include "MainWindow.hh"
 

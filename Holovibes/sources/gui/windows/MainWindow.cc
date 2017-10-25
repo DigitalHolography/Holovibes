@@ -1337,6 +1337,16 @@ namespace holovibes
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled.exchange(true);
 					compute_desc_.average_enabled.exchange(false);
+					if (compute_desc_.img_type.load() == Composite)
+					{
+						Color blue = { 0.f, 0.f, 1.f };
+						sliceYZ->getOverlayManager().create_strip_overlay(
+							compute_desc_.component_b.p_min,
+							compute_desc_.component_b.p_max,
+							compute_desc_.nsamples,
+							blue);
+					}
+					
 					set_auto_contrast_cuts();
 					notify();
 				}
@@ -2093,6 +2103,7 @@ namespace holovibes
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
 				notify();
+				sliceYZ->getOverlayManager().printVector();
 				//set_auto_contrast();
 				pipe_refresh();
 			}

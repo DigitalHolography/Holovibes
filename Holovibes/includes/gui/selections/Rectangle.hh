@@ -29,7 +29,8 @@ namespace holovibes
 			Autofocus,
 			Filter2D,
 			SliceZoom,
-			Cross
+			Cross,
+			Strip
 		};
 		class Rectangle : public QRect
 		{

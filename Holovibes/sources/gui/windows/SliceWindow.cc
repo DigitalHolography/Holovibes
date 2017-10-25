@@ -65,9 +65,9 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			//Vao.create();
-			//Vao.bind();
 			initShaders();
+			Vao.create();
+			Vao.bind();
 			Program->bind();
 
 			#pragma region Texture
@@ -149,17 +149,17 @@ namespace holovibes
 			};
 			glGenBuffers(1, &Ebo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			#pragma endregion
 			
 			setTransform();
 
 			Program->release();
+			Vao.release();
 
 			setPIndex(pIndex - 1);
 
-			//Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -168,6 +168,9 @@ namespace holovibes
 		{
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
+			Vao.bind();
+			Program->bind();
+
 			textureUpdate(cuSurface,
 				Qu.get_last_images(1),
 				Qu.get_frame_desc(),
@@ -175,9 +178,6 @@ namespace holovibes
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
 			glGenerateMipmap(GL_TEXTURE_2D);
-			//Vao.bind();
-
-			Program->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Ebo);
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
@@ -186,8 +186,9 @@ namespace holovibes
 
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 			Program->release();
+			Vao.release();
 
 			QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
 			if (Cd->p_accu_enabled)
@@ -205,8 +206,6 @@ namespace holovibes
 			}
 			overlay_manager_.draw();
 
-			//Vao.release();
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
 		void	SliceWindow::mousePressEvent(QMouseEvent* e)

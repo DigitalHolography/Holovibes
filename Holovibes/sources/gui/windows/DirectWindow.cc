@@ -72,9 +72,9 @@ namespace holovibes
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			//Vao.create();
-			//Vao.bind();
 			initShaders();
+			Vao.create();
+			Vao.bind();
 			Program->bind();
 
 			#pragma region Texture
@@ -162,7 +162,7 @@ namespace holovibes
 			setTransform();
 
 			Program->release();
-			//Vao.release();
+			Vao.release();
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -186,7 +186,7 @@ namespace holovibes
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
-			//Vao.bind();
+			Vao.bind();
 			Program->bind();
 
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
@@ -218,8 +218,8 @@ namespace holovibes
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 			Program->release();
+			Vao.release();
 			overlay_manager_.draw();
-			//Vao.release();
 		}
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)

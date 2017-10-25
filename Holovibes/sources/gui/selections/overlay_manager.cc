@@ -19,6 +19,7 @@
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
 #include "filter2d_overlay.hh"
+#include "strip_overlay.hh"
 
 namespace holovibes
 {
@@ -79,6 +80,16 @@ namespace holovibes
 		{
 			if (!set_current(Cross))
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
+		}
+
+		void OverlayManager::create_strip_overlay(std::atomic<ushort>& pmin,
+			std::atomic<ushort>& pmax,
+			std::atomic<ushort>& nsamples,
+			Color color)
+		{
+			auto strip = std::make_shared<StripOverlay>(parent_, pmin, pmax, nsamples, color);
+			strip->initProgram();
+			overlays_.push_back(strip);
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
@@ -227,6 +238,9 @@ namespace holovibes
 		# ifdef _DEBUG
 		void OverlayManager::printVector()
 		{
+			std::cout << std::endl;
+			std::cout << "Current overlay :" << std::endl;
+			current_overlay_->print();
 			std::cout << std::endl;
 			for (auto o : overlays_)
 				o->print();
