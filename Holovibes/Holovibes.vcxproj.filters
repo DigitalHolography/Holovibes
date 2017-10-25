@@ -275,6 +275,12 @@
     <ClCompile Include="sources\gui\selections\zoom_overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\stabilization.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\stabilization_overlay.cc">
+      <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -477,6 +483,12 @@
     </ClInclude>
     <ClInclude Include="includes\tools\cuda_tools\array.hh">
       <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="stabilization_overlay.hh">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh">
+      <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

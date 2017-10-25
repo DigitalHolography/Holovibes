@@ -1260,6 +1260,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="StabilizationAreaButton">
+              <property name="text">
+               <string>Set stabilization area</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -3221,7 +3228,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>SaveROIPushButton</tabstop>
   <tabstop>LoadROIPushButton</tabstop>
   <tabstop>NumberOfFramesSpinBox</tabstop>
-  <tabstop>RecordOutputTypeComboBox</tabstop>
   <tabstop>ImageOutputPathLineEdit</tabstop>
   <tabstop>ImageOutputBrowseToolButton</tabstop>
   <tabstop>ImageOutputRecPushButton</tabstop>
@@ -3852,7 +3858,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1053</x>
-     <y>189</y>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -3964,7 +3970,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1053</x>
-     <y>278</y>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -4012,7 +4018,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1109</x>
-     <y>189</y>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -4028,7 +4034,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1109</x>
-     <y>278</y>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -4044,7 +4050,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1165</x>
-     <y>189</y>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -4060,7 +4066,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1165</x>
-     <y>278</y>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -4124,7 +4130,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1165</x>
-     <y>241</y>
+     <y>203</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4172,7 +4178,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1165</x>
-     <y>330</y>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4188,7 +4194,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1165</x>
-     <y>152</y>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -5124,6 +5130,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>StabilizationAreaButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_stabilization_area()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>573</x>
+     <y>513</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5237,5 +5259,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_weights()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
+  <slot>set_stabilization_area()</slot>
  </slots>
 </ui>

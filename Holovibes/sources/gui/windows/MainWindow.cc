@@ -1890,6 +1890,25 @@ namespace holovibes
 				}
 			}
 		}
+
+		void MainWindow::set_stabilization_area()
+		{
+			auto button = findChild<QPushButton *>("StabilizationAreaButton");
+			// If current overlay is stabilization, disable it
+			if (mainDisplay->getOverlayManager().disable_all(Stabilization))
+			{
+				mainDisplay->getOverlayManager().create_default();
+				button->setText("Set stabilization area");
+				notify();
+			}
+			else
+			{
+				mainDisplay->getOverlayManager().create_overlay<Stabilization>();
+				button->setText("Cancel stabilization area");
+				notify();
+			}
+		}
+
 		#pragma endregion
 		/* ------------ */
 		#pragma region Texture
@@ -2458,8 +2477,6 @@ namespace holovibes
 					sub_str += "YZ";
 				sub_str += "_H";
 			}
-
-			size_t i;
 
 			sub_str += "_" + std::to_string(fd.width)
 				+ "_" + std::to_string(fd.height)

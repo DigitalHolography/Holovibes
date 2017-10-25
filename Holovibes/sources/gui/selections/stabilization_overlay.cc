@@ -10,42 +10,24 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#include "stabilization_overlay.hh"
+#include "BasicOpenGLWindow.hh"
 
-#include <ostream>
-#include <qrect.h>
-
-namespace holovibes
+using holovibes::gui::StabilizationOverlay;
+StabilizationOverlay::StabilizationOverlay(BasicOpenGLWindow* parent)
+	: RectOverlay(KindOfOverlay::Stabilization, parent)
 {
-	namespace gui
-	{
-		enum KindOfOverlay
-		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Cross,
-			Stabilization
-		};
-		class Rectangle : public QRect
-		{
-		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
-		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
-	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
+	color_ = { 0.8f, 0.4f, 0.4f };
+}
+
+void StabilizationOverlay::release(ushort frameSide)
+{
+	checkCorners();
+
+	if (zone_.topLeft() == zone_.bottomRight())
+		return;
+
+	Rectangle texZone = getTexZone(frameSide);
+
+	parent_->getCd()->setStabilizationZone(this->zone_);
 }

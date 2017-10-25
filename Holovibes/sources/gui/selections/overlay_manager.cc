@@ -18,6 +18,7 @@
 #include "noise_overlay.hh"
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
+#include "stabilization_overlay.hh"
 #include "filter2d_overlay.hh"
 
 namespace holovibes
@@ -81,6 +82,13 @@ namespace holovibes
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
 		}
 
+		template <>
+		void OverlayManager::create_overlay<Stabilization>()
+		{
+			if (!set_current(Stabilization))
+				create_overlay(std::make_shared<StabilizationOverlay>(parent_));
+		}
+
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
 		{
 			clean();
@@ -141,14 +149,21 @@ namespace holovibes
 					create_overlay<Signal>();
 				else if (current_overlay_->getKind() == Signal)
 					create_overlay<Noise>();
+				else if (current_overlay_->getKind() == Stabilization)
+					create_default();
 			}
 		}
 
-		void OverlayManager::disable_all(KindOfOverlay ko)
+		bool OverlayManager::disable_all(KindOfOverlay ko)
 		{
+			bool found = false;
 			for (auto o : overlays_)
 				if (o->getKind() == ko)
+				{
 					o->disable();
+					found = true;
+				}
+			return found;
 		}
 
 		void OverlayManager::draw()

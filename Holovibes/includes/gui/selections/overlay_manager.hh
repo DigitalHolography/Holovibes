@@ -34,7 +34,7 @@ namespace holovibes
 			void set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko);
 
 			/*! \brief Disable all the overlay of kind ko*/
-			void disable_all(KindOfOverlay ko);
+			bool disable_all(KindOfOverlay ko);
 			/*! \brief Disable all the overlays. If def is set, it will create a default overlay. */
 			void reset(bool def = true);
 
