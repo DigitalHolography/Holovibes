@@ -74,3 +74,11 @@ void correlation(float			*numerator,
 				const float		*denominator2,
 				QPoint			size,
 				cudaStream_t	 = 0);
+
+/// Pads each line with 0, inplace
+///
+/// [a b c d; 0 0 0 0] => [a b 0 0; c d 0 0]
+void pad_frame(float		*frame,
+				QPoint		old_size,
+				QPoint		new_size,
+				cudaStream_t	stream = 0);

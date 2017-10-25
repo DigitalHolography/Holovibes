@@ -40,14 +40,14 @@ void Stabilization::insert_post_img_type()
 	insert_average_compute();
 	if (cd_.xy_stabilization_enabled)
 	{
-		insert_convolution();
+		insert_correlation();
 		insert_extremums();
 		insert_stabilization();
 	}
 	insert_float_buffer_overwrite();
 }
 
-void Stabilization::insert_convolution()
+void Stabilization::insert_correlation()
 {
 	fn_vect_.push_back([=]()
 	{
@@ -57,37 +57,122 @@ void Stabilization::insert_convolution()
 		{
 			if (!convolution_.ensure_minimum_size(zone.area()))
 				return;
-			compute_convolution(gpu_float_buffer_, float_buffer_average_.get(), convolution_.get());
+			compute_correlation(gpu_float_buffer_, float_buffer_average_.get());
 		}
 	});
 }
 
-void Stabilization::compute_convolution(const float* x, const float* y, float* out)
+void Stabilization::compute_correlation(const float *x, const float *y)
 {
-	cufftHandle plan2d_a;
-	cufftHandle plan2d_b;
-	cufftHandle plan2d_inverse;
-
 	gui::Rectangle zone = cd_.getStabilizationZone();
-	cuda_tools::UniquePtr<float> selected_x(zone.area());
-	cuda_tools::UniquePtr<float> selected_y(zone.area());
+	const uint size = zone.area();
+	QPoint dimensions{ zone.width(), zone.height() };
+	cuda_tools::UniquePtr<float> selected_x(size);
+	cuda_tools::UniquePtr<float> selected_y(size);
+	cuda_tools::UniquePtr<float> sum_x(size);
+	cuda_tools::UniquePtr<float> sum_y(size);
 	if (!selected_x || !selected_y)
 		return;
 
 	extract_frame(x, selected_x.get(), fd_.width, zone);
 	extract_frame(y, selected_y.get(), fd_.width, zone);
+	gpu_float_divide(selected_x.get(), zone.area(), 65536);
+	gpu_float_divide(selected_y.get(), zone.area(), 65536);
 
+	float test_frame_1[] = {
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 1, 0, 0, 0, 0, 0,
+		0, 1, 1, 1, 0, 0, 0, 0,
+		0, 0, 1, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0
+	};
+	float test_frame_2[] = {
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 1, 0, 0, 0,
+		0, 0, 0, 1, 1, 1, 0, 0,
+		0, 0, 0, 0, 1, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0
+	};
+	bool debug = false;
+	float tmp1[64];
+	float tmp2[64];
+	float tmp3[64];
+	float tmp4[64];
+	float out[64];
+	if (debug)
+	{
+		cudaMemcpy(selected_x.get(), test_frame_1, 64 * 4, cudaMemcpyHostToDevice);
+		cudaMemcpy(selected_y.get(), test_frame_2, 64 * 4, cudaMemcpyHostToDevice);
+	}
+
+
+
+
+	rotation_180(selected_y.get(), dimensions);
+	cudaStreamSynchronize(0);
+
+	compute_convolution(selected_x.get(), selected_y.get(), convolution_.get());
+	sum_left_right(selected_x.get(), sum_x.get(), dimensions);
+	sum_left_right(selected_y.get(), sum_y.get(), dimensions);
+	cudaStreamSynchronize(0);
+	if (debug)
+		cudaMemcpy(tmp1, sum_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
+	if (debug)
+		cudaMemcpy(tmp2, sum_y.get(), 64 * 4, cudaMemcpyDeviceToHost);
+	if (debug)
+		cudaMemcpy(tmp3, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+
+	sum_left_right_inplace(convolution_.get(), dimensions);
+	cudaStreamSynchronize(0);
+	if (debug)
+		cudaMemcpy(tmp4, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+
+	compute_numerator(sum_x.get(), sum_y.get(), convolution_.get(), dimensions);
+	sum_inplace_squared(selected_x.get(), dimensions);
+	sum_inplace_squared(selected_y.get(), dimensions);
+	cudaStreamSynchronize(0);
+
+	sum_squared_minus_square_sum(selected_x.get(), sum_x.get(), dimensions);
+	sum_squared_minus_square_sum(selected_y.get(), sum_y.get(), dimensions);
+	cudaStreamSynchronize(0);
+
+	correlation(convolution_.get(), selected_x.get(), selected_y.get(), dimensions);
+	cudaStreamSynchronize(0);
+
+
+	if (debug)
+		cudaMemcpy(out, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+	if (debug)
+		for (int i = 0; i < 8; i++)
+		{
+			for (int j = 0; j < 8; j++)
+				std::cout << out[i * 8 + j];
+			std::cout << std::endl;
+		}
+}
+
+
+void Stabilization::compute_convolution(const float* x, const float* y, float* out)
+{
+	gui::Rectangle zone = cd_.getStabilizationZone();
+	cufftHandle plan2d_a;
+	cufftHandle plan2d_b;
+	cufftHandle plan2d_inverse;
 
 	cufftPlan2d(&plan2d_a, zone.height(), zone.height(), CUFFT_R2C);
 	cufftPlan2d(&plan2d_b, zone.height(), zone.width(), CUFFT_R2C);
 	cufftPlan2d(&plan2d_inverse, zone.height(), zone.width(), CUFFT_C2R);
 
-	gpu_float_divide(selected_x.get(), zone.area(), 65536);
-	gpu_float_divide(selected_y.get(), zone.area(), 65536);
 	constexpr uint s = 64;
 	convolution_float(
-		selected_x.get(),
-		selected_y.get(),
+		x,
+		y,
 		out,
 		zone.area(),
 		plan2d_a,
@@ -109,8 +194,8 @@ void Stabilization::insert_extremums()
 			uint max = 0;
 			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 			// x y: Coordinates of maximum of the correlation function
-			int x = max % zone.width();
-			int y = max / zone.width();
+			int x = (max + zone.width() / 2) % zone.width();
+			int y = (max + zone.height() / 2) / zone.width();
 			if (x > zone.width() / 2)
 				x -= zone.width();
 			if (y > zone.height() / 2)
@@ -118,14 +203,8 @@ void Stabilization::insert_extremums()
 			//shift_x = (shift_x + x + fd.width) % fd.width;
 			//shift_y = (shift_y + y + fd.height) % fd.height;
 
-			static int old_x = 0;
-			static int old_y = 0;
-
-			shift_x = old_x - x;
-			shift_y = old_y - y;
-
-			old_x = x;
-			old_y = y;
+			shift_x = x;
+			shift_y = y;
 
 			std::cout << shift_x << ", " << shift_y << std::endl;
 		}

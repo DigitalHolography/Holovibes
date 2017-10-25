@@ -12,6 +12,7 @@
 
 #include "stabilization.cuh"
 #include "common.cuh"
+#include "cuda_tools/unique_ptr.hh"
 
 
 struct rect
@@ -82,13 +83,14 @@ void kernel_resize(const float	*input,
 void gpu_resize(const float		*input,
 				float			*output,
 				QPoint			old_size,
-				QPoint			new_size)
+				QPoint			new_size,
+				cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(new_size.x() * new_size.y(), threads);
 	struct point old_s = { old_size.x(), old_size.y() };
 	struct point new_s = { new_size.x(), new_size.y() };
-	kernel_resize << <blocks, threads, 0, 0 >> > (input, output, old_s, new_s);
+	kernel_resize << <blocks, threads, 0, stream >> > (input, output, old_s, new_s);
 	cudaStreamSynchronize(0);
 }
 
@@ -122,6 +124,23 @@ void rotation_180(float			*frame,
 }
 
 
+
+
+
+
+__global__
+void kernel_sum_columns_inplace(float		*input,
+								point		size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < size.y)
+	{
+		for (uint i = 1; i < size.x; ++i)
+			input[i * size.x + index] += input[(i - 1) * size.x + index];
+	}
+}
+
+
 __global__
 void kernel_sum_lines_inplace_squared(float		*input,
 									point		size)
@@ -136,18 +155,6 @@ void kernel_sum_lines_inplace_squared(float		*input,
 	}
 }
 
-__global__
-void kernel_sum_columns_inplace_squared(float		*input,
-										point		size)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size.y)
-	{
-		input[index] = input[index] * input[index];
-		for (uint i = 1; i < size.x; ++i)
-			input[i * size.x + index] = input[i * size.x + index] * input[i * size.x + index] + input[(i - 1) * size.x + index];
-	}
-}
 void sum_inplace_squared(float			*input,
 						QPoint			size,
 						cudaStream_t	stream)
@@ -157,7 +164,7 @@ void sum_inplace_squared(float			*input,
 	struct point s = { size.x(), size.y() };
 	kernel_sum_lines_inplace_squared << <blocks, threads, 0, stream >> > (input, s);
 	cudaStreamSynchronize(stream);
-	kernel_sum_columns_inplace_squared << <blocks, threads, 0, stream >> > (input, s);
+	kernel_sum_columns_inplace << <blocks, threads, 0, stream >> > (input, s);
 }
 
 
@@ -171,18 +178,6 @@ void kernel_sum_lines_inplace(float		*input,
 		const uint start = index * size.x;
 		for (uint i = 1; i < size.y; ++i)
 			input[start + i] += input[start + i - 1];
-	}
-}
-
-__global__
-void kernel_sum_columns_inplace(float		*input,
-								point		size)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size.y)
-	{
-		for (uint i = 1; i < size.x; ++i)
-			input[i * size.x + index] += input[(i - 1) * size.x + index];
 	}
 }
 void sum_left_right_inplace(float			*input,
@@ -208,23 +203,10 @@ void kernel_sum_lines(const float	*input,
 		const uint start = index * size.x;
 		output[start] = input[start];
 		for (uint i = 1; i < size.y; ++i)
-			output[start + i] = input[start + i] + input[start + i - 1];
+			output[start + i] = input[start + i] + output[start + i - 1];
 	}
 }
 
-__global__
-void kernel_sum_columns(const float	*input,
-						float		*output,
-						point		size)
-{
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size.y)
-	{
-		output[index] = input[index];
-		for (uint i = 1; i < size.x; ++i)
-			output[i * size.x + index] = input[i * size.x + index] + input[(i - 1) * size.x + index];
-	}
-}
 void sum_left_right(const float	*input,
 					float		*output,
 					QPoint		size,
@@ -235,7 +217,7 @@ void sum_left_right(const float	*input,
 	struct point s = { size.x(), size.y() };
 	kernel_sum_lines << <blocks, threads, 0, stream >> > (input, output, s);
 	cudaStreamSynchronize(stream);
-	kernel_sum_columns << <blocks, threads, 0, stream >> > (input, output, s);
+	kernel_sum_columns_inplace << <blocks, threads, 0, stream >> > (output, s);
 }
 
 
@@ -279,6 +261,8 @@ void k_sum_squared_minus_square_sum(
 	{
 		const uint x = index % size.x;
 		matrix[index] = sum_squared[index] - (matrix[index] * matrix[index]) / (x + y + 1);
+		if (matrix[index] < 0)
+			matrix[index] = 0;
 	}
 }
 
@@ -318,9 +302,21 @@ void kernel_correlation(float			*numerator,
 						const float		*denominator2,
 						point			size)
 {
-	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	if (index < size.y * size.x)
-		numerator[index] *= fast_invert_sqrt(denominator1[index] * denominator2[index]);
+	const int index = blockIdx.x * blockDim.x + threadIdx.x;
+	const int ignored = size.x / 20;
+	const int y = index / size.x;
+	if (y >= size.y)
+		return;
+	if (y < ignored || y >= size.y - ignored)
+		numerator[index] = 0;
+	else
+	{
+		const int x = index % size.x;
+		if (x < ignored || x > size.x - ignored)
+			numerator[index] = 0;
+		else
+			numerator[index] *= fast_invert_sqrt(denominator1[index] * denominator2[index]);
+	}
 }
 
 
@@ -335,3 +331,46 @@ void correlation(float			*numerator,
 	const struct point s = { size.x(), size.y() };
 	kernel_correlation << <blocks, threads, 0, stream >> > (numerator, denominator1, denominator2, s);
 }
+
+__global__
+void kernel_pad_frame(const float	*input,
+						float		*output,
+						point		old_size,
+						point		new_size)
+{
+	const int index = blockIdx.x * blockDim.x + threadIdx.x;
+	const int y = index / new_size.x;
+	if (y < new_size.y)
+	{
+		const int x = index % new_size.x;
+		if (x >= old_size.x || y >= old_size.y)
+			output[index] = 0;
+		else
+		{
+			const int old_x = x * old_size.x / new_size.x;
+			const int old_y = y * old_size.y / new_size.y;
+			output[index] = input[old_y * old_size.x + old_x];
+		}
+	}
+}
+
+void pad_frame(float		*frame,
+				QPoint		old_size,
+				QPoint		new_size,
+				cudaStream_t	stream)
+{
+	cuda_tools::UniquePtr<float> tmp(new_size.x() * new_size.y());
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(new_size.x() * new_size.y(), threads);
+	const struct point s = { new_size.x(), new_size.y() };
+	const struct point old_s = { old_size.x(), old_size.y() };
+	kernel_pad_frame << <blocks, threads, 0, stream >> > (frame, tmp.get(), old_s, s);
+	cudaStreamSynchronize(0);
+	cudaMemcpy(frame, tmp.get(), new_size.x() * new_size.y() * sizeof(float), cudaMemcpyDeviceToDevice);
+}
+
+
+
+
+
+

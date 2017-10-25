@@ -51,11 +51,12 @@ namespace holovibes
 		private:
 
 			void insert_average_compute();
-			void insert_convolution();
+			void insert_correlation();
 			void insert_extremums();
 			void insert_stabilization();
 			void insert_float_buffer_overwrite();
 
+			void compute_correlation(const float *x, const float *y);
 			void compute_convolution(const float* x, const float* y, float* out);
 
 			/// Buffer to keep the convolution product
