@@ -93,12 +93,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_a,
 		plan2d_b,
 		plan2d_inverse);
-	float _x[s];
-	cudaMemcpy(_x, selected_x.get(), s * 4, cudaMemcpyDeviceToHost);
-	float _y[s];
-	cudaMemcpy(_y, selected_y.get(), s * 4, cudaMemcpyDeviceToHost);
-	float _conv[s];
-	cudaMemcpy(_conv, convolution_.get(), s * 4, cudaMemcpyDeviceToHost);
 	cufftDestroy(plan2d_a);
 	cufftDestroy(plan2d_b);
 	cufftDestroy(plan2d_inverse);

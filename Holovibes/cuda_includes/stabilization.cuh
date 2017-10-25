@@ -24,4 +24,53 @@ void extract_frame(const float	*input,
 void gpu_resize(const float		*input,
 				float			*output,
 				QPoint			old_size,
-				QPoint			new_size);
+				QPoint			new_size,
+				cudaStream_t	stream = 0);
+
+/// Mirrors the image inplace on both axis
+void rotation_180(float				*frame,
+					QPoint			size,
+					cudaStream_t	stream = 0);
+
+/// A(x, y) = sum[i<=x, j<=y] ( B(i, j) )
+void sum_left_right(const float		*input,
+					float			*output,
+					QPoint			size,
+					cudaStream_t	stream = 0);
+
+/// A(x, y) = sum[i<=x, j<=y] ( A(i, j) )
+void sum_left_right_inplace(float			*input,
+							QPoint			size,
+							cudaStream_t	stream = 0);
+
+/// A(x, y) = sum[i<=x, j<=y] ( A(i, j)^2 )
+void sum_inplace_squared(float			*input,
+						QPoint			size,
+						cudaStream_t	stream = 0);
+
+/// output = sum(convolution) - ((sum(a) * sum(b)) / overlap)
+/// 
+/// Output written inplace in sum_convolution
+void compute_numerator(const float		*sum_a,
+					const float			*sum_b,
+					float				*sum_convolution,
+					QPoint				size,
+					cudaStream_t		stream = 0);
+
+/// output = sum(A^2) - (sum(A)^2 / overlap)
+/// 
+/// Output written inplace in matrix
+void sum_squared_minus_square_sum(
+					float			*matrix,
+					const float		*sum_squared,
+					QPoint			size,
+					cudaStream_t	stream = 0);
+
+/// output = numerator / sqrt( denominator1 * denominator2)
+/// 
+/// Output written inplace in numerator
+void correlation(float			*numerator,
+				const float		*denominator1,
+				const float		*denominator2,
+				QPoint			size,
+				cudaStream_t	 = 0);
