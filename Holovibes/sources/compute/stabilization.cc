@@ -13,6 +13,7 @@
 #include "stabilization.hh"
 #include "compute_descriptor.hh"
 #include "Rectangle.hh"
+#include "power_of_two.hh"
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -51,7 +52,7 @@ void Stabilization::insert_correlation()
 {
 	fn_vect_.push_back([=]()
 	{
-		gui::Rectangle zone = cd_.getStabilizationZone();
+		gui::Rectangle zone = get_squared_zone();
 		auto frame_res = fd_.frame_res();
 		if (accumulation_queue_->get_current_elts())
 		{
@@ -64,7 +65,8 @@ void Stabilization::insert_correlation()
 
 void Stabilization::compute_correlation(const float *x, const float *y)
 {
-	gui::Rectangle zone = cd_.getStabilizationZone();
+	auto initial_zone = cd_.getStabilizationZone();
+	auto zone = get_squared_zone();
 	const uint size = zone.area();
 	QPoint dimensions{ zone.width(), zone.height() };
 	cuda_tools::UniquePtr<float> selected_x(size);
@@ -74,8 +76,13 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	if (!selected_x || !selected_y)
 		return;
 
-	extract_frame(x, selected_x.get(), fd_.width, zone);
-	extract_frame(y, selected_y.get(), fd_.width, zone);
+	extract_frame(x, selected_x.get(), fd_.width, initial_zone);
+	extract_frame(y, selected_y.get(), fd_.width, initial_zone);
+	// Should be turned into one function, doing extract_frame and pad_frame
+	pad_frame(selected_x.get(), { initial_zone.width(), initial_zone.height() }, { zone.width(), zone.height() });
+	pad_frame(selected_y.get(), { initial_zone.width(), initial_zone.height() }, { zone.width(), zone.height() });
+	//cudaMemcpy(convolution_.get(), selected_x.get(), zone.area() * 4, cudaMemcpyDeviceToDevice);
+	//return;
 	gpu_float_divide(selected_x.get(), zone.area(), 65536);
 	gpu_float_divide(selected_y.get(), zone.area(), 65536);
 
@@ -148,19 +155,12 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 
 	if (debug)
 		cudaMemcpy(out, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
-	if (debug)
-		for (int i = 0; i < 8; i++)
-		{
-			for (int j = 0; j < 8; j++)
-				std::cout << out[i * 8 + j];
-			std::cout << std::endl;
-		}
 }
 
 
 void Stabilization::compute_convolution(const float* x, const float* y, float* out)
 {
-	gui::Rectangle zone = cd_.getStabilizationZone();
+	gui::Rectangle zone = get_squared_zone();
 	cufftHandle plan2d_a;
 	cufftHandle plan2d_b;
 	cufftHandle plan2d_inverse;
@@ -187,7 +187,7 @@ void Stabilization::insert_extremums()
 {
 	fn_vect_.push_back([=]()
 	{
-		gui::Rectangle zone = cd_.getStabilizationZone();
+		gui::Rectangle zone = get_squared_zone();
 		const auto frame_res = zone.area();
 		if (convolution_.is_large_enough(frame_res))
 		{
@@ -206,7 +206,7 @@ void Stabilization::insert_extremums()
 			shift_x = x;
 			shift_y = y;
 
-			std::cout << shift_x << ", " << shift_y << std::endl;
+			//std::cout << shift_x << ", " << shift_y << std::endl;
 		}
 	});
 }
@@ -217,7 +217,7 @@ void Stabilization::insert_stabilization()
 	// Stabilization
 	fn_vect_.push_back([=]()
 	{
-		complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
+		//complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
 	});
 }
 
@@ -288,11 +288,27 @@ void Stabilization::insert_float_buffer_overwrite()
 		fn_vect_.push_back([=]()
 		{
 			cudaStreamSynchronize(0);
-			gui::Rectangle zone = cd_.getStabilizationZone();
+			gui::Rectangle zone = get_squared_zone();/*/
+			auto zone = cd_.getStabilizationZone();
+			//*/
+
 			if (convolution_.is_large_enough(zone.area()))
 			{
 				gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
+				cudaStreamSynchronize(0);
 			}
 		});
 	}
+}
+
+
+
+gui::Rectangle Stabilization::get_squared_zone() const
+{
+	auto selected = cd_.getStabilizationZone();
+	auto square_size = std::max(selected.height(), selected.width());
+	square_size = nextPowerOf2(square_size);
+	selected.setWidth(square_size);
+	selected.setHeight(square_size);
+	return selected;
 }

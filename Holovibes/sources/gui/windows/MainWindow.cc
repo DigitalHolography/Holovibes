@@ -1895,18 +1895,7 @@ namespace holovibes
 		{
 			auto button = findChild<QPushButton *>("StabilizationAreaButton");
 			// If current overlay is stabilization, disable it
-			if (mainDisplay->getOverlayManager().disable_all(Stabilization))
-			{
-				mainDisplay->getOverlayManager().create_default();
-				button->setText("Set stabilization area");
-				notify();
-			}
-			else
-			{
-				mainDisplay->getOverlayManager().create_overlay<Stabilization>();
-				button->setText("Cancel stabilization area");
-				notify();
-			}
+			mainDisplay->getOverlayManager().create_overlay<Stabilization>();
 		}
 
 		#pragma endregion

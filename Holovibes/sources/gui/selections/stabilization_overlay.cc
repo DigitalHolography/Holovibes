@@ -22,12 +22,12 @@ StabilizationOverlay::StabilizationOverlay(BasicOpenGLWindow* parent)
 
 void StabilizationOverlay::release(ushort frameSide)
 {
+	disable();
 	checkCorners();
 
 	if (zone_.topLeft() == zone_.bottomRight())
 		return;
 
 	Rectangle texZone = getTexZone(frameSide);
-
-	parent_->getCd()->setStabilizationZone(this->zone_);
+	parent_->getCd()->setStabilizationZone(texZone);
 }

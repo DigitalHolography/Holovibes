@@ -21,6 +21,7 @@
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
 # include "queue.hh"
+# include "Rectangle.hh"
 
 namespace holovibes
 {
@@ -58,6 +59,7 @@ namespace holovibes
 
 			void compute_correlation(const float *x, const float *y);
 			void compute_convolution(const float* x, const float* y, float* out);
+			gui::Rectangle get_squared_zone() const;
 
 			/// Buffer to keep the convolution product
 			cuda_tools::Array<float>				convolution_;

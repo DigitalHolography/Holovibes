@@ -91,7 +91,6 @@ void gpu_resize(const float		*input,
 	struct point old_s = { old_size.x(), old_size.y() };
 	struct point new_s = { new_size.x(), new_size.y() };
 	kernel_resize << <blocks, threads, 0, stream >> > (input, output, old_s, new_s);
-	cudaStreamSynchronize(0);
 }
 
 
@@ -346,11 +345,7 @@ void kernel_pad_frame(const float	*input,
 		if (x >= old_size.x || y >= old_size.y)
 			output[index] = 0;
 		else
-		{
-			const int old_x = x * old_size.x / new_size.x;
-			const int old_y = y * old_size.y / new_size.y;
-			output[index] = input[old_y * old_size.x + old_x];
-		}
+			output[index] = input[y * old_size.x + x];
 	}
 }
 
