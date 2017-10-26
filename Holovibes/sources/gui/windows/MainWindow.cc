@@ -403,12 +403,14 @@ namespace holovibes
 			float weight[3];
 			for (int i = 0; i < 3; i++)
 			{
-				pmax[i] = std::min(compute_desc_.nsamples.load(), components[i]->p_max.load());
-				pmin[i] = std::min(components[i]->p_min.load(), components[i]->p_max.load());
+				pmax[i] = components[i]->p_max.load();
+				pmin[i] = components[i]->p_min.load();
 				weight[i] = components[i]->weight;
 			}
 			for (int i = 0; i < 3; i++)
 			{
+				min_boxes[i]->setMaximum(compute_desc_.nsamples.load() - 1);
+				max_boxes[i]->setMaximum(compute_desc_.nsamples.load() - 1);
 				min_boxes[i]->setValue(pmin[i]);
 				max_boxes[i]->setValue(pmax[i]);
 				weight_boxes[i]->setValue(weight[i]);
@@ -1621,11 +1623,16 @@ namespace holovibes
 			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
-				ushort new_p = std::max(0,
-					std::min(min_boxes[i]->value(), compute_desc_.nsamples.load() - 1));
-				components[i]->p_min = new_p;
-				if (components[i]->p_max < new_p)
-					max_boxes[i]->setValue(new_p);
+				components[i]->p_min = min_boxes[i]->value();
+				auto checkBox = findChild<QCheckBox *>("PAccuCheckBox");
+				QPalette DirtyPalette = checkBox->palette();
+				if (components[i]->p_min > max_boxes[i]->value())
+				{
+					DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
+					DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
+				}
+				min_boxes[i]->setPalette(DirtyPalette);
+				max_boxes[i]->setPalette(DirtyPalette);
 			}
 			notify();
 		}
@@ -1642,11 +1649,17 @@ namespace holovibes
 			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 			for (int i = 0; i < 3; i++)
 			{
-				ushort new_p = std::max(0,
-					std::min(max_boxes[i]->value(), compute_desc_.nsamples.load() - 1));
+				ushort new_p = max_boxes[i]->value();
 				components[i]->p_max = new_p;
+				auto checkBox = findChild<QCheckBox *>("PAccuCheckBox");
+				QPalette DirtyPalette = checkBox->palette();
 				if (components[i]->p_min > new_p)
-					min_boxes[i]->setValue(new_p);
+				{
+					DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
+					DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
+				}
+				min_boxes[i]->setPalette(DirtyPalette);
+				max_boxes[i]->setPalette(DirtyPalette);
 			}
 			notify();
 		}
@@ -3138,8 +3151,6 @@ namespace holovibes
 			darkPalette.setColor(QPalette::HighlightedText, Qt::black);
 
 			qApp->setPalette(darkPalette);
-
-			qApp->setStyleSheet("QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }");
 			theme_index_ = 1;
 		}
 
