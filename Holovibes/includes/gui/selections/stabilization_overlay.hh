@@ -24,6 +24,9 @@ namespace holovibes
 			StabilizationOverlay(BasicOpenGLWindow *parent);
 
 			void release(ushort frameSide) override;
+		private:
+			void make_pow2_square();
+			void move(QPoint pos) override;
 		};
 	}
 }

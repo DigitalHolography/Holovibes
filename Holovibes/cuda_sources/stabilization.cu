@@ -260,8 +260,8 @@ void k_sum_squared_minus_square_sum(
 	{
 		const uint x = index % size.x;
 		matrix[index] = sum_squared[index] - (matrix[index] * matrix[index]) / (x + y + 1);
-		if (matrix[index] < 0)
-			matrix[index] = 0;
+		if (matrix[index] < 0.001)
+			matrix[index] = 0.001;
 	}
 }
 
