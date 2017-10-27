@@ -2431,9 +2431,23 @@ namespace holovibes
 
 		std::string MainWindow::set_record_filename_properties(FrameDescriptor fd, std::string filename)
 		{
+			std::string slice;
+			switch (compute_desc_.current_window.load())
+			{
+			case SliceXZ:
+				slice = "XZ";
+				break;
+			case SliceYZ:
+				slice = "YZ";
+				break;
+			default:
+				slice = "XY";
+				break;
+			}
 			std::string mode = (is_direct_mode() ? "D" : "H");
 
-			std::string sub_str = "_" + mode
+			std::string sub_str = "_" + slice
+				+ "_" + mode
 				+ "_" + std::to_string(fd.width)
 				+ "_" + std::to_string(fd.height)
 				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
