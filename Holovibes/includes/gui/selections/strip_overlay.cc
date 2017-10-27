@@ -43,14 +43,14 @@ namespace holovibes
 			ushort pmax = component_.p_max.load() + 1;
 			if (parent_->getKindOfView() == SliceXZ)
 			{
-				float ratio = parent_->height() / (nsamples_.load() - 1);
+				float ratio = (float)parent_->height() / (nsamples_.load() - 1);
 				QPoint topleft(0, ratio * pmin);
 				QPoint bottomRight(parent_->width(), ratio * pmax);
 				zone_ = QRect(topleft, bottomRight);
 			}
 			else
 			{
-				float ratio = parent_->width() / (nsamples_.load() - 1);
+				float ratio = (float)parent_->width() / (nsamples_.load() - 1);
 				QPoint topleft(ratio * pmin, 0);
 				QPoint bottomRight(ratio * pmax, parent_->height());
 				zone_ = QRect(topleft, bottomRight);
