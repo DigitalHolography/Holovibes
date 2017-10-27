@@ -30,7 +30,7 @@ namespace holovibes
 			void release(ushort frameSide) override
 			{}
 
-			void move(QPoint pos) override
+			void move(QMouseEvent *e) override
 			{}
 
 			void draw() override;

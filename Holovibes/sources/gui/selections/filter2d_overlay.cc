@@ -38,12 +38,15 @@ namespace holovibes
 			));
 		}
 
-		void Filter2DOverlay::move(QPoint pos)
+		void Filter2DOverlay::move(QMouseEvent *e)
 		{
-			display_ = true;
-			zone_.setBottomRight(pos);
-			make_square();
-			setBuffer();
+			if (e->buttons() == Qt::LeftButton)
+			{
+				display_ = true;
+				zone_.setBottomRight(getMousePos(e->pos()));
+				make_square();
+				setBuffer();
+			}
 		}
 
 		void Filter2DOverlay::checkCorners(ushort frameSide)

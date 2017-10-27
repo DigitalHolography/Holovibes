@@ -29,16 +29,16 @@ namespace holovibes
 			virtual void init() override;
 			virtual void draw() override;
 
-			/*! \brief Change the coordinates in the vertex buffer to match the current zone. */
-			void setBuffer();
 
 			/*! \brief Check if corners are not swapped, i.e. if topleft is really in the top left corner */
 			void checkCorners();
 
-			virtual void move(QPoint pos) override;
+			virtual void move(QMouseEvent *e) override;
 			virtual void setZone(Rectangle rect, ushort frameside) override;
 		protected:
-			/*! \brief Return the real zone, taking into account the window resizing */
+			void setBuffer() override;
+
+			/*! \brief Return the real zone in buffer coordinates. (frame desc width, frame desc height) */
 			Rectangle getTexZone(ushort frameSide) const;
 		};
 	}

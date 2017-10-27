@@ -67,13 +67,17 @@ namespace holovibes
 			active_ = false;
 		}
 
-		void Overlay::press(QPoint pos)
+		void Overlay::press(QMouseEvent *e)
 		{
-			zone_.setTopLeft(pos);
-			zone_.setBottomRight(zone_.topLeft());
+			if (e->button() == Qt::LeftButton)
+			{
+				auto pos = getMousePos(e->pos());
+				zone_.setTopLeft(pos);
+				zone_.setBottomRight(zone_.topLeft());
+			}
 		}
 
-		void Overlay::keyPress(QPoint pos)
+		void Overlay::keyPress(QKeyEvent *)
 		{
 		}
 
@@ -88,6 +92,17 @@ namespace holovibes
 				std::cerr << "[Error] " << Program_->log().toStdString() << std::endl;
 			init();
 			Program_->release();
+		}
+
+		QPoint Overlay::getMousePos(QPoint pos)
+		{
+			auto view = parent_->getKindOfView();
+			if (parent_->width() > parent_->height() && view != SliceXZ && view != SliceYZ)
+			{
+				double multiplier = static_cast<double>(parent_->width()) / static_cast<double>(parent_->height());
+				pos.setX(static_cast<double>(pos.x()) * multiplier);
+			}
+			return pos;
 		}
 
 		void Overlay::print()

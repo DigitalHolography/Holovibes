@@ -10,8 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <sstream>
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -19,59 +21,11 @@ namespace holovibes
 	{
 		CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
 			: Overlay(KindOfOverlay::Cross, parent)
-			, doubleCross_(false)
+			, line_alpha_(0.5f)
+			, horizontal_zone_(0, 0)
 		{
 			color_ = { 1.f, 0.f, 0.f };
-			// corresponding to the line transparency
-			alpha_ = 0.5f;
-			area_alpha_ = 0.05f;
-		}
-
-		void CrossOverlay::setBuffer(QPoint pos, QSize frame)
-		{
-			Program_->bind();
-			const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-			const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-			const float vertices[] = {
-				newX, 1.f,
-				newX, -1.f,
-				-1.f, newY,
-				1.f, newY,
-				newX, 1.f,
-				newX, -1.f,
-				-1.f, newY,
-				1.f, newY,
-			};
-			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			Program_->release();
-			display_ = true;
-			doubleCross_ = false;
-		}
-
-		void CrossOverlay::setDoubleBuffer(QPoint pos, QPoint pos2, QSize frame)
-		{
-			Program_->bind();
-			const float newX = ((static_cast<float>(pos.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-			const float newY = (-((static_cast<float>(pos.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-			const float newX2 = ((static_cast<float>(pos2.x()) - (frame.width() * 0.5f)) / frame.width()) * 2.f;
-			const float newY2 = (-((static_cast<float>(pos2.y()) - (frame.height() * 0.5f)) / frame.height())) * 2.f;
-			const float vertices[] = {
-				newX, 1.f,
-				newX, -1.f,
-				newX2, 1.f,
-				newX2, -1.f,
-				-1.f, newY,
-				1.f, newY,
-				-1.f, newY2,
-				1.f, newY2,
-			};
-			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			Program_->release();
-			doubleCross_ = true;
+			alpha_ = 0.05f;
 			display_ = true;
 		}
 
@@ -83,11 +37,12 @@ namespace holovibes
 
 			// Set vertices position
 			const float vertices[] = {
-				0.f, 1.f,
-				0.f, -1.f,
-				-1.f, 0.f,
-				1.f, 0.f,
-				// Second cross
+				// vertical area
+				0.f, 0.f,
+				0.f, 0.f,
+				0.f, 0.f,
+				0.f, 0.f,
+				//horizontal area
 				0.f, 0.f,
 				0.f, 0.f,
 				0.f, 0.f,
@@ -103,10 +58,12 @@ namespace holovibes
 
 			// Set color
 			const float colorData[] = {
+				// vertical area
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
+				// horizontal area
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
@@ -120,6 +77,34 @@ namespace holovibes
 			glDisableVertexAttribArray(colorShader_);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+			// Set line vertices order
+			std::vector<GLuint> lineElements{
+				// topleft cross
+				0, 3,
+				4, 5,
+				// bottom right cross
+				1, 2,
+				7, 6
+			};
+			glGenBuffers(1, &elemLineIndex_);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineElements.size() * sizeof(GLuint), lineElements.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			// Set rectangle vertices order
+			std::vector<GLuint> elements{
+				// vertical area
+				0, 1, 2,
+				2, 3, 0,
+				//horizontal area
+				4, 5, 6,
+				6, 7, 4
+			};
+			glGenBuffers(1, &elemIndex_);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLuint), elements.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 			Vao_.release();
 
 			// Program_ released by caller (initProgram)
@@ -127,80 +112,151 @@ namespace holovibes
 
 		void CrossOverlay::draw()
 		{
-			switch (parent_->getKindOfView())
-			{
-			case Hologram:
-				drawCross(0, 4);
-				break;
-			case SliceXZ:
-				drawCross(2, 2);
-			case SliceYZ:
-				drawCross(0, 2);
-			default:
-				break;
-			}
-		}
-		
-		void CrossOverlay::drawCross(GLuint offset, GLsizei count)
-		{
+			computeZone();
+			setBuffer();
+
 			Vao_.bind();
 			Program_->bind();
-			glEnableVertexAttribArray(verticesShader_);
+
 			glEnableVertexAttribArray(colorShader_);
+			glEnableVertexAttribArray(verticesShader_);
 
+			// Drawing four lines
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
+			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
+			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+			// Drawing areas between lines
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
 			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
+			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-			if (doubleCross_)
-			{
-				glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), area_alpha_);
-
-				if (count == 2)
-				{
-					if (offset == 0)
-					{
-						glDrawArrays(GL_TRIANGLES, 0, 3);
-						glDrawArrays(GL_TRIANGLES, 1, 3);
-					}
-					else
-					{
-						glDrawArrays(GL_TRIANGLES, 4, 3);
-						glDrawArrays(GL_TRIANGLES, 5, 3);
-					}
-				}
-				else if (count == 4)
-				{
-					glDrawArrays(GL_TRIANGLES, 0, 3);
-					glDrawArrays(GL_TRIANGLES, 1, 3);
-					glDrawArrays(GL_TRIANGLES, 4, 3);
-					glDrawArrays(GL_TRIANGLES, 5, 3);
-
-					// this should have been coded using glDrawElements,
-					// but for some reason it doesn't work...
-					// So I had to change the point order to use glDrawArrays
-
-					/*
-					int indexes[] = { 0, 1, 4,
-					2, 3, 6 };
-					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indexes);
-					int indexes2[] = { 2, 3, 6,
-					3, 6, 7 };
-					glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, indexes2);
-					*/
-				}
-
-				glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
-
-				if (count == 4)
-					glDrawArrays(GL_LINES, 0, 8);
-				else
-					glDrawArrays(GL_LINES, offset == 0 ? 0 : 4, 4);
-			}
-			else
-				glDrawArrays(GL_LINES, offset, count);
-			glDisableVertexAttribArray(colorShader_);
 			glDisableVertexAttribArray(verticesShader_);
+			glDisableVertexAttribArray(colorShader_);
+
 			Program_->release();
 			Vao_.release();
+		}
+
+		void CrossOverlay::keyPress(QKeyEvent *e)
+		{
+			if (e->key() == Qt::Key_Space)
+			{
+				if (!locked_)
+					last_clicked_ = mouse_position_;
+				locked_ = !locked_;
+				parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
+			}
+		}
+
+		void CrossOverlay::move(QMouseEvent *e)
+		{
+			if (!locked_)
+			{
+				auto fd = parent_->getFd();
+				auto pos = getMousePos(e->pos());
+				pos.setX(pos.x() * fd.width / parent_->width());
+				pos.setY(pos.y() * fd.height / parent_->height());
+				mouse_position_ = pos;
+				std::stringstream ss;
+				ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
+				auto cd = parent_->getCd();
+				cd->stftCursor(&pos, AccessMode::Set);
+				// ---------------
+				if (cd->x_accu_enabled)
+				{
+					cd->x_accu_min_level = std::min(pos.x(), last_clicked_.x());
+					cd->x_accu_max_level = std::max(pos.x(), last_clicked_.x());
+				}
+				if (cd->y_accu_enabled)
+				{
+					cd->y_accu_min_level = std::min(pos.y(), last_clicked_.y());
+					cd->y_accu_max_level = std::max(pos.y(), last_clicked_.y());
+				}
+				cd->notify_observers();
+			}
+		}
+
+		void CrossOverlay::release(ushort frameside)
+		{
+
+		}
+
+		void CrossOverlay::computeZone()
+		{
+			auto cd = parent_->getCd();
+			QPoint topLeft;
+			QPoint bottomRight;
+			QPoint cursor;
+			cd->stftCursor(&cursor, Get);
+
+			// Computing min/max coordinates in function of the frame_descriptor
+			auto frame_desc = parent_->getFd();
+			const float ratioX = (float)(parent_->width()) / (frame_desc.width - 1);
+			const float ratioY = (float)(parent_->height()) / (frame_desc.height - 1);
+			uint xmin = cd->x_accu_min_level;
+			uint xmax = cd->x_accu_max_level;
+			uint ymin = cd->y_accu_min_level;
+			uint ymax = cd->y_accu_max_level;
+
+			// Setting the zone_
+			if (!cd->x_accu_enabled)
+			{
+				xmin = cursor.x();
+				xmax = cursor.x();
+			}
+			if (!cd->y_accu_enabled)
+			{
+				ymin = cursor.y();
+				ymax = cursor.y();
+			}
+			xmin *= ratioX;
+			xmax = (xmax + 1) * ratioX;
+			ymin *= ratioY;
+			ymax = (ymax + 1) * ratioY;
+			zone_ = QRect(QPoint(xmin, 0), QPoint(xmax, parent_->height()));
+			horizontal_zone_ = QRect(QPoint(0, ymin), QPoint(parent_->width(), ymax));
+		}
+
+		void CrossOverlay::setBuffer()
+		{
+			Program_->bind();
+			QSize win_size = parent_->size();
+			const float w = win_size.width();
+			const float h = win_size.height();
+
+			// Normalizing the zones to (-1; 1)
+			const float x0 = 2.f * zone_.topLeft().x() / w - 1.f;
+			const float y0 = -(2.f * zone_.topLeft().y() / h - 1.f);
+			const float x1 = 2.f * zone_.bottomRight().x() / w - 1.f;
+			const float y1 = -(2.f * zone_.bottomRight().y() / h - 1.f);
+
+			const float x2 = 2.f * horizontal_zone_.topLeft().x() / w - 1.f;
+			const float y2 = -(2.f * horizontal_zone_.topLeft().y() / h - 1.f);
+			const float x3 = 2.f * horizontal_zone_.bottomRight().x() / w - 1.f;
+			const float y3 = -(2.f * horizontal_zone_.bottomRight().y() / h - 1.f);
+
+			const float subVertices[] = {
+				x0, y0,
+				x1, y0,
+				x1, y1,
+				x0, y1,
+
+				x2, y2,
+				x3, y2,
+				x3, y3,
+				x2, y3
+			};
+
+			// Updating the buffer at verticesIndex_ with new coordinates
+			glBindBuffer(GL_ARRAY_BUFFER, verticesIndex_);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(subVertices), subVertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			Program_->release();
 		}
 	}
 }

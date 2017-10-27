@@ -54,6 +54,7 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
+			const FrameDescriptor& getFd();
 			OverlayManager& getOverlayManager();
 
 			// Transform functions ------

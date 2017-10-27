@@ -26,11 +26,11 @@ namespace holovibes
 			void init() override;
 			void draw() override;
 
-			void keyPress(QPoint pos) override;
-			void move(QPoint pos) override;
+			void keyPress(QKeyEvent *e) override;
+			void move(QMouseEvent *e) override;
 			void release(ushort frameSide) override;
 
-			void setBuffer();
+			void setBuffer() override;
 		private:
 			//! Transparency of the borders
 			float line_alpha_;
@@ -41,8 +41,11 @@ namespace holovibes
 			//! Locking line overlay
 			bool locked_;
 
-			//! Last click
-			QPoint last_clicked_;
+			//! p index of the last locked line
+			QPoint last_pIndex_;
+
+			//! pindex of the mouse position
+			QPoint pIndex_;
 		};
 	}
 }

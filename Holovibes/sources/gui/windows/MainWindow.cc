@@ -1575,19 +1575,29 @@ namespace holovibes
 
 		void MainWindow::set_x_accu()
 		{
-			compute_desc_.x_accu_enabled.exchange(findChild<QCheckBox *>("XAccuCheckBox")->isChecked());
-			compute_desc_.x_accu_min_level.exchange(findChild<QSpinBox *>("XMinAccuSpinBox")->value());
-			compute_desc_.x_accu_max_level.exchange(findChild<QSpinBox *>("XMaxAccuSpinBox")->value());
-			set_auto_contrast();
+			auto boxMax = findChild<QSpinBox *>("XMaxAccuSpinBox");
+			auto boxMin = findChild<QSpinBox *>("XMinAccuSpinBox");
+			auto checkBox = findChild<QCheckBox *>("XAccuCheckBox");
+			compute_desc_.x_accu_enabled.exchange(checkBox->isChecked());
+			compute_desc_.x_accu_min_level.exchange(boxMin->value());
+			compute_desc_.x_accu_max_level.exchange(boxMax->value());
+			if (compute_desc_.x_accu_min_level > compute_desc_.x_accu_max_level)
+				boxMax->setValue(boxMin->value());
+
 			notify();
 		}
 
 		void MainWindow::set_y_accu()
 		{
-			compute_desc_.y_accu_enabled.exchange(findChild<QCheckBox *>("YAccuCheckBox")->isChecked());
-			compute_desc_.y_accu_min_level.exchange(findChild<QSpinBox *>("YMinAccuSpinBox")->value());
-			compute_desc_.y_accu_max_level.exchange(findChild<QSpinBox *>("YMaxAccuSpinBox")->value());
-			set_auto_contrast();
+			auto boxMax = findChild<QSpinBox *>("YMaxAccuSpinBox");
+			auto boxMin = findChild<QSpinBox *>("YMinAccuSpinBox");
+			auto checkBox = findChild<QCheckBox *>("YAccuCheckBox");
+			compute_desc_.y_accu_enabled.exchange(checkBox->isChecked());
+			compute_desc_.y_accu_min_level.exchange(boxMin->value());
+			compute_desc_.y_accu_max_level.exchange(boxMax->value());
+			if (compute_desc_.y_accu_min_level > compute_desc_.y_accu_max_level)
+				boxMax->setValue(boxMin->value());
+
 			notify();
 		}
 
@@ -2126,7 +2136,6 @@ namespace holovibes
 					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
-				sliceYZ->getOverlayManager().printVector();
 				notify();
 				//set_auto_contrast();
 				pipe_refresh();

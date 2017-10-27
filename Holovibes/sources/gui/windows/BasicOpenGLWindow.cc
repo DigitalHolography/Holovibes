@@ -82,6 +82,11 @@ namespace holovibes
 			return Cd;
 		}
 
+		const FrameDescriptor& BasicOpenGLWindow::getFd()
+		{
+			return Fd;
+		}
+
 		OverlayManager& BasicOpenGLWindow::getOverlayManager()
 		{
 			return overlay_manager_;
@@ -134,6 +139,7 @@ namespace holovibes
 				setTransform();
 				break;
 			}
+			overlay_manager_.keyPress(e);
 		}
 
 		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)

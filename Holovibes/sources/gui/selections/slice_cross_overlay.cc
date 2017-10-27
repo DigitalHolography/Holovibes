@@ -56,7 +56,6 @@ namespace holovibes
 		void SliceCrossOverlay::draw()
 		{
 			setBuffer();
-			auto cd = parent_->getCd();
 
 			Vao_.bind();
 			Program_->bind();
@@ -83,22 +82,32 @@ namespace holovibes
 			Vao_.release();
 		}
 
-		void SliceCrossOverlay::keyPress(QPoint pos)
+		void SliceCrossOverlay::keyPress(QKeyEvent *e)
 		{
-			if (!locked_)
-				last_clicked_ = pos;
-			locked_ = !locked_;
-			parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
+			if (e->key() == Qt::Key_Space)
+			{
+				if (!locked_)
+					last_pIndex_ = pIndex_;
+				locked_ = !locked_;
+				parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
+			}
 		}
 
-		void SliceCrossOverlay::move(QPoint pos)
+		void SliceCrossOverlay::move(QMouseEvent *e)
 		{
 			if (!locked_)
 			{
-				auto Cd = parent_->getCd();
 				auto kView = parent_->getKindOfView();
-				uint p = (kView == SliceXZ) ? pos.y() : pos.x();
-				uint last_p = (kView == SliceXZ) ? last_clicked_.y() : last_clicked_.x();
+				auto Cd = parent_->getCd();
+
+				// Computing p in function of mouse position
+				uint depth = kView == SliceXZ ? parent_->height() : parent_->width();
+				pIndex_ = e->pos();
+				pIndex_.setX(pIndex_.x() * Cd->nsamples / depth);
+				pIndex_.setY(pIndex_.y() * Cd->nsamples / depth);
+
+				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
+				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
 				Cd->pindex = p;
 				if (Cd->p_accu_enabled.load())
 				{
@@ -121,7 +130,7 @@ namespace holovibes
 			QPoint bottomRight;
 			auto kView = parent_->getKindOfView();
 
-			// Computing pmin/pax coordinates in function of the frame_descriptor
+			// Computing pmin/pmax coordinates in function of the frame_descriptor
 			const float side = kView == SliceXZ ? parent_->height() : parent_->width();
 			const float ratio = side / (cd->nsamples - 1);
 			uint pmin = cd->p_accu_min_level;

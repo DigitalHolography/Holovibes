@@ -143,18 +143,24 @@ namespace holovibes
 			Program_->release();
 		}
 
-		void RectOverlay::move(QPoint pos)
+		void RectOverlay::move(QMouseEvent* e)
 		{
-			display_ = true;
-			zone_.setBottomRight(pos);
-			setBuffer();
+			if (e->buttons() == Qt::LeftButton)
+			{
+				auto pos = getMousePos(e->pos());
+				display_ = true;
+				zone_.setBottomRight(pos);
+				setBuffer();
+			}
 		}
 
 		void RectOverlay::setZone(Rectangle rect, ushort frameside)
 		{
 			auto zone = Rectangle(rect.topLeft() * parent_->width() / frameside, rect.size() * parent_->width() / frameside);
 			zone_.setTopLeft(zone.topLeft());
-			move(zone.bottomRight());
+			zone_.setBottomRight(zone.bottomRight());
+			setBuffer();
+			display_ = true;
 			release(frameside);
 		}
 	}

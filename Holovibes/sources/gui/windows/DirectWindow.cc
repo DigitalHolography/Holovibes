@@ -224,30 +224,12 @@ namespace holovibes
 
 		void	DirectWindow::mousePressEvent(QMouseEvent* e)
 		{
-			if (e->button() == Qt::LeftButton)
-			{
-				auto pos = e->pos();
-				if (width() > height())
-				{
-					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
-					pos.setX(static_cast<double>(pos.x()) * multiplier);
-				}
-				overlay_manager_.press(pos);
-			}
+			overlay_manager_.press(e);
 		}
 
 		void	DirectWindow::mouseMoveEvent(QMouseEvent* e)
 		{
-			if (e->buttons() == Qt::LeftButton)
-			{
-				auto pos = e->pos();
-				if (width() > height())
-				{
-					double multiplier = static_cast<double>(width()) / static_cast<double>(height());
-					pos.setX(static_cast<double>(pos.x()) * multiplier);
-				}
-				overlay_manager_.move(pos);
-			}
+			overlay_manager_.move(e);
 		}
 
 		void	DirectWindow::mouseReleaseEvent(QMouseEvent* e)

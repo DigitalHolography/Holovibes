@@ -102,9 +102,7 @@ namespace holovibes
 			std::atomic<ushort>& nsamples,
 			Color color)
 		{
-			auto strip = std::make_shared<StripOverlay>(parent_, component, nsamples, color);
-			strip->initProgram();
-			overlays_.push_back(strip);
+			create_overlay(std::make_shared<StripOverlay>(parent_, component, nsamples, color));
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)
@@ -144,22 +142,22 @@ namespace holovibes
 			create_default();
 		}
 
-		void OverlayManager::press(QPoint pos)
+		void OverlayManager::press(QMouseEvent *e)
 		{
 			if (current_overlay_)
-				current_overlay_->press(pos);
+				current_overlay_->press(e);
 		}
 
-		void OverlayManager::keyPress(QPoint pos)
+		void OverlayManager::keyPress(QKeyEvent *e)
 		{
 			if (current_overlay_)
-				current_overlay_->keyPress(pos);
+				current_overlay_->keyPress(e);
 		}
 
-		void OverlayManager::move(QPoint pos)
+		void OverlayManager::move(QMouseEvent *e)
 		{
 			if (current_overlay_)
-				current_overlay_->move(pos);
+				current_overlay_->move(e);
 		}
 
 		void OverlayManager::release(ushort frame)
@@ -245,30 +243,13 @@ namespace holovibes
 			return current_overlay_ ? current_overlay_->getKind() : Zoom;
 		}
 
-		bool OverlayManager::setCrossBuffer(QPoint pos, QSize frame)
-		{
-			auto cross = dynamic_cast<CrossOverlay *>(current_overlay_.get());
-			if (!cross)
-				return false;
-			cross->setBuffer(pos, frame);
-			return true;
-		}
-
-		bool OverlayManager::setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame)
-		{
-			auto cross = dynamic_cast<CrossOverlay *>(current_overlay_.get());
-			if (!cross)
-				return false;
-			cross->setDoubleBuffer(pos, pos2, frame);
-			return true;
-		}
-
 		# ifdef _DEBUG
 		void OverlayManager::printVector()
 		{
 			std::cout << std::endl;
 			std::cout << "Current overlay :" << std::endl;
-			current_overlay_->print();
+			if (current_overlay_)
+				current_overlay_->print();
 			std::cout << std::endl;
 			for (auto o : overlays_)
 				o->print();

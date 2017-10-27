@@ -17,11 +17,13 @@
 
 #include <array>
 #include <iostream>
+#include <memory>
 #include <QOpenGLShaderProgram.h>
 #include <QOpenGLFunctions.h>
+#include <QApplication.h>
+#include <qdesktopwidget.h>
 #include <QOpenGLVertexArrayObject>
 
-#include <memory>
 #include "frame_desc.hh"
 #include "Rectangle.hh"
 #include "compute_descriptor.hh"
@@ -63,11 +65,11 @@ namespace holovibes
 			virtual void draw() = 0;
 
 			/*! \brief Called when the user press the mouse button */
-			virtual void press(QPoint pos);
+			virtual void press(QMouseEvent* e);
 			/*! \brief Called when the user press a key */
-			virtual void keyPress(QPoint pos);
+			virtual void keyPress(QKeyEvent* e);
 			/*! \brief Called when the user moves the mouse */
-			virtual void move(QPoint pos) = 0;
+			virtual void move(QMouseEvent *e) = 0;
 			/*! \brief Called when the user release the mouse button */
 			virtual void release(ushort frameside) = 0;
 
@@ -81,8 +83,15 @@ namespace holovibes
 			/*! \brief Initialize Vao/Vbo */
 			virtual void init() = 0;
 
-			//! Zone selected by the users.
+			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
+			virtual void setBuffer() = 0;
+
+			/*! \brief returns real mouse position (Avoid conflicts in fullscreen) */
+			QPoint getMousePos(QPoint pos);
+
+			//! Zone selected by the users in pixel coordinates (window width, window height)
 			Rectangle zone_;
+
 			//! Kind of overlay
 			KindOfOverlay kOverlay_;
 			//! Indexes of the buffers in opengl

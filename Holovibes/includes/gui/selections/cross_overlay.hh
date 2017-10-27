@@ -24,31 +24,40 @@ namespace holovibes
 		public:
 			CrossOverlay(BasicOpenGLWindow* parent);
 
-			void setBuffer(QPoint pos, QSize frame);
-			void setDoubleBuffer(QPoint pos1, QPoint pos2, QSize frame);
-
 			void init() override;
 			void draw() override;
 
-			// Not called when using cross
-			void move(QPoint pos) override
-			{}
-
-			// Not called when using cross
-			void release(ushort frameSide) override
-			{}
+			void keyPress(QKeyEvent *e) override;
+			void move(QMouseEvent *e) override;
+			void release(ushort frameSide) override;
 
 			// Not called when using cross
 			void setZone(Rectangle rect, ushort frameside) override
 			{}
 
-		private:
-			void drawCross(GLuint offset, GLsizei count);
+		protected:
+			void setBuffer() override;
 
-			bool doubleCross_;
+			/*! \brief Computes the zones depending on compute descriptor of the parent */
+			void computeZone();
 
-			//! transparency of the area between lines
-			float area_alpha_;
+			//! Transparency of the borders
+			float line_alpha_;
+
+			//! Vertices order for lines
+			GLuint elemLineIndex_;
+
+			//! Locking line overlay
+			bool locked_;
+
+			//! Position of the last line locked
+			QPoint last_clicked_;
+
+			//! Actual mouse position
+			QPoint mouse_position_;
+
+			//! Horizontal area. zone_ corresponds to the vertical area
+			Rectangle horizontal_zone_;
 		};
 	}
 }

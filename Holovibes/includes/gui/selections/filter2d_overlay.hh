@@ -28,7 +28,7 @@ namespace holovibes
 			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
 			void make_square();
 
-			void move(QPoint pos) override;
+			void move(QMouseEvent *e) override;
 			void release(ushort frameSide) override;
 		};
 	}

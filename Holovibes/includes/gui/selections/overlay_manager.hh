@@ -44,11 +44,11 @@ namespace holovibes
 			void reset(bool def = true);
 
 			/*! \brief Call the press function of the current overlay. */
-			void press(QPoint pos);
+			void press(QMouseEvent *e);
 			/*! \brief Call the keyPress function of the current overlay. */
-			void keyPress(QPoint pos);
+			void keyPress(QKeyEvent *e);
 			/*! \brief Call the move function of the current overlay. */
-			void move(QPoint pos);
+			void move(QMouseEvent *e);
 			/*! \brief Call the release function of the current overlay. */
 			void release(ushort frameSide);
 
@@ -58,10 +58,6 @@ namespace holovibes
 			const Rectangle& getZone() const;
 			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
-			/*! \brief Set the buffer for the Cross overylay. */
-			bool setCrossBuffer(QPoint pos, QSize frame);
-			/*! \brief Set the buffer for the double Cross overlay. */
-			bool setDoubleCrossBuffer(QPoint pos, QPoint pos2, QSize frame);
 
 			# ifdef _DEBUG
 				/*! \brief Prints every overlay in the vector. Debug purpose. */

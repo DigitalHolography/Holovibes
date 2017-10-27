@@ -197,11 +197,7 @@ namespace holovibes
 
 		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
 		{
-			mouse_position = e->pos();
-			uint depth = (kView == SliceXZ) ? this->height() : this->width();
-			mouse_position.setX((mouse_position.x() * Cd->nsamples) / depth);
-			mouse_position.setY((mouse_position.y() * Cd->nsamples) / depth);
-			overlay_manager_.move(mouse_position);
+			overlay_manager_.move(e);
 		}
 
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
@@ -222,8 +218,7 @@ namespace holovibes
 
 		void	SliceWindow::keyPressEvent(QKeyEvent* e)
 		{
-			if (e->key() == Qt::Key::Key_Space)
-				overlay_manager_.keyPress(mouse_position);
+			overlay_manager_.keyPress(e);
 		}
 	}
 }

@@ -34,20 +34,12 @@ namespace holovibes
 		protected:
 			SharedPipe		Ic;
 
-			virtual void	initShaders();
-			virtual void	paintGL();
+			virtual void	initShaders() override;
 
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-			void	wheelEvent(QWheelEvent *e);
-			void	keyPressEvent(QKeyEvent* e);
-			void	focusInEvent(QFocusEvent *e);
-
-			void	updateCursorPosition(QPoint pos);
+			void	wheelEvent(QWheelEvent *e) override;
+			void	focusInEvent(QFocusEvent *e) override;
 		private:
 			MainWindow *main_window_;
-			QPoint last_clicked;
 			QPoint mouse_position;
 		};
 	}

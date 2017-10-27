@@ -38,11 +38,11 @@ namespace holovibes
 			virtual void	initializeGL();
 			virtual void	paintGL();
 
-			void mousePressEvent(QMouseEvent*);
-			void mouseMoveEvent(QMouseEvent*);
-			void mouseReleaseEvent(QMouseEvent*);
-			void focusInEvent(QFocusEvent*);
-			void keyPressEvent(QKeyEvent* e);
+			void mousePressEvent(QMouseEvent*) override;
+			void mouseMoveEvent(QMouseEvent*) override;
+			void mouseReleaseEvent(QMouseEvent*) override;
+			void focusInEvent(QFocusEvent*) override;
+			void keyPressEvent(QKeyEvent* e) override;
 		};
 	}
 }
