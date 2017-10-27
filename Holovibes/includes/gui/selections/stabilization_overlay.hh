@@ -26,7 +26,7 @@ namespace holovibes
 			void release(ushort frameSide) override;
 		private:
 			void make_pow2_square();
-			void move(QPoint pos) override;
+			void move(QMouseEvent *e) override;
 		};
 	}
 }

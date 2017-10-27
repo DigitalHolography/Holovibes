@@ -298,13 +298,6 @@ namespace holovibes
 				findChild<QPushButton*>("RotatePushButton")->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				findChild<QPushButton*>("FlipPushButton")->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
-			{
-				// Modifying one of these pairs will call a signal that reads the other one from the SpinBox
-				// So we need to block them to keep the values, as well as preventing too many autocontrast calls
-				const QSignalBlocker blocker_xmin(findChild<QSpinBox *>("XMinAccuSpinBox"));
-				const QSignalBlocker blocker_xmax(findChild<QSpinBox *>("XMaxAccuSpinBox"));
-				const QSignalBlocker blocker_ymin(findChild<QSpinBox *>("YMinAccuSpinBox"));
-				const QSignalBlocker blocker_ymax(findChild<QSpinBox *>("YMaxAccuSpinBox"));
 
 				findChild<QCheckBox *>("FFTShiftCheckBox")->setChecked(compute_desc_.shift_corners_enabled.load());
 				findChild<QCheckBox *>("PAccuCheckBox")->setChecked(compute_desc_.p_accu_enabled.load());
@@ -324,7 +317,6 @@ namespace holovibes
 				findChild<QSpinBox *>("YMaxAccuSpinBox")->setMinimum(compute_desc_.y_accu_min_level.load());
 				findChild<QSpinBox *>("YMinAccuSpinBox")->setValue(compute_desc_.y_accu_min_level.load());
 				findChild<QSpinBox *>("YMaxAccuSpinBox")->setValue(compute_desc_.y_accu_max_level.load());
-			}
 
 			findChild<QCheckBox *>("PAccuCheckBox")->setEnabled(compute_desc_.stft_enabled.load());
 
@@ -950,6 +942,7 @@ namespace holovibes
 					kCamera = c;
 					QAction* settings = findChild<QAction*>("actionSettings");
 					settings->setEnabled(true);
+					set_maximums(holovibes_.get_cam_frame_desc());
 					notify();
 				}
 				catch (CameraException& e)
@@ -2994,6 +2987,7 @@ namespace holovibes
 			QAction *settings = findChild<QAction*>("actionSettings");
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
+			set_maximums(frame_desc);
 			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
 				import_type_ = ImportType::None;
@@ -3003,6 +2997,12 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			}
 			notify();
+		}
+
+		void MainWindow::set_maximums(FrameDescriptor fd)
+		{
+			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMaximum(fd.width);
+			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMaximum(fd.height);
 		}
 
 		void MainWindow::import_start_spinbox_update()

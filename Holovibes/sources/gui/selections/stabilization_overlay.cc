@@ -56,11 +56,14 @@ void StabilizationOverlay::make_pow2_square()
 	));
 }
 
-void StabilizationOverlay::move(QPoint pos)
+void StabilizationOverlay::move(QMouseEvent* e)
 {
-	display_ = true;
-	zone_.setBottomRight(pos);
-	make_pow2_square();
-	setBuffer();
+	if (e->buttons() == Qt::LeftButton)
+	{
+		display_ = true;
+		zone_.setBottomRight(getMousePos(e->pos()));
+		make_pow2_square();
+		setBuffer();
+	}
 }
 

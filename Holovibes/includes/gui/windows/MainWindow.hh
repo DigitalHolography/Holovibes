@@ -256,6 +256,7 @@ namespace holovibes
 			void		remove_infos();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
+			void		set_maximums(FrameDescriptor fd);
 
 			#pragma endregion
 			/* ---------- */
