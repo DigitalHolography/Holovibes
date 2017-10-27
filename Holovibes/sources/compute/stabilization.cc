@@ -225,7 +225,7 @@ void Stabilization::insert_average_compute()
 	bool queue_needed = cd_.img_acc_slice_xy_enabled || cd_.xy_stabilization_enabled;
 	if (queue_needed)
 	{
-		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_size())
+		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_max_elts())
 		{
 			auto new_fd = fd_;
 			new_fd.depth = cd_.img_type == ImgType::Composite ? 12.0 : 4.0;
