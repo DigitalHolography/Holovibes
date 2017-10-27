@@ -61,15 +61,15 @@ namespace holovibes
 			void compute_convolution(const float* x, const float* y, float* out);
 
 			/// Buffer to keep the convolution product
-			cuda_tools::Array<float>				convolution_;
+			cuda_tools::Array<float>		convolution_;
 
 			/// Buffer used to temporaly store the average, to compare it with current frame
-			cuda_tools::UniquePtr<float>				float_buffer_average_;
+			cuda_tools::UniquePtr<float>	float_buffer_average_;
 
 			/// Current image shift
 			/// {
-			int							shift_x;
-			int							shift_y;
+			int								shift_x;
+			int								shift_y;
 			/// }
 
 			std::unique_ptr<Queue>			accumulation_queue_;
@@ -77,13 +77,13 @@ namespace holovibes
 			/// Pipe data
 			/// {
 			/// Vector function in which we insert the processing
-			FnVector& fn_vect_;
+			FnVector&						fn_vect_;
 			/// The whole image for this frame
-			float* const& gpu_float_buffer_;
+			float* const&					gpu_float_buffer_;
 			/// Describes the frame size
-			const camera::FrameDescriptor& fd_;
+			const camera::FrameDescriptor&	fd_;
 
-			const ComputeDescriptor& cd_;
+			const ComputeDescriptor&		cd_;
 			/// }
 		};
 	}

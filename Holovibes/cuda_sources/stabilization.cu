@@ -179,7 +179,7 @@ void kernel_sum_lines_inplace(float		*input,
 			input[start + i] += input[start + i - 1];
 	}
 }
-void sum_left_right_inplace(float			*input,
+void sum_left_top_inplace(float			*input,
 							QPoint			size,
 							cudaStream_t	stream)
 {
@@ -206,7 +206,7 @@ void kernel_sum_lines(const float	*input,
 	}
 }
 
-void sum_left_right(const float	*input,
+void sum_left_top(const float	*input,
 					float		*output,
 					QPoint		size,
 					cudaStream_t	stream)
@@ -231,7 +231,7 @@ void kernel_compute_numerator(const float	*sum_a,
 	if (y < size.y)
 	{
 		const uint x = index % size.x;
-		sum_convolution[index] -= (sum_a[index] * sum_b[index]) / (x + y + 1);
+		sum_convolution[index] -= (sum_a[index] * sum_b[index]) / ((x + y + 1)*(x + y + 1));
 	}
 }
 

@@ -33,13 +33,13 @@ void rotation_180(float				*frame,
 					cudaStream_t	stream = 0);
 
 /// A(x, y) = sum[i<=x, j<=y] ( B(i, j) )
-void sum_left_right(const float		*input,
+void sum_left_top(const float		*input,
 					float			*output,
 					QPoint			size,
 					cudaStream_t	stream = 0);
 
 /// A(x, y) = sum[i<=x, j<=y] ( A(i, j) )
-void sum_left_right_inplace(float			*input,
+void sum_left_top_inplace(float			*input,
 							QPoint			size,
 							cudaStream_t	stream = 0);
 

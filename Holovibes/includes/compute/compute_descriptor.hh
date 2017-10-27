@@ -264,6 +264,7 @@ namespace holovibes
 
 
 		std::atomic<bool>			xy_stabilization_enabled;
+		std::atomic<bool>			xy_stabilization_paused;
 		std::atomic<bool>			xy_stabilization_show_convolution;
 
 		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)

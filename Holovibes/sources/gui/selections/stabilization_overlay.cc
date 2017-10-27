@@ -19,6 +19,7 @@ StabilizationOverlay::StabilizationOverlay(BasicOpenGLWindow* parent)
 	: RectOverlay(KindOfOverlay::Stabilization, parent)
 {
 	color_ = { 0.8f, 0.4f, 0.4f };
+	parent_->getCd()->xy_stabilization_paused = true;
 }
 
 void StabilizationOverlay::release(ushort frameSide)
@@ -41,6 +42,7 @@ void StabilizationOverlay::release(ushort frameSide)
 	texZone.setHeight(square_size);
 
 	parent_->getCd()->setStabilizationZone(texZone);
+	parent_->getCd()->xy_stabilization_paused = false;
 }
 
 void StabilizationOverlay::make_pow2_square()

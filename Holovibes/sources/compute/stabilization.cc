@@ -103,11 +103,7 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 		0, 0, 0, 0, 0, 0, 0, 0
 	};
 	bool debug = false;
-	float tmp1[64];
-	float tmp2[64];
-	float tmp3[64];
-	float tmp4[64];
-	float out[64];
+	float tmp[64][64];
 	if (debug)
 	{
 		cudaMemcpy(selected_x.get(), test_frame_1, 64 * 4, cudaMemcpyHostToDevice);
@@ -121,36 +117,43 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	cudaStreamSynchronize(0);
 
 	compute_convolution(selected_x.get(), selected_y.get(), convolution_.get());
-	sum_left_right(selected_x.get(), sum_x.get(), dimensions);
-	sum_left_right(selected_y.get(), sum_y.get(), dimensions);
+	sum_left_top(selected_x.get(), sum_x.get(), dimensions);
+	sum_left_top(selected_y.get(), sum_y.get(), dimensions);
 	cudaStreamSynchronize(0);
+	return;
 	if (debug)
-		cudaMemcpy(tmp1, sum_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
+		cudaMemcpy(tmp[1], sum_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
 	if (debug)
-		cudaMemcpy(tmp2, sum_y.get(), 64 * 4, cudaMemcpyDeviceToHost);
+		cudaMemcpy(tmp[2], sum_y.get(), 64 * 4, cudaMemcpyDeviceToHost);
 	if (debug)
-		cudaMemcpy(tmp3, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+		cudaMemcpy(tmp[3], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
-	sum_left_right_inplace(convolution_.get(), dimensions);
+	sum_left_top_inplace(convolution_.get(), dimensions);
 	cudaStreamSynchronize(0);
 	if (debug)
-		cudaMemcpy(tmp4, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+		cudaMemcpy(tmp[4], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	compute_numerator(sum_x.get(), sum_y.get(), convolution_.get(), dimensions);
 	sum_inplace_squared(selected_x.get(), dimensions);
 	sum_inplace_squared(selected_y.get(), dimensions);
 	cudaStreamSynchronize(0);
+	if (debug)
+		cudaMemcpy(tmp[5], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+	if (debug)
+		cudaMemcpy(tmp[6], selected_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	sum_squared_minus_square_sum(selected_x.get(), sum_x.get(), dimensions);
 	sum_squared_minus_square_sum(selected_y.get(), sum_y.get(), dimensions);
 	cudaStreamSynchronize(0);
+	if (debug)
+		cudaMemcpy(tmp[7], selected_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	correlation(convolution_.get(), selected_x.get(), selected_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-
-
 	if (debug)
-		cudaMemcpy(out, convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+		cudaMemcpy(tmp[8], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
+
+
 }
 
 
@@ -191,19 +194,15 @@ void Stabilization::insert_extremums()
 			uint max = 0;
 			gpu_extremums(convolution_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 			// x y: Coordinates of maximum of the correlation function
-			int x = (max + zone.width() / 2) % zone.width();
-			int y = (max + zone.height() / 2) / zone.width();
+			int x = max % zone.width();
+			int y = max / zone.width();
 			if (x > zone.width() / 2)
 				x -= zone.width();
 			if (y > zone.height() / 2)
 				y -= zone.height();
-			//shift_x = (shift_x + x + fd.width) % fd.width;
-			//shift_y = (shift_y + y + fd.height) % fd.height;
 
-			shift_x = x;
-			shift_y = y;
-
-			//std::cout << shift_x << ", " << shift_y << std::endl;
+			shift_x = -x;
+			shift_y = -y;
 		}
 	});
 }
@@ -214,7 +213,8 @@ void Stabilization::insert_stabilization()
 	// Stabilization
 	fn_vect_.push_back([=]()
 	{
-		//complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
+		if (!cd_.xy_stabilization_paused)
+			complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
 	});
 }
 
