@@ -115,7 +115,7 @@ void complex_to_argument(const cuComplex	*input,
 void rescale_float(const float	*input,
 				float			*output,
 				const uint		size,
-				cudaStream_t	stream = 0);
+				cudaStream_t	stream);
 
 /*! \brief Convert from big endian to little endian.
  * \param input The input data in big endian.

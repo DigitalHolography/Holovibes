@@ -221,7 +221,7 @@ namespace holovibes
 			const unsigned int height,
 			const gui::Rectangle& signal,
 			const gui::Rectangle& noise,
-			cudaStream_t stream = 0);
+			cudaStream_t stream);
 
 		/*! \see request_average_record
 		* \brief Call the average algorithm, store the result and count n
@@ -237,7 +237,7 @@ namespace holovibes
 			const unsigned int height,
 			const gui::Rectangle& signal,
 			const gui::Rectangle& noise,
-			cudaStream_t stream = 0);
+			cudaStream_t stream);
 
 		/*! \see request_average
 		* \brief For nsamples in input, reconstruct image,
@@ -267,13 +267,13 @@ namespace holovibes
 		/*! \brief This is the main part of the autofocus. It will copy
 		* the square area where autofocus is applied, call the evaluating function, and updates every value for next iteration.
 		* \param input buffer of float containing the image where autofocus is applied (gpu_float_buffer_) */
-		void autofocus_caller(float* input, cudaStream_t stream = 0);
+		void autofocus_caller(float* input, cudaStream_t stream);
 
 		/*! \brief Resetting the structure af_env_ for next use */
 		void autofocus_reset();
 
-		void record_float(float* float_output, cudaStream_t stream = 0);
-		void record_complex(cufftComplex* complex_output, cudaStream_t stream = 0);
+		void record_float(float* float_output, cudaStream_t stream);
+		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);
 		void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
 		void fps_count();
