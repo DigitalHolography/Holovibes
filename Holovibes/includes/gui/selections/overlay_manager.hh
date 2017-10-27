@@ -45,6 +45,8 @@ namespace holovibes
 
 			/*! \brief Call the press function of the current overlay. */
 			void press(QPoint pos);
+			/*! \brief Call the keyPress function of the current overlay. */
+			void keyPress(QPoint pos);
 			/*! \brief Call the move function of the current overlay. */
 			void move(QPoint pos);
 			/*! \brief Call the release function of the current overlay. */

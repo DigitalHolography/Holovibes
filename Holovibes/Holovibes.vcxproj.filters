@@ -275,6 +275,9 @@
     <ClCompile Include="includes\gui\selections\strip_overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\selections\slice_cross_overlay.cc">
+      <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -467,6 +470,9 @@
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\strip_overlay.hh">
+      <Filter>c++ includes\gui\selections</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\gui\selections\slice_cross_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
   </ItemGroup>

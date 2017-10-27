@@ -1320,7 +1320,6 @@ namespace holovibes
 					sliceXZ->setTitle("XZ view");
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
-					sliceXZ->setPIndex(compute_desc_.pindex.load());
 					sliceXZ->setCd(&compute_desc_);
 					
 					sliceYZ.reset(nullptr);
@@ -1333,7 +1332,6 @@ namespace holovibes
 					sliceYZ->setTitle("YZ view");
 					sliceYZ->setAngle(yzAngle);
 					sliceYZ->setFlip(yzFlip);
-					sliceYZ->setPIndex(compute_desc_.pindex.load());
 					sliceYZ->setCd(&compute_desc_);
 
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
@@ -1598,12 +1596,6 @@ namespace holovibes
 				if (value < static_cast<int>(compute_desc_.nsamples.load()))
 				{
 					compute_desc_.pindex.exchange(value);
-					
-					if (compute_desc_.stft_view_enabled.load())
-					{
-						sliceXZ->setPIndex(compute_desc_.pindex.load());
-						sliceYZ->setPIndex(compute_desc_.pindex.load());
-					}
 					notify();
 				}
 				else
@@ -2106,6 +2098,7 @@ namespace holovibes
 					set_contrast_min(findChild<QDoubleSpinBox *>("ContrastMinDoubleSpinBox")->value());
 					set_contrast_max(findChild<QDoubleSpinBox *>("ContrastMaxDoubleSpinBox")->value());
 				}
+				sliceYZ->getOverlayManager().printVector();
 				notify();
 				//set_auto_contrast();
 				pipe_refresh();

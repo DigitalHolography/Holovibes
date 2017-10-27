@@ -63,7 +63,9 @@ namespace holovibes
 			virtual void draw() = 0;
 
 			/*! \brief Called when the user press the mouse button */
-			void press(QPoint pos);
+			virtual void press(QPoint pos);
+			/*! \brief Called when the user press a key */
+			virtual void keyPress(QPoint pos);
 			/*! \brief Called when the user moves the mouse */
 			virtual void move(QPoint pos) = 0;
 			/*! \brief Called when the user release the mouse button */

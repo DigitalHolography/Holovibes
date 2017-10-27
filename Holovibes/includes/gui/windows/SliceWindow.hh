@@ -25,18 +25,14 @@ namespace holovibes
 		public:
 			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
-			void	setPIndex(ushort pId);
 			void	create_strip_overlays();
 			
 		protected:
 			cudaArray_t				cuArray;
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
-			ushort		pIndex;
 			MainWindow *main_window_;
-			QPoint last_clicked;
 			QPoint mouse_position;
-			bool is_pslice_locked = true;
 			
 			virtual void	initShaders();
 			virtual void	initializeGL();

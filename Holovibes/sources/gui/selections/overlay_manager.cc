@@ -18,6 +18,7 @@
 #include "noise_overlay.hh"
 #include "signal_overlay.hh"
 #include "cross_overlay.hh"
+#include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
 #include "strip_overlay.hh"
 
@@ -82,6 +83,13 @@ namespace holovibes
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
 		}
 
+		template <>
+		void OverlayManager::create_overlay<SliceCross>()
+		{
+			if (!set_current(SliceCross))
+				create_overlay(std::make_shared<SliceCrossOverlay>(parent_));
+		}
+
 		void OverlayManager::create_strip_overlay(Component& component,
 			std::atomic<ushort>& nsamples,
 			Color color)
@@ -132,6 +140,12 @@ namespace holovibes
 		{
 			if (current_overlay_)
 				current_overlay_->press(pos);
+		}
+
+		void OverlayManager::keyPress(QPoint pos)
+		{
+			if (current_overlay_)
+				current_overlay_->keyPress(pos);
 		}
 
 		void OverlayManager::move(QPoint pos)
@@ -199,7 +213,7 @@ namespace holovibes
 				break;
 			case SliceXZ:
 			case SliceYZ:
-				create_overlay<Cross>();
+				create_overlay<SliceCross>();
 				break;
 			default:
 				break;

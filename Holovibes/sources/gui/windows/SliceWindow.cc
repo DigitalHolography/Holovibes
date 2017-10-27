@@ -22,7 +22,6 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
-			pIndex(0),
 			main_window_(main_window)
 		{
 		}
@@ -31,18 +30,6 @@ namespace holovibes
 		{
 			if (cuSurface) cudaDestroySurfaceObject(cuSurface);
 			if (cuArray) cudaFreeArray(cuArray);
-		}
-
-		void	SliceWindow::setPIndex(ushort pId)
-		{
-			pIndex = pId + 1;
-			if (Program)
-			{
-				makeCurrent();
-				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
-				QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
-				overlay_manager_.setCrossBuffer(p, s);
-			}
 		}
 
 		void	SliceWindow::create_strip_overlays()
@@ -171,8 +158,6 @@ namespace holovibes
 			Program->release();
 			Vao.release();
 
-			setPIndex(pIndex - 1);
-
 			glViewport(0, 0, width(), height());
 			startTimer(1000 / Cd->display_rate.load());
 		}
@@ -203,20 +188,6 @@ namespace holovibes
 			Program->release();
 			Vao.release();
 
-			QSize s = (kView == SliceXZ) ? QSize(Fd.width, Fd.height) : QSize(Fd.height, Fd.width);
-			if (Cd->p_accu_enabled)
-			{
-				uint pmin = Cd->p_accu_min_level;
-				uint pmax = Cd->p_accu_max_level;
-				QPoint p = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
-				QPoint p2 = (kView == SliceXZ) ? QPoint(0, pmax) : QPoint(pmax, 0);
-				overlay_manager_.setDoubleCrossBuffer(p, p2, s);
-			}
-			else
-			{
-				QPoint p = (kView == SliceXZ) ? QPoint(0, pIndex) : QPoint(pIndex, 0);
-				overlay_manager_.setCrossBuffer(p, s);
-			}
 			overlay_manager_.draw();
 
 		}
@@ -226,22 +197,11 @@ namespace holovibes
 
 		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
 		{
-			if (Cd->img_type.load() == Composite)
-				return;
 			mouse_position = e->pos();
 			uint depth = (kView == SliceXZ) ? this->height() : this->width();
 			mouse_position.setX((mouse_position.x() * Cd->nsamples) / depth);
 			mouse_position.setY((mouse_position.y() * Cd->nsamples) / depth);
-			if (!is_pslice_locked && Cd)
-			{
-				uint p = (kView == SliceXZ) ? mouse_position.y() : mouse_position.x();
-				uint last_p = (kView == SliceXZ) ? last_clicked.y() : last_clicked.x();
-				Cd->pindex = p;
-				Cd->p_accu_max_level = std::max(p, last_p);
-				Cd->p_accu_min_level = std::min(p, last_p);
-				Cd->notify_observers();
-				main_window_->set_auto_contrast();
-			}
+			overlay_manager_.move(mouse_position);
 		}
 
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
@@ -262,14 +222,8 @@ namespace holovibes
 
 		void	SliceWindow::keyPressEvent(QKeyEvent* e)
 		{
-			if (e->key() == Qt::Key::Key_Space && Cd->img_type.load() != Composite)
-			{
-				if (!is_pslice_locked && Cd)
-					last_clicked = mouse_position;
-				is_pslice_locked = !is_pslice_locked;
-				makeCurrent();
-				setCursor(is_pslice_locked ? Qt::ArrowCursor : Qt::CrossCursor);
-			}
+			if (e->key() == Qt::Key::Key_Space)
+				overlay_manager_.keyPress(mouse_position);
 		}
 	}
 }

@@ -73,6 +73,10 @@ namespace holovibes
 			zone_.setBottomRight(zone_.topLeft());
 		}
 
+		void Overlay::keyPress(QPoint pos)
+		{
+		}
+
 		void Overlay::initProgram()
 		{
 			initializeOpenGLFunctions();
