@@ -844,33 +844,6 @@ namespace holovibes
 				compute_desc_.img_acc_slice_xz_enabled.load() ? compute_desc_.img_acc_slice_xz_level.load() : 1,
 				compute_desc_.img_acc_slice_yz_enabled.load() ? compute_desc_.img_acc_slice_yz_level.load() : 1,
 				compute_desc_.img_type.load());
-
-			if (autocontrast_requested_.load())
-			{
-				if (compute_desc_.stft_view_enabled.load())
-				{
-					if (compute_desc_.current_window.load() == WindowKind::XZview)
-						autocontrast_caller(
-							static_cast<float *>(gpu_float_cut_xz_),
-							static_cast<uint>(width * compute_desc_.nsamples.load()),
-							static_cast<uint>(width * compute_desc_.cuts_contrast_p_offset.load()),
-							std::ref(compute_desc_),
-							std::ref(compute_desc_.contrast_min_slice_xz),
-							std::ref(compute_desc_.contrast_max_slice_xz),
-							static_cast<cudaStream_t>(0));
-					else if (compute_desc_.current_window.load() == WindowKind::YZview)
-						autocontrast_caller(
-							static_cast<float *>(gpu_float_cut_yz_),
-							width * compute_desc_.nsamples.load(),
-							width * compute_desc_.cuts_contrast_p_offset.load(),
-							std::ref(compute_desc_),
-							std::ref(compute_desc_.contrast_min_slice_yz),
-							std::ref(compute_desc_.contrast_max_slice_yz),
-							static_cast<cudaStream_t>(0));
-				}
-				//autocontrast_requested_.exchange(false);
-				request_refresh();
-			}
 		}
 		stft_handle = true;
 	}
