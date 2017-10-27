@@ -17,6 +17,7 @@ namespace holovibes
 	using	LockGuard = std::lock_guard<std::mutex>;
 
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
+		stabilization_zone(512, 512),	//temporary
 		algorithm(Algorithm::None),
 		compute_mode(Computation::Stop),
 		nsamples(1),
@@ -221,5 +222,16 @@ namespace holovibes
 		{
 			stft_roi_zone = rect;
 		}
+	}
+	gui::Rectangle ComputeDescriptor::getStabilizationZone() const
+	{
+		LockGuard g(mutex_);
+		return stabilization_zone;
+	}
+
+	void ComputeDescriptor::setStabilizationZone(const gui::Rectangle& rect)
+	{
+		LockGuard g(mutex_);
+		stabilization_zone = rect;
 	}
 }

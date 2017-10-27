@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
@@ -180,6 +180,7 @@ namespace holovibes
 			{
 				findChild<GroupBox *>("ImageRenderingGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ViewGroupBox")->setEnabled(false);
+				findChild<GroupBox *>("MotionFocusGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(false);
 				findChild<GroupBox *>("ImportGroupBox")->setEnabled(true);
@@ -199,6 +200,7 @@ namespace holovibes
 				findChild<GroupBox *>("PostProcessingGroupBox")->setEnabled(true);
 				findChild<GroupBox *>("RecordGroupBox")->setEnabled(true);
 			}
+			findChild<GroupBox *>("MotionFocusGroupBox")->setEnabled(true);
 
 			findChild<QLineEdit *>("ROIOutputPathLineEdit")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QToolButton *>("ROIOutputToolButton")->setEnabled(!is_direct && compute_desc_.average_enabled.load());
@@ -907,7 +909,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
 			}
@@ -1851,6 +1853,15 @@ namespace holovibes
 			}
 		}
 
+		void MainWindow::set_xy_stabilization_enable(bool value)
+		{
+			compute_desc_.xy_stabilization_enabled.exchange(value);
+			pipe_refresh();
+			while (holovibes_.get_pipe()->get_refresh_request())
+				continue;
+			set_auto_contrast();
+		}
+
 		void MainWindow::set_import_pixel_size(const double value)
 		{
 			compute_desc_.pixel_size.exchange(value);
@@ -1885,6 +1896,14 @@ namespace holovibes
 				}
 			}
 		}
+
+		void MainWindow::set_stabilization_area()
+		{
+			auto button = findChild<QPushButton *>("StabilizationAreaButton");
+			// If current overlay is stabilization, disable it
+			mainDisplay->getOverlayManager().create_overlay<Stabilization>();
+		}
+
 		#pragma endregion
 		/* ------------ */
 		#pragma region Texture
@@ -1950,6 +1969,15 @@ namespace holovibes
 				mainDisplay->getOverlayManager().create_overlay<Autofocus>();
 				notify();
 			}
+		}
+
+		void MainWindow::set_xy_stabilization_show_convolution(bool value)
+		{
+			compute_desc_.xy_stabilization_show_convolution.exchange(value);
+			pipe_refresh();
+			while (holovibes_.get_pipe()->get_refresh_request())
+				continue;
+			set_auto_contrast();
 		}
 
 		void MainWindow::set_z_min(const double value)

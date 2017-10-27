@@ -13,6 +13,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
+#include "cuda_tools/unique_ptr.hh"
 
 __global__
 void kernel_apply_lens(cuComplex		*input,
@@ -31,7 +32,6 @@ void kernel_apply_lens(cuComplex		*input,
 		//index += blockDim.x * gridDim.x;
 	}
 }
-
 static __global__
 void kernel_shift_corners(float		*input,
 						const uint	size_x,
@@ -107,11 +107,8 @@ void kernel_complex_to_modulus(const cuComplex	*input,
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	//while (index < size)
-	{
+	if (index < size)
 		output[index] = hypotf(input[index].x, input[index].y);
-		//index += blockDim.x * gridDim.x;
-	}
 }
 
 void demodulation(cuComplex			*input,
@@ -123,44 +120,85 @@ void demodulation(cuComplex			*input,
 }
 
 
-void convolution_operator(	const cuComplex		*x,
-							const cuComplex		*k,
+void convolution_float(		const float			*a,
+							const float			*b,
 							float				*out,
 							const uint			size,
-							const cufftHandle	plan2d_x,
-							const cufftHandle	plan2d_k,
+							const cufftHandle	plan2d_a,
+							const cufftHandle	plan2d_b,
+							const cufftHandle	plan2d_inverse,
 							cudaStream_t		stream)
 {
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
 
-	/* The convolution operator is used only when using autofocus feature.
-	 * It could be optimized but it's useless since it will be used occasionnally. */
-	cuComplex *tmp_x;
-	cuComplex *tmp_k;
-	uint	complex_size = size * sizeof(cuComplex);
-	if (cudaMalloc<cuComplex>(&tmp_x, complex_size) != cudaSuccess)
+	/* The convolution operator could be optimized. */
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
+	if (!tmp_a || !tmp_b)
 		return;
-	if (cudaMalloc<cuComplex>(&tmp_k, complex_size) != cudaSuccess)
+	
+	cufftExecR2C(plan2d_a, const_cast<float*>(a), tmp_a.get());
+	cufftExecR2C(plan2d_b, const_cast<float*>(b), tmp_b.get());
+	
+
+	cudaStreamSynchronize(0);
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
+
+	cudaStreamSynchronize(stream);
+
+	cufftExecC2R(plan2d_inverse, tmp_a.get(), out);
+
+	cudaStreamSynchronize(0);
+
+	//kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, out, size);
+	//cudaStreamSynchronize(stream);
+}
+
+
+void convolution_operator(	const cuComplex		*a,
+							const cuComplex		*b,
+							float				*out,
+							const uint			size,
+							const cufftHandle	plan2d_a,
+							const cufftHandle	plan2d_b,
+							cudaStream_t		stream)
+{
+	uint	threads = get_max_threads_1d();
+	uint	blocks = map_blocks_to_problem(size, threads);
+
+	/* The convolution operator could be optimized. */
+
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
+	if (!tmp_a || !tmp_b)
 		return;
+	
+	cufftExecC2C(plan2d_a, const_cast<cuComplex*>(a), tmp_a.get(), CUFFT_FORWARD);
+	cufftExecC2C(plan2d_b, const_cast<cuComplex*>(b), tmp_b.get(), CUFFT_FORWARD);
+	
+    /*float* abs_a = (float*)malloc(size * sizeof(float));
+	float* abs_b = (float*)malloc(size * sizeof(float));
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a, abs_a, size);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_b, abs_b, size);
+	cufftExecR2C(plan2d_a, abs_a, tmp_a);
+	cufftExecR2C(plan2d_b, abs_b, tmp_b);
 
-	cufftExecC2C(plan2d_x, const_cast<cuComplex*>(x), tmp_x, CUFFT_FORWARD);
-	cufftExecC2C(plan2d_k, const_cast<cuComplex*>(k), tmp_k, CUFFT_FORWARD);
+	free(abs_a);
+	free(abs_b);*/
+
+	cudaStreamSynchronize(stream);
+	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
 
 	cudaStreamSynchronize(stream);
 
-	kernel_multiply_frames_complex << <blocks, threads, 0, stream >> >(tmp_x, tmp_k, tmp_x, size);
+	cufftExecC2C(plan2d_a, tmp_a.get(), tmp_a.get(), CUFFT_INVERSE);
 
 	cudaStreamSynchronize(stream);
 
-	cufftExecC2C(plan2d_x, tmp_x, tmp_x, CUFFT_INVERSE);
+	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a.get(), out, size);
 
 	cudaStreamSynchronize(stream);
-
-	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(tmp_x, out, size);
-
-	cudaFree(tmp_x);
-	cudaFree(tmp_k);
 }
 
 void frame_memcpy(float				*input,
@@ -291,7 +329,7 @@ void phase_increase(const cuComplex			*cur,
 void unwrap_2d(	float*						input,
 				const cufftHandle			plan2d,
 				UnwrappingResources_2d*		res,
-				FrameDescriptor&	fd,
+				const FrameDescriptor&	fd,
 				float*						output,
 				cudaStream_t				stream)
 {
@@ -331,7 +369,7 @@ void unwrap_2d(	float*						input,
 
 void gradient_unwrap_2d(const cufftHandle			plan2d,
 						UnwrappingResources_2d*		res,
-						FrameDescriptor&			fd,
+						const FrameDescriptor&			fd,
 						cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
@@ -355,7 +393,7 @@ void gradient_unwrap_2d(const cufftHandle			plan2d,
 
 void eq_unwrap_2d(const cufftHandle			plan2d,
 				UnwrappingResources_2d*		res,
-				FrameDescriptor&			fd,
+				const FrameDescriptor&			fd,
 				cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
@@ -381,7 +419,7 @@ void eq_unwrap_2d(const cufftHandle			plan2d,
 
 void phi_unwrap_2d(	const cufftHandle			plan2d,
 					UnwrappingResources_2d*		res,
-					FrameDescriptor&			fd,
+					const FrameDescriptor&			fd,
 					float*						output,
 					cudaStream_t				stream)
 {
@@ -449,4 +487,47 @@ void circ_shift_float(float		*input,
 		output[(width * shift_y) + shift_x] = input[index];
 		//index += blockDim.x * gridDim.x;
 	}
+}
+
+__global__
+void kernel_translation(float		*input,
+						float		*output,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y)
+{
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < width * height)
+	{
+		const int new_x = index % width;
+		const int new_y = index / width;
+		const int old_x = (new_x - shift_x + width) % width;
+		const int old_y = (new_y - shift_y + height) % height;
+		output[index] = input[old_y * width + old_x];
+	}
+}
+
+void complex_translation(float		*frame,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y)
+{
+	// We have to use a temporary buffer to avoid overwriting pixels that haven't moved yet
+	float *tmp_buffer;
+	if (cudaMalloc(&tmp_buffer, width * height * sizeof(float)) != cudaSuccess)
+	{
+		std::cout << "Can't callocate buffer for repositioning" << std::endl;
+		return;
+	}
+
+
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(width * height, threads);
+
+	kernel_translation << <blocks, threads, 0, 0 >> > (frame, tmp_buffer, width, height, shift_x, shift_y);
+	cudaStreamSynchronize(0);
+	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
+	cudaFree(tmp_buffer);
 }

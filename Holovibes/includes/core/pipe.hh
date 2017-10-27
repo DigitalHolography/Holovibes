@@ -16,7 +16,9 @@
  * in a single container. */
 #pragma once
 
+# include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
+# include "stabilization.hh"
 
 namespace holovibes
 {
@@ -90,6 +92,7 @@ namespace holovibes
 		void			*gpu_output_buffer_;
 		cufftComplex	*gpu_input_frame_ptr_;
 
+		compute::Stabilization stabilization_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

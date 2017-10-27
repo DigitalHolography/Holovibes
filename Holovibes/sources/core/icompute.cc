@@ -104,8 +104,8 @@ namespace holovibes
 
 		cufftPlan2d(
 			&plan2d_,
-			input_.get_frame_desc().width,
 			input_.get_frame_desc().height,
+			input_.get_frame_desc().width,
 			CUFFT_C2C);
 
 		/* CUFFT plan1d temporal*/
@@ -152,14 +152,6 @@ namespace holovibes
 
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		new_fd.depth = 4.f;
-		if (compute_desc_.img_acc_slice_xy_enabled.load())
-		{
-			if (compute_desc_.img_type == ImgType::Composite)
-				new_fd.depth = 12.f;
-			gpu_img_acc_xy_ = new Queue(new_fd, compute_desc_.img_acc_slice_xy_level.load(), "AccumulationQueueXY");
-			if (!gpu_img_acc_xy_)
-				std::cerr << "Error: can't allocate queue" << std::endl;
-		}
 		if (compute_desc_.img_acc_slice_yz_enabled.load())
 		{
 			auto fd_yz = new_fd;
@@ -243,7 +235,6 @@ namespace holovibes
 		cudaFree(gpu_kernel_buffer_);
 
 		/* gpu_img_acc */
-		delete gpu_img_acc_xy_;
 		delete gpu_img_acc_yz_;
 		delete gpu_img_acc_xz_;
 

@@ -152,6 +152,7 @@
     <ClInclude Include="cuda_includes\filter2D.cuh" />
     <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
+    <ClInclude Include="cuda_includes\stabilization.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />
     <ClInclude Include="cuda_includes\texture_update.cuh" />
     <ClInclude Include="cuda_includes\tools.cuh" />
@@ -167,6 +168,7 @@
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
     <ClInclude Include="includes\compute\compute_descriptor.hh" />
+    <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
     <ClInclude Include="includes\config.hh" />
     <ClInclude Include="includes\core\holovibes.hh" />
@@ -175,6 +177,8 @@
     <ClInclude Include="includes\core\pipeline.hh" />
     <ClInclude Include="includes\custom_exception.hh" />
     <ClInclude Include="includes\gpib_dll.hh" />
+    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh" />
+    <ClInclude Include="stabilization_overlay.hh" />
     <ClInclude Include="sources\gui\selections\slice_cross_overlay.hh" />
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -273,6 +277,8 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
+    <ClInclude Include="includes\tools\cuda_tools\array.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\unique_ptr.hh" />
     <ClInclude Include="includes\tools\hardware_limits.hh" />
     <CustomBuild Include="includes\tools\info_manager.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -358,6 +364,7 @@
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />
     <ClCompile Include="sources\compute\compute_descriptor.cc" />
+    <ClCompile Include="sources\compute\stabilization.cc" />
     <ClCompile Include="sources\config.cc" />
     <ClCompile Include="sources\core\holovibes.cc" />
     <ClCompile Include="sources\core\icompute.cc" />
@@ -374,6 +381,7 @@
     <ClCompile Include="sources\gui\selections\Rectangle.cc" />
     <ClCompile Include="sources\gui\selections\rect_overlay.cc" />
     <ClCompile Include="sources\gui\selections\signal_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\stabilization_overlay.cc" />
     <ClCompile Include="sources\gui\selections\slice_cross_overlay.cc" />
     <ClCompile Include="sources\gui\selections\zoom_overlay.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
@@ -454,6 +462,7 @@
     <CudaCompile Include="cuda_sources\filter2D.cu" />
     <CudaCompile Include="cuda_sources\flowgraphy.cu" />
     <CudaCompile Include="cuda_sources\preprocessing.cu" />
+    <CudaCompile Include="cuda_sources\stabilization.cu" />
     <CudaCompile Include="cuda_sources\stft.cu" />
     <CudaCompile Include="cuda_sources\texture_update.cu" />
     <CudaCompile Include="cuda_sources\tools.cu" />
@@ -464,6 +473,7 @@
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="shaders\fragment.3d.glsl" />
     <None Include="shaders\fragment.color.glsl" />
     <None Include="shaders\fragment.tex.glsl" />

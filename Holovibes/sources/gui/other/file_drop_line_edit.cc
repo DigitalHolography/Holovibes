@@ -10,44 +10,19 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include <ostream>
-#include <qrect.h>
+#include "file_drop_line_edit.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
+		FileDropLineEdit::FileDropLineEdit()
 		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Stabilization,
-			Cross,
-			SliceCross,
-			Strip
-		};
-		class Rectangle : public QRect
+			this->setText("Constructor");
+		}
+		void FileDropLineEdit::dropEvent(QDropEvent *event)
 		{
-		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
-		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
+			setText("Dropp !");
+		}
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

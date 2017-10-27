@@ -12,42 +12,21 @@
 
 #pragma once
 
-#include <ostream>
-#include <qrect.h>
+# include <QLineEdit>
 
 namespace holovibes
 {
 	namespace gui
 	{
-		enum KindOfOverlay
+		/*! \brief QLineEdit overload, to accept file drop over file path LineEdit */
+		class FileDropLineEdit : public QLineEdit
 		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Stabilization,
-			Cross,
-			SliceCross,
-			Strip
-		};
-		class Rectangle : public QRect
-		{
+			Q_OBJECT
 		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
+			FileDropLineEdit();
+		protected:
+			virtual void dropEvent(QDropEvent *event);
+
 		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

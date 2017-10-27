@@ -97,6 +97,15 @@ void convolution_operator(const cuComplex*	x,
 						const cufftHandle	plan2d_k,
 						cudaStream_t		stream = 0);
 
+void convolution_float(const float			*a,
+						const float			*b,
+						float				*out,
+						const uint			size,
+						const cufftHandle	plan2d_a,
+						const cufftHandle	plan2d_b,
+						const cufftHandle	plan2d_invert,
+						cudaStream_t		stream = 0);
+
 /*! \brief Extract a part of the input image to the output.
 *
 * \param input The full input image
@@ -143,26 +152,26 @@ void phase_increase(const cuComplex*		cur,
 void unwrap_2d(float*					input,
 			const cufftHandle			plan2d,
 			UnwrappingResources_2d*		res,
-			FrameDescriptor&			fd,
+			const FrameDescriptor&		fd,
 			float*						output,
-			cudaStream_t				stream);
+			cudaStream_t				stream = 0);
 
 /*! Gradient calculation for unwrap_2d calculations*/
 void gradient_unwrap_2d(const cufftHandle		plan2d,
 						UnwrappingResources_2d*	res,
-						FrameDescriptor&		fd,
+						const FrameDescriptor&		fd,
 						cudaStream_t			stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
 void eq_unwrap_2d(const cufftHandle		plan2d,
 				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				const FrameDescriptor&		fd,
 				cudaStream_t			stream);
 
 /*! Phi calculation for unwrap_2d calculations*/
 void phi_unwrap_2d(const cufftHandle	plan2d,
 				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				const FrameDescriptor&		fd,
 				float*					output,
 				cudaStream_t			stream);
 
@@ -179,8 +188,8 @@ void circ_shift(cuComplex*	input,
 				const uint	size);
 
 /*  \brief Circularly shifts the elements in input given a point(i,j)
-**	given float output & inputs.
-*/
+ *	given float output & inputs.
+ */
 __global__
 void circ_shift_float(float*	input,
 					float*		output,
@@ -189,3 +198,12 @@ void circ_shift_float(float*	input,
 					const uint	width,
 					const uint	height,
 					const uint	size);
+
+/* \brief Translates the image by shift_x and shift_y
+ *
+ */
+void complex_translation(float		*frame,
+						uint		width,
+						uint		height,
+						int			shift_x,
+						int			shift_y);

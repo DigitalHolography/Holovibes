@@ -171,6 +171,8 @@ namespace holovibes
 			void set_unwrapping_2d(const bool value);
 			void set_accumulation(bool value);
 			void set_accumulation_level(int value);
+			void set_xy_stabilization_enable(bool value);
+			void set_xy_stabilization_show_convolution(bool value);
 			void set_z_min(const double value);
 			void set_z_max(const double value);
 			void set_z_iter(const int value);
@@ -188,6 +190,7 @@ namespace holovibes
 			void set_p_vibro(int value);
 			void set_q_vibro(int value);
 			void set_average_mode(bool value);
+			void set_stabilization_area();
 			void activeSignalZone();
 			void activeNoiseZone();
 			void set_average_graphic();

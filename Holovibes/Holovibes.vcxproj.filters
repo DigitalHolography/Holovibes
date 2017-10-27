@@ -93,6 +93,9 @@
     <Filter Include="cuda sources\tools">
       <UniqueIdentifier>{32549d3d-7a61-4ec8-b18b-18e04cf1b3f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c++ includes\tools\cuda_tools">
+      <UniqueIdentifier>{5f0ae4f7-914c-4a7a-84db-5c196c648d98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
@@ -272,6 +275,12 @@
     <ClCompile Include="sources\gui\selections\zoom_overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\stabilization.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\stabilization_overlay.cc">
+      <Filter>c++ sources\gui\selections</Filter>
+    </ClCompile>
     <ClCompile Include="includes\gui\selections\strip_overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
@@ -445,6 +454,12 @@
     <ClInclude Include="cuda_includes\composite.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="includes\compute\stabilization.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\stabilization.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
     <ClInclude Include="includes\gui\selections\autofocus_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
@@ -467,6 +482,18 @@
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\zoom_overlay.hh">
+      <Filter>c++ includes\gui\selections</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\unique_ptr.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\array.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="stabilization_overlay.hh">
+      <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\strip_overlay.hh">
@@ -576,6 +603,9 @@
     <CudaCompile Include="cuda_sources\composite.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
+    <CudaCompile Include="cuda_sources\stabilization.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment.color.glsl">
@@ -599,5 +629,6 @@
     <None Include="shaders\fragment.3d.glsl">
       <Filter>shaders</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
