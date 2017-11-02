@@ -79,15 +79,12 @@ namespace holovibes
 			Rectangle texZone = getTexZone(frameSide);
 
 			// handle Filter2D
-			if (parent_->getKindOfView() == Hologram)
+			auto window = dynamic_cast<HoloWindow *>(parent_);
+			if (window)
 			{
-				auto window = dynamic_cast<HoloWindow *>(parent_);
-				if (window)
-				{
-					window->getCd()->stftRoiZone(texZone, AccessMode::Set);
-					window->getPipe()->request_filter2D_roi_update();
-					window->getPipe()->request_filter2D_roi_end();
-				}
+				window->getCd()->stftRoiZone(texZone, AccessMode::Set);
+				window->getPipe()->request_filter2D_roi_update();
+				window->getPipe()->request_filter2D_roi_end();
 			}
 
 			active_ = false;

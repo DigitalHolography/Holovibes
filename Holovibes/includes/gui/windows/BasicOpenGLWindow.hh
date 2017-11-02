@@ -72,6 +72,9 @@ namespace holovibes
 			ComputeDescriptor		*Cd;
 			const FrameDescriptor&	Fd;
 			const KindOfView		kView;
+			bool					fullScreen_;
+
+			OverlayManager	overlay_manager_;
 
 			glm::vec4	Translate;
 			float		Scale;
@@ -90,9 +93,6 @@ namespace holovibes
 			QOpenGLVertexArrayObject	Vao;
 			GLuint	Vbo, Ebo, Pbo;
 			GLuint	Tex;
-
-			OverlayManager	overlay_manager_;
-			static std::atomic<bool>	slicesAreLocked;
 
 			// Virtual Pure Functions ---
 			virtual void initShaders() = 0;

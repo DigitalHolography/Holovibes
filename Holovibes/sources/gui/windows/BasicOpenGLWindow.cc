@@ -116,11 +116,13 @@ namespace holovibes
 				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
 				winState = Qt::WindowFullScreen;
 				setWindowState(winState);
+				fullScreen_ = true;
 				break;
 			case Qt::Key::Key_Escape:
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
+				fullScreen_ = false;
 				break;
 			case Qt::Key::Key_8:
 				Translate[1] -= 0.1f / Scale;

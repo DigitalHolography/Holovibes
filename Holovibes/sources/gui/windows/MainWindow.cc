@@ -3001,8 +3001,8 @@ namespace holovibes
 
 		void MainWindow::set_maximums(FrameDescriptor fd)
 		{
-			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMaximum(fd.width);
-			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMaximum(fd.height);
+			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMaximum(fd.width - 1);
+			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMaximum(fd.height - 1);
 		}
 
 		void MainWindow::import_start_spinbox_update()

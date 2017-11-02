@@ -236,7 +236,7 @@ namespace holovibes
 		{
 			if (e->button() == Qt::LeftButton)
 				overlay_manager_.release(Fd.width);
-			else if (e->button() == Qt::RightButton && overlay_manager_.getKind() == KindOfOverlay::Zoom)
+			else if (e->button() == Qt::RightButton)
 				resetTransform();
 		}
 
