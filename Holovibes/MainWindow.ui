@@ -9,12 +9,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1550</width>
+    <width>1620</width>
     <height>510</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+   <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -42,7 +42,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <property name="sizeConstraint">
-     <enum>QLayout::SetMaximumSize</enum>
+     <enum>QLayout::SetNoConstraint</enum>
     </property>
     <property name="leftMargin">
      <number>1</number>
@@ -60,7 +60,7 @@
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>1</number>
       </property>
@@ -73,7 +73,7 @@
       <item>
        <widget class="gui::GroupBox" name="ImageRenderingGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -88,6 +88,12 @@
          <size>
           <width>185</width>
           <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>185</width>
+          <height>0</height>
          </size>
         </property>
         <property name="font">
@@ -110,6 +116,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_12">
          <property name="spacing">
           <number>5</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>2</number>
@@ -529,10 +538,16 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
@@ -542,7 +557,7 @@
         </property>
         <property name="baseSize">
          <size>
-          <width>190</width>
+          <width>210</width>
           <height>0</height>
          </size>
         </property>
@@ -1133,16 +1148,37 @@
       </item>
       <item>
        <widget class="gui::GroupBox" name="MotionFocusGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>205</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>205</width>
           <height>16777215</height>
          </size>
         </property>
+        <property name="baseSize">
+         <size>
+          <width>205</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="title">
          <string>Motion + Focus</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_15">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
          <property name="leftMargin">
           <number>2</number>
          </property>
@@ -1292,15 +1328,27 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
+         </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>210</width>
           <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
          </size>
         </property>
         <property name="font">
@@ -1573,7 +1621,7 @@
       <item>
        <widget class="gui::GroupBox" name="PostProcessingGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -1592,7 +1640,7 @@
         </property>
         <property name="baseSize">
          <size>
-          <width>0</width>
+          <width>185</width>
           <height>0</height>
          </size>
         </property>
@@ -2007,7 +2055,7 @@
       <item>
        <widget class="gui::GroupBox" name="RecordGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -2045,6 +2093,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_10">
          <property name="spacing">
           <number>4</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>2</number>
@@ -2290,7 +2341,7 @@
       <item>
        <widget class="gui::GroupBox" name="ImportGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -2305,6 +2356,12 @@
          <size>
           <width>184</width>
           <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>184</width>
+          <height>0</height>
          </size>
         </property>
         <property name="toolTip">
@@ -2322,6 +2379,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_6">
          <property name="spacing">
           <number>2</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
          </property>
          <property name="leftMargin">
           <number>2</number>
@@ -2732,14 +2792,20 @@
       <item>
        <widget class="gui::GroupBox" name="InfoGroupBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>2</horstretch>
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>250</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="baseSize">
          <size>
-          <width>0</width>
+          <width>200</width>
           <height>0</height>
          </size>
         </property>
@@ -2837,7 +2903,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1550</width>
+     <width>1620</width>
      <height>22</height>
     </rect>
    </property>
@@ -2885,6 +2951,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionImage_rendering"/>
     <addaction name="actionView"/>
+    <addaction name="actionMotionFocus"/>
     <addaction name="actionSpecial"/>
     <addaction name="actionRecord"/>
     <addaction name="actionImport"/>
@@ -3136,6 +3203,20 @@ p, li { white-space: pre-wrap; }
   <action name="actionPhotonFocus">
    <property name="text">
     <string>PHOTON FOCUS MV1-D1312IE-100-G2-12</string>
+   </property>
+  </action>
+  <action name="actionMotionFocus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Motion + Focus</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+M</string>
    </property>
   </action>
  </widget>
@@ -5143,6 +5224,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>573</x>
      <y>513</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMotionFocus</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>layout_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>784</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMotionFocus</sender>
+   <signal>changed()</signal>
+   <receiver>MotionFocusGroupBox</receiver>
+   <slot>ShowOrHide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>501</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>

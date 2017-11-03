@@ -457,23 +457,9 @@ namespace holovibes
 
 		void MainWindow::layout_toggled()
 		{
-			uint childCount = 0;
-			std::vector<GroupBox *> v;
-
-			v.push_back(findChild<GroupBox *>("ImageRenderingGroupBox"));
-			v.push_back(findChild<GroupBox *>("ViewGroupBox"));
-			v.push_back(findChild<GroupBox *>("PostProcessingGroupBox"));
-			v.push_back(findChild<GroupBox *>("RecordGroupBox"));
-			v.push_back(findChild<GroupBox *>("ImportGroupBox"));
-			v.push_back(findChild<GroupBox *>("InfoGroupBox"));
-
-			for each (GroupBox *var in v)
-				childCount += !var->isHidden();
-
-			if (childCount > 0)
-				resize(QSize(childCount * 195, 425));
-			else
-				resize(QSize(195, 60));
+			// Resizing to original size, then adjust it to fit the groupboxes
+			resize(baseSize());
+			adjustSize();
 		}
 
 		void MainWindow::display_error(const std::string msg)
@@ -1164,6 +1150,7 @@ namespace holovibes
 						set_auto_contrast_cuts();
 				}
 				last_img_type_ = value;
+				layout_toggled();
 
 				set_auto_contrast();
 				notify();
