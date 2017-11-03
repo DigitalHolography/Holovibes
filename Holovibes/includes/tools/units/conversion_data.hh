@@ -16,15 +16,23 @@ namespace holovibes
 {
 	namespace units
 	{
+		/*! \brief Encapsulates the conversion from a unit to another
+		 */
 		class ConversionData
 		{
 		public:
+			/*! \brief Constructs an object with the data needed to convert, to be modified
+			 */
 			ConversionData(const int& window_size, const int& fd_size);
 
+			/* \brief Converts a unit type into another
+			 * {*/
 			float window_size_to_opengl(int val) const;
 			float fd_to_opengl(int val) const;
 			int opengl_to_window_size(float val) const;
 			int opengl_to_fd(float val) const;
+			/* }
+			 */
 
 		protected:
 			const int&	window_size_;

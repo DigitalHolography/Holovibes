@@ -23,6 +23,8 @@ namespace holovibes
 	namespace units
 	{
 
+		/*! \brief A point in some specific unit
+		 */
 		template <class T>
 		class Point
 		{
@@ -32,6 +34,8 @@ namespace holovibes
 				, y_(y)
 			{}
 
+			/*! \brief Constructs a point from the needed conversion data and two primary types
+			 */
 			Point(ConversionData data, typename T::primary_type x = 0, typename T::primary_type y = 0)
 				: x_(data, x)
 				, y_(data, y)
@@ -57,6 +61,8 @@ namespace holovibes
 				return y_;
 			}
 
+			/*! \brief Implicit cast into a point of an other unit
+			 */
 			template <typename U>
 			operator Point<U>() const
 			{
@@ -86,8 +92,16 @@ namespace holovibes
 			T y_;
 		};
 
+		/*! \brief A point in the OpenGL coordinate system [-1;1]
+		 */
 		using PointOpengl = Point<OpenglPosition>;
+
+		/*! \brief A point in the frame desc coordinate system [0;fd.width]
+		 */
 		using PointFd = Point<FDPixel>;
+
+		/*! \brief A point in the window coordinate system [0;window size]
+		 */
 		using PointWindow = Point<WindowPixel>;
 
 	}

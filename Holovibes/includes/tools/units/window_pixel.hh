@@ -20,6 +20,9 @@ namespace holovibes
 	{
 		class FDPixel;
 		class OpenglPosition;
+
+		/*! \brief A position in the window coordinate system [0;window size]
+		 */
 		class WindowPixel : public Unit<int>
 		{
 		public:

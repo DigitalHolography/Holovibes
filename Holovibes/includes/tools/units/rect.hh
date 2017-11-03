@@ -22,22 +22,31 @@ namespace holovibes
 	namespace units
 	{
 
+		/*! \brief A rectangle in some specific unit
+		 */
 		template <typename T>
 		class Rect
 		{
 		public:
+			/*! \brief Constructs a rectangle from two points
+			 * 
+			 * \param top_left Top left point
+			 * \param size Size of the rectangle, x = width, y = height
+			 */
 			Rect(Point<T> top_left, Point<T> size)
 				: top_left_(top_left)
 				, size_(size)
 			{}
 
+			/*! \brief Constructs a rectangle from its position and size
+			 */
 			Rect(ConversionData data,
-				typename T::primary_type x0 = 0,
-				typename T::primary_type y0 = 0,
-				typename T::primary_type x1 = 0,
-				typename T::primary_type y1 = 0)
-				: top_left_(data, x0, y0)
-				, size_(data, x1, y1)
+				typename T::primary_type x = 0,
+				typename T::primary_type y = 0,
+				typename T::primary_type width = 0,
+				typename T::primary_type height = 0)
+				: top_left_(data, x, y)
+				, size_(data, width, height)
 			{}
 
 			Point<T> top_left() const
@@ -76,6 +85,8 @@ namespace holovibes
 			}
 
 
+			/*! \brief Implicit cast into a rectangle of an other unit
+			 */
 			template <typename U>
 			operator Rect<U>() const
 			{
@@ -89,8 +100,16 @@ namespace holovibes
 			Point<T> size_;
 		};
 
+		/*! \brief Rectangle in the OpenGL coordinates [-1;1]
+		 */
 		using RectOpengl = Rect<OpenglPosition>;
+
+		/*! \brief Rectangle in the frame desc coordinates
+		 */
 		using RectFd = Rect<FDPixel>;
+
+		/*! \brief Rectangle in the window coordinates
+		 */
 		using RectWindow = Rect<WindowPixel>;
 
 	}

@@ -36,18 +36,27 @@ namespace holovibes
 				, val_(val)
 			{}
 
+			/*! \brief Implicit cast toward the primary type
+			 */
 			operator T() const
 			{
 				return val_;
 			}
 
+			/*! \brief Implicit cast toward the primary type
+			 */
 			operator T&()
 			{
 				return val_;
 			}
 
 		protected:
+			/*! \brief Encapsulates the metadata needed for the conversions
+			 */
 			ConversionData	conversion_data_;
+
+			/*! \brief The value itself
+			 */
 			T				val_;
 		};
 	}
