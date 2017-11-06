@@ -76,8 +76,8 @@ namespace holovibes
 	void	get_framerate_cinefile(FILE *file, std::string &file_src_);
 	/*! \brief Get exposure from .cine file */
 	void	get_exposure_cinefile(FILE *file, std::string &file_src_);
-	/*! \brief Calculate the nearest squared window */
-	unsigned short	nearest_window_size(const camera::FrameDescriptor frame);
+	/*! \brief Calculate the nearest upper power of 2 */
+	unsigned short	upper_window_size(ushort width, ushort height);
 	/*! \brief Prints a float buffer allocated on gpu*/
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts);
 	/*! \brief Prints a complex buffer allocated on gpu*/

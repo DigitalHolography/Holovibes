@@ -985,7 +985,7 @@ namespace holovibes
 			const unsigned int zone_width = af_env_.zone.width();
 			const unsigned int zone_height = af_env_.zone.height();
 
-			af_env_.af_square_size = static_cast<unsigned int>(powf(2, ceilf(log2f(zone_width > zone_height ? float(zone_width) : float(zone_height)))));
+			af_env_.af_square_size = upper_window_size(zone_width, zone_height);
 
 			const unsigned int af_size = af_env_.af_square_size * af_env_.af_square_size;
 

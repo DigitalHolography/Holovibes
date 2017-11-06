@@ -93,9 +93,9 @@ namespace holovibes
 		}
 	}
 
-	unsigned short	nearest_window_size(const camera::FrameDescriptor frame)
+	unsigned short	upper_window_size(ushort width, ushort height)
 	{
-		return nextPowerOf2(std::max(frame.width, frame.height));
+		return nextPowerOf2(std::max(width, height));
 	}
 
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts)

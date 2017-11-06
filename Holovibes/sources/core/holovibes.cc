@@ -211,7 +211,7 @@ namespace holovibes
 
 		try
 		{
-			unsigned short	size = nearest_window_size(frame_desc);
+			unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
 			camera::FrameDescriptor real_frame_desc = frame_desc;
 			real_frame_desc.width = size;
 			real_frame_desc.height = size;
