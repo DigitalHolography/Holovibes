@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
@@ -237,8 +237,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(compute_desc_.autofocus_z_max.load());
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
-				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
-				(compute_desc_.img_type.load() == ImgType::Argument)) ? (true) : (false)));
+				setEnabled(!is_direct && compute_desc_.img_type.load() == ImgType::PhaseIncrease ||
+				compute_desc_.img_type.load() == ImgType::Argument);
 
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load()
 				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.vision_3d_enabled.load());
@@ -330,7 +330,7 @@ namespace holovibes
 			q_vibro->setMaximum(compute_desc_.nsamples.load() - 1);
 
 			findChild<QGroupBox *>("ImageRatioCheckBox")->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
-			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() == 0 ? false : true);
+			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
 			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && compute_desc_.flowgraphy_enabled.load());
@@ -887,7 +887,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
 			}
