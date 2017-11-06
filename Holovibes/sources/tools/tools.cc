@@ -101,6 +101,8 @@ namespace holovibes
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts)
 	{
 		float* tmp_buf = (float *)malloc(nb_elts * sizeof(float));
+		if (!tmp_buf)
+			return;
 		cudaMemcpy(tmp_buf, buf, nb_elts * sizeof(float), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < nb_elts; i++)
 			std::cout << "i = " << i << ", value = " << tmp_buf[i] << std::endl;
@@ -110,6 +112,8 @@ namespace holovibes
 	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts)
 	{
 		cuComplex* tmp_buf = (cuComplex *)malloc(nb_elts * sizeof(cuComplex));
+		if (!tmp_buf)
+			return;
 		cudaMemcpy(tmp_buf, buf, nb_elts * sizeof(cuComplex), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < nb_elts; i++)
 			std::cout << "i = " << i << ", x = " << tmp_buf[i].x << ", y = " << tmp_buf[i].y << std::endl;

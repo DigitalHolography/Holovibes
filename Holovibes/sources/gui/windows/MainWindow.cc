@@ -2650,7 +2650,7 @@ namespace holovibes
 					q = &holovibes_.get_output_queue();
 				else if (compute_desc_.current_window == WindowKind::XZview)
 					q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-				else if (compute_desc_.current_window == WindowKind::YZview)
+				else
 					q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 				// Only loading the dll at runtime
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
@@ -2749,7 +2749,7 @@ namespace holovibes
 				q = &holovibes_.get_output_queue();
 			else if (compute_desc_.current_window == WindowKind::XZview)
 				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-			else if (compute_desc_.current_window == WindowKind::YZview)
+			else
 				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 
 			std::string output_filename = format_batch_output(path, file_index_);
@@ -3015,8 +3015,8 @@ namespace holovibes
 			uint			read_pixelpermeter_x = 0, offset_to_ptr = 0;
 			FILE*			file = nullptr;
 			fpos_t			pos = 0;
-			size_t			length = 0;
-			char			buffer[44];
+			char			buffer[45];
+			buffer[44] = 0;
 
 			try
 			{
@@ -3026,7 +3026,7 @@ namespace holovibes
 					throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 				std::fsetpos(file, &pos);
 				/*Reading the whole cine file header*/
-				if ((length = std::fread(buffer, 1, 44, file)) = !44)
+				if (std::fread(buffer, 1, 44, file) != 44)
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Checking if the file is actually a .cine file*/
 				if (std::strstr(buffer, "CI") == NULL)
@@ -3036,22 +3036,22 @@ namespace holovibes
 				/*Reading value biWidth*/
 				pos = offset_to_ptr + 4;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_width, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_width, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biHeigth*/
 				pos = offset_to_ptr + 8;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_height, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_height, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biBitCount*/
 				pos = offset_to_ptr + 14;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_depth, 1, sizeof(short), file)) = !sizeof(short))
+				if (std::fread(&read_depth, 1, sizeof(short), file) != sizeof(short))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biXpelsPerMetter*/
 				pos = offset_to_ptr + 24;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_pixelpermeter_x, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_pixelpermeter_x, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 
 				/*Setting value in Qt interface*/
