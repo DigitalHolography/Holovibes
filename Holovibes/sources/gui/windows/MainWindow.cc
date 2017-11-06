@@ -2853,15 +2853,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
-		{
-			std::stringstream ss(str);
-			std::string item;
-
-			while (std::getline(ss, item, delim))
-				elts.push_back(item);
-		}
-
 		std::string MainWindow::format_batch_output(const std::string& path, const uint index)
 		{
 			std::string file_index;
@@ -2870,7 +2861,7 @@ namespace holovibes
 			file_index = convert.str();
 
 			std::vector<std::string> path_tokens;
-			split_string(path, '.', path_tokens);
+			boost::split(path_tokens, path, boost::is_any_of("."));
 			std::string ret = path_tokens[0] + "_" + file_index;
 			if (path_tokens.size() > 1)
 				ret += "." + path_tokens[1];
@@ -3096,60 +3087,43 @@ namespace holovibes
 
 		void MainWindow::title_detect(void)
 		{
-			QLineEdit			*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-			QSpinBox			*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
-			QSpinBox			*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
-			QComboBox			*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
-			QComboBox			*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
-			const std::string	file_src = import_line_edit->text().toUtf8();
-			std::string			err_msg = "Cannot detect title properties";
-			uint				width = 0, height = 0, depth = 0, underscore = 5;
-			size_t				i;
-			bool				mode, endian;
+			QLineEdit					*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+			QSpinBox					*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
+			QSpinBox					*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
+			QComboBox					*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
+			QComboBox					*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
+			const std::string			file_src = import_line_edit->text().toUtf8();
+			std::vector<std::string>	strings;
 
-			for (i = file_src.length(); i > 0 && underscore; --i)
-				if (file_src[i] == '_')
-					underscore--;
-			if (underscore)
-				return (display_error(err_msg));
-			if (file_src[++i] == '_' && i++)
-				if (file_src[i] == 'D' || file_src[i] == 'H')
-					mode = ((file_src[i] == 'D') ? (false) : (true));
-				else
-					return (display_error(err_msg));
-			if (file_src[++i] == '_')
-			{
-				width = std::atoi(&file_src[++i]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				height = std::atoi(&file_src[i++]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				depth = std::atoi(&file_src[i++]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				if (file_src[i] == 'e' || file_src[i] == 'E')
-					endian = ((file_src[i] == 'e') ? (false) : (true));
-				else
-					return (display_error(err_msg));
-			}
+			uint				width = 0;
+			uint				height = 0;
+			uint				depth = 0;
+			bool				mode;
+			bool				endian;
+
+			boost::split(strings, file_src, boost::is_any_of("_"));
+			auto size = strings.size();
+			if (size < 5)
+				return display_error("Title detect expect at least 5 fields separated by '_'.");
+
+			// Mode (Direct or Hologram), unused
+			auto mode_str = strings[size - 5];
+			if (mode_str != "D" && mode_str != "H")
+				return display_error(mode_str + " is not a supported mode.");
+			mode = mode_str == "H";
+			// Width
+			width = std::atoi(strings[size - 4].c_str());
+			// Height
+			height = std::atoi(strings[size - 3].c_str());
+			// Depth
+			depth = std::atoi(strings[size - 2].c_str());
 			if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
-				return (display_error(err_msg));
+				return display_error("The depth " + strings[size - 2] + " is not supported.");
+			//Endianness
+			auto endian_char = strings[size - 1][0];
+			if (endian_char != 'E' && endian_char != 'e')
+				return display_error("The last field must be either 'E'or 'e'.");
+			endian = endian_char == 'E';
 
 			import_width_box->setValue(width);
 			import_height_box->setValue(height);
