@@ -37,8 +37,8 @@ namespace holovibes
 			/*! \brief Constructs a point from the needed conversion data and two primary types
 			 */
 			Point(ConversionData data, typename T::primary_type x = 0, typename T::primary_type y = 0)
-				: x_(data, x)
-				, y_(data, y)
+				: x_(data, Axis::HORIZONTAL, x)
+				, y_(data, Axis::VERTICAL, y)
 			{}
 
 			T& x()
@@ -70,7 +70,7 @@ namespace holovibes
 				return res;
 			}
 
-			Point<T> operator+(const Point<T>& other)
+			Point<T> operator+(const Point<T>& other) const
 			{
 				Point<T> res(x_, y_);
 				res.x_ += other.x_;
@@ -78,7 +78,7 @@ namespace holovibes
 				return res;
 			}
 
-			Point<T> operator-(const Point<T>& other)
+			Point<T> operator-(const Point<T>& other) const
 			{
 				Point<T> res(x_, y_);
 				res.x_ -= other.x_;

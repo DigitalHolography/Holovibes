@@ -26,7 +26,7 @@ namespace holovibes
 		class WindowPixel : public Unit<int>
 		{
 		public:
-			WindowPixel(ConversionData data, int val = 0);
+			WindowPixel(ConversionData data, Axis axis, int val = 0);
 
 			operator OpenglPosition() const;
 		};

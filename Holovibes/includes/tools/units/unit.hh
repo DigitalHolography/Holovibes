@@ -19,6 +19,15 @@ namespace holovibes
 {
 	namespace units
 	{
+
+		/*! \brief Describes which axis should be used when converting
+		 */
+		enum Axis
+		{
+			HORIZONTAL,
+			VERTICAL
+		};
+
 		/*! \brief A generic distance unit type
 		 *
 		 * Used to define implicit conversions between the different units
@@ -31,8 +40,9 @@ namespace holovibes
 
 			using primary_type = T;
 
-			Unit(ConversionData data, T val)
+			Unit(ConversionData data, Axis axis, T val)
 				: conversion_data_(data)
+				, axis_(axis)
 				, val_(val)
 			{}
 
@@ -54,6 +64,10 @@ namespace holovibes
 			/*! \brief Encapsulates the metadata needed for the conversions
 			 */
 			ConversionData	conversion_data_;
+
+			/*! \brief Which axis should be used when converting
+			 */
+			Axis			axis_;
 
 			/*! \brief The value itself
 			 */

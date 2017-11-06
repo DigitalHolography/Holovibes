@@ -31,40 +31,45 @@ namespace holovibes
 			/*! \brief Constructs a rectangle from two points
 			 * 
 			 * \param top_left Top left point
-			 * \param size Size of the rectangle, x = width, y = height
+			 * \param size bottom_right Bottom right point
 			 */
-			Rect(Point<T> top_left, Point<T> size)
+			Rect(Point<T> top_left, Point<T> bottom_right)
 				: top_left_(top_left)
-				, size_(size)
+				, bottom_right_(bottom_right)
 			{}
 
 			/*! \brief Constructs a rectangle from its position and size
 			 */
 			Rect(ConversionData data,
-				typename T::primary_type x = 0,
-				typename T::primary_type y = 0,
-				typename T::primary_type width = 0,
-				typename T::primary_type height = 0)
-				: top_left_(data, x, y)
-				, size_(data, width, height)
+				typename T::primary_type x1 = 0,
+				typename T::primary_type y1 = 0,
+				typename T::primary_type x2 = 0,
+				typename T::primary_type y2 = 0)
+				: top_left_(data, x1, y1)
+				, bottom_right_(data, x2, y2)
 			{}
 
-			Point<T> top_left() const
+			const Point<T>& top_left() const
 			{
 				return top_left_;
 			}
 
-			Point<T> size() const
+			const Point<T>& bottom_right() const
 			{
-				return size_;
+				return bottom_right_;
 			}
 
-			Point<T> bottom_right() const
+			Point<T> size() const
 			{
-				return top_left_ + size_;
+				return bottom_right_ - top_left_;
 			}
 
 			T x() const
+			{
+				return top_left_.x();
+			}
+
+			T& x()
 			{
 				return top_left_.x();
 			}
@@ -74,14 +79,19 @@ namespace holovibes
 				return top_left_.y();
 			}
 
+			T& y()
+			{
+				return top_left_.y();
+			}
+
 			T width() const
 			{
-				return size.x();
+				return size().x();
 			}
 
 			T height() const
 			{
-				return size.y();
+				return size().y();
 			}
 
 
@@ -90,14 +100,14 @@ namespace holovibes
 			template <typename U>
 			operator Rect<U>() const
 			{
-				Rect<U> res(top_left_, size_);
+				Rect<U> res(top_left_, bottom_right_);
 				return res;
 			}
 
 
 		private:
 			Point<T> top_left_;
-			Point<T> size_;
+			Point<T> bottom_right_;
 		};
 
 		/*! \brief Rectangle in the OpenGL coordinates [-1;1]

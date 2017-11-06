@@ -82,7 +82,7 @@ namespace holovibes
 			return Cd;
 		}
 
-		const FrameDescriptor& BasicOpenGLWindow::getFd()
+		const FrameDescriptor& BasicOpenGLWindow::getFd() const
 		{
 			return Fd;
 		}

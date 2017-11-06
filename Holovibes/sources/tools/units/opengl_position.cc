@@ -18,19 +18,19 @@ namespace holovibes
 {
 	namespace units
 	{
-		OpenglPosition::OpenglPosition(ConversionData data, float val)
-			: Unit(data, val)
+		OpenglPosition::OpenglPosition(ConversionData data, Axis axis, float val)
+			: Unit(data, axis, val)
 		{}
 
 		OpenglPosition::operator FDPixel() const
 		{
-			FDPixel res(conversion_data_, conversion_data_.opengl_to_fd(val_));
+			FDPixel res(conversion_data_, axis_, conversion_data_.opengl_to_fd(val_, axis_));
 			return res;
 		}
 
 		OpenglPosition::operator WindowPixel() const
 		{
-			WindowPixel res(conversion_data_, conversion_data_.opengl_to_window_size(val_));
+			WindowPixel res(conversion_data_, axis_, conversion_data_.opengl_to_window_size(val_, axis_));
 			return res;
 		}
 	}

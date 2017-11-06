@@ -20,13 +20,13 @@ namespace holovibes
 {
 	namespace units
 	{
-		WindowPixel::WindowPixel(ConversionData data, int val)
-			: Unit(data, val)
+		WindowPixel::WindowPixel(ConversionData data, Axis axis, int val)
+			: Unit(data, axis, val)
 		{}
 
 		WindowPixel::operator units::OpenglPosition() const
 		{
-			OpenglPosition res(conversion_data_, conversion_data_.window_size_to_opengl(val_));
+			OpenglPosition res(conversion_data_, axis_, conversion_data_.window_size_to_opengl(val_, axis_));
 			std::cout << "Window to opengl" << std::endl;
 			return res;
 		}

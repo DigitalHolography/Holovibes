@@ -18,13 +18,13 @@ namespace holovibes
 {
 	namespace units
 	{
-		FDPixel::FDPixel(ConversionData data, int val)
-			: Unit(data, val)
+		FDPixel::FDPixel(ConversionData data, Axis axis, int val)
+			: Unit(data, axis, val)
 		{}
 
 		FDPixel::operator OpenglPosition() const
 		{
-			OpenglPosition res(conversion_data_, conversion_data_.fd_to_opengl(val_));
+			OpenglPosition res(conversion_data_, axis_, conversion_data_.fd_to_opengl(val_, axis_));
 			return res;
 		}
 	}

@@ -26,7 +26,7 @@ namespace holovibes
 		class FDPixel : public Unit<int>
 		{
 		public:
-			FDPixel(ConversionData data, int val = 0);
+			FDPixel(ConversionData data, Axis axis, int val = 0);
 
 			operator OpenglPosition() const;
 		};

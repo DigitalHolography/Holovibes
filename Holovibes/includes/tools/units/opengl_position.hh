@@ -26,7 +26,7 @@ namespace holovibes
 		class OpenglPosition : public Unit<float>
 		{
 		public:
-			OpenglPosition(ConversionData data, float val = 0);
+			OpenglPosition(ConversionData data, Axis axis, float val = 0);
 
 			operator FDPixel() const;
 			operator WindowPixel() const;
