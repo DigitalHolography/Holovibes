@@ -58,7 +58,7 @@ namespace holovibes
 			this->set_cuda_device = o.set_cuda_device;
 			this->auto_device_number = o.auto_device_number;
 			this->device_number = o.device_number;
-			return (*this);
+			return *this;
 		}
 
 		/*! \brief Max size of input queue in number of images. */

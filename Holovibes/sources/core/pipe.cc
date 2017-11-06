@@ -90,7 +90,7 @@ namespace holovibes
 		//const int p = compute_desc_.pindex.load();
 		//compute_desc_.pindex.exchange(0);
 		if (!ICompute::update_n_parameter(n))
-			return (false);
+			return false;
 		/* gpu_input_buffer */
 		cudaError_t error;
 		cudaFree(gpu_input_buffer_);
@@ -102,7 +102,7 @@ namespace holovibes
 				sizeof(cufftComplex) * (input_.get_pixels() * 2))) != CUDA_SUCCESS)
 			{
 				std::cerr << "Cuda error : " << cudaGetErrorString(error) << std::endl;
-				return (false);
+				return false;
 			}
 		}
 		else
@@ -111,11 +111,11 @@ namespace holovibes
 				sizeof(cufftComplex) * input_.get_pixels() * input_length_)) != CUDA_SUCCESS)
 			{
 				std::cerr << "Cuda error : " << cudaGetErrorString(error) << std::endl;
-				return (false);
+				return false;
 			}
 		}
 		notify_observers();
-		return (true);
+		return true;
 	}
 
 	void Pipe::request_queues()
@@ -982,9 +982,7 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		if (compute_desc_.img_type.load() != ImgType::Complex)
-			return (gpu_output_buffer_);
-		return (gpu_input_frame_ptr_);
+		return compute_desc_.img_type.load() == ImgType::Complex ? gpu_input_frame_ptr_ : gpu_output_buffer_;
 	}
 
 	void Pipe::exec()

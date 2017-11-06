@@ -1159,7 +1159,7 @@ namespace holovibes
 		
 		bool MainWindow::is_direct_mode()
 		{
-			return (compute_desc_.compute_mode.load() == Computation::Direct);
+			return compute_desc_.compute_mode.load() == Computation::Direct;
 		}
 
 		void MainWindow::set_image_mode()
@@ -2512,7 +2512,7 @@ namespace holovibes
 			if (path == "")
 			{
 				cancel_button->setDisabled(true);
-				return (display_error("No output file"));
+				return display_error("No output file");
 			}
 
 			Queue* queue = nullptr;

@@ -87,12 +87,12 @@ Tuple4f make_average_plot(float				*input,
 
 	if (cudaMalloc(&gpu_s, sizeof(float)) != cudaSuccess)
 	{
-		return (std::make_tuple(0.f, 0.f, 0.f, 0.f));
+		return std::make_tuple(0.f, 0.f, 0.f, 0.f);
 	}
 	if (cudaMalloc(&gpu_n, sizeof(float)) != cudaSuccess)
 	{
 		cudaFree(gpu_s);
-		return (std::make_tuple(0.f, 0.f, 0.f, 0.f));
+		return std::make_tuple(0.f, 0.f, 0.f, 0.f);
 	}
 	cudaMemsetAsync(gpu_s, 0, sizeof(float), stream);
 	cudaMemsetAsync(gpu_n, 0, sizeof(float), stream);

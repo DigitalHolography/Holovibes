@@ -52,25 +52,18 @@ namespace holovibes
 
 	UnwrappingResources::~UnwrappingResources()
 	{
-		if (gpu_unwrap_buffer_)
-			cudaFree(gpu_unwrap_buffer_);
-		if (gpu_predecessor_)
-			cudaFree(gpu_predecessor_);
-		if (gpu_angle_predecessor_)
-			cudaFree(gpu_angle_predecessor_);
-		if (gpu_angle_current_)
-			cudaFree(gpu_angle_current_);
-		if (gpu_angle_copy_)
-			cudaFree(gpu_angle_copy_);
-		if (gpu_unwrapped_angle_)
-			cudaFree(gpu_unwrapped_angle_);
+		cudaFree(gpu_unwrap_buffer_);
+		cudaFree(gpu_predecessor_);
+		cudaFree(gpu_angle_predecessor_);
+		cudaFree(gpu_angle_current_);
+		cudaFree(gpu_angle_copy_);
+		cudaFree(gpu_unwrapped_angle_);
 	}
 
 	bool UnwrappingResources::cudaRealloc(void *ptr, const size_t size)
 	{
-		if (ptr)
-			cudaFree(ptr);
-		return (cudaMalloc(&ptr, size) == cudaSuccess);
+		cudaFree(ptr);
+		return cudaMalloc(&ptr, size) == cudaSuccess;
 	}
 
 	void UnwrappingResources::reallocate(const size_t image_size)

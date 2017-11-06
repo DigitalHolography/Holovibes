@@ -173,7 +173,7 @@ namespace camera
 
       return buffers_[buffer_index];
     }
-	return (nullptr);
+	return nullptr;
   }
 
   int CameraPCO::get_sensor_sizes()

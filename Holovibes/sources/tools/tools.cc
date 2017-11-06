@@ -16,6 +16,7 @@
 #include <cuda_runtime.h>
 #include "tools.hh"
 #include "tools_conversion.cuh"
+#include "power_of_two.hh"
 
 namespace holovibes
 {
@@ -92,21 +93,9 @@ namespace holovibes
 		}
 	}
 
-	unsigned short	nearest_size(const unsigned short n)
-	{
-		double	pos = std::ceil(std::log2(n));
-		double	p = 0;
-			
-		p = std::pow(2, pos);
-		return (static_cast<unsigned short>(p));
-	}
-
 	unsigned short	nearest_window_size(const camera::FrameDescriptor frame)
 	{
-		unsigned short	pow_x = nearest_size(frame.width);
-		unsigned short	pow_y = nearest_size(frame.height);
-
-		return ((pow_x > pow_y) ? (pow_x) : (pow_y));
+		return nextPowerOf2(std::max(frame.width, frame.height));
 	}
 
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts)

@@ -258,7 +258,7 @@ float average_operator(const float	*input,
 	if (cudaMalloc<float>(&gpu_sum, sizeof(float)) == cudaSuccess)
 		cudaMemsetAsync(gpu_sum, 0, sizeof(float), stream);
 	else
-		return (0.f);
+		return 0.f;
 	cudaStreamSynchronize(stream);
 
 	// A SpanSize of 4 has been determined to be an optimal choice here.

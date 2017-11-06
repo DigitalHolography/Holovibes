@@ -167,7 +167,7 @@ namespace holovibes
 			else
 			{
 				stop_requested_ = true;
-				return (true);
+				return true;
 			}
 		}
 		if (act_frame_ >= nbr_stored_)
@@ -179,7 +179,7 @@ namespace holovibes
 		if (real_frame_desc_.width == frame_desc_.width && real_frame_desc_.height == frame_desc_.height)
 		{
 			if (!queue_.enqueue(buffer + cine_offset + act_frame_ * frame_size, cudaMemcpyHostToDevice))
-				return (false);
+				return false;
 		}
 		else
 		{
@@ -188,11 +188,11 @@ namespace holovibes
 				, real_frame_desc_
 				, frame_desc_);
 			if (!queue_.enqueue(resize_buffer, cudaMemcpyDeviceToDevice))
-				return (false);
+				return false;
 		}
 		++frameId_;
 		++act_frame_;
-		return (true);
+		return true;
 	}
 
 	ThreadReader::~ThreadReader()
@@ -219,15 +219,15 @@ namespace holovibes
 		long int		offset_to_image = 0;
 
 		/*Reading the whole cine file header*/
-		if ((length = std::fread(buffer, 1, 44, file)) = !44)
-			return (0);
+		if ((length = std::fread(buffer, 1, 44, file)) != 44)
+			return 0;
 		/*Reading OffImageOffsets for offset to POINTERS TO IMAGES*/
 		std::memcpy(&offset_to_ptr, (buffer + 32), sizeof(int));
 		/*Reading offset of the first image*/
 		off = offset_to_ptr;
 		std::fsetpos(file, &off);
-		if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) = !sizeof(long int))
-			return (0);
-		return (offset_to_image);
+		if ((length = std::fread(&offset_to_image, 1, sizeof(long int), file)) != sizeof(long int))
+			return 0;
+		return offset_to_image;
 	}
 }

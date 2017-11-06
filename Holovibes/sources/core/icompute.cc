@@ -349,9 +349,9 @@ namespace holovibes
 			abort_construct_requested_.exchange(true);
 			allocation_failed(err_count,
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
-			return (false);
+			return false;
 		}
-		return (true);
+		return true;
 	}
 
 	void	ICompute::update_stft_slice_queue()
@@ -395,15 +395,14 @@ namespace holovibes
 		return request_delete_stft_cuts_.load();
 	}
 
-	Queue&	ICompute::get_stft_slice_queue(int i)
+	Queue&	ICompute::get_stft_slice_queue(int slice)
 	{
-		return (!i) ? *gpu_stft_slice_queue_xz :
-			*gpu_stft_slice_queue_yz;
+		return slice ? *gpu_stft_slice_queue_yz : *gpu_stft_slice_queue_xz;
 	}
 
 	Queue& ICompute::get_3d_vision_queue()
 	{
-		return (*gpu_3d_vision);
+		return *gpu_3d_vision;
 	}
 
 	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)
@@ -552,7 +551,7 @@ namespace holovibes
 
 	bool ICompute::get_request_refresh()
 	{
-		return (refresh_requested_.load());
+		return refresh_requested_.load();
 	}
 
 	void ICompute::request_refresh()
