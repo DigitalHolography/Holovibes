@@ -19,54 +19,9 @@ namespace holovibes
 	namespace gui
 	{
 		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Filter2D, parent)
+			: SquareOverlay(KindOfOverlay::Filter2D, parent)
 		{
 			color_ = { 0.f, 0.62f, 1.f };
-		}
-
-		void Filter2DOverlay::make_square()
-		{
-			// Set the bottomRight corner to have a square selection.
-			// Since topLeft is always the origin, bottomRight correspond to destination,
-			// and can be in every corner (bottomRight can be in the top left corner).
-			const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
-			zone_.setBottomRight(QPoint(
-				zone_.topLeft().x() +
-				min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1),
-				zone_.topLeft().y() +
-				min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1)
-			));
-		}
-
-		void Filter2DOverlay::move(QMouseEvent *e)
-		{
-			if (e->buttons() == Qt::LeftButton)
-			{
-				display_ = true;
-				zone_.setBottomRight(getMousePos(e->pos()));
-				make_square();
-				setBuffer();
-			}
-		}
-
-		void Filter2DOverlay::checkCorners(ushort frameSide)
-		{
-			// Resizing the square selection to the window
-
-			if (zone_.bottomRight().x() < 0)
-				zone_.setBottomRight(QPoint(0, zone_.bottomRight().y()));
-			if (zone_.bottomRight().y() < 0)
-				zone_.setBottomRight(QPoint(zone_.bottomRight().x(), 0));
-
-			if (zone_.bottomRight().x() > frameSide)
-				zone_.setBottomRight(QPoint(frameSide, zone_.bottomRight().y()));
-			if (zone_.bottomRight().y() > frameSide)
-				zone_.setBottomRight(QPoint(zone_.bottomRight().x(), frameSide));
-
-			// Making it a square again
-			make_square();
-
-			RectOverlay::checkCorners();
 		}
 
 		void Filter2DOverlay::release(ushort frameSide)

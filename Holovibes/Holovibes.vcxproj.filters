@@ -96,6 +96,18 @@
     <Filter Include="c++ includes\tools\cuda_tools">
       <UniqueIdentifier>{5f0ae4f7-914c-4a7a-84db-5c196c648d98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c++ sources\gui\selections\interfaces">
+      <UniqueIdentifier>{b40b9abe-46c2-44c0-b734-965c5d822613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ sources\gui\selections\overlays">
+      <UniqueIdentifier>{7acff597-bcf5-4e52-9388-5aed534a7771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ includes\gui\selections\interfaces">
+      <UniqueIdentifier>{8765f844-9b81-4d79-89c9-3293e055bd16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ includes\gui\selections\overlays">
+      <UniqueIdentifier>{d57257df-04a0-4de1-b3f0-d54f2d75ee39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
@@ -245,47 +257,50 @@
     <ClCompile Include="GeneratedFiles\Release\moc_PlotWindow.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\Overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
     <ClCompile Include="sources\3DVision.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\autofocus_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\cross_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\filter2d_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\noise_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\selections\overlay_manager.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\rect_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\signal_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\gui\selections\zoom_overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
     <ClCompile Include="sources\compute\stabilization.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\stabilization_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
+    <ClCompile Include="sources\gui\selections\overlays\autofocus_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
     </ClCompile>
-    <ClCompile Include="includes\gui\selections\strip_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
+    <ClCompile Include="sources\gui\selections\overlays\cross_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\slice_cross_overlay.cc">
-      <Filter>c++ sources\gui\selections</Filter>
+    <ClCompile Include="sources\gui\selections\overlays\filter2d_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\noise_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\signal_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\interfaces\Overlay.cc">
+      <Filter>c++ sources\gui\selections\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\interfaces\rect_overlay.cc">
+      <Filter>c++ sources\gui\selections\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc">
+      <Filter>c++ sources\gui\selections\overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc">
+      <Filter>c++ sources\gui\selections\interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -430,9 +445,6 @@
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\Overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_includes\Common.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
@@ -460,28 +472,7 @@
     <ClInclude Include="cuda_includes\stabilization.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\autofocus_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\cross_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\filter2d_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\noise_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
     <ClInclude Include="includes\gui\selections\overlay_manager.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\rect_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\signal_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\selections\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\tools\cuda_tools\unique_ptr.hh">
@@ -493,14 +484,41 @@
     <ClInclude Include="stabilization_overlay.hh">
       <Filter>c++ includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
+    <ClInclude Include="includes\gui\selections\overlays\autofocus_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\strip_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
+    <ClInclude Include="includes\gui\selections\overlays\cross_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
     </ClInclude>
-    <ClInclude Include="sources\gui\selections\slice_cross_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
+    <ClInclude Include="includes\gui\selections\overlays\filter2d_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\noise_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\slice_cross_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\signal_overlay.hh">
+      <Filter>c++ includes\gui\selections\overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\interfaces\Overlay.hh">
+      <Filter>c++ includes\gui\selections\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\interfaces\rect_overlay.hh">
+      <Filter>c++ includes\gui\selections\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh">
+      <Filter>c++ includes\gui\selections\interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -56,7 +56,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\selections\interfaces;$(SolutionDir)\Holovibes\includes\gui\selections\overlays;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
       <AdditionalOptions>/FS /D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
@@ -180,9 +180,10 @@
     <ClInclude Include="includes\core\pipeline.hh" />
     <ClInclude Include="includes\custom_exception.hh" />
     <ClInclude Include="includes\gpib_dll.hh" />
-    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
     <ClInclude Include="stabilization_overlay.hh" />
-    <ClInclude Include="sources\gui\selections\slice_cross_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\slice_cross_overlay.hh" />
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -223,17 +224,17 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\gui\selections\autofocus_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\cross_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\filter2d_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\noise_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\Overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\autofocus_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\cross_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\filter2d_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\noise_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\interfaces\Overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlay_manager.hh" />
     <ClInclude Include="includes\gui\selections\Rectangle.hh" />
-    <ClInclude Include="includes\gui\selections\rect_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\signal_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\strip_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\zoom_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\interfaces\rect_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\signal_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh" />
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh" />
     <ClInclude Include="includes\gui\windows\DirectWindow.hh" />
     <ClInclude Include="includes\gui\windows\HoloWindow.hh" />
@@ -361,7 +362,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="includes\gui\selections\strip_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
     <ClCompile Include="sources\3DVision.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />
@@ -375,18 +377,18 @@
     <ClCompile Include="sources\gpib_dll.cc" />
     <ClCompile Include="sources\gui\other\gui_curve_plot.cc" />
     <ClCompile Include="sources\gui\other\gui_group_box.cc" />
-    <ClCompile Include="sources\gui\selections\autofocus_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\cross_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\filter2d_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\noise_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\Overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\autofocus_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\cross_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\filter2d_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\noise_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\interfaces\Overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlay_manager.cc" />
     <ClCompile Include="sources\gui\selections\Rectangle.cc" />
-    <ClCompile Include="sources\gui\selections\rect_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\signal_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\stabilization_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\slice_cross_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\zoom_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\interfaces\rect_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\signal_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />
     <ClCompile Include="sources\gui\windows\PlotWindow.cc" />
