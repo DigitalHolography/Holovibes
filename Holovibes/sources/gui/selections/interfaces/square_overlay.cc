@@ -56,25 +56,6 @@ namespace holovibes
 			RectOverlay::checkCorners();
 		}
 
-		void Filter2DOverlay::release(ushort frameSide)
-		{
-			checkCorners(parent_->width());
-
-			if (zone_.topLeft() == zone_.bottomRight())
-				return;
-
-			units::RectFd texZone = zone_;
-
-			// handle Filter2D
-			if (parent_->getKindOfView() == Hologram)
-			{
-				auto window = dynamic_cast<HoloWindow *>(parent_);
-				if (window)
-				{
-					window->getCd()->stftRoiZone(texZone, AccessMode::Set);
-					window->getPipe()->request_filter2D_roi_update();
-					window->getPipe()->request_filter2D_roi_end();
-				}
 		void SquareOverlay::move(QMouseEvent* e)
 		{
 			if (e->buttons() == Qt::LeftButton)
