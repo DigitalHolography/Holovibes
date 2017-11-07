@@ -58,14 +58,14 @@ namespace holovibes
 						vertex_buffer[index + 1] = (y - middle_height);
 						vertex_buffer[index + 2] = (z - middle_samples);
 					}
-			return (vertex_buffer);
+			return vertex_buffer;
 		}
 
 		GLuint	Vision3DWindow::push_gl_matrix(glm::mat4 matrix, char *name)
 		{
 			GLuint matrix_id = glGetUniformLocation(Program->programId(), name);
 			glUniformMatrix4fv(matrix_id, 1, GL_FALSE, glm::value_ptr(matrix));
-			return (matrix_id);
+			return matrix_id;
 		}
 
 		GLuint Vision3DWindow::load_matrix(glm::vec3 Translate, glm::vec3 const & Rotate, float scale)
@@ -79,7 +79,7 @@ namespace holovibes
 			glm::mat4 MVP = Projection * View * Model;
 			GLuint matrix_id = glGetUniformLocation(Program->programId(), "MVP");
 			glUniformMatrix4fv(matrix_id, 1, GL_FALSE, glm::value_ptr(MVP));
-			return (matrix_id);
+			return matrix_id;
 		}
 
 		void Vision3DWindow::initializeGL()

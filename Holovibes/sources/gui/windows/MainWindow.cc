@@ -95,7 +95,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. Using default values." << std::endl;
 			}
@@ -237,8 +237,8 @@ namespace holovibes
 			findChild<QDoubleSpinBox *>("AutofocusZMaxDoubleSpinBox")->setValue(compute_desc_.autofocus_z_max.load());
 
 			findChild<QCheckBox*>("PhaseUnwrap2DCheckBox")->
-				setEnabled(((!is_direct && (compute_desc_.img_type.load() == ImgType::PhaseIncrease) ||
-				(compute_desc_.img_type.load() == ImgType::Argument)) ? (true) : (false)));
+				setEnabled(!is_direct && compute_desc_.img_type.load() == ImgType::PhaseIncrease ||
+				compute_desc_.img_type.load() == ImgType::Argument);
 
 			findChild<QCheckBox *>("STFTCutsCheckBox")->setEnabled(!is_direct && compute_desc_.stft_enabled.load()
 				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.vision_3d_enabled.load());
@@ -330,7 +330,7 @@ namespace holovibes
 			q_vibro->setMaximum(compute_desc_.nsamples.load() - 1);
 
 			findChild<QGroupBox *>("ImageRatioCheckBox")->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
-			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() == 0 ? false : true);
+			findChild<QCheckBox *>("ConvoCheckBox")->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
 			findChild<QCheckBox *>("AverageCheckBox")->setEnabled(!compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			findChild<QCheckBox *>("AverageCheckBox")->setChecked(!is_direct && compute_desc_.average_enabled.load());
 			findChild<QCheckBox *>("FlowgraphyCheckBox")->setChecked(!is_direct && compute_desc_.flowgraphy_enabled.load());
@@ -457,23 +457,9 @@ namespace holovibes
 
 		void MainWindow::layout_toggled()
 		{
-			uint childCount = 0;
-			std::vector<GroupBox *> v;
-
-			v.push_back(findChild<GroupBox *>("ImageRenderingGroupBox"));
-			v.push_back(findChild<GroupBox *>("ViewGroupBox"));
-			v.push_back(findChild<GroupBox *>("PostProcessingGroupBox"));
-			v.push_back(findChild<GroupBox *>("RecordGroupBox"));
-			v.push_back(findChild<GroupBox *>("ImportGroupBox"));
-			v.push_back(findChild<GroupBox *>("InfoGroupBox"));
-
-			for each (GroupBox *var in v)
-				childCount += !var->isHidden();
-
-			if (childCount > 0)
-				resize(QSize(childCount * 195, 425));
-			else
-				resize(QSize(195, 60));
+			// Resizing to original size, then adjust it to fit the groupboxes
+			resize(baseSize());
+			adjustSize();
 		}
 
 		void MainWindow::display_error(const std::string msg)
@@ -901,7 +887,7 @@ namespace holovibes
 			{
 				load_ini(GLOBAL_INI_PATH);
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
 			}
@@ -1164,6 +1150,7 @@ namespace holovibes
 						set_auto_contrast_cuts();
 				}
 				last_img_type_ = value;
+				layout_toggled();
 
 				set_auto_contrast();
 				notify();
@@ -1172,7 +1159,7 @@ namespace holovibes
 		
 		bool MainWindow::is_direct_mode()
 		{
-			return (compute_desc_.compute_mode.load() == Computation::Direct);
+			return compute_desc_.compute_mode.load() == Computation::Direct;
 		}
 
 		void MainWindow::set_image_mode()
@@ -2530,7 +2517,7 @@ namespace holovibes
 			if (path == "")
 			{
 				cancel_button->setDisabled(true);
-				return (display_error("No output file"));
+				return display_error("No output file");
 			}
 
 			Queue* queue = nullptr;
@@ -2668,7 +2655,7 @@ namespace holovibes
 					q = &holovibes_.get_output_queue();
 				else if (compute_desc_.current_window == WindowKind::XZview)
 					q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-				else if (compute_desc_.current_window == WindowKind::YZview)
+				else
 					q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 				// Only loading the dll at runtime
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
@@ -2767,7 +2754,7 @@ namespace holovibes
 				q = &holovibes_.get_output_queue();
 			else if (compute_desc_.current_window == WindowKind::XZview)
 				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-			else if (compute_desc_.current_window == WindowKind::YZview)
+			else
 				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
 
 			std::string output_filename = format_batch_output(path, file_index_);
@@ -2871,15 +2858,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::split_string(const std::string& str, const char delim, std::vector<std::string>& elts)
-		{
-			std::stringstream ss(str);
-			std::string item;
-
-			while (std::getline(ss, item, delim))
-				elts.push_back(item);
-		}
-
 		std::string MainWindow::format_batch_output(const std::string& path, const uint index)
 		{
 			std::string file_index;
@@ -2888,7 +2866,7 @@ namespace holovibes
 			file_index = convert.str();
 
 			std::vector<std::string> path_tokens;
-			split_string(path, '.', path_tokens);
+			boost::split(path_tokens, path, boost::is_any_of("."));
 			std::string ret = path_tokens[0] + "_" + file_index;
 			if (path_tokens.size() > 1)
 				ret += "." + path_tokens[1];
@@ -3006,8 +2984,8 @@ namespace holovibes
 
 		void MainWindow::set_maximums(FrameDescriptor fd)
 		{
-			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMaximum(fd.width);
-			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMaximum(fd.height);
+			findChild<QSpinBox *>("XMaxAccuSpinBox")->setMaximum(fd.width - 1);
+			findChild<QSpinBox *>("YMaxAccuSpinBox")->setMaximum(fd.height - 1);
 		}
 
 		void MainWindow::import_start_spinbox_update()
@@ -3042,8 +3020,8 @@ namespace holovibes
 			uint			read_pixelpermeter_x = 0, offset_to_ptr = 0;
 			FILE*			file = nullptr;
 			fpos_t			pos = 0;
-			size_t			length = 0;
-			char			buffer[44];
+			char			buffer[45];
+			buffer[44] = 0;
 
 			try
 			{
@@ -3053,7 +3031,7 @@ namespace holovibes
 					throw std::runtime_error("[READER] unable to read/open file: " + file_src_);
 				std::fsetpos(file, &pos);
 				/*Reading the whole cine file header*/
-				if ((length = std::fread(buffer, 1, 44, file)) = !44)
+				if (std::fread(buffer, 1, 44, file) != 44)
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Checking if the file is actually a .cine file*/
 				if (std::strstr(buffer, "CI") == NULL)
@@ -3063,22 +3041,22 @@ namespace holovibes
 				/*Reading value biWidth*/
 				pos = offset_to_ptr + 4;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_width, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_width, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biHeigth*/
 				pos = offset_to_ptr + 8;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_height, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_height, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biBitCount*/
 				pos = offset_to_ptr + 14;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_depth, 1, sizeof(short), file)) = !sizeof(short))
+				if (std::fread(&read_depth, 1, sizeof(short), file) != sizeof(short))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 				/*Reading value biXpelsPerMetter*/
 				pos = offset_to_ptr + 24;
 				std::fsetpos(file, &pos);
-				if ((length = std::fread(&read_pixelpermeter_x, 1, sizeof(int), file)) = !sizeof(int))
+				if (std::fread(&read_pixelpermeter_x, 1, sizeof(int), file) != sizeof(int))
 					throw std::runtime_error("[READER] unable to read file: " + file_src_);
 
 				/*Setting value in Qt interface*/
@@ -3114,60 +3092,43 @@ namespace holovibes
 
 		void MainWindow::title_detect(void)
 		{
-			QLineEdit			*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
-			QSpinBox			*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
-			QSpinBox			*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
-			QComboBox			*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
-			QComboBox			*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
-			const std::string	file_src = import_line_edit->text().toUtf8();
-			std::string			err_msg = "Cannot detect title properties";
-			uint				width = 0, height = 0, depth = 0, underscore = 5;
-			size_t				i;
-			bool				mode, endian;
+			QLineEdit					*import_line_edit = findChild<QLineEdit*>("ImportPathLineEdit");
+			QSpinBox					*import_width_box = findChild<QSpinBox*>("ImportWidthSpinBox");
+			QSpinBox					*import_height_box = findChild<QSpinBox*>("ImportHeightSpinBox");
+			QComboBox					*import_depth_box = findChild<QComboBox*>("ImportDepthComboBox");
+			QComboBox					*import_endian_box = findChild<QComboBox*>("ImportEndiannessComboBox");
+			const std::string			file_src = import_line_edit->text().toUtf8();
+			std::vector<std::string>	strings;
 
-			for (i = file_src.length(); i > 0 && underscore; --i)
-				if (file_src[i] == '_')
-					underscore--;
-			if (underscore)
-				return (display_error(err_msg));
-			if (file_src[++i] == '_' && i++)
-				if (file_src[i] == 'D' || file_src[i] == 'H')
-					mode = ((file_src[i] == 'D') ? (false) : (true));
-				else
-					return (display_error(err_msg));
-			if (file_src[++i] == '_')
-			{
-				width = std::atoi(&file_src[++i]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				height = std::atoi(&file_src[i++]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				depth = std::atoi(&file_src[i++]);
-				while (file_src[i] != '_' && file_src[i])
-					++i;
-			}
-			else
-				return (display_error(err_msg));
-			if (file_src[i++] == '_')
-			{
-				if (file_src[i] == 'e' || file_src[i] == 'E')
-					endian = ((file_src[i] == 'e') ? (false) : (true));
-				else
-					return (display_error(err_msg));
-			}
+			uint				width = 0;
+			uint				height = 0;
+			uint				depth = 0;
+			bool				mode;
+			bool				endian;
+
+			boost::split(strings, file_src, boost::is_any_of("_"));
+			auto size = strings.size();
+			if (size < 5)
+				return display_error("Title detect expect at least 5 fields separated by '_'.");
+
+			// Mode (Direct or Hologram), unused
+			auto mode_str = strings[size - 5];
+			if (mode_str != "D" && mode_str != "H")
+				return display_error(mode_str + " is not a supported mode.");
+			mode = mode_str == "H";
+			// Width
+			width = std::atoi(strings[size - 4].c_str());
+			// Height
+			height = std::atoi(strings[size - 3].c_str());
+			// Depth
+			depth = std::atoi(strings[size - 2].c_str());
 			if (depth != 8 && depth != 16 && depth != 32 && depth != 64)
-				return (display_error(err_msg));
+				return display_error("The depth " + strings[size - 2] + " is not supported.");
+			//Endianness
+			auto endian_char = strings[size - 1][0];
+			if (endian_char != 'E' && endian_char != 'e')
+				return display_error("The last field must be either 'E'or 'e'.");
+			endian = endian_char == 'E';
 
 			import_width_box->setValue(width);
 			import_height_box->setValue(height);

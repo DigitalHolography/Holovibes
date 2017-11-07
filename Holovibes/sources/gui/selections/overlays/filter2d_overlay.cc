@@ -10,26 +10,39 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include "rect_overlay.hh"
+#include "filter2d_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class Filter2DOverlay : public RectOverlay
+		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
+			: SquareOverlay(KindOfOverlay::Filter2D, parent)
 		{
-		public:
-			Filter2DOverlay(BasicOpenGLWindow* parent);
+			color_ = { 0.f, 0.62f, 1.f };
+		}
 
-			/*! \brief Check if corners are not swapped, and if they don't go out of bounds. */
-			void checkCorners(ushort frameSide);
-			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
-			void make_square();
+		void Filter2DOverlay::release(ushort frameSide)
+		{
+			checkCorners(parent_->width());
 
-			void move(QMouseEvent *e) override;
-			void release(ushort frameSide) override;
-		};
+			if (zone_.topLeft() == zone_.bottomRight())
+				return;
+
+			Rectangle texZone = getTexZone(frameSide);
+
+			// handle Filter2D
+			auto window = dynamic_cast<HoloWindow *>(parent_);
+			if (window)
+			{
+				window->getCd()->stftRoiZone(texZone, AccessMode::Set);
+				window->getPipe()->request_filter2D_roi_update();
+				window->getPipe()->request_filter2D_roi_end();
+			}
+
+			active_ = false;
+		}
 	}
 }

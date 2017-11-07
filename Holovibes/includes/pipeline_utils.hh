@@ -39,23 +39,23 @@ Res cudaDestroy(X* addr_buf, Res(*f)(Y))
   if (*addr_buf)
     res = (*f)(*addr_buf);
   *addr_buf = 0;
-  return (res);
+  return res;
 }
 
 template <class Res>
 Res cudaDestroy(cufftComplex** addr_buf)
 {
-  return (cudaDestroy<cufftComplex*, Res, void*>(addr_buf, &cudaFree));
+  return cudaDestroy<cufftComplex*, Res, void*>(addr_buf, &cudaFree);
 }
 
 template <class Res>
 Res cudaDestroy(float** addr_buf)
 {
-  return (cudaDestroy<float*, Res, void*>(addr_buf, &cudaFree));
+  return cudaDestroy<float*, Res, void*>(addr_buf, &cudaFree);
 }
 
 template <class Res>
 Res cudaDestroy(cufftHandle* addr_buf)
 {
-  return (cudaDestroy<cufftHandle, Res, cufftHandle>(addr_buf, &cufftDestroy));
+  return cudaDestroy<cufftHandle, Res, cufftHandle>(addr_buf, &cufftDestroy);
 }

@@ -167,26 +167,26 @@ namespace holovibes
 		Queue*			get_lens_queue();
 		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
-		bool get_unwrap_1d_request()		const { return (unwrap_1d_requested_.load()); }
-		bool get_unwrap_2d_request()		const { return (unwrap_2d_requested_.load()); }
-		bool get_autofocus_request()		const { return (autofocus_requested_.load()); }
-		bool get_autofocus_stop_request()	const { return (autofocus_stop_requested_.load()); }
-		bool get_autocontrast_request()		const { return (autocontrast_requested_.load()); }
-		bool get_refresh_request()			const { return (refresh_requested_.load()); }
-		bool get_update_n_request()			const { return (update_n_requested_.load()); }
-		bool get_stft_update_roi_request()	const { return (stft_update_roi_requested_.load()); }
-		bool get_average_request()			const { return (average_requested_.load()); }
-		bool get_average_record_request()	const { return (average_record_requested_.load()); }
-		bool get_float_output_request()		const { return (float_output_requested_.load()); }
-		bool get_complex_output_request()	const { return (complex_output_requested_.load()); }
-		bool get_abort_construct_request()	const { return (abort_construct_requested_.load()); }
-		bool get_termination_request()		const { return (termination_requested_.load()); }
-		bool get_update_acc_request()		const { return (update_acc_requested_.load()); }
-		bool get_update_ref_diff_request()	const { return (update_ref_diff_requested_.load()); }
-		bool get_request_stft_cuts()		const { return (request_stft_cuts_.load()); }
-		bool get_request_delete_stft_cuts() const { return (request_delete_stft_cuts_.load()); }
-		bool get_request_3d_vision()		const { return (request_3d_vision_.load()); }
-		bool get_request_delete_3d_vision()	const { return (request_delete_3d_vision_.load()); }
+		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_.load(); }
+		bool get_unwrap_2d_request()		const { return unwrap_2d_requested_.load(); }
+		bool get_autofocus_request()		const { return autofocus_requested_.load(); }
+		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_.load(); }
+		bool get_autocontrast_request()		const { return autocontrast_requested_.load(); }
+		bool get_refresh_request()			const { return refresh_requested_.load(); }
+		bool get_update_n_request()			const { return update_n_requested_.load(); }
+		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_.load(); }
+		bool get_average_request()			const { return average_requested_.load(); }
+		bool get_average_record_request()	const { return average_record_requested_.load(); }
+		bool get_float_output_request()		const { return float_output_requested_.load(); }
+		bool get_complex_output_request()	const { return complex_output_requested_.load(); }
+		bool get_abort_construct_request()	const { return abort_construct_requested_.load(); }
+		bool get_termination_request()		const { return termination_requested_.load(); }
+		bool get_update_acc_request()		const { return update_acc_requested_.load(); }
+		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_.load(); }
+		bool get_request_stft_cuts()		const { return request_stft_cuts_.load(); }
+		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_.load(); }
+		bool get_request_3d_vision()		const { return request_3d_vision_.load(); }
+		bool get_request_delete_3d_vision()	const { return request_delete_3d_vision_.load(); }
 
 
 	protected:

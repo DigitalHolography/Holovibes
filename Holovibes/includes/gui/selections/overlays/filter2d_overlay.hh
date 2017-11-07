@@ -10,26 +10,20 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "power_of_two.hh"
+#pragma once
 
-bool isPowerOfTwo(unsigned int x)
-{
-	return x != 0 && (x & (~x + 1)) == x;
-}
+#include "square_overlay.hh"
 
-unsigned int nextPowerOf2(unsigned int x)
+namespace holovibes
 {
-	--x;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	++x;
-	return x;
-}
+	namespace gui
+	{
+		class Filter2DOverlay : public SquareOverlay
+		{
+		public:
+			Filter2DOverlay(BasicOpenGLWindow* parent);
 
-unsigned int prevPowerOf2(unsigned int x)
-{
-	return nextPowerOf2(x - 1) >> 1;
+			void release(ushort frameSide) override;
+		};
+	}
 }

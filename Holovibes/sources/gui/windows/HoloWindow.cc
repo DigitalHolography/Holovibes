@@ -19,8 +19,6 @@ namespace holovibes
 {
 	namespace gui
 	{
-		std::atomic<bool> BasicOpenGLWindow::slicesAreLocked = true;
-
 		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window) :
 			DirectWindow(p, s, q, KindOfView::Hologram),
 			Ic(ic),

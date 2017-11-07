@@ -10,26 +10,28 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "power_of_two.hh"
+#pragma once
 
-bool isPowerOfTwo(unsigned int x)
-{
-	return x != 0 && (x & (~x + 1)) == x;
-}
+#include "rect_overlay.hh"
 
-unsigned int nextPowerOf2(unsigned int x)
+namespace holovibes
 {
-	--x;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	++x;
-	return x;
-}
+	namespace gui
+	{
+		class SquareOverlay : public RectOverlay
+		{
+		public:
+			SquareOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 
-unsigned int prevPowerOf2(unsigned int x)
-{
-	return nextPowerOf2(x - 1) >> 1;
+			virtual ~SquareOverlay()
+			{}
+
+			/*! \brief Check if corners are not swapped, and if they don't go out of bounds. */
+			void checkCorners(ushort frameSide);
+			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
+			void make_square();
+
+			virtual void move(QMouseEvent *e) override;
+		};
+	}
 }

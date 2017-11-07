@@ -54,9 +54,9 @@ namespace holovibes
 		InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
 		{
 			if (instance)
-				return (instance);
+				return instance;
 			else if (ui)
-				return ((InfoManager::instance = new InfoManager(ui)));
+				return InfoManager::instance = new InfoManager(ui);
 			else
 				throw InfoManager::ManagerNotInstantiate();
 		}
@@ -80,7 +80,7 @@ namespace holovibes
 
 		std::thread* InfoManager::getDelErrorThread()
 		{
-			return (delError);
+			return delError;
 		}
 
 		void InfoManager::joinDelErrorThread()
@@ -198,7 +198,7 @@ namespace holovibes
 
 		QProgressBar* InfoManager::get_progress_bar()
 		{
-			return (progressBar_);
+			return progressBar_;
 		}
 	}
 }

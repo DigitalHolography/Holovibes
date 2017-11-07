@@ -16,6 +16,7 @@
 #include <cuda_runtime.h>
 #include "tools.hh"
 #include "tools_conversion.cuh"
+#include "power_of_two.hh"
 
 namespace holovibes
 {
@@ -92,26 +93,16 @@ namespace holovibes
 		}
 	}
 
-	unsigned short	nearest_size(const unsigned short n)
+	unsigned short	upper_window_size(ushort width, ushort height)
 	{
-		double	pos = std::ceil(std::log2(n));
-		double	p = 0;
-			
-		p = std::pow(2, pos);
-		return (static_cast<unsigned short>(p));
-	}
-
-	unsigned short	nearest_window_size(const camera::FrameDescriptor frame)
-	{
-		unsigned short	pow_x = nearest_size(frame.width);
-		unsigned short	pow_y = nearest_size(frame.height);
-
-		return ((pow_x > pow_y) ? (pow_x) : (pow_y));
+		return nextPowerOf2(std::max(width, height));
 	}
 
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts)
 	{
 		float* tmp_buf = (float *)malloc(nb_elts * sizeof(float));
+		if (!tmp_buf)
+			return;
 		cudaMemcpy(tmp_buf, buf, nb_elts * sizeof(float), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < nb_elts; i++)
 			std::cout << "i = " << i << ", value = " << tmp_buf[i] << std::endl;
@@ -121,6 +112,8 @@ namespace holovibes
 	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts)
 	{
 		cuComplex* tmp_buf = (cuComplex *)malloc(nb_elts * sizeof(cuComplex));
+		if (!tmp_buf)
+			return;
 		cudaMemcpy(tmp_buf, buf, nb_elts * sizeof(cuComplex), cudaMemcpyDeviceToHost);
 		for (int i = 0; i < nb_elts; i++)
 			std::cout << "i = " << i << ", x = " << tmp_buf[i].x << ", y = " << tmp_buf[i].y << std::endl;

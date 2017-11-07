@@ -53,31 +53,21 @@ namespace holovibes
 
 	UnwrappingResources_2d::~UnwrappingResources_2d()
 	{
-		if (gpu_fx_)
-			cudaFree(gpu_fx_);
-		if (gpu_fy_)
-			cudaFree(gpu_fy_);
-		if (gpu_shift_fx_)
-			cudaFree(gpu_shift_fx_);
-		if (gpu_shift_fy_)
-			cudaFree(gpu_shift_fy_);
-		if (gpu_angle_)
-			cudaFree(gpu_angle_);
-		if (gpu_z_)
-			cudaFree(gpu_z_);
-		if (gpu_grad_eq_x_)
-			cudaFree(gpu_grad_eq_x_);
-		if (gpu_grad_eq_y_)
-			cudaFree(gpu_grad_eq_y_);
-		if (minmax_buffer_)
-			delete[] minmax_buffer_;
+		cudaFree(gpu_fx_);
+		cudaFree(gpu_fy_);
+		cudaFree(gpu_shift_fx_);
+		cudaFree(gpu_shift_fy_);
+		cudaFree(gpu_angle_);
+		cudaFree(gpu_z_);
+		cudaFree(gpu_grad_eq_x_);
+		cudaFree(gpu_grad_eq_y_);
+		delete[] minmax_buffer_;
 	}
 
 	bool UnwrappingResources_2d::cudaRealloc(void *ptr, const size_t size)
 	{
-		if (ptr)
-			cudaFree(ptr);
-		return (cudaMalloc(&ptr, size) == cudaSuccess);
+		cudaFree(ptr);
+		return cudaMalloc(&ptr, size) == cudaSuccess;
 	}
 
 	void UnwrappingResources_2d::reallocate(const size_t image_size)

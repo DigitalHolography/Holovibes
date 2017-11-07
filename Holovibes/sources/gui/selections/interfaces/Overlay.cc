@@ -107,4 +107,4 @@ namespace holovibes
 		//		<< std::endl;
 		}
 	}
-} 
+}

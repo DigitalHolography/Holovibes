@@ -40,7 +40,7 @@ static float global_variance_intensity(const float	*input, const uint	size)
 	float	*matrix_average;
 	size_t size_float = size * sizeof(float);
 	if (cudaMalloc(&matrix_average, size_float) != cudaSuccess)
-		return (0.f);
+		return 0.f;
 	float	*cpu_average_matrix = new float[size];
 	for (uint i = 0; i < size; ++i)
 		cpu_average_matrix[i] = average_input;
@@ -101,7 +101,7 @@ static float average_local_variance(const float	*input,
 			square_size_complex,
 			square_size);
 	else
-		return (0.f);
+		return 0.f;
 
 	const uint square_mat_size = mat_size * mat_size;
 	cuComplex* ke_complex_cpu = new cuComplex[square_mat_size];
@@ -129,7 +129,7 @@ static float average_local_variance(const float	*input,
 	if (cudaMalloc(&input_complex, size * sizeof(cuComplex)) != cudaSuccess)
 	{
 		cudaFree(ke_gpu_frame);
-		return (0.f);
+		return 0.f;
 	}
 	/* Convert input float frame to complex frame. */
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
@@ -140,7 +140,7 @@ static float average_local_variance(const float	*input,
 	{
 		cudaFree(input_complex);
 		cudaFree(ke_gpu_frame);
-		return (0.f);
+		return 0.f;
 	}
 
 	cufftHandle plan2d_x;
@@ -227,7 +227,7 @@ static float sobel_operator(const float	*input,
 			complex_square_size,
 			square_size);
 	else
-		return (0.f);
+		return 0.f;
 
 	/* Build the ks 3x3 matrix */
 	const float ks_cpu[9] =
@@ -270,7 +270,7 @@ static float sobel_operator(const float	*input,
 	else
 	{
 		cudaFree(ks_gpu_frame);
-		return (0.f);
+		return 0.f;
 	}
 	/* Build the kst 3x3 matrix */
 	const float kst_cpu[9] =
@@ -300,7 +300,7 @@ static float sobel_operator(const float	*input,
 	{
 		cudaFree(ks_gpu_frame);
 		cudaFree(kst_gpu_frame);
-		return (0.f);
+		return 0.f;
 	}
 
 	/* Convert input float frame to complex frame. */
@@ -314,7 +314,7 @@ static float sobel_operator(const float	*input,
 		cudaFree(ks_gpu_frame);
 		cudaFree(kst_gpu_frame);
 		cudaFree(input_complex);
-		return (0.f);
+		return 0.f;
 	}
 
 	/* Allocation of convolution i * kst output */
@@ -325,7 +325,7 @@ static float sobel_operator(const float	*input,
 		cudaFree(kst_gpu_frame);
 		cudaFree(input_complex);
 		cudaFree(i_ks_convolution);
-		return (0.f);
+		return 0.f;
 	}
 
 	cufftHandle plan2d_x;
@@ -369,7 +369,7 @@ static float sobel_operator(const float	*input,
 	cudaFree(kst_gpu_frame);
 	cudaFree(ks_gpu_frame);
 
-	return (1 / average_magnitude);
+	return 1 / average_magnitude;
 }
 
 float focus_metric(	float			*input,
@@ -388,5 +388,5 @@ float focus_metric(	float			*input,
 	const float avr_local_variance = average_local_variance(input, square_size, local_var_size);
 	const float avr_magnitude = sobel_operator(input, square_size);
 
-	return (global_variance * avr_local_variance * avr_magnitude);
+	return global_variance * avr_local_variance * avr_magnitude;
 }

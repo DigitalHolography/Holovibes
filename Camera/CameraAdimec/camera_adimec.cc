@@ -140,7 +140,7 @@ namespace camera
 		}
 
 		if (hd.pBufData == reinterpret_cast<void *>(0xcccccccccccccccc))
-			return (get_frame());
+			return get_frame();
 
 		return hd.pBufData;
 	}

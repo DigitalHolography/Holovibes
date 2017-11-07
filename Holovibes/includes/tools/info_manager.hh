@@ -39,7 +39,7 @@ namespace holovibes
 		{
 			const char *what()
 			{
-				return ("InfoManager is not instantiate, use InfoManager::get_manager with arg");
+				return "InfoManager is not instantiate, use InfoManager::get_manager with arg";
 			}
 		};
 		/*! ctr */

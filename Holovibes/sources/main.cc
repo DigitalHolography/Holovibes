@@ -39,6 +39,9 @@ int main(int argc, char* argv[])
 		w.show();
 		splash.finish(&w);
 		h.get_compute_desc().register_observer(w);
+
+		// Resizing horizontally the window before starting
+		w.layout_toggled();
 		
 		return a.exec();
 	}

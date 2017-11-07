@@ -10,21 +10,19 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "filter2d_overlay.hh"
+#include "square_overlay.hh"
 #include "BasicOpenGLWindow.hh"
-#include "HoloWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		Filter2DOverlay::Filter2DOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Filter2D, parent)
+		SquareOverlay::SquareOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
+			: RectOverlay(overlay, parent)
 		{
-			color_ = { 0.f, 0.62f, 1.f };
 		}
 
-		void Filter2DOverlay::make_square()
+		void SquareOverlay::make_square()
 		{
 			// Set the bottomRight corner to have a square selection.
 			// Since topLeft is always the origin, bottomRight correspond to destination,
@@ -38,18 +36,7 @@ namespace holovibes
 			));
 		}
 
-		void Filter2DOverlay::move(QMouseEvent *e)
-		{
-			if (e->buttons() == Qt::LeftButton)
-			{
-				display_ = true;
-				zone_.setBottomRight(getMousePos(e->pos()));
-				make_square();
-				setBuffer();
-			}
-		}
-
-		void Filter2DOverlay::checkCorners(ushort frameSide)
+		void SquareOverlay::checkCorners(ushort frameSide)
 		{
 			// Resizing the square selection to the window
 
@@ -88,9 +75,16 @@ namespace holovibes
 					window->getPipe()->request_filter2D_roi_update();
 					window->getPipe()->request_filter2D_roi_end();
 				}
+		void SquareOverlay::move(QMouseEvent* e)
+		{
+			if (e->buttons() == Qt::LeftButton)
+			{
+				auto pos = getMousePos(e->pos());
+				zone_.setBottomRight(pos);
+				make_square();
+				setBuffer();
+				display_ = true;
 			}
-
-			active_ = false;
 		}
 	}
 }

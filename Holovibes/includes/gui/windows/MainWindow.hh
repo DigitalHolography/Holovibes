@@ -243,7 +243,6 @@ namespace holovibes
 			void		open_file(const std::string& path);
 			void		load_ini(const std::string& path);
 			void		save_ini(const std::string& path);
-			void		split_string(const std::string& str, char delim, std::vector<std::string>& elts);
 			void		cancel_stft_view(ComputeDescriptor& cd);
 			std::string	format_batch_output(const std::string& path, uint index);
 			std::string	set_record_filename_properties(FrameDescriptor fd, std::string filename);

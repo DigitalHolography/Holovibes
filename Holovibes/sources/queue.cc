@@ -212,12 +212,12 @@ namespace holovibes
 
 		if (pos != std::string::npos)
 			display_size.resize(pos);
-		return(display_size);
+		return display_size;
 	}
 
 	std::mutex& Queue::getGuard()
 	{
-		return (mutex_);
+		return mutex_;
 	}
 
 }

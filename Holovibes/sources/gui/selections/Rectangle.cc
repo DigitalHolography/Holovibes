@@ -42,14 +42,14 @@ namespace holovibes
 
 		uint	Rectangle::area() const
 		{
-			return (width() * height());
+			return width() * height();
 		}
 
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj)
 		{
 			os << "topLeft() : " << obj.topLeft().x() << " " << obj.topLeft().y() << std::endl;
 			os << "bottomRight() : " << obj.bottomRight().x() << " " << obj.bottomRight().y() << std::endl;
-			return (os);
+			return os;
 		}
 
 		Rectangle operator-(Rectangle& rec, const QPoint& point)

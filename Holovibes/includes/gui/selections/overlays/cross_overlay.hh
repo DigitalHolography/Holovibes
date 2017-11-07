@@ -14,6 +14,7 @@
 
 #include "BasicOpenGLWindow.hh"
 #include "Overlay.hh"
+#include "zoom_overlay.hh"
 
 namespace holovibes
 {
@@ -23,10 +24,23 @@ namespace holovibes
 		{
 		public:
 			CrossOverlay(BasicOpenGLWindow* parent);
+			virtual ~CrossOverlay();
 
+			/*! \brief Initialize opengl buffers for rectangles and lines.
+			 *  The vertices buffers is built like this:
+			 *
+			 *       0   1
+			 *       |   |
+			 *  4 --- --- --- 5
+			 *       |   |
+			 *  7 --- --- --- 6
+			 *       |   |
+			 *       3   2
+			 */
 			void init() override;
 			void draw() override;
 
+			void press(QMouseEvent *e) override;
 			void keyPress(QKeyEvent *e) override;
 			void move(QMouseEvent *e) override;
 			void release(ushort frameSide) override;
@@ -58,6 +72,9 @@ namespace holovibes
 
 			//! Horizontal area. zone_ corresponds to the vertical area
 			units::RectWindow horizontal_zone_;
+			
+			//! Allow zomming when \this is the current overlay
+			std::shared_ptr<ZoomOverlay> zoom_;
 		};
 	}
 }
