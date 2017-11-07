@@ -113,21 +113,15 @@ namespace holovibes
 		void RectOverlay::setBuffer()
 		{
 			Program_->bind();
-			QSize win_size = parent_->size();
-			const float w = win_size.width();
-			const float h = win_size.height();
 
 			// Normalizing the zone to (-1; 1)
-			const float x0 = 2.f * zone_.topLeft().x() / w - 1.f;
-			const float y0 = -(2.f * zone_.topLeft().y() / h - 1.f);
-			const float x1 = 2.f * zone_.bottomRight().x() / w - 1.f;
-			const float y1 = -(2.f * zone_.bottomRight().y() / h - 1.f);
+			units::RectOpengl zone_gl = zone_;
 
 			const float subVertices[] = {
-				x0, y0,
-				x1, y0,
-				x1, y1,
-				x0, y1
+				zone_gl.x(), zone_gl.y(),
+				zone_gl.right(), zone_gl.y(),
+				zone_gl.right(), zone_gl.bottom(),
+				zone_gl.x(), zone_gl.bottom()
 			};
 
 			// Updating the buffer at verticesIndex_ with new coordinates

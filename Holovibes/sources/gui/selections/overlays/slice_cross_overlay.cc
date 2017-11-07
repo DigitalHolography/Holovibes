@@ -103,6 +103,8 @@ namespace holovibes
 				// Computing p in function of mouse position
 				uint depth = kView == SliceXZ ? parent_->height() : parent_->width();
 				pIndex_ = getMousePos(e->pos());
+				pIndex_.x().set(pIndex_.x() * Cd->nsamples / depth);
+				pIndex_.y().set(pIndex_.y() * Cd->nsamples / depth);
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
 				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
@@ -124,11 +126,13 @@ namespace holovibes
 		void SliceCrossOverlay::setBuffer()
 		{
 			auto cd = parent_->getCd();
-			units::PointFd topLeft;
-			units::PointFd bottomRight;
+			units::PointWindow topLeft;
+			units::PointWindow bottomRight;
 			auto kView = parent_->getKindOfView();
 
 			// Computing pmin/pmax coordinates in function of the frame_descriptor
+			const float side = kView == SliceXZ ? parent_->height() : parent_->width();
+			const float ratio = side / (cd->nsamples - 1);
 			uint pmin = cd->p_accu_min_level;
 			uint pmax = cd->p_accu_max_level;
 
@@ -138,13 +142,16 @@ namespace holovibes
 				pmin = cd->pindex;
 				pmax = cd->pindex;
 			}
+			pmin *= ratio;
+			pmax = (pmax + 1) * ratio;
+
 
 			units::ConversionData convert(parent_);
 
 			pmax = (pmax + 1);
-			topLeft = (kView == SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
-			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax) : units::PointFd(convert, pmax, parent_->getFd().height);
-			zone_ = units::RectFd(topLeft, bottomRight);
+			topLeft = (kView == SliceXZ) ? units::PointWindow(convert, 0, pmin) : units::PointWindow(convert, pmin, 0);
+			bottomRight = (kView == SliceXZ) ? units::PointWindow(convert, parent_->width(), pmax) : units::PointWindow(convert, pmax, parent_->height());
+			zone_ = units::RectWindow(topLeft, bottomRight);
 
 			// Updating opengl buffer
 			RectOverlay::setBuffer();

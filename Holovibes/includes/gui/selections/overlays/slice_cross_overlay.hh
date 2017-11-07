@@ -42,10 +42,10 @@ namespace holovibes
 			bool locked_;
 
 			//! p index of the last locked line
-			units::PointFd last_pIndex_;
+			units::PointWindow last_pIndex_;
 
 			//! pindex of the mouse position
-			units::PointFd pIndex_;
+			units::PointWindow pIndex_;
 		};
 	}
 }

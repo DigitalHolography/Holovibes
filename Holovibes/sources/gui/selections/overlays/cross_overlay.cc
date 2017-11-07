@@ -23,7 +23,7 @@ namespace holovibes
 			: Overlay(KindOfOverlay::Cross, parent)
 			, line_alpha_(0.5f)
 			, elemLineIndex_(0)
-			, locked_(false)
+			, locked_(true)
 			, last_clicked_(units::ConversionData(parent))
 			, mouse_position_(units::ConversionData(parent))
 			, horizontal_zone_(units::ConversionData(parent))
