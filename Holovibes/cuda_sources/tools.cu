@@ -202,7 +202,7 @@ void convolution_operator(	const cuComplex		*a,
 }
 
 void frame_memcpy(float				*input,
-				const Rectangle&	zone,
+				const units::RectFd&	zone,
 				const uint			input_width,
 				float				*output,
 				const uint			output_width,

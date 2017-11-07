@@ -77,7 +77,7 @@ namespace holovibes
 		ref_diff_counter(0),
 		stft_frame_counter(1),
 		average_n_(0),
-		af_env_({ 0 }),
+		af_env_(),
 		past_time_(std::chrono::high_resolution_clock::now()),
 		gpu_float_cut_xz_(nullptr),
 		gpu_float_cut_yz_(nullptr),
@@ -810,8 +810,8 @@ namespace holovibes
 		if (compute_desc_.stft_view_enabled.load() && b == true)
 		{
 			// Conservation of the coordinates when cursor is outside of the window
-			QPoint cursorPos;
-			compute_desc_.stftCursor(&cursorPos, AccessMode::Get);
+			units::PointFd cursorPos;
+			compute_desc_.stftCursor(cursorPos, AccessMode::Get);
 			const ushort width = input_.get_frame_desc().width;
 			const ushort height = input_.get_frame_desc().height;
 			if (static_cast<ushort>(cursorPos.x()) < width &&
@@ -848,8 +848,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const gui::Rectangle& signal,
-		const gui::Rectangle& noise,
+		const units::RectFd& signal,
+		const units::RectFd& noise,
 		cudaStream_t stream)
 	{
 		average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
@@ -859,8 +859,8 @@ namespace holovibes
 		float* input,
 		const unsigned int width,
 		const unsigned int height,
-		const gui::Rectangle& signal,
-		const gui::Rectangle& noise,
+		const units::RectFd& signal,
+		const units::RectFd& noise,
 		cudaStream_t stream)
 	{
 		if (average_n_ > 0)
@@ -882,8 +882,8 @@ namespace holovibes
 		const unsigned int height,
 		const unsigned int width_roi,
 		const unsigned int height_roi,
-		gui::Rectangle& signal_zone,
-		gui::Rectangle& noise_zone,
+		units::RectFd& signal_zone,
+		units::RectFd& noise_zone,
 		const unsigned int nsamples,
 		cudaStream_t stream)
 	{

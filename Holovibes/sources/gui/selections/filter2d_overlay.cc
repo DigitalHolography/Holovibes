@@ -30,7 +30,7 @@ namespace holovibes
 			// Since topLeft is always the origin, bottomRight correspond to destination,
 			// and can be in every corner (bottomRight can be in the top left corner).
 			const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
-			zone_.setBottomRight(QPoint(
+			zone_.setBottomRight(units::PointWindow(units::ConversionData(parent_),
 				zone_.topLeft().x() +
 				min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1),
 				zone_.topLeft().y() +
@@ -53,15 +53,15 @@ namespace holovibes
 		{
 			// Resizing the square selection to the window
 
-			if (zone_.bottomRight().x() < 0)
-				zone_.setBottomRight(QPoint(0, zone_.bottomRight().y()));
-			if (zone_.bottomRight().y() < 0)
-				zone_.setBottomRight(QPoint(zone_.bottomRight().x(), 0));
+			if (zone_.right() < 0)
+				zone_.setRight(0);
+			if (zone_.bottom() < 0)
+				zone_.setBottom(0);
 
-			if (zone_.bottomRight().x() > frameSide)
-				zone_.setBottomRight(QPoint(frameSide, zone_.bottomRight().y()));
-			if (zone_.bottomRight().y() > frameSide)
-				zone_.setBottomRight(QPoint(zone_.bottomRight().x(), frameSide));
+			if (zone_.right() > frameSide)
+				zone_.setRight(frameSide);
+			if (zone_.bottom() > frameSide)
+				zone_.setBottom(frameSide);
 
 			// Making it a square again
 			make_square();
@@ -76,7 +76,7 @@ namespace holovibes
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 
-			Rectangle texZone = getTexZone(frameSide);
+			units::RectFd texZone = zone_;
 
 			// handle Filter2D
 			if (parent_->getKindOfView() == Hologram)

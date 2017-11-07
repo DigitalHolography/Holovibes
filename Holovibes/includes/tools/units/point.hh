@@ -29,6 +29,11 @@ namespace holovibes
 		class Point
 		{
 		public:
+			Point()
+				: x_(ConversionData(), Axis::HORIZONTAL, 0)
+				, y_(ConversionData(), Axis::VERTICAL, 0)
+			{}
+
 			Point(T x, T y)
 				: x_(x)
 				, y_(y)
@@ -84,6 +89,11 @@ namespace holovibes
 				res.x_ -= other.x_;
 				res.y_ -= other.y_;
 				return res;
+			}
+
+			bool operator==(const Point<T>& other) const
+			{
+				return x_ == other.x_ && y_ == other.y_;
 			}
 
 

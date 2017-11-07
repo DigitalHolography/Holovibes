@@ -29,6 +29,7 @@ namespace holovibes
 			WindowPixel(ConversionData data, Axis axis, int val = 0);
 
 			operator OpenglPosition() const;
+			operator FDPixel() const;
 		};
 	}
 }

@@ -30,7 +30,7 @@ namespace holovibes
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 
-			Rectangle texZone = getTexZone(frameSide);
+			units::RectFd texZone = zone_;
 
 			// handle Signal
 			if (parent_->getKindOfView() == Hologram)

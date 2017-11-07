@@ -22,7 +22,9 @@ namespace holovibes
 		CrossOverlay::CrossOverlay(BasicOpenGLWindow* parent)
 			: Overlay(KindOfOverlay::Cross, parent)
 			, line_alpha_(0.5f)
-			, horizontal_zone_(0, 0)
+			, last_clicked_(units::ConversionData(parent))
+			, mouse_position_(units::ConversionData(parent))
+			, horizontal_zone_(units::ConversionData(parent))
 		{
 			color_ = { 1.f, 0.f, 0.f };
 			alpha_ = 0.05f;
@@ -156,25 +158,25 @@ namespace holovibes
 			if (!locked_)
 			{
 				auto fd = parent_->getFd();
-				auto pos = getMousePos(e->pos());
-				pos.setX(pos.x() * fd.width / parent_->width());
-				pos.setY(pos.y() * fd.height / parent_->height());
+				units::ConversionData convert(*parent_);
+				units::PointWindow pos_window(convert, e->pos().x(), e->pos().y());
+				units::PointFd pos = pos_window;
 				mouse_position_ = pos;
 				std::stringstream ss;
 				ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
 				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
 				auto cd = parent_->getCd();
-				cd->stftCursor(&pos, AccessMode::Set);
+				cd->stftCursor(pos, AccessMode::Set);
 				// ---------------
 				if (cd->x_accu_enabled)
 				{
-					cd->x_accu_min_level = std::min(pos.x(), last_clicked_.x());
-					cd->x_accu_max_level = std::max(pos.x(), last_clicked_.x());
+					cd->x_accu_min_level = std::min(pos.x().get(), last_clicked_.x().get());
+					cd->x_accu_max_level = std::max(pos.x().get(), last_clicked_.x().get());
 				}
 				if (cd->y_accu_enabled)
 				{
-					cd->y_accu_min_level = std::min(pos.y(), last_clicked_.y());
-					cd->y_accu_max_level = std::max(pos.y(), last_clicked_.y());
+					cd->y_accu_min_level = std::min(pos.y().get(), last_clicked_.y().get());
+					cd->y_accu_max_level = std::max(pos.y().get(), last_clicked_.y().get());
 				}
 				cd->notify_observers();
 			}
@@ -188,10 +190,10 @@ namespace holovibes
 		void CrossOverlay::computeZone()
 		{
 			auto cd = parent_->getCd();
-			QPoint topLeft;
-			QPoint bottomRight;
-			QPoint cursor;
-			cd->stftCursor(&cursor, Get);
+			units::PointFd topLeft;
+			units::PointFd bottomRight;
+			units::PointFd cursor;
+			cd->stftCursor(cursor, Get);
 
 			// Computing min/max coordinates in function of the frame_descriptor
 			auto frame_desc = parent_->getFd();
@@ -217,8 +219,9 @@ namespace holovibes
 			xmax = (xmax + 1) * ratioX;
 			ymin *= ratioY;
 			ymax = (ymax + 1) * ratioY;
-			zone_ = QRect(QPoint(xmin, 0), QPoint(xmax, parent_->height()));
-			horizontal_zone_ = QRect(QPoint(0, ymin), QPoint(parent_->width(), ymax));
+			units::ConversionData convert(parent_);
+			zone_ = units::RectWindow(convert, xmin, 0, xmax, parent_->height());
+			horizontal_zone_ = units::RectWindow(convert, 0, ymin, parent_->width(), ymax);
 		}
 
 		void CrossOverlay::setBuffer()

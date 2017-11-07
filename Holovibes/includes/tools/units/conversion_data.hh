@@ -12,23 +12,30 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
+	namespace gui
+	{
+		class BasicOpenGLWindow;
+	}
+
 	namespace units
 	{
 
 		enum Axis;
 
 		/*! \brief Encapsulates the conversion from a unit to another
+		 *
+		 * This will be copied a lot, make sure to keep references and pointers inside
 		 */
 		class ConversionData
 		{
 		public:
 			/*! \brief Constructs an object with the data needed to convert, to be modified for transforms
 			 */
-			ConversionData(const BasicOpenGLWindow& window);
+			ConversionData(const gui::BasicOpenGLWindow& window);
+			ConversionData(const gui::BasicOpenGLWindow* window = nullptr);
 
 			/* \brief Converts a unit type into another
 			 * {*/
@@ -44,7 +51,7 @@ namespace holovibes
 			int get_window_size(Axis axis) const;
 			int get_fd_size(Axis axis) const;
 
-			const BasicOpenGLWindow&	window_;
+			const gui::BasicOpenGLWindow*	window_;
 		};
 	}
 }

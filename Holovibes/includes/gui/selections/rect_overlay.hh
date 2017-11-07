@@ -34,12 +34,9 @@ namespace holovibes
 			void checkCorners();
 
 			virtual void move(QMouseEvent *e) override;
-			virtual void setZone(Rectangle rect, ushort frameside) override;
+			virtual void setZone(units::RectWindow rect, ushort frameside) override;
 		protected:
 			void setBuffer() override;
-
-			/*! \brief Return the real zone in buffer coordinates. (frame desc width, frame desc height) */
-			Rectangle getTexZone(ushort frameSide) const;
 		};
 	}
 }

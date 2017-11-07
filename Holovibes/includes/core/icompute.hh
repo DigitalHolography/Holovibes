@@ -75,7 +75,7 @@ namespace holovibes
 
 			std::vector<float>	focus_metric_values; /**< vector containing the values given by the evaluating function*/
 
-			gui::Rectangle		zone; /**< zone where autofocus is applied */
+			units::RectFd		zone; /**< zone where autofocus is applied */
 			unsigned int		af_square_size; /** size of the square zone where autofocus is applied */
 			float				*gpu_float_buffer_af_zone; /**< zone of gpu_float_buffer_ where autocus is applied */
 
@@ -219,8 +219,8 @@ namespace holovibes
 			float* input,
 			const unsigned int width,
 			const unsigned int height,
-			const gui::Rectangle& signal,
-			const gui::Rectangle& noise,
+			const units::RectFd& signal,
+			const units::RectFd& noise,
 			cudaStream_t stream);
 
 		/*! \see request_average_record
@@ -235,8 +235,8 @@ namespace holovibes
 			float* input,
 			const unsigned int width,
 			const unsigned int height,
-			const gui::Rectangle& signal,
-			const gui::Rectangle& noise,
+			const units::RectFd& signal,
+			const units::RectFd& noise,
 			cudaStream_t stream);
 
 		/*! \see request_average
@@ -252,8 +252,8 @@ namespace holovibes
 			const unsigned int height,
 			const unsigned int width_roi,
 			const unsigned int height_roi,
-			gui::Rectangle& signal_zone,
-			gui::Rectangle& noise_zone,
+			units::RectFd& signal_zone,
+			units::RectFd& noise_zone,
 			const unsigned int nsamples,
 			cudaStream_t stream);
 

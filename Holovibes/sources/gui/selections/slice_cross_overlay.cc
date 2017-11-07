@@ -126,13 +126,11 @@ namespace holovibes
 		void SliceCrossOverlay::setBuffer()
 		{
 			auto cd = parent_->getCd();
-			QPoint topLeft;
-			QPoint bottomRight;
+			units::PointFd topLeft;
+			units::PointFd bottomRight;
 			auto kView = parent_->getKindOfView();
 
 			// Computing pmin/pmax coordinates in function of the frame_descriptor
-			const float side = kView == SliceXZ ? parent_->height() : parent_->width();
-			const float ratio = side / (cd->nsamples - 1);
 			uint pmin = cd->p_accu_min_level;
 			uint pmax = cd->p_accu_max_level;
 
@@ -142,11 +140,13 @@ namespace holovibes
 				pmin = cd->pindex;
 				pmax = cd->pindex;
 			}
-			pmin *= ratio;
-			pmax = (pmax + 1) * ratio;
-			topLeft = (kView == SliceXZ) ? QPoint(0, pmin) : QPoint(pmin, 0);
-			bottomRight = (kView == SliceXZ) ? QPoint(parent_->width(), pmax) : QPoint(pmax, parent_->height());
-			zone_ = QRect(topLeft, bottomRight);
+
+			units::ConversionData convert(parent_);
+
+			pmax = (pmax + 1);
+			topLeft = (kView == SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
+			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->width(), pmax) : units::PointFd(convert, pmax, parent_->height());
+			zone_ = units::RectFd(topLeft, bottomRight);
 
 			// Updating opengl buffer
 			RectOverlay::setBuffer();

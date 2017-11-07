@@ -30,14 +30,14 @@ void StabilizationOverlay::release(ushort frameSide)
 	if (zone_.topLeft() == zone_.bottomRight())
 		return;
 
-	zone_.setX(std::max(zone_.x(), 0));
-	zone_.setY(std::max(zone_.y(), 0));
-	zone_.setBottom(std::min(zone_.bottom(), parent_->height()));
-	zone_.setRight(std::min(zone_.right(), parent_->width()));
+	zone_.setX(std::max(zone_.x().get(), 0));
+	zone_.setY(std::max(zone_.y().get(), 0));
+	zone_.setBottom(std::min(zone_.bottom().get(), parent_->height()));
+	zone_.setRight(std::min(zone_.right().get(), parent_->width()));
 
-	Rectangle texZone = getTexZone(frameSide);
+	units::RectFd texZone = zone_;
 
-	const uint square_size = prevPowerOf2(std::min(texZone.width(), texZone.height()));
+	const uint square_size = prevPowerOf2(std::min(texZone.width().get(), texZone.height().get()));
 	texZone.setWidth(square_size);
 	texZone.setHeight(square_size);
 
@@ -48,12 +48,10 @@ void StabilizationOverlay::release(ushort frameSide)
 void StabilizationOverlay::make_pow2_square()
 {
 	const int min = prevPowerOf2(std::min(std::abs(zone_.width()), std::abs(zone_.height())));
-	zone_.setBottomRight(QPoint(
-		zone_.topLeft().x() +
-		min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1),
-		zone_.topLeft().y() +
-		min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1)
-	));
+	zone_.setBottom(zone_.topLeft().x() +
+		min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1));
+	zone_.setRight(zone_.topLeft().y() +
+		min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1));
 }
 
 void StabilizationOverlay::move(QMouseEvent* e)

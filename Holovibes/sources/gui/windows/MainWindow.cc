@@ -1455,7 +1455,7 @@ namespace holovibes
 				InfoManager::get_manager()->remove_info("Filter2D");
 				compute_desc_.filter_2d_enabled.exchange(false);
 				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
-				compute_desc_.stftRoiZone(Rectangle(0, 0), AccessMode::Set);
+				compute_desc_.stftRoiZone(units::RectFd(), AccessMode::Set);
 				mainDisplay->getOverlayManager().disable_all(Filter2D);
 				mainDisplay->getOverlayManager().create_default();
 				mainDisplay->resetTransform();
@@ -2273,8 +2273,8 @@ namespace holovibes
 			if (!path.empty())
 			{
 				boost::property_tree::ptree ptree;
-				const Rectangle signal = mainDisplay->getSignalZone();
-				const Rectangle noise = mainDisplay->getNoiseZone();
+				const units::RectFd signal = mainDisplay->getSignalZone();
+				const units::RectFd noise = mainDisplay->getNoiseZone();
 
 				ptree.put("signal.top_left_x", signal.topLeft().x());
 				ptree.put("signal.top_left_y", signal.topLeft().y());
@@ -2305,21 +2305,26 @@ namespace holovibes
 					boost::property_tree::ptree ptree;
 					boost::property_tree::ini_parser::read_ini(path, ptree);
 
-					Rectangle signal;
-					Rectangle noise;
+					units::RectFd signal;
+					units::RectFd noise;
+					units::ConversionData convert;
 
 					signal.setTopLeft(
-						QPoint(ptree.get<int>("signal.top_left_x", 0),
+						units::PointFd(convert,
+							ptree.get<int>("signal.top_left_x", 0),
 							ptree.get<int>("signal.top_left_y", 0)));
 					signal.setBottomRight(
-						QPoint(ptree.get<int>("signal.bottom_right_x", 0),
+						units::PointFd(convert,
+							ptree.get<int>("signal.bottom_right_x", 0),
 							ptree.get<int>("signal.bottom_right_y", 0)));
 
 					noise.setTopLeft(
-						QPoint(ptree.get<int>("noise.top_left_x", 0),
+						units::PointFd(convert,
+							ptree.get<int>("noise.top_left_x", 0),
 							ptree.get<int>("noise.top_left_y", 0)));
 					noise.setBottomRight(
-						QPoint(ptree.get<int>("noise.bottom_right_x", 0),
+						units::PointFd(convert,
+							ptree.get<int>("noise.bottom_right_x", 0),
 							ptree.get<int>("noise.bottom_right_y", 0)));
 
 					mainDisplay->setSignalZone(signal);

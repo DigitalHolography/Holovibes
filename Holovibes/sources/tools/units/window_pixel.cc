@@ -27,7 +27,13 @@ namespace holovibes
 		WindowPixel::operator units::OpenglPosition() const
 		{
 			OpenglPosition res(conversion_data_, axis_, conversion_data_.window_size_to_opengl(val_, axis_));
-			std::cout << "Window to opengl" << std::endl;
+			return res;
+		}
+
+		WindowPixel::operator units::FDPixel() const
+		{
+			FDPixel res(conversion_data_, axis_,
+					conversion_data_.opengl_to_fd(static_cast<units::OpenglPosition>(*this).get(), axis_));
 			return res;
 		}
 	}

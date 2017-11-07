@@ -10,33 +10,55 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cassert>
+
 #include "units\conversion_data.hh"
 #include "units\unit.hh"
+#include "BasicOpenGLWindow.hh"
 
 using holovibes::units::ConversionData;
 using holovibes::units::Axis;
 
 ConversionData::ConversionData(const BasicOpenGLWindow& window)
+	: window_(&window)
+{}
+
+ConversionData::ConversionData(const BasicOpenGLWindow* window)
 	: window_(window)
 {}
 
 float ConversionData::window_size_to_opengl(int val, Axis axis) const
 {
-	return (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1;
+	assert(window_);
+	if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+	{
+		double multiplier = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
+		val *= multiplier;
+	}
+	return (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
 }
 
 float ConversionData::fd_to_opengl(int val, Axis axis) const
 {
-	return (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1;
+	assert(window_);
+	return (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
 }
 
 int ConversionData::opengl_to_window_size(float val, Axis axis) const
 {
-	return ((val + 1.f) / 2.f) * get_window_size(axis);
+	assert(window_);
+	int res = ((val + 1.f) / 2.f) * get_window_size(axis);
+	if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+	{
+		double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
+		res /= divider;
+	}
+	return res;
 }
 
 int ConversionData::opengl_to_fd(float val, Axis axis) const
 {
+	assert(window_);
 	return ((val + 1.f) / 2.f) * get_fd_size(axis);
 }
 
@@ -45,9 +67,9 @@ int ConversionData::get_window_size(Axis axis) const
 	switch (axis)
 	{
 	case Axis::HORIZONTAL:
-		return window_.width();
+		return window_->width();
 	case Axis::VERTICAL:
-		return window_.height();
+		return window_->height();
 	default:
 		throw std::exception("Unreachable code");
 	}
@@ -58,9 +80,9 @@ int ConversionData::get_fd_size(Axis axis) const
 	switch (axis)
 	{
 	case Axis::HORIZONTAL:
-		return window_.getFd().width;
+		return window_->getFd().width;
 	case Axis::VERTICAL:
-		return window_.getFd().height;
+		return window_->getFd().height;
 	default:
 		throw std::exception("Unreachable code");
 	}

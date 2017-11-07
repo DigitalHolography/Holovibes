@@ -27,5 +27,12 @@ namespace holovibes
 			OpenglPosition res(conversion_data_, axis_, conversion_data_.fd_to_opengl(val_, axis_));
 			return res;
 		}
+
+		FDPixel::operator WindowPixel() const
+		{
+			WindowPixel res(conversion_data_, axis_,
+				conversion_data_.opengl_to_window_size(static_cast<units::OpenglPosition>(*this).get(), axis_));
+			return res;
+		}
 	}
 }

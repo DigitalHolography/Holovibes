@@ -32,7 +32,7 @@ namespace holovibes
 			void release(ushort frameSide) override;
 
 			// Not called when using cross
-			void setZone(Rectangle rect, ushort frameside) override
+			void setZone(units::RectWindow rect, ushort frameside) override
 			{}
 
 		protected:
@@ -51,13 +51,13 @@ namespace holovibes
 			bool locked_;
 
 			//! Position of the last line locked
-			QPoint last_clicked_;
+			units::PointFd last_clicked_;
 
 			//! Actual mouse position
-			QPoint mouse_position_;
+			units::PointFd mouse_position_;
 
 			//! Horizontal area. zone_ corresponds to the vertical area
-			Rectangle horizontal_zone_;
+			units::RectWindow horizontal_zone_;
 		};
 	}
 }

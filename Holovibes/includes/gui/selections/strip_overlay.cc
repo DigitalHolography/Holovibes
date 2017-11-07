@@ -41,19 +41,19 @@ namespace holovibes
 		{
 			ushort pmin = component_.p_min.load();
 			ushort pmax = component_.p_max.load() + 1;
+			units::ConversionData convert(parent_);
 			if (parent_->getKindOfView() == SliceXZ)
 			{
-				float ratio = (float)parent_->height() / (nsamples_.load() - 1);
-				QPoint topleft(0, ratio * pmin);
-				QPoint bottomRight(parent_->width(), ratio * pmax);
-				zone_ = QRect(topleft, bottomRight);
+				units::PointFd topleft(convert, 0, pmin);
+				units::PointFd bottomRight(convert, parent_->getFd().width, pmax);
+				units::RectFd rect(topleft, bottomRight);
+				zone_ = rect;
 			}
 			else
 			{
-				float ratio = (float)parent_->width() / (nsamples_.load() - 1);
-				QPoint topleft(ratio * pmin, 0);
-				QPoint bottomRight(ratio * pmax, parent_->height());
-				zone_ = QRect(topleft, bottomRight);
+				units::PointFd topleft(convert, pmin, 0);
+				units::PointFd bottomRight(convert, pmax, parent_->getFd().height);
+				zone_ = units::RectFd(topleft, bottomRight);
 			}
 		}
 	}

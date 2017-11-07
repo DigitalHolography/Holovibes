@@ -56,12 +56,12 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
 }
 
 
-/*! \brief cast a framedescriptor into a Rectangle */
-inline gui::Rectangle get_rectangle(const camera::FrameDescriptor& a)
+/*! \brief cast a framedescriptor into a Rectangle
+inline units::RectWindow get_rectangle(const camera::FrameDescriptor& a)
 {
-	return gui::Rectangle(a.width, a.height);
+	return units::RectWindow(0, 0, a.width, a.height);
 }
-
+ */
 
 inline double clockToMilliseconds(clock_t ticks)
 {

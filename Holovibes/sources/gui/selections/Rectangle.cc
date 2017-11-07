@@ -12,7 +12,7 @@
 
 #include "Rectangle.hh"
 #include <iostream>
-
+/*
 namespace holovibes
 {
 	namespace gui
@@ -74,3 +74,4 @@ namespace holovibes
 		return os;
 	}
 }
+*/

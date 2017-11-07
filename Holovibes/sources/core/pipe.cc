@@ -352,7 +352,7 @@ namespace holovibes
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
 
-		gui::Rectangle roiZone;
+		units::RectFd roiZone;
 		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);
 		if (compute_desc_.stft_enabled.load() ||
 			(compute_desc_.filter_2d_enabled.load() && !roiZone.area()))
@@ -781,8 +781,8 @@ namespace holovibes
 
 		if (average_requested_.load())
 		{
-			gui::Rectangle signalZone;
-			gui::Rectangle noiseZone;
+			units::RectFd signalZone;
+			units::RectFd noiseZone;
 			compute_desc_.signalZone(signalZone, AccessMode::Get);
 			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
 			if (average_record_requested_.load())

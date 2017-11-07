@@ -22,11 +22,6 @@ namespace holovibes
 		{
 		}
 
-		Rectangle RectOverlay::getTexZone(ushort frameSide) const
-		{
-			return Rectangle(zone_.topLeft() * frameSide / parent_->width(), zone_.size() * frameSide / parent_->width());
-		}
-
 		void RectOverlay::init()
 		{
 			// Program_ already bound by caller (initProgram)
@@ -99,16 +94,16 @@ namespace holovibes
 		{
 			if (zone_.width() < 0)
 			{
-				QPoint topRight = zone_.topRight();
-				QPoint bottomLeft = zone_.bottomLeft();
+				auto topRight = zone_.topRight();
+				auto bottomLeft = zone_.bottomLeft();
 
 				zone_.setTopLeft(topRight);
 				zone_.setBottomRight(bottomLeft);
 			}
 			if (zone_.height() < 0)
 			{
-				QPoint topRight = zone_.topRight();
-				QPoint bottomLeft = zone_.bottomLeft();
+				auto topRight = zone_.topRight();
+				auto bottomLeft = zone_.bottomLeft();
 
 				zone_.setTopLeft(bottomLeft);
 				zone_.setBottomRight(topRight);
@@ -154,11 +149,9 @@ namespace holovibes
 			}
 		}
 
-		void RectOverlay::setZone(Rectangle rect, ushort frameside)
+		void RectOverlay::setZone(units::RectWindow rect, ushort frameside)
 		{
-			auto zone = Rectangle(rect.topLeft() * parent_->width() / frameside, rect.size() * parent_->width() / frameside);
-			zone_.setTopLeft(zone.topLeft());
-			zone_.setBottomRight(zone.bottomRight());
+			zone_ = rect;
 			setBuffer();
 			display_ = true;
 			release(frameside);

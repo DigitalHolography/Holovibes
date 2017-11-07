@@ -25,12 +25,12 @@ namespace holovibes
 			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
 			virtual ~DirectWindow();
 
-			Rectangle	getSignalZone() const;
-			Rectangle	getNoiseZone() const;
-			void		setSignalZone(Rectangle signal);
-			void		setNoiseZone(Rectangle noise);
+			units::RectFd	getSignalZone() const;
+			units::RectFd	getNoiseZone() const;
+			void		setSignalZone(units::RectFd signal);
+			void		setNoiseZone(units::RectFd noise);
 
-			void	zoomInRect(Rectangle zone);
+			void	zoomInRect(units::RectWindow zone);
 
 		protected:
 			int	texDepth, texType;

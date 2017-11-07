@@ -15,6 +15,8 @@
 #include <ostream>
 #include <qrect.h>
 
+#include "units/rect.hh"
+
 namespace holovibes
 {
 	namespace gui
@@ -34,6 +36,7 @@ namespace holovibes
 			SliceCross,
 			Strip
 		};
+		/*
 		class Rectangle : public QRect
 		{
 		public:
@@ -47,6 +50,7 @@ namespace holovibes
 		};
 		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
 		Rectangle operator-(Rectangle& rec, const QPoint& point);
+		//*/
 	}
 	std::ostream& operator<<(std::ostream& os, const QPoint& p);
 	std::ostream& operator<<(std::ostream& os, const QSize& s);

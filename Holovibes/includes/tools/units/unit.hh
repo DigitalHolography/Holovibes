@@ -60,6 +60,48 @@ namespace holovibes
 				return val_;
 			}
 
+			T& get()
+			{
+				return val_;
+			}
+
+			void set(T x)
+			{
+				val_ = x;
+			}
+
+			template<typename U>
+			Unit<T> operator+(const U& other)
+			{
+				Unit<T> res(*this);
+				res.val_ += other;
+				return res;
+			}
+
+			template<typename U>
+			Unit<T> operator-(const U& other)
+			{
+				Unit<T> res(*this);
+				res.val_ -= other;
+				return res;
+			}
+
+			template<typename U>
+			Unit<T> operator/(const U& other)
+			{
+				Unit<T> res(*this);
+				res.val_ /= other;
+				return res;
+			}
+
+			template<typename U>
+			Unit<T> operator*(const U& other)
+			{
+				Unit<T> res(*this);
+				res.val_ *= other;
+				return res;
+			}
+
 		protected:
 			/*! \brief Encapsulates the metadata needed for the conversions
 			 */

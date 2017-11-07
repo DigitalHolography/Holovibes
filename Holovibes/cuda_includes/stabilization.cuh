@@ -18,7 +18,7 @@
 void extract_frame(const float	*input,
 				float			*output,
 				const uint		input_w,
-				const holovibes::gui::Rectangle&	frame);
+				const holovibes::units::RectFd&	frame);
 
 /// Resize the image
 void gpu_resize(const float		*input,
