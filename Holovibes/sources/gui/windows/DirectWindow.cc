@@ -242,7 +242,7 @@ namespace holovibes
 
 		void	DirectWindow::zoomInRect(units::RectWindow zone)
 		{
-			const units::PointFd center = zone.center();
+			const units::PointWindow center = zone.center();
 
 			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
 			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;

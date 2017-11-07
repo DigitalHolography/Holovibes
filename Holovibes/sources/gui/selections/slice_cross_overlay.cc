@@ -102,9 +102,7 @@ namespace holovibes
 
 				// Computing p in function of mouse position
 				uint depth = kView == SliceXZ ? parent_->height() : parent_->width();
-				pIndex_ = e->pos();
-				pIndex_.setX(pIndex_.x() * Cd->nsamples / depth);
-				pIndex_.setY(pIndex_.y() * Cd->nsamples / depth);
+				pIndex_ = getMousePos(e->pos());
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
 				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
@@ -145,7 +143,7 @@ namespace holovibes
 
 			pmax = (pmax + 1);
 			topLeft = (kView == SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
-			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->width(), pmax) : units::PointFd(convert, pmax, parent_->height());
+			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax) : units::PointFd(convert, pmax, parent_->getFd().height);
 			zone_ = units::RectFd(topLeft, bottomRight);
 
 			// Updating opengl buffer
