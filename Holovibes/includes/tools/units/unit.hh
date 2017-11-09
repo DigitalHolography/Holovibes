@@ -60,16 +60,24 @@ namespace holovibes
 				return val_;
 			}
 
+			/*! \brief Implicit cast into a reference to the primary type
+			 *
+			 * Can be used for += and such
+			 */
 			T& get()
 			{
 				return val_;
 			}
 
+			/*! \brief Exmplcit setter
+			 */
 			void set(T x)
 			{
 				val_ = x;
 			}
 
+			/*! \brief Exmplcit setter
+			 */
 			template<typename U>
 			Unit<T> operator+(const U& other)
 			{
@@ -78,6 +86,13 @@ namespace holovibes
 				return res;
 			}
 
+
+			/*! \brief Operator overloads
+			 *
+			 * They can be used with either a primary type or another Unit
+			 * The result is an Unit, but can be implicitly casted into a T
+			 */
+			/**@{*/
 			template<typename U>
 			Unit<T> operator-(const U& other)
 			{
@@ -101,6 +116,7 @@ namespace holovibes
 				res.val_ *= other;
 				return res;
 			}
+			/**@{*/
 
 		protected:
 			/*! \brief Encapsulates the metadata needed for the conversions

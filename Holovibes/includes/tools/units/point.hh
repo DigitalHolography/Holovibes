@@ -75,6 +75,9 @@ namespace holovibes
 				return res;
 			}
 
+			/*! \brief Operator overloads
+			 */
+			/**@{*/
 			Point<T> operator+(const Point<T>& other) const
 			{
 				Point<T> res(x_, y_);
@@ -95,7 +98,7 @@ namespace holovibes
 			{
 				return x_ == other.x_ && y_ == other.y_;
 			}
-
+			/**@}*/
 
 		private:
 			T x_;

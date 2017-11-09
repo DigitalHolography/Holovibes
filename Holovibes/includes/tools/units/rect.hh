@@ -28,6 +28,9 @@ namespace holovibes
 		{
 		public:
 
+
+			/*! \brief Default constructors, will crash when trying to convert it
+			 */
 			Rect() = default;
 
 			/*! \brief Constructs a rectangle from two points
@@ -52,6 +55,9 @@ namespace holovibes
 				, bottom_right_(data, x2, y2)
 			{}
 
+			/*! \brief Getters and setters
+			 */
+			/**@{*/
 			const Point<T>& topLeft() const
 			{
 				return top_left_;
@@ -164,6 +170,7 @@ namespace holovibes
 			{
 				bottom_right_ = p;
 			}
+			/**@}*/
 
 
 			/*! \brief Implicit cast into a rectangle of an other unit
@@ -175,11 +182,15 @@ namespace holovibes
 				return res;
 			}
 
+			/*! \brief area, abs(width * height)
+			 */
 			typename T::primary_type area() const
 			{
 				return std::abs(width() * height());
 			}
 
+			/*! \brief Center of the rectangle
+			 */
 			Point<T> center() const
 			{
 				T x = top_left_.x();
