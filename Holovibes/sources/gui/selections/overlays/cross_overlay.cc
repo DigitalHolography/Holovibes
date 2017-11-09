@@ -176,8 +176,7 @@ namespace holovibes
 			if (!locked_)
 			{
 				auto fd = parent_->getFd();
-				units::ConversionData convert(*parent_);
-				units::PointWindow pos_window(convert, e->pos().x(), e->pos().y());
+				units::PointWindow pos_window = getMousePos(e->pos());
 				units::PointFd pos = pos_window;
 				mouse_position_ = pos;
 				std::stringstream ss;
@@ -219,62 +218,44 @@ namespace holovibes
 			cd->stftCursor(cursor, Get);
 
 			// Computing min/max coordinates in function of the frame_descriptor
-			auto frame_desc = parent_->getFd();
-			const float ratioX = (float)(parent_->width()) / (frame_desc.width - 1);
-			const float ratioY = (float)(parent_->height()) / (frame_desc.height - 1);
-			uint xmin = cd->x_accu_min_level;
-			uint xmax = cd->x_accu_max_level;
-			uint ymin = cd->y_accu_min_level;
-			uint ymax = cd->y_accu_max_level;
+			units::ConversionData convert(parent_);
+			units::PointFd min(convert, cd->x_accu_min_level, cd->y_accu_min_level);
+			units::PointFd max(convert, cd->x_accu_max_level, cd->y_accu_max_level);
 
 			// Setting the zone_
 			if (!cd->x_accu_enabled)
 			{
-				xmin = cursor.x();
-				xmax = cursor.x();
+				min.x().set(cursor.x());
+				max.x().set(cursor.x());
 			}
 			if (!cd->y_accu_enabled)
 			{
-				ymin = cursor.y();
-				ymax = cursor.y();
+				min.y().set(cursor.y());
+				max.y().set(cursor.y());
 			}
-			xmin *= ratioX;
-			xmax = (xmax + 1) * ratioX;
-			ymin *= ratioY;
-			ymax = (ymax + 1) * ratioY;
-			units::ConversionData convert(parent_);
-			zone_ = units::RectWindow(convert, xmin, 0, xmax, parent_->height());
-			horizontal_zone_ = units::RectWindow(convert, 0, ymin, parent_->width(), ymax);
+			max.x() += 1;
+			max.y() += 1;
+			zone_ = units::RectFd(convert, min.x(), 0, max.x(), parent_->getFd().height);
+			horizontal_zone_ = units::RectFd(convert, 0, min.y(), parent_->getFd().width, max.y());
 		}
 
 		void CrossOverlay::setBuffer()
 		{
 			Program_->bind();
-			QSize win_size = parent_->size();
-			const float w = win_size.width();
-			const float h = win_size.height();
 
-			// Normalizing the zones to (-1; 1)
-			const float x0 = 2.f * zone_.topLeft().x() / w - 1.f;
-			const float y0 = -(2.f * zone_.topLeft().y() / h - 1.f);
-			const float x1 = 2.f * zone_.bottomRight().x() / w - 1.f;
-			const float y1 = -(2.f * zone_.bottomRight().y() / h - 1.f);
-
-			const float x2 = 2.f * horizontal_zone_.topLeft().x() / w - 1.f;
-			const float y2 = -(2.f * horizontal_zone_.topLeft().y() / h - 1.f);
-			const float x3 = 2.f * horizontal_zone_.bottomRight().x() / w - 1.f;
-			const float y3 = -(2.f * horizontal_zone_.bottomRight().y() / h - 1.f);
+			const units::RectOpengl zone_gl = zone_;
+			const units::RectOpengl h_zone_gl = horizontal_zone_;
 
 			const float subVertices[] = {
-				x0, y0,
-				x1, y0,
-				x1, y1,
-				x0, y1,
+				zone_gl.x(), zone_gl.y(),
+				zone_gl.right(), zone_gl.y(),
+				zone_gl.right(), zone_gl.bottom(),
+				zone_gl.x(), zone_gl.bottom(),
 
-				x2, y2,
-				x3, y2,
-				x3, y3,
-				x2, y3
+				h_zone_gl.x(), h_zone_gl.y(),
+				h_zone_gl.right(), h_zone_gl.y(),
+				h_zone_gl.right(), h_zone_gl.bottom(),
+				h_zone_gl.x(), h_zone_gl.bottom()
 			};
 
 			// Updating the buffer at verticesIndex_ with new coordinates
