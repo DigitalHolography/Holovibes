@@ -132,7 +132,7 @@ namespace holovibes
 
 			// Computing pmin/pmax coordinates in function of the frame_descriptor
 			const float side = kView == SliceXZ ? parent_->height() : parent_->width();
-			const float ratio = side / (cd->nsamples - 1);
+			const float ratio = side / cd->nsamples;
 			uint pmin = cd->p_accu_min_level;
 			uint pmax = cd->p_accu_max_level;
 

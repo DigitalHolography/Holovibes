@@ -220,8 +220,8 @@ namespace holovibes
 
 			// Computing min/max coordinates in function of the frame_descriptor
 			auto frame_desc = parent_->getFd();
-			const float ratioX = (float)(parent_->width()) / (frame_desc.width - 1);
-			const float ratioY = (float)(parent_->height()) / (frame_desc.height - 1);
+			const float ratioX = (float)(parent_->width()) / frame_desc.width;
+			const float ratioY = (float)(parent_->height()) / frame_desc.height;
 			uint xmin = cd->x_accu_min_level;
 			uint xmax = cd->x_accu_max_level;
 			uint ymin = cd->y_accu_min_level;
