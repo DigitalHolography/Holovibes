@@ -134,8 +134,9 @@
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\photonfocus.ini" "$(TargetDir)"
 
-        copy /Y "$(ProjectDir)\icon1.ico" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\Holovibes.ico" "$(TargetDir)"
         copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"
 
 </Command>
