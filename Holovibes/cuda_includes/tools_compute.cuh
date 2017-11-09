@@ -99,3 +99,19 @@ void gpu_extremums(float			*input,
 					uint			*min_index,
 					uint			*max_index,
 					cudaStream_t	stream = 0);
+
+__global__
+void kernel_substract_const(float		*frame,
+							uint		frame_size,
+							float		x);
+void gpu_substract_const(float		*frame,
+						uint		frame_size,
+						float		x);
+
+__global__
+void kernel_multiply_const(float		*frame,
+							uint		frame_size,
+							float		x);
+void gpu_multiply_const(float		*frame,
+						uint		frame_size,
+						float		x);
