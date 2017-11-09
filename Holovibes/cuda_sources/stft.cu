@@ -117,38 +117,50 @@ static void	fill_32bit_slices(const cuComplex	*input,
 							const uint			height,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
-							const uint			img_type)
+							const uint			img_type,
+							const uint			nsamples)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < output_size)
+	if (id < height * nsamples)
 	{
-		cuComplex pixel = make_cuComplex(0, 0);
-		for (int i = xmin; i <= xmax; ++i)
-			pixel = cuCaddf(pixel, input[i + id * width]);
-		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
-			output_yz[id] = hypotf(pixel.x, pixel.y);
-		else if (img_type == ImgType::SquaredModulus)
+		float sum = 0;
+		for (int x = xmin; x <= xmax; ++x)
 		{
-			output_yz[id] = hypotf(pixel.x, pixel.y);
-			output_yz[id] *= output_yz[id];
+			float pixel_float = 0;
+			cuComplex pixel = input[x + (id / nsamples) * width + (id % nsamples) * frame_size];
+			if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
+				pixel_float = hypotf(pixel.x, pixel.y);
+			else if (img_type == ImgType::SquaredModulus)
+			{
+				pixel_float = hypotf(pixel.x, pixel.y);
+				pixel_float *= pixel_float;
+			}
+			else if (img_type == ImgType::Argument)
+				pixel_float = (atanf(pixel.y / pixel.x) + M_PI_2);
+			sum += pixel_float;
 		}
-		else if (img_type == ImgType::Argument)
-			output_yz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
-		output_yz[id] /= static_cast<float>(xmax - xmin + 1);
-		/* ********** */
-		pixel = make_cuComplex(0, 0);
-		for (int i = ymin; i <= ymax; ++i)
-			pixel = cuCaddf(pixel, input[(i * width) + (id / width) * frame_size + id % width]);
-		if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
-			output_xz[id] = hypotf(pixel.x, pixel.y);
-		else if (img_type == ImgType::SquaredModulus)
+		output_yz[id] = sum / static_cast<float>(xmax - xmin + 1);
+	}
+	/* ********** */
+	if (id < width * nsamples)
+	{
+		float sum = 0;
+		for (int y = ymin; y <= ymax; ++y)
 		{
-			output_xz[id] = hypotf(pixel.x, pixel.y);
-			output_xz[id] *= output_xz[id];
+			float pixel_float = 0;
+			cuComplex pixel = input[(y * width) + (id / width) * frame_size + id % width];
+			if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
+				pixel_float = hypotf(pixel.x, pixel.y);
+			else if (img_type == ImgType::SquaredModulus)
+			{
+				pixel_float = hypotf(pixel.x, pixel.y);
+				pixel_float *= pixel_float;
+			}
+			else if (img_type == ImgType::Argument)
+				pixel_float = (atanf(pixel.y / pixel.x) + M_PI_2);
+			sum += pixel_float;
 		}
-		else if (img_type == ImgType::Argument)
-			output_xz[id] = (atanf(pixel.y / pixel.x) + M_PI_2);
-		output_xz[id] /= static_cast<float>(ymax - ymin + 1);
+		output_xz[id] = sum / static_cast<float>(ymax - ymin + 1);
 	}
 }
 
@@ -168,7 +180,7 @@ void stft_view_begin(const cuComplex	*input,
 					const uint			img_type)
 {
 	const uint frame_size = width * height;
-	const uint output_size = width * nsamples;
+	const uint output_size = std::max(width, height) * nsamples;
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
@@ -192,5 +204,6 @@ void stft_view_begin(const cuComplex	*input,
 			output_size,
 			width, height,
 			acc_level_xz, acc_level_yz,
-			img_type);
+			img_type,
+			nsamples);
 }
