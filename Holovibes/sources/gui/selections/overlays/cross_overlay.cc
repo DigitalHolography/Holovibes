@@ -23,7 +23,7 @@ namespace holovibes
 			: Overlay(KindOfOverlay::Cross, parent)
 			, line_alpha_(0.5f)
 			, elemLineIndex_(0)
-			, locked_(false)
+			, locked_(true)
 			, last_clicked_(0, 0)
 			, mouse_position_(0, 0)
 			, horizontal_zone_(0, 0)
@@ -205,9 +205,11 @@ namespace holovibes
 		void CrossOverlay::release(ushort frameside)
 		{
 			if (zoom_ && zoom_->isActive())
+			{
 				zoom_->release(frameside);
-			zoom_ = std::make_shared<ZoomOverlay>(parent_);
-			zoom_->initProgram();
+				zoom_ = std::make_shared<ZoomOverlay>(parent_);
+				zoom_->initProgram();
+			}
 		}
 
 		void CrossOverlay::computeZone()

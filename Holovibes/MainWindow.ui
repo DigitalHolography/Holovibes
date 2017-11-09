@@ -2799,7 +2799,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>250</width>
+          <width>200</width>
           <height>0</height>
          </size>
         </property>
@@ -5234,8 +5234,8 @@ p, li { white-space: pre-wrap; }
    <slot>layout_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>115</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>784</x>

@@ -19,10 +19,14 @@ namespace holovibes
 	{
 		SliceCrossOverlay::SliceCrossOverlay(BasicOpenGLWindow* parent)
 			: RectOverlay(KindOfOverlay::SliceCross, parent)
+			, line_alpha_(0.5f)
+			, elemLineIndex_(0)
+			, locked_(true)
+			, last_pIndex_(0, 0)
+			, pIndex_(0, 0)
 		{
 			color_ = { 1.f, 0.f, 0.f };
 			alpha_ = 0.05f;
-			line_alpha_ = 0.5f;
 			display_ = true;
 		}
 
