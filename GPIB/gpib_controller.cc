@@ -10,6 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+
+#ifndef _HAS_AUTO_PTR_ETC
+#define _HAS_AUTO_PTR_ETC 1
+#endif // !_HAS_AUTO_PTR_ETC
+
 #include <string>
 #include <fstream>
 #include <algorithm>

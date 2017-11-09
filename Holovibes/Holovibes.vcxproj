@@ -13,25 +13,26 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CA75A564-8C60-4C3B-8778-996F1879BF65}</ProjectGuid>
     <RootNamespace>Holovibes</RootNamespace>
-    <CudaToolkitCustomDir>$(CUDA_PATH_V8_0)</CudaToolkitCustomDir>
+    <CudaToolkitCustomDir>$(CUDA_PATH_V9_0)</CudaToolkitCustomDir>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.props" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.0.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -61,6 +62,7 @@
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
       <AdditionalOptions>/FS /D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -102,16 +104,17 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;C:\Qt\qwt-6.1.3\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\selections\interfaces;$(SolutionDir)\Holovibes\includes\gui\selections\overlays;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;$(QWTDIR)\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile />
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Qt\qwt-6.1.3\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(QWTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;qwt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
@@ -489,6 +492,6 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 8.0.targets" />
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 9.0.targets" />
   </ImportGroup>
 </Project>

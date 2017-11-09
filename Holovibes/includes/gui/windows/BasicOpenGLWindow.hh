@@ -12,6 +12,10 @@
 
 #pragma once
 
+#ifndef _HAS_AUTO_PTR_ETC
+#define _HAS_AUTO_PTR_ETC 1
+#endif // !_HAS_AUTO_PTR_ETC
+
 #include <atomic>
 #include <QOpenGLWindow.h>
 #include <QOpenGLFunctions.h>

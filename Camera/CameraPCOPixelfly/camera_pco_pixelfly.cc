@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#define _HAS_AUTO_PTR_ETC 1
+
 #include "camera_pco_pixelfly.hh"
 #include <camera_exception.hh>
 

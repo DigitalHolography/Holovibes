@@ -15,6 +15,10 @@
  * Options parser for the command-line. */
 #pragma once
 
+#ifndef _HAS_AUTO_PTR_ETC
+#define _HAS_AUTO_PTR_ETC 1
+#endif // !_HAS_AUTO_PTR_ETC
+
 # include <boost/tokenizer.hpp>
 # include <boost/program_options/options_description.hpp>
 # include <boost/program_options/cmdline.hpp>
