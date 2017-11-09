@@ -139,7 +139,6 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 							const uint		nsamples,
 							cudaStream_t	stream)
 {
-	Tuple4f		res;
 	const uint	size = width * height;
 
 	complex_to_modulus(cbuf, fbuf, size, stream);

@@ -65,6 +65,18 @@ void Stabilization::insert_correlation()
 	});
 }
 
+
+void Stabilization::normalize_frame(float* frame, uint frame_res)
+{
+	float min, max;
+	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
+
+	gpu_substract_const(frame, frame_res, min);
+	cudaStreamSynchronize(0);
+	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
+	cudaStreamSynchronize(0);
+}
+
 void Stabilization::compute_correlation(const float *x, const float *y)
 {
 	auto zone = cd_.getStabilizationZone();
@@ -79,40 +91,9 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 
 	extract_frame(x, selected_x.get(), fd_.width, zone);
 	extract_frame(y, selected_y.get(), fd_.width, zone);
-	//cudaMemcpy(convolution_.get(), selected_x.get(), zone.area() * 4, cudaMemcpyDeviceToDevice);
-	//return;
-	gpu_float_divide(selected_x.get(), zone.area(), 65536);
-	gpu_float_divide(selected_y.get(), zone.area(), 65536);
 
-	float test_frame_1[] = {
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 1, 0, 0, 0, 0, 0,
-		0, 1, 1, 1, 0, 0, 0, 0,
-		0, 0, 1, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0
-	};
-	float test_frame_2[] = {
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 1, 0, 0, 0,
-		0, 0, 0, 1, 1, 1, 0, 0,
-		0, 0, 0, 0, 1, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0, 0
-	};
-	bool debug = false;
-	float tmp[64][64];
-	if (debug)
-	{
-		cudaMemcpy(selected_x.get(), test_frame_1, 64 * 4, cudaMemcpyHostToDevice);
-		cudaMemcpy(selected_y.get(), test_frame_2, 64 * 4, cudaMemcpyHostToDevice);
-	}
-
-
+	normalize_frame(selected_x.get(), zone.area());
+	normalize_frame(selected_y.get(), zone.area());
 
 
 	rotation_180(selected_y.get(), dimensions);
@@ -122,40 +103,22 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	sum_left_top(selected_x.get(), sum_x.get(), dimensions);
 	sum_left_top(selected_y.get(), sum_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-	return;
-	if (debug)
-		cudaMemcpy(tmp[1], sum_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
-	if (debug)
-		cudaMemcpy(tmp[2], sum_y.get(), 64 * 4, cudaMemcpyDeviceToHost);
-	if (debug)
-		cudaMemcpy(tmp[3], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
-
+	/*
 	sum_left_top_inplace(convolution_.get(), dimensions);
 	cudaStreamSynchronize(0);
-	if (debug)
-		cudaMemcpy(tmp[4], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	compute_numerator(sum_x.get(), sum_y.get(), convolution_.get(), dimensions);
 	sum_inplace_squared(selected_x.get(), dimensions);
 	sum_inplace_squared(selected_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-	if (debug)
-		cudaMemcpy(tmp[5], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
-	if (debug)
-		cudaMemcpy(tmp[6], selected_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	sum_squared_minus_square_sum(selected_x.get(), sum_x.get(), dimensions);
 	sum_squared_minus_square_sum(selected_y.get(), sum_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-	if (debug)
-		cudaMemcpy(tmp[7], selected_x.get(), 64 * 4, cudaMemcpyDeviceToHost);
 
 	correlation(convolution_.get(), selected_x.get(), selected_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-	if (debug)
-		cudaMemcpy(tmp[8], convolution_.get(), 64 * 4, cudaMemcpyDeviceToHost);
-
-
+	*/
 }
 
 

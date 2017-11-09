@@ -10,6 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#ifndef _HAS_AUTO_PTR_ETC
+#define _HAS_AUTO_PTR_ETC 1
+#endif // !_HAS_AUTO_PTR_ETC
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cassert>

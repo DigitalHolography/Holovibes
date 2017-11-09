@@ -233,3 +233,41 @@ void gpu_extremums(float			*input,
 	if (max_index)
 		*max_index = extremum[1].index;
 }
+
+__global__
+void kernel_substract_const(float		*frame,
+							uint		frame_size,
+							float		x)
+{
+	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_size)
+		frame[id] -= x;
+}
+
+void gpu_substract_const(float		*frame,
+						uint		frame_size,
+						float		x)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_size, threads);
+	kernel_substract_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+}
+
+__global__
+void kernel_multiply_const(float		*frame,
+							uint		frame_size,
+							float		x)
+{
+	const uint id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_size)
+		frame[id] *= x;
+}
+
+void gpu_multiply_const(float		*frame,
+						uint		frame_size,
+						float		x)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_size, threads);
+	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+}
