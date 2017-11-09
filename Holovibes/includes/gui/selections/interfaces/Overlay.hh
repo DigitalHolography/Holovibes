@@ -25,13 +25,32 @@
 #include <QOpenGLVertexArrayObject>
 
 #include "frame_desc.hh"
-#include "Rectangle.hh"
+#include "units/rect.hh"
 #include "compute_descriptor.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
+
+		enum KindOfOverlay
+		{
+			Zoom,
+			// Average
+			Signal,
+			Noise,
+			// -------
+			Autofocus,
+			Filter2D,
+			SliceZoom,
+			Stabilization,
+			Cross,
+			SliceCross,
+			Strip
+		};
+
+
+
 
 		class BasicOpenGLWindow;
 

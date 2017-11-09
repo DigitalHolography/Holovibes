@@ -430,9 +430,6 @@
     <ClInclude Include="cuda_includes\texture_update.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\Rectangle.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
     <ClInclude Include="includes\gui\windows\DirectWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>

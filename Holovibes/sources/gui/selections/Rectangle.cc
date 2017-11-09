@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "Rectangle.hh"
+#include "units/rect.hh"
 #include <iostream>
 /*
 namespace holovibes

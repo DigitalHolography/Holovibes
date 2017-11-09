@@ -12,7 +12,7 @@
 
 #include "stabilization.hh"
 #include "compute_descriptor.hh"
-#include "Rectangle.hh"
+#include "units/rect.hh"
 #include "power_of_two.hh"
 
 #include "tools.cuh"

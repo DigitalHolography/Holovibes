@@ -240,7 +240,6 @@
     <ClInclude Include="includes\gui\selections\overlays\noise_overlay.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\Overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlay_manager.hh" />
-    <ClInclude Include="includes\gui\selections\Rectangle.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\rect_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\signal_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh" />

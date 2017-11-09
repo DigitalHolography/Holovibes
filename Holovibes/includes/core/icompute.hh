@@ -21,10 +21,11 @@
 # include <mutex>
 # include <memory>
 # include <atomic>
+# include <qrect.h>
 
 # include "config.hh"
 # include "pipeline_utils.hh"
-# include "Rectangle.hh"
+# include "units/rect.hh"
 # include "observable.hh"
 # include "gpib_controller.hh"
 # include "frame_desc.hh"

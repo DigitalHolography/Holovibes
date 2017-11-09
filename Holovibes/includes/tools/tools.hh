@@ -23,8 +23,9 @@
 # include <math.h>
 # include <string>
 # include <ctime>
+# include <qrect.h>
 
-# include "Rectangle.hh"
+# include "units/rect.hh"
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
 # include "cufft.h"
