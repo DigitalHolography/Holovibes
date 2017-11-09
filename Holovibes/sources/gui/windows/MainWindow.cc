@@ -2294,7 +2294,7 @@ namespace holovibes
 
 					units::RectFd signal;
 					units::RectFd noise;
-					units::ConversionData convert;
+					units::ConversionData convert(mainDisplay.get());
 
 					signal.setTopLeft(
 						units::PointFd(convert,
