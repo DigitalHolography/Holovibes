@@ -52,7 +52,7 @@ namespace holovibes
 			sliceYZ(nullptr),
 			displayAngle(0.f),
 			xzAngle(0.f),
-			yzAngle(90.f),
+			yzAngle(0.f),
 			displayFlip(0),
 			xzFlip(0),
 			yzFlip(0),
