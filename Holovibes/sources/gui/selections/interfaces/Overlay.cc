@@ -42,7 +42,7 @@ namespace holovibes
 			glDeleteBuffers(1, &colorIndex_);
 		}
 
-		const Rectangle& Overlay::getZone() const
+		const units::RectWindow& Overlay::getZone() const
 		{
 			return zone_;
 		}
@@ -94,22 +94,17 @@ namespace holovibes
 			Program_->release();
 		}
 
-		QPoint Overlay::getMousePos(QPoint pos)
+		units::PointWindow Overlay::getMousePos(QPoint pos)
 		{
-			auto view = parent_->getKindOfView();
-			if (parent_->width() > parent_->height() && view != SliceXZ && view != SliceYZ)
-			{
-				double multiplier = static_cast<double>(parent_->width()) / static_cast<double>(parent_->height());
-				pos.setX(static_cast<double>(pos.x()) * multiplier);
-			}
-			return pos;
+			units::PointWindow res(units::ConversionData(parent_), pos.x(), pos.y());
+			return res;
 		}
 
 		void Overlay::print()
 		{
-			std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_
-				<< ", active: " << active_ << ", display: " << display_
-				<< std::endl;
+		//	std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_
+		//		<< ", active: " << active_ << ", display: " << display_
+		//		<< std::endl;
 		}
 	}
 }

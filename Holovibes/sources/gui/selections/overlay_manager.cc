@@ -130,7 +130,7 @@ namespace holovibes
 			parent_->getCd()->notify_observers();
 		}
 
-		void OverlayManager::set_zone(ushort frameside, Rectangle zone, KindOfOverlay ko)
+		void OverlayManager::set_zone(ushort frameside, units::RectWindow zone, KindOfOverlay ko)
 		{
 			if (ko == Noise)
 				create_overlay<Noise>();
@@ -233,7 +233,7 @@ namespace holovibes
 			}
 		}
 
-		const Rectangle& OverlayManager::getZone() const
+		const units::RectWindow& OverlayManager::getZone() const
 		{
 			return current_overlay_->getZone();
 		}

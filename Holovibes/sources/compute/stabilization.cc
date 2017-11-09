@@ -12,7 +12,7 @@
 
 #include "stabilization.hh"
 #include "compute_descriptor.hh"
-#include "Rectangle.hh"
+#include "units/rect.hh"
 #include "power_of_two.hh"
 
 #include "tools.cuh"
@@ -53,6 +53,8 @@ void Stabilization::insert_correlation()
 	fn_vect_.push_back([=]()
 	{
 		auto zone = cd_.getStabilizationZone();
+		if (!zone.area())
+			return;
 		auto frame_res = fd_.frame_res();
 		if (accumulation_queue_->get_current_elts())
 		{
@@ -151,6 +153,8 @@ void Stabilization::insert_extremums()
 	fn_vect_.push_back([=]()
 	{
 		auto zone = cd_.getStabilizationZone();
+		if (!zone.area())
+			return;
 		const auto frame_res = zone.area();
 		if (convolution_.is_large_enough(frame_res))
 		{
@@ -176,6 +180,8 @@ void Stabilization::insert_stabilization()
 	// Stabilization
 	fn_vect_.push_back([=]()
 	{
+		if (!cd_.getStabilizationZone().area())
+			return;
 		if (!cd_.xy_stabilization_paused)
 			complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
 	});

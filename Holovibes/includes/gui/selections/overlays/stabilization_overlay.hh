@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "rect_overlay.hh"
+#include "square_overlay.hh"
 
 namespace holovibes
 {

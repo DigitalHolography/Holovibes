@@ -29,7 +29,7 @@ namespace holovibes
 
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
-			Rectangle texZone = getTexZone(frameSide);
+			units::RectFd texZone = zone_;
 
 			// handle Noise
 			if (parent_->getKindOfView() == Hologram)

@@ -17,7 +17,6 @@ namespace holovibes
 	using	LockGuard = std::lock_guard<std::mutex>;
 
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
-		stabilization_zone(512, 512),	//temporary
 		algorithm(Algorithm::None),
 		compute_mode(Computation::Stop),
 		nsamples(1),
@@ -77,11 +76,6 @@ namespace holovibes
 		ref_diff_enabled(false),
 		ref_sliding_enabled(false),
 		stft_view_enabled(false),
-		stft_slice_cursor(QPoint(0, 0)),
-		signal_zone(gui::Rectangle(0, 0)),
-		noise_zone(gui::Rectangle(0, 0)),
-		autofocus_zone(gui::Rectangle(0, 0)),
-		stft_roi_zone(gui::Rectangle(0, 0)),
 		current_window(WindowKind::XYview),
 		cuts_contrast_p_offset(4),
 		vision_3d_enabled(false),
@@ -159,20 +153,20 @@ namespace holovibes
 		return *this;
 	}
 
-	void ComputeDescriptor::stftCursor(QPoint *p, AccessMode m)
+	void ComputeDescriptor::stftCursor(units::PointFd& p, AccessMode m)
 	{
 		LockGuard g(mutex_);
 		if (m == Get)
 		{
-			*p = stft_slice_cursor;
+			p = stft_slice_cursor;
 		}
 		else if (m == Set)
 		{
-			stft_slice_cursor = *p;
+			stft_slice_cursor = p;
 		}
 	}
 
-	void ComputeDescriptor::signalZone(gui::Rectangle& rect, AccessMode m)
+	void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
 		if (m == Get)
@@ -185,7 +179,7 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::noiseZone(gui::Rectangle& rect, AccessMode m)
+	void ComputeDescriptor::noiseZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
 		if (m == Get)
@@ -198,7 +192,7 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::autofocusZone(gui::Rectangle& rect, AccessMode m)
+	void ComputeDescriptor::autofocusZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
 		if (m == Get)
@@ -211,7 +205,7 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::stftRoiZone(gui::Rectangle& rect, AccessMode m)
+	void ComputeDescriptor::stftRoiZone(units::RectFd& rect, AccessMode m)
 	{
 		LockGuard g(mutex_);
 		if (m == Get)
@@ -223,13 +217,13 @@ namespace holovibes
 			stft_roi_zone = rect;
 		}
 	}
-	gui::Rectangle ComputeDescriptor::getStabilizationZone() const
+	units::RectFd ComputeDescriptor::getStabilizationZone() const
 	{
 		LockGuard g(mutex_);
 		return stabilization_zone;
 	}
 
-	void ComputeDescriptor::setStabilizationZone(const gui::Rectangle& rect)
+	void ComputeDescriptor::setStabilizationZone(const units::RectFd& rect)
 	{
 		LockGuard g(mutex_);
 		stabilization_zone = rect;

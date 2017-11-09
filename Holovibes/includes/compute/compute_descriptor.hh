@@ -21,7 +21,7 @@
 # include <qmap.h>
 
 # include "observable.hh"
-# include "Rectangle.hh"
+# include "units/rect.hh"
 
 namespace holovibes
 {
@@ -135,18 +135,18 @@ namespace holovibes
 
 
 		/*! \brief	The position of the point used to obtain XZ and YZ views */
-		QPoint				stft_slice_cursor;
+		units::PointFd		stft_slice_cursor;
 
 		/*! \brief	The zone to average the signal */
-		gui::Rectangle		signal_zone;
+		units::RectFd		signal_zone;
 		/*! \brief	The zone to average the noise */
-		gui::Rectangle		noise_zone;
+		units::RectFd		noise_zone;
 		/*! \brief	The zone used to compute automatically the z-value */
-		gui::Rectangle		autofocus_zone;
+		units::RectFd		autofocus_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
-		gui::Rectangle		stft_roi_zone;
+		units::RectFd		stft_roi_zone;
 		/*! \brief	The area on which we'll run the convolution to stabilize*/
-		gui::Rectangle		stabilization_zone;
+		units::RectFd		stabilization_zone;
 
 	public:
 		/*! \brief ComputeDescriptor constructor
@@ -161,11 +161,11 @@ namespace holovibes
 
 		/*!
 		 * \brief	Accessor to Stft slice cursor to obtain XZ and YZ views
-		 * \param			p	If non-null, a QPoint to process.
+		 * \param			p	A point to process
 		 * \param 		  	m	An AccessMode to process.
 		 */
 
-		void stftCursor(QPoint *p, AccessMode m);
+		void stftCursor(units::PointFd& p, AccessMode m);
 
 		/*!
 		 * @{
@@ -176,13 +176,13 @@ namespace holovibes
 		 * \param 		  	m   	An AccessMode to process.
 		 */
 
-		void signalZone(gui::Rectangle& rect, AccessMode m);
-		void noiseZone(gui::Rectangle& rect, AccessMode m);
-		void autofocusZone(gui::Rectangle& rect, AccessMode m);
-		void stftRoiZone(gui::Rectangle& rect, AccessMode m);
+		void signalZone(units::RectFd& rect, AccessMode m);
+		void noiseZone(units::RectFd& rect, AccessMode m);
+		void autofocusZone(units::RectFd& rect, AccessMode m);
+		void stftRoiZone(units::RectFd& rect, AccessMode m);
 
-		gui::Rectangle getStabilizationZone() const;
-		void setStabilizationZone(const gui::Rectangle& rect);
+		units::RectFd getStabilizationZone() const;
+		void setStabilizationZone(const units::RectFd& rect);
 
 		//! @}
 		#pragma region Atomics vars

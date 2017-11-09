@@ -29,26 +29,26 @@ namespace holovibes
 		DirectWindow::~DirectWindow()
 		{}
 
-		Rectangle	DirectWindow::getSignalZone() const
+		units::RectFd	DirectWindow::getSignalZone() const
 		{
-			Rectangle rect;
+			units::RectFd rect;
 			Cd->signalZone(rect, Get);
 			return rect;
 		}
 
-		Rectangle	DirectWindow::getNoiseZone() const
+		units::RectFd	DirectWindow::getNoiseZone() const
 		{
-			Rectangle rect;
+			units::RectFd rect;
 			Cd->noiseZone(rect, Get);
 			return rect;
 		}
 
-		void	DirectWindow::setSignalZone(Rectangle signal)
+		void	DirectWindow::setSignalZone(units::RectFd signal)
 		{
 			overlay_manager_.set_zone(Fd.width, signal, Signal);
 		}
 
-		void	DirectWindow::setNoiseZone(Rectangle noise)
+		void	DirectWindow::setNoiseZone(units::RectFd noise)
 		{
 			overlay_manager_.set_zone(Fd.width, noise, Noise);
 		}
@@ -240,9 +240,9 @@ namespace holovibes
 				resetTransform();
 		}
 
-		void	DirectWindow::zoomInRect(Rectangle zone)
+		void	DirectWindow::zoomInRect(units::RectWindow zone)
 		{
-			const QPoint center = zone.center();
+			const units::PointWindow center = zone.center();
 
 			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
 			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;

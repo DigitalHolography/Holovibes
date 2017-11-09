@@ -12,37 +12,46 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class BasicOpenGLWindow;
+	}
+
+	namespace units
+	{
+
+		enum Axis;
+
+		/*! \brief Encapsulates the conversion from a unit to another
+		 *
+		 * This will be copied a lot, make sure to keep references and pointers inside
+		 */
+		class ConversionData
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			/*! \brief Constructs an object with the data needed to convert, to be modified for transforms
+			 */
+			ConversionData(const gui::BasicOpenGLWindow& window);
+			ConversionData(const gui::BasicOpenGLWindow* window = nullptr);
 
-			units::RectFd	getSignalZone() const;
-			units::RectFd	getNoiseZone() const;
-			void		setSignalZone(units::RectFd signal);
-			void		setNoiseZone(units::RectFd noise);
+			/* \brief Converts a unit type into another
+			 * {*/
+			float window_size_to_opengl(int val, Axis axis) const;
+			float fd_to_opengl(int val, Axis axis) const;
+			int opengl_to_window_size(float val, Axis axis) const;
+			int opengl_to_fd(float val, Axis axis) const;
+			/* }
+			 */
 
-			void	zoomInRect(units::RectWindow zone);
+		private:
 
-		protected:
-			int	texDepth, texType;
+			int get_window_size(Axis axis) const;
+			int get_fd_size(Axis axis) const;
 
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			const gui::BasicOpenGLWindow*	window_;
 		};
 	}
 }

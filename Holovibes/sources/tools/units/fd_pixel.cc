@@ -10,44 +10,29 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
-
-#include <ostream>
-#include <qrect.h>
+#include "units/window_pixel.hh"
+#include "units/fd_pixel.hh"
+#include "units/opengl_position.hh"
 
 namespace holovibes
 {
-	namespace gui
+	namespace units
 	{
-		enum KindOfOverlay
+		FDPixel::FDPixel(ConversionData data, Axis axis, int val)
+			: Unit(data, axis, val)
+		{}
+
+		FDPixel::operator OpenglPosition() const
 		{
-			Zoom,
-			// Average
-			Signal,
-			Noise,
-			// -------
-			Autofocus,
-			Filter2D,
-			SliceZoom,
-			Stabilization,
-			Cross,
-			SliceCross,
-			Strip
-		};
-		class Rectangle : public QRect
+			OpenglPosition res(conversion_data_, axis_, conversion_data_.fd_to_opengl(val_, axis_));
+			return res;
+		}
+
+		FDPixel::operator WindowPixel() const
 		{
-		public:
-			Rectangle();
-			Rectangle(const QRect& rect);
-			Rectangle(const Rectangle& rect);
-			Rectangle(const QPoint &topleft, const QSize &size);
-			Rectangle(const uint width, const uint height);
-			
-			uint	area() const;
-		};
-		std::ostream& operator<<(std::ostream& os, const Rectangle& obj);
-		Rectangle operator-(Rectangle& rec, const QPoint& point);
+			WindowPixel res(conversion_data_, axis_,
+				conversion_data_.opengl_to_window_size(static_cast<units::OpenglPosition>(*this).get(), axis_));
+			return res;
+		}
 	}
-	std::ostream& operator<<(std::ostream& os, const QPoint& p);
-	std::ostream& operator<<(std::ostream& os, const QSize& s);
 }

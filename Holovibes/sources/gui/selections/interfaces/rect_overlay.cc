@@ -22,11 +22,6 @@ namespace holovibes
 		{
 		}
 
-		Rectangle RectOverlay::getTexZone(ushort frameSide) const
-		{
-			return Rectangle(zone_.topLeft() * frameSide / parent_->width(), zone_.size() * frameSide / parent_->width());
-		}
-
 		void RectOverlay::init()
 		{
 			// Program_ already bound by caller (initProgram)
@@ -99,16 +94,16 @@ namespace holovibes
 		{
 			if (zone_.width() < 0)
 			{
-				QPoint topRight = zone_.topRight();
-				QPoint bottomLeft = zone_.bottomLeft();
+				auto topRight = zone_.topRight();
+				auto bottomLeft = zone_.bottomLeft();
 
 				zone_.setTopLeft(topRight);
 				zone_.setBottomRight(bottomLeft);
 			}
 			if (zone_.height() < 0)
 			{
-				QPoint topRight = zone_.topRight();
-				QPoint bottomLeft = zone_.bottomLeft();
+				auto topRight = zone_.topRight();
+				auto bottomLeft = zone_.bottomLeft();
 
 				zone_.setTopLeft(bottomLeft);
 				zone_.setBottomRight(topRight);
@@ -118,21 +113,15 @@ namespace holovibes
 		void RectOverlay::setBuffer()
 		{
 			Program_->bind();
-			QSize win_size = parent_->size();
-			const float w = win_size.width();
-			const float h = win_size.height();
 
 			// Normalizing the zone to (-1; 1)
-			const float x0 = 2.f * zone_.topLeft().x() / w - 1.f;
-			const float y0 = -(2.f * zone_.topLeft().y() / h - 1.f);
-			const float x1 = 2.f * zone_.bottomRight().x() / w - 1.f;
-			const float y1 = -(2.f * zone_.bottomRight().y() / h - 1.f);
+			units::RectOpengl zone_gl = zone_;
 
 			const float subVertices[] = {
-				x0, y0,
-				x1, y0,
-				x1, y1,
-				x0, y1
+				zone_gl.x(), zone_gl.y(),
+				zone_gl.right(), zone_gl.y(),
+				zone_gl.right(), zone_gl.bottom(),
+				zone_gl.x(), zone_gl.bottom()
 			};
 
 			// Updating the buffer at verticesIndex_ with new coordinates
@@ -154,11 +143,9 @@ namespace holovibes
 			}
 		}
 
-		void RectOverlay::setZone(Rectangle rect, ushort frameside)
+		void RectOverlay::setZone(units::RectWindow rect, ushort frameside)
 		{
-			auto zone = Rectangle(rect.topLeft() * parent_->width() / frameside, rect.size() * parent_->width() / frameside);
-			zone_.setTopLeft(zone.topLeft());
-			zone_.setBottomRight(zone.bottomRight());
+			zone_ = rect;
 			setBuffer();
 			display_ = true;
 			release(frameside);

@@ -12,13 +12,14 @@
 
 #pragma once
 
-#include "Rectangle.hh"
+#include "units/rect.hh"
+#include <qrect.h>
 
 /// Extract the part of *input described by frame
 void extract_frame(const float	*input,
 				float			*output,
 				const uint		input_w,
-				const holovibes::gui::Rectangle&	frame);
+				const holovibes::units::RectFd&	frame);
 
 /// Resize the image
 void gpu_resize(const float		*input,

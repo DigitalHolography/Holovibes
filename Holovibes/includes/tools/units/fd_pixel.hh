@@ -12,37 +12,24 @@
 
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "units/unit.hh"
 
 namespace holovibes
 {
-	namespace gui
+	namespace units
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		class WindowPixel;
+		class OpenglPosition;
+
+		/*! \brief A position in the frame desc coordinate system [0;fd.width]
+		 */
+		class FDPixel : public Unit<int>
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			FDPixel(ConversionData data, Axis axis, int val = 0);
 
-			units::RectFd	getSignalZone() const;
-			units::RectFd	getNoiseZone() const;
-			void		setSignalZone(units::RectFd signal);
-			void		setNoiseZone(units::RectFd noise);
-
-			void	zoomInRect(units::RectWindow zone);
-
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
+			operator OpenglPosition() const;
+			operator WindowPixel() const;
 		};
 	}
 }

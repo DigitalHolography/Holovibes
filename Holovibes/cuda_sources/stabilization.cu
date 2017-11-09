@@ -51,7 +51,7 @@ void kernel_extract_frame(const float	*input,
 void extract_frame(const float	*input,
 				float			*output,
 				const uint		input_w,
-				const holovibes::gui::Rectangle&	frame)
+				const holovibes::units::RectFd&	frame)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame.area(), threads);

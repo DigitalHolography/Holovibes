@@ -39,7 +39,7 @@ void filter2D_roi(cuComplex	*input,
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
 			const cufftHandle		plan2d,
-			const Rectangle&		r,
+			const units::RectFd&	r,
 			const FrameDescriptor&	desc,
 			cudaStream_t			stream)
 {
@@ -57,8 +57,8 @@ void filter2D(cuComplex				*input,
 	
 	filter2D_roi << <blocks, threads, 0, stream >> >(
 		input,
-		r.topLeft().x(),
-		r.topLeft().y(),
+		r.x(),
+		r.y(),
 		r.bottomRight().x(),
 		r.bottomRight().y(),
 		desc.width,

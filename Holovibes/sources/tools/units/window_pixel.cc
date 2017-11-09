@@ -10,39 +10,31 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#include "units/window_pixel.hh"
+#include "units/fd_pixel.hh"
+#include "units/opengl_position.hh"
 
-#include "BasicOpenGLWindow.hh"
+#include <iostream>
 
 namespace holovibes
 {
-	namespace gui
+	namespace units
 	{
-		class DirectWindow : public BasicOpenGLWindow
+		WindowPixel::WindowPixel(ConversionData data, Axis axis, int val)
+			: Unit(data, axis, val)
+		{}
+
+		WindowPixel::operator units::OpenglPosition() const
 		{
-		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
-			virtual ~DirectWindow();
+			OpenglPosition res(conversion_data_, axis_, conversion_data_.window_size_to_opengl(val_, axis_));
+			return res;
+		}
 
-			units::RectFd	getSignalZone() const;
-			units::RectFd	getNoiseZone() const;
-			void		setSignalZone(units::RectFd signal);
-			void		setNoiseZone(units::RectFd noise);
-
-			void	zoomInRect(units::RectWindow zone);
-
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-		};
+		WindowPixel::operator units::FDPixel() const
+		{
+			FDPixel res(conversion_data_, axis_,
+					conversion_data_.opengl_to_fd(static_cast<units::OpenglPosition>(*this).get(), axis_));
+			return res;
+		}
 	}
 }

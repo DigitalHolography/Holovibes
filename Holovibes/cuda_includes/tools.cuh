@@ -116,7 +116,7 @@ void convolution_float(const float			*a,
 * \param stream The CUDA stream on which to launch the operation.
 */
 void frame_memcpy(float*			input,
-				const gui::Rectangle&	zone,
+				const units::RectFd&	zone,
 				const uint			input_width,
 				float*				output,
 				const uint			output_width,

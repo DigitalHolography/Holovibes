@@ -13,6 +13,8 @@
 #include "average.cuh"
 #include "tools_conversion.cuh"
 
+using holovibes::units::RectFd;
+
 /*! \brief  Sume 2 zone of input image
 *
 * \param input The image from where zones should be summed.
@@ -74,8 +76,8 @@ void kernel_zone_sum(const float	*input,
 Tuple4f make_average_plot(float				*input,
 						const uint			width,
 						const uint			height,
-						const Rectangle&	signal,
-						const Rectangle&	noise,
+						const RectFd&		signal,
+						const RectFd&		noise,
 						cudaStream_t		stream)
 {
 	//const uint size = width * height;
@@ -131,8 +133,8 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 							const uint		height,
 							const uint		width_roi,
 							const uint		height_roi,
-							Rectangle&		signal_zone,
-							Rectangle&		noise_zone,
+							const units::RectFd&	signal_zone,
+							const units::RectFd&	noise_zone,
 							const uint		pindex,
 							const uint		nsamples,
 							cudaStream_t	stream)

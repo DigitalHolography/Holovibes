@@ -25,13 +25,32 @@
 #include <QOpenGLVertexArrayObject>
 
 #include "frame_desc.hh"
-#include "Rectangle.hh"
+#include "units/rect.hh"
 #include "compute_descriptor.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
+
+		enum KindOfOverlay
+		{
+			Zoom,
+			// Average
+			Signal,
+			Noise,
+			// -------
+			Autofocus,
+			Filter2D,
+			SliceZoom,
+			Stabilization,
+			Cross,
+			SliceCross,
+			Strip
+		};
+
+
+
 
 		class BasicOpenGLWindow;
 
@@ -44,7 +63,7 @@ namespace holovibes
 			virtual ~Overlay();
 
 			/*! \brief Get the zone selected */
-			const Rectangle&		getZone()	const;
+			const units::RectWindow&	getZone()	const;
 
 			/*! \brief Get the kind of overlay */
 			const KindOfOverlay		getKind()		const;
@@ -74,7 +93,7 @@ namespace holovibes
 			virtual void release(ushort frameside) = 0;
 
 			/*! \brief Set the zone, buffers, and call release */
-			virtual void setZone(Rectangle rect, ushort frameside) = 0;
+			virtual void setZone(units::RectWindow rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose */
 			void print();
@@ -86,11 +105,12 @@ namespace holovibes
 			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
 			virtual void setBuffer() = 0;
 
-			/*! \brief returns real mouse position (Avoid conflicts in fullscreen) */
-			QPoint getMousePos(QPoint pos);
+			/*! \brief returns a PointWindow object from the mouse position */
+			units::PointWindow getMousePos(QPoint pos);
 
 			//! Zone selected by the users in pixel coordinates (window width, window height)
-			Rectangle zone_;
+			units::RectWindow zone_;
+
 			//! Kind of overlay
 			KindOfOverlay kOverlay_;
 

@@ -186,7 +186,13 @@
     <ClInclude Include="includes\gpib_dll.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
-    <ClInclude Include="stabilization_overlay.hh" />
+    <ClInclude Include="includes\tools\units\conversion_data.hh" />
+    <ClInclude Include="includes\tools\units\fd_pixel.hh" />
+    <ClInclude Include="includes\tools\units\opengl_position.hh" />
+    <ClInclude Include="includes\tools\units\point.hh" />
+    <ClInclude Include="includes\tools\units\rect.hh" />
+    <ClInclude Include="includes\tools\units\unit.hh" />
+    <ClInclude Include="includes\tools\units\window_pixel.hh" />
     <ClInclude Include="includes\gui\selections\overlays\slice_cross_overlay.hh" />
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
@@ -234,7 +240,6 @@
     <ClInclude Include="includes\gui\selections\overlays\noise_overlay.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\Overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlay_manager.hh" />
-    <ClInclude Include="includes\gui\selections\Rectangle.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\rect_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\signal_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh" />
@@ -414,6 +419,10 @@
     <ClCompile Include="sources\tools\info_manager.cc" />
     <ClCompile Include="sources\tools\power_of_two.cc" />
     <ClCompile Include="sources\tools\tools.cc" />
+    <ClCompile Include="sources\tools\units\conversion_data.cc" />
+    <ClCompile Include="sources\tools\units\fd_pixel.cc" />
+    <ClCompile Include="sources\tools\units\opengl_position.cc" />
+    <ClCompile Include="sources\tools\units\window_pixel.cc" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="MainWindow.ui">

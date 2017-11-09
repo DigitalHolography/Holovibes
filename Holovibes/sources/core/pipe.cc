@@ -141,19 +141,21 @@ namespace holovibes
 
 		if (request_stft_cuts_.load())
 		{
-			camera::FrameDescriptor fd = output_.get_frame_desc();
-			fd.height = compute_desc_.nsamples.load();
+			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
 
-			fd.depth = (compute_desc_.img_type == ImgType::Complex) ?
+			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
 				sizeof(cuComplex) : sizeof(ushort);
 			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
-			gpu_stft_slice_queue_xz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
-			gpu_stft_slice_queue_yz.reset(new Queue(fd, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			cudaMalloc(&gpu_float_cut_xz_, fd.frame_res() * buffer_depth);
-			cudaMalloc(&gpu_float_cut_yz_, fd.frame_res() * buffer_depth);
+			auto fd_yz = fd_xz;
+			fd_xz.height = compute_desc_.nsamples.load();
+			fd_yz.width = compute_desc_.nsamples.load();
+			gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
+			gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
+			cudaMalloc(&gpu_float_cut_xz_, fd_xz.frame_res() * buffer_depth);
+			cudaMalloc(&gpu_float_cut_yz_, fd_yz.frame_res() * buffer_depth);
 
-			cudaMalloc(&gpu_ushort_cut_xz_, fd.frame_size());
-			cudaMalloc(&gpu_ushort_cut_yz_, fd.frame_size());
+			cudaMalloc(&gpu_ushort_cut_xz_, fd_xz.frame_size());
+			cudaMalloc(&gpu_ushort_cut_yz_, fd_yz.frame_size());
 			request_stft_cuts_.exchange(false);
 		}
 
@@ -352,7 +354,7 @@ namespace holovibes
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
 
-		gui::Rectangle roiZone;
+		units::RectFd roiZone;
 		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);
 		if (compute_desc_.stft_enabled.load() ||
 			(compute_desc_.filter_2d_enabled.load() && !roiZone.area()))
@@ -781,8 +783,8 @@ namespace holovibes
 
 		if (average_requested_.load())
 		{
-			gui::Rectangle signalZone;
-			gui::Rectangle noiseZone;
+			units::RectFd signalZone;
+			units::RectFd noiseZone;
 			compute_desc_.signalZone(signalZone, AccessMode::Get);
 			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
 			if (average_record_requested_.load())

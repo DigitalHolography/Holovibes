@@ -31,7 +31,7 @@ namespace holovibes
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 
-			Rectangle texZone = getTexZone(frameSide);
+			units::RectFd texZone = zone_;
 
 			// handle Filter2D
 			auto window = dynamic_cast<HoloWindow *>(parent_);
