@@ -17,11 +17,11 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Edge 4.2 USB 3.0 driver](https://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
 * [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk630.zip) Framegrabber for the adimec V6.30
-* [PhotonFocus MV1-D1312driver](http://www.photonfocus.com/en/products/camerafinder/camera/?prid=70) V3.1.14
+* [PhotonFocus MV1-D1312 driver](http://www.photonfocus.com/en/products/camerafinder/camera/?prid=70) V3.1.14
 
 ### CUDA ###
 
-* [CUDA 8.0.61 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 9.0.176 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Visual C++ redistributable ###
 
@@ -62,17 +62,17 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ### Libraries ###
 
-* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.63.0
+* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.65.1
 * [Qwt 6.1.3](http://sourceforge.net/projects/qwt/files/qwt/6.1.3/)
 
 ### IDE ###
 
-* Visual Studio 2015 Community
+* Visual Studio 2017 Community RC
 
 ## Features ##
 
 * Command line options (for batch processing only)
-* Works with 7 cameras:
+* Works with 8 cameras:
     * PCO Edge 4.2 LT
     * Andor iXon +885
     * IDS imaging CMOSIS CMV 4000 
@@ -80,9 +80,10 @@ This mode is useful to do batch computation (call holovibes from a script).
     * PCO Pixelfly
     * Ximea CMOSIS CMV 4000
     * Adimec Quartz-A2750 (with Bitflow Cyton-CXP4 framegrabber)
+    * PhotonFocus MV1-D1312IE-100-G2-12
 * Cameras configuration using INI files
 * OpenGL realtime display
-  * Zone selection (zoom, signal/noise averaging)
+  * Zone selection (zoom, signal/noise averaging, filtering, autofocus)
 * Record frames
 * Hologram computation using the FFT1/FFT2/STFT algorithms
 * Logarithm filter
@@ -102,6 +103,10 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Importing .raw images instead of taking the input from the camera
 * Various runtime informations on the program's state
 * Easy to use installer for the software
+* Image stabilization
+* Image coloring
+* averaging in the three axis
+* lens displaying
 
 ## Authors ##
 
@@ -123,6 +128,19 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Florian Lapeyre <florian.lapeyre@epita.fr>
 
 ## Changelog ##
+
+### v.5.2.2
+
+* Add: XY stabilization
+* Fix: Overlay overhaul
+* Add: displaying slice in filename recorded
+* Remove: average plot in ini file
+* Remove: Selection of the number of bits in records. Now selecting automatically
+* Add: XY Zoom in stft view mode
+* Add: Now Using Visual Studio 2017, Cuda 9.0 and Boost 1.65.1
+* Fix: GUI overhaul
+* Fix: Code cleaning
+
 ### v.5.2.2
 
 * Fix: PhotonFocus camera bug on first frames
