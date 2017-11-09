@@ -487,9 +487,6 @@
     <ClInclude Include="includes\tools\cuda_tools\array.hh">
       <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
     <ClInclude Include="includes\tools\units\fd_pixel.hh">
       <Filter>c++ includes\tools\units</Filter>
     </ClInclude>
@@ -539,9 +536,6 @@
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh">
-      <Filter>c++ includes\gui\selections</Filter>
-    </ClInclude>
-    <ClInclude Include="stabilization_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh">

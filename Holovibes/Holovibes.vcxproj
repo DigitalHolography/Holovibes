@@ -182,7 +182,6 @@
     <ClInclude Include="includes\gpib_dll.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\stabilization_overlay.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
@@ -190,7 +189,6 @@
     <ClInclude Include="includes\tools\units\rect.hh" />
     <ClInclude Include="includes\tools\units\unit.hh" />
     <ClInclude Include="includes\tools\units\window_pixel.hh" />
-    <ClInclude Include="stabilization_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\slice_cross_overlay.hh" />
     <CustomBuild Include="includes\gui\other\gui_curve_plot.hh">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>

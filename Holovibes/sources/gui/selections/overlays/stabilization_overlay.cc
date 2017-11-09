@@ -47,11 +47,13 @@ void StabilizationOverlay::release(ushort frameSide)
 
 void StabilizationOverlay::make_pow2_square()
 {
-	const int min = prevPowerOf2(std::min(std::abs(zone_.width()), std::abs(zone_.height())));
-	zone_.setBottom(zone_.topLeft().x() +
-		min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1));
-	zone_.setRight(zone_.topLeft().y() +
-		min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1));
+	units::RectFd fd_zone = zone_;
+	const int min = prevPowerOf2(std::min(std::abs(fd_zone.width()), std::abs(fd_zone.height())));
+	units::PointFd bottom_right = fd_zone.topLeft();
+	bottom_right.x() += min * (fd_zone.x() < fd_zone.right() ? 1 : -1);
+	bottom_right.y() += min * (fd_zone.y() < fd_zone.bottom() ? 1 : -1);
+	fd_zone.setBottomRight(bottom_right);
+	zone_ = fd_zone;
 }
 
 void StabilizationOverlay::move(QMouseEvent* e)
