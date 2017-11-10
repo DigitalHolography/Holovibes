@@ -109,7 +109,7 @@ namespace holovibes
 			units::PointWindow getMousePos(QPoint pos);
 
 			//! Zone selected by the users in pixel coordinates (window width, window height)
-			units::RectWindow zone_;
+			units::RectFd zone_;
 
 			//! Kind of overlay
 			KindOfOverlay kOverlay_;

@@ -68,6 +68,23 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 	return ((val + 1.f) / 2.f) * get_fd_size(axis);
 }
 
+void ConversionData::transform_from_fd(float& x, float& y) const
+{
+	glm::vec3 input{ x, y, 1 };
+	auto matrix = window_->getTransformMatrix();
+	auto output = matrix * input;
+	x = output[0];
+	y = output[1];
+}
+
+void ConversionData::transform_to_fd(float& x, float& y) const
+{
+	glm::vec3 input{ x, y, 1 };
+	auto matrix = window_->getTransformInverseMatrix();
+	auto output = matrix * input;
+	x = output[0];
+	y = output[1];
+}
 int ConversionData::get_window_size(Axis axis) const
 {
 	switch (axis)

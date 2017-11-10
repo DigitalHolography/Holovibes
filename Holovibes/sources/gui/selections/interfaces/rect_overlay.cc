@@ -74,6 +74,7 @@ namespace holovibes
 
 		void RectOverlay::draw()
 		{
+			setBuffer();
 			Vao_.bind();
 			Program_->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);

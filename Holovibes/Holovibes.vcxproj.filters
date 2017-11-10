@@ -227,9 +227,6 @@
     <ClCompile Include="sources\gui\windows\HoloWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\Rectangle.cc">
-      <Filter>c++ sources\gui\selections</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\DirectWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>

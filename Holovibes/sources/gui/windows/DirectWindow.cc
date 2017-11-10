@@ -244,12 +244,12 @@ namespace holovibes
 		{
 			const units::PointWindow center = zone.center();
 
-			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
-			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;
+			setTranslate(getTranslate()[0] + ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / getScale(),
+				getTranslate()[1] + ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / getScale());
 
 			const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
 			const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
-			Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
+			setScale((xRatio < yRatio ? xRatio : yRatio) * getScale());
 
 			setTransform();
 		}

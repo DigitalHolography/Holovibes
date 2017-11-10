@@ -86,13 +86,17 @@ namespace holovibes
 				return res;
 			}
 
+			const ConversionData& getConversion() const
+			{
+				return conversion_data_;
+			}
 
 			/*! \brief Operator overloads
 			 *
 			 * They can be used with either a primary type or another Unit
 			 * The result is an Unit, but can be implicitly casted into a T
 			 */
-			/**@{*/
+			 /**@{*/
 			template<typename U>
 			Unit<T> operator-(const U& other)
 			{
