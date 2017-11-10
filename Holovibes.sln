@@ -83,7 +83,6 @@ Global
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|Win32.ActiveCfg = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.ActiveCfg = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.Build.0 = Debug|x64
-		{D981B600-1444-4D9B-8124-45CC358AB8DF}.Debug|x64.Deploy.0 = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.DefaultBuild|Mixed Platforms.ActiveCfg = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.DefaultBuild|Mixed Platforms.Build.0 = Debug|x64
 		{D981B600-1444-4D9B-8124-45CC358AB8DF}.DefaultBuild|Win32.ActiveCfg = Debug|x64
@@ -99,7 +98,6 @@ Global
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|Win32.ActiveCfg = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.ActiveCfg = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.Build.0 = Debug|x64
-		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.Debug|x64.Deploy.0 = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.DefaultBuild|Mixed Platforms.ActiveCfg = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.DefaultBuild|Mixed Platforms.Build.0 = Debug|x64
 		{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}.DefaultBuild|Win32.ActiveCfg = Debug|x64
@@ -130,7 +128,6 @@ Global
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|Win32.ActiveCfg = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.ActiveCfg = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.Build.0 = Debug|x64
-		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.Debug|x64.Deploy.0 = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.DefaultBuild|Mixed Platforms.ActiveCfg = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.DefaultBuild|Mixed Platforms.Build.0 = Debug|x64
 		{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}.DefaultBuild|Win32.ActiveCfg = Debug|x64
@@ -161,7 +158,6 @@ Global
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|Win32.ActiveCfg = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.ActiveCfg = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.Build.0 = Debug|x64
-		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.Debug|x64.Deploy.0 = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.DefaultBuild|Mixed Platforms.ActiveCfg = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.DefaultBuild|Mixed Platforms.Build.0 = Debug|x64
 		{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}.DefaultBuild|Win32.ActiveCfg = Debug|x64
