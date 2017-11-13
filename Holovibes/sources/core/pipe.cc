@@ -251,7 +251,7 @@ namespace holovibes
 	{
 		if (compute_desc_.compute_mode.load() == Computation::Direct)
 		{
-			fn_vect_.clear();	
+			fn_vect_.clear();
 			update_n_requested_.exchange(false);
 			direct_refresh();
 			return;
@@ -353,6 +353,14 @@ namespace holovibes
 		unsigned int nframes = compute_desc_.nsamples.load();
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
+
+		if (compute_desc_.interpolation_enabled.load())
+			fn_vect_.push_back([=]() {
+				interpolation_caller(gpu_input_buffer_,
+					input_fd.width,
+					input_fd.height,
+					compute_desc_.lambda,
+					compute_desc_.interp_lambda); });
 
 		units::RectFd roiZone;
 		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);
@@ -1050,7 +1058,6 @@ namespace holovibes
 			}
 		}
 	}
-
 
 	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
 	{

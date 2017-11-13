@@ -1733,6 +1733,23 @@ namespace holovibes
 				pipe_refresh();
 			}
 		}
+		void MainWindow::set_interp_lambda(const double value)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.interp_lambda.exchange(static_cast<float>(value) * 1.0e-9f);
+				pipe_refresh();
+			}
+		}
+
+		void MainWindow::set_interpolation(bool value)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.interpolation_enabled.exchange(value);
+				pipe_refresh();
+			}
+		}
 
 		void MainWindow::set_z(const double value)
 		{
@@ -1847,9 +1864,6 @@ namespace holovibes
 		{
 			compute_desc_.xy_stabilization_enabled.exchange(value);
 			pipe_refresh();
-			while (holovibes_.get_pipe()->get_refresh_request())
-				continue;
-			set_auto_contrast();
 		}
 
 		void MainWindow::set_import_pixel_size(const double value)

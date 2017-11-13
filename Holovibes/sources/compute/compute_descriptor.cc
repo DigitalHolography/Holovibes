@@ -22,6 +22,8 @@ namespace holovibes
 		nsamples(1),
 		pindex(0),
 		lambda(532e-9f),
+		interpolation_enabled(false),
+		interp_lambda(532e-9f),
 		zdistance(1.50f),
 		img_type(ImgType::Modulus),
 		unwrap_history_size(1),
@@ -79,7 +81,10 @@ namespace holovibes
 		current_window(WindowKind::XYview),
 		cuts_contrast_p_offset(4),
 		vision_3d_enabled(false),
-		display_rate(30)
+		display_rate(30),
+		xy_stabilization_enabled(false),
+		xy_stabilization_paused(false),
+		xy_stabilization_show_convolution(false)
 	{
 
 	}
@@ -217,6 +222,7 @@ namespace holovibes
 			stft_roi_zone = rect;
 		}
 	}
+
 	units::RectFd ComputeDescriptor::getStabilizationZone() const
 	{
 		LockGuard g(mutex_);

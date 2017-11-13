@@ -273,6 +273,18 @@ namespace holovibes
 		/*! \brief Resetting the structure af_env_ for next use */
 		void autofocus_reset();
 
+		/*! \brief Interpolate the frame in function of the current wavelength
+		* \param buffer Input and output buf
+		* \param fd FrameDescriptor of the input frame
+		* \param lambda Initial Wavelength
+		*/
+		void interpolation_caller(cuComplex *buffer,
+			const int width,
+			const int height,
+			const float lambda,
+			const float lambda1,
+			cudaStream_t stream = 0);
+
 		void record_float(float* float_output, cudaStream_t stream);
 		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);

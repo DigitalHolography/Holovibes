@@ -22,6 +22,7 @@
 #include "preprocessing.cuh"
 #include "autofocus.cuh"
 #include "average.cuh"
+#include "interpolation.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
 #include "compute_descriptor.hh"
@@ -31,6 +32,7 @@
 #include "vibrometry.cuh"
 #include "compute_bundles.hh"
 #include "custom_exception.hh"
+#include "unique_ptr.hh"
 
 namespace holovibes
 {
@@ -1037,7 +1039,6 @@ namespace holovibes
 					cudaMemcpyDeviceToDevice);
 		}
 	}
-	
 
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
 	{
@@ -1136,6 +1137,26 @@ namespace holovibes
 		af_env_.focus_metric_values.clear();
 		af_env_.stft_index = 0;
 		af_env_.state = af_state::STOPPED;
+	}
+
+
+	void ICompute::interpolation_caller(cuComplex *buffer,
+		const int width,
+		const int height,
+		const float lambda,
+		const float lambda1,
+		cudaStream_t stream)
+	{
+
+		const float ratio = lambda1 > 0 ? lambda / lambda1 : 1;
+
+		/* cuda_tools::UniquePtr<cuComplex> img(width * height);
+
+		cudaMemcpy(img, buffer, width * height, cudaMemcpyHostToHost);
+
+		interpolation(buffer, img, width, height, ratio, stream); */
+
+		interpolation(buffer, width, height, ratio, stream);
 	}
 
 	Queue *ICompute::get_lens_queue()

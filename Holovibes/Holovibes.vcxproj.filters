@@ -541,6 +541,9 @@
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\interpolation.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -643,6 +646,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\stabilization.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\interpolation.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

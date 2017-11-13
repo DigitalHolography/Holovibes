@@ -1307,6 +1307,60 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="InterpolationCheckbox">
+           <property name="title">
+            <string>Interpolation</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_29">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>λ (nm)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="InterpLambdaDoubleSpinBox">
+                <property name="minimum">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>3000.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_7">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -4210,7 +4264,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>203</y>
     </hint>
     <hint type="destinationlabel">
@@ -4226,7 +4280,7 @@ p, li { white-space: pre-wrap; }
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
+     <x>1396</x>
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
@@ -4242,7 +4296,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>988</x>
+     <x>1020</x>
      <y>321</y>
     </hint>
     <hint type="destinationlabel">
@@ -4258,7 +4312,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>292</y>
     </hint>
     <hint type="destinationlabel">
@@ -4274,7 +4328,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>114</y>
     </hint>
     <hint type="destinationlabel">
@@ -4354,7 +4408,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>987</x>
+     <x>1019</x>
      <y>139</y>
     </hint>
     <hint type="destinationlabel">
@@ -5259,6 +5313,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>InterpLambdaDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interp_lambda(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>564</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationCheckbox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interpolation(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>516</x>
+     <y>244</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5373,5 +5459,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
+  <slot>set_interp_lambda(double)</slot>
+  <slot>set_interpolation(bool)</slot>
  </slots>
 </ui>
