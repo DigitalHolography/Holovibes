@@ -1342,7 +1342,6 @@ namespace holovibes
 			if (compute_desc_.p_accu_enabled.load())
 				compute_desc_.p_accu_enabled.exchange(false);
 			compute_desc_.stft_view_enabled.exchange(false);
-			set_stft(false);
 			notify();
 		}
 
