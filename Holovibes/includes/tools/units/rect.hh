@@ -68,13 +68,13 @@ namespace holovibes
 				return bottom_right_;
 			}
 
-			const Point<T>& topRight() const
+			Point<T> topRight() const
 			{
 				Point<T> res(bottom_right_.x(), top_left_.y());
 				return res;
 			}
 
-			const Point<T>& bottomLeft() const
+			Point<T> bottomLeft() const
 			{
 				Point<T> res(top_left_.x(), bottom_right_.y());
 				return res;
