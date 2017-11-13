@@ -39,18 +39,18 @@ namespace holovibes
 			// Average
 			Signal,
 			Noise,
+			// Cross
+			Cross,
+			SliceCross,
+			// Composite strips
+			Strip,
 			// -------
 			Autofocus,
 			Filter2D,
-			SliceZoom,
 			Stabilization,
-			Cross,
-			SliceCross,
-			Strip
+			// Not implemented yet
+			SliceZoom
 		};
-
-
-
 
 		class BasicOpenGLWindow;
 
