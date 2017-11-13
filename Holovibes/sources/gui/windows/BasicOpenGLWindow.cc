@@ -252,7 +252,9 @@ namespace holovibes
 					translate_[id] = 0.f;
 
 			glm::vec4 trs = rotYZ * translate_;
-			transform_matrix_ = glm::mat3x3(1.0f) * scale_;
+			transform_matrix_ = mvp;
+			transform_matrix_[0][3]
+			transform_inverse_matrix_ = glm::inverse(transform_matrix_);
 			if (Program)
 			{
 				makeCurrent();
