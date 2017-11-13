@@ -25,7 +25,7 @@
 
 # include "config.hh"
 # include "pipeline_utils.hh"
-# include "units/rect.hh"
+# include "rect.hh"
 # include "observable.hh"
 # include "gpib_controller.hh"
 # include "frame_desc.hh"

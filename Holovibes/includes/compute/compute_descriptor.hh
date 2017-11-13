@@ -21,7 +21,7 @@
 # include <qmap.h>
 
 # include "observable.hh"
-# include "units/rect.hh"
+# include "rect.hh"
 
 namespace holovibes
 {

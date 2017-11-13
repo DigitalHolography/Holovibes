@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "units/rect.hh"
+#include "rect.hh"
 #include <qrect.h>
 
 /// Extract the part of *input described by frame

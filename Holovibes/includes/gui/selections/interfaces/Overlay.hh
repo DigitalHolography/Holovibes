@@ -25,7 +25,7 @@
 #include <QOpenGLVertexArrayObject>
 
 #include "frame_desc.hh"
-#include "units/rect.hh"
+#include "rect.hh"
 #include "compute_descriptor.hh"
 
 namespace holovibes

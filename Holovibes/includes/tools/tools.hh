@@ -25,7 +25,7 @@
 # include <ctime>
 # include <qrect.h>
 
-# include "units/rect.hh"
+# include "rect.hh"
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
 # include "cufft.h"

@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include "units/unit.hh"
+#include "unit.hh"
 
 namespace holovibes
 {

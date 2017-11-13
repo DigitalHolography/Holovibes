@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "units/rect.hh"
+#include "rect.hh"
 #include <iostream>
 /*
 namespace holovibes

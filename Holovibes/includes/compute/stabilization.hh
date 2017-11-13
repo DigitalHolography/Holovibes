@@ -21,7 +21,7 @@
 # include "pipeline_utils.hh"
 # include "frame_desc.hh"
 # include "queue.hh"
-# include "units/rect.hh"
+# include "rect.hh"
 
 namespace holovibes
 {

@@ -13,7 +13,7 @@
 #pragma once
 
 #include "frame_desc.hh"
-#include "units/conversion_data.hh"
+#include "conversion_data.hh"
 
 namespace holovibes
 {

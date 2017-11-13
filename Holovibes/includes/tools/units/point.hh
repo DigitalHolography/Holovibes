@@ -12,10 +12,10 @@
 
 #pragma once
 
-#include "units/conversion_data.hh"
-#include "units/window_pixel.hh"
-#include "units/fd_pixel.hh"
-#include "units/opengl_position.hh"
+#include "conversion_data.hh"
+#include "window_pixel.hh"
+#include "fd_pixel.hh"
+#include "opengl_position.hh"
 
 
 namespace holovibes
