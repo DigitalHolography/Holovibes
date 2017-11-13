@@ -97,8 +97,8 @@ void interpolation(cuComplex *buffer,
 	float* tex_data;
 
 	// Setting texture for linear interpolation
-	tex.addressMode[0] = cudaAddressModeClamp;
-	tex.addressMode[1] = cudaAddressModeClamp;
+	tex.addressMode[0] = cudaAddressModeWrap;
+	tex.addressMode[1] = cudaAddressModeWrap;
 	tex.filterMode = cudaFilterModeLinear;
 	// Coordinates not normalized
 	tex.normalized = false;
