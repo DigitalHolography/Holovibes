@@ -668,6 +668,5 @@
     <None Include="shaders\fragment.3d.glsl">
       <Filter>shaders</Filter>
     </None>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

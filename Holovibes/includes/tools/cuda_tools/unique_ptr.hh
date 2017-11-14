@@ -22,6 +22,7 @@
 
 namespace holovibes
 {
+	/*! \brief Contains memory handlers for cuda buffers. */
 	namespace cuda_tools
 	{
 		/// A smart pointer made for ressources that need to be cudaFreed

@@ -32,16 +32,17 @@
 
 namespace holovibes
 {
+	/*! \brief Contains all function to display the graphical user interface */
 	namespace gui
 	{
-		using KindOfView =
-		enum
+		/*! \brief Describes the kind of window */
+		enum KindOfView
 		{
-			Direct = 1,
-			Hologram,
-			SliceXZ,
-			SliceYZ,
-			Vision3D
+			Direct = 1, /**< Simply displaying the input frames */
+			Hologram, /**< Applying the demodulation and computations on the input frames */
+			SliceXZ, /**< Displaying the XZ view of the hologram */
+			SliceYZ, /**< Displaying the YZ view of the hologram */
+			Vision3D /**< Displaying the Hologram in a special 3D mode */
 		};
 
 		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions

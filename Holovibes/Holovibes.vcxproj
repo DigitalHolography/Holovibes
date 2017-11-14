@@ -495,7 +495,6 @@
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="shaders\fragment.3d.glsl" />
     <None Include="shaders\fragment.color.glsl" />
     <None Include="shaders\fragment.tex.glsl" />

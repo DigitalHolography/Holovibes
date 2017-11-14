@@ -26,6 +26,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
 

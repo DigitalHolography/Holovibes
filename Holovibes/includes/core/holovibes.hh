@@ -26,7 +26,7 @@
 # include "concurrent_deque.hh"
 # include "icamera.hh"
 
-/*! \brief Containt all function and structure needed to computes data */
+/*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
 {
 	class Queue;
