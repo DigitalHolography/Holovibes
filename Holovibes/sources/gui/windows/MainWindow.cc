@@ -14,6 +14,8 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+	using camera::Endianness;
 	namespace gui
 	{
 		namespace {
@@ -926,7 +928,7 @@ namespace holovibes
 					set_maximums(holovibes_.get_cam_frame_desc());
 					notify();
 				}
-				catch (CameraException& e)
+				catch (camera::CameraException& e)
 				{
 					display_error("[CAMERA]" + std::string(e.what()));
 				}

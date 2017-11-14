@@ -13,6 +13,8 @@
 #include "options_parser.hh"
 #include "MainWindow.hh"
 
+using camera::Endianness;
+
 int main(int argc, char* argv[])
 {
 	holovibes::OptionsDescriptor opts;
@@ -36,7 +38,8 @@ int main(int argc, char* argv[])
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		#endif /* !_DEBUG */
 
-		gui::MainWindow w(h);
+		holovibes::gui::MainWindow w(h);
+		w.show();
 		splash.finish(&w);
 		h.get_compute_desc().register_observer(w);
 

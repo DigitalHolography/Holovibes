@@ -18,7 +18,7 @@
 * with and call it
 */
 void fft1_lens(cuComplex			*lens,
-			const FrameDescriptor&	fd,
+			const camera::FrameDescriptor&	fd,
 			const float				lambda,
 			const float				z,
 			const float				pixel_size,

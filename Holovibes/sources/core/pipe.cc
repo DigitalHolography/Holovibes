@@ -39,6 +39,8 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+
 	Pipe::Pipe(
 		Queue& input,
 		Queue& output,

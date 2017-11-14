@@ -16,80 +16,86 @@
 #include "units\unit.hh"
 #include "BasicOpenGLWindow.hh"
 
-using holovibes::units::ConversionData;
-using holovibes::units::Axis;
-
-ConversionData::ConversionData(const BasicOpenGLWindow& window)
-	: window_(&window)
-{}
-
-ConversionData::ConversionData(const BasicOpenGLWindow* window)
-	: window_(window)
-{}
-
-float ConversionData::window_size_to_opengl(int val, Axis axis) const
+namespace holovibes
 {
-	assert(window_);
-	if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+	using gui::BasicOpenGLWindow;
+	using gui::SliceYZ;
+	using gui::SliceXZ;
+	namespace units
 	{
-		double multiplier = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
-		val *= multiplier;
-	}
-	auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
-	return axis == Axis::VERTICAL ? -res : res;
-}
+		ConversionData::ConversionData(const BasicOpenGLWindow& window)
+			: window_(&window)
+		{}
 
-float ConversionData::fd_to_opengl(int val, Axis axis) const
-{
-	assert(window_);
-	auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
-	return axis == Axis::VERTICAL ? -res : res;
-}
+		ConversionData::ConversionData(const BasicOpenGLWindow* window)
+			: window_(window)
+		{}
 
-int ConversionData::opengl_to_window_size(float val, Axis axis) const
-{
-	assert(window_);
-	if (axis == Axis::VERTICAL)
-		val *= -1;
-	int res = ((val + 1.f) / 2.f) * get_window_size(axis);
-	if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
-	{
-		double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
-		res /= divider;
-	}
-	return res;
-}
+		float ConversionData::window_size_to_opengl(int val, Axis axis) const
+		{
+			assert(window_);
+			if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+			{
+				double multiplier = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
+				val *= multiplier;
+			}
+			auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_window_size(axis))) - 1.f;
+			return axis == Axis::VERTICAL ? -res : res;
+		}
 
-int ConversionData::opengl_to_fd(float val, Axis axis) const
-{
-	assert(window_);
-	if (axis == Axis::VERTICAL)
-		val *= -1;
-	return ((val + 1.f) / 2.f) * get_fd_size(axis);
-}
+		float ConversionData::fd_to_opengl(int val, Axis axis) const
+		{
+			assert(window_);
+			auto res = (static_cast<float>(val) * 2.f / static_cast<float>(get_fd_size(axis))) - 1.f;
+			return axis == Axis::VERTICAL ? -res : res;
+		}
 
-int ConversionData::get_window_size(Axis axis) const
-{
-	switch (axis)
-	{
-	case Axis::HORIZONTAL:
-		return window_->width();
-	case Axis::VERTICAL:
-		return window_->height();
-	default:
-		throw std::exception("Unreachable code");
-	}
-}
+		int ConversionData::opengl_to_window_size(float val, Axis axis) const
+		{
+			assert(window_);
+			if (axis == Axis::VERTICAL)
+				val *= -1;
+			int res = ((val + 1.f) / 2.f) * get_window_size(axis);
+			if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+			{
+				double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
+				res /= divider;
+			}
+			return res;
+		}
 
-int ConversionData::get_fd_size(Axis axis) const
-{
-	switch (axis)
-	{
-	case Axis::HORIZONTAL:
-		return window_->getFd().width;
-	case Axis::VERTICAL:
-		return window_->getFd().height;
-	default:
-		throw std::exception("Unreachable code");
+		int ConversionData::opengl_to_fd(float val, Axis axis) const
+		{
+			assert(window_);
+			if (axis == Axis::VERTICAL)
+				val *= -1;
+			return ((val + 1.f) / 2.f) * get_fd_size(axis);
+		}
+
+		int ConversionData::get_window_size(Axis axis) const
+		{
+			switch (axis)
+			{
+			case Axis::HORIZONTAL:
+				return window_->width();
+			case Axis::VERTICAL:
+				return window_->height();
+			default:
+				throw std::exception("Unreachable code");
+			}
+		}
+
+		int ConversionData::get_fd_size(Axis axis) const
+		{
+			switch (axis)
+			{
+			case Axis::HORIZONTAL:
+				return window_->getFd().width;
+			case Axis::VERTICAL:
+				return window_->getFd().height;
+			default:
+				throw std::exception("Unreachable code");
+			}
+		}
 	}
 }

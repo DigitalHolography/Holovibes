@@ -24,6 +24,7 @@
 #include <cufft.h>
 
 using holovibes::compute::Stabilization;
+using holovibes::FnVector;
 
 
 Stabilization::Stabilization(FnVector& fn_vect,

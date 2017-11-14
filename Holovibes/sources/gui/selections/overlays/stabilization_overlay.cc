@@ -15,6 +15,9 @@
 #include "power_of_two.hh"
 
 using holovibes::gui::StabilizationOverlay;
+using holovibes::gui::BasicOpenGLWindow;
+
+
 StabilizationOverlay::StabilizationOverlay(BasicOpenGLWindow* parent)
 	: RectOverlay(KindOfOverlay::Stabilization, parent)
 {

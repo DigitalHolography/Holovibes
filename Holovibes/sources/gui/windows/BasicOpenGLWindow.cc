@@ -20,6 +20,7 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
 	namespace gui
 	{
 		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :

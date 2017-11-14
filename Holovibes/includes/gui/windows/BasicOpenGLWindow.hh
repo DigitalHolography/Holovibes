@@ -59,7 +59,7 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
-			const FrameDescriptor& getFd() const;
+			const camera::FrameDescriptor& getFd() const;
 			OverlayManager& getOverlayManager();
 
 			// Transform functions ------
@@ -75,7 +75,7 @@ namespace holovibes
 			QPoint					winPos;
 			Queue&					Qu;
 			ComputeDescriptor		*Cd;
-			const FrameDescriptor&	Fd;
+			const camera::FrameDescriptor&	Fd;
 			const KindOfView		kView;
 			bool					fullScreen_;
 

@@ -12,6 +12,8 @@
 
 #include "filter2D.cuh"
 
+using camera::FrameDescriptor;
+
 __global__
 void filter2D_roi(cuComplex	*input,
 				const uint	tl_x,
@@ -39,7 +41,7 @@ void filter2D_roi(cuComplex	*input,
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
 			const cufftHandle		plan2d,
-			const units::RectFd&	r,
+			const holovibes::units::RectFd&	r,
 			const FrameDescriptor&	desc,
 			cudaStream_t			stream)
 {

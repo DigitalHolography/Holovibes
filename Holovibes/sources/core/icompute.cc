@@ -34,6 +34,10 @@
 
 namespace holovibes
 {
+	using gui::InfoManager;
+	using camera::FrameDescriptor;
+
+
 	ICompute::ICompute(
 		Queue& input,
 		Queue& output,

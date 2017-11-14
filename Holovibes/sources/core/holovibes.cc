@@ -23,6 +23,10 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+
+
+
 	Holovibes::Holovibes()
 		: camera_(),
 		camera_initialized_(false),

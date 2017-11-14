@@ -24,7 +24,7 @@
 */
 __global__
 void kernel_quadratic_lens(cuComplex			*output,
-						const FrameDescriptor	fd,
+						const camera::FrameDescriptor	fd,
 						const float				lambda,
 						const float				dist,
 						const float				pixel_size);
@@ -39,7 +39,7 @@ void kernel_quadratic_lens(cuComplex			*output,
 */
 __global__
 void kernel_spectral_lens(cuComplex				*output,
-						const FrameDescriptor	fd,
+						const camera::FrameDescriptor	fd,
 						const float				lambda,
 						const float				distance,
 						const float				pixel_size);

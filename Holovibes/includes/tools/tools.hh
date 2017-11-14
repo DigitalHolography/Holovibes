@@ -30,7 +30,6 @@
 # include "frame_desc.hh"
 # include "cufft.h"
 
-using namespace holovibes;
 
 /*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>

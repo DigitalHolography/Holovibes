@@ -14,6 +14,8 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+	using camera::Endianness;
 	namespace gui
 	{
 		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q) :

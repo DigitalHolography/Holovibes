@@ -173,8 +173,8 @@ void complex_to_complex(const cuComplex	*input,
 /*! \brief Cast buffer into real_buffer*/
 void	buffer_size_conversion(char					*real_buffer,
 							const char				*buffer,
-							const FrameDescriptor	real_fd,
-							const FrameDescriptor	fd);
+							const camera::FrameDescriptor	real_fd,
+							const camera::FrameDescriptor	fd);
 
 /*! \brief Cuda Kernel for buffer_size_conversion*/
 __global__

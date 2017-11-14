@@ -46,7 +46,7 @@ void make_sqrt_vect(float			*out,
  * this function would need an unsigned short buffer that is unused
  * anywhere else.
  */
-void make_contiguous_complex(Queue&			input,
+void make_contiguous_complex(holovibes::Queue&			input,
 							cuComplex		*output,
 							const uint		n,
 							cudaStream_t	stream = 0);

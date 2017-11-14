@@ -47,7 +47,7 @@ static void updateComplexSlice(cuComplex* frame, cudaSurfaceObject_t cuSurface, 
 
 void textureUpdate(cudaSurfaceObject_t	cuSurface,
 				void					*frame,
-				const FrameDescriptor&	fd,
+				const camera::FrameDescriptor&	fd,
 				cudaStream_t			stream)
 {
 	dim3 threads(32, 32);

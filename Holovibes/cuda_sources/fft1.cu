@@ -14,6 +14,8 @@
 #include "preprocessing.cuh"
 #include "transforms.cuh"
 
+using camera::FrameDescriptor;
+
 void fft1_lens(cuComplex*			lens,
 			const FrameDescriptor&	fd,
 			const float				lambda,

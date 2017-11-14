@@ -12,6 +12,8 @@
 
 #include "stft.cuh"
 
+using holovibes::ImgType;
+
 // Short-Time Fourier Transform
 void stft(cuComplex			*input,
 		cuComplex			*gpu_queue,

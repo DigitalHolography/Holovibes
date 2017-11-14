@@ -23,26 +23,26 @@
 * \return A tuple of 3 floats <sum of signal zones pixels,
 *			sum of noise zone pixels, average>.
 */
-Tuple4f make_average_plot(float*			input,
+holovibes::Tuple4f make_average_plot(float*			input,
 						const uint			width,
 						const uint			height,
-						const units::RectFd&	signal,
-						const units::RectFd&	noise,
+						const holovibes::units::RectFd&	signal,
+						const holovibes::units::RectFd&	noise,
 						cudaStream_t		stream = 0);
 
 /*! \brief  Make the average plot on the 2 select zones
 * but first it will call the reconstruct roi after having
 * splitted the image for the stft.
 */
-Tuple4f make_average_stft_plot(cuComplex*	cbuf,
+holovibes::Tuple4f make_average_stft_plot(cuComplex*	cbuf,
 							float*			fbuf,
 							cuComplex*		input,
 							const uint		width,
 							const uint		height,
 							const uint		width_roi,
 							const uint		height_roi,
-							const units::RectFd&	signal,
-							const units::RectFd&	noise,
+							const holovibes::units::RectFd&	signal,
+							const holovibes::units::RectFd&	noise,
 							const uint		pindex,
 							const uint		nsamples,
 							cudaStream_t	stream = 0);

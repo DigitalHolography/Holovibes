@@ -13,6 +13,8 @@
 #include "preprocessing.cuh"
 #include "tools_conversion.cuh"
 
+using camera::FrameDescriptor;
+using holovibes::Queue;
 
 void make_sqrt_vect(float			*out,
 					const ushort	n,
