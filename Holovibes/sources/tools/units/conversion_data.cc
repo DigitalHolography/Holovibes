@@ -70,8 +70,8 @@ int ConversionData::opengl_to_fd(float val, Axis axis) const
 
 void ConversionData::transform_from_fd(float& x, float& y) const
 {
-	glm::vec3 input{ x, y, 1 };
-	auto matrix = window_->getTransformMatrix();
+	glm::vec3 input{ x, y, 1.0f };
+	const auto& matrix = window_->getTransformMatrix();
 	auto output = matrix * input;
 	x = output[0];
 	y = output[1];

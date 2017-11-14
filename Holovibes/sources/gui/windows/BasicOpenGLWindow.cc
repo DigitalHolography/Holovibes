@@ -253,7 +253,12 @@ namespace holovibes
 
 			glm::vec4 trs = rotYZ * translate_;
 			transform_matrix_ = mvp;
-			transform_matrix_[0][3]
+			// GLM matrix are column major so the translation vector is in [2][X] and not [X][2]
+			transform_matrix_[2][0] = -translate_[0];
+			transform_matrix_[2][1] = translate_[1];
+
+			transform_matrix_[2][2] = 1;
+			
 			transform_inverse_matrix_ = glm::inverse(transform_matrix_);
 			if (Program)
 			{
