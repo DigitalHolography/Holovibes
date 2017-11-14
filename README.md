@@ -32,6 +32,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
     * QT VS TOOLS (Usefull Visual studio add-on)
     * Install and build Qwt 6.1.3 in the "lib" directory
     * Boost 1.65.1 (A prebuilt version is easier. If you build it yourself, make sure libs are built in $(BoostLib)\lib64-msvc-14.1)
+    * Doxywizard (optionnal, usefull to manipulate 'doxygen_config' file)
 * Make sure the environment variable "CUDA_PATH_V9_0" is set
 * Make sure your path contains:
     * $(CUDA_PATH_V9_0)\bin
