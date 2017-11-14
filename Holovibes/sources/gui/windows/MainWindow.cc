@@ -78,18 +78,14 @@ namespace holovibes
 			InfoManager::get_manager(ui.InfoGroupBox);
 
 			move(QPoint(532, 554));
+			show();
 
 			// Hide non default tab
-			ui.PostProcessingGroupBox->setHidden(true);
 			ui.CompositeGroupBox->setHidden(true);
-			ui.RecordGroupBox->setHidden(true);
-			ui.InfoGroupBox->setHidden(true);
 
 			ui.actionSpecial->setChecked(false);
 			ui.actionRecord->setChecked(false);
 			ui.actionInfo->setChecked(false);
-
-			layout_toggled();
 
 			try
 			{
@@ -131,7 +127,6 @@ namespace holovibes
 			QComboBox *window_cbox = ui.WindowSelectionComboBox;
 			connect(window_cbox, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_window()));
 
-			resize(width(), 425);
 			// Display default values
 			compute_desc_.compute_mode.exchange(Computation::Direct);
 			notify();

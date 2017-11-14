@@ -37,7 +37,6 @@ int main(int argc, char* argv[])
 		#endif /* !_DEBUG */
 
 		gui::MainWindow w(h);
-		w.show();
 		splash.finish(&w);
 		h.get_compute_desc().register_observer(w);
 
