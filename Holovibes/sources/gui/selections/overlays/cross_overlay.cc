@@ -87,12 +87,16 @@ namespace holovibes
 
 			// Set line vertices order
 			std::vector<GLuint> lineElements{
-				// topleft cross
-				0, 3,
-				4, 5,
-				// bottom right cross
+				// vertical rectangle
+				0, 1,
 				1, 2,
-				7, 6
+				2, 3,
+				3, 0,
+				// horizontal rectangle
+				4, 5,
+				5, 6,
+				6, 7,
+				7, 4
 			};
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
@@ -135,7 +139,7 @@ namespace holovibes
 			// Drawing four lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
 			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing areas between lines
