@@ -10,10 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <stdexcept>
-#include <iostream>
-#include <cuda.h>
-#include <cuda_runtime.h>
 #include "tools.hh"
 #include "tools_conversion.cuh"
 #include "power_of_two.hh"

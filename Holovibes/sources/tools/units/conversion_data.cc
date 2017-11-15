@@ -10,8 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <cassert>
-
 #include "units\conversion_data.hh"
 #include "units\unit.hh"
 #include "BasicOpenGLWindow.hh"

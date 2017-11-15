@@ -10,17 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-
-#ifndef _HAS_AUTO_PTR_ETC
-#define _HAS_AUTO_PTR_ETC 1
-#endif // !_HAS_AUTO_PTR_ETC
-
 #include "camera_pco_edge.hh"
 #include <camera_exception.hh>
-#include <boost/lexical_cast.hpp>
 
-#include <PCO_err.h>
-#include <sc2_defs.h>
 
 namespace camera
 {

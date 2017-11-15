@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <iostream>
 #include "compute_bundles.hh"
 
 namespace holovibes

@@ -12,12 +12,6 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <functional>
-#include <iostream>
-#include <cuda_runtime.h>
-
 namespace holovibes
 {
 	namespace cuda_tools

@@ -15,9 +15,6 @@
  * Store frames of a given queue in a file. */
 #pragma once
 
-#include <fstream>
-#include <QObject>
-
  /* Forward declaration. */
 namespace holovibes
 {

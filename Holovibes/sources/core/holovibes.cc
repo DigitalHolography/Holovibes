@@ -10,11 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <exception>
-#include <cassert>
-#include <memory>
-#include <boost/filesystem.hpp>
-
 #include "holovibes.hh"
 #include "queue.hh"
 #include "config.hh"

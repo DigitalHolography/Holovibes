@@ -20,8 +20,6 @@
 #include "tools_conversion.cuh"
 #include "stabilization.cuh"
 
-#include <iostream>
-#include <cufft.h>
 
 using holovibes::compute::Stabilization;
 

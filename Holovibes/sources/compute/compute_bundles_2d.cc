@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <exception>
 #include "compute_bundles_2d.hh"
 
 namespace holovibes

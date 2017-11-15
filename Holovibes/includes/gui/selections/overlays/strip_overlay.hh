@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <atomic>
 #include "rect_overlay.hh"
 
 namespace holovibes

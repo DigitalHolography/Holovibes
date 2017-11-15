@@ -10,9 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <cassert>
-#include <algorithm>
-
 #include "pipe.hh"
 #include "config.hh"
 #include "info_manager.hh"
