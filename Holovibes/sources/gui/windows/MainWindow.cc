@@ -2172,14 +2172,17 @@ namespace holovibes
 		#pragma region Average
 		void MainWindow::set_average_mode(const bool value)
 		{
-			compute_desc_.average_enabled.exchange(value);
-			mainDisplay->resetTransform();
-			if (value)
-				mainDisplay->getOverlayManager().create_overlay<Signal>();
-			else
-				mainDisplay->resetSelection();
-			is_enabled_average_ = value;
-			notify();
+			if (mainDisplay)
+			{
+				compute_desc_.average_enabled.exchange(value);
+				mainDisplay->resetTransform();
+				if (value)
+					mainDisplay->getOverlayManager().create_overlay<Signal>();
+				else
+					mainDisplay->resetSelection();
+				is_enabled_average_ = value;
+				notify();
+			}
 		}
 
 		void MainWindow::activeSignalZone()
