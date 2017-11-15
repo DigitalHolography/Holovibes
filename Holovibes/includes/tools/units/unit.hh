@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a Unit with its cast between different coordinates system */
 #pragma once
 
 #include "frame_desc.hh"

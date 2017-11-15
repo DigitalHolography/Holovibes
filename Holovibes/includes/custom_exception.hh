@@ -10,11 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-# include <exception>
-# include <string>
 /*! \file
 *
-* Implementation of the Observer design pattern. */
+* Implementation of custom error class. */
+# include <exception>
+# include <string>
 #pragma once
 
 namespace holovibes

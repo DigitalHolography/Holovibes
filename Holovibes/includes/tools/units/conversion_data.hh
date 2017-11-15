@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of the conversion from a unit to another */
 #pragma once
 
 

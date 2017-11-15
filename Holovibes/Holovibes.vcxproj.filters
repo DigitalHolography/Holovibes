@@ -260,9 +260,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_PlotWindow.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="sources\3DVision.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\selections\overlay_manager.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
@@ -317,6 +314,9 @@
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\3DVisionWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -353,9 +353,6 @@
       <Filter>c++ includes\other</Filter>
     </ClInclude>
     <ClInclude Include="includes\queue.hh">
-      <Filter>c++ includes\other</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\resource.h">
       <Filter>c++ includes\other</Filter>
     </ClInclude>
     <ClInclude Include="includes\tools\hardware_limits.hh">
@@ -472,9 +469,6 @@
     <ClInclude Include="cuda_includes\tools_conversion.cuh">
       <Filter>cuda includes\tools</Filter>
     </ClInclude>
-    <ClInclude Include="includes\3DVision.hh">
-      <Filter>c++ includes</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_includes\composite.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
@@ -549,6 +543,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\windows\3DVisionWindow.hh">
+      <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

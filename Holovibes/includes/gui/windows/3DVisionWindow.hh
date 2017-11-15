@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Qt window displaying the 3D mode. */
 #pragma once
 
 # include <glm/vec3.hpp>

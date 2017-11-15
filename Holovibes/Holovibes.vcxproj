@@ -174,7 +174,6 @@
     <ClInclude Include="cuda_includes\vibrometry.cuh" />
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
-    <ClInclude Include="includes\3DVision.hh" />
     <ClInclude Include="includes\camera_dll.hh" />
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
@@ -190,6 +189,7 @@
     <ClInclude Include="includes\gpib_dll.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
+    <ClInclude Include="includes\gui\windows\3DVisionWindow.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
@@ -269,7 +269,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
     </CustomBuild>
-    <ClInclude Include="includes\resource.h" />
     <ClInclude Include="includes\thread\ithread_input.hh" />
     <ClInclude Include="includes\thread\thread_capture.hh" />
     <ClInclude Include="includes\thread\thread_compute.hh" />
@@ -377,7 +376,6 @@
     </ClCompile>
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
-    <ClCompile Include="sources\3DVision.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />
@@ -401,6 +399,7 @@
     <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc" />
+    <ClCompile Include="sources\gui\windows\3DVisionWindow.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />
     <ClCompile Include="sources\gui\windows\PlotWindow.cc" />

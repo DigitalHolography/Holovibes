@@ -51,7 +51,7 @@
 # include "custom_exception.hh"
 # include "info_manager.hh"
 # include "options_descriptor.hh"
-# include "3DVision.hh"
+# include "3DVisionWindow.hh"
 
 // namespace gui
 # include "HoloWindow.hh"

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a Rectangle */
 #pragma once
 
 #include "point.hh"

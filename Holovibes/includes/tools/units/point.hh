@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a Point */
 #pragma once
 
 #include "conversion_data.hh"

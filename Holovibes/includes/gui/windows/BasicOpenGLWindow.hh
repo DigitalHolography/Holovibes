@@ -12,7 +12,7 @@
 
 /*! \file
 *
-* Interface implemented by each qt window. */
+* Interface implemented by each Qt window. */
 #pragma once
 
 #ifndef _HAS_AUTO_PTR_ETC

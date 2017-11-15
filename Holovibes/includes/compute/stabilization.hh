@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Contains functions relative to image XY stabilization. */
 #pragma once
 
 

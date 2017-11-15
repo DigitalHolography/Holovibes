@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a position in the frame desc coordinate system */
 #pragma once
 
 #include "unit.hh"

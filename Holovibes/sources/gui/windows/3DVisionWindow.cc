@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "3DVision.hh"
+#include "3DVisionWindow.hh"
 #include <stdlib.h>
 
 namespace holovibes

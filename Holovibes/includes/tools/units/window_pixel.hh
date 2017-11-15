@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a position in the Window coordinate system */
 #pragma once
 
 #include "unit.hh"

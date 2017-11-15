@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a position in the OpenGl coordinate system */
 #pragma once
 
 #include "unit.hh"
