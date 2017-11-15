@@ -72,8 +72,8 @@ namespace holovibes
 			if (e->button() == Qt::LeftButton)
 			{
 				auto pos = getMousePos(e->pos());
-				zone_.setTopLeft(pos);
-				zone_.setBottomRight(zone_.topLeft());
+				zone_.setSrc(pos);
+				zone_.setDst(zone_.src());
 			}
 		}
 

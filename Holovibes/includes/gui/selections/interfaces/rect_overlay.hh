@@ -30,9 +30,6 @@ namespace holovibes
 			virtual void draw() override;
 
 
-			/*! \brief Check if corners are not swapped, i.e. if topleft is really in the top left corner */
-			void checkCorners();
-
 			virtual void move(QMouseEvent *e) override;
 			virtual void setZone(units::RectWindow rect, ushort frameside) override;
 		protected:

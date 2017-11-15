@@ -2263,15 +2263,15 @@ namespace holovibes
 				const units::RectFd signal = mainDisplay->getSignalZone();
 				const units::RectFd noise = mainDisplay->getNoiseZone();
 
-				ptree.put("signal.top_left_x", signal.topLeft().x());
-				ptree.put("signal.top_left_y", signal.topLeft().y());
-				ptree.put("signal.bottom_right_x", signal.bottomRight().x());
-				ptree.put("signal.bottom_right_y", signal.bottomRight().y());
+				ptree.put("signal.top_left_x", signal.src().x());
+				ptree.put("signal.top_left_y", signal.src().y());
+				ptree.put("signal.bottom_right_x", signal.dst().x());
+				ptree.put("signal.bottom_right_y", signal.dst().y());
 
-				ptree.put("noise.top_left_x", noise.topLeft().x());
-				ptree.put("noise.top_left_y", noise.topLeft().y());
-				ptree.put("noise.bottom_right_x", noise.bottomRight().x());
-				ptree.put("noise.bottom_right_y", noise.bottomRight().y());
+				ptree.put("noise.top_left_x", noise.src().x());
+				ptree.put("noise.top_left_y", noise.src().y());
+				ptree.put("noise.bottom_right_x", noise.dst().x());
+				ptree.put("noise.bottom_right_y", noise.dst().y());
 
 				boost::property_tree::write_ini(path, ptree);
 				display_info("Roi saved in " + path);
@@ -2296,20 +2296,20 @@ namespace holovibes
 					units::RectFd noise;
 					units::ConversionData convert(mainDisplay.get());
 
-					signal.setTopLeft(
+					signal.setSrc(
 						units::PointFd(convert,
 							ptree.get<int>("signal.top_left_x", 0),
 							ptree.get<int>("signal.top_left_y", 0)));
-					signal.setBottomRight(
+					signal.setDst(
 						units::PointFd(convert,
 							ptree.get<int>("signal.bottom_right_x", 0),
 							ptree.get<int>("signal.bottom_right_y", 0)));
 
-					noise.setTopLeft(
+					noise.setSrc(
 						units::PointFd(convert,
 							ptree.get<int>("noise.top_left_x", 0),
 							ptree.get<int>("noise.top_left_y", 0)));
-					noise.setBottomRight(
+					noise.setDst(
 						units::PointFd(convert,
 							ptree.get<int>("noise.bottom_right_x", 0),
 							ptree.get<int>("noise.bottom_right_y", 0)));

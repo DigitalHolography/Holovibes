@@ -29,10 +29,8 @@ namespace holovibes
 			// and can be in every corner (bottomRight can be in the top left corner).
 			const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
 			zone_.setBottomRight(units::PointWindow(units::ConversionData(parent_),
-				zone_.topLeft().x() +
-				min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1),
-				zone_.topLeft().y() +
-				min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1)
+				zone_.topLeft().x() + min,
+				zone_.topLeft().y() + min
 			));
 		}
 
@@ -52,8 +50,6 @@ namespace holovibes
 
 			// Making it a square again
 			make_square();
-
-			RectOverlay::checkCorners();
 		}
 
 		void SquareOverlay::move(QMouseEvent* e)
@@ -61,7 +57,7 @@ namespace holovibes
 			if (e->buttons() == Qt::LeftButton)
 			{
 				auto pos = getMousePos(e->pos());
-				zone_.setBottomRight(pos);
+				zone_.setDst(pos);
 				make_square();
 				setBuffer();
 				display_ = true;

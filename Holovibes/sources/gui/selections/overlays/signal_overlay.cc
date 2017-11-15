@@ -25,8 +25,6 @@ namespace holovibes
 
 		void SignalOverlay::release(ushort frameSide)
 		{
-			checkCorners();
-
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 

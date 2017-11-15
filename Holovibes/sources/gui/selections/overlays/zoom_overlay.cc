@@ -26,8 +26,6 @@ namespace holovibes
 
 		void ZoomOverlay::release(ushort frameSide)
 		{
-			checkCorners();
-
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 

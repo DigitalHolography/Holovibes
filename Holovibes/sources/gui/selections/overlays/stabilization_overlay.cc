@@ -25,7 +25,6 @@ StabilizationOverlay::StabilizationOverlay(BasicOpenGLWindow* parent)
 void StabilizationOverlay::release(ushort frameSide)
 {
 	disable();
-	checkCorners();
 
 	if (zone_.topLeft() == zone_.bottomRight())
 		return;
@@ -50,8 +49,8 @@ void StabilizationOverlay::make_pow2_square()
 	units::RectFd fd_zone = zone_;
 	const int min = prevPowerOf2(std::min(std::abs(fd_zone.width()), std::abs(fd_zone.height())));
 	units::PointFd bottom_right = fd_zone.topLeft();
-	bottom_right.x() += min * (fd_zone.x() < fd_zone.right() ? 1 : -1);
-	bottom_right.y() += min * (fd_zone.y() < fd_zone.bottom() ? 1 : -1);
+	bottom_right.x() += min;
+	bottom_right.y() += min;
 	fd_zone.setBottomRight(bottom_right);
 	zone_ = fd_zone;
 }
@@ -61,7 +60,7 @@ void StabilizationOverlay::move(QMouseEvent* e)
 	if (e->buttons() == Qt::LeftButton)
 	{
 		display_ = true;
-		zone_.setBottomRight(getMousePos(e->pos()));
+		zone_.setDst(getMousePos(e->pos()));
 		make_pow2_square();
 		setBuffer();
 	}
