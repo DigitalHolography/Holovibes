@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay selecting the noise zone to average. */
 #pragma once
 
 #include "rect_overlay.hh"

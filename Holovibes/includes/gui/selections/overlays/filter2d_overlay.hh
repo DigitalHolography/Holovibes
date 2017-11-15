@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay starting the filtering ROI procedure. */
 #pragma once
 
 #include "square_overlay.hh"

@@ -17,6 +17,7 @@
 
 namespace holovibes
 {
+	/*! \brief Contains functions and casts related to the three coordinates system. */
 	namespace units
 	{
 

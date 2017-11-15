@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Overlay used to compute the side views. */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -71,7 +74,7 @@ namespace holovibes
 			units::PointFd mouse_position_;
 
 			//! Horizontal area. zone_ corresponds to the vertical area
-			units::RectWindow horizontal_zone_;
+			units::RectFd horizontal_zone_;
 			
 			//! Allow zomming when \this is the current overlay
 			std::shared_ptr<ZoomOverlay> zoom_;

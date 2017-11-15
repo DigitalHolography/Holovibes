@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Singleton managing the 'Infos' GroupBox. TODO: recode this class. */
 #pragma once
 
 #include <QProgressBar>

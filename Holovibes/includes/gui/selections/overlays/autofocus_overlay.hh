@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Overlay starting the autofocus procedure. */
 #pragma once
 
 #include "rect_overlay.hh"

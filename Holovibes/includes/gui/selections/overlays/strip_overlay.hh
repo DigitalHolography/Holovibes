@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay displaying a strip of color in function of the parent window. */
 #pragma once
 
 #include <atomic>

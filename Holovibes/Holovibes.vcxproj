@@ -396,7 +396,6 @@
     <ClCompile Include="sources\gui\selections\overlays\noise_overlay.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\Overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlay_manager.cc" />
-    <ClCompile Include="sources\gui\selections\Rectangle.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\rect_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\signal_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc" />

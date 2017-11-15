@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Qt main class containing the GUI. */
 #pragma once
 #ifndef _HAS_AUTO_PTR_ETC
 	#define _HAS_AUTO_PTR_ETC 1

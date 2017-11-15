@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Interface implemented by each qt window. */
 #pragma once
 
 #ifndef _HAS_AUTO_PTR_ETC

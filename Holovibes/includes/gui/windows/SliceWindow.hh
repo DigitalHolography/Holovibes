@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Qt window containing the XZ or YZ view of the hologram. */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"

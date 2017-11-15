@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay selecting the zone to zoom in. */
 #pragma once
 
 #include "rect_overlay.hh"
