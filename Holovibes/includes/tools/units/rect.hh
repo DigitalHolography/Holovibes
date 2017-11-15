@@ -207,6 +207,16 @@ namespace holovibes
 				return dst_;
 			}
 
+			Point<T>& srcRef()
+			{
+				return src_;
+			}
+
+			Point<T>& dstRef()
+			{
+				return dst_;
+			}
+
 			/**@}*/
 
 
