@@ -34,7 +34,8 @@ namespace holovibes
 		float ConversionData::window_size_to_opengl(int val, Axis axis) const
 		{
 			assert(window_);
-			if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+			if (axis == Axis::HORIZONTAL && window_->width() > window_->height()
+				&& window_->getKindOfView() != SliceXZ && window_->getKindOfView() != SliceYZ)
 			{
 				double multiplier = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
 				val *= multiplier;
