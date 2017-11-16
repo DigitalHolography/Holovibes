@@ -18,15 +18,18 @@
 #include "info_manager.hh"
 #include "HoloWindow.hh"
 #include "MainWindow.hh"
+#include "SliceWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window) :
-			DirectWindow(p, s, q, KindOfView::Hologram),
-			Ic(ic),
-			main_window_(main_window)
+		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, MainWindow *main_window)
+			: DirectWindow(p, s, q, KindOfView::Hologram)
+			, Ic(ic)
+			, main_window_(main_window)
+			, xz_slice_(xz)
+			, yz_slice_(yz)
 		{}
 
 		HoloWindow::~HoloWindow()
@@ -56,6 +59,20 @@ namespace holovibes
 			QOpenGLWindow::focusInEvent(e);
 			Cd->current_window.exchange(WindowKind::XYview);
 			Cd->notify_observers();
+		}
+
+		void	HoloWindow::update_slice_transforms()
+		{
+			if (xz_slice_)
+			{
+				xz_slice_->setTranslate(translate_[0], 0);
+				xz_slice_->setScale(getScale());
+			}
+			if (yz_slice_)
+			{
+				yz_slice_->setTranslate(0, translate_[1]);
+				yz_slice_->setScale(getScale());
+			}
 		}
 	}
 }

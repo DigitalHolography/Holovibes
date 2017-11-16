@@ -44,6 +44,7 @@ namespace holovibes
 			Vision3D
 		};
 
+
 		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 		{
 		public:
@@ -114,7 +115,7 @@ namespace holovibes
 			void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
 
-		private:
+		protected:
 			glm::vec4 translate_;
 			float scale_;
 			/// Angle in degree

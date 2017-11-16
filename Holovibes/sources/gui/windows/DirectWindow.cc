@@ -11,19 +11,16 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
+#include "SliceWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q) :
-			BasicOpenGLWindow(p, s, q, KindOfView::Direct),
+		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
-		{}
-
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
-			BasicOpenGLWindow(p, s, q, k)
 		{}
 
 		DirectWindow::~DirectWindow()

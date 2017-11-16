@@ -18,11 +18,11 @@ namespace holovibes
 {
 	namespace gui
 	{
+		class SliceWindow;
 		class DirectWindow : public BasicOpenGLWindow
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
+			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k = Direct);
 			virtual ~DirectWindow();
 
 			units::RectFd	getSignalZone() const;

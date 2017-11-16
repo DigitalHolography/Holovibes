@@ -17,6 +17,7 @@
 
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
+#include "HoloWindow.hh"
 
 #include "tools.hh"
 
@@ -244,7 +245,10 @@ namespace holovibes
 			const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));
 			const glm::mat4 rotYZ = rotY * rotZ;
 
-			const glm::mat4 scl = glm::scale(glm::mat4(1.f), glm::vec3(scale_, scale_, 1.f));
+			const glm::mat4 scl = glm::scale(glm::mat4(1.f),
+					glm::vec3(kView == KindOfView::SliceYZ ? 1 : scale_,
+						kView == KindOfView::SliceXZ ? 1 : scale_,
+						1.f));
 			glm::mat4 mvp = rotYZ * scl;
 
 			for (uint id = 0; id < 2; id++)
@@ -275,6 +279,10 @@ namespace holovibes
 					glm::value_ptr(mvp));
 				Program->release();
 			}
+
+			auto holo = dynamic_cast<HoloWindow*>(this);
+			if (holo)
+				holo->update_slice_transforms();
 		}
 
 		void BasicOpenGLWindow::resetSelection()

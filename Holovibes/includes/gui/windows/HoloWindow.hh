@@ -26,8 +26,10 @@ namespace holovibes
 		class HoloWindow : public DirectWindow
 		{
 		public:
-			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, MainWindow *main_window = nullptr);
+			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xy, std::unique_ptr<SliceWindow>& yy, MainWindow *main_window = nullptr);
 			virtual ~HoloWindow();
+
+			void update_slice_transforms();
 
 			SharedPipe getPipe();
 
@@ -41,6 +43,9 @@ namespace holovibes
 		private:
 			MainWindow *main_window_;
 			QPoint mouse_position;
+
+			std::unique_ptr<SliceWindow>& xz_slice_;
+			std::unique_ptr<SliceWindow>& yz_slice_;
 		};
 	}
 }
