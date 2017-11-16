@@ -201,10 +201,9 @@ namespace holovibes
 
 		void OverlayManager::draw()
 		{
-			for (auto o : overlays_) {
+			for (auto o : overlays_)
 				if (o->isActive() && o->isDisplayed())
 					o->draw();
-			}
 		}
 
 		void OverlayManager::clean()
@@ -245,6 +244,7 @@ namespace holovibes
 
 		units::RectWindow OverlayManager::getZone() const
 		{
+			assert(current_overlay_);
 			return current_overlay_->getZone();
 		}
 
