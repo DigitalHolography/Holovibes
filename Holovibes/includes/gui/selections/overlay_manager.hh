@@ -55,7 +55,7 @@ namespace holovibes
 			/*! \brief Draw every overlay that should be displayed. */
 			void draw();
 			/*! \brief Get the zone of the current overlay. */
-			const units::RectWindow& getZone() const;
+			units::RectWindow getZone() const;
 			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
 

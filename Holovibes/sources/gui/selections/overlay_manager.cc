@@ -243,7 +243,7 @@ namespace holovibes
 			}
 		}
 
-		const units::RectWindow& OverlayManager::getZone() const
+		units::RectWindow OverlayManager::getZone() const
 		{
 			return current_overlay_->getZone();
 		}
