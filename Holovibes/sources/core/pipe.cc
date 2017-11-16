@@ -188,11 +188,16 @@ namespace holovibes
 			refresh_requested_.exchange(false);
 			return;
 		}
+
+		const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+
 		fn_vect_.push_back(std::bind(
 			make_contiguous_complex,
 			std::ref(input_),
 			gpu_input_buffer_,
 			input_length_,
+			ratio,
+			compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation,
 			static_cast<cudaStream_t>(0)));
 		gpu_input_frame_ptr_ = gpu_input_buffer_;
 		fn_vect_.push_back(std::bind(
@@ -318,6 +323,9 @@ namespace holovibes
 			return;
 		}
 
+		const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+
+
 		// Fill input complex buffer, one frame at a time.
 		if (af_env_.state == af_state::STOPPED)
 			fn_vect_.push_back(std::bind(
@@ -325,6 +333,8 @@ namespace holovibes
 				std::ref(input_),
 				gpu_input_buffer_,
 				input_length_,
+				ratio,
+				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation,
 				static_cast<cudaStream_t>(0)));
 		else if (af_env_.state == af_state::COPYING)
 		{
@@ -334,6 +344,8 @@ namespace holovibes
 				std::ref(input_),
 				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
 				input_length_,
+				ratio,
+				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation,
 				static_cast<cudaStream_t>(0)));
 			if (af_env_.stft_index == 0)
 			{
@@ -354,13 +366,13 @@ namespace holovibes
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
 
-		if (compute_desc_.interpolation_enabled.load())
+		if (compute_desc_.interpolation_enabled.load() && (compute_desc_.manual_interpolation || compute_desc_.tex_interpolation))
 			fn_vect_.push_back([=]() {
 				interpolation_caller(gpu_input_buffer_,
 					input_fd.width,
 					input_fd.height,
-					compute_desc_.lambda,
-					compute_desc_.interp_lambda); });
+					ratio,
+					compute_desc_.manual_interpolation); });
 
 		units::RectFd roiZone;
 		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);

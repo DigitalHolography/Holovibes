@@ -281,8 +281,8 @@ namespace holovibes
 		void interpolation_caller(cuComplex *buffer,
 			const int width,
 			const int height,
-			const float lambda,
-			const float lambda1,
+			const float ratio,
+			bool interpolation,
 			cudaStream_t stream = 0);
 
 		void record_float(float* float_output, cudaStream_t stream);

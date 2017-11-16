@@ -20,8 +20,14 @@
 * \param height Height of one frame
 * \param ratio Ratio of interpolation based on lambda
 */
-void interpolation(cuComplex *buffer,
-	//cuComplex *img,
+void tex_interpolation(cuComplex *buffer,
+	const unsigned int width,
+	const unsigned int height,
+	const float ratio,
+	cudaStream_t stream);
+
+void manual_interpolation(cuComplex *buffer,
+	cuComplex *img,
 	const unsigned int width,
 	const unsigned int height,
 	const float ratio,

@@ -976,11 +976,15 @@ namespace holovibes
 			while (input_.get_current_elts() < input_length_)
 				continue;
 
+			const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+
 			// If stft, it saves only one frames in the end of gpu_input_buffer_tmp
 			make_contiguous_complex(
 				input_,
 				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				input_length_);
+				input_length_,
+				ratio,
+				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation);
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 			/* Compute square af zone. */
@@ -1143,20 +1147,18 @@ namespace holovibes
 	void ICompute::interpolation_caller(cuComplex *buffer,
 		const int width,
 		const int height,
-		const float lambda,
-		const float lambda1,
+		const float ratio,
+		bool manual,
 		cudaStream_t stream)
 	{
-
-		const float ratio = lambda1 > 0 ? lambda / lambda1 : 1;
-
-		/* cuda_tools::UniquePtr<cuComplex> img(width * height);
-
-		cudaMemcpy(img, buffer, width * height, cudaMemcpyHostToHost);
-
-		interpolation(buffer, img, width, height, ratio, stream); */
-
-		interpolation(buffer, width, height, ratio, stream);
+		if (manual)
+		{
+			cuda_tools::UniquePtr<cuComplex> img(width * height);
+			cudaMemcpy(img, buffer, width * height, cudaMemcpyHostToHost);
+			manual_interpolation(buffer, img, width, height, ratio, stream);
+		}
+		else
+			tex_interpolation(buffer, width, height, ratio, stream);
 	}
 
 	Queue *ICompute::get_lens_queue()

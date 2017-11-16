@@ -1747,6 +1747,9 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				compute_desc_.interpolation_enabled.exchange(value);
+				compute_desc_.manual_interpolation.exchange(ui.ManualInterpolationCheckBox->isChecked());
+				compute_desc_.tex_interpolation.exchange(ui.TextureInterpolationCheckBox->isChecked());
+				compute_desc_.contiguous_interpolation.exchange(ui.ContiguousInterpolationCheckBox->isChecked());
 				pipe_refresh();
 			}
 		}
