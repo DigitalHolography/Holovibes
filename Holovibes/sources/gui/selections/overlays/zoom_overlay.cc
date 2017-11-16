@@ -30,7 +30,6 @@ namespace holovibes
 				return;
 
 			// handle Zoom
-			// Since we cannot zoom in slice yet, we have to cast here.
 			switch (parent_->getKindOfView())
 			{
 			case Direct:

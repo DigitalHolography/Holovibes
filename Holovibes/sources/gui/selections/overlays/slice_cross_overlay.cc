@@ -35,21 +35,12 @@ namespace holovibes
 			RectOverlay::init();
 
 			// Set line vertices order
-
-			// Horizontal lines
 			std::vector<GLuint> elements {
 				0, 1,
-				3, 2
+				1, 2,
+				2, 3,
+				3, 0
 			};
-
-			// Vertical lines
-			if (parent_->getKindOfView() == SliceYZ)
-			{
-				elements = {
-					0, 3,
-					1, 2
-				};
-			}
 
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
@@ -70,7 +61,7 @@ namespace holovibes
 			// Drawing two lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
 			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
-			glDrawElements(GL_LINES, 4, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing area between two lines

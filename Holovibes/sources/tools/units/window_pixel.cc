@@ -24,13 +24,13 @@ namespace holovibes
 			: Unit(data, axis, val)
 		{}
 
-		WindowPixel::operator units::OpenglPosition() const
+		WindowPixel::operator OpenglPosition() const
 		{
 			OpenglPosition res(conversion_data_, axis_, conversion_data_.window_size_to_opengl(val_, axis_));
 			return res;
 		}
 
-		WindowPixel::operator units::FDPixel() const
+		WindowPixel::operator FDPixel() const
 		{
 			FDPixel res(conversion_data_, axis_,
 					conversion_data_.opengl_to_fd(static_cast<units::OpenglPosition>(*this).get(), axis_));
