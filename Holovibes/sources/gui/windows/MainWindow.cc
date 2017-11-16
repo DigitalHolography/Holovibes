@@ -1849,7 +1849,6 @@ namespace holovibes
 			pipe_refresh();
 			while (holovibes_.get_pipe()->get_refresh_request())
 				continue;
-			set_auto_contrast();
 		}
 
 		void MainWindow::set_import_pixel_size(const double value)
