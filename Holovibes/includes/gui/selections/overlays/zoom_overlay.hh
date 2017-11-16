@@ -15,13 +15,13 @@
 * Overlay selecting the zone to zoom in. */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "square_overlay.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class ZoomOverlay : public RectOverlay
+		class ZoomOverlay : public SquareOverlay
 		{
 		public:
 			ZoomOverlay(BasicOpenGLWindow* parent);

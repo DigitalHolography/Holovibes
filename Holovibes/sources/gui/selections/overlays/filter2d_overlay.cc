@@ -26,18 +26,16 @@ namespace holovibes
 
 		void Filter2DOverlay::release(ushort frameSide)
 		{
-			checkCorners(parent_->width());
+			checkCorners();
 
-			if (zone_.topLeft() == zone_.bottomRight())
+			if (zone_.src() == zone_.dst())
 				return;
-
-			units::RectFd texZone = zone_;
 
 			// handle Filter2D
 			auto window = dynamic_cast<HoloWindow *>(parent_);
 			if (window)
 			{
-				window->getCd()->stftRoiZone(texZone, AccessMode::Set);
+				window->getCd()->stftRoiZone(zone_, AccessMode::Set);
 				window->getPipe()->request_filter2D_roi_update();
 				window->getPipe()->request_filter2D_roi_end();
 			}

@@ -19,36 +19,20 @@ namespace holovibes
 	namespace gui
 	{
 		ZoomOverlay::ZoomOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::Zoom, parent)
+			: SquareOverlay(KindOfOverlay::Zoom, parent)
 		{
 			color_ = { 0.f, 0.5f, 0.f };
 		}
 
 		void ZoomOverlay::release(ushort frameSide)
 		{
-			checkCorners();
-
 			if (zone_.topLeft() == zone_.bottomRight())
 				return;
 
 			// handle Zoom
-			// Since we cannot zoom in slice yet, we have to cast here.
-			switch (parent_->getKindOfView())
-			{
-			case Direct:
-			case Hologram:
-			{
-				DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
-				if (window)
-					window->zoomInRect(zone_);
-				break;
-			}
-			// Not implemented yet
-			case SliceXZ:
-			case SliceYZ:
-			default:
-				break;
-			}
+			DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
+			if (window)
+				window->zoomInRect(zone_);
 			disable();
 		}
 	}

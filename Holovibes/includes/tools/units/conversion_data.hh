@@ -49,6 +49,9 @@ namespace holovibes
 			/* }
 			 */
 
+			void transform_from_fd(float& x, float& y) const;
+			void transform_to_fd(float& x, float& y) const;
+
 		private:
 
 			int get_window_size(Axis axis) const;

@@ -42,7 +42,7 @@ namespace holovibes
 			glDeleteBuffers(1, &colorIndex_);
 		}
 
-		const units::RectWindow& Overlay::getZone() const
+		const units::RectFd& Overlay::getZone() const
 		{
 			return zone_;
 		}
@@ -72,8 +72,8 @@ namespace holovibes
 			if (e->button() == Qt::LeftButton)
 			{
 				auto pos = getMousePos(e->pos());
-				zone_.setTopLeft(pos);
-				zone_.setBottomRight(zone_.topLeft());
+				zone_.setSrc(pos);
+				zone_.setDst(zone_.src());
 			}
 		}
 

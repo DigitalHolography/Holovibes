@@ -29,8 +29,8 @@ namespace holovibes
 			virtual ~SquareOverlay()
 			{}
 
-			/*! \brief Check if corners are not swapped, and if they don't go out of bounds. */
-			void checkCorners(ushort frameSide);
+			/*! \brief Check if corners don't go out of bounds. */
+			void checkCorners();
 			/*! \brief Change the rectangular zone to a square zone, using the shortest side */
 			void make_square();
 

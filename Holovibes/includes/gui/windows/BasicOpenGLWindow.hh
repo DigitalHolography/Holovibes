@@ -48,6 +48,7 @@ namespace holovibes
 			Vision3D /**< Displaying the Hologram in a special 3D mode */
 		};
 
+
 		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 		{
 		public:
@@ -66,10 +67,18 @@ namespace holovibes
 			OverlayManager& getOverlayManager();
 
 			// Transform functions ------
-			void	setTransform();
-			void	resetTransform();
-			void	setAngle(float a);
-			void	setFlip(int f);
+			void resetTransform();
+			void setScale(float);
+			float getScale() const;
+			void setAngle(float a);
+			float getAngle() const;
+			void setFlip(bool f);
+			bool getFlip() const;
+			void setTranslate(float x, float y);
+			glm::vec2 getTranslate() const;
+
+			const glm::mat3x3& getTransformMatrix() const;
+			const glm::mat3x3& getTransformInverseMatrix() const;
 
 		protected:
 			// Fields -------------------
@@ -84,10 +93,7 @@ namespace holovibes
 
 			OverlayManager	overlay_manager_;
 
-			glm::vec4	Translate;
-			float		Scale;
-			float		Angle;
-			int			Flip;
+			void setTransform();
 
 			// CUDA Objects -------------
 			cudaGraphicsResource_t	cuResource;
@@ -112,6 +118,17 @@ namespace holovibes
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
+
+		protected:
+			glm::vec4 translate_;
+			float scale_;
+			/// Angle in degree
+			float angle_;
+			bool flip_;
+
+			glm::mat3x3 transform_matrix_;
+			glm::mat3x3 transform_inverse_matrix_;
+
 		};
 	}
 }

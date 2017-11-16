@@ -63,7 +63,7 @@ namespace holovibes
 			virtual ~Overlay();
 
 			/*! \brief Get the zone selected */
-			const units::RectWindow&	getZone()	const;
+			const units::RectFd&	getZone()	const;
 
 			/*! \brief Get the kind of overlay */
 			const KindOfOverlay		getKind()		const;
@@ -93,7 +93,7 @@ namespace holovibes
 			virtual void release(ushort frameside) = 0;
 
 			/*! \brief Set the zone, buffers, and call release */
-			virtual void setZone(units::RectWindow rect, ushort frameside) = 0;
+			virtual void setZone(units::RectFd rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose */
 			void print();
@@ -105,11 +105,11 @@ namespace holovibes
 			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
 			virtual void setBuffer() = 0;
 
-			/*! \brief returns a PointWindow object from the mouse position */
+			/*! \brief Converts QPoint to a point in the window */
 			units::PointWindow getMousePos(QPoint pos);
 
 			//! Zone selected by the users in pixel coordinates (window width, window height)
-			units::RectWindow zone_;
+			units::RectFd zone_;
 
 			//! Kind of overlay
 			KindOfOverlay kOverlay_;
