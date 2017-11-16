@@ -30,7 +30,7 @@ namespace holovibes
 			void		setSignalZone(units::RectFd signal);
 			void		setNoiseZone(units::RectFd noise);
 
-			void	zoomInRect(units::RectWindow zone);
+			void	zoomInRect(units::RectOpengl zone);
 
 		protected:
 			int	texDepth, texType;

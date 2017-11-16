@@ -240,16 +240,23 @@ namespace holovibes
 				resetTransform();
 		}
 
-		void	DirectWindow::zoomInRect(units::RectWindow zone)
+		void	DirectWindow::zoomInRect(units::RectOpengl zone)
 		{
-			const units::PointWindow center = zone.center();
+			const units::PointOpengl center = zone.center();
 
-			setTranslate(getTranslate()[0] + ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / getScale(),
-				getTranslate()[1] + ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / getScale());
+			const float delta_x = center.x() / (getScale() * 2);
+			const float delta_y = center.y() / (getScale() * 2);
 
-			const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
-			const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
-			setScale((xRatio < yRatio ? xRatio : yRatio) * getScale());
+			const auto old_translate = getTranslate();
+
+			const auto new_translate_x = old_translate[0] + delta_x;
+			const auto new_translate_y = old_translate[1] - delta_y;
+
+			setTranslate(new_translate_x, new_translate_y);
+
+			const float xRatio = zone.unsigned_width();
+			const float yRatio = zone.unsigned_height();
+			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
 
 			setTransform();
 		}

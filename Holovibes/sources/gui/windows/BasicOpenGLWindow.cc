@@ -207,7 +207,7 @@ namespace holovibes
 			return flip_;
 		}
 
-		void BasicOpenGLWindow::setTranslate(float x, int y)
+		void BasicOpenGLWindow::setTranslate(float x, float y)
 		{
 			translate_[0] = x;
 			translate_[1] = y;

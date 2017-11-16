@@ -120,6 +120,14 @@ namespace holovibes
 				res.val_ *= other;
 				return res;
 			}
+
+			template<typename U>
+			Unit<T> operator-()
+			{
+				Unit<T> res(*this);
+				res.val_ *= -1;
+				return res;
+			}
 			/**@{*/
 
 		protected:

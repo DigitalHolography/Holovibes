@@ -126,6 +126,14 @@ namespace holovibes
 				return size().x();
 			}
 
+			T unsigned_width() const
+			{
+				T res = size().x();
+					if (res < 0)
+				res *= -1;
+				return res;
+			}
+
 			template <typename U>
 			void setWidth(U w)
 			{
@@ -135,6 +143,14 @@ namespace holovibes
 			T height() const
 			{
 				return size().y();
+			}
+
+			T unsigned_height() const
+			{
+				T res = size().y();
+					if (res < 0)
+				res *= -1;
+				return res;
 			}
 
 			template <typename U>

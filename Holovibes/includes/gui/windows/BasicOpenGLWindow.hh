@@ -69,7 +69,7 @@ namespace holovibes
 			float getAngle() const;
 			void setFlip(bool f);
 			bool getFlip() const;
-			void setTranslate(float x, int y);
+			void setTranslate(float x, float y);
 			glm::vec2 getTranslate() const;
 
 			const glm::mat3x3& getTransformMatrix() const;

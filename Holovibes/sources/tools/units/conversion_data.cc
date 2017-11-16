@@ -52,7 +52,8 @@ int ConversionData::opengl_to_window_size(float val, Axis axis) const
 	if (axis == Axis::VERTICAL)
 		val *= -1;
 	int res = ((val + 1.f) / 2.f) * get_window_size(axis);
-	if (axis == Axis::HORIZONTAL && window_->width() > window_->height() && window_->getKindOfOverlay() != SliceXZ)
+	if (window_->width() > window_->height() && axis == Axis::HORIZONTAL
+		&& window_->getKindOfView() != SliceXZ && window_->getKindOfView() != SliceYZ)
 	{
 		double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
 		res /= divider;
