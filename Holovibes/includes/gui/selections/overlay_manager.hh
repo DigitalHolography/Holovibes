@@ -36,7 +36,7 @@ namespace holovibes
 				Color color);
 
 			/*! \brief Create an overlay, and set its zone. */
-			void set_zone(ushort frameside, units::RectWindow zone, KindOfOverlay ko);
+			void set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko);
 
 			/*! \brief Disable all the overlay of kind ko*/
 			bool disable_all(KindOfOverlay ko);

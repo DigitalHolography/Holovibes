@@ -42,7 +42,7 @@ namespace holovibes
 			glDeleteBuffers(1, &colorIndex_);
 		}
 
-		const units::RectWindow& Overlay::getZone() const
+		const units::RectFd& Overlay::getZone() const
 		{
 			return zone_;
 		}

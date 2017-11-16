@@ -28,8 +28,6 @@ namespace holovibes
 			color_ = { 1.f, 0.f, 0.f };
 			alpha_ = 0.05f;
 			display_ = true;
-			zoom_ = std::make_shared<ZoomOverlay>(parent_);
-			zoom_->initProgram();
 		}
 		
 		CrossOverlay::~CrossOverlay()
@@ -124,9 +122,6 @@ namespace holovibes
 
 		void CrossOverlay::draw()
 		{
-			if (zoom_ && zoom_->isActive() && zoom_->isDisplayed())
-				zoom_->draw();
-
 			computeZone();
 			setBuffer();
 
@@ -157,8 +152,6 @@ namespace holovibes
 
 		void CrossOverlay::press(QMouseEvent *e)
 		{
-			if (zoom_ && zoom_->isActive())
-				zoom_->press(e);
 		}
 
 		void CrossOverlay::keyPress(QKeyEvent *e)
@@ -198,18 +191,10 @@ namespace holovibes
 				}
 				cd->notify_observers();
 			}
-			else if (zoom_ && zoom_->isActive())
-				zoom_->move(e);
 		}
 
 		void CrossOverlay::release(ushort frameside)
 		{
-			if (zoom_ && zoom_->isActive())
-			{
-				zoom_->release(frameside);
-				zoom_ = std::make_shared<ZoomOverlay>(parent_);
-				zoom_->initProgram();
-			}
 		}
 
 		void CrossOverlay::computeZone()

@@ -46,7 +46,7 @@ namespace holovibes
 			void release(ushort frameSide) override;
 
 			// Not called when using cross
-			void setZone(units::RectWindow rect, ushort frameside) override
+			void setZone(units::RectFd rect, ushort frameside) override
 			{}
 
 		protected:
@@ -72,9 +72,6 @@ namespace holovibes
 
 			//! Horizontal area. zone_ corresponds to the vertical area
 			units::RectFd horizontal_zone_;
-			
-			//! Allow zomming when \this is the current overlay
-			std::shared_ptr<ZoomOverlay> zoom_;
 		};
 	}
 }

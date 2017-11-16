@@ -63,7 +63,7 @@ namespace holovibes
 			virtual ~Overlay();
 
 			/*! \brief Get the zone selected */
-			const units::RectWindow&	getZone()	const;
+			const units::RectFd&	getZone()	const;
 
 			/*! \brief Get the kind of overlay */
 			const KindOfOverlay		getKind()		const;
@@ -93,7 +93,7 @@ namespace holovibes
 			virtual void release(ushort frameside) = 0;
 
 			/*! \brief Set the zone, buffers, and call release */
-			virtual void setZone(units::RectWindow rect, ushort frameside) = 0;
+			virtual void setZone(units::RectFd rect, ushort frameside) = 0;
 
 			/*! \brief Prints informations about the overlay. Debug purpose */
 			void print();

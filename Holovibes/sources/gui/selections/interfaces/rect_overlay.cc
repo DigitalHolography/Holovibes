@@ -124,7 +124,7 @@ namespace holovibes
 			}
 		}
 
-		void RectOverlay::setZone(units::RectWindow rect, ushort frameside)
+		void RectOverlay::setZone(units::RectFd rect, ushort frameside)
 		{
 			zone_ = rect;
 			setBuffer();
