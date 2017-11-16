@@ -15,9 +15,6 @@
  * Core class to use HoloVibe  */
 #pragma once
 
-# include <memory>
-# include <cassert>
-
 # include "thread_compute.hh"
 # include "thread_capture.hh"
 # include "thread_reader.hh"

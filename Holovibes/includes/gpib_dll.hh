@@ -15,12 +15,8 @@
  * Encapsulate a GPIB DLL ressource  */
 #pragma once
 
-# include <Windows.h>
 # undef min
 # include "../GPIB/IVisaInterface.hh"
-# include <string>
-# include <exception>
-# include <memory>
 
 namespace gpib
 {

@@ -75,3 +75,5 @@ namespace holovibes
 		}
 	}
 }
+
+#include "Debug/moc_PlotWindow.cc"

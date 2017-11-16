@@ -15,9 +15,6 @@
 * Regroup all resources used for phase unwrapping 2d. */
 #pragma once
 
-# include <cuda_runtime.h>
-# include <cufft.h>
-
 # include "config.hh"
 
 

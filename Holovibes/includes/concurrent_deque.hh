@@ -15,12 +15,6 @@
  * A thread safe wrapper on std::deque. */
 #pragma once
 
-# include <deque>
-# include <mutex>
-# include <array>
-# include <vector>
-
-
 namespace holovibes
 {
 	#ifndef TUPLE4F

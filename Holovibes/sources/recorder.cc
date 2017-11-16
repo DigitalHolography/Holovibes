@@ -10,21 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <exception>
-#include <cassert>
-#include <thread>
-#include <iostream>
-#include <list>
-#include <boost/filesystem.hpp>
-#include <direct.h>
 
 #include "recorder.hh"
 #include "queue.hh"
 
 # include "gui_group_box.hh"
 # include "info_manager.hh"
-# include <QProgressBar>
-# include <QTextBrowser>
 
 namespace holovibes
 {
@@ -138,3 +129,5 @@ namespace holovibes
 		return ifs.good();
 	}
 }
+
+#include "Debug\moc_recorder.cc"

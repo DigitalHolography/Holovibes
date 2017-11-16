@@ -14,11 +14,6 @@
 
 # include "IVisaInterface.hh"
 
-# include <vector>
-# include <deque>
-# include <exception>
-# include <utility>
-# include <iostream>
 
 # define BUF_SIZE 200
 

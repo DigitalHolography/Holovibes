@@ -15,11 +15,6 @@
  * Contains compute parameters. */
 #pragma once
 
-# include <atomic>
-# include <mutex>
-# include <tuple>
-# include <qmap.h>
-
 # include "observable.hh"
 # include "rect.hh"
 

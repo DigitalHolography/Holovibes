@@ -18,6 +18,11 @@
   <ItemGroup>
     <ClCompile Include="gpib_controller.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PrecompiledHeader\PrecompiledHeader.vcxproj">
+      <Project>{7ffa2e3c-5a37-4695-972e-c4e5b2393b8e}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4945AF2E-4E1F-4052-B8B6-5B0990D1E121}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -69,11 +74,14 @@
     </Lib>
     <ClCompile>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Qt\qwt-6.1.3\src;$(SolutionDir)\lib\glm;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;$(QTDIR)\include;C:\Users\MountainView\source\repos\holovibes\PrecompiledHeader;$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>GPIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.hh</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>stdafx.hh</ForcedIncludeFiles>
+      <ProgramDataBaseFileName />
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,6 +91,8 @@
       <AdditionalIncludeDirectories>$(SolutionLibDir)\ni_gpib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>GPIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.hh</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

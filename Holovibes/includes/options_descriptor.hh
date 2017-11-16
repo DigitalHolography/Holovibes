@@ -16,8 +16,6 @@
  * parameters entered with the CLI or GUI. */
 #pragma once
 
-# include <string>
-
 # include "compute_descriptor.hh"
 
 namespace holovibes

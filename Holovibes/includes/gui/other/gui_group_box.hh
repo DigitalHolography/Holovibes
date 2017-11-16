@@ -12,8 +12,6 @@
 
 #pragma once
 
-# include <QGroupBox>
-
 namespace holovibes
 {
 	namespace gui

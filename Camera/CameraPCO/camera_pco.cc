@@ -10,6 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#ifndef _HAS_AUTO_PTR_ETC
+#define _HAS_AUTO_PTR_ETC 1
+#endif // !_HAS_AUTO_PTR_ETC
+
+#include <boost/lexical_cast.hpp>
+
 #include <camera_exception.hh>
 #include <utils.hh>
 #include "camera_pco.hh"

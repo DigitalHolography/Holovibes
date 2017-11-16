@@ -15,14 +15,6 @@
  * Stores functions helping the editing of the images. */
 #pragma once
 
-# include <fstream>
-# include <cufft.h>
-# include <chrono>
-# include <mutex>
-# include <memory>
-# include <atomic>
-# include <qrect.h>
-
 # include "config.hh"
 # include "pipeline_utils.hh"
 # include "rect.hh"

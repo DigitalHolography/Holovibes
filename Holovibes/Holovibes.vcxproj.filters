@@ -308,7 +308,7 @@
     <ClCompile Include="sources\gui\selections\interfaces\Overlay.cc">
       <Filter>c++ sources\gui\selections</Filter>
     </ClCompile>
-    <ClCompile Include="sources\stdafx.cc">
+    <ClCompile Include="..\PrecompiledHeader\stdafx.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -544,7 +544,7 @@
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections</Filter>
     </ClInclude>
-    <ClInclude Include="includes\stdafx.hh">
+    <ClInclude Include="..\PrecompiledHeader\stdafx.hh">
       <Filter>c++ includes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <iostream>
 #include "camera_dll.hh"
 
 namespace camera

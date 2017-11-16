@@ -10,10 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-# include <fstream>
-# include <Windows.h>
-# include <chrono>
-
 # include "tools_conversion.cuh"
 # include "info_manager.hh"
 # include "config.hh"
