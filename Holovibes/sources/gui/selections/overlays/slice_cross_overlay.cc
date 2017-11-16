@@ -95,20 +95,18 @@ namespace holovibes
 				auto kView = parent_->getKindOfView();
 				auto Cd = parent_->getCd();
 
-				// Computing p in function of mouse position
-				uint depth = kView == SliceXZ ? parent_->height() : parent_->width();
 				pIndex_ = getMousePos(e->pos());
-				pIndex_.x().set(pIndex_.x() * Cd->nsamples / depth);
-				pIndex_.y().set(pIndex_.y() * Cd->nsamples / depth);
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
 				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
-				Cd->pindex = p;
 				if (Cd->p_accu_enabled.load())
 				{
 					Cd->p_accu_max_level = std::max(p, last_p);
 					Cd->p_accu_min_level = std::min(p, last_p);
 				}
+				else
+					Cd->pindex = p;
+
 				Cd->notify_observers();
 			}
 		}

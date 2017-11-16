@@ -169,13 +169,14 @@ namespace holovibes
 		{
 			if (!locked_)
 			{
-				auto fd = parent_->getFd();
-				units::PointWindow pos_window = getMousePos(e->pos());
-				units::PointFd pos = pos_window;
+				units::PointFd pos = getMousePos(e->pos());
 				mouse_position_ = pos;
+
+				// Updating infos Tab
 				std::stringstream ss;
-				ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+				ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
 				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
+
 				auto cd = parent_->getCd();
 				cd->stftCursor(pos, AccessMode::Set);
 				// ---------------
