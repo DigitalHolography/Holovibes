@@ -156,7 +156,6 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\PrecompiledHeader\stdafx.hh" />
     <ClInclude Include="cuda_includes\autofocus.cuh" />
     <ClInclude Include="cuda_includes\average.cuh" />
     <ClInclude Include="cuda_includes\composite.cuh" />
@@ -195,6 +194,7 @@
     <ClInclude Include="includes\gpib_dll.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
+    <ClInclude Include="includes\stdafx.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
@@ -316,9 +316,6 @@
     <ClInclude Include="includes\tools\tools.hh" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\PrecompiledHeader\stdafx.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_curve_plot.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -445,6 +442,9 @@
     <ClCompile Include="sources\options_parser.cc" />
     <ClCompile Include="sources\queue.cc" />
     <ClCompile Include="sources\recorder.cc" />
+    <ClCompile Include="sources\stdafx.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="sources\thread\ithread_input.cc" />
     <ClCompile Include="sources\thread\thread_capture.cc" />
     <ClCompile Include="sources\thread\thread_compute.cc" />

@@ -12,8 +12,13 @@
 
 #pragma once
 
-# include "IVisaInterface.hh"
+# include <vector>
+# include <deque>
+# include <exception>
+# include <utility>
+# include <iostream>
 
+# include "IVisaInterface.hh"
 
 # define BUF_SIZE 200
 
