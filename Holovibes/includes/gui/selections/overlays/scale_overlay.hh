@@ -27,9 +27,6 @@ namespace holovibes
 			ScaleOverlay(BasicOpenGLWindow* parent);
 			~ScaleOverlay();
 
-			void init() override;
-			void draw() override;
-
 			void keyPress(QKeyEvent *e) override
 			{ }
 
@@ -40,12 +37,6 @@ namespace holovibes
 			{ }
 
 			void setBuffer() override;
-		private:
-			//! Transparency of the borders
-			float line_alpha_;
-
-			//! Vertices order for lines
-			GLuint elemLineIndex_;
 		};
 	}
 }

@@ -19,8 +19,6 @@ namespace holovibes
 	{
 		ScaleOverlay::ScaleOverlay(BasicOpenGLWindow* parent)
 			: RectOverlay(KindOfOverlay::Scale, parent)
-			, line_alpha_(1.f)
-			, elemLineIndex_(0)
 		{
 			color_ = { 1.f, 1.f, 1.f };
 			alpha_ = 1.f;
@@ -29,62 +27,32 @@ namespace holovibes
 
 		ScaleOverlay::~ScaleOverlay()
 		{
-			parent_->makeCurrent();
-			glDeleteBuffers(1, &elemLineIndex_);
-		}
-
-		void ScaleOverlay::init()
-		{
-			RectOverlay::init();
-
-			// Set line vertices order
-			std::vector<GLuint> elements{
-				0, 1,
-				1, 2,
-				2, 3,
-				3, 0
-			};
-
-			glGenBuffers(1, &elemLineIndex_);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements.data(), GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		}
-
-		void ScaleOverlay::draw()
-		{
-			parent_->makeCurrent();
-			compute_zone();
-			setBuffer();
-
-			Vao_.bind();
-			Program_->bind();
-
-			glEnableVertexAttribArray(colorShader_);
-			glEnableVertexAttribArray(verticesShader_);
-
-			// Drawing two lines
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-			// Drawing area between two lines
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-			Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-			glDisableVertexAttribArray(verticesShader_);
-			glDisableVertexAttribArray(colorShader_);
-
-			Program_->release();
-			Vao_.release();
 		}
 
 		void ScaleOverlay::setBuffer()
 		{
-			// Compute zone resizing
+			auto cd = parent_->getCd();
+			auto fd = parent_->getFd();
+			const float pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+
+			units::ConversionData convert(parent_);
+
+			// Setting the scale at 5% from bottom and 90% from top
+			// Setting the scale at 75% from left and 10% from right
+			units::PointOpengl topLeft(convert, 0.5, -0.88);
+			units::PointOpengl bottomRight(convert, 0.8, -0.9);
+
+			// Building zone
+			zone_ = units::RectFd(topLeft, bottomRight);
+
+			// Retrieving number of pixel contained in the displayed image
+			units::PointOpengl topLeft_gl(convert, -1, -1);
+			units::PointOpengl bottomRight_gl(convert, 1, -1);
+			units::PointFd topLeft_fd = topLeft_gl;
+			units::PointFd bottomRight_fd = bottomRight_gl;
+			const float nb_pixel = bottomRight_fd.x() - topLeft_fd.x();
+			const float size = nb_pixel * pix_size * 0.15f;
+			std::cout << "scale: " << size << "m" << std::endl;
 
 			// Updating opengl buffer
 			RectOverlay::setBuffer();

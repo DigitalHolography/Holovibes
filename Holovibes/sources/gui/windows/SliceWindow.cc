@@ -52,6 +52,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.holo.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
+			//overlay_manager_.create_overlay<Scale>();
 			if (Cd->img_type.load() == Composite)
 				create_strip_overlays();
 			else

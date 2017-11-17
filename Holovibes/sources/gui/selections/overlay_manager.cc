@@ -22,6 +22,7 @@
 #include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
 #include "strip_overlay.hh"
+#include "scale_overlay.hh"
 
 namespace holovibes
 {
@@ -97,6 +98,13 @@ namespace holovibes
 		{
 			if (!set_current(SliceCross))
 				create_overlay(std::make_shared<SliceCrossOverlay>(parent_));
+		}
+
+		template <>
+		void OverlayManager::create_overlay<Scale>()
+		{
+			if (!set_current(Scale))
+				create_overlay(std::make_shared<ScaleOverlay>(parent_));
 		}
 
 		void OverlayManager::create_strip_overlay(Component& component,
