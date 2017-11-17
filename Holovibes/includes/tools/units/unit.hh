@@ -18,6 +18,8 @@
 #include "frame_desc.hh"
 #include "conversion_data.hh"
 
+#include <iostream>
+
 namespace holovibes
 {
 	/*! \brief Contains functions and casts related to the three coordinates system. */
@@ -69,6 +71,10 @@ namespace holovibes
 			 * Can be used for += and such
 			 */
 			T& get()
+			{
+				return val_;
+			}
+			T get() const
 			{
 				return val_;
 			}
@@ -147,5 +153,11 @@ namespace holovibes
 			 */
 			T				val_;
 		};
+
+		template<typename T>
+		std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
+		{
+			return o << x.get();
+		}
 	}
 }

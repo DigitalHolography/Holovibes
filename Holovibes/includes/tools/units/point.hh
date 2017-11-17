@@ -129,6 +129,12 @@ namespace holovibes
 		 */
 		using PointWindow = Point<WindowPixel>;
 
+		template<typename T>
+		std::ostream& operator<<(std::ostream& o, const Point<T>& p)
+		{
+			return o << '(' << p.x() << ", " << p.y() << ')';
+		}
+
 	}
 }
 

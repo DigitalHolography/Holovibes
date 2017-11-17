@@ -75,7 +75,7 @@ namespace holovibes
 
 			Point<T> bottomRight() const
 			{
-				return Point<T>(bottom(), right());
+				return Point<T>(right(), bottom());
 			}
 
 			Point<T> topRight() const
@@ -287,6 +287,12 @@ namespace holovibes
 		/*! \brief Rectangle in the window coordinates
 		 */
 		using RectWindow = Rect<WindowPixel>;
+
+		template <typename T>
+		std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
+		{
+			return o << '[' << r.src() << ", " << r.dst() << ']';
+		}
 
 	}
 }
