@@ -45,7 +45,6 @@ namespace holovibes
 			void	focusInEvent(QFocusEvent *e) override;
 		private:
 			MainWindow *main_window_;
-			QPoint mouse_position;
 
 			std::unique_ptr<SliceWindow>& xz_slice_;
 			std::unique_ptr<SliceWindow>& yz_slice_;

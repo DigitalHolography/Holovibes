@@ -35,11 +35,10 @@ namespace holovibes
 			cudaResourceDesc		cuArrRD;
 			cudaSurfaceObject_t		cuSurface;
 			MainWindow *main_window_;
-			QPoint mouse_position;
 			
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	paintGL();
+			virtual void	initShaders() override;
+			virtual void	initializeGL() override;
+			virtual void	paintGL() override;
 
 			void mousePressEvent(QMouseEvent*) override;
 			void mouseMoveEvent(QMouseEvent*) override;

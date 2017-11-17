@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
-#include "SliceWindow.hh"
 
 namespace holovibes
 {
@@ -96,7 +95,7 @@ namespace holovibes
 				texType = GL_RGB;
 			glTexImage2D(GL_TEXTURE_2D, 0, texType, Fd.width, Fd.height, 0, texType, texDepth, nullptr);
 
-			glUniform1i(glGetUniformLocation(Program->programId(), "tex"), 0);
+			Program->setUniformValue(Program->uniformLocation("tex"), 0);
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -254,8 +253,11 @@ namespace holovibes
 			setTranslate(new_translate_x, new_translate_y);
 
 			const float xRatio = zone.unsigned_width();
+
+			/* Now ZoomOverlay is a square, so we don't really need this.
 			const float yRatio = zone.unsigned_height();
-			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
+			setScale(getScale() / (std::min(xRatio, yRatio) / 2)); */
+			setScale(getScale() * 2.f / xRatio);
 
 			setTransform();
 		}

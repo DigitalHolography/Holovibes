@@ -74,13 +74,14 @@ namespace holovibes
 
 		void RectOverlay::draw()
 		{
+			parent_->makeCurrent();
 			setBuffer();
 			Vao_.bind();
 			Program_->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
 			glEnableVertexAttribArray(colorShader_);
 			glEnableVertexAttribArray(verticesShader_);
-			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
+			Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -93,6 +94,7 @@ namespace holovibes
 
 		void RectOverlay::setBuffer()
 		{
+			parent_->makeCurrent();
 			Program_->bind();
 
 			// Normalizing the zone to (-1; 1)

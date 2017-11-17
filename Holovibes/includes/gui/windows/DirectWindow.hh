@@ -38,10 +38,10 @@ namespace holovibes
 		protected:
 			int	texDepth, texType;
 
-			virtual void	initShaders();
-			virtual void	initializeGL();
-			virtual void	resizeGL(int width, int height);
-			virtual void	paintGL();
+			virtual void	initShaders() override;
+			virtual void	initializeGL() override;
+			virtual void	resizeGL(int width, int height) override;
+			virtual void	paintGL() override;
 			
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);

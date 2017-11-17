@@ -50,6 +50,7 @@ namespace holovibes
 
 		void SliceCrossOverlay::draw()
 		{
+			parent_->makeCurrent();
 			setBuffer();
 
 			Vao_.bind();
@@ -60,13 +61,13 @@ namespace holovibes
 
 			// Drawing two lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
+			Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
 			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing area between two lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
+			Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

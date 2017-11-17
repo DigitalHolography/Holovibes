@@ -269,15 +269,11 @@ namespace holovibes
 			{
 				makeCurrent();
 				Program->bind();
-				glUniform1f(glGetUniformLocation(Program->programId(), "angle"), angle_);
-				glUniform1i(glGetUniformLocation(Program->programId(), "flip"), flip_);
-				glUniform2f(
-					glGetUniformLocation(Program->programId(), "translate"),
-					trs[0], trs[1]);
-				glUniformMatrix4fv(
-					glGetUniformLocation(Program->programId(), "mvp"),
-					1, GL_FALSE,
-					glm::value_ptr(mvp));
+				Program->setUniformValue(Program->uniformLocation("angle"), angle_);
+				Program->setUniformValue(Program->uniformLocation("flip"), flip_);
+				Program->setUniformValue(Program->uniformLocation("translate"), trs[0], trs[1]);
+				QMatrix4x4 m(glm::value_ptr(mvp));
+				Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
 				Program->release();
 			}
 
@@ -288,7 +284,6 @@ namespace holovibes
 
 		void BasicOpenGLWindow::resetSelection()
 		{
-			makeCurrent();
 			overlay_manager_.reset();
 		}
 

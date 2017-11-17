@@ -33,13 +33,13 @@ namespace holovibes
 			Vision3DWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, const camera::FrameDescriptor& fd, Queue& stft_queue);
 			~Vision3DWindow();
 
-			virtual void initializeGL();
-			virtual void initShaders();
-			virtual void paintGL();
+			virtual void initializeGL() override;
+			virtual void initShaders() override;
+			virtual void paintGL() override;
 
-			void keyPressEvent(QKeyEvent *e);
-			void keyReleaseEvent(QKeyEvent *e);
-			void wheelEvent(QWheelEvent *e);
+			void keyPressEvent(QKeyEvent *e) override;
+			void keyReleaseEvent(QKeyEvent *e) override;
+			void wheelEvent(QWheelEvent *e) override;
 
 
 		private:

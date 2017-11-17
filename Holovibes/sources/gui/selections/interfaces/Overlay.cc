@@ -37,6 +37,7 @@ namespace holovibes
 
 		Overlay::~Overlay()
 		{
+			parent_->makeCurrent();
 			glDeleteBuffers(1, &elemIndex_);
 			glDeleteBuffers(1, &verticesIndex_);
 			glDeleteBuffers(1, &colorIndex_);
@@ -83,6 +84,7 @@ namespace holovibes
 
 		void Overlay::initProgram()
 		{
+			parent_->makeCurrent();
 			initializeOpenGLFunctions();
 			Program_ = std::make_unique<QOpenGLShaderProgram>();
 			Program_->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.overlay.glsl");

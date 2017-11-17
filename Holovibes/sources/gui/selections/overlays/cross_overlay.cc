@@ -32,6 +32,7 @@ namespace holovibes
 		
 		CrossOverlay::~CrossOverlay()
 		{
+			parent_->makeCurrent();
 			glDeleteBuffers(1, &elemLineIndex_);
 		}
 
@@ -122,6 +123,7 @@ namespace holovibes
 
 		void CrossOverlay::draw()
 		{
+			parent_->makeCurrent();
 			computeZone();
 			setBuffer();
 
@@ -133,13 +135,13 @@ namespace holovibes
 
 			// Drawing four lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
+			Program_->setUniformValue(Program_->uniformLocation("alpha"), line_alpha_);
 			glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing areas between lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
-			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), alpha_);
+			Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -230,6 +232,7 @@ namespace holovibes
 
 		void CrossOverlay::setBuffer()
 		{
+			parent_->makeCurrent();
 			Program_->bind();
 
 			const units::RectOpengl zone_gl = zone_;
