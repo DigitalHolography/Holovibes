@@ -178,6 +178,7 @@
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
     <ClInclude Include="includes\compute\compute_descriptor.hh" />
+    <ClInclude Include="includes\compute\detect_intensity.hh" />
     <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
     <ClInclude Include="includes\config.hh" />
@@ -374,6 +375,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="sources\compute\detect_intensity.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
     <ClCompile Include="sources\camera_dll.cc" />

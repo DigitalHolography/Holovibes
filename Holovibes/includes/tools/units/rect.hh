@@ -85,7 +85,7 @@ namespace holovibes
 
 			Point<T> bottomLeft() const
 			{
-				return Point<T>(x(), right());
+				return Point<T>(x(), bottom());
 			}
 
 			Point<T> size() const
