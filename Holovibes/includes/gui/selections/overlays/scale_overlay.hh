@@ -12,7 +12,7 @@
 
 /*! \file
 *
-* Overlay manipulating z computation for side views. */
+* Overlay displaying the scale of the image. Could be factorized with slicecross overlay and maybe with strip */
 #pragma once
 
 #include "rect_overlay.hh"
@@ -21,18 +21,23 @@ namespace holovibes
 {
 	namespace gui
 	{
-		class SliceCrossOverlay : public RectOverlay
+		class ScaleOverlay : public RectOverlay
 		{
 		public:
-			SliceCrossOverlay(BasicOpenGLWindow* parent);
-			virtual ~SliceCrossOverlay();
+			ScaleOverlay(BasicOpenGLWindow* parent);
+			~ScaleOverlay();
 
 			void init() override;
 			void draw() override;
 
-			void keyPress(QKeyEvent *e) override;
-			void move(QMouseEvent *e) override;
-			void release(ushort frameSide) override;
+			void keyPress(QKeyEvent *e) override
+			{ }
+
+			void move(QMouseEvent *e) override
+			{ }
+
+			void release(ushort frameSide) override
+			{ }
 
 			void setBuffer() override;
 		private:
@@ -41,15 +46,6 @@ namespace holovibes
 
 			//! Vertices order for lines
 			GLuint elemLineIndex_;
-
-			//! Locking line overlay
-			bool locked_;
-
-			//! p index of the last locked line
-			units::PointFd last_pIndex_;
-
-			//! pindex of the mouse position
-			units::PointFd pIndex_;
 		};
 	}
 }

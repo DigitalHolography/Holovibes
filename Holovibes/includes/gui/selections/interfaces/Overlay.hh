@@ -48,6 +48,7 @@ namespace holovibes
 			Autofocus,
 			Filter2D,
 			Stabilization,
+			Scale,
 			// Not implemented yet
 			SliceZoom
 		};

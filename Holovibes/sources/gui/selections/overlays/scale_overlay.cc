@@ -10,38 +10,35 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "slice_cross_overlay.hh"
+#include "scale_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		SliceCrossOverlay::SliceCrossOverlay(BasicOpenGLWindow* parent)
-			: RectOverlay(KindOfOverlay::SliceCross, parent)
-			, line_alpha_(0.5f)
+		ScaleOverlay::ScaleOverlay(BasicOpenGLWindow* parent)
+			: RectOverlay(KindOfOverlay::Scale, parent)
+			, line_alpha_(1.f)
 			, elemLineIndex_(0)
-			, locked_(true)
-			, last_pIndex_(0, 0)
-			, pIndex_(0, 0)
 		{
-			color_ = { 1.f, 0.f, 0.f };
-			alpha_ = 0.05f;
+			color_ = { 1.f, 1.f, 1.f };
+			alpha_ = 1.f;
 			display_ = true;
 		}
 
-		SliceCrossOverlay::~SliceCrossOverlay()
+		ScaleOverlay::~ScaleOverlay()
 		{
 			parent_->makeCurrent();
 			glDeleteBuffers(1, &elemLineIndex_);
 		}
 
-		void SliceCrossOverlay::init()
+		void ScaleOverlay::init()
 		{
 			RectOverlay::init();
 
 			// Set line vertices order
-			std::vector<GLuint> elements {
+			std::vector<GLuint> elements{
 				0, 1,
 				1, 2,
 				2, 3,
@@ -54,9 +51,10 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
-		void SliceCrossOverlay::draw()
+		void ScaleOverlay::draw()
 		{
 			parent_->makeCurrent();
+			compute_zone();
 			setBuffer();
 
 			Vao_.bind();
@@ -84,68 +82,9 @@ namespace holovibes
 			Vao_.release();
 		}
 
-		void SliceCrossOverlay::keyPress(QKeyEvent *e)
+		void ScaleOverlay::setBuffer()
 		{
-			if (e->key() == Qt::Key_Space)
-			{
-				if (!locked_)
-					last_pIndex_ = pIndex_;
-				locked_ = !locked_;
-				parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
-			}
-		}
-
-		void SliceCrossOverlay::move(QMouseEvent *e)
-		{
-			if (!locked_)
-			{
-				auto kView = parent_->getKindOfView();
-				auto Cd = parent_->getCd();
-
-				pIndex_ = getMousePos(e->pos());
-
-				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
-				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
-				if (Cd->p_accu_enabled.load())
-				{
-					Cd->p_accu_max_level = std::max(p, last_p);
-					Cd->p_accu_min_level = std::min(p, last_p);
-				}
-				else
-					Cd->pindex = p;
-
-				Cd->notify_observers();
-			}
-		}
-
-		void SliceCrossOverlay::release(ushort frameside)
-		{
-
-		}
-
-		void SliceCrossOverlay::setBuffer()
-		{
-			auto cd = parent_->getCd();
-			units::PointFd topLeft;
-			units::PointFd bottomRight;
-			auto kView = parent_->getKindOfView();
-
-			uint pmin = cd->p_accu_min_level;
-			uint pmax = cd->p_accu_max_level;
-
-			// Setting the zone_
-			if (!cd->p_accu_enabled)
-			{
-				pmin = cd->pindex;
-				pmax = cd->pindex;
-			}
-
-			units::ConversionData convert(parent_);
-
-			pmax = (pmax + 1);
-			topLeft = (kView == SliceXZ) ? units::PointFd(convert, 0, pmin) : units::PointFd(convert, pmin, 0);
-			bottomRight = (kView == SliceXZ) ? units::PointFd(convert, parent_->getFd().width, pmax) : units::PointFd(convert, pmax, parent_->getFd().height);
-			zone_ = units::RectFd(topLeft, bottomRight);
+			// Compute zone resizing
 
 			// Updating opengl buffer
 			RectOverlay::setBuffer();
