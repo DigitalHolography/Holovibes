@@ -104,9 +104,9 @@ namespace holovibes
 
 		void Overlay::print()
 		{
-		//	std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_
-		//		<< ", active: " << active_ << ", display: " << display_
-		//		<< std::endl;
+			std::cout << "Kind: " << kOverlay_ << ", zone: " << zone_
+				<< ", active: " << active_ << ", display: " << display_
+				<< std::endl;
 		}
 	}
 }
