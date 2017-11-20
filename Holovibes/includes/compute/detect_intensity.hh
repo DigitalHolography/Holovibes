@@ -54,14 +54,16 @@ namespace holovibes
 			void check_jump();
 			bool is_jump(float current, float last);
 			float get_current_intensity();
-			void on_jump();
+			void update_shift();
+			void on_jump(bool delayed = false);
 			void update_lambda();
 
 			float last_intensity_;
 
+			uint current_shift_;
+			bool is_delaying_shift_;
+
 			uint frames_since_jump_;
-			uint sum_frames_;
-			uint nb_jumps_;
 
 			/// Pipe data
 			/// {

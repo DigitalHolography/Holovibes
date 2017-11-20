@@ -692,8 +692,8 @@ namespace holovibes
 
 				// Interpolation
 				compute_desc_.interpolation_enabled = ptree.get<bool>("composite.interpolation_enabled", false);
-				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 0) * 1.0e-9f;
-				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 0) * 1.0e-9f;
+				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 860) * 1.0e-9f;
+				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 820) * 1.0e-9f;
 				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9);
 				compute_desc_.interp_shift = ptree.get<int>("composite.interpolation_shift", 0);
 

@@ -32,8 +32,8 @@ DetectIntensity::DetectIntensity(FnVector& fn_vect,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd)
 	: last_intensity_(0)
-	, sum_frames_(0)
-	, nb_jumps_(0)
+	, current_shift_(0)
+	, is_delaying_shift_(false)
 	, fn_vect_(fn_vect)
 	, gpu_input_buffer_(gpu_input_buffer)
 	, fd_(fd)
@@ -44,6 +44,7 @@ void DetectIntensity::insert_post_contiguous_complex()
 {
 	fn_vect_.push_back([=]() {
 		check_jump();
+		update_shift();
 		update_lambda();
 	});
 }
@@ -65,31 +66,55 @@ bool DetectIntensity::is_jump(float current, float last)
 
 float DetectIntensity::get_current_intensity()
 {
-	auto res = average_operator(reinterpret_cast<const float*>(gpu_input_buffer_), fd_.frame_res() * 2);
+	float* buffer_ptr = reinterpret_cast<float*>(gpu_input_buffer_);
+	const uint nb_pixels = fd_.frame_res() * 2;
+
+	// Selecting 1/4 of the pixels positioned at the center
+	buffer_ptr += nb_pixels * 3 / 8;
+	auto res = average_operator(buffer_ptr, nb_pixels / 4);
+
 	cudaStreamSynchronize(0);
 	return res;
 }
 
-void DetectIntensity::on_jump()
+void DetectIntensity::update_shift()
 {
-	std::cout << "jump" << std::endl;
-	sum_frames_ += frames_since_jump_;
-	frames_since_jump_ = 0;
-	nb_jumps_++;
+	if (is_delaying_shift_)
+	{
+		if (current_shift_++ == cd_.interp_shift)
+		{
+			on_jump(true);
+			is_delaying_shift_ = false;
+		}
+	}
+}
+
+void DetectIntensity::on_jump(bool delayed)
+{
+	if (cd_.interp_shift > 0 && !delayed)
+	{
+		if (!is_delaying_shift_)
+		{
+			is_delaying_shift_ = true;
+			current_shift_ = 0;
+		}
+	}
+	else
+	{
+		std::cout << "jump" << std::endl;
+		frames_since_jump_ = 0;
+	}
 }
 
 void DetectIntensity::update_lambda()
 {
 	frames_since_jump_++;
 	float lambda = cd_.interp_lambda1.load();
-	if (nb_jumps_)
-	{
-		const float average_frames = sum_frames_ / nb_jumps_;
-		float progress = static_cast<float>(frames_since_jump_) / average_frames;
-		if (progress > 1)
-			progress = 1;
-		lambda += (cd_.interp_lambda2 - cd_.interp_lambda1) * progress;
-	}
+	float progress = static_cast<float>(frames_since_jump_) / cd_.nsamples;
+	if (progress > 1)
+		progress = 1;
+	lambda += (cd_.interp_lambda2 - cd_.interp_lambda1) * progress;
 	cd_.interp_lambda = lambda;
+	std::cout << lambda << std::endl;
 }
 
