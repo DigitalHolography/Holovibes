@@ -408,7 +408,12 @@ namespace holovibes
 			}
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
-
+			// Interpolation
+			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);
+			ui.InterpolationLambda1->setValue(compute_desc_.interp_lambda1 * 1.0e9f);
+			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
+			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
+			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
 
 			//QCoreApplication::processEvents();
 		}
@@ -685,6 +690,13 @@ namespace holovibes
 				compute_desc_.component_b.weight = ptree.get<float>("composite.weight_b", 1);
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
+				// Interpolation
+				compute_desc_.interpolation_enabled = ptree.get<bool>("composite.interpolation_enabled", false);
+				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 0) * 1.0e-9f;
+				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 0) * 1.0e-9f;
+				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9);
+				compute_desc_.interp_shift = ptree.get<int>("composite.interpolation_shift", 0);
+
 				notify();
 			}
 		}
@@ -786,6 +798,13 @@ namespace holovibes
 			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
 			ptree.put<bool>("reset.auto_device_number", config.auto_device_number);
 			ptree.put<uint>("reset.device_number", config.device_number);
+
+			// Interpolation
+			ptree.put<bool>("composite.interpolation_enabled", compute_desc_.interpolation_enabled);
+			ptree.put<float>("composite.interpolation_lambda1", compute_desc_.interp_lambda1 * 1.0e9);
+			ptree.put<float>("composite.interpolation_lambda2", compute_desc_.interp_lambda2 * 1.0e9);
+			ptree.put<float>("composite.interpolation_sensitivity", compute_desc_.interp_sensitivity);
+			ptree.put<int>("composite.interpolation_shift", compute_desc_.interp_shift);
 
 			
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);

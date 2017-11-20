@@ -48,7 +48,7 @@ void DetectIntensity::insert_post_contiguous_complex()
 void DetectIntensity::check_jump()
 {
 	float current_intensity = get_current_intensity();
-	std::cout << current_intensity << std::endl;
+	//std::cout << current_intensity << std::endl;
 	if (is_jump(current_intensity, last_intensity_))
 		on_jump();
 	last_intensity_ = current_intensity;
@@ -56,7 +56,8 @@ void DetectIntensity::check_jump()
 
 bool DetectIntensity::is_jump(float current, float last)
 {
-	return current < 0.9 * last;
+	float threshold = cd_.interp_sensitivity;
+	return current < threshold * last;
 }
 
 float DetectIntensity::get_current_intensity()
@@ -69,6 +70,5 @@ float DetectIntensity::get_current_intensity()
 void DetectIntensity::on_jump()
 {
 	std::cout << "jump" << std::endl;
-	std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 

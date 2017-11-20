@@ -1344,6 +1344,9 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="InterpolationLambda1">
+                <property name="decimals">
+                 <number>4</number>
+                </property>
                 <property name="minimum">
                  <double>-1.000000000000000</double>
                 </property>
@@ -1351,7 +1354,7 @@
                  <double>3000.000000000000000</double>
                 </property>
                 <property name="singleStep">
-                 <double>0.100000000000000</double>
+                 <double>0.010000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1379,7 +1382,20 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QDoubleSpinBox" name="InterpolationLambda2"/>
+               <widget class="QDoubleSpinBox" name="InterpolationLambda2">
+                <property name="decimals">
+                 <number>4</number>
+                </property>
+                <property name="minimum">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>3000.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_11">
