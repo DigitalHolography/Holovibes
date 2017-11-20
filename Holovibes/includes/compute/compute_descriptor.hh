@@ -281,6 +281,10 @@ namespace holovibes
 
 		std::atomic<bool>			interpolation_enabled;
 		std::atomic<float>			interp_lambda;
+		std::atomic<float>			interp_lambda1;
+		std::atomic<float>			interp_lambda2;
+		std::atomic<float>			interp_sensitivity;
+		std::atomic<int>			interp_shift;
 
 		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
 		std::atomic<bool>			img_acc_slice_xy_enabled;

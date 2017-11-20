@@ -1331,19 +1331,19 @@
              <number>2</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_29">
-              <item>
-               <widget class="QLabel" name="label_10">
+             <layout class="QGridLayout" name="gridLayout_8">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>λ (nm)</string>
+                 <string>Sensitivity</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QDoubleSpinBox" name="InterpLambdaDoubleSpinBox">
+              <item row="0" column="1">
+               <widget class="QDoubleSpinBox" name="InterpolationLambda1">
                 <property name="minimum">
                  <double>-1.000000000000000</double>
                 </property>
@@ -1352,6 +1352,55 @@
                 </property>
                 <property name="singleStep">
                  <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>λ1 (nm)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="InterpolationSensitivity">
+                <property name="maximum">
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.900000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="InterpolationLambda2"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>λ2 (nm)</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QSpinBox" name="InterpolationShift"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>Shift</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -5335,10 +5384,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>InterpLambdaDoubleSpinBox</sender>
+   <sender>InterpolationLambda1</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_interp_lambda(double)</slot>
+   <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>564</x>
@@ -5363,6 +5412,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>809</x>
      <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationLambda1</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interp_lambda1(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>259</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>484</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationLambda2</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interp_lambda2(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>574</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>314</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationSensitivity</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interp_sensitivity(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>561</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>InterpolationShift</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_interp_shift(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>538</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>356</y>
     </hint>
    </hints>
   </connection>
@@ -5480,7 +5593,10 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
-  <slot>set_interp_lambda(double)</slot>
   <slot>set_interpolation(bool)</slot>
+  <slot>set_interp_lambda1(double)</slot>
+  <slot>set_interp_lambda2(double)</slot>
+  <slot>set_interp_sensitivity(double)</slot>
+  <slot>set_interp_shift(int)</slot>
  </slots>
 </ui>

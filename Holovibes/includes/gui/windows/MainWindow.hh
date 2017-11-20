@@ -163,7 +163,10 @@ namespace holovibes
 			void increment_p();
 			void decrement_p();
 			void set_wavelength(double value);
-			void set_interp_lambda(double value);
+			void set_interp_lambda1(double value);
+			void set_interp_lambda2(double value);
+			void set_interp_sensitivity(double value);
+			void set_interp_shift(int value);
 			void set_interpolation(bool value);
 			void set_z(double value);
 			void increment_z();

@@ -1731,11 +1731,39 @@ namespace holovibes
 				pipe_refresh();
 			}
 		}
-		void MainWindow::set_interp_lambda(const double value)
+
+		void MainWindow::set_interp_lambda1(const double value)
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.interp_lambda.exchange(static_cast<float>(value) * 1.0e-9f);
+				compute_desc_.interp_lambda1.exchange(static_cast<float>(value) * 1.0e-9f);
+				pipe_refresh();
+			}
+		}
+
+		void MainWindow::set_interp_lambda2(const double value)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.interp_lambda2.exchange(static_cast<float>(value) * 1.0e-9f);
+				pipe_refresh();
+			}
+		}
+
+		void MainWindow::set_interp_sensitivity(const double value)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.interp_sensitivity.exchange(value);
+				pipe_refresh();
+			}
+		}
+
+		void MainWindow::set_interp_shift(const int value)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.interp_shift.exchange(value);
 				pipe_refresh();
 			}
 		}
