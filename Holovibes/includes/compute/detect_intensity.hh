@@ -41,7 +41,7 @@ namespace holovibes
 			DetectIntensity(FnVector& fn_vect,
 				cuComplex* const& gpu_input_buffer,
 				const camera::FrameDescriptor& fd,
-				const holovibes::ComputeDescriptor& cd);
+				holovibes::ComputeDescriptor& cd);
 
 			/*! \brief Enqueue the appropriate functions
 			**
@@ -55,8 +55,13 @@ namespace holovibes
 			bool is_jump(float current, float last);
 			float get_current_intensity();
 			void on_jump();
+			void update_lambda();
 
 			float last_intensity_;
+
+			uint frames_since_jump_;
+			uint sum_frames_;
+			uint nb_jumps_;
 
 			/// Pipe data
 			/// {
@@ -67,7 +72,7 @@ namespace holovibes
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
-			const ComputeDescriptor&		cd_;
+			ComputeDescriptor&				cd_;
 			/// }
 		};
 	}

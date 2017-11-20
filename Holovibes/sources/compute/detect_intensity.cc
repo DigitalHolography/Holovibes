@@ -30,8 +30,10 @@ using holovibes::FnVector;
 DetectIntensity::DetectIntensity(FnVector& fn_vect,
 	cuComplex* const& gpu_input_buffer,
 	const camera::FrameDescriptor& fd,
-	const holovibes::ComputeDescriptor& cd)
+	holovibes::ComputeDescriptor& cd)
 	: last_intensity_(0)
+	, sum_frames_(0)
+	, nb_jumps_(0)
 	, fn_vect_(fn_vect)
 	, gpu_input_buffer_(gpu_input_buffer)
 	, fd_(fd)
@@ -42,6 +44,7 @@ void DetectIntensity::insert_post_contiguous_complex()
 {
 	fn_vect_.push_back([=]() {
 		check_jump();
+		update_lambda();
 	});
 }
 
@@ -70,5 +73,23 @@ float DetectIntensity::get_current_intensity()
 void DetectIntensity::on_jump()
 {
 	std::cout << "jump" << std::endl;
+	sum_frames_ += frames_since_jump_;
+	frames_since_jump_ = 0;
+	nb_jumps_++;
+}
+
+void DetectIntensity::update_lambda()
+{
+	frames_since_jump_++;
+	float lambda = cd_.interp_lambda1.load();
+	if (nb_jumps_)
+	{
+		const float average_frames = sum_frames_ / nb_jumps_;
+		float progress = static_cast<float>(frames_since_jump_) / average_frames;
+		if (progress > 1)
+			progress = 1;
+		lambda += (cd_.interp_lambda2 - cd_.interp_lambda1) * progress;
+	}
+	cd_.interp_lambda = lambda;
 }
 
