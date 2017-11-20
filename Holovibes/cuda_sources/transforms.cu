@@ -12,6 +12,8 @@
 
 #include "transforms.cuh"
 
+using camera::FrameDescriptor;
+
 __global__
 void kernel_quadratic_lens(cuComplex*			output,
 						const FrameDescriptor	fd,

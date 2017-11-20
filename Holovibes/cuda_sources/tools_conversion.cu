@@ -12,6 +12,8 @@
 
 #include "tools_conversion.cuh"
 
+using camera::FrameDescriptor;
+
 __global__
 void img8_to_complex(cuComplex		*output,
 					const uchar		*input,

@@ -35,21 +35,12 @@ namespace holovibes
 			RectOverlay::init();
 
 			// Set line vertices order
-
-			// Horizontal lines
 			std::vector<GLuint> elements {
 				0, 1,
-				3, 2
+				1, 2,
+				2, 3,
+				3, 0
 			};
-
-			// Vertical lines
-			if (parent_->getKindOfView() == SliceYZ)
-			{
-				elements = {
-					0, 3,
-					1, 2
-				};
-			}
 
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
@@ -70,7 +61,7 @@ namespace holovibes
 			// Drawing two lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
 			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
-			glDrawElements(GL_LINES, 4, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing area between two lines
@@ -104,20 +95,18 @@ namespace holovibes
 				auto kView = parent_->getKindOfView();
 				auto Cd = parent_->getCd();
 
-				// Computing p in function of mouse position
-				uint depth = kView == SliceXZ ? parent_->height() : parent_->width();
 				pIndex_ = getMousePos(e->pos());
-				pIndex_.x().set(pIndex_.x() * Cd->nsamples / depth);
-				pIndex_.y().set(pIndex_.y() * Cd->nsamples / depth);
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
 				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
-				Cd->pindex = p;
 				if (Cd->p_accu_enabled.load())
 				{
 					Cd->p_accu_max_level = std::max(p, last_p);
 					Cd->p_accu_min_level = std::min(p, last_p);
 				}
+				else
+					Cd->pindex = p;
+
 				Cd->notify_observers();
 			}
 		}

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Wrapper around the vector of overlay. Permitting to manipulate all overlays of a window at once. */
 #pragma once
 
 #include <atomic>
@@ -36,7 +39,7 @@ namespace holovibes
 				Color color);
 
 			/*! \brief Create an overlay, and set its zone. */
-			void set_zone(ushort frameside, units::RectWindow zone, KindOfOverlay ko);
+			void set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko);
 
 			/*! \brief Disable all the overlay of kind ko*/
 			bool disable_all(KindOfOverlay ko);
@@ -55,7 +58,7 @@ namespace holovibes
 			/*! \brief Draw every overlay that should be displayed. */
 			void draw();
 			/*! \brief Get the zone of the current overlay. */
-			const units::RectWindow& getZone() const;
+			units::RectWindow getZone() const;
 			/*! \brief Get the kind of the current overlay. */
 			KindOfOverlay getKind() const;
 

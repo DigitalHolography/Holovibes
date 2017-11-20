@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Interface implemented by each Qt window. */
 #pragma once
 
 #ifndef _HAS_AUTO_PTR_ETC
@@ -32,17 +35,19 @@
 
 namespace holovibes
 {
+	/*! \brief Contains all function to display the graphical user interface */
 	namespace gui
 	{
-		using KindOfView =
-		enum
+		/*! \brief Describes the kind of window */
+		enum KindOfView
 		{
-			Direct = 1,
-			Hologram,
-			SliceXZ,
-			SliceYZ,
-			Vision3D
+			Direct = 1, /**< Simply displaying the input frames */
+			Hologram, /**< Applying the demodulation and computations on the input frames */
+			SliceXZ, /**< Displaying the XZ view of the hologram */
+			SliceYZ, /**< Displaying the YZ view of the hologram */
+			Vision3D /**< Displaying the Hologram in a special 3D mode */
 		};
+
 
 		class BasicOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions
 		{
@@ -58,14 +63,22 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
-			const FrameDescriptor& getFd() const;
+			const camera::FrameDescriptor& getFd() const;
 			OverlayManager& getOverlayManager();
 
 			// Transform functions ------
-			void	setTransform();
-			void	resetTransform();
-			void	setAngle(float a);
-			void	setFlip(int f);
+			void resetTransform();
+			void setScale(float);
+			float getScale() const;
+			void setAngle(float a);
+			float getAngle() const;
+			void setFlip(bool f);
+			bool getFlip() const;
+			void setTranslate(float x, float y);
+			glm::vec2 getTranslate() const;
+
+			const glm::mat3x3& getTransformMatrix() const;
+			const glm::mat3x3& getTransformInverseMatrix() const;
 
 		protected:
 			// Fields -------------------
@@ -74,16 +87,13 @@ namespace holovibes
 			QPoint					winPos;
 			Queue&					Qu;
 			ComputeDescriptor		*Cd;
-			const FrameDescriptor&	Fd;
+			const camera::FrameDescriptor&	Fd;
 			const KindOfView		kView;
 			bool					fullScreen_;
 
 			OverlayManager	overlay_manager_;
 
-			glm::vec4	Translate;
-			float		Scale;
-			float		Angle;
-			int			Flip;
+			void setTransform();
 
 			// CUDA Objects -------------
 			cudaGraphicsResource_t	cuResource;
@@ -108,6 +118,17 @@ namespace holovibes
 			void	timerEvent(QTimerEvent *e);
 			void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
+
+		protected:
+			glm::vec4 translate_;
+			float scale_;
+			/// Angle in degree
+			float angle_;
+			bool flip_;
+
+			glm::mat3x3 transform_matrix_;
+			glm::mat3x3 transform_inverse_matrix_;
+
 		};
 	}
 }

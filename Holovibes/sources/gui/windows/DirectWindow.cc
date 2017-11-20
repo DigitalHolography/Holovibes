@@ -11,19 +11,18 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
+#include "SliceWindow.hh"
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+	using camera::Endianness;
 	namespace gui
 	{
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q) :
-			BasicOpenGLWindow(p, s, q, KindOfView::Direct),
+		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
-		{}
-
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
-			BasicOpenGLWindow(p, s, q, k)
 		{}
 
 		DirectWindow::~DirectWindow()
@@ -240,16 +239,23 @@ namespace holovibes
 				resetTransform();
 		}
 
-		void	DirectWindow::zoomInRect(units::RectWindow zone)
+		void	DirectWindow::zoomInRect(units::RectOpengl zone)
 		{
-			const units::PointWindow center = zone.center();
+			const units::PointOpengl center = zone.center();
 
-			Translate[0] += ((static_cast<float>(center.x()) / static_cast<float>(width())) - 0.5f) / Scale;
-			Translate[1] += ((static_cast<float>(center.y()) / static_cast<float>(height())) - 0.5f) / Scale;
+			const float delta_x = center.x() / (getScale() * 2);
+			const float delta_y = center.y() / (getScale() * 2);
 
-			const float xRatio = static_cast<float>(width()) / static_cast<float>(zone.width());
-			const float yRatio = static_cast<float>(height()) / static_cast<float>(zone.height());
-			Scale = (xRatio < yRatio ? xRatio : yRatio) * Scale;
+			const auto old_translate = getTranslate();
+
+			const auto new_translate_x = old_translate[0] + delta_x;
+			const auto new_translate_y = old_translate[1] - delta_y;
+
+			setTranslate(new_translate_x, new_translate_y);
+
+			const float xRatio = zone.unsigned_width();
+			const float yRatio = zone.unsigned_height();
+			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
 
 			setTransform();
 		}

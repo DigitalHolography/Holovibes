@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Contains functions relative to image XY stabilization. */
+ * Contains functions to detect intensity jumps. */
 #pragma once
 
 
@@ -29,62 +29,41 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
-	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
 
 		/*! \class Stabilization
 		**
-		** Class that manages the stabilization of the image
-		** It manages its own buffer, initialized when needed
-		** It should be a member of the Pipe class
 		*/
-		class Stabilization
+		class DetectIntensity
 		{
 		public:
-			Stabilization(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
+			DetectIntensity(FnVector& fn_vect,
+				cuComplex* const& gpu_input_buffer,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
 			/*! \brief Enqueue the appropriate functions
 			**
-			** Should be called just after gpu_float_buffer is computed
+			** Should be called first
 			*/
-			void insert_post_img_type();
+			void insert_post_contiguous_complex();
 
 		private:
 
-			void insert_average_compute();
-			void insert_correlation();
-			void insert_extremums();
-			void insert_stabilization();
-			void insert_float_buffer_overwrite();
+			void check_jump();
+			bool is_jump(float current, float last);
+			float get_current_intensity();
+			void on_jump();
 
-			void compute_correlation(const float* x, const float *y);
-			void compute_convolution(const float* x, const float* y, float* out);
-			void normalize_frame(float* frame, uint frame_res);
-
-			/// Buffer to keep the convolution product
-			cuda_tools::Array<float>		convolution_;
-
-			/// Buffer used to temporaly store the average, to compare it with current frame
-			cuda_tools::UniquePtr<float>	float_buffer_average_;
-
-			/// Current image shift
-			/// {
-			int								shift_x;
-			int								shift_y;
-			/// }
-
-			std::unique_ptr<Queue>			accumulation_queue_;
+			float last_intensity_;
 
 			/// Pipe data
 			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
+			cuComplex* const&				gpu_input_buffer_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 

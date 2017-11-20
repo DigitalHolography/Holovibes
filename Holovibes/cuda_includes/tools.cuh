@@ -16,8 +16,6 @@
 # include "compute_bundles.hh"
 # include "compute_bundles_2d.hh"
 
-using namespace gui;
-using namespace camera;
 
 /*! \brief  Apply a previously computed lens to image(s).
  *
@@ -116,7 +114,7 @@ void convolution_float(const float			*a,
 * \param stream The CUDA stream on which to launch the operation.
 */
 void frame_memcpy(float*			input,
-				const units::RectFd&	zone,
+				const holovibes::units::RectFd&	zone,
 				const uint			input_width,
 				float*				output,
 				const uint			output_width,
@@ -145,33 +143,33 @@ float average_operator(const float*	input,
 * cumulative adjustments in order to 'smooth' the signal.
 */
 void phase_increase(const cuComplex*		cur,
-					UnwrappingResources*	resources,
+					holovibes::UnwrappingResources*	resources,
 					const size_t			image_size);
 
 /*! Main function for unwrap_2d calculations*/
 void unwrap_2d(float*					input,
 			const cufftHandle			plan2d,
-			UnwrappingResources_2d*		res,
-			FrameDescriptor&			fd,
+			holovibes::UnwrappingResources_2d*		res,
+			camera::FrameDescriptor&			fd,
 			float*						output,
 			cudaStream_t				stream);
 
 /*! Gradient calculation for unwrap_2d calculations*/
 void gradient_unwrap_2d(const cufftHandle		plan2d,
-						UnwrappingResources_2d*	res,
-						FrameDescriptor&		fd,
+						holovibes::UnwrappingResources_2d*	res,
+						camera::FrameDescriptor&		fd,
 						cudaStream_t			stream);
 
 /*! Eq calculation for unwrap_2d calculations*/
 void eq_unwrap_2d(const cufftHandle		plan2d,
-				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				holovibes::UnwrappingResources_2d*	res,
+				camera::FrameDescriptor&		fd,
 				cudaStream_t			stream);
 
 /*! Phi calculation for unwrap_2d calculations*/
 void phi_unwrap_2d(const cufftHandle	plan2d,
-				UnwrappingResources_2d*	res,
-				FrameDescriptor&		fd,
+				holovibes::UnwrappingResources_2d*	res,
+				camera::FrameDescriptor&		fd,
 				float*					output,
 				cudaStream_t			stream);
 

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay selecting the zone to stabilize. */
 #pragma once
 
 #include "square_overlay.hh"

@@ -20,6 +20,7 @@
 
 #include <string>
 
+/*! \brief contains all the functions used in the GPIB project */
 namespace gpib
 {
 	/*! \brief Interface in order to load the dll runtime

@@ -20,6 +20,6 @@
 void filter2D(cuComplex				*input,
 			cuComplex				*tmp_buffer,
 			const cufftHandle		plan2d,
-			const units::RectFd&	r,
-			const FrameDescriptor&	fd,
+			const holovibes::units::RectFd&	r,
+			const camera::FrameDescriptor&	fd,
 			cudaStream_t			stream = 0);

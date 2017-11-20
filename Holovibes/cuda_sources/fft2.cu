@@ -15,6 +15,8 @@
 #include "transforms.cuh"
 #include "tools_compute.cuh"
 
+using camera::FrameDescriptor;
+
 enum mode
 {
 	APPLY_PHASE_FORWARD,

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Qt window displaying the 3D mode. */
 #pragma once
 
 # include <glm/vec3.hpp>
@@ -27,7 +30,7 @@ namespace holovibes
 		class Vision3DWindow : public BasicOpenGLWindow
 		{
 		public:
-			Vision3DWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, const FrameDescriptor& fd, Queue& stft_queue);
+			Vision3DWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, const camera::FrameDescriptor& fd, Queue& stft_queue);
 			~Vision3DWindow();
 
 			virtual void initializeGL();
@@ -44,7 +47,7 @@ namespace holovibes
 			std::string				fragment_shader_path_;
 			Queue&					queue_;
 			ComputeDescriptor&		compute_desc_;
-			const FrameDescriptor&	frame_desc_;
+			const camera::FrameDescriptor&	frame_desc_;
 			int						voxel_;
 
 			GLuint					colorBufferObject_;

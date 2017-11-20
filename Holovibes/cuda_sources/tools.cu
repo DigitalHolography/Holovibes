@@ -15,6 +15,10 @@
 #include "tools_unwrap.cuh"
 #include "cuda_tools/unique_ptr.hh"
 
+using camera::FrameDescriptor;
+using namespace holovibes;
+using cuda_tools::UniquePtr;
+
 __global__
 void kernel_apply_lens(cuComplex		*input,
 					const uint			input_size,

@@ -71,7 +71,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="gui::GroupBox" name="ImageRenderingGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="ImageRenderingGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -533,7 +533,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="ViewGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="ViewGroupBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -1147,7 +1147,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="MotionFocusGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="MotionFocusGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -1398,7 +1398,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="CompositeGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="CompositeGroupBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -1694,7 +1694,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="PostProcessingGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="PostProcessingGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -2128,7 +2128,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="RecordGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="RecordGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -2414,7 +2414,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="ImportGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="ImportGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -2865,7 +2865,7 @@
        </widget>
       </item>
       <item>
-       <widget class="gui::GroupBox" name="InfoGroupBox">
+       <widget class="holovibes::gui::GroupBox" name="InfoGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>1</horstretch>
@@ -3297,7 +3297,7 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>gui::GroupBox</class>
+   <class>holovibes::gui::GroupBox</class>
    <extends>QGroupBox</extends>
    <header>gui_group_box.hh</header>
    <container>1</container>

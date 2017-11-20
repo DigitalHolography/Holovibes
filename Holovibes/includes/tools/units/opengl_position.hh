@@ -10,9 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a position in the OpenGl coordinate system */
 #pragma once
 
-#include "units/unit.hh"
+#include "unit.hh"
 
 namespace holovibes
 {

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Qt window used to display the input frames. */
 #pragma once
 
 #include "BasicOpenGLWindow.hh"
@@ -18,11 +21,11 @@ namespace holovibes
 {
 	namespace gui
 	{
+		class SliceWindow;
 		class DirectWindow : public BasicOpenGLWindow
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q);
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k);
+			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k = Direct);
 			virtual ~DirectWindow();
 
 			units::RectFd	getSignalZone() const;
@@ -30,7 +33,7 @@ namespace holovibes
 			void		setSignalZone(units::RectFd signal);
 			void		setNoiseZone(units::RectFd noise);
 
-			void	zoomInRect(units::RectWindow zone);
+			void	zoomInRect(units::RectOpengl zone);
 
 		protected:
 			int	texDepth, texType;

@@ -67,7 +67,7 @@ void kernel_multiply_frames_float(const float	*input1,
 __global__
 void kernel_substract_ref(cuComplex				*input,
 						void					*reference,
-						const ComputeDescriptor	cd,
+						const holovibes::ComputeDescriptor	cd,
 						const uint				nframes);
 
 /*! \brief  substract the pixels value of a reference image to another

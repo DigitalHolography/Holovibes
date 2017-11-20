@@ -28,8 +28,6 @@ namespace holovibes
 			color_ = { 1.f, 0.f, 0.f };
 			alpha_ = 0.05f;
 			display_ = true;
-			zoom_ = std::make_shared<ZoomOverlay>(parent_);
-			zoom_->initProgram();
 		}
 		
 		CrossOverlay::~CrossOverlay()
@@ -87,12 +85,16 @@ namespace holovibes
 
 			// Set line vertices order
 			std::vector<GLuint> lineElements{
-				// topleft cross
-				0, 3,
-				4, 5,
-				// bottom right cross
+				// vertical rectangle
+				0, 1,
 				1, 2,
-				7, 6
+				2, 3,
+				3, 0,
+				// horizontal rectangle
+				4, 5,
+				5, 6,
+				6, 7,
+				7, 4
 			};
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
@@ -120,9 +122,6 @@ namespace holovibes
 
 		void CrossOverlay::draw()
 		{
-			if (zoom_ && zoom_->isActive() && zoom_->isDisplayed())
-				zoom_->draw();
-
 			computeZone();
 			setBuffer();
 
@@ -135,7 +134,7 @@ namespace holovibes
 			// Drawing four lines
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
 			glUniform1f(glGetUniformLocation(Program_->programId(), "alpha"), line_alpha_);
-			glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_LINES, 16, GL_UNSIGNED_INT, nullptr);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Drawing areas between lines
@@ -153,8 +152,6 @@ namespace holovibes
 
 		void CrossOverlay::press(QMouseEvent *e)
 		{
-			if (zoom_ && zoom_->isActive())
-				zoom_->press(e);
 		}
 
 		void CrossOverlay::keyPress(QKeyEvent *e)
@@ -172,13 +169,14 @@ namespace holovibes
 		{
 			if (!locked_)
 			{
-				auto fd = parent_->getFd();
-				units::PointWindow pos_window = getMousePos(e->pos());
-				units::PointFd pos = pos_window;
+				units::PointFd pos = getMousePos(e->pos());
 				mouse_position_ = pos;
+
+				// Updating infos Tab
 				std::stringstream ss;
-				ss << "(Y,X) = (" << pos.y() << "," << pos.x() << ")";
+				ss << "(X,Y) = (" << pos.x() << "," << pos.y() << ")";
 				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
+
 				auto cd = parent_->getCd();
 				cd->stftCursor(pos, AccessMode::Set);
 				// ---------------
@@ -194,18 +192,10 @@ namespace holovibes
 				}
 				cd->notify_observers();
 			}
-			else if (zoom_ && zoom_->isActive())
-				zoom_->move(e);
 		}
 
 		void CrossOverlay::release(ushort frameside)
 		{
-			if (zoom_ && zoom_->isActive())
-			{
-				zoom_->release(frameside);
-				zoom_ = std::make_shared<ZoomOverlay>(parent_);
-				zoom_->initProgram();
-			}
 		}
 
 		void CrossOverlay::computeZone()

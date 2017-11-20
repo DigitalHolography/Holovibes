@@ -25,12 +25,11 @@
 # include <ctime>
 # include <qrect.h>
 
-# include "units/rect.hh"
+# include "rect.hh"
 # include "hardware_limits.hh"
 # include "frame_desc.hh"
 # include "cufft.h"
 
-using namespace holovibes;
 
 /*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>
@@ -56,20 +55,17 @@ inline unsigned map_blocks_to_problem(const size_t problem_size,
   return nb_blocks;
 }
 
-
-/*! \brief cast a framedescriptor into a Rectangle
-inline units::RectWindow get_rectangle(const camera::FrameDescriptor& a)
-{
-	return units::RectWindow(0, 0, a.width, a.height);
-}
- */
-
 inline double clockToMilliseconds(clock_t ticks)
 {
 	// units/(units/time) => time (seconds) * 1000 = milliseconds
 	return (ticks / static_cast<double>(CLOCKS_PER_SEC)) * 1000.0;
 }
 
+template<typename T>
+bool is_between(T val, T min, T max)
+{
+	return min <= val && val <= max;
+}
 
 namespace holovibes
 {

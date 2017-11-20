@@ -17,5 +17,5 @@
 
 void	textureUpdate(cudaSurfaceObject_t	cuSurface,
 					void*					frame,
-					const FrameDescriptor&	fd,
+					const camera::FrameDescriptor&	fd,
 					cudaStream_t			stream);

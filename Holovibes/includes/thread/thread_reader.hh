@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/* \file
+/*! \file
  *
  * Encapsulation of a thread used to import raw data from a file,
  * and use it as the source for the input queue. */

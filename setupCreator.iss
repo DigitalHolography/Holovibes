@@ -7,8 +7,8 @@
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 ;define for Qt ,Qwt path and Cuda
-#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2015_64\bin"
-#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2015_64\plugins\platforms"
+#define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
+#define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define QwtPath "C:\Qt\qwt-6.1.3\lib"
 #define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin"
 

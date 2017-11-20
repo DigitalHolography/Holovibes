@@ -10,11 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a Rectangle */
 #pragma once
-#include "units/point.hh"
-#include "units/window_pixel.hh"
-#include "units/fd_pixel.hh"
-#include "units/opengl_position.hh"
+
+#include "point.hh"
+#include "window_pixel.hh"
+#include "fd_pixel.hh"
+#include "opengl_position.hh"
+
+#include <cmath>
 
 namespace holovibes
 {
@@ -22,6 +28,10 @@ namespace holovibes
 	{
 
 		/*! \brief A rectangle in some specific unit
+		 *
+		 * It can be manipulated in two ways:
+		 * through top / bottom / left / right, making sure left < right and so on
+		 * or as source / destination, two corner points that can be swapped (used in overlays)
 		 */
 		template <typename T>
 		class Rect
@@ -38,9 +48,9 @@ namespace holovibes
 			 * \param top_left Top left point
 			 * \param size bottom_right Bottom right point
 			 */
-			Rect(Point<T> top_left, Point<T> bottom_right)
-				: top_left_(top_left)
-				, bottom_right_(bottom_right)
+			Rect(Point<T> src, Point<T> dst)
+				: src_(src)
+				, dst_(dst)
 			{}
 
 
@@ -51,70 +61,68 @@ namespace holovibes
 				typename T::primary_type y1 = 0,
 				typename T::primary_type x2 = 0,
 				typename T::primary_type y2 = 0)
-				: top_left_(data, x1, y1)
-				, bottom_right_(data, x2, y2)
+				: src_(data, x1, y1)
+				, dst_(data, x2, y2)
 			{}
 
 			/*! \brief Getters and setters
 			 */
 			/**@{*/
-			const Point<T>& topLeft() const
+			Point<T> topLeft() const
 			{
-				return top_left_;
+				return Point<T>(x(), y());
 			}
 
-			const Point<T>& bottomRight() const
+			Point<T> bottomRight() const
 			{
-				return bottom_right_;
+				return Point<T>(right(), bottom());
 			}
 
-			const Point<T>& topRight() const
+			Point<T> topRight() const
 			{
-				Point<T> res(bottom_right_.x(), top_left_.y());
-				return res;
+				return Point<T>(right(), y());
 			}
 
-			const Point<T>& bottomLeft() const
+			Point<T> bottomLeft() const
 			{
-				Point<T> res(top_left_.x(), bottom_right_.y());
-				return res;
+				return Point<T>(x(), bottom());
 			}
 
 			Point<T> size() const
 			{
-				return bottom_right_ - top_left_;
+				return dst_ - src_;
 			}
 
 			T x() const
 			{
-				return top_left_.x();
+				return src_.x() < dst_.x() ? src_.x() : dst_.x();
 			}
 
 			T& x()
 			{
-				return top_left_.x();
+				return src_.x() < dst_.x() ? src_.x() : dst_.x();
 			}
 
 			template <typename U>
-			void setX(U x)
+			void setX(U newx)
 			{
-				top_left_.x().set(x);
+				x().set(newx);
 			}
 
 			T y() const
 			{
-				return top_left_.y();
+				return src_.y() < dst_.y() ? src_.y() : dst_.y();
 			}
 
 			T& y()
 			{
-				return top_left_.y();
+				return src_.y() < dst_.y() ? src_.y() : dst_.y();
 			}
 
 			template <typename U>
-			void setY(U y)
+			void setY(U newy)
 			{
-				top_left_.y().set(y);
+				y().set(newy);
 			}
 
 			T width() const
@@ -122,10 +130,18 @@ namespace holovibes
 				return size().x();
 			}
 
+			T unsigned_width() const
+			{
+				T res = size().x();
+					if (res < 0)
+				res *= -1;
+				return res;
+			}
+
 			template <typename U>
 			void setWidth(U w)
 			{
-				bottom_right_.x().set(top_left_.x() + w);
+				right().set(x() + w);
 			}
 
 			T height() const
@@ -133,43 +149,94 @@ namespace holovibes
 				return size().y();
 			}
 
+			T unsigned_height() const
+			{
+				T res = size().y();
+					if (res < 0)
+				res *= -1;
+				return res;
+			}
+
 			template <typename U>
 			void setHeight(U h)
 			{
-				bottom_right_.y().set(top_left_.y() + h);
+				bottom().set(y() + h);
+			}
+
+			T& bottom()
+			{
+				return src_.y() > dst_.y() ? src_.y() : dst_.y();
 			}
 
 			T bottom() const
 			{
-				return bottom_right_.y();
+				return src_.y() > dst_.y() ? src_.y() : dst_.y();
 			}
 
 			template <typename U>
-			void setBottom(U y) const
+			void setBottom(U y)
 			{
-				return bottom_right_.y().set(y);
+				bottom().set(y);
+			}
+
+			T& right()
+			{
+				return src_.x() > dst_.x() ? src_.x() : dst_.x();
 			}
 
 			T right() const
 			{
-				return bottom_right_.x();
+				return src_.x() > dst_.x() ? src_.x() : dst_.x();
 			}
 
 			template <typename U>
-			void setRight(U x) const
+			void setRight(U x)
 			{
-				return bottom_right_.x().set(x);
+				return right().set(x);
 			}
 
 			void setTopLeft(Point<T> p)
 			{
-				top_left_ = p;
+				setX(p.x());
+				setY(p.y());
 			}
 
 			void setBottomRight(Point<T> p)
 			{
-				bottom_right_ = p;
+				setRight(p.x());
+				setBottom(p.y());
 			}
+
+			void setSrc(Point<T> p)
+			{
+				src_ = p;
+			}
+
+			void setDst(Point<T> p)
+			{
+				dst_ = p;
+			}
+
+			Point<T> src() const
+			{
+				return src_;
+			}
+
+			Point<T> dst() const
+			{
+				return dst_;
+			}
+
+			Point<T>& srcRef()
+			{
+				return src_;
+			}
+
+			Point<T>& dstRef()
+			{
+				return dst_;
+			}
+
 			/**@}*/
 
 
@@ -178,7 +245,7 @@ namespace holovibes
 			template <typename U>
 			operator Rect<U>() const
 			{
-				Rect<U> res(top_left_, bottom_right_);
+				Rect<U> res(src_, dst_);
 				return res;
 			}
 
@@ -193,11 +260,11 @@ namespace holovibes
 			 */
 			Point<T> center() const
 			{
-				T x = top_left_.x();
-				x += bottom_right_.x();
+				T x = this->x();
+				x += right();
 				x /= 2;
-				T y = top_left_.y();
-				y += bottom_right_.y();
+				T y = this->y();
+				y += bottom();
 				y /= 2;
 				Point<T> res(x, y);
 				return res;
@@ -205,8 +272,8 @@ namespace holovibes
 
 
 		private:
-			Point<T> top_left_;
-			Point<T> bottom_right_;
+			Point<T> src_;
+			Point<T> dst_;
 		};
 
 		/*! \brief Rectangle in the OpenGL coordinates [-1;1]
@@ -220,6 +287,12 @@ namespace holovibes
 		/*! \brief Rectangle in the window coordinates
 		 */
 		using RectWindow = Rect<WindowPixel>;
+
+		template <typename T>
+		std::ostream& operator<<(std::ostream& o, const Rect<T>& r)
+		{
+			return o << '[' << r.src() << ", " << r.dst() << ']';
+		}
 
 	}
 }

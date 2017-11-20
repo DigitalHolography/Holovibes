@@ -10,11 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "3DVision.hh"
+#include "3DVisionWindow.hh"
 #include <stdlib.h>
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
 	namespace gui
 	{
 		Vision3DWindow::Vision3DWindow(QPoint p, QSize s, Queue& q, ComputeDescriptor& cd, const FrameDescriptor& fd, Queue& stft_queue) :

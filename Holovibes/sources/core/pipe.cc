@@ -39,6 +39,8 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+
 	Pipe::Pipe(
 		Queue& input,
 		Queue& output,
@@ -49,6 +51,7 @@ namespace holovibes
 		, gpu_output_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
 		, stabilization_(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc)
+		, detect_intensity_(fn_vect_, gpu_input_buffer_, input.get_frame_desc(), desc)
 	{
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
@@ -355,6 +358,8 @@ namespace holovibes
 			request_refresh();
 			return;
 		}
+
+		detect_intensity_.insert_post_contiguous_complex();
 
 		const float z = af_env_.state == af_state::RUNNING ? af_env_.z : compute_desc_.zdistance.load();
 

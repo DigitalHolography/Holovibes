@@ -13,6 +13,8 @@
 #include "preprocessing.cuh"
 #include "tools_conversion.cuh"
 
+using camera::FrameDescriptor;
+using holovibes::Queue;
 texture<unsigned short, cudaTextureType2D, cudaReadModeNormalizedFloat> shorttex;
 texture<unsigned char, cudaTextureType2D, cudaReadModeNormalizedFloat> chartex;
 

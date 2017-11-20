@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of the conversion from a unit to another */
 #pragma once
 
 
@@ -45,6 +48,9 @@ namespace holovibes
 			int opengl_to_fd(float val, Axis axis) const;
 			/* }
 			 */
+
+			void transform_from_fd(float& x, float& y) const;
+			void transform_to_fd(float& x, float& y) const;
 
 		private:
 

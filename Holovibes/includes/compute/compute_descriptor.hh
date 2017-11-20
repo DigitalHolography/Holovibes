@@ -21,7 +21,7 @@
 # include <qmap.h>
 
 # include "observable.hh"
-# include "units/rect.hh"
+# include "rect.hh"
 
 namespace holovibes
 {
@@ -71,12 +71,12 @@ namespace holovibes
 		SquaredModulus, /**< Modulus taken to its square value */
 		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
 		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
-		Complex,
+		Complex, /**< Displays the complex buffer using blue and red colors for real and imaginary part */
 		Composite /**< Displays different frequency intervals on color chanels*/
 	};
 
-	using	AccessMode =
-	enum
+	/*! \brief Describes the access mode of an accessor. */
+	enum AccessMode
 	{
 		Get = 1,
 		Set

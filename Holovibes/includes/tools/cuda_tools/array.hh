@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * cuda_tools::UniquePtr containing an array */
 #pragma once
 
 #include <vector>

@@ -82,6 +82,7 @@ namespace holovibes
 		{
 			if (!set_current(Cross))
 				create_overlay(std::make_shared<CrossOverlay>(parent_));
+			create_overlay<Zoom>();
 		}
 
 		template <>
@@ -130,7 +131,7 @@ namespace holovibes
 			parent_->getCd()->notify_observers();
 		}
 
-		void OverlayManager::set_zone(ushort frameside, units::RectWindow zone, KindOfOverlay ko)
+		void OverlayManager::set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko)
 		{
 			if (ko == Noise)
 				create_overlay<Noise>();
@@ -150,12 +151,22 @@ namespace holovibes
 
 		void OverlayManager::keyPress(QKeyEvent *e)
 		{
-			if (current_overlay_)
+			// Reserving space for moving the cross
+			if (e->key() == Qt::Key_Space)
+			{
+				for (auto o : overlays_)
+					if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
+						o->keyPress(e);
+			}
+			else if (current_overlay_)
 				current_overlay_->keyPress(e);
 		}
 
 		void OverlayManager::move(QMouseEvent *e)
 		{
+			for (auto o : overlays_)
+				if ((o->getKind() == Cross || o->getKind() == SliceCross) && o->isActive())
+					o->move(e);
 			if (current_overlay_)
 				current_overlay_->move(e);
 		}
@@ -190,10 +201,9 @@ namespace holovibes
 
 		void OverlayManager::draw()
 		{
-			for (auto o : overlays_) {
+			for (auto o : overlays_)
 				if (o->isActive() && o->isDisplayed())
 					o->draw();
-			}
 		}
 
 		void OverlayManager::clean()
@@ -221,8 +231,7 @@ namespace holovibes
 			{
 			case Direct:
 			case Hologram:
-				if (!set_current(Cross))
-					create_overlay<Zoom>();
+				create_overlay<Zoom>();
 				break;
 			case SliceXZ:
 			case SliceYZ:
@@ -233,8 +242,9 @@ namespace holovibes
 			}
 		}
 
-		const units::RectWindow& OverlayManager::getZone() const
+		units::RectWindow OverlayManager::getZone() const
 		{
+			assert(current_overlay_);
 			return current_overlay_->getZone();
 		}
 

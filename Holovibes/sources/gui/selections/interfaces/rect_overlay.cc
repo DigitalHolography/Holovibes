@@ -74,6 +74,7 @@ namespace holovibes
 
 		void RectOverlay::draw()
 		{
+			setBuffer();
 			Vao_.bind();
 			Program_->bind();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
@@ -88,26 +89,6 @@ namespace holovibes
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			Program_->release();
 			Vao_.release();
-		}
-
-		void RectOverlay::checkCorners()
-		{
-			if (zone_.width() < 0)
-			{
-				auto topRight = zone_.topRight();
-				auto bottomLeft = zone_.bottomLeft();
-
-				zone_.setTopLeft(topRight);
-				zone_.setBottomRight(bottomLeft);
-			}
-			if (zone_.height() < 0)
-			{
-				auto topRight = zone_.topRight();
-				auto bottomLeft = zone_.bottomLeft();
-
-				zone_.setTopLeft(bottomLeft);
-				zone_.setBottomRight(topRight);
-			}
 		}
 
 		void RectOverlay::setBuffer()
@@ -137,13 +118,13 @@ namespace holovibes
 			if (e->buttons() == Qt::LeftButton)
 			{
 				auto pos = getMousePos(e->pos());
-				zone_.setBottomRight(pos);
+				zone_.setDst(pos);
 				setBuffer();
 				display_ = true;
 			}
 		}
 
-		void RectOverlay::setZone(units::RectWindow rect, ushort frameside)
+		void RectOverlay::setZone(units::RectFd rect, ushort frameside)
 		{
 			zone_ = rect;
 			setBuffer();

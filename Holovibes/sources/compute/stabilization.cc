@@ -12,7 +12,7 @@
 
 #include "stabilization.hh"
 #include "compute_descriptor.hh"
-#include "units/rect.hh"
+#include "rect.hh"
 #include "power_of_two.hh"
 
 #include "tools.cuh"
@@ -24,6 +24,7 @@
 #include <cufft.h>
 
 using holovibes::compute::Stabilization;
+using holovibes::FnVector;
 
 
 Stabilization::Stabilization(FnVector& fn_vect,
@@ -84,8 +85,6 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	QPoint dimensions{ zone.width(), zone.height() };
 	cuda_tools::UniquePtr<float> selected_x(size);
 	cuda_tools::UniquePtr<float> selected_y(size);
-	cuda_tools::UniquePtr<float> sum_x(size);
-	cuda_tools::UniquePtr<float> sum_y(size);
 	if (!selected_x || !selected_y)
 		return;
 
@@ -100,25 +99,7 @@ void Stabilization::compute_correlation(const float *x, const float *y)
 	cudaStreamSynchronize(0);
 
 	compute_convolution(selected_x.get(), selected_y.get(), convolution_.get());
-	sum_left_top(selected_x.get(), sum_x.get(), dimensions);
-	sum_left_top(selected_y.get(), sum_y.get(), dimensions);
 	cudaStreamSynchronize(0);
-	/*
-	sum_left_top_inplace(convolution_.get(), dimensions);
-	cudaStreamSynchronize(0);
-
-	compute_numerator(sum_x.get(), sum_y.get(), convolution_.get(), dimensions);
-	sum_inplace_squared(selected_x.get(), dimensions);
-	sum_inplace_squared(selected_y.get(), dimensions);
-	cudaStreamSynchronize(0);
-
-	sum_squared_minus_square_sum(selected_x.get(), sum_x.get(), dimensions);
-	sum_squared_minus_square_sum(selected_y.get(), sum_y.get(), dimensions);
-	cudaStreamSynchronize(0);
-
-	correlation(convolution_.get(), selected_x.get(), selected_y.get(), dimensions);
-	cudaStreamSynchronize(0);
-	*/
 }
 
 
@@ -177,7 +158,6 @@ void Stabilization::insert_extremums()
 
 void Stabilization::insert_stabilization()
 {
-	// Stabilization
 	fn_vect_.push_back([=]()
 	{
 		if (!cd_.getStabilizationZone().area())

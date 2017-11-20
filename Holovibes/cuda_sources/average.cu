@@ -14,6 +14,7 @@
 #include "tools_conversion.cuh"
 
 using holovibes::units::RectFd;
+using holovibes::Tuple4f;
 
 /*! \brief  Sume 2 zone of input image
 *
@@ -133,8 +134,8 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 							const uint		height,
 							const uint		width_roi,
 							const uint		height_roi,
-							const units::RectFd&	signal_zone,
-							const units::RectFd&	noise_zone,
+							const holovibes::units::RectFd&	signal_zone,
+							const holovibes::units::RectFd&	noise_zone,
 							const uint		pindex,
 							const uint		nsamples,
 							cudaStream_t	stream)

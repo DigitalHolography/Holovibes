@@ -18,6 +18,9 @@
 
 namespace holovibes
 {
+	using camera::FrameDescriptor;
+	using camera::Endianness;
+
 	using MutexGuard = std::lock_guard<std::mutex>;
 
 	Queue::Queue(const camera::FrameDescriptor& frame_desc, const unsigned int elts, std::string name)

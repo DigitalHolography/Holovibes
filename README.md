@@ -19,6 +19,34 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk630.zip) Framegrabber for the adimec V6.30
 * [PhotonFocus MV1-D1312 driver](http://www.photonfocus.com/en/products/camerafinder/camera/?prid=70) V3.1.14
 
+### VISA drivers ###
+
+* [VISA Drivers](https://www.ni.com/visa/)
+
+### Developpers Setup ###
+
+* Make sure the following installations respect the paths set in "PropertySheet.props":
+    * Visual Studio 2017
+    * CUDA 9.0 (AFTER installing visual Studio)
+    * Qt 5.9.0
+    * QT VS TOOLS (Usefull Visual studio add-on)
+    * Install and build Qwt 6.1.3 in the "lib" directory
+    * Boost 1.65.1 (A prebuilt version is easier. If you build it yourself, make sure libs are built in $(BoostLib)\lib64-msvc-14.1)
+    * Doxywizard (optionnal, usefull to manipulate 'doxygen_config' file)
+* Make sure the environment variable "CUDA_PATH_V9_0" is set
+* Make sure your path contains:
+    * $(CUDA_PATH_V9_0)\bin
+    * $(CUDA_PATH_V9_0)\libnvvp
+    * $(QTDIR)\bin
+    * $(QWTDIR)\lib
+* After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
+* Verify that it builds with the correct dll. If not, your path contain something wrong.
+    
+
+### IDE ###
+
+* Visual Studio 2017 Community 15.4.3
+
 ### CUDA ###
 
 * [CUDA 9.0.176 Production Release](https://developer.nvidia.com/cuda-downloads)
@@ -32,9 +60,11 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * [Qt OpenSource Windows x64 5.9.0](https://download.qt.io/archive/qt/5.9/5.9.0/)
 
-### VISA ###
 
-* [VISA Drivers](https://www.ni.com/visa/)
+### Libraries ###
+
+* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.65.1
+* [Qwt 6.1.3](http://sourceforge.net/projects/qwt/files/qwt/6.1.3/)
 
 ## Typical Usage ##
 
@@ -58,16 +88,15 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, record
 
 This mode is useful to do batch computation (call holovibes from a script).
 
-## Developers dependencies ##
+### Adding a camera (for developpers) ###
 
-### Libraries ###
-
-* [Boost C++ Library](http://sourceforge.net/projects/boost/files/boost-binaries) 1.65.1
-* [Qwt 6.1.3](http://sourceforge.net/projects/qwt/files/qwt/6.1.3/)
-
-### IDE ###
-
-* Visual Studio 2017 Community RC
+* Right click on "Camera Libbraries"
+* Add -> new project -> empty project
+* right click on your project -> properties -> change '.exe' to '.dll'
+* View -> property Manager
+* For both "Debug | x64" and "Release | x64":
+    * Add -> Add existing property sheet -> "PropertySheet.props" and "CameraDLL.props"
+* Make sure "CAMERA_EXPORTS" is set (properties -> C/C++ -> preprocessor -> Preprocessor definitions)
 
 ## Features ##
 
@@ -129,7 +158,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
-### v.5.2.2
+### v.5.3.0
 
 * Add: XY stabilization
 * Fix: Overlay overhaul

@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Qt main class containing the GUI. */
 #pragma once
 #ifndef _HAS_AUTO_PTR_ETC
 	#define _HAS_AUTO_PTR_ETC 1
@@ -48,7 +51,7 @@
 # include "custom_exception.hh"
 # include "info_manager.hh"
 # include "options_descriptor.hh"
-# include "3DVision.hh"
+# include "3DVisionWindow.hh"
 
 // namespace gui
 # include "HoloWindow.hh"
@@ -251,7 +254,7 @@ namespace holovibes
 			void		save_ini(const std::string& path);
 			void		cancel_stft_view(ComputeDescriptor& cd);
 			std::string	format_batch_output(const std::string& path, uint index);
-			std::string	set_record_filename_properties(FrameDescriptor fd, std::string filename);
+			std::string	set_record_filename_properties(camera::FrameDescriptor fd, std::string filename);
 			OutputType	get_record_output_type();
 			void		createPipe();
 			void		createHoloWindow();
@@ -261,7 +264,7 @@ namespace holovibes
 			void		remove_infos();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
-			void		set_maximums(FrameDescriptor fd);
+			void		set_maximums(camera::FrameDescriptor fd);
 
 			#pragma endregion
 			/* ---------- */

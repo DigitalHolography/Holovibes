@@ -25,35 +25,30 @@ namespace holovibes
 		void SquareOverlay::make_square()
 		{
 			// Set the bottomRight corner to have a square selection.
-			// Since topLeft is always the origin, bottomRight correspond to destination,
-			// and can be in every corner (bottomRight can be in the top left corner).
 			const int min = std::min(std::abs(zone_.width()), std::abs(zone_.height()));
-			zone_.setBottomRight(units::PointWindow(units::ConversionData(parent_),
-				zone_.topLeft().x() +
-				min * ((zone_.topLeft().x() < zone_.bottomRight().x()) * 2 - 1),
-				zone_.topLeft().y() +
-				min * ((zone_.topLeft().y() < zone_.bottomRight().y()) * 2 - 1)
+			zone_.setDst(units::PointFd(units::ConversionData(parent_),
+				zone_.src().x() + ((zone_.src().x() < zone_.dst().x()) ? min : -min),
+				zone_.src().y() + ((zone_.src().y() < zone_.dst().y()) ? min : -min)
 			));
 		}
 
-		void SquareOverlay::checkCorners(ushort frameSide)
+		void SquareOverlay::checkCorners()
 		{
+			ushort frameSide = parent_->getFd().width;
+
 			// Resizing the square selection to the window
-
-			if (zone_.right() < 0)
-				zone_.setRight(0);
-			if (zone_.bottom() < 0)
-				zone_.setBottom(0);
-
-			if (zone_.right() > frameSide)
-				zone_.setRight(frameSide);
-			if (zone_.bottom() > frameSide)
-				zone_.setBottom(frameSide);
+			if (zone_.dst().x() < 0)
+				zone_.dstRef().x().set(0);
+			else if (zone_.dst().x() > frameSide)
+				zone_.dstRef().x().set(frameSide);
+			
+			if (zone_.dst().y() < 0)
+				zone_.dstRef().y().set(0);
+			else if (zone_.dst().y() > frameSide)
+				zone_.dstRef().y().set(frameSide);
 
 			// Making it a square again
 			make_square();
-
-			RectOverlay::checkCorners();
 		}
 
 		void SquareOverlay::move(QMouseEvent* e)
@@ -61,7 +56,7 @@ namespace holovibes
 			if (e->buttons() == Qt::LeftButton)
 			{
 				auto pos = getMousePos(e->pos());
-				zone_.setBottomRight(pos);
+				zone_.setDst(pos);
 				make_square();
 				setBuffer();
 				display_ = true;

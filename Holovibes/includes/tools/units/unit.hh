@@ -10,13 +10,19 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+ *
+ * Implementation of a Unit with its cast between different coordinates system */
 #pragma once
 
 #include "frame_desc.hh"
-#include "units/conversion_data.hh"
+#include "conversion_data.hh"
+
+#include <iostream>
 
 namespace holovibes
 {
+	/*! \brief Contains functions and casts related to the three coordinates system. */
 	namespace units
 	{
 
@@ -68,6 +74,10 @@ namespace holovibes
 			{
 				return val_;
 			}
+			T get() const
+			{
+				return val_;
+			}
 
 			/*! \brief Exmplcit setter
 			 */
@@ -86,13 +96,17 @@ namespace holovibes
 				return res;
 			}
 
+			const ConversionData& getConversion() const
+			{
+				return conversion_data_;
+			}
 
 			/*! \brief Operator overloads
 			 *
 			 * They can be used with either a primary type or another Unit
 			 * The result is an Unit, but can be implicitly casted into a T
 			 */
-			/**@{*/
+			 /**@{*/
 			template<typename U>
 			Unit<T> operator-(const U& other)
 			{
@@ -116,6 +130,14 @@ namespace holovibes
 				res.val_ *= other;
 				return res;
 			}
+
+			template<typename U>
+			Unit<T> operator-()
+			{
+				Unit<T> res(*this);
+				res.val_ *= -1;
+				return res;
+			}
 			/**@{*/
 
 		protected:
@@ -131,5 +153,11 @@ namespace holovibes
 			 */
 			T				val_;
 		};
+
+		template<typename T>
+		std::ostream& operator<<(std::ostream& o, const Unit<T>& x)
+		{
+			return o << x.get();
+		}
 	}
 }
