@@ -326,30 +326,31 @@ namespace holovibes
 			return;
 		}
 
-		const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
 
 
 		// Fill input complex buffer, one frame at a time.
 		if (af_env_.state == af_state::STOPPED)
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				gpu_input_buffer_,
-				input_length_,
-				ratio,
-				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation,
-				static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back([=]() {
+				const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+				make_contiguous_complex(
+					std::ref(input_),
+					gpu_input_buffer_,
+					input_length_,
+					ratio,
+					compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation);
+			});
 		else if (af_env_.state == af_state::COPYING)
 		{
 			af_env_.stft_index--;
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				input_length_,
-				ratio,
-				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation,
-				static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back([=]() {
+				const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+				make_contiguous_complex(
+					std::ref(input_),
+					af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+					input_length_,
+					ratio,
+					compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation);
+			});
 			if (af_env_.stft_index == 0)
 			{
 				af_env_.state = af_state::RUNNING;
@@ -373,6 +374,7 @@ namespace holovibes
 
 		if (compute_desc_.interpolation_enabled.load() && (compute_desc_.manual_interpolation || compute_desc_.tex_interpolation))
 			fn_vect_.push_back([=]() {
+				const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
 				interpolation_caller(gpu_input_buffer_,
 					input_fd.width,
 					input_fd.height,

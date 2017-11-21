@@ -115,6 +115,6 @@ void DetectIntensity::update_lambda()
 		progress = 1;
 	lambda += (cd_.interp_lambda2 - cd_.interp_lambda1) * progress;
 	cd_.interp_lambda = lambda;
-	std::cout << lambda << std::endl;
+	//std::cout << lambda << std::endl;
 }
 
