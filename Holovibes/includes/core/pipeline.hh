@@ -15,11 +15,6 @@
  * The Pipeline is a parallel computing model, grouping tasks in parallel modules. */
 #pragma once
 
-# include <vector>
-# include <list>
-# include <cuda_runtime.h>
-# include <cufft.h>
-
 # include "icompute.hh"
 
 /* Forward declarations. */

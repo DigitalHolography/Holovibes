@@ -15,13 +15,6 @@
  * Widget containing a QwtPlot. Used to display average/ROI computations. */
 #pragma once
 
-# include <QtWidgets>
-# include <QVector>
-# include <qwt_plot.h>
-# include <qwt_plot_curve.h>
-# include <iostream>
-# include <array>
-# include <float.h>
 # include "concurrent_deque.hh"
 
 namespace holovibes

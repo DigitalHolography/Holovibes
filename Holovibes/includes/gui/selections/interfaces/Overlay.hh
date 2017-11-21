@@ -15,15 +15,6 @@
  * Interface for all overlays.*/
 #pragma once
 
-#include <array>
-#include <iostream>
-#include <memory>
-#include <QOpenGLShaderProgram.h>
-#include <QOpenGLFunctions.h>
-#include <QApplication.h>
-#include <qdesktopwidget.h>
-#include <QOpenGLVertexArrayObject>
-
 #include "frame_desc.hh"
 #include "rect.hh"
 #include "compute_descriptor.hh"

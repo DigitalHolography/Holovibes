@@ -16,9 +16,6 @@
  * sequentially on a single data buffer. */
 #pragma once
 
-# include <thread>
-# include <cuda_runtime.h>
-
 # include "pipeline_utils.hh"
 
 namespace holovibes

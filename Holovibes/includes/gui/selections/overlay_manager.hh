@@ -15,7 +15,6 @@
 * Wrapper around the vector of overlay. Permitting to manipulate all overlays of a window at once. */
 #pragma once
 
-#include <atomic>
 #include "Overlay.hh"
 
 namespace holovibes

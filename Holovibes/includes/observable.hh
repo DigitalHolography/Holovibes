@@ -16,8 +16,6 @@
 #pragma once
 
 # include <vector>
-# include <algorithm>
-
 # include "observer.hh"
 
 namespace holovibes

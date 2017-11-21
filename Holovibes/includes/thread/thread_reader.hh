@@ -16,10 +16,6 @@
  * and use it as the source for the input queue. */
 #pragma once
 
-# include <iostream>
-# include <thread>
-# include <string>
-
 # include "frame_desc.hh"
 # include "ithread_input.hh"
 # include "power_of_two.hh"

@@ -15,20 +15,6 @@
 * Interface implemented by each Qt window. */
 #pragma once
 
-#ifndef _HAS_AUTO_PTR_ETC
-#define _HAS_AUTO_PTR_ETC 1
-#endif // !_HAS_AUTO_PTR_ETC
-
-#include <atomic>
-#include <QOpenGLWindow.h>
-#include <QOpenGLFunctions.h>
-#include <QOpenGLVertexArrayObject.h>
-#include <QOpenGLShaderProgram.h>
-#include <QEvent.h>
-#include <cuda_gl_interop.h>
-
-#include <glm\gtc\matrix_transform.hpp>
-
 #include "overlay_manager.hh"
 #include "tools_conversion.cuh"
 #include "queue.hh"

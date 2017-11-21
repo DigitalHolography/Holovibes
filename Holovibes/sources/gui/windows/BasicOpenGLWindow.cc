@@ -10,11 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <QApplication.h>
-#include <qdesktopwidget.h>
-
-#include <glm\gtc\type_ptr.hpp>
-
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 #include "HoloWindow.hh"

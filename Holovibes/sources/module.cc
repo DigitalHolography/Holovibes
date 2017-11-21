@@ -12,8 +12,6 @@
 
 #include "module.hh"
 
-#include <iostream>
-
 namespace holovibes
 {
   Module::Module()

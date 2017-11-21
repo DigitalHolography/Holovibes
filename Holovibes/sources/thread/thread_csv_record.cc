@@ -85,3 +85,5 @@ namespace holovibes
 		}
 	}
 }
+
+#include "Debug\moc_thread_csv_record.cc"

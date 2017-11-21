@@ -317,6 +317,9 @@
     <ClCompile Include="sources\gui\windows\3DVisionWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
+    <ClCompile Include="sources\stdafx.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -546,6 +549,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\windows\3DVisionWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\stdafx.hh">
+      <Filter>c++ includes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,12 +15,6 @@
  * Qt window displaying the 3D mode. */
 #pragma once
 
-# include <glm/vec3.hpp>
-# include <glm/vec4.hpp>
-# include <glm/vec3.hpp>
-# include <glm/gtc/matrix_transform.hpp>
-# include <glm/glm.hpp>
-# include <glm/gtc/type_ptr.hpp>
 # include "BasicOpenGLWindow.hh"
 
 namespace holovibes

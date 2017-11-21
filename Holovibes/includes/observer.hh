@@ -10,7 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-# include <exception>
 /*! \file
  *
  * Implementation of the Observer design pattern. */

@@ -15,11 +15,6 @@
 * Singleton managing the 'Infos' GroupBox. TODO: recode this class. */
 #pragma once
 
-#include <QProgressBar>
-#include <QTextBrowser>
-#include <QThread>
-#include <thread>
-#include <chrono>
 #include "gui_group_box.hh"
 
 namespace holovibes

@@ -14,24 +14,6 @@
 *
 * Qt main class containing the GUI. */
 #pragma once
-#ifndef _HAS_AUTO_PTR_ETC
-	#define _HAS_AUTO_PTR_ETC 1
-#endif // !_HAS_AUTO_PTR_ETC
-
-
-# include <boost/algorithm/string.hpp>
-# include <boost/filesystem.hpp>
-# include <boost/property_tree/ptree.hpp>
-# include <boost/property_tree/ini_parser.hpp>
-# include <cstring>
-# include <QDesktopServices>
-# include <QFileDialog>
-# include <QMainWindow>
-# include <QMessageBox>
-# include <QShortcut>
-# include <sys/stat.h>
-# include <thread>
-# include <sstream>
 
 // without namespace
 # include "tools.hh"

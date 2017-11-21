@@ -15,9 +15,6 @@
  * Qt main window class containing a plot of computed average values  */
 #pragma once
 
-# include <QMainWindow>
-# include <QtWidgets>
-
 # include "ui_PlotWindow.h"
 # include "gui_curve_plot.hh"
 

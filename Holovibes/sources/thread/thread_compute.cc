@@ -12,7 +12,6 @@
 
 #include "thread_compute.hh"
 #include "pipe.hh"
-#include <iostream>
 
 namespace holovibes
 {

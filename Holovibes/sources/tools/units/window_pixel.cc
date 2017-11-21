@@ -14,8 +14,6 @@
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
 
-#include <iostream>
-
 namespace holovibes
 {
 	namespace units

@@ -15,8 +15,6 @@
 * Contains the overloading of QGroupBox. */
 #pragma once
 
-# include <QGroupBox>
-
 namespace holovibes
 {
 	namespace gui

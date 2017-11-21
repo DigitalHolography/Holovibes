@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #include "3DVisionWindow.hh"
-#include <stdlib.h>
 
 namespace holovibes
 {

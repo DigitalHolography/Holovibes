@@ -15,11 +15,6 @@
  * std::unique_ptr "specialization" for cudaFree */
 #pragma once
 
-#include <memory>
-#include <functional>
-#include <iostream>
-#include <cuda_runtime.h>
-
 namespace holovibes
 {
 	/*! \brief Contains memory handlers for cuda buffers. */

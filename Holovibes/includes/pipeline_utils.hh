@@ -15,12 +15,6 @@
  * Utility functions and types used in ICompute-based classes. */
 #pragma once
 
-# include <functional>
-# include <vector>
-# include <deque>
-# include <cuda_runtime.h>
-# include <cufft.h>
-
 namespace holovibes
 {
   //!< A single procedure.
