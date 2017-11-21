@@ -48,11 +48,6 @@ namespace holovibes
 			Program->link();
 			overlay_manager_.create_default();
 		}
-
-		void	HoloWindow::wheelEvent(QWheelEvent *e)
-		{
-			BasicOpenGLWindow::wheelEvent(e);
-		}
 		
 		void	HoloWindow::focusInEvent(QFocusEvent *e)
 		{

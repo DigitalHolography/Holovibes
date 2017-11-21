@@ -41,7 +41,6 @@ namespace holovibes
 
 			virtual void	initShaders() override;
 
-			void	wheelEvent(QWheelEvent *e) override;
 			void	focusInEvent(QFocusEvent *e) override;
 		private:
 			MainWindow *main_window_;
