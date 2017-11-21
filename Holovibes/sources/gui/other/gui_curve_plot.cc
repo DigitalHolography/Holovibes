@@ -173,4 +173,4 @@ namespace holovibes
 #undef TIMER_FREQ
 #undef POINTS
 
-#include "Debug\moc_gui_curve_plot.cc"
+#include "moc_gui_curve_plot.cc"

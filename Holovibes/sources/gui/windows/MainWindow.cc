@@ -3173,4 +3173,4 @@ namespace holovibes
 		#pragma endregion
 	}
 }
-#include "Debug/moc_MainWindow.cc"
+#include "moc_MainWindow.cc"
