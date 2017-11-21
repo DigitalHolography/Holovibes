@@ -98,7 +98,15 @@ namespace holovibes
 
 		units::PointWindow Overlay::getMousePos(QPoint pos)
 		{
-			units::PointWindow res(units::ConversionData(parent_), pos.x(), pos.y());
+			auto x = pos.x();
+			auto y = pos.y();
+			if (parent_->width() > parent_->height()
+				&& parent_->getKindOfView() != SliceXZ && parent_->getKindOfView() != SliceYZ)
+			{
+				double divider = static_cast<double>(parent_->width()) / static_cast<double>(parent_->height());
+				x *= divider;
+			}
+			units::PointWindow res(units::ConversionData(parent_), x, y);
 			return res;
 		}
 
