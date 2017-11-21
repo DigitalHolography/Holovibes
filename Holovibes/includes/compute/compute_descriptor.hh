@@ -328,10 +328,6 @@ namespace holovibes
 		std::atomic<bool>			composite_auto_weights_;
 		//! \}
 
-		std::atomic<bool>			manual_interpolation;
-		std::atomic<bool>			tex_interpolation;
-		std::atomic<bool>			contiguous_interpolation;
-
 		#pragma endregion
 	};
 }

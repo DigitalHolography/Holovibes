@@ -1422,27 +1422,6 @@
               </item>
              </layout>
             </item>
-            <item>
-             <widget class="QCheckBox" name="ManualInterpolationCheckBox">
-              <property name="text">
-               <string>Manual</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="TextureInterpolationCheckBox">
-              <property name="text">
-               <string>Texture complex</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="ContiguousInterpolationCheckBox">
-              <property name="text">
-               <string>texture</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </item>

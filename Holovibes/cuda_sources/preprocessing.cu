@@ -68,64 +68,9 @@ void make_sqrt_vect(float			*out,
 	delete[] vect;
 }
 
-
-static void short_interpolation(unsigned int width, unsigned int height, unsigned short *buffer, const float ratio, cudaStream_t stream)
-{
-	size_t pitch;
-	size_t tex_ofs;
-	unsigned short* tex_data;
-
-	// Setting texture for linear interpolation
-	shorttex.filterMode = cudaFilterModeLinear;
-	// Coordinates not normalized
-	shorttex.normalized = false;
-
-	cudaMallocPitch((void**)&tex_data, &pitch, width * sizeof(unsigned short), height);
-	// Copying input into texture data
-	cudaMemcpy2D(tex_data, pitch, buffer, sizeof(unsigned short) * width, sizeof(unsigned short) * width, height, cudaMemcpyDeviceToDevice);
-	// Binding texture to its data
-	cudaBindTexture2D(&tex_ofs, &shorttex, tex_data, &shorttex.channelDesc, width, height, pitch);
-
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(width * height, threads);
-
-	kernel_bilinear_tex_short_interpolation << <blocks, threads, 0, stream >> > (buffer, width, height, ratio);
-
-	cudaUnbindTexture(shorttex);
-	cudaFree(tex_data);
-}
-
-static void char_interpolation(unsigned int width, unsigned int height, unsigned char *buffer, const float ratio, cudaStream_t stream)
-{
-	size_t pitch;
-	size_t tex_ofs;
-	unsigned char* tex_data;
-
-	// Setting texture for linear interpolation
-	chartex.filterMode = cudaFilterModeLinear;
-	// Coordinates not normalized
-	chartex.normalized = false;
-
-	cudaMallocPitch((void**)&tex_data, &pitch, width * sizeof(unsigned char), height);
-	// Copying input into texture data
-	cudaMemcpy2D(tex_data, pitch, buffer, sizeof(unsigned char) * width, sizeof(unsigned char) * width, height, cudaMemcpyDeviceToDevice);
-	// Binding texture to its data
-	cudaBindTexture2D(&tex_ofs, &chartex, tex_data, &shorttex.channelDesc, width, height, pitch);
-
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(width * height, threads);
-
-	kernel_bilinear_tex_char_interpolation << <blocks, threads, 0, stream >> > (buffer, width, height, ratio);
-
-	cudaUnbindTexture(chartex);
-	cudaFree(tex_data);
-}
-
 void make_contiguous_complex(Queue&			input,
 							cuComplex*		output,
 							const uint		n,
-							const float ratio,
-							bool interpolation,
 							cudaStream_t	stream)
 {
 	const uint				threads = get_max_threads_1d();
@@ -139,13 +84,6 @@ void make_contiguous_complex(Queue&			input,
 		/* Contiguous case. */
 		if (frame_desc.depth == 2.f)
 		{
-			if (interpolation)
-				short_interpolation(
-					input.get_frame_desc().width,
-					input.get_frame_desc().height,
-					static_cast<ushort*>(input.get_start()),
-					ratio,
-					stream);
 			img16_to_complex << <blocks, threads, 0, stream >> >(
 				output,
 				static_cast<ushort*>(input.get_start()),
@@ -153,13 +91,6 @@ void make_contiguous_complex(Queue&			input,
 		}
 		else if (frame_desc.depth == 1.f)
 		{
-			if (interpolation)
-				char_interpolation(
-					input.get_frame_desc().width,
-					input.get_frame_desc().height,
-					static_cast<uchar*>(input.get_start()),
-					ratio,
-					stream);
 			img8_to_complex << <blocks, threads, 0, stream >> >(
 				output,
 				static_cast<uchar*>(input.get_start()),

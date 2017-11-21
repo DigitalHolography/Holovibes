@@ -49,6 +49,4 @@ void make_sqrt_vect(float			*out,
 void make_contiguous_complex(holovibes::Queue&			input,
 							cuComplex		*output,
 							const uint		n,
-							const float ratio,
-							bool interpolation,
 							cudaStream_t	stream = 0);

@@ -986,9 +986,7 @@ namespace holovibes
 			make_contiguous_complex(
 				input_,
 				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				input_length_,
-				ratio,
-				compute_desc_.interpolation_enabled && compute_desc_.contiguous_interpolation);
+				input_length_);
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 			/* Compute square af zone. */
@@ -1152,17 +1150,9 @@ namespace holovibes
 		const int width,
 		const int height,
 		const float ratio,
-		bool manual,
 		cudaStream_t stream)
 	{
-		if (manual)
-		{
-			cuda_tools::UniquePtr<cuComplex> img(width * height);
-			cudaMemcpy(img, buffer, width * height, cudaMemcpyHostToHost);
-			manual_interpolation(buffer, img, width, height, ratio, stream);
-		}
-		else
-			tex_interpolation(buffer, width, height, ratio, stream);
+		tex_interpolation(buffer, width, height, ratio, stream);
 	}
 
 	Queue *ICompute::get_lens_queue()

@@ -282,7 +282,6 @@ namespace holovibes
 			const int width,
 			const int height,
 			const float ratio,
-			bool interpolation,
 			cudaStream_t stream = 0);
 
 		void record_float(float* float_output, cudaStream_t stream);

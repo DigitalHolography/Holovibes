@@ -125,16 +125,3 @@ void tex_interpolation(cuComplex *buffer,
 	cudaFree(tex_data);
 }
 
-void manual_interpolation(cuComplex *buffer,
-				  cuComplex *img,
-				  const unsigned int width,
-				  const unsigned int height,
-				  const float ratio,
-				  cudaStream_t stream)
-{
-	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(width * height, threads);
-
-	kernel_bilinear_manual_interpolation << <blocks, threads, 0, stream >> > (buffer, img, width, height, ratio);
-}
-
