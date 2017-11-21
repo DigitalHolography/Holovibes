@@ -42,20 +42,32 @@ DetectIntensity::DetectIntensity(FnVector& fn_vect,
 
 void DetectIntensity::insert_post_contiguous_complex()
 {
-	fn_vect_.push_back([=]() {
-		check_jump();
-		update_shift();
-		update_lambda();
-	});
+	if (cd_.interpolation_enabled)
+	{
+		fn_vect_.push_back([=]() {
+			check_jump();
+			update_shift();
+			update_lambda();
+		});
+	}
 }
 
 void DetectIntensity::check_jump()
 {
+	if (can_skip_detection())
+		return;
 	float current_intensity = get_current_intensity();
-	//std::cout << current_intensity << std::endl;
+	//std::cout << '\t' << current_intensity << std::endl;
 	if (is_jump(current_intensity, last_intensity_))
 		on_jump();
 	last_intensity_ = current_intensity;
+}
+
+bool DetectIntensity::can_skip_detection()
+{
+	int expected_until_jump = cd_.nsamples;
+	expected_until_jump -= frames_since_jump_ + cd_.interp_shift;
+	return expected_until_jump > 5;
 }
 
 bool DetectIntensity::is_jump(float current, float last)
@@ -101,7 +113,7 @@ void DetectIntensity::on_jump(bool delayed)
 	}
 	else
 	{
-		std::cout << "jump" << std::endl;
+		//std::cout << "jump" << std::endl;
 		frames_since_jump_ = 0;
 	}
 }

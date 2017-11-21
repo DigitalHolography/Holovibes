@@ -52,6 +52,7 @@ namespace holovibes
 		private:
 
 			void check_jump();
+			bool can_skip_detection();
 			bool is_jump(float current, float last);
 			float get_current_intensity();
 			void update_shift();
