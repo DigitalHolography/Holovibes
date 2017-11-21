@@ -123,8 +123,6 @@ namespace holovibes
 		void CrossOverlay::draw()
 		{
 			parent_->makeCurrent();
-			computeZone();
-			setBuffer();
 
 			Vao_.bind();
 			Program_->bind();
@@ -149,6 +147,12 @@ namespace holovibes
 
 			Program_->release();
 			Vao_.release();
+		}
+
+		void CrossOverlay::notify()
+		{
+			computeZone();
+			setBuffer();
 		}
 
 		void CrossOverlay::press(QMouseEvent *e)

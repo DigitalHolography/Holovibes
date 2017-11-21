@@ -30,6 +30,12 @@ namespace holovibes
 			display_ = true;
 		}
 
+		SliceCrossOverlay::~SliceCrossOverlay()
+		{
+			parent_->makeCurrent();
+			glDeleteBuffers(1, &elemLineIndex_);
+		}
+
 		void SliceCrossOverlay::init()
 		{
 			RectOverlay::init();
@@ -51,8 +57,7 @@ namespace holovibes
 		void SliceCrossOverlay::draw()
 		{
 			parent_->makeCurrent();
-			setBuffer();
-
+			
 			Vao_.bind();
 			Program_->bind();
 
@@ -76,6 +81,11 @@ namespace holovibes
 
 			Program_->release();
 			Vao_.release();
+		}
+
+		void SliceCrossOverlay::notify()
+		{
+			setBuffer();
 		}
 
 		void SliceCrossOverlay::keyPress(QKeyEvent *e)
