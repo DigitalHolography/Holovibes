@@ -51,20 +51,20 @@ namespace holovibes
 			return axis == Axis::VERTICAL ? -res : res;
 		}
 
-int ConversionData::opengl_to_window_size(float val, Axis axis) const
-{
-	assert(window_);
-	if (axis == Axis::VERTICAL)
-		val *= -1;
-	int res = ((val + 1.f) / 2.f) * get_window_size(axis);
-	if (window_->width() > window_->height() && axis == Axis::HORIZONTAL
-		&& window_->getKindOfView() != SliceXZ && window_->getKindOfView() != SliceYZ)
-	{
-		double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
-		res /= divider;
-	}
-	return res;
-}
+		int ConversionData::opengl_to_window_size(float val, Axis axis) const
+		{
+			assert(window_);
+			if (axis == Axis::VERTICAL)
+				val *= -1;
+			int res = ((val + 1.f) / 2.f) * get_window_size(axis);
+			if (window_->width() > window_->height() && axis == Axis::HORIZONTAL
+				&& window_->getKindOfView() != SliceXZ && window_->getKindOfView() != SliceYZ)
+			{
+				double divider = static_cast<double>(window_->width()) / static_cast<double>(window_->height());
+				res /= divider;
+			}
+			return res;
+		}
 
 		int ConversionData::opengl_to_fd(float val, Axis axis) const
 		{
@@ -74,35 +74,35 @@ int ConversionData::opengl_to_window_size(float val, Axis axis) const
 			return ((val + 1.f) / 2.f) * get_fd_size(axis);
 		}
 
-void ConversionData::transform_from_fd(float& x, float& y) const
-{
-	glm::vec3 input{ x, y, 1.0f };
-	const auto& matrix = window_->getTransformMatrix();
-	auto output = matrix * input;
-	x = output[0];
-	y = output[1];
-}
+		void ConversionData::transform_from_fd(float& x, float& y) const
+		{
+			glm::vec3 input{ x, y, 1.0f };
+			const auto& matrix = window_->getTransformMatrix();
+			auto output = matrix * input;
+			x = output[0];
+			y = output[1];
+		}
 
-void ConversionData::transform_to_fd(float& x, float& y) const
-{
-	glm::vec3 input{ x, y, 1 };
-	auto matrix = window_->getTransformInverseMatrix();
-	auto output = matrix * input;
-	x = output[0];
-	y = output[1];
-}
-int ConversionData::get_window_size(Axis axis) const
-{
-	switch (axis)
-	{
-	case Axis::HORIZONTAL:
-		return window_->width();
-	case Axis::VERTICAL:
-		return window_->height();
-	default:
-		throw std::exception("Unreachable code");
-	}
-}
+		void ConversionData::transform_to_fd(float& x, float& y) const
+		{
+			glm::vec3 input{ x, y, 1 };
+			auto matrix = window_->getTransformInverseMatrix();
+			auto output = matrix * input;
+			x = output[0];
+			y = output[1];
+		}
+		int ConversionData::get_window_size(Axis axis) const
+		{
+			switch (axis)
+			{
+			case Axis::HORIZONTAL:
+				return window_->width();
+			case Axis::VERTICAL:
+				return window_->height();
+			default:
+				throw std::exception("Unreachable code");
+			}
+		}
 
 		int ConversionData::get_fd_size(Axis axis) const
 		{

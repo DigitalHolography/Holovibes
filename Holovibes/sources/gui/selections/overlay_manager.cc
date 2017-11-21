@@ -214,6 +214,13 @@ namespace holovibes
 					o->draw();
 		}
 
+		void OverlayManager::notify()
+		{
+			for (auto o : overlays_)
+				if (o->isActive() && o->isDisplayed())
+					o->notify();
+		}
+
 		void OverlayManager::clean()
 		{
 			// Delete all disabled overlays

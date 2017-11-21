@@ -27,6 +27,8 @@ namespace holovibes
 			ScaleOverlay(BasicOpenGLWindow* parent);
 			~ScaleOverlay();
 
+			void draw() override;
+
 			void keyPress(QKeyEvent *e) override
 			{ }
 
@@ -37,6 +39,10 @@ namespace holovibes
 			{ }
 
 			void setBuffer() override;
+		private:
+			units::RectOpengl scale_zone_;
+			QPixmap pixmap_;
+			QPoint pixmap_position_;
 		};
 	}
 }

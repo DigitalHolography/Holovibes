@@ -84,6 +84,9 @@ namespace holovibes
 			/*! \brief Call opengl function to draw the overlay */
 			virtual void draw() = 0;
 
+			/*! \brief Compute buffer once to speed drawing. */
+			virtual void notify() = 0;
+
 			/*! \brief Called when the user press the mouse button */
 			virtual void press(QMouseEvent* e);
 			/*! \brief Called when the user press a key */
