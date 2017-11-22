@@ -57,7 +57,7 @@ namespace holovibes
 		void SliceCrossOverlay::draw()
 		{
 			parent_->makeCurrent();
-			
+			setBuffer();
 			Vao_.bind();
 			Program_->bind();
 
@@ -81,11 +81,6 @@ namespace holovibes
 
 			Program_->release();
 			Vao_.release();
-		}
-
-		void SliceCrossOverlay::notify()
-		{
-			setBuffer();
 		}
 
 		void SliceCrossOverlay::keyPress(QKeyEvent *e)

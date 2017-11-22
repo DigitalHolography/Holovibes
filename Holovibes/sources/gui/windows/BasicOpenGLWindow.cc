@@ -272,8 +272,6 @@ namespace holovibes
 				Program->release();
 			}
 
-			overlay_manager_.notify();
-
 			auto holo = dynamic_cast<HoloWindow*>(this);
 			if (holo)
 				holo->update_slice_transforms();

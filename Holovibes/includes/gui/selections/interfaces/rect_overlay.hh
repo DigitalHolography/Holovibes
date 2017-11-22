@@ -31,8 +31,6 @@ namespace holovibes
 
 			virtual void init() override;
 			virtual void draw() override;
-			virtual void notify() override;
-
 
 			virtual void move(QMouseEvent *e) override;
 			virtual void setZone(units::RectFd rect, ushort frameside) override;

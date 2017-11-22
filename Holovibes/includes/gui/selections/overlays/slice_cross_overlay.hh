@@ -29,7 +29,6 @@ namespace holovibes
 
 			void init() override;
 			void draw() override;
-			void notify() override;
 
 			void keyPress(QKeyEvent *e) override;
 			void move(QMouseEvent *e) override;

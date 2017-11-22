@@ -40,13 +40,14 @@ namespace holovibes
 
         void ScaleOverlay::draw()
         {
+			RectOverlay::draw();
 			QPainter painter(parent_);
 			painter.drawPixmap(pixmap_position_, pixmap_);
-			RectOverlay::draw();
         }
 
 		void ScaleOverlay::setBuffer()
 		{
+			parent_->makeCurrent();
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 			const float pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
@@ -106,7 +107,6 @@ namespace holovibes
 			// Updating opengl buffer
 			/* It's a copy and paste of set_buffer of RectOverlay
 			The only difference is that the zone is not cast to RectOpengl because scale_overlay is already a RectOpengl */
-			parent_->makeCurrent();
 			Program_->bind();
 			const float subVertices[] = {
 				scale_zone_.x(), scale_zone_.y(),
