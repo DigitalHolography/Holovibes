@@ -37,6 +37,7 @@ namespace holovibes
 				{ std::make_pair("", "") },
 				{ std::make_pair("", "") },
 				{ std::make_pair("", "") },
+				{ std::make_pair("", "") },
 				{ std::make_pair("", "") } } }
 		{
 			progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");

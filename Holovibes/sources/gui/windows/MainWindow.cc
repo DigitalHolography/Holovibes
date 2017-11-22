@@ -1250,6 +1250,24 @@ namespace holovibes
 					}
 					compute_desc_.stft_enabled.exchange(b);
 					compute_desc_.p_accu_enabled.exchange(b && ui.PAccuCheckBox->isChecked());
+					if (b)
+					{
+						std::stringstream ss;
+						ss << "(X1,Y1,X2,Y2) = (";
+						if (compute_desc_.croped_stft)
+						{
+							auto zone = compute_desc_.getZoomedZone();
+							ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+						}
+						else
+						{
+							auto fd = holovibes_.get_cam_frame_desc();
+							ss << "0,0," << fd.width << "," << fd.height << ")";
+						}
+						InfoManager::get_manager()->insert_info(InfoManager::STFT_ZONE, "STFT Zone", ss.str());
+					}
+					else
+						InfoManager::get_manager()->remove_info("STFT Zone");
 					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
 				}
 				catch (std::exception& e)
@@ -1267,6 +1285,19 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				compute_desc_.croped_stft.exchange(b);
+				std::stringstream ss;
+				ss << "(X1,X2,X3,X4) = (";
+				if (b)
+				{
+					auto zone = compute_desc_.getZoomedZone();
+					ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+				}
+				else
+				{
+					auto fd = holovibes_.get_cam_frame_desc();
+					ss << "0,0," << fd.width << "," << fd.height << ")";
+				}
+				InfoManager::get_manager()->update_info("STFT Zone", ss.str());
 				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
 			}
 		}
