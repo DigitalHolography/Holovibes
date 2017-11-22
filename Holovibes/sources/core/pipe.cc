@@ -1053,7 +1053,6 @@ namespace holovibes
 		}
 	}
 
-
 	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
 	{
 		if (!queue)

@@ -35,6 +35,7 @@ namespace holovibes
 		convolution_enabled(false),
 		flowgraphy_enabled(false),
 		stft_enabled(false),
+		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
 		contrast_min_slice_xy(1.f),
@@ -227,5 +228,17 @@ namespace holovibes
 	{
 		LockGuard g(mutex_);
 		stabilization_zone = rect;
+	}
+
+	units::RectFd ComputeDescriptor::getZoomedZone() const
+	{
+		LockGuard g(mutex_);
+		return zoomed_zone;
+	}
+
+	void ComputeDescriptor::setZoomedZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		zoomed_zone = rect;
 	}
 }

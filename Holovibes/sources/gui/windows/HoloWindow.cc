@@ -69,5 +69,22 @@ namespace holovibes
 				yz_slice_->setScale(getScale());
 			}
 		}
+
+		void	HoloWindow::update_stft_zoom_buffer(units::RectFd zone_)
+		{
+			Cd->setZoomedZone(zone_);
+			if (Cd->croped_stft)
+				Ic->request_update_n(Cd->nsamples);
+		}
+
+		void	HoloWindow::resetTransform()
+		{
+			if (Fd.frame_res() != Cd->getZoomedZone().area())
+			{
+				units::ConversionData convert(this);
+				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width - 1, Fd.height - 1));
+			}
+			BasicOpenGLWindow::resetTransform();
+		}
 	}
 }

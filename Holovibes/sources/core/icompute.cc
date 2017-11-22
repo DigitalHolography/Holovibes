@@ -57,6 +57,7 @@ namespace holovibes
 		gpu_ref_diff_queue_(nullptr),
 		gpu_filter2d_buffer(nullptr),
 		gpu_tmp_input_(nullptr),
+		gpu_cropped_stft_buf_(nullptr),
 		plan3d_(0),
 		plan2d_(0),
 		plan1d_(0),
@@ -175,14 +176,20 @@ namespace holovibes
 
 		if (compute_desc_.stft_enabled.load())
 		{
+			int zone_size = input_.get_pixels();
+			if (compute_desc_.croped_stft)
+				zone_size = compute_desc_.getZoomedZone().area();
+
 			cufftPlanMany(&plan1d_stft_, 1, inembed,
-				inembed, input_.get_pixels(), 1,
-				inembed, input_.get_pixels(), 1,
-				CUFFT_C2C, input_.get_pixels());
+				inembed, zone_size, 1,
+				inembed, zone_size, 1,
+				CUFFT_C2C, zone_size);
 
 			camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 			new_fd2.depth = 8.f;
 			gpu_stft_queue_ = new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
+			if (compute_desc_.croped_stft)
+				cudaMalloc(&gpu_cropped_stft_buf_, compute_desc_.getZoomedZone().area() * compute_desc_.nsamples.load() * sizeof(cuComplex));
 		}
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
@@ -247,6 +254,7 @@ namespace holovibes
 		gpu_stft_slice_queue_yz.reset(nullptr);
 
 		delete gpu_stft_queue_;
+		cudaFree(gpu_cropped_stft_buf_);
 
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
@@ -313,10 +321,14 @@ namespace holovibes
 				/* CUFFT plan1d realloc */
 				int inembed_stft[1] = { n };
 
+				int zone_size = input_.get_pixels();
+				if (compute_desc_.croped_stft)
+					zone_size = compute_desc_.getZoomedZone().area();
+
 				cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
-					inembed_stft, input_.get_pixels(), 1,
-					inembed_stft, input_.get_pixels(), 1,
-					CUFFT_C2C, input_.get_pixels());
+					inembed_stft, zone_size, 1,
+					inembed_stft, zone_size, 1,
+					CUFFT_C2C, zone_size);
 				if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n) != CUDA_SUCCESS)
 					err_count++;
 			}
@@ -328,6 +340,8 @@ namespace holovibes
 			gpu_stft_queue_ = nullptr;
 		}
 
+		cudaFree(gpu_cropped_stft_buf_);
+
 		if (compute_desc_.stft_enabled.load())
 		{
 			camera::FrameDescriptor new_fd = input_.get_frame_desc();
@@ -337,7 +351,8 @@ namespace holovibes
 				if (compute_desc_.stft_view_enabled.load())
 					update_stft_slice_queue();
 				gpu_stft_queue_ = new Queue(new_fd, n, "STFTQueue");
-
+				if (compute_desc_.croped_stft.load())
+					cudaMalloc(&gpu_cropped_stft_buf_, compute_desc_.getZoomedZone().area() * n * sizeof(cuComplex));
 			}
 			catch (std::exception&)
 			{
@@ -790,8 +805,13 @@ namespace holovibes
 				compute_desc_.nsamples.load(),
 				compute_desc_.pindex.load(),
 				compute_desc_.pindex.load(),
-				input_.get_frame_desc().frame_res(),
+				compute_desc_.nsamples.load(),
+				input_.get_frame_desc().width,
+				input_.get_frame_desc().height,
 				b,
+				compute_desc_.croped_stft.load(),
+				compute_desc_.getZoomedZone(),
+				gpu_cropped_stft_buf_,
 				static_cast<cudaStream_t>(0));
 		}
 		else
@@ -806,8 +826,13 @@ namespace holovibes
 				compute_desc_.nsamples.load(),
 				compute_desc_.pindex.load(),
 				compute_desc_.vibrometry_q.load(),
-				input_.get_frame_desc().frame_res(),
+				compute_desc_.nsamples.load(),
+				input_.get_frame_desc().width,
+				input_.get_frame_desc().height,
 				b,
+				compute_desc_.croped_stft.load(),
+				compute_desc_.getZoomedZone(),
+				gpu_cropped_stft_buf_,
 				static_cast<cudaStream_t>(0));
 		}
 		if (compute_desc_.stft_view_enabled.load() && b == true)

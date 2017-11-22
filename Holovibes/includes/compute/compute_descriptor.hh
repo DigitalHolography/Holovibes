@@ -147,6 +147,8 @@ namespace holovibes
 		units::RectFd		stft_roi_zone;
 		/*! \brief	The area on which we'll run the convolution to stabilize*/
 		units::RectFd		stabilization_zone;
+		/*! \brief  The area used to limit the stft computations. */
+		units::RectFd		zoomed_zone;
 
 	public:
 		/*! \brief ComputeDescriptor constructor
@@ -183,6 +185,9 @@ namespace holovibes
 
 		units::RectFd getStabilizationZone() const;
 		void setStabilizationZone(const units::RectFd& rect);
+
+		units::RectFd getZoomedZone() const;
+		void setZoomedZone(const units::RectFd& rect);
 
 		//! @}
 		#pragma region Atomics vars
@@ -256,6 +261,8 @@ namespace holovibes
 		std::atomic<bool>			contrast_enabled;
 		//! is stft enabled. If not, it does a DFT. TODO: remove this parameter and always use stft instead of DFT.
 		std::atomic<bool>			stft_enabled;
+		//! enable the limitation of the stft to the zoomed area.
+		std::atomic<bool>			croped_stft;
 		std::atomic<bool>			vibrometry_enabled;
 		std::atomic<bool>			ref_diff_enabled;
 		std::atomic<bool>			ref_sliding_enabled;

@@ -300,6 +300,8 @@ namespace holovibes
 		float			*gpu_float_buffer_;
 		uint			gpu_float_buffer_size_;
 		cufftComplex	*gpu_stft_buffer_;
+		//! Buffer containing the zone that limits the stft computations
+		cufftComplex	*gpu_cropped_stft_buf_;
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;

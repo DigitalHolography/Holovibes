@@ -247,6 +247,8 @@ namespace holovibes
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
+			ui.CropStftCheckBox->setEnabled(!is_direct && compute_desc_.stft_enabled.load());
+
 			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
 			ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 			ui.ContrastMinDoubleSpinBox->setEnabled(!is_direct && compute_desc_.contrast_enabled.load());
@@ -1070,6 +1072,7 @@ namespace holovibes
 						this));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
+				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
 			}
@@ -1256,6 +1259,15 @@ namespace holovibes
 					std::cerr << e.what() << std::endl;
 				}
 				notify();
+			}
+		}
+
+		void MainWindow::set_crop_stft(bool b)
+		{
+			if (!is_direct_mode())
+			{
+				compute_desc_.croped_stft.exchange(b);
+				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
 			}
 		}
 

@@ -58,7 +58,6 @@ namespace holovibes
 
 			const KindOfView	getKindOfView() const;
 			const KindOfOverlay getKindOfOverlay() const;
-			QOpenGLVertexArrayObject& getVao();
 			void				resetSelection();
 
 			void	setCd(ComputeDescriptor* cd);
@@ -67,7 +66,7 @@ namespace holovibes
 			OverlayManager& getOverlayManager();
 
 			// Transform functions ------
-			void resetTransform();
+			virtual void resetTransform();
 			void setScale(float);
 			float getScale() const;
 			void setAngle(float a);

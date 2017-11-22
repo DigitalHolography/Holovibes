@@ -13,6 +13,7 @@
 #include "zoom_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "DirectWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {
@@ -32,7 +33,16 @@ namespace holovibes
 			// handle Zoom
 			DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
 			if (window)
+			{
 				window->zoomInRect(zone_);
+				// Setting zone for the croped stft
+				HoloWindow* holowindow = dynamic_cast<HoloWindow *>(window);
+				if (holowindow)
+				{
+					checkCorners();
+					holowindow->update_stft_zoom_buffer(zone_);
+				}
+			}
 			disable();
 		}
 	}

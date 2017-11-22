@@ -169,6 +169,7 @@ namespace holovibes
 			void set_z_step(double value);
 			void set_algorithm(QString value);
 			void set_stft(bool b);
+			void set_crop_stft(bool b);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
 			void update_stft_steps(int value);

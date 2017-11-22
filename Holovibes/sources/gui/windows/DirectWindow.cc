@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
+#include "HoloWindow.hh"
 
 namespace holovibes
 {

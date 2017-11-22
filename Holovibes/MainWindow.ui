@@ -517,6 +517,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="CropStftCheckBox">
+           <property name="text">
+            <string>Crop Stft</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer_5">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -4210,7 +4217,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_output_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>203</y>
     </hint>
     <hint type="destinationlabel">
@@ -4226,7 +4233,7 @@ p, li { white-space: pre-wrap; }
    <slot>import_browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
+     <x>1396</x>
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
@@ -4242,7 +4249,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>988</x>
+     <x>1020</x>
      <y>321</y>
     </hint>
     <hint type="destinationlabel">
@@ -4258,7 +4265,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>292</y>
     </hint>
     <hint type="destinationlabel">
@@ -4274,7 +4281,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
+     <x>1202</x>
      <y>114</y>
     </hint>
     <hint type="destinationlabel">
@@ -4354,7 +4361,7 @@ p, li { white-space: pre-wrap; }
    <slot>browse_convo_matrix_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>987</x>
+     <x>1019</x>
      <y>139</y>
     </hint>
     <hint type="destinationlabel">
@@ -5259,6 +5266,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CropStftCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_crop_stft(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>384</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5373,5 +5396,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
+  <slot>set_crop_stft(bool)</slot>
  </slots>
 </ui>
