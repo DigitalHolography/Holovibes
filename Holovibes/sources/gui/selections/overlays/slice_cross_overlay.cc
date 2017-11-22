@@ -22,7 +22,6 @@ namespace holovibes
 			, line_alpha_(0.5f)
 			, elemLineIndex_(0)
 			, locked_(true)
-			, last_pIndex_(0, 0)
 			, pIndex_(0, 0)
 		{
 			color_ = { 1.f, 0.f, 0.f };
@@ -82,8 +81,6 @@ namespace holovibes
 		{
 			if (e->key() == Qt::Key_Space)
 			{
-				if (!locked_)
-					last_pIndex_ = pIndex_;
 				locked_ = !locked_;
 				parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
 			}
@@ -99,15 +96,7 @@ namespace holovibes
 				pIndex_ = getMousePos(e->pos());
 
 				uint p = (kView == SliceXZ) ? pIndex_.y() : pIndex_.x();
-				uint last_p = (kView == SliceXZ) ? last_pIndex_.y() : last_pIndex_.x();
-				if (Cd->p_accu_enabled.load())
-				{
-					Cd->p_accu_max_level = std::max(p, last_p);
-					Cd->p_accu_min_level = std::min(p, last_p);
-				}
-				else
-					Cd->pindex = p;
-
+				Cd->pindex = p;
 				Cd->notify_observers();
 			}
 		}
@@ -124,15 +113,10 @@ namespace holovibes
 			units::PointFd bottomRight;
 			auto kView = parent_->getKindOfView();
 
-			uint pmin = cd->p_accu_min_level;
-			uint pmax = cd->p_accu_max_level;
-
-			// Setting the zone_
-			if (!cd->p_accu_enabled)
-			{
-				pmin = cd->pindex;
-				pmax = cd->pindex;
-			}
+			uint pmin = cd->pindex;
+			uint pmax = pmin;
+			if (cd->p_accu_enabled)
+				pmax += cd->p_acc_level;
 
 			units::ConversionData convert(parent_);
 

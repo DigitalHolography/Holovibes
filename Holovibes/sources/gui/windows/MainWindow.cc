@@ -296,24 +296,15 @@ namespace holovibes
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
 
-				ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled.load());
-				ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled.load());
-				ui.PMaxAccuSpinBox->setMaximum(compute_desc_.nsamples.load());
-				auto p_max = compute_desc_.p_accu_max_level.load();
-				ui.PMinAccuSpinBox->setValue(compute_desc_.p_accu_min_level.load());
-				ui.PMaxAccuSpinBox->setValue(p_max);
+			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled.load());
+			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled.load());
+			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level.load());
 
-				ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled.load());
-				ui.XMinAccuSpinBox->setMaximum(compute_desc_.x_accu_max_level.load());
-				ui.XMaxAccuSpinBox->setMinimum(compute_desc_.x_accu_min_level.load());
-				ui.XMinAccuSpinBox->setValue(compute_desc_.x_accu_min_level.load());
-				ui.XMaxAccuSpinBox->setValue(compute_desc_.x_accu_max_level.load());
+			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled.load());
+			ui.XAccSpinBox->setValue(compute_desc_.x_acc_level.load());
 
-				ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled.load());
-				ui.YMinAccuSpinBox->setMaximum(compute_desc_.y_accu_max_level.load());
-				ui.YMaxAccuSpinBox->setMinimum(compute_desc_.y_accu_min_level.load());
-				ui.YMinAccuSpinBox->setValue(compute_desc_.y_accu_min_level.load());
-				ui.YMaxAccuSpinBox->setValue(compute_desc_.y_accu_max_level.load());
+			ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled.load());
+			ui.YAccSpinBox->setValue(compute_desc_.y_acc_level.load());
 
 			ui.PAccuCheckBox->setEnabled(compute_desc_.stft_enabled.load());
 
@@ -346,7 +337,6 @@ namespace holovibes
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type.load());
 			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			ui.PhaseNumberSpinBox->setValue(compute_desc_.nsamples.load());
-			ui.PSpinBox->setEnabled(!is_direct && !compute_desc_.p_accu_enabled);
 			ui.PSpinBox->setMaximum(compute_desc_.nsamples.load() - 1);
 			ui.PSpinBox->setValue(compute_desc_.pindex.load());
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_direct);
@@ -925,7 +915,6 @@ namespace holovibes
 					kCamera = c;
 					QAction* settings = ui.actionSettings;
 					settings->setEnabled(true);
-					set_maximums(holovibes_.get_cam_frame_desc());
 					notify();
 				}
 				catch (camera::CameraException& e)
@@ -1485,8 +1474,6 @@ namespace holovibes
 					holovibes_.get_pipe()->request_update_n(in.get_max_elts());
 					while (holovibes_.get_pipe()->get_request_refresh());
 				}
-				ui.PMaxAccuSpinBox->setMaximum(compute_desc_.nsamples);
-				ui.PMinAccuSpinBox->setMaximum(compute_desc_.nsamples);
 				set_p_accu();
 			}
 		}
@@ -1538,44 +1525,29 @@ namespace holovibes
 
 		void MainWindow::set_p_accu()
 		{
-			auto boxMax = ui.PMaxAccuSpinBox;
-			auto boxMin = ui.PMinAccuSpinBox;
+			auto spinbox = ui.PAccSpinBox;
 			auto checkBox = ui.PAccuCheckBox;
 			compute_desc_.p_accu_enabled.exchange(checkBox->isChecked());
-			compute_desc_.p_accu_min_level.exchange(boxMin->value());
-			compute_desc_.p_accu_max_level.exchange(boxMax->value());
-			if (compute_desc_.p_accu_min_level > compute_desc_.p_accu_max_level)
-				boxMax->setValue(boxMin->value());
+			compute_desc_.p_acc_level.exchange(spinbox->value());
 
 			notify();
-			set_auto_contrast();
 		}
 
 		void MainWindow::set_x_accu()
 		{
-			auto boxMax = ui.XMaxAccuSpinBox;
-			auto boxMin = ui.XMinAccuSpinBox;
+			auto box = ui.XAccSpinBox;
 			auto checkBox = ui.XAccuCheckBox;
 			compute_desc_.x_accu_enabled.exchange(checkBox->isChecked());
-			compute_desc_.x_accu_min_level.exchange(boxMin->value());
-			compute_desc_.x_accu_max_level.exchange(boxMax->value());
-			if (compute_desc_.x_accu_min_level > compute_desc_.x_accu_max_level)
-				boxMax->setValue(boxMin->value());
-
+			compute_desc_.x_acc_level.exchange(box->value());
 			notify();
 		}
 
 		void MainWindow::set_y_accu()
 		{
-			auto boxMax = ui.YMaxAccuSpinBox;
-			auto boxMin = ui.YMinAccuSpinBox;
+			auto box = ui.YAccSpinBox;
 			auto checkBox = ui.YAccuCheckBox;
 			compute_desc_.y_accu_enabled.exchange(checkBox->isChecked());
-			compute_desc_.y_accu_min_level.exchange(boxMin->value());
-			compute_desc_.y_accu_max_level.exchange(boxMax->value());
-			if (compute_desc_.y_accu_min_level > compute_desc_.y_accu_max_level)
-				boxMax->setValue(boxMin->value());
-
+			compute_desc_.y_acc_level.exchange(box->value());
 			notify();
 		}
 
@@ -2970,7 +2942,6 @@ namespace holovibes
 			QAction *settings = ui.actionSettings;
 			settings->setEnabled(false);
 			import_type_ = ImportType::File;
-			set_maximums(frame_desc);
 			if (holovibes_.get_tcapture() && holovibes_.get_tcapture()->stop_requested_)
 			{
 				import_type_ = ImportType::None;
@@ -2980,12 +2951,6 @@ namespace holovibes
 				holovibes_.dispose_capture();
 			}
 			notify();
-		}
-
-		void MainWindow::set_maximums(FrameDescriptor fd)
-		{
-			ui.XMaxAccuSpinBox->setMaximum(fd.width - 1);
-			ui.YMaxAccuSpinBox->setMaximum(fd.height - 1);
 		}
 
 		void MainWindow::import_start_spinbox_update()

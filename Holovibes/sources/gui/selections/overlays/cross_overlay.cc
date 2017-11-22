@@ -159,8 +159,6 @@ namespace holovibes
 		{
 			if (e->key() == Qt::Key_Space)
 			{
-				if (!locked_)
-					last_clicked_ = mouse_position_;
 				locked_ = !locked_;
 				parent_->setCursor(locked_ ? Qt::ArrowCursor : Qt::CrossCursor);
 			}
@@ -181,16 +179,6 @@ namespace holovibes
 				auto cd = parent_->getCd();
 				cd->stftCursor(pos, AccessMode::Set);
 				// ---------------
-				if (cd->x_accu_enabled)
-				{
-					cd->x_accu_min_level = std::min(pos.x().get(), last_clicked_.x().get());
-					cd->x_accu_max_level = std::max(pos.x().get(), last_clicked_.x().get());
-				}
-				if (cd->y_accu_enabled)
-				{
-					cd->y_accu_min_level = std::min(pos.y().get(), last_clicked_.y().get());
-					cd->y_accu_max_level = std::max(pos.y().get(), last_clicked_.y().get());
-				}
 				cd->notify_observers();
 			}
 		}
@@ -208,9 +196,19 @@ namespace holovibes
 			cd->stftCursor(cursor, Get);
 
 			// Computing min/max coordinates in function of the frame_descriptor
+			units::PointFd cursorPos;
+			cd->stftCursor(cursorPos, AccessMode::Get);
+			int x_min = cursorPos.x();
+			int x_max = cursorPos.x();
+			int y_min = cursorPos.y();
+			int y_max = cursorPos.y();
+			if (cd->x_accu_enabled)
+				(cd->x_acc_level < 0 ? x_min : x_max) += cd->x_acc_level;
+			if (cd->y_accu_enabled)
+				(cd->y_acc_level < 0 ? y_min : y_max) += cd->y_acc_level;
 			units::ConversionData convert(parent_);
-			units::PointFd min(convert, cd->x_accu_min_level, cd->y_accu_min_level);
-			units::PointFd max(convert, cd->x_accu_max_level, cd->y_accu_max_level);
+			units::PointFd min(convert, x_min, y_min);
+			units::PointFd max(convert, x_max, y_max);
 
 			// Setting the zone_
 			if (!cd->x_accu_enabled)

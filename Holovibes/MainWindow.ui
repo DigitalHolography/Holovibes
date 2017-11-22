@@ -756,26 +756,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="YMinAccuSpinBox">
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QSpinBox" name="XMaxAccuSpinBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
+            <widget class="QSpinBox" name="YAccSpinBox">
              <property name="minimum">
               <number>0</number>
              </property>
@@ -788,7 +769,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QSpinBox" name="XMinAccuSpinBox">
+            <widget class="QSpinBox" name="XAccSpinBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -819,31 +800,8 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QSpinBox" name="YMaxAccuSpinBox">
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QSpinBox" name="PMaxAccuSpinBox">
-             <property name="minimum">
-              <number>0</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="1">
-            <widget class="QSpinBox" name="PMinAccuSpinBox">
+            <widget class="QSpinBox" name="PAccSpinBox">
              <property name="minimum">
               <number>0</number>
              </property>
@@ -3256,13 +3214,10 @@ p, li { white-space: pre-wrap; }
   <tabstop>FFTShiftCheckBox</tabstop>
   <tabstop>LensViewCheckBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
-  <tabstop>YMinAccuSpinBox</tabstop>
-  <tabstop>XMaxAccuSpinBox</tabstop>
-  <tabstop>XMinAccuSpinBox</tabstop>
+  <tabstop>YAccSpinBox</tabstop>
+  <tabstop>XAccSpinBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
-  <tabstop>YMaxAccuSpinBox</tabstop>
-  <tabstop>PMaxAccuSpinBox</tabstop>
-  <tabstop>PMinAccuSpinBox</tabstop>
+  <tabstop>PAccSpinBox</tabstop>
   <tabstop>PAccuCheckBox</tabstop>
   <tabstop>WindowSelectionComboBox</tabstop>
   <tabstop>FlipPushButton</tabstop>
@@ -4764,23 +4719,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMaxAccuSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>392</x>
-     <y>205</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>444</x>
-     <y>292</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PMinAccuSpinBox</sender>
+   <sender>PAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_p_accu()</slot>
@@ -4812,23 +4751,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>XMaxAccuSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_x_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>392</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>XMinAccuSpinBox</sender>
+   <sender>XAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_x_accu()</slot>
@@ -4860,23 +4783,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>YMaxAccuSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_y_accu()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>392</x>
-     <y>182</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>667</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>YMinAccuSpinBox</sender>
+   <sender>YAccSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_y_accu()</slot>

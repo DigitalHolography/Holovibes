@@ -44,9 +44,6 @@ namespace holovibes
 			//! Locking line overlay
 			bool locked_;
 
-			//! p index of the last locked line
-			units::PointFd last_pIndex_;
-
 			//! pindex of the mouse position
 			units::PointFd pIndex_;
 		};
