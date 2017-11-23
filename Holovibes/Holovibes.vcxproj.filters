@@ -323,6 +323,9 @@
     <ClCompile Include="sources\stdafx.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\detect_intensity.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -553,6 +556,12 @@
     <ClInclude Include="includes\gui\windows\3DVisionWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
+    <ClInclude Include="includes\compute\detect_intensity.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\interpolation.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
@@ -661,6 +670,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\stabilization.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\interpolation.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

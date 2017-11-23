@@ -19,6 +19,7 @@
 # include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
 # include "stabilization.hh"
+# include "detect_intensity.hh"
 
 namespace holovibes
 {
@@ -93,6 +94,7 @@ namespace holovibes
 		cufftComplex	*gpu_input_frame_ptr_;
 
 		compute::Stabilization stabilization_;
+		compute::DetectIntensity detect_intensity_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

@@ -19,6 +19,7 @@
 #include "preprocessing.cuh"
 #include "autofocus.cuh"
 #include "average.cuh"
+#include "interpolation.cuh"
 #include "queue.hh"
 #include "concurrent_deque.hh"
 #include "compute_descriptor.hh"
@@ -28,6 +29,7 @@
 #include "vibrometry.cuh"
 #include "compute_bundles.hh"
 #include "custom_exception.hh"
+#include "unique_ptr.hh"
 
 namespace holovibes
 {
@@ -975,6 +977,8 @@ namespace holovibes
 			while (input_.get_current_elts() < input_length_)
 				continue;
 
+			const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+
 			// If stft, it saves only one frames in the end of gpu_input_buffer_tmp
 			make_contiguous_complex(
 				input_,
@@ -1038,7 +1042,6 @@ namespace holovibes
 					cudaMemcpyDeviceToDevice);
 		}
 	}
-	
 
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
 	{
@@ -1137,6 +1140,16 @@ namespace holovibes
 		af_env_.focus_metric_values.clear();
 		af_env_.stft_index = 0;
 		af_env_.state = af_state::STOPPED;
+	}
+
+
+	void ICompute::interpolation_caller(cuComplex *buffer,
+		const int width,
+		const int height,
+		const float ratio,
+		cudaStream_t stream)
+	{
+		tex_interpolation(buffer, width, height, ratio, stream);
 	}
 
 	Queue *ICompute::get_lens_queue()

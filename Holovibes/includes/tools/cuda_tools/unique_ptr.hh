@@ -34,6 +34,12 @@ namespace holovibes
 				: base(ptr, cudaFree)
 			{}
 
+			/// Implicit cast operator
+			operator T*()
+			{
+				return get();
+			}
+
 			/// Allocates an array of size sizeof(T) * size
 			UniquePtr(std::size_t size)
 				: base(nullptr, cudaFree)

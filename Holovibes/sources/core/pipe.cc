@@ -48,6 +48,7 @@ namespace holovibes
 		, gpu_output_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
 		, stabilization_(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc)
+		, detect_intensity_(fn_vect_, gpu_input_buffer_, input.get_frame_desc(), desc)
 	{
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
@@ -187,6 +188,8 @@ namespace holovibes
 			refresh_requested_.exchange(false);
 			return;
 		}
+
+
 		fn_vect_.push_back(std::bind(
 			make_contiguous_complex,
 			std::ref(input_),
@@ -250,7 +253,7 @@ namespace holovibes
 	{
 		if (compute_desc_.compute_mode.load() == Computation::Direct)
 		{
-			fn_vect_.clear();	
+			fn_vect_.clear();
 			update_n_requested_.exchange(false);
 			direct_refresh();
 			return;
@@ -317,23 +320,25 @@ namespace holovibes
 			return;
 		}
 
+
+
 		// Fill input complex buffer, one frame at a time.
 		if (af_env_.state == af_state::STOPPED)
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				gpu_input_buffer_,
-				input_length_,
-				static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back([=]() {
+				make_contiguous_complex(
+					std::ref(input_),
+					gpu_input_buffer_,
+					input_length_);
+			});
 		else if (af_env_.state == af_state::COPYING)
 		{
 			af_env_.stft_index--;
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				input_length_,
-				static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back([=]() {
+				make_contiguous_complex(
+					std::ref(input_),
+					af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+					input_length_);
+			});
 			if (af_env_.stft_index == 0)
 			{
 				af_env_.state = af_state::RUNNING;
@@ -342,6 +347,8 @@ namespace holovibes
 			request_refresh();
 			return;
 		}
+
+		detect_intensity_.insert_post_contiguous_complex();
 
 		const float z = af_env_.state == af_state::RUNNING ? af_env_.z : compute_desc_.zdistance.load();
 
@@ -352,6 +359,14 @@ namespace holovibes
 		unsigned int nframes = compute_desc_.nsamples.load();
 		unsigned int pframe = compute_desc_.pindex.load();
 		unsigned int qframe = compute_desc_.vibrometry_q.load();
+
+		if (compute_desc_.interpolation_enabled.load())
+			fn_vect_.push_back([=]() {
+				const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
+				interpolation_caller(gpu_input_buffer_,
+					input_fd.width,
+					input_fd.height,
+					ratio); });
 
 		units::RectFd roiZone;
 		compute_desc_.stftRoiZone(roiZone, AccessMode::Get);
@@ -1052,7 +1067,6 @@ namespace holovibes
 			}
 		}
 	}
-
 
 	void Pipe::enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels)
 	{
