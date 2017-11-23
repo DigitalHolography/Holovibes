@@ -13,15 +13,6 @@
 #include "scale_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
-#include <iomanip> // setprecision
-#include <sstream> // stringstream
-
-#include <qabstracttextdocumentlayout.h>
-#include <qtextdocument.h>
-#include <QOpenGLPaintDevice>
-#include <QPainter>
-#include <QPen>
-
 namespace holovibes
 {
 	namespace gui

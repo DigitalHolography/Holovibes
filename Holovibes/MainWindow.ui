@@ -741,7 +741,7 @@
           </layout>
          </item>
          <item>
-          <layout class="QGridLayout" name="gridLayout_5">
+          <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0">
            <property name="horizontalSpacing">
             <number>6</number>
            </property>
@@ -790,7 +790,7 @@
            <item row="0" column="0">
             <widget class="QCheckBox" name="XAccuCheckBox">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -1083,6 +1083,13 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="ScaleBarCheckBox">
+           <property name="text">
+            <string>Scale Bar</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -5381,6 +5388,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ScaleBarCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_scale_bar(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>302</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5501,5 +5524,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_interp_sensitivity(double)</slot>
   <slot>set_interp_shift(int)</slot>
   <slot>on_notify()</slot>
+  <slot>set_scale_bar(bool)</slot>
  </slots>
 </ui>

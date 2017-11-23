@@ -225,6 +225,7 @@ namespace holovibes
 			void title_detect();
 			void rotateTexture();
 			void flipTexture();
+			void set_scale_bar(bool value);
 			#pragma endregion
 			/* ---------- */
 		signals:

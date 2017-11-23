@@ -696,7 +696,7 @@ namespace holovibes
 				compute_desc_.interpolation_enabled = ptree.get<bool>("composite.interpolation_enabled", false);
 				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 870) * 1.0e-9f;
 				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 820) * 1.0e-9f;
-				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9);
+				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9f);
 				compute_desc_.interp_shift = ptree.get<int>("composite.interpolation_shift", 0);
 
 				notify();
@@ -1987,6 +1987,19 @@ namespace holovibes
 				sliceYZ->setFlip(yzFlip);
 			}
 			notify();
+		}
+
+		void MainWindow::set_scale_bar(bool value)
+		{
+			if (value)
+			{
+				mainDisplay->getOverlayManager().create_overlay<Scale>();
+			}
+			else
+			{
+				mainDisplay->getOverlayManager().disable_all(Scale);
+			}
+
 		}
 		#pragma endregion
 		/* ------------ */

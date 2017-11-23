@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "5.4.0"
+#define MyAppVersion "5.5.0"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -124,6 +124,7 @@ Source: "{#CudaPath}\cudart64_90.dll"; DestDir: "{app}\{#MyAppVersion}";Componen
 Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "setup_creator_files\vcredist_2013_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2013
 Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2015
+Source: "setup_creator_files\vcredist_2017_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2017
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -151,6 +152,17 @@ begin
       ewWaitUntilTerminated, ResultCode)
     then
       MsgBox('Visual c++ redistributable 2015 failed to run!' + #13#10 +
+        SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
+procedure Visual2017;
+var                                   
+  ResultCode: Integer;
+begin
+    if not Exec(ExpandConstant('{tmp}\vcredist_2017_x64.exe'), '', '', SW_SHOWNORMAL,
+      ewWaitUntilTerminated, ResultCode)
+    then
+      MsgBox('Visual c++ redistributable 2017 failed to run!' + #13#10 +
         SysErrorMessage(ResultCode), mbError, MB_OK);
 end;
 

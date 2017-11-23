@@ -104,7 +104,11 @@ namespace holovibes
 		void OverlayManager::create_overlay<Scale>()
 		{
 			if (!set_current(Scale))
-				create_overlay(std::make_shared<ScaleOverlay>(parent_));
+			{
+				auto o = std::make_shared<ScaleOverlay>(parent_);
+				o->initProgram();
+				overlays_.push_back(o);
+			}
 		}
 
 		void OverlayManager::create_strip_overlay(Component& component,
