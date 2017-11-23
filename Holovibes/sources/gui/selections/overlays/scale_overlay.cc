@@ -41,15 +41,16 @@ namespace holovibes
         void ScaleOverlay::draw()
         {
 			RectOverlay::draw();
-			QPainter painter(parent_);
-			painter.drawPixmap(pixmap_position_, pixmap_);
-        }
+			// Do not bind the sader program there. For a strange reason, it hides the text.
+			glRasterPos2f(text_position_.x(), text_position_.y());
+			glDrawPixels(text_.width(), text_.height(), GL_RGBA, GL_UNSIGNED_BYTE, text_.bits());
+		}
 
 		void ScaleOverlay::setBuffer()
 		{
-			parent_->makeCurrent();
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
+			// Computing pixel size. Must be updated with the correct formula.
 			const float pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
 
 			units::ConversionData convert(parent_);
@@ -60,53 +61,67 @@ namespace holovibes
 			units::PointOpengl bottomRight(convert, 0.8, -0.9);
 
 			// Building zone
-			/*zone_ = units::RectFd(topLeft, bottomRight);
-			inherited attribute zone_ is not used in scale_overlay because it's a RectFd
-			which would caause the scale bar to always be a multiple of a FdPixel
-			When we are fully zoomed in, the scale bar will then fill the entire screen width */
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
 
 			// Retrieving number of pixel contained in the displayed image
-			units::PointOpengl topLeft_gl(convert, -1, 1);
-			units::PointOpengl bottomRight_gl(convert, 1, -1);
 			float left = -1;
 			float top = 1;
 			convert.transform_to_fd(left, top);
 			float right = 1;
 			float bottom = -1;
 			convert.transform_to_fd(right, bottom);
-
-			const float nb_pixel = sqrt(pow(right - left, 2) + pow(top - bottom, 2)) * fd.width / 2.f;
+			float width = right - left;
+			float height = top - bottom;
+			// Computing the size in meters of the scale bar (using pixel size)
+			const float nb_pixel = sqrt(pow(width, 2) + pow(height, 2)) * fd.width / 2.f;
 			const float size = nb_pixel * pix_size * 0.15f; // 0.15f because the scale bar only take 15% of the window width
+
+			/* The displaying of the text is done following these steps :
+					- Writing the information on a text document.
+					- Creating a transparent pixel map
+					- Using a painter to paint the text document on the pixel map
+					- Converting the pixel map into a QImage and mirroring it (opengl y-axis is reversed)
+					- Using glDrawPixels with the Byte buffer of the QImage.
+					
+				We cannot simply use a QPainter to draw directly the QPixMap because it will alternate between opengl calls
+				and qpainter calls. Qt modifies the opengl/openglshaders environment and we didn't manage to fix that.
+
+				Passing via an image to retrieve the bytes buffer and mirror it is a really crap bug fix,
+				please fix it when you have a solution */
+
 			const int exponent = std::floor(log10f(size));
 			const float significand = size * pow(10, -exponent);
-			std::stringstream stream;
-			stream << std::fixed << std::setprecision(1) << significand;
-			QString significand_str = QString::fromStdString(stream.str());
-			QString exponent_str = QString::fromStdString(std::to_string(exponent));
+			std::stringstream ss;
+			ss << std::fixed << std::setprecision(1) << significand;
+			ss << " &#8339;10<sup>" << exponent << "</sup>m";
 
 			QTextDocument td;
-			QString text = significand_str + " &#8339;10<sup>" + exponent_str + "</sup>m";
+			// Text
+			QString text(ss.str().c_str());
 			td.setHtml(text);
+			// Font
 			const int base_font_size = 10;
 			td.setDefaultFont(QFont("Arial", base_font_size));
-			const auto base_text_size = td.size();
-			const int adjusted_font_size = base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(base_text_size.width());
+			const int adjusted_font_size = base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
 			td.setDefaultFont(QFont("Arial", adjusted_font_size));
-			const auto text_size = td.size();
-			pixmap_ = QPixmap(text_size.toSize());
-			pixmap_.fill(Qt::transparent);
-			QPainter pixmap_painter(&pixmap_);
-
+			// Pixel map
+			QPixmap pixmap = QPixmap(td.size().toSize());
+			pixmap.fill(Qt::transparent);
+			QPainter pixmap_painter(&pixmap);
 			td.drawContents(&pixmap_painter);
+			// Position
 			units::WindowPixel x_pos = scale_zone_.center().x();
 			units::WindowPixel y_pos = topLeft.y();
 
-			pixmap_position_ = QPoint(x_pos - td.size().width() / 2, y_pos - td.size().height());
+			// Setting variables
+			// Since the image is y-mirrored, we set the bottom left corner.
+			text_position_ = units::PointWindow(convert, x_pos - td.size().width() / 2.f, y_pos);
+			text_ = pixmap.toImage().mirrored(false, true);
 
 			// Updating opengl buffer
 			/* It's a copy and paste of set_buffer of RectOverlay
 			The only difference is that the zone is not cast to RectOpengl because scale_overlay is already a RectOpengl */
+			parent_->makeCurrent();
 			Program_->bind();
 			const float subVertices[] = {
 				scale_zone_.x(), scale_zone_.y(),
