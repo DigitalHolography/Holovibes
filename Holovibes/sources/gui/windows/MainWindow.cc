@@ -1558,6 +1558,8 @@ namespace holovibes
 		{
 			auto spinbox = ui.PAccSpinBox;
 			auto checkBox = ui.PAccuCheckBox;
+			if (compute_desc_.p_accu_enabled != checkBox->isChecked())
+				pipe_refresh();
 			compute_desc_.p_accu_enabled.exchange(checkBox->isChecked());
 			compute_desc_.p_acc_level.exchange(spinbox->value());
 
