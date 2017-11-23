@@ -75,6 +75,8 @@ namespace holovibes
 		{
 			ui.setupUi(this);
 
+			connect(this, SIGNAL(request_notify()), this, SLOT(on_notify()));
+
 
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
@@ -171,6 +173,16 @@ namespace holovibes
 		/* ------------ */
 		#pragma region Notify
 		void MainWindow::notify()
+		{
+			// We can't update gui values from a different thread
+			// so we pass it to the right on using a signal
+			// (This whole notify thing needs to be cleaned up / removed)
+			if (QThread::currentThread() != this->thread())
+				emit request_notify();
+			else
+				on_notify();
+		}
+		void MainWindow::on_notify()
 		{
 			const bool is_direct = is_direct_mode();
 			if (compute_desc_.compute_mode.load() == Computation::Stop)

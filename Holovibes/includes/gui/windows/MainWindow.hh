@@ -82,6 +82,7 @@ namespace holovibes
 			/* ---------- */
 			#pragma region Public Slots
 		public slots:
+			void on_notify();
 			/*! \brief Resize windows if one layout is toggled. */
 			void layout_toggled();
 			void configure_holovibes();
@@ -221,6 +222,8 @@ namespace holovibes
 			void flipTexture();
 			#pragma endregion
 			/* ---------- */
+		signals:
+		   void request_notify();
 			#pragma region Protected / Private Methods
 		protected:
 			virtual void closeEvent(QCloseEvent* event) override;
