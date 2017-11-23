@@ -1340,6 +1340,9 @@ namespace holovibes
 					compute_desc_.average_enabled.exchange(false);
 					
 					set_auto_contrast_cuts();
+					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
+					if (holo)
+						holo->update_slice_transforms();
 					notify();
 				}
 				catch (std::logic_error& e)
