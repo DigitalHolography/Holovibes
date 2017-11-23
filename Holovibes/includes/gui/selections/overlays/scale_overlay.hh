@@ -40,9 +40,16 @@ namespace holovibes
 
 			void setBuffer() override;
 		private:
+			/*! Zone containing the scale bar.
+			Inherited attribute zone_ is not used in scale_overlay because it's a RectFd
+			which would caause the scale bar to always be a multiple of a FdPixel
+			When we are fully zoomed in, the scale bar will then fill the entire screen width.
+			It would also be hard to make it fixed (not rotating) with the frame_descriptor coordinates. */
 			units::RectOpengl scale_zone_;
-			QPixmap pixmap_;
-			QPoint pixmap_position_;
+			//! Image containing the text.
+			QImage text_;
+			//! Position of the image containing the text in opengl coordinates.
+			units::PointOpengl text_position_;
 		};
 	}
 }
