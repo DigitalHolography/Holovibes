@@ -67,9 +67,6 @@ namespace holovibes
 			//! Locking line overlay
 			bool locked_;
 
-			//! Position of the last line locked
-			units::PointFd last_clicked_;
-
 			//! Actual mouse position
 			units::PointFd mouse_position_;
 

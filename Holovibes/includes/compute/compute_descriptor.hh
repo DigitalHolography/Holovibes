@@ -289,24 +289,18 @@ namespace holovibes
 
 		//! is p average enabled (average image over multiple depth index)
 		std::atomic<bool>			p_accu_enabled;
-		//! minimum p value for p average
-		std::atomic<ushort>			p_accu_min_level;
-		//! maximum p value for p average
-		std::atomic<ushort>			p_accu_max_level;
+		//! difference between p min and p max
+		std::atomic<short>			p_acc_level;
 		
 		//! is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
-		//! x index of first selected column
-		std::atomic<ushort>			x_accu_min_level;
-		//! x index of second selected column
-		std::atomic<ushort>			x_accu_max_level;
+		//! difference between x min and x max
+		std::atomic<short>			x_acc_level;
 
 		//! is y average in view XZ enabled (average of lines between both selected lines)
 		std::atomic<bool>			y_accu_enabled;
-		//! y index of first selected line
-		std::atomic<ushort>			y_accu_min_level;
-		//! y index of second selected line
-		std::atomic<ushort>			y_accu_max_level;
+		//! difference between y min and y max
+		std::atomic<short>			y_acc_level;
 
 		//! Composite images
 		//! \{
