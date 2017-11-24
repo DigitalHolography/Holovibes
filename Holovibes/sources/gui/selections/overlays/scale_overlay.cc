@@ -93,22 +93,32 @@ namespace holovibes
 			const float significand = size * pow(10, -exponent);
 			std::stringstream ss;
 			ss << std::fixed << std::setprecision(1) << significand;
-			ss << " &#8339;10<sup>" << exponent << "</sup>m";
+			ss << "&#8339;10<sup>" << exponent << "</sup>m";
 
 			QTextDocument td;
 			// Text
 			QString text(ss.str().c_str());
 			td.setHtml(text);
+
 			// Font
 			const int base_font_size = 10;
 			td.setDefaultFont(QFont("Arial", base_font_size));
-			const int adjusted_font_size = base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
-			td.setDefaultFont(QFont("Arial", adjusted_font_size));
+			const int adjusted_font_size = 1.3 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
+			td.setDefaultFont(QFont("Arial", adjusted_font_size, QFont::ExtraBold));
+
+			// Black outline
+			QTextCharFormat format;
+			format.setTextOutline(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+			QTextCursor cursor(&td);
+			cursor.select(QTextCursor::Document);
+			cursor.mergeCharFormat(format);
+
 			// Pixel map
 			QPixmap pixmap = QPixmap(td.size().toSize());
 			pixmap.fill(Qt::transparent);
 			QPainter pixmap_painter(&pixmap);
 			td.drawContents(&pixmap_painter);
+
 			// Position
 			units::WindowPixel x_pos = scale_zone_.center().x();
 			units::WindowPixel y_pos = topLeft.y();
