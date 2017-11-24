@@ -125,17 +125,13 @@ namespace holovibes
 			camera::FrameDescriptor fd = output_.get_frame_desc();
 
 			fd.depth = sizeof(float);
-			gpu_3d_vision = new Queue(fd, compute_desc_.nsamples.load(), "3DQueue");
+			gpu_3d_vision.reset(new Queue(fd, compute_desc_.nsamples.load(), "3DQueue"));
 			request_3d_vision_.exchange(false);
 		}
 
 		if (request_delete_3d_vision_.load())
 		{
-			if (gpu_3d_vision)
-			{
-				delete gpu_3d_vision;
-				gpu_3d_vision = nullptr;
-			}
+			gpu_3d_vision.reset(nullptr);
 			request_delete_3d_vision_.exchange(false);
 		}
 
@@ -504,7 +500,7 @@ namespace holovibes
 				&ICompute::queue_enqueue,
 				this,
 				gpu_input_frame_ptr_,
-				gpu_stft_queue_));
+				gpu_stft_queue_.get()));
 			fn_vect_.push_back(std::bind(
 				&ICompute::stft_handler,
 				this,
@@ -777,12 +773,12 @@ namespace holovibes
 		// For the XY view, this happens in stabilization.cc,
 		// as the average is used in the intermediate computations
 		if (compute_desc_.img_acc_slice_yz_enabled.load())
-			enqueue_buffer(gpu_img_acc_yz_,
+			enqueue_buffer(gpu_img_acc_yz_.get(),
 				static_cast<float*>(gpu_float_cut_yz_),
 				compute_desc_.img_acc_slice_yz_level.load(),
 				input_fd.height * compute_desc_.nsamples);
 		if (compute_desc_.img_acc_slice_xz_enabled.load())
-			enqueue_buffer(gpu_img_acc_xz_,
+			enqueue_buffer(gpu_img_acc_xz_.get(),
 				static_cast<float*>(gpu_float_cut_xz_),
 				compute_desc_.img_acc_slice_xz_level.load(),
 				input_fd.width * compute_desc_.nsamples);

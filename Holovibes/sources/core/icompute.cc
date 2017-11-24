@@ -159,7 +159,7 @@ namespace holovibes
 		{
 			auto fd_yz = new_fd;
 			fd_yz.width = compute_desc_.nsamples;
-			gpu_img_acc_yz_ = new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level.load(), "AccumulationQueueYZ");
+			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level.load(), "AccumulationQueueYZ"));
 			if (!gpu_img_acc_yz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
@@ -167,7 +167,7 @@ namespace holovibes
 		{
 			auto fd_xz = new_fd;
 			fd_xz.height = compute_desc_.nsamples;
-			gpu_img_acc_xz_ = new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level.load(), "AccumulationQueueXZ");
+			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level.load(), "AccumulationQueueXZ"));
 			if (!gpu_img_acc_xz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
@@ -181,7 +181,7 @@ namespace holovibes
 
 			camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 			new_fd2.depth = 8.f;
-			gpu_stft_queue_ = new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
+			gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue"));
 		}
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
@@ -236,19 +236,6 @@ namespace holovibes
 
 		/* gpu_kernel_buffer */
 		cudaFree(gpu_kernel_buffer_);
-
-		/* gpu_img_acc */
-		delete gpu_img_acc_yz_;
-		delete gpu_img_acc_xz_;
-
-		/* gpu_stft_queue */
-		gpu_stft_slice_queue_xz.reset(nullptr);
-		gpu_stft_slice_queue_yz.reset(nullptr);
-
-		delete gpu_stft_queue_;
-
-		/* gpu_take_ref_queue */
-		delete gpu_ref_diff_queue_;
 
 		/* gpu_filter2d_buffer */
 		cudaFree(gpu_filter2d_buffer);
@@ -321,11 +308,7 @@ namespace holovibes
 			}
 		}
 
-		if (gpu_stft_queue_ != nullptr)
-		{
-			delete gpu_stft_queue_;
-			gpu_stft_queue_ = nullptr;
-		}
+		gpu_stft_queue_.reset(nullptr);
 
 		if (compute_desc_.stft_enabled.load())
 		{
@@ -335,7 +318,7 @@ namespace holovibes
 			{
 				if (compute_desc_.stft_view_enabled.load())
 					update_stft_slice_queue();
-				gpu_stft_queue_ = new Queue(new_fd, n, "STFTQueue");
+				gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 
 			}
 			catch (std::exception&)
@@ -495,7 +478,7 @@ namespace holovibes
 	}
 
 	void ICompute::update_acc_parameter(
-		Queue*& queue,
+		std::unique_ptr<Queue>& queue,
 		std::atomic<bool>& enabled,
 		std::atomic<uint>& queue_length, 
 		FrameDescriptor new_fd,
@@ -503,14 +486,13 @@ namespace holovibes
 	{
 		if (enabled && queue && queue->get_max_elts() == queue_length)
 			return;
-		delete queue;
 		queue = nullptr;
 		if (enabled)
 		{
 			new_fd.depth = depth;
 			try
 			{
-				queue = new Queue(new_fd, queue_length, "Accumulation");
+				queue.reset(new Queue(new_fd, queue_length, "Accumulation"));
 				if (!queue)
 					std::cout << "error: couldn't allocate queue" << std::endl;
 			}
@@ -518,7 +500,7 @@ namespace holovibes
 			{
 				queue = nullptr;
 				enabled.exchange(false);
-				enabled.exchange(1);
+				queue_length.exchange(1);
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
@@ -528,10 +510,8 @@ namespace holovibes
 	{
 		if (gpu_ref_diff_queue_ != nullptr)
 		{
-			delete  gpu_ref_diff_queue_;
-			gpu_ref_diff_queue_ = nullptr;
+			gpu_ref_diff_queue_.reset(nullptr);
 			ref_diff_state_ = ref_state::ENQUEUE;
-
 		}
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
@@ -540,14 +520,12 @@ namespace holovibes
 			new_fd.depth = 8;
 			try
 			{
-				gpu_ref_diff_queue_ = new Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue");
+				gpu_ref_diff_queue_.reset(new Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue"));
 				gpu_ref_diff_queue_->set_display(false);
 			}
 			catch (std::exception&)
 			{
-				gpu_ref_diff_queue_ = nullptr;
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
-
 			}
 		}
 	}
@@ -725,7 +703,7 @@ namespace holovibes
 	{
 		if (ref_diff_state_ == ref_state::ENQUEUE)
 		{
-			queue_enqueue(input, gpu_ref_diff_queue_);
+			queue_enqueue(input, gpu_ref_diff_queue_.get());
 			ref_diff_counter--;
 			if (ref_diff_counter == 0)
 			{
@@ -748,14 +726,14 @@ namespace holovibes
 	{
 		if (ref_diff_state_ == ref_state::ENQUEUE)
 		{
-			queue_enqueue(input, gpu_ref_diff_queue_);
+			queue_enqueue(input, gpu_ref_diff_queue_.get());
 			ref_diff_counter--;
 			if (ref_diff_counter == 0)
 				ref_diff_state_ = ref_state::COMPUTE;
 		}
 		else if (ref_diff_state_ == ref_state::COMPUTE)
 		{
-			queue_enqueue(input, gpu_ref_diff_queue_);
+			queue_enqueue(input, gpu_ref_diff_queue_.get());
 			if (compute_desc_.ref_diff_level.load() > 1)
 				mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
 					, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),

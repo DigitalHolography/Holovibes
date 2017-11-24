@@ -125,7 +125,7 @@ namespace holovibes
 		 * \brief Updates the queues size
 		 */
 		void update_acc_parameter(
-			Queue*& gpu_img_acc,
+			std::unique_ptr<Queue>& gpu_img_acc,
 			std::atomic<bool>& enabled,
 			std::atomic<uint>& queue_length,
 			camera::FrameDescriptor new_fd,
@@ -325,14 +325,14 @@ namespace holovibes
 		uint	frame_count_;
 		af_env	af_env_;
 
-		Queue	*gpu_img_acc_yz_;
-		Queue	*gpu_img_acc_xz_;
-		Queue	*gpu_stft_queue_;
-		Queue	*gpu_3d_vision;
+		std::unique_ptr<Queue>	gpu_img_acc_yz_;
+		std::unique_ptr<Queue>	gpu_img_acc_xz_;
+		std::unique_ptr<Queue>	gpu_stft_queue_;
+		std::unique_ptr<Queue>	gpu_3d_vision;
 		std::unique_ptr<Queue>	gpu_lens_queue_;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_yz;
-		Queue	*gpu_ref_diff_queue_;
+		std::unique_ptr<Queue>	gpu_ref_diff_queue_;
 
 		enum ref_state	ref_diff_state_;
 		cufftComplex	*gpu_filter2d_buffer;
