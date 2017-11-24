@@ -259,8 +259,6 @@ namespace holovibes
 		std::atomic<bool>			shift_corners_enabled;
 		//! enables the contract for the slice xy, yz and xz
 		std::atomic<bool>			contrast_enabled;
-		//! is stft enabled. If not, it does a DFT. TODO: remove this parameter and always use stft instead of DFT.
-		std::atomic<bool>			stft_enabled;
 		//! enable the limitation of the stft to the zoomed area.
 		std::atomic<bool>			croped_stft;
 		std::atomic<bool>			vibrometry_enabled;

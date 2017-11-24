@@ -30,10 +30,8 @@ void fft2_lens(cuComplex			*lens,
  */
 void fft_2(cuComplex			*input,
 		const cuComplex			*lens,
-		const cufftHandle		plan1d,
 		const cufftHandle		plan2d,
 		const camera::FrameDescriptor&	fd,
 		const uint				nframes,
 		const uint				p,
-		const uint				q,
 		cudaStream_t			stream = 0);

@@ -12,6 +12,7 @@
 
 #include <cufft.h>
 #include <cassert>
+#include <sstream>
 
 #include "icompute.hh"
 #include "fft1.cuh"
@@ -57,13 +58,11 @@ namespace holovibes
 		gpu_ref_diff_queue_(nullptr),
 		gpu_filter2d_buffer(nullptr),
 		gpu_tmp_input_(nullptr),
-		gpu_cropped_stft_buf_(nullptr),
-		plan3d_(0),
+		gpu_cropped_stft_buf_(),
 		plan2d_(0),
-		plan1d_(0),
+		plan1d_stft_(0),
 		unwrap_1d_requested_(false),
 		unwrap_2d_requested_(false),
-		plan1d_stft_(0),
 		autofocus_requested_(false),
 		autocontrast_requested_(false),
 		refresh_requested_(false),
@@ -90,36 +89,14 @@ namespace holovibes
 	{
 		int err = 0;
 
-		if (desc.compute_mode.load() == Computation::Direct)
-			input_length_ = 1;
-		else
-			input_length_ = desc.nsamples.load();
-
 		if (cudaMalloc(&gpu_lens_, input_.get_pixels() * sizeof(cufftComplex)) != cudaSuccess)
 			err++;
-
-		if (compute_desc_.algorithm.load() == Algorithm::FFT1
-			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
-			cufftPlan3d(
-				&plan3d_,
-				input_length_,                  // NX
-				input_.get_frame_desc().width,  // NY
-				input_.get_frame_desc().height, // NZ
-				CUFFT_C2C);
 
 		cufftPlan2d(
 			&plan2d_,
 			input_.get_frame_desc().height,
 			input_.get_frame_desc().width,
 			CUFFT_C2C);
-
-		/* CUFFT plan1d temporal*/
-		int inembed[1] = { static_cast<int>(input_length_) };
-
-		cufftPlanMany(&plan1d_, 1, inembed,
-			inembed, input_.get_pixels(), 1,
-			inembed, input_.get_pixels(), 1,
-			CUFFT_C2C, input_.get_pixels());
 
 		if (compute_desc_.convolution_enabled.load()
 			|| compute_desc_.flowgraphy_enabled.load())
@@ -174,23 +151,33 @@ namespace holovibes
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
 
-		if (compute_desc_.stft_enabled.load())
+		int inembed[1] = { compute_desc_.nsamples.load() };
+
+		int zone_size = input_.get_pixels();
+		if (compute_desc_.croped_stft)
+			zone_size = compute_desc_.getZoomedZone().area();
+
+		cufftPlanMany(&plan1d_stft_, 1, inembed,
+			inembed, zone_size, 1,
+			inembed, zone_size, 1,
+			CUFFT_C2C, zone_size);
+
+		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
+		new_fd2.depth = 8.f;
+		gpu_stft_queue_ = new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
+
+		std::stringstream ss;
+		ss << "(X1,Y1,X2,Y2) = (";
+		if (compute_desc_.croped_stft)
 		{
-			int zone_size = input_.get_pixels();
-			if (compute_desc_.croped_stft)
-				zone_size = compute_desc_.getZoomedZone().area();
-
-			cufftPlanMany(&plan1d_stft_, 1, inembed,
-				inembed, zone_size, 1,
-				inembed, zone_size, 1,
-				CUFFT_C2C, zone_size);
-
-			camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
-			new_fd2.depth = 8.f;
-			gpu_stft_queue_ = new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue");
-			if (compute_desc_.croped_stft)
-				cudaMalloc(&gpu_cropped_stft_buf_, compute_desc_.getZoomedZone().area() * compute_desc_.nsamples.load() * sizeof(cuComplex));
+			auto zone = compute_desc_.getZoomedZone();
+			gpu_cropped_stft_buf_.resize(zone.area() * compute_desc_.nsamples.load());
+			ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
 		}
+		else
+			ss << "0,0," << new_fd.width - 1 << "," << new_fd.height - 1 << ")";
+
+		InfoManager::get_manager()->insert_info(InfoManager::STFT_ZONE, "STFT Zone", ss.str());
 
 		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 		{
@@ -213,14 +200,8 @@ namespace holovibes
 
 	ICompute::~ICompute()
 	{
-		/* CUFFT plan1d */
-		cufftDestroy(plan1d_);
-
 		/* CUFFT plan2d */
 		cufftDestroy(plan2d_);
-
-		/* CUFFT plan3d */
-		cufftDestroy(plan3d_);
 
 		/* CUFFT plan1d for STFT */
 		cufftDestroy(plan1d_stft_);
@@ -254,7 +235,6 @@ namespace holovibes
 		gpu_stft_slice_queue_yz.reset(nullptr);
 
 		delete gpu_stft_queue_;
-		cudaFree(gpu_cropped_stft_buf_);
 
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
@@ -268,45 +248,14 @@ namespace holovibes
 		if (gpu_ushort_cut_xz_)	cudaFree(gpu_ushort_cut_xz_);
 		if (gpu_ushort_cut_yz_)	cudaFree(gpu_ushort_cut_yz_);
 
-		gui::InfoManager::get_manager()->remove_info("Rendering Fps");
+		InfoManager::get_manager()->remove_info("Rendering Fps");
+		InfoManager::get_manager()->remove_info("STFT Zone");
 	}
 
 	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_.exchange(false);
-
-		/* if stft, we don't need to allocate more than one frame */
-		if (!compute_desc_.stft_enabled.load())
-			input_length_ = n;
-		else
-			input_length_ = 1;
-
-
-		/* CUFFT plan3d realloc */
-		cudaDestroy<cufftResult>(&plan3d_) ? ++err_count : 0;
-
-		if (compute_desc_.algorithm.load() == Algorithm::FFT1
-			|| compute_desc_.algorithm.load() == Algorithm::FFT2)
-			cufftPlan3d(
-				&plan3d_,
-				input_length_,                  // NX
-				input_.get_frame_desc().width,  // NY
-				input_.get_frame_desc().height, // NZ
-				CUFFT_C2C) ? ++err_count : 0;
-
-		/* CUFFT plan1d realloc */
-		cudaDestroy<cufftResult>(&plan1d_) ? ++err_count : 0;
-
-		/* gpu_stft_buffer */
-		//cudaDestroy<cudaError_t>(&gpu_stft_buffer_) ? ++err_count : 0;
-
-		int inembed[1] = { static_cast<int>(input_length_) };
-
-		cufftPlanMany(&plan1d_, 1, inembed,
-			inembed, input_.get_pixels(), 1,
-			inembed, input_.get_pixels(), 1,
-			CUFFT_C2C, input_.get_pixels());
 
 		{
 			std::lock_guard<std::mutex> Guard(stftGuard);
@@ -316,22 +265,19 @@ namespace holovibes
 				gpu_stft_buffer_ = nullptr;
 			}
 			cudaDestroy<cufftResult>(&plan1d_stft_) ? ++err_count : 0;
-			if (compute_desc_.stft_enabled.load())
-			{
-				/* CUFFT plan1d realloc */
-				int inembed_stft[1] = { n };
+			/* CUFFT plan1d realloc */
+			int inembed_stft[1] = { n };
 
-				int zone_size = input_.get_pixels();
-				if (compute_desc_.croped_stft)
-					zone_size = compute_desc_.getZoomedZone().area();
+			int zone_size = input_.get_pixels();
+			if (compute_desc_.croped_stft)
+				zone_size = compute_desc_.getZoomedZone().area();
 
-				cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
-					inembed_stft, zone_size, 1,
-					inembed_stft, zone_size, 1,
-					CUFFT_C2C, zone_size);
-				if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n) != CUDA_SUCCESS)
-					err_count++;
-			}
+			cufftPlanMany(&plan1d_stft_, 1, inembed_stft,
+				inembed_stft, zone_size, 1,
+				inembed_stft, zone_size, 1,
+				CUFFT_C2C, zone_size);
+			if (cudaMalloc(&gpu_stft_buffer_, sizeof(cufftComplex) * input_.get_pixels() * n) != CUDA_SUCCESS)
+				err_count++;
 		}
 
 		if (gpu_stft_queue_ != nullptr)
@@ -340,27 +286,27 @@ namespace holovibes
 			gpu_stft_queue_ = nullptr;
 		}
 
-		cudaFree(gpu_cropped_stft_buf_);
 
-		if (compute_desc_.stft_enabled.load())
+		camera::FrameDescriptor new_fd = input_.get_frame_desc();
+		// gpu_stft_queue is a complex queue
+		new_fd.depth = 8;
+		try
 		{
-			camera::FrameDescriptor new_fd = input_.get_frame_desc();
-			new_fd.depth = 8;
-			try
-			{
-				if (compute_desc_.stft_view_enabled.load())
-					update_stft_slice_queue();
-				gpu_stft_queue_ = new Queue(new_fd, n, "STFTQueue");
-				if (compute_desc_.croped_stft.load())
-					cudaMalloc(&gpu_cropped_stft_buf_, compute_desc_.getZoomedZone().area() * n * sizeof(cuComplex));
-			}
-			catch (std::exception&)
-			{
-				gpu_stft_queue_ = nullptr;
-				gpu_stft_slice_queue_xz = nullptr;
-				gpu_stft_slice_queue_yz = nullptr;
-				err_count++;
-			}
+			if (compute_desc_.stft_view_enabled.load())
+				update_stft_slice_queue();
+			gpu_stft_queue_ = new Queue(new_fd, n, "STFTQueue");
+			if (compute_desc_.croped_stft.load())
+				gpu_cropped_stft_buf_.resize(compute_desc_.getZoomedZone().area() * n);
+			else
+				gpu_cropped_stft_buf_.reset();
+			std::cout << std::endl;
+		}
+		catch (std::exception&)
+		{
+			gpu_stft_queue_ = nullptr;
+			gpu_stft_slice_queue_xz = nullptr;
+			gpu_stft_slice_queue_yz = nullptr;
+			err_count++;
 		}
 
 		if (err_count != 0)
@@ -681,8 +627,7 @@ namespace holovibes
 	{
 		assert(output != nullptr);
 
-		if (compute_desc_.stft_enabled.load())
-			output->resize(compute_desc_.nsamples.load());
+		output->resize(compute_desc_.nsamples.load());
 		average_output_ = output;
 
 		average_requested_.exchange(true);
@@ -811,7 +756,7 @@ namespace holovibes
 				b,
 				compute_desc_.croped_stft.load(),
 				compute_desc_.getZoomedZone(),
-				gpu_cropped_stft_buf_,
+				gpu_cropped_stft_buf_.get(),
 				static_cast<cudaStream_t>(0));
 		}
 		else
@@ -832,7 +777,7 @@ namespace holovibes
 				b,
 				compute_desc_.croped_stft.load(),
 				compute_desc_.getZoomedZone(),
-				gpu_cropped_stft_buf_,
+				gpu_cropped_stft_buf_.get(),
 				static_cast<cudaStream_t>(0));
 		}
 		if (compute_desc_.stft_view_enabled.load() && b == true)
@@ -965,31 +910,27 @@ namespace holovibes
 		// Autofocus needs to work on the same images. It will computes on copies.
 		try
 		{
-			af_env_.state = af_state::RUNNING;
-			if (compute_desc_.stft_enabled.load())
-			{
-				// Saving stft parameters
-				af_env_.old_nsamples = compute_desc_.nsamples.load();
-				af_env_.old_p = compute_desc_.pindex.load();
-				af_env_.old_steps = compute_desc_.stft_steps.load();
+			// Saving stft parameters
+			af_env_.old_nsamples = compute_desc_.nsamples.load();
+			af_env_.old_p = compute_desc_.pindex.load();
+			af_env_.old_steps = compute_desc_.stft_steps.load();
 
-				// Setting new parameters for faster autofocus
-				af_env_.nsamples = 2;
-				af_env_.p = 1;
-				compute_desc_.nsamples.exchange(af_env_.nsamples);
-				compute_desc_.pindex.exchange(af_env_.p);
-				update_n_parameter(af_env_.nsamples);
+			// Setting new parameters for faster autofocus
+			af_env_.nsamples = 2;
+			af_env_.p = 1;
+			compute_desc_.nsamples.exchange(af_env_.nsamples);
+			compute_desc_.pindex.exchange(af_env_.p);
+			update_n_parameter(af_env_.nsamples);
 
-				// Setting the steps and the frame_counter in order to call autofocus_caller only
-				// once stft_queue_ is fully updated and stft is computed
-				compute_desc_.stft_steps.exchange(compute_desc_.nsamples);
-				stft_frame_counter = af_env_.nsamples;
+			// Setting the steps and the frame_counter in order to call autofocus_caller only
+			// once stft_queue_ is fully updated and stft is computed
+			compute_desc_.stft_steps.exchange(compute_desc_.nsamples);
+			stft_frame_counter = af_env_.nsamples;
 
-				af_env_.stft_index = af_env_.nsamples - 1;
-				af_env_.state = af_state::COPYING;
+			af_env_.stft_index = af_env_.nsamples - 1;
+			af_env_.state = af_state::COPYING;
 
-				notify_observers();
-			}
+			notify_observers();
 
 			af_env_.gpu_frame_size = sizeof(cufftComplex) * input_.get_pixels();
 			// When stft, we want to save 'nsamples' frame, in order to entirely fill the stft_queue_
@@ -998,16 +939,10 @@ namespace holovibes
 			if (cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size) != cudaSuccess)
 				throw std::exception("Autofocus : cudaMalloc fail");
 
-			// Wait input_length_ images in queue input_, before call make_contiguous_complex
-			//	(case when autofocus called instantly after changing the number of image in non-stft mode)
-			while (input_.get_current_elts() < input_length_)
-				continue;
-
 			// If stft, it saves only one frames in the end of gpu_input_buffer_tmp
 			make_contiguous_complex(
 				input_,
-				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				input_length_);
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(), 1);
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 			/* Compute square af zone. */
@@ -1046,24 +981,16 @@ namespace holovibes
 	{
 		if (af_env_.state == af_state::RUNNING)
 		{
-			if (compute_desc_.stft_enabled.load())
-			{
-				af_env_.stft_index--;
+			af_env_.stft_index--;
 
-				cudaMemcpy(input_buffer,
-					af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-					af_env_.gpu_frame_size,
-					cudaMemcpyDeviceToDevice);
+			cudaMemcpy(input_buffer,
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
+				af_env_.gpu_frame_size,
+				cudaMemcpyDeviceToDevice);
 
-				// Resetting the stft_index just before the call of autofocus_caller
-				if (af_env_.stft_index == 0)
-					af_env_.stft_index = af_env_.nsamples;
-			}
-			else
-				cudaMemcpy(input_buffer,
-					af_env_.gpu_input_buffer_tmp,
-					af_env_.gpu_input_size,
-					cudaMemcpyDeviceToDevice);
+			// Resetting the stft_index just before the call of autofocus_caller
+			if (af_env_.stft_index == 0)
+				af_env_.stft_index = af_env_.nsamples;
 		}
 	}
 	
@@ -1071,7 +998,7 @@ namespace holovibes
 	void ICompute::autofocus_caller(float* input, cudaStream_t stream)
 	{
 		// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updated
-		if (compute_desc_.stft_enabled.load() && af_env_.stft_index != af_env_.nsamples)
+		if (af_env_.stft_index != af_env_.nsamples)
 		{
 			autofocus_reset();
 			std::cout << "Autofocus: shouldn't be called there. You should report this bug." << std::endl;
@@ -1105,13 +1032,11 @@ namespace holovibes
 			if (biggest == af_env_.focus_metric_values.end())
 			{
 				// Restoring old stft parameters
-				if (compute_desc_.stft_enabled.load())
-				{
-					compute_desc_.stft_steps.exchange(af_env_.old_steps);
-					compute_desc_.nsamples.exchange(af_env_.old_nsamples);
-					compute_desc_.pindex.exchange(af_env_.old_p);
-					update_n_parameter(compute_desc_.nsamples.load());
-				}
+				compute_desc_.stft_steps.exchange(af_env_.old_steps);
+				compute_desc_.nsamples.exchange(af_env_.old_nsamples);
+				compute_desc_.pindex.exchange(af_env_.old_p);
+				update_n_parameter(compute_desc_.nsamples.load());
+
 				autofocus_reset();
 				std::cout << "Autofocus: Couldn't find a good value for z" << std::endl;
 				request_refresh();
@@ -1139,13 +1064,10 @@ namespace holovibes
 		if (autofocus_stop_requested_.load() || af_env_.z_iter <= 0)
 		{
 			// Restoring old stft parameters
-			if (compute_desc_.stft_enabled.load())
-			{
-				compute_desc_.stft_steps.exchange(af_env_.old_steps);
-				compute_desc_.nsamples.exchange(af_env_.old_nsamples);
-				compute_desc_.pindex.exchange(af_env_.old_p);
-				update_n_parameter(compute_desc_.nsamples.load());
-			}
+			compute_desc_.stft_steps.exchange(af_env_.old_steps);
+			compute_desc_.nsamples.exchange(af_env_.old_nsamples);
+			compute_desc_.pindex.exchange(af_env_.old_p);
+			update_n_parameter(compute_desc_.nsamples.load());
 
 			compute_desc_.zdistance.exchange(af_env_.af_z);
 			compute_desc_.notify_observers();

@@ -34,7 +34,6 @@ namespace holovibes
 		vibrometry_enabled(false),
 		convolution_enabled(false),
 		flowgraphy_enabled(false),
-		stft_enabled(false),
 		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
@@ -109,7 +108,6 @@ namespace holovibes
 		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
 		convolution_enabled.exchange(cd.convolution_enabled.load());
 		flowgraphy_enabled.exchange(cd.flowgraphy_enabled.load());
-		stft_enabled.exchange(cd.stft_enabled.load());
 		filter_2d_enabled.exchange(cd.filter_2d_enabled.load());
 		average_enabled.exchange(cd.average_enabled.load());
 		contrast_min_slice_xy.exchange(cd.contrast_min_slice_xy.load());

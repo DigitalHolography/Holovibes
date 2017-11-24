@@ -29,6 +29,7 @@
 # include "observable.hh"
 # include "gpib_controller.hh"
 # include "frame_desc.hh"
+# include "cuda_tools\unique_ptr.hh"
 
 namespace holovibes
 {
@@ -301,19 +302,16 @@ namespace holovibes
 		uint			gpu_float_buffer_size_;
 		cufftComplex	*gpu_stft_buffer_;
 		//! Buffer containing the zone that limits the stft computations
-		cufftComplex	*gpu_cropped_stft_buf_;
+		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;
-		cufftHandle		plan3d_;
 		cufftHandle		plan2d_;
-		cufftHandle		plan1d_;
 		cufftHandle		plan1d_stft_;
 		float			*gpu_kernel_buffer_;
 		uint			gpu_special_queue_start_index;
 		uint			gpu_special_queue_max_index;
 
-		uint	input_length_;
 		Queue	*fqueue_;
 		uint	curr_elt_stft_;
 

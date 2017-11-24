@@ -168,31 +168,9 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_26">
            <item>
-            <widget class="QCheckBox" name="STFTCheckBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>STFT</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QLabel" name="label">
              <property name="text">
-              <string>steps</string>
+              <string>STFT steps</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -216,6 +194,13 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="CropStftCheckBox">
+           <property name="text">
+            <string>Crop STFT</string>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_27">
@@ -515,13 +500,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="CropStftCheckBox">
-           <property name="text">
-            <string>Crop Stft</string>
-           </property>
-          </widget>
          </item>
          <item>
           <spacer name="verticalSpacer_5">
@@ -3242,8 +3220,6 @@ p, li { white-space: pre-wrap; }
  <tabstops>
   <tabstop>InputBrowseToolButton</tabstop>
   <tabstop>HologramRadioButton</tabstop>
-  <tabstop>STFTCheckBox</tabstop>
-  <tabstop>STFTStepsSpinBox</tabstop>
   <tabstop>TakeRefPushButton</tabstop>
   <tabstop>SlidingRefPushButton</tabstop>
   <tabstop>CancelRefPushButton</tabstop>
@@ -3817,8 +3793,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>251</y>
+     <x>186</x>
+     <y>277</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3833,8 +3809,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_wavelength(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>280</y>
+     <x>186</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3849,8 +3825,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>309</y>
+     <x>186</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3865,8 +3841,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_algorithm(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>193</y>
+     <x>186</x>
+     <y>219</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3993,8 +3969,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_step(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>338</y>
+     <x>186</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -4515,22 +4491,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_stft(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>65</x>
-     <y>93</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>226</x>
-     <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>TakeRefPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -4569,8 +4529,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>142</y>
+     <x>83</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4585,8 +4545,8 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_filter2D()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>142</y>
+     <x>186</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4601,8 +4561,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>125</y>
+     <x>153</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4729,8 +4689,8 @@ p, li { white-space: pre-wrap; }
    <slot>setPhase()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>212</y>
+     <x>186</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -5273,8 +5233,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_crop_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>384</y>
+     <x>110</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>

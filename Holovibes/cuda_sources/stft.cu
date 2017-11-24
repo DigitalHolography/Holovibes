@@ -104,22 +104,6 @@ static void zone_uncopy(cuComplex		*src,
 	kernel_zone_uncopy<<<blocks, threads, 0, 0>>> (src, dst, nsamples, width, height, zone);
 }
 
-static void compare(cuComplex *tmp1, cuComplex *tmp2, int size1, int size2)
-{
-	cuComplex *src = (cuComplex *)malloc(size1 * sizeof(cuComplex *));
-	cudaMemcpy(src, tmp1, size1 * sizeof(cuComplex *), cudaMemcpyDeviceToHost);
-	cuComplex *dst = (cuComplex *)malloc(size2 * sizeof(cuComplex *));
-	cudaMemcpy(dst, tmp2, size2 * sizeof(cuComplex *), cudaMemcpyDeviceToHost);
-
-	for (auto i = 0; i < 1000; i++)
-	{
-		if (src[i].x == dst[i].x && src[i].y == dst[i].y)
-			std::cout << "yes";
-		else
-			std::cout << "no";
-	}
-}
-
 // Short-Time Fourier Transform
 void stft(cuComplex			*input,
 		cuComplex			*gpu_queue,
