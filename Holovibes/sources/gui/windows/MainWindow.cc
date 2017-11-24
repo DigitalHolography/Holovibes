@@ -485,6 +485,10 @@ namespace holovibes
 
 				"Developers:\n\n"
 
+				"Eloi Charpentier\n"
+				"Julien Gautier\n"
+				"Florian Lapeyre\n"
+
 				"Thomas Jarrossay\n"
 				"Alexandre Bartz\n"
 
