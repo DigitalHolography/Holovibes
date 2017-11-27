@@ -15,44 +15,6 @@
 
 using camera::FrameDescriptor;
 using holovibes::Queue;
-texture<unsigned short, cudaTextureType2D, cudaReadModeNormalizedFloat> shorttex;
-texture<unsigned char, cudaTextureType2D, cudaReadModeNormalizedFloat> chartex;
-
-static __global__
-void kernel_bilinear_tex_short_interpolation(unsigned short *__restrict__ output,
-									const int M1,
-									const int M2,
-									const float ratio)
-{
-	const int index = threadIdx.x + blockDim.x * blockIdx.x;
-
-	const int i = index % M1;
-	const int j = index / M1;
-
-	if (i < M1 && j < M2)
-	{
-		float val = tex2D(shorttex, i / ratio + 0.5, j / ratio + 0.5);
-		output[index] = val;
-	}
-}
-
-static __global__
-void kernel_bilinear_tex_char_interpolation(unsigned char *__restrict__ output,
-									const int M1,
-									const int M2,
-									const float ratio)
-{
-	const int index = threadIdx.x + blockDim.x * blockIdx.x;
-
-	const int i = index % M1;
-	const int j = index / M1;
-
-	if (i < M1 && j < M2)
-	{
-		output[index] = tex2D(chartex, i / ratio + 0.5, j / ratio + 0.5);
-	}
-}
-
 
 void make_sqrt_vect(float			*out,
 					const ushort	n,
