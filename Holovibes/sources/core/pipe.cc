@@ -178,7 +178,6 @@ namespace holovibes
 			make_contiguous_complex,
 			std::ref(input_),
 			gpu_input_buffer_,
-			1,
 			static_cast<cudaStream_t>(0)));
 		gpu_input_frame_ptr_ = gpu_input_buffer_;
 		fn_vect_.push_back(std::bind(
@@ -310,7 +309,6 @@ namespace holovibes
 				make_contiguous_complex,
 				std::ref(input_),
 				gpu_input_buffer_,
-				1,
 				static_cast<cudaStream_t>(0)));
 		else if (af_env_.state == af_state::COPYING)
 		{
@@ -319,7 +317,6 @@ namespace holovibes
 				make_contiguous_complex,
 				std::ref(input_),
 				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(),
-				1,
 				static_cast<cudaStream_t>(0)));
 			if (af_env_.stft_index == 0)
 			{
@@ -926,34 +923,48 @@ namespace holovibes
 					if (stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
 						break;
 				}
-				if (stft_frame_counter == compute_desc_.stft_steps.load())
+				if (compute_desc_.compute_mode == Hologram)
+				{
+					if (stft_frame_counter == compute_desc_.stft_steps.load())
+					{
+						if (!output_.enqueue(
+							get_enqueue_buffer(),
+							cudaMemcpyDeviceToDevice))
+						{
+							input_.dequeue();
+							break;
+						}
+						if (compute_desc_.img_type == ImgType::Complex && compute_desc_.stft_view_enabled.load())
+						{
+							gpu_stft_slice_queue_xz->enqueue(
+								gpu_float_cut_xz_,
+								cudaMemcpyDeviceToDevice);
+							gpu_stft_slice_queue_yz->enqueue(
+								gpu_float_cut_yz_,
+								cudaMemcpyDeviceToDevice);
+						}
+						else if (compute_desc_.stft_view_enabled.load())
+						{
+							gpu_stft_slice_queue_xz->enqueue(
+								gpu_ushort_cut_xz_,
+								cudaMemcpyDeviceToDevice);
+							gpu_stft_slice_queue_yz->enqueue(
+								gpu_ushort_cut_yz_,
+								cudaMemcpyDeviceToDevice);
+						}
+					}
+				}
+				else
 				{
 					if (!output_.enqueue(
-						get_enqueue_buffer(),
+						input_.get_start(),
 						cudaMemcpyDeviceToDevice))
 					{
 						input_.dequeue();
 						break;
 					}
-					if (compute_desc_.img_type == ImgType::Complex && compute_desc_.stft_view_enabled.load())
-					{
-						gpu_stft_slice_queue_xz->enqueue(
-							gpu_float_cut_xz_,
-							cudaMemcpyDeviceToDevice);
-						gpu_stft_slice_queue_yz->enqueue(
-							gpu_float_cut_yz_,
-							cudaMemcpyDeviceToDevice);
-					}
-					else if (compute_desc_.stft_view_enabled.load())
-					{
-						gpu_stft_slice_queue_xz->enqueue(
-							gpu_ushort_cut_xz_,
-							cudaMemcpyDeviceToDevice);
-						gpu_stft_slice_queue_yz->enqueue(
-							gpu_ushort_cut_yz_,
-							cudaMemcpyDeviceToDevice);
-					}
 				}
+
 				input_.dequeue();
 				if (refresh_requested_.load())
 					refresh();

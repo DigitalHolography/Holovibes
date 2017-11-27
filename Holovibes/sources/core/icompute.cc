@@ -939,10 +939,10 @@ namespace holovibes
 			if (cudaMalloc(&af_env_.gpu_input_buffer_tmp, af_env_.gpu_input_size) != cudaSuccess)
 				throw std::exception("Autofocus : cudaMalloc fail");
 
-			// If stft, it saves only one frames in the end of gpu_input_buffer_tmp
+			// It saves only one frames in the end of gpu_input_buffer_tmp
 			make_contiguous_complex(
 				input_,
-				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels(), 1);
+				af_env_.gpu_input_buffer_tmp + af_env_.stft_index * input_.get_pixels());
 
 			compute_desc_.autofocusZone(af_env_.zone, AccessMode::Get);
 			/* Compute square af zone. */
