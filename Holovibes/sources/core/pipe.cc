@@ -1016,7 +1016,7 @@ namespace holovibes
 					if (stft_frame_counter != compute_desc_.stft_steps.load() && stft_handle)
 						break;
 				}
-				if (compute_desc_.stft_enabled.load())
+				if (compute_desc_.compute_mode == Hologram && compute_desc_.stft_enabled.load())
 				{
 					if (stft_frame_counter == compute_desc_.stft_steps.load())
 					{
