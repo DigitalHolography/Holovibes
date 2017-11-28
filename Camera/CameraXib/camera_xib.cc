@@ -24,7 +24,7 @@ namespace camera
     : Camera("xiq.ini")
     , device_(nullptr)
   {
-    name_ = "XIB";
+    name_ = "xiB-64";
 
 	DWORD devices = 0;
 	auto res = xiGetNumberDevices(&devices);
@@ -93,18 +93,18 @@ namespace camera
     gain_ = 0.f;
 
     downsampling_rate_ = 1;
-    downsampling_type_ = XI_BINNING;
+    downsampling_type_ = XI_SKIPPING;
 
     img_format_ = XI_RAW8;
 
     buffer_policy_ = XI_BP_UNSAFE;
 
-    roi_x_ = 0;
-    roi_y_ = 0;
+    roi_x_ = 1024;
+    roi_y_ = 512;
     roi_width_ = 2048;
     roi_height_ = 2048;
 
-	exposure_time_ = 0.0166666666666667f; // 1 / 60;
+	exposure_time_ = 0;	// free run
   }
 
   void CameraXib::load_ini_params()
@@ -188,7 +188,10 @@ namespace camera
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
-    status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+	if (exposure_time_)
+		status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+	else
+		status |= xiSetParamFloat(device_, XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FREE_RUN);
 
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
 

@@ -3097,7 +3097,7 @@ p, li { white-space: pre-wrap; }
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>XIMEA xiB</string>
+    <string>XIMEA xiB-64</string>
    </property>
   </action>
   <action name="actionSettings">
