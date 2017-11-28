@@ -51,6 +51,9 @@ namespace camera
 
     float gain_; //!< Gain in dB.
 
+	static const int real_width_ = 4096;
+	static const int real_height_ = 3072;
+
     /*!
      * * 1: 1x1 sensor pixel  = 1 image pixel
      * * 2: 2x2 sensor pixels = 1 image pixel

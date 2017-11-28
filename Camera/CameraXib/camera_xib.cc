@@ -83,8 +83,8 @@ namespace camera
   void CameraXib::load_default_params()
   {
     /* Fill the frame descriptor. */
-    desc_.width = 2048;
-    desc_.height = 2048;
+    desc_.width = real_width_;
+    desc_.height = real_height_;
     pixel_size_ = 5.5f;
     desc_.depth = 1;
     desc_.byteEndian = Endianness::BigEndian;
@@ -102,7 +102,7 @@ namespace camera
     roi_x_ = 1024;
     roi_y_ = 512;
     roi_width_ = 2048;
-    roi_height_ = 2048;
+	roi_height_ = 2048;
 
 	exposure_time_ = 0;	// free run
   }
@@ -184,6 +184,7 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
     status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
+	std::cout << roi_width_ << std::endl;
     status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
