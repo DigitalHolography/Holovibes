@@ -83,6 +83,7 @@
         copy /Y "$(SolutionLibDir)\ixon\atmcd64d.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+        copy /Y "$(SolutionLibDir)\ximea\xiapi64.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
       copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"
@@ -132,6 +133,7 @@
         copy /Y "$(SolutionLibDir)\ixon\atmcd64d.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\avt\FGCamera.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ximea\m3apiX64.dll" "$(TargetDir)"
+        copy /Y "$(SolutionLibDir)\ximea\xiapi64.dll" "$(TargetDir)"
         copy /Y "$(SolutionLibDir)\ids\uEye_api_64.dll" "$(TargetDir)"
 
       copy /Y "$(ProjectDir)\adimec.ini" "$(TargetDir)"

@@ -998,6 +998,11 @@ namespace holovibes
 			change_camera(CameraKind::xiQ);
 		}
 
+		void MainWindow::camera_xib()
+		{
+			change_camera(CameraKind::xiB);
+		}
+
 		void MainWindow::camera_photon_focus()
 		{
 			change_camera(CameraKind::PhotonFocus);
