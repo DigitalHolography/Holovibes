@@ -489,9 +489,10 @@ namespace holovibes
 						static_cast<cudaStream_t>(0)));
 				}
 			}
-			fn_vect_.push_back([=]() {
-				enqueue_lens(gpu_lens_queue_.get(), gpu_lens_, input_fd);
-			});
+			if (compute_desc_.gpu_lens_display_enabled)
+				fn_vect_.push_back([=]() {
+					enqueue_lens(gpu_lens_queue_.get(), gpu_lens_, input_fd);
+				});
 		}
 		// STFT Checkbox
 		if (compute_desc_.stft_enabled.load())

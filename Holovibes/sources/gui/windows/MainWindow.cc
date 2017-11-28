@@ -1559,6 +1559,8 @@ namespace holovibes
 			{
 				lens_window = nullptr;
 			}
+			compute_desc_.gpu_lens_display_enabled = value;
+			pipe_refresh();
 		}
 
 		void MainWindow::set_p_accu()
