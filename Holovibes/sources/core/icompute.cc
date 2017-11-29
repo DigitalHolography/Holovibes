@@ -789,41 +789,6 @@ namespace holovibes
 		}
 	}
 
-	void ICompute::average_stft_caller(
-		cufftComplex* stft_buffer,
-		const unsigned int width,
-		const unsigned int height,
-		const unsigned int width_roi,
-		const unsigned int height_roi,
-		units::RectFd& signal_zone,
-		units::RectFd& noise_zone,
-		const unsigned int nsamples,
-		cudaStream_t stream)
-	{
-		cufftComplex*   cbuf;
-		float*          fbuf;
-
-		if (cudaMalloc<cufftComplex>(&cbuf, width * height * sizeof(cufftComplex)) != CUDA_SUCCESS)
-		{
-			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
-			return;
-		}
-		if (cudaMalloc<float>(&fbuf, width * height * sizeof(float)) != CUDA_SUCCESS)
-		{
-			cudaFree(cbuf);
-			std::cout << "[ERROR] Couldn't cudaMalloc average output" << std::endl;
-			return;
-		}
-
-		for (unsigned i = 0; i < nsamples; ++i)
-		{
-			(*average_output_)[i] = (make_average_stft_plot(cbuf, fbuf, stft_buffer, width, height, width_roi, height_roi, signal_zone, noise_zone, i, nsamples, stream));
-		}
-
-		cudaFree(cbuf);
-		cudaFree(fbuf);
-	}
-
 	void ICompute::fps_count()
 	{
 		if (++frame_count_ >= 100)

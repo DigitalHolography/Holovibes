@@ -30,34 +30,39 @@ namespace holovibes
 			Contrast(FnVector& fn_vect,
 				float* const& gpu_float_buffer,
 				const uint& gpu_float_buffer_size,
-				void* const& gpu_float_cut_xz,
-				void* const& gpu_float_cut_yz,
+				float* const& gpu_float_cut_xz,
+				float* const& gpu_float_cut_yz,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& output_fd,
 				Queue*& gpu_3d_vision,
 				std::atomic<bool>& request);
 
+			void insert_fft_shift();
+			void insert_log();
 			void insert_contrast();
 
 		private:
+			void insert_main_log();
+			void insert_slice_log();
+
 			void insert_autocontrast();
 			void insert_vision3d_contrast();
 			void insert_main_contrast();
 			void insert_slice_contrast();
 
 			void autocontrast_caller(float *input,
-						const uint			size,
-						const uint			offset,
-						cudaStream_t		stream = 0);
+				const uint			size,
+				const uint			offset,
+				cudaStream_t		stream = 0);
 
 			/// The whole image for this frame
 			float* const&					gpu_float_buffer_;
 			/// Size of the gpu_float_buffer (size of a frame)
 			const uint&						gpu_float_buffer_size_;
 			/// The whole image for this frame in XZ
-			void* const&					gpu_float_cut_xz_;
+			float* const&					gpu_float_cut_xz_;
 			/// The whole image for this frame in YZ
-			void* const&					gpu_float_cut_yz_;
+			float* const&					gpu_float_cut_yz_;
 
 			/// Pipe data
 			/// {

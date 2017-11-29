@@ -237,8 +237,8 @@ namespace holovibes
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		std::mutex		stftGuard;
-		void			*gpu_float_cut_xz_;
-		void			*gpu_float_cut_yz_;
+		float			*gpu_float_cut_xz_;
+		float			*gpu_float_cut_yz_;
 		void			*gpu_ushort_cut_xz_;
 		void			*gpu_ushort_cut_yz_;
 		float			*gpu_float_buffer_;

@@ -561,26 +561,18 @@ namespace holovibes
 		// as the average is used in the intermediate computations
 		if (compute_desc_.img_acc_slice_yz_enabled)
 			enqueue_buffer(gpu_img_acc_yz_,
-				static_cast<float*>(gpu_float_cut_yz_),
+				gpu_float_cut_yz_,
 				compute_desc_.img_acc_slice_yz_level,
 				input_fd.height * compute_desc_.nsamples);
 		if (compute_desc_.img_acc_slice_xz_enabled)
 			enqueue_buffer(gpu_img_acc_xz_,
-				static_cast<float*>(gpu_float_cut_xz_),
+				gpu_float_cut_xz_,
 				compute_desc_.img_acc_slice_xz_level,
 				input_fd.width * compute_desc_.nsamples);
 
 
-		/* [POSTPROCESSING] Everything behind this line uses output_frame_ptr */
 
-		// handling fft shift
-		if (compute_desc_.shift_corners_enabled)
-			fn_vect_.push_back(std::bind(
-				shift_corners,
-				gpu_float_buffer_,
-				gpu_float_buffer_size_ / (sizeof(float) * output_fd.height),
-				output_fd.height,
-				static_cast<cudaStream_t>(0)));
+		contrast_.insert_fft_shift();
 
 		// Handling noise/signal average
 		if (average_requested_)
@@ -616,29 +608,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 		}
 
-		// Handling log
-		if (compute_desc_.log_scale_slice_xy_enabled)
-			fn_vect_.push_back(std::bind(
-				apply_log10,
-				gpu_float_buffer_,
-				gpu_float_buffer_size_ / sizeof(float),
-				static_cast<cudaStream_t>(0)));
-		if (compute_desc_.stft_view_enabled)
-		{
-			if (compute_desc_.log_scale_slice_xz_enabled)
-				fn_vect_.push_back(std::bind(
-					apply_log10,
-					static_cast<float *>(gpu_float_cut_xz_),
-					output_fd.width * compute_desc_.nsamples.load(),
-					static_cast<cudaStream_t>(0)));
-			if (compute_desc_.log_scale_slice_yz_enabled)
-				fn_vect_.push_back(std::bind(
-					apply_log10,
-					static_cast<float *>(gpu_float_cut_yz_),
-					output_fd.height * compute_desc_.nsamples.load(),
-					static_cast<cudaStream_t>(0)));
-		}
-
+		contrast_.insert_log();
 		contrast_.insert_contrast();
 		autofocus_.insert_autofocus();
 
@@ -671,13 +641,13 @@ namespace holovibes
 		{
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
-				reinterpret_cast<float *>(gpu_float_cut_xz_),
+				gpu_float_cut_xz_,
 				gpu_ushort_cut_xz_,
 				get_stft_slice_queue(0).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));
 			fn_vect_.push_back(std::bind(
 				float_to_ushort,
-				reinterpret_cast<float *>(gpu_float_cut_yz_),
+				gpu_float_cut_yz_,
 				gpu_ushort_cut_yz_,
 				get_stft_slice_queue(1).get_frame_desc().frame_res(),
 				2.f, static_cast<cudaStream_t>(0)));

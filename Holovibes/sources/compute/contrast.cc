@@ -23,8 +23,8 @@ namespace holovibes
 		Contrast::Contrast(FnVector& fn_vect,
 			float* const& gpu_float_buffer,
 			const uint& gpu_float_buffer_size,
-			void* const& gpu_float_cut_xz,
-			void* const& gpu_float_cut_yz,
+			float* const& gpu_float_cut_xz,
+			float* const& gpu_float_cut_yz,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& output_fd,
 			Queue*& gpu_3d_vision,
@@ -41,6 +41,29 @@ namespace holovibes
 		{
 		}
 
+
+		void Contrast::insert_fft_shift()
+		{
+			if (cd_.shift_corners_enabled)
+			{
+				uint size_x = gpu_float_buffer_size_ / (sizeof(float) * fd_.height);
+				fn_vect_.push_back([=]() {
+					shift_corners(
+						gpu_float_buffer_,
+						size_x,
+						fd_.height);
+				});
+			}
+		}
+
+		void Contrast::insert_log()
+		{
+			if (cd_.log_scale_slice_xy_enabled)
+				insert_main_log();
+			if (cd_.stft_view_enabled)
+				insert_slice_log();
+		}
+
 		void Contrast::insert_contrast()
 		{
 			insert_autocontrast();
@@ -54,6 +77,21 @@ namespace holovibes
 				if (cd_.stft_view_enabled)
 					insert_slice_contrast();
 			}
+		}
+
+		void Contrast::insert_main_log()
+		{
+			uint size = gpu_float_buffer_size_ / sizeof(float);
+			fn_vect_.push_back([=]() {apply_log10(gpu_float_buffer_, size);});
+		}
+
+		void Contrast::insert_slice_log()
+		{
+			uint size = fd_.width * cd_.nsamples;
+			if (cd_.log_scale_slice_xz_enabled)
+				fn_vect_.push_back([=]() {apply_log10(gpu_float_cut_xz_, size); });
+			if (cd_.log_scale_slice_yz_enabled)
+				fn_vect_.push_back([=]() {apply_log10(gpu_float_cut_yz_, size); });
 		}
 
 		void Contrast::insert_vision3d_contrast()
@@ -89,7 +127,7 @@ namespace holovibes
 			uint size = fd_.width * cd_.nsamples;
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
-					static_cast<float *>(gpu_float_cut_xz_),
+					gpu_float_cut_xz_,
 					size,
 					65535,
 					cd_.contrast_min_slice_xz,
@@ -97,7 +135,7 @@ namespace holovibes
 			});
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
-					static_cast<float *>(gpu_float_cut_yz_),
+					gpu_float_cut_yz_,
 					size,
 					65535,
 					cd_.contrast_min_slice_yz,
@@ -128,12 +166,12 @@ namespace holovibes
 					{
 						if (cd_.current_window == WindowKind::XZview)
 							autocontrast_caller(
-								static_cast<float *>(gpu_float_cut_xz_),
+								gpu_float_cut_xz_,
 								fd_.width * cd_.nsamples,
 								fd_.width * cd_.cuts_contrast_p_offset);
 						else if (cd_.current_window == WindowKind::YZview)
 							autocontrast_caller(
-								static_cast<float *>(gpu_float_cut_yz_),
+								gpu_float_cut_yz_,
 								fd_.width * cd_.nsamples,
 								fd_.width * cd_.cuts_contrast_p_offset);
 					}
