@@ -141,8 +141,8 @@ namespace camera
       img_format_ = XI_RAW16;
 
     {
-      const int tmp_roi_x = pt.get<int>("xib.roi_x", roi_x_);
-      const int tmp_roi_y = pt.get<int>("xib.roi_y", roi_y_);
+      const int tmp_roi_x = pt.get<int>("xib.roi_shift_x", roi_x_);
+      const int tmp_roi_y = pt.get<int>("xib.roi_shift_y", roi_y_);
       const int tmp_roi_width = pt.get<int>("xib.roi_width", roi_width_);
       const int tmp_roi_height = pt.get<int>("xib.roi_height", roi_height_);
 
