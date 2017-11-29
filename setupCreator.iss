@@ -66,6 +66,7 @@ Source: "x64\Release\CameraPike.dll"; DestDir: "{app}\{#MyAppVersion}";Component
 Source: "x64\Release\CameraPhotonFocus.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraXiq.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraXib.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\GPIB.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
