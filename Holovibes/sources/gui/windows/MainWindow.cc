@@ -1426,7 +1426,7 @@ namespace holovibes
 				InfoManager::get_manager()->remove_info("Filter2D");
 				compute_desc_.filter_2d_enabled.exchange(false);
 				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
-				compute_desc_.stftRoiZone(units::RectFd(), AccessMode::Set);
+				compute_desc_.setStftZone(units::RectFd());
 				mainDisplay->getOverlayManager().disable_all(Filter2D);
 				mainDisplay->getOverlayManager().create_default();
 				mainDisplay->resetTransform();
@@ -1489,11 +1489,14 @@ namespace holovibes
 				{
 					// set positions of new windows according to the position of the main GL window
 					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->height() + 300, 0);
-
-					lens_window.reset(new DirectWindow(
-						pos,
-						QSize(mainDisplay->width(), mainDisplay->height()),
-						*holovibes_.get_pipe()->get_lens_queue()));
+					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					if (pipe)
+					{
+						lens_window.reset(new DirectWindow(
+							pos,
+							QSize(mainDisplay->width(), mainDisplay->height()),
+							*pipe->get_lens_queue()));
+					}
 					lens_window->setTitle("Lens view");
 					lens_window->setCd(&compute_desc_);
 				}

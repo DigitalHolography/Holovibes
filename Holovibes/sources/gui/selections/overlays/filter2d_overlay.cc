@@ -35,7 +35,7 @@ namespace holovibes
 			auto window = dynamic_cast<HoloWindow *>(parent_);
 			if (window)
 			{
-				window->getCd()->stftRoiZone(zone_, AccessMode::Set);
+				window->getCd()->setStftZone(zone_);
 				window->getPipe()->request_filter2D_roi_update();
 				window->getPipe()->request_filter2D_roi_end();
 			}

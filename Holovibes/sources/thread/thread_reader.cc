@@ -187,7 +187,7 @@ namespace holovibes
 				, buffer + cine_offset + act_frame_ * frame_size
 				, real_frame_desc_
 				, frame_desc_);
-			if (!queue_.enqueue(resize_buffer, cudaMemcpyDeviceToDevice))
+			if (!queue_.enqueue(resize_buffer))
 				return false;
 		}
 		++frameId_;

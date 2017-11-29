@@ -181,7 +181,9 @@ namespace holovibes
 		void signalZone(units::RectFd& rect, AccessMode m);
 		void noiseZone(units::RectFd& rect, AccessMode m);
 		void autofocusZone(units::RectFd& rect, AccessMode m);
-		void stftRoiZone(units::RectFd& rect, AccessMode m);
+
+		units::RectFd getStftZone() const;
+		void setStftZone(const units::RectFd& rect);
 
 		units::RectFd getStabilizationZone() const;
 		void setStabilizationZone(const units::RectFd& rect);

@@ -19,6 +19,8 @@
 # include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
 # include "stabilization.hh"
+# include "fourier_transform.hh"
+# include "autofocus.hh"
 
 namespace holovibes
 {
@@ -63,6 +65,8 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
+		virtual Queue*			get_lens_queue() override;
+
 	protected:
 
 		/*! \brief Execute one processing iteration.
@@ -77,13 +81,11 @@ namespace holovibes
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
 
-		void			direct_refresh();
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 		virtual void	exec();
 		virtual bool	update_n_parameter(unsigned short n);
 		void			request_queues();
-		//void			autofocus_caller(float* input, cudaStream_t stream) override;
 
 	private:
 		FnVector		fn_vect_;
@@ -93,6 +95,8 @@ namespace holovibes
 		cufftComplex	*gpu_input_frame_ptr_;
 
 		compute::Stabilization stabilization_;
+		compute::Autofocus autofocus_;
+		compute::FourierTransform fourier_transforms_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

@@ -204,18 +204,18 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::stftRoiZone(units::RectFd& rect, AccessMode m)
+	units::RectFd ComputeDescriptor::getStftZone() const
 	{
 		LockGuard g(mutex_);
-		if (m == Get)
-		{
-			rect = stft_roi_zone;
-		}
-		else if (m == Set)
-		{
-			stft_roi_zone = rect;
-		}
+		return stft_roi_zone;
 	}
+
+	void ComputeDescriptor::setStftZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		stft_roi_zone = rect;
+	}
+
 	units::RectFd ComputeDescriptor::getStabilizationZone() const
 	{
 		LockGuard g(mutex_);
