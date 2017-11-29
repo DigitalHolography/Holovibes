@@ -66,14 +66,14 @@ void FourierTransform::insert_fft()
 
 void FourierTransform::insert_filter2d()
 {
-	fn_vect_.push_back(std::bind(
-		filter2D,
-		gpu_input_buffer_,
-		gpu_filter2d_buffer_.get(),
-		plan2d_,
-		filter2d_zone_,
-		fd_,
-		static_cast<cudaStream_t>(0)));
+	fn_vect_.push_back([=]() {
+		filter2D(
+			gpu_input_buffer_,
+			gpu_filter2d_buffer_.get(),
+			plan2d_,
+			filter2d_zone_,
+			fd_);
+	});
 }
 
 void FourierTransform::insert_fft1()
@@ -82,17 +82,17 @@ void FourierTransform::insert_fft1()
 	fft1_lens(
 		gpu_lens_.get(),
 		fd_,
-		cd_.lambda.load(),
+		cd_.lambda,
 		z,
 		cd_.pixel_size);
 
-	fn_vect_.push_back(std::bind(
-		fft_1,
-		gpu_input_buffer_,
-		gpu_lens_.get(),
-		plan2d_,
-		fd_.frame_res(),
-		static_cast<cudaStream_t>(0)));
+	fn_vect_.push_back([=]() {
+		fft_1(
+			gpu_input_buffer_,
+			gpu_lens_.get(),
+			plan2d_,
+			fd_.frame_res());
+	});
 }
 
 void FourierTransform::insert_fft2()
@@ -101,17 +101,17 @@ void FourierTransform::insert_fft2()
 	fft2_lens(
 		gpu_lens_.get(),
 		fd_,
-		cd_.lambda.load(),
+		cd_.lambda,
 		z,
 		cd_.pixel_size);
 
-	fn_vect_.push_back(std::bind(
-		fft_2,
-		gpu_input_buffer_,
-		gpu_lens_.get(),
-		plan2d_,
-		fd_,
-		static_cast<cudaStream_t>(0)));
+	fn_vect_.push_back([=]() {
+		fft_2(
+			gpu_input_buffer_,
+			gpu_lens_.get(),
+			plan2d_,
+			fd_);
+	});
 }
 
 /*void FourierTransform::insert_stft()

@@ -90,7 +90,7 @@ namespace holovibes
 
 			/*! \brief restores the input frames saved in the gpu_input_buffer_
 			* \param input_buffer Destination buffer (gpu_input_buffer_) */
-			void autofocus_restore(cuComplex *input_buffer);
+			void autofocus_restore();
 
 			/*! \brief Initialize the structure af_env_ */
 			void autofocus_init();
@@ -98,7 +98,7 @@ namespace holovibes
 			/*! \brief This is the main part of the autofocus. It will copy
 			* the square area where autofocus is applied, call the evaluating function, and updates every value for next iteration.
 			* \param input buffer of float containing the image where autofocus is applied (gpu_float_buffer_) */
-			void autofocus_caller(float* input, cudaStream_t stream = 0);
+			void autofocus_caller(cudaStream_t stream = 0);
 
 			/*! \brief Resetting the structure af_env_ for next use */
 			void autofocus_reset();

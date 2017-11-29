@@ -46,23 +46,21 @@ namespace holovibes
 		void Autofocus::insert_restore()
 		{
 			if (af_env_.state == af_state::RUNNING)
-				fn_vect_.push_back([=]() {autofocus_restore(gpu_input_buffer_); });
+				fn_vect_.push_back([=]() {autofocus_restore(); });
 		}
 
 		void Autofocus::insert_autofocus()
 		{
 			if (af_env_.state == af_state::RUNNING)
-				fn_vect_.push_back([=]() {autofocus_caller(gpu_float_buffer_); });
+				fn_vect_.push_back([=]() {autofocus_caller(); });
 		}
 
 		void Autofocus::insert_copy()
 		{
 			af_env_.stft_index--;
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * input_.get_pixels(),
-				static_cast<cudaStream_t>(0)));
+			// We have to compute dest outside the lambda, otherwise it will be evaluated when the lambda will be called.
+			auto dest = af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * input_.get_pixels();
+			fn_vect_.push_back([=]() {make_contiguous_complex(input_, dest); });
 			if (af_env_.stft_index == 0)
 			{
 				af_env_.state = af_state::RUNNING;
@@ -145,11 +143,11 @@ namespace holovibes
 			}
 		}
 
-		void Autofocus::autofocus_restore(cuComplex *input_buffer)
+		void Autofocus::autofocus_restore()
 		{
 			af_env_.stft_index--;
 
-			cudaMemcpy(input_buffer,
+			cudaMemcpy(gpu_input_buffer_,
 				af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * fd_.frame_res(),
 				af_env_.gpu_frame_size,
 				cudaMemcpyDeviceToDevice);
@@ -159,7 +157,7 @@ namespace holovibes
 				af_env_.stft_index = af_env_.nsamples;
 		}
 
-		void Autofocus::autofocus_caller(float* input, cudaStream_t stream)
+		void Autofocus::autofocus_caller(cudaStream_t stream)
 		{
 			// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updated
 			if (af_env_.stft_index != af_env_.nsamples)
@@ -170,7 +168,7 @@ namespace holovibes
 			}
 
 			// Copying the square zone into the tmp buffer
-			frame_memcpy(input, af_env_.zone, fd_.width, af_env_.gpu_float_buffer_af_zone.get(), af_env_.af_square_size, stream);
+			frame_memcpy(gpu_float_buffer_, af_env_.zone, fd_.width, af_env_.gpu_float_buffer_af_zone.get(), af_env_.af_square_size, stream);
 
 			// Evaluating function
 			const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone.get(),
