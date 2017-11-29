@@ -11,64 +11,54 @@
 /* **************************************************************************** */
 
 #pragma once
-#include "pipeline_utils.hh"
+
 #include "frame_desc.hh"
-#include "rect.hh"
-#include "cuda_tools\unique_ptr.hh"
-#include "autofocus.hh"
+#include "pipeline_utils.hh"
+#include "queue.hh"
 
 namespace holovibes
 {
 	class ComputeDescriptor;
-
 	namespace compute
 	{
-		class FourierTransform
+		using uint = unsigned int;
+
+		class Converts
 		{
 		public:
-			FourierTransform(FnVector& fn_vect,
+			Converts(FnVector& fn_vect,
 				cuComplex* const& gpu_input_buffer,
-				Autofocus* autofocus,
-				const camera::FrameDescriptor& fd,
-				const holovibes::ComputeDescriptor& cd,
-				const cufftHandle& plan2d,
-				const cufftHandle& plan1d_stft);
+				float* const& gpu_float_buffer,
+				cufftComplex* const& gpu_stft_buffer,
+				void* const& gpu_output_buffer,
+				Queue* const& gpu_3d_vision,
+				ComputeDescriptor& cd,
+				const camera::FrameDescriptor& input_fd);
 
-			/*! \brief Enqueue the appropriate functions
-			**
-			** Should be called just after gpu_float_buffer is computed
-			*/
-			void insert_fft();
-			Queue* get_lens_queue();
+			void insert_to_float();
+
 		private:
-			void insert_filter2d();
-			void insert_fft1();
-			void insert_fft2();
-			//void insert_stft();
-			//void stft_handler(cufftComplex* input, cufftComplex* output);
-			void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const camera::FrameDescriptor& input_fd);
 
-			units::RectFd					filter2d_zone_;
-
-			cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
-			std::unique_ptr<Queue>				gpu_lens_queue_;
-			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
+			void insert_to_modulus();
+			void insert_to_modulus_vision3d();
+			void insert_to_squaredmodulus();
+			void insert_to_composite();
+			void insert_to_complex();
 
 			/// Pipe data
 			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
-			cuComplex* const&				gpu_input_buffer_;
-
-			Autofocus*						autofocus_;
+			cuComplex* const& gpu_input_buffer_;
+			cufftComplex* const& gpu_stft_buffer_;
+			float* const& gpu_float_buffer_;
+			void* const& gpu_output_buffer_;
+			Queue* const& gpu_3d_vision_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
-
-			const ComputeDescriptor&		cd_;
-
-			const cufftHandle&				plan2d_;
-			const cufftHandle&				plan1d_stft_;
+			/// Variables needed for the computation in the pipe
+			ComputeDescriptor&				cd_;
 			/// }
 		};
 	}

@@ -79,6 +79,8 @@ namespace holovibes
 			}
 		}
 
+		//----------
+
 		void Contrast::insert_main_log()
 		{
 			uint size = gpu_float_buffer_size_ / sizeof(float);

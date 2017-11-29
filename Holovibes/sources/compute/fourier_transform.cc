@@ -25,7 +25,7 @@ using holovibes::FnVector;
 
 FourierTransform::FourierTransform(FnVector& fn_vect,
 	cuComplex* const& gpu_input_buffer,
-	const Autofocus& autofocus,
+	Autofocus* autofocus,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
@@ -78,7 +78,7 @@ void FourierTransform::insert_filter2d()
 
 void FourierTransform::insert_fft1()
 {
-	const float z = autofocus_.get_zvalue();
+	const float z = autofocus_->get_zvalue();
 	fft1_lens(
 		gpu_lens_.get(),
 		fd_,
@@ -97,7 +97,7 @@ void FourierTransform::insert_fft1()
 
 void FourierTransform::insert_fft2()
 {
-	const float z = autofocus_.get_zvalue();
+	const float z = autofocus_->get_zvalue();
 	fft2_lens(
 		gpu_lens_.get(),
 		fd_,

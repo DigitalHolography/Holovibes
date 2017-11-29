@@ -50,11 +50,17 @@ namespace holovibes
 		, gpu_input_buffer_(nullptr)
 		, gpu_output_buffer_(nullptr)
 		, gpu_input_frame_ptr_(nullptr)
-		, stabilization_(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc)
-		, autofocus_(fn_vect_, gpu_float_buffer_, gpu_input_buffer_, input_, desc, this)
-		, fourier_transforms_(fn_vect_, gpu_input_buffer_, autofocus_, input.get_frame_desc(), desc, plan2d_, plan1d_stft_)
-		, contrast_(fn_vect_, gpu_float_buffer_, gpu_float_buffer_size_, gpu_float_cut_xz_, gpu_float_cut_yz_, desc, output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_)
 	{
+		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc);
+		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, gpu_float_buffer_, gpu_input_buffer_, input_, desc, this);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(
+			fn_vect_, gpu_input_buffer_, autofocus_.get(),
+			input.get_frame_desc(), desc, plan2d_, plan1d_stft_);
+		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, gpu_float_buffer_, gpu_float_buffer_size_,
+			gpu_float_cut_xz_, gpu_float_cut_yz_, desc,
+			output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_);
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, gpu_input_buffer_, gpu_float_buffer_,
+			gpu_stft_buffer_, gpu_output_buffer_, gpu_3d_vision, desc, input.get_frame_desc());
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
 		camera::FrameDescriptor fd = output_.get_frame_desc();
@@ -169,29 +175,6 @@ namespace holovibes
 	
 	namespace
 	{
-		void composite_caller(cufftComplex *input,
-				float *output,
-				uint frame_res,
-				ComputeDescriptor* cd)
-		{
-			Component *comps[] = { &cd->component_r, &cd->component_g, &cd->component_b };
-			for (Component* component : comps)
-				if (component->p_max < component->p_min || component->p_max >= cd->nsamples)
-					return;
-			composite(input,
-				output,
-				frame_res,
-				cd->composite_auto_weights_,
-				cd->component_r.p_min,
-				cd->component_r.p_max,
-				cd->component_r.weight,
-				cd->component_g.p_min,
-				cd->component_g.p_max,
-				cd->component_g.weight,
-				cd->component_b.p_min,
-				cd->component_b.p_max,
-				cd->component_b.weight);
-		}
 		void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const FrameDescriptor& input_fd)
 		{
 			if (queue)
@@ -268,27 +251,27 @@ namespace holovibes
 			return;
 		}
 
-		if (autofocus_requested_ && autofocus_.get_state() == compute::STOPPED)
+		if (autofocus_requested_ && autofocus_->get_state() == compute::STOPPED)
 		{
-			autofocus_.insert_init();
+			autofocus_->insert_init();
 			autofocus_requested_ = false;
 			return;
 		}
 
 		// Converting input_ to complex.
-		if (autofocus_.get_state() == compute::STOPPED)
+		if (autofocus_->get_state() == compute::STOPPED)
 			fn_vect_.push_back(std::bind(
 				make_contiguous_complex,
 				std::ref(input_),
 				gpu_input_buffer_,
 				static_cast<cudaStream_t>(0)));
-		else if (autofocus_.get_state() == compute::COPYING)
+		else if (autofocus_->get_state() == compute::COPYING)
 		{
-			autofocus_.insert_copy();
+			autofocus_->insert_copy();
 			return;
 		}
 
-		autofocus_.insert_restore();
+		autofocus_->insert_restore();
 
 		gpu_input_frame_ptr_ = gpu_input_buffer_;
 
@@ -308,7 +291,7 @@ namespace holovibes
 				gpu_input_buffer_,
 				1));
 
-		fourier_transforms_.insert_fft();
+		fourier_transforms_->insert_fft();
 		fn_vect_.push_back([=]() { queue_enqueue(gpu_input_buffer_, gpu_stft_queue_); });
 
 		fn_vect_.push_back(std::bind(
@@ -391,38 +374,8 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
-		/* Apply conversion to floating-point respresentation. */
-		if (compute_desc_.img_type == ImgType::Composite)
-			fn_vect_.push_back(std::bind(composite_caller,
-				gpu_stft_buffer_,
-				gpu_float_buffer_,
-				input_fd.frame_res(),
-				&compute_desc_));
-		else if (compute_desc_.img_type == ImgType::Modulus)
-		{
-			if (compute_desc_.vision_3d_enabled)
-				fn_vect_.push_back(std::bind(
-					complex_to_modulus,
-					gpu_stft_buffer_,
-					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()),
-					input_fd.frame_res() * compute_desc_.nsamples.load(),
-					static_cast<cudaStream_t>(0)));
-			else
-				fn_vect_.push_back(std::bind(
-					complex_to_modulus,
-					gpu_input_frame_ptr_,
-					gpu_float_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
-		}
-		else if (compute_desc_.img_type == ImgType::SquaredModulus)
-			fn_vect_.push_back(std::bind(
-				complex_to_squared_modulus,
-				gpu_input_frame_ptr_,
-				gpu_float_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		else if (compute_desc_.img_type == ImgType::Argument)
+		converts_->insert_to_float();
+		if (compute_desc_.img_type == ImgType::Argument)
 		{
 			fn_vect_.push_back(std::bind(
 				complex_to_argument,
@@ -473,19 +426,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 			}
 		}
-		else if (compute_desc_.img_type.load() == ImgType::Complex)
-		{
-			fn_vect_.push_back(std::bind(
-				cudaMemcpy,
-				gpu_output_buffer_,
-				gpu_input_frame_ptr_,
-				input_fd.frame_res() << 3,
-				cudaMemcpyDeviceToDevice));
-			refresh_requested_.exchange(false);
-			autocontrast_requested_ = false;
-			return;
-		}
-		else
+		else if (compute_desc_.img_type == ImgType::PhaseIncrease)
 		{
 			//Unwrap_res is a ressource for phase_increase
 			try
@@ -551,9 +492,15 @@ namespace holovibes
 				std::cout << e.what() << std::endl;
 			}
 		}
+		else if (compute_desc_.img_type == Complex)
+		{
+			refresh_requested_ = false;
+			autocontrast_requested_ = false;
+			return;
+		}
 
 		// Handling stabilization
-		stabilization_.insert_post_img_type();
+		stabilization_->insert_post_img_type();
 
 		// Inserts the output buffers into the accumulation queues
 		// and rewrite the average into the output buffer
@@ -572,7 +519,7 @@ namespace holovibes
 
 
 
-		contrast_.insert_fft_shift();
+		contrast_->insert_fft_shift();
 
 		// Handling noise/signal average
 		if (average_requested_)
@@ -608,12 +555,12 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 		}
 
-		contrast_.insert_log();
-		contrast_.insert_contrast();
-		autofocus_.insert_autofocus();
+		contrast_->insert_log();
+		contrast_->insert_contrast();
+		autofocus_->insert_autofocus();
 
 		// Handling float recording
-		if (float_output_requested_.load())
+		if (float_output_requested_)
 		{
 			fn_vect_.push_back(std::bind(
 				&Pipe::record_float,
@@ -729,6 +676,6 @@ namespace holovibes
 
 	Queue* Pipe::get_lens_queue()
 	{
-		return fourier_transforms_.get_lens_queue();
+		return fourier_transforms_->get_lens_queue();
 	}
 }

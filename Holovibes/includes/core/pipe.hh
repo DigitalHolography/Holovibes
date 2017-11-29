@@ -22,6 +22,7 @@
 # include "fourier_transform.hh"
 # include "autofocus.hh"
 # include "contrast.hh"
+# include "converts.hh"
 
 namespace holovibes
 {
@@ -95,10 +96,11 @@ namespace holovibes
 		void			*gpu_output_buffer_;
 		cufftComplex	*gpu_input_frame_ptr_;
 
-		compute::Stabilization stabilization_;
-		compute::Autofocus autofocus_;
-		compute::FourierTransform fourier_transforms_;
-		compute::Contrast contrast_;
+		std::unique_ptr<compute::Stabilization> stabilization_;
+		std::unique_ptr<compute::Autofocus> autofocus_;
+		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+		std::unique_ptr<compute::Contrast> contrast_;
+		std::unique_ptr<compute::Converts> converts_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

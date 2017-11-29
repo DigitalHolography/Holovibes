@@ -180,6 +180,7 @@
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
     <ClInclude Include="includes\compute\compute_descriptor.hh" />
     <ClInclude Include="includes\compute\contrast.hh" />
+    <ClInclude Include="includes\compute\converts.hh" />
     <ClInclude Include="includes\compute\fourier_transform.hh" />
     <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
@@ -379,6 +380,7 @@
     </ClCompile>
     <ClCompile Include="sources\compute\autofocus.cc" />
     <ClCompile Include="sources\compute\contrast.cc" />
+    <ClCompile Include="sources\compute\converts.cc" />
     <ClCompile Include="sources\compute\fourier_transform.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
