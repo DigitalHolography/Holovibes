@@ -10,24 +10,21 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include <utils.hh>
-#include <camera_exception.hh>
-#include <iostream>
 
 #include "camera_xib.hh"
 
 #include <chrono>
+#include <utils.hh>
+#include <camera_exception.hh>
+#include <iostream>
 
 namespace camera
 {
   CameraXib::CameraXib()
-    : Camera("xiq.ini")
+    : Camera("xib.ini")
     , device_(nullptr)
   {
     name_ = "xiB-64";
-
-	DWORD devices = 0;
-	auto res = xiGetNumberDevices(&devices);
 
     load_default_params();
     if (ini_file_is_open())
@@ -69,7 +66,8 @@ namespace camera
 
   void CameraXib::shutdown_camera()
   {
-    if (xiCloseDevice(device_) != XI_OK)
+	  auto res = xiCloseDevice(device_);
+    if (res != XI_OK)
       throw CameraException(CameraException::CANT_SHUTDOWN);
   }
 
@@ -77,7 +75,7 @@ namespace camera
   {
     xiGetImage(device_, FRAME_TIMEOUT, &frame_);
 
-    return frame_.bp;
+	return frame_.bp;
   }
 
   void CameraXib::load_default_params()
@@ -99,10 +97,17 @@ namespace camera
 
     buffer_policy_ = XI_BP_UNSAFE;
 
-    roi_x_ = 1024;
-    roi_y_ = 512;
-    roi_width_ = 2048;
-	roi_height_ = 2048;
+    roi_x_ = 0;
+    roi_y_ = 0;
+    roi_width_ = real_width_;
+	roi_height_ = real_height_;
+	/*/
+    roi_width_ = 1024;
+	roi_height_ = 1024;
+	//*/
+
+	desc_.width = static_cast<unsigned short>(roi_width_);
+	desc_.height = static_cast<unsigned short>(roi_height_);
 
 	exposure_time_ = 0;	// free run
   }
@@ -111,21 +116,21 @@ namespace camera
   {
     const boost::property_tree::ptree& pt = get_ini_pt();
 
-    gain_ = pt.get<float>("xiq.gain", gain_);
+    gain_ = pt.get<float>("xib.gain", gain_);
 
-    downsampling_rate_ = pt.get<unsigned int>("xiq.downsampling_rate", downsampling_rate_);
+    downsampling_rate_ = pt.get<unsigned int>("xib.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
 	desc_.width = desc_.width / static_cast<unsigned short>(downsampling_rate_);
 	desc_.height = desc_.height / static_cast<unsigned short>(downsampling_rate_);
 
     std::string str;
-    str = pt.get<std::string>("xiq.downsampling_type", "");
+    str = pt.get<std::string>("xib.downsampling_type", "");
     if (str == "BINNING")
       downsampling_type_ = XI_BINNING;
     else if (str == "SKIPPING")
       downsampling_type_ = XI_SKIPPING;
 
-    str = pt.get<std::string>("xiq.format", "");
+    str = pt.get<std::string>("xib.format", "");
     if (str == "MONO8")
       img_format_ = XI_MONO8;
     else if (str == "MONO16")
@@ -136,10 +141,10 @@ namespace camera
       img_format_ = XI_RAW16;
 
     {
-      const int tmp_roi_x = pt.get<int>("xiq.roi_x", roi_x_);
-      const int tmp_roi_y = pt.get<int>("xiq.roi_y", roi_y_);
-      const int tmp_roi_width = pt.get<int>("xiq.roi_width", roi_width_);
-      const int tmp_roi_height = pt.get<int>("xiq.roi_height", roi_height_);
+      const int tmp_roi_x = pt.get<int>("xib.roi_x", roi_x_);
+      const int tmp_roi_y = pt.get<int>("xib.roi_y", roi_y_);
+      const int tmp_roi_width = pt.get<int>("xib.roi_width", roi_width_);
+      const int tmp_roi_height = pt.get<int>("xib.roi_height", roi_height_);
 
       /* Making sure ROI settings are valid.
        * Keep in mind that ROI area can't be larger than the
@@ -157,16 +162,16 @@ namespace camera
         roi_height_ = tmp_roi_height;
 
         // Don't forget to update the frame descriptor!
-        desc_.width = static_cast<unsigned short>(roi_width_);
+		desc_.width = static_cast<unsigned short>(roi_width_);
 		desc_.height = static_cast<unsigned short>(roi_height_);
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
     }
 
-    trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xiq.trigger_src", XI_TRG_OFF);
+    trigger_src_ = (XI_TRG_SOURCE)pt.get<unsigned long>("xib.trigger_src", XI_TRG_OFF);
 
-    exposure_time_ = pt.get<float>("xiq.exposure_time", exposure_time_);
+    exposure_time_ = pt.get<float>("xib.exposure_time", exposure_time_);
   }
 
   void CameraXib::bind_params()
@@ -184,7 +189,6 @@ namespace camera
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
     status |= xiSetParamInt(device_, XI_PRM_WIDTH, roi_width_);
-	std::cout << roi_width_ << std::endl;
     status |= xiSetParamInt(device_, XI_PRM_HEIGHT, roi_height_);
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);

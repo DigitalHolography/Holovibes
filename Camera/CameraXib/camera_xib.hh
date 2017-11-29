@@ -17,6 +17,7 @@
 
 # include <Windows.h>
 # include <xiApi.h>
+# include <vector>
 
 # include <camera.hh>
 
@@ -96,5 +97,7 @@ namespace camera
     int roi_y_; //!< ROI offset on Y axis. Values start from 0.
     int roi_width_; //!< In pixels.
     int roi_height_; //!< In pixels.
+
+	std::vector<char> buffer_rescale_;
   };
 }
