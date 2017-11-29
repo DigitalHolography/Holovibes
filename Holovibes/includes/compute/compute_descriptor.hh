@@ -40,6 +40,7 @@ namespace holovibes
 		Pike,
 		Pixelfly,
 		xiQ,
+		xiB,
 		PhotonFocus
 	};
 
