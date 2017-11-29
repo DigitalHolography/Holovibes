@@ -21,6 +21,7 @@
 # include "stabilization.hh"
 # include "fourier_transform.hh"
 # include "autofocus.hh"
+# include "contrast.hh"
 
 namespace holovibes
 {
@@ -97,6 +98,7 @@ namespace holovibes
 		compute::Stabilization stabilization_;
 		compute::Autofocus autofocus_;
 		compute::FourierTransform fourier_transforms_;
+		compute::Contrast contrast_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);

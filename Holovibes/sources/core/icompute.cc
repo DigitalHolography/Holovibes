@@ -616,22 +616,6 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::autocontrast_caller(	float*				input,
-										const uint			size,
-										const uint			offset,
-										ComputeDescriptor&	compute_desc,
-										std::atomic<float>&	min,
-										std::atomic<float>&	max,
-										cudaStream_t		stream)
-	{
-		float contrast_min = 0.f;
-		float contrast_max = 0.f;
-		auto_contrast_correction(input, size, offset, &contrast_min, &contrast_max, stream);
-		min.exchange(contrast_min);
-		max.exchange(contrast_max);
-		compute_desc.notify_observers();
-	}
-
 	void ICompute::record_float(float *float_output, cudaStream_t stream)
 	{
 		// TODO: use stream in enqueue

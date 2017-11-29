@@ -53,6 +53,7 @@ namespace holovibes
 		, stabilization_(fn_vect_, gpu_float_buffer_, input.get_frame_desc(), desc)
 		, autofocus_(fn_vect_, gpu_float_buffer_, gpu_input_buffer_, input_, desc, this)
 		, fourier_transforms_(fn_vect_, gpu_input_buffer_, autofocus_, input.get_frame_desc(), desc, plan2d_, plan1d_stft_)
+		, contrast_(fn_vect_, gpu_float_buffer_, gpu_float_buffer_size_, gpu_float_cut_xz_, gpu_float_cut_yz_, desc, output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_)
 	{
 		int err = 0;
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
@@ -638,96 +639,7 @@ namespace holovibes
 					static_cast<cudaStream_t>(0)));
 		}
 
-		// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
-		auto lambda_autocontrast = [=]() {
-			if (autocontrast_requested_)
-			{
-				if (compute_desc_.current_window == WindowKind::XYview)
-				{
-					if (compute_desc_.vision_3d_enabled)
-						autocontrast_caller(
-							reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex,
-							output_fd.frame_res() * compute_desc_.nsamples,
-							0,
-							compute_desc_,
-							compute_desc_.contrast_min_slice_xy,
-							compute_desc_.contrast_max_slice_xy);
-					else
-						autocontrast_caller(
-							gpu_float_buffer_,
-							gpu_float_buffer_size_ / sizeof(float),
-							0,
-							compute_desc_,
-							compute_desc_.contrast_min_slice_xy,
-							compute_desc_.contrast_max_slice_xy);
-				}
-				if (compute_desc_.stft_view_enabled)
-				{
-					if (compute_desc_.current_window == WindowKind::XZview)
-						autocontrast_caller(
-							static_cast<float *>(gpu_float_cut_xz_),
-							output_fd.width * compute_desc_.nsamples,
-							output_fd.width * compute_desc_.cuts_contrast_p_offset,
-							compute_desc_,
-							compute_desc_.contrast_min_slice_xz,
-							compute_desc_.contrast_max_slice_xz);
-					else if (compute_desc_.current_window == WindowKind::YZview)
-						autocontrast_caller(
-							static_cast<float *>(gpu_float_cut_yz_),
-							output_fd.width * compute_desc_.nsamples,
-							output_fd.width * compute_desc_.cuts_contrast_p_offset,
-							compute_desc_,
-							compute_desc_.contrast_min_slice_yz,
-							compute_desc_.contrast_max_slice_yz);
-				}
-				autocontrast_requested_ = false;
-			}
-		};
-		fn_vect_.push_back(lambda_autocontrast);
-
-
-		// Handling manual contrast
-		if (compute_desc_.contrast_enabled)
-		{
-			if (compute_desc_.vision_3d_enabled)
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					reinterpret_cast<float *>(gpu_3d_vision->get_buffer()) + gpu_3d_vision->get_pixels() * compute_desc_.pindex,
-					output_fd.frame_res() * (compute_desc_.nsamples - compute_desc_.pindex),
-					65535,
-					compute_desc_.contrast_min_slice_xy.load(),
-					compute_desc_.contrast_max_slice_xy.load(),
-					static_cast<cudaStream_t>(0)));
-			else
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					gpu_float_buffer_,
-					gpu_float_buffer_size_ / sizeof(float),
-					65535,
-					compute_desc_.contrast_min_slice_xy.load(),
-					compute_desc_.contrast_max_slice_xy.load(),
-					static_cast<cudaStream_t>(0)));
-			if (compute_desc_.stft_view_enabled.load())
-			{
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					static_cast<float *>(gpu_float_cut_xz_),
-					output_fd.width * compute_desc_.nsamples.load(),
-					65535,
-					compute_desc_.contrast_min_slice_xz.load(),
-					compute_desc_.contrast_max_slice_xz.load(),
-					static_cast<cudaStream_t>(0)));
-				fn_vect_.push_back(std::bind(
-					manual_contrast_correction,
-					static_cast<float *>(gpu_float_cut_yz_),
-					output_fd.width * compute_desc_.nsamples.load(),
-					65535,
-					compute_desc_.contrast_min_slice_yz.load(),
-					compute_desc_.contrast_max_slice_yz.load(),
-					static_cast<cudaStream_t>(0)));
-			}
-		}
-
+		contrast_.insert_contrast();
 		autofocus_.insert_autofocus();
 
 		// Handling float recording

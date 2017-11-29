@@ -326,6 +326,9 @@
     <ClCompile Include="sources\pipeline_utils.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\contrast.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -560,6 +563,9 @@
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
     <ClInclude Include="includes\compute\autofocus.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\contrast.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
   </ItemGroup>

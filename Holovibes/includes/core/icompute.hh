@@ -168,14 +168,6 @@ namespace holovibes
 		* For some features, it might be necessary to do special treatment. For
 		* example, store a returned value in a std::vector. */
 
-		static void autocontrast_caller(float				*input,
-			const uint			size,
-			const uint			offset,
-			ComputeDescriptor&	compute_desc,
-			std::atomic<float>&	min,
-			std::atomic<float>&	max,
-			cudaStream_t		stream = 0);
-
 		/*! \see request_average
 		* \brief Call the average algorithm and store the result in the vector.
 		* \param input Input float frame pointer
