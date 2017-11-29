@@ -45,7 +45,7 @@ void StabilizationOverlay::make_pow2_square()
 	zone_.setBottom(std::min(zone_.bottom().get(), static_cast<int>(parent_->getFd().height)));
 	zone_.setRight(std::min(zone_.right().get(), static_cast<int>(parent_->getFd().width)));
 
-	const int min = prevPowerOf2(std::min(std::abs(zone_.width()), std::abs(zone_.height())));
+	const int min = prevPowerOf2(1 + std::min(std::abs(zone_.width()), std::abs(zone_.height())));
 	zone_.setDst(units::PointFd(units::ConversionData(parent_),
 		zone_.src().x() + ((zone_.src().x() < zone_.dst().x()) ? min : -min),
 		zone_.src().y() + ((zone_.src().y() < zone_.dst().y()) ? min : -min)

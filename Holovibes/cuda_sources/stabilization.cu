@@ -14,6 +14,7 @@
 #include "common.cuh"
 #include "cuda_tools/unique_ptr.hh"
 
+#include <stdio.h>
 
 struct rect
 {
@@ -55,7 +56,7 @@ void extract_frame(const float	*input,
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame.area(), threads);
-	struct rect rect_frame = { frame.x(), frame.y(), frame.width(), frame.height() };
+	struct rect rect_frame = { frame.x(), frame.y(), frame.unsigned_width(), frame.unsigned_height() };
 	kernel_extract_frame << <blocks, threads, 0, 0 >> > (input, output, input_w, rect_frame);
 	cudaStreamSynchronize(0);
 }
