@@ -61,9 +61,6 @@ namespace holovibes
 
 	Pipe::~Pipe()
 	{
-		cudaFree(buffers_.gpu_float_buffer_);
-		cudaFree(buffers_.gpu_output_buffer_);
-		cudaFree(buffers_.gpu_input_buffer_);
 	}
 
 	bool Pipe::update_n_parameter(unsigned short n)

@@ -194,6 +194,7 @@ namespace holovibes
 
 	ICompute::~ICompute()
 	{
+		cudaFree(buffers_.gpu_input_buffer_);
 		/* gpu_lens */
 		cudaFree(gpu_lens_);
 
@@ -207,9 +208,11 @@ namespace holovibes
 
 		cudaFree(buffers_.gpu_float_cut_xz_);
 		cudaFree(buffers_.gpu_float_cut_yz_);
+		cudaFree(buffers_.gpu_float_buffer_);
 
 		cudaFree(buffers_.gpu_ushort_cut_xz_);
 		cudaFree(buffers_.gpu_ushort_cut_yz_);
+		cudaFree(buffers_.gpu_output_buffer_);
 
 		InfoManager::get_manager()->remove_info("Rendering Fps");
 		InfoManager::get_manager()->remove_info("STFT Zone");
