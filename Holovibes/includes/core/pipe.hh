@@ -19,6 +19,10 @@
 # include "cuda_tools/unique_ptr.hh"
 # include "icompute.hh"
 # include "stabilization.hh"
+# include "fourier_transform.hh"
+# include "autofocus.hh"
+# include "contrast.hh"
+# include "converts.hh"
 # include "detect_intensity.hh"
 
 namespace holovibes
@@ -64,6 +68,8 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
+		virtual Queue*			get_lens_queue() override;
+
 	protected:
 
 		/*! \brief Execute one processing iteration.
@@ -78,22 +84,21 @@ namespace holovibes
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
 
-		void			direct_refresh();
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 		virtual void	exec();
 		virtual bool	update_n_parameter(unsigned short n);
 		void			request_queues();
-		//void			autofocus_caller(float* input, cudaStream_t stream) override;
 
 	private:
 		FnVector		fn_vect_;
 
-		cufftComplex	*gpu_input_buffer_;
-		void			*gpu_output_buffer_;
-		cufftComplex	*gpu_input_frame_ptr_;
+		std::unique_ptr<compute::Stabilization> stabilization_;
+		std::unique_ptr<compute::Autofocus> autofocus_;
+		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
+		std::unique_ptr<compute::Contrast> contrast_;
+		std::unique_ptr<compute::Converts> converts_;
 
-		compute::Stabilization stabilization_;
 		compute::DetectIntensity detect_intensity_;
 
 

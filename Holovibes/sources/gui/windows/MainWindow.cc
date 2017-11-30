@@ -247,10 +247,9 @@ namespace holovibes
 
 			ui.PhaseUnwrap2DCheckBox->
 				setEnabled(!is_direct && compute_desc_.img_type.load() == ImgType::PhaseIncrease ||
-				compute_desc_.img_type.load() == ImgType::Argument);
+					compute_desc_.img_type.load() == ImgType::Argument);
 
-			ui.STFTCutsCheckBox->setEnabled(!is_direct && compute_desc_.stft_enabled.load()
-				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.vision_3d_enabled.load());
+			ui.STFTCutsCheckBox->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled.load());
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
@@ -258,6 +257,8 @@ namespace holovibes
 				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
+
+			ui.CropStftCheckBox->setEnabled(!is_direct);
 
 			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled.load());
 			ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
@@ -318,8 +319,6 @@ namespace holovibes
 			ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled.load());
 			ui.YAccSpinBox->setValue(compute_desc_.y_acc_level.load());
 
-			ui.PAccuCheckBox->setEnabled(compute_desc_.stft_enabled.load());
-
 			QSpinBox *p_vibro = ui.ImageRatioPSpinBox;
 			p_vibro->setEnabled(!is_direct && compute_desc_.vibrometry_enabled.load());
 			p_vibro->setValue(compute_desc_.pindex.load());
@@ -337,8 +336,6 @@ namespace holovibes
 			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level.load());
 			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load() && !compute_desc_.stft_view_enabled.load());
-			ui.STFTCheckBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
-			ui.STFTCheckBox->setChecked(!is_direct && compute_desc_.stft_enabled.load());
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps.load());
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled.load());
@@ -369,7 +366,7 @@ namespace holovibes
 			QString depth_value = ui.ImportDepthComboBox->currentText();
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file.load());
 			
-			ui.Vision3DCheckBox->setEnabled(!is_direct && compute_desc_.stft_enabled.load() && !compute_desc_.stft_view_enabled.load());
+			ui.Vision3DCheckBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load());
 			ui.Vision3DCheckBox->setChecked(compute_desc_.vision_3d_enabled.load());
 
 			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
@@ -429,11 +426,8 @@ namespace holovibes
 				if (err_ptr->get_kind() == error_kind::fail_update)
 				{
 					// notify will be in close_critical_compute
-					if (compute_desc_.stft_enabled.load())
-					{
-						compute_desc_.pindex.exchange(0);
-						compute_desc_.nsamples.exchange(1);
-					}
+					compute_desc_.pindex.exchange(0);
+					compute_desc_.nsamples.exchange(1);
 					if (compute_desc_.flowgraphy_enabled.load() || compute_desc_.convolution_enabled.load())
 					{
 						compute_desc_.convolution_enabled.exchange(false);
@@ -484,6 +478,10 @@ namespace holovibes
 				"Holovibes " + version + "\n\n"
 
 				"Developers:\n\n"
+
+				"Eloi Charpentier\n"
+				"Julien Gautier\n"
+				"Florian Lapeyre\n"
 
 				"Thomas Jarrossay\n"
 				"Alexandre Bartz\n"
@@ -696,7 +694,7 @@ namespace holovibes
 				compute_desc_.interpolation_enabled = ptree.get<bool>("composite.interpolation_enabled", false);
 				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 870) * 1.0e-9f;
 				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 820) * 1.0e-9f;
-				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9);
+				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9f);
 				compute_desc_.interp_shift = ptree.get<int>("composite.interpolation_shift", 0);
 
 				notify();
@@ -825,8 +823,7 @@ namespace holovibes
 				set_average_mode(false);
 			if (compute_desc_.vision_3d_enabled.load())
 				set_vision_3d(false);
-			if (compute_desc_.stft_enabled.load())
-				cancel_stft_view(compute_desc_);
+			cancel_stft_view(compute_desc_);
 			if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 				cancel_take_reference();
 			if (compute_desc_.filter_2d_enabled.load())
@@ -994,6 +991,11 @@ namespace holovibes
 			change_camera(CameraKind::xiQ);
 		}
 
+		void MainWindow::camera_xib()
+		{
+			change_camera(CameraKind::xiB);
+		}
+
 		void MainWindow::camera_photon_focus()
 		{
 			change_camera(CameraKind::PhotonFocus);
@@ -1049,10 +1051,8 @@ namespace holovibes
 			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
 			
 			if (compute_desc_.compute_mode.load() == Computation::Hologram)
-				depth = 2;
-			if (compute_desc_.compute_mode.load() != Computation::Direct)
 			{
-				compute_desc_.stft_enabled.exchange(true);
+				depth = 2;
 				if (compute_desc_.img_type.load() == ImgType::Complex)
 					depth = 8;
 				else if (compute_desc_.img_type.load() == ImgType::Composite)
@@ -1090,6 +1090,7 @@ namespace holovibes
 						this));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
+				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
 			}
@@ -1200,7 +1201,7 @@ namespace holovibes
 		{
 			const FrameDescriptor&	fd = holovibes_.get_capture_queue().get_frame_desc();
 
-			if (checked && compute_desc_.stft_enabled.load())
+			if (checked)
 			{
 				QPoint pos(0, 0);
 				QSize size(512, 512);
@@ -1244,7 +1245,6 @@ namespace holovibes
 			sliceYZ.reset(nullptr);
 
 			ui.STFTCutsCheckBox->setChecked(false);
-			ui.STFTCheckBox->setEnabled(true);
 
 			mainDisplay->setCursor(Qt::ArrowCursor);
 			mainDisplay->resetSelection();
@@ -1252,30 +1252,25 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_stft(bool b)
+		void MainWindow::set_crop_stft(bool b)
 		{
 			if (!is_direct_mode())
 			{
-				try
+				compute_desc_.croped_stft.exchange(b);
+				std::stringstream ss;
+				ss << "(X1,X2,X3,X4) = (";
+				if (b)
 				{
-					auto NbImg_spin_box = ui.PhaseNumberSpinBox;
-					Queue& input_queue = holovibes_.get_capture_queue();
-					if (!b && static_cast<unsigned int>(NbImg_spin_box->value()) > input_queue.get_max_elts())
-					{
-						NbImg_spin_box->setValue(input_queue.get_max_elts());
-						compute_desc_.nsamples.exchange(input_queue.get_max_elts());
-					}
-					compute_desc_.stft_enabled.exchange(b);
-					compute_desc_.p_accu_enabled.exchange(b && ui.PAccuCheckBox->isChecked());
-					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples.load());
+					auto zone = compute_desc_.getZoomedZone();
+					ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
 				}
-				catch (std::exception& e)
+				else
 				{
-					compute_desc_.stft_enabled.exchange(!b);
-					std::cerr << "Cannot set stft : ";
-					std::cerr << e.what() << std::endl;
+					auto fd = holovibes_.get_cam_frame_desc();
+					ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
 				}
-				notify();
+				InfoManager::get_manager()->update_info("STFT Zone", ss.str());
+				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
 			}
 		}
 
@@ -1340,6 +1335,9 @@ namespace holovibes
 					compute_desc_.average_enabled.exchange(false);
 					
 					set_auto_contrast_cuts();
+					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
+					if (holo)
+						holo->update_slice_transforms();
 					notify();
 				}
 				catch (std::logic_error& e)
@@ -1460,7 +1458,7 @@ namespace holovibes
 				InfoManager::get_manager()->remove_info("Filter2D");
 				compute_desc_.filter_2d_enabled.exchange(false);
 				compute_desc_.log_scale_slice_xy_enabled.exchange(false);
-				compute_desc_.stftRoiZone(units::RectFd(), AccessMode::Set);
+				compute_desc_.setStftZone(units::RectFd());
 				mainDisplay->getOverlayManager().disable_all(Filter2D);
 				mainDisplay->getOverlayManager().create_default();
 				mainDisplay->resetTransform();
@@ -1482,29 +1480,15 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				QSpinBox *spin_box = ui.PhaseNumberSpinBox;
-				int phaseNumber = spin_box->value();
-				phaseNumber = (phaseNumber < 1) ? 1 : phaseNumber;
-				Queue&				in = holovibes_.get_capture_queue();
+				int phaseNumber = ui.PhaseNumberSpinBox->value();
+				phaseNumber = std::max(1, phaseNumber);
 
 				if (phaseNumber == compute_desc_.nsamples.load())
 					return;
-				if (compute_desc_.stft_enabled.load()
-					|| phaseNumber <= static_cast<int>(in.get_max_elts()))
-				{
-					compute_desc_.nsamples.exchange(phaseNumber);
-					notify();
-					holovibes_.get_pipe()->request_update_n(phaseNumber);
-					while (holovibes_.get_pipe()->get_request_refresh());
-				}
-				else
-				{
-					spin_box->setValue(in.get_max_elts());
-					compute_desc_.nsamples.exchange(in.get_max_elts());
-					notify();
-					holovibes_.get_pipe()->request_update_n(in.get_max_elts());
-					while (holovibes_.get_pipe()->get_request_refresh());
-				}
+				compute_desc_.nsamples.exchange(phaseNumber);
+				notify();
+				holovibes_.get_pipe()->request_update_n(phaseNumber);
+				while (holovibes_.get_pipe()->get_request_refresh());
 				set_p_accu();
 			}
 		}
@@ -1534,11 +1518,14 @@ namespace holovibes
 				{
 					// set positions of new windows according to the position of the main GL window
 					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->height() + 300, 0);
-
-					lens_window.reset(new DirectWindow(
-						pos,
-						QSize(mainDisplay->width(), mainDisplay->height()),
-						*holovibes_.get_pipe()->get_lens_queue()));
+					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					if (pipe)
+					{
+						lens_window.reset(new DirectWindow(
+							pos,
+							QSize(mainDisplay->width(), mainDisplay->height()),
+							*pipe->get_lens_queue()));
+					}
 					lens_window->setTitle("Lens view");
 					lens_window->setCd(&compute_desc_);
 				}
@@ -1552,12 +1539,16 @@ namespace holovibes
 			{
 				lens_window = nullptr;
 			}
+			compute_desc_.gpu_lens_display_enabled = value;
+			pipe_refresh();
 		}
 
 		void MainWindow::set_p_accu()
 		{
 			auto spinbox = ui.PAccSpinBox;
 			auto checkBox = ui.PAccuCheckBox;
+			if (compute_desc_.p_accu_enabled != checkBox->isChecked())
+				pipe_refresh();
 			compute_desc_.p_accu_enabled.exchange(checkBox->isChecked());
 			compute_desc_.p_acc_level.exchange(spinbox->value());
 
@@ -1982,6 +1973,19 @@ namespace holovibes
 				sliceYZ->setFlip(yzFlip);
 			}
 			notify();
+		}
+
+		void MainWindow::set_scale_bar(bool value)
+		{
+			if (value)
+			{
+				mainDisplay->getOverlayManager().create_overlay<Scale>();
+			}
+			else
+			{
+				mainDisplay->getOverlayManager().disable_all(Scale);
+			}
+
 		}
 		#pragma endregion
 		/* ------------ */

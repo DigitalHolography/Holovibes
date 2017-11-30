@@ -94,6 +94,7 @@ namespace holovibes
 			void camera_pike();
 			void camera_pixelfly();
 			void camera_xiq();
+			void camera_xib();
 			void camera_photon_focus();
 			void configure_camera();
 			void credits();
@@ -156,7 +157,7 @@ namespace holovibes
 			void decrement_z();
 			void set_z_step(double value);
 			void set_algorithm(QString value);
-			void set_stft(bool b);
+			void set_crop_stft(bool b);
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
 			void update_stft_steps(int value);
@@ -225,6 +226,7 @@ namespace holovibes
 			void title_detect();
 			void rotateTexture();
 			void flipTexture();
+			void set_scale_bar(bool value);
 			#pragma endregion
 			/* ---------- */
 		signals:

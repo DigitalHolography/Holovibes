@@ -21,6 +21,7 @@
 # include "observable.hh"
 # include "gpib_controller.hh"
 # include "frame_desc.hh"
+# include "cuda_tools\unique_ptr.hh"
 
 namespace holovibes
 {
@@ -37,6 +38,40 @@ namespace holovibes
 
 namespace holovibes
 {
+	struct CoreBuffers
+	{
+		// input buffer
+		cufftComplex	*gpu_input_buffer_ = nullptr;
+
+		// float buffers
+		float			*gpu_float_buffer_ = nullptr;
+		uint			gpu_float_buffer_size_ = 0;
+		float			*gpu_float_cut_xz_ = nullptr;
+		float			*gpu_float_cut_yz_ = nullptr;
+
+		// Output buffers
+		void			*gpu_output_buffer_ = nullptr;
+		void			*gpu_ushort_cut_xz_ = nullptr;
+		void			*gpu_ushort_cut_yz_ = nullptr;
+	};
+
+	struct Stft_env
+	{
+		// Lock
+		std::mutex							stftGuard_;
+
+		// Buffers
+		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
+		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
+		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
+		// Plan
+		cufftHandle							plan1d_stft_;
+
+		// Handling steps
+		bool								stft_handle_ = false;
+		uint								stft_frame_counter_ = 1;
+	};
+
 	/* \brief Stores functions helping the editing of the images.
 	 *
 	 * Stores all the functions that will be used before doing
@@ -47,45 +82,6 @@ namespace holovibes
 	{
 		friend class ThreadCompute;
 	public:
-
-		/*! \brief Describing the autofocus state */
-		enum af_state
-		{
-			STOPPED, /**< Autofocus not requested */
-			COPYING, /**< Copying frames when autofocus is used with stft */
-			RUNNING /**< Autofocus running after everything initialized correctly*/
-		};
-
-		struct af_env
-		{
-			float				z; /**< intern z used for autofocus computation */
-			float				z_min; /**< minimal z for each loop */
-			float				z_max; /**< maximal z for each loop */
-
-			float				z_step; /**< value incrementing z at each iteration */
-			unsigned int		z_iter; /**< number of loops remaining */
-			float				af_z; /**< best z found during last loop */
-
-			std::vector<float>	focus_metric_values; /**< vector containing the values given by the evaluating function*/
-
-			units::RectFd		zone; /**< zone where autofocus is applied */
-			unsigned int		af_square_size; /** size of the square zone where autofocus is applied */
-			float				*gpu_float_buffer_af_zone; /**< zone of gpu_float_buffer_ where autocus is applied */
-
-			size_t				gpu_input_size; /**< size of gpu_input_buffer_tmp */
-			size_t				gpu_frame_size; /**< size of one frame inside gpu_input_buffer_tmp */
-			cufftComplex		*gpu_input_buffer_tmp; /**< buffer saving the frames to work on the same images at each iteration. It contains #img when stft is disabled, and an hardcoded number when enabled. */
-
-			unsigned int		nsamples; /**< hardcoded value of frames to save when stft is enabled. Must be grater than 2. */
-			unsigned int		p; /**< hardcoded value of p when stft is enabled */
-
-			unsigned int		old_nsamples; /**< old value of nsamples */
-			unsigned int		old_p; /**< old value of p*/
-
-			unsigned int		old_steps; /**< old value of stft steps*/
-			int					stft_index; /**< current index of the frame to save/copy when stft is enabled. We need it since the input_length_ is equal to 1 when stft */
-			enum af_state		state; /**< state of autofocus process */
-		};
 
 		enum ref_state
 		{
@@ -119,13 +115,12 @@ namespace holovibes
 		void request_complex_output(Queue* fqueue);
 		void request_complex_output_stop();
 		void request_termination();
-		void queue_enqueue(void* input, Queue* queue);
 		void stft_handler(cufftComplex* input, cufftComplex* output);
 		/*!
 		 * \brief Updates the queues size
 		 */
 		void update_acc_parameter(
-			Queue*& gpu_img_acc,
+			std::unique_ptr<Queue>& gpu_img_acc,
 			std::atomic<bool>& enabled,
 			std::atomic<uint>& queue_length,
 			camera::FrameDescriptor new_fd,
@@ -157,29 +152,35 @@ namespace holovibes
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
 		Queue&			get_3d_vision_queue();
-		Queue*			get_lens_queue();
 		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
-		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_.load(); }
-		bool get_unwrap_2d_request()		const { return unwrap_2d_requested_.load(); }
-		bool get_autofocus_request()		const { return autofocus_requested_.load(); }
-		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_.load(); }
-		bool get_autocontrast_request()		const { return autocontrast_requested_.load(); }
-		bool get_refresh_request()			const { return refresh_requested_.load(); }
-		bool get_update_n_request()			const { return update_n_requested_.load(); }
-		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_.load(); }
-		bool get_average_request()			const { return average_requested_.load(); }
-		bool get_average_record_request()	const { return average_record_requested_.load(); }
-		bool get_float_output_request()		const { return float_output_requested_.load(); }
-		bool get_complex_output_request()	const { return complex_output_requested_.load(); }
-		bool get_abort_construct_request()	const { return abort_construct_requested_.load(); }
-		bool get_termination_request()		const { return termination_requested_.load(); }
-		bool get_update_acc_request()		const { return update_acc_requested_.load(); }
-		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_.load(); }
-		bool get_request_stft_cuts()		const { return request_stft_cuts_.load(); }
-		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_.load(); }
-		bool get_request_3d_vision()		const { return request_3d_vision_.load(); }
-		bool get_request_delete_3d_vision()	const { return request_delete_3d_vision_.load(); }
+		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_; }
+		bool get_unwrap_2d_request()		const { return unwrap_2d_requested_; }
+		bool get_autofocus_request()		const { return autofocus_requested_; }
+		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_; }
+		bool get_autocontrast_request()		const { return autocontrast_requested_; }
+		bool get_refresh_request()			const { return refresh_requested_; }
+		bool get_update_n_request()			const { return update_n_requested_; }
+		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
+		bool get_average_request()			const { return average_requested_; }
+		bool get_average_record_request()	const { return average_record_requested_; }
+		bool get_float_output_request()		const { return float_output_requested_; }
+		bool get_complex_output_request()	const { return complex_output_requested_; }
+		bool get_abort_construct_request()	const { return abort_construct_requested_; }
+		bool get_termination_request()		const { return termination_requested_; }
+		bool get_update_acc_request()		const { return update_acc_requested_; }
+		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
+		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
+		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
+		bool get_request_3d_vision()		const { return request_3d_vision_; }
+		bool get_request_delete_3d_vision()	const { return request_delete_3d_vision_; }
+
+		void set_stft_frame_counter(uint value)
+		{
+			stft_env_.stft_frame_counter_ = value;
+		}
+
+		virtual Queue*	get_lens_queue();
 
 
 	protected:
@@ -192,14 +193,6 @@ namespace holovibes
 		*
 		* For some features, it might be necessary to do special treatment. For
 		* example, store a returned value in a std::vector. */
-
-		static void autocontrast_caller(float				*input,
-			const uint			size,
-			const uint			offset,
-			ComputeDescriptor&	compute_desc,
-			std::atomic<float>&	min,
-			std::atomic<float>&	max,
-			cudaStream_t		stream);
 
 		/*! \see request_average
 		* \brief Call the average algorithm and store the result in the vector.
@@ -232,50 +225,6 @@ namespace holovibes
 			const units::RectFd& noise,
 			cudaStream_t stream);
 
-		/*! \see request_average
-		* \brief For nsamples in input, reconstruct image,
-		* clear previous result, call the average algorithm and store each result
-		* \param input Input buf, contain nsamples bursting frame
-		* \param width Width of one frame
-		* \param height Height of one frame
-		* \param signal Signal zone
-		* \param noise Noise zone */
-		void average_stft_caller(cufftComplex* input,
-			const unsigned int width,
-			const unsigned int height,
-			const unsigned int width_roi,
-			const unsigned int height_roi,
-			units::RectFd& signal_zone,
-			units::RectFd& noise_zone,
-			const unsigned int nsamples,
-			cudaStream_t stream);
-
-		/*! \brief restores the input frames saved in the gpu_input_buffer_
-		* \param input_buffer Destination buffer (gpu_input_buffer_) */
-		void autofocus_restore(cuComplex *input_buffer);
-
-		/*! \brief Initialize the structure af_env_ */
-		void autofocus_init();
-
-		/*! \brief This is the main part of the autofocus. It will copy
-		* the square area where autofocus is applied, call the evaluating function, and updates every value for next iteration.
-		* \param input buffer of float containing the image where autofocus is applied (gpu_float_buffer_) */
-		void autofocus_caller(float* input, cudaStream_t stream);
-
-		/*! \brief Resetting the structure af_env_ for next use */
-		void autofocus_reset();
-
-		/*! \brief Interpolate the frame in function of the current wavelength
-		* \param buffer Input and output buf
-		* \param fd FrameDescriptor of the input frame
-		* \param lambda Initial Wavelength
-		*/
-		void interpolation_caller(cuComplex *buffer,
-			const int width,
-			const int height,
-			const float ratio,
-			cudaStream_t stream = 0);
-
 		void record_float(float* float_output, cudaStream_t stream);
 		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);
@@ -295,26 +244,17 @@ namespace holovibes
 		std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
-		std::mutex		stftGuard;
-		void			*gpu_float_cut_xz_;
-		void			*gpu_float_cut_yz_;
-		void			*gpu_ushort_cut_xz_;
-		void			*gpu_ushort_cut_yz_;
-		float			*gpu_float_buffer_;
-		uint			gpu_float_buffer_size_;
-		cufftComplex	*gpu_stft_buffer_;
+		CoreBuffers		buffers_;
+		Stft_env		stft_env_;
+
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;
-		cufftHandle		plan3d_;
 		cufftHandle		plan2d_;
-		cufftHandle		plan1d_;
-		cufftHandle		plan1d_stft_;
 		float			*gpu_kernel_buffer_;
 		uint			gpu_special_queue_start_index;
 		uint			gpu_special_queue_max_index;
 
-		uint	input_length_;
 		Queue	*fqueue_;
 		uint	curr_elt_stft_;
 
@@ -323,22 +263,17 @@ namespace holovibes
 
 		uint	average_n_;
 		uint	frame_count_;
-		af_env	af_env_;
 
-		Queue	*gpu_img_acc_yz_;
-		Queue	*gpu_img_acc_xz_;
-		Queue	*gpu_stft_queue_;
-		Queue	*gpu_3d_vision;
+		std::unique_ptr<Queue>	gpu_img_acc_yz_;
+		std::unique_ptr<Queue>	gpu_img_acc_xz_;
+		std::unique_ptr<Queue>	gpu_3d_vision;
 		std::unique_ptr<Queue>	gpu_lens_queue_;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_yz;
-		Queue	*gpu_ref_diff_queue_;
+		std::unique_ptr<Queue>	gpu_ref_diff_queue_;
 
 		enum ref_state	ref_diff_state_;
-		cufftComplex	*gpu_filter2d_buffer;
 		uint			ref_diff_counter;
-		uint			stft_frame_counter;
-		bool			stft_handle;
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;

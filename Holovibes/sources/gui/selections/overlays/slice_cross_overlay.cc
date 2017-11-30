@@ -40,7 +40,7 @@ namespace holovibes
 			RectOverlay::init();
 
 			// Set line vertices order
-			std::vector<GLuint> elements {
+			const GLuint elements[] = {
 				0, 1,
 				1, 2,
 				2, 3,
@@ -49,7 +49,7 @@ namespace holovibes
 
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 

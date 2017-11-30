@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
+#include "HoloWindow.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -22,7 +24,8 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
-		{}
+		{
+		}
 
 		DirectWindow::~DirectWindow()
 		{}
@@ -57,7 +60,6 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Vertex, "shaders/vertex.direct.glsl");
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
-			overlay_manager_.create_overlay<Scale>();
 			overlay_manager_.create_default();
 		}
 

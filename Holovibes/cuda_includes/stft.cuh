@@ -13,6 +13,9 @@
 #pragma once
 
 #include "Common.cuh"
+#include "rect.hh"
+
+using holovibes::units::RectFd;
 
 /*! \brief Function handling the stft algorithm which steps are \n
  * 1 : Aplly lens on the input queue \n
@@ -50,8 +53,13 @@ void stft(cuComplex			*input,
 		const uint			stft_level,
 		const uint			p,
 		const uint			q,
-		const uint			frame_size,
+		const uint			nsamples,
+		const uint			width,
+		const uint			height,
 		const bool			stft_activated,
+		const bool			cropped_stft,
+		const RectFd		cropped_zone,
+		cuComplex			*cropped_stft_buf,
 		cudaStream_t		stream = 0);
 
 /// Computes the average frame for pmin <= p <= pmax

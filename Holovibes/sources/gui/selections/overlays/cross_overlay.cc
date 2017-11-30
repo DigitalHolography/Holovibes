@@ -84,7 +84,7 @@ namespace holovibes
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 			// Set line vertices order
-			std::vector<GLuint> lineElements{
+			const GLuint lineElements [] = {
 				// vertical rectangle
 				0, 1,
 				1, 2,
@@ -98,7 +98,7 @@ namespace holovibes
 			};
 			glGenBuffers(1, &elemLineIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemLineIndex_);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, lineElements.size() * sizeof(GLuint), lineElements.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(lineElements), lineElements, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			// Set rectangle vertices order

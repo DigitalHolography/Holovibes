@@ -31,5 +31,5 @@ unsigned int nextPowerOf2(unsigned int x)
 
 unsigned int prevPowerOf2(unsigned int x)
 {
-	return nextPowerOf2(x - 1) >> 1;
+	return nextPowerOf2(x) >> 1;
 }

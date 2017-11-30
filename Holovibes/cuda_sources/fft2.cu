@@ -69,55 +69,30 @@ void fft2_lens(cuComplex			*lens,
 
 void fft_2(cuComplex			*input,
 		const cuComplex			*lens,
-		const cufftHandle		plan1d,
 		const cufftHandle		plan2d,
 		const FrameDescriptor&	fd,
-		const uint				nframes,
-		const uint				p,
-		const uint				q,
 		cudaStream_t			stream)
 {
 	const uint	frame_resolution = fd.frame_res();
-	const uint	n_frame_resolution = frame_resolution * nframes;
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
 
-	cufftExecC2C(plan1d, input, input, CUFFT_FORWARD);
-
 	cudaStreamSynchronize(stream);
 
-	cuComplex* pframe = input + frame_resolution * p;
+	fft_2_dc(fd.width, frame_resolution, input, 0, stream);
 
-	fft_2_dc(	fd.width,
-				frame_resolution,
-				pframe,
-				0,
-				stream);
+	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
 
-	cufftExecC2C(plan2d, pframe, pframe, CUFFT_FORWARD);
-
-	kernel_apply_lens << <blocks, threads, 0, stream >> >(pframe, frame_resolution, lens, frame_resolution);
+	kernel_apply_lens << <blocks, threads, 0, stream >> >(input, frame_resolution, lens, frame_resolution);
 
 	cudaStreamSynchronize(stream);
 
 
-	cufftExecC2C(plan2d, pframe, pframe, CUFFT_INVERSE);
+	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
 
-	fft_2_dc(	fd.width,
-				frame_resolution,
-				pframe,
-				1,
-				stream);
+	fft_2_dc(fd.width, frame_resolution, input, 1, stream);
 
-	kernel_complex_divide << <blocks, threads, 0, stream >> >(pframe, frame_resolution, static_cast<float>(n_frame_resolution));
+	kernel_complex_divide << <blocks, threads, 0, stream >> >(input, frame_resolution, static_cast<float>(frame_resolution));
 
-	if (p != q)
-	{
-		cuComplex* qframe = input + frame_resolution * q;
-		cufftExecC2C(plan2d, qframe, qframe, CUFFT_FORWARD);
-		kernel_apply_lens << <blocks, threads, 0, stream >> >(qframe, frame_resolution, lens, frame_resolution);
-		cufftExecC2C(plan2d, qframe, qframe, CUFFT_INVERSE);
-		kernel_complex_divide << <blocks, threads, 0, stream >> >(qframe, frame_resolution, static_cast<float>(n_frame_resolution));
-	}
 	cudaStreamSynchronize(stream);
 }

@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "5.4.0"
+#define MyAppVersion "5.5.2"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
-;define for Qt ,Qwt path and Cuda
+
 #define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
 #define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define QwtPath "C:\Qt\qwt-6.1.3\lib"
@@ -66,6 +66,7 @@ Source: "x64\Release\CameraPike.dll"; DestDir: "{app}\{#MyAppVersion}";Component
 Source: "x64\Release\CameraPhotonFocus.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraUtils.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\CameraXiq.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\CameraXib.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\FGCamera.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\GPIB.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\m3apiX64.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
@@ -79,6 +80,7 @@ Source: "x64\Release\photonfocus.ini"; DestDir: "{app}\{#MyAppVersion}";Componen
 Source: "x64\Release\pike.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\pixelfly.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\xiq.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "x64\Release\xib.ini"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\Holovibes.ico"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "x64\Release\holovibes_logo.png"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Holovibes\shaders\fragment.color.glsl"; DestDir: "{app}\{#MyAppVersion}\shaders";Components: program; Flags: ignoreversion
@@ -122,8 +124,7 @@ Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Compon
 Source: "{#CudaPath}\cufft64_90.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_90.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "setup_creator_files\vcredist_2013_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2013
-Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2015
+Source: "setup_creator_files\vcredist_2017_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2017
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -132,25 +133,14 @@ Type: filesandordirs; Name: "{app}\{#MyAppVersion}"
 
 [Code]
 
-procedure Visual2013;
-var
-  ResultCode: Integer;
-begin
-    if not Exec(ExpandConstant('{tmp}\vcredist_2013_x64.exe'), '', '', SW_SHOWNORMAL,
-      ewWaitUntilTerminated, ResultCode)
-    then
-      MsgBox('Visual c++ redistributable 2013 failed to run!' + #13#10 +
-        SysErrorMessage(ResultCode), mbError, MB_OK);
-end;
-
-procedure Visual2015;
+procedure Visual2017;
 var                                   
   ResultCode: Integer;
 begin
-    if not Exec(ExpandConstant('{tmp}\vcredist_2015_x64.exe'), '', '', SW_SHOWNORMAL,
+    if not Exec(ExpandConstant('{tmp}\vcredist_2017_x64.exe'), '', '', SW_SHOWNORMAL,
       ewWaitUntilTerminated, ResultCode)
     then
-      MsgBox('Visual c++ redistributable 2015 failed to run!' + #13#10 +
+      MsgBox('Visual c++ redistributable 2017 failed to run!' + #13#10 +
         SysErrorMessage(ResultCode), mbError, MB_OK);
 end;
 

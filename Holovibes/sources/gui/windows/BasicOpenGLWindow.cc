@@ -92,11 +92,6 @@ namespace holovibes
 		{
 			return overlay_manager_;
 		}
-
-		QOpenGLVertexArrayObject& BasicOpenGLWindow::getVao()
-		{
-			return Vao;
-		}
 		
 		const glm::mat3x3 & BasicOpenGLWindow::getTransformMatrix() const
 		{
