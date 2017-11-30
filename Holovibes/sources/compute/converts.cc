@@ -24,13 +24,13 @@ namespace holovibes
 	{
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
-			cufftComplex* const& gpu_stft_buffer,
+			const Stft_env& stft_env,
 			const std::unique_ptr<Queue>& gpu_3d_vision,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd)
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
-			, gpu_stft_buffer_(gpu_stft_buffer)
+			, stft_env_(stft_env)
 			, gpu_3d_vision_(gpu_3d_vision)
 			, cd_(cd)
 			, fd_(input_fd)
@@ -131,7 +131,7 @@ namespace holovibes
 				for (Component* component : comps)
 					if (component->p_max < component->p_min || component->p_max >= cd_.nsamples)
 						return;
-				composite(gpu_stft_buffer_,
+				composite(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
 					cd_.composite_auto_weights_,
@@ -162,7 +162,7 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
-					gpu_stft_buffer_,
+					stft_env_.gpu_stft_buffer_.get(),
 					static_cast<float *>(gpu_3d_vision_->get_buffer()),
 					fd_.frame_res() * cd_.nsamples);
 			});

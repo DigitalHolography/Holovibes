@@ -185,8 +185,6 @@ namespace holovibes
 			buffers_.gpu_float_buffer_size_ *= 3;
 		if (cudaMalloc<float>(&buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_) != cudaSuccess)
 			err++;
-		if (err != 0)
-			throw std::exception(cudaGetErrorString(cudaGetLastError()));
 		
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));

@@ -20,6 +20,7 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	struct CoreBuffers;
+	struct Stft_env;
 	namespace compute
 	{
 		using uint = unsigned int;
@@ -29,7 +30,7 @@ namespace holovibes
 		public:
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
-				cufftComplex* const& gpu_stft_buffer,
+				const Stft_env& stft_env,
 				const std::unique_ptr<Queue>& gpu_3d_vision,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd);
@@ -50,7 +51,7 @@ namespace holovibes
 			FnVector&						fn_vect_;
 
 			const CoreBuffers&				buffers_;
-			cufftComplex* const&			gpu_stft_buffer_;
+			const Stft_env&					stft_env_;
 			const std::unique_ptr<Queue>&	gpu_3d_vision_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;

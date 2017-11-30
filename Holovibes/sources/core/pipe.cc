@@ -51,7 +51,7 @@ namespace holovibes
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
 		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, desc, output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_.gpu_stft_buffer_, gpu_3d_vision, desc, input.get_frame_desc());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, desc, input.get_frame_desc());
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 		if (compute_desc_.compute_mode != Computation::Direct)
