@@ -20,6 +20,9 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct CoreBuffers;
+	enum WindowKind;
+
 	namespace compute
 	{
 		using uint = unsigned int;
@@ -28,10 +31,7 @@ namespace holovibes
 		{
 		public:
 			Contrast(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
-				const uint& gpu_float_buffer_size,
-				float* const& gpu_float_cut_xz,
-				float* const& gpu_float_cut_yz,
+				const CoreBuffers& buffers,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& output_fd,
 				Queue*& gpu_3d_vision,
@@ -53,21 +53,16 @@ namespace holovibes
 			void autocontrast_caller(float *input,
 				const uint			size,
 				const uint			offset,
+				WindowKind			view,
 				cudaStream_t		stream = 0);
 
-			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
-			/// Size of the gpu_float_buffer (size of a frame)
-			const uint&						gpu_float_buffer_size_;
-			/// The whole image for this frame in XZ
-			float* const&					gpu_float_cut_xz_;
-			/// The whole image for this frame in YZ
-			float* const&					gpu_float_cut_yz_;
 
 			/// Pipe data
 			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
+			/// Main buffers
+			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe

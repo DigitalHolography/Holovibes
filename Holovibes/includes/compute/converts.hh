@@ -19,6 +19,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct CoreBuffers;
 	namespace compute
 	{
 		using uint = unsigned int;
@@ -27,10 +28,8 @@ namespace holovibes
 		{
 		public:
 			Converts(FnVector& fn_vect,
-				cuComplex* const& gpu_input_buffer,
-				float* const& gpu_float_buffer,
+				const CoreBuffers& buffers,
 				cufftComplex* const& gpu_stft_buffer,
-				void* const& gpu_output_buffer,
 				Queue* const& gpu_3d_vision,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd);
@@ -50,11 +49,9 @@ namespace holovibes
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
-			cuComplex* const& gpu_input_buffer_;
-			cufftComplex* const& gpu_stft_buffer_;
-			float* const& gpu_float_buffer_;
-			void* const& gpu_output_buffer_;
-			Queue* const& gpu_3d_vision_;
+			const CoreBuffers&				buffers_;
+			cufftComplex* const&			gpu_stft_buffer_;
+			Queue* const&					gpu_3d_vision_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe

@@ -92,10 +92,6 @@ namespace holovibes
 	private:
 		FnVector		fn_vect_;
 
-		cufftComplex	*gpu_input_buffer_;
-		void			*gpu_output_buffer_;
-		cufftComplex	*gpu_input_frame_ptr_;
-
 		std::unique_ptr<compute::Stabilization> stabilization_;
 		std::unique_ptr<compute::Autofocus> autofocus_;
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;

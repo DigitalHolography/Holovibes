@@ -46,6 +46,23 @@ namespace holovibes
 
 namespace holovibes
 {
+	struct CoreBuffers
+	{
+		// input buffer
+		cufftComplex	*gpu_input_buffer_ = nullptr;
+
+		// float buffers
+		float			*gpu_float_buffer_ = nullptr;
+		uint			gpu_float_buffer_size_ = 0;
+		float			*gpu_float_cut_xz_ = nullptr;
+		float			*gpu_float_cut_yz_ = nullptr;
+
+		// Output buffers
+		void			*gpu_output_buffer_ = nullptr;
+		void			*gpu_ushort_cut_xz_ = nullptr;
+		void			*gpu_ushort_cut_yz_ = nullptr;
+	};
+
 	/* \brief Stores functions helping the editing of the images.
 	 *
 	 * Stores all the functions that will be used before doing
@@ -236,16 +253,13 @@ namespace holovibes
 		std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
+		CoreBuffers		buffers_;
+
 		std::mutex		stftGuard;
-		float			*gpu_float_cut_xz_;
-		float			*gpu_float_cut_yz_;
-		void			*gpu_ushort_cut_xz_;
-		void			*gpu_ushort_cut_yz_;
-		float			*gpu_float_buffer_;
-		uint			gpu_float_buffer_size_;
 		cufftComplex	*gpu_stft_buffer_;
 		//! Buffer containing the zone that limits the stft computations
 		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
+
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;

@@ -14,6 +14,7 @@
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
 #include "compute_descriptor.hh"
+#include "icompute.hh"
 #include "tools_conversion.cuh"
 #include "composite.cuh"
 
@@ -22,18 +23,14 @@ namespace holovibes
 	namespace compute
 	{
 		Converts::Converts(FnVector& fn_vect,
-			cuComplex* const& gpu_input_buffer,
-			float* const& gpu_float_buffer,
+			const CoreBuffers& buffers,
 			cufftComplex* const& gpu_stft_buffer,
-			void* const& gpu_output_buffer,
 			Queue* const& gpu_3d_vision,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd)
 			: fn_vect_(fn_vect)
-			, gpu_input_buffer_(gpu_input_buffer)
-			, gpu_float_buffer_(gpu_float_buffer)
+			, buffers_(buffers)
 			, gpu_stft_buffer_(gpu_stft_buffer)
-			, gpu_output_buffer_(gpu_output_buffer)
 			, gpu_3d_vision_(gpu_3d_vision)
 			, cd_(cd)
 			, fd_(input_fd)
@@ -111,8 +108,8 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
-					gpu_input_buffer_,
-					gpu_float_buffer_,
+					buffers_.gpu_input_buffer_,
+					buffers_.gpu_float_buffer_,
 					fd_.frame_res());
 			});
 		}
@@ -121,8 +118,8 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_squared_modulus(
-					gpu_input_buffer_,
-					gpu_float_buffer_,
+					buffers_.gpu_input_buffer_,
+					buffers_.gpu_float_buffer_,
 					fd_.frame_res());
 			});
 		}
@@ -135,7 +132,7 @@ namespace holovibes
 					if (component->p_max < component->p_min || component->p_max >= cd_.nsamples)
 						return;
 				composite(gpu_stft_buffer_,
-					gpu_float_buffer_,
+					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
 					cd_.composite_auto_weights_,
 					cd_.component_r.p_min,
@@ -154,8 +151,8 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				cudaMemcpy(
-					gpu_output_buffer_,
-					gpu_input_buffer_,
+					buffers_.gpu_output_buffer_,
+					buffers_.gpu_input_buffer_,
 					fd_.frame_res() << 3,
 					cudaMemcpyDeviceToDevice);
 			});

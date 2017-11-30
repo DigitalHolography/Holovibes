@@ -81,8 +81,6 @@ namespace holovibes
 		stft_frame_counter(1),
 		average_n_(0),
 		past_time_(std::chrono::high_resolution_clock::now()),
-		gpu_float_cut_xz_(nullptr),
-		gpu_float_cut_yz_(nullptr),
 		stft_handle(false)
 	{
 		int err = 0;
@@ -185,6 +183,20 @@ namespace holovibes
 			new Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
 			*/
 		}
+		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
+
+		if (cudaMalloc<cufftComplex>(&buffers_.gpu_input_buffer_, complex_pixels) != cudaSuccess)
+			err++;
+		if (cudaMalloc(&buffers_.gpu_output_buffer_, output_.get_frame_desc().depth * input_.get_pixels()) != cudaSuccess)
+			err++;
+		buffers_.gpu_float_buffer_size_ = sizeof(float) * input_.get_pixels();
+		if (compute_desc_.img_type == ImgType::Composite)
+			buffers_.gpu_float_buffer_size_ *= 3;
+		if (cudaMalloc<float>(&buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_) != cudaSuccess)
+			err++;
+		if (err != 0)
+			throw std::exception(cudaGetErrorString(cudaGetLastError()));
+		
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
 	}
@@ -224,11 +236,11 @@ namespace holovibes
 		/* gpu_take_ref_queue */
 		delete gpu_ref_diff_queue_;
 
-		if (gpu_float_cut_xz_)	cudaFree(gpu_float_cut_xz_);
-		if (gpu_float_cut_yz_)	cudaFree(gpu_float_cut_yz_);
+		cudaFree(buffers_.gpu_float_cut_xz_);
+		cudaFree(buffers_.gpu_float_cut_yz_);
 
-		if (gpu_ushort_cut_xz_)	cudaFree(gpu_ushort_cut_xz_);
-		if (gpu_ushort_cut_yz_)	cudaFree(gpu_ushort_cut_yz_);
+		cudaFree(buffers_.gpu_ushort_cut_xz_);
+		cudaFree(buffers_.gpu_ushort_cut_yz_);
 
 		InfoManager::get_manager()->remove_info("Rendering Fps");
 		InfoManager::get_manager()->remove_info("STFT Zone");
@@ -740,8 +752,8 @@ namespace holovibes
 			}
 			// -----------------------------------------------------
 			stft_view_begin(gpu_stft_buffer_,
-				gpu_float_cut_xz_,
-				gpu_float_cut_yz_,
+				buffers_.gpu_float_cut_xz_,
+				buffers_.gpu_float_cut_yz_,
 				compute_desc_.x_accu_enabled ? compute_desc_.x_accu_min_level.load() : mouse_posx,
 				compute_desc_.y_accu_enabled ? compute_desc_.y_accu_min_level.load() : mouse_posy,
 				compute_desc_.x_accu_enabled ? compute_desc_.x_accu_max_level.load() : mouse_posx,
@@ -815,5 +827,6 @@ namespace holovibes
 		auto pipe = dynamic_cast<Pipe *>(this);
 		if (pipe)
 			return pipe->get_lens_queue();
+		return nullptr;
 	}
 }
