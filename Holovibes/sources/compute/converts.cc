@@ -15,6 +15,8 @@
 #include "pipeline_utils.hh"
 #include "compute_descriptor.hh"
 #include "icompute.hh"
+#include "compute_bundles.hh"
+#include "compute_bundles_2d.hh"
 #include "tools_conversion.cuh"
 #include "composite.cuh"
 
@@ -26,17 +28,23 @@ namespace holovibes
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
 			const std::unique_ptr<Queue>& gpu_3d_vision,
+			const cufftHandle& plan2d,
 			ComputeDescriptor& cd,
-			const camera::FrameDescriptor& input_fd)
+			const camera::FrameDescriptor& input_fd,
+			const camera::FrameDescriptor& output_fd)
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, stft_env_(stft_env)
+			, unwrap_res_()
+			, unwrap_res_2d_()
 			, gpu_3d_vision_(gpu_3d_vision)
+			, plan2d_(plan2d)
 			, cd_(cd)
 			, fd_(input_fd)
+			, output_fd_(output_fd)
 		{}
 
-		void Converts::insert_to_float()
+		void Converts::insert_to_float(bool unwrap_2d_requested)
 		{
 			if (cd_.img_type == Composite)
 				insert_to_composite();
@@ -49,59 +57,20 @@ namespace holovibes
 			}
 			else if (cd_.img_type == SquaredModulus)
 				insert_to_squaredmodulus();
-			/*else if (cd_.img_type == Argument)
-			{
-				fn_vect_.push_back(std::bind(
-					complex_to_argument,
-					gpu_input_frame_ptr_,
-					gpu_float_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
-
-				if (unwrap_2d_requested_.load())
-				{
-					try
-					{
-						if (!unwrap_res_2d_)
-							unwrap_res_2d_.reset(new UnwrappingResources_2d(input_.get_pixels()));
-						if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-							unwrap_res_2d_->reallocate(input_.get_pixels());
-
-						fn_vect_.push_back(std::bind(
-							unwrap_2d,
-							gpu_float_buffer_,
-							plan2d_,
-							unwrap_res_2d_.get(),
-							input_.get_frame_desc(),
-							unwrap_res_2d_->gpu_angle_,
-							static_cast<cudaStream_t>(0)));
-
-						// Converting angle information in floating-point representation.
-						fn_vect_.push_back(std::bind(
-							rescale_float_unwrap2d,
-							unwrap_res_2d_->gpu_angle_,
-							gpu_float_buffer_,
-							unwrap_res_2d_->minmax_buffer_,
-							input_fd.frame_res(),
-							static_cast<cudaStream_t>(0)));
-					}
-					catch (std::exception& e)
-					{
-						std::cout << e.what() << std::endl;
-					}
-				}
-				else
-				{
-					// Converting angle information in floating-point representation.
-					fn_vect_.push_back(std::bind(
-						rescale_argument,
-						gpu_float_buffer_,
-						input_fd.frame_res(),
-						static_cast<cudaStream_t>(0)));
-				}
-			}*/
+			if (cd_.img_type == Argument)
+				insert_to_argument(unwrap_2d_requested);
+			else if (cd_.img_type == PhaseIncrease)
+				insert_to_phase_increase(unwrap_2d_requested);
 			else if (cd_.img_type == Complex)
 				insert_to_complex();
+		}
+
+		void Converts::insert_to_ushort()
+		{
+			if (!cd_.vision_3d_enabled)
+				insert_main_ushort();
+			if (cd_.stft_view_enabled)
+				insert_slice_ushort();
 		}
 
 		void Converts::insert_to_modulus()
@@ -165,6 +134,128 @@ namespace holovibes
 					stft_env_.gpu_stft_buffer_.get(),
 					static_cast<float *>(gpu_3d_vision_->get_buffer()),
 					fd_.frame_res() * cd_.nsamples);
+			});
+		}
+
+		void Converts::insert_to_argument(bool unwrap_2d_requested)
+		{
+			fn_vect_.push_back([=]() {
+				complex_to_argument(buffers_.gpu_input_buffer_, buffers_.gpu_float_buffer_, fd_.frame_res()); });
+
+			if (unwrap_2d_requested)
+			{
+				try
+				{
+					if (!unwrap_res_2d_)
+						unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.frame_res()));
+					if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
+						unwrap_res_2d_->reallocate(fd_.frame_res());
+
+					fn_vect_.push_back([=]() {
+						unwrap_2d(
+							buffers_.gpu_float_buffer_,
+							plan2d_,
+							unwrap_res_2d_.get(),
+							fd_,
+							unwrap_res_2d_->gpu_angle_);
+					});
+
+					// Converting angle information in floating-point representation.
+					fn_vect_.push_back([=]() {
+						rescale_float_unwrap2d(
+							unwrap_res_2d_->gpu_angle_,
+							buffers_.gpu_float_buffer_,
+							unwrap_res_2d_->minmax_buffer_,
+							fd_.frame_res());
+					});
+				}
+				catch (std::exception& e)
+				{
+					std::cerr << "Error while trying to convert to float in Argument :" << e.what() << std::endl;
+				}
+			}
+		}
+
+		void Converts::insert_to_phase_increase(bool unwrap_2d_requested)
+		{
+			try
+			{
+				if (!unwrap_res_)
+					unwrap_res_.reset(new UnwrappingResources(cd_.unwrap_history_size, fd_.frame_res()));
+				unwrap_res_->reset(cd_.unwrap_history_size);
+				unwrap_res_->reallocate(fd_.frame_res());
+				fn_vect_.push_back([=]() {
+					phase_increase(
+						buffers_.gpu_input_buffer_,
+						unwrap_res_.get(),
+						fd_.frame_res());
+				});
+
+				if (unwrap_2d_requested)
+				{
+					if (!unwrap_res_2d_)
+						unwrap_res_2d_.reset(new UnwrappingResources_2d(fd_.frame_res()));
+
+					if (unwrap_res_2d_->image_resolution_ != fd_.frame_res())
+						unwrap_res_2d_->reallocate(fd_.frame_res());
+
+					fn_vect_.push_back([=]() {
+						unwrap_2d(
+							unwrap_res_->gpu_angle_current_,
+							plan2d_,
+							unwrap_res_2d_.get(),
+							fd_,
+							unwrap_res_2d_->gpu_angle_);
+					});
+
+					// Converting angle information in floating-point representation.
+					fn_vect_.push_back([=]() {
+						rescale_float_unwrap2d(
+							unwrap_res_2d_->gpu_angle_,
+							buffers_.gpu_float_buffer_,
+							unwrap_res_2d_->minmax_buffer_,
+							fd_.frame_res());
+					});
+				}
+				else
+					fn_vect_.push_back([=]() {
+					rescale_float(
+						unwrap_res_->gpu_angle_current_,
+						buffers_.gpu_float_buffer_,
+						fd_.frame_res()); });
+			}
+			catch (std::exception& e)
+			{
+				std::cerr << "Error while trying to convert to float in Phase increase :" << e.what() << std::endl;
+			}
+		}
+
+		void Converts::insert_main_ushort()
+		{
+			fn_vect_.push_back([=]() {
+				float_to_ushort(
+					buffers_.gpu_float_buffer_,
+					buffers_.gpu_output_buffer_,
+					buffers_.gpu_float_buffer_size_ / sizeof(float),
+					output_fd_.depth);
+			});
+		}
+
+		void Converts::insert_slice_ushort()
+		{
+			fn_vect_.push_back([=]() {
+				float_to_ushort(
+					buffers_.gpu_float_cut_xz_,
+					buffers_.gpu_ushort_cut_xz_,
+					stft_env_.gpu_stft_slice_queue_xz->get_frame_desc().frame_res(),
+					2.f);
+			});
+			fn_vect_.push_back([=]() {
+				float_to_ushort(
+					buffers_.gpu_float_cut_yz_,
+					buffers_.gpu_ushort_cut_yz_,
+					stft_env_.gpu_stft_slice_queue_yz->get_frame_desc().frame_res(),
+					2.f);
 			});
 		}
 	}

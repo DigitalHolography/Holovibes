@@ -45,13 +45,9 @@ namespace holovibes
 		: compute_desc_(desc),
 		input_(input),
 		output_(output),
-		unwrap_res_(nullptr),
-		unwrap_res_2d_(nullptr),
 		gpu_lens_(nullptr),
 		gpu_kernel_buffer_(nullptr),
 		gpu_special_queue_(nullptr),
-		gpu_stft_slice_queue_xz(nullptr),
-		gpu_stft_slice_queue_yz(nullptr),
 		gpu_ref_diff_queue_(nullptr),
 		gpu_tmp_input_(nullptr),
 		unwrap_1d_requested_(false),
@@ -259,8 +255,8 @@ namespace holovibes
 		catch (std::exception&)
 		{
 			stft_env_.gpu_stft_queue_.reset();
-			gpu_stft_slice_queue_xz.reset();
-			gpu_stft_slice_queue_yz.reset();
+			stft_env_.gpu_stft_slice_queue_xz.reset();
+			stft_env_.gpu_stft_slice_queue_yz.reset();
 			err_count++;
 		}
 
@@ -317,7 +313,7 @@ namespace holovibes
 
 	Queue&	ICompute::get_stft_slice_queue(int slice)
 	{
-		return slice ? *gpu_stft_slice_queue_yz : *gpu_stft_slice_queue_xz;
+		return slice ? *stft_env_.gpu_stft_slice_queue_yz : *stft_env_.gpu_stft_slice_queue_xz;
 	}
 
 	Queue& ICompute::get_3d_vision_queue()

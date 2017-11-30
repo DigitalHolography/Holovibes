@@ -21,6 +21,8 @@ namespace holovibes
 	class ComputeDescriptor;
 	struct CoreBuffers;
 	struct Stft_env;
+	struct UnwrappingResources;
+	struct UnwrappingResources_2d;
 	namespace compute
 	{
 		using uint = unsigned int;
@@ -32,10 +34,13 @@ namespace holovibes
 				const CoreBuffers& buffers,
 				const Stft_env& stft_env,
 				const std::unique_ptr<Queue>& gpu_3d_vision,
+				const cufftHandle& plan2d,
 				ComputeDescriptor& cd,
-				const camera::FrameDescriptor& input_fd);
+				const camera::FrameDescriptor& input_fd,
+				const camera::FrameDescriptor& output_fd);
 
-			void insert_to_float();
+			void insert_to_float(bool unwrap_2d_requested);
+			void insert_to_ushort();
 
 		private:
 
@@ -44,6 +49,10 @@ namespace holovibes
 			void insert_to_squaredmodulus();
 			void insert_to_composite();
 			void insert_to_complex();
+			void insert_to_argument(bool unwrap_2d_requested);
+			void insert_to_phase_increase(bool unwrap_2d_requested);
+			void insert_main_ushort();
+			void insert_slice_ushort();
 
 			/// Pipe data
 			/// {
@@ -52,9 +61,14 @@ namespace holovibes
 
 			const CoreBuffers&				buffers_;
 			const Stft_env&					stft_env_;
+			std::unique_ptr<UnwrappingResources>	unwrap_res_;
+			std::unique_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 			const std::unique_ptr<Queue>&	gpu_3d_vision_;
-			/// Describes the frame size
-			const camera::FrameDescriptor&	fd_;
+			const cufftHandle&				plan2d_;
+			/// Describes the input frame size
+			const camera::FrameDescriptor&		fd_;
+			/// Describes the output frame size
+			const camera::FrameDescriptor&		output_fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
 			/// }

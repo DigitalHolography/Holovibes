@@ -30,8 +30,6 @@ namespace holovibes
 # define TUPLE4F
 	using	Tuple4f = std::tuple<float, float, float, float>;
 # endif
-	struct UnwrappingResources;
-	struct UnwrappingResources_2d;
 	class Queue;
 	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;
@@ -65,6 +63,8 @@ namespace holovibes
 		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
 		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
+		std::unique_ptr<Queue>				gpu_stft_slice_queue_xz = nullptr;
+		std::unique_ptr<Queue>				gpu_stft_slice_queue_yz = nullptr;
 		// Plan
 		cuda_tools::CufftHandle				plan1d_stft_;
 
@@ -240,8 +240,6 @@ namespace holovibes
 		Queue&	input_;
 		Queue&	output_;
 
-		std::shared_ptr<UnwrappingResources>	unwrap_res_;
-		std::shared_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		CoreBuffers		buffers_;
@@ -256,7 +254,6 @@ namespace holovibes
 		uint			gpu_special_queue_max_index;
 
 		Queue	*fqueue_;
-		uint	curr_elt_stft_;
 
 		ConcurrentDeque<Tuple4f>* average_output_;
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
@@ -268,8 +265,6 @@ namespace holovibes
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
 		std::unique_ptr<Queue>	gpu_3d_vision;
 		std::unique_ptr<Queue>	gpu_lens_queue_;
-		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;
-		std::unique_ptr<Queue>	gpu_stft_slice_queue_yz;
 		std::unique_ptr<Queue>	gpu_ref_diff_queue_;
 
 		enum ref_state	ref_diff_state_;

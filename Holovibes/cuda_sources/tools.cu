@@ -333,7 +333,7 @@ void phase_increase(const cuComplex			*cur,
 void unwrap_2d(	float*						input,
 				const cufftHandle			plan2d,
 				UnwrappingResources_2d*		res,
-				FrameDescriptor&	fd,
+				const FrameDescriptor&		fd,
 				float*						output,
 				cudaStream_t				stream)
 {
@@ -373,7 +373,7 @@ void unwrap_2d(	float*						input,
 
 void gradient_unwrap_2d(const cufftHandle			plan2d,
 						UnwrappingResources_2d*		res,
-						FrameDescriptor&			fd,
+						const FrameDescriptor&			fd,
 						cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
@@ -397,7 +397,7 @@ void gradient_unwrap_2d(const cufftHandle			plan2d,
 
 void eq_unwrap_2d(const cufftHandle			plan2d,
 				UnwrappingResources_2d*		res,
-				FrameDescriptor&			fd,
+				const FrameDescriptor&			fd,
 				cudaStream_t				stream)
 {
 	const uint	threads = THREADS_128;
@@ -423,7 +423,7 @@ void eq_unwrap_2d(const cufftHandle			plan2d,
 
 void phi_unwrap_2d(	const cufftHandle			plan2d,
 					UnwrappingResources_2d*		res,
-					FrameDescriptor&			fd,
+					const FrameDescriptor&			fd,
 					float*						output,
 					cudaStream_t				stream)
 {

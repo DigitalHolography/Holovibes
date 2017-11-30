@@ -51,7 +51,7 @@ namespace holovibes
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
 		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, desc, output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, desc, input.get_frame_desc());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 		if (compute_desc_.compute_mode != Computation::Direct)
@@ -109,8 +109,8 @@ namespace holovibes
 			auto fd_yz = fd_xz;
 			fd_xz.height = compute_desc_.nsamples;
 			fd_yz.width = compute_desc_.nsamples;
-			gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
-			gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
+			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
+			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
 			cudaMalloc(&buffers_.gpu_float_cut_xz_, fd_xz.frame_res() * buffer_depth);
 			cudaMalloc(&buffers_.gpu_float_cut_yz_, fd_yz.frame_res() * buffer_depth);
 
@@ -126,8 +126,8 @@ namespace holovibes
 			cudaFree(buffers_.gpu_ushort_cut_xz_);
 			cudaFree(buffers_.gpu_ushort_cut_yz_);
 
-			gpu_stft_slice_queue_xz.reset();
-			gpu_stft_slice_queue_yz.reset();
+			stft_env_.gpu_stft_slice_queue_xz.reset();
+			stft_env_.gpu_stft_slice_queue_yz.reset();
 			request_delete_stft_cuts_.exchange(false);
 		}
 	}
@@ -324,125 +324,8 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
-		converts_->insert_to_float();
-		if (compute_desc_.img_type == ImgType::Argument)
-		{
-			fn_vect_.push_back(std::bind(
-				complex_to_argument,
-				buffers_.gpu_input_buffer_,
-				buffers_.gpu_float_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-
-			if (unwrap_2d_requested_.load())
-			{
-				try
-				{
-					if (!unwrap_res_2d_)
-						unwrap_res_2d_.reset(new UnwrappingResources_2d(input_.get_pixels()));
-					if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-						unwrap_res_2d_->reallocate(input_.get_pixels());
-
-					fn_vect_.push_back(std::bind(
-						unwrap_2d,
-						buffers_.gpu_float_buffer_,
-						plan2d_.get(),
-						unwrap_res_2d_.get(),
-						input_.get_frame_desc(),
-						unwrap_res_2d_->gpu_angle_,
-						static_cast<cudaStream_t>(0)));
-
-					// Converting angle information in floating-point representation.
-					fn_vect_.push_back(std::bind(
-						rescale_float_unwrap2d,
-						unwrap_res_2d_->gpu_angle_,
-						buffers_.gpu_float_buffer_,
-						unwrap_res_2d_->minmax_buffer_,
-						input_fd.frame_res(),
-						static_cast<cudaStream_t>(0)));
-				}
-				catch (std::exception& e)
-				{
-					std::cout << e.what() << std::endl;
-				}
-			}
-			else
-			{
-				// Converting angle information in floating-point representation.
-				fn_vect_.push_back(std::bind(
-					rescale_argument,
-					buffers_.gpu_float_buffer_,
-					input_fd.frame_res(),
-					static_cast<cudaStream_t>(0)));
-			}
-		}
-		else if (compute_desc_.img_type == ImgType::PhaseIncrease)
-		{
-			//Unwrap_res is a ressource for phase_increase
-			try
-			{
-				if (!unwrap_res_)
-					unwrap_res_.reset(new UnwrappingResources(
-						compute_desc_.unwrap_history_size,
-						input_.get_pixels()));
-				unwrap_res_->reset(compute_desc_.unwrap_history_size);
-				unwrap_res_->reallocate(input_.get_pixels());
-				if (compute_desc_.img_type.load() == ImgType::PhaseIncrease)
-					fn_vect_.push_back(std::bind(
-						phase_increase,
-						buffers_.gpu_input_buffer_,
-						unwrap_res_.get(),
-						input_fd.frame_res()));
-				else
-					// Fallback on modulus mode.
-					fn_vect_.push_back(std::bind(
-						complex_to_modulus,
-						buffers_.gpu_input_buffer_,
-						buffers_.gpu_float_buffer_,
-						input_fd.frame_res(),
-						static_cast<cudaStream_t>(0)));
-
-				if (unwrap_2d_requested_)
-				{
-					if (!unwrap_res_2d_)
-						unwrap_res_2d_.reset(new UnwrappingResources_2d(input_.get_pixels()));
-
-					if (unwrap_res_2d_->image_resolution_ != input_.get_pixels())
-						unwrap_res_2d_->reallocate(input_.get_pixels());
-
-					fn_vect_.push_back(std::bind(
-						unwrap_2d,
-						unwrap_res_->gpu_angle_current_,
-						plan2d_.get(),
-						unwrap_res_2d_.get(),
-						input_.get_frame_desc(),
-						unwrap_res_2d_->gpu_angle_,
-						static_cast<cudaStream_t>(0)));
-
-					// Converting angle information in floating-point representation.
-					fn_vect_.push_back(std::bind(
-						rescale_float_unwrap2d,
-						unwrap_res_2d_->gpu_angle_,
-						buffers_.gpu_float_buffer_,
-						unwrap_res_2d_->minmax_buffer_,
-						input_fd.frame_res(),
-						static_cast<cudaStream_t>(0)));
-				}
-				else
-					// Converting angle information in floating-point representation.
-					fn_vect_.push_back(std::bind(
-						rescale_float,
-						unwrap_res_->gpu_angle_current_,
-						buffers_.gpu_float_buffer_,
-						input_fd.frame_res(),
-						static_cast<cudaStream_t>(0)));
-			}
-			catch (std::exception& e)
-			{
-				std::cout << e.what() << std::endl;
-			}
-		}
-		else if (compute_desc_.img_type == Complex)
+		converts_->insert_to_float(unwrap_2d_requested_);
+		if (compute_desc_.img_type == Complex)
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
@@ -583,9 +466,9 @@ namespace holovibes
 						if (compute_desc_.stft_view_enabled)
 						{
 							queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
-								gpu_stft_slice_queue_xz.get());
+								stft_env_.gpu_stft_slice_queue_xz.get());
 							queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
-								gpu_stft_slice_queue_yz.get());
+								stft_env_.gpu_stft_slice_queue_yz.get());
 						}
 					}
 				}
