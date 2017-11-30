@@ -97,6 +97,7 @@ This mode is useful to do batch computation (call holovibes from a script).
 * For both "Debug | x64" and "Release | x64":
     * Add -> Add existing property sheet -> "PropertySheet.props" and "CameraDLL.props"
 * Make sure "CAMERA_EXPORTS" is set (properties -> C/C++ -> preprocessor -> Preprocessor definitions)
+* right click on Holovibes -> Build Events -> Post-Build Events -> add the copy of your SDk dll and your ini file
 
 ## Features ##
 
