@@ -162,6 +162,11 @@ void Stabilization::insert_stabilization()
 			return;
 		if (!cd_.xy_stabilization_paused)
 			complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
+		else
+		{
+			shift_x = 0;
+			shift_y = 0;
+		}
 	});
 }
 

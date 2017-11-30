@@ -991,6 +991,11 @@ namespace holovibes
 			change_camera(CameraKind::xiQ);
 		}
 
+		void MainWindow::camera_xib()
+		{
+			change_camera(CameraKind::xiB);
+		}
+
 		void MainWindow::camera_photon_focus()
 		{
 			change_camera(CameraKind::PhotonFocus);
@@ -1534,6 +1539,8 @@ namespace holovibes
 			{
 				lens_window = nullptr;
 			}
+			compute_desc_.gpu_lens_display_enabled = value;
+			pipe_refresh();
 		}
 
 		void MainWindow::set_p_accu()

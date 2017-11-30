@@ -173,11 +173,11 @@ void local_extremums(float	*input,
 static __global__
 void global_extremums(struct extr_index	*input,
 							struct extr_index	*output,
-							uint	block_size)
+							uint	nb_blocks)
 {
 	struct extr_index min = input[0];
 	struct extr_index max = input[1];
-	for (uint i = 1; i < block_size; i++)
+	for (uint i = 1; i < nb_blocks; i++)
 	{
 		struct extr_index current_min = input[2 * i];
 		struct extr_index current_max = input[2 * i + 1];
@@ -215,7 +215,7 @@ void gpu_extremums(float			*input,
 		size);
 	global_extremums << <1, 1, 0, 0 >> > (local_extr,
 		global_extr,
-		block_size);
+		nb_blocks);
 
 	struct extr_index extremum[2];
 	cudaMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
