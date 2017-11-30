@@ -157,13 +157,8 @@ namespace holovibes
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
-		/*!
-		 * \brief	Accessor to Stft slice cursor to obtain XZ and YZ views
-		 * \param			p	A point to process
-		 * \param 		  	m	An AccessMode to process.
-		 */
-
-		void stftCursor(units::PointFd& p, AccessMode m);
+		units::PointFd getStftCursor() const;
+		void setStftCursor(const units::PointFd& rect);
 
 		/*!
 		 * @{

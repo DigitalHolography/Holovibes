@@ -154,17 +154,16 @@ namespace holovibes
 		return *this;
 	}
 
-	void ComputeDescriptor::stftCursor(units::PointFd& p, AccessMode m)
+	units::PointFd ComputeDescriptor::getStftCursor() const
 	{
 		LockGuard g(mutex_);
-		if (m == Get)
-		{
-			p = stft_slice_cursor;
-		}
-		else if (m == Set)
-		{
-			stft_slice_cursor = p;
-		}
+		return stft_slice_cursor;
+	}
+
+	void ComputeDescriptor::setStftCursor(const units::PointFd& rect)
+	{
+		LockGuard g(mutex_);
+		stft_slice_cursor = rect;
 	}
 
 	void ComputeDescriptor::signalZone(units::RectFd& rect, AccessMode m)

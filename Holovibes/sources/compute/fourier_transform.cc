@@ -25,16 +25,16 @@ using holovibes::Queue;
 using holovibes::FnVector;
 
 FourierTransform::FourierTransform(FnVector& fn_vect,
-	cuComplex* const& gpu_input_buffer,
-	Autofocus* autofocus,
+	const holovibes::CoreBuffers& buffers,
+	const std::unique_ptr<Autofocus>& autofocus,
 	const camera::FrameDescriptor& fd,
-	const holovibes::ComputeDescriptor& cd,
+	holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
 	holovibes::Stft_env& stft_env)
 	: gpu_lens_(nullptr)
 	, gpu_filter2d_buffer_(nullptr)
 	, fn_vect_(fn_vect)
-	, gpu_input_buffer_(gpu_input_buffer)
+	, buffers_(buffers)
 	, autofocus_(autofocus)
 	, fd_(fd)
 	, cd_(cd)
@@ -62,14 +62,13 @@ void FourierTransform::insert_fft()
 			enqueue_lens(gpu_lens_queue_.get(), gpu_lens_.get(), fd_);
 		});
 	}
-	//insert_stft();
 }
 
 void FourierTransform::insert_filter2d()
 {
 	fn_vect_.push_back([=]() {
 		filter2D(
-			gpu_input_buffer_,
+			buffers_.gpu_input_buffer_,
 			gpu_filter2d_buffer_.get(),
 			plan2d_,
 			filter2d_zone_,
@@ -89,7 +88,7 @@ void FourierTransform::insert_fft1()
 
 	fn_vect_.push_back([=]() {
 		fft_1(
-			gpu_input_buffer_,
+			buffers_.gpu_input_buffer_,
 			gpu_lens_.get(),
 			plan2d_,
 			fd_.frame_res());
@@ -100,7 +99,7 @@ void FourierTransform::insert_fft2()
 {
 	const float z = autofocus_->get_zvalue();
 	fft2_lens(
-		gpu_lens_.get(),
+		gpu_lens_,
 		fd_,
 		cd_.lambda,
 		z,
@@ -108,27 +107,20 @@ void FourierTransform::insert_fft2()
 
 	fn_vect_.push_back([=]() {
 		fft_2(
-			gpu_input_buffer_,
-			gpu_lens_.get(),
+			buffers_.gpu_input_buffer_,
+			gpu_lens_,
 			plan2d_,
 			fd_);
 	});
 }
 
-/*void FourierTransform::insert_stft()
+void FourierTransform::insert_stft()
 {
-	fn_vect_.push_back(std::bind(
-		queue_enqueue,
-		this,
-		gpu_input_buffer_,
-		gpu_stft_queue_));
+	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
 
-	fn_vect_.push_back(std::bind(
-		stft_handler,
-		this,
-		gpu_input_buffer_,
-		static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
-}*/
+	fn_vect_.push_back([=]() { stft_handler(buffers_.gpu_input_buffer_, static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer())); });
+}
+
 
 Queue *FourierTransform::get_lens_queue()
 {
@@ -151,26 +143,25 @@ void FourierTransform::enqueue_lens(Queue *queue, cuComplex *lens_buffer, const 
 	}
 }
 
-/*void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
+void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
 {
 	static ushort mouse_posx;
 	static ushort mouse_posy;
 
-	stft_frame_counter--;
+	stft_env_.stft_frame_counter_--;
 	bool b = false;
-	if (stft_frame_counter == 0)
+	if (stft_env_.stft_frame_counter_ == 0)
 	{
 		b = true;
-		stft_frame_counter = cd_.stft_steps;
+		stft_env_.stft_frame_counter_ = cd_.stft_steps;
 	}
-	std::lock_guard<std::mutex> Guard(stftGuard);
+	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
 	if (!cd_.vibrometry_enabled)
-	{
 		stft(input,
 			output,
-			gpu_stft_buffer_,
-			plan1d_stft_,
+			stft_env_.gpu_stft_buffer_,
+			stft_env_.plan1d_stft_,
 			cd_.nsamples,
 			cd_.pindex,
 			cd_.pindex,
@@ -180,16 +171,14 @@ void FourierTransform::enqueue_lens(Queue *queue, cuComplex *lens_buffer, const 
 			b,
 			cd_.croped_stft,
 			cd_.getZoomedZone(),
-			gpu_cropped_stft_buf_.get(),
-			static_cast<cudaStream_t>(0));
-	}
+			stft_env_.gpu_cropped_stft_buf_);
 	else
 	{
 		stft(
 			input,
-			static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer()),
-			gpu_stft_buffer_,
-			plan1d_stft_,
+			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer()),
+			stft_env_.gpu_stft_buffer_,
+			stft_env_.plan1d_stft_,
 			cd_.nsamples,
 			cd_.pindex,
 			cd_.vibrometry_q,
@@ -199,14 +188,12 @@ void FourierTransform::enqueue_lens(Queue *queue, cuComplex *lens_buffer, const 
 			b,
 			cd_.croped_stft,
 			cd_.getZoomedZone(),
-			gpu_cropped_stft_buf_.get(),
-			static_cast<cudaStream_t>(0));
+			stft_env_.gpu_cropped_stft_buf_);
 	}
 	if (cd_.stft_view_enabled && b)
 	{
 		// Conservation of the coordinates when cursor is outside of the window
-		units::PointFd cursorPos;
-		cd_.stftCursor(cursorPos, AccessMode::Get);
+		units::PointFd cursorPos = cd_.getStftCursor();
 		const ushort width = fd_.width;
 		const ushort height = fd_.height;
 		if (static_cast<ushort>(cursorPos.x()) < width &&
@@ -216,20 +203,20 @@ void FourierTransform::enqueue_lens(Queue *queue, cuComplex *lens_buffer, const 
 			mouse_posy = cursorPos.y();
 		}
 		// -----------------------------------------------------
-		stft_view_begin(gpu_stft_buffer_,
-			gpu_float_cut_xz_,
-			gpu_float_cut_yz_,
-			cd_.x_accu_enabled ? cd_.x_accu_min_level : mouse_posx,
-			cd_.y_accu_enabled ? cd_.y_accu_min_level : mouse_posy,
-			cd_.x_accu_enabled ? cd_.x_accu_max_level : mouse_posx,
-			cd_.y_accu_enabled ? cd_.y_accu_max_level : mouse_posy,
+		stft_view_begin(stft_env_.gpu_stft_buffer_,
+			buffers_.gpu_float_cut_xz_,
+			buffers_.gpu_float_cut_yz_,
+			mouse_posx,
+			mouse_posy,
+			mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),
+			mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
 			width,
 			height,
 			cd_.img_type,
 			cd_.nsamples,
-			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level : 1,
-			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level : 1,
+			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
+			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
 			cd_.img_type);
 	}
-	stft_handle = true;
-} */
+	stft_env_.stft_handle_ = true;
+}

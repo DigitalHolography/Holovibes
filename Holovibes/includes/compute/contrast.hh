@@ -34,7 +34,7 @@ namespace holovibes
 				const CoreBuffers& buffers,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& output_fd,
-				Queue* gpu_3d_vision,
+				const std::unique_ptr<Queue>& gpu_3d_vision,
 				std::atomic<bool>& request);
 
 			void insert_fft_shift();
@@ -68,7 +68,7 @@ namespace holovibes
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
 			/// output queue for 3d vision mode
-			Queue*							gpu_3d_vision_;
+			const std::unique_ptr<Queue>& gpu_3d_vision_;
 			/// Autocontrast request
 			std::atomic<bool>&				request_;
 			/// }

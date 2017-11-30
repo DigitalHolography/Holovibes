@@ -25,7 +25,7 @@ namespace holovibes
 			const CoreBuffers& buffers,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& output_fd,
-			Queue* gpu_3d_vision,
+			const std::unique_ptr<Queue>& gpu_3d_vision,
 			std::atomic<bool>& request)
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)

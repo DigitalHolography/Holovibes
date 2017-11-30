@@ -25,7 +25,7 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			cufftComplex* const& gpu_stft_buffer,
-			Queue* const& gpu_3d_vision,
+			const std::unique_ptr<Queue>& gpu_3d_vision,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd)
 			: fn_vect_(fn_vect)

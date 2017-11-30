@@ -176,7 +176,7 @@ namespace holovibes
 				InfoManager::get_manager()->update_info("STFT Slice Cursor", ss.str());
 
 				auto cd = parent_->getCd();
-				cd->stftCursor(pos, AccessMode::Set);
+				cd->setStftCursor(pos);
 				// ---------------
 				cd->notify_observers();
 			}
@@ -191,12 +191,10 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			units::PointFd topLeft;
 			units::PointFd bottomRight;
-			units::PointFd cursor;
-			cd->stftCursor(cursor, Get);
+			units::PointFd cursor = cd->getStftCursor();
 
 			// Computing min/max coordinates in function of the frame_descriptor
-			units::PointFd cursorPos;
-			cd->stftCursor(cursorPos, AccessMode::Get);
+			units::PointFd cursorPos = cd->getStftCursor();
 			int x_min = cursorPos.x();
 			int x_max = cursorPos.x();
 			int y_min = cursorPos.y();
