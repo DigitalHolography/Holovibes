@@ -11,7 +11,6 @@
 /* **************************************************************************** */
 
 #pragma once
-#include <atomic>
 
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
