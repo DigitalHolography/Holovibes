@@ -131,19 +131,6 @@ namespace holovibes
 			request_delete_stft_cuts_.exchange(false);
 		}
 	}
-	
-	namespace
-	{
-		void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const FrameDescriptor& input_fd)
-		{
-			if (queue)
-			{
-				cuComplex* copied_lens_ptr = static_cast<cuComplex*>(queue->get_end());
-				queue->enqueue(lens_buffer);
-				normalize_complex(copied_lens_ptr, input_fd.frame_res());
-			}
-		}
-	}
 
 	void Pipe::refresh()
 	{
