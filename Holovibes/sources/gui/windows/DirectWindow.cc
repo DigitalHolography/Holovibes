@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include "DirectWindow.hh"
+#include "HoloWindow.hh"
+#include "info_manager.hh"
 
 namespace holovibes
 {
@@ -22,7 +24,8 @@ namespace holovibes
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
-		{}
+		{
+		}
 
 		DirectWindow::~DirectWindow()
 		{}

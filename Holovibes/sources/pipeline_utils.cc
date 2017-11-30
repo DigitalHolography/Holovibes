@@ -10,40 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "zoom_overlay.hh"
-#include "BasicOpenGLWindow.hh"
-#include "DirectWindow.hh"
-#include "HoloWindow.hh"
+#include "pipeline_utils.hh"
 
-namespace holovibes
+bool queue_enqueue(void* input, holovibes::Queue* queue)
 {
-	namespace gui
-	{
-		ZoomOverlay::ZoomOverlay(BasicOpenGLWindow* parent)
-			: SquareOverlay(KindOfOverlay::Zoom, parent)
-		{
-			color_ = { 0.f, 0.5f, 0.f };
-		}
-
-		void ZoomOverlay::release(ushort frameSide)
-		{
-			if (zone_.topLeft() == zone_.bottomRight())
-				return;
-
-			// handle Zoom
-			DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);
-			if (window)
-			{
-				window->zoomInRect(zone_);
-				// Setting zone for the croped stft
-				HoloWindow* holowindow = dynamic_cast<HoloWindow *>(window);
-				if (holowindow)
-				{
-					checkCorners();
-					holowindow->update_stft_zoom_buffer(zone_);
-				}
-			}
-			disable();
-		}
-	}
+	return queue->enqueue(input);
 }

@@ -317,13 +317,19 @@
     <ClCompile Include="sources\gui\windows\3DVisionWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc">
-      <Filter>c++ sources\gui\selections\Overlays</Filter>
+    <ClCompile Include="sources\compute\fourier_transform.cc">
+      <Filter>c++ sources\compute</Filter>
     </ClCompile>
-    <ClCompile Include="sources\stdafx.cc">
+    <ClCompile Include="sources\compute\autofocus.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\pipeline_utils.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\compute\detect_intensity.cc">
+    <ClCompile Include="sources\compute\contrast.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\converts.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
   </ItemGroup>
@@ -555,6 +561,18 @@
     </ClInclude>
     <ClInclude Include="includes\gui\windows\3DVisionWindow.hh">
       <Filter>c++ includes\gui\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\fourier_transform.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\autofocus.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\contrast.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\converts.hh">
+      <Filter>c++ includes\compute</Filter>
     </ClInclude>
     <ClInclude Include="includes\compute\detect_intensity.hh">
       <Filter>c++ includes\compute</Filter>

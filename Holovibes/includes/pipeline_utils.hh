@@ -15,6 +15,8 @@
  * Utility functions and types used in ICompute-based classes. */
 #pragma once
 
+# include "queue.hh"
+
 namespace holovibes
 {
   //!< A single procedure.
@@ -24,6 +26,8 @@ namespace holovibes
   //!< A procedure deque.
   using FnDeque = std::deque<FnType>;
 }
+
+bool queue_enqueue(void* input, holovibes::Queue* queue);
 
 template <class X, class Res, class Y>
 Res cudaDestroy(X* addr_buf, Res(*f)(Y))

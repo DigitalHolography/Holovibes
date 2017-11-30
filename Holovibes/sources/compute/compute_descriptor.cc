@@ -36,7 +36,7 @@ namespace holovibes
 		vibrometry_enabled(false),
 		convolution_enabled(false),
 		flowgraphy_enabled(false),
-		stft_enabled(false),
+		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
 		contrast_min_slice_xy(1.f),
@@ -110,7 +110,6 @@ namespace holovibes
 		vibrometry_enabled.exchange(cd.vibrometry_enabled.load());
 		convolution_enabled.exchange(cd.convolution_enabled.load());
 		flowgraphy_enabled.exchange(cd.flowgraphy_enabled.load());
-		stft_enabled.exchange(cd.stft_enabled.load());
 		filter_2d_enabled.exchange(cd.filter_2d_enabled.load());
 		average_enabled.exchange(cd.average_enabled.load());
 		contrast_min_slice_xy.exchange(cd.contrast_min_slice_xy.load());
@@ -207,17 +206,16 @@ namespace holovibes
 		}
 	}
 
-	void ComputeDescriptor::stftRoiZone(units::RectFd& rect, AccessMode m)
+	units::RectFd ComputeDescriptor::getStftZone() const
 	{
 		LockGuard g(mutex_);
-		if (m == Get)
-		{
-			rect = stft_roi_zone;
-		}
-		else if (m == Set)
-		{
-			stft_roi_zone = rect;
-		}
+		return stft_roi_zone;
+	}
+
+	void ComputeDescriptor::setStftZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		stft_roi_zone = rect;
 	}
 
 	units::RectFd ComputeDescriptor::getStabilizationZone() const
@@ -230,5 +228,17 @@ namespace holovibes
 	{
 		LockGuard g(mutex_);
 		stabilization_zone = rect;
+	}
+
+	units::RectFd ComputeDescriptor::getZoomedZone() const
+	{
+		LockGuard g(mutex_);
+		return zoomed_zone;
+	}
+
+	void ComputeDescriptor::setZoomedZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		zoomed_zone = rect;
 	}
 }

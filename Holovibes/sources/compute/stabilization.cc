@@ -165,8 +165,6 @@ void Stabilization::insert_stabilization()
 	});
 }
 
-
-
 void Stabilization::insert_average_compute()
 {
 	bool queue_needed = cd_.img_acc_slice_xy_enabled || cd_.xy_stabilization_enabled;
@@ -218,7 +216,7 @@ void Stabilization::insert_float_buffer_overwrite()
 	{
 		fn_vect_.push_back([=]()
 		{
-			accumulation_queue_->enqueue(gpu_float_buffer_, cudaMemcpyDeviceToDevice);
+			accumulation_queue_->enqueue(gpu_float_buffer_);
 			if (cd_.img_acc_slice_xy_enabled)
 				cudaMemcpy(gpu_float_buffer_, float_buffer_average_.get(), accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
 		});

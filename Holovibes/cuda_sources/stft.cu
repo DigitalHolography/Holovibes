@@ -14,6 +14,96 @@
 
 using holovibes::ImgType;
 
+struct Zone
+{
+	Zone(RectFd z)
+		: x(z.topLeft().x())
+		, y(z.topLeft().y())
+		, x2(z.bottomRight().x())
+		, y2(z.bottomRight().y())
+		, area(z.area())
+	{}
+
+	int x;
+	int y;
+	int x2;
+	int y2;
+	int area;
+};
+
+__global__
+static void kernel_zone_copy(cuComplex		*src,
+							cuComplex		*dst,
+							const uint		nsamples,
+							const uint		width,
+							const uint		height,
+							Zone			zone)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < zone.area * nsamples)
+	{
+		const uint frame_res = width * height;
+		const uint zone_width = zone.x2 - zone.x;
+		const uint line = (id % zone.area) / zone_width;
+		const uint column = (id % zone.area) % zone_width;
+		const uint depth = id / zone.area;
+
+		const uint src_pos = (depth * frame_res) + ((zone.y + line) * width) + (zone.x + column);
+		dst[id] = src[src_pos];
+	}
+}
+
+static void zone_copy(cuComplex		*src,
+					cuComplex		*dst,
+					const uint		nsamples,
+					const uint		width,
+					const uint		height,
+					RectFd			cropped_zone,
+					cudaStream_t	stream)
+{
+	const uint threads = get_max_threads_1d();
+	Zone zone(cropped_zone);
+	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
+
+	kernel_zone_copy<<<blocks, threads, 0, stream>>>(src, dst, nsamples, width, height, zone);
+}
+
+__global__
+static void kernel_zone_uncopy(cuComplex	*src,
+							cuComplex		*dst,
+							const uint		nsamples,
+							const uint		width,
+							const uint		height,
+							Zone			zone)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < zone.area * nsamples)
+	{
+		const uint frame_res = width * height;
+		const uint zone_width = zone.x2 - zone.x;
+		const uint line = (id % zone.area) / zone_width;
+		const uint column = (id % zone.area) % zone_width;
+		const uint depth = id / zone.area;
+
+		const uint dst_pos = (depth * frame_res) + ((zone.y + line) * width) + (zone.x + column);
+		dst[dst_pos] = src[id];
+	}
+}
+
+static void zone_uncopy(cuComplex		*src,
+					cuComplex		*dst,
+					const uint		nsamples,
+					const uint		width,
+					const uint		height,
+					RectFd			cropped_zone)
+{
+	const uint threads = get_max_threads_1d();
+	Zone zone(cropped_zone);
+	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
+
+	kernel_zone_uncopy<<<blocks, threads, 0, 0>>> (src, dst, nsamples, width, height, zone);
+}
+
 // Short-Time Fourier Transform
 void stft(cuComplex			*input,
 		cuComplex			*gpu_queue,
@@ -22,15 +112,30 @@ void stft(cuComplex			*input,
 		const uint			tft_level,
 		const uint			p,
 		const uint			q,
-		const uint			frame_size,
+		const uint			nsamples,
+		const uint			width,
+		const uint			height,
 		const bool			stft_activated,
+		const bool			cropped_stft,
+		const RectFd		cropped_zone,
+		cuComplex			*cropped_stft_buf,
 		cudaStream_t		stream)
 {
+	const int frame_size = width * height;
 	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
 
 	// FFT 1D
 	if (stft_activated)
-		cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
+	{
+		if (cropped_stft)
+		{
+			zone_copy(gpu_queue, cropped_stft_buf, nsamples, width, height, cropped_zone, stream);
+			cufftExecC2C(plan1d, cropped_stft_buf, cropped_stft_buf, CUFFT_FORWARD);
+			zone_uncopy(cropped_stft_buf, stft_buf, nsamples, width, height, cropped_zone);
+		}
+		else
+			cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
+	}
 	cudaStreamSynchronize(stream);
 	cudaMemcpy(	input,
 				stft_buf + p * frame_size,
@@ -45,6 +150,7 @@ void stft(cuComplex			*input,
 					cudaMemcpyDeviceToDevice);
 	}
 }
+
 #pragma region moment
 __global__
 static void kernel_stft_moment(cuComplex	*input,

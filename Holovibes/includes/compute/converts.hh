@@ -10,46 +10,53 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
-*
-* Qt window displaying the hologram in XY view. */
 #pragma once
 
-#include "icompute.hh"
-#include "DirectWindow.hh"
-
+#include "frame_desc.hh"
+#include "pipeline_utils.hh"
+#include "queue.hh"
 
 namespace holovibes
 {
-	namespace gui
+	class ComputeDescriptor;
+	struct CoreBuffers;
+	namespace compute
 	{
-		class MainWindow;
-		using SharedPipe = std::shared_ptr<ICompute>;
+		using uint = unsigned int;
 
-		class HoloWindow : public DirectWindow
+		class Converts
 		{
 		public:
-			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xy, std::unique_ptr<SliceWindow>& yy, MainWindow *main_window = nullptr);
-			virtual ~HoloWindow();
+			Converts(FnVector& fn_vect,
+				const CoreBuffers& buffers,
+				cufftComplex* const& gpu_stft_buffer,
+				Queue* const& gpu_3d_vision,
+				ComputeDescriptor& cd,
+				const camera::FrameDescriptor& input_fd);
 
-			void update_slice_transforms();
+			void insert_to_float();
 
-			SharedPipe getPipe();
-
-			void	update_stft_zoom_buffer(units::RectFd zone_);
-			void	resetTransform() override;
-
-		protected:
-			SharedPipe		Ic;
-
-			virtual void	initShaders() override;
-
-			void	focusInEvent(QFocusEvent *e) override;
 		private:
-			MainWindow *main_window_;
 
-			std::unique_ptr<SliceWindow>& xz_slice_;
-			std::unique_ptr<SliceWindow>& yz_slice_;
+			void insert_to_modulus();
+			void insert_to_modulus_vision3d();
+			void insert_to_squaredmodulus();
+			void insert_to_composite();
+			void insert_to_complex();
+
+			/// Pipe data
+			/// {
+			/// Vector function in which we insert the processing
+			FnVector&						fn_vect_;
+
+			const CoreBuffers&				buffers_;
+			cufftComplex* const&			gpu_stft_buffer_;
+			Queue* const&					gpu_3d_vision_;
+			/// Describes the frame size
+			const camera::FrameDescriptor&	fd_;
+			/// Variables needed for the computation in the pipe
+			ComputeDescriptor&				cd_;
+			/// }
 		};
 	}
 }

@@ -24,5 +24,5 @@ void tex_interpolation(cuComplex *buffer,
 	const unsigned int width,
 	const unsigned int height,
 	const float ratio,
-	cudaStream_t stream);
+	cudaStream_t stream = 0);
 
