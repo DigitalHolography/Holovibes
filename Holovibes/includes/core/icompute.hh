@@ -55,6 +55,23 @@ namespace holovibes
 		void			*gpu_ushort_cut_yz_ = nullptr;
 	};
 
+	struct Stft_env
+	{
+		// Lock
+		std::mutex							stftGuard_;
+
+		// Buffers
+		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
+		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
+		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
+		// Plan
+		cufftHandle							plan1d_stft_;
+
+		// Handling steps
+		bool								stft_handle_ = false;
+		uint								stft_frame_counter_ = 1;
+	};
+
 	/* \brief Stores functions helping the editing of the images.
 	 *
 	 * Stores all the functions that will be used before doing
@@ -160,7 +177,7 @@ namespace holovibes
 
 		void set_stft_frame_counter(uint value)
 		{
-			stft_frame_counter = value;
+			stft_env_.stft_frame_counter_ = value;
 		}
 
 		virtual Queue*	get_lens_queue();
@@ -208,24 +225,6 @@ namespace holovibes
 			const units::RectFd& noise,
 			cudaStream_t stream);
 
-		/*! \see request_average
-		* \brief For nsamples in input, reconstruct image,
-		* clear previous result, call the average algorithm and store each result
-		* \param input Input buf, contain nsamples bursting frame
-		* \param width Width of one frame
-		* \param height Height of one frame
-		* \param signal Signal zone
-		* \param noise Noise zone */
-		void average_stft_caller(cufftComplex* input,
-			const unsigned int width,
-			const unsigned int height,
-			const unsigned int width_roi,
-			const unsigned int height_roi,
-			units::RectFd& signal_zone,
-			units::RectFd& noise_zone,
-			const unsigned int nsamples,
-			cudaStream_t stream);
-
 		void record_float(float* float_output, cudaStream_t stream);
 		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);
@@ -246,17 +245,12 @@ namespace holovibes
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
 		CoreBuffers		buffers_;
-
-		std::mutex		stftGuard;
-		cufftComplex	*gpu_stft_buffer_;
-		//! Buffer containing the zone that limits the stft computations
-		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
+		Stft_env		stft_env_;
 
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;
 		cufftHandle		plan2d_;
-		cufftHandle		plan1d_stft_;
 		float			*gpu_kernel_buffer_;
 		uint			gpu_special_queue_start_index;
 		uint			gpu_special_queue_max_index;
@@ -272,7 +266,6 @@ namespace holovibes
 
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
-		std::unique_ptr<Queue>	gpu_stft_queue_;
 		std::unique_ptr<Queue>	gpu_3d_vision;
 		std::unique_ptr<Queue>	gpu_lens_queue_;
 		std::unique_ptr<Queue>	gpu_stft_slice_queue_xz;
@@ -281,8 +274,6 @@ namespace holovibes
 
 		enum ref_state	ref_diff_state_;
 		uint			ref_diff_counter;
-		bool			stft_handle;
-		uint			stft_frame_counter;
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;

@@ -51,9 +51,9 @@ namespace holovibes
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(
 			fn_vect_, buffers_.gpu_input_buffer_, autofocus_.get(),
-			input.get_frame_desc(), desc, plan2d_, plan1d_stft_);
+			input.get_frame_desc(), desc, plan2d_, stft_env_);
 		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, desc, output.get_frame_desc(), gpu_3d_vision.get(), autocontrast_requested_);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, gpu_stft_buffer_, gpu_3d_vision.get(), desc, input.get_frame_desc());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_.gpu_stft_buffer_, gpu_3d_vision.get(), desc, input.get_frame_desc());
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 		if (compute_desc_.compute_mode != Computation::Direct)
@@ -263,13 +263,13 @@ namespace holovibes
 				1));
 
 		fourier_transforms_->insert_fft();
-		fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, gpu_stft_queue_.get()); });
+		fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
 
 		fn_vect_.push_back(std::bind(
 			&ICompute::stft_handler,
 			this,
 			buffers_.gpu_input_buffer_,
-			static_cast<cufftComplex *>(gpu_stft_queue_->get_buffer())));
+			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer())));
 
 		// Handling depth accumulation
 		if (compute_desc_.p_accu_enabled)
@@ -278,7 +278,7 @@ namespace holovibes
 					int pmax = std::max(0,
 						std::min(pmin + compute_desc_.p_acc_level, static_cast<int>(compute_desc_.nsamples)));
 					stft_moment(
-						gpu_stft_buffer_,
+						stft_env_.gpu_stft_buffer_,
 						buffers_.gpu_input_buffer_,
 						input_fd.frame_res(),
 						pmin,
@@ -589,16 +589,16 @@ namespace holovibes
 		{
 			if (input_.get_current_elts() >= 1)
 			{
-				stft_handle = false;
+				stft_env_.stft_handle_ = false;
 				for (FnType& f : fn_vect_)
 				{
 					f();
-					if (stft_frame_counter != compute_desc_.stft_steps && stft_handle)
+					if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
 						break;
 				}
 				if (compute_desc_.compute_mode == Hologram)
 				{
-					if (stft_frame_counter == compute_desc_.stft_steps)
+					if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
 					{
 						if (!output_.enqueue(get_enqueue_buffer()))
 						{

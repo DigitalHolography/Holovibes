@@ -20,6 +20,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct Stft_env;
 
 	namespace compute
 	{
@@ -32,7 +33,7 @@ namespace holovibes
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd,
 				const cufftHandle& plan2d,
-				const cufftHandle& plan1d_stft);
+				Stft_env& stft_env);
 
 			/*! \brief Enqueue the appropriate functions
 			**
@@ -68,7 +69,8 @@ namespace holovibes
 			const ComputeDescriptor&		cd_;
 
 			const cufftHandle&				plan2d_;
-			const cufftHandle&				plan1d_stft_;
+
+			Stft_env&						stft_env_;
 			/// }
 		};
 	}

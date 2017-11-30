@@ -17,6 +17,7 @@
 #include "fft1.cuh"
 #include "fft2.cuh"
 #include "stft.cuh"
+#include "icompute.hh"
 
 using holovibes::compute::FourierTransform;
 using holovibes::compute::Autofocus;
@@ -29,7 +30,7 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
-	const cufftHandle& plan1d_stft)
+	holovibes::Stft_env& stft_env)
 	: gpu_lens_(nullptr)
 	, gpu_filter2d_buffer_(nullptr)
 	, fn_vect_(fn_vect)
@@ -38,7 +39,7 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	, fd_(fd)
 	, cd_(cd)
 	, plan2d_(plan2d)
-	, plan1d_stft_(plan1d_stft)
+	, stft_env_(stft_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
 	gpu_filter2d_buffer_.resize(fd_.frame_res());
