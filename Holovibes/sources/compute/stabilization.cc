@@ -14,6 +14,7 @@
 #include "compute_descriptor.hh"
 #include "rect.hh"
 #include "power_of_two.hh"
+#include "cufft_handle.hh"
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -23,6 +24,7 @@
 
 using holovibes::compute::Stabilization;
 using holovibes::FnVector;
+using holovibes::cuda_tools::CufftHandle;
 
 
 Stabilization::Stabilization(FnVector& fn_vect,
@@ -105,13 +107,10 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 {
 	auto zone = cd_.getStabilizationZone();
 	const uint size = zone.area();
-	cufftHandle plan2d_a;
-	cufftHandle plan2d_b;
-	cufftHandle plan2d_inverse;
 
-	cufftPlan2d(&plan2d_a, zone.height(), zone.height(), CUFFT_R2C);
-	cufftPlan2d(&plan2d_b, zone.height(), zone.width(), CUFFT_R2C);
-	cufftPlan2d(&plan2d_inverse, zone.height(), zone.width(), CUFFT_C2R);
+	CufftHandle plan2d_a(zone.height(), zone.height(), CUFFT_R2C);
+	CufftHandle plan2d_b(zone.height(), zone.width(), CUFFT_R2C);
+	CufftHandle plan2d_inverse(zone.height(), zone.width(), CUFFT_C2R);
 
 	constexpr uint s = 64;
 	convolution_float(
@@ -122,9 +121,6 @@ void Stabilization::compute_convolution(const float* x, const float* y, float* o
 		plan2d_a,
 		plan2d_b,
 		plan2d_inverse);
-	cufftDestroy(plan2d_a);
-	cufftDestroy(plan2d_b);
-	cufftDestroy(plan2d_inverse);
 }
 
 void Stabilization::insert_extremums()

@@ -205,6 +205,7 @@
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
     <ClInclude Include="includes\stdafx.hh" />
     <ClInclude Include="includes\gui\windows\3DVisionWindow.hh" />
+    <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
@@ -475,6 +476,7 @@
     <ClCompile Include="sources\thread\thread_csv_record.cc" />
     <ClCompile Include="sources\thread\thread_reader.cc" />
     <ClCompile Include="sources\thread\thread_recorder.cc" />
+    <ClCompile Include="sources\tools\cuda_tools\cufft_handle.cc" />
     <ClCompile Include="sources\tools\hardware_limits.cc" />
     <ClCompile Include="sources\tools\info_manager.cc" />
     <ClCompile Include="sources\tools\power_of_two.cc" />

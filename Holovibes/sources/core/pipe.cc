@@ -370,7 +370,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						unwrap_2d,
 						buffers_.gpu_float_buffer_,
-						plan2d_,
+						plan2d_.get(),
 						unwrap_res_2d_.get(),
 						input_.get_frame_desc(),
 						unwrap_res_2d_->gpu_angle_,
@@ -437,7 +437,7 @@ namespace holovibes
 					fn_vect_.push_back(std::bind(
 						unwrap_2d,
 						unwrap_res_->gpu_angle_current_,
-						plan2d_,
+						plan2d_.get(),
 						unwrap_res_2d_.get(),
 						input_.get_frame_desc(),
 						unwrap_res_2d_->gpu_angle_,

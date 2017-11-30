@@ -80,8 +80,7 @@ namespace holovibes
 		if (cudaMalloc(&gpu_lens_, input_.get_pixels() * sizeof(cufftComplex)) != cudaSuccess)
 			err++;
 
-		cufftPlan2d(
-			&plan2d_,
+		plan2d_.plan(
 			input_.get_frame_desc().height,
 			input_.get_frame_desc().width,
 			CUFFT_C2C);
@@ -145,7 +144,7 @@ namespace holovibes
 		if (compute_desc_.croped_stft)
 			zone_size = compute_desc_.getZoomedZone().area();
 
-		cufftPlanMany(&stft_env_.plan1d_stft_, 1, inembed,
+		stft_env_.plan1d_stft_.planMany(1, inembed,
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
@@ -195,12 +194,6 @@ namespace holovibes
 
 	ICompute::~ICompute()
 	{
-		/* CUFFT plan2d */
-		cufftDestroy(plan2d_);
-
-		/* CUFFT plan1d for STFT */
-		cufftDestroy(stft_env_.plan1d_stft_);
-
 		/* gpu_lens */
 		cudaFree(gpu_lens_);
 
@@ -230,7 +223,7 @@ namespace holovibes
 		{
 			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 			stft_env_.gpu_stft_buffer_.reset();
-			cudaDestroy<cufftResult>(&stft_env_.plan1d_stft_) ? ++err_count : 0;
+			stft_env_.plan1d_stft_.reset();
 			/* CUFFT plan1d realloc */
 			int inembed_stft[1] = { n };
 
@@ -238,7 +231,7 @@ namespace holovibes
 			if (compute_desc_.croped_stft)
 				zone_size = compute_desc_.getZoomedZone().area();
 
-			cufftPlanMany(&stft_env_.plan1d_stft_, 1, inembed_stft,
+			stft_env_.plan1d_stft_.planMany(1, inembed_stft,
 				inembed_stft, zone_size, 1,
 				inembed_stft, zone_size, 1,
 				CUFFT_C2C, zone_size);

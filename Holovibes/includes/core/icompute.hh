@@ -21,7 +21,8 @@
 # include "observable.hh"
 # include "gpib_controller.hh"
 # include "frame_desc.hh"
-# include "cuda_tools\unique_ptr.hh"
+# include "unique_ptr.hh"
+# include "cufft_handle.hh"
 
 namespace holovibes
 {
@@ -65,7 +66,7 @@ namespace holovibes
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
 		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
 		// Plan
-		cufftHandle							plan1d_stft_;
+		cuda_tools::CufftHandle				plan1d_stft_;
 
 		// Handling steps
 		bool								stft_handle_ = false;
@@ -250,7 +251,7 @@ namespace holovibes
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
 		cufftComplex	*gpu_lens_;
-		cufftHandle		plan2d_;
+		cuda_tools::CufftHandle	plan2d_;
 		float			*gpu_kernel_buffer_;
 		uint			gpu_special_queue_start_index;
 		uint			gpu_special_queue_max_index;

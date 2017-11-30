@@ -114,6 +114,9 @@
     <Filter Include="c++ sources\gui\selections\Interfaces">
       <UniqueIdentifier>{3e40332b-90ae-4ddc-8210-65b0a7dea657}</UniqueIdentifier>
     </Filter>
+    <Filter Include="c++ sources\tools\cuda_tools">
+      <UniqueIdentifier>{049b568e-c6bb-483a-9343-39648d1675b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
@@ -331,6 +334,18 @@
     </ClCompile>
     <ClCompile Include="sources\compute\converts.cc">
       <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\detect_intensity.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\stdafx.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\tools\cuda_tools\cufft_handle.cc">
+      <Filter>c++ sources\tools\cuda_tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -585,6 +600,9 @@
     </ClInclude>
     <ClInclude Include="includes\stdafx.hh">
       <Filter>c++ includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh">
+      <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

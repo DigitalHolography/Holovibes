@@ -13,6 +13,8 @@
 # include "autofocus.cuh"
 # include "tools_compute.cuh"
 # include "average.cuh"
+# include "cufft_handle.hh"
+using holovibes::cuda_tools::CufftHandle;
 
 static __global__
 void kernel_minus_operator(const float	*input_left,
@@ -143,10 +145,8 @@ static float average_local_variance(const float	*input,
 		return 0.f;
 	}
 
-	cufftHandle plan2d_x;
-	cufftHandle plan2d_k;
-	cufftPlan2d(&plan2d_x, square_size, square_size, CUFFT_C2C);
-	cufftPlan2d(&plan2d_k, square_size, square_size, CUFFT_C2C);
+	CufftHandle plan2d_x(square_size, square_size, CUFFT_C2C);
+	CufftHandle plan2d_k(square_size, square_size, CUFFT_C2C);
 
 	/* Compute i * ke. */
 	convolution_operator(input_complex,
@@ -167,9 +167,6 @@ static float average_local_variance(const float	*input,
 	const float average_local_variance = average_operator(i_ke_convolution, size);
 
 	/* -- Free ressources -- */
-	cufftDestroy(plan2d_x);
-	cufftDestroy(plan2d_k);
-
 	cudaFree(i_ke_convolution);
 	cudaFree(input_complex);
 	cudaFree(ke_gpu_frame);
@@ -328,10 +325,8 @@ static float sobel_operator(const float	*input,
 		return 0.f;
 	}
 
-	cufftHandle plan2d_x;
-	cufftHandle plan2d_k;
-	cufftPlan2d(&plan2d_x, square_size, square_size, CUFFT_C2C);
-	cufftPlan2d(&plan2d_k, square_size, square_size, CUFFT_C2C);
+	CufftHandle plan2d_x(square_size, square_size, CUFFT_C2C);
+	CufftHandle plan2d_k(square_size, square_size, CUFFT_C2C);
 
 	/* Compute i * ks. */
 	convolution_operator(input_complex,
@@ -360,9 +355,6 @@ static float sobel_operator(const float	*input,
 	const float average_magnitude = average_operator(i_ks_convolution, size);
 
 	/* -- Free ressources -- */
-	cufftDestroy(plan2d_x);
-	cufftDestroy(plan2d_k);
-
 	cudaFree(i_ks_convolution);
 	cudaFree(i_kst_convolution);
 	cudaFree(input_complex);
