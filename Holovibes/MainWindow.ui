@@ -3311,32 +3311,35 @@ p, li { white-space: pre-wrap; }
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>InputBrowseToolButton</tabstop>
+  <tabstop>InfoTextEdit</tabstop>
+  <tabstop>DirectRadioButton</tabstop>
   <tabstop>HologramRadioButton</tabstop>
+  <tabstop>STFTStepsSpinBox</tabstop>
+  <tabstop>CropStftCheckBox</tabstop>
   <tabstop>TakeRefPushButton</tabstop>
   <tabstop>SlidingRefPushButton</tabstop>
   <tabstop>CancelRefPushButton</tabstop>
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
-  <tabstop>PSpinBox</tabstop>
-  <tabstop>ZDoubleSpinBox</tabstop>
-  <tabstop>WaveLengthDoubleSpinBox</tabstop>
   <tabstop>AlgorithmComboBox</tabstop>
-  <tabstop>ZStepDoubleSpinBox</tabstop>
   <tabstop>PhaseNumberSpinBox</tabstop>
+  <tabstop>PSpinBox</tabstop>
+  <tabstop>WaveLengthDoubleSpinBox</tabstop>
+  <tabstop>ZDoubleSpinBox</tabstop>
+  <tabstop>ZStepDoubleSpinBox</tabstop>
   <tabstop>BoundaryLineEdit</tabstop>
   <tabstop>ViewModeComboBox</tabstop>
   <tabstop>PhaseUnwrap2DCheckBox</tabstop>
-  <tabstop>Vision3DCheckBox</tabstop>
   <tabstop>STFTCutsCheckBox</tabstop>
+  <tabstop>Vision3DCheckBox</tabstop>
   <tabstop>FFTShiftCheckBox</tabstop>
   <tabstop>LensViewCheckBox</tabstop>
+  <tabstop>XAccuCheckBox</tabstop>
+  <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
   <tabstop>YAccSpinBox</tabstop>
-  <tabstop>XAccSpinBox</tabstop>
-  <tabstop>XAccuCheckBox</tabstop>
-  <tabstop>PAccSpinBox</tabstop>
   <tabstop>PAccuCheckBox</tabstop>
+  <tabstop>PAccSpinBox</tabstop>
   <tabstop>WindowSelectionComboBox</tabstop>
   <tabstop>FlipPushButton</tabstop>
   <tabstop>RotatePushButton</tabstop>
@@ -3344,23 +3347,30 @@ p, li { white-space: pre-wrap; }
   <tabstop>ImgAccuCheckBox</tabstop>
   <tabstop>ImgAccuSpinBox</tabstop>
   <tabstop>ContrastCheckBox</tabstop>
+  <tabstop>AutoContrastPushButton</tabstop>
   <tabstop>ContrastMinDoubleSpinBox</tabstop>
   <tabstop>ContrastMaxDoubleSpinBox</tabstop>
-  <tabstop>AutoContrastPushButton</tabstop>
+  <tabstop>ScaleBarCheckBox</tabstop>
   <tabstop>AutofocusRunPushButton</tabstop>
   <tabstop>AutofocusZMinDoubleSpinBox</tabstop>
   <tabstop>AutofocusZMaxDoubleSpinBox</tabstop>
   <tabstop>MotionCorrectionCheckBox</tabstop>
   <tabstop>ShowConvoMatrixCheckBox</tabstop>
-  <tabstop>PMinSpinBox_B</tabstop>
-  <tabstop>PMaxSpinBox_G</tabstop>
-  <tabstop>PMinSpinBox_G</tabstop>
-  <tabstop>PMaxSpinBox_R</tabstop>
-  <tabstop>PMaxSpinBox_B</tabstop>
+  <tabstop>StabilizationAreaButton</tabstop>
+  <tabstop>InterpolationCheckbox</tabstop>
+  <tabstop>InterpolationLambda1</tabstop>
+  <tabstop>InterpolationLambda2</tabstop>
+  <tabstop>InterpolationSensitivity</tabstop>
+  <tabstop>InterpolationShift</tabstop>
   <tabstop>PMinSpinBox_R</tabstop>
+  <tabstop>PMaxSpinBox_R</tabstop>
+  <tabstop>PMinSpinBox_G</tabstop>
+  <tabstop>PMaxSpinBox_G</tabstop>
+  <tabstop>PMinSpinBox_B</tabstop>
+  <tabstop>PMaxSpinBox_B</tabstop>
   <tabstop>RenormalizationCheckBox</tabstop>
-  <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
+  <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
   <tabstop>ImageRatioCheckBox</tabstop>
   <tabstop>ImageRatioPSpinBox</tabstop>
@@ -3396,19 +3406,18 @@ p, li { white-space: pre-wrap; }
   <tabstop>BatchInputBrowseToolButton</tabstop>
   <tabstop>CineFileCheckBox</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
-  <tabstop>DirectRadioButton</tabstop>
+  <tabstop>InputBrowseToolButton</tabstop>
   <tabstop>ImportPushButton</tabstop>
-  <tabstop>TitleDetectPushButton</tabstop>
   <tabstop>ClosePushButton</tabstop>
-  <tabstop>ImportWidthSpinBox</tabstop>
+  <tabstop>TitleDetectPushButton</tabstop>
   <tabstop>PixelSizeDoubleSpinBox</tabstop>
-  <tabstop>ImportDepthComboBox</tabstop>
+  <tabstop>ImportWidthSpinBox</tabstop>
   <tabstop>ImportHeightSpinBox</tabstop>
-  <tabstop>ImportStartSpinBox</tabstop>
   <tabstop>ImportFpsSpinBox</tabstop>
+  <tabstop>ImportDepthComboBox</tabstop>
   <tabstop>ImportEndiannessComboBox</tabstop>
+  <tabstop>ImportStartSpinBox</tabstop>
   <tabstop>ImportEndSpinBox</tabstop>
-  <tabstop>InfoTextEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>
