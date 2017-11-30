@@ -91,6 +91,7 @@
         copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xib.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
 
@@ -141,6 +142,7 @@
         copy /Y "$(ProjectDir)\edge.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pixelfly.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\xiq.ini" "$(TargetDir)"
+        copy /Y "$(ProjectDir)\xib.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\pike.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\ixon.ini" "$(TargetDir)"
         copy /Y "$(ProjectDir)\photonfocus.ini" "$(TargetDir)"
