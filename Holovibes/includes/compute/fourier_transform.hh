@@ -21,6 +21,7 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	struct Stft_env;
+	struct CoreBuffers;
 
 	namespace compute
 	{
@@ -28,10 +29,10 @@ namespace holovibes
 		{
 		public:
 			FourierTransform(FnVector& fn_vect,
-				cuComplex* const& gpu_input_buffer,
-				Autofocus* autofocus,
+				const CoreBuffers& buffers,
+				const std::unique_ptr<Autofocus>& autofocus,
 				const camera::FrameDescriptor& fd,
-				const holovibes::ComputeDescriptor& cd,
+				holovibes::ComputeDescriptor& cd,
 				const cufftHandle& plan2d,
 				Stft_env& stft_env);
 
@@ -40,13 +41,13 @@ namespace holovibes
 			** Should be called just after gpu_float_buffer is computed
 			*/
 			void insert_fft();
+			void insert_stft();
 			Queue* get_lens_queue();
 		private:
 			void insert_filter2d();
 			void insert_fft1();
 			void insert_fft2();
-			//void insert_stft();
-			//void stft_handler(cufftComplex* input, cufftComplex* output);
+			void stft_handler(cufftComplex* input, cufftComplex* output);
 			void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const camera::FrameDescriptor& input_fd);
 
 			units::RectFd					filter2d_zone_;
@@ -60,13 +61,13 @@ namespace holovibes
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
-			cuComplex* const&				gpu_input_buffer_;
+			const CoreBuffers&				buffers_;
 
-			Autofocus*						autofocus_;
+			const std::unique_ptr<Autofocus>& autofocus_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
-			const ComputeDescriptor&		cd_;
+			ComputeDescriptor&				cd_;
 
 			const cufftHandle&				plan2d_;
 

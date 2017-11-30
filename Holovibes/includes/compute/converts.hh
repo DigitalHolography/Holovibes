@@ -30,7 +30,7 @@ namespace holovibes
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				cufftComplex* const& gpu_stft_buffer,
-				Queue* const& gpu_3d_vision,
+				const std::unique_ptr<Queue>& gpu_3d_vision,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd);
 
@@ -51,7 +51,7 @@ namespace holovibes
 
 			const CoreBuffers&				buffers_;
 			cufftComplex* const&			gpu_stft_buffer_;
-			Queue* const&					gpu_3d_vision_;
+			const std::unique_ptr<Queue>&	gpu_3d_vision_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe

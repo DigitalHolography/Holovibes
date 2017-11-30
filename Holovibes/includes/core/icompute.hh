@@ -116,7 +116,6 @@ namespace holovibes
 		void request_complex_output(Queue* fqueue);
 		void request_complex_output_stop();
 		void request_termination();
-		void stft_handler(cufftComplex* input, cufftComplex* output);
 		/*!
 		 * \brief Updates the queues size
 		 */

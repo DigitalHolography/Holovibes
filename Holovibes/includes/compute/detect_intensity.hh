@@ -15,10 +15,6 @@
  * Contains functions to detect intensity jumps. */
 #pragma once
 
-
-# include <cufft.h>
-# include <qglobal.h>
-# include <cuComplex.h>
 # include "cuda_tools/unique_ptr.hh"
 # include "cuda_tools/array.hh"
 # include "pipeline_utils.hh"
