@@ -20,13 +20,14 @@ namespace holovibes
 		StripOverlay::StripOverlay(BasicOpenGLWindow* parent,
 			Component& component,
 			std::atomic<ushort>& nsamples,
-			Color color)
+			Color color,
+			float alpha)
 			: RectOverlay(KindOfOverlay::Strip, parent)
 			, component_(component)
 			, nsamples_(nsamples)
 		{
 			color_ = color;
-			alpha_ = 0.3f;
+			alpha_ = alpha;
 			display_ = true;
 		}
 

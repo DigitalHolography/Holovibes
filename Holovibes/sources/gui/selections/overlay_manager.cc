@@ -113,9 +113,10 @@ namespace holovibes
 
 		void OverlayManager::create_strip_overlay(Component& component,
 			std::atomic<ushort>& nsamples,
-			Color color)
+			Color color,
+			float alpha)
 		{
-			create_overlay(std::make_shared<StripOverlay>(parent_, component, nsamples, color));
+			create_overlay(std::make_shared<StripOverlay>(parent_, component, nsamples, color, alpha));
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)

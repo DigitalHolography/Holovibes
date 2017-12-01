@@ -27,7 +27,8 @@ namespace holovibes
 			StripOverlay(BasicOpenGLWindow* parent,
 				Component& component,
 				std::atomic<ushort>& nsamples,
-				Color color);
+				Color color,
+				float alpha = 0.3f);
 
 			void release(ushort frameSide) override
 			{}
