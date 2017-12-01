@@ -204,6 +204,7 @@
     <ClInclude Include="includes\custom_exception.hh" />
     <ClInclude Include="includes\gpib_dll.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
+    <ClInclude Include="includes\gui\selections\overlays\composite_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
     <ClInclude Include="includes\stdafx.hh" />
@@ -433,6 +434,7 @@
     <ClCompile Include="sources\compute\postprocessing.cc" />
     <ClCompile Include="sources\compute\preprocessing.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\composite_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
     <ClCompile Include="sources\camera_dll.cc" />

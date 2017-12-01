@@ -41,6 +41,7 @@ namespace holovibes
 			overlay_manager_.create_strip_overlay(Cd->component_r, Cd->nsamples, red, composite_alpha);
 			overlay_manager_.create_strip_overlay(Cd->component_g, Cd->nsamples, green, composite_alpha);
 			overlay_manager_.create_strip_overlay(Cd->component_b, Cd->nsamples, blue, composite_alpha);
+			overlay_manager_.create_overlay<KindOfOverlay::Composite>();
 		}
 		
 		void	SliceWindow::initShaders()
@@ -50,7 +51,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
 			//overlay_manager_.create_overlay<Scale>();
-			if (Cd->img_type.load() == Composite)
+			if (Cd->img_type.load() == ImgType::Composite)
 				create_strip_overlays();
 			else
 				overlay_manager_.create_default();
@@ -195,7 +196,9 @@ namespace holovibes
 		}
 
 		void	SliceWindow::mousePressEvent(QMouseEvent* e)
-		{}
+		{
+			overlay_manager_.press(e);
+		}
 
 		void	SliceWindow::mouseMoveEvent(QMouseEvent* e)
 		{
@@ -204,6 +207,7 @@ namespace holovibes
 
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
+			overlay_manager_.release(Fd.width);
 			if (e->button() == Qt::RightButton)
 				resetTransform();
 			if (auto main_display = main_window_->get_main_display())
