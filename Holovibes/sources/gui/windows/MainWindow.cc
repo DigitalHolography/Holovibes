@@ -392,11 +392,19 @@ namespace holovibes
 			components[2]->p_max = pmax;
 
 			for (int i = 0; i < 3; i++)
+				if (components[i]->p_min > components[i]->p_max)
+				{
+					unsigned short tmp = components[i]->p_min;
+					components[i]->p_min = components[i]->p_max.load();
+					components[i]->p_max = tmp;
+				}
+
+			for (int i = 0; i < 3; i++)
 				weight_boxes[i]->setValue(components[i]->weight);
 			min_box->setMaximum(compute_desc_.nsamples.load() - 1);
 			max_box->setMaximum(compute_desc_.nsamples.load() - 1);
-			min_box->setValue(components[0]->p_min);
-			max_box->setValue(components[2]->p_max);
+			min_box->setValue(pmin);
+			max_box->setValue(pmax);
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			// Interpolation
@@ -1583,14 +1591,8 @@ namespace holovibes
 			unsigned short pmin = min_box->value();
 			unsigned short pmax = max_box->value();
 
-			QPalette DirtyPalette = ui.PAccuCheckBox->palette();
-			if (pmin > pmax)
-			{
-				DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
-				DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
-			}
-			min_box->setPalette(DirtyPalette);
-			max_box->setPalette(DirtyPalette);
+			compute_desc_.component_r.p_min = pmin;
+			compute_desc_.component_b.p_max = pmax;
 			notify();
 		}
 
