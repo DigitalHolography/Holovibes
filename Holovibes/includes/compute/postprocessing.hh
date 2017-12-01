@@ -13,6 +13,7 @@
 #pragma once
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
+#include "unique_ptr.hh"
 
 namespace holovibes
 {
@@ -29,11 +30,17 @@ namespace holovibes
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
+			void allocate_buffers();
 			void insert_vibrometry();
 			void insert_convolution();
 			void insert_flowgraphy();
 
 		private:
+
+			cuda_tools::UniquePtr<cufftComplex>	gpu_special_queue_;
+			cuda_tools::UniquePtr<float>		gpu_kernel_buffer_;
+			uint								gpu_special_queue_start_index_;
+			uint								gpu_special_queue_max_index_;
 
 			/// Pipe data
 			/// {

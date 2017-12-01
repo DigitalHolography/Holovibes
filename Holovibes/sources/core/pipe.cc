@@ -54,8 +54,7 @@ namespace holovibes
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
-		// Setting the cufft plans to work on the default stream.
-		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
+
 		if (compute_desc_.compute_mode != Computation::Direct)
 			update_n_requested_.exchange(true);
 		refresh();
@@ -143,8 +142,11 @@ namespace holovibes
 			refresh_requested_.exchange(false);
 			return;
 		}
-		// Allocating flowagrpahy/convolution buffers
-		ICompute::refresh();
+
+		if (!float_output_requested_ && !complex_output_requested_)
+			fqueue_.reset();
+
+		postprocess_->allocate_buffers();
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 
@@ -216,43 +218,8 @@ namespace holovibes
 		rendering_->insert_p_accu();
 
 		postprocess_->insert_vibrometry();
-
-		// Handling convolution
-		if (compute_desc_.convolution_enabled)
-		{
-			gpu_special_queue_start_index = 0;
-			gpu_special_queue_max_index = compute_desc_.special_buffer_size;
-			fn_vect_.push_back(std::bind(
-				convolution_kernel,
-				buffers_.gpu_input_buffer_,
-				gpu_special_queue_,
-				input_fd.frame_res(),
-				input_fd.width,
-				gpu_kernel_buffer_,
-				compute_desc_.convo_matrix_width.load(),
-				compute_desc_.convo_matrix_height.load(),
-				compute_desc_.convo_matrix_z.load(),
-				gpu_special_queue_start_index,
-				gpu_special_queue_max_index,
-				static_cast<cudaStream_t>(0)));
-		}
-
-		// Handling flowgraphy
-		if (compute_desc_.flowgraphy_enabled)
-		{
-			gpu_special_queue_start_index = 0;
-			gpu_special_queue_max_index = compute_desc_.special_buffer_size.load();
-			fn_vect_.push_back(std::bind(
-				convolution_flowgraphy,
-				buffers_.gpu_input_buffer_,
-				gpu_special_queue_,
-				std::ref(gpu_special_queue_start_index),
-				gpu_special_queue_max_index,
-				input_fd.frame_res(),
-				input_fd.width,
-				compute_desc_.flowgraphy_level.load(),
-				static_cast<cudaStream_t>(0)));
-		}
+		postprocess_->insert_convolution();
+		postprocess_->insert_flowgraphy();
 
 		if (complex_output_requested_)
 			fn_vect_.push_back([=]() {record(buffers_.gpu_input_buffer_); });

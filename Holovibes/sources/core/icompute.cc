@@ -45,8 +45,6 @@ namespace holovibes
 		: compute_desc_(desc),
 		input_(input),
 		output_(output),
-		gpu_kernel_buffer_(nullptr),
-		gpu_special_queue_(nullptr),
 		unwrap_1d_requested_(false),
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
@@ -70,31 +68,6 @@ namespace holovibes
 			input_.get_frame_desc().height,
 			input_.get_frame_desc().width,
 			CUFFT_C2C);
-		if (compute_desc_.convolution_enabled)
-		{
-			/* kst_size */
-			int size = static_cast<int>(compute_desc_.convo_matrix.size());
-			/* Build the kst 3x3 matrix */
-			float *kst_complex_cpu = new float[size];
-			for (int i = 0; i < size; ++i)
-			{
-				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
-				//kst_complex_cpu[i].y = 0;
-			}
-			/* gpu_kernel_buffer */
-			if (cudaMalloc<float>(&gpu_kernel_buffer_, sizeof(float) * size) == cudaSuccess)
-				cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size, cudaMemcpyHostToDevice);
-			else
-				err++;
-			delete[] kst_complex_cpu;
-		}
-		if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
-		{
-			/* gpu_tmp_input */
-			if (cudaMalloc<cufftComplex>(&gpu_special_queue_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size) != cudaSuccess)
-				err++;
-		}
 
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
 		new_fd.depth = 4.f;
@@ -102,7 +75,7 @@ namespace holovibes
 		{
 			auto fd_yz = new_fd;
 			fd_yz.width = compute_desc_.nsamples;
-			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level.load(), "AccumulationQueueYZ"));
+			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
 			if (!gpu_img_acc_yz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
@@ -110,7 +83,7 @@ namespace holovibes
 		{
 			auto fd_xz = new_fd;
 			fd_xz.height = compute_desc_.nsamples;
-			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level.load(), "AccumulationQueueXZ"));
+			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
 			if (!gpu_img_acc_xz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
@@ -128,7 +101,7 @@ namespace holovibes
 
 		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 		new_fd2.depth = 8.f;
-		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level.load(), "STFTQueue"));
+		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
 
 		std::stringstream ss;
 		ss << "(X1,Y1,X2,Y2) = (";
@@ -165,17 +138,14 @@ namespace holovibes
 		
 		if (err != 0)
 			throw std::exception(cudaGetErrorString(cudaGetLastError()));
+
+		// Setting the cufft plans to work on the default stream.
+		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 	}
 
 	ICompute::~ICompute()
 	{
 		cudaFree(buffers_.gpu_input_buffer_);
-
-		/* gpu_special_queue */
-		cudaFree(gpu_special_queue_);
-
-		/* gpu_kernel_buffer */
-		cudaFree(gpu_kernel_buffer_);
 
 		cudaFree(buffers_.gpu_float_cut_xz_);
 		cudaFree(buffers_.gpu_float_cut_yz_);
@@ -303,47 +273,6 @@ namespace holovibes
 		gpib_interface_ = gpib_interface;
 	}
 
-	void ICompute::refresh()
-	{
-		unsigned int err_count = 0;
-		if (!float_output_requested_ && !complex_output_requested_ && fqueue_)
-		{
-			delete fqueue_;
-			fqueue_ = nullptr;
-		}
-
-		if (compute_desc_.convolution_enabled)
-		{
-			/* kst_size */
-			int size = static_cast<int>(compute_desc_.convo_matrix.size());
-			/* gpu_kernel_buffer */
-			cudaFree(gpu_kernel_buffer_);
-			/* gpu_kernel_buffer */
-			if (cudaMalloc(&gpu_kernel_buffer_, sizeof(float) * size) != CUDA_SUCCESS)
-				err_count++;
-			/* Build the kst 3x3 matrix */
-			float *kst_complex_cpu = new float[size];
-			for (int i = 0; i < size; ++i)
-				kst_complex_cpu[i] = compute_desc_.convo_matrix[i];
-			if (cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu, sizeof(float) * size,
-				cudaMemcpyHostToDevice) != CUDA_SUCCESS)
-				err_count++;
-			delete[] kst_complex_cpu;
-		}
-		/* not deleted properly !!!!*/
-		if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
-		{
-			/* gpu_tmp_input */
-			cudaFree(gpu_special_queue_);
-			/* gpu_tmp_input */
-			if (cudaMalloc(&gpu_special_queue_,	sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.special_buffer_size) != CUDA_SUCCESS)
-				err_count++;
-		}
-
-		if (err_count != 0)
-			allocation_failed(err_count, CustomException("error in refresh()", error_kind::fail_update));
-	}
-
 	void ICompute::allocation_failed(const int& err_count, std::exception& e)
 	{
 		const char *cuda_error = cudaGetErrorString(cudaGetLastError());
@@ -409,7 +338,7 @@ namespace holovibes
 
 	void ICompute::request_float_output(Queue* fqueue)
 	{
-		fqueue_ = fqueue;
+		fqueue_.reset(fqueue);
 		float_output_requested_.exchange(true);
 		request_refresh();
 	}
@@ -422,7 +351,7 @@ namespace holovibes
 
 	void ICompute::request_complex_output(Queue* fqueue)
 	{
-		fqueue_ = fqueue;
+		fqueue_.reset(fqueue);
 		complex_output_requested_.exchange(true);
 		request_refresh();
 	}

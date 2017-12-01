@@ -184,7 +184,7 @@ namespace holovibes
 
 	protected:
 
-		virtual void refresh();
+		virtual void refresh() = 0;
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
 
@@ -207,12 +207,7 @@ namespace holovibes
 		Average_env		average_env_;
 		cuda_tools::CufftHandle	plan2d_;
 
-		cufftComplex	*gpu_special_queue_;
-		float			*gpu_kernel_buffer_;
-		uint			gpu_special_queue_start_index;
-		uint			gpu_special_queue_max_index;
-
-		Queue	*fqueue_;
+		std::unique_ptr<Queue> fqueue_;
 
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
