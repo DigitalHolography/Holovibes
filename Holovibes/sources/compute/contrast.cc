@@ -18,6 +18,7 @@
 #include "concurrent_deque.hh"
 #include "contrast_correction.cuh"
 #include "average.cuh"
+#include "stft.cuh"
 
 namespace holovibes
 {
@@ -26,6 +27,7 @@ namespace holovibes
 		Contrast::Contrast(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			Average_env& average_env,
+			const Stft_env& stft_env,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
@@ -34,6 +36,7 @@ namespace holovibes
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, average_env_(average_env)
+			, stft_env_(stft_env)
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
@@ -42,6 +45,22 @@ namespace holovibes
 		{
 		}
 
+		void Contrast::insert_p_accu()
+		{
+			if (cd_.p_accu_enabled)
+				fn_vect_.push_back([=]() {
+					int pmin = cd_.pindex;
+					int pmax = std::max(0,
+						std::min(pmin + cd_.p_acc_level, static_cast<int>(cd_.nsamples)));
+					stft_moment(
+						stft_env_.gpu_stft_buffer_.get(),
+						buffers_.gpu_input_buffer_,
+						input_fd_.frame_res(),
+						pmin,
+						pmax,
+						cd_.nsamples);
+			});
+		}
 
 		void Contrast::insert_fft_shift()
 		{

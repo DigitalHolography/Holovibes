@@ -192,6 +192,8 @@
     <ClInclude Include="includes\compute\converts.hh" />
     <ClInclude Include="includes\compute\fourier_transform.hh" />
     <ClInclude Include="includes\compute\detect_intensity.hh" />
+    <ClInclude Include="includes\compute\postprocessing.hh" />
+    <ClInclude Include="includes\compute\preprocessing.hh" />
     <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
     <ClInclude Include="includes\config.hh" />
@@ -428,6 +430,8 @@
     <ClCompile Include="sources\compute\converts.cc" />
     <ClCompile Include="sources\compute\fourier_transform.cc" />
     <ClCompile Include="sources\compute\detect_intensity.cc" />
+    <ClCompile Include="sources\compute\postprocessing.cc" />
+    <ClCompile Include="sources\compute\preprocessing.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />

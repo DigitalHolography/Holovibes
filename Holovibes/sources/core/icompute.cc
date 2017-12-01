@@ -45,11 +45,8 @@ namespace holovibes
 		: compute_desc_(desc),
 		input_(input),
 		output_(output),
-		gpu_lens_(nullptr),
 		gpu_kernel_buffer_(nullptr),
 		gpu_special_queue_(nullptr),
-		gpu_ref_diff_queue_(nullptr),
-		gpu_tmp_input_(nullptr),
 		unwrap_1d_requested_(false),
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
@@ -65,28 +62,14 @@ namespace holovibes
 		update_ref_diff_requested_(false),
 		request_stft_cuts_(false),
 		request_delete_stft_cuts_(false),
-		ref_diff_state_(ref_state::ENQUEUE),
-		ref_diff_counter(0),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
-
-		if (cudaMalloc(&gpu_lens_, input_.get_pixels() * sizeof(cufftComplex)) != cudaSuccess)
-			err++;
 
 		plan2d_.plan(
 			input_.get_frame_desc().height,
 			input_.get_frame_desc().width,
 			CUFFT_C2C);
-
-		if (compute_desc_.convolution_enabled
-			|| compute_desc_.flowgraphy_enabled)
-		{
-			/* gpu_tmp_input */
-			if (cudaMalloc<cufftComplex>(&gpu_tmp_input_,
-				sizeof(cufftComplex)* input_.get_pixels() * compute_desc_.nsamples) != cudaSuccess)
-				err++;
-		}
 		if (compute_desc_.convolution_enabled)
 		{
 			/* kst_size */
@@ -187,13 +170,9 @@ namespace holovibes
 	ICompute::~ICompute()
 	{
 		cudaFree(buffers_.gpu_input_buffer_);
-		/* gpu_lens */
-		cudaFree(gpu_lens_);
 
 		/* gpu_special_queue */
 		cudaFree(gpu_special_queue_);
-
-		cudaFree(gpu_tmp_input_);
 
 		/* gpu_kernel_buffer */
 		cudaFree(gpu_kernel_buffer_);
@@ -333,13 +312,6 @@ namespace holovibes
 			fqueue_ = nullptr;
 		}
 
-		if (compute_desc_.convolution_enabled || compute_desc_.flowgraphy_enabled)
-		{
-			/* gpu_tmp_input */
-			cudaFree(gpu_tmp_input_);
-			if (cudaMalloc(&gpu_tmp_input_,	sizeof(cufftComplex) * input_.get_pixels() * compute_desc_.nsamples.load()) != CUDA_SUCCESS)
-				err_count++;
-		}
 		if (compute_desc_.convolution_enabled)
 		{
 			/* kst_size */
@@ -409,30 +381,6 @@ namespace holovibes
 				enabled.exchange(false);
 				queue_length.exchange(1);
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
-			}
-		}
-	}
-
-	void ICompute::update_ref_diff_parameter()
-	{
-		if (gpu_ref_diff_queue_ != nullptr)
-		{
-			gpu_ref_diff_queue_.reset(nullptr);
-			ref_diff_state_ = ref_state::ENQUEUE;
-		}
-
-		if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
-		{
-			camera::FrameDescriptor new_fd = input_.get_frame_desc();
-			new_fd.depth = 8;
-			try
-			{
-				gpu_ref_diff_queue_.reset(new Queue(new_fd, compute_desc_.ref_diff_level.load(), "TakeRefQueue"));
-				gpu_ref_diff_queue_->set_display(false);
-			}
-			catch (std::exception&)
-			{
-				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_reference));
 			}
 		}
 	}
@@ -578,60 +526,10 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::record_float(float *float_output, cudaStream_t stream)
+	void ICompute::record(void *output, cudaStream_t stream)
 	{
-		// TODO: use stream in enqueue
-		fqueue_->enqueue(float_output);
-	}
-
-	void ICompute::record_complex(cufftComplex *complex_output, cudaStream_t stream)
-	{
-		fqueue_->enqueue(complex_output);
-	}
-
-	void ICompute::handle_reference(cufftComplex *input, const unsigned int nframes)
-	{
-		if (ref_diff_state_ == ref_state::ENQUEUE)
-		{
-			queue_enqueue(input, gpu_ref_diff_queue_.get());
-			ref_diff_counter--;
-			if (ref_diff_counter == 0)
-			{
-				ref_diff_state_ = ref_state::COMPUTE;
-				if (compute_desc_.ref_diff_level.load() > 1)
-					mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
-						, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-						compute_desc_.ref_diff_level.load(), input_.get_pixels());
-			}
-		}
-		if (ref_diff_state_ == ref_state::COMPUTE)
-		{
-			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-				input_.get_frame_desc().frame_res(), nframes,
-				static_cast<cudaStream_t>(0));
-		}
-	}
-
-	void ICompute::handle_sliding_reference(cufftComplex *input, const unsigned int nframes)
-	{
-		if (ref_diff_state_ == ref_state::ENQUEUE)
-		{
-			queue_enqueue(input, gpu_ref_diff_queue_.get());
-			ref_diff_counter--;
-			if (ref_diff_counter == 0)
-				ref_diff_state_ = ref_state::COMPUTE;
-		}
-		else if (ref_diff_state_ == ref_state::COMPUTE)
-		{
-			queue_enqueue(input, gpu_ref_diff_queue_.get());
-			if (compute_desc_.ref_diff_level.load() > 1)
-				mean_images(static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer())
-					, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-					compute_desc_.ref_diff_level.load(), input_.get_pixels());
-			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
-				input_.get_frame_desc().frame_res(), nframes,
-				static_cast<cudaStream_t>(0));
-		}
+		//TODo: use stream
+		fqueue_->enqueue(output);
 	}
 
 	void ICompute::fps_count()

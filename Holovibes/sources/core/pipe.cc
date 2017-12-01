@@ -50,8 +50,10 @@ namespace holovibes
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_.gpu_float_buffer_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
-		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), gpu_3d_vision, this);
+		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, stft_env_, desc, input.get_frame_desc(), output.get_frame_desc(), gpu_3d_vision, this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
+		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
+		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
 		if (compute_desc_.compute_mode != Computation::Direct)
@@ -145,7 +147,6 @@ namespace holovibes
 		ICompute::refresh();
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
-		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
 		/* Clean current vector. */
 		fn_vect_.clear();
@@ -178,13 +179,7 @@ namespace holovibes
 			update_acc_requested_.exchange(false);
 		}
 
-		// Allocating ref_diff queues and starting the counter
-		if (update_ref_diff_requested_)
-		{
-			update_ref_diff_parameter();
-			ref_diff_counter = compute_desc_.ref_diff_level;
-			update_ref_diff_requested_ = false;
-		}
+		preprocess_->allocate_ref(update_ref_diff_requested_);
 
 		// Aborting if allocation failed
 		if (abort_construct_requested_)
@@ -202,10 +197,7 @@ namespace holovibes
 
 		// Converting input_ to complex.
 		if (autofocus_->get_state() == compute::STOPPED)
-			fn_vect_.push_back([=]() {
-			make_contiguous_complex(
-				input_,
-				buffers_.gpu_input_buffer_); });
+			fn_vect_.push_back([=]() {make_contiguous_complex(input_, buffers_.gpu_input_buffer_); });
 		else if (autofocus_->get_state() == compute::COPYING)
 		{
 			autofocus_->insert_copy();
@@ -215,53 +207,15 @@ namespace holovibes
 		detect_intensity_.insert_post_contiguous_complex();
 		autofocus_->insert_restore();
 
-		if (compute_desc_.interpolation_enabled)
-			fn_vect_.push_back([=]() {
-				const float ratio = compute_desc_.interp_lambda > 0 ? compute_desc_.lambda / compute_desc_.interp_lambda : 1;
-				tex_interpolation(buffers_.gpu_input_buffer_,
-					input_fd.width,
-					input_fd.height,
-					ratio); });
-
-		if (compute_desc_.ref_diff_enabled)
-			fn_vect_.push_back([=]() {handle_reference(buffers_.gpu_input_buffer_, 1); });
-
-		// Handling ref_sliding
-		if (compute_desc_.ref_sliding_enabled)
-			fn_vect_.push_back([=]() {handle_sliding_reference(buffers_.gpu_input_buffer_, 1); });
+		preprocess_->insert_interpolation();
+		preprocess_->insert_ref();
 
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 
-		// Handling depth accumulation
-		if (compute_desc_.p_accu_enabled)
-				fn_vect_.push_back([=]() {
-					int pmin = compute_desc_.pindex;
-					int pmax = std::max(0,
-						std::min(pmin + compute_desc_.p_acc_level, static_cast<int>(compute_desc_.nsamples)));
-					stft_moment(
-						stft_env_.gpu_stft_buffer_,
-						buffers_.gpu_input_buffer_,
-						input_fd.frame_res(),
-						pmin,
-						pmax,
-						compute_desc_.nsamples);
-				});
+		rendering_->insert_p_accu();
 
-		// Handling image ratio Ip/Iq
-		if (compute_desc_.vibrometry_enabled)
-		{
-			// pframe is at 'gpu_input_buffer[0]'
-			// qframe is at 'gpu_input_buffer[1]'
-			cufftComplex* qframe = buffers_.gpu_input_buffer_ + input_fd.frame_res();
-			fn_vect_.push_back(std::bind(
-				frame_ratio,
-				buffers_.gpu_input_buffer_,
-				qframe,
-				buffers_.gpu_input_buffer_,
-				input_fd.frame_res(),
-				static_cast<cudaStream_t>(0)));
-		}
+		postprocess_->insert_vibrometry();
 
 		// Handling convolution
 		if (compute_desc_.convolution_enabled)
@@ -301,7 +255,7 @@ namespace holovibes
 		}
 
 		if (complex_output_requested_)
-			fn_vect_.push_back([=]() {record_complex(buffers_.gpu_input_buffer_); });
+			fn_vect_.push_back([=]() {record(buffers_.gpu_input_buffer_); });
 
 		converts_->insert_to_float(unwrap_2d_requested_);
 		if (compute_desc_.img_type == Complex)
@@ -328,18 +282,15 @@ namespace holovibes
 				compute_desc_.img_acc_slice_xz_level,
 				input_fd.width * compute_desc_.nsamples);
 
-
-
-		contrast_->insert_fft_shift();
+		rendering_->insert_fft_shift();
 		if (average_requested_)
-			contrast_->insert_average(average_record_requested_);
-		contrast_->insert_log();
-		contrast_->insert_contrast(autocontrast_requested_);
+			rendering_->insert_average(average_record_requested_);
+		rendering_->insert_log();
+		rendering_->insert_contrast(autocontrast_requested_);
 		autofocus_->insert_autofocus();
 
 		if (float_output_requested_)
-			fn_vect_.push_back([=]() {record_float(buffers_.gpu_float_buffer_); });
-
+			fn_vect_.push_back([=]() {record(buffers_.gpu_float_buffer_); });
 		fn_vect_.push_back([=]() {fps_count(); });
 
 		converts_->insert_to_ushort();
