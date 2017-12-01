@@ -205,6 +205,8 @@ namespace holovibes
 		{
 			if (e->button() == Qt::RightButton)
 				resetTransform();
+			if (auto main_display = main_window_->get_main_display())
+				main_display->resetTransform();
 		}
 	
 		void	SliceWindow::focusInEvent(QFocusEvent* e)

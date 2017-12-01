@@ -78,6 +78,8 @@ namespace holovibes
 
 			void notify() override;
 			void notify_error(std::exception& e, const char* msg) override;
+
+			DirectWindow *get_main_display();
 			#pragma endregion
 			/* ---------- */
 			#pragma region Public Slots

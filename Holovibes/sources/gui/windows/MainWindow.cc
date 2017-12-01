@@ -3215,6 +3215,13 @@ namespace holovibes
 			theme_index_ = 0;
 		}
 		#pragma endregion
+
+		#pragma region Getters
+		DirectWindow *MainWindow::get_main_display()
+		{
+			return mainDisplay.get();
+		}
+
 	}
 }
 #include "moc_MainWindow.cc"
