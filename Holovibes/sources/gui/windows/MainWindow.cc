@@ -399,8 +399,12 @@ namespace holovibes
 					components[i]->p_max = tmp;
 				}
 
+			// We need to store them in a temporary array, otherwise they're erased by the new notify
+			float weights[3];
 			for (int i = 0; i < 3; i++)
-				weight_boxes[i]->setValue(components[i]->weight);
+				weights[i] = components[i]->weight;
+			for (int i = 0; i < 3; i++)
+				weight_boxes[i]->setValue(weights[i]);
 			min_box->setMaximum(compute_desc_.nsamples.load() - 1);
 			max_box->setMaximum(compute_desc_.nsamples.load() - 1);
 			min_box->setValue(pmin);
@@ -680,9 +684,9 @@ namespace holovibes
 
 				// Composite
 				compute_desc_.component_r.p_min = ptree.get<ushort>("composite.pmin", 0);
+				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax", 0);
 				compute_desc_.component_r.weight = ptree.get<float>("composite.weight_r", 1);
 				compute_desc_.component_g.weight = ptree.get<float>("composite.weight_g", 1);
-				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax", 0);
 				compute_desc_.component_b.weight = ptree.get<float>("composite.weight_b", 1);
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
