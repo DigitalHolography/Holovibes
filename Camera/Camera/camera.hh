@@ -159,6 +159,7 @@ namespace camera
 
     std::string name_;
 
+	// Exposure time in µs
     float exposure_time_;
 	float pixel_size_;
 

@@ -37,6 +37,7 @@ namespace holovibes
 		Edge,
 		IDS,
 		Ixon,
+		Hamamatsu,
 		Pike,
 		Pixelfly,
 		xiQ,

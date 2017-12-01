@@ -2976,7 +2976,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3007,6 +3007,7 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
+     <addaction name="actionHamamatsu"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3298,6 +3299,11 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Alt+M</string>
+   </property>
+  </action>
+  <action name="actionHamamatsu">
+   <property name="text">
+    <string>Hamamatsu C11440</string>
    </property>
   </action>
  </widget>
@@ -3975,8 +3981,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>342</y>
+     <x>395</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3991,8 +3997,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>261</y>
+     <x>397</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -4055,8 +4061,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>308</x>
-     <y>366</y>
+     <x>325</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -4071,8 +4077,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>382</x>
-     <y>366</y>
+     <x>395</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -4583,8 +4589,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>289</x>
-     <y>290</y>
+     <x>299</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4599,8 +4605,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>291</y>
+     <x>397</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4727,8 +4733,8 @@ p, li { white-space: pre-wrap; }
    <slot>rotateTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
-     <y>265</y>
+     <x>348</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4743,8 +4749,8 @@ p, li { white-space: pre-wrap; }
    <slot>flipTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>266</x>
-     <y>265</y>
+     <x>277</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>448</x>
@@ -4823,8 +4829,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>386</x>
-     <y>370</y>
+     <x>398</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -5127,8 +5133,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>222</y>
+     <x>819</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5143,8 +5149,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>259</y>
+     <x>818</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5159,8 +5165,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>288</y>
+     <x>818</x>
+     <y>287</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5175,8 +5181,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>317</y>
+     <x>818</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>

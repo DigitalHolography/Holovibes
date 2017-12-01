@@ -50,7 +50,9 @@ namespace holovibes
 	{
 		SetThreadPriority(thread_.native_handle(), THREAD_PRIORITY_TIME_CRITICAL);
 		while (!stop_requested_)
+		{
 			queue_.enqueue(camera_.get_frame(), cudaMemcpyHostToDevice);
+		}
 	}
 
 	const camera::FrameDescriptor& ThreadCapture::get_frame_descriptor() const

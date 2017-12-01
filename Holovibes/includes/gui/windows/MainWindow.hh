@@ -93,6 +93,7 @@ namespace holovibes
 			void camera_edge();
 			void camera_ids();
 			void camera_ixon();
+			void camera_hamamatsu();
 			void camera_pike();
 			void camera_pixelfly();
 			void camera_xiq();

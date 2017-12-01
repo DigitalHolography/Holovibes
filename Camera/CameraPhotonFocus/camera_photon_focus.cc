@@ -172,8 +172,6 @@ namespace camera
 
 		frame_rate_enable_ = true;
 		frame_rate_ = 60.0f;
-
-
 	}
 
 	void CameraPhotonFocus::load_ini_params()

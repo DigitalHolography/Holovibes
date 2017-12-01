@@ -966,6 +966,11 @@ namespace holovibes
 			change_camera(CameraKind::Ixon);
 		}
 
+		void MainWindow::camera_hamamatsu()
+		{
+			change_camera(CameraKind::Hamamatsu);
+		}
+
 		void MainWindow::camera_adimec()
 		{
 			change_camera(CameraKind::Adimec);
