@@ -48,7 +48,7 @@ namespace holovibes
 	Queue::~Queue()
 	{
 		if (display_)
-			gui::InfoManager::remove_info(name_);
+			gui::InfoManager::get_manager()->remove_info(name_);
 		if (data_buffer_)
 			if (cudaFree(data_buffer_) != CUDA_SUCCESS)
 				std::cerr << "Queue: couldn't free queue" << std::endl;
@@ -121,7 +121,7 @@ namespace holovibes
    			std::cerr << "Queue: couldn't enqueue into " << name_ << std::endl;
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			if (display_)
-				gui::InfoManager::update_info(name_, "couldn't enqueue");
+				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 			if (data_buffer_)
 			{
 				cudaFree(data_buffer_);
@@ -140,20 +140,7 @@ namespace holovibes
 		else
 			start_index_ = (start_index_ + 1) % max_elts_;
 		if (display_)
-		{
-			if (name_ == "InputQueue")
-				gui::InfoManager::insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_,
-					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-					+ std::string(" (") + calculate_size() + std::string(" MB)"));
-			else if (name_ == "OutputQueue")
-				gui::InfoManager::insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_,
-					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-					+ std::string(" (") + calculate_size() + std::string(" MB)"));
-			else if (name_ == "STFTQueue")
-				gui::InfoManager::insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_,
-					std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-					+ std::string(" (") + calculate_size() + std::string(" MB)"));
-		}
+			display_queue_to_InfoManager();
 		return true;
 	}
 
@@ -166,20 +153,7 @@ namespace holovibes
 			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
-			{
-				if (name_ == "InputQueue")
-					gui::InfoManager::insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_,
-						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-						+ std::string(" (") + calculate_size() + std::string(" MB)"));
-				else if (name_ == "OutputQueue")
-					gui::InfoManager::insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_,
-						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-						+ std::string(" (") + calculate_size() + std::string(" MB)"));
-				else if (name_ == "STFTQueue")
-					gui::InfoManager::insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_,
-						std::to_string(curr_elts_) + std::string("/") + std::to_string(max_elts_)
-						+ std::string(" (") + calculate_size() + std::string(" MB)"));
-			}
+				display_queue_to_InfoManager();
 		}
 	}
 
@@ -207,7 +181,19 @@ namespace holovibes
 		display_ = value;
 	}
 
-	std::string Queue::calculate_size(void)
+	void Queue::display_queue_to_InfoManager() const
+	{
+		std::string message = std::to_string(curr_elts_) + "/" + std::to_string(max_elts_) + " (" + calculate_size() + " MB)";
+
+		if (name_ == "InputQueue")
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_QUEUE, name_, message);
+		else if (name_ == "OutputQueue")
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
+		else if (name_ == "STFTQueue")
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_, message);
+	}
+
+	std::string Queue::calculate_size(void) const
 	{
 		std::string display_size = std::to_string((get_max_elts() * get_size()) >> 20); // get_size() / (1024 * 1024)
 		size_t pos = display_size.find(".");

@@ -31,36 +31,9 @@ namespace holovibes
 			signals :
 		/*! Inform infoEdit_ about new text to display*/
 		void update_text(const QString);
-	private:
-		/*! Throwed if try instance InfoManager more once*/
-		class ManagerNotInstantiate : std::exception
-		{
-			const char *what()
-			{
-				return "InfoManager is not instantiate, use InfoManager::get_manager with arg";
-			}
-		};
-		/*! ctr */
-		InfoManager(gui::GroupBox *ui);
-		/*! dtr */
-		~InfoManager();
-
-		using ThreadState =
-		enum
-		{
-			Null,
-			Operating,
-			Finish
-		};
-
-		std::thread*	delError;
-		ThreadState		flag;
-		static void		taskDelError(const std::string& key);
-
-		void run() override;
 	public:
 
-		enum InfoType
+		enum InfoType // Order them the way you want them to be displayed
 		{
 			IMG_SOURCE,
 			RECORDING,
@@ -79,33 +52,53 @@ namespace holovibes
 		};
 
 		void			startDelError(const std::string& key);
-		std::thread*	getDelErrorThread();
-		void			joinDelErrorThread();
 
-		/*! Get the singleton, it's creat on first call
+		/*! Get the singleton, it's create on first call
 		** \param ui must containt infoProgressBar and infoTextEdit in child*/
 		static InfoManager *get_manager(gui::GroupBox *ui = nullptr);
 
 		/*! Stop to refresh the info_panel display*/
-		static void stop_display();
+		void stop_display();
 
-		/*! Draw all current information */
-		void draw();
-
-		static void insertInputSource(const int width, const int height, const int depth);
+		void insertInputSource(const int width, const int height, const int depth);
 
 		/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information
 		** \param value is your information linked to key */
-		static void update_info(const std::string& key, const std::string& value);
-		static void remove_info(const std::string& key);
-		static void insert_info(const uint pos, const std::string& key, const std::string& value);
+		void update_info(const std::string& key, const std::string& value);
+		void remove_info(const std::string& key);
+		void insert_info(const uint pos, const std::string& key, const std::string& value);
 		void clear_infos();
 		/*! Return progress_bar, you can use it as you want */
 		QProgressBar *get_progress_bar();
 	private:
-		/*! The singleton*/
-		static InfoManager *instance;
+		/*! Throwed if try instance InfoManager more once*/
+		class ManagerNotInstantiate : std::exception
+		{
+			const char *what()
+			{
+				return "InfoManager is not instantiate, use InfoManager::get_manager with arg";
+			}
+		};
+		enum class ThreadState {
+			Null,
+			Operating,
+			Finish
+		};
+
+		/*! ctr */
+		InfoManager(gui::GroupBox *ui);
+
+		/*! Draw all current information */
+		void draw();
+
+		void run() override;
+
+		void joinDelErrorThread();
+
+		std::thread*	delError;
+		ThreadState		flag;
+		void		taskDelError(const std::string& key);
 
 		/*! ui where find infoProgressBar and infoTextEdit */
 		gui::GroupBox*  ui_;
@@ -115,6 +108,10 @@ namespace holovibes
 		QTextEdit*      infoEdit_;
 
 		bool stop_requested_;
+
+		/*! To prevent simultaneous access from multiple thread but one thread cant block himself 
+		Private function don't need to lock the mutex because they are called from a public function */
+		std::recursive_mutex mutex_;
 
 		/*! Store all informations */
 		std::vector<std::pair<std::string, std::string>>  infos_;

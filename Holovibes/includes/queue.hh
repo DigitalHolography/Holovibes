@@ -126,11 +126,12 @@ namespace holovibes
 		void set_display(bool value);
 
 		/*Create a string containing the buffer size in MB*/
-		std::string calculate_size(void);
+		std::string calculate_size(void) const;
 
 		std::mutex&	getGuard();
 
 	private:
+		void display_queue_to_InfoManager() const;
 
 		std::mutex				mutex_;
 		std::string				name_;

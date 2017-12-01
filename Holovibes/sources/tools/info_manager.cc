@@ -16,185 +16,142 @@ namespace holovibes
 {
 	namespace gui
 	{
-		InfoManager *InfoManager::instance = nullptr;
+		using MutexGuard = std::lock_guard<std::recursive_mutex>;
 
 		InfoManager::InfoManager(gui::GroupBox *ui) :
 			delError(nullptr),
-			flag(Null),
+			flag(ThreadState::Null),
 			ui_(ui),
 			progressBar_(ui->findChild<QProgressBar*>("RecordProgressBar")),
-			stop_requested_(false),
-			infos_{
-				{ { std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") },
-				{ std::make_pair("", "") } } }
+			infoEdit_(ui->findChild<QTextEdit*>("InfoTextEdit")),
+			stop_requested_(false)
 		{
-			progressBar_ = ui->findChild<QProgressBar*>("RecordProgressBar");
-			infoEdit_ = ui->findChild<QTextEdit*>("InfoTextEdit");
 			connect(this, SIGNAL(update_text(const QString)), infoEdit_, SLOT(setText(const QString)));
 			this->start();
 		}
 
-		InfoManager::~InfoManager()
-		{
-			if (instance)
-				delete instance;
-		}
-
 		InfoManager *InfoManager::get_manager(gui::GroupBox *ui)
 		{
+			static InfoManager* instance;
 			if (instance)
 				return instance;
 			else if (ui)
-				return InfoManager::instance = new InfoManager(ui);
+				return instance = new InfoManager(ui);
 			else
 				throw InfoManager::ManagerNotInstantiate();
 		}
 
 		void InfoManager::startDelError(const std::string& key)
 		{
-			if (!delError && flag == Null)
+			MutexGuard mGuard(mutex_);
+
+			if (!delError && flag == ThreadState::Null)
 			{
-				delError = new std::thread(&InfoManager::taskDelError,key);
-				flag = Operating;
+				delError = new std::thread(&InfoManager::taskDelError, this, key);
+				flag = ThreadState::Operating;
 			}
 		}
 
-		void InfoManager::taskDelError(const std::string& key)
+		void InfoManager::taskDelError(const std::string& key) // Private
 		{
 			using namespace std::chrono_literals;
 			std::this_thread::sleep_for(3s);
-
-			InfoManager::remove_info(key);
+			remove_info(key);
 		}
 
-		std::thread* InfoManager::getDelErrorThread()
-		{
-			return delError;
-		}
-
-		void InfoManager::joinDelErrorThread()
+		void InfoManager::joinDelErrorThread() // Private
 		{
 			delError->join();
 			delete delError;
 			delError = nullptr;
-			flag = Null;
+			flag = ThreadState::Null;
 		}
 
 		void InfoManager::insertInputSource(const int width, const int height, const int depth)
 		{
-			std::string output_descriptor_info =
-				std::to_string(width) + std::string("x") + std::to_string(height) +
-				std::string(" - ") +
-				std::to_string(static_cast<int>(depth * 8)) + std::string("bit");
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "", "_______________");
-			InfoManager::get_manager()->insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
+			std::string output_descriptor_info = std::to_string(width) + "x" + std::to_string(height) +
+				" - " + std::to_string(depth * 8) + "bit";
+			insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 		}
 
 		void InfoManager::update_info(const std::string& key, const std::string& value)
 		{
-			if (instance)
+			MutexGuard mGuard(mutex_);
+
+			for (int i = 0; i < infos_.size(); ++i)
 			{
-				int i;
-				for (i = 0; i < instance->infos_.size(); ++i)
+				if (infos_[i].first == key)
 				{
-					if (instance->infos_[i].first == key)
-					{
-						instance->infos_[i].second = value;
-						return;
-					}
+					infos_[i].second = value;
+					return;
 				}
-				instance->infos_.push_back(std::make_pair(key, value));
 			}
+			infos_.push_back(std::make_pair(key, value));
 		}
 
 		void InfoManager::remove_info(const std::string& key)
 		{
-			int i = 0;
+			MutexGuard mGuard(mutex_);
 
-			if (instance)
-			{
-				for (i = 0; i < instance->infos_.size(); ++i)
-					if (instance->infos_[i].first == key)
-						break;
-				if (i != instance->infos_.size())
-					instance->infos_.erase(instance->infos_.begin() + i);
-				if (key == "Error" || key == "Info")
-					instance->flag = Finish;
-			}
+			for (int i = 0; i < infos_.size(); ++i)
+				if (infos_[i].first == key) {
+					infos_.erase(infos_.begin() + i);
+					break;
+				}
+
+			if (key == "Error" || key == "Info")
+				flag = ThreadState::Finish;
 		}
 
 		void InfoManager::insert_info(const uint pos, const std::string& key, const std::string& value)
 		{
-			int i = 0;
+			MutexGuard mGuard(mutex_);
 
-			if (instance)
-			{
-				for (i = 0; i < instance->infos_.size(); ++i)
-					if (instance->infos_[i].first == key)
-						break;
-				if (i == instance->infos_.size())
-				{
-					if (pos < instance->infos_.size())
-						instance->infos_.insert(instance->infos_.begin() + pos, std::make_pair(key, value));
-					else
-						instance->infos_.push_back(std::make_pair(key, value));
-				}
-				else
-					update_info(key, value);
-			}
+			for (int i = 0; i < infos_.size(); ++i)
+				if (infos_[i].first == key)
+					return update_info(key, value);
+
+			if (pos < infos_.size())
+				infos_.insert(infos_.begin() + pos, std::make_pair(key, value));
+			else
+				infos_.push_back(std::make_pair(key, value));
 		}
 
 		void InfoManager::stop_display()
 		{
-			if (instance)
-				instance->stop_requested_ = true;
+			MutexGuard mGuard(mutex_);
+
+			stop_requested_ = true;
 		}
 
-		void InfoManager::run()
+		void InfoManager::run() // Private
 		{
-			while (!instance->stop_requested_)
+			while (!stop_requested_)
 			{
-				if (instance->flag == Finish)
-				{
-					instance->joinDelErrorThread();
-				}
+				if (flag == ThreadState::Finish)
+					joinDelErrorThread();
 				draw();
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			}
 		}
 
-		void InfoManager::draw()
+		void InfoManager::draw() // Private
 		{
-			if (instance)
-			{
-				std::string str = "";
-				for (int i = 0; i < instance->infos_.size(); ++i)
-					if (instance->infos_[i].first != "" && instance->infos_[i].second != "")
-						str += instance->infos_[i].first + ((instance->infos_[i].first != "") ? ":\n  " : "") + instance->infos_[i].second + "\n";
-				const QString qstr = str.c_str();
-				emit update_text(qstr);
+			std::string str;
+			for (int i = 0; i < infos_.size(); ++i) {
+				if (infos_[i].first != "")
+					str += infos_[i].first + ":\n ";
+				str += infos_[i].second + "\n";
 			}
+			emit update_text(str.c_str());
 		}
 
 		void InfoManager::clear_infos()
 		{
-			if (instance)
-			{
-				instance->infos_.clear();
-				insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
-			}
+			MutexGuard mGuard(mutex_);
+
+			infos_.clear();
+			insert_info(InfoType::IMG_SOURCE, "ImgSource", "None");
 		}
 
 		QProgressBar* InfoManager::get_progress_bar()
