@@ -381,8 +381,8 @@ namespace holovibes
 			weight_boxes[2] = ui.WeightSpinBox_B;
 			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 
-			unsigned short pmin = min_box->value();
-			unsigned short pmax = max_box->value();
+			unsigned short pmin = components[0]->p_min;
+			unsigned short pmax = components[2]->p_max;
 
 			components[0]->p_min = pmin;
 			components[1]->p_min = pmin + (pmax - pmin) * (1/5.f);

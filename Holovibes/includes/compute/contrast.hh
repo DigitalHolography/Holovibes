@@ -23,6 +23,7 @@ namespace holovibes
 	class ICompute;
 	struct CoreBuffers;
 	struct Average_env;
+	struct Stft_env;
 	enum WindowKind;
 
 	namespace compute
@@ -35,12 +36,14 @@ namespace holovibes
 			Contrast(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
+			const Stft_env& stft_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
 				const std::unique_ptr<Queue>& gpu_3d_vision,
 				ICompute* Ic);
 
+			void insert_p_accu();
 			void insert_fft_shift();
 			void insert_average(std::atomic<bool>& record_request);
 			void insert_log();
@@ -89,6 +92,8 @@ namespace holovibes
 			const CoreBuffers&				buffers_;
 			/// Average variables
 			Average_env&					average_env_;
+			/// Average variables
+			const Stft_env&					stft_env_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor& input_fd_;
 			/// Describes the output frame size

@@ -90,12 +90,6 @@ namespace holovibes
 		friend class ThreadCompute;
 	public:
 
-		enum ref_state
-		{
-			ENQUEUE,
-			COMPUTE
-		};
-
 		ICompute(
 			Queue& input,
 			Queue& output,
@@ -131,7 +125,6 @@ namespace holovibes
 			std::atomic<uint>& queue_length,
 			camera::FrameDescriptor new_fd,
 			float depth = 4.f);
-		void update_ref_diff_parameter();
 
 		/*! \brief Return true while ICompute is recording float. */
 
@@ -191,14 +184,11 @@ namespace holovibes
 
 	protected:
 
-		virtual void refresh();
+		virtual void refresh() = 0;
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
 
-		void record_float(float* float_output, cudaStream_t stream = 0);
-		void record_complex(cufftComplex* complex_output, cudaStream_t stream = 0);
-		void handle_reference(cufftComplex* input, const unsigned int nframes);
-		void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
+		void record(void* output, cudaStream_t stream = 0);
 		void fps_count();
 
 		ICompute& operator=(const ICompute&) = delete;
@@ -215,16 +205,9 @@ namespace holovibes
 		CoreBuffers		buffers_;
 		Stft_env		stft_env_;
 		Average_env		average_env_;
-
-		cufftComplex	*gpu_tmp_input_;
-		cufftComplex	*gpu_special_queue_;
-		cufftComplex	*gpu_lens_;
 		cuda_tools::CufftHandle	plan2d_;
-		float			*gpu_kernel_buffer_;
-		uint			gpu_special_queue_start_index;
-		uint			gpu_special_queue_max_index;
 
-		Queue	*fqueue_;
+		std::unique_ptr<Queue> fqueue_;
 
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
@@ -233,11 +216,6 @@ namespace holovibes
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
 		std::unique_ptr<Queue>	gpu_3d_vision;
-		std::unique_ptr<Queue>	gpu_lens_queue_;
-		std::unique_ptr<Queue>	gpu_ref_diff_queue_;
-
-		enum ref_state	ref_diff_state_;
-		uint			ref_diff_counter;
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;

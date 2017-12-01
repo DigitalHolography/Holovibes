@@ -344,8 +344,17 @@
     <ClCompile Include="sources\tools\cuda_tools\cufft_handle.cc">
       <Filter>c++ sources\tools\cuda_tools</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\composite_overlay.cc">
+      <Filter>c++ sources\gui\selections\Overlays</Filter>
+    </ClCompile>
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\preprocessing.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\postprocessing.cc">
+      <Filter>c++ sources\compute</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -602,6 +611,15 @@
       <Filter>c++ includes\tools\cuda_tools</Filter>
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh">
+      <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\preprocessing.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\postprocessing.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\composite_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
   </ItemGroup>

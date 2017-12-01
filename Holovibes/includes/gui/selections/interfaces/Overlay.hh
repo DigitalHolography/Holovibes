@@ -41,7 +41,8 @@ namespace holovibes
 			Stabilization,
 			Scale,
 			// Not implemented yet
-			SliceZoom
+			SliceZoom,
+			Composite
 		};
 
 		class BasicOpenGLWindow;
