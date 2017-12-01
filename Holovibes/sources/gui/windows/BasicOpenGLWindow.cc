@@ -234,7 +234,12 @@ namespace holovibes
 		{
 			const glm::mat4 rotY = glm::rotate(glm::mat4(1.f), glm::radians(180.f * (flip_ == 1)), glm::vec3(0.f, 1.f, 0.f));
 			const glm::mat4 rotZ = glm::rotate(glm::mat4(1.f), glm::radians(angle_), glm::vec3(0.f, 0.f, 1.f));
-			const glm::mat4 rotYZ = rotY * rotZ;
+			glm::mat4 rotYZ = rotY * rotZ;
+
+			// Avoid float multiplication imprecision due to glm::rotate
+			for (int i = 0; i < 4; i++)
+				for (int j = 0; j < 4; j++)
+						rotYZ[i][j] = std::round(rotYZ[i][j]);
 
 			const glm::mat4 scl = glm::scale(glm::mat4(1.f),
 					glm::vec3(kView == KindOfView::SliceYZ ? 1 : scale_,
