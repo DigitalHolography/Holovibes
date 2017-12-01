@@ -373,38 +373,30 @@ namespace holovibes
 			ui.CompositeGroupBox->setHidden(!isComposite);
 
 			// Composite
-			QSpinBox *min_boxes[3];
-			QSpinBox *max_boxes[3];
+			QSpinBox *min_box = ui.PMinSpinBox_Composite;
+			QSpinBox *max_box = ui.PMaxSpinBox_Composite;
 			QDoubleSpinBox *weight_boxes[3];
-			min_boxes[0] = ui.PMinSpinBox_R;
-			min_boxes[1] = ui.PMinSpinBox_G;
-			min_boxes[2] = ui.PMinSpinBox_B;
-			max_boxes[0] = ui.PMaxSpinBox_R;
-			max_boxes[1] = ui.PMaxSpinBox_G;
-			max_boxes[2] = ui.PMaxSpinBox_B;
 			weight_boxes[0] = ui.WeightSpinBox_R;
 			weight_boxes[1] = ui.WeightSpinBox_G;
 			weight_boxes[2] = ui.WeightSpinBox_B;
 			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
 
-			// These values must be copied before setting the box values, otherwise they'd be overwritten by the observers
-			ushort pmin[3];
-			ushort pmax[3];
-			float weight[3];
+			unsigned short pmin = min_box->value();
+			unsigned short pmax = max_box->value();
+
+			components[0]->p_min = pmin;
+			components[1]->p_min = pmin + (pmax - pmin) * (1/5.f);
+			components[0]->p_max = pmin + (pmax - pmin) * (2/5.f);
+			components[2]->p_min = pmin + (pmax - pmin) * (3/5.f);
+			components[1]->p_max = pmin + (pmax - pmin) * (4/5.f);
+			components[2]->p_max = pmax;
+
 			for (int i = 0; i < 3; i++)
-			{
-				pmax[i] = components[i]->p_max.load();
-				pmin[i] = components[i]->p_min.load();
-				weight[i] = components[i]->weight;
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				min_boxes[i]->setMaximum(compute_desc_.nsamples.load() - 1);
-				max_boxes[i]->setMaximum(compute_desc_.nsamples.load() - 1);
-				min_boxes[i]->setValue(pmin[i]);
-				max_boxes[i]->setValue(pmax[i]);
-				weight_boxes[i]->setValue(weight[i]);
-			}
+				weight_boxes[i]->setValue(components[i]->weight);
+			min_box->setMaximum(compute_desc_.nsamples.load() - 1);
+			max_box->setMaximum(compute_desc_.nsamples.load() - 1);
+			min_box->setValue(components[0]->p_min);
+			max_box->setValue(components[2]->p_max);
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			// Interpolation
@@ -679,14 +671,10 @@ namespace holovibes
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
 				// Composite
-				compute_desc_.component_r.p_min = ptree.get<ushort>("composite.pmin_r", 0);
-				compute_desc_.component_r.p_max = ptree.get<ushort>("composite.pmax_r", 0);
+				compute_desc_.component_r.p_min = ptree.get<ushort>("composite.pmin", 0);
 				compute_desc_.component_r.weight = ptree.get<float>("composite.weight_r", 1);
-				compute_desc_.component_g.p_min = ptree.get<ushort>("composite.pmin_g", 0);
-				compute_desc_.component_g.p_max = ptree.get<ushort>("composite.pmax_g", 0);
 				compute_desc_.component_g.weight = ptree.get<float>("composite.weight_g", 1);
-				compute_desc_.component_b.p_min = ptree.get<ushort>("composite.pmin_b", 0);
-				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax_b", 0);
+				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax", 0);
 				compute_desc_.component_b.weight = ptree.get<float>("composite.weight_b", 1);
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
@@ -779,14 +767,10 @@ namespace holovibes
 			ptree.put<uint>("autofocus.loops", compute_desc_.autofocus_z_iter.load());
 
 			// Composite
-			ptree.put<ushort>("composite.pmin_r", compute_desc_.component_r.p_min);
-			ptree.put<ushort>("composite.pmax_r", compute_desc_.component_r.p_max);
+			ptree.put<ushort>("composite.pmin", compute_desc_.component_r.p_min);
+			ptree.put<ushort>("composite.pmax", compute_desc_.component_b.p_max);
 			ptree.put<float>("composite.weight_r", compute_desc_.component_r.weight);
-			ptree.put<ushort>("composite.pmin_g", compute_desc_.component_g.p_min);
-			ptree.put<ushort>("composite.pmax_g", compute_desc_.component_g.p_max);
 			ptree.put<float>("composite.weight_g", compute_desc_.component_g.weight);
-			ptree.put<ushort>("composite.pmin_b", compute_desc_.component_b.p_min);
-			ptree.put<ushort>("composite.pmax_b", compute_desc_.component_b.p_max);
 			ptree.put<float>("composite.weight_b", compute_desc_.component_b.weight);
 			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
 
@@ -1591,57 +1575,22 @@ namespace holovibes
 					display_error("p param has to be between 1 and #img");
 			}
 		}
-		void MainWindow::set_composite_intervals_min()
+		void MainWindow::set_composite_intervals()
 		{
-			QSpinBox *min_boxes[3];
-			QSpinBox *max_boxes[3];
-			min_boxes[0] = ui.PMinSpinBox_R;
-			min_boxes[1] = ui.PMinSpinBox_G;
-			min_boxes[2] = ui.PMinSpinBox_B;
-			max_boxes[0] = ui.PMaxSpinBox_R;
-			max_boxes[1] = ui.PMaxSpinBox_G;
-			max_boxes[2] = ui.PMaxSpinBox_B;
-			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
-			for (int i = 0; i < 3; i++)
+			QSpinBox *min_box = ui.PMinSpinBox_Composite;
+			QSpinBox *max_box = ui.PMaxSpinBox_Composite;
+
+			unsigned short pmin = min_box->value();
+			unsigned short pmax = max_box->value();
+
+			QPalette DirtyPalette = ui.PAccuCheckBox->palette();
+			if (pmin > pmax)
 			{
-				components[i]->p_min = min_boxes[i]->value();
-				auto checkBox = ui.PAccuCheckBox;
-				QPalette DirtyPalette = checkBox->palette();
-				if (components[i]->p_min > max_boxes[i]->value())
-				{
-					DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
-					DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
-				}
-				min_boxes[i]->setPalette(DirtyPalette);
-				max_boxes[i]->setPalette(DirtyPalette);
+				DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
+				DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
 			}
-			notify();
-		}
-		void MainWindow::set_composite_intervals_max()
-		{
-			QSpinBox *min_boxes[3];
-			QSpinBox *max_boxes[3];
-			min_boxes[0] = ui.PMinSpinBox_R;
-			min_boxes[1] = ui.PMinSpinBox_G;
-			min_boxes[2] = ui.PMinSpinBox_B;
-			max_boxes[0] = ui.PMaxSpinBox_R;
-			max_boxes[1] = ui.PMaxSpinBox_G;
-			max_boxes[2] = ui.PMaxSpinBox_B;
-			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
-			for (int i = 0; i < 3; i++)
-			{
-				ushort new_p = max_boxes[i]->value();
-				components[i]->p_max = new_p;
-				auto checkBox = ui.PAccuCheckBox;
-				QPalette DirtyPalette = checkBox->palette();
-				if (components[i]->p_min > new_p)
-				{
-					DirtyPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 0));
-					DirtyPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 0));
-				}
-				min_boxes[i]->setPalette(DirtyPalette);
-				max_boxes[i]->setPalette(DirtyPalette);
-			}
+			min_box->setPalette(DirtyPalette);
+			max_box->setPalette(DirtyPalette);
 			notify();
 		}
 
