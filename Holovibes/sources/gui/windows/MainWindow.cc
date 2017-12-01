@@ -165,7 +165,7 @@ namespace holovibes
 			holovibes_.dispose_compute();
 			if (!is_direct_mode())
 				holovibes_.dispose_capture();
-			InfoManager::stop_display();
+			InfoManager::get_manager()->stop_display();
 		}
 
 		
@@ -1039,7 +1039,7 @@ namespace holovibes
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				const FrameDescriptor& fd = holovibes_.get_capture_queue().get_frame_desc();
-				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
+				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
 			}
@@ -1114,7 +1114,7 @@ namespace holovibes
 				createHoloWindow();
 				/* ---------- */
 				const FrameDescriptor& fd = holovibes_.get_output_queue().get_frame_desc();
-				InfoManager::insertInputSource(fd.width, fd.height, fd.depth);
+				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				/* ---------- */
 				compute_desc_.contrast_enabled.exchange(true);
 				set_auto_contrast();
@@ -1407,7 +1407,7 @@ namespace holovibes
 			{
 				compute_desc_.ref_diff_enabled.exchange(true);
 				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::update_info("Reference", "Processing... ");
+				InfoManager::get_manager()->update_info("Reference", "Processing... ");
 				notify();
 			}
 		}
@@ -1418,7 +1418,7 @@ namespace holovibes
 			{
 				compute_desc_.ref_sliding_enabled.exchange(true);
 				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::update_info("Reference", "Processing...");
+				InfoManager::get_manager()->update_info("Reference", "Processing...");
 				notify();
 			}
 		}
@@ -1430,7 +1430,7 @@ namespace holovibes
 				compute_desc_.ref_diff_enabled.exchange(false);
 				compute_desc_.ref_sliding_enabled.exchange(false);
 				holovibes_.get_pipe()->request_ref_diff_refresh();
-				InfoManager::remove_info("Reference");
+				InfoManager::get_manager()->remove_info("Reference");
 				notify();
 			}
 		}

@@ -57,18 +57,18 @@ namespace holovibes
 
 			cur_size = queue_.get_current_elts();
 			if (cur_size >= max_size - 1)
-		  	gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
+		  	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING, "Recording", "Queue is full, data will be lost !");
 			else if (cur_size > (max_size * 0.8f))
-				gui::InfoManager::insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
+				gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RECORDING,  "Recording", "Queue is nearly full !");
 			else
-				gui::InfoManager::remove_info("Recording");
+				gui::InfoManager::get_manager()->remove_info("Recording");
 			queue_.dequeue(buffer, cudaMemcpyDeviceToHost);
 			file_.write(buffer, size);
 			emit value_change(i);
 		}
 
 		std::cout << "[RECORDER] record done !" << std::endl;
-		gui::InfoManager::remove_info("Recording");
+		gui::InfoManager::get_manager()->remove_info("Recording");
 		delete[] buffer;
 	}
 
