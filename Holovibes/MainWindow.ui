@@ -1474,68 +1474,8 @@
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>G</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QSpinBox" name="PMinSpinBox_B">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>R</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QSpinBox" name="PMaxSpinBox_G">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_6">
-                <property name="text">
-                 <string>B</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QSpinBox" name="PMinSpinBox_G">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QSpinBox" name="PMaxSpinBox_R">
+               <widget class="QSpinBox" name="PMinSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1553,49 +1493,30 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="2">
-               <widget class="QSpinBox" name="PMaxSpinBox_B">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSpinBox" name="PMinSpinBox_R">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>p min (red)</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QLabel" name="label_7">
+               <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>p min</string>
+                 <string>p max (blue)</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>p max</string>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
                 </property>
                </widget>
               </item>
@@ -3371,12 +3292,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>InterpolationLambda2</tabstop>
   <tabstop>InterpolationSensitivity</tabstop>
   <tabstop>InterpolationShift</tabstop>
-  <tabstop>PMinSpinBox_R</tabstop>
-  <tabstop>PMaxSpinBox_R</tabstop>
-  <tabstop>PMinSpinBox_G</tabstop>
-  <tabstop>PMaxSpinBox_G</tabstop>
-  <tabstop>PMinSpinBox_B</tabstop>
-  <tabstop>PMaxSpinBox_B</tabstop>
+  <tabstop>PMinSpinBox_Composite</tabstop>
   <tabstop>RenormalizationCheckBox</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
@@ -5031,10 +4947,10 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMinSpinBox_R</sender>
+   <sender>PMinSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_min()</slot>
+   <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>718</x>
@@ -5047,77 +4963,13 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMinSpinBox_G</sender>
+   <sender>PMaxSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_min()</slot>
+   <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>718</x>
-     <y>135</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PMinSpinBox_B</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_min()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>718</x>
-     <y>158</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PMaxSpinBox_B</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>789</x>
-     <y>158</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PMaxSpinBox_G</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>789</x>
-     <y>135</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>644</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PMaxSpinBox_R</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_max()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>789</x>
+     <x>816</x>
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
@@ -5133,8 +4985,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>819</x>
-     <y>221</y>
+     <x>790</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5149,8 +5001,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>258</y>
+     <x>789</x>
+     <y>259</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5165,8 +5017,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>287</y>
+     <x>789</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5181,8 +5033,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>818</x>
-     <y>316</y>
+     <x>789</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5539,8 +5391,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_integer_visible(bool)</slot>
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
-  <slot>set_composite_intervals_min()</slot>
-  <slot>set_composite_intervals_max()</slot>
   <slot>set_composite_weights()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
@@ -5553,5 +5403,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_interp_shift(int)</slot>
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
+  <slot>set_composite_intervals()</slot>
  </slots>
 </ui>
