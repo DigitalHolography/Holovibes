@@ -40,8 +40,8 @@ namespace holovibes
 
 		void StripOverlay::compute_zone()
 		{
-			ushort pmin = component_.p_min.load();
-			ushort pmax = component_.p_max.load() + 1;
+			ushort pmin = component_.p_min;
+			ushort pmax = component_.p_max + 1;
 			units::ConversionData convert(parent_);
 			if (parent_->getKindOfView() == SliceXZ)
 			{

@@ -121,7 +121,7 @@ namespace holovibes
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
 			new_fd3.depth = 8.f;
 			/* Useless line. Maybe forgot gpu_ref_queue_ ?
-			new Queue(new_fd3, compute_desc_.stft_level.load(), "TakeRefQueue");
+			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
 		}
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
@@ -162,7 +162,7 @@ namespace holovibes
 	bool	ICompute::update_n_parameter(unsigned short n)
 	{
 		unsigned int err_count = 0;
-		abort_construct_requested_.exchange(false);
+		abort_construct_requested_ = false;
 
 		{
 			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
@@ -190,7 +190,7 @@ namespace holovibes
 		new_fd.depth = 8;
 		try
 		{
-			if (compute_desc_.stft_view_enabled.load())
+			if (compute_desc_.stft_view_enabled)
 				update_stft_slice_queue();
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 			if (compute_desc_.croped_stft)
@@ -209,7 +209,7 @@ namespace holovibes
 
 		if (err_count != 0)
 		{
-			abort_construct_requested_.exchange(true);
+			abort_construct_requested_ = true;
 			allocation_failed(err_count,
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
 			return false;
@@ -226,24 +226,24 @@ namespace holovibes
 
 	void	ICompute::delete_stft_slice_queue()
 	{
-		request_delete_stft_cuts_.exchange(true);
+		request_delete_stft_cuts_ = true;
 		request_refresh();
 	}
 
 	void	ICompute::create_stft_slice_queue()
 	{
-		request_stft_cuts_.exchange(true);
+		request_stft_cuts_ = true;
 		request_refresh();
 	}
 
 	bool	ICompute::get_cuts_request()
 	{
-		return request_stft_cuts_.load();
+		return request_stft_cuts_;
 	}
 
 	bool	ICompute::get_cuts_delete_request()
 	{
-		return request_delete_stft_cuts_.load();
+		return request_delete_stft_cuts_;
 	}
 
 	Queue&	ICompute::get_stft_slice_queue(int slice)
@@ -290,8 +290,8 @@ namespace holovibes
 			catch (std::exception&)
 			{
 				queue = nullptr;
-				enabled.exchange(false);
-				queue_length.exchange(1);
+				enabled = false;
+				queue_length = 1;
 				allocation_failed(1, CustomException("update_acc_parameter()", error_kind::fail_accumulation));
 			}
 		}
@@ -299,110 +299,110 @@ namespace holovibes
 
 	bool ICompute::get_request_refresh()
 	{
-		return refresh_requested_.load();
+		return refresh_requested_;
 	}
 
 	void ICompute::request_refresh()
 	{
-		refresh_requested_.exchange(true);
+		refresh_requested_ = true;
 	}
 
 	void ICompute::request_acc_refresh()
 	{
-		update_acc_requested_.exchange(true);
+		update_acc_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_ref_diff_refresh()
 	{
-		update_ref_diff_requested_.exchange(true);
+		update_ref_diff_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_float_output(Queue* fqueue)
 	{
 		fqueue_.reset(fqueue);
-		float_output_requested_.exchange(true);
+		float_output_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_float_output_stop()
 	{
-		float_output_requested_.exchange(false);
+		float_output_requested_ = false;
 		request_refresh();
 	}
 
 	void ICompute::request_complex_output(Queue* fqueue)
 	{
 		fqueue_.reset(fqueue);
-		complex_output_requested_.exchange(true);
+		complex_output_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_complex_output_stop()
 	{
-		complex_output_requested_.exchange(false);
+		complex_output_requested_ = false;
 		request_refresh();
 	}
 
 	void ICompute::request_termination()
 	{
-		termination_requested_.exchange(true);
+		termination_requested_ = true;
 	}
 
 	void ICompute::request_autocontrast()
 	{
-		autocontrast_requested_.exchange(true);
+		autocontrast_requested_ = true;
 	}
 
 	void ICompute::request_filter2D_roi_update()
 	{
-		stft_update_roi_requested_.exchange(true);
-		request_update_n(compute_desc_.nsamples.load());
+		stft_update_roi_requested_ = true;
+		request_update_n(compute_desc_.nsamples);
 	}
 
 	void ICompute::request_filter2D_roi_end()
 	{
-		stft_update_roi_requested_.exchange(false);
-		request_update_n(compute_desc_.nsamples.load());
-		compute_desc_.log_scale_slice_xy_enabled.exchange(false);
-		compute_desc_.shift_corners_enabled.exchange(true);
+		stft_update_roi_requested_ = false;
+		request_update_n(compute_desc_.nsamples);
+		compute_desc_.log_scale_slice_xy_enabled = false;
+		compute_desc_.shift_corners_enabled = true;
 		notify_observers();
-		autocontrast_requested_.exchange(true);
+		autocontrast_requested_ = true;
 	}
 
 	void ICompute::request_autofocus()
 	{
-		autofocus_requested_.exchange(true);
-		autofocus_stop_requested_.exchange(false);
+		autofocus_requested_ = true;
+		autofocus_stop_requested_ = false;
 		request_refresh();
 	}
 
 	void ICompute::request_autofocus_stop()
 	{
-		autofocus_stop_requested_.exchange(true);
+		autofocus_stop_requested_ = true;
 	}
 
 	void ICompute::request_update_n(const unsigned short n)
 	{
-		update_n_requested_.exchange(true);
+		update_n_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_update_unwrap_size(const unsigned size)
 	{
-		compute_desc_.unwrap_history_size.exchange(size);
+		compute_desc_.unwrap_history_size = size;
 		request_refresh();
 	}
 
 	void ICompute::request_unwrapping_1d(const bool value)
 	{
-		unwrap_1d_requested_.exchange(value);
+		unwrap_1d_requested_ = value;
 	}
 
 	void ICompute::request_unwrapping_2d(const bool value)
 	{
-		unwrap_2d_requested_.exchange(value);
+		unwrap_2d_requested_ = value;
 	}
 
 	void ICompute::request_average(
@@ -410,16 +410,16 @@ namespace holovibes
 	{
 		assert(output != nullptr);
 
-		output->resize(compute_desc_.nsamples.load());
+		output->resize(compute_desc_.nsamples);
 		average_env_.average_output_ = output;
 
-		average_requested_.exchange(true);
+		average_requested_ = true;
 		request_refresh();
 	}
 
 	void ICompute::request_average_stop()
 	{
-		average_requested_.exchange(false);
+		average_requested_ = false;
 		request_refresh();
 	}
 
@@ -433,8 +433,8 @@ namespace holovibes
 		average_env_.average_output_ = output;
 		average_env_.average_n_ = n;
 
-		average_requested_.exchange(true);
-		average_record_requested_.exchange(true);
+		average_requested_ = true;
+		average_record_requested_ = true;
 		request_refresh();
 	}
 
@@ -457,7 +457,7 @@ namespace holovibes
 			{
 				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
-				long long voxelPerSeconds = fps * output_fd.frame_res() * compute_desc_.nsamples.load();
+				long long voxelPerSeconds = fps * output_fd.frame_res() * compute_desc_.nsamples;
 				manager->insert_info(gui::InfoManager::InfoType::THROUGHPUT, "Throughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVoxel/s"));
 			}
 			past_time_ = time;

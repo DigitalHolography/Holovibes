@@ -93,7 +93,7 @@ namespace holovibes
 
 				// Setting the steps and the frame_counter in order to call autofocus_caller only
 				// once stft_queue_ is fully updated and stft is computed
-				cd_.stft_steps.exchange(cd_.nsamples);
+				cd_.stft_steps = cd_.nsamples;
 				Ic_->set_stft_frame_counter(af_env_.nsamples);
 
 				af_env_.stft_index = af_env_.nsamples - 1;
@@ -126,7 +126,7 @@ namespace holovibes
 				af_env_.z_min = cd_.autofocus_z_min;
 				af_env_.z_max = cd_.autofocus_z_max;
 
-				const float z_div = static_cast<float>(cd_.autofocus_z_div.load());
+				const float z_div = static_cast<float>(cd_.autofocus_z_div);
 
 				af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
 
@@ -174,7 +174,7 @@ namespace holovibes
 			const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone.get(),
 				af_env_.af_square_size,
 				stream,
-				cd_.autofocus_size.load());
+				cd_.autofocus_size);
 
 			if (!std::isnan(focus_metric_value))
 				af_env_.focus_metric_values.push_back(focus_metric_value);
@@ -224,12 +224,12 @@ namespace holovibes
 			if (Ic_->get_autofocus_stop_request() || af_env_.z_iter <= 0)
 			{
 				// Restoring old stft parameters
-				cd_.stft_steps.exchange(af_env_.old_steps);
+				cd_.stft_steps = af_env_.old_steps;
 				cd_.nsamples = af_env_.old_nsamples;
 				cd_.pindex = af_env_.old_p;
 				Ic_->request_update_n(cd_.nsamples);
 
-				cd_.zdistance.exchange(af_env_.af_z);
+				cd_.zdistance = af_env_.af_z;
 				cd_.notify_observers();
 
 				autofocus_reset();

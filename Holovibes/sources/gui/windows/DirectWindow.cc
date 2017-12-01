@@ -165,7 +165,7 @@ namespace holovibes
 			Program->release();
 			Vao.release();
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / Cd->display_rate.load());
+			startTimer(1000 / Cd->display_rate);
 		}
 		
 		void	DirectWindow::resizeGL(int w, int h)

@@ -51,7 +51,7 @@ namespace holovibes
 			Program->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.tex.glsl");
 			Program->link();
 			//overlay_manager_.create_overlay<Scale>();
-			if (Cd->img_type.load() == ImgType::Composite)
+			if (Cd->img_type == ImgType::Composite)
 				create_strip_overlays();
 			else
 				overlay_manager_.create_default();
@@ -162,7 +162,7 @@ namespace holovibes
 			Vao.release();
 
 			glViewport(0, 0, width(), height());
-			startTimer(1000 / Cd->display_rate.load());
+			startTimer(1000 / Cd->display_rate);
 		}
 
 		void	SliceWindow::paintGL()
@@ -219,7 +219,7 @@ namespace holovibes
 			QWindow::focusInEvent(e);
 			if (Cd)
 			{
-				Cd->current_window.exchange((kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview);
+				Cd->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
 				Cd->notify_observers();
 			}
 		}

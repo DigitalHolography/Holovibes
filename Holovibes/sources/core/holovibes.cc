@@ -69,7 +69,7 @@ namespace holovibes
 
 			std::cout << "(Holovibes) Initializing camera..." << std::endl;
 			camera_->init_camera();
-			compute_desc_.pixel_size.exchange(camera_->get_pixel_size());
+			compute_desc_.pixel_size = camera_->get_pixel_size();
 			std::cout << "(Holovibes) Resetting queues..." << std::endl;
 			input_.reset(new Queue(camera_->get_frame_descriptor(), global::global_config.input_queue_max_size, "InputQueue"));
 			std::cout << "(Holovibes) Starting initialization..." << std::endl;
@@ -178,9 +178,9 @@ namespace holovibes
 
 	void Holovibes::reset_convolution_matrix()
 	{
-		compute_desc_.convo_matrix_width.exchange(0);
-		compute_desc_.convo_matrix_height.exchange(0);
-		compute_desc_.convo_matrix_z.exchange(0);
+		compute_desc_.convo_matrix_width = 0;
+		compute_desc_.convo_matrix_height = 0;
+		compute_desc_.convo_matrix_z = 0;
 		compute_desc_.convo_matrix.clear();
 	}
 
@@ -196,7 +196,7 @@ namespace holovibes
 			FrameDescriptor fd = get_cam_frame_desc();
 			const float n = static_cast<float>(fd.height);
 			const float d = compute_desc_.pixel_size * 0.000001f;
-			return (n * d * d) / compute_desc_.lambda.load();
+			return (n * d * d) / compute_desc_.lambda;
 		}
 		return 0.f;
 	}
@@ -228,7 +228,7 @@ namespace holovibes
 					spanStart,
 					spanEnd,
 					*input_,
-					compute_desc_.is_cine_file.load(),
+					compute_desc_.is_cine_file,
 					holovibes));
 			std::cout << "[CAPTURE] reader thread started" << std::endl;
 			camera_initialized_ = true;

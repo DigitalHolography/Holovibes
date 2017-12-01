@@ -121,7 +121,7 @@ void DetectIntensity::on_jump(bool delayed)
 void DetectIntensity::update_lambda()
 {
 	frames_since_jump_++;
-	float lambda = cd_.interp_lambda1.load();
+	float lambda = cd_.interp_lambda1;
 	float progress = static_cast<float>(frames_since_jump_) / cd_.nsamples;
 	if (progress > 1)
 		progress = 1;

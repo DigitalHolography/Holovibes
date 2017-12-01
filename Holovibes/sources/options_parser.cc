@@ -428,7 +428,7 @@ namespace holovibes
 		if (vm_.count("1fft"))
 		{
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm.exchange(Algorithm::FFT1);
+			opts_.compute_desc.algorithm = Algorithm::FFT1;
 		}
 
 		if (vm_.count("2fft"))
@@ -437,7 +437,7 @@ namespace holovibes
 				throw std::runtime_error("1fft method already selected");
 
 			opts_.is_compute_enabled = true;
-			opts_.compute_desc.algorithm.exchange(Algorithm::FFT2);
+			opts_.compute_desc.algorithm = Algorithm::FFT2;
 		}
 
 		if (vm_.count("nsamples"))
@@ -446,18 +446,18 @@ namespace holovibes
 			if (nsamples <= 0)
 				throw std::runtime_error("--nsamples parameter must be strictly positive");
 
-			opts_.compute_desc.nsamples.exchange(nsamples);
+			opts_.compute_desc.nsamples = nsamples;
 
-			if (opts_.compute_desc.nsamples.load() >= global::global_config.input_queue_max_size)
+			if (opts_.compute_desc.nsamples >= global::global_config.input_queue_max_size)
 				throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
 		}
 
 		if (vm_.count("pindex"))
 		{
 			const unsigned short pindex = vm_["pindex"].as<unsigned short>();
-			if (pindex < 0 || pindex >= opts_.compute_desc.nsamples.load())
+			if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
 				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
-			opts_.compute_desc.pindex.exchange(pindex);
+			opts_.compute_desc.pindex = pindex;
 		}
 
 		if (vm_.count("lambda"))
@@ -465,31 +465,31 @@ namespace holovibes
 			const float lambda = vm_["lambda"].as<float>();
 			if (lambda <= 0.0000f)
 				throw std::runtime_error("--lambda parameter must be strictly positive");
-			opts_.compute_desc.lambda.exchange(lambda);
+			opts_.compute_desc.lambda = lambda;
 		}
 
 		if (vm_.count("zdistance"))
 		{
 			const float zdistance = vm_["zdistance"].as<float>();
-			opts_.compute_desc.zdistance.exchange(zdistance);
+			opts_.compute_desc.zdistance = zdistance;
 		}
 
 		if (vm_.count("viewmode"))
 		{
 			const std::string viewmode = vm_["viewmode"].as<std::string>();
 			if (boost::iequals(viewmode, "magnitude"))
-				opts_.compute_desc.img_type.exchange(ImgType::Modulus);
+				opts_.compute_desc.img_type = ImgType::Modulus;
 			else if (boost::iequals(viewmode, "squaredmagnitude"))
-				opts_.compute_desc.img_type.exchange(ImgType::SquaredModulus);
+				opts_.compute_desc.img_type = ImgType::SquaredModulus;
 			else if (boost::iequals(viewmode, "argument"))
-				opts_.compute_desc.img_type.exchange(ImgType::Argument);
+				opts_.compute_desc.img_type = ImgType::Argument;
 			else
 				throw std::runtime_error("unknown view mode");
 		}
 
-		opts_.compute_desc.log_scale_slice_xy_enabled.exchange(vm_.count("log") > 0);
+		opts_.compute_desc.log_scale_slice_xy_enabled = vm_.count("log") > 0;
 
-		opts_.compute_desc.shift_corners_enabled.exchange(vm_.count("nofftshift"));
+		opts_.compute_desc.shift_corners_enabled = vm_.count("nofftshift");
 
 		if (vm_.count("contrastmin"))
 		{
@@ -498,11 +498,11 @@ namespace holovibes
 			if (log_min < -100.0f || log_min > 100.0f)
 				throw std::runtime_error("wrong min parameter (-100.0 < min < 100.0)");
 
-			if (opts_.compute_desc.log_scale_slice_xy_enabled.load())
-				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(log_min));
+			if (opts_.compute_desc.log_scale_slice_xy_enabled)
+				opts_.compute_desc.contrast_min_slice_xy = static_cast<float>(log_min);
 			else
-				opts_.compute_desc.contrast_min_slice_xy.exchange(static_cast<float>(pow(10.0, log_min)));
-			opts_.compute_desc.contrast_enabled.exchange(true);
+				opts_.compute_desc.contrast_min_slice_xy = static_cast<float>(pow(10.0, log_min));
+			opts_.compute_desc.contrast_enabled = true;
 		}
 
 		if (vm_.count("contrastmax"))
@@ -512,20 +512,20 @@ namespace holovibes
 			if (log_max < -100.0f || log_max > 100.0f)
 				throw std::runtime_error("wrong max parameter (-100.0 < max < 100.0)");
 
-			if (opts_.compute_desc.log_scale_slice_xy_enabled.load())
-				opts_.compute_desc.contrast_max_slice_xy.exchange(log_max);
+			if (opts_.compute_desc.log_scale_slice_xy_enabled)
+				opts_.compute_desc.contrast_max_slice_xy = log_max;
 			else
-				opts_.compute_desc.contrast_max_slice_xy.exchange(static_cast<float>(pow(10.0, log_max)));
-			opts_.compute_desc.contrast_enabled.exchange(true);
+				opts_.compute_desc.contrast_max_slice_xy = static_cast<float>(pow(10.0, log_max));
+			opts_.compute_desc.contrast_enabled = true;
 		}
 
 		if (vm_.count("vibrometry"))
 		{
 			const int vibrometry_q = vm_["vibrometry"].as<int>();
-			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples.load())
+			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
 				throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
-			opts_.compute_desc.vibrometry_q.exchange(static_cast<unsigned short>(vibrometry_q));
-			opts_.compute_desc.vibrometry_enabled.exchange(true);
+			opts_.compute_desc.vibrometry_q = static_cast<unsigned short>(vibrometry_q);
+			opts_.compute_desc.vibrometry_enabled = true;
 		}
 	}
 

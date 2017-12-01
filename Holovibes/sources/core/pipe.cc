@@ -56,7 +56,7 @@ namespace holovibes
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 
 		if (compute_desc_.compute_mode != Computation::Direct)
-			update_n_requested_.exchange(true);
+			update_n_requested_ = true;
 		refresh();
 	}
 
@@ -102,7 +102,7 @@ namespace holovibes
 
 			cudaMalloc(&buffers_.gpu_ushort_cut_xz_, fd_xz.frame_size());
 			cudaMalloc(&buffers_.gpu_ushort_cut_yz_, fd_yz.frame_size());
-			request_stft_cuts_.exchange(false);
+			request_stft_cuts_ = false;
 		}
 
 		if (request_delete_stft_cuts_)
@@ -114,7 +114,7 @@ namespace holovibes
 
 			stft_env_.gpu_stft_slice_queue_xz.reset();
 			stft_env_.gpu_stft_slice_queue_yz.reset();
-			request_delete_stft_cuts_.exchange(false);
+			request_delete_stft_cuts_ = false;
 		}
 	}
 
@@ -123,8 +123,8 @@ namespace holovibes
 		if (compute_desc_.compute_mode == Computation::Direct)
 		{
 			fn_vect_.clear();
-			update_n_requested_.exchange(false);
-			refresh_requested_.exchange(false);
+			update_n_requested_ = false;
+			refresh_requested_ = false;
 			return;
 		}
 
@@ -143,12 +143,12 @@ namespace holovibes
 		{
 			if (!update_n_parameter(compute_desc_.nsamples))
 			{
-				compute_desc_.pindex.exchange(0);
-				compute_desc_.nsamples.exchange(1);
+				compute_desc_.pindex = 0;
+				compute_desc_.nsamples = 1;
 				update_n_parameter(1);
 				std::cerr << "Updating #img failed, #img updated to 1" << std::endl;
 			}
-			update_n_requested_.exchange(false);
+			update_n_requested_ = false;
 		}
 
 		// Allocating cuts queues
@@ -163,7 +163,7 @@ namespace holovibes
 			new_fd_yz.width = compute_desc_.nsamples;
 			update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
 			update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
-			update_acc_requested_.exchange(false);
+			update_acc_requested_ = false;
 		}
 
 		preprocess_->allocate_ref(update_ref_diff_requested_);
@@ -247,19 +247,19 @@ namespace holovibes
 
 		converts_->insert_to_ushort();
 
-		refresh_requested_.exchange(false);
+		refresh_requested_ = false;
 	}
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		return compute_desc_.img_type.load() == ImgType::Complex ? buffers_.gpu_input_buffer_ : buffers_.gpu_output_buffer_;
+		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_ : buffers_.gpu_output_buffer_;
 	}
 
 	void Pipe::exec()
 	{
 		if (global::global_config.flush_on_refresh)
 			input_.flush();
-		while (!termination_requested_.load())
+		while (!termination_requested_)
 		{
 			if (input_.get_current_elts() >= 1)
 			{
@@ -295,7 +295,7 @@ namespace holovibes
 				}
 
 				input_.dequeue();
-				if (refresh_requested_.load())
+				if (refresh_requested_)
 					refresh();
 			}
 		}
@@ -311,15 +311,15 @@ namespace holovibes
 		/*Add image to phase accumulation buffer*/
 
 		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); } );
-		fn_vect_.push_back(std::bind(
-			accumulate_images,
-			static_cast<float *>(queue->get_buffer()),
-			buffer,
-			queue->get_start_index(),
-			queue->get_max_elts(),
-			nb_images,
-			nb_pixels,
-			static_cast<cudaStream_t>(0)));
+		fn_vect_.push_back([=]() {
+			accumulate_images(
+				static_cast<float *>(queue->get_buffer()),
+				buffer,
+				queue->get_start_index(),
+				queue->get_max_elts(),
+				nb_images,
+				nb_pixels);
+		});
 	}
 
 	Queue* Pipe::get_lens_queue()
