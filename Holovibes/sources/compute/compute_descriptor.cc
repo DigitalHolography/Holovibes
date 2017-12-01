@@ -45,6 +45,7 @@ namespace holovibes
 		contrast_min_slice_yz(1.f),
 		contrast_max_slice_xz(65535.f),
 		contrast_max_slice_yz(65535.f),
+		scale_bar_correction_factor(1),
 		vibrometry_q(0),
 		autofocus_size(3),
 		convo_matrix_width(0),

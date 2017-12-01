@@ -227,6 +227,7 @@ namespace holovibes
 
 		std::atomic<ushort>			cuts_contrast_p_offset;
 		std::atomic<float>			pixel_size;
+		std::atomic<float>			scale_bar_correction_factor;
 		std::atomic<uint>			convo_matrix_width;
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;

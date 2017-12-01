@@ -1943,6 +1943,11 @@ namespace holovibes
 			}
 
 		}
+
+		void MainWindow::set_scale_bar_correction_factor(double value)
+		{
+			compute_desc_.scale_bar_correction_factor = value;
+		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Autofocus

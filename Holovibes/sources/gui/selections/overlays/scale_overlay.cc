@@ -65,7 +65,7 @@ namespace holovibes
 			float height = top - bottom;
 			// Computing the size in meters of the scale bar (using pixel size)
 			const float nb_pixel = sqrt(pow(width, 2) + pow(height, 2)) * fd.width / 2.f;
-			const float size = nb_pixel * pix_size * 0.15f; // 0.15f because the scale bar only take 15% of the window width
+			const float size = nb_pixel * pix_size * 0.15f * parent_->getCd()->scale_bar_correction_factor; // 0.15f because the scale bar only take 15% of the window width
 
 			/* The displaying of the text is done following these steps :
 					- Writing the information on a text document.

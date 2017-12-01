@@ -338,14 +338,14 @@
     <ClCompile Include="sources\compute\detect_intensity.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
     <ClCompile Include="sources\stdafx.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
     <ClCompile Include="sources\tools\cuda_tools\cufft_handle.cc">
       <Filter>c++ sources\tools\cuda_tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc">
+      <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -595,14 +595,14 @@
     <ClInclude Include="cuda_includes\interpolation.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh">
-      <Filter>c++ includes\gui\selections\Overlays</Filter>
-    </ClInclude>
     <ClInclude Include="includes\stdafx.hh">
       <Filter>c++ includes</Filter>
     </ClInclude>
     <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh">
       <Filter>c++ includes\tools\cuda_tools</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh">
+      <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

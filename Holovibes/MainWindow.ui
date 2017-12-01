@@ -1071,11 +1071,47 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="ScaleBarCheckBox">
-           <property name="text">
-            <string>Scale Bar</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="1,0,0">
+           <item>
+            <widget class="QCheckBox" name="ScaleBarCheckBox">
+             <property name="text">
+              <string>Scale Bar</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Correction factor to calibrate scale bar with the hologram</string>
+             </property>
+             <property name="text">
+              <string>Corr.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer_2">
@@ -3280,7 +3316,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>AutoContrastPushButton</tabstop>
   <tabstop>ContrastMinDoubleSpinBox</tabstop>
   <tabstop>ContrastMaxDoubleSpinBox</tabstop>
-  <tabstop>ScaleBarCheckBox</tabstop>
   <tabstop>AutofocusRunPushButton</tabstop>
   <tabstop>AutofocusZMinDoubleSpinBox</tabstop>
   <tabstop>AutofocusZMaxDoubleSpinBox</tabstop>
@@ -4281,8 +4316,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1202</x>
-     <y>292</y>
+     <x>1204</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4601,8 +4636,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>153</x>
-     <y>155</y>
+     <x>152</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4985,8 +5020,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>222</y>
+     <x>819</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5001,8 +5036,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>259</y>
+     <x>818</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5017,8 +5052,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>288</y>
+     <x>818</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5033,8 +5068,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>789</x>
-     <y>317</y>
+     <x>818</x>
+     <y>270</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5273,12 +5308,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_scale_bar(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>387</y>
+     <x>281</x>
+     <y>394</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
      <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_scale_bar_correction_factor(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>340</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>506</x>
+     <y>-12</y>
     </hint>
    </hints>
   </connection>
@@ -5404,5 +5455,6 @@ p, li { white-space: pre-wrap; }
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
+  <slot>set_scale_bar_correction_factor(double)</slot>
  </slots>
 </ui>
