@@ -15,7 +15,9 @@
 #include "pipeline_utils.hh"
 #include "icompute.hh"
 #include "compute_descriptor.hh"
+#include "concurrent_deque.hh"
 #include "contrast_correction.cuh"
+#include "average.cuh"
 
 namespace holovibes
 {
@@ -23,16 +25,20 @@ namespace holovibes
 	{
 		Contrast::Contrast(FnVector& fn_vect,
 			const CoreBuffers& buffers,
+			Average_env& average_env,
 			ComputeDescriptor& cd,
+			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
 			const std::unique_ptr<Queue>& gpu_3d_vision,
-			std::atomic<bool>& request)
+			ICompute* Ic)
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
+			, average_env_(average_env)
 			, cd_(cd)
+			, input_fd_(input_fd)
 			, fd_(output_fd)
 			, gpu_3d_vision_(gpu_3d_vision)
-			, request_(request)
+			, Ic_(Ic)
 		{
 		}
 
@@ -51,6 +57,18 @@ namespace holovibes
 			}
 		}
 
+		void Contrast::insert_average(std::atomic<bool>& record_request)
+		{
+			//TODO: allowing both at the same time
+			if (record_request)
+			{
+				insert_average_record();
+				record_request = false;
+			}
+			else
+				insert_main_average();
+		}
+
 		void Contrast::insert_log()
 		{
 			if (cd_.log_scale_slice_xy_enabled)
@@ -59,9 +77,9 @@ namespace holovibes
 				insert_slice_log();
 		}
 
-		void Contrast::insert_contrast()
+		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request)
 		{
-			insert_autocontrast();
+			insert_autocontrast(autocontrast_request);
 			if (cd_.contrast_enabled)
 			{
 				if (cd_.vision_3d_enabled)
@@ -76,10 +94,42 @@ namespace holovibes
 
 		//----------
 
+		void Contrast::insert_main_average()
+		{
+			units::RectFd signalZone;
+			units::RectFd noiseZone;
+			cd_.signalZone(signalZone, AccessMode::Get);
+			cd_.noiseZone(noiseZone, AccessMode::Get);
+			fn_vect_.push_back([=]() {
+				average_env_.average_output_->push_back(
+					make_average_plot(
+						buffers_.gpu_float_buffer_,
+						input_fd_.width,
+						input_fd_.height,
+						signalZone,
+						noiseZone));
+			});
+		}
+
+		void Contrast::insert_average_record()
+		{
+			units::RectFd signalZone;
+			units::RectFd noiseZone;
+			cd_.signalZone(signalZone, AccessMode::Get);
+			cd_.noiseZone(noiseZone, AccessMode::Get);
+			fn_vect_.push_back([=]() {average_record_caller(
+				buffers_.gpu_float_buffer_,
+				input_fd_.width,
+				input_fd_.height,
+				signalZone,
+				noiseZone);
+			});
+		}
+
 		void Contrast::insert_main_log()
 		{
 			uint size = buffers_.gpu_float_buffer_size_ / sizeof(float);
-			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, size);});
+			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, size); });
 		}
 
 		void Contrast::insert_slice_log()
@@ -140,11 +190,11 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_autocontrast()
+		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request)
 		{
 			// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
-			auto lambda_autocontrast = [=]() {
-				if (request_)
+			auto lambda_autocontrast = [&]() {
+				if (autocontrast_request)
 				{
 					if (cd_.current_window == XYview)
 					{
@@ -176,7 +226,7 @@ namespace holovibes
 								fd_.width * cd_.cuts_contrast_p_offset,
 								YZview);
 					}
-					request_ = false;
+					autocontrast_request = false;
 				}
 			};
 			fn_vect_.push_back(lambda_autocontrast);
@@ -207,6 +257,28 @@ namespace holovibes
 				break;
 			}
 			cd_.notify_observers();
+		}
+
+
+		void Contrast::average_record_caller(
+			float* input,
+			const unsigned int width,
+			const unsigned int height,
+			const units::RectFd& signal,
+			const units::RectFd& noise,
+			cudaStream_t stream)
+		{
+			if (average_env_.average_n_ > 0)
+			{
+				average_env_.average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
+				average_env_.average_n_--;
+			}
+			else
+			{
+				average_env_.average_n_ = 0;
+				average_env_.average_output_ = nullptr;
+				Ic_->request_refresh();
+			}
 		}
 	}
 }

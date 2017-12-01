@@ -50,7 +50,7 @@ namespace holovibes
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_.gpu_float_buffer_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
-		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, desc, output.get_frame_desc(), gpu_3d_vision, autocontrast_requested_);
+		contrast_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), gpu_3d_vision, this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		// Setting the cufft plans to work on the default stream.
 		cufftSetStream(plan2d_, static_cast<cudaStream_t>(0));
@@ -141,13 +141,8 @@ namespace holovibes
 			refresh_requested_.exchange(false);
 			return;
 		}
-		// Allocating filter2d/flowagrpahy/convolution buffers
+		// Allocating flowagrpahy/convolution buffers
 		ICompute::refresh();
-
-		/* As the Pipe uses a single CUDA stream for its computations,
-		 * we have to explicitly use the default stream (0).
-		 * Because std::bind does not allow optional parameters to be
-		 * deduced and bound, we have to use static_cast<cudaStream_t>(0) systematically. */
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
@@ -207,11 +202,10 @@ namespace holovibes
 
 		// Converting input_ to complex.
 		if (autofocus_->get_state() == compute::STOPPED)
-			fn_vect_.push_back(std::bind(
-				make_contiguous_complex,
-				std::ref(input_),
-				buffers_.gpu_input_buffer_,
-				static_cast<cudaStream_t>(0)));
+			fn_vect_.push_back([=]() {
+			make_contiguous_complex(
+				input_,
+				buffers_.gpu_input_buffer_); });
 		else if (autofocus_->get_state() == compute::COPYING)
 		{
 			autofocus_->insert_copy();
@@ -230,19 +224,11 @@ namespace holovibes
 					ratio); });
 
 		if (compute_desc_.ref_diff_enabled)
-			fn_vect_.push_back(std::bind(
-				&Pipe::handle_reference,
-				this,
-				buffers_.gpu_input_buffer_,
-				1));
+			fn_vect_.push_back([=]() {handle_reference(buffers_.gpu_input_buffer_, 1); });
 
 		// Handling ref_sliding
 		if (compute_desc_.ref_sliding_enabled)
-			fn_vect_.push_back(std::bind(
-				&Pipe::handle_sliding_reference,
-				this,
-				buffers_.gpu_input_buffer_,
-				1));
+			fn_vect_.push_back([=]() {handle_sliding_reference(buffers_.gpu_input_buffer_, 1); });
 
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
@@ -250,7 +236,7 @@ namespace holovibes
 		// Handling depth accumulation
 		if (compute_desc_.p_accu_enabled)
 				fn_vect_.push_back([=]() {
-					int pmin = compute_desc_.pindex.load();
+					int pmin = compute_desc_.pindex;
 					int pmax = std::max(0,
 						std::min(pmin + compute_desc_.p_acc_level, static_cast<int>(compute_desc_.nsamples)));
 					stft_moment(
@@ -259,7 +245,7 @@ namespace holovibes
 						input_fd.frame_res(),
 						pmin,
 						pmax,
-						compute_desc_.nsamples.load());
+						compute_desc_.nsamples);
 				});
 
 		// Handling image ratio Ip/Iq
@@ -314,15 +300,8 @@ namespace holovibes
 				static_cast<cudaStream_t>(0)));
 		}
 
-		// handling complex recording
 		if (complex_output_requested_)
-		{
-			fn_vect_.push_back(std::bind(
-				&Pipe::record_complex,
-				this,
-				buffers_.gpu_input_buffer_,
-				static_cast<cudaStream_t>(0)));
-		}
+			fn_vect_.push_back([=]() {record_complex(buffers_.gpu_input_buffer_); });
 
 		converts_->insert_to_float(unwrap_2d_requested_);
 		if (compute_desc_.img_type == Complex)
@@ -352,85 +331,19 @@ namespace holovibes
 
 
 		contrast_->insert_fft_shift();
-
-		// Handling noise/signal average
 		if (average_requested_)
-		{
-			units::RectFd signalZone;
-			units::RectFd noiseZone;
-			compute_desc_.signalZone(signalZone, AccessMode::Get);
-			compute_desc_.noiseZone(noiseZone, AccessMode::Get);
-			// Recording or diplaying. TODO: allow both at the same time
-			if (average_record_requested_)
-			{
-				fn_vect_.push_back(std::bind(
-					&Pipe::average_record_caller,
-					this,
-					buffers_.gpu_float_buffer_,
-					input_fd.width,
-					input_fd.height,
-					signalZone,
-					noiseZone,
-					static_cast<cudaStream_t>(0)));
-
-				average_record_requested_ = false;
-			}
-			else
-				fn_vect_.push_back(std::bind(
-					&Pipe::average_caller,
-					this,
-					buffers_.gpu_float_buffer_,
-					input_fd.width,
-					input_fd.height,
-					signalZone,
-					noiseZone,
-					static_cast<cudaStream_t>(0)));
-		}
-
+			contrast_->insert_average(average_record_requested_);
 		contrast_->insert_log();
-		contrast_->insert_contrast();
+		contrast_->insert_contrast(autocontrast_requested_);
 		autofocus_->insert_autofocus();
 
-		// Handling float recording
 		if (float_output_requested_)
-		{
-			fn_vect_.push_back(std::bind(
-				&Pipe::record_float,
-				this,
-				buffers_.gpu_float_buffer_,
-				static_cast<cudaStream_t>(0)));
-		}
+			fn_vect_.push_back([=]() {record_float(buffers_.gpu_float_buffer_); });
 
-		// Displaying fps
-		fn_vect_.push_back(std::bind(
-			&Pipe::fps_count,
-			this));
+		fn_vect_.push_back([=]() {fps_count(); });
 
-		// Converting float buffers to short output buffers
-		if (!compute_desc_.vision_3d_enabled)
-			fn_vect_.push_back(std::bind(
-				float_to_ushort,
-				buffers_.gpu_float_buffer_,
-				buffers_.gpu_output_buffer_,
-				buffers_.gpu_float_buffer_size_ / sizeof(float),
-				output_fd.depth,
-				static_cast<cudaStream_t>(0)));
+		converts_->insert_to_ushort();
 
-		if (compute_desc_.stft_view_enabled)
-		{
-			fn_vect_.push_back(std::bind(
-				float_to_ushort,
-				buffers_.gpu_float_cut_xz_,
-				buffers_.gpu_ushort_cut_xz_,
-				get_stft_slice_queue(0).get_frame_desc().frame_res(),
-				2.f, static_cast<cudaStream_t>(0)));
-			fn_vect_.push_back(std::bind(
-				float_to_ushort,
-				buffers_.gpu_float_cut_yz_,
-				buffers_.gpu_ushort_cut_yz_,
-				get_stft_slice_queue(1).get_frame_desc().frame_res(),
-				2.f, static_cast<cudaStream_t>(0)));
-		}
 		refresh_requested_.exchange(false);
 	}
 

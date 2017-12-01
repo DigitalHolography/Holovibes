@@ -15,11 +15,14 @@
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
 #include "queue.hh"
+#include "rect.hh"
 
 namespace holovibes
 {
 	class ComputeDescriptor;
+	class ICompute;
 	struct CoreBuffers;
+	struct Average_env;
 	enum WindowKind;
 
 	namespace compute
@@ -31,20 +34,26 @@ namespace holovibes
 		public:
 			Contrast(FnVector& fn_vect,
 				const CoreBuffers& buffers,
+				Average_env& average_env,
 				ComputeDescriptor& cd,
+				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
 				const std::unique_ptr<Queue>& gpu_3d_vision,
-				std::atomic<bool>& request);
+				ICompute* Ic);
 
 			void insert_fft_shift();
+			void insert_average(std::atomic<bool>& record_request);
 			void insert_log();
-			void insert_contrast();
+			void insert_contrast(std::atomic<bool>& autocontrast_request);
 
 		private:
+			void insert_main_average();
+			void insert_average_record();
+
 			void insert_main_log();
 			void insert_slice_log();
 
-			void insert_autocontrast();
+			void insert_autocontrast(std::atomic<bool>& autocontrast_request);
 			void insert_vision3d_contrast();
 			void insert_main_contrast();
 			void insert_slice_contrast();
@@ -55,6 +64,22 @@ namespace holovibes
 				WindowKind			view,
 				cudaStream_t		stream = 0);
 
+			/*! \see request_average_record
+			* \brief Call the average algorithm, store the result and count n
+			* iterations. Request the ICompute to refresh when record is over.
+			* \param input Input float frame pointer
+			* \param width Width of the input frame
+			* \param height Height of the input frame
+			* \param signal Signal zone
+			* \param noise Noise zone */
+			void average_record_caller(
+				float* input,
+				const unsigned int width,
+				const unsigned int height,
+				const units::RectFd& signal,
+				const units::RectFd& noise,
+				cudaStream_t stream = 0);
+
 
 			/// Pipe data
 			/// {
@@ -62,14 +87,18 @@ namespace holovibes
 			FnVector&						fn_vect_;
 			/// Main buffers
 			const CoreBuffers&				buffers_;
-			/// Describes the frame size
+			/// Average variables
+			Average_env&					average_env_;
+			/// Describes the input frame size
+			const camera::FrameDescriptor& input_fd_;
+			/// Describes the output frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
 			/// output queue for 3d vision mode
-			const std::unique_ptr<Queue>& gpu_3d_vision_;
-			/// Autocontrast request
-			std::atomic<bool>&				request_;
+			const std::unique_ptr<Queue>&	gpu_3d_vision_;
+			///
+			ICompute*						Ic_;
 			/// }
 		};
 	}

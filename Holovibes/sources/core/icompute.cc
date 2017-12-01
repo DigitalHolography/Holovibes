@@ -65,10 +65,8 @@ namespace holovibes
 		update_ref_diff_requested_(false),
 		request_stft_cuts_(false),
 		request_delete_stft_cuts_(false),
-		average_output_(nullptr),
 		ref_diff_state_(ref_state::ENQUEUE),
 		ref_diff_counter(0),
-		average_n_(0),
 		past_time_(std::chrono::high_resolution_clock::now())
 	{
 		int err = 0;
@@ -553,7 +551,7 @@ namespace holovibes
 		assert(output != nullptr);
 
 		output->resize(compute_desc_.nsamples.load());
-		average_output_ = output;
+		average_env_.average_output_ = output;
 
 		average_requested_.exchange(true);
 		request_refresh();
@@ -572,8 +570,8 @@ namespace holovibes
 		assert(output != nullptr);
 		assert(n != 0);
 
-		average_output_ = output;
-		average_n_ = n;
+		average_env_.average_output_ = output;
+		average_env_.average_n_ = n;
 
 		average_requested_.exchange(true);
 		average_record_requested_.exchange(true);
@@ -633,38 +631,6 @@ namespace holovibes
 			substract_ref(input, static_cast<cufftComplex *>(gpu_ref_diff_queue_->get_buffer()),
 				input_.get_frame_desc().frame_res(), nframes,
 				static_cast<cudaStream_t>(0));
-		}
-	}
-
-	void ICompute::average_caller(
-		float* input,
-		const unsigned int width,
-		const unsigned int height,
-		const units::RectFd& signal,
-		const units::RectFd& noise,
-		cudaStream_t stream)
-	{
-		average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
-	}
-
-	void ICompute::average_record_caller(
-		float* input,
-		const unsigned int width,
-		const unsigned int height,
-		const units::RectFd& signal,
-		const units::RectFd& noise,
-		cudaStream_t stream)
-	{
-		if (average_n_ > 0)
-		{
-			average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
-			average_n_--;
-		}
-		else
-		{
-			average_n_ = 0;
-			average_output_ = nullptr;
-			request_refresh();
 		}
 	}
 

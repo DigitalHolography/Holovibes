@@ -73,6 +73,12 @@ namespace holovibes
 		uint								stft_frame_counter_ = 1;
 	};
 
+	struct Average_env
+	{
+		ConcurrentDeque<Tuple4f>* average_output_ = nullptr;
+		uint	average_n_ = 0;
+	};
+
 	/* \brief Stores functions helping the editing of the images.
 	 *
 	 * Stores all the functions that will be used before doing
@@ -189,44 +195,8 @@ namespace holovibes
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
 
-		/*! \{ \name caller methods (helpers)
-		*
-		* For some features, it might be necessary to do special treatment. For
-		* example, store a returned value in a std::vector. */
-
-		/*! \see request_average
-		* \brief Call the average algorithm and store the result in the vector.
-		* \param input Input float frame pointer
-		* \param width Width of the input frame
-		* \param height Height of the input frame
-		* \param signal Signal zone
-		* \param noise Noise zone */
-		void average_caller(
-			float* input,
-			const unsigned int width,
-			const unsigned int height,
-			const units::RectFd& signal,
-			const units::RectFd& noise,
-			cudaStream_t stream);
-
-		/*! \see request_average_record
-		* \brief Call the average algorithm, store the result and count n
-		* iterations. Request the ICompute to refresh when record is over.
-		* \param input Input float frame pointer
-		* \param width Width of the input frame
-		* \param height Height of the input frame
-		* \param signal Signal zone
-		* \param noise Noise zone */
-		void average_record_caller(
-			float* input,
-			const unsigned int width,
-			const unsigned int height,
-			const units::RectFd& signal,
-			const units::RectFd& noise,
-			cudaStream_t stream);
-
-		void record_float(float* float_output, cudaStream_t stream);
-		void record_complex(cufftComplex* complex_output, cudaStream_t stream);
+		void record_float(float* float_output, cudaStream_t stream = 0);
+		void record_complex(cufftComplex* complex_output, cudaStream_t stream = 0);
 		void handle_reference(cufftComplex* input, const unsigned int nframes);
 		void handle_sliding_reference(cufftComplex* input, const unsigned int nframes);
 		void fps_count();
@@ -244,6 +214,7 @@ namespace holovibes
 
 		CoreBuffers		buffers_;
 		Stft_env		stft_env_;
+		Average_env		average_env_;
 
 		cufftComplex	*gpu_tmp_input_;
 		cufftComplex	*gpu_special_queue_;
@@ -255,10 +226,8 @@ namespace holovibes
 
 		Queue	*fqueue_;
 
-		ConcurrentDeque<Tuple4f>* average_output_;
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
-		uint	average_n_;
 		uint	frame_count_;
 
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;
