@@ -30,8 +30,7 @@ namespace holovibes
 			Direct = 1, /**< Simply displaying the input frames */
 			Hologram, /**< Applying the demodulation and computations on the input frames */
 			SliceXZ, /**< Displaying the XZ view of the hologram */
-			SliceYZ, /**< Displaying the YZ view of the hologram */
-			Vision3D /**< Displaying the Hologram in a special 3D mode */
+			SliceYZ /**< Displaying the YZ view of the hologram */
 		};
 
 

@@ -143,14 +143,11 @@ namespace holovibes
 
 		void			create_stft_slice_queue();
 		void			delete_stft_slice_queue();
-		void			create_3d_vision_queue();
-		void			delete_3d_vision_queue();
 		void			update_stft_slice_queue();
 		Queue&			get_stft_slice_queue(int i);
 		bool			get_cuts_request();
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
-		Queue&			get_3d_vision_queue();
 		void			set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface);
 
 		bool get_unwrap_1d_request()		const { return unwrap_1d_requested_; }
@@ -171,8 +168,6 @@ namespace holovibes
 		bool get_update_ref_diff_request()	const { return update_ref_diff_requested_; }
 		bool get_request_stft_cuts()		const { return request_stft_cuts_; }
 		bool get_request_delete_stft_cuts() const { return request_delete_stft_cuts_; }
-		bool get_request_3d_vision()		const { return request_3d_vision_; }
-		bool get_request_delete_3d_vision()	const { return request_delete_3d_vision_; }
 
 		void set_stft_frame_counter(uint value)
 		{
@@ -215,7 +210,6 @@ namespace holovibes
 
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
-		std::unique_ptr<Queue>	gpu_3d_vision;
 
 		std::atomic<bool>	unwrap_1d_requested_;
 		std::atomic<bool>	unwrap_2d_requested_;
@@ -235,7 +229,5 @@ namespace holovibes
 		std::atomic<bool>	update_ref_diff_requested_;
 		std::atomic<bool>	request_stft_cuts_;
 		std::atomic<bool>	request_delete_stft_cuts_;
-		std::atomic<bool>	request_3d_vision_;
-		std::atomic<bool>	request_delete_3d_vision_;
 	};
 }

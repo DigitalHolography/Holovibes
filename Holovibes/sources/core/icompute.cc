@@ -236,18 +236,6 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void	ICompute::create_3d_vision_queue()
-	{
-		request_3d_vision_.exchange(true);
-		request_refresh();
-	}
-
-	void	ICompute::delete_3d_vision_queue()
-	{
-		request_delete_3d_vision_.exchange(true);
-		request_refresh();
-	}
-
 	bool	ICompute::get_cuts_request()
 	{
 		return request_stft_cuts_.load();
@@ -261,11 +249,6 @@ namespace holovibes
 	Queue&	ICompute::get_stft_slice_queue(int slice)
 	{
 		return slice ? *stft_env_.gpu_stft_slice_queue_yz : *stft_env_.gpu_stft_slice_queue_xz;
-	}
-
-	Queue& ICompute::get_3d_vision_queue()
-	{
-		return *gpu_3d_vision;
 	}
 
 	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)

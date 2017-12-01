@@ -40,7 +40,6 @@ namespace holovibes
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
-				const std::unique_ptr<Queue>& gpu_3d_vision,
 				ICompute* Ic);
 
 			void insert_p_accu();
@@ -57,7 +56,6 @@ namespace holovibes
 			void insert_slice_log();
 
 			void insert_autocontrast(std::atomic<bool>& autocontrast_request);
-			void insert_vision3d_contrast();
 			void insert_main_contrast();
 			void insert_slice_contrast();
 
@@ -100,8 +98,6 @@ namespace holovibes
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
-			/// output queue for 3d vision mode
-			const std::unique_ptr<Queue>&	gpu_3d_vision_;
 			///
 			ICompute*						Ic_;
 			/// }

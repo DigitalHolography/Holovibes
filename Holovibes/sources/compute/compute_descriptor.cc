@@ -78,7 +78,6 @@ namespace holovibes
 		stft_view_enabled(false),
 		current_window(WindowKind::XYview),
 		cuts_contrast_p_offset(4),
-		vision_3d_enabled(false),
 		display_rate(30),
 		xy_stabilization_enabled(false),
 		xy_stabilization_paused(false),
@@ -145,7 +144,6 @@ namespace holovibes
 		stft_view_enabled.exchange(cd.stft_view_enabled.load());
 		current_window.exchange(cd.current_window.load());
 		cuts_contrast_p_offset.exchange(cd.cuts_contrast_p_offset.load());
-		vision_3d_enabled.exchange(cd.vision_3d_enabled.load());
 		display_rate.exchange(cd.display_rate.load());
 		stft_slice_cursor = cd.stft_slice_cursor;
 		signal_zone = cd.signal_zone;

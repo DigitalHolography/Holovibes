@@ -249,12 +249,12 @@ namespace holovibes
 				setEnabled(!is_direct && compute_desc_.img_type.load() == ImgType::PhaseIncrease ||
 					compute_desc_.img_type.load() == ImgType::Argument);
 
-			ui.STFTCutsCheckBox->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled.load() && !compute_desc_.vision_3d_enabled.load());
+			ui.STFTCutsCheckBox->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled.load());
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled.load());
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
 			filter_button->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load()
-				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
+				&& !compute_desc_.filter_2d_enabled.load() && !compute_desc_.stft_view_enabled.load());
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled.load()) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled.load());
 
@@ -279,8 +279,6 @@ namespace holovibes
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled.load());
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled.load());
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xy_level.load());
-				ui.RotatePushButton->setEnabled(!compute_desc_.vision_3d_enabled.load());
-				ui.FlipPushButton->setEnabled(!compute_desc_.vision_3d_enabled.load());
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
 			}
@@ -330,12 +328,12 @@ namespace holovibes
 
 			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled.load());
 			ui.ConvoCheckBox->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
-			ui.AverageCheckBox->setEnabled(!compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
+			ui.AverageCheckBox->setEnabled(!compute_desc_.stft_view_enabled.load());
 			ui.AverageCheckBox->setChecked(!is_direct && compute_desc_.average_enabled.load());
 			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled.load());
 			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level.load());
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level.load());
-			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.vision_3d_enabled.load() && !compute_desc_.stft_view_enabled.load());
+			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm.load() != Algorithm::None && !compute_desc_.stft_view_enabled.load());
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps.load());
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled.load());
@@ -344,7 +342,7 @@ namespace holovibes
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm.load());
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type.load());
-			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load() && !compute_desc_.vision_3d_enabled.load());
+			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load());
 			ui.PhaseNumberSpinBox->setValue(compute_desc_.nsamples.load());
 			ui.PSpinBox->setMaximum(compute_desc_.nsamples.load() - 1);
 			ui.PSpinBox->setValue(compute_desc_.pindex.load());
@@ -365,9 +363,6 @@ namespace holovibes
 			
 			QString depth_value = ui.ImportDepthComboBox->currentText();
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file.load());
-			
-			ui.Vision3DCheckBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled.load());
-			ui.Vision3DCheckBox->setChecked(compute_desc_.vision_3d_enabled.load());
 
 			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
 			ui.CompositeGroupBox->setHidden(!isComposite);
@@ -817,8 +812,6 @@ namespace holovibes
 		{ 
 			if (compute_desc_.average_enabled.load())
 				set_average_mode(false);
-			if (compute_desc_.vision_3d_enabled.load())
-				set_vision_3d(false);
 			cancel_stft_view(compute_desc_);
 			if (compute_desc_.ref_diff_enabled.load() || compute_desc_.ref_sliding_enabled.load())
 				cancel_take_reference();
@@ -1195,33 +1188,6 @@ namespace holovibes
 					set_direct_mode();
 				else
 					set_holographic_mode();
-			}
-		}
-
-		void MainWindow::set_vision_3d(bool checked)
-		{
-			const FrameDescriptor&	fd = holovibes_.get_capture_queue().get_frame_desc();
-
-			if (checked)
-			{
-				QPoint pos(0, 0);
-				QSize size(512, 512);
-				set_average_mode(false);
-				mainDisplay.reset(nullptr);
-				holovibes_.get_pipe()->create_3d_vision_queue();
-				while (holovibes_.get_pipe()->get_request_3d_vision());
-				vision3D.reset(new Vision3DWindow(pos, size, holovibes_.get_output_queue(), compute_desc_, fd, holovibes_.get_pipe()->get_3d_vision_queue()));
-				compute_desc_.vision_3d_enabled.exchange(true);
-				notify();
-			}
-			else
-			{
-				compute_desc_.vision_3d_enabled.exchange(false);
-				holovibes_.get_pipe()->delete_3d_vision_queue();
-				while (holovibes_.get_pipe()->get_request_delete_3d_vision());
-				vision3D.reset(nullptr);
-				set_holographic_mode();
-				notify();
 			}
 		}
 		#pragma endregion

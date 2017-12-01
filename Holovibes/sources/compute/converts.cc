@@ -27,7 +27,6 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
-			const std::unique_ptr<Queue>& gpu_3d_vision,
 			const cufftHandle& plan2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
@@ -37,7 +36,6 @@ namespace holovibes
 			, stft_env_(stft_env)
 			, unwrap_res_()
 			, unwrap_res_2d_()
-			, gpu_3d_vision_(gpu_3d_vision)
 			, plan2d_(plan2d)
 			, cd_(cd)
 			, fd_(input_fd)
@@ -49,12 +47,7 @@ namespace holovibes
 			if (cd_.img_type == Composite)
 				insert_to_composite();
 			else if (cd_.img_type == Modulus)
-			{
-				if (cd_.vision_3d_enabled)
-					insert_to_modulus_vision3d();
-				else
-					insert_to_modulus();
-			}
+				insert_to_modulus();
 			else if (cd_.img_type == SquaredModulus)
 				insert_to_squaredmodulus();
 			if (cd_.img_type == Argument)
@@ -67,8 +60,7 @@ namespace holovibes
 
 		void Converts::insert_to_ushort()
 		{
-			if (!cd_.vision_3d_enabled)
-				insert_main_ushort();
+			insert_main_ushort();
 			if (cd_.stft_view_enabled)
 				insert_slice_ushort();
 		}
@@ -124,16 +116,6 @@ namespace holovibes
 					buffers_.gpu_input_buffer_,
 					fd_.frame_res() << 3,
 					cudaMemcpyDeviceToDevice);
-			});
-		}
-
-		void Converts::insert_to_modulus_vision3d()
-		{
-			fn_vect_.push_back([=]() {
-				complex_to_modulus(
-					stft_env_.gpu_stft_buffer_.get(),
-					static_cast<float *>(gpu_3d_vision_->get_buffer()),
-					fd_.frame_res() * cd_.nsamples);
 			});
 		}
 

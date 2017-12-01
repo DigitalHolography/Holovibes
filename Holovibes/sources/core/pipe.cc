@@ -50,8 +50,8 @@ namespace holovibes
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_.gpu_float_buffer_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
-		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, stft_env_, desc, input.get_frame_desc(), output.get_frame_desc(), gpu_3d_vision, this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, gpu_3d_vision, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
+		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, stft_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 
@@ -85,21 +85,6 @@ namespace holovibes
 
 	void Pipe::request_queues()
 	{
-		if (request_3d_vision_.load())
-		{
-			camera::FrameDescriptor fd = output_.get_frame_desc();
-
-			fd.depth = sizeof(float);
-			gpu_3d_vision.reset(new Queue(fd, compute_desc_.nsamples.load(), "3DQueue"));
-			request_3d_vision_.exchange(false);
-		}
-
-		if (request_delete_3d_vision_)
-		{
-			gpu_3d_vision.reset(nullptr);
-			request_delete_3d_vision_.exchange(false);
-		}
-
 		if (request_stft_cuts_)
 		{
 			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
@@ -166,7 +151,7 @@ namespace holovibes
 			update_n_requested_.exchange(false);
 		}
 
-		// Allocating cuts/3d vision queues
+		// Allocating cuts queues
 		request_queues();
 
 		// Allocating accumulation queues/buffers

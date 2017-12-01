@@ -33,7 +33,6 @@
 # include "custom_exception.hh"
 # include "info_manager.hh"
 # include "options_descriptor.hh"
-# include "3DVisionWindow.hh"
 
 // namespace gui
 # include "HoloWindow.hh"
@@ -124,7 +123,6 @@ namespace holovibes
 			void set_image_mode();
 			void set_direct_mode();
 			void set_holographic_mode();
-			void set_vision_3d(bool checked);
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
 			void set_flowgraphy_mode(const bool enable);
@@ -274,7 +272,6 @@ namespace holovibes
 			ComputeDescriptor&	compute_desc_;
 
 			std::unique_ptr<DirectWindow>	mainDisplay;
-			std::unique_ptr<Vision3DWindow>	vision3D;
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 			std::unique_ptr<DirectWindow>	lens_window;

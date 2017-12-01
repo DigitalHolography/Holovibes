@@ -192,8 +192,6 @@ namespace holovibes
 		//! type of the image displayed
 		std::atomic<ImgType>		img_type;
 
-		//! is 3d reconstruction enabled
-		std::atomic<bool>			vision_3d_enabled;
 		//! Last window selected
 		std::atomic<WindowKind>		current_window;
 		//! Number of images used by SFTF i.e. depth of the SFTF cube

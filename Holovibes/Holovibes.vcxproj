@@ -208,7 +208,6 @@
     <ClInclude Include="includes\gui\selections\overlays\scale_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh" />
     <ClInclude Include="includes\stdafx.hh" />
-    <ClInclude Include="includes\gui\windows\3DVisionWindow.hh" />
     <ClInclude Include="includes\tools\cuda_tools\cufft_handle.hh" />
     <ClInclude Include="includes\tools\units\conversion_data.hh" />
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
@@ -460,7 +459,6 @@
     <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc" />
-    <ClCompile Include="sources\gui\windows\3DVisionWindow.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />
     <ClCompile Include="sources\gui\windows\PlotWindow.cc" />

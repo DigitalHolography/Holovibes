@@ -33,7 +33,6 @@ namespace holovibes
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const Stft_env& stft_env,
-				const std::unique_ptr<Queue>& gpu_3d_vision,
 				const cufftHandle& plan2d,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
@@ -45,7 +44,6 @@ namespace holovibes
 		private:
 
 			void insert_to_modulus();
-			void insert_to_modulus_vision3d();
 			void insert_to_squaredmodulus();
 			void insert_to_composite();
 			void insert_to_complex();
@@ -63,7 +61,6 @@ namespace holovibes
 			const Stft_env&					stft_env_;
 			std::unique_ptr<UnwrappingResources>	unwrap_res_;
 			std::unique_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
-			const std::unique_ptr<Queue>&	gpu_3d_vision_;
 			const cufftHandle&				plan2d_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor&		fd_;

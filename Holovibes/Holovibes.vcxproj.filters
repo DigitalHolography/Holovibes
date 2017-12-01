@@ -317,9 +317,6 @@
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\windows\3DVisionWindow.cc">
-      <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
     <ClCompile Include="sources\compute\fourier_transform.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
@@ -582,9 +579,6 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\gui\windows\3DVisionWindow.hh">
-      <Filter>c++ includes\gui\windows</Filter>
     </ClInclude>
     <ClInclude Include="includes\compute\fourier_transform.hh">
       <Filter>c++ includes\compute</Filter>

@@ -31,7 +31,6 @@ namespace holovibes
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
-			const std::unique_ptr<Queue>& gpu_3d_vision,
 			ICompute* Ic)
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
@@ -40,7 +39,6 @@ namespace holovibes
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
-			, gpu_3d_vision_(gpu_3d_vision)
 			, Ic_(Ic)
 		{
 		}
@@ -100,15 +98,10 @@ namespace holovibes
 		{
 			insert_autocontrast(autocontrast_request);
 			if (cd_.contrast_enabled)
-			{
-				if (cd_.vision_3d_enabled)
-					insert_vision3d_contrast();
-				else
-					insert_main_contrast();
+				insert_main_contrast();
 
-				if (cd_.stft_view_enabled)
-					insert_slice_contrast();
-			}
+			if (cd_.stft_view_enabled)
+				insert_slice_contrast();
 		}
 
 		//----------
@@ -160,21 +153,6 @@ namespace holovibes
 				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_yz_, size); });
 		}
 
-		void Contrast::insert_vision3d_contrast()
-		{
-			float *buffer = static_cast<float *>(gpu_3d_vision_->get_buffer());
-			buffer += gpu_3d_vision_->get_pixels() * cd_.pindex;
-			uint size = fd_.frame_res() * (cd_.nsamples - cd_.pindex);
-			fn_vect_.push_back([=]() {
-				manual_contrast_correction(
-					buffer,
-					size,
-					65535,
-					cd_.contrast_min_slice_xy,
-					cd_.contrast_max_slice_xy);
-			});
-		}
-
 		void Contrast::insert_main_contrast()
 		{
 			uint size = buffers_.gpu_float_buffer_size_ / sizeof(float);
@@ -216,20 +194,11 @@ namespace holovibes
 				if (autocontrast_request)
 				{
 					if (cd_.current_window == XYview)
-					{
-						if (cd_.vision_3d_enabled)
-							autocontrast_caller(
-								reinterpret_cast<float *>(gpu_3d_vision_->get_buffer()) + gpu_3d_vision_->get_pixels() * cd_.pindex,
-								fd_.frame_res() * cd_.nsamples,
-								0,
-								XYview);
-						else
-							autocontrast_caller(
-								buffers_.gpu_float_buffer_,
-								buffers_.gpu_float_buffer_size_ / sizeof(float),
-								0,
-								XYview);
-					}
+						autocontrast_caller(
+							buffers_.gpu_float_buffer_,
+							buffers_.gpu_float_buffer_size_ / sizeof(float),
+							0,
+							XYview);
 					if (cd_.stft_view_enabled)
 					{
 						if (cd_.current_window == XZview)
