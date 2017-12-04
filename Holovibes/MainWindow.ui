@@ -2874,7 +2874,7 @@ p, li { white-space: pre-wrap; }
             <number>0</number>
            </property>
            <property name="format">
-            <string>%v/%m</string>
+            <string>input: %v/%m</string>
            </property>
           </widget>
          </item>
@@ -2905,7 +2905,7 @@ p, li { white-space: pre-wrap; }
             <enum>QProgressBar::TopToBottom</enum>
            </property>
            <property name="format">
-            <string>%v/%m</string>
+            <string>output: %v/%m</string>
            </property>
           </widget>
          </item>
