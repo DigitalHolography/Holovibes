@@ -692,11 +692,11 @@ namespace holovibes
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
 				// Interpolation
-				compute_desc_.interpolation_enabled = ptree.get<bool>("composite.interpolation_enabled", false);
-				compute_desc_.interp_lambda1 = ptree.get<float>("composite.interpolation_lambda1", 870) * 1.0e-9f;
-				compute_desc_.interp_lambda2 = ptree.get<float>("composite.interpolation_lambda2", 820) * 1.0e-9f;
-				compute_desc_.interp_sensitivity = ptree.get<float>("composite.interpolation_sensitivity", 0.9f);
-				compute_desc_.interp_shift = ptree.get<int>("composite.interpolation_shift", 0);
+				compute_desc_.interpolation_enabled = ptree.get<bool>("interpolation.enabled", false);
+				compute_desc_.interp_lambda1 = ptree.get<float>("interpolation.lambda1", 870) * 1.0e-9f;
+				compute_desc_.interp_lambda2 = ptree.get<float>("interpolation.lambda2", 820) * 1.0e-9f;
+				compute_desc_.interp_sensitivity = ptree.get<float>("interpolation.sensitivity", 0.9f);
+				compute_desc_.interp_shift = ptree.get<int>("interpolation.shift", 0);
 
 				notify();
 			}
@@ -797,11 +797,11 @@ namespace holovibes
 			ptree.put<uint>("reset.device_number", config.device_number);
 
 			// Interpolation
-			ptree.put<bool>("composite.interpolation_enabled", compute_desc_.interpolation_enabled);
-			ptree.put<float>("composite.interpolation_lambda1", compute_desc_.interp_lambda1 * 1.0e9);
-			ptree.put<float>("composite.interpolation_lambda2", compute_desc_.interp_lambda2 * 1.0e9);
-			ptree.put<float>("composite.interpolation_sensitivity", compute_desc_.interp_sensitivity);
-			ptree.put<int>("composite.interpolation_shift", compute_desc_.interp_shift);
+			ptree.put<bool>("interpolation.enabled", compute_desc_.interpolation_enabled);
+			ptree.put<float>("interpolation.lambda1", compute_desc_.interp_lambda1 * 1.0e9);
+			ptree.put<float>("interpolation.lambda2", compute_desc_.interp_lambda2 * 1.0e9);
+			ptree.put<float>("interpolation.sensitivity", compute_desc_.interp_sensitivity);
+			ptree.put<int>("interpolation.shift", compute_desc_.interp_shift);
 
 			
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
