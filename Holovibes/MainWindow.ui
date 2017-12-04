@@ -189,7 +189,7 @@
               <number>1</number>
              </property>
              <property name="maximum">
-              <number>2048</number>
+              <number>2147483647</number>
              </property>
             </widget>
            </item>
@@ -2412,39 +2412,6 @@
           <number>2</number>
          </property>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_16">
-           <item>
-            <widget class="QLabel" name="ImageInputLabel">
-             <property name="text">
-              <string>Image input:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="CineFileCheckBox">
-             <property name="toolTip">
-              <string>allow to read a cine file</string>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Cine file</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_17">
            <item>
             <widget class="QLineEdit" name="ImportPathLineEdit">
@@ -2488,6 +2455,28 @@
             <widget class="QPushButton" name="ClosePushButton">
              <property name="text">
               <string>Close</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="CineFileCheckBox">
+             <property name="toolTip">
+              <string>allow to read a cine file</string>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Cine file</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="tristate">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -3350,7 +3339,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>ROIOutputStopPushButton</tabstop>
   <tabstop>BatchInputPathLineEdit</tabstop>
   <tabstop>BatchInputBrowseToolButton</tabstop>
-  <tabstop>CineFileCheckBox</tabstop>
   <tabstop>ImportPathLineEdit</tabstop>
   <tabstop>InputBrowseToolButton</tabstop>
   <tabstop>ImportPushButton</tabstop>
