@@ -40,6 +40,7 @@ void manual_contrast_correction(float			*input,
 
 	const float factor = dynamic_range / (max - min + FLT_EPSILON);
 	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, min);
+	cudaCheckError();
 }
 
 void auto_contrast_correction(float			*input,

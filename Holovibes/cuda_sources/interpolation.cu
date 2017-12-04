@@ -60,6 +60,7 @@ void tex_interpolation(cuComplex *buffer,
 	const uint blocks = map_blocks_to_problem(width * height, threads);
 
 	kernel_bilinear_tex_interpolation << <blocks, threads, 0, stream >> > (buffer, width, height, ratio);
+	cudaCheckError();
 
 	cudaUnbindTexture(comptex);
 	cudaFree(tex_data);

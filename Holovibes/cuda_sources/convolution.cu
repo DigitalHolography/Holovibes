@@ -91,6 +91,7 @@ void convolution_kernel(cuComplex		*input,
 		k_z,
 		gpu_special_queue_start_index,
 		gpu_special_queue_max_index);
+	cudaCheckError();
 		
 	cudaStreamSynchronize(stream);
 }

@@ -44,6 +44,7 @@ void gpu_float_divide(float		*input,
 	uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_divide << <blocks, threads, 0, 0 >> >(input, size, divider);
+	cudaCheckError();
 }
 
 __global__
@@ -96,6 +97,7 @@ void substract_ref(cuComplex	*input,
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_resolution, threads);
     kernel_substract_ref << <blocks, threads, 0, stream >> >(input, reference, n_frame_resolution, frame_resolution);
+	cudaCheckError();
 }
 
 __global__
@@ -123,6 +125,7 @@ void mean_images(cuComplex		*input,
 	uint blocks = map_blocks_to_problem(frame_size, threads);
 
 	kernel_mean_images << <blocks, threads, 0, stream >> >(input, output, n, frame_size);
+	cudaCheckError();
 }
 
 
@@ -213,9 +216,11 @@ void gpu_extremums(float			*input,
 		local_extr,
 		block_size,
 		size);
+	cudaCheckError();
 	global_extremums << <1, 1, 0, 0 >> > (local_extr,
 		global_extr,
 		nb_blocks);
+	cudaCheckError();
 
 	struct extr_index extremum[2];
 	cudaMemcpy(extremum, global_extr, sizeof(struct extr_index) * 2, cudaMemcpyDeviceToHost);
@@ -251,6 +256,7 @@ void gpu_substract_const(float		*frame,
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
 	kernel_substract_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+	cudaCheckError();
 }
 
 __global__
@@ -270,4 +276,5 @@ void gpu_multiply_const(float		*frame,
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
 	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+	cudaCheckError();
 }

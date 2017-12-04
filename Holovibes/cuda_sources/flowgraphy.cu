@@ -95,6 +95,7 @@ void convolution_flowgraphy(cuComplex	*input,
 														frame_width,
 														nframes,
 														n);
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 }

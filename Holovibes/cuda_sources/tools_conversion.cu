@@ -83,6 +83,7 @@ void complex_to_modulus(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
 }
 
 /* Kernel function wrapped in complex_to_squared_modulus. */
@@ -109,6 +110,7 @@ void complex_to_squared_modulus(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
 }
 
 /* Kernel function wrapped in complex_to_argument. */
@@ -134,6 +136,7 @@ void complex_to_argument(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
 }
 
 /* Find the minimum and the maximum of a floating-point array.
@@ -222,6 +225,7 @@ void rescale_float(const float	*input,
 	/* We have to hardcode the template parameter, unfortunately.
 	 * It must be equal to the number of threads per block. */
 	kernel_minmax <128> << <blocks, threads, threads << 1, stream >> > (output, size, gpu_local_min, gpu_local_max);
+	cudaCheckError();
 
 	float	*cpu_local_min = new float[blocks];
 	float	*cpu_local_max = new float[blocks];
@@ -234,6 +238,7 @@ void rescale_float(const float	*input,
 														*(std::min_element(cpu_local_min, cpu_local_min + threads)),
 														*(std::max_element(cpu_local_max, cpu_local_max + threads)),
 														max_intensity);
+	cudaCheckError();
 	delete[] cpu_local_max;
 	delete[] cpu_local_min;
 	cudaFree(gpu_local_min);
@@ -263,6 +268,7 @@ void rescale_float_unwrap2d(float			*input,
 		max,
 		min,
 		frame_res);
+	cudaCheckError();
 }
 
 __global__
@@ -285,6 +291,7 @@ void rescale_argument(float			*input,
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	kernel_rescale_argument << <blocks, threads, 0, stream >> >(input, frame_res);
+	cudaCheckError();
 }
 
 /*! \brief Kernel function wrapped in endianness_conversion, making
@@ -312,6 +319,7 @@ void endianness_conversion(const ushort	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_endianness_conversion << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
 }
 
 /*! \brief Kernel function wrapped in float_to_ushort, making
@@ -355,6 +363,7 @@ void float_to_ushort(const float	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_to_ushort << <blocks, threads, 0, stream >> >(input, output, size, depth);
+	cudaCheckError();
 }
 
 static __global__
@@ -394,6 +403,7 @@ void complex_to_ushort(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_complex_to_ushort << <blocks, threads, 0 >> >(input, output, size);
+	cudaCheckError();
 }
 
 /*! \brief Memcpy of a complex sized frame into another buffer */
@@ -438,6 +448,7 @@ void buffer_size_conversion(char*					real_buffer,
 																frame_desc.height * static_cast<uint>(frame_desc.depth),
 																real_frame_desc.width * static_cast<uint>(frame_desc.depth),
 																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
+	cudaCheckError();
 }
 
 __global__
@@ -480,6 +491,7 @@ void accumulate_images(const float	*input,
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
 
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
+	cudaCheckError();
 }
 
 __global__
@@ -520,4 +532,5 @@ void normalize_complex(cuComplex		*image,
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(size, threads);
 	kernel_normalize_complex << <blocks, threads, 0, 0 >> > (image, size);
+	cudaCheckError();
 }

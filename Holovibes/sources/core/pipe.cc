@@ -234,42 +234,49 @@ namespace holovibes
 			input_.flush();
 		while (!termination_requested_)
 		{
-			if (input_.get_current_elts() >= 1)
+			try
 			{
-				stft_env_.stft_handle_ = false;
-				for (FnType& f : fn_vect_)
+				if (input_.get_current_elts() >= 1)
 				{
-					f();
-					if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
-						break;
-				}
-				if (compute_desc_.compute_mode == Hologram)
-				{
-					if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
+					stft_env_.stft_handle_ = false;
+					for (FnType& f : fn_vect_)
 					{
-						if (!output_.enqueue(get_enqueue_buffer()))
-						{
-							input_.dequeue();
+						f();
+						if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
 							break;
-						}
-						if (compute_desc_.stft_view_enabled)
+					}
+					if (compute_desc_.compute_mode == Hologram)
+					{
+						if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
 						{
-							queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
-								stft_env_.gpu_stft_slice_queue_xz.get());
-							queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
-								stft_env_.gpu_stft_slice_queue_yz.get());
+							if (!output_.enqueue(get_enqueue_buffer()))
+							{
+								input_.dequeue();
+								break;
+							}
+							if (compute_desc_.stft_view_enabled)
+							{
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
+									stft_env_.gpu_stft_slice_queue_xz.get());
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
+									stft_env_.gpu_stft_slice_queue_yz.get());
+							}
 						}
 					}
-				}
-				else if (!output_.enqueue(input_.get_start()))
-				{
-					input_.dequeue();
-					break;
-				}
+					else if (!output_.enqueue(input_.get_start()))
+					{
+						input_.dequeue();
+						break;
+					}
 
-				input_.dequeue();
-				if (refresh_requested_)
-					refresh();
+					input_.dequeue();
+					if (refresh_requested_)
+						refresh();
+				}
+			}
+			catch (std::runtime_error& e)
+			{
+				std::cerr << e.what() << std::endl;
 			}
 		}
 	}

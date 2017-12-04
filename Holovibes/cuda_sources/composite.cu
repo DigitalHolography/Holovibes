@@ -145,6 +145,7 @@ void composite(cuComplex	*input,
 		pmin_b,
 		pmax_b,
 		normalize ? 1 : weight_b);
+	cudaCheckError();
 	if (normalize)
 	{
 		const ushort line_size = 1024;
@@ -161,18 +162,22 @@ void composite(cuComplex	*input,
 			lines,
 			line_size,
 			sums_per_line);
+	cudaCheckError();
 		blocks = map_blocks_to_problem(pixel_depth, threads);
 		kernel_average_float_array << <blocks, threads, 0, 0 >> > (output,
 			lines,
 			frame_res,
 			pixel_depth,
 			averages);
+	cudaCheckError();
 		blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
 		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
+	cudaCheckError();
 		kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,
 			frame_res,
 			pixel_depth,
 			averages);
+	cudaCheckError();
 		cudaFree(averages);
 		cudaFree(sums_per_line);
 	}

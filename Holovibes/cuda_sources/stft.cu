@@ -66,6 +66,7 @@ static void zone_copy(cuComplex		*src,
 	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
 
 	kernel_zone_copy<<<blocks, threads, 0, stream>>>(src, dst, nsamples, width, height, zone);
+	cudaCheckError();
 }
 
 __global__
@@ -102,6 +103,7 @@ static void zone_uncopy(cuComplex		*src,
 	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
 
 	kernel_zone_uncopy<<<blocks, threads, 0, 0>>> (src, dst, nsamples, width, height, zone);
+	cudaCheckError();
 }
 
 // Short-Time Fourier Transform
@@ -186,6 +188,7 @@ void stft_moment(cuComplex		*input,
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax, nsamples);
+	cudaCheckError();
 }
 #pragma endregion
 
@@ -314,4 +317,5 @@ void stft_view_begin(const cuComplex	*input,
 			acc_level_xz, acc_level_yz,
 			img_type,
 			nsamples);
+	cudaCheckError();
 }

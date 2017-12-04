@@ -59,6 +59,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 			reinterpret_cast<cuComplex *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
+		cudaCheckError();
 	}
 	else
 	{
@@ -66,6 +67,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 			reinterpret_cast<ushort *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
+		cudaCheckError();
 	}
 
 	cudaStreamSynchronize(stream);

@@ -51,6 +51,7 @@ void fft_2_dc(	const ushort	width,
 	const uint	blocks = map_blocks_to_problem(frame_res, threads);
 
 	kernel_fft2_dc << <blocks, threads, 0, stream >> >(pframe, pframe, width, frame_res, mode);
+	cudaCheckError();
 }
 
 void fft2_lens(cuComplex			*lens,
@@ -65,6 +66,7 @@ void fft2_lens(cuComplex			*lens,
 	dim3 lblocks(fd.width / threads_2d, fd.height / threads_2d);
 
 	kernel_spectral_lens << <lblocks, lthreads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+	cudaCheckError();
 }
 
 void fft_2(cuComplex			*input,
@@ -84,6 +86,7 @@ void fft_2(cuComplex			*input,
 	cufftExecC2C(plan2d, input, input, CUFFT_FORWARD);
 
 	kernel_apply_lens << <blocks, threads, 0, stream >> >(input, frame_resolution, lens, frame_resolution);
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 
@@ -93,6 +96,7 @@ void fft_2(cuComplex			*input,
 	fft_2_dc(fd.width, frame_resolution, input, 1, stream);
 
 	kernel_complex_divide << <blocks, threads, 0, stream >> >(input, frame_resolution, static_cast<float>(frame_resolution));
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 }

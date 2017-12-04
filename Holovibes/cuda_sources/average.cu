@@ -107,8 +107,10 @@ Tuple4f make_average_plot(float				*input,
 
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_s,
 		signal.topLeft().x(), signal.topLeft().y(), signal_width, signal_height);
+	cudaCheckError();
 	kernel_zone_sum << <1, threads, threads * sizeof(float), stream >> >(input, width, gpu_n,
 		noise.topLeft().x(), noise.topLeft().y(), noise_width, noise_height);
+	cudaCheckError();
 
 	float cpu_s;
 	float cpu_n;

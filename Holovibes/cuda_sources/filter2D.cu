@@ -65,6 +65,7 @@ void filter2D(cuComplex				*input,
 		r.bottomRight().y(),
 		desc.width,
 		desc.width * desc.height);
+	cudaCheckError();
 
 	cudaMemcpy(tmp_buffer, input, size * sizeof (cuComplex), cudaMemcpyDeviceToDevice);
 
@@ -76,6 +77,7 @@ void filter2D(cuComplex				*input,
 		desc.width,
 		desc.height,
 		size);
+	cudaCheckError();
 
 	cufftExecC2C(plan2d, input, input, CUFFT_INVERSE);
 }

@@ -77,6 +77,7 @@ void shift_corners(float		*input,
 	dim3 lblocks(size_x / threads_2d, size_y / threads_2d);
 
 	kernel_shift_corners << < lblocks, lthreads, 0, stream >> >(input, size_x, size_y);
+	cudaCheckError();
 }
 
 /* Kernel used in apply_log10 */
@@ -101,6 +102,7 @@ void apply_log10(float			*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_log10 << <blocks, threads, 0, stream >> >(input, size);
+	cudaCheckError();
 }
 
 /* Kernel used in convolution_operator */
@@ -148,6 +150,7 @@ void convolution_float(		const float			*a,
 
 	cudaStreamSynchronize(0);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 
@@ -193,6 +196,7 @@ void convolution_operator(	const cuComplex		*a,
 
 	cudaStreamSynchronize(stream);
 	kernel_multiply_frames_complex <<<blocks, threads, 0, stream >>>(tmp_a.get(), tmp_b.get(), tmp_a.get(), size);
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 
@@ -201,6 +205,7 @@ void convolution_operator(	const cuComplex		*a,
 	cudaStreamSynchronize(stream);
 
 	kernel_complex_to_modulus <<<blocks, threads, 0, stream >>>(tmp_a.get(), out, size);
+	cudaCheckError();
 
 	cudaStreamSynchronize(stream);
 }
@@ -270,6 +275,7 @@ float average_operator(const float	*input,
 		input,
 		gpu_sum,
 		size);
+	cudaCheckError();
 	cudaMemcpyAsync(&cpu_sum, gpu_sum, sizeof(float), cudaMemcpyDeviceToHost);
 	cudaStreamSynchronize(stream);
 
@@ -299,6 +305,7 @@ void phase_increase(const cuComplex			*cur,
 														cur,
 														resources->gpu_angle_current_,
 														image_size);
+	cudaCheckError();
 	// Updating predecessor (complex image) for the next iteration
 	cudaMemcpy(	resources->gpu_predecessor_,
 				cur,
@@ -317,6 +324,7 @@ void phase_increase(const cuComplex			*cur,
 													resources->gpu_unwrap_buffer_,
 													image_size,
 													resources->size_);
+	cudaCheckError();
 
 	/* Store the new phase image in the next buffer position.
 	* The buffer is handled as a circular buffer. */
@@ -350,6 +358,7 @@ void unwrap_2d(	float*						input,
 																	res->gpu_fx_,
 																	res->gpu_fy_,
 																	res->gpu_z_);
+	cudaCheckError();
 	ushort middlex = fd.width >> 1;
 	ushort middley = fd.height >> 1;
 	circ_shift_float << < blocks, threads, 0, stream >> > (	res->gpu_fx_,
@@ -359,6 +368,7 @@ void unwrap_2d(	float*						input,
 															fd.width,
 															fd.height,
 															fd.frame_res());
+	cudaCheckError();
 	circ_shift_float << < blocks, threads, 0, stream >> > (	res->gpu_fy_,
 															res->gpu_shift_fy_,
 															middlex,
@@ -366,6 +376,7 @@ void unwrap_2d(	float*						input,
 															fd.width,
 															fd.height,
 															fd.frame_res());
+	cudaCheckError();
 	gradient_unwrap_2d(plan2d, res, fd, stream);
 	eq_unwrap_2d(plan2d, res, fd, stream);
 	phi_unwrap_2d(plan2d, res, fd, output, stream);
@@ -387,12 +398,14 @@ void gradient_unwrap_2d(const cufftHandle			plan2d,
 																				res->gpu_grad_eq_x_,
 																				res->gpu_grad_eq_y_,
 																				fd.frame_res());
+	cudaCheckError();
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
 	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_INVERSE);
 	kernel_multiply_complexes_by_single_complex << < blocks, threads, 0, stream >> >(	res->gpu_grad_eq_x_,
 																						res->gpu_grad_eq_y_,
 																						single_complex,
 																						fd.frame_res());
+	cudaCheckError();
 }
 
 void eq_unwrap_2d(const cufftHandle			plan2d,
@@ -407,11 +420,14 @@ void eq_unwrap_2d(const cufftHandle			plan2d,
 	kernel_multiply_complex_by_single_complex << < blocks, threads, 0, stream >> >(	res->gpu_z_,
 																					single_complex,
 																					fd.frame_res());
+	cudaCheckError();
 	kernel_conjugate_complex << < blocks, threads, 0, stream >> >(res->gpu_z_, fd.frame_res());
+	cudaCheckError();
 	kernel_multiply_complex_frames_by_complex_frame << < blocks, threads, 0, stream >> >(	res->gpu_grad_eq_x_,
 																							res->gpu_grad_eq_y_,
 																							res->gpu_z_,
 																							fd.frame_res());
+	cudaCheckError();
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_FORWARD);
 	cufftExecC2C(plan2d, res->gpu_grad_eq_y_, res->gpu_grad_eq_y_, CUFFT_FORWARD);
 	kernel_norm_ratio << < blocks, threads, 0, stream >> >(	res->gpu_shift_fx_,
@@ -419,6 +435,7 @@ void eq_unwrap_2d(const cufftHandle			plan2d,
 															res->gpu_grad_eq_x_,
 															res->gpu_grad_eq_y_,
 															fd.frame_res());
+	cudaCheckError();
 }
 
 void phi_unwrap_2d(	const cufftHandle			plan2d,
@@ -433,8 +450,10 @@ void phi_unwrap_2d(	const cufftHandle			plan2d,
 	//	kernel_convergence << < 1, 1, 0, stream >> >(res->gpu_grad_eq_x_,
 	//		res->gpu_grad_eq_y_);
 	kernel_add_complex_frames << < blocks, threads, 0, stream >> >(res->gpu_grad_eq_x_, res->gpu_grad_eq_y_, fd.frame_res());
+	cudaCheckError();
 	cufftExecC2C(plan2d, res->gpu_grad_eq_x_, res->gpu_grad_eq_x_, CUFFT_INVERSE);
 	kernel_unwrap2d_last_step << < blocks, threads, 0, stream >> > (output, res->gpu_grad_eq_x_, fd.frame_res());
+	cudaCheckError();
 }
 
 __global__
@@ -531,6 +550,7 @@ void complex_translation(float		*frame,
 	const uint blocks = map_blocks_to_problem(width * height, threads);
 
 	kernel_translation << <blocks, threads, 0, 0 >> > (frame, tmp_buffer, width, height, shift_x, shift_y);
+	cudaCheckError();
 	cudaStreamSynchronize(0);
 	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
 	cudaFree(tmp_buffer);

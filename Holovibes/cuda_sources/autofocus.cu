@@ -52,9 +52,11 @@ static float global_variance_intensity(const float	*input, const uint	size)
 	delete[] cpu_average_matrix;
 	// I - <I>
 	kernel_minus_operator << <blocks, threads >> > (input, matrix_average, matrix_average, size);
+	cudaCheckError();
 
 	// We take it to the power of 2
 	kernel_multiply_frames_float << <blocks, threads >> > (matrix_average, matrix_average, matrix_average, size);
+	cudaCheckError();
 
 	// And we take the average
 	const float global_variance = average_operator(matrix_average, size);
@@ -135,6 +137,7 @@ static float average_local_variance(const float	*input,
 	}
 	/* Convert input float frame to complex frame. */
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
+	cudaCheckError();
 
 	/* Allocation of convolution i * ke output */
 	float	*i_ke_convolution;
@@ -158,9 +161,11 @@ static float average_local_variance(const float	*input,
 
 	/* Compute i - i * ke. */
 	kernel_minus_operator << <blocks, threads >> > (input, i_ke_convolution, i_ke_convolution, size);
+	cudaCheckError();
 
 	/* Compute (i - i * ke)^2 */
 	kernel_multiply_frames_float << <blocks, threads >> > (i_ke_convolution, i_ke_convolution, i_ke_convolution, size);
+	cudaCheckError();
 
 	cudaDeviceSynchronize();
 
@@ -302,6 +307,7 @@ static float sobel_operator(const float	*input,
 
 	/* Convert input float frame to complex frame. */
 	kernel_float_to_complex << <blocks, threads >> > (input, input_complex, size);
+	cudaCheckError();
 
 	/* Allocation of convolution i * ks output */
 	const int sizefloat = size * sizeof(float);
@@ -338,17 +344,21 @@ static float sobel_operator(const float	*input,
 
 	/* Compute (i * ks)^2 */
 	kernel_multiply_frames_float << <blocks, threads >> > (i_ks_convolution, i_ks_convolution, i_ks_convolution, size);
+	cudaCheckError();
 
 	/* Compute i * kst. */
 	convolution_operator(input_complex, kst_gpu_frame, i_kst_convolution, size, plan2d_x, plan2d_k);
 
 	/* Compute (i * kst)^2 */
 	kernel_multiply_frames_float << <blocks, threads >> > (i_kst_convolution, i_kst_convolution, i_kst_convolution, size);
+	cudaCheckError();
 
 	/* Compute (i * ks)^2 - (i * kst)^2 */
 	kernel_plus_operator << <blocks, threads >> > (i_ks_convolution, i_kst_convolution, i_ks_convolution, size);
+	cudaCheckError();
 
 	kernel_sqrt_operator << <blocks, threads >> > (i_ks_convolution, i_ks_convolution, size);
+	cudaCheckError();
 
 	cudaDeviceSynchronize();
 
@@ -375,6 +385,7 @@ float focus_metric(	float			*input,
 
 	/* Divide each pixels to avoid higher values than float can contains. */
 	kernel_float_divide << <blocks, threads, 0, stream >> > (input, size, static_cast<float>(size));
+	cudaCheckError();
 
 	const float global_variance = global_variance_intensity(input, size);
 	const float avr_local_variance = average_local_variance(input, square_size, local_var_size);

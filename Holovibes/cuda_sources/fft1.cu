@@ -27,6 +27,7 @@ void fft1_lens(cuComplex*			lens,
   uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
   kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+  cudaCheckError();
 }
 
 void fft_1(cuComplex*			input,
@@ -40,6 +41,7 @@ void fft_1(cuComplex*			input,
 	
 	// Apply lens on multiple frames.
 	kernel_apply_lens <<<blocks, threads, 0, stream>>>(input, frame_resolution, lens, frame_resolution);
+	cudaCheckError();
 	cudaStreamSynchronize(stream);
 	// FFT
     cufftExecC2C(plan2D, input, input, CUFFT_FORWARD);

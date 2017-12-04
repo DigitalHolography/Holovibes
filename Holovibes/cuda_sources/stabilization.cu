@@ -58,6 +58,7 @@ void extract_frame(const float	*input,
 	const uint blocks = map_blocks_to_problem(frame.area(), threads);
 	struct rect rect_frame = { frame.x(), frame.y(), frame.unsigned_width(), frame.unsigned_height() };
 	kernel_extract_frame << <blocks, threads, 0, 0 >> > (input, output, input_w, rect_frame);
+	cudaCheckError();
 	cudaStreamSynchronize(0);
 }
 
@@ -92,6 +93,7 @@ void gpu_resize(const float		*input,
 	struct point old_s = { old_size.x(), old_size.y() };
 	struct point new_s = { new_size.x(), new_size.y() };
 	kernel_resize << <blocks, threads, 0, stream >> > (input, output, old_s, new_s);
+	cudaCheckError();
 }
 
 
@@ -121,6 +123,7 @@ void rotation_180(float			*frame,
 	const uint blocks = map_blocks_to_problem(size.x() * size.y(), threads);
 	struct point s = { size.x(), size.y() };
 	kernel_rotation_180 << <blocks, threads, 0, stream >> > (frame, s);
+	cudaCheckError();
 }
 
 

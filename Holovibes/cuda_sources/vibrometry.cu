@@ -49,4 +49,5 @@ void frame_ratio(const cuComplex	*frame_p,
   uint blocks = map_blocks_to_problem(size, threads);
 
   kernel_frame_ratio <<<blocks, threads, 0, stream>>>(frame_p, frame_q, output, size);
+  cudaCheckError();
 }

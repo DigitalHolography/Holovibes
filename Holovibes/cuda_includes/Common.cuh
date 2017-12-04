@@ -13,6 +13,8 @@
 #pragma once
 
 # include <device_launch_parameters.h>
+# include <string>
+# include <exception>
 
 # include "tools.cuh"
 # include "queue.hh"
@@ -21,3 +23,20 @@
 #define M_2PI		6.28318530717959f
 #define THREADS_256	256
 #define THREADS_128	128
+
+
+
+#define cudaCheckError()                    \
+{                                           \
+	auto e = cudaGetLastError();            \
+	if (e != cudaSuccess)                   \
+	{                                       \
+		std::string error = "Cuda failure"; \
+		error += __FILE__;                  \
+		error += " l";                      \
+		error += __LINE__;                  \
+		error += ": ";                      \
+		error += cudaGetErrorString(e);     \
+		throw std::runtime_error(error);    \
+	}                                       \
+}
