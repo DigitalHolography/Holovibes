@@ -40,18 +40,18 @@ namespace holovibes
 	struct CoreBuffers
 	{
 		// input buffer
-		cufftComplex	*gpu_input_buffer_ = nullptr;
+		cuda_tools::UniquePtr<cufftComplex>	gpu_input_buffer_ = nullptr;
 
 		// float buffers
-		float			*gpu_float_buffer_ = nullptr;
-		uint			gpu_float_buffer_size_ = 0;
-		float			*gpu_float_cut_xz_ = nullptr;
-		float			*gpu_float_cut_yz_ = nullptr;
+		cuda_tools::UniquePtr<float>		gpu_float_buffer_ = nullptr;
+		uint								gpu_float_buffer_size_ = 0;
+		cuda_tools::UniquePtr<void>			gpu_float_cut_xz_ = nullptr;
+		cuda_tools::UniquePtr<void>			gpu_float_cut_yz_ = nullptr;
 
 		// Output buffers
-		void			*gpu_output_buffer_ = nullptr;
-		void			*gpu_ushort_cut_xz_ = nullptr;
-		void			*gpu_ushort_cut_yz_ = nullptr;
+		cuda_tools::UniquePtr<void>			gpu_output_buffer_ = nullptr;
+		cuda_tools::UniquePtr<void>			gpu_ushort_cut_xz_ = nullptr;
+		cuda_tools::UniquePtr<void>			gpu_ushort_cut_yz_ = nullptr;
 	};
 
 	struct Stft_env

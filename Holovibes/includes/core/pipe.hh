@@ -89,7 +89,6 @@ namespace holovibes
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 		virtual void	exec();
-		virtual bool	update_n_parameter(unsigned short n);
 		void			request_queues();
 
 	private:

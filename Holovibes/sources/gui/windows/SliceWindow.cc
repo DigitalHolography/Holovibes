@@ -28,8 +28,8 @@ namespace holovibes
 
 		SliceWindow::~SliceWindow()
 		{
-			if (cuSurface) cudaDestroySurfaceObject(cuSurface);
-			if (cuArray) cudaFreeArray(cuArray);
+			cudaDestroySurfaceObject(cuSurface);
+			cudaFreeArray(cuArray);
 		}
 
 		void	SliceWindow::create_strip_overlays()

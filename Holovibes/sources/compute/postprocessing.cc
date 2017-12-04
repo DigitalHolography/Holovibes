@@ -60,7 +60,7 @@ namespace holovibes
 		{
 			if (cd_.vibrometry_enabled)
 			{
-				cufftComplex* qframe = buffers_.gpu_input_buffer_ + fd_.frame_res();
+				cufftComplex* qframe = buffers_.gpu_input_buffer_.get() + fd_.frame_res();
 				fn_vect_.push_back([=]() {
 					frame_ratio(
 						buffers_.gpu_input_buffer_,

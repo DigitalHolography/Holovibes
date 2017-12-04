@@ -126,14 +126,14 @@ namespace holovibes
 		}
 		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
 
-		if (cudaMalloc<cufftComplex>(&buffers_.gpu_input_buffer_, complex_pixels) != cudaSuccess)
+		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
 			err++;
-		if (cudaMalloc(&buffers_.gpu_output_buffer_, output_.get_frame_desc().depth * input_.get_pixels()) != cudaSuccess)
+		if (!buffers_.gpu_output_buffer_.resize(output_.get_frame_desc().depth * input_.get_pixels()))
 			err++;
-		buffers_.gpu_float_buffer_size_ = sizeof(float) * input_.get_pixels();
+		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
 			buffers_.gpu_float_buffer_size_ *= 3;
-		if (cudaMalloc<float>(&buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_) != cudaSuccess)
+		if (!buffers_.gpu_float_buffer_.resize(buffers_.gpu_float_buffer_size_))
 			err++;
 		
 		if (err != 0)
@@ -145,16 +145,6 @@ namespace holovibes
 
 	ICompute::~ICompute()
 	{
-		cudaFree(buffers_.gpu_input_buffer_);
-
-		cudaFree(buffers_.gpu_float_cut_xz_);
-		cudaFree(buffers_.gpu_float_cut_yz_);
-		cudaFree(buffers_.gpu_float_buffer_);
-
-		cudaFree(buffers_.gpu_ushort_cut_xz_);
-		cudaFree(buffers_.gpu_ushort_cut_yz_);
-		cudaFree(buffers_.gpu_output_buffer_);
-
 		InfoManager::get_manager()->remove_info("Rendering Fps");
 		InfoManager::get_manager()->remove_info("STFT Zone");
 	}
@@ -214,6 +204,11 @@ namespace holovibes
 				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
 			return false;
 		}
+
+		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
+		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels() * 2))
+			return false;
+		notify_observers();
 		return true;
 	}
 

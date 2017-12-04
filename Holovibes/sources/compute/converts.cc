@@ -218,7 +218,7 @@ namespace holovibes
 				float_to_ushort(
 					buffers_.gpu_float_buffer_,
 					buffers_.gpu_output_buffer_,
-					buffers_.gpu_float_buffer_size_ / sizeof(float),
+					buffers_.gpu_float_buffer_size_,
 					output_fd_.depth);
 			});
 		}
@@ -227,14 +227,14 @@ namespace holovibes
 		{
 			fn_vect_.push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_float_cut_xz_,
+					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 					buffers_.gpu_ushort_cut_xz_,
 					stft_env_.gpu_stft_slice_queue_xz->get_frame_desc().frame_res(),
 					2.f);
 			});
 			fn_vect_.push_back([=]() {
 				float_to_ushort(
-					buffers_.gpu_float_cut_yz_,
+					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 					buffers_.gpu_ushort_cut_yz_,
 					stft_env_.gpu_stft_slice_queue_yz->get_frame_desc().frame_res(),
 					2.f);

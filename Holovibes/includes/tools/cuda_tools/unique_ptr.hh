@@ -20,6 +20,21 @@ namespace holovibes
 	/*! \brief Contains memory handlers for cuda buffers. */
 	namespace cuda_tools
 	{
+		namespace _private
+		{
+			template <typename T>
+			struct element_size
+			{
+				static const std::size_t value = sizeof(T);
+			};
+
+			template<>
+			struct element_size<void>
+			{
+				static const std::size_t value = 1;
+			};
+		}
+
 		/// A smart pointer made for ressources that need to be cudaFreed
 		template<typename T>
 		class UniquePtr : public std::unique_ptr<T, std::function<void(T*)>>
@@ -40,6 +55,12 @@ namespace holovibes
 				return get();
 			}
 
+			/// Implicit cast operator
+			operator T*() const
+			{
+				return get();
+			}
+
 			/// Allocates an array of size sizeof(T) * size
 			UniquePtr(std::size_t size)
 				: base(nullptr, cudaFree)
@@ -48,16 +69,18 @@ namespace holovibes
 			}
 
 			/// Allocates an array of size sizeof(T) * size, free the old pointer if not null
-			void resize(std::size_t size)
+			bool resize(std::size_t size)
 			{
 				T* tmp;
-				auto code = cudaMalloc(&tmp, size * sizeof(T));
+				size *= _private::element_size<T>::value;
+				auto code = cudaMalloc(&tmp, size);
 				if (code != cudaSuccess)
 				{
 					std::cout << "cudaMalloc error:" << cudaGetErrorString(code) << std::endl;
 					tmp = nullptr;
 				}
 				reset(tmp);
+				return tmp;
 			}
 		};
 	}

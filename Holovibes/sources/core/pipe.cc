@@ -64,25 +64,6 @@ namespace holovibes
 	{
 	}
 
-	bool Pipe::update_n_parameter(unsigned short n)
-	{
-		if (!ICompute::update_n_parameter(n))
-			return false;
-		/* gpu_input_buffer */
-		cudaError_t error;
-		cudaFree(buffers_.gpu_input_buffer_);
-
-		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
-		if ((error = cudaMalloc<cufftComplex>(&buffers_.gpu_input_buffer_,
-			sizeof(cufftComplex) * (input_.get_pixels() * 2))) != CUDA_SUCCESS)
-		{
-			std::cerr << "Cuda error : " << cudaGetErrorString(error) << std::endl;
-			return false;
-		}
-		notify_observers();
-		return true;
-	}
-
 	void Pipe::request_queues()
 	{
 		if (request_stft_cuts_)
@@ -97,20 +78,20 @@ namespace holovibes
 			fd_yz.width = compute_desc_.nsamples;
 			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			cudaMalloc(&buffers_.gpu_float_cut_xz_, fd_xz.frame_res() * buffer_depth);
-			cudaMalloc(&buffers_.gpu_float_cut_yz_, fd_yz.frame_res() * buffer_depth);
+			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
+			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
 
-			cudaMalloc(&buffers_.gpu_ushort_cut_xz_, fd_xz.frame_size());
-			cudaMalloc(&buffers_.gpu_ushort_cut_yz_, fd_yz.frame_size());
+			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_size());
+			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_size());
 			request_stft_cuts_ = false;
 		}
 
 		if (request_delete_stft_cuts_)
 		{
-			cudaFree(buffers_.gpu_float_cut_xz_);
-			cudaFree(buffers_.gpu_float_cut_yz_);
-			cudaFree(buffers_.gpu_ushort_cut_xz_);
-			cudaFree(buffers_.gpu_ushort_cut_yz_);
+			buffers_.gpu_float_cut_xz_.reset();
+			buffers_.gpu_float_cut_yz_.reset();
+			buffers_.gpu_ushort_cut_xz_.reset();
+			buffers_.gpu_ushort_cut_yz_.reset();
 
 			stft_env_.gpu_stft_slice_queue_xz.reset();
 			stft_env_.gpu_stft_slice_queue_yz.reset();
@@ -225,12 +206,12 @@ namespace holovibes
 		// as the average is used in the intermediate computations
 		if (compute_desc_.img_acc_slice_yz_enabled)
 			enqueue_buffer(gpu_img_acc_yz_.get(),
-				buffers_.gpu_float_cut_yz_,
+				static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 				compute_desc_.img_acc_slice_yz_level,
 				input_fd.height * compute_desc_.nsamples);
 		if (compute_desc_.img_acc_slice_xz_enabled)
 			enqueue_buffer(gpu_img_acc_xz_.get(),
-				buffers_.gpu_float_cut_xz_,
+				static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 				compute_desc_.img_acc_slice_xz_level,
 				input_fd.width * compute_desc_.nsamples);
 
@@ -252,7 +233,7 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_ : buffers_.gpu_output_buffer_;
+		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_.get() : buffers_.gpu_output_buffer_.get();
 	}
 
 	void Pipe::exec()

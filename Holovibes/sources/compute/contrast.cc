@@ -64,7 +64,7 @@ namespace holovibes
 		{
 			if (cd_.shift_corners_enabled)
 			{
-				uint size_x = buffers_.gpu_float_buffer_size_ / (sizeof(float) * fd_.height);
+				uint size_x = buffers_.gpu_float_buffer_size_ / fd_.height;
 				fn_vect_.push_back([=]() {
 					shift_corners(
 						buffers_.gpu_float_buffer_,
@@ -140,22 +140,21 @@ namespace holovibes
 
 		void Contrast::insert_main_log()
 		{
-			uint size = buffers_.gpu_float_buffer_size_ / sizeof(float);
-			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, size); });
+			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_); });
 		}
 
 		void Contrast::insert_slice_log()
 		{
 			uint size = fd_.width * cd_.nsamples;
 			if (cd_.log_scale_slice_xz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_xz_, size); });
+				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_xz_.get()), size); });
 			if (cd_.log_scale_slice_yz_enabled)
-				fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_cut_yz_, size); });
+				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_yz_.get()), size); });
 		}
 
 		void Contrast::insert_main_contrast()
 		{
-			uint size = buffers_.gpu_float_buffer_size_ / sizeof(float);
+			uint size = buffers_.gpu_float_buffer_size_;
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
 					buffers_.gpu_float_buffer_,
@@ -171,7 +170,7 @@ namespace holovibes
 			uint size = fd_.width * cd_.nsamples;
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
-					buffers_.gpu_float_cut_xz_,
+					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 					size,
 					65535,
 					cd_.contrast_min_slice_xz,
@@ -179,7 +178,7 @@ namespace holovibes
 			});
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
-					buffers_.gpu_float_cut_yz_,
+					static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 					size,
 					65535,
 					cd_.contrast_min_slice_yz,
@@ -196,20 +195,20 @@ namespace holovibes
 					if (cd_.current_window == XYview)
 						autocontrast_caller(
 							buffers_.gpu_float_buffer_,
-							buffers_.gpu_float_buffer_size_ / sizeof(float),
+							buffers_.gpu_float_buffer_size_,
 							0,
 							XYview);
 					if (cd_.stft_view_enabled)
 					{
 						if (cd_.current_window == XZview)
 							autocontrast_caller(
-								buffers_.gpu_float_cut_xz_,
+								static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 								fd_.width * cd_.nsamples,
 								fd_.width * cd_.cuts_contrast_p_offset,
 								XZview);
 						else if (cd_.current_window == YZview)
 							autocontrast_caller(
-								buffers_.gpu_float_cut_yz_,
+								static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 								fd_.width * cd_.nsamples,
 								fd_.width * cd_.cuts_contrast_p_offset,
 								YZview);
