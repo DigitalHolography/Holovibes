@@ -111,8 +111,6 @@ namespace holovibes
 		void request_average(ConcurrentDeque<Tuple4f>* output);
 		void request_average_stop();
 		void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
-		void request_float_output(Queue* fqueue);
-		void request_float_output_stop();
 		void request_complex_output(Queue* fqueue);
 		void request_complex_output_stop();
 		void request_termination();

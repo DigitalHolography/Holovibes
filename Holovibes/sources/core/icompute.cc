@@ -314,19 +314,6 @@ namespace holovibes
 		request_refresh();
 	}
 
-	void ICompute::request_float_output(Queue* fqueue)
-	{
-		fqueue_.reset(fqueue);
-		float_output_requested_ = true;
-		request_refresh();
-	}
-
-	void ICompute::request_float_output_stop()
-	{
-		float_output_requested_ = false;
-		request_refresh();
-	}
-
 	void ICompute::request_complex_output(Queue* fqueue)
 	{
 		fqueue_.reset(fqueue);
