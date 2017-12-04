@@ -109,9 +109,6 @@ namespace holovibes
 			return;
 		}
 
-		if (!float_output_requested_ && !complex_output_requested_)
-			fqueue_.reset();
-
 		postprocess_->allocate_buffers();
 
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
@@ -187,9 +184,6 @@ namespace holovibes
 		postprocess_->insert_convolution();
 		postprocess_->insert_flowgraphy();
 
-		if (complex_output_requested_)
-			fn_vect_.push_back([=]() {record(buffers_.gpu_input_buffer_); });
-
 		converts_->insert_to_float(unwrap_2d_requested_);
 		if (compute_desc_.img_type == Complex)
 		{
@@ -222,8 +216,6 @@ namespace holovibes
 		rendering_->insert_contrast(autocontrast_requested_);
 		autofocus_->insert_autofocus();
 
-		if (float_output_requested_)
-			fn_vect_.push_back([=]() {record(buffers_.gpu_float_buffer_); });
 		fn_vect_.push_back([=]() {fps_count(); });
 
 		converts_->insert_to_ushort();

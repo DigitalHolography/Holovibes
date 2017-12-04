@@ -111,8 +111,6 @@ namespace holovibes
 		void request_average(ConcurrentDeque<Tuple4f>* output);
 		void request_average_stop();
 		void request_average_record(ConcurrentDeque<Tuple4f>* output, const uint n);
-		void request_complex_output(Queue* fqueue);
-		void request_complex_output_stop();
 		void request_termination();
 		/*!
 		 * \brief Updates the queues size
@@ -158,8 +156,6 @@ namespace holovibes
 		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
 		bool get_average_request()			const { return average_requested_; }
 		bool get_average_record_request()	const { return average_record_requested_; }
-		bool get_float_output_request()		const { return float_output_requested_; }
-		bool get_complex_output_request()	const { return complex_output_requested_; }
 		bool get_abort_construct_request()	const { return abort_construct_requested_; }
 		bool get_termination_request()		const { return termination_requested_; }
 		bool get_update_acc_request()		const { return update_acc_requested_; }
@@ -219,8 +215,6 @@ namespace holovibes
 		std::atomic<bool>	stft_update_roi_requested_;
 		std::atomic<bool>	average_requested_;
 		std::atomic<bool>	average_record_requested_;
-		std::atomic<bool>	float_output_requested_;
-		std::atomic<bool>	complex_output_requested_;
 		std::atomic<bool>	abort_construct_requested_;
 		std::atomic<bool>	termination_requested_;
 		std::atomic<bool>	update_acc_requested_;

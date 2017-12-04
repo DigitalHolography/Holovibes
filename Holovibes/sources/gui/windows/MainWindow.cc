@@ -2537,16 +2537,6 @@ namespace holovibes
 
 			progress_bar->setMaximum(1);
 			progress_bar->setValue(1);
-			if (!is_direct_mode()) {
-				switch (output_type)
-				{
-				case OutputType::Complex_64b:
-					holovibes_.get_pipe()->request_complex_output_stop();
-					break;
-				default:
-					break;
-				}
-			}
 			display_info("Record done");
 		}
 		#pragma endregion
