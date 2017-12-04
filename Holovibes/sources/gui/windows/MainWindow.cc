@@ -2472,18 +2472,18 @@ namespace holovibes
 			{
 				float depth = holovibes_.get_output_queue().get_frame_desc().depth;
 				if (depth == 1.f)
-					return Integer_8b;
+					return OutputType::Integer_8b;
 				if (depth == 2.f)
-					return Integer_16b;
+					return OutputType::Integer_16b;
 				if (depth == 8.f)
-					return Complex_64b;
-				return Integer_16b;
+					return OutputType::Complex_64b;
+				return OutputType::Integer_16b;
 			}
 			if (compute_desc_.compute_mode == Composite)
-				return Color_24b;
+				return OutputType::Color_24b;
 			if (compute_desc_.compute_mode == Complex)
-				return Complex_64b;
-			return Integer_16b;
+				return OutputType::Complex_64b;
+			return OutputType::Integer_16b;
 		}
 
 		void MainWindow::set_record()
@@ -2504,39 +2504,12 @@ namespace holovibes
 			Queue* queue = nullptr;
 			try
 			{
-				switch (output_type)
-				{
-				case holovibes::Integer_8b:
-				case holovibes::Integer_16b:
-					if (compute_desc_.current_window == WindowKind::XYview)
-						queue = &holovibes_.get_output_queue();
-					else if (compute_desc_.current_window == WindowKind::XZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(0);
-					else if (compute_desc_.current_window == WindowKind::YZview)
-						queue = &holovibes_.get_pipe()->get_stft_slice_queue(1);
-					break;
-				case holovibes::Complex_64b:
-				{
-					std::shared_ptr<ICompute> pipe = holovibes_.get_pipe();
-					FrameDescriptor frame_desc = holovibes_.get_output_queue().get_frame_desc();
-
-					frame_desc.depth = sizeof(cufftComplex);
-					queue = new Queue(frame_desc, global::global_config.float_queue_max_size, "ComplexQueue");
-					pipe->request_complex_output(queue);
-					break;
-				}
-				// Record 24-bit not implemented yet
-				default:
-					break;
-				}
+				queue = holovibes_.get_current_window_output_queue();
+				
 				if (queue)
 				{
 					path = set_record_filename_properties(queue->get_frame_desc(), path);
-					record_thread_.reset(new ThreadRecorder(
-						*queue,
-						path,
-						nb_of_frames,
-						this));
+					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					record_thread_->start();
@@ -2567,7 +2540,7 @@ namespace holovibes
 			if (!is_direct_mode()) {
 				switch (output_type)
 				{
-				case holovibes::Complex_64b:
+				case OutputType::Complex_64b:
 					holovibes_.get_pipe()->request_complex_output_stop();
 					break;
 				default:

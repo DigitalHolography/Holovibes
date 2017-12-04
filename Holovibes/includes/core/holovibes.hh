@@ -81,6 +81,8 @@ namespace holovibes
 		{
 			return *output_;
 		}
+
+		Queue* get_current_window_output_queue();
 		/*! \} */
 
 		/*! \brief Launch the recorder

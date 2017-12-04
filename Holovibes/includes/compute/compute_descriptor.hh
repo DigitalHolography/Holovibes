@@ -90,7 +90,7 @@ namespace holovibes
 	};
 
 	/*! \brief	Type of encoding for the recorded output */
-	enum OutputType
+	enum class OutputType
 	{
 		Integer_8b,
 		Integer_16b,
