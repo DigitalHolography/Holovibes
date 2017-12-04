@@ -217,7 +217,9 @@ namespace holovibes
 		unsigned int spanStart,
 		unsigned int spanEnd,
 		unsigned int q_max_size_,
-		Holovibes& holovibes)
+		Holovibes& holovibes,
+		QProgressBar *reader_progress_bar,
+		gui::MainWindow *main_window)
 	{
 		camera_initialized_ = false;
 
@@ -238,7 +240,9 @@ namespace holovibes
 					spanEnd,
 					*input_,
 					compute_desc_.is_cine_file,
-					holovibes));
+					holovibes,
+					reader_progress_bar,
+					main_window));
 			std::cout << "[CAPTURE] reader thread started" << std::endl;
 			camera_initialized_ = true;
 		}

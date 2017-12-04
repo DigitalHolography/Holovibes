@@ -17,6 +17,7 @@
 # include "queue.hh"
 # include "holovibes.hh"
 # include "tools.hh"
+# include "MainWindow.hh"
 
 using Clock = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<Clock>;
@@ -32,7 +33,9 @@ namespace holovibes
 		unsigned int spanEnd,
 		Queue& input,
 		bool is_cine_file,
-		Holovibes& holovibes)
+		Holovibes& holovibes,
+		QProgressBar *reader_progress_bar,
+		gui::MainWindow *main_window)
 		: IThreadInput()
 		, file_src_(file_src)
 		, frame_desc_(frame_desc)
@@ -46,6 +49,8 @@ namespace holovibes
 		, is_cine_file_(is_cine_file)
 		, holovibes_(holovibes)
 		, act_frame_(0)
+		, reader_progress_bar_(reader_progress_bar)
+		, main_window_(main_window)
 		, nbr_stored_(0)
 		, thread_(&ThreadReader::thread_proc, this)
 	{
@@ -58,6 +63,8 @@ namespace holovibes
 			+ std::to_string(static_cast<int>(fd.depth * 8))
 			+ std::string("bit");
 		gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::INPUT_SOURCE, "InputFormat", input_descriptor_info);
+		reader_progress_bar->setMaximum(spanEnd);
+		reader_progress_bar->show();
 	}
 
 	void ThreadReader::clear_memory(char **buffer, char **resize_buffer)
@@ -127,6 +134,8 @@ namespace holovibes
 						refresh_fps = fps_;
 						beginFrames = std::chrono::high_resolution_clock::now();
 					}
+					if (main_window_)
+						main_window_->update_file_reader_index(frameId_ - spanStart_);
 				}
 			}
 		}
@@ -194,6 +203,8 @@ namespace holovibes
 	ThreadReader::~ThreadReader()
 	{
 		stop_requested_ = true;
+		if (reader_progress_bar_)
+			reader_progress_bar_->hide();
 
 		while (!thread_.joinable())
 			continue;

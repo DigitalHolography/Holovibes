@@ -20,6 +20,7 @@
 # include "ithread_input.hh"
 # include "power_of_two.hh"
 # include "holovibes.hh"
+#include <QObject>
 
 /* Forward declaration. */
 namespace holovibes
@@ -30,6 +31,12 @@ namespace holovibes
 
 namespace holovibes
 {
+
+	namespace gui
+	{
+		class MainWindow;
+	}
+
   /*! \brief Thread encapsulation for reading data from a file.
   *
   * Reads raw data from a file, and interpret it as images of a specified format.
@@ -49,7 +56,9 @@ namespace holovibes
       , unsigned int spanEnd
       , Queue& input
 	  , bool is_cine_file
-	  , Holovibes& holovibes);
+	  , Holovibes& holovibes
+	  , QProgressBar *reader_progress_bar
+	  , gui::MainWindow *main_window);
 
     virtual ~ThreadReader();
 
@@ -97,6 +106,10 @@ namespace holovibes
 	Holovibes& holovibes_;
 	/*\ current buffer frame to be read */
 	unsigned int act_frame_;
+	/*\ progress bar showing position in the file */
+	QProgressBar *reader_progress_bar_;
+	/*! \brief Pointer to main window, used to update the progress bar asyncronously */
+	gui::MainWindow *main_window_;
 	
 	/*\ current number of frames effectively stacked in the buffer (not always elts_max_nbr whenever eof is reached)*/
 	unsigned int nbr_stored_;

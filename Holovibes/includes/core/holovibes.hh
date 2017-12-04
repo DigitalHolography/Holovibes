@@ -26,6 +26,10 @@
 /*! \brief Contains all function and structure needed to computes data */
 namespace holovibes
 {
+	namespace gui
+	{
+		class MainWindow;
+	}
 	class Queue;
 	
 	/*! \brief Core class to use HoloVibes
@@ -121,7 +125,9 @@ namespace holovibes
 			unsigned int spanStart,
 			unsigned int spanEnd,
 			unsigned int q_max_size_,
-			Holovibes& holovibes);
+			Holovibes& holovibes,
+			QProgressBar *reader_progress_bar = nullptr,
+			gui::MainWindow *main_window = nullptr);
 
 		/*! \{ \name Getters/Setters */
 		std::shared_ptr<ICompute> get_pipe()

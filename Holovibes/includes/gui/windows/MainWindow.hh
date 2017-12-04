@@ -84,6 +84,7 @@ namespace holovibes
 			#pragma region Public Slots
 		public slots:
 			void on_notify();
+			void update_file_reader_index(int n);
 			/*! \brief Resize windows if one layout is toggled. */
 			void layout_toggled();
 			void configure_holovibes();
@@ -232,6 +233,7 @@ namespace holovibes
 			/* ---------- */
 		signals:
 		   void request_notify();
+		   void update_file_reader_index_signal(int n);
 			#pragma region Protected / Private Methods
 		protected:
 			virtual void closeEvent(QCloseEvent* event) override;

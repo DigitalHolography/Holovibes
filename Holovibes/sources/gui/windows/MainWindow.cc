@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "MainWindow.hh"
+#include <filesystem>
 
 namespace holovibes
 {
@@ -76,6 +77,8 @@ namespace holovibes
 			ui.setupUi(this);
 
 			connect(this, SIGNAL(request_notify()), this, SLOT(on_notify()));
+			connect(this, SIGNAL(update_file_reader_index_signal(int)), this, SLOT(update_file_reader_index(int)));
+
 
 
 			setWindowIcon(QIcon("Holovibes.ico"));
@@ -147,6 +150,9 @@ namespace holovibes
 			spinBoxDecimalPointReplacement(ui.ContrastMinDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.AutofocusZMinDoubleSpinBox);
 			spinBoxDecimalPointReplacement(ui.AutofocusZMaxDoubleSpinBox);
+
+			ui.FileReaderProgressBar->hide();
+			ui.RecordProgressBar;
 		}
 
 		MainWindow::~MainWindow()
@@ -2866,15 +2872,21 @@ namespace holovibes
 			is_enabled_camera_ = false;
 			try
 			{
+				auto file_end = std::experimental::filesystem::file_size(file_src)
+					/ frame_desc.frame_size();
+				if (file_end > end_spinbox->value())
+					file_end = end_spinbox->value();
 				holovibes_.init_import_mode(
 					file_src,
 					frame_desc,
 					true,
 					fps_spinbox->value(),
 					start_spinbox->value(),
-					end_spinbox->value(),
+					file_end,
 					global::global_config.input_queue_max_size,
-					holovibes_);
+					holovibes_,
+					ui.FileReaderProgressBar,
+					this);
 			}
 			catch (std::exception& e)
 			{
@@ -3094,7 +3106,13 @@ namespace holovibes
 		{
 			return mainDisplay.get();
 		}
-
+		void MainWindow::update_file_reader_index(int n)
+		{
+			if (QThread::currentThread() != this->thread())
+				emit update_file_reader_index_signal(n);
+			else
+				ui.FileReaderProgressBar->setValue(n);
+		}
 	}
 }
 #include "moc_MainWindow.cc"
