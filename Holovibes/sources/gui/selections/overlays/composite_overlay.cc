@@ -31,8 +31,8 @@ namespace holovibes
 			if (is_active_)
 			{
 				zone_.setDst(getMousePos(e->pos()));
-				parent_->getCd()->component_r.p_min = zone_.src().x();
-				parent_->getCd()->component_b.p_max = zone_.dst().x();
+				parent_->getCd()->component_r.p_min = check_interval(zone_.src().x());
+				parent_->getCd()->component_b.p_max = check_interval(zone_.dst().x());
 				parent_->getCd()->notify_observers();
 			}
 		}
@@ -40,6 +40,12 @@ namespace holovibes
 		{
 			Overlay::press(e);
 			is_active_ = true;
+		}
+
+		int CompositeOverlay::check_interval(int x)
+		{
+			const int max = parent_->getCd()->nsamples - 1;
+			return std::min(max, std::max(x, 0));
 		}
 	}
 }

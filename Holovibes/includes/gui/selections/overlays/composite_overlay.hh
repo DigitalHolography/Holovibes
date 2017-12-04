@@ -37,6 +37,8 @@ namespace holovibes
 
 		private:
 			bool is_active_ = false;
+
+			int check_interval(int x);
 		};
 	}
 }

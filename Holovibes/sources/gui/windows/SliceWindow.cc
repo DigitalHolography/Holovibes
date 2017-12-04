@@ -37,7 +37,7 @@ namespace holovibes
 			Color red{ 1.f, 0.f, 0.f };
 			Color green{ 0.f, 1.f, 0.f };
 			Color blue{ 0.f, 0.f, 1.f };
-			const float composite_alpha = 0.1f;
+			const float composite_alpha = 0.15f;
 			overlay_manager_.create_strip_overlay(Cd->component_r, Cd->nsamples, red, composite_alpha);
 			overlay_manager_.create_strip_overlay(Cd->component_g, Cd->nsamples, green, composite_alpha);
 			overlay_manager_.create_strip_overlay(Cd->component_b, Cd->nsamples, blue, composite_alpha);
