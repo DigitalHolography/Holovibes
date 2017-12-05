@@ -22,15 +22,15 @@ struct rect
 
 struct comp
 {
-	int p_min;
-	int p_max;
+	ushort p_min;
+	ushort p_max;
 	float weight;
 };
 
 
 namespace
 {
-	void check_zone(rect& zone, const uint frame_res, const uint line_size)
+	void check_zone(rect& zone, const uint frame_res, const int line_size)
 	{
 		const int lines = line_size ? frame_res / line_size : 0;
 		if (!zone.h || !zone.w || zone.x + zone.w > line_size || zone.y + zone.h > lines)
@@ -179,8 +179,6 @@ void composite(cuComplex	*input,
 		cudaMalloc(&averages, sizeof(float) * pixel_depth);
 		cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
 
-
-		float tmp[3][3];
 
 		blocks = map_blocks_to_problem(lines * pixel_depth, threads);
 		kernel_sum_one_line << <blocks, threads, 0, 0 >> > (output,
