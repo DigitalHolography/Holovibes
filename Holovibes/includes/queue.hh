@@ -21,6 +21,7 @@
 # include <mutex>
 
 # include "frame_desc.hh"
+# include "unique_ptr.hh"
 
 
 namespace holovibes
@@ -142,7 +143,7 @@ namespace holovibes
 		size_t					curr_elts_;
 		unsigned int			start_index_;
 		const bool				is_big_endian_;
-		char					*data_buffer_;
+		cuda_tools::UniquePtr<char>	data_buffer_;
 		cudaStream_t			stream_;
 		bool					display_;
 	};

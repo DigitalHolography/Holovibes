@@ -76,7 +76,7 @@ namespace holovibes
 			~MainWindow();
 
 			void notify() override;
-			void notify_error(std::exception& e, const char* msg) override;
+			void notify_error(std::exception& e) override;
 
 			DirectWindow *get_main_display();
 			#pragma endregion

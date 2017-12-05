@@ -253,14 +253,12 @@ namespace holovibes
 
 	void ICompute::allocation_failed(const int& err_count, std::exception& e)
 	{
-		const char *cuda_error = cudaGetErrorString(cudaGetLastError());
-		std::cout
-			<< "[ERROR] ICompute l" << __LINE__ << std::endl
-			<< " error message: " << e.what()
+		std::cerr
+			<< "[ERROR] Pipe: " << std::endl
+			<< " error message: " << e.what() << std::endl
 			<< " err_count: " << err_count << std::endl
-			<< " cudaError_t: " << cuda_error
 			<< std::endl;
-		notify_error_observers(e, cuda_error);
+		//notify_error_observers(e);
 	}
 
 	void ICompute::update_acc_parameter(

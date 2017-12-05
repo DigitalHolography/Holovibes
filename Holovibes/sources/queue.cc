@@ -33,12 +33,11 @@ namespace holovibes
 		, is_big_endian_(frame_desc.depth >= 2 &&
 			frame_desc.byteEndian == Endianness::BigEndian)
 		, name_(name)
-		, data_buffer_(nullptr)
+		, data_buffer_()
 	{
-		if (cudaMalloc(&data_buffer_, frame_size_ * elts) != CUDA_SUCCESS)
+		if (!elts || !data_buffer_.resize(frame_size_ * elts))
 		{
 			std::cerr << "Queue: couldn't allocate queue" << std::endl;
-			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
 		frame_desc_.byteEndian = Endianness::LittleEndian;
@@ -49,9 +48,6 @@ namespace holovibes
 	{
 		if (display_)
 			gui::InfoManager::get_manager()->remove_info(name_);
-		if (data_buffer_)
-			if (cudaFree(data_buffer_) != CUDA_SUCCESS)
-				std::cerr << "Queue: couldn't free queue" << std::endl;
 		cudaStreamDestroy(stream_);
 	}
 
@@ -82,7 +78,7 @@ namespace holovibes
 
 	void* Queue::get_start()
 	{
-		return data_buffer_ + start_index_ * frame_size_;
+		return data_buffer_.get() + start_index_ * frame_size_;
 	}
 
 	unsigned int Queue::get_start_index()
@@ -92,12 +88,12 @@ namespace holovibes
 
 	void* Queue::get_end()
 	{
-		return data_buffer_ + ((start_index_ + curr_elts_) % max_elts_) * frame_size_;
+		return data_buffer_.get() + ((start_index_ + curr_elts_) % max_elts_) * frame_size_;
 	}
 
 	void* Queue::get_last_images(const unsigned n)
 	{
-		return data_buffer_ + ((start_index_ + curr_elts_ - n) % max_elts_) * frame_size_;
+		return data_buffer_.get() + ((start_index_ + curr_elts_ - n) % max_elts_) * frame_size_;
 	}
 
 	unsigned int Queue::get_end_index()
@@ -110,7 +106,7 @@ namespace holovibes
 		MutexGuard mGuard(mutex_);
 
 		const uint	end_ = (start_index_ + curr_elts_) % max_elts_;
-		char		*new_elt_adress = data_buffer_ + (end_ * frame_size_);
+		char		*new_elt_adress = data_buffer_.get() + (end_ * frame_size_);
 		cudaError_t	cuda_status = cudaMemcpyAsync(new_elt_adress,
 			elt,
 			frame_size_,
@@ -122,11 +118,7 @@ namespace holovibes
 			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
 			if (display_)
 				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
-			if (data_buffer_)
-			{
-				cudaFree(data_buffer_);
-				data_buffer_ = nullptr;
-			}
+			data_buffer_.reset();
 			return false;
 		}
 		if (is_big_endian_)
@@ -148,7 +140,7 @@ namespace holovibes
 	{
 		if (curr_elts_ > 0)
 		{
-			void* first_img = data_buffer_ + start_index_ * frame_size_;
+			void* first_img = data_buffer_.get() + start_index_ * frame_size_;
 			cudaMemcpyAsync(dest, first_img, frame_size_, cuda_kind, stream_);
 			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;

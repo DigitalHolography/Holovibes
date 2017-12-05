@@ -274,9 +274,9 @@ namespace holovibes
 						refresh();
 				}
 			}
-			catch (std::runtime_error& e)
+			catch (CustomException& e)
 			{
-				std::cerr << e.what() << std::endl;
+				allocation_failed(1, e);
 			}
 		}
 	}

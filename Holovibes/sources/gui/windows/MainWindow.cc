@@ -427,7 +427,7 @@ namespace holovibes
 			//QCoreApplication::processEvents();
 		}
 
-		void MainWindow::notify_error(std::exception& e, const char* msg)
+		void MainWindow::notify_error(std::exception& e)
 		{
 			CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
 			std::string str;
@@ -445,14 +445,14 @@ namespace holovibes
 						compute_desc_.special_buffer_size = 3;
 					}
 				}
-				if (err_ptr->get_kind() == error_kind::fail_accumulation)
+				else if (err_ptr->get_kind() == error_kind::fail_accumulation)
 				{
 					compute_desc_.img_acc_slice_xy_enabled = false;
 					compute_desc_.img_acc_slice_xy_level = 1;
 				}
 				close_critical_compute();
 
-				str = "GPU allocation error occured.\nCuda error message\n" + std::string(msg);
+				str = "GPU computing error occured.\n";
 				display_error(str);
 			}
 			else
@@ -909,15 +909,13 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::closeEvent(QCloseEvent* event)
+		void MainWindow::closeEvent(QCloseEvent*)
 		{
 			if (compute_desc_.compute_mode != Computation::Stop)
 				close_critical_compute();
 			camera_none();
 			close_windows();
 			remove_infos();
-			// Avoiding "unused variable" warning.
-			static_cast<void*>(event);
 			save_ini(GLOBAL_INI_PATH);
 		}
 		#pragma endregion

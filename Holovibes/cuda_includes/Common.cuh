@@ -19,6 +19,7 @@
 # include "tools.cuh"
 # include "queue.hh"
 # include "compute_descriptor.hh"
+# include "custom_exception.hh"
 
 #define M_2PI		6.28318530717959f
 #define THREADS_256	256
@@ -26,17 +27,17 @@
 
 
 
-#define cudaCheckError()                    \
-{                                           \
-	auto e = cudaGetLastError();            \
-	if (e != cudaSuccess)                   \
-	{                                       \
-		std::string error = "Cuda failure"; \
-		error += __FILE__;                  \
-		error += " l";                      \
-		error += __LINE__;                  \
-		error += ": ";                      \
-		error += cudaGetErrorString(e);     \
-		throw std::runtime_error(error);    \
-	}                                       \
+#define cudaCheckError()                                                     \
+{                                                                            \
+	auto e = cudaGetLastError();                                             \
+	if (e != cudaSuccess)                                                    \
+	{                                                                        \
+		std::string error = "Cuda failure in ";                              \
+		error += __FILE__;                                                   \
+		error += " at line ";                                                \
+		error += std::to_string(__LINE__);                                   \
+		error += ": ";                                                       \
+		error += cudaGetErrorString(e);                                      \
+		throw holovibes::CustomException(error, holovibes::fail_cudaLaunch); \
+	}												                         \
 }

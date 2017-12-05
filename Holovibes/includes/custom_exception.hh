@@ -28,15 +28,15 @@ namespace holovibes
 		fail_update,
 		fail_refresh,
 		fail_accumulation,
-		fail_reference
+		fail_reference,
+		fail_cudaLaunch
 	};
 	
 	class CustomException : public std::exception
 	{
 	  public:
 		CustomException(std::string msg, const error_kind& kind)
-			: std::exception()
-			, error_msg_(msg)
+			: std::exception(msg.c_str())
 			, error_kind_(kind)
 		{
 		}
@@ -45,20 +45,12 @@ namespace holovibes
 		{
 		}
 
-	 const char* what() const throw()
-	 {
-		 return error_msg_.c_str();
-	 };
-
 	 const error_kind& get_kind()
 	 {
 		 return error_kind_;
 	 }
 
-
 	private :
-
-		const std::string& error_msg_;
 		
 		const error_kind& error_kind_;
 			
