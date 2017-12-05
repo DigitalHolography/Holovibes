@@ -12,26 +12,52 @@
 
 #include "tools_conversion.cuh"
 
+struct rect
+{
+	int x;
+	int y;
+	int w;
+	int h;
+};
+
+struct comp
+{
+	int p_min;
+	int p_max;
+	float weight;
+};
 
 
+namespace
+{
+	void check_zone(rect& zone, const uint frame_res, const uint line_size)
+	{
+		const int lines = line_size ? frame_res / line_size : 0;
+		if (!zone.h || !zone.w || zone.x + zone.w > line_size || zone.y + zone.h > lines)
+		{
+			zone.x = 0;
+			zone.y = 0;
+			zone.w = line_size;
+			zone.h = frame_res / line_size;
+		}
+	}
+}
 __global__
 static void kernel_composite(cuComplex			*input,
 							float				*output,
 							const uint			frame_res,
-							ushort				pmin_r,
-							ushort				pmax_r,
-							float				weight_r,
-							ushort				pmin_g,
-							ushort				pmax_g,
-							float				weight_g,
-							ushort				pmin_b,
-							ushort				pmax_b,
-							float				weight_b)
+							bool				normalize,
+							comp				r,
+							comp				g,
+							comp				b)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	ushort pmin[] = { pmin_r, pmin_g, pmin_b };
-	ushort pmax[] = { pmax_r, pmax_g, pmax_b };
-	float weight[] = { weight_r, weight_g, weight_b };
+	ushort pmin[] = { r.p_min, g.p_min, b.p_min };
+	ushort pmax[] = { r.p_max, g.p_max, b.p_max };
+	float weight[] = { r.weight, g.weight, b.weight };
+	if (normalize)
+		for (int i = 0; i < 3; i++)
+			weight[i] = 1;
 	if (id < frame_res)
 	{
 		for (int i = 0; i < 3; i++)
@@ -52,17 +78,18 @@ __global__
 static void kernel_sum_one_line(float			*input,
 							const uint			frame_res,
 							const uchar			pixel_depth,
-							const uint			nb_lines,
 							const uint			line_size,
+							const rect			zone,
 							float				*sums_per_line)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < pixel_depth * nb_lines)
+	if (id < pixel_depth * zone.h)
 	{
 		uchar offset = id % pixel_depth;
 		ushort line = id / pixel_depth;
-		uint index_begin = line_size * line;
-		uint index_end = line_size * (line + 1);
+		line += zone.y;
+		uint index_begin = line_size * line + zone.x;
+		uint index_end = index_begin + zone.w;
 		if (index_end > frame_res)
 			index_end = frame_res;
 		float sum = 0;
@@ -113,22 +140,20 @@ static void kernel_normalize_array(float			*input,
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < pixel_depth * nb_pixels)
-		input[id] /= averages[id % 3];
+		input[id] /= averages[id % 3] / 1000;
+	// The /1000 is used to have the result in [0;1000]
+	// instead of [0;1] for a better contrast control
 }
 
 void composite(cuComplex	*input,
-			float			*output,
-			const uint		frame_res,
-			bool			normalize,
-			ushort			pmin_r,
-			ushort			pmax_r,
-			float			weight_r,
-			ushort			pmin_g,
-			ushort			pmax_g,
-			float			weight_g,
-			ushort			pmin_b,
-			ushort			pmax_b,
-			float			weight_b)
+	float					*output,
+	const uint				frame_res,
+	const uint				real_line_size,
+	bool					normalize,
+	holovibes::units::RectFd	selection,
+	const holovibes::Component&	r,
+	const holovibes::Component&	g,
+	const holovibes::Component&	b)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -136,48 +161,56 @@ void composite(cuComplex	*input,
 	kernel_composite << <blocks, threads, 0, 0 >> > (input,
 		output,
 		frame_res,
-		pmin_r,
-		pmax_r,
-		normalize ? 1 : weight_r,
-		pmin_g,
-		pmax_g,
-		normalize ? 1 : weight_g,
-		pmin_b,
-		pmax_b,
-		normalize ? 1 : weight_b);
+		normalize,
+		{ r.p_min, r.p_max, r.weight },
+		{ g.p_min, g.p_max, g.weight },
+		{ b.p_min, b.p_max, b.weight });
 	cudaCheckError();
+	cudaStreamSynchronize(0);
 	if (normalize)
 	{
-		const ushort line_size = 1024;
-		const ushort lines = frame_res / line_size + 1;
+		rect zone = { selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height() };
+		check_zone(zone, frame_res, real_line_size);
+		const ushort line_size = zone.w;
+		const ushort lines = zone.h;
 		float *averages = nullptr;
 		float *sums_per_line = nullptr;
 		const uchar pixel_depth = 3;
 		cudaMalloc(&averages, sizeof(float) * pixel_depth);
 		cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
+
+
+		float tmp[3][3];
+
 		blocks = map_blocks_to_problem(lines * pixel_depth, threads);
 		kernel_sum_one_line << <blocks, threads, 0, 0 >> > (output,
 			frame_res,
 			pixel_depth,
-			lines,
-			line_size,
+			real_line_size,
+			zone,
 			sums_per_line);
-	cudaCheckError();
+		cudaCheckError();
+		cudaStreamSynchronize(0);
+
 		blocks = map_blocks_to_problem(pixel_depth, threads);
-		kernel_average_float_array << <blocks, threads, 0, 0 >> > (output,
+		kernel_average_float_array << <blocks, threads, 0, 0 >> > (sums_per_line,
 			lines,
-			frame_res,
+			lines * line_size,
 			pixel_depth,
 			averages);
-	cudaCheckError();
+		cudaCheckError();
+		cudaStreamSynchronize(0);
+
 		blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
-	cudaCheckError();
+		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, r.weight, g.weight, b.weight);
+		cudaCheckError();
+		cudaStreamSynchronize(0);
 		kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,
 			frame_res,
 			pixel_depth,
 			averages);
-	cudaCheckError();
+		cudaCheckError();
+		cudaStreamSynchronize(0);
 		cudaFree(averages);
 		cudaFree(sums_per_line);
 	}

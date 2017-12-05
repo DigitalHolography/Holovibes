@@ -142,6 +142,8 @@ namespace holovibes
 		units::RectFd		autofocus_zone;
 		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
 		units::RectFd		stft_roi_zone;
+		/*! \brief	The area on which we'll normalize the colors*/
+		units::RectFd		composite_zone;
 		/*! \brief	The area on which we'll run the convolution to stabilize*/
 		units::RectFd		stabilization_zone;
 		/*! \brief  The area used to limit the stft computations. */
@@ -176,6 +178,9 @@ namespace holovibes
 
 		units::RectFd getStftZone() const;
 		void setStftZone(const units::RectFd& rect);
+
+		units::RectFd getCompositeZone() const;
+		void setCompositeZone(const units::RectFd& rect);
 
 		units::RectFd getStabilizationZone() const;
 		void setStabilizationZone(const units::RectFd& rect);

@@ -31,9 +31,7 @@ void CompositeAreaOverlay::release(ushort frameSide)
 	if (zone_.topLeft() == zone_.bottomRight())
 		return;
 
-	//parent_->getCd()->setStabilizationZone(zone_);
-	//parent_->getCd()->xy_stabilization_paused = false;
-	std::cout << zone_ << std::endl;
+	parent_->getCd()->setCompositeZone(zone_);
 }
 
 
