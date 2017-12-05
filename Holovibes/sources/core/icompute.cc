@@ -428,7 +428,7 @@ namespace holovibes
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
 				long long bytePerSecond = fps * input_.get_frame_desc().frame_size();
 				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
-					std::to_string(static_cast<int>(bytePerSecond / 1e9)) + " GB/s");
+					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
 			}
 			past_time_ = time;
 			frame_count_ = 0;
