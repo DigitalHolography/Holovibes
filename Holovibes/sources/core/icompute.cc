@@ -187,7 +187,6 @@ namespace holovibes
 				stft_env_.gpu_cropped_stft_buf_.resize(compute_desc_.getZoomedZone().area() * n);
 			else
 				stft_env_.gpu_cropped_stft_buf_.reset();
-			std::cout << std::endl;
 		}
 		catch (std::exception&)
 		{
@@ -423,9 +422,13 @@ namespace holovibes
 			if (diff)
 			{
 				long long fps = frame_count_ * 1000 / diff;
-				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + std::string(" fps"));
-				long long voxelPerSeconds = fps * output_fd.frame_res() * compute_desc_.nsamples;
-				manager->insert_info(gui::InfoManager::InfoType::THROUGHPUT, "Throughput", std::to_string(static_cast<int>(voxelPerSeconds / 1e6)) + std::string(" MVoxel/s"));
+				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + " fps");
+				long long voxelPerSecond = fps * output_fd.frame_res() * compute_desc_.nsamples;
+				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
+					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
+				long long bytePerSecond = fps * input_.get_frame_desc().frame_size();
+				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
+					std::to_string(static_cast<int>(bytePerSecond / 1e9)) + " GB/s");
 			}
 			past_time_ = time;
 			frame_count_ = 0;
