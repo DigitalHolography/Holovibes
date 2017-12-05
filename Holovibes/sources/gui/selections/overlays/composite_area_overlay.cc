@@ -10,21 +10,28 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#pragma once
+#include "composite_area_overlay.hh"
+#include "BasicOpenGLWindow.hh"
+#include <iostream>
 
-# include "Common.cuh"
-
-# include "compute_descriptor.hh"
-
+using holovibes::gui::CompositeAreaOverlay;
+using holovibes::gui::BasicOpenGLWindow;
 
 
-/// Computes 3 different p slices and put them in each color
-void composite(cuComplex	*input,
-	float					*output,
-	const uint				frame_res,
-	const uint				line_size,
-	bool					normalize,
-	holovibes::units::RectFd	selection,
-	const holovibes::Component&	r,
-	const holovibes::Component&	g,
-	const holovibes::Component&	b);
+CompositeAreaOverlay::CompositeAreaOverlay(BasicOpenGLWindow* parent)
+	: RectOverlay(KindOfOverlay::Stabilization, parent)
+{
+	color_ = { 0.6f, 0.5f, 0.0f };
+}
+
+void CompositeAreaOverlay::release(ushort frameSide)
+{
+	disable();
+
+	if (zone_.topLeft() == zone_.bottomRight())
+		return;
+
+	parent_->getCd()->setCompositeZone(zone_);
+}
+
+

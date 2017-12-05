@@ -95,16 +95,12 @@ namespace holovibes
 				composite(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
+					fd_.width,
 					cd_.composite_auto_weights_,
-					cd_.component_r.p_min,
-					cd_.component_r.p_max,
-					cd_.component_r.weight,
-					cd_.component_g.p_min,
-					cd_.component_g.p_max,
-					cd_.component_g.weight,
-					cd_.component_b.p_min,
-					cd_.component_b.p_max,
-					cd_.component_b.weight);
+					cd_.getCompositeZone(),
+					cd_.component_r,
+					cd_.component_g,
+					cd_.component_b);
 			});
 		}
 

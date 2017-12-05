@@ -42,7 +42,8 @@ namespace holovibes
 			Scale,
 			// Not implemented yet
 			SliceZoom,
-			Composite
+			Composite,
+			CompositeArea
 		};
 
 		class BasicOpenGLWindow;

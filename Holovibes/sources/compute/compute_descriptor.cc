@@ -216,6 +216,18 @@ namespace holovibes
 		stft_roi_zone = rect;
 	}
 
+	units::RectFd ComputeDescriptor::getCompositeZone() const
+	{
+		LockGuard g(mutex_);
+		return composite_zone;
+	}
+
+	void ComputeDescriptor::setCompositeZone(const units::RectFd& rect)
+	{
+		LockGuard g(mutex_);
+		composite_zone = rect;
+	}
+
 	units::RectFd ComputeDescriptor::getStabilizationZone() const
 	{
 		LockGuard g(mutex_);

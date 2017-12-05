@@ -10,21 +10,23 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+*
+* Overlay selecting the zone to normalize colors. */
 #pragma once
 
-# include "Common.cuh"
+#include "square_overlay.hh"
 
-# include "compute_descriptor.hh"
+namespace holovibes
+{
+	namespace gui
+	{
+		class CompositeAreaOverlay : public RectOverlay
+		{
+		public:
+			CompositeAreaOverlay(BasicOpenGLWindow *parent);
 
-
-
-/// Computes 3 different p slices and put them in each color
-void composite(cuComplex	*input,
-	float					*output,
-	const uint				frame_res,
-	const uint				line_size,
-	bool					normalize,
-	holovibes::units::RectFd	selection,
-	const holovibes::Component&	r,
-	const holovibes::Component&	g,
-	const holovibes::Component&	b);
+			void release(ushort frameSide) override;
+		};
+	}
+}

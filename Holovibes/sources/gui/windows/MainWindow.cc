@@ -1858,9 +1858,12 @@ namespace holovibes
 
 		void MainWindow::set_stabilization_area()
 		{
-			auto button = ui.StabilizationAreaButton;
-			// If current overlay is stabilization, disable it
 			mainDisplay->getOverlayManager().create_overlay<Stabilization>();
+		}
+
+		void MainWindow::set_composite_area()
+		{
+			mainDisplay->getOverlayManager().create_overlay<CompositeArea>();
 		}
 
 		#pragma endregion

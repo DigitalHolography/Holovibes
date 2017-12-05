@@ -24,6 +24,7 @@
 #include "strip_overlay.hh"
 #include "scale_overlay.hh"
 #include "composite_overlay.hh"
+#include "composite_area_overlay.hh"
 
 namespace holovibes
 {
@@ -106,6 +107,13 @@ namespace holovibes
 		{
 			if (!set_current(KindOfOverlay::Composite))
 				create_overlay(std::make_shared<CompositeOverlay>(parent_));
+		}
+
+		template <>
+		void OverlayManager::create_overlay<KindOfOverlay::CompositeArea>()
+		{
+			if (!set_current(KindOfOverlay::CompositeArea))
+				create_overlay(std::make_shared<CompositeAreaOverlay>(parent_));
 		}
 
 		template <>
