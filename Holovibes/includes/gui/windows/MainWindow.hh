@@ -188,6 +188,7 @@ namespace holovibes
 			void set_q_vibro(int value);
 			void set_average_mode(bool value);
 			void set_stabilization_area();
+			void set_composite_area();
 			void activeSignalZone();
 			void activeNoiseZone();
 			void set_average_graphic();

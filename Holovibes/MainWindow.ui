@@ -1120,6 +1120,230 @@
        </widget>
       </item>
       <item>
+       <widget class="holovibes::gui::GroupBox" name="CompositeGroupBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>210</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>210</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="toolTipDuration">
+         <number>-1</number>
+        </property>
+        <property name="title">
+         <string>Composite</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>P intervals</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_9">
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>1</number>
+              </property>
+              <item row="2" column="0">
+               <widget class="QSpinBox" name="PMinSpinBox_Composite">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>p min (red)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>p max (blue)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>Normalization</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>R</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>G</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>B</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="RenormalizationCheckBox">
+              <property name="font">
+               <font>
+                <pointsize>7</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Automatic renormalization</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="CompositeAreaButton">
+              <property name="text">
+               <string>Set auto renormalization area</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="holovibes::gui::GroupBox" name="MotionFocusGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1410,223 +1634,6 @@
             <size>
              <width>20</width>
              <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="holovibes::gui::GroupBox" name="CompositeGroupBox">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>210</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>210</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>210</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-          <kerning>true</kerning>
-         </font>
-        </property>
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
-        <property name="title">
-         <string>Composite</string>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_11">
-         <property name="spacing">
-          <number>2</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>P intervals</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_13">
-            <item>
-             <layout class="QGridLayout" name="gridLayout_9">
-              <property name="horizontalSpacing">
-               <number>6</number>
-              </property>
-              <property name="verticalSpacing">
-               <number>1</number>
-              </property>
-              <item row="2" column="0">
-               <widget class="QSpinBox" name="PMinSpinBox_Composite">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>p min (red)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>p max (blue)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>65536</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
-            <string>Normalization</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
-             <widget class="QCheckBox" name="RenormalizationCheckBox">
-              <property name="font">
-               <font>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Automatic renormalization</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QFormLayout" name="formLayout">
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>G</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_9">
-                <property name="text">
-                 <string>R</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>B</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_G">
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_R">
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_B">
-                <property name="singleStep">
-                 <double>0.100000000000000</double>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
             </size>
            </property>
           </spacer>
@@ -3316,7 +3323,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>InterpolationSensitivity</tabstop>
   <tabstop>InterpolationShift</tabstop>
   <tabstop>PMinSpinBox_Composite</tabstop>
-  <tabstop>RenormalizationCheckBox</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
@@ -3759,8 +3765,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_start_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
-     <y>340</y>
+     <x>1396</x>
+     <y>315</y>
     </hint>
     <hint type="destinationlabel">
      <x>811</x>
@@ -3775,8 +3781,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_end_spinbox_update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
-     <y>366</y>
+     <x>1396</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>812</x>
@@ -4207,8 +4213,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1264</x>
-     <y>123</y>
+     <x>1306</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>1010</x>
@@ -4223,8 +4229,8 @@ p, li { white-space: pre-wrap; }
    <slot>import_file_stop()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
-     <y>123</y>
+     <x>1396</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>1012</x>
@@ -4272,7 +4278,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1396</x>
-     <y>91</y>
+     <y>66</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4511,8 +4517,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_import_cine_file(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1354</x>
-     <y>65</y>
+     <x>1396</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
      <x>1109</x>
@@ -4703,8 +4709,8 @@ p, li { white-space: pre-wrap; }
    <slot>title_detect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1264</x>
-     <y>158</y>
+     <x>1306</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>1109</x>
@@ -4992,7 +4998,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>817</x>
-     <y>176</y>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5008,7 +5014,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>816</x>
-     <y>213</y>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5024,7 +5030,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>816</x>
-     <y>242</y>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5040,7 +5046,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>816</x>
-     <y>271</y>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5304,6 +5310,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>CompositeAreaButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_area()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>670</x>
+     <y>290</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5426,5 +5448,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
+  <slot>set_composite_area()</slot>
  </slots>
 </ui>
