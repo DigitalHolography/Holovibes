@@ -266,11 +266,9 @@ namespace holovibes
 
 			ui.CropStftCheckBox->setEnabled(!is_direct);
 
-			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled);
-			ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled);
-			ui.ContrastMinDoubleSpinBox->setEnabled(!is_direct && compute_desc_.contrast_enabled);
-			ui.ContrastMaxDoubleSpinBox->setEnabled(!is_direct && compute_desc_.contrast_enabled);
-			ui.AutoContrastPushButton->setEnabled(!is_direct && compute_desc_.contrast_enabled);
+			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled && compute_desc_.img_type != Complex);
+			ui.ContrastCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+			ui.AutoContrastPushButton->setEnabled(!is_direct && compute_desc_.contrast_enabled && compute_desc_.img_type != Complex);
 
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
 			window_selection->setEnabled((compute_desc_.stft_view_enabled));
@@ -282,8 +280,10 @@ namespace holovibes
 					->setValue((compute_desc_.log_scale_slice_xy_enabled) ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy));
 				ui.ContrastMaxDoubleSpinBox
 					->setValue((compute_desc_.log_scale_slice_xy_enabled) ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy));
-				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled);
-				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled);
+				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled && compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled && compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xy_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
@@ -295,7 +295,9 @@ namespace holovibes
 				ui.ContrastMaxDoubleSpinBox
 					->setValue((compute_desc_.log_scale_slice_xz_enabled) ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xz_enabled);
+				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled);
+				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
@@ -307,13 +309,16 @@ namespace holovibes
 				ui.ContrastMaxDoubleSpinBox
 					->setValue((compute_desc_.log_scale_slice_yz_enabled) ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_yz_enabled);
+				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled);
+				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_yz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
 
 			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled);
+			ui.FFTShiftCheckBox->setEnabled(compute_desc_.img_type != Complex);
 			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
 			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
 
