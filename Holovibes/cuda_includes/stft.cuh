@@ -68,10 +68,7 @@ void stft_moment(cuComplex		*input,
 				const uint		frame_res,
 				ushort			pmin,
 				const ushort	pmax,
-				const uint		nsamples);
-void stft_block_to_float(const cufftComplex	*input,
-						float				*output,
-						const uint			size);
+				cudaStream_t	stream = 0);
 
 void stft_view_begin(const cuComplex	*input,
 					void				*output_xz,
@@ -86,4 +83,5 @@ void stft_view_begin(const cuComplex	*input,
 					const ushort		nsamples,
 					const uint			acc_level_xz,
 					const uint			acc_level_yz,
-					const uint			img_type);
+					const uint			img_type,
+					cudaStream_t		stream = 0);

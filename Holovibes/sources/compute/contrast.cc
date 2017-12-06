@@ -55,8 +55,7 @@ namespace holovibes
 						buffers_.gpu_input_buffer_,
 						input_fd_.frame_res(),
 						pmin,
-						pmax,
-						cd_.nsamples);
+						pmax);
 			});
 		}
 

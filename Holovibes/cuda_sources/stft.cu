@@ -159,8 +159,7 @@ static void kernel_stft_moment(cuComplex	*input,
 							cuComplex		*output,
 							const uint		frame_res,
 							ushort			pmin,
-							ushort			pmax,
-							const uint		nsamples)
+							ushort			pmax)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint nb_slices_p = pmax - pmin + 1;
@@ -182,12 +181,12 @@ void stft_moment(cuComplex		*input,
 				const uint		frame_res,
 				ushort			pmin,
 				const ushort	pmax,
-				const uint		nsamples)
+				cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_stft_moment << <blocks, threads, 0, 0 >> > (input, output, frame_res, pmin, pmax, nsamples);
+	kernel_stft_moment << <blocks, threads, 0, stream >> > (input, output, frame_res, pmin, pmax);
 	cudaCheckError();
 }
 #pragma endregion
@@ -288,7 +287,8 @@ void stft_view_begin(const cuComplex	*input,
 					const ushort		nsamples,
 					const uint			acc_level_xz,
 					const uint			acc_level_yz,
-					const uint			img_type)
+					const uint			img_type,
+					cudaStream_t		stream)
 {
 	const uint frame_size = width * height;
 	const uint output_size = std::max(width, height) * nsamples;
@@ -296,7 +296,7 @@ void stft_view_begin(const cuComplex	*input,
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
 	if (viewmode == ImgType::Complex)
-		fill_64bit_slices << <blocks, threads, 0, 0 >> >(
+		fill_64bit_slices << <blocks, threads, 0, stream >> >(
 			input,
 			reinterpret_cast<cuComplex *>(output_xz),
 			reinterpret_cast<cuComplex *>(output_yz),
@@ -306,7 +306,7 @@ void stft_view_begin(const cuComplex	*input,
 			width, height,
 			acc_level_xz, acc_level_yz);
 	else
-		fill_32bit_slices <<<blocks, threads, 0, 0>>>(
+		fill_32bit_slices <<<blocks, threads, 0, stream>>>(
 			input,
 			reinterpret_cast<float *>(output_xz),
 			reinterpret_cast<float *>(output_yz),
