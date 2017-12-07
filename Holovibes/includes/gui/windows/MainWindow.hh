@@ -312,6 +312,10 @@ namespace holovibes
 			QShortcut	*gl_full_screen_;
 			QShortcut	*gl_normal_screen_;
 			QShortcut	*autofocus_ctrl_c_shortcut_;
+
+		protected:
+			void dropEvent(QDropEvent* e);
+			void dragEnterEvent(QDragEnterEvent* e);
 			#pragma endregion
 		};
 	}

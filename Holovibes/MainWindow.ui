@@ -27,6 +27,9 @@
   <property name="focusPolicy">
    <enum>Qt::ClickFocus</enum>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Holovibes</string>
   </property>
@@ -39,6 +42,9 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <property name="sizeConstraint">
@@ -1087,6 +1093,9 @@
            </item>
            <item>
             <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <property name="decimals">
+              <number>4</number>
+             </property>
              <property name="maximum">
               <double>10000.000000000000000</double>
              </property>
@@ -2421,8 +2430,11 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_17">
            <item>
-            <widget class="QLineEdit" name="ImportPathLineEdit">
+            <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
              <property name="acceptDrops">
+              <bool>true</bool>
+             </property>
+             <property name="dragEnabled">
               <bool>true</bool>
              </property>
              <property name="placeholderText">
@@ -2929,7 +2941,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3270,6 +3282,11 @@ p, li { white-space: pre-wrap; }
     <slot>ShowOrHide()</slot>
     <slot>reset()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::Drag_drop_lineedit</class>
+   <extends>QLineEdit</extends>
+   <header>gui_drag_drop_lineedit.hh</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -3925,8 +3942,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>342</y>
+     <x>395</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3941,8 +3958,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>261</y>
+     <x>397</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -4005,8 +4022,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>318</x>
-     <y>366</y>
+     <x>325</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -4021,8 +4038,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>366</y>
+     <x>395</x>
+     <y>364</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -4133,8 +4150,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>595</x>
-     <y>91</y>
+     <x>828</x>
+     <y>93</y>
     </hint>
     <hint type="destinationlabel">
      <x>377</x>
@@ -4309,8 +4326,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1202</x>
-     <y>292</y>
+     <x>1204</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4485,8 +4502,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
-     <y>121</y>
+     <x>755</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4501,8 +4518,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
-     <y>121</y>
+     <x>827</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>223</x>
@@ -4549,8 +4566,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>291</y>
+     <x>397</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4629,8 +4646,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>153</x>
-     <y>155</y>
+     <x>152</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4677,8 +4694,8 @@ p, li { white-space: pre-wrap; }
    <slot>rotateTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>345</x>
-     <y>265</y>
+     <x>348</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4693,8 +4710,8 @@ p, li { white-space: pre-wrap; }
    <slot>flipTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>276</x>
-     <y>265</y>
+     <x>277</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
      <x>448</x>
@@ -4773,8 +4790,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>396</x>
-     <y>370</y>
+     <x>398</x>
+     <y>367</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4965,8 +4982,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>718</x>
-     <y>112</y>
+     <x>515</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -4981,8 +4998,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
-     <y>112</y>
+     <x>607</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -4997,8 +5014,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
-     <y>272</y>
+     <x>608</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5013,7 +5030,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>607</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -5029,7 +5046,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>607</x>
      <y>216</y>
     </hint>
     <hint type="destinationlabel">
@@ -5045,7 +5062,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>607</x>
      <y>245</y>
     </hint>
     <hint type="destinationlabel">
@@ -5077,8 +5094,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_enable(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>156</y>
+     <x>831</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5093,8 +5110,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_show_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>164</y>
+     <x>828</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5125,8 +5142,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stabilization_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>189</y>
+     <x>828</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -5161,8 +5178,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>501</x>
-     <y>255</y>
+     <x>834</x>
+     <y>283</y>
     </hint>
    </hints>
   </connection>
@@ -5189,8 +5206,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>564</x>
-     <y>252</y>
+     <x>827</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5205,8 +5222,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interpolation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>516</x>
-     <y>244</y>
+     <x>831</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5221,8 +5238,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>259</y>
+     <x>827</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5237,8 +5254,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda2(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>574</x>
-     <y>281</y>
+     <x>827</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5253,8 +5270,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_sensitivity(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>308</y>
+     <x>827</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5269,8 +5286,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_shift(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>341</y>
+     <x>827</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -5317,8 +5334,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>670</x>
-     <y>290</y>
+     <x>608</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>

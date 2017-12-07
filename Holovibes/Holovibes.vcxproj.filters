@@ -356,6 +356,12 @@
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\other\gui_drag_drop_lineedit.cc">
+      <Filter>c++ sources\gui\other</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_drag_drop_lineedit.cc">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -653,6 +659,9 @@
     </CustomBuild>
     <CustomBuild Include="PlotWindow.ui">
       <Filter>forms</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\gui\other\gui_drag_drop_lineedit.hh">
+      <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
