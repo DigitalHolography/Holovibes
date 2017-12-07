@@ -426,7 +426,7 @@ namespace holovibes
 				long long voxelPerSecond = fps * output_fd.frame_res() * compute_desc_.nsamples;
 				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
-				long long bytePerSecond = fps * input_.get_frame_desc().frame_size();
+				long long bytePerSecond = fps * input_.get_frame_desc().frame_size() * compute_desc_.stft_steps;
 				manager->insert_info(gui::InfoManager::InfoType::INPUT_THROUGHPUT, "Input Throughput",
 					std::to_string(static_cast<int>(bytePerSecond / 1e6)) + " MB/s");
 			}
