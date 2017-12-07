@@ -319,8 +319,10 @@ namespace holovibes
 
 			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled);
 			ui.FFTShiftCheckBox->setEnabled(compute_desc_.img_type != Complex);
+			ui.PAccuCheckBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
 			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
+			ui.PAccSpinBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
 			ui.XAccSpinBox->setValue(compute_desc_.x_acc_level);

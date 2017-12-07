@@ -31,7 +31,9 @@ namespace holovibes
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd)
-			: fn_vect_(fn_vect)
+			: pmin_(0)
+			, pmax_(0)
+			, fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, stft_env_(stft_env)
 			, unwrap_res_()
@@ -44,6 +46,7 @@ namespace holovibes
 
 		void Converts::insert_to_float(bool unwrap_2d_requested)
 		{
+			insert_compute_p_accu();
 			if (cd_.img_type == Composite)
 				insert_to_composite();
 			else if (cd_.img_type == Modulus)
@@ -65,12 +68,26 @@ namespace holovibes
 				insert_slice_ushort();
 		}
 
+		void Converts::insert_compute_p_accu()
+		{
+			fn_vect_.push_back([=]() {
+				pmin_ = cd_.pindex;
+				if (cd_.p_accu_enabled)
+					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.nsamples)));
+				else
+					pmax_ = cd_.pindex;
+			});
+		}
+
 		void Converts::insert_to_modulus()
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
 					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
+					stft_env_.gpu_stft_buffer_,
+					pmin_,
+					pmax_,
 					fd_.frame_res());
 			});
 		}
@@ -81,6 +98,9 @@ namespace holovibes
 				complex_to_squared_modulus(
 					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
+					stft_env_.gpu_stft_buffer_,
+					pmin_,
+					pmax_,
 					fd_.frame_res());
 			});
 		}
@@ -118,7 +138,8 @@ namespace holovibes
 		void Converts::insert_to_argument(bool unwrap_2d_requested)
 		{
 			fn_vect_.push_back([=]() {
-				complex_to_argument(buffers_.gpu_input_buffer_, buffers_.gpu_float_buffer_, fd_.frame_res()); });
+				complex_to_argument(buffers_.gpu_input_buffer_, buffers_.gpu_float_buffer_,
+					stft_env_.gpu_stft_buffer_, pmin_, pmax_, fd_.frame_res()); });
 
 			if (unwrap_2d_requested)
 			{

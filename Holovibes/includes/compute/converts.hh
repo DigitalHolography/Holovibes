@@ -43,6 +43,7 @@ namespace holovibes
 
 		private:
 
+			void insert_compute_p_accu();
 			void insert_to_modulus();
 			void insert_to_squaredmodulus();
 			void insert_to_composite();
@@ -51,6 +52,9 @@ namespace holovibes
 			void insert_to_phase_increase(bool unwrap_2d_requested);
 			void insert_main_ushort();
 			void insert_slice_ushort();
+
+			ushort pmin_;
+			ushort pmax_;
 
 			/// Pipe data
 			/// {

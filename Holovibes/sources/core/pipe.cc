@@ -178,7 +178,7 @@ namespace holovibes
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 
-		rendering_->insert_p_accu();
+		//rendering_->insert_p_accu();
 
 		postprocess_->insert_vibrometry();
 		postprocess_->insert_convolution();

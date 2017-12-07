@@ -64,6 +64,9 @@ void float_to_complex(cuComplex	*output,
 static __global__
 void kernel_complex_to_modulus(const cuComplex	*input,
 							float				*output,
+							const cuComplex		*stft_buf,
+							const ushort		pmin,
+							const ushort		pmax,
 							const uint			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -71,18 +74,27 @@ void kernel_complex_to_modulus(const cuComplex	*input,
 	if (index < size)
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
+		for (int i = pmin + 1; i <= pmax; i++)
+		{
+			const cuComplex *current_p_frame = stft_buf + i * size;
+			output[index] += hypotf(current_p_frame[index].x, current_p_frame[index].y);
+		}
+		output[index] /= (pmax - pmin + 1);
 	}
 }
 
 void complex_to_modulus(const cuComplex	*input,
 						float			*output,
+						const cuComplex *stft_buf,
+						const ushort	pmin,
+						const ushort	pmax,
 						const uint		size,
 						cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, size);
+	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
 	cudaCheckError();
 }
 
@@ -90,6 +102,9 @@ void complex_to_modulus(const cuComplex	*input,
 static __global__
 void kernel_complex_to_squared_modulus(const cuComplex	*input,
 									float				*output,
+									const cuComplex		*stft_buf,
+									const ushort		pmin,
+									const ushort		pmax,
 									const uint			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -98,18 +113,28 @@ void kernel_complex_to_squared_modulus(const cuComplex	*input,
 	{
 		output[index] = hypotf(input[index].x, input[index].y);
 		output[index] *= output[index];
+		for (int i = pmin + 1; i <= pmax; i++)
+		{
+			const cuComplex *current_p_frame = stft_buf + i * size;
+			float tmp = hypotf(current_p_frame[index].x, current_p_frame[index].y);
+			output[index] += tmp * tmp;
+		}
+		output[index] /= (pmax - pmin + 1);
 	}
 }
 
 void complex_to_squared_modulus(const cuComplex	*input,
 								float			*output,
+								const cuComplex	*stft_buf,
+								const ushort	pmin,
+								const ushort	pmax,
 								const uint		size,
 								cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, size);
+	kernel_complex_to_squared_modulus << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
 	cudaCheckError();
 }
 
@@ -117,6 +142,9 @@ void complex_to_squared_modulus(const cuComplex	*input,
 static __global__
 void kernel_complex_to_argument(const cuComplex	*input,
 								float			*output,
+								const cuComplex	*stft_buf,
+								const ushort	pmin,
+								const ushort	pmax,
 								const uint		size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -125,18 +153,27 @@ void kernel_complex_to_argument(const cuComplex	*input,
 	{
 		// We use std::atan2 in order to obtain results in [-pi; pi].
 		output[index] = std::atan2(input[index].y, input[index].x);
+		for (int i = pmin + 1; i <= pmax; i++)
+		{
+			const cuComplex *current_p_frame = stft_buf + i * size;
+			output[index] += std::atan2(current_p_frame[index].y, current_p_frame[index].x);
+		}
+		output[index] /= (pmax - pmin + 1);
 	}
 }
 
 void complex_to_argument(const cuComplex	*input,
 						float			*output,
+						const cuComplex	*stft_buf,
+						const ushort	pmin,
+						const ushort	pmax,
 						const uint		size,
 						cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, size);
+	kernel_complex_to_argument << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
 	cudaCheckError();
 }
 

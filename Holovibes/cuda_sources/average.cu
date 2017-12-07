@@ -144,7 +144,7 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 {
 	const uint	size = width * height;
 
-	complex_to_modulus(cbuf, fbuf, size, stream);
+	complex_to_modulus(cbuf, fbuf, stft_buffer, size, pindex, pindex, stream);
 
 	return make_average_plot(fbuf, width, height, signal_zone, noise_zone, stream);
 }

@@ -51,7 +51,7 @@ namespace holovibes
 					int pmax = std::max(0,
 						std::min(pmin + cd_.p_acc_level, static_cast<int>(cd_.nsamples)));
 					stft_moment(
-						stft_env_.gpu_stft_buffer_.get(),
+						stft_env_.gpu_stft_buffer_,
 						buffers_.gpu_input_buffer_,
 						input_fd_.frame_res(),
 						pmin,
