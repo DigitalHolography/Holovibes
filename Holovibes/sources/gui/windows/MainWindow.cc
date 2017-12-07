@@ -1150,6 +1150,7 @@ namespace holovibes
 
 		namespace
 		{
+			// Is there a change in window pixel depth (needs to be re-opened)
 			bool need_refresh(const QString& last_type, const QString& new_type)
 			{
 				std::vector<QString> types_needing_refresh({ "Complex output", "Composite image" });
@@ -1167,15 +1168,19 @@ namespace holovibes
 
 				compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 				if (need_refresh(last_img_type_, value))
-				{
 					refreshViewMode();
-					if (compute_desc_.stft_view_enabled)
-						set_auto_contrast_cuts();
-				}
 				last_img_type_ = value;
 				layout_toggled();
 
+				pipe_refresh();
+
+				// We need to call autocontrast *after* the pipe is refreshed for it to work
+				while (holovibes_.get_pipe()->get_request_refresh())
+					continue;
+
 				set_auto_contrast();
+				if (compute_desc_.stft_view_enabled)
+					set_auto_contrast_cuts();
 				notify();
 			}
 		}
