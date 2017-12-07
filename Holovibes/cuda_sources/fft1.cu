@@ -26,7 +26,8 @@ void fft1_lens(cuComplex*			lens,
   uint threads = 128;
   uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-  kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+  //kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+  kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, M_PI * lambda * z, 0, 2);
   cudaCheckError();
 }
 

@@ -29,6 +29,18 @@ void kernel_quadratic_lens(cuComplex			*output,
 						const float				dist,
 						const float				pixel_size);
 
+
+__device__
+unsigned int binomial_coeff(unsigned int n, unsigned int k);
+
+__global__
+void kernel_zernike_polynomial(cuComplex *output,
+	const camera::FrameDescriptor fd,
+	const float pixel_size,
+	const float coef,
+	unsigned int m,
+	unsigned int n);
+
 /*! \brief Compute a lens to apply to an image used by the fft2
 *
 * \param output The lens computed by the function.
