@@ -178,6 +178,13 @@ namespace holovibes
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 
+		// Complex mode is strangely implemented.
+		// If someone knows why this line is fixing complex slices, please make it cleaner.
+		fn_vect_.push_back([=]() {
+			if (autocontrast_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+				request_refresh();
+		});
+
 		postprocess_->insert_vibrometry();
 		postprocess_->insert_convolution();
 		postprocess_->insert_flowgraphy();
