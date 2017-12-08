@@ -298,8 +298,8 @@ void stft_view_begin(const cuComplex	*input,
 	if (viewmode == ImgType::Complex)
 		fill_64bit_slices << <blocks, threads, 0, stream >> >(
 			input,
-			reinterpret_cast<cuComplex *>(output_xz),
-			reinterpret_cast<cuComplex *>(output_yz),
+			static_cast<cuComplex *>(output_xz),
+			static_cast<cuComplex *>(output_yz),
 			xmin, ymin,
 			frame_size,
 			output_size,
@@ -308,8 +308,8 @@ void stft_view_begin(const cuComplex	*input,
 	else
 		fill_32bit_slices <<<blocks, threads, 0, stream>>>(
 			input,
-			reinterpret_cast<float *>(output_xz),
-			reinterpret_cast<float *>(output_yz),
+			static_cast<float *>(output_xz),
+			static_cast<float *>(output_yz),
 			xmin, ymin, xmax, ymax,
 			frame_size,
 			output_size,

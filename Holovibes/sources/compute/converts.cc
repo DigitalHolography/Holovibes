@@ -53,12 +53,15 @@ namespace holovibes
 				insert_to_modulus();
 			else if (cd_.img_type == SquaredModulus)
 				insert_to_squaredmodulus();
-			if (cd_.img_type == Argument)
+			else if (cd_.img_type == Argument)
 				insert_to_argument(unwrap_2d_requested);
 			else if (cd_.img_type == PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
 			else if (cd_.img_type == Complex)
-				insert_to_complex();
+			{
+				// Do nothing, leave refresh, and take gpu_input_buffer_ to enqueue output_ queue.
+				// Add p_accu there is needed
+			}
 		}
 
 		void Converts::insert_to_ushort()
@@ -121,17 +124,6 @@ namespace holovibes
 					cd_.component_r,
 					cd_.component_g,
 					cd_.component_b);
-			});
-		}
-
-		void Converts::insert_to_complex()
-		{
-			fn_vect_.push_back([=]() {
-				cudaMemcpy(
-					buffers_.gpu_output_buffer_,
-					buffers_.gpu_input_buffer_,
-					fd_.frame_res() << 3,
-					cudaMemcpyDeviceToDevice);
 			});
 		}
 
