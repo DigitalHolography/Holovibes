@@ -25,6 +25,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct CoreBuffers;
 	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
@@ -39,7 +40,7 @@ namespace holovibes
 		{
 		public:
 			Stabilization(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
+				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
@@ -79,8 +80,7 @@ namespace holovibes
 			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
-			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
+			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 

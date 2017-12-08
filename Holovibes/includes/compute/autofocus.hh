@@ -21,6 +21,7 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	class ICompute;
+	struct CoreBuffers;
 	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
@@ -68,8 +69,7 @@ namespace holovibes
 		{
 		public:
 			Autofocus(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
-				cuComplex* const& gpu_input_buffer,
+				const CoreBuffers& buffers,
 				holovibes::Queue& input,
 				holovibes::ComputeDescriptor& cd,
 				ICompute *Ic);
@@ -105,10 +105,8 @@ namespace holovibes
 
 			//! Containing every special vairables needed to run autofocus
 			af_env	af_env_;
-			//! reference to the complex input buffer
-			cuComplex* const&				gpu_input_buffer_;
-			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
+
+			const CoreBuffers&				buffers_;
 
 			/// Pipe data
 			/// {

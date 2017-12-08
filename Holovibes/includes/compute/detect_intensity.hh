@@ -25,6 +25,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct CoreBuffers;
 	namespace compute
 	{
 
@@ -34,10 +35,11 @@ namespace holovibes
 		class DetectIntensity
 		{
 		public:
-			DetectIntensity(FnVector& fn_vect,
-				cuComplex* const& gpu_input_buffer,
-				const camera::FrameDescriptor& fd,
-				holovibes::ComputeDescriptor& cd);
+
+			DetectIntensity(FnVector & fn_vect,
+				const CoreBuffers& buffers,
+				const camera::FrameDescriptor & fd,
+				ComputeDescriptor & cd);
 
 			/*! \brief Enqueue the appropriate functions
 			**
@@ -66,8 +68,7 @@ namespace holovibes
 			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
-			/// The whole image for this frame
-			cuComplex* const&				gpu_input_buffer_;
+			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 

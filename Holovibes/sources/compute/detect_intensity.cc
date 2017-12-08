@@ -19,6 +19,7 @@
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
 #include "stabilization.cuh"
+#include "icompute.hh"
 
 #include <iostream>
 #include <cufft.h>
@@ -26,16 +27,15 @@
 using holovibes::compute::DetectIntensity;
 using holovibes::FnVector;
 
-
 DetectIntensity::DetectIntensity(FnVector& fn_vect,
-	cuComplex* const& gpu_input_buffer,
+	const holovibes::CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd)
 	: last_intensity_(0)
 	, current_shift_(0)
 	, is_delaying_shift_(false)
 	, fn_vect_(fn_vect)
-	, gpu_input_buffer_(gpu_input_buffer)
+	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
 {}
@@ -78,7 +78,7 @@ bool DetectIntensity::is_jump(float current, float last)
 
 float DetectIntensity::get_current_intensity()
 {
-	float* buffer_ptr = reinterpret_cast<float*>(gpu_input_buffer_);
+	float* buffer_ptr = reinterpret_cast<float*>(buffers_.gpu_input_buffer_.get());
 	const uint nb_pixels = fd_.frame_res() * 2;
 
 	// Selecting 1/4 of the pixels positioned at the center

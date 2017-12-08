@@ -22,14 +22,12 @@ namespace holovibes
 	namespace compute
 	{
 		Autofocus::Autofocus(FnVector& fn_vect,
-			float* const& gpu_float_buffer,
-			cuComplex* const& gpu_input_buffer,
+			const CoreBuffers& buffers,
 			holovibes::Queue& input,
 			holovibes::ComputeDescriptor& cd,
 			ICompute *Ic)
 			: fn_vect_(fn_vect)
-			, gpu_input_buffer_(gpu_input_buffer)
-			, gpu_float_buffer_(gpu_float_buffer)
+			, buffers_(buffers)
 			, input_(input)
 			, fd_(input.get_frame_desc())
 			, cd_(cd)
@@ -147,7 +145,7 @@ namespace holovibes
 		{
 			af_env_.stft_index--;
 
-			cudaMemcpy(gpu_input_buffer_,
+			cudaMemcpy(buffers_.gpu_input_buffer_,
 				af_env_.gpu_input_buffer_tmp.get() + af_env_.stft_index * fd_.frame_res(),
 				af_env_.gpu_frame_size,
 				cudaMemcpyDeviceToDevice);
@@ -168,7 +166,7 @@ namespace holovibes
 			}
 
 			// Copying the square zone into the tmp buffer
-			frame_memcpy(gpu_float_buffer_, af_env_.zone, fd_.width, af_env_.gpu_float_buffer_af_zone.get(), af_env_.af_square_size, stream);
+			frame_memcpy(buffers_.gpu_float_buffer_, af_env_.zone, fd_.width, af_env_.gpu_float_buffer_af_zone.get(), af_env_.af_square_size, stream);
 
 			// Evaluating function
 			const float focus_metric_value = focus_metric(af_env_.gpu_float_buffer_af_zone.get(),
