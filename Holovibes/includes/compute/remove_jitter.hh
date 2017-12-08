@@ -41,15 +41,22 @@ namespace holovibes
 
 		private:
 
-			void extract_slice(int slice_index, cuComplex* buffer);
-			void perform_fft();
-			void correlation();
+			void extract_and_fft(int slice_index, cuComplex* buffer);
+			void extract_input_frame();
+			void perform_input_fft();
+			int correlation(cuComplex* ref, cuComplex* slice);
+			void compute_one_shift(int i);
 			void compute_all_shifts();
 			void fix_jitter();
+			void fft(cuComplex* from, cuComplex* to, int direction);
+			int slice_size();
+
 
 
 			float							slice_overlap_coeff_ {1.f};
 			int								slice_shift_ {4};
+			int								nb_slices_;
+
 
 
 			cuda_tools::Array<cuComplex>	fft_frame_;

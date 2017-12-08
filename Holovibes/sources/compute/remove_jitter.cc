@@ -34,31 +34,57 @@ RemoveJitter::RemoveJitter(FnVector& fn_vect,
 	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
-{}
+{
+}
 
 void RemoveJitter::insert_pre_fft()
 {
-	fn_vect_.push_back([=]() {
-		perform_fft();
-		compute_all_shifts();
-		fix_jitter();
-	});
+	if (cd_.stft_view_enabled)
+	{
+		fn_vect_.push_back([=]() {
+			perform_input_fft();
+			compute_all_shifts();
+			fix_jitter();
+		});
+	}
 }
 
-
-void RemoveJitter::extract_slice(int slice_index, cuComplex* buffer)
+// Could be removed, there should be a way to fft directly
+void RemoveJitter::extract_input_frame()
 {
-
+	fft_frame_.ensure_minimum_size(fd_.frame_res());
+	auto line = buffers_.gpu_input_buffer_.get();
+	line += cd_.getStftCursor().x() * fd_.width;
+	auto frame_size = fd_.frame_res();
+	auto buffer_ptr = fft_frame_.get();
+	for (int i = 0; i < cd_.nsamples; ++i)
+	{
+		cudaMemcpyAsync(buffer_ptr, line, fd_.width * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
+		buffer_ptr += fd_.width;
+		line += frame_size;
+	}
+	cudaStreamSynchronize(0);
 }
 
-void RemoveJitter::perform_fft()
+void RemoveJitter::perform_input_fft()
 {
-
+	extract_input_frame();
+	CufftHandle plan2d(fd_.width, fd_.height, CUFFT_C2C);
+	cufftExecC2C(plan2d, fft_frame_, fft_frame_, CUFFT_FORWARD);
 }
 
-void RemoveJitter::correlation()
+void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 {
+	auto src = fft_frame_.get() + slice_size() * slice_index;
+	// TODO check when going out of bounds (needs to loop)
 
+	fft(src, buffer, CUFFT_FORWARD);
+}
+
+int RemoveJitter::correlation(cuComplex* ref, cuComplex* slice)
+{
+	return 0;
+	// FIXME
 }
 
 void RemoveJitter::fix_jitter()
@@ -66,7 +92,33 @@ void RemoveJitter::fix_jitter()
 
 }
 
+void RemoveJitter::compute_one_shift(int i)
+{
+	extract_and_fft(i, slice_);
+	int c = correlation(ref_slice_, slice_);
+	shift_t_.push_back(c);
+}
+
 void RemoveJitter::compute_all_shifts()
 {
+	auto size = slice_size();
+	ref_slice_.ensure_minimum_size(size);
+	slice_.ensure_minimum_size(size);
 
+	extract_and_fft(0, ref_slice_);
+
+	shift_t_.clear();
+	for (int i = 0; i < nb_slices_; ++i)
+		compute_one_shift(i);
+}
+
+void RemoveJitter::fft(cuComplex* from, cuComplex* to, int direction)
+{
+	CufftHandle plan2d(fd_.width, slice_size(), CUFFT_C2C);
+	cufftExecC2C(plan2d, from, to, direction);
+}
+
+int RemoveJitter::slice_size()
+{
+	return fd_.width / slice_shift_;
 }
