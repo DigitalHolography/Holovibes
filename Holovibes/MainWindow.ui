@@ -2932,7 +2932,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2957,13 +2957,13 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAdimec"/>
      <addaction name="actionIXon"/>
      <addaction name="actionEdge"/>
+     <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
      <addaction name="actionPhotonFocus"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
-     <addaction name="actionHamamatsu"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -4136,7 +4136,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>595</x>
+     <x>826</x>
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
@@ -4488,7 +4488,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
+     <x>755</x>
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
@@ -4504,7 +4504,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
+     <x>825</x>
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
@@ -4968,7 +4968,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>718</x>
+     <x>515</x>
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
@@ -4984,7 +4984,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
@@ -5000,7 +5000,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
+     <x>606</x>
      <y>272</y>
     </hint>
     <hint type="destinationlabel">
@@ -5016,7 +5016,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -5032,7 +5032,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>216</y>
     </hint>
     <hint type="destinationlabel">
@@ -5048,7 +5048,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>245</y>
     </hint>
     <hint type="destinationlabel">
@@ -5080,8 +5080,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_enable(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>156</y>
+     <x>830</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5096,8 +5096,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_show_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>164</y>
+     <x>826</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5128,8 +5128,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stabilization_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>189</y>
+     <x>826</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -5164,8 +5164,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>501</x>
-     <y>255</y>
+     <x>834</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -5192,8 +5192,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>564</x>
-     <y>252</y>
+     <x>825</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5208,8 +5208,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interpolation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>516</x>
-     <y>244</y>
+     <x>830</x>
+     <y>355</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5224,8 +5224,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>259</y>
+     <x>825</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5240,8 +5240,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda2(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>574</x>
-     <y>281</y>
+     <x>825</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5256,8 +5256,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_sensitivity(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>308</y>
+     <x>825</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5272,8 +5272,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_shift(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>341</y>
+     <x>825</x>
+     <y>350</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -5320,12 +5320,28 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>670</x>
-     <y>290</y>
+     <x>606</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
      <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHamamatsu</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
@@ -5452,5 +5468,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
+  <slot>camera_hamamatsu()</slot>
  </slots>
 </ui>
