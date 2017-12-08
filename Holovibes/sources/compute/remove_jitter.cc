@@ -20,6 +20,7 @@
 #include "tools_conversion.cuh"
 #include "icompute.hh"
 
+# include "tools_compute.cuh"
 
 using holovibes::compute::RemoveJitter;
 using holovibes::FnVector;
@@ -90,7 +91,19 @@ int RemoveJitter::correlation(cuComplex* ref, cuComplex* slice)
 
 void RemoveJitter::fix_jitter()
 {
+	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
+	int sum_phi = 0;
+	for (size_t i = 0; i < shift_t_.size(); i++)
+	{
+		int phi_jitter = i ? sum_phi + shift_t_[i] : shift_t_[0];
+		sum_phi = phi_jitter;
+		phi_jitter *= M_PI_2 / cd_.lambda;
+		cuComplex muliplier;
+		muliplier.x = cosf(phi_jitter);
+		muliplier.y = sinf(phi_jitter);
 
+		gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * i, fd_.frame_size(), muliplier);
+	}
 }
 
 void RemoveJitter::compute_one_shift(int i)

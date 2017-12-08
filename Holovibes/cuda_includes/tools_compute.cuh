@@ -115,3 +115,7 @@ void kernel_multiply_const(float		*frame,
 void gpu_multiply_const(float		*frame,
 						uint		frame_size,
 						float		x);
+
+void gpu_multiply_const(cuComplex* frame,
+	uint frame_size,
+	cuComplex x);

@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "tools_compute.cuh"
+#include "tools_unwrap.cuh"
 
 __global__
 void kernel_complex_divide(cuComplex	*image,
@@ -276,5 +277,13 @@ void gpu_multiply_const(float		*frame,
 	uint		threads = get_max_threads_1d();
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
 	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+	cudaCheckError();
+}
+
+void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_size, threads);
+	kernel_multiply_complex_by_single_complex << <blocks, threads, 0, 0 >> >(frame, x, frame_size);
 	cudaCheckError();
 }
