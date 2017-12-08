@@ -71,6 +71,7 @@ void RemoveJitter::perform_input_fft()
 	extract_input_frame();
 	CufftHandle plan2d(fd_.width, fd_.height, CUFFT_C2C);
 	cufftExecC2C(plan2d, fft_frame_, fft_frame_, CUFFT_FORWARD);
+	cudaStreamSynchronize(0);
 }
 
 void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
@@ -116,6 +117,7 @@ void RemoveJitter::fft(cuComplex* from, cuComplex* to, int direction)
 {
 	CufftHandle plan2d(fd_.width, slice_size(), CUFFT_C2C);
 	cufftExecC2C(plan2d, from, to, direction);
+	cudaStreamSynchronize(0);
 }
 
 int RemoveJitter::slice_size()
