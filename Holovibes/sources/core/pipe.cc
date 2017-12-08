@@ -237,12 +237,7 @@ namespace holovibes
 				if (input_.get_current_elts() >= 1)
 				{
 					stft_env_.stft_handle_ = false;
-					for (FnType& f : fn_vect_)
-					{
-						f();
-						if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
-							break;
-					}
+					run_all();
 					if (compute_desc_.compute_mode == Hologram)
 					{
 						if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
@@ -303,5 +298,33 @@ namespace holovibes
 	Queue* Pipe::get_lens_queue()
 	{
 		return fourier_transforms_->get_lens_queue();
+	}
+
+	void Pipe::run_end_pipe(std::function<void()> function)
+	{
+		std::lock_guard<std::mutex> lock(functions_mutex_);
+		functions_end_pipe_.push_back(function);
+	}
+
+	void Pipe::autocontrast_end_pipe()
+	{
+		request_autocontrast();
+		run_end_pipe([this]() {this->request_autocontrast(); });
+	}
+
+	void Pipe::run_all()
+	{
+		for (FnType& f : fn_vect_)
+		{
+			f();
+			if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
+				break;
+		}
+		{
+			std::lock_guard<std::mutex> lock(functions_mutex_);
+			for (FnType& f : functions_end_pipe_)
+				f();
+			functions_end_pipe_.clear();
+		}
 	}
 }

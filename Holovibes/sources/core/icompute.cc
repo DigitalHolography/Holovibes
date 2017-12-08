@@ -334,7 +334,11 @@ namespace holovibes
 		compute_desc_.log_scale_slice_xy_enabled = false;
 		compute_desc_.shift_corners_enabled = true;
 		notify_observers();
-		autocontrast_requested_ = true;
+
+		if (auto pipe = dynamic_cast<Pipe*>(this))
+			pipe->autocontrast_end_pipe();
+		else
+			autocontrast_requested_ = true;
 	}
 
 	void ICompute::request_autofocus()

@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "MainWindow.hh"
+#include "pipe.hh"
 #include <filesystem>
 
 namespace holovibes
@@ -1176,10 +1177,6 @@ namespace holovibes
 
 				pipe_refresh();
 
-				// We need to call autocontrast *after* the pipe is refreshed for it to work
-				while (holovibes_.get_pipe()->get_request_refresh())
-					continue;
-
 				set_auto_contrast();
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
@@ -1428,7 +1425,8 @@ namespace holovibes
 				compute_desc_.log_scale_slice_xy_enabled = true;
 				compute_desc_.shift_corners_enabled = false;
 				compute_desc_.filter_2d_enabled = true;
-				set_auto_contrast();
+				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
+					pipe->autocontrast_end_pipe();
 				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 				notify();
 			}
@@ -1488,8 +1486,8 @@ namespace holovibes
 					else
 						compute_desc_.flowgraphy_level = compute_desc_.special_buffer_size;
 				}
-				notify();
 				set_auto_contrast();
+				notify();
 			}
 		}
 
@@ -1636,8 +1634,8 @@ namespace holovibes
 				if (compute_desc_.pindex < compute_desc_.nsamples)
 				{
 					compute_desc_.pindex = compute_desc_.pindex + 1;
-					notify();
 					set_auto_contrast();
+					notify();
 				}
 				else
 					display_error("p param has to be between 1 and #img");
@@ -1651,8 +1649,8 @@ namespace holovibes
 				if (compute_desc_.pindex > 0)
 				{
 					compute_desc_.pindex = compute_desc_.pindex - 1;
-					notify();
 					set_auto_contrast();
+					notify();
 				}
 				else
 					display_error("p param has to be between 1 and #img");
@@ -1758,8 +1756,8 @@ namespace holovibes
 					compute_desc_.algorithm = Algorithm::FFT2;
 				else
 					assert(!"Unknow Algorithm.");
-				notify();
 				set_auto_contrast();
+				notify();
 			}
 		}
 
@@ -1962,8 +1960,6 @@ namespace holovibes
 		{
 			compute_desc_.xy_stabilization_show_convolution = value;
 			pipe_refresh();
-			while (holovibes_.get_pipe()->get_refresh_request())
-				continue;
 			set_auto_contrast();
 		}
 
@@ -2025,6 +2021,11 @@ namespace holovibes
 			{
 				try
 				{
+					// We need to call autocontrast *after* the pipe is refreshed for it to work
+					// (Does nothing if no refresh is needed)
+					while (holovibes_.get_pipe()->get_request_refresh())
+						continue;
+
 					holovibes_.get_pipe()->request_autocontrast();
 				}
 				catch (std::runtime_error& e)
@@ -2113,9 +2114,9 @@ namespace holovibes
 					set_contrast_min(ui.ContrastMinDoubleSpinBox->value());
 					set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 				}
-				notify();
-				//set_auto_contrast();
 				pipe_refresh();
+				set_auto_contrast();
+				notify();
 			}
 		}
 		#pragma endregion

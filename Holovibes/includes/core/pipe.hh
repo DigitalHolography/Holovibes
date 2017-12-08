@@ -72,6 +72,13 @@ namespace holovibes
 
 		virtual Queue*			get_lens_queue() override;
 
+		/*! \brief Runs a function after the current pipe iteration ends
+		 */
+		void run_end_pipe(std::function<void()> function);
+		/*! \brief Calls autocontrast on the *next* pipe iteration
+		 */
+		void autocontrast_end_pipe();
+
 	protected:
 
 		/*! \brief Execute one processing iteration.
@@ -94,6 +101,9 @@ namespace holovibes
 	private:
 		FnVector		fn_vect_;
 
+		FnVector		functions_end_pipe_;
+		std::mutex		functions_mutex_;
+
 		std::unique_ptr<compute::Stabilization> stabilization_;
 		std::unique_ptr<compute::Autofocus> autofocus_;
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
@@ -106,5 +116,6 @@ namespace holovibes
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
+		void run_all();
 	};
 }
