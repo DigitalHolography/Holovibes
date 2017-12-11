@@ -107,17 +107,32 @@ void RemoveJitter::fix_jitter()
 {
 	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
 	int sum_phi = 0;
+	std::vector<int> phi;
 	for (size_t i = 0; i < shift_t_.size(); i++)
 	{
 		int phi_jitter = sum_phi + shift_t_[i];
 		sum_phi = phi_jitter;
 		phi_jitter *= M_PI_2 / cd_.lambda;
-		cuComplex muliplier;
-		muliplier.x = cosf(-phi_jitter);
-		muliplier.y = sinf(-phi_jitter);
-
-		gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * i, fd_.frame_size(), muliplier);
+		phi.push_back(phi_jitter);
 	}
+
+	int small_chunk_size = cd_.nsamples / nb_slices_;
+	int big_chunk_size = small_chunk_size * 1.5;
+
+	// multiply all small chunks
+	int chunk_no = 1;
+	for (int p = big_chunk_size; p < cd_.nsamples - big_chunk_size; p += small_chunk_size, chunk_no++) {
+		cuComplex multiplier;
+		multiplier.x = cosf(-phi[chunk_no]);
+		multiplier.y = sinf(-phi[chunk_no]);
+		gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * small_chunk_size, multiplier);
+	}
+
+	// multiply the final big chunk
+	cuComplex multiplier;
+	multiplier.x = cosf(-phi.back());
+	multiplier.y = sinf(-phi.back());
+	gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * (cd_.nsamples - big_chunk_size), fd_.frame_size() * big_chunk_size, multiplier);
 }
 
 void RemoveJitter::compute_one_shift(int i)
