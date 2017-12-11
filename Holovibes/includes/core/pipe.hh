@@ -26,6 +26,7 @@
 # include "detect_intensity.hh"
 # include "preprocessing.hh"
 # include "postprocessing.hh"
+# include "remove_jitter.hh"
 
 namespace holovibes
 {
@@ -111,6 +112,7 @@ namespace holovibes
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
+		std::unique_ptr<compute::RemoveJitter> jitter_;
 
 		compute::DetectIntensity detect_intensity_;
 

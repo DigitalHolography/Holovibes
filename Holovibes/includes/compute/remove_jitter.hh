@@ -44,7 +44,8 @@ namespace holovibes
 			void extract_and_fft(int slice_index, cuComplex* buffer);
 			void extract_input_frame();
 			void perform_input_fft();
-			int correlation(cuComplex* ref, cuComplex* slice);
+			void correlation(cuComplex* ref, cuComplex* slice, float* out);
+			int maximum_y(float* frame);
 			void compute_one_shift(int i);
 			void compute_all_shifts();
 			void fix_jitter();
@@ -62,6 +63,7 @@ namespace holovibes
 			cuda_tools::Array<cuComplex>	fft_frame_;
 			cuda_tools::Array<cuComplex>	ref_slice_;
 			cuda_tools::Array<cuComplex>	slice_;
+			cuda_tools::Array<float>		correlation_;
 
 			std::vector<int>				shift_t_;
 

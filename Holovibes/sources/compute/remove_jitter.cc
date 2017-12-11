@@ -42,7 +42,7 @@ void RemoveJitter::insert_pre_fft()
 {
 	if (cd_.stft_view_enabled)
 	{
-		fn_vect_.push_back([=]() {
+		fn_vect_.push_back([this]() {
 			perform_input_fft();
 			compute_all_shifts();
 			fix_jitter();
@@ -50,7 +50,6 @@ void RemoveJitter::insert_pre_fft()
 	}
 }
 
-// Could be removed, there should be a way to fft directly
 void RemoveJitter::extract_input_frame()
 {
 	fft_frame_.ensure_minimum_size(fd_.frame_res());
@@ -83,10 +82,25 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	fft(src, buffer, CUFFT_FORWARD);
 }
 
-int RemoveJitter::correlation(cuComplex* ref, cuComplex* slice)
+void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 {
-	return 0;
-	// FIXME
+	auto size = slice_size();
+
+	// The frames are already in frequency domain
+	multiply_frames_complex(ref, slice, slice, size);
+	cudaStreamSynchronize(0);
+
+	CufftHandle plan2d(fd_.width, size, CUFFT_C2R);
+	cufftExecC2R(plan2d, slice, out);
+	cudaStreamSynchronize(0);
+}
+
+int RemoveJitter::maximum_y(float* frame)
+{
+	uint max = 0;
+	gpu_extremums(frame, slice_size(), nullptr, nullptr, nullptr, &max);
+	uint max_y = max / fd_.width;
+	return max_y;
 }
 
 void RemoveJitter::fix_jitter()
@@ -95,12 +109,12 @@ void RemoveJitter::fix_jitter()
 	int sum_phi = 0;
 	for (size_t i = 0; i < shift_t_.size(); i++)
 	{
-		int phi_jitter = i ? sum_phi + shift_t_[i] : shift_t_[0];
+		int phi_jitter = sum_phi + shift_t_[i];
 		sum_phi = phi_jitter;
 		phi_jitter *= M_PI_2 / cd_.lambda;
 		cuComplex muliplier;
-		muliplier.x = cosf(phi_jitter);
-		muliplier.y = sinf(phi_jitter);
+		muliplier.x = cosf(-phi_jitter);
+		muliplier.y = sinf(-phi_jitter);
 
 		gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * i, fd_.frame_size(), muliplier);
 	}
@@ -109,8 +123,14 @@ void RemoveJitter::fix_jitter()
 void RemoveJitter::compute_one_shift(int i)
 {
 	extract_and_fft(i, slice_);
-	int c = correlation(ref_slice_, slice_);
-	shift_t_.push_back(c);
+
+	auto size = slice_size();
+	correlation_.ensure_minimum_size(size);
+
+	correlation(ref_slice_, slice_, correlation_);
+	int max_y = maximum_y(correlation_);
+
+	shift_t_.push_back(max_y);
 }
 
 void RemoveJitter::compute_all_shifts()
