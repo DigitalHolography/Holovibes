@@ -113,6 +113,16 @@ namespace holovibes
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		*/
 		void dequeue(void* dest, cudaMemcpyKind cuda_kind);
+
+		/*! \brief Dequeue method overload for composite recording
+		**
+		** Copy the first element of the Queue into dest according to cuda_kind
+		** cuda memory type ignoring one byte over two, 
+		** then update internal attributes.
+		**
+		** \param dest destination of element copy
+		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
+		*/
 		void dequeue_48bit_to_24bit(void* dest, cudaMemcpyKind cuda_kind);
 
 		/*! \brief Dequeue method

@@ -65,7 +65,6 @@ namespace holovibes
 
 			if (queue_.get_frame_desc().depth == 6) {// Record 48-bit color image into 24-bit color
 				queue_.dequeue_48bit_to_24bit(buffer, cudaMemcpyDeviceToHost);
-				cudaStreamSynchronize(0);
 				file_.write(buffer, size/2);
 			}	
 			else {// Normal recording

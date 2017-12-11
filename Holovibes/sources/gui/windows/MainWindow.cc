@@ -2464,9 +2464,12 @@ namespace holovibes
 			std::string sub_str = "_" + slice
 				+ "_" + mode
 				+ "_" + std::to_string(fd.width)
-				+ "_" + std::to_string(fd.height)
-				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
-				+ "_" + "e"; // Holovibes record only in little endian
+				+ "_" + std::to_string(fd.height);
+			int depth = fd.depth;
+			if (depth == 6)
+				depth = 3;
+			sub_str += "_" + std::to_string(depth << 3) + "bit"
+					+ "_" + "e"; // Holovibes record only in little endian
 
 			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
 				if (filename[i] == '.')

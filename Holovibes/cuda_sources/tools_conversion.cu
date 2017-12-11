@@ -424,6 +424,7 @@ void ushort_to_uchar(const ushort	*input,
 	const uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_ushort_to_uchar << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
 }
 
 static __global__

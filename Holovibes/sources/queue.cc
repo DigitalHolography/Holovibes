@@ -154,10 +154,10 @@ namespace holovibes
 	{
 		if (curr_elts_ > 0)
 		{
-			void* first_img = data_buffer_ + start_index_ * frame_size_;
-			holovibes::cuda_tools::UniquePtr<uchar> tmp_uchar(frame_size_ / 2);
-			ushort_to_uchar(static_cast<ushort*>(first_img), tmp_uchar.get(), frame_size_);
-			cudaMemcpyAsync(dest, tmp_uchar, frame_size_ / 2, cuda_kind, stream_);
+			void* first_img = data_buffer_.get() + start_index_ * frame_size_;
+			cuda_tools::UniquePtr<uchar> tmp_uchar(frame_size_ / 2);
+			ushort_to_uchar(static_cast<ushort*>(first_img), tmp_uchar, frame_resolution_ * 3);
+			cudaMemcpy(dest, tmp_uchar, frame_resolution_ * 3, cuda_kind);
 			start_index_ = (start_index_ + 1) % max_elts_;
 			--curr_elts_;
 			if (display_)
