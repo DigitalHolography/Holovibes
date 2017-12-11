@@ -75,9 +75,9 @@ namespace holovibes
 				insert_slice_log();
 		}
 
-		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request)
+		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_request)
 		{
-			insert_autocontrast(autocontrast_request);
+			insert_autocontrast(autocontrast_request, autocontrast_slice_request);
 			if (cd_.contrast_enabled)
 				insert_main_contrast();
 
@@ -167,34 +167,31 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request)
+		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_request)
 		{
 			// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
 				if (autocontrast_request)
+					autocontrast_caller(
+						buffers_.gpu_float_buffer_,
+						buffers_.gpu_float_buffer_size_,
+						0,
+						XYview);
+				if (autocontrast_slice_request)
 				{
-					if (cd_.current_window == XYview)
-						autocontrast_caller(
-							buffers_.gpu_float_buffer_,
-							buffers_.gpu_float_buffer_size_,
-							0,
-							XYview);
-					// If we're on a slice, autocontrast is called on both
-					else if (cd_.stft_view_enabled)
-					{
-							autocontrast_caller(
-								static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-								fd_.width * cd_.nsamples,
-								fd_.width * cd_.cuts_contrast_p_offset,
-								XZview);
-							autocontrast_caller(
-								static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-								fd_.width * cd_.nsamples,
-								fd_.width * cd_.cuts_contrast_p_offset,
-								YZview);
-					}
-					autocontrast_request = false;
+					autocontrast_caller(
+						static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
+						fd_.width * cd_.nsamples,
+						fd_.width * cd_.cuts_contrast_p_offset,
+						XZview);
+					autocontrast_caller(
+						static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
+						fd_.width * cd_.nsamples,
+						fd_.width * cd_.cuts_contrast_p_offset,
+						YZview);
 				}
+				autocontrast_request = false;
+				autocontrast_slice_request = false;
 			};
 			fn_vect_.push_back(lambda_autocontrast);
 		}

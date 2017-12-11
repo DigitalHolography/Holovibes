@@ -181,7 +181,7 @@ namespace holovibes
 		// Complex mode is strangely implemented.
 		// If someone knows why this line is fixing complex slices, please make it cleaner.
 		fn_vect_.push_back([=]() {
-			if (autocontrast_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+			if (autocontrast_slice_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
 				request_refresh();
 		});
 
@@ -194,6 +194,7 @@ namespace holovibes
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
+			autocontrast_slice_requested_ = false;
 			return;
 		}
 
@@ -218,7 +219,7 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
-		rendering_->insert_contrast(autocontrast_requested_);
+		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_requested_);
 		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });
@@ -318,10 +319,10 @@ namespace holovibes
 		functions_end_pipe_.push_back(function);
 	}
 
-	void Pipe::autocontrast_end_pipe()
+	void Pipe::autocontrast_end_pipe(WindowKind kind)
 	{
-		request_autocontrast();
-		run_end_pipe([this]() {request_autocontrast(); });
+		request_autocontrast(kind);
+		run_end_pipe([this, kind]() {request_autocontrast(kind); });
 	}
 
 	void Pipe::run_all()

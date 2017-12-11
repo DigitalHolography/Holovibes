@@ -75,9 +75,9 @@ namespace holovibes
 		/*! \brief Runs a function after the current pipe iteration ends
 		 */
 		void run_end_pipe(std::function<void()> function);
-		/*! \brief Calls autocontrast on the *next* pipe iteration
+		/*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view
 		 */
-		void autocontrast_end_pipe();
+		void autocontrast_end_pipe(WindowKind kind);
 
 		compute::FourierTransform * get_fourier_transforms();
 

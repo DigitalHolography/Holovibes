@@ -1177,7 +1177,8 @@ namespace holovibes
 
 				pipe_refresh();
 
-				set_auto_contrast();
+				if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+					pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
 				notify();
@@ -1427,7 +1428,7 @@ namespace holovibes
 				compute_desc_.shift_corners_enabled = false;
 				compute_desc_.filter_2d_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
-					pipe->autocontrast_end_pipe();
+					pipe->autocontrast_end_pipe(XYview);
 				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 				notify();
 			}
@@ -2007,12 +2008,7 @@ namespace holovibes
 		void MainWindow::set_auto_contrast_cuts()
 		{
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-			{
-				pipe->run_end_pipe([=]() {
-					compute_desc_.current_window = WindowKind::XZview;
-					pipe->request_autocontrast();
-				});
-			}
+				pipe->autocontrast_end_pipe(XZview);
 		}
 
 		void MainWindow::set_auto_contrast()
@@ -2027,7 +2023,7 @@ namespace holovibes
 					while (holovibes_.get_pipe()->get_request_refresh())
 						continue;
 
-					holovibes_.get_pipe()->request_autocontrast();
+					holovibes_.get_pipe()->request_autocontrast(compute_desc_.current_window);
 				}
 				catch (std::runtime_error& e)
 				{

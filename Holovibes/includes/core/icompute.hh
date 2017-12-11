@@ -33,6 +33,7 @@ namespace holovibes
 	class Queue;
 	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;
+	enum WindowKind;
 }
 
 namespace holovibes
@@ -100,7 +101,7 @@ namespace holovibes
 		void request_ref_diff_refresh();
 		void request_autofocus();
 		void request_autofocus_stop();
-		void request_autocontrast();
+		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
 		void request_update_n(const unsigned short n);
@@ -150,6 +151,7 @@ namespace holovibes
 		bool get_autofocus_request()		const { return autofocus_requested_; }
 		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_; }
 		bool get_autocontrast_request()		const { return autocontrast_requested_; }
+		bool get_autocontrast_slice_request()		const { return autocontrast_slice_requested_; }
 		bool get_refresh_request()			const { return refresh_requested_; }
 		bool get_update_n_request()			const { return update_n_requested_; }
 		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
@@ -209,6 +211,7 @@ namespace holovibes
 		std::atomic<bool>	autofocus_requested_;
 		std::atomic<bool>	autofocus_stop_requested_;
 		std::atomic<bool>	autocontrast_requested_;
+		std::atomic<bool>	autocontrast_slice_requested_;
 		std::atomic<bool>	refresh_requested_;
 		std::atomic<bool>	update_n_requested_;
 		std::atomic<bool>	stft_update_roi_requested_;

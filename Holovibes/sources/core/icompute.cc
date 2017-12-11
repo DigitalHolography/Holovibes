@@ -49,6 +49,7 @@ namespace holovibes
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
 		autocontrast_requested_(false),
+		autocontrast_slice_requested_(false),
 		refresh_requested_(false),
 		update_n_requested_(false),
 		stft_update_roi_requested_(false),
@@ -300,9 +301,12 @@ namespace holovibes
 		termination_requested_ = true;
 	}
 
-	void ICompute::request_autocontrast()
+	void ICompute::request_autocontrast(WindowKind kind)
 	{
-		autocontrast_requested_ = true;
+		if (kind == XYview)
+			autocontrast_requested_ = true;
+		else
+			autocontrast_slice_requested_ = true;
 	}
 
 	void ICompute::request_filter2D_roi_update()
@@ -320,9 +324,7 @@ namespace holovibes
 		notify_observers();
 
 		if (auto pipe = dynamic_cast<Pipe*>(this))
-			pipe->autocontrast_end_pipe();
-		else
-			autocontrast_requested_ = true;
+			pipe->autocontrast_end_pipe(XYview);
 	}
 
 	void ICompute::request_autofocus()
