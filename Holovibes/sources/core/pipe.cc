@@ -316,7 +316,15 @@ namespace holovibes
 	void Pipe::autocontrast_end_pipe()
 	{
 		request_autocontrast();
-		run_end_pipe([this]() {this->request_autocontrast(); });
+		run_end_pipe([this]() {request_autocontrast(); });
+	}
+
+	void Pipe::cut_autocontrast_end_pipe()
+	{
+			WindowKind current_window = compute_desc_.current_window;
+			compute_desc_.current_window = WindowKind::XZview;
+			run_end_pipe([this]() {request_autocontrast(); });
+			run_end_pipe([=]() { compute_desc_.current_window = current_window; });
 	}
 
 	void Pipe::run_all()

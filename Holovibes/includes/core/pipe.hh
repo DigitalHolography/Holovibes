@@ -78,6 +78,9 @@ namespace holovibes
 		/*! \brief Calls autocontrast on the *next* pipe iteration
 		 */
 		void autocontrast_end_pipe();
+		/*! \brief Calls autocontrast on the next pipe iteration, then restore current_window in the next one.
+		 */
+		void cut_autocontrast_end_pipe();
 
 	protected:
 

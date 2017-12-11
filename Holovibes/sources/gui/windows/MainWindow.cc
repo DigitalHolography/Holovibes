@@ -1285,8 +1285,7 @@ namespace holovibes
 					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
- 					while (holovibes_.get_pipe()->get_cuts_request());
-					sliceXZ.reset(nullptr);
+					while (holovibes_.get_pipe()->get_cuts_request());
 					sliceXZ.reset(new SliceWindow(
 						xzPos,
 						QSize(mainDisplay->width(), nSize),
@@ -1297,8 +1296,7 @@ namespace holovibes
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
 					sliceXZ->setCd(&compute_desc_);
-					
-					sliceYZ.reset(nullptr);
+
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
 						QSize(nSize, mainDisplay->height()),
@@ -1313,7 +1311,6 @@ namespace holovibes
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled = true;
 					compute_desc_.average_enabled = false;
-					
 					set_auto_contrast_cuts();
 					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
 					if (holo)
@@ -2005,13 +2002,8 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast_cuts()
 		 {
-			WindowKind current_window = compute_desc_.current_window;
-			compute_desc_.current_window = WindowKind::XZview;
-			set_auto_contrast();
-			while (holovibes_.get_pipe()->get_autocontrast_request());
-			compute_desc_.current_window = WindowKind::YZview;
-			set_auto_contrast();
-			compute_desc_.current_window = current_window;
+			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+				pipe->cut_autocontrast_end_pipe();
 		}
 
 		void MainWindow::set_auto_contrast()

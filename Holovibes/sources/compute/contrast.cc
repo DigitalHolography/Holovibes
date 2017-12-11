@@ -179,15 +179,14 @@ namespace holovibes
 							buffers_.gpu_float_buffer_size_,
 							0,
 							XYview);
-					if (cd_.stft_view_enabled)
+					// If we're on a slice, autocontrast is called on both
+					else if (cd_.stft_view_enabled)
 					{
-						if (cd_.current_window == XZview)
 							autocontrast_caller(
 								static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 								fd_.width * cd_.nsamples,
 								fd_.width * cd_.cuts_contrast_p_offset,
 								XZview);
-						else if (cd_.current_window == YZview)
 							autocontrast_caller(
 								static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 								fd_.width * cd_.nsamples,
