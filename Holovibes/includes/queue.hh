@@ -112,6 +112,7 @@ namespace holovibes
 		** \param cuda_kind kind of memory transfer (e-g: CudaMemCpyHostToDevice ...)
 		*/
 		void dequeue(void* dest, cudaMemcpyKind cuda_kind);
+		void dequeue_48bit_to_24bit(void* dest, cudaMemcpyKind cuda_kind);
 
 		/*! \brief Dequeue method
 		**

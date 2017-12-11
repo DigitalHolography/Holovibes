@@ -147,6 +147,11 @@ void float_to_ushort(const float	*input,
 					cudaStream_t	stream = 0);
 
 
+void ushort_to_uchar(const ushort	*input,
+	uchar			*output,
+	const uint		size,
+	cudaStream_t	stream = 0);
+
 /*! \brief Convert data from complex data to unsigned short (16-bit).
 *
 * The input data shall be restricted first to the range [0; 2^16 - 1],
