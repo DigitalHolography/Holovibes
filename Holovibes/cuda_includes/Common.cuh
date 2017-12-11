@@ -27,6 +27,9 @@
 
 
 
+#ifndef DEBUG
+#define cudaCheckError()
+#else
 #define cudaCheckError()                                                     \
 {                                                                            \
 	auto e = cudaGetLastError();                                             \
@@ -41,3 +44,4 @@
 		throw holovibes::CustomException(error, holovibes::fail_cudaLaunch); \
 	}												                         \
 }
+#endif
