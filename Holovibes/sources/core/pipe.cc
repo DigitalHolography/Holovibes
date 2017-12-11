@@ -307,6 +307,11 @@ namespace holovibes
 		return fourier_transforms_->get_lens_queue();
 	}
 
+	compute::FourierTransform *Pipe::get_fourier_transforms()
+	{
+		return fourier_transforms_.get();
+	}
+
 	void Pipe::run_end_pipe(std::function<void()> function)
 	{
 		std::lock_guard<std::mutex> lock(functions_mutex_);
@@ -317,14 +322,6 @@ namespace holovibes
 	{
 		request_autocontrast();
 		run_end_pipe([this]() {request_autocontrast(); });
-	}
-
-	void Pipe::cut_autocontrast_end_pipe()
-	{
-			WindowKind current_window = compute_desc_.current_window;
-			compute_desc_.current_window = WindowKind::XZview;
-			run_end_pipe([this]() {request_autocontrast(); });
-			run_end_pipe([=]() { compute_desc_.current_window = current_window; });
 	}
 
 	void Pipe::run_all()

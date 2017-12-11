@@ -1236,21 +1236,25 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.croped_stft = b;
-				std::stringstream ss;
-				ss << "(X1,X2,X3,X4) = (";
-				if (b)
-				{
-					auto zone = compute_desc_.getZoomedZone();
-					ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-				}
-				else
-				{
-					auto fd = holovibes_.get_cam_frame_desc();
-					ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
-				}
-				InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
+				auto lambda = [=]() {
+					std::stringstream ss;
+					ss << "(X1,X2,X3,X4) = (";
+					if (b)
+					{
+						auto zone = compute_desc_.getZoomedZone();
+						ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+					}
+					else
+					{
+						auto fd = holovibes_.get_cam_frame_desc();
+						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
+					}
+					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
+					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
+					compute_desc_.croped_stft = b;
+				};
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				pipe->run_end_pipe(lambda);
 			}
 		}
 
@@ -2001,9 +2005,14 @@ namespace holovibes
 		}
 
 		void MainWindow::set_auto_contrast_cuts()
-		 {
+		{
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-				pipe->cut_autocontrast_end_pipe();
+			{
+				pipe->run_end_pipe([=]() {
+					compute_desc_.current_window = WindowKind::XZview;
+					pipe->request_autocontrast();
+				});
+			}
 		}
 
 		void MainWindow::set_auto_contrast()

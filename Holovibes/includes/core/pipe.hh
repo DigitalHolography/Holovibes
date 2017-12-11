@@ -78,9 +78,8 @@ namespace holovibes
 		/*! \brief Calls autocontrast on the *next* pipe iteration
 		 */
 		void autocontrast_end_pipe();
-		/*! \brief Calls autocontrast on the next pipe iteration, then restore current_window in the next one.
-		 */
-		void cut_autocontrast_end_pipe();
+
+		compute::FourierTransform * get_fourier_transforms();
 
 	protected:
 
@@ -114,7 +113,6 @@ namespace holovibes
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
-
 		compute::DetectIntensity detect_intensity_;
 
 

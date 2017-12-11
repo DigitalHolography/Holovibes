@@ -62,7 +62,6 @@ namespace holovibes
 		// Buffers
 		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
-		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
 		std::unique_ptr<Queue>				gpu_stft_slice_queue_xz = nullptr;
 		std::unique_ptr<Queue>				gpu_stft_slice_queue_yz = nullptr;
 		// Plan

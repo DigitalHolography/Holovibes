@@ -103,19 +103,6 @@ namespace holovibes
 		new_fd2.depth = 8.f;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
 
-		std::stringstream ss;
-		ss << "(X1,Y1,X2,Y2) = (";
-		if (compute_desc_.croped_stft)
-		{
-			auto zone = compute_desc_.getZoomedZone();
-			stft_env_.gpu_cropped_stft_buf_.resize(zone.area() * compute_desc_.nsamples);
-			ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-		}
-		else
-			ss << "0,0," << new_fd.width - 1 << "," << new_fd.height - 1 << ")";
-
-		InfoManager::get_manager()->insert_info(InfoManager::STFT_ZONE, "STFT Zone", ss.str());
-
 		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
@@ -153,7 +140,6 @@ namespace holovibes
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_ = false;
-
 		{
 			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 			stft_env_.gpu_stft_buffer_.reset();
@@ -183,10 +169,8 @@ namespace holovibes
 			if (compute_desc_.stft_view_enabled)
 				update_stft_slice_queue();
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
-			if (compute_desc_.croped_stft)
-				stft_env_.gpu_cropped_stft_buf_.resize(compute_desc_.getZoomedZone().area() * n);
-			else
-				stft_env_.gpu_cropped_stft_buf_.reset();
+			if (auto pipe = dynamic_cast<Pipe *>(this))
+				pipe->get_fourier_transforms()->allocate(n);
 		}
 		catch (std::exception&)
 		{

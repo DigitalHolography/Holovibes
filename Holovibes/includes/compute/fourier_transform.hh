@@ -40,6 +40,7 @@ namespace holovibes
 			**
 			** Should be called just after gpu_float_buffer is computed
 			*/
+			void allocate(unsigned int n);
 			void insert_fft();
 			void insert_stft();
 			Queue* get_lens_queue();
@@ -47,14 +48,15 @@ namespace holovibes
 			void insert_filter2d();
 			void insert_fft1();
 			void insert_fft2();
-			void stft_handler(cufftComplex* input, cufftComplex* output);
-			void enqueue_lens(Queue *queue, cuComplex *lens_buffer, const camera::FrameDescriptor& input_fd);
+			void stft_handler();
+			void enqueue_lens();
 
 			units::RectFd					filter2d_zone_;
 
 			cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
 			std::unique_ptr<Queue>				gpu_lens_queue_;
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
+			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
 
 			/// Pipe data
 			/// {

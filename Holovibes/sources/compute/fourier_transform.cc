@@ -18,6 +18,7 @@
 #include "fft2.cuh"
 #include "stft.cuh"
 #include "icompute.hh"
+#include "info_manager.hh"
 
 using holovibes::compute::FourierTransform;
 using holovibes::compute::Autofocus;
@@ -31,8 +32,10 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
 	holovibes::Stft_env& stft_env)
-	: gpu_lens_(nullptr)
-	, gpu_filter2d_buffer_(nullptr)
+	: gpu_lens_()
+	, gpu_lens_queue_()
+	, gpu_filter2d_buffer_()
+	, gpu_cropped_stft_buf_()
 	, fn_vect_(fn_vect)
 	, buffers_(buffers)
 	, autofocus_(autofocus)
@@ -43,6 +46,27 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 {
 	gpu_lens_.resize(fd_.frame_res());
 	gpu_filter2d_buffer_.resize(fd_.frame_res());
+
+	std::stringstream ss;
+	ss << "(X1,Y1,X2,Y2) = (";
+	if (cd_.croped_stft)
+	{
+		auto zone = cd_.getZoomedZone();
+		gpu_cropped_stft_buf_.resize(zone.area() * cd_.nsamples);
+		ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+	}
+	else
+		ss << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
+
+	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::STFT_ZONE, "STFT Zone", ss.str());
+}
+
+void FourierTransform::allocate(unsigned int n)
+{
+	if (cd_.croped_stft)
+		gpu_cropped_stft_buf_.resize(cd_.getZoomedZone().area() * n);
+	else
+		gpu_cropped_stft_buf_.reset();
 }
 
 void FourierTransform::insert_fft()
@@ -59,7 +83,7 @@ void FourierTransform::insert_fft()
 		else if (cd_.algorithm == Algorithm::FFT2)
 			insert_fft2();
 		fn_vect_.push_back([=]() {
-			enqueue_lens(gpu_lens_queue_.get(), gpu_lens_.get(), fd_);
+			enqueue_lens();
 		});
 	}
 }
@@ -118,7 +142,7 @@ void FourierTransform::insert_stft()
 {
 	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });
 
-	fn_vect_.push_back([=]() { stft_handler(buffers_.gpu_input_buffer_, static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer())); });
+	fn_vect_.push_back([=]() { stft_handler(); });
 }
 
 
@@ -133,17 +157,17 @@ Queue *FourierTransform::get_lens_queue()
 	return gpu_lens_queue_.get();
 }
 
-void FourierTransform::enqueue_lens(Queue *queue, cuComplex *lens_buffer, const camera::FrameDescriptor& input_fd)
+void FourierTransform::enqueue_lens()
 {
-	if (queue)
+	if (gpu_lens_queue_)
 	{
-		cuComplex* copied_lens_ptr = static_cast<cuComplex*>(queue->get_end());
-		queue->enqueue(lens_buffer);
-		normalize_complex(copied_lens_ptr, input_fd.frame_res());
+		cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());
+		gpu_lens_queue_->enqueue(gpu_lens_);
+		normalize_complex(copied_lens_ptr, fd_.frame_res());
 	}
 }
 
-void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
+void FourierTransform::stft_handler()
 {
 	static ushort mouse_posx;
 	static ushort mouse_posy;
@@ -158,8 +182,8 @@ void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
 	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
 	if (!cd_.vibrometry_enabled)
-		stft(input,
-			output,
+		stft(buffers_.gpu_input_buffer_,
+			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer()),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
 			cd_.nsamples,
@@ -171,11 +195,11 @@ void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
 			b,
 			cd_.croped_stft,
 			cd_.getZoomedZone(),
-			stft_env_.gpu_cropped_stft_buf_);
+			gpu_cropped_stft_buf_);
 	else
 	{
 		stft(
-			input,
+			buffers_.gpu_input_buffer_,
 			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer()),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
@@ -188,7 +212,7 @@ void FourierTransform::stft_handler(cufftComplex* input, cufftComplex* output)
 			b,
 			cd_.croped_stft,
 			cd_.getZoomedZone(),
-			stft_env_.gpu_cropped_stft_buf_);
+			gpu_cropped_stft_buf_);
 	}
 	if (cd_.stft_view_enabled && b)
 	{
