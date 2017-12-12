@@ -229,10 +229,12 @@ void gpu_extremums(float			*input,
 		local_extr,
 		block_size,
 		size);
+	cudaStreamSynchronize(0);
 	cudaCheckError();
 	global_extremums << <1, 1, 0, 0 >> > (local_extr,
 		global_extr,
 		nb_blocks);
+	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	struct extr_index extremum[2];

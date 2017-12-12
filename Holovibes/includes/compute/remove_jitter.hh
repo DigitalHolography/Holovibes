@@ -42,21 +42,18 @@ namespace holovibes
 		private:
 
 			void extract_and_fft(int slice_index, cuComplex* buffer);
-			void extract_input_frame();
-			void perform_input_fft();
 			void correlation(cuComplex* ref, cuComplex* slice, float* out);
 			int maximum_y(float* frame);
 			void compute_one_shift(int i);
 			void compute_all_shifts();
 			void fix_jitter();
-			void fft(cuComplex* from, cuComplex* to, int direction);
 			int slice_size();
 
 
 
-			float							slice_overlap_coeff_ {1.f};
-			int								slice_shift_ {4};
-			int								nb_slices_;
+			int								nb_slices_{ 7 };
+			int								slice_depth_;
+			int								slice_shift_;
 
 
 
