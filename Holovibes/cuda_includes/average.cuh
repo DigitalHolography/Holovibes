@@ -46,3 +46,9 @@ holovibes::Tuple4f make_average_stft_plot(cuComplex*	cbuf,
 							const uint		pindex,
 							const uint		nsamples,
 							cudaStream_t	stream = 0);
+
+
+void average_lines(float*	input,
+					float*	output,
+					uint	width,
+					uint	height);

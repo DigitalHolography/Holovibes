@@ -22,10 +22,12 @@
 
 #include "tools_compute.cuh"
 #include "Common.cuh"
+#include "average.cuh"
 
 using holovibes::compute::RemoveJitter;
 using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
+using holovibes::cuda_tools::Array;
 using holovibes::Stft_env;
 
 RemoveJitter::RemoveJitter(FnVector& fn_vect,
@@ -43,11 +45,14 @@ RemoveJitter::RemoveJitter(FnVector& fn_vect,
 
 void RemoveJitter::insert_pre_fft()
 {
-	if (cd_.stft_view_enabled)
+	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
 	{
 		fn_vect_.push_back([this]() {
-			compute_all_shifts();
-			//fix_jitter();
+			if (buffers_.stft_frame_counter_ == cd_.stft_steps)
+			{
+				compute_all_shifts();
+				fix_jitter();
+			}
 		});
 	}
 }
@@ -60,8 +65,8 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	int frame_size = fd_.frame_res();
 	CufftHandle plan1d;
 	plan1d.planMany(1, &depth,
-		&depth, 1, 1,
-		&depth, 1, 1,
+		&depth, frame_size, 1,
+		&depth, width, 1,
 		CUFFT_C2C, width);
 
 
@@ -69,6 +74,12 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
 	cufftExecC2C(plan1d, in, buffer, CUFFT_FORWARD);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+
+	// Preparing for the convolution
+	CufftHandle plan2d(width, depth, CUFFT_C2C);
+	cufftExecC2C(plan2d, buffer, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }
@@ -84,10 +95,8 @@ void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 	int width = fd_.width;
 	int depth = slice_depth_;
 	CufftHandle plan1d;
-	plan1d.planMany(1, &depth,
-		&depth, width, 1,
-		&depth, width, 1,
-		CUFFT_C2R, width);
+
+	plan1d.plan(width, depth, CUFFT_C2R);
 
 	cufftExecC2R(plan1d, slice, out);
 	cudaStreamSynchronize(0);
@@ -96,11 +105,15 @@ void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 
 int RemoveJitter::maximum_y(float* frame)
 {
-	// TODO average each line
-	uint max = 0;
-	float m;
-	gpu_extremums(frame, slice_size(), nullptr, &m, nullptr, &max);
-	uint max_y = max / fd_.width;
+	Array<float> line_averages(slice_depth_);
+	average_lines(frame, line_averages, fd_.width, slice_depth_);
+	cudaStreamSynchronize(0);
+
+	float test[16];
+	cudaMemcpy(test, line_averages, 64, cudaMemcpyDeviceToHost);
+
+	uint max_y = 0;
+	gpu_extremums(line_averages, slice_depth_, nullptr, nullptr, nullptr, &max_y);
 	if (max_y > slice_depth_ / 2)
 		max_y -= slice_depth_;
 	return max_y;
@@ -110,31 +123,33 @@ void RemoveJitter::fix_jitter()
 {
 	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
 	int sum_phi = 0;
-	std::vector<int> phi;
+	std::vector<double> phi;
 	for (size_t i = 0; i < shift_t_.size(); i++)
 	{
-		int phi_jitter = sum_phi + shift_t_[i];
+		double phi_jitter = sum_phi + shift_t_[i];
 		sum_phi = phi_jitter;
 		phi_jitter *= M_PI_2 / cd_.lambda;
+		//std::cout << phi_jitter << " ";
 		phi.push_back(phi_jitter);
 	}
+	//std::cout << std::endl;
 
-	int small_chunk_size = cd_.nsamples / nb_slices_;
-	int big_chunk_size = small_chunk_size * 1.5;
+	int big_chunk_size = slice_shift_ * 1.5;
 
 	// multiply all small chunks
 	int chunk_no = 1;
-	for (int p = big_chunk_size; p < cd_.nsamples - big_chunk_size; p += small_chunk_size, chunk_no++) {
+	int sign = cd_.jitter_enabled_ ? 1 : -1;
+	for (int p = big_chunk_size; p < cd_.nsamples - big_chunk_size; p += slice_shift_, chunk_no++) {
 		cuComplex multiplier;
-		multiplier.x = cosf(-phi[chunk_no]);
-		multiplier.y = sinf(-phi[chunk_no]);
-		gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * small_chunk_size, multiplier);
+		multiplier.x = cosf(sign * phi[chunk_no]);
+		multiplier.y = sinf(sign * phi[chunk_no]);
+		gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * slice_shift_, multiplier);
 	}
 
 	// multiply the final big chunk
 	cuComplex multiplier;
-	multiplier.x = cosf(-phi.back());
-	multiplier.y = sinf(-phi.back());
+	multiplier.x = cosf(sign * phi.back());
+	multiplier.y = sinf(sign * phi.back());
 	gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * (cd_.nsamples - big_chunk_size), fd_.frame_size() * big_chunk_size, multiplier);
 }
 

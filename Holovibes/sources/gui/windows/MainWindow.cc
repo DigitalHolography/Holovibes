@@ -1871,6 +1871,18 @@ namespace holovibes
 			mainDisplay->getOverlayManager().create_overlay<CompositeArea>();
 		}
 
+
+		void MainWindow::set_jitter_enabled(bool value)
+		{
+			compute_desc_.jitter_enabled_ = value;
+			pipe_refresh();
+		}
+		void MainWindow::set_jitter_slices(int value)
+		{
+			compute_desc_.jitter_slices_ = value;
+			pipe_refresh();
+		}
+
 		#pragma endregion
 		/* ------------ */
 		#pragma region Texture

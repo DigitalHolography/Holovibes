@@ -1478,16 +1478,16 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_16">
             <property name="leftMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QCheckBox" name="ShowConvoMatrixCheckBox">
@@ -1518,17 +1518,20 @@
             <bool>false</bool>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_18">
+            <property name="spacing">
+             <number>7</number>
+            </property>
             <property name="leftMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <item>
              <layout class="QGridLayout" name="gridLayout_8">
@@ -1640,6 +1643,18 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>1</number>
+            </property>
             <item>
              <widget class="QLabel" name="label_5">
               <property name="text">
@@ -1653,10 +1668,13 @@
             <item>
              <widget class="QSpinBox" name="JitterNbChunks">
               <property name="minimum">
+               <number>3</number>
+              </property>
+              <property name="singleStep">
                <number>2</number>
               </property>
               <property name="value">
-               <number>8</number>
+               <number>7</number>
               </property>
              </widget>
             </item>
@@ -2967,7 +2985,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5380,6 +5398,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>JitterNbChunks</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_slices(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>765</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>402</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>JitterCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_enabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>714</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5504,5 +5554,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
+  <slot>set_jitter_slices(int)</slot>
+  <slot>set_jitter_enabled(bool)</slot>
  </slots>
 </ui>

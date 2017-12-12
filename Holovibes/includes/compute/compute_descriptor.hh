@@ -325,6 +325,9 @@ namespace holovibes
 		std::atomic<bool>			composite_auto_weights_;
 		//! \}
 
+		std::atomic<bool>			jitter_enabled_;
+		std::atomic<int>			jitter_slices_;
+
 		#pragma endregion
 	};
 }
