@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Holovibes", "Holovibes\Holovibes.vcxproj", "{CA75A564-8C60-4C3B-8778-996F1879BF65}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -294,7 +294,7 @@ Global
 		{D6EB6F02-EAD3-4D85-AF69-2A8945DB0C41} = {26D59CCE-F3C2-4C90-96EA-625470BC8225}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		Qt5Version = Qt 5.9
 		SolutionGuid = {FDCC1DDD-ECB0-4756-A0D0-FB1F9E933965}
+		Qt5Version = Qt 5.9
 	EndGlobalSection
 EndGlobal
