@@ -42,7 +42,15 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 			// Computing pixel size. Must be updated with the correct formula.
-			const float pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			float pix_size;
+			if (parent_->getKindOfView() == Hologram)
+				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			else {
+				if (cd->interpolation_enabled)
+					pix_size = 1E-9 * cd->interp_lambda1 * cd->interp_lambda2 / (std::abs(cd->interp_lambda1 - cd->interp_lambda2));
+				else
+					pix_size = 1E-9 * std::pow(cd->lambda, 2) / 50; // 50nm is an arbitrary value
+			}
 
 			units::ConversionData convert(parent_);
 

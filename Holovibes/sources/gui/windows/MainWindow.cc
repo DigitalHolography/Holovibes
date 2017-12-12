@@ -1939,10 +1939,18 @@ namespace holovibes
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Scale>();
+				if (sliceXZ)
+					sliceXZ->getOverlayManager().create_overlay<Scale>();
+				if (sliceYZ)
+					sliceYZ->getOverlayManager().create_overlay<Scale>();
 			}
 			else
 			{
 				mainDisplay->getOverlayManager().disable_all(Scale);
+				if (sliceXZ)
+					sliceXZ->getOverlayManager().disable_all(Scale);
+				if (sliceYZ)
+					sliceYZ->getOverlayManager().disable_all(Scale);
 			}
 
 		}
