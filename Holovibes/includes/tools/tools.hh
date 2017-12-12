@@ -27,6 +27,7 @@
 # include "frame_desc.hh"
 # include "cufft.h"
 
+std::string engineering_notation(double n, int nb_significand_digit);
 
 /*! \function Generic loop for deleting a container's elements. */
 template<typename Container, typename Functor>

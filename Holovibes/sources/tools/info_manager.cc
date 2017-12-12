@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "info_manager.hh"
+#include "tools.hh"
 
 namespace holovibes
 {
@@ -143,6 +144,11 @@ namespace holovibes
 					str += infos_[i].first + ":\n ";
 				str += infos_[i].second + "\n";
 			}
+			size_t free, total;
+			cudaMemGetInfo(&free, &total);
+			str += "GPU memory:\n" +
+				engineering_notation(free, 2) + "B free,\n" +
+				engineering_notation(total, 2) + "B total";
 			emit update_text(str.c_str());
 		}
 
