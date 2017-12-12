@@ -174,7 +174,7 @@ namespace holovibes
 
 		if (compute_desc_.stft_view_enabled)
 		{
-			jitter_ = std::make_unique<compute::RemoveJitter>(fn_vect_, buffers_, input_.get_frame_desc(), compute_desc_);
+			jitter_ = std::make_unique<compute::RemoveJitter>(fn_vect_, stft_env_, input_.get_frame_desc(), compute_desc_);
 			jitter_->insert_pre_fft();
 		}
 		else

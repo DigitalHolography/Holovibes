@@ -26,10 +26,10 @@
 using holovibes::compute::RemoveJitter;
 using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
-using holovibes::CoreBuffers;
+using holovibes::Stft_env;
 
 RemoveJitter::RemoveJitter(FnVector& fn_vect,
-	const CoreBuffers& buffers,
+	const Stft_env& buffers,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd)
 	: fn_vect_(fn_vect)
@@ -60,16 +60,15 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	int frame_size = fd_.frame_res();
 	CufftHandle plan1d;
 	plan1d.planMany(1, &depth,
-		&depth, frame_size, 1,
-		&depth, width, 1,
+		&depth, 1, 1,
+		&depth, 1, 1,
 		CUFFT_C2C, width);
 
 
-	cudaCheckError();
-	auto in = buffers_.gpu_input_buffer_.get() + cd_.getStftCursor().y() * fd_.width;
+	auto in = buffers_.gpu_stft_buffer_.get() + cd_.getStftCursor().y() * fd_.width;
 	int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
-	cufftExecC2C(plan1d, in, in, CUFFT_FORWARD);
+	cufftExecC2C(plan1d, in, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }
@@ -99,8 +98,11 @@ int RemoveJitter::maximum_y(float* frame)
 {
 	// TODO average each line
 	uint max = 0;
-	gpu_extremums(frame, slice_size(), nullptr, nullptr, nullptr, &max);
+	float m;
+	gpu_extremums(frame, slice_size(), nullptr, &m, nullptr, &max);
 	uint max_y = max / fd_.width;
+	if (max_y > slice_depth_ / 2)
+		max_y -= slice_depth_;
 	return max_y;
 }
 
@@ -126,17 +128,17 @@ void RemoveJitter::fix_jitter()
 		cuComplex multiplier;
 		multiplier.x = cosf(-phi[chunk_no]);
 		multiplier.y = sinf(-phi[chunk_no]);
-		gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * small_chunk_size, multiplier);
+		gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * small_chunk_size, multiplier);
 	}
 
 	// multiply the final big chunk
 	cuComplex multiplier;
 	multiplier.x = cosf(-phi.back());
 	multiplier.y = sinf(-phi.back());
-	gpu_multiply_const(buffers_.gpu_input_buffer_.get() + fd_.frame_size() * (cd_.nsamples - big_chunk_size), fd_.frame_size() * big_chunk_size, multiplier);
+	gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * (cd_.nsamples - big_chunk_size), fd_.frame_size() * big_chunk_size, multiplier);
 }
 
-void RemoveJitter::compute_one_shift(int i)
+int RemoveJitter::compute_one_shift(int i)
 {
 	extract_and_fft(i, slice_);
 
@@ -146,8 +148,8 @@ void RemoveJitter::compute_one_shift(int i)
 	correlation(ref_slice_, slice_, correlation_);
 	int max_y = maximum_y(correlation_);
 
-	shift_t_.push_back(max_y);
 	cudaCheckError();
+	return max_y;
 }
 
 void RemoveJitter::compute_all_shifts()
@@ -160,8 +162,11 @@ void RemoveJitter::compute_all_shifts()
 
 	shift_t_.clear();
 	for (int i = 1; i < nb_slices_; ++i)
-		compute_one_shift(i);
-	cudaCheckError();
+		shift_t_.push_back(compute_one_shift(i));
+
+	for (auto i : shift_t_)
+		std::cout << std::setw(2) << i << " ";
+	std::cout << std::endl;
 }
 
 

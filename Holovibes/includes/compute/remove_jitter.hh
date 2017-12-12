@@ -24,7 +24,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
-	struct CoreBuffers;
+	struct Stft_env;
 
 	namespace compute
 	{
@@ -33,7 +33,7 @@ namespace holovibes
 		{
 		public:
 			RemoveJitter(FnVector& fn_vect,
-				const CoreBuffers& buffers,
+				const Stft_env& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
@@ -44,7 +44,7 @@ namespace holovibes
 			void extract_and_fft(int slice_index, cuComplex* buffer);
 			void correlation(cuComplex* ref, cuComplex* slice, float* out);
 			int maximum_y(float* frame);
-			void compute_one_shift(int i);
+			int compute_one_shift(int i);
 			void compute_all_shifts();
 			void fix_jitter();
 			int slice_size();
@@ -65,7 +65,7 @@ namespace holovibes
 			std::vector<int>				shift_t_;
 
 			FnVector&						fn_vect_;
-			const CoreBuffers&				buffers_;
+			const Stft_env&					buffers_;
 			const camera::FrameDescriptor&	fd_;
 
 			const ComputeDescriptor&		cd_;
