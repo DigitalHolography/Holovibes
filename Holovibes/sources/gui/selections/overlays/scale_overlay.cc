@@ -94,7 +94,7 @@ namespace holovibes
 			// Font
 			const int base_font_size = 10;
 			td.setDefaultFont(QFont("Arial", base_font_size));
-			const int adjusted_font_size = 1.3 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
+			const int adjusted_font_size = 1.5 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
 			td.setDefaultFont(QFont("Arial", adjusted_font_size, QFont::ExtraBold));
 
 			// Black outline
