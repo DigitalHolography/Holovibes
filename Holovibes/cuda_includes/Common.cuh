@@ -27,7 +27,7 @@
 
 
 
-#ifndef DEBUG
+#ifndef _DEBUG
 #define cudaCheckError()
 #else
 #define cudaCheckError()                                                     \

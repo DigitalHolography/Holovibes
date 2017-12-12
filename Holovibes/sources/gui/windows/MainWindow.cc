@@ -77,8 +77,8 @@ namespace holovibes
 		{
 			ui.setupUi(this);
 
-			connect(this, SIGNAL(request_notify()), this, SLOT(on_notify()));
-			connect(this, SIGNAL(update_file_reader_index_signal(int)), this, SLOT(update_file_reader_index(int)));
+			qRegisterMetaType<std::function<void()>>();
+			connect(this, SIGNAL(synchronize_thread_signal(std::function<void()>)), this, SLOT(synchronize_thread(std::function<void()>)));
 
 
 
@@ -179,15 +179,19 @@ namespace holovibes
 		#pragma endregion
 		/* ------------ */
 		#pragma region Notify
-		void MainWindow::notify()
+		void MainWindow::synchronize_thread(std::function<void()> f)
 		{
 			// We can't update gui values from a different thread
 			// so we pass it to the right on using a signal
 			// (This whole notify thing needs to be cleaned up / removed)
 			if (QThread::currentThread() != this->thread())
-				emit request_notify();
+				emit synchronize_thread_signal(f);
 			else
-				on_notify();
+				f();
+		}
+		void MainWindow::notify()
+		{
+			synchronize_thread([this]() {on_notify(); });
 		}
 		void MainWindow::on_notify()
 		{
@@ -433,37 +437,45 @@ namespace holovibes
 		void MainWindow::notify_error(std::exception& e)
 		{
 			CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
-			std::string str;
-			if (err_ptr != nullptr)
+			if (err_ptr)
 			{
 				if (err_ptr->get_kind() == error_kind::fail_update)
 				{
-					// notify will be in close_critical_compute
-					compute_desc_.pindex = 0;
-					compute_desc_.nsamples = 1;
-					if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+					auto lambda = [this]
 					{
-						compute_desc_.convolution_enabled = false;
-						compute_desc_.flowgraphy_enabled = false;
-						compute_desc_.special_buffer_size = 3;
-					}
+						// notify will be in close_critical_compute
+						compute_desc_.pindex = 0;
+						compute_desc_.nsamples = 1;
+						if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+						{
+							compute_desc_.convolution_enabled = false;
+							compute_desc_.flowgraphy_enabled = false;
+							compute_desc_.special_buffer_size = 3;
+						}
+						close_critical_compute();
+						display_error("GPU computing error occured.\n");
+						notify();
+					};
+					synchronize_thread(lambda);
 				}
-				else if (err_ptr->get_kind() == error_kind::fail_accumulation)
+				auto lambda = [this, accu = err_ptr->get_kind() == error_kind::fail_accumulation]
 				{
-					compute_desc_.img_acc_slice_xy_enabled = false;
-					compute_desc_.img_acc_slice_xy_level = 1;
-				}
-				close_critical_compute();
+					if (accu)
+					{
+						compute_desc_.img_acc_slice_xy_enabled = false;
+						compute_desc_.img_acc_slice_xy_level = 1;
+					}
+					close_critical_compute();
 
-				str = "GPU computing error occured.\n";
-				display_error(str);
+					display_error("GPU computing error occured.\n");
+					notify();
+				};
+				synchronize_thread(lambda);
 			}
 			else
 			{
-				str = "Unknown error occured.";
-				display_error(str);
+				display_error("Unknown error occured.");
 			}
-			notify();
 		}
 
 		void MainWindow::layout_toggled()
@@ -824,6 +836,8 @@ namespace holovibes
 		#pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{ 
+			close_windows();
+			compute_desc_.compute_mode = Computation::Stop;
 			if (compute_desc_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(compute_desc_);
@@ -3122,10 +3136,10 @@ namespace holovibes
 		}
 		void MainWindow::update_file_reader_index(int n)
 		{
-			if (QThread::currentThread() != this->thread())
-				emit update_file_reader_index_signal(n);
-			else
+			auto lambda = [this, n]() {
 				ui.FileReaderProgressBar->setValue(n);
+			};
+			synchronize_thread(lambda);
 		}
 	}
 }

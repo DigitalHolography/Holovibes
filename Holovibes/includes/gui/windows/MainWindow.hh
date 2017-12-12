@@ -43,6 +43,7 @@
 # include "ui_MainWindow.h"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
+Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace holovibes
 {
@@ -85,6 +86,7 @@ namespace holovibes
 		public slots:
 			void on_notify();
 			void update_file_reader_index(int n);
+			void synchronize_thread(std::function<void()> f);
 			/*! \brief Resize windows if one layout is toggled. */
 			void layout_toggled();
 			void configure_holovibes();
@@ -233,8 +235,7 @@ namespace holovibes
 			#pragma endregion
 			/* ---------- */
 		signals:
-		   void request_notify();
-		   void update_file_reader_index_signal(int n);
+		   void synchronize_thread_signal(std::function<void()> f);
 			#pragma region Protected / Private Methods
 		protected:
 			virtual void closeEvent(QCloseEvent* event) override;
