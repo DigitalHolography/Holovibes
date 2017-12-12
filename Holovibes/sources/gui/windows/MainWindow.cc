@@ -1187,12 +1187,12 @@ namespace holovibes
 				last_img_type_ = value;
 				layout_toggled();
 
-				pipe_refresh();
-
 				if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 					pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
+
+				pipe_refresh();
 				notify();
 			}
 		}
@@ -1231,12 +1231,15 @@ namespace holovibes
 			compute_desc_.log_scale_slice_yz_enabled = false;
 			compute_desc_.img_acc_slice_xz_enabled = false;
 			compute_desc_.img_acc_slice_yz_enabled = false;
-			holovibes_.get_pipe()->delete_stft_slice_queue();
-			while (holovibes_.get_pipe()->get_cuts_delete_request());
-			compute_desc_.stft_view_enabled = false;
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
-
+			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+			{
+				pipe->run_end_pipe([=]() {
+					compute_desc_.stft_view_enabled = false;
+					holovibes_.get_pipe()->delete_stft_slice_queue();
+				});
+			}
 			ui.STFTCutsCheckBox->setChecked(false);
 
 			mainDisplay->setCursor(Qt::ArrowCursor);

@@ -136,7 +136,6 @@ namespace holovibes
 
 		void			create_stft_slice_queue();
 		void			delete_stft_slice_queue();
-		void			update_stft_slice_queue();
 		Queue&			get_stft_slice_queue(int i);
 		bool			get_cuts_request();
 		bool			get_cuts_delete_request();
@@ -174,6 +173,7 @@ namespace holovibes
 		virtual void refresh() = 0;
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
+		void request_queues();
 
 		void record(void* output, cudaStream_t stream = 0);
 		void fps_count();

@@ -98,7 +98,6 @@ namespace holovibes
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 		virtual void	exec();
-		void			request_queues();
 
 	private:
 		FnVector		fn_vect_;

@@ -64,40 +64,6 @@ namespace holovibes
 	{
 	}
 
-	void Pipe::request_queues()
-	{
-		if (request_stft_cuts_)
-		{
-			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
-
-			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
-				sizeof(cuComplex) : sizeof(ushort);
-			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
-			auto fd_yz = fd_xz;
-			fd_xz.height = compute_desc_.nsamples;
-			fd_yz.width = compute_desc_.nsamples;
-			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
-			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
-			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
-
-			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_size());
-			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_size());
-			request_stft_cuts_ = false;
-		}
-
-		if (request_delete_stft_cuts_)
-		{
-			buffers_.gpu_float_cut_xz_.reset();
-			buffers_.gpu_float_cut_yz_.reset();
-			buffers_.gpu_ushort_cut_xz_.reset();
-			buffers_.gpu_ushort_cut_yz_.reset();
-
-			stft_env_.gpu_stft_slice_queue_xz.reset();
-			stft_env_.gpu_stft_slice_queue_yz.reset();
-			request_delete_stft_cuts_ = false;
-		}
-	}
 
 	void Pipe::refresh()
 	{
