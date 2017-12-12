@@ -26,10 +26,7 @@
 
 namespace holovibes
 {
-# ifndef TUPLE4F
-# define TUPLE4F
 	using	Tuple4f = std::tuple<float, float, float, float>;
-# endif
 	class Queue;
 	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;

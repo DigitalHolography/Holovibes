@@ -80,8 +80,6 @@ namespace holovibes
 			qRegisterMetaType<std::function<void()>>();
 			connect(this, SIGNAL(synchronize_thread_signal(std::function<void()>)), this, SLOT(synchronize_thread(std::function<void()>)));
 
-
-
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
 
