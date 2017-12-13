@@ -53,11 +53,12 @@ namespace holovibes
 
 			double size_x = (real_topRight - real_topLeft).distance();
 			double size_y = (real_bottomLeft - real_topLeft).distance();
-
+			auto old_pos = position();
 			if (kView == SliceXZ)
-				resize(QSize(width(), height() * size_y/size_x));
+				resize(QSize(width(), width() * size_y/size_x));
 			if (kView == SliceYZ)
-				resize(QSize(width() * size_y / size_x, height()));
+				resize(QSize(height() * size_y / size_x, height()));
+			setPosition(old_pos);
 		}
 
 		void	SliceWindow::initShaders()

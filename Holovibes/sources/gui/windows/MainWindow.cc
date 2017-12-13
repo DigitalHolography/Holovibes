@@ -1962,9 +1962,9 @@ namespace holovibes
 		}
 		void MainWindow::set_square_pixel(bool enable)
 		{
-			for (auto& slice : { sliceXZ.get(), sliceYZ.get() }) {
-				slice->make_pixel_square();
-			}
+			if (enable)
+				for (auto& slice : { sliceXZ.get(), sliceYZ.get() })
+					slice->make_pixel_square();
 		}
 		#pragma endregion
 		/* ------------ */
