@@ -112,11 +112,12 @@ namespace holovibes
 			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
 		}
-		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
-
 		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
 			err++;
-		if (compute_desc_.img_type != Complex && !buffers_.gpu_output_buffer_.resize(input_.get_pixels()))
+		int output_buffer_size = input_.get_pixels();
+		if (compute_desc_.img_type == Composite)
+			output_buffer_size *= 3;
+		if (compute_desc_.img_type != Complex && !buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
