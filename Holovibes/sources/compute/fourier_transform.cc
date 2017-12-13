@@ -183,7 +183,7 @@ void FourierTransform::stft_handler()
 
 	if (!cd_.vibrometry_enabled)
 		stft(buffers_.gpu_input_buffer_,
-			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer()),
+			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
 			cd_.nsamples,
@@ -200,7 +200,7 @@ void FourierTransform::stft_handler()
 	{
 		stft(
 			buffers_.gpu_input_buffer_,
-			static_cast<cufftComplex *>(stft_env_.gpu_stft_queue_->get_buffer()),
+			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
 			cd_.nsamples,

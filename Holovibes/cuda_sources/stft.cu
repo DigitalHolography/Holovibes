@@ -13,6 +13,7 @@
 #include "stft.cuh"
 
 using holovibes::ImgType;
+using holovibes::Queue;
 
 struct Zone
 {
@@ -106,9 +107,43 @@ static void zone_uncopy(cuComplex		*src,
 	cudaCheckError();
 }
 
+/* \brief Copy a circular queue into a contiguous buffer using zone_copy
+ */
+static void unwrap_circular_queue(Queue		*queue,
+								cuComplex	*dst,
+								RectFd		cropped_zone,
+								cudaStream_t	stream = 0)
+{
+	// Most variables here will be optimized away,
+	// they just make the process clearer and debugging easier
+
+	const auto queue_buffer = static_cast<cuComplex*>(queue->get_buffer());
+	const uint index_first_element = queue->get_start_index();
+	const uint queue_size = queue->get_max_elts();
+	const uint queue_elements = queue->get_current_elts();
+	const uint width = queue->get_frame_desc().width;
+	const uint height = queue->get_frame_desc().height;
+	const uint frame_size = queue->get_frame_desc().frame_res();
+
+	const uint first_block_size = queue_size - index_first_element;
+	const uint second_block_size = queue_size - first_block_size;
+	const auto first_block_from = queue_buffer + index_first_element * frame_size;
+	// reminder : &a[b] == (a + b)
+	const auto second_block_from = queue_buffer;
+	const auto first_block_to = dst;
+	const auto second_block_to = dst + first_block_size * cropped_zone.area();
+
+	if (first_block_size)
+		zone_copy(first_block_from, first_block_to, first_block_size, width, height, cropped_zone, stream);
+	if (second_block_size)
+		zone_copy(second_block_from, second_block_to, second_block_size, width, height, cropped_zone, stream);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+}
+
 // Short-Time Fourier Transform
 void stft(cuComplex			*input,
-		cuComplex			*gpu_queue,
+		Queue				*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
 		const uint			tft_level,
@@ -131,12 +166,12 @@ void stft(cuComplex			*input,
 	{
 		if (cropped_stft)
 		{
-			zone_copy(gpu_queue, cropped_stft_buf, nsamples, width, height, cropped_zone, stream);
+			unwrap_circular_queue(gpu_queue, cropped_stft_buf, cropped_zone, stream);
 			cufftExecC2C(plan1d, cropped_stft_buf, cropped_stft_buf, CUFFT_FORWARD);
 			zone_uncopy(cropped_stft_buf, stft_buf, nsamples, width, height, cropped_zone);
 		}
 		else
-			cufftExecC2C(plan1d, gpu_queue, stft_buf, CUFFT_FORWARD);
+			cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD);
 	}
 	cudaStreamSynchronize(stream);
 	cudaMemcpy(	input,
