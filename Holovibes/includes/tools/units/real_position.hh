@@ -10,36 +10,25 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "window_pixel.hh"
-#include "fd_pixel.hh"
-#include "opengl_position.hh"
-#include "real_position.hh"
+/*! \file
+*
+* Implementation of a position in the frame desc coordinate system */
+#pragma once
+
+#include "unit.hh"
 
 namespace holovibes
 {
 	namespace units
 	{
-		FDPixel::FDPixel(ConversionData data, Axis axis, int val)
-			: Unit(data, axis, val)
-		{}
+		class FDPixel;
 
-		FDPixel::operator OpenglPosition() const
+		/*! \brief A position in the frame desc coordinate system [0;fd.width]
+		*/
+		class RealPosition : public Unit<double>
 		{
-			OpenglPosition res(conversion_data_, axis_, conversion_data_.fd_to_opengl(val_, axis_));
-			return res;
-		}
-
-		FDPixel::operator WindowPixel() const
-		{
-			WindowPixel res(conversion_data_, axis_,
-				conversion_data_.opengl_to_window_size(static_cast<units::OpenglPosition>(*this).get(), axis_));
-			return res;
-		}
-
-		FDPixel::operator RealPosition() const
-		{
-			RealPosition res(conversion_data_, axis_, conversion_data_.fd_to_real(val_, axis_));
-			return res;
-		}
+		public:
+			RealPosition(ConversionData data, Axis axis, double val = 0);
+		};
 	}
 }

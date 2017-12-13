@@ -83,6 +83,11 @@ namespace holovibes
 			return Cd;
 		}
 
+		const ComputeDescriptor * BasicOpenGLWindow::getCd() const
+		{
+			return Cd;
+		}
+
 		const FrameDescriptor& BasicOpenGLWindow::getFd() const
 		{
 			return Fd;

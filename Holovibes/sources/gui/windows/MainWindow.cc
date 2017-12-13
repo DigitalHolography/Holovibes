@@ -1960,6 +1960,12 @@ namespace holovibes
 		{
 			compute_desc_.scale_bar_correction_factor = value;
 		}
+		void MainWindow::set_square_pixel(bool enable)
+		{
+			/*for (auto& slice : { sliceXZ.get(), sliceYZ.get() }) {
+				slice.resize()
+			}*/
+		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Autofocus

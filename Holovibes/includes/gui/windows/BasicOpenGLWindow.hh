@@ -47,6 +47,7 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
+			const ComputeDescriptor* getCd() const;
 			const camera::FrameDescriptor& getFd() const;
 			OverlayManager& getOverlayManager();
 

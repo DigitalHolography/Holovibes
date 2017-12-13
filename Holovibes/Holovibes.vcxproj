@@ -212,6 +212,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\tools\units\fd_pixel.hh" />
     <ClInclude Include="includes\tools\units\opengl_position.hh" />
     <ClInclude Include="includes\tools\units\point.hh" />
+    <ClInclude Include="includes\tools\units\real_position.hh" />
     <ClInclude Include="includes\tools\units\rect.hh" />
     <ClInclude Include="includes\tools\units\unit.hh" />
     <ClInclude Include="includes\tools\units\window_pixel.hh" />
@@ -489,6 +490,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\tools\units\conversion_data.cc" />
     <ClCompile Include="sources\tools\units\fd_pixel.cc" />
     <ClCompile Include="sources\tools\units\opengl_position.cc" />
+    <ClCompile Include="sources\tools\units\real_position.cc" />
     <ClCompile Include="sources\tools\units\window_pixel.cc" />
   </ItemGroup>
   <ItemGroup>
