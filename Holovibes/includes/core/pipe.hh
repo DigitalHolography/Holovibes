@@ -100,9 +100,14 @@ namespace holovibes
 		virtual void	exec();
 
 	private:
+		//! Vector of functions that will be executed in the exec() function.
 		FnVector		fn_vect_;
 
+		//! Vecor of functions that will be executed once, after the execution of fn_vect_.
 		FnVector		functions_end_pipe_;
+		/*! Mutex that prevents the insertion of a function during its execution.
+		    Since we can insert functions in functions_end_pipe_ from other threads (MainWindow), we need to lock it.
+		*/
 		std::mutex		functions_mutex_;
 
 		std::unique_ptr<compute::Stabilization> stabilization_;
@@ -116,6 +121,10 @@ namespace holovibes
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
+
+		/*! \brief Iterates and executes function of the pipe.
+		
+		  It will first iterate over fn_vect_, then over function_end_pipe_. */
 		void run_all();
 	};
 }
