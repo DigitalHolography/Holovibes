@@ -834,8 +834,6 @@ namespace holovibes
 		#pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{ 
-			close_windows();
-			compute_desc_.compute_mode = Computation::Stop;
 			if (compute_desc_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(compute_desc_);
@@ -1233,19 +1231,20 @@ namespace holovibes
 			compute_desc_.img_acc_slice_yz_enabled = false;
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
+
+			mainDisplay->setCursor(Qt::ArrowCursor);
+			mainDisplay->resetSelection();
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
 				pipe->run_end_pipe([=]() {
 					compute_desc_.stft_view_enabled = false;
 					holovibes_.get_pipe()->delete_stft_slice_queue();
+
+					ui.STFTCutsCheckBox->setChecked(false);
+					notify();
 				});
 			}
-			ui.STFTCutsCheckBox->setChecked(false);
 
-			mainDisplay->setCursor(Qt::ArrowCursor);
-			mainDisplay->resetSelection();
-
-			notify();
 		}
 
 		void MainWindow::set_crop_stft(bool b)
@@ -1940,10 +1939,10 @@ namespace holovibes
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Scale>();
-				if (sliceXZ)
+				/*if (sliceXZ)
 					sliceXZ->getOverlayManager().create_overlay<Scale>();
 				if (sliceYZ)
-					sliceYZ->getOverlayManager().create_overlay<Scale>();
+					sliceYZ->getOverlayManager().create_overlay<Scale>();*/
 			}
 			else
 			{

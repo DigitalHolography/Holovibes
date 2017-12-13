@@ -110,13 +110,7 @@ namespace holovibes
 			units::RectFd noiseZone;
 			cd_.signalZone(signalZone, AccessMode::Get);
 			cd_.noiseZone(noiseZone, AccessMode::Get);
-			fn_vect_.push_back([=]() {average_record_caller(
-				buffers_.gpu_float_buffer_,
-				input_fd_.width,
-				input_fd_.height,
-				signalZone,
-				noiseZone);
-			});
+			fn_vect_.push_back([=]() {average_record_caller(signalZone, noiseZone); });
 		}
 
 		void Contrast::insert_main_log()
@@ -225,16 +219,13 @@ namespace holovibes
 
 
 		void Contrast::average_record_caller(
-			float* input,
-			const unsigned int width,
-			const unsigned int height,
 			const units::RectFd& signal,
 			const units::RectFd& noise,
 			cudaStream_t stream)
 		{
 			if (average_env_.average_n_ > 0)
 			{
-				average_env_.average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
+				average_env_.average_output_->push_back(make_average_plot(buffers_.gpu_float_buffer_, input_fd_.width, input_fd_.height, signal, noise, stream));
 				average_env_.average_n_--;
 			}
 			else

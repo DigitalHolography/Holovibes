@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+   Implementation of the rendering features. */
 #pragma once
 
 #include "frame_desc.hh"
@@ -66,22 +69,14 @@ namespace holovibes
 			/*! \see request_average_record
 			* \brief Call the average algorithm, store the result and count n
 			* iterations. Request the ICompute to refresh when record is over.
-			* \param input Input float frame pointer
-			* \param width Width of the input frame
-			* \param height Height of the input frame
 			* \param signal Signal zone
 			* \param noise Noise zone */
 			void average_record_caller(
-				float* input,
-				const unsigned int width,
-				const unsigned int height,
 				const units::RectFd& signal,
 				const units::RectFd& noise,
 				cudaStream_t stream = 0);
 
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			/// Main buffers
@@ -94,9 +89,8 @@ namespace holovibes
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
-			///
+			/// Pointer on the parent.
 			ICompute*						Ic_;
-			/// }
 		};
 	}
 }

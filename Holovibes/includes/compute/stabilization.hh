@@ -68,24 +68,20 @@ namespace holovibes
 			/// Buffer used to temporaly store the average, to compare it with current frame
 			cuda_tools::UniquePtr<float>	float_buffer_average_;
 
-			/// Current image shift
-			/// {
 			int								shift_x;
 			int								shift_y;
-			/// }
 
 			std::unique_ptr<Queue>			accumulation_queue_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
+			//! Main buffers
 			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
+			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
-			/// }
 		};
 	}
 }

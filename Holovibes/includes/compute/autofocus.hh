@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+Implementation of autofocus feature. */
 #pragma once
 
 #include "pipeline_utils.hh"
@@ -74,13 +77,19 @@ namespace holovibes
 				holovibes::ComputeDescriptor& cd,
 				ICompute *Ic);
 
+			/** \brief see autofocus_init() */
 			void insert_init();
+			/** \brief see autofocus_restore() */
 			void insert_restore();
+			/** \brief see autofocus_caller() */
 			void insert_autofocus();
+			/** \brief insert the copy of the input buffer into a tmp buffer */
 			void insert_copy();
 
+			/** \brief Get the zindex used for the spatial fft. */
 			float get_zvalue() const;
 
+			/** \brief Get the autofocus state. */
 			af_state get_state() const
 			{
 				return af_env_.state;
@@ -106,10 +115,8 @@ namespace holovibes
 			//! Containing every special vairables needed to run autofocus
 			af_env	af_env_;
 
+			/// Main pipe buffers.
 			const CoreBuffers&				buffers_;
-
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			/// Describes the frame size
@@ -120,7 +127,6 @@ namespace holovibes
 			Queue&							input_;
 			/// Pointer on the pipe.
 			ICompute*						Ic_;
-			/// }
 		};
 	}
 }

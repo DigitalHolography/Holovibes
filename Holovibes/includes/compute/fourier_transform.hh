@@ -10,7 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+ Implementation of FFT1, FFT2 and STFT algorithms. */
 #pragma once
+
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "rect.hh"
@@ -51,30 +55,32 @@ namespace holovibes
 			void stft_handler();
 			void enqueue_lens();
 
+			//! Roi zone of Filter 2D
 			units::RectFd					filter2d_zone_;
 
+			//! Lens used for fresnel transform (During FFT1 and FFT2)
 			cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
+			//! Lens Queue. Used for displaying the lens.
 			std::unique_ptr<Queue>				gpu_lens_queue_;
+			//! Filter 2D buffer. Contains one frame.
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
+			//! Crop STFT buffer. Contains nsamples frames. Used to apply STFT on smaller areas than the whole window.
 			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
-
+			//! Main buffers
 			const CoreBuffers&				buffers_;
-
+			//! Autofocus feature. Used to retrieve the correct zindex to compute.
 			const std::unique_ptr<Autofocus>& autofocus_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
-
+			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
-
+			//! Pland 2D. Used by STFT.
 			const cufftHandle&				plan2d_;
-
+			//! STFT environment.
 			Stft_env&						stft_env_;
-			/// }
 		};
 	}
 }

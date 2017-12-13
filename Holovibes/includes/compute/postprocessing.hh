@@ -10,7 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+ Implementation of postprocessing features on complex buffers. */
 #pragma once
+
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
@@ -42,18 +46,17 @@ namespace holovibes
 			uint								gpu_special_queue_start_index_;
 			uint								gpu_special_queue_max_index_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
+			//! Main buffers
 			const CoreBuffers&				buffers_;
 
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
+			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
-			/// }
 		};
 	}
 }
