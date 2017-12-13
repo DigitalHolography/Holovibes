@@ -1058,6 +1058,7 @@ namespace holovibes
 				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
+				layout_toggled();
 			}
 		}
 
