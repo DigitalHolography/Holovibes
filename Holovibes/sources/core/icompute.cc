@@ -49,7 +49,8 @@ namespace holovibes
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
 		autocontrast_requested_(false),
-		autocontrast_slice_requested_(false),
+		autocontrast_slice_xz_requested_(false),
+		autocontrast_slice_yz_requested_(false),
 		refresh_requested_(false),
 		update_n_requested_(false),
 		stft_update_roi_requested_(false),
@@ -338,8 +339,10 @@ namespace holovibes
 	{
 		if (kind == XYview)
 			autocontrast_requested_ = true;
+		else if (kind == XZview)
+			autocontrast_slice_xz_requested_ = true;
 		else
-			autocontrast_slice_requested_ = true;
+			autocontrast_slice_yz_requested_ = true;
 	}
 
 	void ICompute::request_filter2D_roi_update()

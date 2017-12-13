@@ -147,7 +147,8 @@ namespace holovibes
 		// Complex mode is strangely implemented.
 		// If someone knows why this line is fixing complex slices, please make it cleaner.
 		fn_vect_.push_back([=]() {
-			if (autocontrast_slice_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+			if ((autocontrast_slice_xz_requested_ || autocontrast_slice_yz_requested_)
+				&& compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
 				request_refresh();
 		});
 
@@ -160,7 +161,8 @@ namespace holovibes
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
-			autocontrast_slice_requested_ = false;
+			autocontrast_slice_xz_requested_ = false;
+			autocontrast_slice_yz_requested_ = false;
 			return;
 		}
 
@@ -185,7 +187,7 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
-		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_requested_);
+		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });

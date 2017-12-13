@@ -1180,18 +1180,25 @@ namespace holovibes
 			{
 				QComboBox* ptr = ui.ViewModeComboBox;
 
-				compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 				if (need_refresh(last_img_type_, value))
+				{
+					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
+				}
 				last_img_type_ = value;
-				layout_toggled();
 
-				if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-					pipe->autocontrast_end_pipe(XYview);
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+
+				pipe->run_end_pipe([=]() {
+					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
+				});
+				pipe_refresh();
+
+				pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
-
-				pipe_refresh();
+				while (pipe->get_refresh_request())
+				layout_toggled();
 				notify();
 			}
 		}
@@ -2030,8 +2037,15 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast_cuts()
 		{
+			holovibes_.get_pipe()->request_autocontrast(XZview);
+			holovibes_.get_pipe()->request_autocontrast(YZview);
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-				pipe->autocontrast_end_pipe(XZview);
+			{
+				pipe->run_end_pipe([=]() {
+					pipe->request_autocontrast(XZview);
+					pipe->request_autocontrast(YZview);
+				});
+			}
 		}
 
 		void MainWindow::set_auto_contrast()

@@ -47,7 +47,7 @@ namespace holovibes
 			void insert_fft_shift();
 			void insert_average(std::atomic<bool>& record_request);
 			void insert_log();
-			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_request);
+			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 
 		private:
 			void insert_main_average();
@@ -56,7 +56,7 @@ namespace holovibes
 			void insert_main_log();
 			void insert_slice_log();
 
-			void insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_request);
+			void insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 			void insert_main_contrast();
 			void insert_slice_contrast();
 
