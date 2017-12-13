@@ -332,9 +332,6 @@
     <ClCompile Include="sources\compute\converts.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
-    <ClCompile Include="sources\compute\detect_intensity.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
     <ClCompile Include="sources\stdafx.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
@@ -355,6 +352,9 @@
     </ClCompile>
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\detect_intensity.cc">
+      <Filter>c++ sources\compute</Filter>
     </ClCompile>
     <ClCompile Include="sources\compute\remove_jitter.cc">
       <Filter>c++ sources\compute</Filter>

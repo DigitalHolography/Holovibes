@@ -45,7 +45,7 @@ namespace holovibes
 		{
 		}
 
-	 const error_kind& get_kind()
+	 const error_kind& get_kind() const
 	 {
 		 return error_kind_;
 	 }

@@ -81,9 +81,9 @@ namespace holovibes
 		}
 
 		/*! request pipe autocontrast */
-		void request_autocontrast()
+		void request_autocontrast(WindowKind kind)
 		{
-			pipe_->request_autocontrast();
+			pipe_->request_autocontrast(kind);
 		}
 
 	private:

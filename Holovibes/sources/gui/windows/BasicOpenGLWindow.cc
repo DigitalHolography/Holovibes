@@ -152,7 +152,7 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
 		{
-			if (kView != KindOfView::Hologram || !is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
+			if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
 				return;
 			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
 			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;

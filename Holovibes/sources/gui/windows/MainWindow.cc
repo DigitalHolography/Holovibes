@@ -77,10 +77,8 @@ namespace holovibes
 		{
 			ui.setupUi(this);
 
-			connect(this, SIGNAL(request_notify()), this, SLOT(on_notify()));
-			connect(this, SIGNAL(update_file_reader_index_signal(int)), this, SLOT(update_file_reader_index(int)));
-
-
+			qRegisterMetaType<std::function<void()>>();
+			connect(this, SIGNAL(synchronize_thread_signal(std::function<void()>)), this, SLOT(synchronize_thread(std::function<void()>)));
 
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
@@ -179,15 +177,19 @@ namespace holovibes
 		#pragma endregion
 		/* ------------ */
 		#pragma region Notify
-		void MainWindow::notify()
+		void MainWindow::synchronize_thread(std::function<void()> f)
 		{
 			// We can't update gui values from a different thread
 			// so we pass it to the right on using a signal
 			// (This whole notify thing needs to be cleaned up / removed)
 			if (QThread::currentThread() != this->thread())
-				emit request_notify();
+				emit synchronize_thread_signal(f);
 			else
-				on_notify();
+				f();
+		}
+		void MainWindow::notify()
+		{
+			synchronize_thread([this]() {on_notify(); });
 		}
 		void MainWindow::on_notify()
 		{
@@ -433,37 +435,45 @@ namespace holovibes
 		void MainWindow::notify_error(std::exception& e)
 		{
 			CustomException* err_ptr = dynamic_cast<CustomException*>(&e);
-			std::string str;
-			if (err_ptr != nullptr)
+			if (err_ptr)
 			{
 				if (err_ptr->get_kind() == error_kind::fail_update)
 				{
-					// notify will be in close_critical_compute
-					compute_desc_.pindex = 0;
-					compute_desc_.nsamples = 1;
-					if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+					auto lambda = [this]
 					{
-						compute_desc_.convolution_enabled = false;
-						compute_desc_.flowgraphy_enabled = false;
-						compute_desc_.special_buffer_size = 3;
-					}
+						// notify will be in close_critical_compute
+						compute_desc_.pindex = 0;
+						compute_desc_.nsamples = 1;
+						if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+						{
+							compute_desc_.convolution_enabled = false;
+							compute_desc_.flowgraphy_enabled = false;
+							compute_desc_.special_buffer_size = 3;
+						}
+						close_critical_compute();
+						display_error("GPU computing error occured.\n");
+						notify();
+					};
+					synchronize_thread(lambda);
 				}
-				else if (err_ptr->get_kind() == error_kind::fail_accumulation)
+				auto lambda = [this, accu = err_ptr->get_kind() == error_kind::fail_accumulation]
 				{
-					compute_desc_.img_acc_slice_xy_enabled = false;
-					compute_desc_.img_acc_slice_xy_level = 1;
-				}
-				close_critical_compute();
+					if (accu)
+					{
+						compute_desc_.img_acc_slice_xy_enabled = false;
+						compute_desc_.img_acc_slice_xy_level = 1;
+					}
+					close_critical_compute();
 
-				str = "GPU computing error occured.\n";
-				display_error(str);
+					display_error("GPU computing error occured.\n");
+					notify();
+				};
+				synchronize_thread(lambda);
 			}
 			else
 			{
-				str = "Unknown error occured.";
-				display_error(str);
+				display_error("Unknown error occured.");
 			}
-			notify();
 		}
 
 		void MainWindow::layout_toggled()
@@ -1048,6 +1058,7 @@ namespace holovibes
 				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
+				layout_toggled();
 			}
 		}
 
@@ -1175,11 +1186,12 @@ namespace holovibes
 				last_img_type_ = value;
 				layout_toggled();
 
-				pipe_refresh();
-
-				set_auto_contrast();
+				if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+					pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
+
+				pipe_refresh();
 				notify();
 			}
 		}
@@ -1218,39 +1230,47 @@ namespace holovibes
 			compute_desc_.log_scale_slice_yz_enabled = false;
 			compute_desc_.img_acc_slice_xz_enabled = false;
 			compute_desc_.img_acc_slice_yz_enabled = false;
-			holovibes_.get_pipe()->delete_stft_slice_queue();
-			while (holovibes_.get_pipe()->get_cuts_delete_request());
-			compute_desc_.stft_view_enabled = false;
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
 
-			ui.STFTCutsCheckBox->setChecked(false);
-
 			mainDisplay->setCursor(Qt::ArrowCursor);
 			mainDisplay->resetSelection();
+			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+			{
+				pipe->run_end_pipe([=]() {
+					compute_desc_.stft_view_enabled = false;
+					holovibes_.get_pipe()->delete_stft_slice_queue();
 
-			notify();
+					ui.STFTCutsCheckBox->setChecked(false);
+					notify();
+				});
+			}
+
 		}
 
 		void MainWindow::set_crop_stft(bool b)
 		{
 			if (!is_direct_mode())
 			{
-				compute_desc_.croped_stft = b;
-				std::stringstream ss;
-				ss << "(X1,X2,X3,X4) = (";
-				if (b)
-				{
-					auto zone = compute_desc_.getZoomedZone();
-					ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-				}
-				else
-				{
-					auto fd = holovibes_.get_cam_frame_desc();
-					ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
-				}
-				InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-				holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
+				auto lambda = [=]() {
+					std::stringstream ss;
+					ss << "(X1,X2,X3,X4) = (";
+					if (b)
+					{
+						auto zone = compute_desc_.getZoomedZone();
+						ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+					}
+					else
+					{
+						auto fd = holovibes_.get_cam_frame_desc();
+						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
+					}
+					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
+					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
+					compute_desc_.croped_stft = b;
+				};
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				pipe->run_end_pipe(lambda);
 			}
 		}
 
@@ -1285,8 +1305,7 @@ namespace holovibes
 					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
- 					while (holovibes_.get_pipe()->get_cuts_request());
-					sliceXZ.reset(nullptr);
+					while (holovibes_.get_pipe()->get_cuts_request());
 					sliceXZ.reset(new SliceWindow(
 						xzPos,
 						QSize(mainDisplay->width(), nSize),
@@ -1297,8 +1316,7 @@ namespace holovibes
 					sliceXZ->setAngle(xzAngle);
 					sliceXZ->setFlip(xzFlip);
 					sliceXZ->setCd(&compute_desc_);
-					
-					sliceYZ.reset(nullptr);
+
 					sliceYZ.reset(new SliceWindow(
 						yzPos,
 						QSize(nSize, mainDisplay->height()),
@@ -1313,7 +1331,6 @@ namespace holovibes
 					mainDisplay->getOverlayManager().create_overlay<Cross>();
 					compute_desc_.stft_view_enabled = true;
 					compute_desc_.average_enabled = false;
-					
 					set_auto_contrast_cuts();
 					auto holo = dynamic_cast<HoloWindow*>(mainDisplay.get());
 					if (holo)
@@ -1426,7 +1443,7 @@ namespace holovibes
 				compute_desc_.shift_corners_enabled = false;
 				compute_desc_.filter_2d_enabled = true;
 				if (auto pipe = dynamic_cast<Pipe*>(holovibes_.get_pipe().get()))
-					pipe->autocontrast_end_pipe();
+					pipe->autocontrast_end_pipe(XYview);
 				InfoManager::get_manager()->update_info("Filter2D", "Processing...");
 				notify();
 			}
@@ -1935,10 +1952,18 @@ namespace holovibes
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Scale>();
+				/*if (sliceXZ)
+					sliceXZ->getOverlayManager().create_overlay<Scale>();
+				if (sliceYZ)
+					sliceYZ->getOverlayManager().create_overlay<Scale>();*/
 			}
 			else
 			{
 				mainDisplay->getOverlayManager().disable_all(Scale);
+				if (sliceXZ)
+					sliceXZ->getOverlayManager().disable_all(Scale);
+				if (sliceYZ)
+					sliceYZ->getOverlayManager().disable_all(Scale);
 			}
 
 		}
@@ -2016,14 +2041,9 @@ namespace holovibes
 		}
 
 		void MainWindow::set_auto_contrast_cuts()
-		 {
-			WindowKind current_window = compute_desc_.current_window;
-			compute_desc_.current_window = WindowKind::XZview;
-			set_auto_contrast();
-			while (holovibes_.get_pipe()->get_autocontrast_request());
-			compute_desc_.current_window = WindowKind::YZview;
-			set_auto_contrast();
-			compute_desc_.current_window = current_window;
+		{
+			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
+				pipe->autocontrast_end_pipe(XZview);
 		}
 
 		void MainWindow::set_auto_contrast()
@@ -2038,7 +2058,7 @@ namespace holovibes
 					while (holovibes_.get_pipe()->get_request_refresh())
 						continue;
 
-					holovibes_.get_pipe()->request_autocontrast();
+					holovibes_.get_pipe()->request_autocontrast(compute_desc_.current_window);
 				}
 				catch (std::runtime_error& e)
 				{
@@ -2484,9 +2504,12 @@ namespace holovibes
 			std::string sub_str = "_" + slice
 				+ "_" + mode
 				+ "_" + std::to_string(fd.width)
-				+ "_" + std::to_string(fd.height)
-				+ "_" + std::to_string(static_cast<int>(fd.depth) << 3) + "bit"
-				+ "_" + "e"; // Holovibes record only in little endian
+				+ "_" + std::to_string(fd.height);
+			int depth = fd.depth;
+			if (depth == 6)
+				depth = 3;
+			sub_str += "_" + std::to_string(depth << 3) + "bit"
+					+ "_" + "e"; // Holovibes record only in little endian
 
 			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
 				if (filename[i] == '.')
@@ -3134,10 +3157,10 @@ namespace holovibes
 		}
 		void MainWindow::update_file_reader_index(int n)
 		{
-			if (QThread::currentThread() != this->thread())
-				emit update_file_reader_index_signal(n);
-			else
+			auto lambda = [this, n]() {
 				ui.FileReaderProgressBar->setValue(n);
+			};
+			synchronize_thread(lambda);
 		}
 	}
 }

@@ -64,40 +64,6 @@ namespace holovibes
 	{
 	}
 
-	void Pipe::request_queues()
-	{
-		if (request_stft_cuts_)
-		{
-			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
-
-			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
-				sizeof(cuComplex) : sizeof(ushort);
-			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
-			auto fd_yz = fd_xz;
-			fd_xz.height = compute_desc_.nsamples;
-			fd_yz.width = compute_desc_.nsamples;
-			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
-			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
-			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
-
-			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_size());
-			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_size());
-			request_stft_cuts_ = false;
-		}
-
-		if (request_delete_stft_cuts_)
-		{
-			buffers_.gpu_float_cut_xz_.reset();
-			buffers_.gpu_float_cut_yz_.reset();
-			buffers_.gpu_ushort_cut_xz_.reset();
-			buffers_.gpu_ushort_cut_yz_.reset();
-
-			stft_env_.gpu_stft_slice_queue_xz.reset();
-			stft_env_.gpu_stft_slice_queue_yz.reset();
-			request_delete_stft_cuts_ = false;
-		}
-	}
 
 	void Pipe::refresh()
 	{
@@ -187,6 +153,13 @@ namespace holovibes
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 
+		// Complex mode is strangely implemented.
+		// If someone knows why this line is fixing complex slices, please make it cleaner.
+		fn_vect_.push_back([=]() {
+			if (autocontrast_slice_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+				request_refresh();
+		});
+
 		postprocess_->insert_vibrometry();
 		postprocess_->insert_convolution();
 		postprocess_->insert_flowgraphy();
@@ -196,6 +169,7 @@ namespace holovibes
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
+			autocontrast_slice_requested_ = false;
 			return;
 		}
 
@@ -220,7 +194,7 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
-		rendering_->insert_contrast(autocontrast_requested_);
+		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_requested_);
 		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });
@@ -232,7 +206,9 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_.get() : buffers_.gpu_output_buffer_.get();
+		if (compute_desc_.img_type == ImgType::Complex)
+			return buffers_.gpu_input_buffer_;
+		return buffers_.gpu_output_buffer_;
 	}
 
 	void Pipe::exec()
@@ -258,9 +234,9 @@ namespace holovibes
 							}
 							if (compute_desc_.stft_view_enabled)
 							{
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_.get() : buffers_.gpu_ushort_cut_xz_.get(),
 									stft_env_.gpu_stft_slice_queue_xz.get());
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_.get() : buffers_.gpu_ushort_cut_yz_.get(),
 									stft_env_.gpu_stft_slice_queue_yz.get());
 							}
 						}
@@ -309,16 +285,21 @@ namespace holovibes
 		return fourier_transforms_->get_lens_queue();
 	}
 
+	compute::FourierTransform *Pipe::get_fourier_transforms()
+	{
+		return fourier_transforms_.get();
+	}
+
 	void Pipe::run_end_pipe(std::function<void()> function)
 	{
 		std::lock_guard<std::mutex> lock(functions_mutex_);
 		functions_end_pipe_.push_back(function);
 	}
 
-	void Pipe::autocontrast_end_pipe()
+	void Pipe::autocontrast_end_pipe(WindowKind kind)
 	{
-		request_autocontrast();
-		run_end_pipe([this]() {this->request_autocontrast(); });
+		request_autocontrast(kind);
+		run_end_pipe([this, kind]() {request_autocontrast(kind); });
 	}
 
 	void Pipe::run_all()

@@ -49,6 +49,7 @@ namespace holovibes
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
 		autocontrast_requested_(false),
+		autocontrast_slice_requested_(false),
 		refresh_requested_(false),
 		update_n_requested_(false),
 		stft_update_roi_requested_(false),
@@ -103,19 +104,6 @@ namespace holovibes
 		new_fd2.depth = 8.f;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
 
-		std::stringstream ss;
-		ss << "(X1,Y1,X2,Y2) = (";
-		if (compute_desc_.croped_stft)
-		{
-			auto zone = compute_desc_.getZoomedZone();
-			stft_env_.gpu_cropped_stft_buf_.resize(zone.area() * compute_desc_.nsamples);
-			ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-		}
-		else
-			ss << "0,0," << new_fd.width - 1 << "," << new_fd.height - 1 << ")";
-
-		InfoManager::get_manager()->insert_info(InfoManager::STFT_ZONE, "STFT Zone", ss.str());
-
 		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
@@ -124,11 +112,12 @@ namespace holovibes
 			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
 		}
-		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
-
 		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
 			err++;
-		if (!buffers_.gpu_output_buffer_.resize(output_.get_frame_desc().depth * input_.get_pixels()))
+		int output_buffer_size = input_.get_pixels();
+		if (compute_desc_.img_type == Composite)
+			output_buffer_size *= 3;
+		if (compute_desc_.img_type != Complex && !buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
@@ -153,7 +142,6 @@ namespace holovibes
 	{
 		unsigned int err_count = 0;
 		abort_construct_requested_ = false;
-
 		{
 			std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 			stft_env_.gpu_stft_buffer_.reset();
@@ -180,27 +168,29 @@ namespace holovibes
 		new_fd.depth = 8;
 		try
 		{
+			/* This will resize cuts buffers:
+			   Since the getter on the slice queue, the constructor of Slice window and a lot of other things
+			   are using a reference on the queue, instead of a reference on the unique_ptr, it will crash.
+
 			if (compute_desc_.stft_view_enabled)
-				update_stft_slice_queue();
+				request_stft_cuts_ = true; */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
-			if (compute_desc_.croped_stft)
-				stft_env_.gpu_cropped_stft_buf_.resize(compute_desc_.getZoomedZone().area() * n);
-			else
-				stft_env_.gpu_cropped_stft_buf_.reset();
+			if (auto pipe = dynamic_cast<Pipe *>(this))
+				pipe->get_fourier_transforms()->allocate(n);
 		}
 		catch (std::exception&)
 		{
 			stft_env_.gpu_stft_queue_.reset();
-			stft_env_.gpu_stft_slice_queue_xz.reset();
-			stft_env_.gpu_stft_slice_queue_yz.reset();
+			request_stft_cuts_ = false;
+			request_delete_stft_cuts_ = true;
+			request_queues();
 			err_count++;
 		}
 
 		if (err_count != 0)
 		{
 			abort_construct_requested_ = true;
-			allocation_failed(err_count,
-				static_cast<std::exception>(CustomException("error in update_n_parameters(n)", error_kind::fail_update)));
+			allocation_failed(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
 			return false;
 		}
 
@@ -211,11 +201,39 @@ namespace holovibes
 		return true;
 	}
 
-	void	ICompute::update_stft_slice_queue()
+	void ICompute::request_queues()
 	{
-		//std::lock_guard<std::mutex> Guard(gpu_stft_slice_queue_xz->getGuard());
-		delete_stft_slice_queue();
-		create_stft_slice_queue();
+		if (request_stft_cuts_)
+		{
+			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
+
+			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
+				sizeof(cuComplex) : sizeof(ushort);
+			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
+			auto fd_yz = fd_xz;
+			fd_xz.height = compute_desc_.nsamples;
+			fd_yz.width = compute_desc_.nsamples;
+			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
+			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
+			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
+			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
+
+			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_res());
+			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_res());
+			request_stft_cuts_ = false;
+		}
+
+		if (request_delete_stft_cuts_)
+		{
+			buffers_.gpu_float_cut_xz_.reset();
+			buffers_.gpu_float_cut_yz_.reset();
+			buffers_.gpu_ushort_cut_xz_.reset();
+			buffers_.gpu_ushort_cut_yz_.reset();
+
+			stft_env_.gpu_stft_slice_queue_xz.reset();
+			stft_env_.gpu_stft_slice_queue_yz.reset();
+			request_delete_stft_cuts_ = false;
+		}
 	}
 
 	void	ICompute::delete_stft_slice_queue()
@@ -316,9 +334,12 @@ namespace holovibes
 		termination_requested_ = true;
 	}
 
-	void ICompute::request_autocontrast()
+	void ICompute::request_autocontrast(WindowKind kind)
 	{
-		autocontrast_requested_ = true;
+		if (kind == XYview)
+			autocontrast_requested_ = true;
+		else
+			autocontrast_slice_requested_ = true;
 	}
 
 	void ICompute::request_filter2D_roi_update()
@@ -336,9 +357,7 @@ namespace holovibes
 		notify_observers();
 
 		if (auto pipe = dynamic_cast<Pipe*>(this))
-			pipe->autocontrast_end_pipe();
-		else
-			autocontrast_requested_ = true;
+			pipe->autocontrast_end_pipe(XYview);
 	}
 
 	void ICompute::request_autofocus()
@@ -406,12 +425,6 @@ namespace holovibes
 		average_requested_ = true;
 		average_record_requested_ = true;
 		request_refresh();
-	}
-
-	void ICompute::record(void *output, cudaStream_t stream)
-	{
-		//TODo: use stream
-		fqueue_->enqueue(output);
 	}
 
 	void ICompute::fps_count()

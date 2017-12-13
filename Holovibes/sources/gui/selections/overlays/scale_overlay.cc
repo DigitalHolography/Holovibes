@@ -42,14 +42,22 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 			// Computing pixel size. Must be updated with the correct formula.
-			const float pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			float pix_size;
+			if (parent_->getKindOfView() == Hologram)
+				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			else {
+				if (cd->interpolation_enabled)
+					pix_size = 1E-9 * cd->interp_lambda1 * cd->interp_lambda2 / (std::abs(cd->interp_lambda1 - cd->interp_lambda2));
+				else
+					pix_size = 1E-9 * std::pow(cd->lambda, 2) / 50; // 50nm is an arbitrary value
+			}
 
 			units::ConversionData convert(parent_);
 
 			// Setting the scale at 5% from bottom and 94% from top
 			// Setting the scale at 75% from left and 10% from right
-			units::PointOpengl topLeft(convert, 0.5, -0.88);
-			units::PointOpengl bottomRight(convert, 0.8, -0.9);
+			units::PointOpengl topLeft(convert, 0.5f, -0.88f);
+			units::PointOpengl bottomRight(convert, 0.8f, -0.9f);
 
 			// Building zone
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
@@ -94,7 +102,7 @@ namespace holovibes
 			// Font
 			const int base_font_size = 10;
 			td.setDefaultFont(QFont("Arial", base_font_size));
-			const int adjusted_font_size = 1.3 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
+			const int adjusted_font_size = 1.5 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
 			td.setDefaultFont(QFont("Arial", adjusted_font_size, QFont::ExtraBold));
 
 			// Black outline

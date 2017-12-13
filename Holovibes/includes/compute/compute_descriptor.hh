@@ -20,12 +20,9 @@
 
 namespace holovibes
 {
-	const static std::string version = "v5.6.0"; /*!< Current version of this project. */
+	const static std::string version = "v5.6.4"; /*!< Current version of this project. */
 
-	#ifndef TUPLE4F
-	# define TUPLE4F
-		using	Tuple4f =	std::tuple<float, float, float, float>;
-	#endif
+	using	Tuple4f =	std::tuple<float, float, float, float>;
 
 	/*!
 	 * \brief	Difference kind of camera supported by Holovibes

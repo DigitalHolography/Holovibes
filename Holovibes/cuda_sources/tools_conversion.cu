@@ -405,6 +405,29 @@ void float_to_ushort(const float	*input,
 }
 
 static __global__
+void kernel_ushort_to_uchar(const ushort	*input,
+	uchar		*output,
+	const uint	size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < size)
+		output[index] = input[index] >> 8;
+}
+
+void ushort_to_uchar(const ushort	*input,
+	uchar			*output,
+	const uint		size,
+	cudaStream_t	stream)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_ushort_to_uchar << <blocks, threads, 0, stream >> >(input, output, size);
+	cudaCheckError();
+}
+
+static __global__
 void kernel_complex_to_ushort(const cuComplex	*input,
 							uint				*output,
 							const uint			size)
