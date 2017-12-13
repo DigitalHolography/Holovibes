@@ -68,6 +68,12 @@ namespace holovibes
 			float pix_size;
 			if (window_->getKindOfView() == Hologram)
 				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			else if (window_->getKindOfView() == SliceXZ && axis == Axis::HORIZONTAL) {
+				pix_size = (cd->lambda * cd->zdistance) / (fd.height * cd->pixel_size * 1e-6);
+			}
+			else if (window_->getKindOfView() == SliceYZ && axis == Axis::VERTICAL) {
+				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
+			}
 			else
 			{
 				if (cd->interpolation_enabled)
