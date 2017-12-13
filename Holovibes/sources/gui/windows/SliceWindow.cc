@@ -44,6 +44,22 @@ namespace holovibes
 			overlay_manager_.create_overlay<KindOfOverlay::Composite>();
 		}
 		
+		void SliceWindow::make_pixel_square() {
+			units::ConversionData convert(this);
+
+			units::PointReal real_topLeft = units::PointFd(convert, 0, 0);;
+			units::PointReal real_bottomLeft = units::PointFd(convert, 0, 1);
+			units::PointReal real_topRight = units::PointFd(convert, 1, 0);;
+
+			double size_x = (real_topRight - real_topLeft).distance();
+			double size_y = (real_bottomLeft - real_topLeft).distance();
+
+			if (kView == SliceXZ)
+				resize(QSize(width(), height() * size_y/size_x));
+			if (kView == SliceYZ)
+				resize(QSize(width() * size_y / size_x, height()));
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();

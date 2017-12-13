@@ -29,6 +29,7 @@ namespace holovibes
 			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
 			void	create_strip_overlays();
+			void make_pixel_square();
 			
 		protected:
 			cudaArray_t				cuArray;
