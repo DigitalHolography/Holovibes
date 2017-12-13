@@ -86,18 +86,20 @@ namespace holovibes
 		/*! \brief Execute one processing iteration.
 		*
 		* * Checks the number of frames in input queue, that must at least
-		* be nsamples.
+		* be 1.
 		* * Call each function stored in the FnVector.
+		* * Call each function stored in the end FnVector, then clears it
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
 		* * Check if a ICompute refresh has been requested.
 		*
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
+		virtual void	exec();
 
+		/*! \brief Enqueue the main FnVector according to the requests. */
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
-		virtual void	exec();
 
 	private:
 		//! Vector of functions that will be executed in the exec() function.
