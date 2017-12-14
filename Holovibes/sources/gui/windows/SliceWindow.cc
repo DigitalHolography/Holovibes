@@ -24,6 +24,8 @@ namespace holovibes
 			cuSurface(0),
 			main_window_(main_window)
 		{
+			// To prevent make_square_pixel to make one slice realy thin and the other 132 pixel due to the title bar buttons
+			setMinimumSize(QSize(132, 132));
 		}
 
 		SliceWindow::~SliceWindow()
@@ -55,9 +57,9 @@ namespace holovibes
 			double size_y = (real_bottomLeft - real_topLeft).distance();
 			auto old_pos = position();
 			if (kView == SliceXZ)
-				resize(QSize(width(), width() * size_y/size_x));
+				resize(QSize(width(), width() * size_y/size_x).expandedTo(minimumSize()));
 			if (kView == SliceYZ)
-				resize(QSize(height() * size_x / size_y, height()));
+				resize(QSize(height() * size_x / size_y, height()).expandedTo(minimumSize()));
 			setPosition(old_pos);
 		}
 
