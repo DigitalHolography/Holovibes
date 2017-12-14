@@ -56,7 +56,6 @@ namespace holovibes
 
 
 
-			cuda_tools::Array<cuComplex>	fft_frame_;
 			cuda_tools::Array<cuComplex>	ref_slice_;
 			cuda_tools::Array<cuComplex>	slice_;
 			cuda_tools::Array<float>		correlation_;

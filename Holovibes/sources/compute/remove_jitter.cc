@@ -40,6 +40,11 @@ RemoveJitter::RemoveJitter(cuComplex* buffer,
 {
 	slice_depth_ = cd_.nsamples /((nb_slices_ + 1) / 2);
 	slice_shift_ = slice_depth_ / 2;
+
+	auto size = slice_size();
+	ref_slice_.resize(size);
+	slice_.resize(size);
+	correlation_.resize(size);
 }
 
 void RemoveJitter::run()
@@ -151,9 +156,6 @@ int RemoveJitter::compute_one_shift(int i)
 {
 	extract_and_fft(i, slice_);
 
-	auto size = slice_size();
-	correlation_.ensure_minimum_size(size);
-
 	correlation(ref_slice_, slice_, correlation_);
 	int max_y = maximum_y(correlation_);
 
@@ -163,10 +165,6 @@ int RemoveJitter::compute_one_shift(int i)
 
 void RemoveJitter::compute_all_shifts()
 {
-	auto size = slice_size();
-	ref_slice_.ensure_minimum_size(size);
-	slice_.ensure_minimum_size(size);
-
 	extract_and_fft(0, ref_slice_);
 
 	shift_t_.clear();
