@@ -258,7 +258,7 @@ namespace holovibes
 				setEnabled(!is_direct && compute_desc_.img_type == ImgType::PhaseIncrease ||
 					compute_desc_.img_type == ImgType::Argument);
 
-			ui.STFTCutsCheckBox->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
+			ui.STFTCutsCheckBox->setEnabled(!is_direct);
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
