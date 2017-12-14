@@ -11,9 +11,12 @@
 /* **************************************************************************** */
 
 #include "stft.cuh"
+#include "remove_jitter.hh"
 
 using holovibes::ImgType;
 using holovibes::Queue;
+using holovibes::ComputeDescriptor;
+using holovibes::compute::RemoveJitter;
 
 struct Zone
 {
@@ -146,18 +149,20 @@ void stft(cuComplex			*input,
 		Queue				*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
-		const uint			tft_level,
-		const uint			p,
 		const uint			q,
-		const uint			nsamples,
 		const uint			width,
 		const uint			height,
 		const bool			stft_activated,
-		const bool			cropped_stft,
-		const RectFd		cropped_zone,
+		const ComputeDescriptor &cd,
 		cuComplex			*cropped_stft_buf,
 		cudaStream_t		stream)
 {
+	const uint tft_level = cd.nsamples;
+	const uint p = cd.pindex;
+	const uint nsamples = cd.nsamples;
+	bool cropped_stft = cd.croped_stft;
+	const RectFd cropped_zone = cd.getZoomedZone();
+
 	const int frame_size = width * height;
 	const uint complex_frame_size = sizeof(cuComplex) * frame_size;
 
@@ -167,6 +172,10 @@ void stft(cuComplex			*input,
 		if (cropped_stft)
 		{
 			unwrap_circular_queue(gpu_queue, cropped_stft_buf, cropped_zone, stream);
+
+			RemoveJitter jitter(cropped_stft_buf, cropped_zone, cd);
+			jitter.run();
+
 			cufftExecC2C(plan1d, cropped_stft_buf, cropped_stft_buf, CUFFT_FORWARD);
 			zone_uncopy(cropped_stft_buf, stft_buf, nsamples, width, height, cropped_zone);
 		}

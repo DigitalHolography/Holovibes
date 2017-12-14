@@ -14,11 +14,11 @@
 #include "compute_descriptor.hh"
 #include "rect.hh"
 #include "cufft_handle.hh"
+#include "icompute.hh"
 
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
-#include "icompute.hh"
 
 #include "tools_compute.cuh"
 #include "Common.cuh"
@@ -29,40 +29,34 @@ using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
 using holovibes::cuda_tools::Array;
 using holovibes::Stft_env;
+using holovibes::units::RectFd;
 
-RemoveJitter::RemoveJitter(FnVector& fn_vect,
-	const Stft_env& buffers,
-	const camera::FrameDescriptor& fd,
+RemoveJitter::RemoveJitter(cuComplex* buffer,
+	const RectFd& dimensions,
 	const holovibes::ComputeDescriptor& cd)
-	: fn_vect_(fn_vect)
-	, buffers_(buffers)
-	, fd_(fd)
+	: buffer_(buffer)
+	, dimensions_(dimensions)
 	, cd_(cd)
 {
 	slice_depth_ = cd_.nsamples /((nb_slices_ + 1) / 2);
 	slice_shift_ = slice_depth_ / 2;
 }
 
-void RemoveJitter::insert_pre_fft()
+void RemoveJitter::run()
 {
 	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
 	{
-		fn_vect_.push_back([this]() {
-			if (buffers_.stft_frame_counter_ == cd_.stft_steps)
-			{
-				compute_all_shifts();
-				fix_jitter();
-			}
-		});
+		compute_all_shifts();
+		fix_jitter();
 	}
 }
 
 
 void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 {
-	int width = fd_.width;
+	const int width = dimensions_.width();
 	int depth = slice_depth_;
-	int frame_size = fd_.frame_res();
+	const int frame_size = dimensions_.area();
 	CufftHandle plan1d;
 	plan1d.planMany(1, &depth,
 		&depth, frame_size, 1,
@@ -70,8 +64,8 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 		CUFFT_C2C, width);
 
 
-	auto in = buffers_.gpu_stft_buffer_.get() + cd_.getStftCursor().y() * fd_.width;
-	int pixel_shift_depth = slice_index * frame_size * slice_shift_;
+	auto in = buffer_ + cd_.getStftCursor().y() * width;
+	const int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
 	cufftExecC2C(plan1d, in, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
@@ -92,8 +86,8 @@ void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 	multiply_frames_complex(ref, slice, slice, size);
 	cudaStreamSynchronize(0);
 
-	int width = fd_.width;
-	int depth = slice_depth_;
+	const int width = dimensions_.width();
+	const int depth = slice_depth_;
 	CufftHandle plan1d;
 
 	plan1d.plan(width, depth, CUFFT_C2R);
@@ -106,7 +100,7 @@ void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 int RemoveJitter::maximum_y(float* frame)
 {
 	Array<float> line_averages(slice_depth_);
-	average_lines(frame, line_averages, fd_.width, slice_depth_);
+	average_lines(frame, line_averages, dimensions_.width(), slice_depth_);
 	cudaStreamSynchronize(0);
 
 	float test[16];
@@ -143,14 +137,14 @@ void RemoveJitter::fix_jitter()
 		cuComplex multiplier;
 		multiplier.x = cosf(sign * phi[chunk_no]);
 		multiplier.y = sinf(sign * phi[chunk_no]);
-		gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * p, fd_.frame_size() * slice_shift_, multiplier);
+		gpu_multiply_const(buffer_ + dimensions_.area() * p, dimensions_.area() * slice_shift_, multiplier);
 	}
 
 	// multiply the final big chunk
 	cuComplex multiplier;
 	multiplier.x = cosf(sign * phi.back());
 	multiplier.y = sinf(sign * phi.back());
-	gpu_multiply_const(buffers_.gpu_stft_buffer_.get() + fd_.frame_size() * (cd_.nsamples - big_chunk_size), fd_.frame_size() * big_chunk_size, multiplier);
+	gpu_multiply_const(buffer_ + dimensions_.area() * (cd_.nsamples - big_chunk_size), dimensions_.area() * big_chunk_size, multiplier);
 }
 
 int RemoveJitter::compute_one_shift(int i)
@@ -176,7 +170,7 @@ void RemoveJitter::compute_all_shifts()
 	extract_and_fft(0, ref_slice_);
 
 	shift_t_.clear();
-	for (int i = 1; i < nb_slices_; ++i)
+	for (uint i = 1; i < nb_slices_; ++i)
 		shift_t_.push_back(compute_one_shift(i));
 
 	for (auto i : shift_t_)
@@ -187,5 +181,5 @@ void RemoveJitter::compute_all_shifts()
 
 int RemoveJitter::slice_size()
 {
-	return fd_.width * slice_depth_;
+	return dimensions_.width() * slice_depth_;
 }

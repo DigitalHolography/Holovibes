@@ -32,12 +32,11 @@ namespace holovibes
 		class RemoveJitter
 		{
 		public:
-			RemoveJitter(FnVector& fn_vect,
-				const Stft_env& buffers,
-				const camera::FrameDescriptor& fd,
+			RemoveJitter(cuComplex* buffer,
+				const units::RectFd& dimensions,
 				const holovibes::ComputeDescriptor& cd);
 
-			void insert_pre_fft();
+			void run();
 
 		private:
 
@@ -51,9 +50,9 @@ namespace holovibes
 
 
 
-			int								nb_slices_{ 7 };
-			int								slice_depth_;
-			int								slice_shift_;
+			uint							nb_slices_{ 7 };
+			uint							slice_depth_;
+			uint							slice_shift_;
 
 
 
@@ -64,9 +63,8 @@ namespace holovibes
 
 			std::vector<int>				shift_t_;
 
-			FnVector&						fn_vect_;
-			const Stft_env&					buffers_;
-			const camera::FrameDescriptor&	fd_;
+			cuComplex*						buffer_;
+			const units::RectFd&			dimensions_;
 
 			const ComputeDescriptor&		cd_;
 		};

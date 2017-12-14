@@ -138,15 +138,6 @@ namespace holovibes
 		detect_intensity_.insert_post_contiguous_complex();
 		autofocus_->insert_restore();
 
-		if (compute_desc_.stft_view_enabled)
-		{
-			jitter_ = std::make_unique<compute::RemoveJitter>(fn_vect_, stft_env_, input_.get_frame_desc(), compute_desc_);
-			jitter_->insert_pre_fft();
-		}
-		else
-			jitter_.reset();
-
-
 		preprocess_->insert_interpolation();
 		preprocess_->insert_ref();
 

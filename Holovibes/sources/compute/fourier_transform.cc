@@ -186,15 +186,11 @@ void FourierTransform::stft_handler()
 			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
-			cd_.nsamples,
 			cd_.pindex,
-			cd_.pindex,
-			cd_.nsamples,
 			fd_.width,
 			fd_.height,
 			b,
-			cd_.croped_stft,
-			cd_.getZoomedZone(),
+			cd_,
 			gpu_cropped_stft_buf_);
 	else
 	{
@@ -203,15 +199,11 @@ void FourierTransform::stft_handler()
 			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
 			stft_env_.plan1d_stft_,
-			cd_.nsamples,
-			cd_.pindex,
 			cd_.vibrometry_q,
-			cd_.nsamples,
 			fd_.width,
 			fd_.height,
 			b,
-			cd_.croped_stft,
-			cd_.getZoomedZone(),
+			cd_,
 			gpu_cropped_stft_buf_);
 	}
 	if (cd_.stft_view_enabled && b)
