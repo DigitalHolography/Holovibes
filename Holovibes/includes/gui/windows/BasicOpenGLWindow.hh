@@ -78,7 +78,7 @@ namespace holovibes
 
 			OverlayManager	overlay_manager_;
 
-			void setTransform();
+			virtual void setTransform();
 
 			// CUDA Objects -------------
 			cudaGraphicsResource_t	cuResource;

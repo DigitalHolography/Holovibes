@@ -61,6 +61,13 @@ namespace holovibes
 			setPosition(old_pos);
 		}
 
+		void SliceWindow::setTransform()
+		{
+			if (getCd()->square_pixel)
+				make_pixel_square();
+			BasicOpenGLWindow::setTransform();
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();

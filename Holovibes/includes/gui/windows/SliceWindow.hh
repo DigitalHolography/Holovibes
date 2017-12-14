@@ -30,6 +30,7 @@ namespace holovibes
 			virtual ~SliceWindow();
 			void	create_strip_overlays();
 			void make_pixel_square();
+			void setTransform() override;
 			
 		protected:
 			cudaArray_t				cuArray;
