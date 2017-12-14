@@ -19,7 +19,6 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
-
 #include "tools_compute.cuh"
 #include "Common.cuh"
 #include "average.cuh"
@@ -39,6 +38,9 @@ RemoveJitter::RemoveJitter(cuComplex* buffer,
 	, dimensions_(dimensions)
 	, cd_(cd)
 {
+	nb_slices_ = std::max(3, cd.jitter_slices_.load());
+	if (!nb_slices_ % 2)
+		nb_slices_++;
 	slice_depth_ = cd_.nsamples /((nb_slices_ + 1) / 2);
 	slice_shift_ = slice_depth_ / 2;
 
@@ -109,9 +111,6 @@ int RemoveJitter::maximum_y(float* frame)
 	average_lines(frame, line_averages, dimensions_.width(), slice_depth_);
 	cudaStreamSynchronize(0);
 
-	float test[16];
-	cudaMemcpy(test, line_averages, 64, cudaMemcpyDeviceToHost);
-
 	uint max_y = 0;
 	gpu_extremums(line_averages, slice_depth_, nullptr, nullptr, nullptr, &max_y);
 	if (max_y > slice_depth_ / 2)
@@ -164,12 +163,12 @@ void RemoveJitter::fix_jitter()
 	int big_chunk_size = slice_shift_ * 1.5;
 
 	// multiply all small chunks
-	int chunk_no = 1;
 	int sign = cd_.jitter_enabled_ ? 1 : -1;
-	for (int p = big_chunk_size; p < cd_.nsamples - big_chunk_size; p += slice_shift_, chunk_no++) {
+	int p = big_chunk_size;
+	for (uint i = 0; i < phi.size(); p += slice_shift_, i++) {
 		cuComplex multiplier;
-		multiplier.x = cosf(sign * phi[chunk_no]);
-		multiplier.y = sinf(sign * phi[chunk_no]);
+		multiplier.x = cosf(sign * phi[i]);
+		multiplier.y = sinf(sign * phi[i]);
 		gpu_multiply_const(buffer_ + dimensions_.area() * p, dimensions_.area() * slice_shift_, multiplier);
 	}
 
@@ -177,7 +176,7 @@ void RemoveJitter::fix_jitter()
 	cuComplex multiplier;
 	multiplier.x = cosf(sign * phi.back());
 	multiplier.y = sinf(sign * phi.back());
-	gpu_multiply_const(buffer_ + dimensions_.area() * (cd_.nsamples - big_chunk_size), dimensions_.area() * big_chunk_size, multiplier);
+	gpu_multiply_const(buffer_ + dimensions_.area() * p, dimensions_.area() * (cd_.nsamples - p), multiplier);
 }
 
 void RemoveJitter::run()
