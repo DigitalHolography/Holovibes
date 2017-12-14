@@ -241,6 +241,29 @@ namespace holovibes
 				resetTransform();
 		}
 
+		void DirectWindow::keyPressEvent(QKeyEvent * e)
+		{
+			BasicOpenGLWindow::keyPressEvent(e);
+			switch (e->key()) {
+			case Qt::Key::Key_8:
+				translate_[1] -= 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_2:
+				translate_[1] += 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_6:
+				translate_[0] += 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_4:
+				translate_[0] -= 0.1f / scale_;
+				setTransform();
+				break;
+			}
+		}
+
 		void	DirectWindow::zoomInRect(units::RectOpengl zone)
 		{
 			const units::PointOpengl center = zone.center();

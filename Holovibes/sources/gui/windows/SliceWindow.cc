@@ -250,10 +250,5 @@ namespace holovibes
 				Cd->notify_observers();
 			}
 		}
-
-		void	SliceWindow::keyPressEvent(QKeyEvent* e)
-		{
-			overlay_manager_.keyPress(e);
-		}
 	}
 }

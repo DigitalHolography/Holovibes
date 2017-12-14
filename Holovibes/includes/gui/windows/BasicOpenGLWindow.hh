@@ -100,7 +100,7 @@ namespace holovibes
 
 			// Event functions ----------
 			void	timerEvent(QTimerEvent *e);
-			void	keyPressEvent(QKeyEvent *e);
+			virtual void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
 
 		protected:
