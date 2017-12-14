@@ -232,6 +232,7 @@ namespace holovibes
 			void flipTexture();
 			void set_scale_bar(bool value);
 			void set_scale_bar_correction_factor(double value);
+			void set_square_pixel(bool);
 			#pragma endregion
 			/* ---------- */
 		signals:

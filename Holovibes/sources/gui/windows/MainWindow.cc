@@ -260,6 +260,7 @@ namespace holovibes
 
 			ui.STFTCutsCheckBox->setEnabled(!is_direct);
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
+			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
 			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
@@ -1293,6 +1294,8 @@ namespace holovibes
 			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
 
+			compute_desc_.square_pixel = checked && ui.squarePixel_checkBox->isChecked();
+
 			QComboBox* winSelection = ui.WindowSelectionComboBox;
 			winSelection->setEnabled(checked);
 			winSelection->setCurrentIndex((!checked) ? 0 : winSelection->currentIndex());
@@ -1945,10 +1948,10 @@ namespace holovibes
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Scale>();
-				/*if (sliceXZ)
+				if (sliceXZ)
 					sliceXZ->getOverlayManager().create_overlay<Scale>();
 				if (sliceYZ)
-					sliceYZ->getOverlayManager().create_overlay<Scale>();*/
+					sliceYZ->getOverlayManager().create_overlay<Scale>();
 			}
 			else
 			{
@@ -1964,6 +1967,14 @@ namespace holovibes
 		void MainWindow::set_scale_bar_correction_factor(double value)
 		{
 			compute_desc_.scale_bar_correction_factor = value;
+		}
+		void MainWindow::set_square_pixel(bool enable)
+		{
+			compute_desc_.square_pixel = enable;
+			if (enable)
+				for (auto& slice : { sliceXZ.get(), sliceYZ.get() })
+					if (slice)
+						slice->make_pixel_square();
 		}
 		#pragma endregion
 		/* ------------ */

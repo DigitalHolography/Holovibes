@@ -314,6 +314,8 @@ namespace holovibes
 		//! difference between y min and y max
 		std::atomic<short>			y_acc_level;
 
+		std::atomic<bool>			square_pixel { false };
+
 		//! Composite images
 		//! \{
 		Component					component_r;

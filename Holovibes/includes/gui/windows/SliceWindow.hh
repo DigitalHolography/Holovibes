@@ -29,6 +29,8 @@ namespace holovibes
 			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
 			void	create_strip_overlays();
+			void make_pixel_square();
+			void setTransform() override;
 			
 		protected:
 			cudaArray_t				cuArray;
@@ -44,7 +46,6 @@ namespace holovibes
 			void mouseMoveEvent(QMouseEvent*) override;
 			void mouseReleaseEvent(QMouseEvent*) override;
 			void focusInEvent(QFocusEvent*) override;
-			void keyPressEvent(QKeyEvent* e) override;
 		};
 	}
 }

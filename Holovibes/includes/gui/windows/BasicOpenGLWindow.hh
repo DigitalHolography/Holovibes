@@ -47,6 +47,7 @@ namespace holovibes
 
 			void	setCd(ComputeDescriptor* cd);
 			ComputeDescriptor* getCd();
+			const ComputeDescriptor* getCd() const;
 			const camera::FrameDescriptor& getFd() const;
 			OverlayManager& getOverlayManager();
 
@@ -73,11 +74,10 @@ namespace holovibes
 			ComputeDescriptor		*Cd;
 			const camera::FrameDescriptor&	Fd;
 			const KindOfView		kView;
-			bool					fullScreen_;
 
 			OverlayManager	overlay_manager_;
 
-			void setTransform();
+			virtual void setTransform();
 
 			// CUDA Objects -------------
 			cudaGraphicsResource_t	cuResource;
@@ -100,7 +100,7 @@ namespace holovibes
 
 			// Event functions ----------
 			void	timerEvent(QTimerEvent *e);
-			void	keyPressEvent(QKeyEvent *e);
+			virtual void	keyPressEvent(QKeyEvent *e);
 			void	wheelEvent(QWheelEvent *e);
 
 		protected:

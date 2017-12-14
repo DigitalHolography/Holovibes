@@ -83,6 +83,11 @@ namespace holovibes
 			return Cd;
 		}
 
+		const ComputeDescriptor * BasicOpenGLWindow::getCd() const
+		{
+			return Cd;
+		}
+
 		const FrameDescriptor& BasicOpenGLWindow::getFd() const
 		{
 			return Fd;
@@ -105,6 +110,8 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
 		{
+			if (winState == Qt::WindowFullScreen)
+				return;
 			glViewport(0, 0, width, height);
 		}
 
@@ -119,33 +126,15 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
-				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
-				winState = Qt::WindowFullScreen;
+				//winPos = QPoint(screen.width() / 2 - screen.height() / 2, 0);
+				winState = winState == Qt::WindowFullScreen ? Qt::WindowNoState : Qt::WindowFullScreen;
 				setWindowState(winState);
-				fullScreen_ = true;
 				break;
 			case Qt::Key::Key_Escape:
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
-				fullScreen_ = false;
-				break;
-			case Qt::Key::Key_8:
-				translate_[1] -= 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_2:
-				translate_[1] += 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_6:
-				translate_[0] += 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_4:
-				translate_[0] -= 0.1f / scale_;
-				setTransform();
-				break;
+				break;	
 			}
 			overlay_manager_.keyPress(e);
 		}
@@ -167,11 +156,11 @@ namespace holovibes
 			{
 				scale_ -= 0.1f * scale_;
 				if (scale_ < 1.f)
-					resetTransform();
+					scale_ = 1;
 				else
 				{
-					translate_[0] -= -xGL * 0.1 / scale_;
-					translate_[1] -= yGL * 0.1 / scale_;
+					translate_[0] -= xGL * 0.1 / scale_;
+					translate_[1] -= -yGL * 0.1 / scale_;
 					setTransform();
 				}
 			}

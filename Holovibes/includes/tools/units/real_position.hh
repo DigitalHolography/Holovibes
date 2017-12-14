@@ -12,41 +12,23 @@
 
 /*! \file
 *
-* Qt window used to display the input frames. */
+* Implementation of a position in the frame desc coordinate system */
 #pragma once
 
-#include "BasicOpenGLWindow.hh"
+#include "unit.hh"
 
 namespace holovibes
 {
-	namespace gui
+	namespace units
 	{
-		class SliceWindow;
-		class DirectWindow : public BasicOpenGLWindow
+		class FDPixel;
+
+		/*! \brief A position in the frame desc coordinate system [0;fd.width]
+		*/
+		class RealPosition : public Unit<double>
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k = Direct);
-			virtual ~DirectWindow();
-
-			units::RectFd	getSignalZone() const;
-			units::RectFd	getNoiseZone() const;
-			void		setSignalZone(units::RectFd signal);
-			void		setNoiseZone(units::RectFd noise);
-
-			void	zoomInRect(units::RectOpengl zone);
-
-		protected:
-			int	texDepth, texType;
-
-			virtual void	initShaders() override;
-			virtual void	initializeGL() override;
-			virtual void	resizeGL(int width, int height) override;
-			virtual void	paintGL() override;
-			
-			void	mousePressEvent(QMouseEvent* e);
-			void	mouseMoveEvent(QMouseEvent* e);
-			void	mouseReleaseEvent(QMouseEvent* e);
-			void	keyPressEvent(QKeyEvent *e) override;
+			RealPosition(ConversionData data, Axis axis, double val = 0);
 		};
 	}
 }

@@ -332,6 +332,9 @@
     <ClCompile Include="sources\compute\converts.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\detect_intensity.cc">
+      <Filter>c++ sources</Filter>
+    </ClCompile>
     <ClCompile Include="sources\stdafx.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
@@ -353,8 +356,8 @@
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
-    <ClCompile Include="sources\compute\detect_intensity.cc">
-      <Filter>c++ sources\compute</Filter>
+    <ClCompile Include="sources\tools\units\real_position.cc">
+      <Filter>c++ sources\tools\units</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -621,6 +624,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\composite_area_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\tools\units\real_position.hh">
+      <Filter>c++ includes\tools\units</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -170,14 +170,14 @@ namespace holovibes
 		
 		void	DirectWindow::resizeGL(int w, int h)
 		{
-			const int min = std::min(w, h);
 			if (winState == Qt::WindowFullScreen)
 				return;
 
 			setFramePosition(winPos);
-
-			if ((min != width() || min != height()))
+			if (w != h) {
+				const int min = std::min(w, h);
 				resize(min, min);
+			}
 		}
 
 		void	DirectWindow::paintGL()
@@ -239,6 +239,29 @@ namespace holovibes
 				overlay_manager_.release(Fd.width);
 			else if (e->button() == Qt::RightButton)
 				resetTransform();
+		}
+
+		void DirectWindow::keyPressEvent(QKeyEvent * e)
+		{
+			BasicOpenGLWindow::keyPressEvent(e);
+			switch (e->key()) {
+			case Qt::Key::Key_8:
+				translate_[1] -= 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_2:
+				translate_[1] += 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_6:
+				translate_[0] += 0.1f / scale_;
+				setTransform();
+				break;
+			case Qt::Key::Key_4:
+				translate_[0] -= 0.1f / scale_;
+				setTransform();
+				break;
+			}
 		}
 
 		void	DirectWindow::zoomInRect(units::RectOpengl zone)

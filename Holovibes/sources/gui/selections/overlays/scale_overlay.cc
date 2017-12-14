@@ -12,6 +12,7 @@
 
 #include "scale_overlay.hh"
 #include "BasicOpenGLWindow.hh"
+#include "real_position.hh"
 
 namespace holovibes
 {
@@ -41,16 +42,6 @@ namespace holovibes
 		{
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
-			// Computing pixel size. Must be updated with the correct formula.
-			float pix_size;
-			if (parent_->getKindOfView() == Hologram)
-				pix_size = (cd->lambda * cd->zdistance) / (fd.width * cd->pixel_size * 1e-6);
-			else {
-				if (cd->interpolation_enabled)
-					pix_size = 1E-9 * cd->interp_lambda1 * cd->interp_lambda2 / (std::abs(cd->interp_lambda1 - cd->interp_lambda2));
-				else
-					pix_size = 1E-9 * std::pow(cd->lambda, 2) / 50; // 50nm is an arbitrary value
-			}
 
 			units::ConversionData convert(parent_);
 
@@ -62,18 +53,13 @@ namespace holovibes
 			// Building zone
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
 
-			// Retrieving number of pixel contained in the displayed image
-			float left = -1;
-			float top = 1;
-			convert.transform_to_fd(left, top);
-			float right = 1;
-			float bottom = -1;
-			convert.transform_to_fd(right, bottom);
-			float width = right - left;
-			float height = top - bottom;
-			// Computing the size in meters of the scale bar (using pixel size)
-			const float nb_pixel = sqrt(pow(width, 2) + pow(height, 2)) * fd.width / 2.f;
-			const float size = nb_pixel * pix_size * 0.15f * parent_->getCd()->scale_bar_correction_factor; // 0.15f because the scale bar only take 15% of the window width
+			//float size = nb_pixel * pix_size * 0.15f;
+			units::PointReal real_topLeft = units::PointFd(topLeft);
+			units::PointReal real_bottomRight = units::PointFd(bottomRight);
+
+			double size = (real_topLeft - real_bottomRight).distance();
+			if (parent_->getKindOfView() == Hologram)
+				size *= parent_->getCd()->scale_bar_correction_factor; // 0.15f because the scale bar only take 15% of the window width
 
 			/* The displaying of the text is done following these steps :
 					- Writing the information on a text document.
@@ -100,10 +86,8 @@ namespace holovibes
 			td.setHtml(text);
 
 			// Font
-			const int base_font_size = 10;
-			td.setDefaultFont(QFont("Arial", base_font_size));
-			const int adjusted_font_size = 1.5 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
-			td.setDefaultFont(QFont("Arial", adjusted_font_size, QFont::ExtraBold));
+			const int base_font_size = 12;
+			td.setDefaultFont(QFont("Arial", base_font_size, QFont::ExtraBold));
 
 			// Black outline
 			QTextCharFormat format;
@@ -124,7 +108,9 @@ namespace holovibes
 
 			// Setting variables
 			// Since the image is y-mirrored, we set the bottom left corner.
-			text_position_ = units::PointWindow(convert, x_pos - td.size().width() / 2.f, y_pos);
+			auto text_width = td.size().width();
+			text_position_ = units::PointWindow(convert, std::min(parent_->width() - text_width,  static_cast<int>(x_pos) - text_width / 2), y_pos);
+			
 			text_ = pixmap.toImage().mirrored(false, true);
 
 			// Updating opengl buffer

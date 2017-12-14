@@ -24,6 +24,8 @@ namespace holovibes
 			cuSurface(0),
 			main_window_(main_window)
 		{
+			// To prevent make_square_pixel to make one slice realy thin and the other 132 pixel due to the title bar buttons
+			setMinimumSize(QSize(132, 132));
 		}
 
 		SliceWindow::~SliceWindow()
@@ -44,6 +46,31 @@ namespace holovibes
 			overlay_manager_.create_overlay<KindOfOverlay::Composite>();
 		}
 		
+		void SliceWindow::make_pixel_square() {
+			units::ConversionData convert(this);
+
+			units::PointReal real_topLeft = units::PointFd(units::PointOpengl(convert, -1, 1));
+			units::PointReal real_bottomLeft = units::PointFd(units::PointOpengl(convert, -1, -1));
+			units::PointReal real_topRight = units::PointFd(units::PointOpengl(convert, 1, 1));
+
+			double size_x = (real_topRight - real_topLeft).distance();
+			double size_y = (real_bottomLeft - real_topLeft).distance();
+			auto old_pos = position();
+			if (kView == SliceXZ)
+				resize(QSize(width(), width() * size_y/size_x).expandedTo(minimumSize()));
+			if (kView == SliceYZ)
+				resize(QSize(height() * size_x / size_y, height()).expandedTo(minimumSize()));
+			setPosition(old_pos);
+		}
+
+		void SliceWindow::setTransform()
+		{
+			BasicOpenGLWindow::setTransform();
+			auto cd = getCd();
+			if (cd && cd->square_pixel)
+				make_pixel_square();
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
@@ -224,11 +251,6 @@ namespace holovibes
 				Cd->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
 				Cd->notify_observers();
 			}
-		}
-
-		void	SliceWindow::keyPressEvent(QKeyEvent* e)
-		{
-			overlay_manager_.keyPress(e);
 		}
 	}
 }

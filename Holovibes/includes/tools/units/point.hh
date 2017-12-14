@@ -19,6 +19,7 @@
 #include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
+#include "real_position.hh"
 
 #include <type_traits>
 
@@ -76,6 +77,7 @@ namespace holovibes
 			template <typename U>
 			operator Point<U>() const
 			{
+
 				Point<OpenglPosition> tmp(x_, y_);
 				// We can't use "if constexpr" here because cuda isn't c++17
 				// Once it is, please add the constexpr
@@ -86,7 +88,11 @@ namespace holovibes
 				Point<U> res(tmp.x(), tmp.y());
 				return res;
 			}
-
+			operator Point<RealPosition>() const
+			{
+				Point<RealPosition> res(x_, y_);
+				return res;
+			}
 			/*! \brief Operator overloads
 			 */
 			/**@{*/
@@ -104,6 +110,11 @@ namespace holovibes
 				res.x_ -= other.x_;
 				res.y_ -= other.y_;
 				return res;
+			}
+
+			double distance() const
+			{
+				return sqrt(pow(x_, 2) + pow(y_, 2));
 			}
 
 			bool operator==(const Point<T>& other) const
@@ -128,6 +139,8 @@ namespace holovibes
 		/*! \brief A point in the window coordinate system [0;window size]
 		 */
 		using PointWindow = Point<WindowPixel>;
+
+		using PointReal= Point<RealPosition>;
 
 		template<typename T>
 		std::ostream& operator<<(std::ostream& o, const Point<T>& p)
