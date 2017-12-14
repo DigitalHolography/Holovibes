@@ -14,6 +14,7 @@
 
 #include "rect.hh"
 #include <qrect.h>
+#include <cuComplex.h>
 
 /// Extract the part of *input described by frame
 void extract_frame(const float	*input,
@@ -30,6 +31,11 @@ void gpu_resize(const float		*input,
 
 /// Mirrors the image inplace on both axis
 void rotation_180(float				*frame,
+					QPoint			size,
+					cudaStream_t	stream = 0);
+
+/// Mirrors the image inplace on both axis
+void rotation_180(cuComplex			*frame,
 					QPoint			size,
 					cudaStream_t	stream = 0);
 

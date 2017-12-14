@@ -23,6 +23,7 @@
 #include "tools_compute.cuh"
 #include "Common.cuh"
 #include "average.cuh"
+#include "stabilization.cuh"
 
 using holovibes::compute::RemoveJitter;
 using holovibes::FnVector;
@@ -47,13 +48,10 @@ RemoveJitter::RemoveJitter(cuComplex* buffer,
 	correlation_.resize(size);
 }
 
-void RemoveJitter::run()
+
+int RemoveJitter::slice_size()
 {
-	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
-	{
-		compute_all_shifts();
-		fix_jitter();
-	}
+	return dimensions_.width() * slice_depth_;
 }
 
 
@@ -118,14 +116,41 @@ int RemoveJitter::maximum_y(float* frame)
 	return max_y;
 }
 
+int RemoveJitter::compute_one_shift(int i)
+{
+	extract_and_fft(i, slice_);
+
+	correlation(ref_slice_, slice_, correlation_);
+	int max_y = maximum_y(correlation_);
+
+	cudaCheckError();
+	return max_y;
+}
+
+void RemoveJitter::compute_all_shifts()
+{
+	extract_and_fft(0, ref_slice_);
+
+	// We flip it for the convolution, to do it only once
+	rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
+
+	shifts_.clear();
+	for (uint i = 1; i < nb_slices_; ++i)
+		shifts_.push_back(compute_one_shift(i));
+
+	for (auto i : shifts_)
+		std::cout << std::setw(2) << i << " ";
+	std::cout << std::endl;
+}
+
 void RemoveJitter::fix_jitter()
 {
 	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
 	int sum_phi = 0;
 	std::vector<double> phi;
-	for (size_t i = 0; i < shift_t_.size(); i++)
+	for (size_t i = 0; i < shifts_.size(); i++)
 	{
-		double phi_jitter = sum_phi + shift_t_[i];
+		double phi_jitter = sum_phi + shifts_[i];
 		sum_phi = phi_jitter;
 		phi_jitter *= M_PI_2 / cd_.lambda;
 		//std::cout << phi_jitter << " ";
@@ -152,32 +177,11 @@ void RemoveJitter::fix_jitter()
 	gpu_multiply_const(buffer_ + dimensions_.area() * (cd_.nsamples - big_chunk_size), dimensions_.area() * big_chunk_size, multiplier);
 }
 
-int RemoveJitter::compute_one_shift(int i)
+void RemoveJitter::run()
 {
-	extract_and_fft(i, slice_);
-
-	correlation(ref_slice_, slice_, correlation_);
-	int max_y = maximum_y(correlation_);
-
-	cudaCheckError();
-	return max_y;
-}
-
-void RemoveJitter::compute_all_shifts()
-{
-	extract_and_fft(0, ref_slice_);
-
-	shift_t_.clear();
-	for (uint i = 1; i < nb_slices_; ++i)
-		shift_t_.push_back(compute_one_shift(i));
-
-	for (auto i : shift_t_)
-		std::cout << std::setw(2) << i << " ";
-	std::cout << std::endl;
-}
-
-
-int RemoveJitter::slice_size()
-{
-	return dimensions_.width() * slice_depth_;
+	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
+	{
+		compute_all_shifts();
+		fix_jitter();
+	}
 }
