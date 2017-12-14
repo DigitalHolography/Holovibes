@@ -260,6 +260,7 @@ namespace holovibes
 
 			ui.STFTCutsCheckBox->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
+			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
 			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
@@ -1292,6 +1293,8 @@ namespace holovibes
 		{
 			InfoManager *manager = InfoManager::get_manager();
 			manager->insert_info(InfoManager::InfoType::STFT_SLICE_CURSOR, "STFT Slice Cursor", "(Y,X) = (0,0)");
+
+			compute_desc_.square_pixel = checked && ui.squarePixel_checkBox->isChecked();
 
 			QComboBox* winSelection = ui.WindowSelectionComboBox;
 			winSelection->setEnabled(checked);
