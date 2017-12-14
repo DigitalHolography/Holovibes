@@ -63,9 +63,10 @@ namespace holovibes
 
 		void SliceWindow::setTransform()
 		{
-			if (getCd()->square_pixel)
-				make_pixel_square();
 			BasicOpenGLWindow::setTransform();
+			auto cd = getCd();
+			if (cd && cd->square_pixel)
+				make_pixel_square();
 		}
 
 		void	SliceWindow::initShaders()
