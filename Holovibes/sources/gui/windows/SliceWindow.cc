@@ -47,9 +47,9 @@ namespace holovibes
 		void SliceWindow::make_pixel_square() {
 			units::ConversionData convert(this);
 
-			units::PointReal real_topLeft = units::PointFd(convert, 0, 0);;
-			units::PointReal real_bottomLeft = units::PointFd(convert, 0, 1);
-			units::PointReal real_topRight = units::PointFd(convert, 1, 0);;
+			units::PointReal real_topLeft = units::PointFd(units::PointOpengl(convert, -1, 1));
+			units::PointReal real_bottomLeft = units::PointFd(units::PointOpengl(convert, -1, -1));
+			units::PointReal real_topRight = units::PointFd(units::PointOpengl(convert, 1, 1));
 
 			double size_x = (real_topRight - real_topLeft).distance();
 			double size_y = (real_bottomLeft - real_topLeft).distance();
@@ -57,7 +57,7 @@ namespace holovibes
 			if (kView == SliceXZ)
 				resize(QSize(width(), width() * size_y/size_x));
 			if (kView == SliceYZ)
-				resize(QSize(height() * size_y / size_x, height()));
+				resize(QSize(height() * size_x / size_y, height()));
 			setPosition(old_pos);
 		}
 
