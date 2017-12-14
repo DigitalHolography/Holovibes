@@ -88,7 +88,7 @@ namespace holovibes
 			if (Fd.frame_res() != Cd->getZoomedZone().area())
 			{
 				units::ConversionData convert(this);
-				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width - 1, Fd.height - 1));
+				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width, Fd.height));
 			}
 			BasicOpenGLWindow::resetTransform();
 		}

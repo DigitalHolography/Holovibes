@@ -14,6 +14,7 @@
 
 #include "Common.cuh"
 #include "rect.hh"
+#include "queue.hh"
 
 using holovibes::units::RectFd;
 
@@ -47,7 +48,7 @@ using holovibes::units::RectFd;
  *\endverbatim
  */
 void stft(cuComplex			*input,
-		cuComplex			*gpu_queue,
+		holovibes::Queue	*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
 		const uint			stft_level,

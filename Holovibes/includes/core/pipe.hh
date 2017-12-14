@@ -86,23 +86,30 @@ namespace holovibes
 		/*! \brief Execute one processing iteration.
 		*
 		* * Checks the number of frames in input queue, that must at least
-		* be nsamples.
+		* be 1.
 		* * Call each function stored in the FnVector.
+		* * Call each function stored in the end FnVector, then clears it
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
 		* * Check if a ICompute refresh has been requested.
 		*
 		* The ICompute can not be interrupted for parameters changes until the
 		* refresh method is called. */
-
-		virtual void	refresh();
-		void			*get_enqueue_buffer();
 		virtual void	exec();
 
+		/*! \brief Enqueue the main FnVector according to the requests. */
+		virtual void	refresh();
+		void			*get_enqueue_buffer();
+
 	private:
+		//! Vector of functions that will be executed in the exec() function.
 		FnVector		fn_vect_;
 
+		//! Vecor of functions that will be executed once, after the execution of fn_vect_.
 		FnVector		functions_end_pipe_;
+		/*! Mutex that prevents the insertion of a function during its execution.
+		    Since we can insert functions in functions_end_pipe_ from other threads (MainWindow), we need to lock it.
+		*/
 		std::mutex		functions_mutex_;
 
 		std::unique_ptr<compute::Stabilization> stabilization_;
@@ -116,6 +123,10 @@ namespace holovibes
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
+
+		/*! \brief Iterates and executes function of the pipe.
+		
+		  It will first iterate over fn_vect_, then over function_end_pipe_. */
 		void run_all();
 	};
 }

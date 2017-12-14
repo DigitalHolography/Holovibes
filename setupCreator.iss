@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "5.6.4"
+#define MyAppVersion "5.6.5"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -28,7 +28,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=holovibes_setup
+OutputBaseFilename=holovibes_setup_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 DiskSpanning=no

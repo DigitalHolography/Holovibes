@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+ Implementation of preprocessing features on complex buffer. */
 #pragma once
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
@@ -43,23 +46,25 @@ namespace holovibes
 			void handle_reference();
 			void handle_sliding_reference();
 
+			//! State of the reference process
 			enum ref_state					ref_diff_state_;
+			//! Counter used by the reference process.
 			uint							ref_diff_counter_;
+			//! Ref Queue. Accumulating complex images to handle reference.
 			std::unique_ptr<Queue>			gpu_ref_diff_queue_;
 
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
+			//! Main buffers
 			const CoreBuffers&				buffers_;
 
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
+			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
-			/// }
 		};
 	}
 }

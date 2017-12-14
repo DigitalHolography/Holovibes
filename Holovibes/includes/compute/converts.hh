@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+  Implmentation of the conversions between buffers.*/
 #pragma once
 
 #include "frame_desc.hh"
@@ -47,24 +50,28 @@ namespace holovibes
 			void insert_to_modulus();
 			void insert_to_squaredmodulus();
 			void insert_to_composite();
-			void insert_to_complex();
 			void insert_to_argument(bool unwrap_2d_requested);
 			void insert_to_phase_increase(bool unwrap_2d_requested);
 			void insert_main_ushort();
 			void insert_slice_ushort();
 
+			//! pindex.
 			ushort pmin_;
+			//! maximum value of p accumulation
 			ushort pmax_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
+			//! Main buffers
 			const CoreBuffers&				buffers_;
+			//! STFT environment
 			const Stft_env&					stft_env_;
+			//! Phase unwrapping 1D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources>	unwrap_res_;
+			//! Phase unwrapping 2D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources_2d>	unwrap_res_2d_;
+			//! Plan 2D. Used for unwrapping.
 			const cufftHandle&				plan2d_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor&		fd_;
@@ -72,7 +79,6 @@ namespace holovibes
 			const camera::FrameDescriptor&		output_fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
-			/// }
 		};
 	}
 }

@@ -147,7 +147,8 @@ namespace holovibes
 		// Complex mode is strangely implemented.
 		// If someone knows why this line is fixing complex slices, please make it cleaner.
 		fn_vect_.push_back([=]() {
-			if (autocontrast_slice_requested_ && compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+			if ((autocontrast_slice_xz_requested_ || autocontrast_slice_yz_requested_)
+				&& compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
 				request_refresh();
 		});
 
@@ -160,7 +161,8 @@ namespace holovibes
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
-			autocontrast_slice_requested_ = false;
+			autocontrast_slice_xz_requested_ = false;
+			autocontrast_slice_yz_requested_ = false;
 			return;
 		}
 
@@ -185,7 +187,7 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
-		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_requested_);
+		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });
@@ -197,7 +199,9 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_.get() : buffers_.gpu_output_buffer_.get();
+		if (compute_desc_.img_type == ImgType::Complex)
+			return buffers_.gpu_input_buffer_;
+		return buffers_.gpu_output_buffer_;
 	}
 
 	void Pipe::exec()
@@ -223,9 +227,9 @@ namespace holovibes
 							}
 							if (compute_desc_.stft_view_enabled)
 							{
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_.get() : buffers_.gpu_ushort_cut_xz_.get(),
 									stft_env_.gpu_stft_slice_queue_xz.get());
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_.get() : buffers_.gpu_ushort_cut_yz_.get(),
 									stft_env_.gpu_stft_slice_queue_yz.get());
 							}
 						}

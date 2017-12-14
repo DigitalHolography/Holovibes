@@ -64,16 +64,13 @@ namespace holovibes
 
 			uint frames_since_jump_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
-
+			/// Compute Descriptor
 			ComputeDescriptor&				cd_;
-			/// }
 		};
 	}
 }

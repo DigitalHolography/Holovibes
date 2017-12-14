@@ -262,8 +262,7 @@ namespace holovibes
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
-			filter_button->setEnabled(!is_direct && !compute_desc_.stft_view_enabled
-				&& !compute_desc_.filter_2d_enabled && !compute_desc_.stft_view_enabled);
+			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled);
 
@@ -344,12 +343,11 @@ namespace holovibes
 
 			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled);
 			ui.ConvoCheckBox->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
-			ui.AverageCheckBox->setEnabled(!compute_desc_.stft_view_enabled);
 			ui.AverageCheckBox->setChecked(!is_direct && compute_desc_.average_enabled);
 			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled);
 			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level);
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level);
-			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None && !compute_desc_.stft_view_enabled);
+			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None);
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
@@ -834,8 +832,6 @@ namespace holovibes
 		#pragma region Close Compute
 		void MainWindow::close_critical_compute()
 		{ 
-			close_windows();
-			compute_desc_.compute_mode = Computation::Stop;
 			if (compute_desc_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(compute_desc_);
@@ -1060,6 +1056,7 @@ namespace holovibes
 				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
+				layout_toggled();
 			}
 		}
 
@@ -1181,18 +1178,25 @@ namespace holovibes
 			{
 				QComboBox* ptr = ui.ViewModeComboBox;
 
-				compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 				if (need_refresh(last_img_type_, value))
+				{
+					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
+				}
 				last_img_type_ = value;
-				layout_toggled();
 
-				if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-					pipe->autocontrast_end_pipe(XYview);
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+
+				pipe->run_end_pipe([=]() {
+					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
+				});
+				pipe_refresh();
+
+				pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
-
-				pipe_refresh();
+				while (pipe->get_refresh_request())
+				layout_toggled();
 				notify();
 			}
 		}
@@ -1233,19 +1237,20 @@ namespace holovibes
 			compute_desc_.img_acc_slice_yz_enabled = false;
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
+
+			mainDisplay->setCursor(Qt::ArrowCursor);
+			mainDisplay->resetSelection();
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
 				pipe->run_end_pipe([=]() {
 					compute_desc_.stft_view_enabled = false;
-					holovibes_.get_pipe()->delete_stft_slice_queue();
+					pipe->delete_stft_slice_queue();
+
+					ui.STFTCutsCheckBox->setChecked(false);
+					notify();
 				});
 			}
-			ui.STFTCutsCheckBox->setChecked(false);
 
-			mainDisplay->setCursor(Qt::ArrowCursor);
-			mainDisplay->resetSelection();
-
-			notify();
 		}
 
 		void MainWindow::set_crop_stft(bool b)
@@ -1940,10 +1945,10 @@ namespace holovibes
 			if (value)
 			{
 				mainDisplay->getOverlayManager().create_overlay<Scale>();
-				if (sliceXZ)
+				/*if (sliceXZ)
 					sliceXZ->getOverlayManager().create_overlay<Scale>();
 				if (sliceYZ)
-					sliceYZ->getOverlayManager().create_overlay<Scale>();
+					sliceYZ->getOverlayManager().create_overlay<Scale>();*/
 			}
 			else
 			{
@@ -1974,8 +1979,8 @@ namespace holovibes
 			// If current overlay is Autofocus, disable it
 			if (mainDisplay->getKindOfOverlay() == Autofocus)
 			{
-				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				mainDisplay->getOverlayManager().create_default();
+				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				notify();
 			}
 			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
@@ -2036,8 +2041,15 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast_cuts()
 		{
+			holovibes_.get_pipe()->request_autocontrast(XZview);
+			holovibes_.get_pipe()->request_autocontrast(YZview);
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
-				pipe->autocontrast_end_pipe(XZview);
+			{
+				pipe->run_end_pipe([=]() {
+					pipe->request_autocontrast(XZview);
+					pipe->request_autocontrast(YZview);
+				});
+			}
 		}
 
 		void MainWindow::set_auto_contrast()
@@ -2203,7 +2215,10 @@ namespace holovibes
 				if (value)
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
 				else
-					mainDisplay->resetSelection();
+				{
+					mainDisplay->getOverlayManager().disable_all(Signal);
+					mainDisplay->getOverlayManager().disable_all(Noise);
+				}
 				is_enabled_average_ = value;
 				notify();
 			}

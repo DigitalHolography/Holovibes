@@ -49,7 +49,8 @@ namespace holovibes
 		unwrap_2d_requested_(false),
 		autofocus_requested_(false),
 		autocontrast_requested_(false),
-		autocontrast_slice_requested_(false),
+		autocontrast_slice_xz_requested_(false),
+		autocontrast_slice_yz_requested_(false),
 		refresh_requested_(false),
 		update_n_requested_(false),
 		stft_update_roi_requested_(false),
@@ -112,11 +113,12 @@ namespace holovibes
 			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
 		}
-		int complex_pixels = sizeof(cufftComplex) * input_.get_pixels();
-
 		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
 			err++;
-		if (!buffers_.gpu_output_buffer_.resize(output_.get_frame_desc().depth * input_.get_pixels()))
+		int output_buffer_size = input_.get_pixels();
+		if (compute_desc_.img_type == Composite)
+			output_buffer_size *= 3;
+		if (compute_desc_.img_type != Complex && !buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
@@ -175,7 +177,7 @@ namespace holovibes
 				request_stft_cuts_ = true; */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 			if (auto pipe = dynamic_cast<Pipe *>(this))
-				pipe->get_fourier_transforms()->allocate(n);
+				pipe->get_fourier_transforms()->allocate_filter2d(n);
 		}
 		catch (std::exception&)
 		{
@@ -217,8 +219,8 @@ namespace holovibes
 			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
 			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
 
-			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_size());
-			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_size());
+			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_res());
+			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_res());
 			request_stft_cuts_ = false;
 		}
 
@@ -337,8 +339,10 @@ namespace holovibes
 	{
 		if (kind == XYview)
 			autocontrast_requested_ = true;
+		else if (kind == XZview)
+			autocontrast_slice_xz_requested_ = true;
 		else
-			autocontrast_slice_requested_ = true;
+			autocontrast_slice_yz_requested_ = true;
 	}
 
 	void ICompute::request_filter2D_roi_update()
@@ -424,12 +428,6 @@ namespace holovibes
 		average_requested_ = true;
 		average_record_requested_ = true;
 		request_refresh();
-	}
-
-	void ICompute::record(void *output, cudaStream_t stream)
-	{
-		//TODo: use stream
-		fqueue_->enqueue(output);
 	}
 
 	void ICompute::fps_count()

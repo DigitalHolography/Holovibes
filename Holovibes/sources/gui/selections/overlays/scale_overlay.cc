@@ -47,8 +47,8 @@ namespace holovibes
 
 			// Setting the scale at 5% from bottom and 94% from top
 			// Setting the scale at 75% from left and 10% from right
-			units::PointOpengl topLeft(convert, 0.5, -0.88);
-			units::PointOpengl bottomRight(convert, 0.8, -0.9);
+			units::PointOpengl topLeft(convert, 0.5f, -0.88f);
+			units::PointOpengl bottomRight(convert, 0.8f, -0.9f);
 
 			// Building zone
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
