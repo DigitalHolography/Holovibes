@@ -53,18 +53,6 @@ namespace holovibes
 			// Building zone
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
 
-			// Retrieving number of pixel contained in the displayed image
-			float left = -1;
-			float top = 1;
-			convert.transform_to_fd(left, top);
-			float right = 1;
-			float bottom = -1;
-			convert.transform_to_fd(right, bottom);
-			float width = right - left;
-			float height = top - bottom;
-			// Computing the size in meters of the scale bar (using pixel size)
-			const float nb_pixel = sqrt(pow(width, 2) + pow(height, 2)) * fd.width / 2.f;
-
 			//float size = nb_pixel * pix_size * 0.15f;
 			units::PointReal real_topLeft = units::PointFd(topLeft);
 			units::PointReal real_bottomRight = units::PointFd(bottomRight);
@@ -98,10 +86,8 @@ namespace holovibes
 			td.setHtml(text);
 
 			// Font
-			const int base_font_size = 10;
-			td.setDefaultFont(QFont("Arial", base_font_size));
-			const int adjusted_font_size = 1.5 * base_font_size * float(static_cast<units::RectWindow>(scale_zone_).width()) / float(td.size().width());
-			td.setDefaultFont(QFont("Arial", adjusted_font_size, QFont::ExtraBold));
+			const int base_font_size = 12;
+			td.setDefaultFont(QFont("Arial", base_font_size, QFont::ExtraBold));
 
 			// Black outline
 			QTextCharFormat format;
@@ -122,7 +108,9 @@ namespace holovibes
 
 			// Setting variables
 			// Since the image is y-mirrored, we set the bottom left corner.
-			text_position_ = units::PointWindow(convert, x_pos - td.size().width() / 2.f, y_pos);
+			auto text_width = td.size().width();
+			text_position_ = units::PointWindow(convert, std::min(parent_->width() - text_width,  static_cast<int>(x_pos) - text_width / 2), y_pos);
+			
 			text_ = pixmap.toImage().mirrored(false, true);
 
 			// Updating opengl buffer
