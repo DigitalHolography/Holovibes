@@ -74,7 +74,6 @@ namespace holovibes
 			ComputeDescriptor		*Cd;
 			const camera::FrameDescriptor&	Fd;
 			const KindOfView		kView;
-			bool					fullScreen_;
 
 			OverlayManager	overlay_manager_;
 

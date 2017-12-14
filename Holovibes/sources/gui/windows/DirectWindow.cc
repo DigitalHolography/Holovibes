@@ -170,14 +170,14 @@ namespace holovibes
 		
 		void	DirectWindow::resizeGL(int w, int h)
 		{
-			const int min = std::min(w, h);
 			if (winState == Qt::WindowFullScreen)
 				return;
 
 			setFramePosition(winPos);
-
-			if ((min != width() || min != height()))
+			if (w != h) {
+				const int min = std::min(w, h);
 				resize(min, min);
+			}
 		}
 
 		void	DirectWindow::paintGL()

@@ -110,6 +110,8 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
 		{
+			if (winState == Qt::WindowFullScreen)
+				return;
 			glViewport(0, 0, width, height);
 		}
 
@@ -124,16 +126,14 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
-				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
+				winPos = QPoint(screen.width() / 2 - screen.height() / 2, 0);
 				winState = Qt::WindowFullScreen;
 				setWindowState(winState);
-				fullScreen_ = true;
 				break;
 			case Qt::Key::Key_Escape:
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
-				fullScreen_ = false;
 				break;
 			case Qt::Key::Key_8:
 				translate_[1] -= 0.1f / scale_;
