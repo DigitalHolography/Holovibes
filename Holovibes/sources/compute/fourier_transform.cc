@@ -61,7 +61,8 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::STFT_ZONE, "STFT Zone", ss.str());
 }
 
-void FourierTransform::allocate(unsigned int n)
+
+void FourierTransform::allocate_filter2d(unsigned int n)
 {
 	if (cd_.croped_stft)
 		gpu_cropped_stft_buf_.resize(cd_.getZoomedZone().area() * n);
@@ -75,7 +76,7 @@ void FourierTransform::insert_fft()
 	if (cd_.filter_2d_enabled)
 		insert_filter2d();
 
-	// Applying fresnel transform only when filter2d isn't in filtering mode (when overlay isn't released yet)
+	// In filter 2D: Applying fresnel transform only when filter2d overlay is release
 	if (!cd_.filter_2d_enabled || filter2d_zone_.area())
 	{
 		if (cd_.algorithm == Algorithm::FFT1)
@@ -161,8 +162,10 @@ void FourierTransform::enqueue_lens()
 {
 	if (gpu_lens_queue_)
 	{
+		// Getting the pointer in the location of the next enqueued element
 		cuComplex* copied_lens_ptr = static_cast<cuComplex*>(gpu_lens_queue_->get_end());
 		gpu_lens_queue_->enqueue(gpu_lens_);
+		// Normalizing the newly enqueued element
 		normalize_complex(copied_lens_ptr, fd_.frame_res());
 	}
 }

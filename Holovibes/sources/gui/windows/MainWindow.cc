@@ -262,8 +262,7 @@ namespace holovibes
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			QPushButton *filter_button = ui.Filter2DPushButton;
-			filter_button->setEnabled(!is_direct && !compute_desc_.stft_view_enabled
-				&& !compute_desc_.filter_2d_enabled && !compute_desc_.stft_view_enabled);
+			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
 			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
 			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled);
 
@@ -344,12 +343,11 @@ namespace holovibes
 
 			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled);
 			ui.ConvoCheckBox->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
-			ui.AverageCheckBox->setEnabled(!compute_desc_.stft_view_enabled);
 			ui.AverageCheckBox->setChecked(!is_direct && compute_desc_.average_enabled);
 			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled);
 			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level);
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level);
-			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None && !compute_desc_.stft_view_enabled);
+			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None);
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
@@ -1246,7 +1244,7 @@ namespace holovibes
 			{
 				pipe->run_end_pipe([=]() {
 					compute_desc_.stft_view_enabled = false;
-					holovibes_.get_pipe()->delete_stft_slice_queue();
+					pipe->delete_stft_slice_queue();
 
 					ui.STFTCutsCheckBox->setChecked(false);
 					notify();
@@ -1975,8 +1973,8 @@ namespace holovibes
 			// If current overlay is Autofocus, disable it
 			if (mainDisplay->getKindOfOverlay() == Autofocus)
 			{
-				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				mainDisplay->getOverlayManager().create_default();
+				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				notify();
 			}
 			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
@@ -2211,7 +2209,10 @@ namespace holovibes
 				if (value)
 					mainDisplay->getOverlayManager().create_overlay<Signal>();
 				else
-					mainDisplay->resetSelection();
+				{
+					mainDisplay->getOverlayManager().disable_all(Signal);
+					mainDisplay->getOverlayManager().disable_all(Noise);
+				}
 				is_enabled_average_ = value;
 				notify();
 			}

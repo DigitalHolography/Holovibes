@@ -32,6 +32,9 @@ namespace holovibes
 		class FourierTransform
 		{
 		public:
+			/*! \brief Constructor.
+			
+			*/
 			FourierTransform(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const std::unique_ptr<Autofocus>& autofocus,
@@ -40,19 +43,55 @@ namespace holovibes
 				const cufftHandle& plan2d,
 				Stft_env& stft_env);
 
-			/*! \brief Enqueue the appropriate functions
-			**
-			** Should be called just after gpu_float_buffer is computed
+
+			/*! \brief allocate filter2d buffer.
+			
 			*/
-			void allocate(unsigned int n);
+			void allocate_filter2d(unsigned int n);
+
+			/*! \brief enqueue functions relative to spatial fourier transforms.
+			
+			*/
 			void insert_fft();
+
+			/*! \brief enqueue functions relative to temporal fourier transforms.
+			
+			*/
 			void insert_stft();
+
+			/*! \brief Get Lens Queue used to display the Fresnel lens.
+			
+			*/
 			Queue* get_lens_queue();
 		private:
+			/*! \brief Enqueue the call to filter2d cuda function.
+			
+			*/
 			void insert_filter2d();
+
+			/*! \brief Compute lens and enqueue the call to fft1 cuda function.
+			
+			*/
 			void insert_fft1();
+
+			/*! \brief Compute lens and enqueue the call to fft2 cuda function.
+			
+			*/
 			void insert_fft2();
+
+			/*! \brief Apply the STFT algorithm.
+
+			 * 1 : Check if the STFT must be performed acording to stft_steps \n
+			 * 2 : Call the STFT cuda function \n
+			 * 3 : If STFT has been performed, compute the slice buffer \n
+			 * 4 : Set stft_handle in order to break the pipe after this call when STFT hasn't been performed.
+			 */
 			void stft_handler();
+
+			/*! \brief Enqueue the Fresnel lens into the Lens Queue.
+			
+				It will enqueue the lens, and normalize it, in order to display it correctly later.
+			*/
 			void enqueue_lens();
 
 			//! Roi zone of Filter 2D

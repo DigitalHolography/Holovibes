@@ -177,7 +177,7 @@ namespace holovibes
 				request_stft_cuts_ = true; */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 			if (auto pipe = dynamic_cast<Pipe *>(this))
-				pipe->get_fourier_transforms()->allocate(n);
+				pipe->get_fourier_transforms()->allocate_filter2d(n);
 		}
 		catch (std::exception&)
 		{
