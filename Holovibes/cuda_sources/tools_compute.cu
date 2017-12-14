@@ -301,3 +301,14 @@ void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
 	kernel_multiply_complex_by_single_complex << <blocks, threads, 0, 0 >> >(frame, x, frame_size);
 	cudaCheckError();
 }
+
+void normalize_frame(float* frame, uint frame_res)
+{
+	float min, max;
+	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
+
+	gpu_substract_const(frame, frame_res, min);
+	cudaStreamSynchronize(0);
+	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
+	cudaStreamSynchronize(0);
+}

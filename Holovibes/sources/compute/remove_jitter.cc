@@ -75,6 +75,9 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	cudaCheckError();
 
 	// Preparing for the convolution
+
+	normalize_frame(reinterpret_cast<float*>(buffer), 2 * slice_size());
+
 	CufftHandle plan2d(width, depth, CUFFT_C2C);
 	cufftExecC2C(plan2d, buffer, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);

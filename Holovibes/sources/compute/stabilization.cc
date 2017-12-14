@@ -69,17 +69,6 @@ void Stabilization::insert_correlation()
 }
 
 
-void Stabilization::normalize_frame(float* frame, uint frame_res)
-{
-	float min, max;
-	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
-
-	gpu_substract_const(frame, frame_res, min);
-	cudaStreamSynchronize(0);
-	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
-	cudaStreamSynchronize(0);
-}
-
 void Stabilization::compute_correlation(const float *x, const float *y)
 {
 	auto zone = cd_.getStabilizationZone();
