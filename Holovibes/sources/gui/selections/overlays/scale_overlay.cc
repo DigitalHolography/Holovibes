@@ -57,8 +57,6 @@ namespace holovibes
 			units::PointReal real_bottomRight = units::PointFd(bottomRight);
 
 			double size = (real_topLeft - real_bottomRight).distance();
-			if (parent_->getKindOfView() == Hologram)
-				size *= parent_->getCd()->scale_bar_correction_factor;
 
 			/* The displaying of the text is done following these steps :
 					- Writing the information on a text document.
