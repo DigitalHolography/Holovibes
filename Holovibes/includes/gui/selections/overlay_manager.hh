@@ -37,7 +37,7 @@ namespace holovibes
 				std::atomic<ushort>& nsamples,
 				Color color,
 				float alpha = 0.3f);
-
+			void create_rainbow_overlay(double red, double blue, std::atomic<ushort>& nsamples, float alpha = 0.3f);
 			/*! \brief Create an overlay, and set its zone. */
 			void set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko);
 

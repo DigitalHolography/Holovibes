@@ -25,6 +25,7 @@
 #include "scale_overlay.hh"
 #include "composite_overlay.hh"
 #include "composite_area_overlay.hh"
+#include "rainbow_overlay.hh"
 
 namespace holovibes
 {
@@ -133,6 +134,11 @@ namespace holovibes
 			float alpha)
 		{
 			create_overlay(std::make_shared<StripOverlay>(parent_, component, nsamples, color, alpha));
+		}
+
+		void OverlayManager::create_rainbow_overlay(double red, double blue, std::atomic<ushort>& nsamples, float alpha)
+		{
+			create_overlay(std::make_shared<RainbowOverlay>(parent_, red, blue, nsamples, alpha));
 		}
 
 		void OverlayManager::create_overlay(std::shared_ptr<Overlay> new_overlay)

@@ -631,6 +631,9 @@
     <ClInclude Include="includes\tools\color.hh">
       <Filter>c++ sources\tools</Filter>
     </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh">
+      <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
