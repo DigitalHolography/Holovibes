@@ -45,10 +45,14 @@ namespace holovibes
 
 			// Set color
 			const float colorData[] = {
+				1, 0, 0,
+				0, 0, 1,
+				0, 0, 1,
+				1, 0, 0,
+				/*color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
 				color_[0], color_[1], color_[2],
-				color_[0], color_[1], color_[2],
-				color_[0], color_[1], color_[2],
+				color_[0], color_[1], color_[2],*/
 			};
 			glGenBuffers(1, &colorIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);

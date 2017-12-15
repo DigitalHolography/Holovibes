@@ -30,7 +30,7 @@ namespace holovibes
 				, nsamples_(nsamples)
 				, red_(red), blue_(blue)
 			{
-				alpha_ = alpha;
+				alpha_ = 0.5;// alpha;
 				display_ = true;
 			}
 			
@@ -59,7 +59,7 @@ namespace holovibes
 			void move(QMouseEvent *e) override
 			{}
 
-			void init() override {
+			/*void init() override {
 				RectOverlay::init();
 				// Set color
 				const float colorData[] = {
@@ -80,12 +80,15 @@ namespace holovibes
 				glVertexAttribPointer(colorShader_, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 				glDisableVertexAttribArray(colorShader_);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
-			}
-
+			}*/
 			/*void draw() override {
 				compute_zone();
 				setBuffer();
-				RectOverlay::draw
+				RectOverlay::draw();
+			}*/
+			void draw() override {
+				compute_zone();
+				setBuffer();
 
 				parent_->makeCurrent();
 				setBuffer();
@@ -103,7 +106,7 @@ namespace holovibes
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 				Program_->release();
 				Vao_.release();
-			}*/
+			}
 			/*void setBuffer() override {
 				parent_->makeCurrent();
 				Program_->bind();
