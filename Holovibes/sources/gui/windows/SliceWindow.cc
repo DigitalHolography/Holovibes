@@ -18,7 +18,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window) :
+		SliceWindow::SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window) :
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
@@ -213,8 +213,8 @@ namespace holovibes
 			Program->bind();
 
 			textureUpdate(cuSurface,
-				Qu.get_last_images(1),
-				Qu.get_frame_desc(),
+				Qu->get_last_images(1),
+				Qu->get_frame_desc(),
 				cuStream);
 
 			glBindTexture(GL_TEXTURE_2D, Tex);

@@ -20,7 +20,7 @@ namespace holovibes
 	using camera::Endianness;
 	namespace gui
 	{
-		DirectWindow::DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+		DirectWindow::DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k) :
 			BasicOpenGLWindow(p, s, q, k),
 			texDepth(0),
 			texType(0)
@@ -192,7 +192,7 @@ namespace holovibes
 
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
-			void* frame = Qu.get_last_images(1);
+			void* frame = Qu->get_last_images(1);
 			if (Fd.depth == 4.f)
 				float_to_ushort(static_cast<const float*>(frame), cuPtrToPbo, Fd.frame_res(), Fd.depth);
 			else if (Fd.depth == 8.f)

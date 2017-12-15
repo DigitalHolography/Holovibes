@@ -70,7 +70,7 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
-		virtual Queue*			get_lens_queue() override;
+		virtual std::unique_ptr<Queue>&			get_lens_queue() override;
 
 		/*! \brief Runs a function after the current pipe iteration ends
 		 */

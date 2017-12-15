@@ -1053,7 +1053,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
-				const FrameDescriptor& fd = holovibes_.get_capture_queue().get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				set_convolution_mode(false);
 				notify();
@@ -1064,7 +1064,7 @@ namespace holovibes
 		void MainWindow::createPipe()
 		{
 
-			uint depth = holovibes_.get_capture_queue().get_frame_desc().depth;
+			uint depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
 			
 			if (compute_desc_.compute_mode == Computation::Hologram)
 			{
@@ -1129,7 +1129,7 @@ namespace holovibes
 				createPipe();
 				createHoloWindow();
 				/* ---------- */
-				const FrameDescriptor& fd = holovibes_.get_output_queue().get_frame_desc();
+				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
@@ -1530,7 +1530,7 @@ namespace holovibes
 						lens_window.reset(new DirectWindow(
 							pos,
 							QSize(mainDisplay->width(), mainDisplay->height()),
-							*pipe->get_lens_queue()));
+							pipe->get_lens_queue()));
 					}
 					lens_window->setTitle("Lens view");
 					lens_window->setCd(&compute_desc_);
@@ -2549,10 +2549,9 @@ namespace holovibes
 				return display_error("No output file");
 			}
 
-			Queue* queue = nullptr;
 			try
 			{
-				queue = holovibes_.get_current_window_output_queue();
+				auto& queue = holovibes_.get_current_window_output_queue();
 				
 				if (queue)
 				{
@@ -2643,11 +2642,11 @@ namespace holovibes
 				Queue* q = nullptr;
 				
 				if (compute_desc_.current_window == WindowKind::XYview)
-					q = &holovibes_.get_output_queue();
+					q = holovibes_.get_output_queue().get();
 				else if (compute_desc_.current_window == WindowKind::XZview)
-					q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+					q = holovibes_.get_pipe()->get_stft_slice_queue(0).get();
 				else
-					q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+					q = holovibes_.get_pipe()->get_stft_slice_queue(1).get();
 				// Only loading the dll at runtime
 				gpib_interface_ = gpib::GpibDLL::load_gpib("gpib.dll", input_path);
 
@@ -2742,11 +2741,11 @@ namespace holovibes
 			Queue *q = nullptr;
 
 			if (compute_desc_.current_window == WindowKind::XYview)
-				q = &holovibes_.get_output_queue();
+				q = holovibes_.get_output_queue().get();
 			else if (compute_desc_.current_window == WindowKind::XZview)
-				q = &holovibes_.get_pipe()->get_stft_slice_queue(0);
+				q = holovibes_.get_pipe()->get_stft_slice_queue(0).get();
 			else
-				q = &holovibes_.get_pipe()->get_stft_slice_queue(1);
+				q = holovibes_.get_pipe()->get_stft_slice_queue(1).get();
 
 			std::string output_filename = format_batch_output(path, file_index_);
 			output_filename = set_record_filename_properties(q->get_frame_desc(), output_filename);

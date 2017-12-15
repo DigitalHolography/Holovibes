@@ -151,7 +151,7 @@ namespace holovibes
 
 		void			create_stft_slice_queue();
 		void			delete_stft_slice_queue();
-		Queue&			get_stft_slice_queue(int i);
+		std::unique_ptr<Queue>& get_stft_slice_queue(int i);
 		bool			get_cuts_request();
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
@@ -181,9 +181,7 @@ namespace holovibes
 			stft_env_.stft_frame_counter_ = value;
 		}
 
-		virtual Queue*	get_lens_queue();
-
-
+		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 	protected:
 
 		virtual void refresh() = 0;

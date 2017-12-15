@@ -62,7 +62,7 @@ namespace holovibes
 			/*! \brief Get Lens Queue used to display the Fresnel lens.
 			
 			*/
-			Queue* get_lens_queue();
+			std::unique_ptr<Queue>& get_lens_queue();
 		private:
 			/*! \brief Enqueue the call to filter2d cuda function.
 			

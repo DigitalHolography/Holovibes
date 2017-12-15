@@ -147,7 +147,7 @@ void FourierTransform::insert_stft()
 }
 
 
-Queue *FourierTransform::get_lens_queue()
+std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
 	if (!gpu_lens_queue_ && cd_.gpu_lens_display_enabled)
 	{
@@ -155,7 +155,7 @@ Queue *FourierTransform::get_lens_queue()
 		fd.depth = 8;
 		gpu_lens_queue_ = std::make_unique<Queue>(fd, 16, "GPU lens queue");
 	}
-	return gpu_lens_queue_.get();
+	return gpu_lens_queue_;
 }
 
 void FourierTransform::enqueue_lens()

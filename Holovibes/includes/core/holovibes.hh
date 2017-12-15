@@ -75,18 +75,18 @@ namespace holovibes
 		/*! \{ \name Queue getters
 		 *
 		 * Used to record frames */
-		Queue& get_capture_queue()
+		std::unique_ptr<Queue>& get_capture_queue()
 		{
-			return *input_;
+			return input_;
 		}
 
 		/*! Used to display frames */
-		Queue& get_output_queue()
+		std::unique_ptr<Queue>& get_output_queue()
 		{
-			return *output_;
+			return output_;
 		}
 
-		Queue* get_current_window_output_queue();
+		std::unique_ptr<Queue>& get_current_window_output_queue();
 		/*! \} */
 
 		/*! \brief Launch the recorder

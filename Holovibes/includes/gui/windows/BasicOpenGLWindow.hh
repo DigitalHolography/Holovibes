@@ -38,7 +38,7 @@ namespace holovibes
 		{
 		public:
 			// Constructor & Destructor
-			BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k);
+			BasicOpenGLWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k);
 			virtual ~BasicOpenGLWindow();
 
 			const KindOfView	getKindOfView() const;
@@ -70,7 +70,7 @@ namespace holovibes
 
 			Qt::WindowState			winState;
 			QPoint					winPos;
-			Queue&					Qu;
+			std::unique_ptr<Queue>&					Qu;
 			ComputeDescriptor		*Cd;
 			const camera::FrameDescriptor&	Fd;
 			const KindOfView		kView;

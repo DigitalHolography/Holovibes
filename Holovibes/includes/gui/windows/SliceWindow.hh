@@ -26,7 +26,7 @@ namespace holovibes
 		class SliceWindow : public BasicOpenGLWindow
 		{
 		public:
-			SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window = nullptr);
+			SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
 			void	create_strip_overlays();
 			void make_pixel_square();

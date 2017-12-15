@@ -273,7 +273,7 @@ namespace holovibes
 		});
 	}
 
-	Queue* Pipe::get_lens_queue()
+	std::unique_ptr<Queue>& Pipe::get_lens_queue()
 	{
 		return fourier_transforms_->get_lens_queue();
 	}

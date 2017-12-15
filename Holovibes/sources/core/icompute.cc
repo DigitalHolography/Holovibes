@@ -259,9 +259,9 @@ namespace holovibes
 		return request_delete_stft_cuts_;
 	}
 
-	Queue&	ICompute::get_stft_slice_queue(int slice)
+	std::unique_ptr<Queue>&	ICompute::get_stft_slice_queue(int slice)
 	{
-		return slice ? *stft_env_.gpu_stft_slice_queue_yz : *stft_env_.gpu_stft_slice_queue_xz;
+		return slice ? stft_env_.gpu_stft_slice_queue_yz : stft_env_.gpu_stft_slice_queue_xz;
 	}
 
 	void ICompute::set_gpib_interface(std::shared_ptr<gpib::IVisaInterface> gpib_interface)
@@ -453,13 +453,5 @@ namespace holovibes
 			past_time_ = time;
 			frame_count_ = 0;
 		}
-	}
-
-	Queue* ICompute::get_lens_queue()
-	{
-		auto pipe = dynamic_cast<Pipe *>(this);
-		if (pipe)
-			return pipe->get_lens_queue();
-		return nullptr;
 	}
 }
