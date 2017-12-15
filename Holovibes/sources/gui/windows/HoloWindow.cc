@@ -92,5 +92,11 @@ namespace holovibes
 			}
 			BasicOpenGLWindow::resetTransform();
 		}
+
+		void HoloWindow::setTransform()
+		{
+			BasicOpenGLWindow::setTransform();
+			update_slice_transforms();
+		}
 	}
 }

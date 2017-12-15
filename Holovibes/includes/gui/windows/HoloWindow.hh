@@ -38,6 +38,7 @@ namespace holovibes
 
 			void	update_stft_zoom_buffer(units::RectFd zone_);
 			void	resetTransform() override;
+			void	setTransform() override;
 
 		protected:
 			SharedPipe		Ic;

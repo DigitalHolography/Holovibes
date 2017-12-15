@@ -260,10 +260,6 @@ namespace holovibes
 				Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
 				Program->release();
 			}
-
-			auto holo = dynamic_cast<HoloWindow*>(this);
-			if (holo)
-				holo->update_slice_transforms();
 		}
 
 		void BasicOpenGLWindow::resetSelection()
