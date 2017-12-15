@@ -628,6 +628,9 @@
     <ClInclude Include="includes\tools\units\real_position.hh">
       <Filter>c++ includes\tools\units</Filter>
     </ClInclude>
+    <ClInclude Include="includes\tools\color.hh">
+      <Filter>c++ sources\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">

@@ -121,9 +121,8 @@ namespace holovibes
 					fd_.width,
 					cd_.composite_auto_weights_,
 					cd_.getCompositeZone(),
-					cd_.component_r,
-					cd_.component_g,
-					cd_.component_b);
+					cd_.component_r.p_min,
+					cd_.component_b.p_max);
 			});
 		}
 
