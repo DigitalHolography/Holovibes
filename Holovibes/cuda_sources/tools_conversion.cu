@@ -367,13 +367,13 @@ static __global__
 void kernel_float_to_ushort(const float	*input,
 							void		*output,
 							const uint	size,
-							const float	depth)
+							const size_t	depth)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 
 	if (index < size)
 	{
-		if (depth != 1.f)
+		if (depth != 1)
 		{
 			ushort *out = reinterpret_cast<ushort *>(output);
 			if (input[index] > 65535.f)
@@ -394,7 +394,7 @@ void kernel_float_to_ushort(const float	*input,
 void float_to_ushort(const float	*input,
 					void			*output,
 					const uint		size,
-					const float		depth,
+					const size_t	depth,
 					cudaStream_t	stream)
 {
 	const uint threads = get_max_threads_1d();

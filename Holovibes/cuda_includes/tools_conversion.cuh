@@ -152,7 +152,7 @@ void endianness_conversion(const ushort	*input,
 void float_to_ushort(const float	*input,
 					void			*output,
 					const uint		size,
-					const float		depth,
+					const size_t	depth,
 					cudaStream_t	stream = 0);
 
 

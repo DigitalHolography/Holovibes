@@ -1039,7 +1039,7 @@ namespace holovibes
 		void MainWindow::createPipe()
 		{
 
-			uint depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
+			size_t depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
 			
 			if (compute_desc_.compute_mode == Computation::Hologram)
 			{

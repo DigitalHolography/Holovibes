@@ -165,7 +165,7 @@ void Stabilization::insert_average_compute()
 		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_max_elts())
 		{
 			auto new_fd = fd_;
-			new_fd.depth = cd_.img_type == ImgType::Composite ? 12.0 : 4.0;
+			new_fd.depth = cd_.img_type == ImgType::Composite ? 12 : 4;
 			try
 			{
 				accumulation_queue_.reset(new Queue(new_fd, cd_.img_acc_slice_xy_level, "AccumulationQueueXY"));

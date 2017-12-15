@@ -72,7 +72,7 @@ namespace holovibes
 			CUFFT_C2C);
 
 		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		new_fd.depth = 4.f;
+		new_fd.depth = 4;
 		if (compute_desc_.img_acc_slice_yz_enabled)
 		{
 			auto fd_yz = new_fd;
@@ -102,13 +102,13 @@ namespace holovibes
 			CUFFT_C2C, zone_size);
 
 		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
-		new_fd2.depth = 8.f;
+		new_fd2.depth = 8;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
 
 		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 		{
 			camera::FrameDescriptor new_fd3 = input_.get_frame_desc();
-			new_fd3.depth = 8.f;
+			new_fd3.depth = 8;
 			/* Useless line. Maybe forgot gpu_ref_queue_ ?
 			new Queue(new_fd3, compute_desc_.stft_level, "TakeRefQueue");
 			*/
@@ -206,9 +206,8 @@ namespace holovibes
 		{
 			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
 
-			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
-				sizeof(cuComplex) : sizeof(ushort);
-			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
+			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ? sizeof(cuComplex) : sizeof(ushort);
+			uint buffer_depth = compute_desc_.img_type == ImgType::Complex ? sizeof(cufftComplex) : sizeof(float);
 			auto fd_yz = fd_xz;
 			fd_xz.height = compute_desc_.nsamples;
 			fd_yz.width = compute_desc_.nsamples;
@@ -281,15 +280,13 @@ namespace holovibes
 		std::unique_ptr<Queue>& queue,
 		std::atomic<bool>& enabled,
 		std::atomic<uint>& queue_length, 
-		FrameDescriptor new_fd,
-		float depth)
+		FrameDescriptor new_fd)
 	{
 		if (enabled && queue && queue->get_max_elts() == queue_length)
 			return;
 		queue = nullptr;
 		if (enabled)
 		{
-			new_fd.depth = depth;
 			try
 			{
 				queue.reset(new Queue(new_fd, queue_length, "Accumulation"));

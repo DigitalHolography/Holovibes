@@ -133,8 +133,7 @@ namespace holovibes
 			std::unique_ptr<Queue>& gpu_img_acc,
 			std::atomic<bool>& enabled,
 			std::atomic<uint>& queue_length,
-			camera::FrameDescriptor new_fd,
-			float depth = 4.f);
+			camera::FrameDescriptor new_fd);
 
 		/*! \brief Execute one iteration of the ICompute.
 		*

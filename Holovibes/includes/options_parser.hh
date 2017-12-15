@@ -108,7 +108,7 @@ namespace holovibes
     const unsigned int default_queue_size = 20;
     const unsigned int display_size_min = 100;
     const unsigned int default_fps = 30;
-    const unsigned int default_depth = 8;
+    const size_t default_depth = 8;
     const bool default_is_big_endian = true;
   };
 }

@@ -68,7 +68,7 @@ namespace holovibes
 			flag = ThreadState::Null;
 		}
 
-		void InfoManager::insertInputSource(const int width, const int height, const int depth)
+		void InfoManager::insertInputSource(const int width, const int height, const size_t depth)
 		{
 			std::string output_descriptor_info = std::to_string(width) + "x" + std::to_string(height) +
 				" - " + std::to_string(depth * 8) + "bit";
