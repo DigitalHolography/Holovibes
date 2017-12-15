@@ -54,19 +54,23 @@ static void kernel_composite(cuComplex			*input,
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
 	{
-		double res_components[3];
-
-		for (ushort p = red; p <= blue; p++)
+		double res_components[3] = { 0 };
+		ushort min = red < blue ? red : blue;
+		ushort max = blue > red ? blue : red;
+		ushort range = std::abs(static_cast<short>(blue - red)) + 1;
+		for (ushort p = min; p <= max; p++)
 		{
 			double components_[3];
-			double x = (p - red) / (blue - red);
+			double x = (p - min) / double(range);
+			if (red > blue)
+				x = 1 - x;
 			if (x < 0.25) {
 				components_[0] = 1;
 				components_[1] = x / 0.25;
 				components_[2] = 0;
 			}
 			else if (x < 0.5) {
-				components_[0] = 1 - (x - 0.25) / 0.25 / 0.;
+				components_[0] = 1 - (x - 0.25) / 0.25;
 				components_[1] = 1;
 				components_[2] = 0;
 			}
@@ -86,7 +90,7 @@ static void kernel_composite(cuComplex			*input,
 				res_components[i] += components_[i] * intensity;
 		}
 		for (int i = 0; i < 3; i++)
-			output[id * 3 + i] = res_components[i] /** weight[i]*/ / (red - blue + 1);
+			output[id * 3 + i] = res_components[i] /** weight[i]*/ / double(range);
 	}
 }
 
