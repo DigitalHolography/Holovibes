@@ -5397,6 +5397,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>RawRecordingCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_raw_recording(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1121</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5523,5 +5539,6 @@ p, li { white-space: pre-wrap; }
   <slot>camera_hamamatsu()</slot>
   <slot>set_square_pixel(bool)</slot>
   <slot>update_raw_view(bool)</slot>
+  <slot>set_raw_recording(bool)</slot>
  </slots>
 </ui>

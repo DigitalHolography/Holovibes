@@ -366,6 +366,7 @@ namespace holovibes
 			ui.ZDoubleSpinBox->setEnabled(!is_direct);
 			ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
 			ui.ZStepDoubleSpinBox->setEnabled(!is_direct);
+			ui.RawRecordingCheckBox->setEnabled(!is_direct && compute_desc_.current_window == XYview);
 
 			ui.PixelSizeDoubleSpinBox->setEnabled(!compute_desc_.is_cine_file);
 			ui.PixelSizeDoubleSpinBox->setValue(compute_desc_.pixel_size);
@@ -1529,7 +1530,7 @@ namespace holovibes
 				try
 				{
 					// set positions of new windows according to the position of the main GL window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 400, 0);
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 300, 0);
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 					if (pipe)
 					{
@@ -1562,7 +1563,7 @@ namespace holovibes
 				try
 				{
 					// set positions of new windows according to the position of the main GL window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 300, 0);
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 310, 0);
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 					if (pipe)
 					{
