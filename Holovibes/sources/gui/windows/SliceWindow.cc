@@ -26,6 +26,7 @@ namespace holovibes
 		{
 			// To prevent make_square_pixel to make one slice realy thin and the other 132 pixel due to the title bar buttons
 			setMinimumSize(QSize(132, 132));
+			setFlag(Qt::FramelessWindowHint, true);
 		}
 
 		SliceWindow::~SliceWindow()
