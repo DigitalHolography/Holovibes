@@ -69,6 +69,7 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 		CUFFT_C2C, width);
 
 
+	// Trasform t -> w of the slice
 	auto in = buffer_ + cd_.getStftCursor().y() * width;
 	const int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
@@ -76,12 +77,15 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	// Preparing for the convolution
+	// Preparing for the correlation
 
 	normalize_frame(reinterpret_cast<float*>(buffer), 2 * slice_size());
 
-	CufftHandle plan2d(width, depth, CUFFT_C2C);
-	cufftExecC2C(plan2d, buffer, buffer, CUFFT_FORWARD);
+	plan1d.planMany(1, &depth,
+		&depth, width, 1,
+		&depth, width, 1,
+		CUFFT_C2C, width);
+	cufftExecC2C(plan1d, buffer, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }
@@ -94,11 +98,14 @@ void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
 	multiply_frames_complex(ref, slice, slice, size);
 	cudaStreamSynchronize(0);
 
-	const int width = dimensions_.width();
-	const int depth = slice_depth_;
+	int width = dimensions_.width();
+	int depth = slice_depth_;
 	CufftHandle plan1d;
 
-	plan1d.plan(width, depth, CUFFT_C2R);
+	plan1d.planMany(1, &depth,
+		&depth, width, 1,
+		&depth, width, 1,
+		CUFFT_C2R, width);
 
 	cufftExecC2R(plan1d, slice, out);
 	cudaStreamSynchronize(0);
@@ -110,6 +117,9 @@ int RemoveJitter::maximum_y(float* frame)
 	Array<float> line_averages(slice_depth_);
 	average_lines(frame, line_averages, dimensions_.width(), slice_depth_);
 	cudaStreamSynchronize(0);
+
+	//float tmp[1024];
+	//cudaMemcpy(tmp, line_averages.get(), slice_depth_ * sizeof(float), cudaMemcpyDeviceToHost);
 
 	uint max_y = 0;
 	gpu_extremums(line_averages, slice_depth_, nullptr, nullptr, nullptr, &max_y);
@@ -125,6 +135,9 @@ int RemoveJitter::compute_one_shift(int i)
 	correlation(ref_slice_, slice_, correlation_);
 	int max_y = maximum_y(correlation_);
 
+	//correlation_.write_to_file("H:/test.raw");
+	//std::cout << dimensions_.width() << std::endl;
+
 	cudaCheckError();
 	return max_y;
 }
@@ -137,26 +150,24 @@ void RemoveJitter::compute_all_shifts()
 	rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
 
 	shifts_.clear();
-	for (uint i = 1; i < nb_slices_; ++i)
+	for (uint i = 0; i < nb_slices_; ++i)
 		shifts_.push_back(compute_one_shift(i));
 
 	for (auto i : shifts_)
-		std::cout << std::setw(2) << i << " ";
+		std::cout << std::setw(3) << i << " ";
 	std::cout << std::endl;
 }
 
 void RemoveJitter::fix_jitter()
 {
 	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
-	int sum_phi = 0;
 	std::vector<double> phi;
-	for (size_t i = 0; i < shifts_.size(); i++)
+	for (size_t i = 1; i < shifts_.size(); i++)
 	{
-		double phi_jitter = sum_phi + shifts_[i];
-		sum_phi = phi_jitter;
-		phi_jitter *= M_PI_2 / cd_.lambda;
+		double current_phi = shifts_[i];
+		current_phi *= M_PI * 2 / cd_.lambda;
 		//std::cout << phi_jitter << " ";
-		phi.push_back(phi_jitter);
+		phi.push_back(current_phi);
 	}
 	//std::cout << std::endl;
 
@@ -165,7 +176,7 @@ void RemoveJitter::fix_jitter()
 	// multiply all small chunks
 	int sign = cd_.jitter_enabled_ ? 1 : -1;
 	int p = big_chunk_size;
-	for (uint i = 0; i < phi.size(); p += slice_shift_, i++) {
+	for (uint i = 0; i < phi.size() - 1; p += slice_shift_, i++) {
 		cuComplex multiplier;
 		multiplier.x = cosf(sign * phi[i]);
 		multiplier.y = sinf(sign * phi[i]);
