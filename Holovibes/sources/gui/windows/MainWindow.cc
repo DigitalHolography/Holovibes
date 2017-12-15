@@ -1968,13 +1968,13 @@ namespace holovibes
 		{
 			compute_desc_.scale_bar_correction_factor = value;
 		}
+
 		void MainWindow::set_square_pixel(bool enable)
 		{
 			compute_desc_.square_pixel = enable;
-			if (enable)
-				for (auto& slice : { sliceXZ.get(), sliceYZ.get() })
-					if (slice)
-						slice->make_pixel_square();
+			for (auto slice : { sliceXZ.get(), sliceYZ.get() })
+				if (slice)
+					slice->make_pixel_square();
 		}
 		#pragma endregion
 		/* ------------ */
