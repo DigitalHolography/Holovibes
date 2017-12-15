@@ -45,21 +45,18 @@ namespace holovibes
 
 			units::ConversionData convert(parent_);
 
-			// Setting the scale at 5% from bottom and 94% from top
-			// Setting the scale at 75% from left and 10% from right
-			units::PointOpengl topLeft(convert, 0.5f, -0.88f);
+			// Setting the scale from 94% to 95% from top
+			// Setting the scale from 80% to 90% from left
+			units::PointOpengl topLeft(convert, 0.6f, -0.88f);
 			units::PointOpengl bottomRight(convert, 0.8f, -0.9f);
 
 			// Building zone
 			scale_zone_ = units::RectOpengl(topLeft, bottomRight);
 
-			//float size = nb_pixel * pix_size * 0.15f;
 			units::PointReal real_topLeft = units::PointFd(topLeft);
 			units::PointReal real_bottomRight = units::PointFd(bottomRight);
 
 			double size = (real_topLeft - real_bottomRight).distance();
-			if (parent_->getKindOfView() == Hologram)
-				size *= parent_->getCd()->scale_bar_correction_factor; // 0.15f because the scale bar only take 15% of the window width
 
 			/* The displaying of the text is done following these steps :
 					- Writing the information on a text document.
