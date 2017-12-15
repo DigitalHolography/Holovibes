@@ -81,7 +81,7 @@ namespace holovibes
 			#pragma region Texture
 			glGenBuffers(1, &Pbo);
 			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, Pbo);
-			const uint size = Fd.frame_size() * 1 / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
+			const uint size = Fd.frame_size() / ((Fd.depth == 4 || Fd.depth == 8) ? 2 : 1);
 			glBufferData(GL_PIXEL_UNPACK_BUFFER, size, nullptr, GL_STATIC_DRAW);	//GL_STATIC_DRAW ~ GL_DYNAMIC_DRAW
 			glPixelStorei(GL_UNPACK_SWAP_BYTES,
 				(Fd.byteEndian == Endianness::BigEndian) ?
@@ -92,8 +92,8 @@ namespace holovibes
 			/* -------------------------------------------------- */
 			glGenTextures(1, &Tex);
 			glBindTexture(GL_TEXTURE_2D, Tex);
-			texDepth = (Fd.depth == 1.f) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
-			texType = (Fd.depth == 8.f) ? GL_RG : GL_RED;
+			texDepth = (Fd.depth == 1) ? GL_UNSIGNED_BYTE : GL_UNSIGNED_SHORT;
+			texType = (Fd.depth == 8) ? GL_RG : GL_RED;
 			if (Fd.depth == 6)
 				texType = GL_RGB;
 			glTexImage2D(GL_TEXTURE_2D, 0, texType, Fd.width, Fd.height, 0, texType, texDepth, nullptr);
@@ -105,7 +105,7 @@ namespace holovibes
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);	// GL_NEAREST ~ GL_LINEAR
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			if (Fd.depth == 8.f)
+			if (Fd.depth == 8)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
@@ -193,9 +193,9 @@ namespace holovibes
 			cudaGraphicsMapResources(1, &cuResource, cuStream);
 			cudaGraphicsResourceGetMappedPointer(&cuPtrToPbo, &sizeBuffer, cuResource);
 			void* frame = Qu->get_last_images(1);
-			if (Fd.depth == 4.f)
+			if (Fd.depth == 4)
 				float_to_ushort(static_cast<const float*>(frame), cuPtrToPbo, Fd.frame_res(), Fd.depth);
-			else if (Fd.depth == 8.f)
+			else if (Fd.depth == 8)
 				complex_to_ushort(static_cast<const cuComplex*>(frame), static_cast<uint*>(cuPtrToPbo), Fd.frame_res());
 			else
 				cudaMemcpy(cuPtrToPbo, frame, sizeBuffer, cudaMemcpyKind::cudaMemcpyDeviceToDevice);

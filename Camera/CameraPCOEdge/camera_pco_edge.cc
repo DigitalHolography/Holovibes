@@ -98,7 +98,7 @@ namespace camera
 		io_3_conf.wSize = sizeof(PCO_Signal);
 
 		/* Fill frame descriptor const values. */
-		desc_.depth = 2.f;
+		desc_.depth = 2;
 		desc_.byteEndian = Endianness::LittleEndian;
 		pixel_size_ = 6.45f;
 		desc_.width = 2048;

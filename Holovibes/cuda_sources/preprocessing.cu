@@ -25,22 +25,22 @@ void make_contiguous_complex(Queue&			input,
 	const uint				frame_resolution = input.get_pixels();
 	const FrameDescriptor&	frame_desc = input.get_frame_desc();
 
-	if (frame_desc.depth == 1.f)
+	if (frame_desc.depth == 1)
 		img8_to_complex << <blocks, threads, 0, stream >> > (
 			output,
 			static_cast<uchar*>(input.get_start()),
 			frame_resolution);
-	else if (frame_desc.depth == 2.f)
+	else if (frame_desc.depth == 2)
 		img16_to_complex << <blocks, threads, 0, stream >> > (
 			output,
 			static_cast<ushort*>(input.get_start()),
 			frame_resolution);
-	else if (frame_desc.depth == 4.f)
+	else if (frame_desc.depth == 4)
 		float_to_complex << <blocks, threads, 0, stream >> > (
 			output,
 			static_cast<float*>(input.get_start()),
 			frame_resolution);
-	else if (frame_desc.depth == 8.f)
+	else if (frame_desc.depth == 8)
 		cudaMemcpy(output, input.get_start(), frame_resolution << 3, cudaMemcpyDeviceToDevice);
 	cudaCheckError();
 }

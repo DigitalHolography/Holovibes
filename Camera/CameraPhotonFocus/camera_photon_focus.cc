@@ -161,7 +161,7 @@ namespace camera
 	{
 		desc_.width = 1024;
 		desc_.height = 1024;
-		desc_.depth = 1.0f;
+		desc_.depth = 1;
 		desc_.byteEndian = Endianness::LittleEndian;
 
 		pixel_size_ = 8.0f;
@@ -274,7 +274,7 @@ namespace camera
 		if (input == "Mono8")
 			return PvPixelMono8;
 
-		desc_.depth = 2.0f;
+		desc_.depth = 2;
 		if (input == "Mono10")
 			return PvPixelMono10;
 		if (input == "Mono12")

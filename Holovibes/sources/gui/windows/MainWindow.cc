@@ -1029,7 +1029,7 @@ namespace holovibes
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
-				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
+				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
 				notify();
 				layout_toggled();
@@ -1105,7 +1105,7 @@ namespace holovibes
 				createHoloWindow();
 				/* ---------- */
 				const FrameDescriptor& fd = holovibes_.get_output_queue()->get_frame_desc();
-				InfoManager::get_manager()->insertInputSource(fd.width, fd.height, fd.depth);
+				InfoManager::get_manager()->insertInputSource(fd);
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
 				set_auto_contrast();

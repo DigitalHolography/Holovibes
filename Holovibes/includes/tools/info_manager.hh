@@ -61,7 +61,7 @@ namespace holovibes
 		/*! Stop to refresh the info_panel display*/
 		void stop_display();
 
-		void insertInputSource(const int width, const int height, const size_t depth);
+		void insertInputSource(const camera::FrameDescriptor& fd);
 
 		/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information

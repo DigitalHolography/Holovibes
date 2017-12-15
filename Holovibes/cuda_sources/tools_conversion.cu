@@ -505,10 +505,10 @@ void buffer_size_conversion(char*					real_buffer,
 
 	kernel_buffer_size_conversion << <blocks, threads, 0 >> >(	real_buffer,
 																buffer,
-																frame_desc.width * static_cast<uint>(frame_desc.depth),
-																frame_desc.height * static_cast<uint>(frame_desc.depth),
-																real_frame_desc.width * static_cast<uint>(frame_desc.depth),
-																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
+																frame_desc.width * frame_desc.depth,
+																frame_desc.height * frame_desc.depth,
+																real_frame_desc.width * frame_desc.depth,
+																frame_desc.frame_size());
 	cudaCheckError();
 }
 
