@@ -1181,6 +1181,7 @@ namespace holovibes
 
 				if (need_refresh(last_img_type_, value))
 				{
+					// This may crash.
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 				}
@@ -1491,11 +1492,16 @@ namespace holovibes
 
 				if (phaseNumber == compute_desc_.nsamples)
 					return;
-				compute_desc_.nsamples = phaseNumber;
 				notify();
-				holovibes_.get_pipe()->request_update_n(phaseNumber);
-				while (holovibes_.get_pipe()->get_request_refresh());
-				set_p_accu();
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				if (pipe)
+				{
+					pipe->run_end_pipe([=]() {
+						holovibes_.get_pipe()->request_update_n(phaseNumber);
+						compute_desc_.nsamples = phaseNumber;
+						set_p_accu();
+					});
+				}
 			}
 		}
 
@@ -1523,7 +1529,7 @@ namespace holovibes
 				try
 				{
 					// set positions of new windows according to the position of the main GL window
-					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->height() + 300, 0);
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 400, 0);
 					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 					if (pipe)
 					{
@@ -1538,7 +1544,6 @@ namespace holovibes
 				catch (std::exception& e)
 				{
 					std::cerr << e.what() << std::endl;
-					cancel_stft_slice_view();
 				}
 			}
 			else
@@ -1546,6 +1551,38 @@ namespace holovibes
 				lens_window = nullptr;
 			}
 			compute_desc_.gpu_lens_display_enabled = value;
+			pipe_refresh();
+		}
+
+		void MainWindow::update_raw_view(bool value)
+		{
+			compute_desc_.raw_view = value;
+			if (value)
+			{
+				try
+				{
+					// set positions of new windows according to the position of the main GL window
+					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 300, 0);
+					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+					if (pipe)
+					{
+						raw_window.reset(new DirectWindow(
+							pos,
+							QSize(mainDisplay->width(), mainDisplay->height()),
+							pipe->get_raw_queue()));
+					}
+					raw_window->setTitle("Raw view");
+					raw_window->setCd(&compute_desc_);
+				}
+				catch (std::exception& e)
+				{
+					std::cerr << e.what() << std::endl;
+				}
+			}
+			else
+			{
+				raw_window = nullptr;
+			}
 			pipe_refresh();
 		}
 
@@ -1947,7 +1984,8 @@ namespace holovibes
 		{
 			if (value)
 			{
-				mainDisplay->getOverlayManager().create_overlay<Scale>();
+				if (mainDisplay)
+					mainDisplay->getOverlayManager().create_overlay<Scale>();
 				if (sliceXZ)
 					sliceXZ->getOverlayManager().create_overlay<Scale>();
 				if (sliceYZ)
@@ -1955,7 +1993,8 @@ namespace holovibes
 			}
 			else
 			{
-				mainDisplay->getOverlayManager().disable_all(Scale);
+				if (mainDisplay)
+					mainDisplay->getOverlayManager().disable_all(Scale);
 				if (sliceXZ)
 					sliceXZ->getOverlayManager().disable_all(Scale);
 				if (sliceYZ)
@@ -2535,6 +2574,11 @@ namespace holovibes
 			return filename;
 		}
 
+		void MainWindow::set_raw_recording(bool value)
+		{
+			compute_desc_.record_raw = value;
+		}
+
 		void MainWindow::set_record()
 		{
 			QSpinBox*  nb_of_frames_spinbox = ui.NumberOfFramesSpinBox;
@@ -2551,7 +2595,11 @@ namespace holovibes
 
 			try
 			{
-				auto& queue = holovibes_.get_current_window_output_queue();
+				Queue *queue;
+				if (compute_desc_.record_raw)
+					queue = holovibes_.get_pipe()->get_raw_queue().get();
+				else
+					queue = holovibes_.get_current_window_output_queue().get();
 				
 				if (queue)
 				{

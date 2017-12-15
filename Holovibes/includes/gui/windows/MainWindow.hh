@@ -139,6 +139,7 @@ namespace holovibes
 			void setPhase();
 			void set_special_buffer_size(int value);
 			void update_lens_view(bool value);
+			void update_raw_view(bool value);
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();
@@ -201,6 +202,7 @@ namespace holovibes
 			void browse_convo_matrix_file();
 			void load_convo_matrix();
 			void browse_file();
+			void set_raw_recording(bool value);
 			void set_record();
 			void browse_roi_output_file();
 			void average_record();
@@ -279,6 +281,7 @@ namespace holovibes
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 			std::unique_ptr<DirectWindow>	lens_window;
+			std::unique_ptr<DirectWindow>	raw_window;
 
 			float		displayAngle;
 			float		xzAngle;

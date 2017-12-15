@@ -49,7 +49,7 @@ namespace holovibes
 	{
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_, input_, desc, this);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_);
 		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
@@ -240,6 +240,14 @@ namespace holovibes
 						break;
 					}
 
+					if (compute_desc_.compute_mode == Hologram && compute_desc_.raw_view || compute_desc_.record_raw)
+					{
+						if (!get_raw_queue()->enqueue(input_.get_start()))
+						{
+							input_.dequeue();
+							break;
+						}
+					}
 					input_.dequeue();
 					if (refresh_requested_)
 						refresh();
@@ -261,7 +269,7 @@ namespace holovibes
 		}
 		/*Add image to phase accumulation buffer*/
 
-		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); } );
+		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); });
 		fn_vect_.push_back([=]() {
 			accumulate_images(
 				static_cast<float *>(queue->get_buffer()),
@@ -309,5 +317,15 @@ namespace holovibes
 				f();
 			functions_end_pipe_.clear();
 		}
+	}
+
+	std::unique_ptr<Queue>& Pipe::get_raw_queue()
+	{
+		if (!gpu_raw_queue_ && (compute_desc_.raw_view || compute_desc_.record_raw))
+		{
+			auto fd = input_.get_frame_desc();
+			gpu_raw_queue_ = std::make_unique<Queue>(fd, 16, "GPU raw queue");
+		}
+		return gpu_raw_queue_;
 	}
 }

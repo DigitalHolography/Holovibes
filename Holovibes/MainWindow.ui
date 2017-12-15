@@ -703,17 +703,24 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QCheckBox" name="LensViewCheckBox">
-             <property name="text">
-              <string>Lens view</string>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="1">
             <widget class="QCheckBox" name="squarePixel_checkBox">
              <property name="text">
               <string>Square pixel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="RawDisplayingCheckBox">
+             <property name="text">
+              <string>Raw view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="LensViewCheckBox">
+             <property name="text">
+              <string>Lens view</string>
              </property>
             </widget>
            </item>
@@ -2202,6 +2209,13 @@
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="RawRecordingCheckBox">
+              <property name="text">
+               <string>Raw recording</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_21">
               <item>
                <widget class="QPushButton" name="ImageOutputRecPushButton">
@@ -2939,7 +2953,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3304,7 +3318,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>PhaseUnwrap2DCheckBox</tabstop>
   <tabstop>STFTCutsCheckBox</tabstop>
   <tabstop>FFTShiftCheckBox</tabstop>
-  <tabstop>LensViewCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
@@ -3935,8 +3948,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_auto_contrast()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>340</y>
+     <x>392</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3951,8 +3964,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_log_scale(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>260</y>
+     <x>395</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3999,8 +4012,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1053</x>
-     <y>151</y>
+     <x>1090</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -4015,8 +4028,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>364</y>
+     <x>318</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -4031,8 +4044,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>395</x>
-     <y>364</y>
+     <x>392</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -4111,8 +4124,8 @@ p, li { white-space: pre-wrap; }
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1053</x>
-     <y>240</y>
+     <x>1090</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -4159,8 +4172,8 @@ p, li { white-space: pre-wrap; }
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1109</x>
-     <y>151</y>
+     <x>1146</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -4175,8 +4188,8 @@ p, li { white-space: pre-wrap; }
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1109</x>
-     <y>240</y>
+     <x>1146</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -4191,8 +4204,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
-     <y>151</y>
+     <x>1202</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -4207,8 +4220,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
-     <y>240</y>
+     <x>1202</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -4272,7 +4285,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1202</x>
-     <y>203</y>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4319,8 +4332,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_batch_input()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1204</x>
-     <y>290</y>
+     <x>1202</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4544,7 +4557,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>299</x>
-     <y>289</y>
+     <y>311</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4559,8 +4572,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_accumulation_level(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>290</y>
+     <x>395</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4639,8 +4652,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>152</x>
-     <y>156</y>
+     <x>153</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4687,8 +4700,8 @@ p, li { white-space: pre-wrap; }
    <slot>rotateTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>264</y>
+     <x>345</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4703,8 +4716,8 @@ p, li { white-space: pre-wrap; }
    <slot>flipTexture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>277</x>
-     <y>264</y>
+     <x>276</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>448</x>
@@ -4783,8 +4796,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_contrast_mode(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>398</x>
-     <y>367</y>
+     <x>396</x>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4799,8 +4812,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>204</y>
+     <x>299</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4831,8 +4844,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>158</y>
+     <x>299</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4863,8 +4876,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>181</y>
+     <x>299</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -5007,8 +5020,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>271</y>
+     <x>606</x>
+     <y>272</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5071,8 +5084,8 @@ p, li { white-space: pre-wrap; }
    <slot>update_lens_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>342</x>
-     <y>123</y>
+     <x>302</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5087,8 +5100,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_enable(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>831</x>
-     <y>211</y>
+     <x>830</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5103,8 +5116,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_show_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>173</y>
+     <x>826</x>
+     <y>174</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5135,8 +5148,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stabilization_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>828</x>
-     <y>208</y>
+     <x>826</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -5199,8 +5212,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>260</y>
+     <x>825</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5215,8 +5228,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interpolation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>831</x>
-     <y>351</y>
+     <x>830</x>
+     <y>355</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5231,8 +5244,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>260</y>
+     <x>825</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5247,8 +5260,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda2(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>289</y>
+     <x>825</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5263,8 +5276,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_sensitivity(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>318</y>
+     <x>825</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5279,8 +5292,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_shift(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>827</x>
-     <y>347</y>
+     <x>825</x>
+     <y>350</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -5296,7 +5309,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>281</x>
-     <y>394</y>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5311,8 +5324,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_scale_bar_correction_factor(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>387</y>
+     <x>403</x>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -5327,8 +5340,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>306</y>
+     <x>606</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5365,6 +5378,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>819</x>
      <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RawDisplayingCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_raw_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
@@ -5493,5 +5522,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
   <slot>set_square_pixel(bool)</slot>
+  <slot>update_raw_view(bool)</slot>
  </slots>
 </ui>

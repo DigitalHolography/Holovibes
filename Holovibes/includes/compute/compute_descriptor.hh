@@ -316,6 +316,9 @@ namespace holovibes
 
 		std::atomic<bool>			square_pixel { false };
 
+		std::atomic<bool>			raw_view { false };
+		std::atomic<bool>			record_raw { false };
+
 		//! Composite images
 		//! \{
 		Component					component_r;

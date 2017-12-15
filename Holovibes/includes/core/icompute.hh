@@ -182,6 +182,7 @@ namespace holovibes
 		}
 
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
+		virtual std::unique_ptr<Queue>&	get_raw_queue() = 0;
 	protected:
 
 		virtual void refresh() = 0;

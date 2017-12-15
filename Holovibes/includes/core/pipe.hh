@@ -70,7 +70,8 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
-		virtual std::unique_ptr<Queue>&			get_lens_queue() override;
+		std::unique_ptr<Queue>&			get_lens_queue() override;
+		std::unique_ptr<Queue>&			get_raw_queue() override;
 
 		/*! \brief Runs a function after the current pipe iteration ends
 		 */
@@ -120,6 +121,8 @@ namespace holovibes
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
 		compute::DetectIntensity detect_intensity_;
+
+		std::unique_ptr<Queue> gpu_raw_queue_;
 
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
