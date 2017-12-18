@@ -28,7 +28,6 @@ namespace holovibes
 		public:
 			SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window = nullptr);
 			virtual ~SliceWindow();
-			void	create_strip_overlays();
 			void make_pixel_square();
 			void setTransform() override;
 			

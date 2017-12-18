@@ -18,7 +18,7 @@ namespace holovibes
 	namespace gui
 	{
 		CompositeOverlay::CompositeOverlay(BasicOpenGLWindow* parent)
-			: Overlay(KindOfOverlay::Zoom, parent)
+			: Overlay(KindOfOverlay::Composite, parent)
 		{
 		}
 

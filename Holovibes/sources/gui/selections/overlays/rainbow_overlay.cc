@@ -10,26 +10,32 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "rect_overlay.hh"
+#include "rainbow_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		RectOverlay::RectOverlay(KindOfOverlay overlay, BasicOpenGLWindow* parent)
-			: Overlay(overlay, parent)
+		RainbowOverlay::RainbowOverlay(BasicOpenGLWindow* parent)
+			: Overlay(Rainbow, parent)
 		{
+			alpha_ = 0.2f;
+			display_ = true;
 		}
 
-		void RectOverlay::init()
+		void RainbowOverlay::init()
 		{
 			// Program_ already bound by caller (initProgram)
 
 			Vao_.bind();
 
-			// Set vertices position
+			/* Set vertices position
+			 * There is 3 vertices on each horizontal line of the rectangular area
+			 * in order to have two gradient in the same rectangle. */
 			const float vertices[] = {
+				0.f, 0.f,
+				0.f, 0.f,
 				0.f, 0.f,
 				0.f, 0.f,
 				0.f, 0.f,
@@ -45,10 +51,12 @@ namespace holovibes
 
 			// Set color
 			const float colorData[] = {
-				color_[0], color_[1], color_[2],
-				color_[0], color_[1], color_[2],
-				color_[0], color_[1], color_[2],
-				color_[0], color_[1], color_[2],
+				1, 0 ,0,
+				0, 1, 0,
+				0, 0, 1,
+				0, 0 ,1,
+				0, 1, 0,
+				1, 0, 0,
 			};
 			glGenBuffers(1, &colorIndex_);
 			glBindBuffer(GL_ARRAY_BUFFER, colorIndex_);
@@ -58,10 +66,17 @@ namespace holovibes
 			glDisableVertexAttribArray(colorShader_);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-			// Set vertices order
+			/* Set vertices order :
+			 *
+			 *   0---1---2
+			 *   |       |
+			 *   5---4---3
+			 */
 			const GLuint elements[] = {
-				0, 1, 2,
-				2, 3, 0
+				0, 1, 4,
+				4, 5, 0,
+				1, 2, 3,
+				3, 4, 1
 			};
 			glGenBuffers(1, &elemIndex_);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elemIndex_);
@@ -72,7 +87,7 @@ namespace holovibes
 			// Program_ released by caller (initProgram)
 		}
 
-		void RectOverlay::draw()
+		void RainbowOverlay::draw()
 		{
 			parent_->makeCurrent();
 			setBuffer();
@@ -83,7 +98,7 @@ namespace holovibes
 			glEnableVertexAttribArray(verticesShader_);
 			Program_->setUniformValue(Program_->uniformLocation("alpha"), alpha_);
 
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 
 			glDisableVertexAttribArray(verticesShader_);
 			glDisableVertexAttribArray(colorShader_);
@@ -92,19 +107,58 @@ namespace holovibes
 			Vao_.release();
 		}
 
-		void RectOverlay::setBuffer()
+		void RainbowOverlay::setBuffer()
 		{
 			parent_->makeCurrent();
 			Program_->bind();
 
-			// Normalizing the zone to (-1; 1)
-			units::RectOpengl zone_gl = zone_;
+			units::ConversionData convert(parent_);
+			auto cd = parent_->getCd();
+			auto fd = parent_->getFd();
+
+			int red = cd->component_r.p_min;
+			int blue = cd->component_b.p_max;
+			int green = (red + blue) / 2;
+			units::PointFd red1;
+			units::PointFd red2;
+			units::PointFd green1;
+			units::PointFd green2;
+			units::PointFd blue1;
+			units::PointFd blue2;
+
+			if (parent_->getKindOfView() == SliceXZ)
+			{
+				red1 = units::PointFd(convert, 0, red);
+				red2 = units::PointFd(convert, fd.width, red);
+				green1 = units::PointFd(convert, 0, green);
+				green2 = units::PointFd(convert, fd.width, green);
+				blue1 = units::PointFd(convert, 0, blue);
+				blue2 = units::PointFd(convert, fd.width, blue);
+			}
+			else
+			{
+				red1 = units::PointFd(convert, red, 0);
+				red2 = units::PointFd(convert, red, fd.height);
+				green1 = units::PointFd(convert, green, 0);
+				green2 = units::PointFd(convert, green, fd.height);
+				blue1 = units::PointFd(convert, blue, 0);
+				blue2 = units::PointFd(convert, blue, fd.height);
+			}
+
+			units::PointOpengl red1_gl = red1;
+			units::PointOpengl red2_gl = red2;
+			units::PointOpengl green1_gl = green1;
+			units::PointOpengl green2_gl = green2;
+			units::PointOpengl blue1_gl = blue1;
+			units::PointOpengl blue2_gl = blue2;
 
 			const float subVertices[] = {
-				zone_gl.x(), zone_gl.y(),
-				zone_gl.right(), zone_gl.y(),
-				zone_gl.right(), zone_gl.bottom(),
-				zone_gl.x(), zone_gl.bottom()
+				red1_gl.x(), red1_gl.y(),
+				green1_gl.x(), green1_gl.y(),
+				blue1_gl.x(), blue1_gl.y(),
+				blue2_gl.x(), blue2_gl.y(),
+				green2_gl.x(), green2_gl.y(),
+				red2_gl.x(), red2_gl.y()
 			};
 
 			// Updating the buffer at verticesIndex_ with new coordinates
@@ -115,23 +169,29 @@ namespace holovibes
 			Program_->release();
 		}
 
-		void RectOverlay::move(QMouseEvent* e)
+		void RainbowOverlay::move(QMouseEvent *e)
 		{
 			if (e->buttons() == Qt::LeftButton)
 			{
-				auto pos = getMousePos(e->pos());
-				zone_.setDst(pos);
-				setBuffer();
-				display_ = true;
+				zone_.setDst(getMousePos(e->pos()));
+				if (parent_->getKindOfView() == SliceYZ)
+				{
+					parent_->getCd()->component_r.p_min = check_interval(zone_.src().x());
+					parent_->getCd()->component_b.p_max = check_interval(zone_.dst().x());
+				}
+				else
+				{
+					parent_->getCd()->component_r.p_min = check_interval(zone_.src().y());
+					parent_->getCd()->component_b.p_max = check_interval(zone_.dst().y());
+				}
+				parent_->getCd()->notify_observers();
 			}
 		}
 
-		void RectOverlay::setZone(units::RectFd rect, ushort frameside)
+		int RainbowOverlay::check_interval(int x)
 		{
-			zone_ = rect;
-			setBuffer();
-			display_ = true;
-			release(frameside);
+			const int max = parent_->getCd()->nsamples - 1;
+			return std::min(max, std::max(x, 0));
 		}
 	}
 }

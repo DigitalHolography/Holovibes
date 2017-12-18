@@ -266,7 +266,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\gui\selections\overlay_manager.hh" />
     <ClInclude Include="includes\gui\selections\interfaces\rect_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\signal_overlay.hh" />
-    <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh" />
     <ClInclude Include="includes\gui\windows\BasicOpenGLWindow.hh" />
     <ClInclude Include="includes\gui\windows\DirectWindow.hh" />
@@ -436,8 +435,8 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_overlay.cc" />
+    <ClCompile Include="sources\gui\selections\overlays\rainbow_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\scale_overlay.cc" />
-    <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc" />
     <ClCompile Include="sources\camera_dll.cc" />
     <ClCompile Include="sources\compute\compute_bundles.cc" />
     <ClCompile Include="sources\compute\compute_bundles_2d.cc" />

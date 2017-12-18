@@ -33,17 +33,14 @@ namespace holovibes
 			// Cross
 			Cross,
 			SliceCross,
-			// Composite strips
-			Strip,
 			// -------
 			Autofocus,
 			Filter2D,
 			Stabilization,
 			Scale,
-			// Not implemented yet
-			SliceZoom,
 			Composite,
-			CompositeArea
+			CompositeArea,
+			Rainbow
 		};
 
 		class BasicOpenGLWindow;
