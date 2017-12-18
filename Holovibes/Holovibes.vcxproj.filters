@@ -299,9 +299,6 @@
     <ClCompile Include="sources\gui\selections\overlays\stabilization_overlay.cc">
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\selections\overlays\strip_overlay.cc">
-      <Filter>c++ sources\gui\selections\Overlays</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc">
       <Filter>c++ sources\gui\selections\Interfaces</Filter>
     </ClCompile>
@@ -358,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="sources\tools\units\real_position.cc">
       <Filter>c++ sources\tools\units</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\gui\selections\overlays\rainbow_overlay.cc">
+      <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
     <ClCompile Include="sources\compute\remove_jitter.cc">
       <Filter>c++ sources\compute</Filter>
@@ -583,9 +583,6 @@
     <ClInclude Include="includes\gui\selections\overlays\stabilization_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
-    <ClInclude Include="includes\gui\selections\overlays\strip_overlay.hh">
-      <Filter>c++ includes\gui\selections\Overlays</Filter>
-    </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\zoom_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
@@ -633,6 +630,9 @@
     </ClInclude>
     <ClInclude Include="includes\tools\units\real_position.hh">
       <Filter>c++ includes\tools\units</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh">
+      <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

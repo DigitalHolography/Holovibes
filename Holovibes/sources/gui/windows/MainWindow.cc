@@ -384,42 +384,13 @@ namespace holovibes
 			ui.CompositeGroupBox->setHidden(!isComposite);
 
 			// Composite
-			QSpinBox *min_box = ui.PMinSpinBox_Composite;
-			QSpinBox *max_box = ui.PMaxSpinBox_Composite;
-			QDoubleSpinBox *weight_boxes[3];
-			weight_boxes[0] = ui.WeightSpinBox_R;
-			weight_boxes[1] = ui.WeightSpinBox_G;
-			weight_boxes[2] = ui.WeightSpinBox_B;
-			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
-
-			unsigned short pmin = components[0]->p_min;
-			unsigned short pmax = components[2]->p_max;
-
-			components[0]->p_min = pmin;
-			components[1]->p_min = pmin + (pmax - pmin) * (1/5.f);
-			components[0]->p_max = pmin + (pmax - pmin) * (2/5.f);
-			components[2]->p_min = pmin + (pmax - pmin) * (3/5.f);
-			components[1]->p_max = pmin + (pmax - pmin) * (4/5.f);
-			components[2]->p_max = pmax;
-
-			for (int i = 0; i < 3; i++)
-				if (components[i]->p_min > components[i]->p_max)
-				{
-					unsigned short tmp = components[i]->p_min;
-					components[i]->p_min = components[i]->p_max.load();
-					components[i]->p_max = tmp;
-				}
-
-			// We need to store them in a temporary array, otherwise they're erased by the new notify
-			float weights[3];
-			for (int i = 0; i < 3; i++)
-				weights[i] = components[i]->weight;
-			for (int i = 0; i < 3; i++)
-				weight_boxes[i]->setValue(weights[i]);
-			min_box->setMaximum(compute_desc_.nsamples - 1);
-			max_box->setMaximum(compute_desc_.nsamples - 1);
-			min_box->setValue(pmin);
-			max_box->setValue(pmax);
+			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
+			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
+			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);
+			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			// Interpolation
@@ -705,11 +676,11 @@ namespace holovibes
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
 				// Composite
-				compute_desc_.component_r.p_min = ptree.get<ushort>("composite.pmin", 0);
-				compute_desc_.component_b.p_max = ptree.get<ushort>("composite.pmax", 0);
-				compute_desc_.component_r.weight = ptree.get<float>("composite.weight_r", 1);
-				compute_desc_.component_g.weight = ptree.get<float>("composite.weight_g", 1);
-				compute_desc_.component_b.weight = ptree.get<float>("composite.weight_b", 1);
+				compute_desc_.composite_p_red = ptree.get<ushort>("composite.p_red", 0);
+				compute_desc_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 0);
+				compute_desc_.weight_r = ptree.get<float>("composite.weight_r", 1);
+				compute_desc_.weight_g = ptree.get<float>("composite.weight_g", 1);
+				compute_desc_.weight_b = ptree.get<float>("composite.weight_b", 1);
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
 				// Interpolation
@@ -801,11 +772,11 @@ namespace holovibes
 			ptree.put<uint>("autofocus.loops", compute_desc_.autofocus_z_iter);
 
 			// Composite
-			ptree.put<ushort>("composite.pmin", compute_desc_.component_r.p_min);
-			ptree.put<ushort>("composite.pmax", compute_desc_.component_b.p_max);
-			ptree.put<float>("composite.weight_r", compute_desc_.component_r.weight);
-			ptree.put<float>("composite.weight_g", compute_desc_.component_g.weight);
-			ptree.put<float>("composite.weight_b", compute_desc_.component_b.weight);
+			ptree.put<ushort>("composite.p_red", compute_desc_.composite_p_red);
+			ptree.put<ushort>("composite.p_blue", compute_desc_.composite_p_blue);
+			ptree.put<float>("composite.weight_r", compute_desc_.weight_r);
+			ptree.put<float>("composite.weight_g", compute_desc_.weight_g);
+			ptree.put<float>("composite.weight_b", compute_desc_.weight_b);
 			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
 
 			//flowgraphy
@@ -1644,26 +1615,16 @@ namespace holovibes
 		}
 		void MainWindow::set_composite_intervals()
 		{
-			QSpinBox *min_box = ui.PMinSpinBox_Composite;
-			QSpinBox *max_box = ui.PMaxSpinBox_Composite;
-
-			unsigned short pmin = min_box->value();
-			unsigned short pmax = max_box->value();
-
-			compute_desc_.component_r.p_min = pmin;
-			compute_desc_.component_b.p_max = pmax;
+			compute_desc_.composite_p_red = ui.PRedSpinBox_Composite->value();
+			compute_desc_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
 			notify();
 		}
 
 		void MainWindow::set_composite_weights()
 		{
-			QDoubleSpinBox *boxes[3];
-			boxes[0] = ui.WeightSpinBox_R;
-			boxes[1] = ui.WeightSpinBox_G;
-			boxes[2] = ui.WeightSpinBox_B;
-			Component *components[] = { &compute_desc_.component_r, &compute_desc_.component_g, &compute_desc_.component_b };
-			for (int i = 0; i < 3; i++)
-				components[i]->weight = boxes[i]->value();
+			compute_desc_.weight_r = ui.WeightSpinBox_R->value();
+			compute_desc_.weight_g = ui.WeightSpinBox_G->value();
+			compute_desc_.weight_b = ui.WeightSpinBox_B->value();
 		}
 
 		void MainWindow::set_composite_auto_weights(bool value)
@@ -1671,7 +1632,6 @@ namespace holovibes
 			compute_desc_.composite_auto_weights_ = value;
 			set_auto_contrast();
 		}
-
 
 		void MainWindow::set_flowgraphy_level(const int value)
 		{
@@ -2121,6 +2081,20 @@ namespace holovibes
 					pipe->request_autocontrast(YZview);
 				});
 			}
+		}
+
+		void MainWindow::QSpinBoxQuietSetValue(QSpinBox * spinBox, int value)
+		{
+			spinBox->blockSignals(true);
+			spinBox->setValue(value);
+			spinBox->blockSignals(false);
+		}
+
+		void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox * spinBox, double value)
+		{
+			spinBox->blockSignals(true);
+			spinBox->setValue(value);
+			spinBox->blockSignals(false);
 		}
 
 		void MainWindow::set_auto_contrast()

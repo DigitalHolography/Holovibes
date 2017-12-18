@@ -10,39 +10,35 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-/*! \file
-*
-* Overlay displaying a strip of color in function of the parent window. */
 #pragma once
 
-#include "rect_overlay.hh"
+#include "Overlay.hh"
+#include "unit.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		class StripOverlay : public RectOverlay
+		class RainbowOverlay : public Overlay
 		{
 		public:
-			StripOverlay(BasicOpenGLWindow* parent,
-				Component& component,
-				std::atomic<ushort>& nsamples,
-				Color color,
-				float alpha = 0.3f);
+			RainbowOverlay(BasicOpenGLWindow* parent);
 
-			void release(ushort frameSide) override
+			virtual ~RainbowOverlay()
 			{}
 
-			void move(QMouseEvent *e) override
-			{}
+			virtual void init() override;
+			virtual void draw() override;
 
-			void draw() override;
+			virtual void setZone(units::RectFd Rainbow, ushort frameside) override { }
 
-			void compute_zone();
+			void move(QMouseEvent *e) override;
+			void release(ushort frameSide) override { }
 
 		private:
-			Component& component_;
-			std::atomic<ushort>& nsamples_;
+			int check_interval(int x);
+
+			void setBuffer() override;
 		};
 	}
 }

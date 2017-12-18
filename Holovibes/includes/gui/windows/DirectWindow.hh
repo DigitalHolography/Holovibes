@@ -47,6 +47,7 @@ namespace holovibes
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
 			void	keyPressEvent(QKeyEvent *e) override;
+			void	wheelEvent(QWheelEvent *e) override;
 		};
 	}
 }

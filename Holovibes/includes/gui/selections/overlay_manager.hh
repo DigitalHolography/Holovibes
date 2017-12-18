@@ -32,12 +32,6 @@ namespace holovibes
 			void create_overlay();
 			/*! \brief Create the default overlay in the view. Zoom for Direct/Holo, Cross for Slices. */
 			void create_default();
-			/*! \brief Create a strip overlay, used for composite. */
-			void create_strip_overlay(Component& component,
-				std::atomic<ushort>& nsamples,
-				Color color,
-				float alpha = 0.3f);
-
 			/*! \brief Create an overlay, and set its zone. */
 			void set_zone(ushort frameside, units::RectFd zone, KindOfOverlay ko);
 

@@ -11,6 +11,8 @@
 /* **************************************************************************** */
 
 #include "tools_conversion.cuh"
+#include "unique_ptr.hh"
+#include "color.hh"
 
 struct rect
 {
@@ -46,30 +48,24 @@ __global__
 static void kernel_composite(cuComplex			*input,
 							float				*output,
 							const uint			frame_res,
-							bool				normalize,
-							comp				r,
-							comp				g,
-							comp				b)
+							size_t				min,
+							size_t				max,
+							size_t				range,
+							const float*		colors)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	ushort pmin[] = { r.p_min, g.p_min, b.p_min };
-	ushort pmax[] = { r.p_max, g.p_max, b.p_max };
-	float weight[] = { r.weight, g.weight, b.weight };
-	if (normalize)
-		for (int i = 0; i < 3; i++)
-			weight[i] = 1;
 	if (id < frame_res)
 	{
-		for (int i = 0; i < 3; i++)
+		double res_components[3] = { 0 };
+		for (ushort p = min; p <= max; p++)
 		{
-			float res = 0;
-			for (ushort p = pmin[i]; p <= pmax[i]; p++)
-			{
-				cuComplex *current_pframe = input + (frame_res * p);
-				res += hypotf(current_pframe[id].x, current_pframe[id].y);
-			}
-			output[id * 3 + i] = res * weight[i] / (pmax[i] - pmin[i] + 1);
+			cuComplex *current_pframe = input + (frame_res * p);
+			float intensity = hypotf(current_pframe[id].x, current_pframe[id].y);
+			for (int i = 0; i < 3; i++)
+				res_components[i] += colors[p * 3 + i] * intensity;
 		}
+		for (int i = 0; i < 3; i++)
+			output[id * 3 + i] = res_components[i] / range;
 	}
 }
 
@@ -145,26 +141,76 @@ static void kernel_normalize_array(float			*input,
 	// instead of [0;1] for a better contrast control
 }
 
+__global__
+static void kernel_precompute_colors(float*	colors,
+									 size_t	red,
+									 size_t	blue,
+									 size_t	min,
+									 size_t	max,
+									 size_t	range,
+									 float weight_r,
+									 float weight_g,
+									 float weight_b)
+{
+	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < range) {
+		ushort p = id + min;
+		double hue = (p - min) / double(range);
+		if (red > blue)
+			hue = 1 - hue;
+		if (hue < 0.25) {
+			colors[p * 3 + 0] = weight_r;
+			colors[p * 3 + 1] = (hue / 0.25) * weight_g;
+			colors[p * 3 + 2] = 0;
+		}
+		else if (hue < 0.5) {
+			colors[p * 3 + 0] = (1 - (hue - 0.25) / 0.25) * weight_r;
+			colors[p * 3 + 1] = weight_g;
+			colors[p * 3 + 2] = 0;
+		}
+		else if (hue < 0.75) {
+			colors[p * 3 + 0] = 0;
+			colors[p * 3 + 1] = weight_g;
+			colors[p * 3 + 2] = ((hue - 0.5) / 0.25) * weight_b;
+		}
+		else {
+			colors[p * 3 + 0] = 0;
+			colors[p * 3 + 1] = (1 - (hue - 0.75) / 0.25) * weight_g;
+			colors[p * 3 + 2] = weight_b;
+		}
+	}
+}
+
+
 void composite(cuComplex	*input,
 	float					*output,
 	const uint				frame_res,
 	const uint				real_line_size,
 	bool					normalize,
 	holovibes::units::RectFd	selection,
-	const holovibes::Component&	r,
-	const holovibes::Component&	g,
-	const holovibes::Component&	b)
+	const size_t red,
+	const size_t blue,
+	const float weight_r,
+	const float weight_g,
+	const float weight_b)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_composite << <blocks, threads, 0, 0 >> > (input,
-		output,
-		frame_res,
-		normalize,
-		{ r.p_min, r.p_max, r.weight },
-		{ g.p_min, g.p_max, g.weight },
-		{ b.p_min, b.p_max, b.weight });
+	ushort min = std::min(red, blue);
+	ushort max = std::max(red, blue);
+	ushort range = std::abs(static_cast<short>(blue - red)) + 1;
+
+	holovibes::cuda_tools::UniquePtr<float>	colors;
+	size_t colors_size = (max + 1) * 3;
+	colors.resize(colors_size);
+	
+	if (normalize)
+		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, 1, 1, 1);
+	else
+		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, weight_r, weight_g, weight_b);
+
+	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
 	cudaCheckError();
 	cudaStreamSynchronize(0);
 	if (normalize)
@@ -200,7 +246,7 @@ void composite(cuComplex	*input,
 		cudaStreamSynchronize(0);
 
 		blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, r.weight, g.weight, b.weight);
+		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
 		cudaCheckError();
 		cudaStreamSynchronize(0);
 		kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,

@@ -265,6 +265,10 @@ namespace holovibes
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
 
+			// Change the value without triggering any signals
+			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
+
 			#pragma endregion
 			/* ---------- */
 			#pragma region Fields

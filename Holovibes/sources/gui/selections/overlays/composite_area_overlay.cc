@@ -19,7 +19,7 @@ using holovibes::gui::BasicOpenGLWindow;
 
 
 CompositeAreaOverlay::CompositeAreaOverlay(BasicOpenGLWindow* parent)
-	: RectOverlay(KindOfOverlay::Stabilization, parent)
+	: RectOverlay(KindOfOverlay::CompositeArea, parent)
 {
 	color_ = { 0.6f, 0.5f, 0.0f };
 }

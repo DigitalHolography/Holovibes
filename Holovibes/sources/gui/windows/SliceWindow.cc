@@ -34,18 +34,6 @@ namespace holovibes
 			cudaFreeArray(cuArray);
 		}
 
-		void	SliceWindow::create_strip_overlays()
-		{
-			Color red{ 1.f, 0.f, 0.f };
-			Color green{ 0.f, 1.f, 0.f };
-			Color blue{ 0.f, 0.f, 1.f };
-			const float composite_alpha = 0.15f;
-			overlay_manager_.create_strip_overlay(Cd->component_r, Cd->nsamples, red, composite_alpha);
-			overlay_manager_.create_strip_overlay(Cd->component_g, Cd->nsamples, green, composite_alpha);
-			overlay_manager_.create_strip_overlay(Cd->component_b, Cd->nsamples, blue, composite_alpha);
-			overlay_manager_.create_overlay<KindOfOverlay::Composite>();
-		}
-
 		void SliceWindow::make_pixel_square() {
 			auto old_pos = position();
 			if (Cd && !Cd->square_pixel)
@@ -91,7 +79,7 @@ namespace holovibes
 			Program->link();
 			//overlay_manager_.create_overlay<Scale>();
 			if (Cd->img_type == ImgType::Composite)
-				create_strip_overlays();
+				overlay_manager_.create_overlay<Rainbow>();
 			else
 				overlay_manager_.create_default();
 		}
@@ -104,7 +92,8 @@ namespace holovibes
 			glClearColor(0.f, 0.f, 0.f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
 			initShaders();
