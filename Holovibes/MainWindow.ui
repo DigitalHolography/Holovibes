@@ -1656,27 +1656,60 @@
              <number>1</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string># chunks</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="JitterNbChunks">
-              <property name="minimum">
-               <number>3</number>
-              </property>
-              <property name="singleStep">
-               <number>2</number>
-              </property>
-              <property name="value">
-               <number>7</number>
-              </property>
-             </widget>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>factor</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string># chunks</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="JitterNbChunks">
+                <property name="minimum">
+                 <number>3</number>
+                </property>
+                <property name="singleStep">
+                 <number>2</number>
+                </property>
+                <property name="value">
+                 <number>7</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="JitterFactor">
+                <property name="decimals">
+                 <number>5</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>10000.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -5134,7 +5167,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>830</x>
-     <y>213</y>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5149,8 +5182,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_show_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>174</y>
+     <x>827</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5181,8 +5214,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stabilization_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>826</x>
-     <y>209</y>
+     <x>827</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -5245,8 +5278,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>263</y>
+     <x>826</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5262,7 +5295,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>830</x>
-     <y>355</y>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5277,8 +5310,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>263</y>
+     <x>826</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5293,8 +5326,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda2(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>292</y>
+     <x>826</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5309,8 +5342,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_sensitivity(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>321</y>
+     <x>826</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5325,8 +5358,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_shift(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
-     <y>350</y>
+     <x>826</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -5399,6 +5432,22 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
+   <sender>JitterCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_enabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>714</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>JitterNbChunks</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -5415,18 +5464,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>JitterCheckBox</sender>
-   <signal>toggled(bool)</signal>
+   <sender>JitterFactor</sender>
+   <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_jitter_enabled(bool)</slot>
+   <slot>set_jitter_factor(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>714</x>
-     <y>376</y>
+     <x>787</x>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
-     <y>439</y>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -5556,5 +5605,6 @@ p, li { white-space: pre-wrap; }
   <slot>camera_hamamatsu()</slot>
   <slot>set_jitter_slices(int)</slot>
   <slot>set_jitter_enabled(bool)</slot>
+  <slot>set_jitter_factor(double)</slot>
  </slots>
 </ui>

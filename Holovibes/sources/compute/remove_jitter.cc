@@ -39,7 +39,7 @@ RemoveJitter::RemoveJitter(cuComplex* buffer,
 	, cd_(cd)
 {
 	nb_slices_ = std::max(3, cd.jitter_slices_.load());
-	if (!nb_slices_ % 2)
+	if (!(nb_slices_ % 2))
 		nb_slices_++;
 	slice_depth_ = cd_.nsamples /((nb_slices_ + 1) / 2);
 	slice_shift_ = slice_depth_ / 2;
@@ -181,14 +181,17 @@ void RemoveJitter::fix_jitter()
 {
 	// Phi_jitter[i] = 2*PI/Lambda * Sum(n: 0 -> i, shift_t[n])
 	std::vector<double> phi;
+	int index_sum = 0;
 	for (size_t i = 1; i < shifts_.size(); i++)
 	{
-		double current_phi = shifts_[i];
-		current_phi *= M_PI * 2 / cd_.lambda;
-		//std::cout << phi_jitter << " ";
+		index_sum += shifts_[i];
+		double current_phi = index_sum;
+		current_phi *= M_PI * 2.f / static_cast<float>(shifts_.size() + 1);
+		current_phi *= cd_.jitter_factor_;
+		std::cout << current_phi << " ";
 		phi.push_back(current_phi);
 	}
-	//std::cout << std::endl;
+	std::cout << std::endl;
 
 	int big_chunk_size = slice_shift_ * 1.5;
 
@@ -211,7 +214,7 @@ void RemoveJitter::fix_jitter()
 
 void RemoveJitter::run()
 {
-	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
+	if (cd_.stft_view_enabled && cd_.jitter_enabled_)
 	{
 		/*
 		extract_and_fft(0, ref_slice_);
