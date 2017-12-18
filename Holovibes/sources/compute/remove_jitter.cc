@@ -57,8 +57,9 @@ int RemoveJitter::slice_size()
 }
 
 
-void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
+void RemoveJitter::extract_and_fft(int slice_index, float* buffer)
 {
+	Array<cuComplex> tmp_array(slice_size());
 	const int width = dimensions_.width();
 	int depth = slice_depth_;
 	const int frame_size = dimensions_.area();
@@ -73,14 +74,16 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	auto in = buffer_ + cd_.getStftCursor().y() * width;
 	const int pixel_shift_depth = slice_index * frame_size * slice_shift_;
 	in += pixel_shift_depth;
-	cufftExecC2C(plan1d, in, buffer, CUFFT_FORWARD);
+	cufftExecC2C(plan1d, in, tmp_array.get(), CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
+	complex_to_modulus(tmp_array, buffer, nullptr, 0, 0, slice_size());
+
+	normalize_frame(buffer, slice_size());
+
+	/*
 	// Preparing for the correlation
-
-	normalize_frame(reinterpret_cast<float*>(buffer), 2 * slice_size());
-
 	plan1d.planMany(1, &depth,
 		&depth, width, 1,
 		&depth, width, 1,
@@ -88,26 +91,38 @@ void RemoveJitter::extract_and_fft(int slice_index, cuComplex* buffer)
 	cufftExecC2C(plan1d, buffer, buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
+	*/
 }
 
-void RemoveJitter::correlation(cuComplex* ref, cuComplex* slice, float* out)
+void RemoveJitter::correlation(float* ref, float* slice, float* out)
 {
 	auto size = slice_size();
-
-	// The frames are already in frequency domain
-	multiply_frames_complex(ref, slice, slice, size);
-	cudaStreamSynchronize(0);
-
+	Array<cuComplex> tmp_a(size);
+	Array<cuComplex> tmp_b(size);
+	CufftHandle plan1d;
 	int width = dimensions_.width();
 	int depth = slice_depth_;
-	CufftHandle plan1d;
+
+
+	plan1d.planMany(1, &depth,
+		&depth, width, 1,
+		&depth, width, 1,
+		CUFFT_R2C, width);
+	cufftExecR2C(plan1d, ref, tmp_a);
+	cufftExecR2C(plan1d, slice, tmp_b);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+
+	// The frames are already in frequency domain
+	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
+	cudaStreamSynchronize(0);
 
 	plan1d.planMany(1, &depth,
 		&depth, width, 1,
 		&depth, width, 1,
 		CUFFT_C2R, width);
 
-	cufftExecC2R(plan1d, slice, out);
+	cufftExecC2R(plan1d, tmp_a, out);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }
@@ -118,8 +133,8 @@ int RemoveJitter::maximum_y(float* frame)
 	average_lines(frame, line_averages, dimensions_.width(), slice_depth_);
 	cudaStreamSynchronize(0);
 
-	//float tmp[1024];
-	//cudaMemcpy(tmp, line_averages.get(), slice_depth_ * sizeof(float), cudaMemcpyDeviceToHost);
+	float tmp[1024];
+	cudaMemcpy(tmp, line_averages.get(), slice_depth_ * sizeof(float), cudaMemcpyDeviceToHost);
 
 	uint max_y = 0;
 	gpu_extremums(line_averages, slice_depth_, nullptr, nullptr, nullptr, &max_y);
@@ -147,7 +162,7 @@ void RemoveJitter::compute_all_shifts()
 	extract_and_fft(0, ref_slice_);
 
 	// We flip it for the convolution, to do it only once
-	rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
+	//rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
 
 	shifts_.clear();
 	for (uint i = 0; i < nb_slices_; ++i)
@@ -194,6 +209,14 @@ void RemoveJitter::run()
 {
 	if (cd_.stft_view_enabled && (true || cd_.jitter_enabled_))
 	{
+		/*
+		extract_and_fft(0, ref_slice_);
+		extract_and_fft(0, slice_);
+		correlation(ref_slice_, slice_, correlation_);
+		maximum_y(correlation_);
+		correlation_.write_to_file("H:/tmp.raw");
+		std::cout << dimensions_.width() << std::endl;
+		*/
 		compute_all_shifts();
 		fix_jitter();
 	}

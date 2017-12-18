@@ -47,12 +47,12 @@ namespace holovibes
 			/*! Extract one frame from the buffrt while performing the fft,
 			 * and fft again for the correlation later on
 			 */
-			void extract_and_fft(int slice_index, cuComplex* buffer);
+			void extract_and_fft(int slice_index, float* buffer);
 
 			/*! Compute the correlation between the two buffers using ffts
 			* the first fft is assumed to be already done
 			*/
-			void correlation(cuComplex* ref, cuComplex* slice, float* out);
+			void correlation(float* ref, float* slice, float* out);
 
 			/*! Average each line and finds the index of the maximum*/
 			int maximum_y(float* frame);
@@ -88,11 +88,11 @@ namespace holovibes
 
 			/*! Buffer containing the reference slice (first one)
 			*/
-			cuda_tools::Array<cuComplex>	ref_slice_;
+			cuda_tools::Array<float>		ref_slice_;
 
 			/*! Buffer containing the current slice
 			*/
-			cuda_tools::Array<cuComplex>	slice_;
+			cuda_tools::Array<float>		slice_;
 
 			/*! Buffer containing correlation result
 			*/
