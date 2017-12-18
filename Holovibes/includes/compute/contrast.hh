@@ -36,6 +36,9 @@ namespace holovibes
 		class Contrast
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Contrast(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
@@ -44,22 +47,47 @@ namespace holovibes
 				const camera::FrameDescriptor& output_fd,
 				ICompute* Ic);
 
+			/** \brief insert the functions relative to the fft shift.
+			*/
 			void insert_fft_shift();
+			/** \brief insert the functions relative to noise and signal average.
+			 */
 			void insert_average(std::atomic<bool>& record_request);
+			/** \brief insert the functions relative to the log10.
+			*/
 			void insert_log();
+			/** \brief insert the functions relative to the contrast.
+			*/
 			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 
 		private:
+			/** \brief insert the average computation.
+			*/
 			void insert_main_average();
+			/** \brief insert the average recording.
+			*/
 			void insert_average_record();
 
+			/** \brief insert the log10 on the XY window
+			*/
 			void insert_main_log();
+			/** \brief insert the log10 on the slices
+			*/
 			void insert_slice_log();
 
+			/** \brief insert the autocontrast
+			*/
 			void insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
+			/** \brief insert the constrast on the XY window
+			*/
 			void insert_main_contrast();
+			/** \brief insert the contrast on the slices
+			*/
 			void insert_slice_contrast();
 
+			/**\brief Calls autocontrast and set the correct contrast variables
+			
+			*/
 			void autocontrast_caller(float *input,
 				const uint			size,
 				const uint			offset,

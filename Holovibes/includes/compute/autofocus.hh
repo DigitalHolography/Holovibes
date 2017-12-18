@@ -71,6 +71,9 @@ namespace holovibes
 		class Autofocus
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Autofocus(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				holovibes::Queue& input,
