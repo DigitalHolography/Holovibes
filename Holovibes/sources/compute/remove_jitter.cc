@@ -188,10 +188,8 @@ void RemoveJitter::fix_jitter()
 		double current_phi = index_sum;
 		current_phi *= M_PI * 2.f / static_cast<float>(shifts_.size() + 1);
 		current_phi *= cd_.jitter_factor_;
-		std::cout << current_phi << " ";
 		phi.push_back(current_phi);
 	}
-	std::cout << std::endl;
 
 	int big_chunk_size = slice_shift_ * 1.5;
 
