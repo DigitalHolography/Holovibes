@@ -106,7 +106,7 @@ void kernel_rotation_180(T				*frame,
 	const uint new_y = index / size.x;
 	if (new_y < size.y / 2)
 	{
-		const uint new_x = index % size.y;
+		const uint new_x = index % size.x;
 		const uint old_y = size.y - new_y - 1;
 		const uint old_x = size.x - new_x - 1;
 		const uint old_index = old_y * size.x + old_x;
@@ -121,7 +121,7 @@ void rotation_180(float			*frame,
 					cudaStream_t stream)
 {
 	const uint threads = get_max_threads_1d();
-	const uint blocks = map_blocks_to_problem(size.x() * size.y(), threads);
+	const uint blocks = map_blocks_to_problem(size.x() * size.y() / 2, threads);
 	struct point s = { size.x(), size.y() };
 	kernel_rotation_180 << <blocks, threads, 0, stream >> > (frame, s);
 	cudaCheckError();

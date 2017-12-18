@@ -79,8 +79,12 @@ void RemoveJitter::extract_and_fft(int slice_index, float* buffer)
 	cudaCheckError();
 
 	complex_to_modulus(tmp_array, buffer, nullptr, 0, 0, slice_size());
+	cudaStreamSynchronize(0);
 
 	normalize_frame(buffer, slice_size());
+
+	//cudaMemset(buffer, 0, 3 * width * sizeof(float));
+	//cudaMemset(buffer + width * (slice_depth_ - 3), 0, 3 * width * sizeof(float));
 
 	/*
 	// Preparing for the correlation
@@ -99,32 +103,31 @@ void RemoveJitter::correlation(float* ref, float* slice, float* out)
 	auto size = slice_size();
 	Array<cuComplex> tmp_a(size);
 	Array<cuComplex> tmp_b(size);
-	CufftHandle plan1d;
+	CufftHandle plan2d;
 	int width = dimensions_.width();
 	int depth = slice_depth_;
 
 
-	plan1d.planMany(1, &depth,
-		&depth, width, 1,
-		&depth, width, 1,
-		CUFFT_R2C, width);
-	cufftExecR2C(plan1d, ref, tmp_a);
-	cufftExecR2C(plan1d, slice, tmp_b);
+	plan2d.plan(width, depth, CUFFT_R2C);
+	cufftExecR2C(plan2d, ref, tmp_a);
+	cufftExecR2C(plan2d, slice, tmp_b);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	// The frames are already in frequency domain
 	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
 	cudaStreamSynchronize(0);
 
-	plan1d.planMany(1, &depth,
-		&depth, width, 1,
-		&depth, width, 1,
-		CUFFT_C2R, width);
+	plan2d.plan(width, depth, CUFFT_C2R);
 
-	cufftExecC2R(plan1d, tmp_a, out);
+	Array<cuComplex> complex_buffer(slice_size());
+
+	cufftExecC2R(plan2d, tmp_a, out);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
+	return;
+
+	complex_to_modulus(complex_buffer, out, nullptr, 0, 0, slice_size());
+	cudaStreamSynchronize(0);
 }
 
 int RemoveJitter::maximum_y(float* frame)
@@ -140,7 +143,7 @@ int RemoveJitter::maximum_y(float* frame)
 	gpu_extremums(line_averages, slice_depth_, nullptr, nullptr, nullptr, &max_y);
 	if (max_y > slice_depth_ / 2)
 		max_y -= slice_depth_;
-	return max_y;
+	return max_y + 1;
 }
 
 int RemoveJitter::compute_one_shift(int i)
@@ -160,12 +163,13 @@ int RemoveJitter::compute_one_shift(int i)
 void RemoveJitter::compute_all_shifts()
 {
 	extract_and_fft(0, ref_slice_);
+	rotation_180(ref_slice_, { dimensions_.width(), static_cast<int>(slice_depth_) });
 
 	// We flip it for the convolution, to do it only once
 	//rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
 
 	shifts_.clear();
-	for (uint i = 0; i < nb_slices_; ++i)
+	for (uint i = 1; i < nb_slices_; ++i)
 		shifts_.push_back(compute_one_shift(i));
 
 	for (auto i : shifts_)
@@ -211,12 +215,15 @@ void RemoveJitter::run()
 	{
 		/*
 		extract_and_fft(0, ref_slice_);
-		extract_and_fft(0, slice_);
+		rotation_180(ref_slice_, { dimensions_.width(), static_cast<int>(slice_depth_) });
+		ref_slice_.write_to_file("H:/ref_slice.raw");
+		extract_and_fft(1, slice_);
+		slice_.write_to_file("H:/slice.raw");
 		correlation(ref_slice_, slice_, correlation_);
-		maximum_y(correlation_);
+		std::cout << "y: " << maximum_y(correlation_) << std::endl;
 		correlation_.write_to_file("H:/tmp.raw");
 		std::cout << dimensions_.width() << std::endl;
-		*/
+		//*/
 		compute_all_shifts();
 		fix_jitter();
 	}
