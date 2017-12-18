@@ -24,4 +24,7 @@ void composite(cuComplex	*input,
 	bool					normalize,
 	holovibes::units::RectFd	selection,
 	const size_t red,
-	const size_t blue);
+	const size_t blue,
+	const float weight_r,
+	const float weight_g,
+	const float weight_b);
