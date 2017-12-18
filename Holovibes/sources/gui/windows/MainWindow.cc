@@ -366,7 +366,7 @@ namespace holovibes
 			ui.ZDoubleSpinBox->setEnabled(!is_direct);
 			ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
 			ui.ZStepDoubleSpinBox->setEnabled(!is_direct);
-			ui.RawRecordingCheckBox->setEnabled(!is_direct && compute_desc_.current_window == XYview);
+			ui.RawRecordingCheckBox->setEnabled(!is_direct);
 
 			ui.PixelSizeDoubleSpinBox->setEnabled(!compute_desc_.is_cine_file);
 			ui.PixelSizeDoubleSpinBox->setValue(compute_desc_.pixel_size);
