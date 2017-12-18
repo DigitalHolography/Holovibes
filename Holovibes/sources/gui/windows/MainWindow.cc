@@ -162,9 +162,9 @@ namespace holovibes
 			delete p_right_shortcut_;
 			delete autofocus_ctrl_c_shortcut_;
 
+			close_windows();
 			close_critical_compute();
 			camera_none();
-			close_windows();
 			remove_infos();
 
 			holovibes_.dispose_compute();
@@ -478,10 +478,13 @@ namespace holovibes
 
 		void MainWindow::layout_toggled()
 		{
-			// Resizing to original size, then adjust it to fit the groupboxes
-			resize(baseSize());
-			adjustSize();
+			synchronize_thread([=]() {
+				// Resizing to original size, then adjust it to fit the groupboxes
+				resize(baseSize());
+				adjustSize();
+			});
 		}
+
 
 		void MainWindow::display_error(const std::string msg)
 		{
@@ -846,11 +849,11 @@ namespace holovibes
 
 		void MainWindow::camera_none()
 		{
+			close_windows();
 			close_critical_compute();
 			if (!is_direct_mode())
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
-			close_windows();
 			remove_infos();
 			ui.actionSettings->setEnabled(false);
 			is_enabled_camera_ = false;
@@ -924,10 +927,10 @@ namespace holovibes
 
 		void MainWindow::closeEvent(QCloseEvent*)
 		{
+			close_windows();
 			if (compute_desc_.compute_mode != Computation::Stop)
 				close_critical_compute();
 			camera_none();
-			close_windows();
 			remove_infos();
 			save_ini(GLOBAL_INI_PATH);
 		}
@@ -936,8 +939,8 @@ namespace holovibes
 		#pragma region Cameras
 		void MainWindow::change_camera(CameraKind c)
 		{
-			close_critical_compute();
 			close_windows();
+			close_critical_compute();
 			remove_infos();
 			if (c != CameraKind::NONE)
 			{
@@ -1036,8 +1039,8 @@ namespace holovibes
 
 		void MainWindow::set_direct_mode()
 		{
-			close_critical_compute();
 			close_windows();
+			close_critical_compute();
 			InfoManager::get_manager()->remove_info("Throughput");
 			compute_desc_.compute_mode = Computation::Stop;
 			notify();
@@ -1120,8 +1123,8 @@ namespace holovibes
 
 		void MainWindow::set_holographic_mode()
 		{
-			close_critical_compute();
 			close_windows();
+			close_critical_compute();
 			/* ---------- */
 			try
 			{
@@ -1146,8 +1149,8 @@ namespace holovibes
 
 		void MainWindow::refreshViewMode()
 		{
-			close_critical_compute();
 			close_windows();
+			close_critical_compute();
 			try
 			{
 				createPipe();
@@ -1160,6 +1163,7 @@ namespace holovibes
 				std::cerr << e.what() << std::endl;
 			}
 			notify();
+			layout_toggled();
 		}
 
 		namespace
@@ -1182,7 +1186,7 @@ namespace holovibes
 
 				if (need_refresh(last_img_type_, value))
 				{
-					// This may crash.
+					// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 				}
@@ -1192,15 +1196,15 @@ namespace holovibes
 
 				pipe->run_end_pipe([=]() {
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
+					notify();
+					layout_toggled();
 				});
 				pipe_refresh();
 
 				pipe->autocontrast_end_pipe(XYview);
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
-				while (pipe->get_refresh_request())
-				layout_toggled();
-				notify();
+				while (pipe->get_refresh_request());
 			}
 		}
 		
@@ -1241,8 +1245,11 @@ namespace holovibes
 			sliceXZ.reset(nullptr);
 			sliceYZ.reset(nullptr);
 
-			mainDisplay->setCursor(Qt::ArrowCursor);
-			mainDisplay->resetSelection();
+			if (mainDisplay)
+			{
+				mainDisplay->setCursor(Qt::ArrowCursor);
+				mainDisplay->resetSelection();
+			}
 			if (auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get()))
 			{
 				pipe->run_end_pipe([=]() {
@@ -1363,6 +1370,11 @@ namespace holovibes
 		{
 			if (compute_desc_.stft_view_enabled)
 				cancel_stft_slice_view();
+			try {
+				while (holovibes_.get_pipe()->get_refresh_request());
+			}
+			catch(std::exception&)
+			{ }
 			if (compute_desc_.p_accu_enabled)
 				compute_desc_.p_accu_enabled = false;
 			compute_desc_.stft_view_enabled = false;
@@ -2934,9 +2946,9 @@ namespace holovibes
 
 		void MainWindow::import_file_stop(void)
 		{
+			close_windows();
 			close_critical_compute();
 			camera_none();
-			close_windows();
 			remove_infos();
 			compute_desc_.compute_mode = Computation::Stop;
 			notify();
