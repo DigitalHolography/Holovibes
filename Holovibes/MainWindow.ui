@@ -1210,7 +1210,7 @@
                <number>1</number>
               </property>
               <item row="2" column="0">
-               <widget class="QSpinBox" name="PMinSpinBox_Composite">
+               <widget class="QSpinBox" name="PRedSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1231,19 +1231,25 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_7">
                 <property name="text">
-                 <string>p min (red)</string>
+                 <string>Red</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item row="1" column="1">
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>p max (blue)</string>
+                 <string>Blue</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
+               <widget class="QSpinBox" name="PBlueSpinBox_Composite">
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -2939,7 +2945,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3332,7 +3338,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>InterpolationLambda2</tabstop>
   <tabstop>InterpolationSensitivity</tabstop>
   <tabstop>InterpolationShift</tabstop>
-  <tabstop>PMinSpinBox_Composite</tabstop>
+  <tabstop>PRedSpinBox_Composite</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
@@ -4969,7 +4975,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMinSpinBox_Composite</sender>
+   <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_composite_intervals()</slot>
@@ -4985,7 +4991,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMaxSpinBox_Composite</sender>
+   <sender>PBlueSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_composite_intervals()</slot>

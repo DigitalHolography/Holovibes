@@ -111,21 +111,20 @@ namespace holovibes
 		void Converts::insert_to_composite()
 		{
 			fn_vect_.push_back([=]() {
-				Component *comps[] = { &cd_.component_r, &cd_.component_g, &cd_.component_b };
-				for (Component* component : comps)
-					if (component->p_max < component->p_min || component->p_max >= cd_.nsamples)
-						return;
+				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nsamples) ||
+					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nsamples))
+					return;
 				composite(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
 					fd_.width,
 					cd_.composite_auto_weights_,
 					cd_.getCompositeZone(),
-					cd_.component_r.p_min,
-					cd_.component_b.p_max,
-					cd_.component_r.weight,
-					cd_.component_g.weight,
-					cd_.component_b.weight);
+					cd_.composite_p_red,
+					cd_.composite_p_blue,
+					cd_.weight_r,
+					cd_.weight_g,
+					cd_.weight_b);
 			});
 		}
 

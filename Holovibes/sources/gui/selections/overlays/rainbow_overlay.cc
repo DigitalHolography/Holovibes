@@ -116,8 +116,8 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 
-			int red = cd->component_r.p_min;
-			int blue = cd->component_b.p_max;
+			int red = cd->composite_p_red;
+			int blue = cd->composite_p_blue;
 			int green = (red + blue) / 2;
 			units::PointFd red1;
 			units::PointFd red2;
@@ -176,13 +176,13 @@ namespace holovibes
 				zone_.setDst(getMousePos(e->pos()));
 				if (parent_->getKindOfView() == SliceYZ)
 				{
-					parent_->getCd()->component_r.p_min = check_interval(zone_.src().x());
-					parent_->getCd()->component_b.p_max = check_interval(zone_.dst().x());
+					parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
+					parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
 				}
 				else
 				{
-					parent_->getCd()->component_r.p_min = check_interval(zone_.src().y());
-					parent_->getCd()->component_b.p_max = check_interval(zone_.dst().y());
+					parent_->getCd()->composite_p_red = check_interval(zone_.src().y());
+					parent_->getCd()->composite_p_blue = check_interval(zone_.dst().y());
 				}
 				parent_->getCd()->notify_observers();
 			}

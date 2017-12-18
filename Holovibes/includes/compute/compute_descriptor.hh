@@ -318,10 +318,12 @@ namespace holovibes
 
 		//! Composite images
 		//! \{
-		Component					component_r;
-		Component					component_g;
-		Component					component_b;
-		std::atomic<bool>			composite_auto_weights_;
+		std::atomic<ushort>		composite_p_red;
+		std::atomic<ushort>		composite_p_blue;
+		std::atomic<float>		weight_r;
+		std::atomic<float>		weight_g;
+		std::atomic<float>		weight_b;
+		std::atomic<bool>		composite_auto_weights_;
 		//! \}
 
 		#pragma endregion

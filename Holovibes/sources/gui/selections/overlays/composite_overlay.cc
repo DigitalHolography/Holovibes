@@ -31,8 +31,8 @@ namespace holovibes
 			if (is_active_)
 			{
 				zone_.setDst(getMousePos(e->pos()));
-				parent_->getCd()->component_r.p_min = check_interval(zone_.src().x());
-				parent_->getCd()->component_b.p_max = check_interval(zone_.dst().x());
+				parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
+				parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
 				parent_->getCd()->notify_observers();
 			}
 		}
