@@ -60,7 +60,6 @@ namespace holovibes
 
 			void compute_correlation(const float* x, const float *y);
 			void compute_convolution(const float* x, const float* y, float* out);
-			void normalize_frame(float* frame, uint frame_res);
 
 			/// Buffer to keep the convolution product
 			cuda_tools::Array<float>		convolution_;

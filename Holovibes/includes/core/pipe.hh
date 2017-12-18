@@ -120,6 +120,7 @@ namespace holovibes
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;
+
 		compute::DetectIntensity detect_intensity_;
 
 		std::unique_ptr<Queue> gpu_raw_queue_;

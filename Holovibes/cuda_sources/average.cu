@@ -148,3 +148,34 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 
 	return make_average_plot(fbuf, width, height, signal_zone, noise_zone, stream);
 }
+
+
+
+__global__
+void kernel_average_lines(float*	input,
+						float*	output,
+						uint	width,
+						uint	height)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < height)
+	{
+		float sum = 0.f;
+		float* line = input + width * index;
+		for (uint i = 0; i < width; i++)
+			sum += line[i];
+		output[index] = sum / width;
+	}
+}
+
+
+void average_lines(float*	input,
+					float*	output,
+					uint	width,
+					uint	height)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(height, threads);
+	kernel_average_lines << <blocks, threads, 0, 0 >> > (input, output, width, height);
+	cudaCheckError();
+}

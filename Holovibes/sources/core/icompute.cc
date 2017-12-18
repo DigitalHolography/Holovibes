@@ -274,7 +274,7 @@ namespace holovibes
 			<< " error message: " << e.what() << std::endl
 			<< " err_count: " << err_count << std::endl
 			<< std::endl;
-		//notify_error_observers(e);
+		notify_error_observers(e);
 	}
 
 	void ICompute::update_acc_parameter(

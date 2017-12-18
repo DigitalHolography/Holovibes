@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "tools_compute.cuh"
+#include "tools_unwrap.cuh"
 
 __global__
 void kernel_complex_divide(cuComplex	*image,
@@ -63,6 +64,18 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 	}
 	//output[index].x = input1[index].x * input2[index].x;
 	//output[index].y = input1[index].y * input2[index].y;
+}
+
+void multiply_frames_complex(const cuComplex	*input1,
+								const cuComplex	*input2,
+								cuComplex		*output,
+								const uint		size,
+								cudaStream_t	stream)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(size, threads);
+	kernel_multiply_frames_complex << <blocks, threads, 0, stream >> > (input1, input2, output, size);
+	cudaCheckError();
 }
 
 __global__
@@ -216,10 +229,12 @@ void gpu_extremums(float			*input,
 		local_extr,
 		block_size,
 		size);
+	cudaStreamSynchronize(0);
 	cudaCheckError();
 	global_extremums << <1, 1, 0, 0 >> > (local_extr,
 		global_extr,
 		nb_blocks);
+	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	struct extr_index extremum[2];
@@ -277,4 +292,23 @@ void gpu_multiply_const(float		*frame,
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
 	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
 	cudaCheckError();
+}
+
+void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
+{
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_size, threads);
+	kernel_multiply_complex_by_single_complex << <blocks, threads, 0, 0 >> >(frame, x, frame_size);
+	cudaCheckError();
+}
+
+void normalize_frame(float* frame, uint frame_res)
+{
+	float min, max;
+	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
+
+	gpu_substract_const(frame, frame_res, min);
+	cudaStreamSynchronize(0);
+	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
+	cudaStreamSynchronize(0);
 }

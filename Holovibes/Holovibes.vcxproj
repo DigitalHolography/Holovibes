@@ -192,6 +192,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\compute\detect_intensity.hh" />
     <ClInclude Include="includes\compute\postprocessing.hh" />
     <ClInclude Include="includes\compute\preprocessing.hh" />
+    <ClInclude Include="includes\compute\remove_jitter.hh" />
     <ClInclude Include="includes\compute\stabilization.hh" />
     <ClInclude Include="includes\concurrent_deque.hh" />
     <ClInclude Include="includes\config.hh" />
@@ -432,6 +433,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\compute\detect_intensity.cc" />
     <ClCompile Include="sources\compute\postprocessing.cc" />
     <ClCompile Include="sources\compute\preprocessing.cc" />
+    <ClCompile Include="sources\compute\remove_jitter.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_overlay.cc" />

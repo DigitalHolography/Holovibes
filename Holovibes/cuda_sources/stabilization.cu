@@ -97,25 +97,37 @@ void gpu_resize(const float		*input,
 }
 
 
+template <typename T>
 __global__
-void kernel_rotation_180(float			*frame,
-							point		size)
+void kernel_rotation_180(T				*frame,
+						point			size)
 {
 	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint new_y = index / size.x;
 	if (new_y < size.y / 2)
 	{
-		const uint new_x = index % size.y;
+		const uint new_x = index % size.x;
 		const uint old_y = size.y - new_y - 1;
 		const uint old_x = size.x - new_x - 1;
 		const uint old_index = old_y * size.x + old_x;
-		float tmp = frame[old_index];
+		T tmp = frame[old_index];
 		frame[old_index] = frame[index];
 		frame[index] = tmp;
 	}
 }
 
 void rotation_180(float			*frame,
+					QPoint		size,
+					cudaStream_t stream)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size.x() * size.y() / 2, threads);
+	struct point s = { size.x(), size.y() };
+	kernel_rotation_180 << <blocks, threads, 0, stream >> > (frame, s);
+	cudaCheckError();
+}
+
+void rotation_180(cuComplex		*frame,
 					QPoint		size,
 					cudaStream_t stream)
 {

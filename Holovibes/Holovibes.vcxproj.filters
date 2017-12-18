@@ -359,6 +359,9 @@
     <ClCompile Include="sources\tools\units\real_position.cc">
       <Filter>c++ sources\tools\units</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\remove_jitter.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -624,6 +627,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\composite_area_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\remove_jitter.hh">
+      <Filter>c++ includes\compute</Filter>
     </ClInclude>
     <ClInclude Include="includes\tools\units\real_position.hh">
       <Filter>c++ includes\tools\units</Filter>

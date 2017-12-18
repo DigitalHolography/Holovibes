@@ -15,6 +15,9 @@
  * cuda_tools::UniquePtr containing an array */
 #pragma once
 
+#include <cuda_runtime_api.h>
+#include <fstream>
+
 namespace holovibes
 {
 	namespace cuda_tools
@@ -66,6 +69,15 @@ namespace holovibes
 			{
 				base::resize(size);
 				size_ = size;
+			}
+
+			void write_to_file(std::string filename, bool trunc = false)
+			{
+				std::vector<T> cpu_buffer(size_);
+				const uint byte_size = size_ * sizeof(T);
+				cudaMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
+				std::ofstream file(filename, std::ios::binary | (trunc ? std::ios::trunc : std::ios::app));
+				file.write(reinterpret_cast<char*>(cpu_buffer.data()), byte_size);
 			}
 
 		private:

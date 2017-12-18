@@ -16,6 +16,7 @@
 #pragma once
 
 # include "queue.hh"
+# include <deque>
 
 namespace holovibes
 {

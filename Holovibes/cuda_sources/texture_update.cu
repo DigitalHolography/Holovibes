@@ -67,7 +67,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 			reinterpret_cast<ushort *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
-		cudaCheckError();
+		//cudaCheckError();
 	}
 
 	cudaStreamSynchronize(stream);
