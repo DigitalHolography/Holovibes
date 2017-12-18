@@ -20,7 +20,7 @@ namespace holovibes
 		RainbowOverlay::RainbowOverlay(BasicOpenGLWindow* parent)
 			: Overlay(Rainbow, parent)
 		{
-			alpha_ = 0.2f;
+			alpha_ = 0.5f;
 			display_ = true;
 		}
 

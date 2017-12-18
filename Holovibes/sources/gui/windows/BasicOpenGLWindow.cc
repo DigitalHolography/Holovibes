@@ -139,33 +139,6 @@ namespace holovibes
 			overlay_manager_.keyPress(e);
 		}
 
-		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
-		{
-			if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
-				return;
-			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
-			if (e->angleDelta().y() > 0)
-			{
-				scale_ += 0.1f * scale_;
-				translate_[0] += xGL * 0.1 / scale_;
-				translate_[1] += -yGL * 0.1 / scale_;
-				setTransform();
-			}
-			else if (e->angleDelta().y() < 0)
-			{
-				scale_ -= 0.1f * scale_;
-				if (scale_ < 1.f)
-					scale_ = 1;
-				else
-				{
-					translate_[0] -= xGL * 0.1 / scale_;
-					translate_[1] -= -yGL * 0.1 / scale_;
-					setTransform();
-				}
-			}
-		}
-
 		void	BasicOpenGLWindow::setAngle(float a)
 		{
 			angle_ = a;
