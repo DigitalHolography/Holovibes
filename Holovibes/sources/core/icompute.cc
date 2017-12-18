@@ -169,9 +169,7 @@ namespace holovibes
 		new_fd.depth = 8;
 		try
 		{
-			/* This will resize cuts buffers:
-			   Since the getter on the slice queue, the constructor of Slice window and a lot of other things
-			   are using a reference on the queue, instead of a reference on the unique_ptr, it will crash.
+			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work.
 
 			if (compute_desc_.stft_view_enabled)
 				request_stft_cuts_ = true; */
