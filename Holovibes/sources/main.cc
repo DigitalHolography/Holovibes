@@ -10,6 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \mainpage HoloDox
+
+    This is the documentation for developpers only. \n 
+	It is strictly confidential and must not be shared. \n
+	You'll be charged a 1500.02$ fine and 2 years of jail if you do not respect these terms.
+*/
+
+
 #include "options_parser.hh"
 #include "MainWindow.hh"
 
