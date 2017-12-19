@@ -1412,7 +1412,7 @@
           <number>2</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="groupBox_8">
+          <widget class="QGroupBox" name="AutofocusGroupBox">
            <property name="title">
             <string>Focus / Aberration correction</string>
            </property>

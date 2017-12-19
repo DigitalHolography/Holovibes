@@ -348,7 +348,7 @@ namespace holovibes
 			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled);
 			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level);
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level);
-			ui.AutofocusRunPushButton->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None);
+			ui.AutofocusGroupBox->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None);
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
