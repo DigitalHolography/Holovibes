@@ -16,6 +16,7 @@
 #pragma once
 
 #include "gui_group_box.hh"
+#include "frame_desc.hh"
 
 namespace holovibes
 {
