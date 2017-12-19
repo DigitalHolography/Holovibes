@@ -81,7 +81,12 @@ namespace holovibes
 		display_rate(30),
 		xy_stabilization_enabled(false),
 		xy_stabilization_paused(false),
-		xy_stabilization_show_convolution(false)
+		xy_stabilization_show_convolution(false),
+		composite_p_red(0),
+		composite_p_blue(0),
+		weight_r(1),
+		weight_g(1),
+		weight_b(1)
 	{
 
 	}
