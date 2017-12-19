@@ -30,9 +30,9 @@ namespace camera
 	 * in the rendering window and the holograms computations. */
 	struct FrameDescriptor
 	{
-		//!< Obtain the total frame size in bytes.
+		//! Obtain the total frame size in bytes.
 		unsigned int frame_size() const { return width * height * depth; }
-		//!< \brief Return the frame resolution (number of pixels).
+		//! \brief Return the frame resolution (number of pixels).
 		unsigned int frame_res() const { return width * height; }
 
 		unsigned short		width;		//!< Width of the frame in pixels.

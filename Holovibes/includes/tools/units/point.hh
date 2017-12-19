@@ -77,7 +77,6 @@ namespace holovibes
 			template <typename U>
 			operator Point<U>() const
 			{
-
 				Point<OpenglPosition> tmp(x_, y_);
 				// We can't use "if constexpr" here because cuda isn't c++17
 				// Once it is, please add the constexpr
@@ -88,6 +87,8 @@ namespace holovibes
 				Point<U> res(tmp.x(), tmp.y());
 				return res;
 			}
+
+			// TODO: fix the warning saying that it won't be called.
 			operator Point<RealPosition>() const
 			{
 				Point<RealPosition> res(x_, y_);
