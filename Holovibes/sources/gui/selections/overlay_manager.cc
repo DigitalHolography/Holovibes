@@ -22,7 +22,6 @@
 #include "slice_cross_overlay.hh"
 #include "filter2d_overlay.hh"
 #include "scale_overlay.hh"
-#include "composite_overlay.hh"
 #include "composite_area_overlay.hh"
 #include "rainbow_overlay.hh"
 
@@ -100,13 +99,6 @@ namespace holovibes
 		{
 			if (!set_current(SliceCross))
 				create_overlay(std::make_shared<SliceCrossOverlay>(parent_));
-		}
-
-		template <>
-		void OverlayManager::create_overlay<KindOfOverlay::Composite>()
-		{
-			if (!set_current(KindOfOverlay::Composite))
-				create_overlay(std::make_shared<CompositeOverlay>(parent_));
 		}
 
 		template <>

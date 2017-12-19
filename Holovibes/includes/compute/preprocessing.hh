@@ -28,22 +28,43 @@ namespace holovibes
 		{
 		public:
 
+			/*! \brief Describing the Ref diff/sliding state */
 			enum ref_state
 			{
 				ENQUEUE,
 				COMPUTE
 			};
 
+			/** \brief Constructor.
+			
+			*/
 			Preprocessing(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
+			/** \brief Allocates the ref queue.
+			
+			*/
 			void allocate_ref(std::atomic<bool>& update_request);
+
+			/** \brief Insert the interpolation function.
+			
+			*/
 			void insert_interpolation();
+
+			/** \brief Insert the functions relative to the Ref algorithm.
+			
+			*/
 			void insert_ref();
 		private:
+			/** \brief Insert the Ref diff function.
+			
+			*/
 			void handle_reference();
+			/** \brief Insert the Ref sliding function.
+			
+			*/
 			void handle_sliding_reference();
 
 			//! State of the reference process

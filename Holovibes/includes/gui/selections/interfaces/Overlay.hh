@@ -37,8 +37,9 @@ namespace holovibes
 			Autofocus,
 			Filter2D,
 			Stabilization,
+			// scale bar
 			Scale,
-			Composite,
+			// Composite overlays
 			CompositeArea,
 			Rainbow
 		};
@@ -53,50 +54,82 @@ namespace holovibes
 			Overlay(KindOfOverlay overlay, BasicOpenGLWindow* parent);
 			virtual ~Overlay();
 
-			/*! \brief Get the zone selected */
+			/*! \brief Get the zone selected
+			
+			*/
 			const units::RectFd&	getZone()	const;
 
-			/*! \brief Get the kind of overlay */
+			/*! \brief Get the kind of overlay
+			
+			*/
 			const KindOfOverlay		getKind()		const;
 
-			/*! \brief Return if the overlay should be displayed */
+			/*! \brief Return if the overlay should be displayed
+			
+			*/
 			const bool				isDisplayed()	const;
-			/*! \brief Return if the overlay have to be deleted */
+			/*! \brief Return if the overlay have to be deleted
+			
+			*/
 			const bool				isActive()		const;
-			/*! \brief Disable this overlay */
+			/*! \brief Disable this overlay
+			
+			*/
 			void					disable();
 
-			/*! \brief Initialize shaders and Vao/Vbo of the overlay */
+			/*! \brief Initialize shaders and Vao/Vbo of the overlay
+			
+			*/
 			void initProgram();
 
 			//void setZone(int side, Rectangle rect);
 
-			/*! \brief Call opengl function to draw the overlay */
+			/*! \brief Call opengl function to draw the overlay
+			
+			*/
 			virtual void draw() = 0;
 
-			/*! \brief Called when the user press the mouse button */
+			/*! \brief Called when the user press the mouse button
+			
+			*/
 			virtual void press(QMouseEvent* e);
-			/*! \brief Called when the user press a key */
+			/*! \brief Called when the user press a key
+			
+			*/
 			virtual void keyPress(QKeyEvent* e);
-			/*! \brief Called when the user moves the mouse */
+			/*! \brief Called when the user moves the mouse
+			
+			*/
 			virtual void move(QMouseEvent *e) = 0;
-			/*! \brief Called when the user release the mouse button */
+			/*! \brief Called when the user release the mouse button
+			
+			*/
 			virtual void release(ushort frameside) = 0;
 
-			/*! \brief Set the zone, buffers, and call release */
+			/*! \brief Set the zone, buffers, and call release
+			
+			*/
 			virtual void setZone(units::RectFd rect, ushort frameside) = 0;
 
-			/*! \brief Prints informations about the overlay. Debug purpose */
+			/*! \brief Prints informations about the overlay. Debug purpose.
+			
+			*/
 			void print();
 
 		protected:
-			/*! \brief Initialize Vao/Vbo */
+			/*! \brief Initialize Vao/Vbo
+			
+			*/
 			virtual void init() = 0;
 
-			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer */
+			/*! \brief Convert the current zone into opengl coordinates (-1, 1) and set the vertex buffer
+			
+			*/
 			virtual void setBuffer() = 0;
 
-			/*! \brief Converts QPoint to a point in the window */
+			/*! \brief Converts QPoint to a point in the window
+			
+			*/
 			units::PointWindow getMousePos(QPoint pos);
 
 			//! Zone selected by the users in pixel coordinates (window width, window height)

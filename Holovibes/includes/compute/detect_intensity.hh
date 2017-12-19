@@ -29,13 +29,16 @@ namespace holovibes
 	namespace compute
 	{
 
-		/*! \class Stabilization
+		/*! \class DetectIntensity
 		**
 		*/
 		class DetectIntensity
 		{
 		public:
 
+			/** \brief Contructor.
+			
+			*/
 			DetectIntensity(FnVector & fn_vect,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor & fd,
@@ -43,29 +46,48 @@ namespace holovibes
 
 			/*! \brief Enqueue the appropriate functions
 			**
-			** Should be called first
+			** Should be called at the beginning of the pipe
 			*/
 			void insert_post_contiguous_complex();
 
 		private:
 
+			/** \brief Check if there is a jump of intensity.
+			 *
+			 */
 			void check_jump();
+			/** \brief Check if we have to detect a jump of intensity.
+			
+			*/
 			bool can_skip_detection();
+			/** \brief Check if there is a jump between two intensity, according to the interpolation sensitivity.
+			
+			*/
 			bool is_jump(float current, float last);
+			/** \brief Computes the intensity of the current frame.
+			
+			*/
 			float get_current_intensity();
 			void update_shift();
 			void on_jump(bool delayed = false);
+
+			/** \brief Update the current interpolation wave length.
+			
+			*/
 			void update_lambda();
 
+			//! Intensity of the previous frame
 			float last_intensity_;
 
 			uint current_shift_;
 			bool is_delaying_shift_;
 
+			//! Number of frame passed since last jump.
 			uint frames_since_jump_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
+			//! Main buffers.
 			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;

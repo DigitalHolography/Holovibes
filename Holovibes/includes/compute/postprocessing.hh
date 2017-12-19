@@ -29,14 +29,30 @@ namespace holovibes
 		class Postprocessing
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Postprocessing(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
+			/** \brief Allocates convolution and flowgraphy buffers.
+			
+			*/
 			void allocate_buffers();
+
+			/** \brief Insert the Vibrometry function.
+			
+			*/
 			void insert_vibrometry();
+			/** \brief Insert the Convolution function. TODO: Check if it works.
+			
+			*/
 			void insert_convolution();
+			/** \brief Insert the Flowgrpahy function. TODO: FIX, it doesn't work.
+			
+			*/
 			void insert_flowgraphy();
 
 		private:

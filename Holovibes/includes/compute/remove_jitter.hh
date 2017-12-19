@@ -32,10 +32,16 @@ namespace holovibes
 		class RemoveJitter
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			RemoveJitter(cuComplex* buffer,
 				const units::RectFd& dimensions,
 				const holovibes::ComputeDescriptor& cd);
 
+			/** \brief Starts the Jitter correction algorithm.
+			
+			*/
 			void run();
 
 		private:

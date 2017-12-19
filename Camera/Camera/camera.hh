@@ -25,10 +25,7 @@
 #ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
 #define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
 #endif
-//# include <string>
-//# include <fstream>
 # include <boost/property_tree/ini_parser.hpp>
-//# include <boost/property_tree/ptree.hpp>
 # include <Windows.h>
 # include <icamera.hh>
 # include <frame_desc.hh>

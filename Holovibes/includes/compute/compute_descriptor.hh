@@ -86,27 +86,6 @@ namespace holovibes
 		YZview
 	};
 
-	/*! \brief	Type of encoding for the recorded output */
-	enum class OutputType
-	{
-		Integer_8b,
-		Integer_16b,
-		Color_24b,
-		Complex_64b
-	};
-
-	/*! \brief  Component of a range of color in composite images*/
-	struct Component
-	{
-		//! p interval for the component
-		//! \{
-		std::atomic<ushort>		p_min;
-		std::atomic<ushort>		p_max;
-		//! \}
-		//! Weight associated to the component
-		std::atomic<float>		weight{ 1.f };
-	};
-
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.

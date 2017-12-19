@@ -28,11 +28,12 @@ namespace holovibes
 	struct UnwrappingResources_2d;
 	namespace compute
 	{
-		using uint = unsigned int;
-
 		class Converts
 		{
 		public:
+			/** \brief Constructor.
+
+			*/
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const Stft_env& stft_env,
@@ -41,18 +42,49 @@ namespace holovibes
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd);
 
+			/** \brief Insert functions relative to the convertion Complex => Float
+
+			*/
 			void insert_to_float(bool unwrap_2d_requested);
+
+			/** \brief Insert functions relative to the convertion Float => Unsigned Short
+
+			*/
 			void insert_to_ushort();
 
 		private:
 
+			/** \brief Set pmin_ and pmax_ according to p accumulation.
+
+			*/
 			void insert_compute_p_accu();
+			/** \brief Insert the convertion Complex => Modulus
+
+			*/
 			void insert_to_modulus();
+			/** \brief Insert the convertion Complex => Squared Modulus
+
+			*/
 			void insert_to_squaredmodulus();
+			/** \brief Insert the convertion Complex => Composite
+
+			*/
 			void insert_to_composite();
+			/** \brief Insert the convertion Complex => Argument
+
+			*/
 			void insert_to_argument(bool unwrap_2d_requested);
+			/** \brief Insert the convertion Complex => Phase increase
+
+			*/
 			void insert_to_phase_increase(bool unwrap_2d_requested);
+			/** \brief Insert the convertion Float => Unsigned Short in XY window
+
+			*/
 			void insert_main_ushort();
+			/** \brief Insert the convertion Float => Unsigned Short in slices.
+
+			*/
 			void insert_slice_ushort();
 
 			//! pindex.
