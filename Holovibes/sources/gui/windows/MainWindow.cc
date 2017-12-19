@@ -194,6 +194,8 @@ namespace holovibes
 		void MainWindow::on_notify()
 		{
 			const bool is_direct = is_direct_mode();
+
+			// Tabs
 			if (compute_desc_.compute_mode == Computation::Stop)
 			{
 				ui.ImageRenderingGroupBox->setEnabled(false);
@@ -217,29 +219,27 @@ namespace holovibes
 				ui.ViewGroupBox->setEnabled(true);
 				ui.PostProcessingGroupBox->setEnabled(true);
 				ui.RecordGroupBox->setEnabled(true);
+				ui.MotionFocusGroupBox->setEnabled(true);
 			}
-			ui.MotionFocusGroupBox->setEnabled(true);
 
-			ui.ROIOutputPathLineEdit->setEnabled(!is_direct && compute_desc_.average_enabled);
-			ui.ROIOutputToolButton->setEnabled(!is_direct && compute_desc_.average_enabled);
-			ui.ROIOutputRecPushButton->setEnabled(!is_direct && compute_desc_.average_enabled);
-			ui.ROIOutputBatchPushButton->setEnabled(!is_direct && compute_desc_.average_enabled);
-			ui.ROIOutputStopPushButton->setEnabled(!is_direct && compute_desc_.average_enabled);
-			ui.ROIFileBrowseToolButton->setEnabled(compute_desc_.average_enabled);
-			ui.ROIFilePathLineEdit->setEnabled(compute_desc_.average_enabled);
-			ui.SaveROIPushButton->setEnabled(compute_desc_.average_enabled);
-			ui.LoadROIPushButton->setEnabled(compute_desc_.average_enabled);
+			ui.RawRecordingCheckBox->setEnabled(!is_direct);
+
+			// Average ROI recording
+			ui.RoiOutputGroupBox->setEnabled(compute_desc_.average_enabled);
+
+			// Average
+			ui.AverageGroupBox->setChecked(!is_direct && compute_desc_.average_enabled);
 
 			QPushButton* signalBtn = ui.AverageSignalPushButton;
-			signalBtn->setEnabled(compute_desc_.average_enabled);
 			signalBtn->setStyleSheet((signalBtn->isEnabled() &&
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Signal) ? "QPushButton {color: #8E66D9;}" : "");
 
 			QPushButton* noiseBtn = ui.AverageNoisePushButton;
-			noiseBtn->setEnabled(compute_desc_.average_enabled);
 			noiseBtn->setStyleSheet((noiseBtn->isEnabled() &&
 				mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Noise) ? "QPushButton {color: #00A4AB;}" : "");
 
+			// Autofocus
+			ui.AutofocusGroupBox->setEnabled(compute_desc_.algorithm != Algorithm::None);
 			QPushButton* autofocusBtn = ui.AutofocusRunPushButton;
 			if (autofocusBtn->isEnabled() && mainDisplay && mainDisplay->getKindOfOverlay() == KindOfOverlay::Autofocus)
 			{
@@ -254,39 +254,44 @@ namespace holovibes
 			ui.AutofocusZMinDoubleSpinBox->setValue(compute_desc_.autofocus_z_min);
 			ui.AutofocusZMaxDoubleSpinBox->setValue(compute_desc_.autofocus_z_max);
 
+			// Jitter correction
+
+			ui.JitterCheckBox->setEnabled(compute_desc_.croped_stft);
+
+			// Displaying mode
+			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
+
 			ui.PhaseUnwrap2DCheckBox->
-				setEnabled(!is_direct && compute_desc_.img_type == ImgType::PhaseIncrease ||
+				setEnabled(compute_desc_.img_type == ImgType::PhaseIncrease ||
 					compute_desc_.img_type == ImgType::Argument);
 
-			ui.STFTCutsCheckBox->setEnabled(!is_direct);
-			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
+			// STFT cuts
 			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
+			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
-			QPushButton *filter_button = ui.Filter2DPushButton;
-			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
-			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
-			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled);
-
-			ui.CropStftCheckBox->setEnabled(!is_direct);
-
+			// Contrast
 			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled && compute_desc_.img_type != Complex);
-			ui.ContrastCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
-			ui.AutoContrastPushButton->setEnabled(!is_direct && compute_desc_.contrast_enabled && compute_desc_.img_type != Complex);
+			ui.ContrastCheckBox->setEnabled(compute_desc_.img_type != Complex);
 
+			// FFT shift
+			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled);
+			ui.FFTShiftCheckBox->setEnabled(compute_desc_.img_type != Complex);
+
+			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
-			window_selection->setEnabled((compute_desc_.stft_view_enabled));
+			window_selection->setEnabled(compute_desc_.stft_view_enabled);
 			window_selection->setCurrentIndex(window_selection->isEnabled() ? compute_desc_.current_window : 0);
 
 			if (compute_desc_.current_window == WindowKind::XYview)
 			{
 				ui.ContrastMinDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_xy_enabled) ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy));
+					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy));
 				ui.ContrastMaxDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_xy_enabled) ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy));
+					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled && compute_desc_.img_type != Complex);
-				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled && compute_desc_.img_type != Complex);
-				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xy_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
@@ -294,13 +299,13 @@ namespace holovibes
 			else if (compute_desc_.current_window == WindowKind::XZview)
 			{
 				ui.ContrastMinDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_xz_enabled) ? compute_desc_.contrast_min_slice_xz.load() : log10(compute_desc_.contrast_min_slice_xz));
+					->setValue(compute_desc_.log_scale_slice_xz_enabled ? compute_desc_.contrast_min_slice_xz.load() : log10(compute_desc_.contrast_min_slice_xz));
 				ui.ContrastMaxDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_xz_enabled) ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz));
+					->setValue(compute_desc_.log_scale_slice_xz_enabled ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xz_enabled);
-				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
@@ -308,55 +313,64 @@ namespace holovibes
 			else if (compute_desc_.current_window == WindowKind::YZview)
 			{
 				ui.ContrastMinDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_yz_enabled) ? compute_desc_.contrast_min_slice_yz.load() : log10(compute_desc_.contrast_min_slice_yz));
+					->setValue(compute_desc_.log_scale_slice_yz_enabled ? compute_desc_.contrast_min_slice_yz.load() : log10(compute_desc_.contrast_min_slice_yz));
 				ui.ContrastMaxDoubleSpinBox
-					->setValue((compute_desc_.log_scale_slice_yz_enabled) ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz));
+					->setValue(compute_desc_.log_scale_slice_yz_enabled ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_yz_enabled);
-				ui.LogScaleCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(!is_direct && compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_yz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
 			}
 
-			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled);
-			ui.FFTShiftCheckBox->setEnabled(compute_desc_.img_type != Complex);
+			// p accu
 			ui.PAccuCheckBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
 			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
 			ui.PAccSpinBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 
+			// XY accu
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
 			ui.XAccSpinBox->setValue(compute_desc_.x_acc_level);
-
 			ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(compute_desc_.y_acc_level);
 
+			// Vibrometry
+			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled);
 			QSpinBox *p_vibro = ui.ImageRatioPSpinBox;
-			p_vibro->setEnabled(!is_direct && compute_desc_.vibrometry_enabled);
+			p_vibro->setEnabled(compute_desc_.vibrometry_enabled);
 			p_vibro->setValue(compute_desc_.pindex);
 			p_vibro->setMaximum(compute_desc_.nsamples - 1);
 			QSpinBox *q_vibro = ui.ImageRatioQSpinBox;
-			q_vibro->setEnabled(!is_direct && compute_desc_.vibrometry_enabled);
+			q_vibro->setEnabled(compute_desc_.vibrometry_enabled);
 			q_vibro->setValue(compute_desc_.vibrometry_q);
 			q_vibro->setMaximum(compute_desc_.nsamples - 1);
 
-			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled);
-			ui.ConvoCheckBox->setEnabled(!is_direct && compute_desc_.convo_matrix.size() != 0);
-			ui.AverageCheckBox->setChecked(!is_direct && compute_desc_.average_enabled);
+			ui.KernelBufferSizeSpinBox->setValue(compute_desc_.special_buffer_size);
+
+			// Convolution
+			ui.ConvoCheckBox->setEnabled(compute_desc_.convo_matrix.size() != 0);
+
+			// Flowgraphy
 			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled);
-			ui.FlowgraphyLevelSpinBox->setEnabled(!is_direct && compute_desc_.flowgraphy_level);
+			ui.FlowgraphyLevelSpinBox->setEnabled(compute_desc_.flowgraphy_level);
 			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level);
-			ui.AutofocusGroupBox->setEnabled(!is_direct && compute_desc_.algorithm != Algorithm::None);
+
+			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
+
+			// Ref 
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
 			ui.SlidingRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_diff_enabled && !compute_desc_.ref_sliding_enabled);
 			ui.CancelRefPushButton->setEnabled(!is_direct && (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled));
+
+			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
-			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
+			ui.CropStftCheckBox->setEnabled(!is_direct);
 			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
 			ui.PhaseNumberSpinBox->setValue(compute_desc_.nsamples);
 			ui.PSpinBox->setMaximum(compute_desc_.nsamples - 1);
@@ -366,32 +380,37 @@ namespace holovibes
 			ui.ZDoubleSpinBox->setEnabled(!is_direct);
 			ui.ZDoubleSpinBox->setValue(compute_desc_.zdistance);
 			ui.ZStepDoubleSpinBox->setEnabled(!is_direct);
-			ui.RawRecordingCheckBox->setEnabled(!is_direct);
+			ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
 
+			// Filter2d
+			QPushButton *filter_button = ui.Filter2DPushButton;
+			filter_button->setEnabled(!is_direct && !compute_desc_.filter_2d_enabled);
+			filter_button->setStyleSheet((!is_direct && compute_desc_.filter_2d_enabled) ? "QPushButton {color: #009FFF;}" : "");
+			ui.CancelFilter2DPushButton->setEnabled(!is_direct && compute_desc_.filter_2d_enabled);
+
+			// Import
+			ui.CineFileCheckBox->setChecked(compute_desc_.is_cine_file);
 			ui.PixelSizeDoubleSpinBox->setEnabled(!compute_desc_.is_cine_file);
 			ui.PixelSizeDoubleSpinBox->setValue(compute_desc_.pixel_size);
-			ui.BoundaryLineEdit->setText(QString::number(holovibes_.get_boundary()));
-			ui.KernelBufferSizeSpinBox->setValue(compute_desc_.special_buffer_size);
-			ui.CineFileCheckBox->setChecked(compute_desc_.is_cine_file);
 			ui.ImportWidthSpinBox->setEnabled(!compute_desc_.is_cine_file);
 			ui.ImportHeightSpinBox->setEnabled(!compute_desc_.is_cine_file);
 			ui.ImportDepthComboBox->setEnabled(!compute_desc_.is_cine_file);
-			
 			QString depth_value = ui.ImportDepthComboBox->currentText();
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file);
 
-			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
-			ui.CompositeGroupBox->setHidden(!isComposite);
 
 			// Composite
-			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
+			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
+			ui.CompositeGroupBox->setHidden(!isComposite);
 			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
-			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);
 			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
+			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
+
+			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
+			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
-			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			// Interpolation
 			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);
@@ -399,8 +418,6 @@ namespace holovibes
 			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
 			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
 			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
-
-			//QCoreApplication::processEvents();
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -421,6 +438,7 @@ namespace holovibes
 							compute_desc_.flowgraphy_enabled = false;
 							compute_desc_.special_buffer_size = 3;
 						}
+						close_windows();
 						close_critical_compute();
 						display_error("GPU computing error occured.\n");
 						notify();
@@ -2553,7 +2571,7 @@ namespace holovibes
 				slice = "XY";
 				break;
 			}
-			std::string mode = (is_direct_mode() ? "D" : "H");
+			std::string mode = (is_direct_mode() || compute_desc_.record_raw) ? "D" : "H";
 
 			std::string sub_str = "_" + slice
 				+ "_" + mode
