@@ -70,16 +70,28 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
+		/*! \brief Get the lens queue to display it.
+		
+		*/
 		std::unique_ptr<Queue>&			get_lens_queue() override;
+
+		/*! \brief Get the raw queue to display. It allocates the queue if it isn't already done.
+		
+		*/
 		std::unique_ptr<Queue>&			get_raw_queue() override;
 
 		/*! \brief Runs a function after the current pipe iteration ends
+
 		 */
 		void run_end_pipe(std::function<void()> function);
 		/*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view
+
 		 */
 		void autocontrast_end_pipe(WindowKind kind);
 
+		/*! \brief Returns the class containing every functions relative to the FF1, FF2 and STFT algorithm.
+		
+		*/
 		compute::FourierTransform * get_fourier_transforms();
 
 	protected:
@@ -95,10 +107,17 @@ namespace holovibes
 		* * Check if a ICompute refresh has been requested.
 		*
 		* The ICompute can not be interrupted for parameters changes until the
-		* refresh method is called. */
+		* refresh method is called.
+		* If Holovibes crash in a cuda function right after updating something on the GUI,
+		* It probably means that the ComputeDescriptor has been updated before the end of the iteration.
+		* The pipe uses the ComputeDescriptor, and is refresh only at the end of the iteration. You
+		* **must** wait until the end of the refresh, or use the run_end_pipe function to update the
+		* ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash. */
 		virtual void	exec();
 
-		/*! \brief Enqueue the main FnVector according to the requests. */
+		/*! \brief Enqueue the main FnVector according to the requests.
+		
+		*/
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 
