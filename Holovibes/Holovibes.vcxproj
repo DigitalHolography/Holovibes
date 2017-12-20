@@ -170,6 +170,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\filter2D.cuh" />
     <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\interpolation.cuh" />
+    <ClInclude Include="cuda_includes\operator_overload.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
     <ClInclude Include="cuda_includes\stabilization.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />

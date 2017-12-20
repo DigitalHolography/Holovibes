@@ -14,11 +14,7 @@
 #include "unique_ptr.hh"
 # include "tools_compute.cuh"
 # include "cufft_handle.hh"
-
-
-__device__ __host__ cuFloatComplex operator*(const cuFloatComplex a, const cuFloatComplex b) {
-	return make_cuFloatComplex(a.x * b.x - a.y * b.y, a.y * b.x + a.x + b.y);
-}
+#include "operator_overload.cuh"
 
 static __global__
 void kernel_apply_aberration_phis(cufftComplex*			lens,
