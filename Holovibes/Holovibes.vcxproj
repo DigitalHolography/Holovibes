@@ -158,6 +158,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cuda_includes\aberration.cuh" />
     <ClInclude Include="cuda_includes\autofocus.cuh" />
     <ClInclude Include="cuda_includes\average.cuh" />
     <ClInclude Include="cuda_includes\composite.cuh" />
@@ -541,6 +542,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ResourceCompile Include="Holovibes.rc" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="cuda_sources\aberration.cu" />
     <CudaCompile Include="cuda_sources\autofocus.cu" />
     <CudaCompile Include="cuda_sources\average.cu" />
     <CudaCompile Include="cuda_sources\composite.cu" />

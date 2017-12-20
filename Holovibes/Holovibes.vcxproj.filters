@@ -634,6 +634,9 @@
     <ClInclude Include="includes\compute\aberration.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\aberration.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -739,6 +742,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\interpolation.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\aberration.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>
