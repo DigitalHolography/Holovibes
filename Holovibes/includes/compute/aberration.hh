@@ -58,6 +58,8 @@ namespace holovibes
 			/*! Returns the number of pixels in one frame
 			 */
 			uint frame_area();
+			int frame_width();
+			int frame_height();
 
 			/*! Extract one frame from the buffer while performing the 2d fft
 			 */
@@ -116,6 +118,8 @@ namespace holovibes
 			const ComputeDescriptor&		cd_;
 
 			uint							nb_frames_;
+
+			QPoint							frame_size_;
 		};
 	}
 }
