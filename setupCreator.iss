@@ -10,7 +10,7 @@
 #define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
 #define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define QwtPath "C:\Qt\qwt-6.1.3\lib"
-#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin"
+#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -125,8 +125,8 @@ Source: "{#QtPath}\Qt5PrintSupport.dll"; DestDir: "{app}\{#MyAppVersion}";Compon
 Source: "{#QtPath}\Qt5Widgets.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cufft64_91.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "{#CudaPath}\cudart64_91.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cufft64_90.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "{#CudaPath}\cudart64_90.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "setup_creator_files\vcredist_2017_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2017
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
