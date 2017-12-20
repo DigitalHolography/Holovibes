@@ -703,7 +703,21 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="squarePixel_checkBox">
+             <property name="text">
+              <string>Square pixel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QCheckBox" name="RawDisplayingCheckBox">
+             <property name="text">
+              <string>Raw view</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
             <widget class="QCheckBox" name="LensViewCheckBox">
              <property name="text">
               <string>Lens view</string>
@@ -1203,7 +1217,7 @@
                <number>1</number>
               </property>
               <item row="2" column="0">
-               <widget class="QSpinBox" name="PMinSpinBox_Composite">
+               <widget class="QSpinBox" name="PRedSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1224,19 +1238,25 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_7">
                 <property name="text">
-                 <string>p min (red)</string>
+                 <string>Red</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item row="1" column="1">
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>p max (blue)</string>
+                 <string>Blue</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
+               <widget class="QSpinBox" name="PBlueSpinBox_Composite">
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -1392,7 +1412,7 @@
           <number>2</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="groupBox_8">
+          <widget class="QGroupBox" name="AutofocusGroupBox">
            <property name="title">
             <string>Focus / Aberration correction</string>
            </property>
@@ -1442,6 +1462,12 @@
                 <property name="maximum">
                  <double>100.000000000000000</double>
                 </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.200000000000000</double>
+                </property>
                </widget>
               </item>
               <item>
@@ -1455,8 +1481,11 @@
                 <property name="maximum">
                  <double>100.000000000000000</double>
                 </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
                 <property name="value">
-                 <double>1.000000000000000</double>
+                 <double>2.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1519,16 +1548,16 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_16">
             <property name="leftMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QCheckBox" name="ShowConvoMatrixCheckBox">
@@ -1559,17 +1588,20 @@
             <bool>false</bool>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_18">
+            <property name="spacing">
+             <number>7</number>
+            </property>
             <property name="leftMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>1</number>
             </property>
             <item>
              <layout class="QGridLayout" name="gridLayout_8">
@@ -1661,6 +1693,89 @@
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="JitterCheckBox">
+           <property name="title">
+            <string>Jitter correction</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>1</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>factor</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string># chunks</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="JitterNbChunks">
+                <property name="minimum">
+                 <number>3</number>
+                </property>
+                <property name="singleStep">
+                 <number>2</number>
+                </property>
+                <property name="value">
+                 <number>7</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QDoubleSpinBox" name="JitterFactor">
+                <property name="decimals">
+                 <number>5</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>10000.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1986,119 +2101,136 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="AverageCheckBox">
-           <property name="toolTip">
-            <string>Enable signal averaging in a ROI</string>
+          <widget class="QGroupBox" name="AverageGroupBox">
+           <property name="title">
+            <string>Average Signal</string>
            </property>
-           <property name="text">
-            <string>Plot averaged signal</string>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_19">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="AverageSignalPushButton">
+                <property name="text">
+                 <string>Signal</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>false</bool>
+                </property>
+                <property name="default">
+                 <bool>false</bool>
+                </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="AverageNoisePushButton">
+                <property name="text">
+                 <string>Noise</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="AveragePlotPushButton">
+                <property name="toolTip">
+                 <string>launch ROI fonctionnality</string>
+                </property>
+                <property name="text">
+                 <string>Plot</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="AverageClosePlotPushButton">
+                <property name="toolTip">
+                 <string>launch ROI fonctionnality</string>
+                </property>
+                <property name="text">
+                 <string>Close</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="ROIFileLabel">
+                <property name="text">
+                 <string>ROI file:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="ROIFilePathLineEdit">
+                <property name="placeholderText">
+                 <string>Select a ROI file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="ROIFileBrowseToolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <widget class="QPushButton" name="SaveROIPushButton">
+                <property name="toolTip">
+                 <string>Record Roi result</string>
+                </property>
+                <property name="text">
+                 <string>Save ROI</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="LoadROIPushButton">
+                <property name="text">
+                 <string>Load ROI</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_11">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QPushButton" name="AverageSignalPushButton">
-             <property name="text">
-              <string>Signal</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-             <property name="default">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AverageNoisePushButton">
-             <property name="text">
-              <string>Noise</string>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AveragePlotPushButton">
-             <property name="toolTip">
-              <string>launch ROI fonctionnality</string>
-             </property>
-             <property name="text">
-              <string>Plot</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="AverageClosePlotPushButton">
-             <property name="toolTip">
-              <string>launch ROI fonctionnality</string>
-             </property>
-             <property name="text">
-              <string>Close</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_12">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="ROIFileLabel">
-             <property name="text">
-              <string>ROI file:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="ROIFilePathLineEdit">
-             <property name="placeholderText">
-              <string>Select a ROI file</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="ROIFileBrowseToolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_13">
-           <item>
-            <widget class="QPushButton" name="SaveROIPushButton">
-             <property name="toolTip">
-              <string>Record Roi result</string>
-             </property>
-             <property name="text">
-              <string>Save ROI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="LoadROIPushButton">
-             <property name="text">
-              <string>Load ROI</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer">
@@ -2201,7 +2333,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_3">
+          <widget class="QGroupBox" name="ImageOutputGroupBox">
            <property name="title">
             <string>Image output:</string>
            </property>
@@ -2236,6 +2368,13 @@
              </layout>
             </item>
             <item>
+             <widget class="QCheckBox" name="RawRecordingCheckBox">
+              <property name="text">
+               <string>Raw recording</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_21">
               <item>
                <widget class="QPushButton" name="ImageOutputRecPushButton">
@@ -2267,7 +2406,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_2">
+          <widget class="QGroupBox" name="RoiOutputGroupBox">
            <property name="title">
             <string>ROI output:</string>
            </property>
@@ -2973,7 +3112,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -2998,13 +3137,13 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionAdimec"/>
      <addaction name="actionIXon"/>
      <addaction name="actionEdge"/>
+     <addaction name="actionHamamatsu"/>
      <addaction name="actionIDS"/>
      <addaction name="actionPhotonFocus"/>
      <addaction name="actionPike"/>
      <addaction name="actionPixelfly"/>
      <addaction name="actionXIQ"/>
      <addaction name="actionXIB"/>
-     <addaction name="actionHamamatsu"/>
     </widget>
     <addaction name="menu_Model"/>
     <addaction name="actionSettings"/>
@@ -3338,7 +3477,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>PhaseUnwrap2DCheckBox</tabstop>
   <tabstop>STFTCutsCheckBox</tabstop>
   <tabstop>FFTShiftCheckBox</tabstop>
-  <tabstop>LensViewCheckBox</tabstop>
   <tabstop>XAccuCheckBox</tabstop>
   <tabstop>XAccSpinBox</tabstop>
   <tabstop>YAccuCheckBox</tabstop>
@@ -3366,7 +3504,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>InterpolationLambda2</tabstop>
   <tabstop>InterpolationSensitivity</tabstop>
   <tabstop>InterpolationShift</tabstop>
-  <tabstop>PMinSpinBox_Composite</tabstop>
+  <tabstop>PRedSpinBox_Composite</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
@@ -3380,7 +3518,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>KernelBufferSizeSpinBox</tabstop>
   <tabstop>FlowgraphyCheckBox</tabstop>
   <tabstop>FlowgraphyLevelSpinBox</tabstop>
-  <tabstop>AverageCheckBox</tabstop>
   <tabstop>AverageSignalPushButton</tabstop>
   <tabstop>AverageNoisePushButton</tabstop>
   <tabstop>AveragePlotPushButton</tabstop>
@@ -3970,7 +4107,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>392</x>
-     <y>342</y>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -3986,7 +4123,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>395</x>
-     <y>261</y>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -4033,8 +4170,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1053</x>
-     <y>151</y>
+     <x>1090</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>640</x>
@@ -4050,7 +4187,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>318</x>
-     <y>366</y>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>375</x>
@@ -4066,7 +4203,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>392</x>
-     <y>366</y>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>305</x>
@@ -4086,22 +4223,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>AverageCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_average_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>989</x>
-     <y>258</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>478</x>
      <y>324</y>
     </hint>
    </hints>
@@ -4145,8 +4266,8 @@ p, li { white-space: pre-wrap; }
    <slot>average_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1053</x>
-     <y>240</y>
+     <x>1090</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>679</x>
@@ -4177,7 +4298,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_autofocus_mode()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>595</x>
+     <x>826</x>
      <y>91</y>
     </hint>
     <hint type="destinationlabel">
@@ -4193,8 +4314,8 @@ p, li { white-space: pre-wrap; }
    <slot>image_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1109</x>
-     <y>151</y>
+     <x>1146</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>716</x>
@@ -4209,8 +4330,8 @@ p, li { white-space: pre-wrap; }
    <slot>csv_batch_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1109</x>
-     <y>240</y>
+     <x>1146</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>715</x>
@@ -4225,8 +4346,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_image_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
-     <y>151</y>
+     <x>1202</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>743</x>
@@ -4241,8 +4362,8 @@ p, li { white-space: pre-wrap; }
    <slot>stop_csv_record()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1165</x>
-     <y>240</y>
+     <x>1202</x>
+     <y>268</y>
     </hint>
     <hint type="destinationlabel">
      <x>766</x>
@@ -4306,7 +4427,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1202</x>
-     <y>203</y>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4354,7 +4475,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1202</x>
-     <y>292</y>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4529,7 +4650,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_min(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>524</x>
+     <x>755</x>
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
@@ -4545,7 +4666,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_z_max(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>594</x>
+     <x>825</x>
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
@@ -4578,7 +4699,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>299</x>
-     <y>289</y>
+     <y>311</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4594,7 +4715,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>395</x>
-     <y>291</y>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4722,7 +4843,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>345</x>
-     <y>265</y>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>447</x>
@@ -4738,7 +4859,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>276</x>
-     <y>265</y>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>448</x>
@@ -4818,7 +4939,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>396</x>
-     <y>370</y>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4833,8 +4954,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_p_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>204</y>
+     <x>299</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>
@@ -4865,8 +4986,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_x_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>158</y>
+     <x>299</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4897,8 +5018,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_y_accu()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>181</y>
+     <x>299</x>
+     <y>202</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -5003,13 +5124,13 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMinSpinBox_Composite</sender>
+   <sender>PRedSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>718</x>
+     <x>515</x>
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
@@ -5019,13 +5140,13 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PMaxSpinBox_Composite</sender>
+   <sender>PBlueSpinBox_Composite</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>set_composite_intervals()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
@@ -5041,7 +5162,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_auto_weights(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>817</x>
+     <x>606</x>
      <y>272</y>
     </hint>
     <hint type="destinationlabel">
@@ -5057,7 +5178,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>187</y>
     </hint>
     <hint type="destinationlabel">
@@ -5073,7 +5194,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>216</y>
     </hint>
     <hint type="destinationlabel">
@@ -5089,7 +5210,7 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_weights()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>816</x>
+     <x>605</x>
      <y>245</y>
     </hint>
     <hint type="destinationlabel">
@@ -5105,8 +5226,8 @@ p, li { white-space: pre-wrap; }
    <slot>update_lens_view(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>342</x>
-     <y>123</y>
+     <x>302</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>644</x>
@@ -5121,8 +5242,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_enable(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>156</y>
+     <x>830</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5137,8 +5258,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_xy_stabilization_show_convolution(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>501</x>
-     <y>164</y>
+     <x>827</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
      <x>774</x>
@@ -5169,8 +5290,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_stabilization_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>189</y>
+     <x>827</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
@@ -5205,8 +5326,8 @@ p, li { white-space: pre-wrap; }
      <y>-1</y>
     </hint>
     <hint type="destinationlabel">
-     <x>501</x>
-     <y>255</y>
+     <x>834</x>
+     <y>279</y>
     </hint>
    </hints>
   </connection>
@@ -5233,8 +5354,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>564</x>
-     <y>252</y>
+     <x>826</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5249,8 +5370,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interpolation(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>516</x>
-     <y>244</y>
+     <x>830</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5265,8 +5386,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda1(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>259</y>
+     <x>826</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5281,8 +5402,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_lambda2(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>574</x>
-     <y>281</y>
+     <x>826</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5297,8 +5418,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_sensitivity(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>308</y>
+     <x>826</x>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -5313,8 +5434,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_interp_shift(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>538</x>
-     <y>341</y>
+     <x>826</x>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -5330,7 +5451,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>281</x>
-     <y>394</y>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5345,8 +5466,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_scale_bar_correction_factor(double)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>387</y>
+     <x>403</x>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
@@ -5361,12 +5482,140 @@ p, li { white-space: pre-wrap; }
    <slot>set_composite_area()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>670</x>
-     <y>290</y>
+     <x>606</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
      <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionHamamatsu</sender>
+   <signal>triggered(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>camera_hamamatsu()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>JitterCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_enabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>714</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>JitterNbChunks</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_slices(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>765</x>
+     <y>392</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>402</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>squarePixel_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_square_pixel(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>369</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>819</x>
+     <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RawDisplayingCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_raw_view(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>RawRecordingCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_raw_recording(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1121</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>JitterFactor</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_jitter_factor(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>787</x>
+     <y>420</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>4</x>
+     <y>101</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>AverageGroupBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_average_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>933</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
@@ -5493,5 +5742,12 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
+  <slot>camera_hamamatsu()</slot>
+  <slot>set_jitter_slices(int)</slot>
+  <slot>set_jitter_enabled(bool)</slot>
+  <slot>set_jitter_factor(double)</slot>
+  <slot>set_square_pixel(bool)</slot>
+  <slot>update_raw_view(bool)</slot>
+  <slot>set_raw_recording(bool)</slot>
  </slots>
 </ui>
