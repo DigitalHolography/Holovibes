@@ -55,6 +55,14 @@ namespace holovibes
 
 		private:
 
+			/*! Extract one frame from the buffer while performing the 2d fft
+			 */
+			void extract_and_fft(uint x_index, uint y_index, float* buffer);
+
+			/** \brief Computes the shift of the frame (x, y)
+			*/
+			QPoint compute_one_shift(uint x, uint y);
+
 			/** \brief Computes the shift of all the frames, and stores the outputs in shifts_
 			*/
 			void compute_all_shifts();
@@ -62,9 +70,6 @@ namespace holovibes
 			/** \brief Computes the correlation between two buffers and write the result into convolution_.
 			*/
 			void compute_correlation(const float* x, const float *y);
-			/** \brief Computes the convolution between two buffers and write the result into \param out
-			*/
-			void compute_convolution(const float* x, const float* y, float* out);
 
 			/*! \brief Finds the position of the maximum in the correlation buffer
 			*/
@@ -103,6 +108,9 @@ namespace holovibes
 
 			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
+
+			QPoint							frame_size_;
+			uint							nb_frames_;
 		};
 	}
 }

@@ -165,9 +165,6 @@ void RemoveJitter::compute_all_shifts()
 	extract_and_fft(0, ref_slice_);
 	rotation_180(ref_slice_, { dimensions_.width(), static_cast<int>(slice_depth_) });
 
-	// We flip it for the convolution, to do it only once
-	//rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
-
 	shifts_.clear();
 	for (uint i = 1; i < nb_slices_; ++i)
 		shifts_.push_back(compute_one_shift(i));
