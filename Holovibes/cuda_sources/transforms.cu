@@ -45,31 +45,32 @@ void kernel_quadratic_lens(cuComplex*			output,
 
 __global__
 void kernel_zernike_polynomial(cuComplex * output,
-	const camera::FrameDescriptor fd,
+	const FrameDescriptor fd,
 	const float pixel_size,
 	const float coef,
-	const unsigned int m, const unsigned int n)
+	const unsigned int m, const unsigned int n,
+	const uint* binomial_coeff, uint nb_coef)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	size = fd.width * fd.height;
 	
 	if (index < fd.width * fd.height) {
-		const float i = index % fd.width;
-		const float j = index / fd.height;
+		const int i = index % fd.width;
+		const int j = index / fd.width;
 
-		const float	dx = pixel_size * 1.0e-6f;
+		const float	dx = pixel_size;// *1.0e-6f;
 		const float	dy = dx;
 
-		const float x = (i - static_cast<float>(fd.width >> 1)) * dx;
-		const float y = (j - static_cast<float>(fd.height >> 1)) * dy;
+		const float x = (i - fd.width/2) * dx;
+		const float y = (j - fd.height/2) * dy;
 
 		const float rho = hypotf(x, y); // Magnitude
 		const float phi = atan2(x, y);  // Argument
 
 		float Rmn = 0;
 		for (unsigned int k = 0; k <= (n - m) / 2; k++) {
-			float term = binomial_coeff(n - k, n)
-				* binomial_coeff(n - 2 * k, (n - m) / 2 - k)
+			float term = binomial_coeff[(n - k)*nb_coef, k]
+				* binomial_coeff[(n - 2 * k)*nb_coef, (n - m) / 2 - k]
 				* powf(rho, n - 2 * k);
 			if (k % 2)
 				Rmn -= term;
@@ -82,12 +83,12 @@ void kernel_zernike_polynomial(cuComplex * output,
 	}
 }
 
-__device__
+/*__device__
 unsigned int binomial_coeff(unsigned int n, unsigned int k) {
-	if (k <= 1)
+	if (k == 0 || k == n)
 		return 1;
 	return binomial_coeff(n - 1, k - 1) + binomial_coeff(n - 1, k);
-}
+}*/
 
 __global__
 void kernel_spectral_lens(cuComplex				*output,
