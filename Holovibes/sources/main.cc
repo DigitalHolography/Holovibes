@@ -10,6 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \mainpage HoloDox
+
+    This is the documentation for developpers only. \n 
+	It is strictly confidential and must not be shared. \n
+	You'll be charged a 1500.02$ fine and 2 years of jail if you do not respect these terms.
+*/
+
+
 #include "options_parser.hh"
 #include "MainWindow.hh"
 
@@ -60,7 +68,7 @@ int main(int argc, char* argv[])
 				camera::FrameDescriptor fd = {
 					static_cast<unsigned short>(opts.file_image_width),
 					static_cast<unsigned short>(opts.file_image_height),
-					static_cast<float>(opts.file_image_depth >> 3),
+					opts.file_image_depth >> 3,
 					(opts.file_is_big_endian ?
 					Endianness::BigEndian : Endianness::LittleEndian)
 				};

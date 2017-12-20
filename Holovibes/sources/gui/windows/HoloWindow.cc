@@ -19,7 +19,7 @@ namespace holovibes
 {
 	namespace gui
 	{
-		HoloWindow::HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, MainWindow *main_window)
+		HoloWindow::HoloWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xz, std::unique_ptr<SliceWindow>& yz, MainWindow *main_window)
 			: DirectWindow(p, s, q, KindOfView::Hologram)
 			, Ic(ic)
 			, main_window_(main_window)
@@ -67,13 +67,19 @@ namespace holovibes
 
 		void	HoloWindow::update_stft_zoom_buffer(units::RectFd zone)
 		{
-			Cd->setZoomedZone(zone);
-			if (Cd->croped_stft)
+			auto pipe = dynamic_cast<Pipe *>(Ic.get());
+			if (pipe)
 			{
-				std::stringstream ss;
-				ss << "(X1,Y1,X2,Y2) = (" << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
-				InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-				Ic->request_update_n(Cd->nsamples);
+				pipe->run_end_pipe([=]() {
+					Cd->setZoomedZone(zone);
+					if (Cd->croped_stft)
+					{
+						std::stringstream ss;
+						ss << "(X1,Y1,X2,Y2) = (" << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
+						InfoManager::get_manager()->update_info("STFT Zone", ss.str());
+						Ic->request_update_n(Cd->nsamples);
+					}
+				});
 			}
 		}
 
@@ -82,9 +88,15 @@ namespace holovibes
 			if (Fd.frame_res() != Cd->getZoomedZone().area())
 			{
 				units::ConversionData convert(this);
-				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width - 1, Fd.height - 1));
+				update_stft_zoom_buffer(units::RectFd(convert, 0, 0, Fd.width, Fd.height));
 			}
 			BasicOpenGLWindow::resetTransform();
+		}
+
+		void HoloWindow::setTransform()
+		{
+			BasicOpenGLWindow::setTransform();
+			update_slice_transforms();
 		}
 	}
 }

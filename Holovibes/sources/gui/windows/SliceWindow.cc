@@ -18,12 +18,14 @@ namespace holovibes
 {
 	namespace gui
 	{
-		SliceWindow::SliceWindow(QPoint p, QSize s, Queue& q, KindOfView k, MainWindow *main_window) :
+		SliceWindow::SliceWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k, MainWindow *main_window) :
 			BasicOpenGLWindow(p, s, q, k),
 			cuArray(nullptr),
 			cuSurface(0),
 			main_window_(main_window)
 		{
+			// To prevent make_square_pixel to make one slice realy thin and the other 132 pixel due to the title bar buttons
+			setMinimumSize(QSize(132, 132));
 		}
 
 		SliceWindow::~SliceWindow()
@@ -32,18 +34,43 @@ namespace holovibes
 			cudaFreeArray(cuArray);
 		}
 
-		void	SliceWindow::create_strip_overlays()
-		{
-			Color red{ 1.f, 0.f, 0.f };
-			Color green{ 0.f, 1.f, 0.f };
-			Color blue{ 0.f, 0.f, 1.f };
-			const float composite_alpha = 0.15f;
-			overlay_manager_.create_strip_overlay(Cd->component_r, Cd->nsamples, red, composite_alpha);
-			overlay_manager_.create_strip_overlay(Cd->component_g, Cd->nsamples, green, composite_alpha);
-			overlay_manager_.create_strip_overlay(Cd->component_b, Cd->nsamples, blue, composite_alpha);
-			overlay_manager_.create_overlay<KindOfOverlay::Composite>();
+		void SliceWindow::make_pixel_square() {
+			auto old_pos = position();
+			if (Cd && !Cd->square_pixel)
+			{
+				const ushort	nImg = Cd->nsamples;
+				const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
+				if (kView == SliceXZ)
+					resize(QSize(width(), nSize));
+				else if (kView == SliceYZ)
+					resize(QSize(nSize, height()));
+			}
+			else
+			{
+				units::ConversionData convert(this);
+
+				units::PointReal real_topLeft = units::PointFd(units::PointOpengl(convert, -1, 1));
+				units::PointReal real_bottomLeft = units::PointFd(units::PointOpengl(convert, -1, -1));
+				units::PointReal real_topRight = units::PointFd(units::PointOpengl(convert, 1, 1));
+
+				double size_x = (real_topRight - real_topLeft).distance();
+				double size_y = (real_bottomLeft - real_topLeft).distance();
+				if (kView == SliceXZ)
+					resize(QSize(width(), width() * size_y / size_x).expandedTo(minimumSize()));
+				else if (kView == SliceYZ)
+					resize(QSize(height() * size_x / size_y, height()).expandedTo(minimumSize()));
+			}
+			setPosition(old_pos);
 		}
-		
+
+		void SliceWindow::setTransform()
+		{
+			BasicOpenGLWindow::setTransform();
+			auto cd = getCd();
+			if (cd && cd->square_pixel)
+				make_pixel_square();
+		}
+
 		void	SliceWindow::initShaders()
 		{
 			Program = new QOpenGLShaderProgram();
@@ -52,7 +79,7 @@ namespace holovibes
 			Program->link();
 			//overlay_manager_.create_overlay<Scale>();
 			if (Cd->img_type == ImgType::Composite)
-				create_strip_overlays();
+				overlay_manager_.create_overlay<Rainbow>();
 			else
 				overlay_manager_.create_default();
 		}
@@ -65,7 +92,8 @@ namespace holovibes
 			glClearColor(0.f, 0.f, 0.f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
 			initShaders();
@@ -173,8 +201,8 @@ namespace holovibes
 			Program->bind();
 
 			textureUpdate(cuSurface,
-				Qu.get_last_images(1),
-				Qu.get_frame_desc(),
+				Qu->get_last_images(1),
+				Qu->get_frame_desc(),
 				cuStream);
 
 			glBindTexture(GL_TEXTURE_2D, Tex);
@@ -209,9 +237,11 @@ namespace holovibes
 		{
 			overlay_manager_.release(Fd.width);
 			if (e->button() == Qt::RightButton)
+			{
 				resetTransform();
-			if (auto main_display = main_window_->get_main_display())
-				main_display->resetTransform();
+				if (auto main_display = main_window_->get_main_display())
+					main_display->resetTransform();
+			}
 		}
 	
 		void	SliceWindow::focusInEvent(QFocusEvent* e)
@@ -222,11 +252,6 @@ namespace holovibes
 				Cd->current_window = (kView == KindOfView::SliceXZ) ? WindowKind::XZview : WindowKind::YZview;
 				Cd->notify_observers();
 			}
-		}
-
-		void	SliceWindow::keyPressEvent(QKeyEvent* e)
-		{
-			overlay_manager_.keyPress(e);
 		}
 	}
 }

@@ -51,6 +51,18 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 									cuComplex		*output,
 									const uint		size);
 
+/*! \brief  Multiply the pixels value of 2 complexe input images
+*
+* The images to multiply should have the same size.
+* The result is given in output.
+* Output should have the same size of inputs.
+*/
+void multiply_frames_complex(const cuComplex	*input1,
+								const cuComplex	*input2,
+								cuComplex		*output,
+								const uint		size,
+								cudaStream_t	stream = 0);
+
 /*! \brief  Multiply the pixels value of 2 float input images
 *
 * The images to multiply should have the same size.
@@ -115,3 +127,9 @@ void kernel_multiply_const(float		*frame,
 void gpu_multiply_const(float		*frame,
 						uint		frame_size,
 						float		x);
+
+void gpu_multiply_const(cuComplex* frame,
+	uint frame_size,
+	cuComplex x);
+
+void normalize_frame(float* frame, uint frame_res);

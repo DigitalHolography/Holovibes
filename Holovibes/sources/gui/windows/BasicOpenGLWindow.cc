@@ -21,13 +21,13 @@ namespace holovibes
 	using camera::FrameDescriptor;
 	namespace gui
 	{
-		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, Queue& q, KindOfView k) :
+		BasicOpenGLWindow::BasicOpenGLWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k) :
 			QOpenGLWindow(), QOpenGLFunctions(),
 			winState(Qt::WindowNoState),
 			winPos(p),
 			Qu(q),
 			Cd(nullptr),
-			Fd(Qu.get_frame_desc()),
+			Fd(Qu->get_frame_desc()),
 			kView(k),
 			translate_(0.f, 0.f, 0.f, 0.f),
 			scale_(1.f),
@@ -83,6 +83,11 @@ namespace holovibes
 			return Cd;
 		}
 
+		const ComputeDescriptor * BasicOpenGLWindow::getCd() const
+		{
+			return Cd;
+		}
+
 		const FrameDescriptor& BasicOpenGLWindow::getFd() const
 		{
 			return Fd;
@@ -105,6 +110,8 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::resizeGL(int width, int height)
 		{
+			if (winState == Qt::WindowFullScreen)
+				return;
 			glViewport(0, 0, width, height);
 		}
 
@@ -119,62 +126,17 @@ namespace holovibes
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
-				winPos = QPoint(((screen.width() / 2 - screen.height() / 2)), 0);
-				winState = Qt::WindowFullScreen;
+				//winPos = QPoint(screen.width() / 2 - screen.height() / 2, 0);
+				winState = winState == Qt::WindowFullScreen ? Qt::WindowNoState : Qt::WindowFullScreen;
 				setWindowState(winState);
-				fullScreen_ = true;
 				break;
 			case Qt::Key::Key_Escape:
 				winPos = QPoint(0, 0);
 				winState = Qt::WindowNoState;
 				setWindowState(winState);
-				fullScreen_ = false;
-				break;
-			case Qt::Key::Key_8:
-				translate_[1] -= 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_2:
-				translate_[1] += 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_6:
-				translate_[0] += 0.1f / scale_;
-				setTransform();
-				break;
-			case Qt::Key::Key_4:
-				translate_[0] -= 0.1f / scale_;
-				setTransform();
-				break;
+				break;	
 			}
 			overlay_manager_.keyPress(e);
-		}
-
-		void	BasicOpenGLWindow::wheelEvent(QWheelEvent *e)
-		{
-			if (kView != KindOfView::Hologram || !is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
-				return;
-			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;
-			const float yGL = -((static_cast<float>(e->y() - height() / 2)) / static_cast<float>(height())) * 2.f;
-			if (e->angleDelta().y() > 0)
-			{
-				scale_ += 0.1f * scale_;
-				translate_[0] += xGL * 0.1 / scale_;
-				translate_[1] += -yGL * 0.1 / scale_;
-				setTransform();
-			}
-			else if (e->angleDelta().y() < 0)
-			{
-				scale_ -= 0.1f * scale_;
-				if (scale_ < 1.f)
-					resetTransform();
-				else
-				{
-					translate_[0] -= -xGL * 0.1 / scale_;
-					translate_[1] -= yGL * 0.1 / scale_;
-					setTransform();
-				}
-			}
 		}
 
 		void	BasicOpenGLWindow::setAngle(float a)
@@ -271,10 +233,6 @@ namespace holovibes
 				Program->setUniformValue(Program->uniformLocation("mvp"), m.transposed());
 				Program->release();
 			}
-
-			auto holo = dynamic_cast<HoloWindow*>(this);
-			if (holo)
-				holo->update_slice_transforms();
 		}
 
 		void BasicOpenGLWindow::resetSelection()

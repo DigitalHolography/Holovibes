@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "info_manager.hh"
+#include "tools.hh"
 
 namespace holovibes
 {
@@ -67,10 +68,10 @@ namespace holovibes
 			flag = ThreadState::Null;
 		}
 
-		void InfoManager::insertInputSource(const int width, const int height, const int depth)
+		void InfoManager::insertInputSource(const camera::FrameDescriptor& fd)
 		{
-			std::string output_descriptor_info = std::to_string(width) + "x" + std::to_string(height) +
-				" - " + std::to_string(depth * 8) + "bit";
+			std::string output_descriptor_info = std::to_string(fd.width) + "x" + std::to_string(fd.height) +
+				" - " + std::to_string(fd.depth * 8) + "bit";
 			insert_info(InfoManager::InfoType::OUTPUT_SOURCE, "OutputFormat", output_descriptor_info);
 		}
 
@@ -143,6 +144,11 @@ namespace holovibes
 					str += infos_[i].first + ":\n ";
 				str += infos_[i].second + "\n";
 			}
+			size_t free, total;
+			cudaMemGetInfo(&free, &total);
+			str += "GPU memory:\n" +
+				engineering_notation(free, 2) + "B free,\n" +
+				engineering_notation(total, 2) + "B total";
 			emit update_text(str.c_str());
 		}
 

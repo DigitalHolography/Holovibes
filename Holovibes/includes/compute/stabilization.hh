@@ -25,6 +25,7 @@
 namespace holovibes
 {
 	class ComputeDescriptor;
+	struct CoreBuffers;
 	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
@@ -38,12 +39,15 @@ namespace holovibes
 		class Stabilization
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Stabilization(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
+				const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd);
 
-			/*! \brief Enqueue the appropriate functions
+			/*! \brief Enqueue the functions relative to XY correction.
 			**
 			** Should be called just after gpu_float_buffer is computed
 			*/
@@ -51,15 +55,35 @@ namespace holovibes
 
 		private:
 
+			/*! \brief Insert the computation of the average of the float frame.
+
+			*/
 			void insert_average_compute();
+			/*! \brief Insert the correlation function.
+
+			*/
 			void insert_correlation();
+			/*! \brief Insert the computation of the extrema.
+
+			*/
 			void insert_extremums();
+			/*! \brief Insert the main stabilization function.
+
+			*/
 			void insert_stabilization();
+			/*! \brief Insert the copy of the corrected buffer into the float buffer.
+
+			*/
 			void insert_float_buffer_overwrite();
 
+			/** \brief Computes the correlation between two buffers and write the result into convolution_.
+			
+			*/
 			void compute_correlation(const float* x, const float *y);
+			/** \brief Computes the convolution between two buffers and write the result into \param out
+			
+			*/
 			void compute_convolution(const float* x, const float* y, float* out);
-			void normalize_frame(float* frame, uint frame_res);
 
 			/// Buffer to keep the convolution product
 			cuda_tools::Array<float>		convolution_;
@@ -67,25 +91,23 @@ namespace holovibes
 			/// Buffer used to temporaly store the average, to compare it with current frame
 			cuda_tools::UniquePtr<float>	float_buffer_average_;
 
-			/// Current image shift
-			/// {
+			//! Shift computed to correct the error on x-axis.
 			int								shift_x;
+			//! Shift computed to correct the error on y-axis.
 			int								shift_y;
-			/// }
 
+			//! Queue accumulating XY frames.
 			std::unique_ptr<Queue>			accumulation_queue_;
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
-			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
+			//! Main buffers
+			const CoreBuffers&				buffers_;
 			/// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
+			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
-			/// }
 		};
 	}
 }

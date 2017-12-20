@@ -23,6 +23,7 @@ namespace holovibes
 	{
 		class WindowPixel;
 		class OpenglPosition;
+		class RealPosition;
 
 		/*! \brief A position in the frame desc coordinate system [0;fd.width]
 		 */
@@ -33,6 +34,7 @@ namespace holovibes
 
 			operator OpenglPosition() const;
 			operator WindowPixel() const;
+			operator RealPosition() const;
 		};
 	}
 }

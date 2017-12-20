@@ -30,14 +30,14 @@ namespace camera
 	 * in the rendering window and the holograms computations. */
 	struct FrameDescriptor
 	{
-		//!< Obtain the total frame size in bytes.
-		unsigned int frame_size() const { return width * height * static_cast<unsigned int>(depth); }
-		//!< \brief Return the frame resolution (number of pixels).
+		//! Obtain the total frame size in bytes.
+		unsigned int frame_size() const { return width * height * depth; }
+		//! \brief Return the frame resolution (number of pixels).
 		unsigned int frame_res() const { return width * height; }
 
 		unsigned short		width;		//!< Width of the frame in pixels.
 		unsigned short		height;		//!< Height of the frame in pixels.
-		float				depth;		//!< Byte depth during acquisition.
+		size_t				depth;		//!< Byte depth during acquisition.
 		Endianness			byteEndian;	//!< To each camera software its endianness. Useful for 16-bit cameras.
 	};
 }

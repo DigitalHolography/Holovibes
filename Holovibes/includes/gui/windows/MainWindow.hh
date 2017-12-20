@@ -43,6 +43,7 @@
 # include "ui_MainWindow.h"
 
 #define GLOBAL_INI_PATH "holovibes.ini"
+Q_DECLARE_METATYPE(std::function<void()>)
 
 namespace holovibes
 {
@@ -85,6 +86,7 @@ namespace holovibes
 		public slots:
 			void on_notify();
 			void update_file_reader_index(int n);
+			void synchronize_thread(std::function<void()> f);
 			/*! \brief Resize windows if one layout is toggled. */
 			void layout_toggled();
 			void configure_holovibes();
@@ -137,6 +139,7 @@ namespace holovibes
 			void setPhase();
 			void set_special_buffer_size(int value);
 			void update_lens_view(bool value);
+			void update_raw_view(bool value);
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();
@@ -199,6 +202,7 @@ namespace holovibes
 			void browse_convo_matrix_file();
 			void load_convo_matrix();
 			void browse_file();
+			void set_raw_recording(bool value);
 			void set_record();
 			void browse_roi_output_file();
 			void average_record();
@@ -230,11 +234,14 @@ namespace holovibes
 			void flipTexture();
 			void set_scale_bar(bool value);
 			void set_scale_bar_correction_factor(double value);
+			void set_jitter_enabled(bool value);
+			void set_jitter_factor(double value);
+			void set_jitter_slices(int value);
+			void set_square_pixel(bool);
 			#pragma endregion
 			/* ---------- */
 		signals:
-		   void request_notify();
-		   void update_file_reader_index_signal(int n);
+		   void synchronize_thread_signal(std::function<void()> f);
 			#pragma region Protected / Private Methods
 		protected:
 			virtual void closeEvent(QCloseEvent* event) override;
@@ -258,6 +265,10 @@ namespace holovibes
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
 
+			// Change the value without triggering any signals
+			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
+
 			#pragma endregion
 			/* ---------- */
 			#pragma region Fields
@@ -277,6 +288,7 @@ namespace holovibes
 			std::unique_ptr<SliceWindow>	sliceXZ;
 			std::unique_ptr<SliceWindow>	sliceYZ;
 			std::unique_ptr<DirectWindow>	lens_window;
+			std::unique_ptr<DirectWindow>	raw_window;
 
 			float		displayAngle;
 			float		xzAngle;

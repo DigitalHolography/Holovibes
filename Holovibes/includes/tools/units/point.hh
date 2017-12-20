@@ -19,6 +19,7 @@
 #include "window_pixel.hh"
 #include "fd_pixel.hh"
 #include "opengl_position.hh"
+#include "real_position.hh"
 
 #include <type_traits>
 
@@ -87,6 +88,12 @@ namespace holovibes
 				return res;
 			}
 
+			// TODO: fix the warning saying that it won't be called.
+			operator Point<RealPosition>() const
+			{
+				Point<RealPosition> res(x_, y_);
+				return res;
+			}
 			/*! \brief Operator overloads
 			 */
 			/**@{*/
@@ -104,6 +111,11 @@ namespace holovibes
 				res.x_ -= other.x_;
 				res.y_ -= other.y_;
 				return res;
+			}
+
+			double distance() const
+			{
+				return sqrt(pow(x_, 2) + pow(y_, 2));
 			}
 
 			bool operator==(const Point<T>& other) const
@@ -128,6 +140,8 @@ namespace holovibes
 		/*! \brief A point in the window coordinate system [0;window size]
 		 */
 		using PointWindow = Point<WindowPixel>;
+
+		using PointReal= Point<RealPosition>;
 
 		template<typename T>
 		std::ostream& operator<<(std::ostream& o, const Point<T>& p)

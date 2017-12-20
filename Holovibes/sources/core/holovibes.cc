@@ -116,13 +116,13 @@ namespace holovibes
 		return camera_.get()->get_name();
 	}
 
-	Queue * Holovibes::get_current_window_output_queue()
+	std::unique_ptr<Queue>& Holovibes::get_current_window_output_queue()
 	{
 		if (compute_desc_.current_window == WindowKind::XYview)
-			return output_.get();
+			return output_;
 		else if (compute_desc_.current_window == WindowKind::XZview)
-			return &get_pipe()->get_stft_slice_queue(0);
-		return &get_pipe()->get_stft_slice_queue(1);
+			return get_pipe()->get_stft_slice_queue(0);
+		return get_pipe()->get_stft_slice_queue(1);
 	}
 
 	void Holovibes::recorder(const std::string& filepath, const unsigned int rec_n_images)
@@ -141,7 +141,7 @@ namespace holovibes
 		std::cout << "[RECORDER] Recorder Stop" << std::endl;
 	}
 
-	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, const unsigned int& depth)
+	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, unsigned int depth)
 	{
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");

@@ -37,7 +37,7 @@ namespace camera
 
 		// initialize DCAM-API
 		if (!dcam_init(NULL, &nDevice, NULL) || nDevice <= 0)
-			throw CameraException::NOT_CONNECTED;
+			throw CameraException(CameraException::NOT_CONNECTED);
 
 		// show all camera information by text
 		for (int32 iDevice = 0; iDevice < nDevice; iDevice++)
@@ -60,26 +60,25 @@ namespace camera
 			}
 			else {
 				dcam_uninit(NULL, NULL);
-				throw CameraException::NOT_CONNECTED;
+				throw CameraException(CameraException::NOT_CONNECTED);
 			}
 		}
-		throw CameraException::NOT_CONNECTED;
+		throw CameraException(CameraException::NOT_CONNECTED);
 	}
 
 	void CameraHamamatsu::start_acquisition()
 	{
-
 		if (!dcam_precapture(hdcam_, DCAM_CAPTUREMODE_SEQUENCE))
-			throw CameraException::CANT_START_ACQUISITION;
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
 
 		int32 frame_count = 1;
 		// allocate capturing buffer
 		if (!dcam_allocframe(hdcam_, frame_count))
-			throw CameraException::CANT_START_ACQUISITION;
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
 
 		// start capturing
 		if (!dcam_capture(hdcam_))
-			throw CameraException::CANT_START_ACQUISITION;
+			throw CameraException(CameraException::CANT_START_ACQUISITION);
 	}
 
 	void CameraHamamatsu::stop_acquisition()
@@ -112,7 +111,7 @@ namespace camera
 
 		long	err = dcam_getlasterror(hdcam_);
 		if (err == DCAMERR_TIMEOUT)
-			throw CameraException::CANT_GET_FRAME;
+			throw CameraException(CameraException::CANT_GET_FRAME);
 
 		if (dcam_lockdata(hdcam_, (void**)&(src), &sRow, -1)) {
 			WORD*	dsttopleft = output_frame_.get();
@@ -161,7 +160,7 @@ namespace camera
 	{
 		desc_.width = 2048;
 		desc_.height = 2048;
-		desc_.depth = 2.0f;
+		desc_.depth = 2;
 		desc_.byteEndian = Endianness::LittleEndian;
 
 		pixel_size_ = 6.5f;
@@ -229,19 +228,19 @@ namespace camera
 		}
 
 		if (!dcam_setexposuretime(hdcam_, exposure_time_ / 1E6))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 
 		if (!dcam_setbinning(hdcam_, binning_))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 
 		if (!dcam_settriggermode(hdcam_, ext_trig_ ? DCAM_TRIGMODE_EDGE: DCAM_TRIGMODE_INTERNAL))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_TRIGGER_CONNECTOR, trig_connector_))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_TRIGGERPOLARITY, trig_polarity_))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 		if (!dcam_setpropertyvalue(hdcam_, DCAM_IDPROP_READOUTSPEED, readoutspeed_))
-			throw CameraException::CANT_SET_CONFIG;
+			throw CameraException(CameraException::CANT_SET_CONFIG);
 	}
 
 	ICamera* new_camera_device()

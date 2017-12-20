@@ -53,7 +53,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 	dim3 threads(32, 32);
 	dim3 blocks(fd.width >> 5, fd.height >> 5);
 
-	if (fd.depth == 8.f)
+	if (fd.depth == 8)
 	{
 		updateComplexSlice << < blocks, threads, 0 >> > (
 			reinterpret_cast<cuComplex *>(frame),
@@ -67,7 +67,7 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 			reinterpret_cast<ushort *>(frame),
 			cuSurface,
 			dim3(fd.width, fd.height));
-		cudaCheckError();
+		//cudaCheckError();
 	}
 
 	cudaStreamSynchronize(stream);

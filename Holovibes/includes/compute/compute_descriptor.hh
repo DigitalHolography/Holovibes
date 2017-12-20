@@ -20,12 +20,9 @@
 
 namespace holovibes
 {
-	const static std::string version = "v5.5.5"; /*!< Current version of this project. */
+	const static std::string version = "v5.7.1"; /*!< Current version of this project. */
 
-	#ifndef TUPLE4F
-	# define TUPLE4F
-		using	Tuple4f =	std::tuple<float, float, float, float>;
-	#endif
+	using	Tuple4f =	std::tuple<float, float, float, float>;
 
 	/*!
 	 * \brief	Difference kind of camera supported by Holovibes
@@ -89,27 +86,6 @@ namespace holovibes
 		YZview
 	};
 
-	/*! \brief	Type of encoding for the recorded output */
-	enum class OutputType
-	{
-		Integer_8b,
-		Integer_16b,
-		Color_24b,
-		Complex_64b
-	};
-
-	/*! \brief  Component of a range of color in composite images*/
-	struct Component
-	{
-		//! p interval for the component
-		//! \{
-		std::atomic<ushort>		p_min;
-		std::atomic<ushort>		p_max;
-		//! \}
-		//! Weight associated to the component
-		std::atomic<float>		weight{ 1.f };
-	};
-
 	/*! \brief Contains compute parameters.
 	 *
 	 * Theses parameters will be used when the pipe is refresh.
@@ -153,15 +129,16 @@ namespace holovibes
 		/*! \brief ComputeDescriptor constructor
 		 * Initialize the compute descriptor to default values of computation. */
 		ComputeDescriptor();
+
+		/*! \brief ComputeDescriptor destructor.
+		
+		*/
 		~ComputeDescriptor();
 
 		/*! \brief Assignment operator
 		 * The assignment operator is explicitely defined because std::atomic type
 		 * does not allow to generate assignments operator automatically. */
 		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
-
-		units::PointFd getStftCursor() const;
-		void setStftCursor(const units::PointFd& rect);
 
 		/*!
 		 * @{
@@ -175,20 +152,35 @@ namespace holovibes
 		void signalZone(units::RectFd& rect, AccessMode m);
 		void noiseZone(units::RectFd& rect, AccessMode m);
 		void autofocusZone(units::RectFd& rect, AccessMode m);
+		//! @}
+
+		/*!
+		 * @{
+		 *
+		 * \brief	Getter of the overlay positions.
+		 *
+		 */
 
 		units::RectFd getStftZone() const;
-		void setStftZone(const units::RectFd& rect);
-
 		units::RectFd getCompositeZone() const;
-		void setCompositeZone(const units::RectFd& rect);
-
 		units::RectFd getStabilizationZone() const;
-		void setStabilizationZone(const units::RectFd& rect);
-
 		units::RectFd getZoomedZone() const;
-		void setZoomedZone(const units::RectFd& rect);
-
+		units::PointFd getStftCursor() const;
 		//! @}
+
+		/*!
+		 * @{
+		 *
+		 * \brief	Setter of the overlay positions.
+		 *
+		 */
+		void setStftZone(const units::RectFd& rect);
+		void setCompositeZone(const units::RectFd& rect);
+		void setStabilizationZone(const units::RectFd& rect);
+		void setZoomedZone(const units::RectFd& rect);
+		void setStftCursor(const units::PointFd& rect);
+		//! @}
+
 		#pragma region Atomics vars
 		//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;
@@ -206,6 +198,7 @@ namespace holovibes
 		std::atomic<ushort>			vibrometry_q;
 		//! wave length of the laser
 		std::atomic<float>			lambda;
+		//! Input matrix used for convolution
 		std::vector<float>			convo_matrix;
 		//! z value used by fresnel transform
 		std::atomic<float>			zdistance;
@@ -229,24 +222,31 @@ namespace holovibes
 		std::atomic<float>			autofocus_z_max;
 
 		std::atomic<ushort>			cuts_contrast_p_offset;
+		//! Size of a pixel in micron
 		std::atomic<float>			pixel_size;
+		//! Correction factor of the scale bar, used to match the objective of the camera
 		std::atomic<float>			scale_bar_correction_factor;
+		//! Width of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_width;
+		//! Height of the matric used for convolution
 		std::atomic<uint>			convo_matrix_height;
 		std::atomic<uint>			convo_matrix_z;
 		std::atomic<uint>			flowgraphy_level;
 		std::atomic<uint>			autofocus_size;
-		/*! \brief	Number of divison of zmax - zmin used by the autofocus algorithm */
+		/*! Number of divison of zmax - zmin used by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_div;
-		/*! \brief	Number of loops done by the autofocus algorithm */
+		/*! Number of loops done by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_iter;
 		std::atomic<int>			stft_level;
 		std::atomic<int>			stft_steps;
-		std::atomic<int>			ref_diff_level;
 		std::atomic<int>			unwrap_history_size;
 		std::atomic<int>			special_buffer_size;
+		//! is convolution enabled
 		std::atomic<bool>			convolution_enabled;
+		//! is flowgraphy enabled
 		std::atomic<bool>			flowgraphy_enabled;
+		//! is vibrometry enabled
+		std::atomic<bool>			vibrometry_enabled;
 		//! is log scale in slice XY enabled
 		std::atomic<bool>			log_scale_slice_xy_enabled;
 		//! is log scale in slice XZ enabled
@@ -259,9 +259,11 @@ namespace holovibes
 		std::atomic<bool>			contrast_enabled;
 		//! enable the limitation of the stft to the zoomed area.
 		std::atomic<bool>			croped_stft;
-		std::atomic<bool>			vibrometry_enabled;
+		//! Enables the difference with the selected frame.
 		std::atomic<bool>			ref_diff_enabled;
+		//! Enabled the difference with the ref_diff_level previous frame
 		std::atomic<bool>			ref_sliding_enabled;
+		std::atomic<int>			ref_diff_level;
 		//! allows to limit the computations to a selected zone
 		std::atomic<bool>			filter_2d_enabled;
 		//! are slices YZ and XZ enabled
@@ -277,14 +279,20 @@ namespace holovibes
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;
 
-
+		//! Enables the XY stabilization.
 		std::atomic<bool>			xy_stabilization_enabled;
+		//! Pause the stabilization, in order to select the stabilization area
 		std::atomic<bool>			xy_stabilization_paused;
+		//! Displays the convolution matrix.
 		std::atomic<bool>			xy_stabilization_show_convolution;
 
+		//! Enables the interpolation, to match the real pixel size according to the laser wavelength.
 		std::atomic<bool>			interpolation_enabled;
+		//! Current wavelength of the laser
 		std::atomic<float>			interp_lambda;
+		//! Initial wavelength of the laser
 		std::atomic<float>			interp_lambda1;
+		//! Final wavelength of the laser
 		std::atomic<float>			interp_lambda2;
 		std::atomic<float>			interp_sensitivity;
 		std::atomic<int>			interp_shift;
@@ -317,13 +325,27 @@ namespace holovibes
 		//! difference between y min and y max
 		std::atomic<short>			y_acc_level;
 
+		//! Enables the resizing of slice windows to have square pixels (according to their real size)
+		std::atomic<bool>			square_pixel { false };
+
+		//! Display the raw interferogram when we are in hologram mode.
+		std::atomic<bool>			raw_view { false };
+		//! Enables the recording of the raw interferogram when we are in hologram mode.
+		std::atomic<bool>			record_raw { false };
+
 		//! Composite images
 		//! \{
-		Component					component_r;
-		Component					component_g;
-		Component					component_b;
-		std::atomic<bool>			composite_auto_weights_;
+		std::atomic<ushort>		composite_p_red;
+		std::atomic<ushort>		composite_p_blue;
+		std::atomic<float>		weight_r;
+		std::atomic<float>		weight_g;
+		std::atomic<float>		weight_b;
+		std::atomic<bool>		composite_auto_weights_;
 		//! \}
+
+		std::atomic<bool>			jitter_enabled_{ false };
+		std::atomic<int>			jitter_slices_{ 7 };
+		std::atomic<double>			jitter_factor_{ 1. };
 
 		#pragma endregion
 	};

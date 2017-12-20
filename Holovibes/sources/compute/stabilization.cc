@@ -20,19 +20,21 @@
 #include "tools_compute.cuh"
 #include "tools_conversion.cuh"
 #include "stabilization.cuh"
+#include "icompute.hh"
 
 
 using holovibes::compute::Stabilization;
 using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
+using holovibes::CoreBuffers;
 
 
 Stabilization::Stabilization(FnVector& fn_vect,
-	float* const& gpu_float_buffer,
+	const CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd)
 	: fn_vect_(fn_vect)
-	, gpu_float_buffer_(gpu_float_buffer)
+	, buffers_(buffers)
 	, fd_(fd)
 	, cd_(cd)
 {}
@@ -61,22 +63,11 @@ void Stabilization::insert_correlation()
 		{
 			if (!convolution_.ensure_minimum_size(zone.area()))
 				return;
-			compute_correlation(gpu_float_buffer_, float_buffer_average_.get());
+			compute_correlation(buffers_.gpu_float_buffer_, float_buffer_average_);
 		}
 	});
 }
 
-
-void Stabilization::normalize_frame(float* frame, uint frame_res)
-{
-	float min, max;
-	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
-
-	gpu_substract_const(frame, frame_res, min);
-	cudaStreamSynchronize(0);
-	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
-	cudaStreamSynchronize(0);
-}
 
 void Stabilization::compute_correlation(const float *x, const float *y)
 {
@@ -157,7 +148,7 @@ void Stabilization::insert_stabilization()
 		if (!cd_.getStabilizationZone().area())
 			return;
 		if (!cd_.xy_stabilization_paused)
-			complex_translation(gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
+			complex_translation(buffers_.gpu_float_buffer_, fd_.width, fd_.height, shift_x, shift_y);
 		else
 		{
 			shift_x = 0;
@@ -174,7 +165,7 @@ void Stabilization::insert_average_compute()
 		if (!accumulation_queue_ || cd_.img_acc_slice_xy_level != accumulation_queue_->get_max_elts())
 		{
 			auto new_fd = fd_;
-			new_fd.depth = cd_.img_type == ImgType::Composite ? 12.0 : 4.0;
+			new_fd.depth = cd_.img_type == ImgType::Composite ? 12 : 4;
 			try
 			{
 				accumulation_queue_.reset(new Queue(new_fd, cd_.img_acc_slice_xy_level, "AccumulationQueueXY"));
@@ -217,9 +208,9 @@ void Stabilization::insert_float_buffer_overwrite()
 	{
 		fn_vect_.push_back([=]()
 		{
-			accumulation_queue_->enqueue(gpu_float_buffer_);
+			accumulation_queue_->enqueue(buffers_.gpu_float_buffer_);
 			if (cd_.img_acc_slice_xy_enabled)
-				cudaMemcpy(gpu_float_buffer_, float_buffer_average_.get(), accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
+				cudaMemcpy(buffers_.gpu_float_buffer_, float_buffer_average_, accumulation_queue_->get_frame_desc().frame_size(), cudaMemcpyDeviceToDevice);
 		});
 	}
 
@@ -235,7 +226,7 @@ void Stabilization::insert_float_buffer_overwrite()
 
 			if (convolution_.is_large_enough(zone.area()))
 			{
-				gpu_resize(convolution_.get(), gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
+				gpu_resize(convolution_, buffers_.gpu_float_buffer_, { zone.width(), zone.height() }, { fd_.width, fd_.height });
 				cudaStreamSynchronize(0);
 			}
 		});

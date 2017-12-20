@@ -16,6 +16,7 @@
 #pragma once
 
 #include "gui_group_box.hh"
+#include "frame_desc.hh"
 
 namespace holovibes
 {
@@ -42,6 +43,7 @@ namespace holovibes
 			INPUT_QUEUE,
 			OUTPUT_SOURCE,
 			OUTPUT_QUEUE,
+			RAW_OUTPUT_QUEUE,
 			RENDERING_FPS,
 			OUTPUT_THROUGHPUT,
 			INPUT_THROUGHPUT,
@@ -61,7 +63,7 @@ namespace holovibes
 		/*! Stop to refresh the info_panel display*/
 		void stop_display();
 
-		void insertInputSource(const int width, const int height, const int depth);
+		void insertInputSource(const camera::FrameDescriptor& fd);
 
 		/*! Add your information until is remove, and call draw()
 		** \param key is where you can access to your information

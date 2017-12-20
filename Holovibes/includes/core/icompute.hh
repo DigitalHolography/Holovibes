@@ -26,53 +26,67 @@
 
 namespace holovibes
 {
-# ifndef TUPLE4F
-# define TUPLE4F
 	using	Tuple4f = std::tuple<float, float, float, float>;
-# endif
 	class Queue;
 	template <class T> class ConcurrentDeque;
 	class ComputeDescriptor;
+	enum WindowKind;
 }
 
 namespace holovibes
 {
+	/*! \brief Struct containing main buffers used by the pipe. */
 	struct CoreBuffers
 	{
-		// input buffer
-		cuda_tools::UniquePtr<cufftComplex>	gpu_input_buffer_ = nullptr;
+		/** Input buffer. Contains only one frame. We fill it with the input frame, then with the correct computed p frame. */
+		cuda_tools::UniquePtr<cufftComplex>		gpu_input_buffer_ = nullptr;
 
-		// float buffers
-		cuda_tools::UniquePtr<float>		gpu_float_buffer_ = nullptr;
-		uint								gpu_float_buffer_size_ = 0;
-		cuda_tools::UniquePtr<void>			gpu_float_cut_xz_ = nullptr;
-		cuda_tools::UniquePtr<void>			gpu_float_cut_yz_ = nullptr;
+		/** Float buffer. Contains only one frame. We fill it with the correct computed p frame converted to float. */
+		cuda_tools::UniquePtr<float>			gpu_float_buffer_ = nullptr;
+		/** Size in components (size in byte / sizeof(float)) of the gpu_float_buffer_.
+		 Could be removed by changing gpu_float_buffer_ type to cuda_tools::Array. */
+		uint									gpu_float_buffer_size_ = 0;
+		/** Float XZ buffer. Contains only one frame. We fill it with the correct computed p XZ frame.
+		 It is of void type because it is also used for complex slices.
+		 Could be better to have an other buffer used only for complex slices. */
+		cuda_tools::UniquePtr<void>				gpu_float_cut_xz_ = nullptr;
+		/** Float YZ buffer. Contains only one frame. We fill it with the correct computed p YZ frame. */
+		cuda_tools::UniquePtr<void>				gpu_float_cut_yz_ = nullptr;
 
-		// Output buffers
-		cuda_tools::UniquePtr<void>			gpu_output_buffer_ = nullptr;
-		cuda_tools::UniquePtr<void>			gpu_ushort_cut_xz_ = nullptr;
-		cuda_tools::UniquePtr<void>			gpu_ushort_cut_yz_ = nullptr;
+		/** Unsigned Short output buffer. Contains only one frame, inserted after all postprocessing on float_buffer */
+		cuda_tools::UniquePtr<unsigned short>	gpu_output_buffer_ = nullptr;
+		/** Unsigned Short XZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_xz */
+		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_xz_ = nullptr;
+		/** Unsigned Short YZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_yz */
+		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_yz_ = nullptr;
 	};
 
+	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */
 	struct Stft_env
 	{
-		// Lock
+		/** Mutex used for every temporal fft computation (fft or plan computation).
+		 TODO: Check if it is really usefull (if there is really more than one thread using these variables). */
 		std::mutex							stftGuard_;
 
-		// Buffers
-		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
+		/** STFT Queue. Constains nsamples frames. It accumulates input frames after spatial fft,
+		 in order to apply STFT only when the frame counter is equal to STFT steps. */
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
-		cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_ = nullptr;
+		/** STFT buffer. Contains nsamples frames. Contains the result of the STFT done on the STFT queue. */
+		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
+		/** STFT XZ Queue. Contains the ouput of the STFT on slice XZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
 		std::unique_ptr<Queue>				gpu_stft_slice_queue_xz = nullptr;
+		/** STFT YZ Queue. Contains the ouput of the STFT on slice YZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
 		std::unique_ptr<Queue>				gpu_stft_slice_queue_yz = nullptr;
-		// Plan
+		/** Plan 1D used for the STFT. */
 		cuda_tools::CufftHandle				plan1d_stft_;
 
-		// Handling steps
+		/** Boolean set if the STFT has been performed during this pipe iteration. Used to not re-compute post-processing between STFT Steps. */
 		bool								stft_handle_ = false;
+		/** Frame Counter. Counter before the next STFT perform. */
 		uint								stft_frame_counter_ = 1;
 	};
 
+	/** \brief Structure containing variables related to the average computation and recording. */
 	struct Average_env
 	{
 		ConcurrentDeque<Tuple4f>* average_output_ = nullptr;
@@ -101,7 +115,7 @@ namespace holovibes
 		void request_ref_diff_refresh();
 		void request_autofocus();
 		void request_autofocus_stop();
-		void request_autocontrast();
+		void request_autocontrast(WindowKind kind);
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
 		void request_update_n(const unsigned short n);
@@ -119,10 +133,7 @@ namespace holovibes
 			std::unique_ptr<Queue>& gpu_img_acc,
 			std::atomic<bool>& enabled,
 			std::atomic<uint>& queue_length,
-			camera::FrameDescriptor new_fd,
-			float depth = 4.f);
-
-		/*! \brief Return true while ICompute is recording float. */
+			camera::FrameDescriptor new_fd);
 
 		/*! \brief Execute one iteration of the ICompute.
 		*
@@ -139,8 +150,7 @@ namespace holovibes
 
 		void			create_stft_slice_queue();
 		void			delete_stft_slice_queue();
-		void			update_stft_slice_queue();
-		Queue&			get_stft_slice_queue(int i);
+		std::unique_ptr<Queue>& get_stft_slice_queue(int i);
 		bool			get_cuts_request();
 		bool			get_cuts_delete_request();
 		bool			get_request_refresh();
@@ -151,6 +161,8 @@ namespace holovibes
 		bool get_autofocus_request()		const { return autofocus_requested_; }
 		bool get_autofocus_stop_request()	const { return autofocus_stop_requested_; }
 		bool get_autocontrast_request()		const { return autocontrast_requested_; }
+		bool get_autocontrast_slice_xz_request()		const { return autocontrast_slice_xz_requested_; }
+		bool get_autocontrast_slice_yz_request()		const { return autocontrast_slice_yz_requested_; }
 		bool get_refresh_request()			const { return refresh_requested_; }
 		bool get_update_n_request()			const { return update_n_requested_; }
 		bool get_stft_update_roi_request()	const { return stft_update_roi_requested_; }
@@ -168,41 +180,50 @@ namespace holovibes
 			stft_env_.stft_frame_counter_ = value;
 		}
 
-		virtual Queue*	get_lens_queue();
-
-
+		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
+		virtual std::unique_ptr<Queue>&	get_raw_queue() = 0;
 	protected:
 
 		virtual void refresh() = 0;
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
+		void request_queues();
 
-		void record(void* output, cudaStream_t stream = 0);
 		void fps_count();
 
 		ICompute& operator=(const ICompute&) = delete;
 		ICompute(const ICompute&) = delete;
 
 	protected:
+		/** Compute Descriptor. */
 		ComputeDescriptor&	compute_desc_;
 
+		/** Reference on the input queue, owned by MainWindow. */
 		Queue&	input_;
+		/** Reference on the output queue, owned by MainWindow. */
 		Queue&	output_;
 
+		/** Interface allowing to use the GPIB dll. */
 		std::shared_ptr<gpib::IVisaInterface>	gpib_interface_;
 
+		/** Main buffers. */
 		CoreBuffers		buffers_;
+		/** STFT environment. */
 		Stft_env		stft_env_;
+		/** Average environment. */
 		Average_env		average_env_;
+		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
 		cuda_tools::CufftHandle	plan2d_;
 
-		std::unique_ptr<Queue> fqueue_;
-
+		/** Chrono counting time between two iteration (Taking into account steps, since it is executing at the end of pipe). */
 		std::chrono::time_point<std::chrono::steady_clock>	past_time_;
 
+		/** Counting pipe iteration, in order to update fps only every 100 iterations. */
 		uint	frame_count_;
 
+		/** YZ Image Accumulation Queue. */
 		std::unique_ptr<Queue>	gpu_img_acc_yz_;
+		/** XZ Image Accumulation Queue. */
 		std::unique_ptr<Queue>	gpu_img_acc_xz_;
 
 		std::atomic<bool>	unwrap_1d_requested_;
@@ -210,6 +231,8 @@ namespace holovibes
 		std::atomic<bool>	autofocus_requested_;
 		std::atomic<bool>	autofocus_stop_requested_;
 		std::atomic<bool>	autocontrast_requested_;
+		std::atomic<bool>	autocontrast_slice_xz_requested_;
+		std::atomic<bool>	autocontrast_slice_yz_requested_;
 		std::atomic<bool>	refresh_requested_;
 		std::atomic<bool>	update_n_requested_;
 		std::atomic<bool>	stft_update_roi_requested_;

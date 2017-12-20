@@ -15,10 +15,17 @@
  * Common functionalities to all cameras.*/
 #pragma once
 
-//# include <string>
-//# include <fstream>
+
+// Because Boost uses std::iterator which is deprecated in C++17
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif
+
+// Because Boost uses std::allocator which is deprecated in C++17
+#ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
+#endif
 # include <boost/property_tree/ini_parser.hpp>
-//# include <boost/property_tree/ptree.hpp>
 # include <Windows.h>
 # include <icamera.hh>
 # include <frame_desc.hh>

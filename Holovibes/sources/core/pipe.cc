@@ -45,12 +45,12 @@ namespace holovibes
 		ComputeDescriptor& desc)
 		: ICompute(input, output, desc)
 		, fn_vect_()
-		, detect_intensity_(fn_vect_, buffers_.gpu_input_buffer_, input.get_frame_desc(), desc)
+		, detect_intensity_(fn_vect_, buffers_, input.get_frame_desc(), desc)
 	{
-		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_.gpu_float_buffer_, input.get_frame_desc(), desc);
-		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_.gpu_float_buffer_, buffers_.gpu_input_buffer_, input_, desc, this);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_,	input.get_frame_desc(), desc, plan2d_, stft_env_);
-		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, stft_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
+		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_, input.get_frame_desc(), desc);
+		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_, input_, desc, this);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_);
+		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
@@ -64,40 +64,6 @@ namespace holovibes
 	{
 	}
 
-	void Pipe::request_queues()
-	{
-		if (request_stft_cuts_)
-		{
-			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
-
-			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ?
-				sizeof(cuComplex) : sizeof(ushort);
-			uint buffer_depth = ((compute_desc_.img_type == ImgType::Complex) ? (sizeof(cufftComplex)) : (sizeof(float)));
-			auto fd_yz = fd_xz;
-			fd_xz.height = compute_desc_.nsamples;
-			fd_yz.width = compute_desc_.nsamples;
-			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
-			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
-			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
-			buffers_.gpu_float_cut_yz_.resize(fd_yz.frame_res() * buffer_depth);
-
-			buffers_.gpu_ushort_cut_xz_.resize(fd_xz.frame_size());
-			buffers_.gpu_ushort_cut_yz_.resize(fd_yz.frame_size());
-			request_stft_cuts_ = false;
-		}
-
-		if (request_delete_stft_cuts_)
-		{
-			buffers_.gpu_float_cut_xz_.reset();
-			buffers_.gpu_float_cut_yz_.reset();
-			buffers_.gpu_ushort_cut_xz_.reset();
-			buffers_.gpu_ushort_cut_yz_.reset();
-
-			stft_env_.gpu_stft_slice_queue_xz.reset();
-			stft_env_.gpu_stft_slice_queue_yz.reset();
-			request_delete_stft_cuts_ = false;
-		}
-	}
 
 	void Pipe::refresh()
 	{
@@ -178,7 +144,13 @@ namespace holovibes
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
 
-		rendering_->insert_p_accu();
+		// Complex mode is strangely implemented.
+		// If someone knows why this line is fixing complex slices, please make it cleaner.
+		fn_vect_.push_back([=]() {
+			if ((autocontrast_slice_xz_requested_ || autocontrast_slice_yz_requested_)
+				&& compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
+				request_refresh();
+		});
 
 		postprocess_->insert_vibrometry();
 		postprocess_->insert_convolution();
@@ -189,6 +161,8 @@ namespace holovibes
 		{
 			refresh_requested_ = false;
 			autocontrast_requested_ = false;
+			autocontrast_slice_xz_requested_ = false;
+			autocontrast_slice_yz_requested_ = false;
 			return;
 		}
 
@@ -213,7 +187,7 @@ namespace holovibes
 		if (average_requested_)
 			rendering_->insert_average(average_record_requested_);
 		rendering_->insert_log();
-		rendering_->insert_contrast(autocontrast_requested_);
+		rendering_->insert_contrast(autocontrast_requested_, autocontrast_slice_xz_requested_, autocontrast_slice_yz_requested_);
 		autofocus_->insert_autofocus();
 
 		fn_vect_.push_back([=]() {fps_count(); });
@@ -225,7 +199,9 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		return compute_desc_.img_type == ImgType::Complex ? buffers_.gpu_input_buffer_.get() : buffers_.gpu_output_buffer_.get();
+		if (compute_desc_.img_type == ImgType::Complex)
+			return buffers_.gpu_input_buffer_;
+		return buffers_.gpu_output_buffer_;
 	}
 
 	void Pipe::exec()
@@ -239,12 +215,7 @@ namespace holovibes
 				if (input_.get_current_elts() >= 1)
 				{
 					stft_env_.stft_handle_ = false;
-					for (FnType& f : fn_vect_)
-					{
-						f();
-						if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
-							break;
-					}
+					run_all();
 					if (compute_desc_.compute_mode == Hologram)
 					{
 						if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
@@ -256,9 +227,9 @@ namespace holovibes
 							}
 							if (compute_desc_.stft_view_enabled)
 							{
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_ : buffers_.gpu_ushort_cut_xz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_.get() : buffers_.gpu_ushort_cut_xz_.get(),
 									stft_env_.gpu_stft_slice_queue_xz.get());
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_ : buffers_.gpu_ushort_cut_yz_,
+								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_.get() : buffers_.gpu_ushort_cut_yz_.get(),
 									stft_env_.gpu_stft_slice_queue_yz.get());
 							}
 						}
@@ -269,6 +240,14 @@ namespace holovibes
 						break;
 					}
 
+					if (compute_desc_.compute_mode == Hologram && compute_desc_.raw_view || compute_desc_.record_raw)
+					{
+						if (!get_raw_queue()->enqueue(input_.get_start()))
+						{
+							input_.dequeue();
+							break;
+						}
+					}
 					input_.dequeue();
 					if (refresh_requested_)
 						refresh();
@@ -290,7 +269,7 @@ namespace holovibes
 		}
 		/*Add image to phase accumulation buffer*/
 
-		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); } );
+		fn_vect_.push_back([=]() {queue_enqueue(buffer, queue); });
 		fn_vect_.push_back([=]() {
 			accumulate_images(
 				static_cast<float *>(queue->get_buffer()),
@@ -302,8 +281,51 @@ namespace holovibes
 		});
 	}
 
-	Queue* Pipe::get_lens_queue()
+	std::unique_ptr<Queue>& Pipe::get_lens_queue()
 	{
 		return fourier_transforms_->get_lens_queue();
+	}
+
+	compute::FourierTransform *Pipe::get_fourier_transforms()
+	{
+		return fourier_transforms_.get();
+	}
+
+	void Pipe::run_end_pipe(std::function<void()> function)
+	{
+		std::lock_guard<std::mutex> lock(functions_mutex_);
+		functions_end_pipe_.push_back(function);
+	}
+
+	void Pipe::autocontrast_end_pipe(WindowKind kind)
+	{
+		request_autocontrast(kind);
+		run_end_pipe([this, kind]() {request_autocontrast(kind); });
+	}
+
+	void Pipe::run_all()
+	{
+		for (FnType& f : fn_vect_)
+		{
+			f();
+			if (stft_env_.stft_frame_counter_ != compute_desc_.stft_steps && stft_env_.stft_handle_)
+				break;
+		}
+		{
+			std::lock_guard<std::mutex> lock(functions_mutex_);
+			for (FnType& f : functions_end_pipe_)
+				f();
+			functions_end_pipe_.clear();
+		}
+	}
+
+	std::unique_ptr<Queue>& Pipe::get_raw_queue()
+	{
+		if (!gpu_raw_queue_ && (compute_desc_.raw_view || compute_desc_.record_raw))
+		{
+			auto fd = input_.get_frame_desc();
+			gpu_raw_queue_ = std::make_unique<Queue>(fd, output_.get_max_elts(), "RawOutputQueue");
+		}
+		return gpu_raw_queue_;
 	}
 }

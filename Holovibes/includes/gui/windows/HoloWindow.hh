@@ -29,7 +29,7 @@ namespace holovibes
 		class HoloWindow : public DirectWindow
 		{
 		public:
-			HoloWindow(QPoint p, QSize s, Queue& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xy, std::unique_ptr<SliceWindow>& yy, MainWindow *main_window = nullptr);
+			HoloWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, SharedPipe ic, std::unique_ptr<SliceWindow>& xy, std::unique_ptr<SliceWindow>& yy, MainWindow *main_window = nullptr);
 			virtual ~HoloWindow();
 
 			void update_slice_transforms();
@@ -38,6 +38,7 @@ namespace holovibes
 
 			void	update_stft_zoom_buffer(units::RectFd zone_);
 			void	resetTransform() override;
+			void	setTransform() override;
 
 		protected:
 			SharedPipe		Ic;

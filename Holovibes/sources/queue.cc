@@ -12,6 +12,7 @@
 
 #include "queue.hh"
 #include "tools_conversion.cuh"
+#include "unique_ptr.hh"
 
 #include "info_manager.hh"
 
@@ -149,6 +150,21 @@ namespace holovibes
 		}
 	}
 
+	void Queue::dequeue_48bit_to_24bit(void * dest, cudaMemcpyKind cuda_kind)
+	{
+		if (curr_elts_ > 0)
+		{
+			void* first_img = data_buffer_.get() + start_index_ * frame_size_;
+			cuda_tools::UniquePtr<uchar> tmp_uchar(frame_size_ / 2);
+			ushort_to_uchar(static_cast<ushort*>(first_img), tmp_uchar, frame_resolution_ * 3);
+			cudaMemcpy(dest, tmp_uchar, frame_resolution_ * 3, cuda_kind);
+			start_index_ = (start_index_ + 1) % max_elts_;
+			--curr_elts_;
+			if (display_)
+				display_queue_to_InfoManager();
+		}
+	}
+
 	void Queue::dequeue()
 	{
 		MutexGuard mGuard(mutex_);
@@ -183,6 +199,8 @@ namespace holovibes
 			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
 		else if (name_ == "STFTQueue")
 			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_, message);
+		else if (name_ == "RawOutputQueue")
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
 	}
 
 	std::string Queue::calculate_size(void) const

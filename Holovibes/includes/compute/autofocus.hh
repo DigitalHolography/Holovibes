@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+Implementation of autofocus feature. */
 #pragma once
 
 #include "pipeline_utils.hh"
@@ -21,6 +24,7 @@ namespace holovibes
 {
 	class ComputeDescriptor;
 	class ICompute;
+	struct CoreBuffers;
 	/*! \brief Contains all functions and structure for computations variables */
 	namespace compute
 	{
@@ -46,7 +50,7 @@ namespace holovibes
 			std::vector<float>	focus_metric_values; /**< vector containing the values given by the evaluating function*/
 
 			units::RectFd		zone; /**< zone where autofocus is applied */
-			unsigned int		af_square_size; /** size of the square zone where autofocus is applied */
+			unsigned int		af_square_size; /**< size of the square zone where autofocus is applied */
 			cuda_tools::UniquePtr<float> gpu_float_buffer_af_zone; /**< zone of gpu_float_buffer_ where autocus is applied */
 
 			size_t				gpu_input_size; /**< size of gpu_input_buffer_tmp */
@@ -67,20 +71,40 @@ namespace holovibes
 		class Autofocus
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Autofocus(FnVector& fn_vect,
-				float* const& gpu_float_buffer,
-				cuComplex* const& gpu_input_buffer,
+				const CoreBuffers& buffers,
 				holovibes::Queue& input,
 				holovibes::ComputeDescriptor& cd,
 				ICompute *Ic);
 
+			/** \brief see autofocus_init()
+			
+			*/
 			void insert_init();
+			/** \brief see autofocus_restore()
+			
+			*/
 			void insert_restore();
+			/** \brief see autofocus_caller()
+			
+			*/
 			void insert_autofocus();
+			/** \brief insert the copy of the input buffer into a tmp buffer
+			
+			*/
 			void insert_copy();
 
+			/** \brief Get the zindex used for the spatial fft.
+			
+			*/
 			float get_zvalue() const;
 
+			/** \brief Get the autofocus state.
+			
+			*/
 			af_state get_state() const
 			{
 				return af_env_.state;
@@ -92,7 +116,9 @@ namespace holovibes
 			* \param input_buffer Destination buffer (gpu_input_buffer_) */
 			void autofocus_restore();
 
-			/*! \brief Initialize the structure af_env_ */
+			/*! \brief Initialize the structure af_env_
+			
+			*/
 			void autofocus_init();
 
 			/*! \brief This is the main part of the autofocus. It will copy
@@ -100,18 +126,16 @@ namespace holovibes
 			* \param input buffer of float containing the image where autofocus is applied (gpu_float_buffer_) */
 			void autofocus_caller(cudaStream_t stream = 0);
 
-			/*! \brief Resetting the structure af_env_ for next use */
+			/*! \brief Resetting the structure af_env_ for next use
+			
+			*/
 			void autofocus_reset();
 
 			//! Containing every special vairables needed to run autofocus
 			af_env	af_env_;
-			//! reference to the complex input buffer
-			cuComplex* const&				gpu_input_buffer_;
-			/// The whole image for this frame
-			float* const&					gpu_float_buffer_;
 
-			/// Pipe data
-			/// {
+			/// Main pipe buffers.
+			const CoreBuffers&				buffers_;
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			/// Describes the frame size
@@ -122,7 +146,6 @@ namespace holovibes
 			Queue&							input_;
 			/// Pointer on the pipe.
 			ICompute*						Ic_;
-			/// }
 		};
 	}
 }

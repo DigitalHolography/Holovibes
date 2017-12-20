@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+/*! \file
+
+   Implementation of the rendering features. */
 #pragma once
 
 #include "frame_desc.hh"
@@ -33,32 +36,69 @@ namespace holovibes
 		class Contrast
 		{
 		public:
+			/** \brief Constructor.
+			
+			*/
 			Contrast(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
-			const Stft_env& stft_env,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
 				const camera::FrameDescriptor& output_fd,
 				ICompute* Ic);
 
-			void insert_p_accu();
+			/** \brief insert the functions relative to the fft shift.
+
+			*/
 			void insert_fft_shift();
+			/** \brief insert the functions relative to noise and signal average.
+
+			 */
 			void insert_average(std::atomic<bool>& record_request);
+			/** \brief insert the functions relative to the log10.
+
+			*/
 			void insert_log();
-			void insert_contrast(std::atomic<bool>& autocontrast_request);
+			/** \brief insert the functions relative to the contrast.
+
+			*/
+			void insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
 
 		private:
+			/** \brief insert the average computation.
+
+			*/
 			void insert_main_average();
+			/** \brief insert the average recording.
+
+			*/
 			void insert_average_record();
 
+			/** \brief insert the log10 on the XY window
+
+			*/
 			void insert_main_log();
+			/** \brief insert the log10 on the slices
+
+			*/
 			void insert_slice_log();
 
-			void insert_autocontrast(std::atomic<bool>& autocontrast_request);
+			/** \brief insert the autocontrast
+
+			*/
+			void insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request);
+			/** \brief insert the constrast on the XY window
+
+			*/
 			void insert_main_contrast();
+			/** \brief insert the contrast on the slices
+
+			*/
 			void insert_slice_contrast();
 
+			/** \brief Calls autocontrast and set the correct contrast variables
+			
+			*/
 			void autocontrast_caller(float *input,
 				const uint			size,
 				const uint			offset,
@@ -68,39 +108,28 @@ namespace holovibes
 			/*! \see request_average_record
 			* \brief Call the average algorithm, store the result and count n
 			* iterations. Request the ICompute to refresh when record is over.
-			* \param input Input float frame pointer
-			* \param width Width of the input frame
-			* \param height Height of the input frame
 			* \param signal Signal zone
 			* \param noise Noise zone */
 			void average_record_caller(
-				float* input,
-				const unsigned int width,
-				const unsigned int height,
 				const units::RectFd& signal,
 				const units::RectFd& noise,
 				cudaStream_t stream = 0);
 
 
-			/// Pipe data
-			/// {
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 			/// Main buffers
 			const CoreBuffers&				buffers_;
 			/// Average variables
 			Average_env&					average_env_;
-			/// Average variables
-			const Stft_env&					stft_env_;
 			/// Describes the input frame size
 			const camera::FrameDescriptor& input_fd_;
 			/// Describes the output frame size
 			const camera::FrameDescriptor&	fd_;
 			/// Variables needed for the computation in the pipe
 			ComputeDescriptor&				cd_;
-			///
+			/// Pointer on the parent.
 			ICompute*						Ic_;
-			/// }
 		};
 	}
 }

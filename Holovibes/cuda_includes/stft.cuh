@@ -13,7 +13,9 @@
 #pragma once
 
 #include "Common.cuh"
+#include "compute_descriptor.hh"
 #include "rect.hh"
+#include "queue.hh"
 
 using holovibes::units::RectFd;
 
@@ -47,18 +49,14 @@ using holovibes::units::RectFd;
  *\endverbatim
  */
 void stft(cuComplex			*input,
-		cuComplex			*gpu_queue,
+		holovibes::Queue	*gpu_queue,
 		cuComplex			*stft_buf,
 		const cufftHandle	plan1d,
-		const uint			stft_level,
-		const uint			p,
 		const uint			q,
-		const uint			nsamples,
 		const uint			width,
 		const uint			height,
 		const bool			stft_activated,
-		const bool			cropped_stft,
-		const RectFd		cropped_zone,
+		const holovibes::ComputeDescriptor &cd,
 		cuComplex			*cropped_stft_buf,
 		cudaStream_t		stream = 0);
 

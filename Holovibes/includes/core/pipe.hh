@@ -70,29 +70,67 @@ namespace holovibes
 		Pipe(Queue& input, Queue& output, ComputeDescriptor& desc);
 		virtual ~Pipe();
 
-		virtual Queue*			get_lens_queue() override;
+		/*! \brief Get the lens queue to display it.
+		
+		*/
+		std::unique_ptr<Queue>&			get_lens_queue() override;
+
+		/*! \brief Get the raw queue to display. It allocates the queue if it isn't already done.
+		
+		*/
+		std::unique_ptr<Queue>&			get_raw_queue() override;
+
+		/*! \brief Runs a function after the current pipe iteration ends
+
+		 */
+		void run_end_pipe(std::function<void()> function);
+		/*! \brief Calls autocontrast on the *next* pipe iteration on the wanted view
+
+		 */
+		void autocontrast_end_pipe(WindowKind kind);
+
+		/*! \brief Returns the class containing every functions relative to the FF1, FF2 and STFT algorithm.
+		
+		*/
+		compute::FourierTransform * get_fourier_transforms();
 
 	protected:
 
 		/*! \brief Execute one processing iteration.
 		*
 		* * Checks the number of frames in input queue, that must at least
-		* be nsamples.
+		* be 1.
 		* * Call each function stored in the FnVector.
+		* * Call each function stored in the end FnVector, then clears it
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.
 		* * Check if a ICompute refresh has been requested.
 		*
 		* The ICompute can not be interrupted for parameters changes until the
-		* refresh method is called. */
+		* refresh method is called.
+		* If Holovibes crash in a cuda function right after updating something on the GUI,
+		* It probably means that the ComputeDescriptor has been updated before the end of the iteration.
+		* The pipe uses the ComputeDescriptor, and is refresh only at the end of the iteration. You
+		* **must** wait until the end of the refresh, or use the run_end_pipe function to update the
+		* ComputeDescriptor, otherwise the end of the current iteration will be wrong, and will maybe crash. */
+		virtual void	exec();
 
+		/*! \brief Enqueue the main FnVector according to the requests.
+		
+		*/
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
-		virtual void	exec();
-		void			request_queues();
 
 	private:
+		//! Vector of functions that will be executed in the exec() function.
 		FnVector		fn_vect_;
+
+		//! Vecor of functions that will be executed once, after the execution of fn_vect_.
+		FnVector		functions_end_pipe_;
+		/*! Mutex that prevents the insertion of a function during its execution.
+		    Since we can insert functions in functions_end_pipe_ from other threads (MainWindow), we need to lock it.
+		*/
+		std::mutex		functions_mutex_;
 
 		std::unique_ptr<compute::Stabilization> stabilization_;
 		std::unique_ptr<compute::Autofocus> autofocus_;
@@ -104,7 +142,14 @@ namespace holovibes
 
 		compute::DetectIntensity detect_intensity_;
 
+		std::unique_ptr<Queue> gpu_raw_queue_;
+
 
 		void enqueue_buffer(Queue* queue, float *buffer, uint nb_images, uint nb_pixels);
+
+		/*! \brief Iterates and executes function of the pipe.
+		
+		  It will first iterate over fn_vect_, then over function_end_pipe_. */
+		void run_all();
 	};
 }

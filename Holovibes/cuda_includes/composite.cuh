@@ -16,8 +16,6 @@
 
 # include "compute_descriptor.hh"
 
-
-
 /// Computes 3 different p slices and put them in each color
 void composite(cuComplex	*input,
 	float					*output,
@@ -25,6 +23,8 @@ void composite(cuComplex	*input,
 	const uint				line_size,
 	bool					normalize,
 	holovibes::units::RectFd	selection,
-	const holovibes::Component&	r,
-	const holovibes::Component&	g,
-	const holovibes::Component&	b);
+	const ushort red,
+	const ushort blue,
+	const float weight_r,
+	const float weight_g,
+	const float weight_b);

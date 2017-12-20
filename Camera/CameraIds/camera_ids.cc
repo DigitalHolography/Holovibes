@@ -77,7 +77,7 @@ namespace camera
 	{
 		desc_.width = 2048;
 		desc_.height = 2048;
-		desc_.depth = 1.f;
+		desc_.depth = 1;
 		pixel_size_ = 5.5f;
 		desc_.byteEndian = Endianness::LittleEndian;
 
@@ -212,13 +212,13 @@ namespace camera
 
 	int CameraIds::get_color_mode(const std::string ui)
 	{
-		desc_.depth = 1.f;
+		desc_.depth = 1;
 		if (ui == "RAW8")
 			return IS_CM_SENSOR_RAW8;
 		if (ui == "MONO8")
 			return IS_CM_MONO8;
 
-		desc_.depth = 2.f;
+		desc_.depth = 2;
 		if (ui == "RAW10")
 			return IS_CM_SENSOR_RAW10;
 		if (ui == "RAW12")
@@ -232,7 +232,7 @@ namespace camera
 		if (ui == "MONO16")
 			return IS_CM_MONO16;
 
-		desc_.depth = 1.f;
+		desc_.depth = 1;
 		return IS_CM_SENSOR_RAW8;
 	}
 

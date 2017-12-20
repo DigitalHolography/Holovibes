@@ -116,3 +116,61 @@ namespace holovibes
 		free(tmp_buf);
 	}
 }
+
+std::string engineering_notation(double value, int nb_significant_figures)
+{
+
+	static std::string prefix[] = {
+		"y", "z", "a", "f", "p", "n", "µ", "m", "",
+		"k", "M", "G", "T", "P", "E", "Z", "Y"
+	};
+
+
+	if (value == 0.)
+	{
+		return "0";
+	}
+
+	std::string res;
+
+	if (value < 0)
+	{
+		res += '-';
+		value = -value;
+	}
+
+	int expof10 = log10(value);
+	if (expof10 > 0)
+		expof10 = (expof10 / 3) * 3;
+	else
+		expof10 = (-expof10 + 3) / 3 * (-3);
+
+	value *= pow(10, -expof10);
+
+	std::string SI_prefix_symbol = prefix[expof10 / 3 + 8];
+
+	int leading_figure = static_cast<int>(log10(value)) % 3 + 1;
+
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(std::max(nb_significant_figures - leading_figure, 0))
+		<< value << " " << SI_prefix_symbol;
+
+	return ss.str();
+
+	/*if (value >= 1000.)
+	{
+		value /= 1000.0; expof10 += 3;
+	}
+	else if (value >= 100.0)
+		digits -= 2;
+	else if (value >= 10.0)
+		digits -= 1;
+
+	if (numeric || (expof10 < PREFIX_START) ||
+		(expof10 > PREFIX_END))
+		sprintf(res, "%.*fe%d", digits - 1, value, expof10);
+	else
+		sprintf(res, "%.*f %s", digits - 1, value,
+			prefix[(expof10 - PREFIX_START) / 3]);
+	return result;*/
+}

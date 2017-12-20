@@ -74,6 +74,9 @@ void float_to_complex(cuComplex	*output,
  */
 void complex_to_modulus(const cuComplex	*input,
 						float			*output,
+						const cuComplex *stft_buf,
+						const ushort	pmin,
+						const ushort	pmax,
 						const uint		size,
 						cudaStream_t	stream = 0);
 
@@ -86,6 +89,9 @@ void complex_to_modulus(const cuComplex	*input,
  */
 void complex_to_squared_modulus(const cuComplex	*input,
 								float			*output,
+								const cuComplex	*stft_buf,
+								const ushort	pmin,
+								const ushort	pmax,
 								const uint		size,
 								cudaStream_t	stream = 0);
 
@@ -98,6 +104,9 @@ void complex_to_squared_modulus(const cuComplex	*input,
  */
 void complex_to_argument(const cuComplex	*input,
 						float				*output,
+						const cuComplex		*stft_buf,
+						const ushort		pmin,
+						const ushort		pmax,
 						const uint			size,
 						cudaStream_t		stream = 0);
 
@@ -143,9 +152,14 @@ void endianness_conversion(const ushort	*input,
 void float_to_ushort(const float	*input,
 					void			*output,
 					const uint		size,
-					const float		depth,
+					const size_t	depth,
 					cudaStream_t	stream = 0);
 
+
+void ushort_to_uchar(const ushort	*input,
+	uchar			*output,
+	const uint		size,
+	cudaStream_t	stream = 0);
 
 /*! \brief Convert data from complex data to unsigned short (16-bit).
 *

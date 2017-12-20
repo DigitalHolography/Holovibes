@@ -98,7 +98,7 @@ namespace camera
   {
     desc_.width = 2048;
     desc_.height = 2048;
-    desc_.depth = 1.f;
+    desc_.depth = 1;
     pixel_size_ = 7.4f;
     desc_.byteEndian = Endianness::BigEndian;
 
@@ -125,7 +125,7 @@ namespace camera
 
     desc_.width = pt.get<unsigned short>("pike.sensor_width", desc_.width);
     desc_.height = pt.get<unsigned short>("pike.sensor_height", desc_.height);
-    desc_.depth = static_cast<float>(pt.get<unsigned short>("pike.bit_depth", 8) + 7) / 8.f;
+    desc_.depth = (pt.get<unsigned int>("pike.bit_depth", 8) + 7) / 8;
 
     subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
     gain_ = pt.get<unsigned long>("pike.gain", gain_);

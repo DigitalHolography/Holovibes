@@ -27,7 +27,6 @@ namespace holovibes
 		Contrast::Contrast(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			Average_env& average_env,
-			const Stft_env& stft_env,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
 			const camera::FrameDescriptor& output_fd,
@@ -35,28 +34,11 @@ namespace holovibes
 			: fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, average_env_(average_env)
-			, stft_env_(stft_env)
 			, cd_(cd)
 			, input_fd_(input_fd)
 			, fd_(output_fd)
 			, Ic_(Ic)
 		{
-		}
-
-		void Contrast::insert_p_accu()
-		{
-			if (cd_.p_accu_enabled)
-				fn_vect_.push_back([=]() {
-					int pmin = cd_.pindex;
-					int pmax = std::max(0,
-						std::min(pmin + cd_.p_acc_level, static_cast<int>(cd_.nsamples)));
-					stft_moment(
-						stft_env_.gpu_stft_buffer_.get(),
-						buffers_.gpu_input_buffer_,
-						input_fd_.frame_res(),
-						pmin,
-						pmax);
-			});
 		}
 
 		void Contrast::insert_fft_shift()
@@ -93,9 +75,9 @@ namespace holovibes
 				insert_slice_log();
 		}
 
-		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request)
+		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
 		{
-			insert_autocontrast(autocontrast_request);
+			insert_autocontrast(autocontrast_request, autocontrast_slice_xz_request, autocontrast_slice_yz_request);
 			if (cd_.contrast_enabled)
 				insert_main_contrast();
 
@@ -128,13 +110,7 @@ namespace holovibes
 			units::RectFd noiseZone;
 			cd_.signalZone(signalZone, AccessMode::Get);
 			cd_.noiseZone(noiseZone, AccessMode::Get);
-			fn_vect_.push_back([=]() {average_record_caller(
-				buffers_.gpu_float_buffer_,
-				input_fd_.width,
-				input_fd_.height,
-				signalZone,
-				noiseZone);
-			});
+			fn_vect_.push_back([=]() {average_record_caller(signalZone, noiseZone); });
 		}
 
 		void Contrast::insert_main_log()
@@ -185,35 +161,31 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request)
+		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
 		{
 			// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
 				if (autocontrast_request)
-				{
-					if (cd_.current_window == XYview)
-						autocontrast_caller(
-							buffers_.gpu_float_buffer_,
-							buffers_.gpu_float_buffer_size_,
-							0,
-							XYview);
-					if (cd_.stft_view_enabled)
-					{
-						if (cd_.current_window == XZview)
-							autocontrast_caller(
-								static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-								fd_.width * cd_.nsamples,
-								fd_.width * cd_.cuts_contrast_p_offset,
-								XZview);
-						else if (cd_.current_window == YZview)
-							autocontrast_caller(
-								static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-								fd_.width * cd_.nsamples,
-								fd_.width * cd_.cuts_contrast_p_offset,
-								YZview);
-					}
-					autocontrast_request = false;
-				}
+					autocontrast_caller(
+						buffers_.gpu_float_buffer_,
+						buffers_.gpu_float_buffer_size_,
+						0,
+						XYview);
+				if (autocontrast_slice_xz_request)
+					autocontrast_caller(
+						static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
+						fd_.width * cd_.nsamples,
+						fd_.width * cd_.cuts_contrast_p_offset,
+						XZview);
+				if (autocontrast_slice_yz_request)
+					autocontrast_caller(
+						static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
+						fd_.width * cd_.nsamples,
+						fd_.width * cd_.cuts_contrast_p_offset,
+						YZview);
+				autocontrast_request = false;
+				autocontrast_slice_xz_request = false;
+				autocontrast_slice_yz_request = false;
 			};
 			fn_vect_.push_back(lambda_autocontrast);
 		}
@@ -247,16 +219,13 @@ namespace holovibes
 
 
 		void Contrast::average_record_caller(
-			float* input,
-			const unsigned int width,
-			const unsigned int height,
 			const units::RectFd& signal,
 			const units::RectFd& noise,
 			cudaStream_t stream)
 		{
 			if (average_env_.average_n_ > 0)
 			{
-				average_env_.average_output_->push_back(make_average_plot(input, width, height, signal, noise, stream));
+				average_env_.average_output_->push_back(make_average_plot(buffers_.gpu_float_buffer_, input_fd_.width, input_fd_.height, signal, noise, stream));
 				average_env_.average_n_--;
 			}
 			else

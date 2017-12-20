@@ -25,7 +25,7 @@ namespace holovibes
 		class DirectWindow : public BasicOpenGLWindow
 		{
 		public:
-			DirectWindow(QPoint p, QSize s, Queue& q, KindOfView k = Direct);
+			DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Direct);
 			virtual ~DirectWindow();
 
 			units::RectFd	getSignalZone() const;
@@ -46,6 +46,8 @@ namespace holovibes
 			void	mousePressEvent(QMouseEvent* e);
 			void	mouseMoveEvent(QMouseEvent* e);
 			void	mouseReleaseEvent(QMouseEvent* e);
+			void	keyPressEvent(QKeyEvent *e) override;
+			void	wheelEvent(QWheelEvent *e) override;
 		};
 	}
 }
