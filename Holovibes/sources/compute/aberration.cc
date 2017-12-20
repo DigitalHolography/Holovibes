@@ -25,7 +25,9 @@ Aberration::Aberration(const CoreBuffers& buffers,
 	, lens_(lens)
 	, fd_(fd)
 	, cd_(cd)
-{}
+{
+	nb_frames_ = 8;
+}
 
 void Aberration::operator()()
 {
@@ -33,9 +35,13 @@ void Aberration::operator()()
 	apply_all_to_lens();
 }
 
+uint Aberration::frame_area()
+{
+	return fd_.width * fd_.height;
+}
+
 void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 {
-
 }
 
 QPoint Aberration::compute_one_shift(uint x, uint y)
@@ -48,7 +54,7 @@ QPoint Aberration::compute_one_shift(uint x, uint y)
 void Aberration::compute_all_shifts()
 {
 	extract_and_fft(0, 0, ref_frame_.get());
-	rotation_180(ref_frame_.get(), { frame_size_.x, frame_size_.y });
+	rotation_180(ref_frame_.get(), { fd_.width, fd_.height });
 
 	shifts_.clear();
 	for (uint i = 0; i < nb_frames_; ++i)
@@ -61,23 +67,23 @@ void Aberration::compute_all_shifts()
 
 }
 
-void Aberration::compute_correlation(const float* x, const float *y)
+void Aberration::compute_correlation(float* x, float *y)
 {
-
+	correlation_operator(x, y, correlation_, { fd_.width, fd_.height });
 }
 
 QPoint Aberration::find_maximum()
 {
 	uint max = 0;
-	uint frame_res = frame_size_.x * frame_size_.y;
+	uint frame_res = frame_area();
 	gpu_extremums(correlation_.get(), frame_res, nullptr, nullptr, nullptr, &max);
 	// x y: Coordinates of maximum of the correlation function
-	int x = max % frame_size_.x;
-	int y = max / frame_size_.x;
-	if (x > frame_size_.x / 2)
-		x -= frame_size_.x;
-	if (y > frame_size_.y / 2)
-		y -= frame_size_.y;
+	int x = max % fd_.width;
+	int y = max / fd_.width;
+	if (x > fd_.width / 2)
+		x -= fd_.width;
+	if (y > fd_.height / 2)
+		y -= fd_.height;
 
 	return {x, y};
 }

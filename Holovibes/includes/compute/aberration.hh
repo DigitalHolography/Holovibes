@@ -55,6 +55,10 @@ namespace holovibes
 
 		private:
 
+			/*! Returns the number of pixels in one frame
+			 */
+			uint frame_area();
+
 			/*! Extract one frame from the buffer while performing the 2d fft
 			 */
 			void extract_and_fft(uint x_index, uint y_index, float* buffer);
@@ -69,7 +73,7 @@ namespace holovibes
 
 			/** \brief Computes the correlation between two buffers and write the result into convolution_.
 			*/
-			void compute_correlation(const float* x, const float *y);
+			void compute_correlation(float* x, float *y);
 
 			/*! \brief Finds the position of the maximum in the correlation buffer
 			*/
@@ -109,7 +113,6 @@ namespace holovibes
 			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
 
-			QPoint							frame_size_;
 			uint							nb_frames_;
 		};
 	}
