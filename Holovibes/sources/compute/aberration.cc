@@ -78,6 +78,25 @@ int Aberration::frame_height()
 
 void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 {
+	auto nb_chunks_per_row = nb_frames_;
+	auto nb_chunks_per_column = nb_frames_;
+
+	auto full_chunk_width = fd_.width / nb_chunks_per_row;
+	auto full_chunk_height = fd_.height / nb_chunks_per_column;
+	auto nb_chunks = nb_chunks_per_row * nb_chunks_per_column;
+	auto cropped_chunk_width = full_chunk_width * chunk_border_;
+	auto cropped_chunk_height = full_chunk_height * chunk_border_;
+	auto cropped_chunk_size = cropped_chunk_width * cropped_chunk_height;
+	int n[2] = { cropped_chunk_height, cropped_chunk_width };
+	
+	// Indicates the distance between the first element of two consecutive signals in a batch of the input data
+	//int idist = cropped_chunk_width + ;
+	int inembed[2] = {1, fd_.width};
+
+	CufftHandle plan;
+	cufftPlanMany(&plan.get(), 2, n, inembed, 1, full_chunk_width, nullptr, 1, cropped_chunk_size, CUFFT_C2R, nb_chunks);
+
+    cufftExecC2R(plan, , , CUFFT_FORWARD);
 }
 
 QPoint Aberration::compute_one_shift(uint x, uint y)
