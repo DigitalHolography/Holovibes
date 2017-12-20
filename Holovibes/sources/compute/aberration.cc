@@ -9,6 +9,7 @@
 #include "tools_conversion.cuh"
 #include "aberration.cuh"
 #include "icompute.hh"
+#include "stabilization.cuh"
 
 using holovibes::compute::Aberration;
 using holovibes::FnVector;
@@ -107,8 +108,8 @@ cufftComplex Aberration::compute_one_phi(QPoint point)
 void Aberration::apply_all_to_lens()
 {
 	std::vector<cufftComplex> phis;
-	for (int i = 0; i < nb_frames_; i++) {
-		for (int j = 0; j < nb_frames_; j++) {
+	for (uint i = 0; i < nb_frames_; i++) {
+		for (uint j = 0; j < nb_frames_; j++) {
 			phis.push_back(compute_one_phi(shifts_[i][j]));
 		}
 	}
