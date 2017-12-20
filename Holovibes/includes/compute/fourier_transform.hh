@@ -19,7 +19,9 @@
 #include "frame_desc.hh"
 #include "rect.hh"
 #include "cuda_tools\unique_ptr.hh"
+#include "cuda_tools\array.hh"
 #include "autofocus.hh"
+#include "aberration.hh"
 
 namespace holovibes
 {
@@ -97,8 +99,10 @@ namespace holovibes
 			//! Roi zone of Filter 2D
 			units::RectFd					filter2d_zone_;
 
+			std::unique_ptr<Aberration>		aberration_;
+
 			//! Lens used for fresnel transform (During FFT1 and FFT2)
-			cuda_tools::UniquePtr<cufftComplex> gpu_lens_;
+			cuda_tools::Array<cufftComplex>		gpu_lens_;
 			//! Lens Queue. Used for displaying the lens.
 			std::unique_ptr<Queue>				gpu_lens_queue_;
 			//! Filter 2D buffer. Contains one frame.

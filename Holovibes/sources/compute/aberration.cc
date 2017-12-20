@@ -27,20 +27,37 @@ Aberration::Aberration(const CoreBuffers& buffers,
 	, fd_(fd)
 	, cd_(cd)
 {
-	nb_frames_ = 8;
-	frame_size_.setX(fd_.width / nb_frames_);
-	frame_size_.setY(fd_.height / nb_frames_);
-	const auto area = frame_area();
-	if (!ref_frame_.ensure_minimum_size(area)
-		|| !frame_.ensure_minimum_size(area)
-		|| !correlation_.ensure_minimum_size(area))
-		throw std::bad_alloc();
+	refresh();
+}
+
+void Aberration::refresh()
+{
+	if (cd_.aberration_enabled_)
+	{
+		nb_frames_ = cd_.aberration_slices_;
+		frame_size_.setX(fd_.width / nb_frames_);
+		frame_size_.setY(fd_.height / nb_frames_);
+		const auto area = frame_area();
+		if (!ref_frame_.ensure_minimum_size(area)
+			|| !frame_.ensure_minimum_size(area)
+			|| !correlation_.ensure_minimum_size(area))
+			throw std::bad_alloc();
+	}
+	else
+	{
+		ref_frame_.reset();
+		frame_.reset();
+		correlation_.reset();
+	}
 }
 
 void Aberration::operator()()
 {
-	compute_all_shifts();
-	apply_all_to_lens();
+	if (cd_.aberration_enabled_)
+	{
+		compute_all_shifts();
+		apply_all_to_lens();
+	}
 }
 
 uint Aberration::frame_area()

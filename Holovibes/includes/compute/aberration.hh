@@ -53,6 +53,9 @@ namespace holovibes
 			*/
 			void operator()();
 
+			//! refreshes with new values from compute descriptor, should be called on pipe reset
+			void refresh();
+
 		private:
 
 			/*! Returns the number of pixels in one frame
@@ -60,6 +63,7 @@ namespace holovibes
 			uint frame_area();
 			int frame_width();
 			int frame_height();
+
 
 			/*! Extract one frame from the buffer while performing the 2d fft
 			 */
