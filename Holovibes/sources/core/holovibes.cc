@@ -141,7 +141,7 @@ namespace holovibes
 		std::cout << "[RECORDER] Recorder Stop" << std::endl;
 	}
 
-	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, size_t depth)
+	void Holovibes::init_compute(const ThreadCompute::PipeType pipetype, unsigned int depth)
 	{
 		assert(camera_initialized_ && "Camera not initialized");
 		assert(tcapture_ && "Capture thread not initialized");

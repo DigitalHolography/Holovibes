@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 				camera::FrameDescriptor fd = {
 					static_cast<unsigned short>(opts.file_image_width),
 					static_cast<unsigned short>(opts.file_image_height),
-					static_cast<float>(opts.file_image_depth >> 3),
+					opts.file_image_depth >> 3,
 					(opts.file_is_big_endian ?
 					Endianness::BigEndian : Endianness::LittleEndian)
 				};

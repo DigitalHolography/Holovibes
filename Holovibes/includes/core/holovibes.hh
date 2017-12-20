@@ -110,7 +110,7 @@ namespace holovibes
 		 * The pipe is allocated and his allocation can take some times so that
 		 * the method contains a lock to avoid conflicts between threads that would
 		 * use the Pipe before it finished the initialization. */
-		void init_compute(const ThreadCompute::PipeType pipetype = ThreadCompute::PipeType::PIPE, size_t depth = 2);
+		void init_compute(const ThreadCompute::PipeType pipetype = ThreadCompute::PipeType::PIPE, unsigned int depth = 2);
 
 
 		/*! \brief Request the computing thread to stop */

@@ -1058,7 +1058,7 @@ namespace holovibes
 		void MainWindow::createPipe()
 		{
 
-			size_t depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
+			unsigned int depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
 			
 			if (compute_desc_.compute_mode == Computation::Hologram)
 			{
@@ -3014,7 +3014,7 @@ namespace holovibes
 			FrameDescriptor frame_desc = {
 				static_cast<ushort>(width_spinbox->value()),
 				static_cast<ushort>(height_spinbox->value()),
-				static_cast<float>(depth_multi),
+				static_cast<unsigned int>(depth_multi),
 				(big_endian_checkbox->currentText() == QString("Big Endian") ?
 					Endianness::BigEndian : Endianness::LittleEndian) };
 			is_enabled_camera_ = false;

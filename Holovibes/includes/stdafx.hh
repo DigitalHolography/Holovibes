@@ -35,11 +35,10 @@
 
 // Standard Library
 
-#include <string>
-#include <chrono>
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <deque>
 #include <exception>
 #include <fstream>
@@ -53,11 +52,19 @@
 #include <sstream>
 #include <stdexcept>
 #include <stdlib.h>
+#include <string>
 #include <thread>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <iomanip>
+
+// C include
+#include <stdint.h>
+#include <sys/stat.h>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <ctime>
 
 // Qt
 #include <QApplication>
@@ -97,7 +104,6 @@
 #include <Windows.h>
 #include <direct.h>
 
-#include <math.h>
 #include <float.h>
 
 // Boost
@@ -119,14 +125,6 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/tokenizer.hpp>
-
-// C include
-#include <stdint.h>
-#include <sys/stat.h>
-#include <cassert>
-#include <cmath>
-#include <cstring>
-#include <ctime>
 
 // CUDA
 #include <cuComplex.h>

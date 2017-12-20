@@ -123,7 +123,6 @@ static void unwrap_circular_queue(Queue		*queue,
 	const auto queue_buffer = static_cast<cuComplex*>(queue->get_buffer());
 	const uint index_first_element = queue->get_start_index();
 	const uint queue_size = queue->get_max_elts();
-	const uint queue_elements = queue->get_current_elts();
 	const uint width = queue->get_frame_desc().width;
 	const uint height = queue->get_frame_desc().height;
 	const uint frame_size = queue->get_frame_desc().frame_res();

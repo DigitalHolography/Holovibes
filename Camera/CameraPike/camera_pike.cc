@@ -125,7 +125,7 @@ namespace camera
 
     desc_.width = pt.get<unsigned short>("pike.sensor_width", desc_.width);
     desc_.height = pt.get<unsigned short>("pike.sensor_height", desc_.height);
-    desc_.depth = std::ceil(pt.get<size_t>("pike.bit_depth", 8) / 8.f);
+    desc_.depth = (pt.get<unsigned int>("pike.bit_depth", 8) + 7) / 8;
 
     subsampling_ = pt.get<int>("pike.subsampling", subsampling_);
     gain_ = pt.get<unsigned long>("pike.gain", gain_);
