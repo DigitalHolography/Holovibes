@@ -1933,6 +1933,7 @@ namespace holovibes
 		void MainWindow::set_aberration_enabled(bool value)
 		{
 			compute_desc_.aberration_enabled_ = value;
+			pipe_refresh();
 		}
 		void MainWindow::set_aberration_factor(double value)
 		{
@@ -1941,6 +1942,7 @@ namespace holovibes
 		void MainWindow::set_aberration_slices(int value)
 		{
 			compute_desc_.aberration_slices_ = value;
+			pipe_refresh();
 		}
 
 		void MainWindow::set_jitter_enabled(bool value)

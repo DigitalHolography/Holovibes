@@ -55,6 +55,8 @@ void Aberration::operator()()
 {
 	if (cd_.aberration_enabled_)
 	{
+		if (!frame_)
+			refresh();
 		compute_all_shifts();
 		apply_all_to_lens();
 	}
