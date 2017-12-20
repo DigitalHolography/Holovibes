@@ -12,7 +12,6 @@
 
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
-#include "color.hh"
 
 struct rect
 {
