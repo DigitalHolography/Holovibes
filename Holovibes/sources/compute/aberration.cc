@@ -30,6 +30,11 @@ Aberration::Aberration(const CoreBuffers& buffers,
 	nb_frames_ = 8;
 	frame_size_.setX(fd_.width / nb_frames_);
 	frame_size_.setY(fd_.height / nb_frames_);
+	const auto area = frame_area();
+	if (!ref_frame_.ensure_minimum_size(area)
+		|| !frame_.ensure_minimum_size(area)
+		|| !correlation_.ensure_minimum_size(area))
+		throw std::bad_alloc();
 }
 
 void Aberration::operator()()
