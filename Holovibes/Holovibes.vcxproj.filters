@@ -359,6 +359,9 @@
     <ClCompile Include="sources\compute\remove_jitter.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\aberration.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -627,6 +630,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\aberration.hh">
+      <Filter>c++ includes\compute</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

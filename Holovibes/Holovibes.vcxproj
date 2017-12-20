@@ -182,6 +182,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
     <ClInclude Include="includes\camera_dll.hh" />
+    <ClInclude Include="includes\compute\aberration.hh" />
     <ClInclude Include="includes\compute\autofocus.hh" />
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
@@ -425,6 +426,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="sources\compute\aberration.cc" />
     <ClCompile Include="sources\compute\autofocus.cc" />
     <ClCompile Include="sources\compute\contrast.cc" />
     <ClCompile Include="sources\compute\converts.cc" />
