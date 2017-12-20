@@ -199,6 +199,8 @@ namespace holovibes
 			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::OUTPUT_QUEUE, name_, message);
 		else if (name_ == "STFTQueue")
 			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::STFT_QUEUE, name_, message);
+		else if (name_ == "RawOutputQueue")
+			gui::InfoManager::get_manager()->insert_info(gui::InfoManager::InfoType::RAW_OUTPUT_QUEUE, name_, message);
 	}
 
 	std::string Queue::calculate_size(void) const

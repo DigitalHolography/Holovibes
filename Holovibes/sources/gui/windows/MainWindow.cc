@@ -222,6 +222,7 @@ namespace holovibes
 				ui.MotionFocusGroupBox->setEnabled(true);
 			}
 
+			// Record
 			ui.RawRecordingCheckBox->setEnabled(!is_direct);
 
 			// Average ROI recording
@@ -1559,13 +1560,15 @@ namespace holovibes
 		void MainWindow::update_raw_view(bool value)
 		{
 			compute_desc_.raw_view = value;
+			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+			if (pipe)
+				pipe->get_raw_queue()->set_display(compute_desc_.record_raw || value);
 			if (value)
 			{
 				try
 				{
-					// set positions of new windows according to the position of the main GL window
+					// set positions of new windows according to the position of the main GL window and Lens window
 					QPoint			pos = mainDisplay->framePosition() + QPoint(mainDisplay->width() * 2 + 310, 0);
-					auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 					if (pipe)
 					{
 						raw_window.reset(new DirectWindow(
@@ -1584,6 +1587,8 @@ namespace holovibes
 			else
 			{
 				raw_window = nullptr;
+				if (!compute_desc_.record_raw)
+					gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
 			}
 			pipe_refresh();
 		}
@@ -2606,6 +2611,7 @@ namespace holovibes
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
 			QPushButton* cancel_button = ui.ImageOutputStopPushButton;
+			QCheckBox* raw_record_checkbox = ui.RawRecordingCheckBox;
 			if (path == "")
 			{
 				cancel_button->setDisabled(true);
@@ -2616,7 +2622,10 @@ namespace holovibes
 			{
 				Queue *queue;
 				if (compute_desc_.record_raw)
+				{
 					queue = holovibes_.get_pipe()->get_raw_queue().get();
+					queue->set_display(true);
+				}
 				else
 					queue = holovibes_.get_current_window_output_queue().get();
 				
@@ -2629,6 +2638,7 @@ namespace holovibes
 					record_thread_->start();
 
 					cancel_button->setDisabled(false);
+					raw_record_checkbox->setDisabled(true);
 				}
 				else
 					throw std::exception("Unable to launch record");
@@ -2645,6 +2655,15 @@ namespace holovibes
 
 			QPushButton* cancel_button = ui.ImageOutputStopPushButton;
 			cancel_button->setDisabled(true);
+			
+			if (compute_desc_.record_raw && !compute_desc_.raw_view)
+			{
+				holovibes_.get_pipe()->get_raw_queue()->set_display(false);
+				gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
+			}
+
+			QCheckBox* raw_record_checkbox = ui.RawRecordingCheckBox;
+			raw_record_checkbox->setDisabled(false);
 
 			record_thread_.reset(nullptr);
 
