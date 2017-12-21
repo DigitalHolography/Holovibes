@@ -23,7 +23,7 @@ using ComplexArray = Aberration::ComplexArray;
 Aberration::Aberration(const CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd,
-	ComplexArray& lens)
+	ComplexArray* lens)
 	: buffers_(buffers)
 	, lens_(lens)
 	, fd_(fd)
@@ -53,14 +53,17 @@ void Aberration::refresh()
 	}
 }
 
-void Aberration::operator()()
+void Aberration::enqueue(FnVector& fn_vect)
 {
+	refresh();
 	if (cd_.aberration_enabled_)
 	{
-		if (!chunk_)
-			refresh();
-		compute_all_shifts();
-		apply_all_to_lens();
+		fn_vect.push_back([=]() {
+			if (!chunk_)
+				refresh();
+			compute_all_shifts();
+			apply_all_to_lens();
+		});
 	}
 }
 
@@ -81,7 +84,7 @@ int Aberration::chunk_height()
 void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 {
 	cuComplex* input = buffers_.gpu_input_buffer_;
-	for (uint i = 0; i < chunk_height(); i++)
+	for (int i = 0; i < chunk_height(); i++)
 	{
 		cudaMemcpyAsync(buffer + i * chunk_width(), input, chunk_width() * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
 		input += fd_.width;
@@ -159,7 +162,7 @@ void Aberration::apply_all_to_lens()
 			phis.push_back(compute_one_phi(shifts_[i][j]));
 		}
 	}
-	apply_aberration_phis(lens_, phis, nb_chunks_, nb_chunks_, fd_);
+	apply_aberration_phis(*lens_, phis, nb_chunks_, nb_chunks_, fd_);
 }
 
 

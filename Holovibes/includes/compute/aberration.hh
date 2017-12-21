@@ -45,13 +45,13 @@ namespace holovibes
 			Aberration(const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd,
-				ComplexArray& lens);
+				ComplexArray* lens);
 
 			/*! \brief Computes the corrections and apply them to the lens
 			**
 			** Should be called between the first lens computation and fft call
 			*/
-			void operator()();
+			void enqueue(FnVector& fn_vect);
 
 			//! refreshes with new values from compute descriptor, should be called on pipe reset
 			void refresh();
@@ -104,10 +104,6 @@ namespace holovibes
 			//! Buffer to keep the correlation
 			FloatArray						correlation_;
 
-			unsigned int					nb_frames_;
-
-			float							chunk_border_;
-
 			//! 2D vector containing all the shifts detected
 			std::vector<std::vector<QPoint>>	shifts_;
 
@@ -115,7 +111,7 @@ namespace holovibes
 			const CoreBuffers&				buffers_;
 
 			//! Lens buffer
-			ComplexArray&					lens_;
+			ComplexArray*					lens_;
 
 			//! Describes the chunk size
 			const camera::FrameDescriptor&	fd_;

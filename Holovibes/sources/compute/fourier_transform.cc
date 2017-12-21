@@ -22,7 +22,6 @@
 
 using holovibes::compute::FourierTransform;
 using holovibes::compute::Autofocus;
-using holovibes::compute::Aberration;
 using holovibes::Queue;
 using holovibes::FnVector;
 
@@ -60,8 +59,6 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 		ss << "0,0," << fd_.width - 1 << "," << fd_.height - 1 << ")";
 
 	gui::InfoManager::get_manager()->insert_info(gui::InfoManager::STFT_ZONE, "STFT Zone", ss.str());
-
-	aberration_.reset(new Aberration(buffers, fd, cd, gpu_lens_));
 }
 
 
@@ -82,7 +79,6 @@ void FourierTransform::insert_fft()
 	// In filter 2D: Applying fresnel transform only when filter2d overlay is release
 	if (!cd_.filter_2d_enabled || filter2d_zone_.area())
 	{
-		aberration_.get()->refresh();
 		if (cd_.algorithm == Algorithm::FFT1)
 			insert_fft1();
 		else if (cd_.algorithm == Algorithm::FFT2)
@@ -116,7 +112,6 @@ void FourierTransform::insert_fft1()
 		cd_.pixel_size);
 
 	fn_vect_.push_back([=]() {
-		aberration_.get()->operator()();
 		fft_1(
 			buffers_.gpu_input_buffer_,
 			gpu_lens_.get(),
@@ -136,7 +131,6 @@ void FourierTransform::insert_fft2()
 		cd_.pixel_size);
 
 	fn_vect_.push_back([=]() {
-		aberration_.get()->operator()();
 		fft_2(
 			buffers_.gpu_input_buffer_,
 			gpu_lens_,
