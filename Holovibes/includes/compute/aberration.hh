@@ -58,22 +58,22 @@ namespace holovibes
 
 		private:
 
-			/*! Returns the number of pixels in one frame
+			/*! Returns the number of pixels in one chunk
 			 */
-			uint frame_area();
-			int frame_width();
-			int frame_height();
+			uint chunk_area();
+			int chunk_width();
+			int chunk_height();
 
 
-			/*! Extract one frame from the buffer while performing the 2d fft
+			/*! Extract one chunk from the buffer while performing the 2d fft
 			 */
 			void extract_and_fft(uint x_index, uint y_index, float* buffer);
 
-			/** \brief Computes the shift of the frame (x, y)
+			/** \brief Computes the shift of the chunk (x, y)
 			*/
 			QPoint compute_one_shift(uint x, uint y);
 
-			/** \brief Computes the shift of all the frames, and stores the outputs in shifts_
+			/** \brief Computes the shift of all the chunks, and stores the outputs in shifts_
 			*/
 			void compute_all_shifts();
 
@@ -86,20 +86,20 @@ namespace holovibes
 			QPoint find_maximum();
 
 
-			/*! \brief Computes one phi to apply to the frame using the shifts
+			/*! \brief Computes one phi to apply to the chunk using the shifts
 			*/
 			cufftComplex compute_one_phi(QPoint point);
 
 
-			/*! \brief Applies all the phis to the frames
+			/*! \brief Applies all the phis to the chunks
 			*/
 			void apply_all_to_lens();
 
-			//! Buffer to keep the reference frame (top left)
-			FloatArray						ref_frame_;
+			//! Buffer to keep the reference chunk (top left)
+			FloatArray						ref_chunk_;
 
-			//! Buffer to keep the current frame compared to the reference
-			FloatArray						frame_;
+			//! Buffer to keep the current chunk compared to the reference
+			FloatArray						chunk_;
 
 			//! Buffer to keep the correlation
 			FloatArray						correlation_;
@@ -113,15 +113,15 @@ namespace holovibes
 			//! Lens buffer
 			ComplexArray&					lens_;
 
-			//! Describes the frame size
+			//! Describes the chunk size
 			const camera::FrameDescriptor&	fd_;
 
 			//! Compute Descriptor
 			const ComputeDescriptor&		cd_;
 
-			uint							nb_frames_;
+			uint							nb_chunks_;
 
-			QPoint							frame_size_;
+			QPoint							chunk_size_;
 		};
 	}
 }
