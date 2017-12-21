@@ -508,7 +508,7 @@ void buffer_size_conversion(char*					real_buffer,
 																frame_desc.width * frame_desc.depth,
 																frame_desc.height * frame_desc.depth,
 																real_frame_desc.width * frame_desc.depth,
-																frame_desc.frame_size());
+																frame_desc.height * real_frame_desc.width * static_cast<size_t>(frame_desc.depth));
 	cudaCheckError();
 }
 

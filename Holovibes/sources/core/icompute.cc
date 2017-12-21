@@ -289,6 +289,7 @@ namespace holovibes
 		{
 			try
 			{
+				new_fd.depth = 4;
 				queue.reset(new Queue(new_fd, queue_length, "Accumulation"));
 				if (!queue)
 					std::cout << "error: couldn't allocate queue" << std::endl;
