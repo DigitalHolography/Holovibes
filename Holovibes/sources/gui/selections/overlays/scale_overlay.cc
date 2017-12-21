@@ -83,7 +83,7 @@ namespace holovibes
 			td.setHtml(text);
 
 			// Font
-			const int base_font_size = 12;
+			const int base_font_size = 16;
 			td.setDefaultFont(QFont("Arial", base_font_size, QFont::ExtraBold));
 
 			// Black outline
