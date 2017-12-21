@@ -104,6 +104,10 @@ namespace holovibes
 			//! Buffer to keep the correlation
 			FloatArray						correlation_;
 
+			unsigned int					nb_frames_;
+
+			float							chunk_border_;
+
 			//! 2D vector containing all the shifts detected
 			std::vector<std::vector<QPoint>>	shifts_;
 
