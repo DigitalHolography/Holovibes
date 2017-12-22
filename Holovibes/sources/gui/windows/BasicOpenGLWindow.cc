@@ -175,6 +175,8 @@ namespace holovibes
 		
 		void BasicOpenGLWindow::resetTransform()
 		{
+			if (Cd && Cd->locked_zoom)
+				return;
 			translate_ = { 0.f, 0.f, 0.f, 0.f };
 			scale_ = 1.f;
 			flip_ = false;

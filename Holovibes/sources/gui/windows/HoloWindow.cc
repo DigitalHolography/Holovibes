@@ -85,6 +85,8 @@ namespace holovibes
 
 		void	HoloWindow::resetTransform()
 		{
+			if (Cd && Cd->locked_zoom)
+				return;
 			if (Fd.frame_res() != Cd->getZoomedZone().area())
 			{
 				units::ConversionData convert(this);
