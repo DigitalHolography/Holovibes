@@ -10,7 +10,7 @@
 #define QtPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\bin"
 #define QtPlatformPath "C:\Qt\Qt5.9.0\5.9\msvc2017_64\plugins\platforms"
 #define QwtPath "C:\Qt\qwt-6.1.3\lib"
-#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0\bin"
+#define CudaPath "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\bin"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
