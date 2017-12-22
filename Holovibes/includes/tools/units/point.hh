@@ -88,7 +88,8 @@ namespace holovibes
 				return res;
 			}
 
-			// TODO: fix the warning saying that it won't be called.
+			// Casting to RealPosition when we are not already in RealPosition
+			template<typename = std::enable_if_t<(!(std::is_same<RealPosition, T>::value))>>
 			operator Point<RealPosition>() const
 			{
 				Point<RealPosition> res(x_, y_);
