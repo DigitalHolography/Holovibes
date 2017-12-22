@@ -61,7 +61,7 @@ void Aberration::enqueue(FnVector& fn_vect)
 		fn_vect.push_back([=]() {
 			if (!chunk_)
 				refresh();
-			extract_and_fft(0, 0, chunk_);
+			extract_and_fft(4, 4, chunk_);
 			chunk_.write_to_file("H:/tmp.raw");
 			/*
 			compute_all_shifts();
@@ -87,19 +87,21 @@ int Aberration::chunk_height()
 
 void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 {
+	Array<cuComplex> tmp_complex_buffer(chunk_area());
 	cuComplex* input = buffers_.gpu_input_buffer_;
-	cudaMemcpy(input, input, sizeof(cuComplex) * fd_.frame_res(), cudaMemcpyDeviceToDevice);
-	cudaCheckError();
-	return;
+	input += x_index * chunk_width();
+	input += y_index * chunk_height() * fd_.width;
+
+	// TODO: use planmany
+
 	for (int i = 0; i < chunk_height(); i++)
 	{
-		cudaMemcpyAsync(buffer + i * chunk_width(), input, chunk_width() * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
+		cudaMemcpyAsync(tmp_complex_buffer.get() + i * chunk_width(), input, chunk_width() * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
 		input += fd_.width;
 	}
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	Array<cuComplex> tmp_complex_buffer(chunk_area());
 	CufftHandle plan2d(chunk_width(), chunk_height(), CUFFT_C2C);
 	cufftExecC2C(plan2d, tmp_complex_buffer, tmp_complex_buffer, CUFFT_FORWARD);
 	cudaStreamSynchronize(0);
@@ -110,6 +112,26 @@ void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 	cudaCheckError();
 
 	normalize_frame(buffer, chunk_area());
+	remove_borders(buffer, 2);
+}
+
+void Aberration::remove_borders(float* buffer, const uint pixels_removed)
+{
+	const uint begin_bottom_area_y = chunk_height() - pixels_removed;
+	const uint begin_right_area_x = chunk_width() - pixels_removed;
+	const uint bytes_removed = pixels_removed * sizeof(float);
+
+	cudaMemsetAsync(buffer, 0, bytes_removed * chunk_width());
+	cudaMemsetAsync(buffer + chunk_width() * begin_bottom_area_y, 0, bytes_removed * chunk_width());
+
+	for (uint i = pixels_removed; i < begin_bottom_area_y; i++)
+	{
+		float* line = buffer + i * chunk_width();
+		cudaMemsetAsync(line, 0, bytes_removed);
+		cudaMemsetAsync(line + begin_right_area_x, 0, bytes_removed);
+	}
+	cudaStreamSynchronize(0);
+	cudaCheckError();
 }
 
 QPoint Aberration::compute_one_shift(uint x, uint y)

@@ -69,6 +69,10 @@ namespace holovibes
 			 */
 			void extract_and_fft(uint x_index, uint y_index, float* buffer);
 
+			/*! Replace the borders with 0
+			 */
+			void remove_borders(float* buffer, uint pixels_removed);
+
 			/** \brief Computes the shift of the chunk (x, y)
 			*/
 			QPoint compute_one_shift(uint x, uint y);
