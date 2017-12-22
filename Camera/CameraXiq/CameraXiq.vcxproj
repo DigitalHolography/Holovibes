@@ -20,6 +20,7 @@
     <ProjectGuid>{41EB15E8-2DA8-47C3-8938-92F28AA4E8DE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CameraXiq</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

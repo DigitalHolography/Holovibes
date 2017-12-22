@@ -20,6 +20,7 @@
     <ProjectGuid>{13E1532F-E09F-4DE8-A431-410DDF1A7F9C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CameraIds</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

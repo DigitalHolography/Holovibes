@@ -20,6 +20,7 @@
     <ProjectGuid>{BD9D923D-7F70-48BE-B385-6645B49E3B0B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CameraIxon</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

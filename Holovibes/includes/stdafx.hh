@@ -33,6 +33,10 @@
 #define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
 #endif
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
+
 // Standard Library
 
 #include <algorithm>
@@ -103,8 +107,6 @@
 // Windows Kit
 #include <Windows.h>
 #include <direct.h>
-
-#include <float.h>
 
 // Boost
 #include <boost/algorithm/string.hpp>

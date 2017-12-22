@@ -22,6 +22,7 @@
     <ProjectGuid>{9A93DB0F-1C4F-4C61-AE6A-F7A47C1CB46E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CameraPCOEdge</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
