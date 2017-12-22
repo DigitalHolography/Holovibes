@@ -2025,6 +2025,16 @@ namespace holovibes
 				if (slice)
 					slice->make_pixel_square();
 		}
+		void MainWindow::set_zernike_m(int m)
+		{
+			compute_desc_.zernike_m = m;
+			pipe_refresh();
+		}
+		void MainWindow::set_zernike_n(int n)
+		{
+			compute_desc_.zernike_n = n;
+			pipe_refresh();
+		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Autofocus

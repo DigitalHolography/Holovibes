@@ -109,7 +109,9 @@ void FourierTransform::insert_fft1()
 		fd_,
 		cd_.lambda,
 		z,
-		cd_.pixel_size);
+		cd_.pixel_size,
+		cd_.zernike_m,
+		cd_.zernike_n);
 
 	fn_vect_.push_back([=]() {
 		fft_1(

@@ -40,12 +40,14 @@ void fft1_lens(cuComplex*			lens,
 	const float				lambda,
 	const float				z,
 	const float				pixel_size,
+	const uint				zernike_m,
+	const uint				zernike_n,
 	cudaStream_t			stream)
 {
 	uint threads = 128;
 	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-	const uint m = 1, n = 3;
+	const uint m = zernike_m, n = zernike_n;
 	const auto nb_coef = n + 1;
 	float coef = M_PI * lambda * z * 1E6;
 	size_t size_coef = pow(nb_coef, 2);

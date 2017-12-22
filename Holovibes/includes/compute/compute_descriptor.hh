@@ -328,6 +328,10 @@ namespace holovibes
 		//! Enables the resizing of slice windows to have square pixels (according to their real size)
 		std::atomic<bool>			square_pixel { false };
 
+		std::atomic<int>			zernike_m;
+		std::atomic<int>			zernike_n;
+
+
 		//! Display the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			raw_view { false };
 		//! Enables the recording of the raw interferogram when we are in hologram mode.

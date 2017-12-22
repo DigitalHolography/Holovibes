@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1620</width>
-    <height>510</height>
+    <height>511</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1495,7 +1495,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_6">
+          <widget class="QGroupBox" name="ZernikeGroupBox">
            <property name="title">
             <string>Zernike</string>
            </property>
@@ -1505,7 +1505,7 @@
            <property name="checked">
             <bool>false</bool>
            </property>
-           <layout class="QFormLayout" name="formLayout_3">
+           <layout class="QHBoxLayout" name="horizontalLayout_30">
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -1518,19 +1518,31 @@
             <property name="bottomMargin">
              <number>2</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_5">
+            <item>
+             <widget class="QLabel" name="label_14">
               <property name="text">
-               <string>0, 2</string>
+               <string>m</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="Z02_SpinBox">
-              <property name="value">
-               <double>1.000000000000000</double>
+            <item>
+             <widget class="QSpinBox" name="ZernikeMSpinBox"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>n</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="ZernikeNSpinBox"/>
             </item>
            </layout>
           </widget>
@@ -3115,7 +3127,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>18</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
