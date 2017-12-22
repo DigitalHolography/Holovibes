@@ -101,7 +101,6 @@ namespace holovibes
 			// Event functions ----------
 			void	timerEvent(QTimerEvent *e);
 			virtual void	keyPressEvent(QKeyEvent *e);
-			//virtual void	wheelEvent(QWheelEvent *e) override { }
 
 		protected:
 			glm::vec4 translate_;

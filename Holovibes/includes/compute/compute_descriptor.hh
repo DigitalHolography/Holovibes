@@ -20,7 +20,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v5.7.1"; /*!< Current version of this project. */
+	const static std::string version = "v5.7.3"; /*!< Current version of this project. */
 
 	using	Tuple4f =	std::tuple<float, float, float, float>;
 
@@ -332,6 +332,9 @@ namespace holovibes
 		std::atomic<bool>			raw_view { false };
 		//! Enables the recording of the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			record_raw { false };
+
+		//! Lock the zoom.
+		std::atomic<bool>			locked_zoom{ false };
 
 		//! Composite images
 		//! \{

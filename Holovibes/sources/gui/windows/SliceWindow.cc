@@ -236,7 +236,7 @@ namespace holovibes
 		void	SliceWindow::mouseReleaseEvent(QMouseEvent* e)
 		{
 			overlay_manager_.release(Fd.width);
-			if (e->button() == Qt::RightButton)
+			if (e->button() == Qt::RightButton && Cd &&!Cd->locked_zoom)
 			{
 				resetTransform();
 				if (auto main_display = main_window_->get_main_display())

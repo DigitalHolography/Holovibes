@@ -237,7 +237,8 @@ namespace holovibes
 			void set_jitter_enabled(bool value);
 			void set_jitter_factor(double value);
 			void set_jitter_slices(int value);
-			void set_square_pixel(bool);
+			void set_square_pixel(bool value);
+			void set_locked_zoom(bool value);
 			#pragma endregion
 			/* ---------- */
 		signals:

@@ -237,7 +237,7 @@ namespace holovibes
 		{
 			if (e->button() == Qt::LeftButton)
 				overlay_manager_.release(Fd.width);
-			else if (e->button() == Qt::RightButton)
+			else if (e->button() == Qt::RightButton && Cd &&!Cd->locked_zoom)
 				resetTransform();
 		}
 
@@ -290,6 +290,8 @@ namespace holovibes
 
 		void	DirectWindow::wheelEvent(QWheelEvent *e)
 		{
+			if (Cd && Cd->locked_zoom)
+				return;
 			if (!is_between(e->x(), 0, width()) || !is_between(e->y(), 0, height()))
 				return;
 			const float xGL = (static_cast<float>(e->x() - width() / 2)) / static_cast<float>(width()) * 2.f;

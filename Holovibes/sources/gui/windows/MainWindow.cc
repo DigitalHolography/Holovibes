@@ -1128,6 +1128,9 @@ namespace holovibes
 				/* ---------- */
 				compute_desc_.contrast_enabled = true;
 				set_auto_contrast();
+				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+				if (pipe)
+					pipe->autocontrast_end_pipe(XYview);
 				notify();
 			}
 			catch (std::runtime_error& e)
@@ -2024,6 +2027,11 @@ namespace holovibes
 			for (auto slice : { sliceXZ.get(), sliceYZ.get() })
 				if (slice)
 					slice->make_pixel_square();
+		}
+		
+		void MainWindow::set_locked_zoom(bool value)
+		{
+			compute_desc_.locked_zoom = value;
 		}
 		#pragma endregion
 		/* ------------ */

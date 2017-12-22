@@ -27,8 +27,11 @@ namespace holovibes
 
 		void ZoomOverlay::release(ushort frameSide)
 		{
-			if (zone_.topLeft() == zone_.bottomRight())
+			if (zone_.topLeft() == zone_.bottomRight() || parent_->getCd()->locked_zoom)
+			{
+				disable();
 				return;
+			}
 
 			// handle Zoom
 			DirectWindow* window = dynamic_cast<DirectWindow *>(parent_);

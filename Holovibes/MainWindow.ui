@@ -196,11 +196,22 @@
           </layout>
          </item>
          <item>
-          <widget class="QCheckBox" name="CropStftCheckBox">
-           <property name="text">
-            <string>Crop STFT</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_29">
+           <item>
+            <widget class="QCheckBox" name="CropStftCheckBox">
+             <property name="text">
+              <string>Crop STFT</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="ZoomLockCheckBox">
+             <property name="text">
+              <string>Zoom Lock</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_27">
@@ -3419,7 +3430,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>DirectRadioButton</tabstop>
   <tabstop>HologramRadioButton</tabstop>
   <tabstop>STFTStepsSpinBox</tabstop>
-  <tabstop>CropStftCheckBox</tabstop>
   <tabstop>TakeRefPushButton</tabstop>
   <tabstop>SlidingRefPushButton</tabstop>
   <tabstop>CancelRefPushButton</tabstop>
@@ -4193,8 +4203,8 @@ p, li { white-space: pre-wrap; }
    <slot>save_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>897</x>
-     <y>356</y>
+     <x>929</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>465</x>
@@ -4209,8 +4219,8 @@ p, li { white-space: pre-wrap; }
    <slot>load_roi()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>988</x>
-     <y>356</y>
+     <x>1016</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
      <x>569</x>
@@ -4241,8 +4251,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>945</x>
-     <y>292</y>
+     <x>975</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>588</x>
@@ -4417,8 +4427,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse_roi_file()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1020</x>
-     <y>321</y>
+     <x>1016</x>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
      <x>492</x>
@@ -4689,8 +4699,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_reference()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>129</y>
+     <x>108</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -4705,8 +4715,8 @@ p, li { white-space: pre-wrap; }
    <slot>cancel_take_reference()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>181</x>
-     <y>129</y>
+     <x>186</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>226</x>
@@ -4785,8 +4795,8 @@ p, li { white-space: pre-wrap; }
    <slot>dispose_average_graphic()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>988</x>
-     <y>292</y>
+     <x>1016</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>667</x>
@@ -4849,8 +4859,8 @@ p, li { white-space: pre-wrap; }
    <slot>activeSignalZone()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>857</x>
-     <y>292</y>
+     <x>891</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -4865,8 +4875,8 @@ p, li { white-space: pre-wrap; }
    <slot>activeNoiseZone()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>901</x>
-     <y>292</y>
+     <x>933</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -5297,8 +5307,8 @@ p, li { white-space: pre-wrap; }
    <slot>set_crop_stft(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>110</x>
-     <y>121</y>
+     <x>95</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -5578,6 +5588,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ZoomLockCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_locked_zoom(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>144</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -5708,5 +5734,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_square_pixel(bool)</slot>
   <slot>update_raw_view(bool)</slot>
   <slot>set_raw_recording(bool)</slot>
+  <slot>set_locked_zoom(bool)</slot>
  </slots>
 </ui>
