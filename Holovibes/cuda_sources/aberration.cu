@@ -55,4 +55,6 @@ void apply_aberration_phis(ComplexArray& lens,
 		nb_chunks_per_row,
 		fd.width / nb_chunks_per_row,
 		fd.height / nb_chunks_per_column);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
 }

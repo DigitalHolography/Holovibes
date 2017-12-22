@@ -61,12 +61,15 @@ void Aberration::enqueue(FnVector& fn_vect)
 		fn_vect.push_back([=]() {
 			if (!chunk_)
 				refresh();
-			extract_and_fft(4, 4, chunk_);
+			
+			extract_and_fft(0, 0, ref_chunk_);
+			auto point = compute_one_shift(4, 4);
+			std::cout << point.x() << ", " << point.y() << std::endl;
 			chunk_.write_to_file("H:/tmp.raw");
-			/*
+			/*/
 			compute_all_shifts();
-			apply_all_to_lens();
-			*/
+			//apply_all_to_lens();
+			//*/
 		});
 	}
 }
@@ -117,12 +120,14 @@ void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 
 void Aberration::remove_borders(float* buffer, const uint pixels_removed)
 {
-	const uint begin_bottom_area_y = chunk_height() - pixels_removed;
+	//const uint begin_bottom_area_y = chunk_height() - pixels_removed;
+	const uint begin_bottom_area_y = chunk_height() / 2;
 	const uint begin_right_area_x = chunk_width() - pixels_removed;
 	const uint bytes_removed = pixels_removed * sizeof(float);
 
 	cudaMemsetAsync(buffer, 0, bytes_removed * chunk_width());
-	cudaMemsetAsync(buffer + chunk_width() * begin_bottom_area_y, 0, bytes_removed * chunk_width());
+	const uint half_image_bytes = chunk_area() / 2 * sizeof(float);
+	cudaMemsetAsync(buffer + chunk_width() * begin_bottom_area_y, 0, half_image_bytes);
 
 	for (uint i = pixels_removed; i < begin_bottom_area_y; i++)
 	{
