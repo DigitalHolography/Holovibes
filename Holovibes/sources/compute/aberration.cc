@@ -61,8 +61,12 @@ void Aberration::enqueue(FnVector& fn_vect)
 		fn_vect.push_back([=]() {
 			if (!chunk_)
 				refresh();
+			extract_and_fft(0, 0, chunk_);
+			chunk_.write_to_file("H:/tmp.raw");
+			/*
 			compute_all_shifts();
 			apply_all_to_lens();
+			*/
 		});
 	}
 }
@@ -84,6 +88,9 @@ int Aberration::chunk_height()
 void Aberration::extract_and_fft(uint x_index, uint y_index, float* buffer)
 {
 	cuComplex* input = buffers_.gpu_input_buffer_;
+	cudaMemcpy(input, input, sizeof(cuComplex) * fd_.frame_res(), cudaMemcpyDeviceToDevice);
+	cudaCheckError();
+	return;
 	for (int i = 0; i < chunk_height(); i++)
 	{
 		cudaMemcpyAsync(buffer + i * chunk_width(), input, chunk_width() * sizeof(cuComplex), cudaMemcpyDeviceToDevice, 0);
