@@ -45,7 +45,7 @@ namespace holovibes
 			Aberration(const CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				const holovibes::ComputeDescriptor& cd,
-				ComplexArray* lens);
+				holovibes::Queue* lens_queue);
 
 			/*! \brief Computes the corrections and apply them to the lens
 			**
@@ -109,7 +109,7 @@ namespace holovibes
 			const CoreBuffers&				buffers_;
 
 			//! Lens buffer
-			ComplexArray*					lens_;
+			Queue*							lens_queue_;
 
 			//! Describes the chunk size
 			const camera::FrameDescriptor&	fd_;

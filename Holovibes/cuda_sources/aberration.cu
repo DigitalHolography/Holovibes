@@ -47,6 +47,9 @@ void kernel_apply_aberration_phis(cufftComplex*			lens,
 
 		const uint chunk_no = chunk_y * chunks_per_row + chunk_x;
 
+		lens[index].x = 32000;		//Just to test
+		lens[index].y = 32000;
+
 		lens[index] = lens[index] * phi(shifts[chunk_no], x, y);
 	}
 }

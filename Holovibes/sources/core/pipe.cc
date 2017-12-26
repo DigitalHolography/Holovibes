@@ -54,7 +54,7 @@ namespace holovibes
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
-		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, nullptr);
+		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, fourier_transforms_->get_lens_queue().get());
 
 		if (compute_desc_.compute_mode != Computation::Direct)
 			update_n_requested_ = true;

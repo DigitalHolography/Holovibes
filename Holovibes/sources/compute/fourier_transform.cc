@@ -83,9 +83,10 @@ void FourierTransform::insert_fft()
 			insert_fft1();
 		else if (cd_.algorithm == Algorithm::FFT2)
 			insert_fft2();
-		fn_vect_.push_back([=]() {
-			enqueue_lens();
-		});
+		if (cd_.algorithm == Algorithm::FFT1 || cd_.algorithm == Algorithm::FFT2)
+			fn_vect_.push_back([=]() {
+				enqueue_lens();
+			});
 	}
 }
 

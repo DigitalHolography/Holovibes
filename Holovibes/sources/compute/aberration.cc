@@ -17,15 +17,16 @@ using holovibes::FnVector;
 using holovibes::cuda_tools::CufftHandle;
 using holovibes::cuda_tools::Array;
 using holovibes::CoreBuffers;
+using holovibes::Queue;
 using ComplexArray = Aberration::ComplexArray;
 
 
 Aberration::Aberration(const CoreBuffers& buffers,
 	const camera::FrameDescriptor& fd,
 	const holovibes::ComputeDescriptor& cd,
-	ComplexArray* lens)
+	Queue* lens_queue)
 	: buffers_(buffers)
-	, lens_(lens)
+	, lens_queue_(lens_queue)
 	, fd_(fd)
 	, cd_(cd)
 {
@@ -62,13 +63,14 @@ void Aberration::enqueue(FnVector& fn_vect)
 			if (!chunk_)
 				refresh();
 			
+			/*
 			extract_and_fft(0, 0, ref_chunk_);
 			auto point = compute_one_shift(6, 2);
 			std::cout << point.x() << ", " << point.y() << std::endl;
 			chunk_.write_to_file("H:/tmp.raw");
 			/*/
 			compute_all_shifts();
-			//apply_all_to_lens();
+			apply_all_to_lens();
 			//*/
 		});
 	}
@@ -188,10 +190,15 @@ void Aberration::apply_all_to_lens()
 	std::vector<cufftComplex> shifts;
 	for (uint i = 0; i < nb_chunks_; i++) {
 		for (uint j = 0; j < nb_chunks_; j++) {
-			shifts.push_back({ shifts_[i][j].x(), shifts_[i][j].y() });
+			shifts.push_back({ static_cast<float>(shifts_[i][j].x()),
+							static_cast<float>(shifts_[i][j].y()) });
 		}
 	}
-	apply_aberration_phis(*lens_, shifts, nb_chunks_, nb_chunks_, fd_);
+	Array<cuComplex> lens(fd_.frame_res());
+	cudaCheckError();
+	apply_aberration_phis(lens, shifts, nb_chunks_, nb_chunks_, fd_);
+	auto tmp = lens.to_cpu();
+	lens_queue_->enqueue(lens);
 }
 
 
