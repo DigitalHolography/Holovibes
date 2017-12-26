@@ -2128,6 +2128,21 @@ namespace holovibes
 			spinBox->blockSignals(false);
 		}
 
+		void MainWindow::dropEvent(QDropEvent * e)
+		{
+			/*auto url = e->mimeData()->urls()[0];
+			auto path = url.path();
+			if (path.at(0) == '/')
+				path.remove(0, 1);
+			ui.ImportPathLineEdit->setText(path);*/
+		}
+
+		void MainWindow::dragEnterEvent(QDragEnterEvent * e)
+		{
+			//if (e->mimeData()->urls()[0].fileName().endsWith(".raw"))
+				//e->accept();
+		}
+
 		void MainWindow::set_auto_contrast()
 		{
 			if (!is_direct_mode() &&

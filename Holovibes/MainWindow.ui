@@ -27,6 +27,9 @@
   <property name="focusPolicy">
    <enum>Qt::ClickFocus</enum>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>Holovibes</string>
   </property>
@@ -39,6 +42,9 @@
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <property name="sizeConstraint">
@@ -1962,12 +1968,9 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QLineEdit" name="ConvoMatrixPathLineEdit">
+              <widget class="holovibes::gui::Drag_drop_lineedit" name="ConvoMatrixPathLineEdit">
                <property name="text">
                 <string/>
-               </property>
-               <property name="placeholderText">
-                <string>Convolution matrix file</string>
                </property>
               </widget>
              </item>
@@ -2326,7 +2329,7 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="QLineEdit" name="ImageOutputPathLineEdit"/>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImageOutputPathLineEdit"/>
               </item>
               <item>
                <widget class="QToolButton" name="ImageOutputBrowseToolButton">
@@ -2399,7 +2402,7 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="QLineEdit" name="ROIOutputPathLineEdit">
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIOutputPathLineEdit">
                 <property name="enabled">
                  <bool>true</bool>
                 </property>
@@ -2481,7 +2484,7 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="QLineEdit" name="BatchInputPathLineEdit"/>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit"/>
               </item>
               <item>
                <widget class="QToolButton" name="BatchInputBrowseToolButton">
@@ -2574,12 +2577,12 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_17">
            <item>
-            <widget class="QLineEdit" name="ImportPathLineEdit">
+            <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
              <property name="acceptDrops">
               <bool>true</bool>
              </property>
-             <property name="placeholderText">
-              <string>Select a raw file</string>
+             <property name="dragEnabled">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -3082,7 +3085,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3423,6 +3426,11 @@ p, li { white-space: pre-wrap; }
     <slot>ShowOrHide()</slot>
     <slot>reset()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>holovibes::gui::Drag_drop_lineedit</class>
+   <extends>QLineEdit</extends>
+   <header>gui_drag_drop_lineedit.hh</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -4763,8 +4771,8 @@ p, li { white-space: pre-wrap; }
    <slot>take_sliding_ref()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>153</x>
-     <y>155</y>
+     <x>152</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
      <x>225</x>

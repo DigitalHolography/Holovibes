@@ -201,6 +201,12 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\core\pipe.hh" />
     <ClInclude Include="includes\custom_exception.hh" />
     <ClInclude Include="includes\gpib_dll.hh" />
+    <CustomBuild Include="includes\gui\other\gui_drag_drop_lineedit.hh">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\Debug\moc_%(Filename).cc"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating MOC file %(Filename).qcc</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cc</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe</AdditionalInputs>
+    </CustomBuild>
     <ClInclude Include="includes\gui\selections\interfaces\square_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\composite_area_overlay.hh" />
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh" />
@@ -335,6 +341,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gui_drag_drop_lineedit.cc" />
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_group_box.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -430,6 +437,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\compute\detect_intensity.cc" />
     <ClCompile Include="sources\compute\postprocessing.cc" />
     <ClCompile Include="sources\compute\preprocessing.cc" />
+    <ClCompile Include="sources\gui\other\gui_drag_drop_lineedit.cc" />
     <ClCompile Include="sources\compute\remove_jitter.cc" />
     <ClCompile Include="sources\gui\selections\interfaces\square_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\composite_area_overlay.cc" />
