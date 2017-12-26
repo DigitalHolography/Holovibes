@@ -63,7 +63,7 @@ void Aberration::enqueue(FnVector& fn_vect)
 				refresh();
 			
 			extract_and_fft(0, 0, ref_chunk_);
-			auto point = compute_one_shift(4, 4);
+			auto point = compute_one_shift(6, 2);
 			std::cout << point.x() << ", " << point.y() << std::endl;
 			chunk_.write_to_file("H:/tmp.raw");
 			/*/
@@ -183,20 +183,15 @@ QPoint Aberration::find_maximum()
 	return {x, y};
 }
 
-cufftComplex Aberration::compute_one_phi(QPoint point)
-{
-	return {};
-}
-
 void Aberration::apply_all_to_lens()
 {
-	std::vector<cufftComplex> phis;
+	std::vector<cufftComplex> shifts;
 	for (uint i = 0; i < nb_chunks_; i++) {
 		for (uint j = 0; j < nb_chunks_; j++) {
-			phis.push_back(compute_one_phi(shifts_[i][j]));
+			shifts.push_back({ shifts_[i][j].x(), shifts_[i][j].y() });
 		}
 	}
-	apply_aberration_phis(*lens_, phis, nb_chunks_, nb_chunks_, fd_);
+	apply_aberration_phis(*lens_, shifts, nb_chunks_, nb_chunks_, fd_);
 }
 
 

@@ -89,12 +89,6 @@ namespace holovibes
 			*/
 			QPoint find_maximum();
 
-
-			/*! \brief Computes one phi to apply to the chunk using the shifts
-			*/
-			cufftComplex compute_one_phi(QPoint point);
-
-
 			/*! \brief Applies all the phis to the chunks
 			*/
 			void apply_all_to_lens();

@@ -18,7 +18,7 @@
 using ComplexArray = holovibes::cuda_tools::Array<cufftComplex>;
 
 void apply_aberration_phis(ComplexArray& lens,
-						   std::vector<cufftComplex> phis,
+						   const std::vector<cufftComplex>& shifts,
 						   unsigned int nb_chunks_per_row,
 						   unsigned int nb_chunks_per_column,
 						   const camera::FrameDescriptor& fd);

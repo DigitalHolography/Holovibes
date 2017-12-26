@@ -16,9 +16,19 @@
 # include "cufft_handle.hh"
 #include "operator_overload.cuh"
 
+
+static __device__ cuComplex phi(cuComplex shift, uint x, uint y)
+{
+	uint tmp = shift.x * x + shift.y * y;
+	cuComplex res;
+	res.x = cosf(tmp);
+	res.y = sinf(tmp);
+	return res;
+}
+
 static __global__
 void kernel_apply_aberration_phis(cufftComplex*			lens,
-								  const cufftComplex*	phis,
+								  const cufftComplex*	shifts,
 								  const uint			frame_size,
 								  const uint			frame_width,
 								  const uint			chunks_per_row,
@@ -29,27 +39,31 @@ void kernel_apply_aberration_phis(cufftComplex*			lens,
 
 	if (index < frame_size)
 	{
-		unsigned int x = index % frame_width;
-		unsigned int y = index / frame_width;
+		const uint x = index % frame_width;
+		const uint y = index / frame_width;
 
-		unsigned int chunk_no = (y / chunk_height) * chunks_per_row + x / chunk_width;
-		lens[index] = lens[index] * phis[chunk_no];
+		const uint chunk_y = y / chunk_height;
+		const uint chunk_x = x / chunk_width;
+
+		const uint chunk_no = chunk_y * chunks_per_row + chunk_x;
+
+		lens[index] = lens[index] * phi(shifts[chunk_no], x, y);
 	}
 }
 
 void apply_aberration_phis(ComplexArray& lens,
-						   std::vector<cufftComplex> phis,
+						   const std::vector<cufftComplex>& shifts,
 						   unsigned int nb_chunks_per_row,
 						   unsigned int nb_chunks_per_column,
 						   const camera::FrameDescriptor& fd)
 {
-	holovibes::cuda_tools::UniquePtr<cufftComplex> gpu_phis(phis.size());
-	cudaMemcpy(gpu_phis, phis.data(), phis.size() * sizeof(cufftComplex), cudaMemcpyHostToDevice);
+	holovibes::cuda_tools::UniquePtr<cufftComplex> gpu_shifts(shifts.size());
+	cudaMemcpy(gpu_shifts, shifts.data(), shifts.size() * sizeof(cufftComplex), cudaMemcpyHostToDevice);
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 	kernel_apply_aberration_phis << <threads, blocks, 0, 0 >> >
 		(lens,
-		gpu_phis,
+		gpu_shifts,
 		fd.frame_res(),
 		fd.width,
 		nb_chunks_per_row,
