@@ -50,7 +50,7 @@ namespace holovibes
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_, input_, desc, this);
 		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_);
-		rendering_ = std::make_unique<compute::Contrast>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
+		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);

@@ -21,7 +21,7 @@
 # include "stabilization.hh"
 # include "fourier_transform.hh"
 # include "autofocus.hh"
-# include "contrast.hh"
+# include "rendering.hh"
 # include "converts.hh"
 # include "detect_intensity.hh"
 # include "preprocessing.hh"
@@ -135,7 +135,7 @@ namespace holovibes
 		std::unique_ptr<compute::Stabilization> stabilization_;
 		std::unique_ptr<compute::Autofocus> autofocus_;
 		std::unique_ptr<compute::FourierTransform> fourier_transforms_;
-		std::unique_ptr<compute::Contrast> rendering_;
+		std::unique_ptr<compute::Rendering> rendering_;
 		std::unique_ptr<compute::Converts> converts_;
 		std::unique_ptr<compute::Preprocessing> preprocess_;
 		std::unique_ptr<compute::Postprocessing> postprocess_;

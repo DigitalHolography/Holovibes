@@ -10,7 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "contrast.hh"
+#include "rendering.hh"
 #include "frame_desc.hh"
 #include "pipeline_utils.hh"
 #include "icompute.hh"
@@ -24,7 +24,7 @@ namespace holovibes
 {
 	namespace compute
 	{
-		Contrast::Contrast(FnVector& fn_vect,
+		Rendering::Rendering(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			Average_env& average_env,
 			ComputeDescriptor& cd,
@@ -41,7 +41,7 @@ namespace holovibes
 		{
 		}
 
-		void Contrast::insert_fft_shift()
+		void Rendering::insert_fft_shift()
 		{
 			if (cd_.shift_corners_enabled)
 			{
@@ -55,7 +55,7 @@ namespace holovibes
 			}
 		}
 
-		void Contrast::insert_average(std::atomic<bool>& record_request)
+		void Rendering::insert_average(std::atomic<bool>& record_request)
 		{
 			//TODO: allowing both at the same time
 			if (record_request)
@@ -67,7 +67,7 @@ namespace holovibes
 				insert_main_average();
 		}
 
-		void Contrast::insert_log()
+		void Rendering::insert_log()
 		{
 			if (cd_.log_scale_slice_xy_enabled)
 				insert_main_log();
@@ -75,7 +75,7 @@ namespace holovibes
 				insert_slice_log();
 		}
 
-		void Contrast::insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
+		void Rendering::insert_contrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
 		{
 			insert_autocontrast(autocontrast_request, autocontrast_slice_xz_request, autocontrast_slice_yz_request);
 			if (cd_.contrast_enabled)
@@ -87,7 +87,7 @@ namespace holovibes
 
 		//----------
 
-		void Contrast::insert_main_average()
+		void Rendering::insert_main_average()
 		{
 			units::RectFd signalZone;
 			units::RectFd noiseZone;
@@ -104,7 +104,7 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_average_record()
+		void Rendering::insert_average_record()
 		{
 			units::RectFd signalZone;
 			units::RectFd noiseZone;
@@ -113,12 +113,12 @@ namespace holovibes
 			fn_vect_.push_back([=]() {average_record_caller(signalZone, noiseZone); });
 		}
 
-		void Contrast::insert_main_log()
+		void Rendering::insert_main_log()
 		{
 			fn_vect_.push_back([=]() {apply_log10(buffers_.gpu_float_buffer_, buffers_.gpu_float_buffer_size_); });
 		}
 
-		void Contrast::insert_slice_log()
+		void Rendering::insert_slice_log()
 		{
 			uint size = fd_.width * cd_.nsamples;
 			if (cd_.log_scale_slice_xz_enabled)
@@ -127,7 +127,7 @@ namespace holovibes
 				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_yz_.get()), size); });
 		}
 
-		void Contrast::insert_main_contrast()
+		void Rendering::insert_main_contrast()
 		{
 			uint size = buffers_.gpu_float_buffer_size_;
 			fn_vect_.push_back([=]() {
@@ -140,7 +140,7 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_slice_contrast()
+		void Rendering::insert_slice_contrast()
 		{
 			uint size = fd_.width * cd_.nsamples;
 			fn_vect_.push_back([=]() {
@@ -161,7 +161,7 @@ namespace holovibes
 			});
 		}
 
-		void Contrast::insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
+		void Rendering::insert_autocontrast(std::atomic<bool>& autocontrast_request, std::atomic<bool>& autocontrast_slice_xz_request, std::atomic<bool>& autocontrast_slice_yz_request)
 		{
 			// requested check are inside the lambda so that we don't need to refresh the pipe at each autocontrast
 			auto lambda_autocontrast = [&]() {
@@ -190,7 +190,7 @@ namespace holovibes
 			fn_vect_.push_back(lambda_autocontrast);
 		}
 
-		void Contrast::autocontrast_caller(float*			input,
+		void Rendering::autocontrast_caller(float*			input,
 			const uint			size,
 			const uint			offset,
 			WindowKind			view,
@@ -218,7 +218,7 @@ namespace holovibes
 		}
 
 
-		void Contrast::average_record_caller(
+		void Rendering::average_record_caller(
 			const units::RectFd& signal,
 			const units::RectFd& noise,
 			cudaStream_t stream)

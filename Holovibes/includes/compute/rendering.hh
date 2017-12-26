@@ -33,13 +33,13 @@ namespace holovibes
 	{
 		using uint = unsigned int;
 
-		class Contrast
+		class Rendering
 		{
 		public:
 			/** \brief Constructor.
 			
 			*/
-			Contrast(FnVector& fn_vect,
+			Rendering(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				Average_env& average_env,
 				ComputeDescriptor& cd,

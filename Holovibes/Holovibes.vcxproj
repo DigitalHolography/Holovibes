@@ -186,7 +186,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
     <ClInclude Include="includes\compute\compute_descriptor.hh" />
-    <ClInclude Include="includes\compute\contrast.hh" />
+    <ClInclude Include="includes\compute\rendering.hh" />
     <ClInclude Include="includes\compute\converts.hh" />
     <ClInclude Include="includes\compute\fourier_transform.hh" />
     <ClInclude Include="includes\compute\detect_intensity.hh" />
@@ -424,7 +424,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="sources\compute\autofocus.cc" />
-    <ClCompile Include="sources\compute\contrast.cc" />
+    <ClCompile Include="sources\compute\rendering.cc" />
     <ClCompile Include="sources\compute\converts.cc" />
     <ClCompile Include="sources\compute\fourier_transform.cc" />
     <ClCompile Include="sources\compute\detect_intensity.cc" />
@@ -465,7 +465,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\windows\MainWindow.cc" />
     <ClCompile Include="sources\gui\windows\SliceWindow.cc" />
     <ClCompile Include="sources\main.cc" />
-    <ClCompile Include="sources\module.cc" />
     <ClCompile Include="sources\options_parser.cc" />
     <ClCompile Include="sources\pipeline_utils.cc" />
     <ClCompile Include="sources\queue.cc" />

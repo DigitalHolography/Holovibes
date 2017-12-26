@@ -230,9 +230,6 @@
     <ClCompile Include="sources\compute\compute_descriptor.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
-    <ClCompile Include="sources\module.cc">
-      <Filter>c++ sources</Filter>
-    </ClCompile>
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc">
       <Filter>c++ sources\gui\windows</Filter>
     </ClCompile>
@@ -323,9 +320,6 @@
     <ClCompile Include="sources\pipeline_utils.cc">
       <Filter>c++ sources</Filter>
     </ClCompile>
-    <ClCompile Include="sources\compute\contrast.cc">
-      <Filter>c++ sources\compute</Filter>
-    </ClCompile>
     <ClCompile Include="sources\compute\converts.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
@@ -357,6 +351,9 @@
       <Filter>c++ sources\gui\selections\Overlays</Filter>
     </ClCompile>
     <ClCompile Include="sources\compute\remove_jitter.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\compute\rendering.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
   </ItemGroup>
@@ -583,9 +580,6 @@
     <ClInclude Include="includes\compute\autofocus.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
-    <ClInclude Include="includes\compute\contrast.hh">
-      <Filter>c++ includes\compute</Filter>
-    </ClInclude>
     <ClInclude Include="includes\compute\converts.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
@@ -621,6 +615,9 @@
     </ClInclude>
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\compute\rendering.hh">
+      <Filter>c++ includes\compute</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
