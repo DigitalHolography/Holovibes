@@ -55,8 +55,7 @@ namespace holovibes
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 
-		if (compute_desc_.compute_mode != Computation::Direct)
-			update_n_requested_ = true;
+		update_n_requested_ = true;
 		refresh();
 	}
 
