@@ -12,8 +12,7 @@
 
 /*! \file
  *
- * Thread encapsulation for managing all the processing performed
- * in hologram rendering mode. */
+ * Thread encapsulation for managing all the processing performed */
 #pragma once
 
 # include <thread>
