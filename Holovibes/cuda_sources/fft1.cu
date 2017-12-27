@@ -41,10 +41,10 @@ void fft_1(cuComplex*			input,
 	
 	// Apply lens on multiple frames.
 	kernel_apply_lens <<<blocks, threads, 0, stream>>>(input, frame_resolution, lens, frame_resolution);
-	cudaCheckError();
 	cudaStreamSynchronize(stream);
+	cudaCheckError();
 	// FFT
     cufftExecC2C(plan2D, input, input, CUFFT_FORWARD);
-
 	cudaStreamSynchronize(stream);
+	cudaCheckError();
 }
