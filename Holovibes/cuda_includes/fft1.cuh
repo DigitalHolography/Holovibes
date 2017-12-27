@@ -22,9 +22,17 @@ void fft1_lens(cuComplex			*lens,
 			const float				lambda,
 			const float				z,
 			const float				pixel_size,
-			const uint				zernike_m,
-			const uint				zernike_n,
 			cudaStream_t			stream = 0);
+
+void fft1_lens_zernike(cuComplex	*lens,
+	const camera::FrameDescriptor&	fd,
+	const float				lambda,
+	const float				z,
+	const float				pixel_size,
+	const uint				zernike_m,
+	const uint				zernike_n,
+	cudaStream_t			stream = 0);
+
 
 /*! \brief Apply a lens and call an fft1 on the image
 *

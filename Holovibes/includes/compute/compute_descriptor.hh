@@ -328,6 +328,8 @@ namespace holovibes
 		//! Enables the resizing of slice windows to have square pixels (according to their real size)
 		std::atomic<bool>			square_pixel { false };
 
+		//! Use Zernike polynomials instead of paraboloid for the lens
+		std::atomic<bool>			zernike_enabled{ false };
 		std::atomic<int>			zernike_m;
 		std::atomic<int>			zernike_n;
 

@@ -61,23 +61,27 @@ void kernel_zernike_polynomial(cuComplex * output,
 		const float	dx = pixel_size;// *1.0e-6f;
 		const float	dy = dx;
 
-		const float x = (i - fd.width/2) * dx;
-		const float y = (j - fd.height/2) * dy;
+		const float x = (i - fd.width / 2) / (fd.width / 2.f);
+		const float y = (j - fd.height / 2) / (fd.height / 2.f);
 
 		const float rho = hypotf(x, y); // Magnitude
 		const float phi = atan2(x, y);  // Argument
 
 		float Rmn = 0;
 		for (unsigned int k = 0; k <= (n - m) / 2; k++) {
-			float term = binomial_coeff[(n - k)*nb_coef, k]
-				* binomial_coeff[(n - 2 * k)*nb_coef, (n - m) / 2 - k]
+			float term = binomial_coeff[(n - k) * nb_coef + k]
+				* binomial_coeff[(n - 2 * k) * nb_coef + (n - m) / 2 - k]
 				* powf(rho, n - 2 * k);
+			/*float term = binomial_coeff(n - k, k)
+			* binomial_coeff(n - 2 * k, (n - m) / 2 - k)
+			* powf(rho, n - 2 * k);*/
 			if (k % 2)
 				Rmn -= term;
 			else
 				Rmn += term;
 		}
 		float Zmn = coef * Rmn * cos(m * phi);
+		cuComplex res = make_cuComplex(cosf(Zmn), sinf(Zmn));
 		output[index].x = cosf(Zmn);
 		output[index].y = sinf(Zmn);
 	}

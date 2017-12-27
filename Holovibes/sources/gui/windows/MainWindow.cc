@@ -2025,6 +2025,12 @@ namespace holovibes
 				if (slice)
 					slice->make_pixel_square();
 		}
+
+		void MainWindow::set_zernike_enable(bool val)
+		{
+			compute_desc_.zernike_enabled = val;
+			pipe_refresh();
+		}
 		void MainWindow::set_zernike_m(int m)
 		{
 			compute_desc_.zernike_m = m;

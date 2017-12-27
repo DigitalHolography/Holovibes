@@ -239,6 +239,7 @@ namespace holovibes
 			void set_jitter_slices(int value);
 			void set_square_pixel(bool);
 
+			void set_zernike_enable(bool val);
 			void set_zernike_m(int m);
 			void set_zernike_n(int n);
 			#pragma endregion
