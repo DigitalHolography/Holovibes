@@ -41,7 +41,7 @@ RemoveJitter::RemoveJitter(cuComplex* buffer,
 	nb_slices_ = std::max(3, cd.jitter_slices_.load());
 	if (!(nb_slices_ % 2))
 		nb_slices_++;
-	slice_depth_ = cd_.nsamples /((nb_slices_ + 1) / 2);
+	slice_depth_ = cd_.nSize /((nb_slices_ + 1) / 2);
 	slice_shift_ = slice_depth_ / 2;
 
 	auto size = slice_size();
@@ -207,7 +207,7 @@ void RemoveJitter::fix_jitter()
 	cuComplex multiplier;
 	multiplier.x = cosf(sign * phi.back());
 	multiplier.y = sinf(sign * phi.back());
-	gpu_multiply_const(buffer_ + dimensions_.area() * p, dimensions_.area() * (cd_.nsamples - p), multiplier);
+	gpu_multiply_const(buffer_ + dimensions_.area() * p, dimensions_.area() * (cd_.nSize - p), multiplier);
 }
 
 void RemoveJitter::run()

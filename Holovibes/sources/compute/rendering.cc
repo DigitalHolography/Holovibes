@@ -120,7 +120,7 @@ namespace holovibes
 
 		void Rendering::insert_slice_log()
 		{
-			uint size = fd_.width * cd_.nsamples;
+			uint size = fd_.width * cd_.nSize;
 			if (cd_.log_scale_slice_xz_enabled)
 				fn_vect_.push_back([=]() {apply_log10(static_cast<float *>(buffers_.gpu_float_cut_xz_.get()), size); });
 			if (cd_.log_scale_slice_yz_enabled)
@@ -142,7 +142,7 @@ namespace holovibes
 
 		void Rendering::insert_slice_contrast()
 		{
-			uint size = fd_.width * cd_.nsamples;
+			uint size = fd_.width * cd_.nSize;
 			fn_vect_.push_back([=]() {
 				manual_contrast_correction(
 					static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
@@ -174,13 +174,13 @@ namespace holovibes
 				if (autocontrast_slice_xz_request)
 					autocontrast_caller(
 						static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
-						fd_.width * cd_.nsamples,
+						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						XZview);
 				if (autocontrast_slice_yz_request)
 					autocontrast_caller(
 						static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
-						fd_.width * cd_.nsamples,
+						fd_.width * cd_.nSize,
 						fd_.width * cd_.cuts_contrast_p_offset,
 						YZview);
 				autocontrast_request = false;

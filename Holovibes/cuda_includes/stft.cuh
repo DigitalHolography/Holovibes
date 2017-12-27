@@ -19,11 +19,14 @@
 
 using holovibes::units::RectFd;
 
-/*! \brief Function handling the stft algorithm which steps are \n
+/*! TODO: Redo this doc, which is totally wrong
+
+
+\brief Function handling the stft algorithm which steps are \n
  * 1 : Aplly lens on the input queue \n
  * 2 : Do a fft2d (fresnel transform) on the input queue \n
  * 3 : Take the ROI (i.e. 512x512px) and store bursting way on a complex queue (stft_buf) \n
- * 4 : Do nsamples fft1d on the complex queue (stft_dup_buf) \n
+ * 4 : Do nSize fft1d on the complex queue (stft_dup_buf) \n
  * This complex queue need to be reconstruct in order to get image
  *
  * \param stft_buf the buffer which will be exploded
@@ -78,7 +81,7 @@ void stft_view_begin(const cuComplex	*input,
 					const ushort		width,
 					const ushort		height,
 					const uint			viewmode,
-					const ushort		nsamples,
+					const ushort		nSize,
 					const uint			acc_level_xz,
 					const uint			acc_level_yz,
 					const uint			img_type,

@@ -61,7 +61,7 @@ namespace holovibes
 			std::ofstream of(path_);
 
 			// Header displaying
-			of << "[Phase number : " << holo_.get_compute_desc().nsamples
+			of << "[Phase number : " << holo_.get_compute_desc().nSize
 				<< ", p : " << holo_.get_compute_desc().pindex
 				<< ", lambda : " << holo_.get_compute_desc().lambda
 				<< ", z : " << holo_.get_compute_desc().zdistance

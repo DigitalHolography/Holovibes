@@ -192,7 +192,7 @@ namespace holovibes
 		//! Last window selected
 		std::atomic<WindowKind>		current_window;
 		//! Number of images used by SFTF i.e. depth of the SFTF cube
-		std::atomic<ushort>			nsamples;
+		std::atomic<ushort>			nSize;
 		//! index in the depth axis
 		std::atomic<ushort>			pindex;
 		std::atomic<ushort>			vibrometry_q;

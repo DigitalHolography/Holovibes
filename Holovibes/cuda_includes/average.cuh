@@ -44,7 +44,7 @@ holovibes::Tuple4f make_average_stft_plot(cuComplex*	cbuf,
 							const holovibes::units::RectFd&	signal,
 							const holovibes::units::RectFd&	noise,
 							const uint		pindex,
-							const uint		nsamples,
+							const uint		nSize,
 							cudaStream_t	stream = 0);
 
 

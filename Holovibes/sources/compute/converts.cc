@@ -76,7 +76,7 @@ namespace holovibes
 			fn_vect_.push_back([=]() {
 				pmin_ = cd_.pindex;
 				if (cd_.p_accu_enabled)
-					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.nsamples)));
+					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level, static_cast<int>(cd_.nSize)));
 				else
 					pmax_ = cd_.pindex;
 			});
@@ -111,8 +111,8 @@ namespace holovibes
 		void Converts::insert_to_composite()
 		{
 			fn_vect_.push_back([=]() {
-				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nsamples) ||
-					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nsamples))
+				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize) ||
+					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize))
 					return;
 				composite(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,

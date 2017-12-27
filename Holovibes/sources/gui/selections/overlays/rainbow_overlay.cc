@@ -190,7 +190,7 @@ namespace holovibes
 
 		int RainbowOverlay::check_interval(int x)
 		{
-			const int max = parent_->getCd()->nsamples - 1;
+			const int max = parent_->getCd()->nSize - 1;
 			return std::min(max, std::max(x, 0));
 		}
 	}

@@ -136,7 +136,7 @@ namespace holovibes
 			("2fft",
 			"Enable the 2-FFT method: Angular spectrum propagation approache. Requires n, p, l, z parameters.")
 
-			("nsamples,n",
+			("nSize,n",
 			po::value<unsigned short>(),
 			"Number of samples N.")
 
@@ -440,23 +440,23 @@ namespace holovibes
 			opts_.compute_desc.algorithm = Algorithm::FFT2;
 		}
 
-		if (vm_.count("nsamples"))
+		if (vm_.count("nSize"))
 		{
-			const unsigned short nsamples = vm_["nsamples"].as<unsigned short>();
-			if (nsamples <= 0)
-				throw std::runtime_error("--nsamples parameter must be strictly positive");
+			const unsigned short nSize = vm_["nSize"].as<unsigned short>();
+			if (nSize <= 0)
+				throw std::runtime_error("--nSize parameter must be strictly positive");
 
-			opts_.compute_desc.nsamples = nsamples;
+			opts_.compute_desc.nSize = nSize;
 
-			if (opts_.compute_desc.nsamples >= global::global_config.input_queue_max_size)
-				throw std::runtime_error("--nsamples can not be greater than the input_max_queue_size");
+			if (opts_.compute_desc.nSize >= global::global_config.input_queue_max_size)
+				throw std::runtime_error("--nSize can not be greater than the input_max_queue_size");
 		}
 
 		if (vm_.count("pindex"))
 		{
 			const unsigned short pindex = vm_["pindex"].as<unsigned short>();
-			if (pindex < 0 || pindex >= opts_.compute_desc.nsamples)
-				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nsamples - 1}.");
+			if (pindex < 0 || pindex >= opts_.compute_desc.nSize)
+				throw std::runtime_error("--pindex parameter must be defined in {0, ..., nSize - 1}.");
 			opts_.compute_desc.pindex = pindex;
 		}
 
@@ -522,8 +522,8 @@ namespace holovibes
 		if (vm_.count("vibrometry"))
 		{
 			const int vibrometry_q = vm_["vibrometry"].as<int>();
-			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nsamples)
-				throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nsamples - 1}.");
+			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nSize)
+				throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nSize - 1}.");
 			opts_.compute_desc.vibrometry_q = static_cast<unsigned short>(vibrometry_q);
 			opts_.compute_desc.vibrometry_enabled = true;
 		}
@@ -531,8 +531,8 @@ namespace holovibes
 
 	void OptionsParser::check_compute_params()
 	{
-		if (!vm_.count("nsamples"))
-			throw std::runtime_error("--nsamples is required");
+		if (!vm_.count("nSize"))
+			throw std::runtime_error("--nSize is required");
 
 		if (!vm_.count("pindex"))
 			throw std::runtime_error("--pindex is required");

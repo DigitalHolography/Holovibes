@@ -62,7 +62,7 @@ namespace holovibes
 			if (af_env_.stft_index == 0)
 			{
 				af_env_.state = af_state::RUNNING;
-				af_env_.stft_index = af_env_.nsamples;
+				af_env_.stft_index = af_env_.nSize;
 			}
 			Ic_->request_refresh();
 		}
@@ -78,30 +78,30 @@ namespace holovibes
 			try
 			{
 				// Saving stft parameters
-				af_env_.old_nsamples = cd_.nsamples;
+				af_env_.old_nSize = cd_.nSize;
 				af_env_.old_p = cd_.pindex;
 				af_env_.old_steps = cd_.stft_steps;
 
 				// Setting new parameters for faster autofocus
-				af_env_.nsamples = 2;
+				af_env_.nSize = 2;
 				af_env_.p = 1;
-				cd_.nsamples = af_env_.nsamples;
+				cd_.nSize = af_env_.nSize;
 				cd_.pindex = af_env_.p;
-				Ic_->request_update_n(cd_.nsamples);
+				Ic_->request_update_n(cd_.nSize);
 
 				// Setting the steps and the frame_counter in order to call autofocus_caller only
 				// once stft_queue_ is fully updated and stft is computed
-				cd_.stft_steps = cd_.nsamples;
-				Ic_->set_stft_frame_counter(af_env_.nsamples);
+				cd_.stft_steps = cd_.nSize;
+				Ic_->set_stft_frame_counter(af_env_.nSize);
 
-				af_env_.stft_index = af_env_.nsamples - 1;
+				af_env_.stft_index = af_env_.nSize - 1;
 				af_env_.state = af_state::COPYING;
 
 				Ic_->notify_observers();
 
 				af_env_.gpu_frame_size = sizeof(cufftComplex) * fd_.frame_res();
-				// We want to save 'nsamples' frame, in order to entirely fill the stft_queue_
-				af_env_.gpu_input_size = fd_.frame_res() * cd_.nsamples;
+				// We want to save 'nSize' frame, in order to entirely fill the stft_queue_
+				af_env_.gpu_input_size = fd_.frame_res() * cd_.nSize;
 
 				af_env_.gpu_input_buffer_tmp.resize(af_env_.gpu_input_size);
 
@@ -152,13 +152,13 @@ namespace holovibes
 
 			// Resetting the stft_index just before the call of autofocus_caller
 			if (af_env_.stft_index == 0)
-				af_env_.stft_index = af_env_.nsamples;
+				af_env_.stft_index = af_env_.nSize;
 		}
 
 		void Autofocus::autofocus_caller(cudaStream_t stream)
 		{
 			// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updated
-			if (af_env_.stft_index != af_env_.nsamples)
+			if (af_env_.stft_index != af_env_.nSize)
 			{
 				autofocus_reset();
 				std::cout << "Autofocus: shouldn't be called there. You should report this bug." << std::endl;
@@ -191,9 +191,9 @@ namespace holovibes
 				{
 					// Restoring old stft parameters
 					cd_.stft_steps = af_env_.old_steps;
-					cd_.nsamples = af_env_.old_nsamples;
+					cd_.nSize = af_env_.old_nSize;
 					cd_.pindex = af_env_.old_p;
-					Ic_->request_update_n(cd_.nsamples);
+					Ic_->request_update_n(cd_.nSize);
 
 					autofocus_reset();
 					std::cout << "Autofocus: Couldn't find a good value for z" << std::endl;
@@ -223,9 +223,9 @@ namespace holovibes
 			{
 				// Restoring old stft parameters
 				cd_.stft_steps = af_env_.old_steps;
-				cd_.nsamples = af_env_.old_nsamples;
+				cd_.nSize = af_env_.old_nSize;
 				cd_.pindex = af_env_.old_p;
-				Ic_->request_update_n(cd_.nsamples);
+				Ic_->request_update_n(cd_.nSize);
 
 				cd_.zdistance = af_env_.af_z;
 				cd_.notify_observers();

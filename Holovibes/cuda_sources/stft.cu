@@ -38,13 +38,13 @@ struct Zone
 __global__
 static void kernel_zone_copy(cuComplex		*src,
 							cuComplex		*dst,
-							const uint		nsamples,
+							const uint		nSize,
 							const uint		width,
 							const uint		height,
 							Zone			zone)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < zone.area * nsamples)
+	if (id < zone.area * nSize)
 	{
 		const uint frame_res = width * height;
 		const uint zone_width = zone.x2 - zone.x;
@@ -59,7 +59,7 @@ static void kernel_zone_copy(cuComplex		*src,
 
 static void zone_copy(cuComplex		*src,
 					cuComplex		*dst,
-					const uint		nsamples,
+					const uint		nSize,
 					const uint		width,
 					const uint		height,
 					RectFd			cropped_zone,
@@ -67,22 +67,22 @@ static void zone_copy(cuComplex		*src,
 {
 	const uint threads = get_max_threads_1d();
 	Zone zone(cropped_zone);
-	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
+	const uint blocks = map_blocks_to_problem(zone.area * nSize, threads);
 
-	kernel_zone_copy<<<blocks, threads, 0, stream>>>(src, dst, nsamples, width, height, zone);
+	kernel_zone_copy<<<blocks, threads, 0, stream>>>(src, dst, nSize, width, height, zone);
 	cudaCheckError();
 }
 
 __global__
 static void kernel_zone_uncopy(cuComplex	*src,
 							cuComplex		*dst,
-							const uint		nsamples,
+							const uint		nSize,
 							const uint		width,
 							const uint		height,
 							Zone			zone)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < zone.area * nsamples)
+	if (id < zone.area * nSize)
 	{
 		const uint frame_res = width * height;
 		const uint zone_width = zone.x2 - zone.x;
@@ -97,16 +97,16 @@ static void kernel_zone_uncopy(cuComplex	*src,
 
 static void zone_uncopy(cuComplex		*src,
 					cuComplex		*dst,
-					const uint		nsamples,
+					const uint		nSize,
 					const uint		width,
 					const uint		height,
 					RectFd			cropped_zone)
 {
 	const uint threads = get_max_threads_1d();
 	Zone zone(cropped_zone);
-	const uint blocks = map_blocks_to_problem(zone.area * nsamples, threads);
+	const uint blocks = map_blocks_to_problem(zone.area * nSize, threads);
 
-	kernel_zone_uncopy<<<blocks, threads, 0, 0>>> (src, dst, nsamples, width, height, zone);
+	kernel_zone_uncopy<<<blocks, threads, 0, 0>>> (src, dst, nSize, width, height, zone);
 	cudaCheckError();
 }
 
@@ -156,9 +156,9 @@ void stft(cuComplex			*input,
 		cuComplex			*cropped_stft_buf,
 		cudaStream_t		stream)
 {
-	const uint tft_level = cd.nsamples;
+	const uint tft_level = cd.nSize;
 	const uint p = cd.pindex;
-	const uint nsamples = cd.nsamples;
+	const uint nSize = cd.nSize;
 	bool cropped_stft = cd.croped_stft;
 	const RectFd cropped_zone = cd.getZoomedZone();
 
@@ -176,7 +176,7 @@ void stft(cuComplex			*input,
 			jitter.run();
 
 			cufftExecC2C(plan1d, cropped_stft_buf, cropped_stft_buf, CUFFT_FORWARD);
-			zone_uncopy(cropped_stft_buf, stft_buf, nsamples, width, height, cropped_zone);
+			zone_uncopy(cropped_stft_buf, stft_buf, nSize, width, height, cropped_zone);
 		}
 		else
 			cufftExecC2C(plan1d, static_cast<cuComplex*>(gpu_queue->get_buffer()), stft_buf, CUFFT_FORWARD);
@@ -271,16 +271,16 @@ static void	fill_32bit_slices(const cuComplex	*input,
 							const uint			acc_level_xz,
 							const uint			acc_level_yz,
 							const uint			img_type,
-							const uint			nsamples)
+							const uint			nSize)
 {
 	const uint	id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < height * nsamples)
+	if (id < height * nSize)
 	{
 		float sum = 0;
 		for (int x = xmin; x <= xmax; ++x)
 		{
 			float pixel_float = 0;
-			cuComplex pixel = input[x + (id / nsamples) * width + (id % nsamples) * frame_size];
+			cuComplex pixel = input[x + (id / nSize) * width + (id % nSize) * frame_size];
 			if (img_type == ImgType::Modulus || img_type == ImgType::PhaseIncrease || img_type == ImgType::Composite)
 				pixel_float = hypotf(pixel.x, pixel.y);
 			else if (img_type == ImgType::SquaredModulus)
@@ -295,7 +295,7 @@ static void	fill_32bit_slices(const cuComplex	*input,
 		output_yz[id] = sum / static_cast<float>(xmax - xmin + 1);
 	}
 	/* ********** */
-	if (id < width * nsamples)
+	if (id < width * nSize)
 	{
 		float sum = 0;
 		for (int y = ymin; y <= ymax; ++y)
@@ -327,14 +327,14 @@ void stft_view_begin(const cuComplex	*input,
 					const ushort		width,
 					const ushort		height,
 					const uint			viewmode,
-					const ushort		nsamples,
+					const ushort		nSize,
 					const uint			acc_level_xz,
 					const uint			acc_level_yz,
 					const uint			img_type,
 					cudaStream_t		stream)
 {
 	const uint frame_size = width * height;
-	const uint output_size = std::max(width, height) * nsamples;
+	const uint output_size = std::max(width, height) * nSize;
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
@@ -359,6 +359,6 @@ void stft_view_begin(const cuComplex	*input,
 			width, height,
 			acc_level_xz, acc_level_yz,
 			img_type,
-			nsamples);
+			nSize);
 	cudaCheckError();
 }

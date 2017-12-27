@@ -52,7 +52,7 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	if (cd_.croped_stft)
 	{
 		auto zone = cd_.getZoomedZone();
-		gpu_cropped_stft_buf_.resize(zone.area() * cd_.nsamples);
+		gpu_cropped_stft_buf_.resize(zone.area() * cd_.nSize);
 		ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
 	}
 	else
@@ -232,7 +232,7 @@ void FourierTransform::stft_handler()
 			width,
 			height,
 			cd_.img_type,
-			cd_.nsamples,
+			cd_.nSize,
 			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
 			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
 			cd_.img_type);

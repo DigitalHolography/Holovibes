@@ -19,7 +19,7 @@ namespace holovibes
 	ComputeDescriptor::ComputeDescriptor() : Observable(),
 		algorithm(Algorithm::None),
 		compute_mode(Computation::Stop),
-		nsamples(1),
+		nSize(1),
 		pindex(0),
 		lambda(532e-9f),
 		interpolation_enabled(false),
@@ -100,7 +100,7 @@ namespace holovibes
 	{
 		algorithm = cd.algorithm.load();
 		compute_mode = cd.compute_mode.load();
-		nsamples = cd.nsamples.load();
+		nSize = cd.nSize.load();
 		pindex = cd.pindex.load();
 		lambda = cd.lambda.load();
 		zdistance = cd.zdistance.load();

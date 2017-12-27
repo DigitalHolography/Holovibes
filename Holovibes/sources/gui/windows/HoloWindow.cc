@@ -77,7 +77,7 @@ namespace holovibes
 						std::stringstream ss;
 						ss << "(X1,Y1,X2,Y2) = (" << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
 						InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-						Ic->request_update_n(Cd->nsamples);
+						Ic->request_update_n(Cd->nSize);
 					}
 				});
 			}

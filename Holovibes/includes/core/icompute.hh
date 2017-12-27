@@ -68,10 +68,10 @@ namespace holovibes
 		 TODO: Check if it is really usefull (if there is really more than one thread using these variables). */
 		std::mutex							stftGuard_;
 
-		/** STFT Queue. Constains nsamples frames. It accumulates input frames after spatial fft,
+		/** STFT Queue. Constains nSize frames. It accumulates input frames after spatial fft,
 		 in order to apply STFT only when the frame counter is equal to STFT steps. */
 		std::unique_ptr<Queue>				gpu_stft_queue_ = nullptr;
-		/** STFT buffer. Contains nsamples frames. Contains the result of the STFT done on the STFT queue. */
+		/** STFT buffer. Contains nSize frames. Contains the result of the STFT done on the STFT queue. */
 		cuda_tools::UniquePtr<cufftComplex>	gpu_stft_buffer_ = nullptr;
 		/** STFT XZ Queue. Contains the ouput of the STFT on slice XZ. Enqueued with gpu_float_buffer or gpu_ushort_buffer. */
 		std::unique_ptr<Queue>				gpu_stft_slice_queue_xz = nullptr;
@@ -138,7 +138,7 @@ namespace holovibes
 		/*! \brief Execute one iteration of the ICompute.
 		*
 		* * Checks the number of frames in input queue that must at least
-		* nsamples*.
+		* nSize*.
 		* * Call each function of the ICompute.
 		* * Enqueue the output frame contained in gpu_output_buffer.
 		* * Dequeue one frame of the input queue.

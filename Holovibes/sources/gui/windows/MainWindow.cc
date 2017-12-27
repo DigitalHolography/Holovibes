@@ -343,11 +343,11 @@ namespace holovibes
 			QSpinBox *p_vibro = ui.ImageRatioPSpinBox;
 			p_vibro->setEnabled(compute_desc_.vibrometry_enabled);
 			p_vibro->setValue(compute_desc_.pindex);
-			p_vibro->setMaximum(compute_desc_.nsamples - 1);
+			p_vibro->setMaximum(compute_desc_.nSize - 1);
 			QSpinBox *q_vibro = ui.ImageRatioQSpinBox;
 			q_vibro->setEnabled(compute_desc_.vibrometry_enabled);
 			q_vibro->setValue(compute_desc_.vibrometry_q);
-			q_vibro->setMaximum(compute_desc_.nsamples - 1);
+			q_vibro->setMaximum(compute_desc_.nSize - 1);
 
 			ui.KernelBufferSizeSpinBox->setValue(compute_desc_.special_buffer_size);
 
@@ -372,10 +372,10 @@ namespace holovibes
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
 			ui.CropStftCheckBox->setEnabled(!is_direct);
-			// Changing nsamples with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
-			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
-			ui.PhaseNumberSpinBox->setValue(compute_desc_.nsamples);
-			ui.PSpinBox->setMaximum(compute_desc_.nsamples - 1);
+			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
+			ui.nSizeSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
+			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
+			ui.PSpinBox->setMaximum(compute_desc_.nSize - 1);
 			ui.PSpinBox->setValue(compute_desc_.pindex);
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_direct);
 			ui.WaveLengthDoubleSpinBox->setValue(compute_desc_.lambda * 1.0e9f);
@@ -404,8 +404,8 @@ namespace holovibes
 			// Composite
 			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
 			ui.CompositeGroupBox->setHidden(!isComposite);
-			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
-			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nsamples - 1);
+			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
@@ -433,7 +433,7 @@ namespace holovibes
 					{
 						// notify will be in close_critical_compute
 						compute_desc_.pindex = 0;
-						compute_desc_.nsamples = 1;
+						compute_desc_.nSize = 1;
 						if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
 						{
 							compute_desc_.convolution_enabled = false;
@@ -599,15 +599,15 @@ namespace holovibes
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
 				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
 
-				const ushort p_nsample = ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nsamples);
-				if (p_nsample < 1)
-					compute_desc_.nsamples = 1;
-				else if (p_nsample > config.input_queue_max_size)
-					compute_desc_.nsamples = config.input_queue_max_size;
+				const ushort p_nSize= ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
+				if (p_nSize < 1)
+					compute_desc_.nSize = 1;
+				else if (p_nSize > config.input_queue_max_size)
+					compute_desc_.nSize = config.input_queue_max_size;
 				else
-					compute_desc_.nsamples = p_nsample;
+					compute_desc_.nSize = p_nSize;
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", compute_desc_.pindex);
-				if (p_index >= 0 && p_index < compute_desc_.nsamples)
+				if (p_index >= 0 && p_index < compute_desc_.nSize)
 					compute_desc_.pindex = p_index;
 
 				compute_desc_.lambda = ptree.get<float>("image_rendering.lambda", compute_desc_.lambda);
@@ -643,8 +643,8 @@ namespace holovibes
 				compute_desc_.cuts_contrast_p_offset = ptree.get<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset);
 				if (compute_desc_.cuts_contrast_p_offset < 0)
 					compute_desc_.cuts_contrast_p_offset = 0;
-				else if (compute_desc_.cuts_contrast_p_offset > compute_desc_.nsamples - 1)
-					compute_desc_.cuts_contrast_p_offset = compute_desc_.nsamples - 1;
+				else if (compute_desc_.cuts_contrast_p_offset > compute_desc_.nSize - 1)
+					compute_desc_.cuts_contrast_p_offset = compute_desc_.nSize - 1;
 
 				compute_desc_.img_acc_slice_xy_enabled = ptree.get<bool>("view.accumulation_enabled", compute_desc_.img_acc_slice_xy_enabled);
 
@@ -742,7 +742,7 @@ namespace holovibes
 			// Image rendering
 			ptree.put<bool>("image_rendering.hidden", image_rendering_group_box->isHidden());
 			ptree.put("image_rendering.camera", kCamera);
-			ptree.put<ushort>("image_rendering.phase_number", compute_desc_.nsamples);
+			ptree.put<ushort>("image_rendering.phase_number", compute_desc_.nSize);
 			ptree.put<ushort>("image_rendering.p_index", compute_desc_.pindex);
 			ptree.put<float>("image_rendering.lambda", compute_desc_.lambda);
 			ptree.put<float>("image_rendering.z_distance", compute_desc_.zdistance);
@@ -888,7 +888,7 @@ namespace holovibes
 				holovibes_.dispose_compute();
 			holovibes_.dispose_capture();
 			compute_desc_.pindex = 0;
-			compute_desc_.nsamples = 1;
+			compute_desc_.nSize = 1;
 			is_enabled_camera_ = false;
 			if (config.set_cuda_device == 1)
 			{
@@ -1275,7 +1275,7 @@ namespace holovibes
 						ss << "0,0," << fd.width - 1 << "," << fd.height - 1 << ")";
 					}
 					InfoManager::get_manager()->update_info("STFT Zone", ss.str());
-					holovibes_.get_pipe()->request_update_n(compute_desc_.nsamples);
+					holovibes_.get_pipe()->request_update_n(compute_desc_.nSize);
 					compute_desc_.croped_stft = b;
 				};
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
@@ -1312,7 +1312,7 @@ namespace holovibes
 					// set positions of new windows according to the position of the main GL window
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
-					const ushort	nImg = compute_desc_.nsamples;
+					const ushort	nImg = compute_desc_.nSize;
 					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
@@ -1494,18 +1494,18 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				int phaseNumber = ui.PhaseNumberSpinBox->value();
-				phaseNumber = std::max(1, phaseNumber);
+				int nSize = ui.nSizeSpinBox->value();
+				nSize = std::max(1, nSize);
 
-				if (phaseNumber == compute_desc_.nsamples)
+				if (nSize == compute_desc_.nSize)
 					return;
 				notify();
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 				if (pipe)
 				{
 					pipe->run_end_pipe([=]() {
-						holovibes_.get_pipe()->request_update_n(phaseNumber);
-						compute_desc_.nsamples = phaseNumber;
+						holovibes_.get_pipe()->request_update_n(nSize);
+						compute_desc_.nSize = nSize;
 						set_p_accu();
 						// This will not do anything until SliceWindow::changeTexture() isn't coded.
 						if (compute_desc_.stft_view_enabled)
@@ -1637,7 +1637,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (value < static_cast<int>(compute_desc_.nsamples))
+				if (value < static_cast<int>(compute_desc_.nSize))
 				{
 					compute_desc_.pindex = value;
 					notify();
@@ -1699,7 +1699,7 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 
-				if (compute_desc_.pindex < compute_desc_.nsamples)
+				if (compute_desc_.pindex < compute_desc_.nSize)
 				{
 					compute_desc_.pindex = compute_desc_.pindex + 1;
 					set_auto_contrast();
@@ -2262,10 +2262,10 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (compute_desc_.pindex > compute_desc_.nsamples)
-					compute_desc_.pindex = compute_desc_.nsamples.load();
-				if (compute_desc_.vibrometry_q > compute_desc_.nsamples)
-					compute_desc_.vibrometry_q = compute_desc_.nsamples.load();
+				if (compute_desc_.pindex > compute_desc_.nSize)
+					compute_desc_.pindex = compute_desc_.nSize.load();
+				if (compute_desc_.vibrometry_q > compute_desc_.nSize)
+					compute_desc_.vibrometry_q = compute_desc_.nSize.load();
 				compute_desc_.vibrometry_enabled = value;
 				pipe_refresh();
 				notify();
@@ -2278,7 +2278,7 @@ namespace holovibes
 			{
 				if (!compute_desc_.vibrometry_enabled)
 					return;
-				if (value < static_cast<int>(compute_desc_.nsamples) && value >= 0)
+				if (value < static_cast<int>(compute_desc_.nSize) && value >= 0)
 				{
 					compute_desc_.pindex = value;
 					pipe_refresh();
@@ -2292,7 +2292,7 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
-				if (value < static_cast<int>(compute_desc_.nsamples) && value >= 0)
+				if (value < static_cast<int>(compute_desc_.nSize) && value >= 0)
 				{
 					compute_desc_.vibrometry_q = value;
 					pipe_refresh();

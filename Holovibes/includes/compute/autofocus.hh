@@ -57,10 +57,10 @@ namespace holovibes
 			size_t				gpu_frame_size; /**< size of one frame inside gpu_input_buffer_tmp */
 			cuda_tools::UniquePtr<cufftComplex>	gpu_input_buffer_tmp; /**< buffer saving the frames to work on the same images at each iteration. It contains #img when stft is disabled, and an hardcoded number when enabled. */
 
-			unsigned short		nsamples; /**< hardcoded value of frames to save when stft is enabled. Must be grater than 2. */
+			unsigned short		nSize; /**< hardcoded value of frames to save when stft is enabled. Must be grater than 2. */
 			unsigned short		p; /**< hardcoded value of p when stft is enabled */
 
-			unsigned short		old_nsamples; /**< old value of nsamples */
+			unsigned short		old_nSize; /**< old value of nSize */
 			unsigned short		old_p; /**< old value of p*/
 
 			unsigned int		old_steps; /**< old value of stft steps*/

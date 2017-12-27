@@ -76,7 +76,7 @@ namespace holovibes
 		if (compute_desc_.img_acc_slice_yz_enabled)
 		{
 			auto fd_yz = new_fd;
-			fd_yz.width = compute_desc_.nsamples;
+			fd_yz.width = compute_desc_.nSize;
 			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
 			if (!gpu_img_acc_yz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
@@ -84,13 +84,13 @@ namespace holovibes
 		if (compute_desc_.img_acc_slice_xz_enabled)
 		{
 			auto fd_xz = new_fd;
-			fd_xz.height = compute_desc_.nsamples;
+			fd_xz.height = compute_desc_.nSize;
 			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
 			if (!gpu_img_acc_xz_)
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
 
-		int inembed[1] = { compute_desc_.nsamples };
+		int inembed[1] = { compute_desc_.nSize };
 
 		int zone_size = input_.get_pixels();
 		if (compute_desc_.croped_stft)
@@ -209,8 +209,8 @@ namespace holovibes
 			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ? sizeof(cuComplex) : sizeof(ushort);
 			uint buffer_depth = compute_desc_.img_type == ImgType::Complex ? sizeof(cufftComplex) : sizeof(float);
 			auto fd_yz = fd_xz;
-			fd_xz.height = compute_desc_.nsamples;
-			fd_yz.width = compute_desc_.nsamples;
+			fd_xz.height = compute_desc_.nSize;
+			fd_yz.width = compute_desc_.nSize;
 			stft_env_.gpu_stft_slice_queue_xz.reset(new Queue(fd_xz, global::global_config.stft_cuts_output_buffer_size, "STFTCutXZ"));
 			stft_env_.gpu_stft_slice_queue_yz.reset(new Queue(fd_yz, global::global_config.stft_cuts_output_buffer_size, "STFTCutYZ"));
 			buffers_.gpu_float_cut_xz_.resize(fd_xz.frame_res() * buffer_depth);
@@ -344,13 +344,13 @@ namespace holovibes
 	void ICompute::request_filter2D_roi_update()
 	{
 		stft_update_roi_requested_ = true;
-		request_update_n(compute_desc_.nsamples);
+		request_update_n(compute_desc_.nSize);
 	}
 
 	void ICompute::request_filter2D_roi_end()
 	{
 		stft_update_roi_requested_ = false;
-		request_update_n(compute_desc_.nsamples);
+		request_update_n(compute_desc_.nSize);
 		compute_desc_.log_scale_slice_xy_enabled = false;
 		compute_desc_.shift_corners_enabled = true;
 		notify_observers();
@@ -398,7 +398,7 @@ namespace holovibes
 	{
 		assert(output != nullptr);
 
-		output->resize(compute_desc_.nsamples);
+		output->resize(compute_desc_.nSize);
 		average_env_.average_output_ = output;
 
 		average_requested_ = true;
@@ -439,7 +439,7 @@ namespace holovibes
 			{
 				long long fps = frame_count_ * 1000 / diff;
 				manager->insert_info(gui::InfoManager::InfoType::RENDERING_FPS, "OutputFps", std::to_string(fps) + " fps");
-				long long voxelPerSecond = fps * output_fd.frame_res() * compute_desc_.nsamples;
+				long long voxelPerSecond = fps * output_fd.frame_res() * compute_desc_.nSize;
 				manager->insert_info(gui::InfoManager::InfoType::OUTPUT_THROUGHPUT, "Output Throughput",
 					std::to_string(static_cast<int>(voxelPerSecond / 1e6)) + " MVoxel/s");
 				long long bytePerSecond = fps * input_.get_frame_desc().frame_size() * compute_desc_.stft_steps;

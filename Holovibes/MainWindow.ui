@@ -326,7 +326,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
            <item row="1" column="0">
-            <widget class="QLabel" name="PhaseNumberLabel">
+            <widget class="QLabel" name="nSizeLabel">
              <property name="text">
               <string># img</string>
              </property>
@@ -478,7 +478,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QSpinBox" name="PhaseNumberSpinBox">
+            <widget class="QSpinBox" name="nSizeSpinBox">
              <property name="minimum">
               <number>1</number>
              </property>
@@ -3085,7 +3085,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3444,7 +3444,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>Filter2DPushButton</tabstop>
   <tabstop>CancelFilter2DPushButton</tabstop>
   <tabstop>AlgorithmComboBox</tabstop>
-  <tabstop>PhaseNumberSpinBox</tabstop>
+  <tabstop>nSizeSpinBox</tabstop>
   <tabstop>PSpinBox</tabstop>
   <tabstop>WaveLengthDoubleSpinBox</tabstop>
   <tabstop>ZDoubleSpinBox</tabstop>
@@ -4893,7 +4893,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PhaseNumberSpinBox</sender>
+   <sender>nSizeSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>MainWindow</receiver>
    <slot>setPhase()</slot>

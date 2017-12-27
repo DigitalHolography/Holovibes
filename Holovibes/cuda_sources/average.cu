@@ -139,7 +139,7 @@ Tuple4f make_average_stft_plot(cuComplex	*cbuf,
 							const holovibes::units::RectFd&	signal_zone,
 							const holovibes::units::RectFd&	noise_zone,
 							const uint		pindex,
-							const uint		nsamples,
+							const uint		nSize,
 							cudaStream_t	stream)
 {
 	const uint	size = width * height;

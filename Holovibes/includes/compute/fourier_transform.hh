@@ -103,7 +103,7 @@ namespace holovibes
 			std::unique_ptr<Queue>				gpu_lens_queue_;
 			//! Filter 2D buffer. Contains one frame.
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
-			//! Crop STFT buffer. Contains nsamples frames. Used to apply STFT on smaller areas than the whole window.
+			//! Crop STFT buffer. Contains nSize frames. Used to apply STFT on smaller areas than the whole window.
 			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
 
 			/// Vector function in which we insert the processing

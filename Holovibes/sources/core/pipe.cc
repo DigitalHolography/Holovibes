@@ -84,10 +84,10 @@ namespace holovibes
 		// Updating number of images
 		if (update_n_requested_)
 		{
-			if (!update_n_parameter(compute_desc_.nsamples))
+			if (!update_n_parameter(compute_desc_.nSize))
 			{
 				compute_desc_.pindex = 0;
-				compute_desc_.nsamples = 1;
+				compute_desc_.nSize = 1;
 				update_n_parameter(1);
 				std::cerr << "Updating #img failed, #img updated to 1" << std::endl;
 			}
@@ -102,8 +102,8 @@ namespace holovibes
 		{
 			FrameDescriptor new_fd_xz = input_.get_frame_desc();
 			FrameDescriptor new_fd_yz = input_.get_frame_desc();
-			new_fd_xz.height = compute_desc_.nsamples;
-			new_fd_yz.width = compute_desc_.nsamples;
+			new_fd_xz.height = compute_desc_.nSize;
+			new_fd_yz.width = compute_desc_.nSize;
 			update_acc_parameter(gpu_img_acc_yz_, compute_desc_.img_acc_slice_yz_enabled, compute_desc_.img_acc_slice_yz_level, new_fd_yz);
 			update_acc_parameter(gpu_img_acc_xz_, compute_desc_.img_acc_slice_xz_enabled, compute_desc_.img_acc_slice_xz_level, new_fd_xz);
 			update_acc_requested_ = false;
@@ -175,12 +175,12 @@ namespace holovibes
 			enqueue_buffer(gpu_img_acc_yz_.get(),
 				static_cast<float *>(buffers_.gpu_float_cut_yz_.get()),
 				compute_desc_.img_acc_slice_yz_level,
-				input_fd.height * compute_desc_.nsamples);
+				input_fd.height * compute_desc_.nSize);
 		if (compute_desc_.img_acc_slice_xz_enabled)
 			enqueue_buffer(gpu_img_acc_xz_.get(),
 				static_cast<float *>(buffers_.gpu_float_cut_xz_.get()),
 				compute_desc_.img_acc_slice_xz_level,
-				input_fd.width * compute_desc_.nsamples);
+				input_fd.width * compute_desc_.nSize);
 
 		rendering_->insert_fft_shift();
 		if (average_requested_)

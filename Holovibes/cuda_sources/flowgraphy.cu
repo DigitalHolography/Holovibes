@@ -21,21 +21,21 @@ void kernel_flowgraphy(cuComplex	*input,
 					const uint		max_index,
 					const uint		frame_resolution,
 					const uint		i_width,
-					const uint		nsamples,
+					const uint		nSize,
 					const uint		n_i)
 {
 	uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	cuComplex M = make_cuComplex(0, 0);
 	cuComplex D = make_cuComplex(0, 0);
-	//uint size = frame_resolution * nsamples;
+	//uint size = frame_resolution * nSize;
 	while (index < frame_resolution)
 	{
-		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nsamples >> 1)) % gpu_special_queue_buffer_length;
+		int deplacement = (index  + (1 + i_width + ((1 + start_index) % max_index) *  frame_resolution) * (nSize >> 1)) % gpu_special_queue_buffer_length;
 		cuComplex b = gpu_special_queue[deplacement];
 
-		for (int k = 0; k < nsamples; ++k)
-		for (int j = 0; j < nsamples; ++j)
-		for (int i = 0; i < nsamples; ++i)
+		for (int k = 0; k < nSize; ++k)
+		for (int j = 0; j < nSize; ++j)
+		for (int i = 0; i < nSize; ++i)
 		{
 			deplacement = (index + i + (j * i_width) + (((k + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length; // while x while y, on peut virer le modulo
 			cuComplex a = gpu_special_queue[deplacement];

@@ -70,7 +70,7 @@ void apply_log10(float*			input,
 * \param stft_buf the buffer which will be exploded
 * \param stft_dup_buf the buffer that will receive the plan1d transforms
 * \parem frame_resolution number of pixels in one frame.
-* \param nsamples number of frames that will be used.
+* \param nSize number of frames that will be used.
 
 */
 void demodulation(cuComplex*		input,

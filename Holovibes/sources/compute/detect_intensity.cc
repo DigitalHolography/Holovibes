@@ -65,7 +65,7 @@ void DetectIntensity::check_jump()
 
 bool DetectIntensity::can_skip_detection()
 {
-	int expected_until_jump = cd_.nsamples;
+	int expected_until_jump = cd_.nSize;
 	expected_until_jump -= frames_since_jump_ + cd_.interp_shift;
 	return expected_until_jump > 5;
 }
@@ -122,7 +122,7 @@ void DetectIntensity::update_lambda()
 {
 	frames_since_jump_++;
 	float lambda = cd_.interp_lambda1;
-	float progress = static_cast<float>(frames_since_jump_) / cd_.nsamples;
+	float progress = static_cast<float>(frames_since_jump_) / cd_.nSize;
 	if (progress > 1)
 		progress = 1;
 	lambda += (cd_.interp_lambda2 - cd_.interp_lambda1) * progress;

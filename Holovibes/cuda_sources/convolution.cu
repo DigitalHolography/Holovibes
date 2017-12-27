@@ -21,18 +21,18 @@ void kernel_multiply_kernel(cuComplex	*input,
 							const float	*kernel,
 							const uint	k_width,
 							const uint	k_height,
-							const uint	nsamples,
+							const uint	nSize,
 							const uint	start_index,
 							const uint	max_index)
 {
 	uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	//uint size = frame_resolution * nsamples;
+	//uint size = frame_resolution * nSize;
 	uint k_size = k_width * k_height;
 	while (index < frame_resolution)
 	{
 		cuComplex sum = make_cuComplex(0, 0);
 
-		for (uint z = 0; z < nsamples; ++z)
+		for (uint z = 0; z < nSize; ++z)
 		for (uint m = 0; m < k_width; ++m)
 		for (uint n = 0; n < k_height; ++n) {
 			cuComplex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
@@ -40,7 +40,7 @@ void kernel_multiply_kernel(cuComplex	*input,
 			sum.x += a.x * b;
 			sum.y += a.y * b;
 		}
-		const uint n_k_size = nsamples * k_size;
+		const uint n_k_size = nSize * k_size;
 		sum.x /= n_k_size;
 		sum.y /= n_k_size;
 		input[index] = sum;
