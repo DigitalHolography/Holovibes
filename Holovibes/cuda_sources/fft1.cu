@@ -13,21 +13,65 @@
 #include "fft1.cuh"
 #include "preprocessing.cuh"
 #include "transforms.cuh"
+#include "unique_ptr.hh"
 
 using camera::FrameDescriptor;
 
-void fft1_lens(cuComplex*			lens,
-			const FrameDescriptor&	fd,
-			const float				lambda,
-			const float				z,
-			const float				pixel_size,
-			cudaStream_t			stream)
-{
-  uint threads = 128;
-  uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
+unsigned int binomial_coeff(unsigned int n, unsigned int k) {
+	if (k == 0 || k == n)
+		return 1;
+	return binomial_coeff(n - 1, k - 1) + binomial_coeff(n - 1, k);
+}
 
-  kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
-  cudaCheckError();
+__global__
+void kernel_compute_all_binomial_coeff(uint* coeffs, uint nb_coef)
+{
+	for (uint n = 0; n < nb_coef; n++) {
+		coeffs[n * nb_coef] = 1;
+		uint last_line = (n - 1) * nb_coef;
+		for (uint k = 1; k <= n; k++) {
+			coeffs[n * nb_coef + k] = coeffs[last_line + k - 1] + coeffs[last_line + k];
+		}
+	}
+}
+
+void fft1_lens(cuComplex*			lens,
+	const FrameDescriptor&	fd,
+	const float				lambda,
+	const float				z,
+	const float				pixel_size,
+	cudaStream_t			stream)
+{
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
+
+	kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
+	cudaCheckError();
+}
+
+void fft1_lens_zernike(cuComplex*	lens,
+		const FrameDescriptor&	fd,
+		const float				lambda,
+		const float				z,
+		const float				pixel_size,
+		const uint				zernike_m,
+		const uint				zernike_n,
+		cudaStream_t			stream)
+{
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
+
+	const auto nb_coef = zernike_n + 1;
+	float coef = M_PI * lambda * z * 1E6;
+	size_t size_coef = pow(nb_coef, 2);
+	holovibes::cuda_tools::UniquePtr<unsigned int> binomial_coeffs(size_coef);
+	kernel_compute_all_binomial_coeff << <1, 1, 0, stream >> > (binomial_coeffs, nb_coef);
+	cudaCheckError();
+
+	cudaStreamSynchronize(stream);
+
+	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, zernike_m, zernike_n, binomial_coeffs, nb_coef);
+	cudaCheckError();
 }
 
 void fft_1(cuComplex*			input,

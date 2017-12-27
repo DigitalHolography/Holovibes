@@ -105,12 +105,20 @@ void FourierTransform::insert_filter2d()
 void FourierTransform::insert_fft1()
 {
 	const float z = autofocus_->get_zvalue();
-	fft1_lens(
-		gpu_lens_.get(),
-		fd_,
-		cd_.lambda,
-		z,
-		cd_.pixel_size);
+	if (cd_.zernike_enabled)
+		fft1_lens_zernike(gpu_lens_.get(),
+			fd_,
+			cd_.lambda,
+			z,
+			cd_.pixel_size,
+			cd_.zernike_m,
+			cd_.zernike_n);
+	else
+		fft1_lens(gpu_lens_.get(),
+			fd_,
+			cd_.lambda,
+			z,
+			cd_.pixel_size);
 
 	fn_vect_.push_back([=]() {
 		fft_1(

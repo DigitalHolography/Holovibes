@@ -2055,6 +2055,22 @@ namespace holovibes
 		{
 			compute_desc_.locked_zoom = value;
 		}
+
+		void MainWindow::set_zernike_enable(bool val)
+		{
+			compute_desc_.zernike_enabled = val;
+			pipe_refresh();
+		}
+		void MainWindow::set_zernike_m(int m)
+		{
+			compute_desc_.zernike_m = m;
+			pipe_refresh();
+		}
+		void MainWindow::set_zernike_n(int n)
+		{
+			compute_desc_.zernike_n = n;
+			pipe_refresh();
+		}
 		#pragma endregion
 		/* ------------ */
 		#pragma region Autofocus

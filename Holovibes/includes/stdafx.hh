@@ -12,7 +12,8 @@
 
 /*! \file
 *
-* Precompiled header. Put here all the external includes to avoid recompiling it each time. */
+* Precompiled header. Put here all the external includes that aren't used in a cuda file
+  to avoid recompiling it each time. */
 
 #pragma once
 // First, sort all the line

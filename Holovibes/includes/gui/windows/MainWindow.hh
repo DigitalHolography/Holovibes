@@ -237,6 +237,9 @@ namespace holovibes
 			void set_jitter_enabled(bool value);
 			void set_jitter_factor(double value);
 			void set_jitter_slices(int value);
+			void set_zernike_enable(bool val);
+			void set_zernike_m(int m);
+			void set_zernike_n(int n);
 			void set_aberration_enabled(bool value);
 			void set_aberration_factor(double value);
 			void set_aberration_slices(int value);
