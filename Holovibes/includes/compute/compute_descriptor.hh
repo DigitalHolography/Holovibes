@@ -237,7 +237,9 @@ namespace holovibes
 		std::atomic<uint>			autofocus_z_div;
 		/*! Number of loops done by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_iter;
+		//! Size of the stft_queue.
 		std::atomic<int>			stft_level;
+		//! Number of pipe iterations between two temporal demodulation.
 		std::atomic<int>			stft_steps;
 		std::atomic<int>			unwrap_history_size;
 		std::atomic<int>			special_buffer_size;

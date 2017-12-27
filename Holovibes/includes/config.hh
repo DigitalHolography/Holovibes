@@ -28,13 +28,12 @@ namespace holovibes
 			this->input_queue_max_size = 128;
 			this->output_queue_max_size = 64;
 			this->stft_cuts_output_buffer_size = 8;
-			this->float_queue_max_size = 20;
-			this->flush_on_refresh = 1;
+			this->flush_on_refresh = false;
 			this->frame_timeout = 100000;
 			this->reader_buf_max_size = 64;
 			this->unwrap_history_size = 20;
-			this->set_cuda_device = 1;
-			this->auto_device_number = 1;
+			this->set_cuda_device = true;
+			this->auto_device_number = true;
 			this->device_number = 0;
 		}
 
@@ -50,7 +49,6 @@ namespace holovibes
 			this->input_queue_max_size = o.input_queue_max_size;
 			this->output_queue_max_size = o.output_queue_max_size;
 			this->stft_cuts_output_buffer_size = o.stft_cuts_output_buffer_size;
-			this->float_queue_max_size = o.float_queue_max_size;
 			this->flush_on_refresh = o.flush_on_refresh;
 			this->frame_timeout = o.frame_timeout;
 			this->reader_buf_max_size = o.reader_buf_max_size;
@@ -67,10 +65,9 @@ namespace holovibes
 		unsigned int output_queue_max_size;
 		/*! \brief Max size of stft cuts queue in number of images. */
 		unsigned int stft_cuts_output_buffer_size;
-		/*! \brief Max size of float output queue in number of images. */
-		unsigned int float_queue_max_size;
-		/*! \brief Flush input queue on compute::refresh */
+		/*! \brief Flush input queue at start of compute::exec. (When the pipe is created) */
 		bool          flush_on_refresh;
+		//! Obsolete. Now using the one in the camera ini file.
 		unsigned int  frame_timeout;
 		/*! \brief Max number of images read each time by thread_reader. */
 		unsigned int reader_buf_max_size;

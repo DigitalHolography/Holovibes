@@ -580,13 +580,12 @@ namespace holovibes
 				// Config
 				config.input_queue_max_size = ptree.get<int>("config.input_buffer_size", config.input_queue_max_size);
 				config.output_queue_max_size = ptree.get<int>("config.output_buffer_size", config.output_queue_max_size);
-				config.float_queue_max_size = ptree.get<int>("config.float_buffer_size", config.float_queue_max_size);
 				config.stft_cuts_output_buffer_size = ptree.get<int>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
 				config.frame_timeout = ptree.get<int>("config.frame_timeout", config.frame_timeout);
 				config.flush_on_refresh = ptree.get<int>("config.flush_on_refresh", config.flush_on_refresh);
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
 				compute_desc_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size);
-				compute_desc_.stft_level = ptree.get<uint>("config.stft_buffer_size", compute_desc_.stft_level);
+				compute_desc_.stft_level = ptree.get<uint>("config.stft_queue_size", compute_desc_.stft_level);
 				compute_desc_.ref_diff_level = ptree.get<uint>("config.reference_buffer_size", compute_desc_.ref_diff_level);
 				compute_desc_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
 				compute_desc_.display_rate = ptree.get<float>("config.display_rate", compute_desc_.display_rate);
@@ -728,10 +727,9 @@ namespace holovibes
 			// Config
 			ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
 			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
-			ptree.put<uint>("config.float_buffer_size", config.float_queue_max_size);
 			ptree.put<uint>("config.input_file_buffer_size", config.reader_buf_max_size);
 			ptree.put<uint>("config.stft_cuts_output_buffer_size", config.stft_cuts_output_buffer_size);
-			ptree.put<int>("config.stft_buffer_size", compute_desc_.stft_level);
+			ptree.put<int>("config.stft_queue_size", compute_desc_.stft_level);
 			ptree.put<int>("config.reference_buffer_size", compute_desc_.ref_diff_level);
 			ptree.put<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
 			ptree.put<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size);
@@ -890,9 +888,9 @@ namespace holovibes
 			compute_desc_.pindex = 0;
 			compute_desc_.nSize = 1;
 			is_enabled_camera_ = false;
-			if (config.set_cuda_device == 1)
+			if (config.set_cuda_device)
 			{
-				if (config.auto_device_number == 1)
+				if (config.auto_device_number)
 				{
 					cudaGetDevice(&device);
 					config.device_number = device;
