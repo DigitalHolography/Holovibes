@@ -372,6 +372,7 @@ namespace holovibes
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
 			ui.CropStftCheckBox->setEnabled(!is_direct);
+			// Changing nsamples with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.PhaseNumberSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
 			ui.PhaseNumberSpinBox->setValue(compute_desc_.nsamples);
 			ui.PSpinBox->setMaximum(compute_desc_.nsamples - 1);
@@ -1506,6 +1507,12 @@ namespace holovibes
 						holovibes_.get_pipe()->request_update_n(phaseNumber);
 						compute_desc_.nsamples = phaseNumber;
 						set_p_accu();
+						// This will not do anything until SliceWindow::changeTexture() isn't coded.
+						if (compute_desc_.stft_view_enabled)
+						{
+							sliceXZ->adapt();
+							sliceYZ->adapt();
+						}
 					});
 				}
 			}

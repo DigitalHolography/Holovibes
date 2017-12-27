@@ -30,6 +30,8 @@ namespace holovibes
 			virtual ~SliceWindow();
 			void make_pixel_square();
 			void setTransform() override;
+
+			void adapt();
 			
 		protected:
 			cudaArray_t				cuArray;
@@ -41,10 +43,14 @@ namespace holovibes
 			virtual void	initializeGL() override;
 			virtual void	paintGL() override;
 
+			void changeTexture();
+
 			void mousePressEvent(QMouseEvent*) override;
 			void mouseMoveEvent(QMouseEvent*) override;
 			void mouseReleaseEvent(QMouseEvent*) override;
 			void focusInEvent(QFocusEvent*) override;
+
+			bool changeTexture_ = false;
 		};
 	}
 }

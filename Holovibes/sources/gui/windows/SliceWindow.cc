@@ -63,6 +63,11 @@ namespace holovibes
 			setPosition(old_pos);
 		}
 
+		void SliceWindow::adapt()
+		{
+			changeTexture_ = true;
+		}
+
 		void SliceWindow::setTransform()
 		{
 			BasicOpenGLWindow::setTransform();
@@ -82,6 +87,11 @@ namespace holovibes
 				overlay_manager_.create_overlay<Rainbow>();
 			else
 				overlay_manager_.create_default();
+		}
+
+		void SliceWindow::changeTexture()
+		{
+			//TODO
 		}
 
 		void	SliceWindow::initializeGL()
@@ -195,6 +205,11 @@ namespace holovibes
 
 		void	SliceWindow::paintGL()
 		{
+			if (changeTexture_)
+			{
+				changeTexture();
+				changeTexture_ = false;
+			}
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
 			Vao.bind();
