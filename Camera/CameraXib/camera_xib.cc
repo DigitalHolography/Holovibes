@@ -30,8 +30,8 @@ namespace camera
     if (ini_file_is_open())
       load_ini_params();
 
-	if (ini_file_is_open())
-		ini_file_.close();
+    if (ini_file_is_open())
+        ini_file_.close();
 
     frame_.size = sizeof(XI_IMG);
     frame_.bp = nullptr;
@@ -66,7 +66,7 @@ namespace camera
 
   void CameraXib::shutdown_camera()
   {
-	  auto res = xiCloseDevice(device_);
+    auto res = xiCloseDevice(device_);
     if (res != XI_OK)
       throw CameraException(CameraException::CANT_SHUTDOWN);
   }
@@ -75,7 +75,7 @@ namespace camera
   {
     xiGetImage(device_, FRAME_TIMEOUT, &frame_);
 
-	return frame_.bp;
+    return frame_.bp;
   }
 
   void CameraXib::load_default_params()
@@ -100,16 +100,16 @@ namespace camera
     roi_x_ = 0;
     roi_y_ = 0;
     roi_width_ = real_width_;
-	roi_height_ = real_height_;
-	/*/
+    roi_height_ = real_height_;
+    /*/
     roi_width_ = 1024;
-	roi_height_ = 1024;
-	//*/
+    roi_height_ = 1024;
+    //*/
 
-	desc_.width = static_cast<unsigned short>(roi_width_);
-	desc_.height = static_cast<unsigned short>(roi_height_);
+    desc_.width = static_cast<unsigned short>(roi_width_);
+    desc_.height = static_cast<unsigned short>(roi_height_);
 
-	exposure_time_ = 0;	// free run
+    exposure_time_ = 0;    // free run
   }
 
   void CameraXib::load_ini_params()
@@ -120,8 +120,8 @@ namespace camera
 
     downsampling_rate_ = pt.get<unsigned int>("xib.downsampling_rate", downsampling_rate_);
     // Updating frame size, taking account downsampling.
-	desc_.width = desc_.width / static_cast<unsigned short>(downsampling_rate_);
-	desc_.height = desc_.height / static_cast<unsigned short>(downsampling_rate_);
+    desc_.width = desc_.width / static_cast<unsigned short>(downsampling_rate_);
+    desc_.height = desc_.height / static_cast<unsigned short>(downsampling_rate_);
 
     std::string str;
     str = pt.get<std::string>("xib.downsampling_type", "");
@@ -162,8 +162,8 @@ namespace camera
         roi_height_ = tmp_roi_height;
 
         // Don't forget to update the frame descriptor!
-		desc_.width = static_cast<unsigned short>(roi_width_);
-		desc_.height = static_cast<unsigned short>(roi_height_);
+        desc_.width = static_cast<unsigned short>(roi_width_);
+        desc_.height = static_cast<unsigned short>(roi_height_);
       }
       else
         std::cerr << "[CAMERA] Invalid ROI settings, ignoring ROI." << std::endl;
@@ -193,10 +193,10 @@ namespace camera
 
     status |= xiSetParamInt(device_, XI_PRM_BUFFER_POLICY, buffer_policy_);
 
-	if (exposure_time_)
-		status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
-	else
-		status |= xiSetParamFloat(device_, XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FREE_RUN);
+    if (exposure_time_)
+        status |= xiSetParamFloat(device_, XI_PRM_EXPOSURE, 1.0e6f * exposure_time_);
+    else
+        status |= xiSetParamFloat(device_, XI_PRM_ACQ_TIMING_MODE, XI_ACQ_TIMING_MODE_FREE_RUN);
 
     status |= xiSetParamFloat(device_, XI_PRM_GAIN, gain_);
 

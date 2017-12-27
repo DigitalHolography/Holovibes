@@ -18,8 +18,10 @@
 # include <Windows.h>
 # include <xiApi.h>
 # include <vector>
+# include <iostream>
 
 # include <camera.hh>
+# include "camera_exception.hh"
 
 namespace camera
 {
@@ -31,7 +33,14 @@ namespace camera
     virtual ~CameraXib()
     {
       /* Ensure that the camera is closed in case of exception. */
-      shutdown_camera();
+      try
+      {
+          shutdown_camera();
+      }
+      // We can't throw in a destructor, but there's nothing to do on error
+      catch (CameraException&)
+      {
+      }
     }
 
     virtual void init_camera() override;
@@ -52,8 +61,8 @@ namespace camera
 
     float gain_; //!< Gain in dB.
 
-	static const int real_width_ = 4096;
-	static const int real_height_ = 3072;
+    static const int real_width_ = 4096;
+    static const int real_height_ = 3072;
 
     /*!
      * * 1: 1x1 sensor pixel  = 1 image pixel
@@ -98,6 +107,6 @@ namespace camera
     int roi_width_; //!< In pixels.
     int roi_height_; //!< In pixels.
 
-	std::vector<char> buffer_rescale_;
+    std::vector<char> buffer_rescale_;
   };
 }
