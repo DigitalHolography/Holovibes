@@ -54,12 +54,9 @@ void kernel_zernike_polynomial(cuComplex * output,
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	const uint	size = fd.width * fd.height;
 	
-	if (index < fd.width * fd.height) {
+	if (index < size) {
 		const int i = index % fd.width;
 		const int j = index / fd.width;
-
-		const float	dx = pixel_size;// *1.0e-6f;
-		const float	dy = dx;
 
 		const float x = (i - fd.width / 2) / (fd.width / 2.f);
 		const float y = (j - fd.height / 2) / (fd.height / 2.f);
@@ -75,10 +72,7 @@ void kernel_zernike_polynomial(cuComplex * output,
 			/*float term = binomial_coeff(n - k, k)
 			* binomial_coeff(n - 2 * k, (n - m) / 2 - k)
 			* powf(rho, n - 2 * k);*/
-			if (k % 2)
-				Rmn -= term;
-			else
-				Rmn += term;
+			Rmn += k % 2 ? -term : term;
 		}
 		float Zmn = coef * Rmn * cos(m * phi);
 		cuComplex res = make_cuComplex(cosf(Zmn), sinf(Zmn));

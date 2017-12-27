@@ -42,7 +42,7 @@ void fft1_lens(cuComplex*			lens,
 	const float				pixel_size,
 	cudaStream_t			stream)
 {
-	uint threads = 128;
+	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
 	kernel_quadratic_lens << <blocks, threads, 0, stream >> >(lens, fd, lambda, z, pixel_size);
@@ -58,17 +58,19 @@ void fft1_lens_zernike(cuComplex*	lens,
 		const uint				zernike_n,
 		cudaStream_t			stream)
 {
-	uint threads = 128;
+	uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
-	const uint m = zernike_m, n = zernike_n;
-	const auto nb_coef = n + 1;
+	const auto nb_coef = zernike_n + 1;
 	float coef = M_PI * lambda * z * 1E6;
 	size_t size_coef = pow(nb_coef, 2);
 	holovibes::cuda_tools::UniquePtr<unsigned int> binomial_coeffs(size_coef);
-	kernel_compute_all_binomial_coeff << <1, 1, 0, 0 >> > (binomial_coeffs.get(), nb_coef);
+	kernel_compute_all_binomial_coeff << <1, 1, 0, stream >> > (binomial_coeffs, nb_coef);
+	cudaCheckError();
 
-	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, M_PI * lambda * z, 0, 4, binomial_coeffs.get(), nb_coef);
+	cudaStreamSynchronize(stream);
+
+	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, zernike_m, zernike_n, binomial_coeffs, nb_coef);
 	cudaCheckError();
 }
 
