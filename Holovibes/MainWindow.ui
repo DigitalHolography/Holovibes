@@ -1412,7 +1412,7 @@
         <property name="title">
          <string>Motion + Focus</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,0,0,0,0,0">
+        <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,0,0,0,0,0,0">
          <property name="sizeConstraint">
           <enum>QLayout::SetNoConstraint</enum>
          </property>
@@ -1431,7 +1431,7 @@
          <item>
           <widget class="QGroupBox" name="AutofocusGroupBox">
            <property name="title">
-            <string>Focus / Aberration correction</string>
+            <string>Focus</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_17">
             <property name="leftMargin">
@@ -1523,6 +1523,9 @@
             <bool>false</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_30">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -1561,6 +1564,26 @@
             <item>
              <widget class="QSpinBox" name="ZernikeNSpinBox"/>
             </item>
+            <item>
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>amp.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+              <property name="minimum">
+               <double>-100000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>100000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -1589,18 +1612,34 @@
              <number>1</number>
             </property>
             <item>
-             <widget class="QCheckBox" name="ShowConvoMatrixCheckBox">
-              <property name="text">
-               <string>Show convolution matrix</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="StabilizationAreaButton">
-              <property name="text">
-               <string>Set stabilization area</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="1,0">
+              <item>
+               <widget class="QCheckBox" name="ShowConvoMatrixCheckBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Conv. matrix</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="StabilizationAreaButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Set area</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -1608,7 +1647,7 @@
          <item>
           <widget class="QGroupBox" name="InterpolationCheckbox">
            <property name="title">
-            <string>Interpolation</string>
+            <string>Interferogram interpolation</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1631,8 +1670,17 @@
             </property>
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_8">
+              <property name="horizontalSpacing">
+               <number>0</number>
+              </property>
               <item row="2" column="0">
                <widget class="QLabel" name="label_12">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
                  <string>Thresh.</string>
                 </property>
@@ -1643,6 +1691,12 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="InterpolationLambda1">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="decimals">
                  <number>4</number>
                 </property>
@@ -1659,6 +1713,12 @@
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_10">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
                  <string>λ1</string>
                 </property>
@@ -1685,6 +1745,12 @@
               </item>
               <item row="0" column="2">
                <widget class="QLabel" name="label_11">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="text">
                  <string>λ2</string>
                 </property>
@@ -1695,6 +1761,12 @@
               </item>
               <item row="0" column="3">
                <widget class="QDoubleSpinBox" name="InterpolationLambda2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="decimals">
                  <number>4</number>
                 </property>
@@ -1730,7 +1802,7 @@
          <item>
           <widget class="QGroupBox" name="JitterCheckBox">
            <property name="title">
-            <string>Jitter correction</string>
+            <string>Phase noise correction</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1813,7 +1885,7 @@
          <item>
           <widget class="QGroupBox" name="AberrationCheckBox">
            <property name="title">
-            <string>Aberration</string>
+            <string>Aberration correction</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1821,7 +1893,7 @@
            <property name="checked">
             <bool>false</bool>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_29">
+           <layout class="QHBoxLayout" name="horizontalLayout_32">
             <property name="leftMargin">
              <number>1</number>
             </property>
@@ -1837,7 +1909,7 @@
             <item>
              <layout class="QGridLayout" name="gridLayout_12">
               <item row="0" column="0">
-               <widget class="QLabel" name="label_14">
+               <widget class="QLabel" name="label_16">
                 <property name="text">
                  <string>chunks</string>
                 </property>
@@ -1860,7 +1932,7 @@
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QLabel" name="label_15">
+               <widget class="QLabel" name="label_17">
                 <property name="text">
                  <string>factor</string>
                 </property>
@@ -3218,7 +3290,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -3607,8 +3679,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>AutofocusZMinDoubleSpinBox</tabstop>
   <tabstop>AutofocusZMaxDoubleSpinBox</tabstop>
   <tabstop>MotionCorrectionCheckBox</tabstop>
-  <tabstop>ShowConvoMatrixCheckBox</tabstop>
-  <tabstop>StabilizationAreaButton</tabstop>
   <tabstop>InterpolationCheckbox</tabstop>
   <tabstop>InterpolationLambda1</tabstop>
   <tabstop>InterpolationSensitivity</tabstop>
