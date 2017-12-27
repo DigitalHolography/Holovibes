@@ -71,13 +71,33 @@ namespace holovibes
 				size_ = size;
 			}
 
+			/// Override reset to set the size accordingly
+			void reset(T* ptr = nullptr)
+			{
+				base::reset(ptr);
+				size_ = 0;
+			}
+
+			/// Dumps all the array into a file
+			///
+			/// Slow and inefficient, for debug purpose only
 			void write_to_file(std::string filename, bool trunc = false)
+			{
+				auto cpu_buffer = to_cpu();
+				const uint byte_size = size_ * sizeof(T);
+				std::ofstream file(filename, std::ios::binary | (trunc ? std::ios::trunc : std::ios::app));
+				file.write(reinterpret_cast<char*>(cpu_buffer.data()), byte_size);
+			}
+
+			/// Dumps all the array into a CPU vector
+			///
+			/// Slow and inefficient, for debug purpose only
+			std::vector<T> to_cpu()
 			{
 				std::vector<T> cpu_buffer(size_);
 				const uint byte_size = size_ * sizeof(T);
 				cudaMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
-				std::ofstream file(filename, std::ios::binary | (trunc ? std::ios::trunc : std::ios::app));
-				file.write(reinterpret_cast<char*>(cpu_buffer.data()), byte_size);
+				return cpu_buffer;
 			}
 
 		private:

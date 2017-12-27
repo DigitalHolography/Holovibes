@@ -350,6 +350,10 @@ namespace holovibes
 		std::atomic<int>			jitter_slices_{ 7 };
 		std::atomic<double>			jitter_factor_{ 1. };
 
+		std::atomic<bool>			aberration_enabled_{ false };
+		std::atomic<int>			aberration_slices_{ 8 };
+		std::atomic<double>			aberration_factor_{ 1. };
+
 		#pragma endregion
 	};
 }

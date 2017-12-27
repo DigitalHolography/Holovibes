@@ -100,34 +100,7 @@ void RemoveJitter::extract_and_fft(int slice_index, float* buffer)
 
 void RemoveJitter::correlation(float* ref, float* slice, float* out)
 {
-	auto size = slice_size();
-	Array<cuComplex> tmp_a(size);
-	Array<cuComplex> tmp_b(size);
-	CufftHandle plan2d;
-	int width = dimensions_.width();
-	int depth = slice_depth_;
-
-
-	plan2d.plan(width, depth, CUFFT_R2C);
-	cufftExecR2C(plan2d, ref, tmp_a);
-	cufftExecR2C(plan2d, slice, tmp_b);
-	cudaStreamSynchronize(0);
-	cudaCheckError();
-
-	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
-	cudaStreamSynchronize(0);
-
-	plan2d.plan(width, depth, CUFFT_C2R);
-
-	Array<cuComplex> complex_buffer(slice_size());
-
-	cufftExecC2R(plan2d, tmp_a, out);
-	cudaStreamSynchronize(0);
-	cudaCheckError();
-	return;
-
-	complex_to_modulus(complex_buffer, out, nullptr, 0, 0, slice_size());
-	cudaStreamSynchronize(0);
+	correlation_operator(ref, slice, out, { dimensions_.width(), static_cast<int>(slice_depth_) });
 }
 
 int RemoveJitter::maximum_y(float* frame)
@@ -164,9 +137,6 @@ void RemoveJitter::compute_all_shifts()
 {
 	extract_and_fft(0, ref_slice_);
 	rotation_180(ref_slice_, { dimensions_.width(), static_cast<int>(slice_depth_) });
-
-	// We flip it for the convolution, to do it only once
-	//rotation_180(ref_slice_.get(), {dimensions_.width(), static_cast<int>(slice_depth_)});
 
 	shifts_.clear();
 	for (uint i = 1; i < nb_slices_; ++i)

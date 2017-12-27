@@ -54,6 +54,7 @@ namespace holovibes
 		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
+		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, fourier_transforms_->get_lens_queue().get());
 
 		update_n_requested_ = true;
 		refresh();
@@ -142,6 +143,8 @@ namespace holovibes
 
 		fourier_transforms_->insert_fft();
 		fourier_transforms_->insert_stft();
+
+		aberration_->enqueue(fn_vect_);
 
 		// Complex mode is strangely implemented.
 		// If someone knows why this line is fixing complex slices, please make it cleaner.

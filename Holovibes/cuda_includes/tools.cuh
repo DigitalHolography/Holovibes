@@ -205,3 +205,5 @@ void complex_translation(float		*frame,
 						uint		height,
 						int			shift_x,
 						int			shift_y);
+
+void correlation_operator(float* a, float* b, float* out, QPoint dimensions);

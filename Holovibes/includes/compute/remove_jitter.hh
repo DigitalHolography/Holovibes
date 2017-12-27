@@ -50,8 +50,7 @@ namespace holovibes
 			*/
 			int slice_size();
 
-			/*! Extract one frame from the buffrt while performing the fft,
-			 * and fft again for the correlation later on
+			/*! Extract one frame from the buffrt while performing the fft
 			 */
 			void extract_and_fft(int slice_index, float* buffer);
 

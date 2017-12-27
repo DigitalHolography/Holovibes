@@ -158,6 +158,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cuda_includes\aberration.cuh" />
     <ClInclude Include="cuda_includes\autofocus.cuh" />
     <ClInclude Include="cuda_includes\average.cuh" />
     <ClInclude Include="cuda_includes\composite.cuh" />
@@ -169,6 +170,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\filter2D.cuh" />
     <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\interpolation.cuh" />
+    <ClInclude Include="cuda_includes\operator_overload.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
     <ClInclude Include="cuda_includes\stabilization.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />
@@ -182,6 +184,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
     <ClInclude Include="includes\camera_dll.hh" />
+    <ClInclude Include="includes\compute\aberration.hh" />
     <ClInclude Include="includes\compute\autofocus.hh" />
     <ClInclude Include="includes\compute\compute_bundles.hh" />
     <ClInclude Include="includes\compute\compute_bundles_2d.hh" />
@@ -430,6 +433,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="sources\compute\aberration.cc" />
     <ClCompile Include="sources\compute\autofocus.cc" />
     <ClCompile Include="sources\compute\rendering.cc" />
     <ClCompile Include="sources\compute\converts.cc" />
@@ -544,6 +548,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ResourceCompile Include="Holovibes.rc" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="cuda_sources\aberration.cu" />
     <CudaCompile Include="cuda_sources\autofocus.cu" />
     <CudaCompile Include="cuda_sources\average.cu" />
     <CudaCompile Include="cuda_sources\composite.cu" />

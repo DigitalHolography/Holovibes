@@ -362,6 +362,9 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_gui_drag_drop_lineedit.cc">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="sources\compute\aberration.cc">
+      <Filter>c++ sources\compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -622,6 +625,15 @@
     <ClInclude Include="includes\gui\selections\overlays\rainbow_overlay.hh">
       <Filter>c++ includes\gui\selections\Overlays</Filter>
     </ClInclude>
+    <ClInclude Include="includes\compute\aberration.hh">
+      <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\aberration.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
+    <ClInclude Include="cuda_includes\operator_overload.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
     <ClInclude Include="includes\compute\rendering.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
@@ -733,6 +745,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\interpolation.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\aberration.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

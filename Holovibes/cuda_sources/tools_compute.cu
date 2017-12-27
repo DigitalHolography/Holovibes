@@ -306,9 +306,12 @@ void normalize_frame(float* frame, uint frame_res)
 {
 	float min, max;
 	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
+	cudaCheckError();
 
 	gpu_substract_const(frame, frame_res, min);
 	cudaStreamSynchronize(0);
+	cudaCheckError();
 	gpu_multiply_const(frame, frame_res, 1.f / static_cast<float>(max - min));
 	cudaStreamSynchronize(0);
+	cudaCheckError();
 }

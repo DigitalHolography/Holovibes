@@ -14,10 +14,14 @@
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
 #include "cuda_tools/unique_ptr.hh"
+#include "cuda_tools/array.hh"
+#include "cuda_tools/cufft_handle.hh"
 
 using camera::FrameDescriptor;
 using namespace holovibes;
 using cuda_tools::UniquePtr;
+using cuda_tools::Array;
+using cuda_tools::CufftHandle;
 
 __global__
 void kernel_apply_lens(cuComplex		*input,
@@ -554,4 +558,32 @@ void complex_translation(float		*frame,
 	cudaStreamSynchronize(0);
 	cudaMemcpy(frame, tmp_buffer, width * height * sizeof(float), cudaMemcpyDeviceToDevice);
 	cudaFree(tmp_buffer);
+}
+
+void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
+{
+	uint size = dimensions.x() * dimensions.y();
+	Array<cuComplex> tmp_a(size);
+	Array<cuComplex> tmp_b(size);
+	CufftHandle plan2d;
+	const int width = dimensions.x();
+	const int height = dimensions.y();
+
+
+	plan2d.plan(width, height, CUFFT_R2C);
+	cufftExecR2C(plan2d, a, tmp_a);
+	cufftExecR2C(plan2d, b, tmp_b);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+
+	multiply_frames_complex(tmp_a, tmp_b, tmp_a, size);
+	cudaStreamSynchronize(0);
+
+	plan2d.plan(width, height, CUFFT_C2R);
+
+	Array<cuComplex> complex_buffer(size);
+
+	cufftExecC2R(plan2d, tmp_a, out);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
 }
