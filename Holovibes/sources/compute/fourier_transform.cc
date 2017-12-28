@@ -16,6 +16,7 @@
 #include "filter2d.cuh"
 #include "fft1.cuh"
 #include "fft2.cuh"
+#include "transforms.cuh"
 #include "stft.cuh"
 #include "icompute.hh"
 #include "info_manager.hh"
@@ -105,20 +106,13 @@ void FourierTransform::insert_filter2d()
 void FourierTransform::insert_fft1()
 {
 	const float z = autofocus_->get_zvalue();
-	if (cd_.zernike_enabled)
-		fft1_lens_zernike(gpu_lens_.get(),
-			fd_,
-			cd_.lambda,
-			z,
-			cd_.pixel_size,
-			cd_.zernike_m,
-			cd_.zernike_n);
-	else
-		fft1_lens(gpu_lens_.get(),
-			fd_,
-			cd_.lambda,
-			z,
-			cd_.pixel_size);
+	fft1_lens(gpu_lens_,
+		fd_,
+		cd_.lambda,
+		z,
+		cd_.pixel_size);
+
+	compute_zernike(z);
 
 	fn_vect_.push_back([=]() {
 		fft_1(
@@ -132,12 +126,13 @@ void FourierTransform::insert_fft1()
 void FourierTransform::insert_fft2()
 {
 	const float z = autofocus_->get_zvalue();
-	fft2_lens(
-		gpu_lens_,
+	fft2_lens(gpu_lens_,
 		fd_,
 		cd_.lambda,
 		z,
 		cd_.pixel_size);
+
+	compute_zernike(z);
 
 	fn_vect_.push_back([=]() {
 		fft_2(
@@ -247,4 +242,17 @@ void FourierTransform::stft_handler()
 			cd_.img_type);
 	}
 	stft_env_.stft_handle_ = true;
+}
+
+void FourierTransform::compute_zernike(const float z)
+{
+	if (cd_.zernike_enabled && cd_.zernike_m <= cd_.zernike_n)
+		zernike_lens(gpu_lens_,
+			fd_,
+			cd_.lambda,
+			z,
+			cd_.pixel_size,
+			cd_.zernike_m,
+			cd_.zernike_n,
+			cd_.zernike_factor);
 }

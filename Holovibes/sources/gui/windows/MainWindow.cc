@@ -563,6 +563,7 @@ namespace holovibes
 			GroupBox *record_group_box = ui.RecordGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
+			GroupBox *motion_focus_group_box = ui.MotionFocusGroupBox;
 
 			QAction	*image_rendering_action = ui.actionImage_rendering;
 			QAction	*view_action = ui.actionView;
@@ -570,6 +571,7 @@ namespace holovibes
 			QAction	*record_action = ui.actionRecord;
 			QAction	*import_action = ui.actionImport;
 			QAction	*info_action = ui.actionInfo;
+			QAction *motion_focus_action = ui.actionMotionFocus;
 
 			boost::property_tree::ini_parser::read_ini(path, ptree);
 
@@ -589,13 +591,8 @@ namespace holovibes
 				compute_desc_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
 				compute_desc_.display_rate = ptree.get<float>("config.display_rate", compute_desc_.display_rate);
 
-				// Camera type
-				//const int camera_type = ptree.get<int>("image_rendering.camera", 0);
-				//change_camera(static_cast<CameraKind>(camera_type));
-
 				// Image rendering
-				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", false));
-				image_rendering_group_box->setHidden(ptree.get<bool>("image_rendering.hidden", false));
+				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
 				const ushort p_nSize= ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
 				if (p_nSize < 1)
@@ -617,8 +614,7 @@ namespace holovibes
 				compute_desc_.algorithm = static_cast<Algorithm>(ptree.get<int>("image_rendering.algorithm", compute_desc_.algorithm));
 
 				// View
-				view_action->setChecked(!ptree.get<bool>("view.hidden", false));
-				view_group_box->setHidden(ptree.get<bool>("view.hidden", false));
+				view_action->setChecked(!ptree.get<bool>("view.hidden", view_group_box->isHidden()));
 
 				compute_desc_.img_type.exchange(static_cast<ImgType>(
 					ptree.get<int>("view.view_mode", compute_desc_.img_type)));
@@ -652,26 +648,25 @@ namespace holovibes
 				yzFlip = ptree.get("view.yCut_flip", yzFlip);
 
 				// Post Processing
-				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", false));
-				special_group_box->setHidden(ptree.get<bool>("post_processing.hidden", false));
+				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", special_group_box->isHidden()));
 				compute_desc_.vibrometry_q.exchange(
 					ptree.get<int>("post_processing.image_ratio_q", compute_desc_.vibrometry_q));
 				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
 				compute_desc_.average_enabled = is_enabled_average_;
 
 				// Record
-				record_action->setChecked(!ptree.get<bool>("record.hidden", false));
-				record_group_box->setHidden(ptree.get<bool>("record.hidden", false));
+				record_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
+
+				// Motion Focus
+				motion_focus_action->setChecked(!ptree.get<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden()));
 
 				// Import
-				import_action->setChecked(!ptree.get<bool>("import.hidden", false));
-				import_group_box->setHidden(ptree.get<bool>("import.hidden", false));
+				import_action->setChecked(!ptree.get<bool>("import.hidden", import_group_box->isHidden()));
 				compute_desc_.pixel_size = ptree.get<float>("import.pixel_size", compute_desc_.pixel_size);
 				ui.ImportFpsSpinBox->setValue(ptree.get<int>("import.fps", 60));
 
 				// Info
-				info_action->setChecked(!ptree.get<bool>("info.hidden", false));
-				info_group_box->setHidden(ptree.get<bool>("info.hidden", false));
+				info_action->setChecked(!ptree.get<bool>("info.hidden", info_group_box->isHidden()));
 				theme_index_ = ptree.get<int>("info.theme_type", theme_index_);
 
 				// Autofocus
@@ -719,6 +714,7 @@ namespace holovibes
 			GroupBox *record_group_box = ui.RecordGroupBox;
 			GroupBox *import_group_box = ui.ImportGroupBox;
 			GroupBox *info_group_box = ui.InfoGroupBox;
+			GroupBox *motion_focus_group_box = ui.MotionFocusGroupBox;
 			Config& config = global::global_config;
 			
 			// Config
@@ -770,6 +766,9 @@ namespace holovibes
 
 			// Record
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
+
+			// Motion Focus
+			ptree.get<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden());
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
@@ -2054,17 +2053,35 @@ namespace holovibes
 		void MainWindow::set_zernike_enable(bool val)
 		{
 			compute_desc_.zernike_enabled = val;
-			pipe_refresh();
+			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
+				display_error("n have to be greater or equal to m");
+			else
+				pipe_refresh();
 		}
 		void MainWindow::set_zernike_m(int m)
 		{
 			compute_desc_.zernike_m = m;
-			pipe_refresh();
+			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
+				display_error("n have to be greater or equal to m");
+			else
+				pipe_refresh();
 		}
 		void MainWindow::set_zernike_n(int n)
 		{
 			compute_desc_.zernike_n = n;
-			pipe_refresh();
+			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
+				display_error("n have to be greater or equal to m");
+			else
+				pipe_refresh();
+		}
+
+		void MainWindow::set_zernike_factor(double value)
+		{
+			compute_desc_.zernike_factor = value;
+			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
+				display_error("n have to be greater or equal to m");
+			else
+				pipe_refresh();
 		}
 		#pragma endregion
 		/* ------------ */

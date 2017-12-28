@@ -332,8 +332,12 @@ namespace holovibes
 
 		//! Use Zernike polynomials instead of paraboloid for the lens
 		std::atomic<bool>			zernike_enabled{ false };
+		//! m-order of zernike polynomial
 		std::atomic<int>			zernike_m;
+		//! n-order of zernike polynomial
 		std::atomic<int>			zernike_n;
+		//! Factor of the zernike polynomial
+		std::atomic<double>			zernike_factor{ 1.f };
 
 
 		//! Display the raw interferogram when we are in hologram mode.

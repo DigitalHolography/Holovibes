@@ -95,6 +95,12 @@ namespace holovibes
 			*/
 			void enqueue_lens();
 
+			/*! \brief add the zernike polynomials to the current lens.
+			
+			*/
+
+			void compute_zernike(const float z);
+
 			//! Roi zone of Filter 2D
 			units::RectFd					filter2d_zone_;
 

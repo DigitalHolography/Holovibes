@@ -15,6 +15,80 @@
 using camera::FrameDescriptor;
 
 __global__
+static void kernel_compute_all_binomial_coeff(uint* coeffs, uint nb_coef)
+{
+	for (uint n = 0; n < nb_coef; n++) {
+		coeffs[n * nb_coef] = 1;
+		uint last_line = (n - 1) * nb_coef;
+		for (uint k = 1; k <= n; k++) {
+			coeffs[n * nb_coef + k] = coeffs[last_line + k - 1] + coeffs[last_line + k];
+		}
+	}
+}
+
+__global__
+static void kernel_zernike_polynomial(cuComplex * output,
+	const FrameDescriptor fd,
+	const float pixel_size,
+	const float coef,
+	const unsigned int m, const unsigned int n,
+	const uint* binomial_coeff, uint nb_coef)
+{
+	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
+	const uint	size = fd.width * fd.height;
+	
+	if (index < size) {
+		const int i = index % fd.width;
+		const int j = index / fd.width;
+
+		const float x = (i - fd.width / 2) / (fd.width / 2.f);
+		const float y = (j - fd.height / 2) / (fd.height / 2.f);
+
+		const float rho = hypotf(x, y); // Magnitude
+		const float phi = atan2(x, y);  // Argument
+
+		float Rmn = 0;
+		for (unsigned int k = 0; k <= (n - m) / 2; k++) {
+			float term = binomial_coeff[(n - k) * nb_coef + k]
+				* binomial_coeff[(n - 2 * k) * nb_coef + (n - m) / 2 - k]
+				* powf(rho, n - 2 * k);
+
+			Rmn += k % 2 ? -term : term;
+		}
+		// If (m < 0), Zmn = coef * Rmn * sin(-m * phi)     But doing it here means one check on each thread. Better have two different functions.
+		float Zmn = coef * Rmn * cos(m * phi);
+		output[index].x *= cosf(Zmn);
+		output[index].y *= sinf(Zmn);
+	}
+}
+
+void zernike_lens(cuComplex*	lens,
+		const FrameDescriptor&	fd,
+		const float				lambda,
+		const float				z,
+		const float				pixel_size,
+		const uint				zernike_m,
+		const uint				zernike_n,
+		const double			zernike_factor,
+		cudaStream_t			stream)
+{
+	uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
+
+	const auto nb_coef = zernike_n + 1;
+	float coef = M_PI * lambda * z * 1E6 * zernike_factor;
+	size_t size_coef = pow(nb_coef, 2);
+	holovibes::cuda_tools::UniquePtr<unsigned int> binomial_coeffs(size_coef);
+	kernel_compute_all_binomial_coeff << <1, 1, 0, stream >> > (binomial_coeffs, nb_coef);
+	cudaCheckError();
+
+	cudaStreamSynchronize(stream);
+
+	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, zernike_m, zernike_n, binomial_coeffs, nb_coef);
+	cudaCheckError();
+}
+
+__global__
 void kernel_quadratic_lens(cuComplex*			output,
 						const FrameDescriptor	fd,
 						const float				lambda,
@@ -42,51 +116,6 @@ void kernel_quadratic_lens(cuComplex*			output,
 		output[index].y = sinf(csquare);
 	}
 }
-
-__global__
-void kernel_zernike_polynomial(cuComplex * output,
-	const FrameDescriptor fd,
-	const float pixel_size,
-	const float coef,
-	const unsigned int m, const unsigned int n,
-	const uint* binomial_coeff, uint nb_coef)
-{
-	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
-	const uint	size = fd.width * fd.height;
-	
-	if (index < size) {
-		const int i = index % fd.width;
-		const int j = index / fd.width;
-
-		const float x = (i - fd.width / 2) / (fd.width / 2.f);
-		const float y = (j - fd.height / 2) / (fd.height / 2.f);
-
-		const float rho = hypotf(x, y); // Magnitude
-		const float phi = atan2(x, y);  // Argument
-
-		float Rmn = 0;
-		for (unsigned int k = 0; k <= (n - m) / 2; k++) {
-			float term = binomial_coeff[(n - k) * nb_coef + k]
-				* binomial_coeff[(n - 2 * k) * nb_coef + (n - m) / 2 - k]
-				* powf(rho, n - 2 * k);
-			/*float term = binomial_coeff(n - k, k)
-			* binomial_coeff(n - 2 * k, (n - m) / 2 - k)
-			* powf(rho, n - 2 * k);*/
-			Rmn += k % 2 ? -term : term;
-		}
-		float Zmn = coef * Rmn * cos(m * phi);
-		cuComplex res = make_cuComplex(cosf(Zmn), sinf(Zmn));
-		output[index].x = cosf(Zmn);
-		output[index].y = sinf(Zmn);
-	}
-}
-
-/*__device__
-unsigned int binomial_coeff(unsigned int n, unsigned int k) {
-	if (k == 0 || k == n)
-		return 1;
-	return binomial_coeff(n - 1, k - 1) + binomial_coeff(n - 1, k);
-}*/
 
 __global__
 void kernel_spectral_lens(cuComplex				*output,
