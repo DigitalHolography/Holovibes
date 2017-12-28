@@ -2051,38 +2051,32 @@ namespace holovibes
 			compute_desc_.locked_zoom = value;
 		}
 
+		void MainWindow::zernike_refresh()
+		{
+			if (std::abs(compute_desc_.zernike_m) > compute_desc_.zernike_n)
+				display_error("n have to be greater or equal to |m|");
+		}
+
 		void MainWindow::set_zernike_enable(bool val)
 		{
 			compute_desc_.zernike_enabled = val;
-			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
-				display_error("n have to be greater or equal to m");
-			else
-				pipe_refresh();
+			zernike_refresh();
 		}
 		void MainWindow::set_zernike_m(int m)
 		{
 			compute_desc_.zernike_m = m;
-			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
-				display_error("n have to be greater or equal to m");
-			else
-				pipe_refresh();
+			zernike_refresh();
 		}
 		void MainWindow::set_zernike_n(int n)
 		{
 			compute_desc_.zernike_n = n;
-			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
-				display_error("n have to be greater or equal to m");
-			else
-				pipe_refresh();
+			zernike_refresh();
 		}
 
 		void MainWindow::set_zernike_factor(double value)
 		{
 			compute_desc_.zernike_factor = value;
-			if (compute_desc_.zernike_m > compute_desc_.zernike_n)
-				display_error("n have to be greater or equal to m");
-			else
-				pipe_refresh();
+			zernike_refresh();
 		}
 		#pragma endregion
 		/* ------------ */

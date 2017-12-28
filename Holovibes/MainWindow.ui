@@ -1549,7 +1549,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="ZernikeMSpinBox"/>
+             <widget class="QSpinBox" name="ZernikeMSpinBox">
+              <property name="minimum">
+               <number>-99</number>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="label_15">
@@ -3338,7 +3342,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1620</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
