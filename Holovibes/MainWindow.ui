@@ -2371,7 +2371,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="ROIFilePathLineEdit">
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIFilePathLineEdit">
                 <property name="placeholderText">
                  <string>Select a ROI file</string>
                 </property>
