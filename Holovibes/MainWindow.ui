@@ -2174,8 +2174,11 @@
              </property>
              <item>
               <widget class="holovibes::gui::Drag_drop_lineedit" name="ConvoMatrixPathLineEdit">
-               <property name="text">
+               <property name="inputMask">
                 <string/>
+               </property>
+               <property name="text">
+                <string>Select file</string>
                </property>
               </widget>
              </item>
@@ -2534,7 +2537,14 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImageOutputPathLineEdit"/>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="ImageOutputPathLineEdit">
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string>Select file</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QToolButton" name="ImageOutputBrowseToolButton">
@@ -2610,6 +2620,12 @@
                <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIOutputPathLineEdit">
                 <property name="enabled">
                  <bool>true</bool>
+                </property>
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -2689,7 +2705,14 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit"/>
+               <widget class="holovibes::gui::Drag_drop_lineedit" name="BatchInputPathLineEdit">
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string>Select file</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QToolButton" name="BatchInputBrowseToolButton">
@@ -2785,6 +2808,9 @@
             <widget class="holovibes::gui::Drag_drop_lineedit" name="ImportPathLineEdit">
              <property name="acceptDrops">
               <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>Select file</string>
              </property>
              <property name="dragEnabled">
               <bool>true</bool>
