@@ -32,7 +32,7 @@ static void kernel_zernike_polynomial(cuComplex * output,
 	const FrameDescriptor fd,
 	const float pixel_size,
 	const float coef,
-	const unsigned int m, const unsigned int n, const bool m_positive,
+	const unsigned int m, const unsigned int n,
 	const uint* binomial_coeff, uint nb_coef)
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -85,7 +85,7 @@ void zernike_lens(cuComplex*	lens,
 
 	cudaStreamSynchronize(stream);
 
-	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, std::abs(zernike_m), zernike_n, zernike_m >= 0, binomial_coeffs, nb_coef);
+	kernel_zernike_polynomial << <blocks, threads, 0, stream >> > (lens, fd, pixel_size, coef, zernike_m, zernike_n, binomial_coeffs, nb_coef);
 	cudaCheckError();
 }
 

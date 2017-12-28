@@ -275,7 +275,6 @@ namespace holovibes
 			void		remove_infos();
 			void		pipe_refresh();
 			void		set_auto_contrast_cuts();
-			void		zernike_refresh();
 
 			// Change the value without triggering any signals
 			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
