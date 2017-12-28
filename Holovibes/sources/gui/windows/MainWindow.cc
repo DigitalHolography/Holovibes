@@ -90,8 +90,7 @@ namespace holovibes
 			ui.CompositeGroupBox->setHidden(true);
 
 			ui.actionSpecial->setChecked(false);
-			ui.actionRecord->setChecked(false);
-			ui.actionInfo->setChecked(false);
+			ui.actionMotionFocus->setChecked(false);
 
 			try
 			{
