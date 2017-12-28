@@ -1514,7 +1514,7 @@
          <item>
           <widget class="QGroupBox" name="ZernikeGroupBox">
            <property name="title">
-            <string>Zernike</string>
+            <string>Zernike polynomial</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -2178,6 +2178,9 @@
                 <string/>
                </property>
                <property name="text">
+                <string/>
+               </property>
+               <property name="placeholderText">
                 <string>Select file</string>
                </property>
               </widget>
@@ -2376,7 +2379,7 @@
               <item>
                <widget class="holovibes::gui::Drag_drop_lineedit" name="ROIFilePathLineEdit">
                 <property name="placeholderText">
-                 <string>Select a ROI file</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -2542,6 +2545,9 @@
                  <string/>
                 </property>
                 <property name="text">
+                 <string/>
+                </property>
+                <property name="placeholderText">
                  <string>Select file</string>
                 </property>
                </widget>
@@ -2625,6 +2631,9 @@
                  <string/>
                 </property>
                 <property name="text">
+                 <string/>
+                </property>
+                <property name="placeholderText">
                  <string>Select file</string>
                 </property>
                </widget>
@@ -2710,6 +2719,9 @@
                  <string/>
                 </property>
                 <property name="text">
+                 <string/>
+                </property>
+                <property name="placeholderText">
                  <string>Select file</string>
                 </property>
                </widget>
@@ -2810,10 +2822,13 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Select file</string>
+              <string/>
              </property>
              <property name="dragEnabled">
               <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>Select file</string>
              </property>
             </widget>
            </item>

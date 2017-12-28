@@ -768,7 +768,7 @@ namespace holovibes
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
 
 			// Motion Focus
-			ptree.get<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden());
+			ptree.put<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden());
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
