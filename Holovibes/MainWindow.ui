@@ -2519,7 +2519,7 @@
          <item>
           <widget class="QCheckBox" name="SynchronizedRecordCheckBox">
            <property name="text">
-            <string>Synchronized record</string>
+            <string>Sync. with input file</string>
            </property>
           </widget>
          </item>

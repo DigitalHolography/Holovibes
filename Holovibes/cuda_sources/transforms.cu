@@ -11,6 +11,7 @@
 /* **************************************************************************** */
 
 #include "transforms.cuh"
+#include "operator_overload.cuh"
 
 using camera::FrameDescriptor;
 
@@ -57,8 +58,8 @@ static void kernel_zernike_polynomial(cuComplex * output,
 		}
 		// If (m < 0), Zmn = coef * Rmn * sin(-m * phi)     But doing it here means one check on each thread. Better have two different functions.
 		float Zmn = coef * Rmn * cos(m * phi);
-		output[index].x *= cosf(Zmn);
-		output[index].y *= sinf(Zmn);
+		cuComplex temp = { cosf(Zmn), sinf(Zmn) };
+		output[index] = output[index] * temp;
 	}
 }
 
@@ -76,7 +77,7 @@ void zernike_lens(cuComplex*	lens,
 	uint blocks = map_blocks_to_problem(fd.frame_res(), threads);
 
 	const auto nb_coef = zernike_n + 1;
-	float coef = M_PI * lambda * z * 1E6 * zernike_factor;
+	float coef = -2 * M_PI * zernike_factor;
 	size_t size_coef = pow(nb_coef, 2);
 	holovibes::cuda_tools::UniquePtr<unsigned int> binomial_coeffs(size_coef);
 	kernel_compute_all_binomial_coeff << <1, 1, 0, stream >> > (binomial_coeffs, nb_coef);
