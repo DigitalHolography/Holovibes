@@ -600,8 +600,6 @@ namespace holovibes
 				const ushort p_nSize= ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
 				if (p_nSize < 1)
 					compute_desc_.nSize = 1;
-				else if (p_nSize > config.input_queue_max_size)
-					compute_desc_.nSize = config.input_queue_max_size;
 				else
 					compute_desc_.nSize = p_nSize;
 				const ushort p_index = ptree.get<ushort>("image_rendering.p_index", compute_desc_.pindex);
