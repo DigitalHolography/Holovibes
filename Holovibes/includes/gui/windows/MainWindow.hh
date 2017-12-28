@@ -246,6 +246,9 @@ namespace holovibes
 			void set_aberration_slices(int value);
 			void set_square_pixel(bool value);
 			void set_locked_zoom(bool value);
+			void set_synchronized_record(bool value);
+			//! Used to start the record at the same time than file reader.
+			void start_recording();
 			#pragma endregion
 			/* ---------- */
 		signals:

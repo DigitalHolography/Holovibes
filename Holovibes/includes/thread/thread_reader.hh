@@ -42,8 +42,10 @@ namespace holovibes
   * Reads raw data from a file, and interpret it as images of a specified format.
   * The data is transferred to the input queue, and so can be processed as regular
   * images recorded from a camera. */
-  class ThreadReader : public IThreadInput
+  class ThreadReader : public QObject, public IThreadInput
   {
+			Q_OBJECT
+
   public:
 
     /*! \brief Create a preconfigured ThreadReader. */
@@ -63,6 +65,9 @@ namespace holovibes
     virtual ~ThreadReader();
 
     const camera::FrameDescriptor& get_frame_descriptor() const;
+	signals:
+		void at_begin();
+
   private:
     /*! \brief Read frames while thread is running */
 

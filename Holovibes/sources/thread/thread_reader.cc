@@ -168,6 +168,7 @@ namespace holovibes
 				std::clearerr(file);
 				std::fsetpos(file, &pos);
 				frameId_ = spanStart_;
+				emit at_begin();
 			}
 			else
 			{

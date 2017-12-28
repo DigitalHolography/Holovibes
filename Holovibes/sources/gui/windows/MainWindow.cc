@@ -223,6 +223,7 @@ namespace holovibes
 
 			// Record
 			ui.RawRecordingCheckBox->setEnabled(!is_direct);
+			ui.SynchronizedRecordCheckBox->setEnabled(import_type_ == File);
 
 			// Average ROI recording
 			ui.RoiOutputGroupBox->setEnabled(compute_desc_.average_enabled);
@@ -658,7 +659,7 @@ namespace holovibes
 				record_action->setChecked(!ptree.get<bool>("record.hidden", record_group_box->isHidden()));
 
 				// Motion Focus
-				motion_focus_action->setChecked(!ptree.get<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden()));
+				motion_focus_action->setChecked(!ptree.get<bool>("motion_focus.hidden", motion_focus_group_box->isHidden()));
 
 				// Import
 				import_action->setChecked(!ptree.get<bool>("import.hidden", import_group_box->isHidden()));
@@ -768,7 +769,7 @@ namespace holovibes
 			ptree.put<bool>("record.hidden", record_group_box->isHidden());
 
 			// Motion Focus
-			ptree.put<bool>("Motion_Focus.hidden", motion_focus_group_box->isHidden());
+			ptree.put<bool>("motion_focus.hidden", motion_focus_group_box->isHidden());
 
 			// Import
 			ptree.put<bool>("import.hidden", import_group_box->isHidden());
@@ -2676,6 +2677,20 @@ namespace holovibes
 			compute_desc_.record_raw = value;
 		}
 
+		void MainWindow::set_synchronized_record(bool value)
+		{
+			compute_desc_.synchronized_record = value;
+		}
+
+		void MainWindow::start_recording()
+		{
+			record_thread_->start();
+			ui.ImageOutputStopPushButton->setDisabled(false);
+			auto reader = dynamic_cast<ThreadReader *>(holovibes_.get_tcapture().get());
+			if (reader)
+				disconnect(reader, SIGNAL(at_begin()), this, SLOT(start_recording()));
+		}
+
 		void MainWindow::set_record()
 		{
 			QSpinBox*  nb_of_frames_spinbox = ui.NumberOfFramesSpinBox;
@@ -2683,13 +2698,8 @@ namespace holovibes
 			
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
-			QPushButton* cancel_button = ui.ImageOutputStopPushButton;
-			QCheckBox* raw_record_checkbox = ui.RawRecordingCheckBox;
 			if (path == "")
-			{
-				cancel_button->setDisabled(true);
 				return display_error("No output file");
-			}
 
 			try
 			{
@@ -2708,10 +2718,20 @@ namespace holovibes
 					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
-					record_thread_->start();
+					if (compute_desc_.synchronized_record)
+					{
+						auto reader = dynamic_cast<ThreadReader *>(holovibes_.get_tcapture().get());
+						if (reader)
+							connect(reader, SIGNAL(at_begin()), this, SLOT(start_recording()));
+					}
+					else
+					{
+						record_thread_->start();
+						ui.ImageOutputStopPushButton->setDisabled(false);
+					}
 
-					cancel_button->setDisabled(false);
-					raw_record_checkbox->setDisabled(true);
+					ui.RawRecordingCheckBox->setDisabled(true);
+					ui.SynchronizedRecordCheckBox->setDisabled(true);
 				}
 				else
 					throw std::exception("Unable to launch record");
@@ -2726,8 +2746,7 @@ namespace holovibes
 		{
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
-			QPushButton* cancel_button = ui.ImageOutputStopPushButton;
-			cancel_button->setDisabled(true);
+			ui.ImageOutputStopPushButton->setDisabled(true);
 			
 			if (compute_desc_.record_raw && !compute_desc_.raw_view)
 			{
@@ -2735,8 +2754,9 @@ namespace holovibes
 				gui::InfoManager::get_manager()->remove_info("RawOutputQueue");
 			}
 
-			QCheckBox* raw_record_checkbox = ui.RawRecordingCheckBox;
-			raw_record_checkbox->setDisabled(false);
+			ui.RawRecordingCheckBox->setDisabled(false);
+
+			ui.SynchronizedRecordCheckBox->setDisabled(false);
 
 			record_thread_.reset(nullptr);
 

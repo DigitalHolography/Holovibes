@@ -345,6 +345,9 @@ namespace holovibes
 		//! Enables the recording of the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			record_raw { false };
 
+		//! Wait the beginning of the file to start the recording.
+		std::atomic<bool>			synchronized_record{ false };
+
 		//! Lock the zoom.
 		std::atomic<bool>			locked_zoom{ false };
 

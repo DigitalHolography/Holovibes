@@ -365,6 +365,9 @@
     <ClCompile Include="sources\compute\aberration.cc">
       <Filter>c++ sources\compute</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_thread_reader.cc">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -416,9 +419,6 @@
       <Filter>c++ includes\thread</Filter>
     </ClInclude>
     <ClInclude Include="includes\thread\thread_compute.hh">
-      <Filter>c++ includes\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\thread\thread_reader.hh">
       <Filter>c++ includes\thread</Filter>
     </ClInclude>
     <ClInclude Include="includes\core\holovibes.hh">
@@ -636,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="includes\compute\rendering.hh">
       <Filter>c++ includes\compute</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\thread\thread_reader.hh">
+      <Filter>c++ includes\thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
