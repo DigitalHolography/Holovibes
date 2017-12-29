@@ -2053,8 +2053,11 @@ namespace holovibes
 
 		void MainWindow::zernike_refresh()
 		{
-			if (std::abs(compute_desc_.zernike_m) > compute_desc_.zernike_n)
-				display_error("n have to be greater or equal to |m|");
+			if (std::abs(compute_desc_.zernike_m) > compute_desc_.zernike_n) {
+				display_error("n has to be greater or equal to |m|");
+				return;
+			}
+			pipe_refresh();
 		}
 
 		void MainWindow::set_zernike_enable(bool val)
@@ -2091,7 +2094,7 @@ namespace holovibes
 				notify();
 			}
 			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
-				display_error("z min have to be strictly inferior to z max");
+				display_error("z min has to be inferior to z max");
 			else
 			{
 				mainDisplay->getOverlayManager().create_overlay<Autofocus>();

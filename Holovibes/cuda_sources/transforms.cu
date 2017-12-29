@@ -57,7 +57,11 @@ static void kernel_zernike_polynomial(cuComplex * output,
 			Rmn += k % 2 ? -term : term;
 		}
 		// If (m < 0), Zmn = coef * Rmn * sin(-m * phi)     But doing it here means one check on each thread. Better have two different functions.
-		float Zmn = coef * Rmn * cos(m * phi);
+		float Zmn = coef * Rmn;
+		if (m_positive)
+			Zmn *= cos(m * phi);
+		else
+			Zmn *= sin(m * phi);
 		cuComplex temp = { cosf(Zmn), sinf(Zmn) };
 		output[index] = output[index] * temp;
 	}
@@ -68,7 +72,7 @@ void zernike_lens(cuComplex*	lens,
 		const float				lambda,
 		const float				z,
 		const float				pixel_size,
-		const uint				zernike_m,
+		const int				zernike_m,
 		const uint				zernike_n,
 		const double			zernike_factor,
 		cudaStream_t			stream)

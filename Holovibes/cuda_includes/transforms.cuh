@@ -37,7 +37,7 @@ void zernike_lens(cuComplex*	lens,
 	const float				lambda,
 	const float				z,
 	const float				pixel_size,
-	const uint				zernike_m,
+	const int				zernike_m,
 	const uint				zernike_n,
 	const double			zernike_factor,
 	cudaStream_t			stream = 0);
