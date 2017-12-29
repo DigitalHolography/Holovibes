@@ -65,19 +65,23 @@ namespace holovibes
 	}
 
 
+	// This functions appears to be useless
+	// because the conversions short -> complex -> float -> short are unnecessary
+	// and should be optimized a lot.
+	// But if it's removed, direct data recording drops frames, and the integrity of the frame is lost
 	void Pipe::direct_refresh()
 	{
 		const camera::FrameDescriptor& input_fd = input_.get_frame_desc();
 		const camera::FrameDescriptor& output_fd = output_.get_frame_desc();
 
-		if (abort_construct_requested_.load())
+		if (abort_construct_requested_)
 		{
 			refresh_requested_.exchange(false);
 			return;
 		}
 		fn_vect_.push_back([=]() {
 			make_contiguous_complex(
-				std::ref(input_),
+				input_,
 				buffers_.gpu_input_buffer_);
 		});
 		fn_vect_.push_back([=]() {
