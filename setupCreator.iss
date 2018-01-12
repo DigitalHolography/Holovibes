@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "6.0.3"
+#define MyAppVersion "6.0.4"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -128,6 +128,8 @@ Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Compon
 Source: "{#CudaPath}\cufft64_91.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_91.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "setup_creator_files\vcredist_2013_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2013   
+Source: "setup_creator_files\vcredist_2015_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2015
 Source: "setup_creator_files\vcredist_2017_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2017
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -145,6 +147,29 @@ begin
       ewWaitUntilTerminated, ResultCode)
     then
       MsgBox('Visual c++ redistributable 2017 failed to run!' + #13#10 +
+        SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
+// NOTE: These redistribuables (2015/2013) are still needed for qwt, while we didnt find how to recompile it for msvc 2017
+procedure Visual2015;
+var                                   
+  ResultCode: Integer;
+begin
+    if not Exec(ExpandConstant('{tmp}\vcredist_2015_x64.exe'), '', '', SW_SHOWNORMAL,
+      ewWaitUntilTerminated, ResultCode)
+    then
+      MsgBox('Visual c++ redistributable 2015 failed to run!' + #13#10 +
+        SysErrorMessage(ResultCode), mbError, MB_OK);
+end;
+
+procedure Visual2013;
+var                                   
+  ResultCode: Integer;
+begin
+    if not Exec(ExpandConstant('{tmp}\vcredist_2013_x64.exe'), '', '', SW_SHOWNORMAL,
+      ewWaitUntilTerminated, ResultCode)
+    then
+      MsgBox('Visual c++ redistributable 2013 failed to run!' + #13#10 +
         SysErrorMessage(ResultCode), mbError, MB_OK);
 end;
 

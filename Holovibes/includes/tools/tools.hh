@@ -75,6 +75,8 @@ namespace holovibes
 	unsigned short	upper_window_size(ushort width, ushort height);
 	/*! \brief Prints a float buffer allocated on gpu*/
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts);
+	/*! \brief Prints a double buffer allocated on gpu*/
+	void print_gpu_buffer(const double* buf, std::size_t nb_elts);
 	/*! \brief Prints a complex buffer allocated on gpu*/
 	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts);
 }
