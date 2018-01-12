@@ -119,8 +119,6 @@ namespace holovibes
 		/*! \brief Enqueue the main FnVector according to the requests.
 		
 		*/
-
-		void			direct_refresh();
 		virtual void	refresh();
 		void			*get_enqueue_buffer();
 

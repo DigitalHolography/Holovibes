@@ -12,7 +12,7 @@
 
 /*! \mainpage Holovibes
 
-    Documentation for developpers. \n 
+    Documentation for developpers. \n
 */
 
 
