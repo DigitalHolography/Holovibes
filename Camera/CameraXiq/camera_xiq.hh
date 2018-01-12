@@ -30,7 +30,14 @@ namespace camera
     virtual ~CameraXiq()
     {
       /* Ensure that the camera is closed in case of exception. */
-      shutdown_camera();
+      try
+      {
+          shutdown_camera();
+      }
+      // We can't throw in a destructor, but there's nothing to do on error
+      catch (CameraException&)
+      {
+      }
     }
 
     virtual void init_camera() override;
