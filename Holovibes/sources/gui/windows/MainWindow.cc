@@ -1138,12 +1138,20 @@ namespace holovibes
 
 		void MainWindow::refreshViewMode()
 		{
+      float old_scale = 1.f;
+      glm::vec2 old_translation(0.f, 0.f);
+      if (mainDisplay) {
+        old_scale = mainDisplay->getScale();
+        old_translation = mainDisplay->getTranslate();
+      }
 			close_windows();
 			close_critical_compute();
 			try
 			{
 				createPipe();
 				createHoloWindow();
+        mainDisplay->setScale(old_scale);
+        mainDisplay->setTranslate(old_translation[0], old_translation[1]);
 			}
 			catch (std::runtime_error& e)
 			{
