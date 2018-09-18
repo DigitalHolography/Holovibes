@@ -157,6 +157,10 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Eloi Charpentier <eloi.charpentier@epita.fr>
 * Julien Gautier <julien.gautier@epita.fr>
 * Florian Lapeyre <florian.lapeyre@epita.fr>
+* Ellena Davoine <ellena.davoine@epita.fr>
+* Clément Fang <clement.fang@epita.fr>
+* Danaé Marmai <danae.marmai@epita.fr>
+* Hugo Verjus <hugo.verjus@epita.fr>
 
 ## Changelog ##
 
