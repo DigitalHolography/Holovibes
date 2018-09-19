@@ -496,6 +496,11 @@ namespace holovibes
 
 				"Developers:\n\n"
 
+				"Ellena Davoine\n"
+				"Clement Fang\n"
+				"Danae Marmai\n"
+				"Hugo Verjus\n"
+
 				"Eloi Charpentier\n"
 				"Julien Gautier\n"
 				"Florian Lapeyre\n"
