@@ -103,6 +103,7 @@ namespace holovibes
 			void camera_photon_focus();
 			void configure_camera();
 			void credits();
+			void documentation();
 			void init_image_mode(QPoint& position, QSize& size);
 			/*! \{ \name Image rendering
 			**
