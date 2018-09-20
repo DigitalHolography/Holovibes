@@ -83,7 +83,13 @@ namespace holovibes
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
 
-			move(QPoint(532, 554));
+			QRect rec = QApplication::desktop()->screenGeometry();
+			int screen_height = rec.height();
+			int screen_width = rec.width();
+		
+
+			// need the correct dimensions of main windows
+			move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
 			show();
 
 			// Hide non default tab
