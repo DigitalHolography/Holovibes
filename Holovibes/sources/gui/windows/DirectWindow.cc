@@ -280,11 +280,12 @@ namespace holovibes
 
 			const float xRatio = zone.unsigned_width();
 
-			/* Now ZoomOverlay is a square, so we don't really need this.
+			// Use the commented line below if you are using square windows,
+			// and comment the 2 lines below
 			const float yRatio = zone.unsigned_height();
-			setScale(getScale() / (std::min(xRatio, yRatio) / 2)); */
-			setScale(getScale() * 2.f / xRatio);
-
+			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
+			//setScale(getScale() * 2.f / xRatio);
+			
 			setTransform();
 		}
 
