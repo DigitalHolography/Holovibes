@@ -168,16 +168,19 @@ namespace holovibes
 			startTimer(1000 / Cd->display_rate);
 		}
 		
+		/* This part of code makes a resizing of the window displaying image to
+		** a square format. It also moves the window to the upper left border.
+		**/
 		void	DirectWindow::resizeGL(int w, int h)
 		{
+			/*
 			if (winState == Qt::WindowFullScreen)
 				return;
-
 			setFramePosition(winPos);
 			if (w != h) {
 				const int min = std::min(w, h);
 				resize(min, min);
-			}
+			}*/
 		}
 
 		void	DirectWindow::paintGL()

@@ -86,7 +86,6 @@ namespace holovibes
 			QRect rec = QApplication::desktop()->screenGeometry();
 			int screen_height = rec.height();
 			int screen_width = rec.width();
-		
 
 			// need the correct dimensions of main windows
 			move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
@@ -3370,6 +3369,7 @@ namespace holovibes
 		#pragma endregion
 
 		#pragma region Getters
+
 		DirectWindow *MainWindow::get_main_display()
 		{
 			return mainDisplay.get();
@@ -3381,6 +3381,9 @@ namespace holovibes
 			};
 			synchronize_thread(lambda);
 		}
+
+		#pragma endregion
+
 	}
 }
 #include "moc_MainWindow.cc"
