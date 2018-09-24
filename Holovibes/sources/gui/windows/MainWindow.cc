@@ -3505,6 +3505,7 @@ namespace holovibes
 			synchronize_thread(lambda);
 		}
 		#pragma endregion
+
 	}
 }
 #include "moc_MainWindow.cc"

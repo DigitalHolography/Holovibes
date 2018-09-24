@@ -169,7 +169,6 @@ namespace holovibes
 		}
 		
 
-
 		/* This part of code makes a resizing of the window displaying image to
 		   a rectangle format. It also avoids the window to move when resizing.
 		   There is no visible calling function since it's overriding Qt function.
