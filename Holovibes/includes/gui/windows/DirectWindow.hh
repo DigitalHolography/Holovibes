@@ -34,9 +34,15 @@ namespace holovibes
 			void		setNoiseZone(units::RectFd noise);
 
 			void	zoomInRect(units::RectOpengl zone);
+			void setRatio(float ratio_);
 
 		protected:
 			int	texDepth, texType;
+
+			int old_width = -1;
+			int old_height = -1;
+			// it represents width/height of the Direct window
+			float ratio = 0.0f;
 
 			virtual void	initShaders() override;
 			virtual void	initializeGL() override;

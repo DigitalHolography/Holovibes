@@ -168,24 +168,36 @@ namespace holovibes
 			startTimer(1000 / Cd->display_rate);
 		}
 		
+
+
 		/* This part of code makes a resizing of the window displaying image to
-		** a square format. It also moves the window to the upper left border.
+		   a square format. It also moves the window to the upper left border.
 		**/
 		void	DirectWindow::resizeGL(int w, int h)
 		{
-			/*
-			if (winState == Qt::WindowFullScreen)
-				return;
-			setFramePosition(winPos);
-			if (w != h) {
-				const int min = std::min(w, h);
-				resize(min, min);
-			}*/
+			auto point = this->mapToGlobal(this->position()); // does not give interesting position... need to find someting else
+			if (w != old_width)
+			{
+				old_width = w;
+				old_height = (float)w / ratio;
+				resize(old_width, old_height);
+			}
+			else if (h != old_height) 
+			{
+				old_width = (float)h * ratio;
+				old_height = h;
+				resize(old_width, old_height);
+			}
+			point.setX(0);
+			point.setY(0);
+			setFramePosition(point);
 		}
+
+
 
 		void	DirectWindow::paintGL()
 		{
-			glViewport(0, 0, width(), height()); // std::min(width(), height()), std::min(width(), height()));
+			glViewport(0, 0, width(), height()); 
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -289,6 +301,11 @@ namespace holovibes
 			//setScale(getScale() * 2.f / xRatio);
 			
 			setTransform();
+		}
+
+		void DirectWindow::setRatio(float ratio_)
+		{
+			ratio = ratio_;
 		}
 
 		void	DirectWindow::wheelEvent(QWheelEvent *e)
