@@ -5993,6 +5993,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionDocumentation</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>documentation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6023,6 +6039,7 @@ p, li { white-space: pre-wrap; }
   <slot>gl_full_screen()</slot>
   <slot>cancel_record()</slot>
   <slot>credits()</slot>
+  <slot>documentation()</slot>
   <slot>set_z_step(double)</slot>
   <slot>configure_camera()</slot>
   <slot>camera_ixon()</slot>

@@ -528,9 +528,16 @@ namespace holovibes
 			msg_box.setIcon(QMessageBox::Information);
 			msg_box.exec();
 		}
+
+		void MainWindow::documentation()
+		{
+			QMessageBox::about(0, "documentation", "<a href='https://ftp.espci.fr/incoming/Atlan/holovibes/manual/'>documentation</a>");
+		}
+
 		#pragma endregion
 		/* ------------ */
 		#pragma region Ini
+		
 		void MainWindow::configure_holovibes()
 		{
 			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
