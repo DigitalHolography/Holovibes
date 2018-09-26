@@ -185,8 +185,7 @@ namespace holovibes
 
 		void	DirectWindow::paintGL()
 		{
-			// Makes sure the screen is displayed as a square even in fullscreen
-			glViewport(0, 0, std::min(width(), height()), std::min(width(), height()));
+			glViewport(0, 0, width(), height()); // std::min(width(), height()), std::min(width(), height()));
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);

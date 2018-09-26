@@ -1051,7 +1051,7 @@ namespace holovibes
 			if (is_enabled_camera_)
 			{
 				QPoint pos(0, 0);
-				QSize size(512, 512);
+				QSize size(width, height);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode = Computation::Direct;
 				createPipe();
@@ -1099,7 +1099,7 @@ namespace holovibes
 		void MainWindow::createHoloWindow()
 		{
 			QPoint pos(0, 0);
-			QSize size(512, 512);
+			QSize size(width, height);
 			init_image_mode(pos, size);
 			/* ---------- */
 			try
@@ -3110,6 +3110,10 @@ namespace holovibes
 			QComboBox *big_endian_checkbox = ui.ImportEndiannessComboBox;
 			QCheckBox *cine = ui.CineFileCheckBox;
 			QDoubleSpinBox *pixel_size_spinbox = ui.PixelSizeDoubleSpinBox;
+
+			width = static_cast<ushort>(width_spinbox->value());
+			height = static_cast<ushort>(height_spinbox->value());
+			get_good_size(width, height);
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();

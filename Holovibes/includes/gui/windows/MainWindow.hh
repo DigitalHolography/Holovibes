@@ -304,6 +304,9 @@ namespace holovibes
 			std::unique_ptr<DirectWindow>	lens_window;
 			std::unique_ptr<DirectWindow>	raw_window;
 
+			ushort width;
+			ushort height;
+
 			float		displayAngle;
 			float		xzAngle;
 			float		yzAngle;
