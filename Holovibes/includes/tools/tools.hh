@@ -79,4 +79,6 @@ namespace holovibes
 	void print_gpu_buffer(const double* buf, std::size_t nb_elts);
 	/*! \brief Prints a complex buffer allocated on gpu*/
 	void print_gpu_buffer(const cuComplex* buf, std::size_t nb_elts);
+	/*! \brief return width and height for the window*/
+	void get_good_size(ushort& width, ushort& height);
 }
