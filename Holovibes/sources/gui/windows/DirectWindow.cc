@@ -171,26 +171,36 @@ namespace holovibes
 
 
 		/* This part of code makes a resizing of the window displaying image to
-		   a square format. It also moves the window to the upper left border.
+		   a rectangle format. It also avoids the window to move when resizing.
+		   There is no visible calling function since it's overriding Qt function.
 		**/
 		void	DirectWindow::resizeGL(int w, int h)
 		{
-			auto point = this->mapToGlobal(this->position()); // does not give interesting position... need to find someting else
+			if (ratio == 0.0f)
+				return;
+			int tmp_width = old_width;
+			int tmp_height = old_height;
+
+			auto point = this->position();
 			if (w != old_width)
 			{
 				old_width = w;
-				old_height = (float)w / ratio;
-				resize(old_width, old_height);
+				old_height = w / ratio;
 			}
-			else if (h != old_height) 
+			else if (h != old_height)
 			{
-				old_width = (float)h * ratio;
+				old_width = h * ratio;
 				old_height = h;
-				resize(old_width, old_height);
 			}
-			point.setX(0);
-			point.setY(0);
-			setFramePosition(point);
+
+			QRect rec = QApplication::desktop()->screenGeometry();
+			if (old_height >  rec.height() || old_height < 128  || old_width > rec.width() || old_width < 128)
+			{
+				old_height = tmp_height;
+				old_width = tmp_width;
+			}
+			resize(old_width, old_height);
+			this->setPosition(point);
 		}
 
 
