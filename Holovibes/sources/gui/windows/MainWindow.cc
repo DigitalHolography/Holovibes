@@ -1118,6 +1118,8 @@ namespace holovibes
 				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
+				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
+
 			}
 			catch (std::runtime_error& e)
 			{
