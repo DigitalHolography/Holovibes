@@ -1337,7 +1337,7 @@ namespace holovibes
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = compute_desc_.nSize;
-					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
+					const uint		nSize = std::max(128u, std::min(256u, (uint) nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
