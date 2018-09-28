@@ -248,6 +248,7 @@ namespace holovibes
 			void set_square_pixel(bool value);
 			void set_locked_zoom(bool value);
 			void set_synchronized_record(bool value);
+			void normalize();
 			//! Used to start the record at the same time than file reader.
 			void start_recording();
 			#pragma endregion

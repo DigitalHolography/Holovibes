@@ -2699,6 +2699,11 @@ namespace holovibes
 			compute_desc_.synchronized_record = value;
 		}
 
+		void MainWindow::normalize()
+		{
+			std::cout << "it works" << std::endl;
+		}
+
 		void MainWindow::start_recording()
 		{
 			record_thread_->start();

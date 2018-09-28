@@ -220,6 +220,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="NormalizeBox">
+           <property name="text">
+            <string>Normalize direct images</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_27">
            <property name="spacing">
             <number>1</number>
@@ -325,7 +332,7 @@
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_7">
-           <item row="1" column="0">
+           <item row="2" column="0">
             <widget class="QLabel" name="nSizeLabel">
              <property name="text">
               <string># img</string>
@@ -335,7 +342,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="ZLabel">
              <property name="text">
               <string>z (m)</string>
@@ -345,7 +352,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QLabel" name="ZStepLabel">
              <property name="text">
               <string>z step (m)</string>
@@ -355,7 +362,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="PLabel">
              <property name="text">
               <string>p</string>
@@ -365,17 +372,7 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="AlgorithmLabel">
-             <property name="text">
-              <string>Algorithm</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="WaveLengthLabel">
              <property name="text">
               <string>λ (nm)</string>
@@ -385,7 +382,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QSpinBox" name="PSpinBox">
              <property name="toolTip">
               <string>index of the image displayed</string>
@@ -395,7 +392,7 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="QDoubleSpinBox" name="ZDoubleSpinBox">
              <property name="toolTip">
               <string>reconstruction distance of the hologram</string>
@@ -417,7 +414,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QDoubleSpinBox" name="WaveLengthDoubleSpinBox">
              <property name="toolTip">
               <string>Wavelength of light used to record interferograms</string>
@@ -436,7 +433,7 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
+           <item row="1" column="1">
             <widget class="QComboBox" name="AlgorithmComboBox">
              <property name="toolTip">
               <string>select the rendering mode for Hologram</string>
@@ -458,7 +455,7 @@
              </item>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="6" column="1">
             <widget class="QDoubleSpinBox" name="ZStepDoubleSpinBox">
              <property name="toolTip">
               <string>step between each modification of z</string>
@@ -477,7 +474,7 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
+           <item row="2" column="1">
             <widget class="QSpinBox" name="nSizeSpinBox">
              <property name="minimum">
               <number>1</number>
@@ -493,7 +490,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="BoundaryLabel">
              <property name="text">
               <string>Boundary (m)</string>
@@ -503,7 +500,7 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="BoundaryLineEdit">
              <property name="toolTip">
               <string>Edge value of z to switch between FFT1/2 </string>
@@ -513,6 +510,16 @@
              </property>
              <property name="readOnly">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="AlgorithmLabel">
+             <property name="text">
+              <string>Algorithm</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
             </widget>
            </item>
@@ -6009,6 +6016,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>NormalizeBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>normalize()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>809</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6146,5 +6169,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_locked_zoom(bool)</slot>
   <slot>set_zernike_factor(double)</slot>
   <slot>set_synchronized_record(bool)</slot>
+  <slot>normalize()</slot>
  </slots>
 </ui>
