@@ -91,7 +91,7 @@ namespace holovibes
 
 	unsigned short	upper_window_size(ushort width, ushort height)
 	{
-		return nextPowerOf2(std::max(width, height));
+		return std::max(width, height);
 	}
 
 	void print_gpu_buffer(const float* buf, std::size_t nb_elts)
