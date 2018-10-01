@@ -51,7 +51,7 @@ namespace holovibes
 			/** \brief Add normalization to all of the frames 
 			
 			*/
-			//void insert_frame_normalization();
+			void insert_frame_normalization();
 
 			/** \brief Insert the interpolation function.
 			

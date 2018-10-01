@@ -6020,7 +6020,7 @@ p, li { white-space: pre-wrap; }
    <sender>NormalizeBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>normalize()</slot>
+   <slot>normalize(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>99</x>
@@ -6169,6 +6169,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_locked_zoom(bool)</slot>
   <slot>set_zernike_factor(double)</slot>
   <slot>set_synchronized_record(bool)</slot>
-  <slot>normalize()</slot>
+  <slot>normalize(bool)</slot>
  </slots>
 </ui>

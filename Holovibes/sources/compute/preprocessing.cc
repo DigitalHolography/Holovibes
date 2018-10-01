@@ -60,14 +60,14 @@ namespace holovibes
 			}
 		}
 
-		/*void Preprocessing::insert_frame_normalization()
+		void Preprocessing::insert_frame_normalization()
 		{
 			if (cd_.normalize_enabled)
 				fn_vect_.push_back([=]() {
-				const float ratio = cd_.interp_lambda > 0 ? cd_.lambda / cd_.interp_lambda : 1;
-				tex_interpolation(buffers_.gpu_input_buffer_, fd_.width, fd_.height, ratio); });
+					
+			});
 		}
-*/
+
 
 		void Preprocessing::insert_interpolation()
 		{

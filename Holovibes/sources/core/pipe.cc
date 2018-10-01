@@ -178,7 +178,7 @@ namespace holovibes
 		autofocus_->insert_restore();
 	
 		// TODO add 
-		//preprocess_->insert_frame_normalization();
+		preprocess_->insert_frame_normalization();
 		preprocess_->insert_interpolation();
 		preprocess_->insert_ref();
 

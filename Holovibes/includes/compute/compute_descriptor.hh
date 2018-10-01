@@ -289,7 +289,7 @@ namespace holovibes
 		std::atomic<bool>			xy_stabilization_show_convolution;
 
 		//! Enables the normalization for each of the frames.
-		//std::atomic<bool>			normalize_enabled{ false };;
+		std::atomic<bool>			normalize_enabled{ false };
 		//! Enables the interpolation, to match the real pixel size according to the laser wavelength.
 		std::atomic<bool>			interpolation_enabled;
 		//! Current wavelength of the laser
