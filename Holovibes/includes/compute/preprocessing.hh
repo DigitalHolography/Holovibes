@@ -48,6 +48,11 @@ namespace holovibes
 			*/
 			void allocate_ref(std::atomic<bool>& update_request);
 
+			/** \brief Add normalization to all of the frames 
+			
+			*/
+			//void insert_frame_normalization();
+
 			/** \brief Insert the interpolation function.
 			
 			*/
