@@ -77,7 +77,7 @@ void kernel_float_to_complex(const float	*input,
 	if (index < size)
 	{
 		output[index].x = input[index];
-		output[index].y = input[index];
+		output[index].y = 0;
 	}
 }
 
