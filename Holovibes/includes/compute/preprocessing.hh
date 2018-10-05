@@ -62,6 +62,10 @@ namespace holovibes
 			
 			*/
 			void insert_ref();
+			/*
+				\brief Compute the intensity of an image.
+			*/
+			float compute_current_intensity(cufftComplex* buffer_ptr, size_t res);
 		private:
 			/** \brief Insert the Ref diff function.
 			

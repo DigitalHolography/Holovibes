@@ -89,6 +89,7 @@ float DetectIntensity::get_current_intensity()
 	return res;
 }
 
+
 void DetectIntensity::update_shift()
 {
 	if (is_delaying_shift_)

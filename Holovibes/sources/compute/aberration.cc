@@ -195,6 +195,7 @@ void Aberration::apply_all_to_lens()
 		}
 	}
 	Array<cuComplex> lens(fd_.frame_res());
+	
 	cudaCheckError();
 	apply_aberration_phis(lens, shifts, nb_chunks_, nb_chunks_, fd_);
 	auto tmp = lens.to_cpu();

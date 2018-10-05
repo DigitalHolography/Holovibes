@@ -132,6 +132,18 @@ float average_operator(const float*	input,
 					const uint		size,
 					cudaStream_t	stream = 0);
 
+/*! \brief Make the average of every element contained in the input.
+ *
+ * \param input The input data to average in cufftComplex.
+ * \param size The number of elements to process.
+ * \param stream The CUDA stream on which to launch the operation.
+ *
+ * \return The average value of the *size* first elements.
+ */
+float average_operator_from_complex(const cufftComplex *input,
+					const uint		size,
+					cudaStream_t	stream = 0);
+
 /*! Let H be the latest complex image, H-t the conjugate matrix of
 * the one preceding it, and .* the element-to-element matrix
 * multiplication operation.

@@ -2702,7 +2702,6 @@ namespace holovibes
 		void MainWindow::normalize(bool value)
 		{
 			compute_desc_.normalize_enabled = value;
-			std::cout << "it works, and it's " <<  value << std::endl;
 		}
 
 		void MainWindow::start_recording()

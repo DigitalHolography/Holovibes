@@ -63,9 +63,10 @@ namespace holovibes
 			/** \brief Check if there is a jump between two intensity, according to the interpolation sensitivity.
 			
 			*/
+
 			bool is_jump(float current, float last);
 			/** \brief Computes the intensity of the current frame.
-			
+
 			*/
 			float get_current_intensity();
 			void update_shift();

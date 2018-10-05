@@ -42,5 +42,6 @@ void make_contiguous_complex(Queue&			input,
 			frame_resolution);
 	else if (frame_desc.depth == 8)
 		cudaMemcpy(output, input.get_start(), frame_resolution << 3, cudaMemcpyDeviceToDevice);
+	
 	cudaCheckError();
 }
