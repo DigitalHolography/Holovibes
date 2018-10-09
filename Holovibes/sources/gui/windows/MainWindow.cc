@@ -2113,8 +2113,6 @@ namespace holovibes
 				mainDisplay->getOverlayManager().disable_all(Autofocus);
 				notify();
 			}
-			else if (compute_desc_.autofocus_z_min >= compute_desc_.autofocus_z_max)
-				display_error("z min has to be inferior to z max");
 			else
 			{
 				mainDisplay->getOverlayManager().create_overlay<Autofocus>();

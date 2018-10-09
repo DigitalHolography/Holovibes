@@ -15,6 +15,8 @@
 Implementation of autofocus feature. */
 #pragma once
 
+#define FOCUS_RANGE      0.5f
+
 #include "pipeline_utils.hh"
 #include "rect.hh"
 #include "frame_desc.hh"

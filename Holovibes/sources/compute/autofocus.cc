@@ -121,14 +121,24 @@ namespace holovibes
 
 				af_env_.gpu_float_buffer_af_zone.resize(af_size);
 				/* Initialize z_*  */
-				af_env_.z_min = cd_.autofocus_z_min;
-				af_env_.z_max = cd_.autofocus_z_max;
-
+	
+				//Si 0, rechercher entre + et - FOCUS_RANGE pour eviter un bug
+				if (cd_.zdistance == 0)
+				{
+					af_env_.z_min = - FOCUS_RANGE;
+					af_env_.z_max = FOCUS_RANGE;
+				}
+				//faire plus et moins FOCUS_RANGE (pourcentage entre 0 et 1) sur les valeurs du z
+				else
+				{
+					af_env_.z_min = (cd_.zdistance < 0) ? (1 + FOCUS_RANGE) * cd_.zdistance : FOCUS_RANGE *  cd_.zdistance;
+					af_env_.z_max = (cd_.zdistance < 0) ? FOCUS_RANGE *  cd_.zdistance : (1 + FOCUS_RANGE) * cd_.zdistance;
+				}
 				const float z_div = static_cast<float>(cd_.autofocus_z_div);
 
 				af_env_.z_step = (af_env_.z_max - af_env_.z_min) / z_div;
 
-				af_env_.af_z = 0.0f;
+				//af_env_.af_z = 0.0f;
 
 				af_env_.z_iter = cd_.autofocus_z_iter;
 				af_env_.z = af_env_.z_min;
@@ -157,7 +167,7 @@ namespace holovibes
 
 		void Autofocus::autofocus_caller(cudaStream_t stream)
 		{
-			// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updated
+			// Since stft_frame_counter and stft_steps are resetted in the init, we cannot call autofocus_caller when the stft_queue_ is not fully updatedautofocus_reset()
 			if (af_env_.stft_index != af_env_.nSize)
 			{
 				autofocus_reset();
@@ -228,6 +238,8 @@ namespace holovibes
 				Ic_->request_update_n(cd_.nSize);
 
 				cd_.zdistance = af_env_.af_z;
+				cd_.autofocus_z_min = (af_env_.z_min < 0) ? (1 + FOCUS_RANGE) * af_env_.af_z : FOCUS_RANGE * af_env_.af_z;
+				cd_.autofocus_z_max = (af_env_.z_min < 0) ? FOCUS_RANGE * af_env_.af_z : (1 + FOCUS_RANGE) * af_env_.af_z;
 				cd_.notify_observers();
 
 				autofocus_reset();
