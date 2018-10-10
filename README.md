@@ -16,7 +16,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](https://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
-* [Bitflow Cyton CXP4 driver](http://www.bitflow.com/downloads/bfsdk630.zip) Framegrabber for the adimec V6.30
+* [Bitflow Cyton CXP4 driver for holovibe] (given with holovibes) Framegrabber for the adimec V6.30
 * [PhotonFocus MV1-D1312 driver](http://www.photonfocus.com/en/products/camerafinder/camera/?prid=70) V3.1.14
 
 ### VISA drivers ###
