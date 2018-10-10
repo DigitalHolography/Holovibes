@@ -128,6 +128,26 @@ namespace holovibes
 			});
 		}
 
+		void Converts::insert_to_hsv()
+		{
+			fn_vect_.push_back([=]() {
+				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize) ||
+					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize))
+					return;
+				composite(stft_env_.gpu_stft_buffer_.get(),
+					buffers_.gpu_float_buffer_,
+					fd_.frame_res(),
+					fd_.width,
+					cd_.composite_auto_weights_,
+					cd_.getCompositeZone(),
+					cd_.composite_p_red,
+					cd_.composite_p_blue,
+					cd_.weight_r,
+					cd_.weight_g,
+					cd_.weight_b);
+			});
+		}
+
 		void Converts::insert_to_argument(bool unwrap_2d_requested)
 		{
 			fn_vect_.push_back([=]() {

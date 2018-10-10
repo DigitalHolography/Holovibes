@@ -93,7 +93,6 @@ namespace holovibes
 
 			// Hide non default tab
 			ui.CompositeGroupBox->setHidden(true);
-
 			ui.actionSpecial->setChecked(false);
 			ui.actionMotionFocus->setChecked(false);
 
@@ -407,9 +406,7 @@ namespace holovibes
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file);
 
 
-			// Composite
-			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
-			ui.CompositeGroupBox->setHidden(!isComposite);
+			// Composite		 	
 			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
@@ -419,6 +416,13 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
+
+			
+			ui.CompositeGroupBox->setHidden(is_direct_mode() || (compute_desc_.img_type != ImgType::Composite && compute_desc_.img_type != ImgType::Hsv));
+
+			//ui.groupBox->setHidden(!isComposite);
+			//ui.groupBox_5->setHidden(!isComposite);
+			//ui.groupBox_hsv_settings->setHidden(!isHsv);
 
 			// Interpolation
 			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);

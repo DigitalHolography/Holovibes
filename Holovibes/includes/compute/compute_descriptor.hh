@@ -66,7 +66,8 @@ namespace holovibes
 		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
 		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
 		Complex, /**< Displays the complex buffer using blue and red colors for real and imaginary part */
-		Composite /**< Displays different frequency intervals on color chanels*/
+		Composite, /**< Displays different frequency intervals on color RBG chanels*/
+		Hsv /**< Displays different frequency intervals on color HSV chanels, later converted to RBG for display*/
 	};
 
 	/*! \brief Describes the access mode of an accessor. */
