@@ -418,11 +418,14 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
 
 			
-			ui.CompositeGroupBox->setHidden(is_direct_mode() || (compute_desc_.img_type != ImgType::Composite && compute_desc_.img_type != ImgType::Hsv));
+			ui.CompositeGroupBox->setHidden(is_direct_mode() 
+				|| (compute_desc_.img_type != ImgType::Composite 
+					&& compute_desc_.img_type != ImgType::Hsv));
 
-			//ui.groupBox->setHidden(!isComposite);
-			//ui.groupBox_5->setHidden(!isComposite);
-			//ui.groupBox_hsv_settings->setHidden(!isHsv);
+			bool rgbMode = ui.radioButton_rgb->isChecked();
+			ui.groupBox->setHidden(!rgbMode);
+			ui.groupBox_hue->setHidden(rgbMode);
+			ui.groupBox_hsv_settings->setHidden(rgbMode);
 
 			// Interpolation
 			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);
@@ -1693,6 +1696,11 @@ namespace holovibes
 		{
 			compute_desc_.composite_auto_weights_ = value;
 			set_auto_contrast();
+		}
+
+		void MainWindow::click_composite_rgb_or_hsv()
+		{
+			notify();
 		}
 
 		void MainWindow::set_flowgraphy_level(const int value)
@@ -3394,6 +3402,10 @@ namespace holovibes
 		}
 		#pragma endregion
 
+		#pragma region Composite
+		
+		#pragma endregion
+		
 		#pragma region Getters
 
 		DirectWindow *MainWindow::get_main_display()
@@ -3407,9 +3419,7 @@ namespace holovibes
 			};
 			synchronize_thread(lambda);
 		}
-
 		#pragma endregion
-
 	}
 }
 #include "moc_MainWindow.cc"

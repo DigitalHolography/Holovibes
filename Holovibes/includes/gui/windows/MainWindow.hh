@@ -147,6 +147,7 @@ namespace holovibes
 			void set_composite_intervals();
 			void set_composite_weights();
 			void set_composite_auto_weights(bool value);
+			void click_composite_rgb_or_hsv();
 			void set_p(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();

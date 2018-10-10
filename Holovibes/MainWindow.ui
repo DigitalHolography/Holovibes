@@ -666,11 +666,6 @@
                <string>Composite image</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>HSV image</string>
-              </property>
-             </item>
             </widget>
            </item>
           </layout>
@@ -1241,12 +1236,18 @@
              <property name="text">
               <string>RGB</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
             <widget class="QRadioButton" name="radioButton_hsv">
              <property name="text">
               <string>HSV</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -6209,6 +6210,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>radioButton_rgb</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_hsv</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6347,5 +6380,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_zernike_factor(double)</slot>
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
+  <slot>click_composite_rgb_or_hsv()</slot>
  </slots>
 </ui>
