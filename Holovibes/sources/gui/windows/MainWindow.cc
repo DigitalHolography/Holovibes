@@ -441,6 +441,7 @@ namespace holovibes
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
 			ui.groupBox_5->setHidden(!rgbMode && !ui.RenormalizationCheckBox->isChecked());
+			
 			ui.groupBox_hue->setHidden(rgbMode);
 			ui.groupBox_hsv_settings->setHidden(rgbMode);
 
@@ -3450,6 +3451,10 @@ namespace holovibes
 		}
 		#pragma endregion
 
+		#pragma region Composite
+		
+		#pragma endregion
+		
 		#pragma region Getters
 
 		DirectWindow *MainWindow::get_main_display()
