@@ -666,11 +666,6 @@
                <string>Composite image</string>
               </property>
              </item>
-             <item>
-              <property name="text">
-               <string>HSV image</string>
-              </property>
-             </item>
             </widget>
            </item>
           </layout>
