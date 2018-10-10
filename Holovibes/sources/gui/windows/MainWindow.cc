@@ -417,7 +417,6 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
 
-			
 			ui.CompositeGroupBox->setHidden(is_direct_mode() 
 				|| (compute_desc_.img_type != ImgType::Composite 
 					&& compute_desc_.img_type != ImgType::Hsv));
