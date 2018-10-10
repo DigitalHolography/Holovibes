@@ -12,7 +12,7 @@
 
 /*! \file
  *
- * Camera Adimec Quartz-A2750 */
+ * Camera Adimec Quartz-2A750 */
 #pragma once
 
 #include <BFType.h>
@@ -23,7 +23,7 @@
 
 namespace camera
 {
-	//! Adimec Quartz-A2750 camera, used through the BitFlow Cyton CXP-4 frame grabber.
+	//! Adimec Quartz-2A750 camera, used through the BitFlow Cyton CXP-4 frame grabber.
 	/*! The API used is the Bi API, because it allows for broad configuration
 	* of the used camera without dwelving into low-level details, like circular buffer
 	* handling.
