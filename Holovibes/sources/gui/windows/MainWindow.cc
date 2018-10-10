@@ -423,6 +423,7 @@ namespace holovibes
 
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
+			ui.groupBox_5->setHidden(!rgbMode);
 			ui.groupBox_hue->setHidden(rgbMode);
 			ui.groupBox_hsv_settings->setHidden(rgbMode);
 
