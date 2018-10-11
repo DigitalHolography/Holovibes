@@ -3450,10 +3450,6 @@ namespace holovibes
 		}
 		#pragma endregion
 
-		#pragma region Composite
-		
-		#pragma endregion
-		
 		#pragma region Getters
 
 		DirectWindow *MainWindow::get_main_display()
