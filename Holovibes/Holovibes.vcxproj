@@ -183,6 +183,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\vibrometry.cuh" />
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
+    <ClInclude Include="hsv.cuh" />
     <ClInclude Include="includes\camera_dll.hh" />
     <ClInclude Include="includes\compute\aberration.hh" />
     <ClInclude Include="includes\compute\autofocus.hh" />
@@ -588,6 +589,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <CudaCompile Include="cuda_sources\tools_unwrap.cu" />
     <CudaCompile Include="cuda_sources\transforms.cu" />
     <CudaCompile Include="cuda_sources\vibrometry.cu" />
+    <CudaCompile Include="hsv.cu" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

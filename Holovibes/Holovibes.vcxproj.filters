@@ -637,8 +637,8 @@
     <ClInclude Include="includes\compute\rendering.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
-    <ClInclude Include="includes\thread\thread_reader.hh">
-      <Filter>c++ includes\thread</Filter>
+    <ClInclude Include="hsv.cuh">
+      <Filter>cuda includes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -751,6 +751,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\aberration.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="hsv.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

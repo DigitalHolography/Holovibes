@@ -1405,7 +1405,7 @@
                <number>1</number>
               </property>
               <item row="2" column="0">
-               <widget class="QSpinBox" name="PRedSpinBox_Composite_2">
+               <widget class="QSpinBox" name="MinSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1444,7 +1444,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QSpinBox" name="PBlueSpinBox_Composite_2">
+               <widget class="QSpinBox" name="MaxSpinBox_Composite">
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -1511,7 +1511,7 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_V">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1528,7 +1528,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_S">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1538,7 +1538,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_H">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
