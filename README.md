@@ -164,6 +164,134 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Changelog ##
 
+## September 2018 - December 2018 ##
+
+Ellena D., Clement F., Danae M. and Hugo V. are now working on the project until December 2018.
+
+### v.6.0.5
+
+* fix: average computation in plot
+
+### v.6.0.3
+
+* xiq: potential fix for error on closing (not tested with the camera)
+* direct_refresh: commented the function
+* fix: keep scale and translation when changing image type
+* updated doxygen
+
+### v.6.0.2
+
+* fix: restored direct refresh function, still needed for direct recording
+
+### v.6.0.1
+
+* add: record synchronized with input file.
+* add: negative m for zernike
+
+### v.5.9.0
+
+* change: show all tabs by default except MotionFocus and PostProcessing
+* fix: nSize limited to 128 when reading file
+* fix: zernike polynomials now correctly called and take into account the factor
+
+### v.5.8.0
+
+* add: possibility to change phase Number during stft cuts
+* camera: fixed XIB closing errors
+* aberrations: front end
+* aberration: fft done using a temporary buffer
+* add: cuda error checks after fft c2c
+* remove: useless fields of ini file
+* gui: changed titles and layouts
+
+### v.5.7.4
+
+* add: zoom lock in reset transform
+* add: drag&drop import path
+
+### v.5.7.3
+
+* fix: Now using windows 10 sdk
+* add: cuda 9.1
+
+### v.5.7.2
+
+* add: displaying of the output queue in the info tab
+
+### v.5.7.1
+
+* fix: disable whole AutofocusGroupBox instead of just the 'Run Autofocus' PushButton
+* add: main doxygen page
+
+### v.5.7.0
+
+* add: rainbow_overlay
+* fix: kernel_composite /(red - blue)
+* fix: wheel event is only handled in direct window now.
+* add: RGB weight add: precompute colors to accelerate XY composite
+
+### v.5.6.7
+
+* add: now resizing to original size when we uncheck square_pixel
+* remove: frameless SliceWindow
+* add: raw view in hologram.
+* add: recording raw while we are in hologram mode
+* fix: raw recording available in slices
+
+### v.5.6.6
+
+* change: thread_sync: added a generic way to run a function on mainwindow in the right thread
+* fix: slices are now closed properly. Crop stft is now working with stft cuts.
+* fix: prevent slice window from moving when resizing
+* fix: camera hamamatsu uses the same sdk than the others (8.1)
+* fix: resized correctly when passing from composite to direct mode
+* add: minimum size to SliceWindow
+* add: frameless slice window
+* add: resizing slice window automatically remove square_pixel
+
+### v.5.6.4
+
+* fix: autocontrast_slice request added to have autocontrast on both windows at the same time.
+
+### v.5.6.3
+
+* fix: right click doesn't dezoom in slice anymore
+* fix: 24-bit recorder is now working properly.
+
+### v.5.6.2
+
+* add: composite_area: front end to select the area
+* fix: recording_24: writing the correct bytes
+* fix: divided InputThroughput by stft_steps change: 4 decimals in Scale Bar correction SpinBox
+* fix: cudav9 used in camera utils
+
+### v.5.5.5
+
+* change: stft steps maximum value set to 2^31
+* add: progress bar: bar showing the progress in the input file
+* fix: interpolation: added the categori in ini file
+
+### v.5.5.4
+
+* fix: camera: xib: better default values
+* add: Hamamatsu camera
+* add: stft is now limited to the zoomed area
+* fix: now direct mode don't do any computation (issue direct_refresh)
+* fix: autofocus and fft/filter2d have now their own classes managing their buffers. lot of code simplifying.
+* add: class contrast used to handle the autocontrast part of the pipe
+* fix: fft shift and log are now in the contrast class
+* add: converts class containing convertion complex to float + that will contain float to short
+* fix: free in correct destructors
+* fix: composite images fix : stft_env_ passed instead of stft_buf
+
+### v.5.5.3
+
+* fix: memory_allocation: use unique_pointers for some queues
+* fix: raii: moving gpu buffers to unique pointers (WIP)
+* fix: raii: removed most raw memory management (on CPU side)
+* fix: raii: removed some raw pointers
+* fix: since we don't disable stft while closing window anymore, we need to check in the pipe::exec if we're in direct mode (we do not want to take steps into account in direct)
+
 ### v.5.3.0
 
 * Add: XY stabilization
