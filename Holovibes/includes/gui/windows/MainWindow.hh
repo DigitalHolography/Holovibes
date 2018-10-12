@@ -145,7 +145,9 @@ namespace holovibes
 			void set_x_accu();
 			void set_y_accu();
 			void set_composite_intervals();
+			void set_composite_intervals_hsv();
 			void set_composite_weights();
+			void set_composite_weights_hsv();
 			void set_composite_auto_weights(bool value);
 			void click_composite_rgb_or_hsv();
 			void set_p(int value);

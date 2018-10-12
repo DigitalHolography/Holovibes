@@ -11,11 +11,14 @@
 /* **************************************************************************** */
 
 # include "hsv.cuh"
-
+# include <stdio.h>
 # define SAMPLING_FREQUENCY  0.001f
 
 // this should avoid multiple call of cudamalloc and cudafree
+
 static float* omega_s_mem_pool = nullptr;
+
+
 static size_t omega_s_mem_pool_size = 0;
 
 
@@ -26,12 +29,13 @@ void kernel_compute_hsv()
 }
 
 __global__
-void kernel_fill_part_frequency_axis(size_t min, size_t max, float step, float origin)
+void kernel_fill_part_frequency_axis(size_t min, size_t max, float step, float origin, float* arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (min + id < max)
 	{
-		omega_s_mem_pool[min + id] = origin + id * step;
+		arr[min + id] = origin + id * step;
+		printf("arr[%u] = %f \n",min + id , arr[min + id]);
 	}
 }
 
@@ -59,20 +63,28 @@ void hsv(cuComplex	*input,
 			cudaCheckError();
 		}
 		
-		cudaMalloc(&omega_s_mem_pool, sizeof(float) * nb_img * 3); // w0[] && w1[] && w2[]
+		cudaMalloc(&omega_s_mem_pool, sizeof(float) * nb_img * 2); // w1[] && w2[]
 		cudaCheckError();
 	
 
 	float step = SAMPLING_FREQUENCY / nb_img;
 	size_t after_mid_index = nb_img / 2 + 1;
-	kernel_fill_part_frequency_axis(0, after_mid_index, step, 0);
-	
+	printf("For %u image(s) the array is \n", nb_img);
+	cudaStreamSynchronize(0);
+	kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(0, after_mid_index, step, 0, omega_s_mem_pool);
+	cudaStreamSynchronize(0);
 	float negative_origin = -SAMPLING_FREQUENCY / 2;
-	if (nb_img % 2) // odd
-	{
+	
+	if(nb_img % 2)
 		negative_origin += step / 2;
-		after_mid_index--; // check DEBUG
+	else
+		negative_origin += step;
+		//after_mid_index--; // check DEBUG
+	
+	kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(after_mid_index, nb_img, step, negative_origin, omega_s_mem_pool);
+	cudaStreamSynchronize(0);
+	printf("ENDD\n");
 	}
-	kernel_fill_part_frequency_axis(after_mid_index, nb_img, step, negative_origin);
-	}
+	
+	
 }

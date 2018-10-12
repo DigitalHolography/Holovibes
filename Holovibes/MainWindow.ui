@@ -1405,7 +1405,7 @@
                <number>1</number>
               </property>
               <item row="2" column="0">
-               <widget class="QSpinBox" name="MinSpinBox_Composite">
+               <widget class="QSpinBox" name="PMinSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1444,7 +1444,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QSpinBox" name="MaxSpinBox_Composite">
+               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -1511,7 +1511,7 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_V">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_V">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1528,7 +1528,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_S">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_S">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1538,7 +1538,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QDoubleSpinBox" name="doubleSpinBox_H">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_H">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -6264,6 +6264,86 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>WeightSpinBox_H</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_S</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_V</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMinSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>546</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMaxSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6374,6 +6454,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
   <slot>set_composite_weights()</slot>
+  <slot>set_composite_weights_hsv()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
@@ -6386,6 +6467,7 @@ p, li { white-space: pre-wrap; }
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
+  <slot>set_composite_intervals_hsv()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>

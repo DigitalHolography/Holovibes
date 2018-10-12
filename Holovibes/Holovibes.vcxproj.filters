@@ -675,6 +675,9 @@
     <CustomBuild Include="includes\gui\other\gui_drag_drop_lineedit.hh">
       <Filter>c++ includes\gui\other</Filter>
     </CustomBuild>
+    <CustomBuild Include="includes\thread\thread_reader.hh">
+      <Filter>c++ includes</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon1.ico">

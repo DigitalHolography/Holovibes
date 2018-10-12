@@ -70,10 +70,6 @@ namespace holovibes
 
 			*/
 			void insert_to_composite();
-			/**
-				\brief Insert the convertion Complex => HSV
-			*/
-			void insert_to_hsv();
 			/** \brief Insert the convertion Complex => Argument
 
 			*/
