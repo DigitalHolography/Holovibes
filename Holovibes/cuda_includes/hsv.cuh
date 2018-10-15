@@ -19,6 +19,7 @@ void hsv(cuComplex	*input,
 	const uint frame_res,
 	const ushort min,
 	const ushort max,
+	const uint nb_img,
 	const float h,
 	const float s,
 	const float v);

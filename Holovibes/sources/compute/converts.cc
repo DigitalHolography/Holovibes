@@ -134,6 +134,7 @@ namespace holovibes
 						fd_.frame_res(),
 						cd_.composite_p_min,
 						cd_.composite_p_max,
+						cd_.nSize,
 						cd_.weight_h,
 						cd_.weight_s,
 						cd_.weight_v);

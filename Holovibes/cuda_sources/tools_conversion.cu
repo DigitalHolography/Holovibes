@@ -301,7 +301,7 @@ void rescale_float_unwrap2d(float			*input,
 
 	cudaMemcpy(output, input, float_frame_res, cudaMemcpyDeviceToDevice);
 
-	kernel_normalize_images << < blocks, threads, 0, stream >> > (
+	kernel_normalize_images <<< blocks, threads, 0, stream >>> (
 		output,
 		max,
 		min,
@@ -522,7 +522,7 @@ void kernel_accumulate_images(const float	*input,
 {
 	const uint	index = blockIdx.x * blockDim.x + threadIdx.x;
 	size_t	i = 0;
-	int		pos = start;
+	long int pos = start;
 
 	if (index < nb_pixel)
 	{
