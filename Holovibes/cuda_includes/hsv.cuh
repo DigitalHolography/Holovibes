@@ -9,9 +9,12 @@
 /* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
 /*                                                                              */
 /* **************************************************************************** */
+#pragma once
 
+#include <nppdefs.h>
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
+#include "tools_compute.cuh"
 
 
 void hsv(cuComplex	*input,
