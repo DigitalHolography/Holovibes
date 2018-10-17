@@ -17,11 +17,11 @@
 #include "tools_compute.cuh"
 
 
-void hsv(cuComplex	*input,
+void hsv(const cuComplex *input,
 	float *output,
 	const uint frame_res,
-	const ushort min,
-	const ushort max,
+	const ushort index_min,
+	const ushort index_max,
 	const uint nb_img,
 	const float h,
 	const float s,

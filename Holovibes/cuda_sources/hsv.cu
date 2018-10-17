@@ -35,6 +35,8 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 		Npp32f nNormalizedH = src[id * 3];
 		Npp32f nNormalizedS = src[id * 3 + 1];
 		Npp32f nNormalizedV = src[id * 3 + 2];
+		printf("Pixel [%d] Hsv [%f, %f, %f] -> ", nNormalizedH, nNormalizedS, nNormalizedV);
+
 		Npp32f nR;
 		Npp32f nG;
 		Npp32f nB;
@@ -82,6 +84,7 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 		dst[id * 3] = nR;
 		dst[id * 3 + 1] = nG;
 		dst[id * 3 + 2] = nB;
+		printf(" RGB [%f, %f, %f] \n ", nR, nG, nB);
 	}
 }
 
@@ -126,13 +129,25 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 __global__
 void from_distinct_components_to_interweaved_components(const Npp32f* src, Npp32f* dst, size_t frame_res)
 {
-
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		dst[id * 3] = src[id];
+		dst[id * 3 + 1] = src[id + frame_res];
+		dst[id * 3 + 2] = src[id + frame_res * 2];
+	}
 }
 
 __global__
 void from_interweaved_components_to_distinct_components(const Npp32f* src, Npp32f* dst, size_t frame_res)
 {
-
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		dst[id] = src[id * 3];
+		dst[id + frame_res] = src[id * 3 + 1];
+		dst[id + frame_res * 2] = src[id * 3 + 2];
+	}
 }
 
 
@@ -154,7 +169,6 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 	if (min + id < max)
 	{
 		arr[min + id] = origin + id * step;
-		printf("arr[%u] = %f \n",min + id , arr[min + id]);
 	}
 }
 
@@ -175,7 +189,21 @@ void hsv(const cuComplex	*input,
 
 	static float* omega_arr_data = nullptr;
 	static size_t omega_arr_size = 0;
+
+	static float* tmp_hsv_arr = nullptr;
+	static size_t tmp_hsv_size = 0;
 	
+	if (tmp_hsv_size != frame_res)
+	{
+		tmp_hsv_size = frame_res;
+		if (tmp_hsv_arr)
+		{
+			cudaFree(tmp_hsv_arr);
+			cudaCheckError();
+		}
+		cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV array
+	}
+
 	if (omega_arr_size != nb_img)
 	{
 		omega_arr_size = nb_img;
@@ -190,15 +218,15 @@ void hsv(const cuComplex	*input,
 	
 		double step = SAMPLING_FREQUENCY / (double)nb_img;
 		size_t after_mid_index = nb_img / (double)2.0 + (double)1.0;
-		kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(0, after_mid_index, step, 0, omega_arr.data);
+		kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(0, after_mid_index, step, 0, omega_arr_data);
 		double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
 		if(nb_img % 2)
 			negative_origin += step / (double)2.0;
 		else 
 			negative_origin += step;
 		kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(after_mid_index, nb_img, step,
-																  negative_origin, omega_arr.data);
-		kernel_fill_square_frenquency_axis <<<blocks, threads, 0, 0 >>> (nb_img, omega_arr.data);
+																  negative_origin, omega_arr_data);
+		kernel_fill_square_frenquency_axis <<<blocks, threads, 0, 0 >>> (nb_img, omega_arr_data);
 		cudaStreamSynchronize(0);
 		cudaCheckError();
 	}
@@ -208,17 +236,27 @@ void hsv(const cuComplex	*input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	normalize_frame(output, frame_res); // h
-	normalize_frame(output + frame_res, frame_res); // s
-	normalize_frame(output + frame_res * 2, frame_res); // v
+	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (output, tmp_hsv_arr, frame_res);
+		cudaCheckError();
+
+	normalize_frame(tmp_hsv_arr, frame_res); // h
+	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
+	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
+	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
+	cudaCheckError();
+
+	printf("BEGIN convert HSV RGB\n");
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
+	printf("END convert HSV RGB\n");
 
 
-
+	gpu_multiply_const(output, frame_res * 3, 256);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
 	
 }
