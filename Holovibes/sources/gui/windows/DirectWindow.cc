@@ -182,19 +182,36 @@ namespace holovibes
 			int tmp_height = old_height;
 
 			auto point = this->position();
-			if (w != old_width)
+			
+			if (Cd->compute_mode == Computation::Hologram && Cd->algorithm == Algorithm::None)
 			{
-				old_width = w;
-				old_height = w / ratio;
+				if (w != old_width)
+				{
+					old_width = w;
+					old_height = w / ratio;
+				}
+				else if (h != old_height)
+				{
+					old_width = h * ratio;
+					old_height = h;
+				}
 			}
-			else if (h != old_height)
+			else
 			{
-				old_width = h * ratio;
-				old_height = h;
+				if (w != old_width)
+				{
+					old_height = w;
+					old_width = w;
+				}
+				else if (h != old_height)
+				{
+					old_height = h;
+					old_width = h;
+				}
 			}
 
-			QRect rec = QApplication::desktop()->screenGeometry();
-			if (old_height >  rec.height() || old_height < 128  || old_width > rec.width() || old_width < 128)
+			QRect screen = QApplication::desktop()->screenGeometry();
+			if (old_height >  screen.height() || old_width > screen.width())
 			{
 				old_height = tmp_height;
 				old_width = tmp_width;
