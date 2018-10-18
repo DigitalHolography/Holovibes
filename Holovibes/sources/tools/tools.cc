@@ -127,17 +127,18 @@ namespace holovibes
 		free(tmp_buf);
 	}
 
-	void get_good_size(ushort& width, ushort& height)
+
+	void get_good_size(ushort& width, ushort& height, ushort window_size)
 	{
 		if (width > height)
 		{
-			height = (height / width) * 512;
-			width = 512;
+			height = (height / width) * window_size;
+			width = window_size;
 		}
 		else
 		{
-			width = (width / height) * 512;
-			height = 512;
+			width = (width / height) * window_size;
+			height = window_size;
 		}
 	}
 }
