@@ -32,10 +32,12 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
 	{
-		Npp32f nNormalizedH = src[id * 3];
-		Npp32f nNormalizedS = src[id * 3 + 1];
-		Npp32f nNormalizedV = src[id * 3 + 2];
-		printf("Pixel [%d] Hsv [%f, %f, %f] -> ", nNormalizedH, nNormalizedS, nNormalizedV);
+		Npp32f nNormalizedH = src[id * 3] > 1 ? 1 : src[id * 3];
+		Npp32f nNormalizedS = src[id * 3 + 1] > 1 ? 1 : src[id * 3 + 1];
+		Npp32f nNormalizedV = src[id * 3 + 2] > 1 ? 1 : src[id * 3 + 2];
+
+		/*if (id > 1000 && id < 1010)
+			printf("Pixel [%d] Hsv [%f, %f, %f] \n ", id , nNormalizedH, nNormalizedS, nNormalizedV);*/
 
 		Npp32f nR;
 		Npp32f nG;
@@ -83,8 +85,9 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 
 		dst[id * 3] = nR;
 		dst[id * 3 + 1] = nG;
-		dst[id * 3 + 2] = nB;
-		printf(" RGB [%f, %f, %f] \n ", nR, nG, nB);
+		dst[id * 3 + 2] = nB;/*
+		if (id > 1000 && id < 1010)
+			printf("Pixel [%d] RGB [%f, %f, %f] \n ",id, nR, nG, nB);*/
 	}
 }
 
@@ -105,23 +108,26 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
 	{
+
+
+		const size_t index_w0 = id * 3;
 		const size_t index_w1 = id * 3 + 1;
 		const size_t index_w2 = id * 3 + 2;
-		output[id] = 0;
+		output[index_w0] = 0;
 		output[index_w1] = 0;
 		output[index_w2] = 0;
 
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
-			float input_elm = input[i * frame_res + id].x;
-			output[id] += input_elm;
+			float input_elm = fabsf(input[i * frame_res + id].x);
+			output[index_w0] += input_elm;
 			output[index_w1] += input_elm * omega_arr[i];
 			output[index_w2] += input_elm * omega_arr[omega_size + i];
 		}
 
-		output[id] /= diff_index;
-		output[index_w1] /= diff_index;
-		output[index_w2] /= diff_index;
+		//output[index_w0] /= diff_index; //delete useless
+		//output[index_w1] /= diff_index;
+		//output[index_w2] /= diff_index;
 	}
 }
 
@@ -152,7 +158,7 @@ void from_interweaved_components_to_distinct_components(const Npp32f* src, Npp32
 
 
 __global__
-void kernel_fill_square_frenquency_axis(const size_t length, float* arr)
+void kernel_fill_square_frequency_axis(const size_t length, float* arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < length)
@@ -177,9 +183,9 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 void hsv(const cuComplex	*input,
 	float *output,
 	const uint frame_res,
-	const ushort index_min,
-	const ushort index_max,
-	const uint nb_img,
+	uint index_min,
+	uint index_max,
+	uint nb_img,
 	const float h,
 	const float s,
 	const float v)
@@ -193,6 +199,9 @@ void hsv(const cuComplex	*input,
 	static float* tmp_hsv_arr = nullptr;
 	static size_t tmp_hsv_size = 0;
 	
+	index_max = std::min(index_max, nb_img - 1);
+	index_min = std::min(index_min, index_max);
+
 	if (tmp_hsv_size != frame_res)
 	{
 		tmp_hsv_size = frame_res;
@@ -226,7 +235,7 @@ void hsv(const cuComplex	*input,
 			negative_origin += step;
 		kernel_fill_part_frequency_axis <<<blocks, threads, 0, 0 >>>(after_mid_index, nb_img, step,
 																  negative_origin, omega_arr_data);
-		kernel_fill_square_frenquency_axis <<<blocks, threads, 0, 0 >>> (nb_img, omega_arr_data);
+		kernel_fill_square_frequency_axis <<<blocks, threads, 0, 0 >>> (nb_img, omega_arr_data);
 		cudaStreamSynchronize(0);
 		cudaCheckError();
 	}
@@ -240,22 +249,22 @@ void hsv(const cuComplex	*input,
 		cudaCheckError();
 
 	normalize_frame(tmp_hsv_arr, frame_res); // h
+	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
+	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
+	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
 	cudaCheckError();
 
-	printf("BEGIN convert HSV RGB\n");
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-	printf("END convert HSV RGB\n");
-
-
-	gpu_multiply_const(output, frame_res * 3, 256);
+	
+	gpu_multiply_const(output, frame_res * 3, 65536);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	

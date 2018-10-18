@@ -28,3 +28,11 @@ void composite(cuComplex	*input,
 	const float weight_r,
 	const float weight_g,
 	const float weight_b);
+
+void postcolor_normalize(float *output,
+	const uint frame_res,
+	const uint real_line_size,
+	holovibes::units::RectFd	selection,
+	const float weight_r,
+	const float weight_g,
+	const float weight_b);

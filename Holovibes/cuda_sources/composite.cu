@@ -12,6 +12,7 @@
 
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
+#include "composite.cuh"
 
 struct rect
 {
@@ -214,47 +215,61 @@ void composite(cuComplex	*input,
 	cudaStreamSynchronize(0);
 	if (normalize)
 	{
-		rect zone = { selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height() };
-		check_zone(zone, frame_res, real_line_size);
-		const ushort line_size = zone.w;
-		const ushort lines = zone.h;
-		float *averages = nullptr;
-		float *sums_per_line = nullptr;
-		const uchar pixel_depth = 3;
-		cudaMalloc(&averages, sizeof(float) * pixel_depth);
-		cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
-
-
-		blocks = map_blocks_to_problem(lines * pixel_depth, threads);
-		kernel_sum_one_line << <blocks, threads, 0, 0 >> > (output,
-			frame_res,
-			pixel_depth,
-			real_line_size,
-			zone,
-			sums_per_line);
-		cudaCheckError();
-		cudaStreamSynchronize(0);
-
-		blocks = map_blocks_to_problem(pixel_depth, threads);
-		kernel_average_float_array << <blocks, threads, 0, 0 >> > (sums_per_line,
-			lines,
-			lines * line_size,
-			pixel_depth,
-			averages);
-		cudaCheckError();
-		cudaStreamSynchronize(0);
-
-		blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
-		kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
-		cudaCheckError();
-		cudaStreamSynchronize(0);
-		kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,
-			frame_res,
-			pixel_depth,
-			averages);
-		cudaCheckError();
-		cudaStreamSynchronize(0);
-		cudaFree(averages);
-		cudaFree(sums_per_line);
+		postcolor_normalize(output, frame_res, real_line_size, selection, weight_r, weight_g, weight_b);
 	}
+}
+
+void postcolor_normalize(float *output,
+	const uint frame_res,
+	const uint real_line_size,
+	holovibes::units::RectFd	selection,
+	const float weight_r,
+	const float weight_g,
+	const float weight_b)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	rect zone = { selection.x(), selection.y(), selection.unsigned_width(), selection.unsigned_height() };
+	check_zone(zone, frame_res, real_line_size);
+	const ushort line_size = zone.w;
+	const ushort lines = zone.h;
+	float *averages = nullptr;
+	float *sums_per_line = nullptr;
+	const uchar pixel_depth = 3;
+	cudaMalloc(&averages, sizeof(float) * pixel_depth);
+	cudaMalloc(&sums_per_line, sizeof(float) * lines * pixel_depth);
+
+
+	blocks = map_blocks_to_problem(lines * pixel_depth, threads);
+	kernel_sum_one_line << <blocks, threads, 0, 0 >> > (output,
+		frame_res,
+		pixel_depth,
+		real_line_size,
+		zone,
+		sums_per_line);
+	cudaCheckError();
+	cudaStreamSynchronize(0);
+
+	blocks = map_blocks_to_problem(pixel_depth, threads);
+	kernel_average_float_array << <blocks, threads, 0, 0 >> > (sums_per_line,
+		lines,
+		lines * line_size,
+		pixel_depth,
+		averages);
+	cudaCheckError();
+	cudaStreamSynchronize(0);
+
+	blocks = map_blocks_to_problem(frame_res * pixel_depth, threads);
+	kernel_divide_by_weight << <1, 1, 0, 0 >> > (averages, weight_r, weight_g, weight_b);
+	cudaCheckError();
+	cudaStreamSynchronize(0);
+	kernel_normalize_array << <blocks, threads, 0, 0 >> > (output,
+		frame_res,
+		pixel_depth,
+		averages);
+	cudaCheckError();
+	cudaStreamSynchronize(0);
+	cudaFree(averages);
+	cudaFree(sums_per_line);
 }

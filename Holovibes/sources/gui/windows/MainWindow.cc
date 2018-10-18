@@ -1695,6 +1695,7 @@ namespace holovibes
 		}
 		void MainWindow::set_composite_intervals()
 		{
+			ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
 			compute_desc_.composite_p_red = ui.PRedSpinBox_Composite->value();
 			compute_desc_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
 			notify();
@@ -1702,6 +1703,7 @@ namespace holovibes
 
 		void MainWindow::set_composite_intervals_hsv()
 		{
+			ui.PMinSpinBox_Composite->setValue(std::min(ui.PMaxSpinBox_Composite->value(), ui.PMinSpinBox_Composite->value()));
 			compute_desc_.composite_p_min = ui.PMinSpinBox_Composite->value();
 			compute_desc_.composite_p_max = ui.PMaxSpinBox_Composite->value();
 			notify();
