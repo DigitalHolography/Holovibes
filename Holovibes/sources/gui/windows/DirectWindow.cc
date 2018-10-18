@@ -183,7 +183,8 @@ namespace holovibes
 
 			auto point = this->position();
 			
-			if (Cd->compute_mode == Computation::Hologram && Cd->algorithm == Algorithm::None)
+			if ((Cd->compute_mode == Computation::Hologram && Cd->algorithm == Algorithm::None)
+				|| Cd->compute_mode == Computation::Direct)
 			{
 				if (w != old_width)
 				{
