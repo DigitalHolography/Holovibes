@@ -131,12 +131,12 @@ namespace holovibes
 	{
 		if (width > height)
 		{
-			height = height / ( std::max(width, height) / 512.0);
+			height = (height / width) * 512;
 			width = 512;
 		}
 		else
 		{
-			width = width / (std::max(width, height) / 512.0);
+			width = (width / height) * 512;
 			height = 512;
 		}
 	}
