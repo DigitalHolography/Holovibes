@@ -426,8 +426,7 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_V, compute_desc_.weight_v);
 
 			ui.CompositeGroupBox->setHidden(is_direct_mode() 
-				|| (compute_desc_.img_type != ImgType::Composite 
-					&& compute_desc_.img_type != ImgType::Hsv));
+				|| (compute_desc_.img_type != ImgType::Composite));
 
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
