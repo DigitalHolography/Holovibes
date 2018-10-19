@@ -182,12 +182,10 @@ static void kernel_precompute_colors(float*	colors,
 }
 
 
-void composite(cuComplex	*input,
+void rgb(cuComplex	*input,
 	float					*output,
 	const uint				frame_res,
-	const uint				real_line_size,
 	bool					normalize,
-	holovibes::units::RectFd	selection,
 	const ushort red,
 	const ushort blue,
 	const float weight_r,
@@ -213,10 +211,7 @@ void composite(cuComplex	*input,
 	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
 	cudaCheckError();
 	cudaStreamSynchronize(0);
-	if (normalize)
-	{
-		postcolor_normalize(output, frame_res, real_line_size, selection, weight_r, weight_g, weight_b);
-	}
+	
 }
 
 void postcolor_normalize(float *output,

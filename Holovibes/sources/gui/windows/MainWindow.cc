@@ -409,6 +409,9 @@ namespace holovibes
 			// Composite		 	
 			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+			ui.PMinSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+			ui.PMaxSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
@@ -428,7 +431,7 @@ namespace holovibes
 
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
-			ui.groupBox_5->setHidden(!rgbMode);
+			ui.groupBox_5->setHidden(!rgbMode && !ui.RenormalizationCheckBox->isChecked());
 			ui.groupBox_hue->setHidden(rgbMode);
 			ui.groupBox_hsv_settings->setHidden(rgbMode);
 

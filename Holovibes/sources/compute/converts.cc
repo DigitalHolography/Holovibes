@@ -117,12 +117,10 @@ namespace holovibes
 					return;
 
 				if(cd_.composite_kind == CompositeKind::RGB)
-					composite(stft_env_.gpu_stft_buffer_.get(),
+					rgb(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
-					fd_.width,
 					cd_.composite_auto_weights_,
-					cd_.getCompositeZone(),
 					cd_.composite_p_red,
 					cd_.composite_p_blue,
 					cd_.weight_r,
@@ -138,6 +136,14 @@ namespace holovibes
 						cd_.weight_h,
 						cd_.weight_s,
 						cd_.weight_v);
+
+				if(cd_.composite_auto_weights_)
+					postcolor_normalize(buffers_.gpu_float_buffer_,
+						fd_.frame_res(),
+						fd_.width, cd_.getCompositeZone(),
+						cd_.weight_r,
+						cd_.weight_g,
+						cd_.weight_b);
 			});
 		}
 
