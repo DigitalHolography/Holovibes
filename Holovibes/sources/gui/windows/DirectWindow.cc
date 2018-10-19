@@ -168,22 +168,64 @@ namespace holovibes
 			startTimer(1000 / Cd->display_rate);
 		}
 		
+
+
+		/* This part of code makes a resizing of the window displaying image to
+		   a rectangle format. It also avoids the window to move when resizing.
+		   There is no visible calling function since it's overriding Qt function.
+		**/
 		void	DirectWindow::resizeGL(int w, int h)
 		{
-			if (winState == Qt::WindowFullScreen)
+			if (ratio == 0.0f)
 				return;
+			int tmp_width = old_width;
+			int tmp_height = old_height;
 
-			setFramePosition(winPos);
-			if (w != h) {
-				const int min = std::min(w, h);
-				resize(min, min);
+			auto point = this->position();
+			
+			if ((Cd->compute_mode == Computation::Hologram && Cd->algorithm == Algorithm::None)
+				|| Cd->compute_mode == Computation::Direct)
+			{
+				if (w != old_width)
+				{
+					old_width = w;
+					old_height = w / ratio;
+				}
+				else if (h != old_height)
+				{
+					old_width = h * ratio;
+					old_height = h;
+				}
 			}
+			else
+			{
+				if (w != old_width)
+				{
+					old_height = w;
+					old_width = w;
+				}
+				else if (h != old_height)
+				{
+					old_height = h;
+					old_width = h;
+				}
+			}
+
+			QRect screen = QApplication::desktop()->screenGeometry();
+			if (old_height >  screen.height() || old_width > screen.width())
+			{
+				old_height = tmp_height;
+				old_width = tmp_width;
+			}
+			resize(old_width, old_height);
+			this->setPosition(point);
 		}
+
+
 
 		void	DirectWindow::paintGL()
 		{
-			// Makes sure the screen is displayed as a square even in fullscreen
-			glViewport(0, 0, std::min(width(), height()), std::min(width(), height()));
+			glViewport(0, 0, width(), height()); 
 
 			makeCurrent();
 			glClear(GL_COLOR_BUFFER_BIT);
@@ -280,12 +322,18 @@ namespace holovibes
 
 			const float xRatio = zone.unsigned_width();
 
-			/* Now ZoomOverlay is a square, so we don't really need this.
+			// Use the commented line below if you are using square windows,
+			// and comment the 2 lines below
 			const float yRatio = zone.unsigned_height();
-			setScale(getScale() / (std::min(xRatio, yRatio) / 2)); */
-			setScale(getScale() * 2.f / xRatio);
-
+			setScale(getScale() / (std::min(xRatio, yRatio) / 2));
+			//setScale(getScale() * 2.f / xRatio);
+			
 			setTransform();
+		}
+
+		void DirectWindow::setRatio(float ratio_)
+		{
+			ratio = ratio_;
 		}
 
 		void	DirectWindow::wheelEvent(QWheelEvent *e)

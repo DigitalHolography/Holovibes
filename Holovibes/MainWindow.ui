@@ -3603,7 +3603,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAdimec">
    <property name="text">
-    <string>ADIMEC Quartz 2A2750 M</string>
+    <string>ADIMEC Quartz 2A750 M</string>
    </property>
   </action>
   <action name="actionInfo">

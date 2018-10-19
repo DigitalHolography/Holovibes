@@ -126,6 +126,21 @@ namespace holovibes
 			std::cout << "i = " << i << ", x = " << tmp_buf[i].x << ", y = " << tmp_buf[i].y << std::endl;
 		free(tmp_buf);
 	}
+
+
+	void get_good_size(ushort& width, ushort& height, ushort window_size)
+	{
+		if (width > height)
+		{
+			height = window_size * height / width;
+			width = window_size;
+		}
+		else
+		{
+			width = window_size * width / height;
+			height = window_size;
+		}
+	}
 }
 
 std::string engineering_notation(double value, int nb_significant_figures)

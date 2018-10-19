@@ -83,7 +83,12 @@ namespace holovibes
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
 
-			move(QPoint(532, 554));
+			QRect rec = QApplication::desktop()->screenGeometry();
+			int screen_height = rec.height();
+			int screen_width = rec.width();
+
+			// need the correct dimensions of main windows
+			move(QPoint((screen_width - 800) / 2, (screen_height - 500) / 2));
 			show();
 
 			// Hide non default tab
@@ -1046,7 +1051,7 @@ namespace holovibes
 			if (is_enabled_camera_)
 			{
 				QPoint pos(0, 0);
-				QSize size(512, 512);
+				QSize size(width, height);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode = Computation::Direct;
 				createPipe();
@@ -1056,6 +1061,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
+				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
@@ -1094,7 +1100,8 @@ namespace holovibes
 		void MainWindow::createHoloWindow()
 		{
 			QPoint pos(0, 0);
-			QSize size(512, 512);
+			QSize size(width, height);
+			std::cout << "\n" << width << " " << height << "\n";
 			init_image_mode(pos, size);
 			/* ---------- */
 			try
@@ -1112,6 +1119,8 @@ namespace holovibes
 				mainDisplay->resetTransform();
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
+				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
+
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1329,7 +1338,7 @@ namespace holovibes
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = compute_desc_.nSize;
-					const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
+					const uint		nSize = std::max(128u, std::min(256u, (uint) nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
@@ -1832,14 +1841,27 @@ namespace holovibes
 		{
 			if (!is_direct_mode())
 			{
+				bool was_none = compute_desc_.algorithm == Algorithm::None;
 				if (value == "None")
+				{
 					compute_desc_.algorithm = Algorithm::None;
-				else if (value == "1FFT")
-					compute_desc_.algorithm = Algorithm::FFT1;
-				else if (value == "2FFT")
-					compute_desc_.algorithm = Algorithm::FFT2;
+					close_windows();
+					createHoloWindow();
+				}
 				else
-					assert(!"Unknow Algorithm.");
+				{
+					if (value == "1FFT")
+						compute_desc_.algorithm = Algorithm::FFT1;
+					else if (value == "2FFT")
+						compute_desc_.algorithm = Algorithm::FFT2;
+					else
+						assert(!"Unknow Algorithm.");
+					if (was_none)
+					{
+						close_windows();
+						createHoloWindow();
+					}
+				}
 				set_auto_contrast();
 				notify();
 			}
@@ -3106,6 +3128,11 @@ namespace holovibes
 			QCheckBox *cine = ui.CineFileCheckBox;
 			QDoubleSpinBox *pixel_size_spinbox = ui.PixelSizeDoubleSpinBox;
 
+			width = static_cast<ushort>(width_spinbox->value());
+			height = static_cast<ushort>(height_spinbox->value());
+			//modify the third parameter to change the width and the height of the Holowindow
+			get_good_size(width, height, 512);
+
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
 			import_file_stop();
@@ -3364,6 +3391,7 @@ namespace holovibes
 		#pragma endregion
 
 		#pragma region Getters
+
 		DirectWindow *MainWindow::get_main_display()
 		{
 			return mainDisplay.get();
@@ -3375,6 +3403,9 @@ namespace holovibes
 			};
 			synchronize_thread(lambda);
 		}
+
+		#pragma endregion
+
 	}
 }
 #include "moc_MainWindow.cc"

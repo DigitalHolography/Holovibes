@@ -225,10 +225,10 @@ namespace holovibes
 
 		try
 		{
-			unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
+			//unsigned short	size = upper_window_size(frame_desc.width, frame_desc.height);
 			camera::FrameDescriptor real_frame_desc = frame_desc;
-			real_frame_desc.width = size;
-			real_frame_desc.height = size;
+			real_frame_desc.width = frame_desc.width;
+			real_frame_desc.height = frame_desc.height;
 			input_.reset(new Queue(real_frame_desc, q_max_size_, "InputQueue"));
 			tcapture_.reset(
 				new ThreadReader(file_src,

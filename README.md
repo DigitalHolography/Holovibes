@@ -1,4 +1,4 @@
-# Holovibes v5.0.0 #
+# Holovibes #
 
 
 Holovibes is a software program that allow to make holographic videos. It is developed in `C++` language.
@@ -16,7 +16,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 * [PCO.Pixelfly USB 2.0 driver](http://www.pco.de/support/interface/sensitive-cameras/pcopixelfly-usb/) V1.04
 * [PCO.Edge 4.2 USB 3.0 driver](https://www.pco.de/support/interface/scmos-cameras/pcoedge-42/) V1.08
 * Andor iXon SDK *link not available* V2.9
-* [Bitflow Cyton CXP4 driver for holovibe] (given with holovibes) Framegrabber for the adimec V6.30
+* [Bitflow Cyton CXP4 driver for holovibes] (given with holovibes) Framegrabber for the adimec V6.30
 * [PhotonFocus MV1-D1312 driver](http://www.photonfocus.com/en/products/camerafinder/camera/?prid=70) V3.1.14
 
 ### VISA drivers ###
@@ -27,7 +27,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * Make sure the following installations respect the paths set in "PropertySheet.props":
     * Visual Studio 2017
-    * CUDA 9.1 (AFTER installing visual Studio)
+    * CUDA 9.2 (AFTER installing visual Studio)
     * Qt 5.9.0
     * QT VS TOOLS (Usefull Visual studio add-on)
     * Install and build Qwt 6.1.3 in the "lib" directory
@@ -45,11 +45,11 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### IDE ###
 
-* Visual Studio 2017 Community 15.4.3
+* Visual Studio 2017 Community 15.6.7
 
 ### CUDA ###
 
-* [CUDA 9.0.176 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 9.2 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Visual C++ redistributable ###
 
@@ -103,15 +103,18 @@ This mode is useful to do batch computation (call holovibes from a script).
 ## Features ##
 
 * Command line options (for batch processing only)
-* Works with 8 cameras:
+* Works with these cameras:
     * PCO Edge 4.2 LT
     * Andor iXon +885
     * IDS imaging CMOSIS CMV 4000 
     * AVT Pike Kodak KAI 4022 F-421 
     * PCO Pixelfly
-    * Ximea CMOSIS CMV 4000
-    * Adimec Quartz-A2750 (with Bitflow Cyton-CXP4 framegrabber)
+    * Ximea CMOSIS XiQ
+    * Ximea CMOSIS XiB
+    * Adimec Quartz-2A750 (with Bitflow Cyton-CXP4 framegrabber)
     * PhotonFocus MV1-D1312IE-100-G2-12
+    * Hamamatsu C11440
+
 * Cameras configuration using INI files
 * OpenGL realtime display
   * Zone selection (zoom, signal/noise averaging, filtering, autofocus)
@@ -141,28 +144,58 @@ This mode is useful to do batch computation (call holovibes from a script).
 
 ## Authors ##
 
-* Michael ATLAN <michael.atlan@espci.fr>
-* Jeffrey BENCTEUX <jeffrey.bencteux@epita.fr>
-* Thomas KOSTAS <thomas.kostas@epita.fr>
-* Pierre PAGNOUX <pierre.pagnoux@epita.fr>
-* Eric Delanghe <edelangh@student.42.fr>
-* Arnaud GAILLARD <arnaud.gaillard@epita.fr>
-* Geoffrey LEGOURRIEREC <geoffrey.legourrierec@epita.fr>
-* Antoine Dill�e <antoined_78@hotmail.fr>
-* Romain Cancilliere <romain.cancilliere@gmail.com>
-* Clement Ledant <clement.ledant@gmail.com>
-* Cyril CETRE <cyril.cetre@epita.fr>
-* Thomas JARROSSAY <tjarross@student.42.fr>
-* Alexandre BARTZ <abartz@student.42.fr>
-* Eloi Charpentier <eloi.charpentier@epita.fr>
-* Julien Gautier <julien.gautier@epita.fr>
-* Florian Lapeyre <florian.lapeyre@epita.fr>
-* Ellena Davoine <ellena.davoine@epita.fr>
-* Clément Fang <clement.fang@epita.fr>
-* Danaé Marmai <danae.marmai@epita.fr>
-* Hugo Verjus <hugo.verjus@epita.fr>
+* Ellena Davoine
+* Clement Fang
+* Danae Marmai
+* Hugo Verjus
+* Eloi Charpentier
+* Julien Gautier
+* Florian Lapeyre
+* Thomas Jarrossay
+* Alexandre Bartz
+* Cyril Cetre
+* Clement Ledant
+* Eric Delanghe
+* Arnaud Gaillard
+* Geoffrey Le Gourrierec
+* Jeffrey Bencteux
+* Thomas Kostas
+* Pierre Pagnoux
+* Antoine Dillée
+* Romain Cancillière
+* Michael Atlan
+
+## Git ##
+
+If you do not know how to use git, please have a look at the following tutorial.
+	* Git - Documentation
+	* Bitbucket Git FAQ
+
+### Clone the repository
+
+You can use a GUI tool as SourceTree or use git in command line.
+git clone https://username@bitbucket.org/PierrePagnoux/holovibes.git
+
+### Git rules
+
+To let the versioning tool consistent, you have to respect these rules.
+* master branch must be clean and compile.
+* Never push generated files.
+* Use branch for everything. For example to develop a new feature : new/myfeature.
+*  Prefer use rebase when pulling changes in your own branch (it avoids merge commits).
+* Use merge when pushing your changes to another branch.
+* Never commits on master branch directly (without the acknowledge of your team mates).
+* Commit messages: use keywords as ‘add, fix, rm, up, change’
+* Git rules - Code review
+* Git names conventions
 
 ## Changelog ##
+
+### v.6.0.6
+
+* up: update MainWindow.cc to add documentation
+* add: documentation first steps with holovibes
+* add: normalization in image rendering panel
 
 ## September 2018 - December 2018 ##
 
