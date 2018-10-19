@@ -132,12 +132,12 @@ namespace holovibes
 	{
 		if (width > height)
 		{
-			height = (height / width) * window_size;
+			height = window_size * height / width;
 			width = window_size;
 		}
 		else
 		{
-			width = (width / height) * window_size;
+			width = window_size * width / height;
 			height = window_size;
 		}
 	}

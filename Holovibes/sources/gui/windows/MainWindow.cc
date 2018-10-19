@@ -1839,7 +1839,6 @@ namespace holovibes
 
 		void MainWindow::set_algorithm(const QString value)
 		{
-			std::cout << "1fft" << width << " " << height << "\n";
 			if (!is_direct_mode())
 			{
 				bool was_none = compute_desc_.algorithm == Algorithm::None;
