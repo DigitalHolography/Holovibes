@@ -1101,6 +1101,7 @@ namespace holovibes
 		{
 			QPoint pos(0, 0);
 			QSize size(width, height);
+			std::cout << "\n" << width << " " << height << "\n";
 			init_image_mode(pos, size);
 			/* ---------- */
 			try
@@ -1838,16 +1839,30 @@ namespace holovibes
 
 		void MainWindow::set_algorithm(const QString value)
 		{
+			std::cout << "1fft" << width << " " << height << "\n";
 			if (!is_direct_mode())
 			{
+				bool was_none = compute_desc_.algorithm == Algorithm::None;
 				if (value == "None")
+				{
 					compute_desc_.algorithm = Algorithm::None;
-				else if (value == "1FFT")
-					compute_desc_.algorithm = Algorithm::FFT1;
-				else if (value == "2FFT")
-					compute_desc_.algorithm = Algorithm::FFT2;
+					close_windows();
+					createHoloWindow();
+				}
 				else
-					assert(!"Unknow Algorithm.");
+				{
+					if (value == "1FFT")
+						compute_desc_.algorithm = Algorithm::FFT1;
+					else if (value == "2FFT")
+						compute_desc_.algorithm = Algorithm::FFT2;
+					else
+						assert(!"Unknow Algorithm.");
+					if (was_none)
+					{
+						close_windows();
+						createHoloWindow();
+					}
+				}
 				set_auto_contrast();
 				notify();
 			}
@@ -3116,7 +3131,8 @@ namespace holovibes
 
 			width = static_cast<ushort>(width_spinbox->value());
 			height = static_cast<ushort>(height_spinbox->value());
-			get_good_size(width, height);
+			//modify the third parameter to change the width and the height of the Holowindow
+			get_good_size(width, height, 512);
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
