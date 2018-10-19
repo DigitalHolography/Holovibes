@@ -131,10 +131,13 @@ namespace holovibes
 				return curve_get_(lhs) < curve_get_(rhs);
 			});
 
+			double min = curve_get_(*(minmax.first)) - 1.0;
+			double max = curve_get_(*(minmax.second)) + 1.0;
+
 			plot_.setAxisScale(0,
-				curve_get_(*(minmax.first)) - 1.0,
-				curve_get_(*(minmax.second)) + 1.0,
-				2.0);
+				min,
+				max,
+				0);
 			plot_.replot();
 		}
 
