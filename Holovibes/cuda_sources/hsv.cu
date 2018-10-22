@@ -124,6 +124,17 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 
 
 __global__
+void threshold_top_bottom(float* output, const float tmin, const float tmax, const uint frame_res)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		output[id] = fminf(output[id], tmax);
+		output[id] = fmaxf(output[id], tmin);
+	}
+}
+
+__global__
 void from_distinct_components_to_interweaved_components(const Npp32f* src, Npp32f* dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -241,6 +252,8 @@ void hsv(const cuComplex	*input,
 	cudaCheckError();
 
 	normalize_frame(tmp_hsv_arr, frame_res); // h
+	threshold_top_bottom(tmp_hsv_arr, 0, 1, frame_res);
+	normalize_frame(tmp_hsv_arr, frame_res); // h
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
 	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
@@ -252,6 +265,7 @@ void hsv(const cuComplex	*input,
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
+
 
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
 	cudaStreamSynchronize(0);
