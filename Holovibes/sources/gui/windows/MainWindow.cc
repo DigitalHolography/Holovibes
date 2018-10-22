@@ -1105,7 +1105,7 @@ namespace holovibes
 			init_image_mode(pos, size);
 			/* ---------- */
 			try
-			{
+			{	
 				mainDisplay.reset(
 					new HoloWindow(
 						pos, size,
@@ -1114,6 +1114,7 @@ namespace holovibes
 						sliceXZ,
 						sliceYZ,
 						this));
+				mainDisplay->set_is_resize(false);
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->resetTransform();
@@ -1856,6 +1857,7 @@ namespace holovibes
 						compute_desc_.algorithm = Algorithm::FFT2;
 					else
 						assert(!"Unknow Algorithm.");
+					
 					if (was_none)
 					{
 						close_windows();
@@ -3132,6 +3134,7 @@ namespace holovibes
 			height = static_cast<ushort>(height_spinbox->value());
 			//modify the third parameter to change the width and the height of the Holowindow
 			get_good_size(width, height, 512);
+
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();

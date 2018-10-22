@@ -199,16 +199,25 @@ namespace holovibes
 			}
 			else
 			{
-				if (w != old_width)
+				if (is_resize)
 				{
-					old_height = w;
-					old_width = w;
+					if (w != old_width)
+					{
+						old_height = w;
+						old_width = w;
+					}
+					else if (h != old_height)
+					{
+						old_height = h;
+						old_width = h;
+					}
 				}
-				else if (h != old_height)
+				else
 				{
-					old_height = h;
-					old_width = h;
+					old_height = std::max(h, w);
+					old_width = old_height;
 				}
+				is_resize = true;
 			}
 
 			QRect screen = QApplication::desktop()->screenGeometry();
@@ -335,6 +344,18 @@ namespace holovibes
 		{
 			ratio = ratio_;
 		}
+
+		bool DirectWindow::is_resize_call() const
+		{
+			return is_resize;
+		}
+
+		void DirectWindow::set_is_resize(bool b)
+		{
+			is_resize = b;
+		}
+
+
 
 		void	DirectWindow::wheelEvent(QWheelEvent *e)
 		{

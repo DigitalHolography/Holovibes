@@ -28,13 +28,16 @@ namespace holovibes
 			DirectWindow(QPoint p, QSize s, std::unique_ptr<Queue>& q, KindOfView k = Direct);
 			virtual ~DirectWindow();
 
-			units::RectFd	getSignalZone() const;
-			units::RectFd	getNoiseZone() const;
-			void		setSignalZone(units::RectFd signal);
-			void		setNoiseZone(units::RectFd noise);
+			units::RectFd getSignalZone() const;
+			units::RectFd getNoiseZone() const;
+			void setSignalZone(units::RectFd signal);
+			void setNoiseZone(units::RectFd noise);
 
-			void	zoomInRect(units::RectOpengl zone);
+			void zoomInRect(units::RectOpengl zone);
 			void setRatio(float ratio_);
+
+			bool is_resize_call() const;
+			void set_is_resize(bool b);
 
 		protected:
 			int	texDepth, texType;
@@ -43,6 +46,8 @@ namespace holovibes
 			int old_height = -1;
 			// it represents width/height of the Direct window
 			float ratio = 0.0f;
+			
+			bool is_resize = true;
 
 			virtual void	initShaders() override;
 			virtual void	initializeGL() override;
