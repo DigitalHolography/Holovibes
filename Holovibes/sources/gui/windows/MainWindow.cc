@@ -93,7 +93,6 @@ namespace holovibes
 
 			// Hide non default tab
 			ui.CompositeGroupBox->setHidden(true);
-
 			ui.actionSpecial->setChecked(false);
 			ui.actionMotionFocus->setChecked(false);
 
@@ -407,11 +406,12 @@ namespace holovibes
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file);
 
 
-			// Composite
-			bool isComposite = !is_direct_mode() && compute_desc_.img_type == ImgType::Composite;
-			ui.CompositeGroupBox->setHidden(!isComposite);
+			// Composite		 	
 			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+			ui.PMinSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+			ui.PMaxSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
+
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
 			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
@@ -419,6 +419,20 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
+			QSpinBoxQuietSetValue(ui.PMinSpinBox_Composite, compute_desc_.composite_p_min);
+			QSpinBoxQuietSetValue(ui.PMaxSpinBox_Composite, compute_desc_.composite_p_max);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_H, compute_desc_.weight_h);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_S, compute_desc_.weight_s);
+			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_V, compute_desc_.weight_v);
+
+			ui.CompositeGroupBox->setHidden(is_direct_mode() 
+				|| (compute_desc_.img_type != ImgType::Composite));
+
+			bool rgbMode = ui.radioButton_rgb->isChecked();
+			ui.groupBox->setHidden(!rgbMode);
+			ui.groupBox_5->setHidden(!rgbMode && !ui.RenormalizationCheckBox->isChecked());
+			ui.groupBox_hue->setHidden(rgbMode);
+			ui.groupBox_hsv_settings->setHidden(rgbMode);
 
 			// Interpolation
 			ui.InterpolationCheckbox->setChecked(compute_desc_.interpolation_enabled);
@@ -711,6 +725,11 @@ namespace holovibes
 				compute_desc_.weight_r = ptree.get<float>("composite.weight_r", 1);
 				compute_desc_.weight_g = ptree.get<float>("composite.weight_g", 1);
 				compute_desc_.weight_b = ptree.get<float>("composite.weight_b", 1);
+				compute_desc_.composite_p_min = ptree.get<ushort>("composite.p_min", 0);
+				compute_desc_.composite_p_max = ptree.get<ushort>("composite.p_max", 0);
+				compute_desc_.weight_h = ptree.get<float>("composite.weight_h", 1);
+				compute_desc_.weight_s = ptree.get<float>("composite.weight_s", 1);
+				compute_desc_.weight_v = ptree.get<float>("composite.weight_v", 1);
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
 				// Interpolation
@@ -810,6 +829,11 @@ namespace holovibes
 			ptree.put<float>("composite.weight_r", compute_desc_.weight_r);
 			ptree.put<float>("composite.weight_g", compute_desc_.weight_g);
 			ptree.put<float>("composite.weight_b", compute_desc_.weight_b);
+			ptree.put<ushort>("composite.p_min", compute_desc_.composite_p_min);
+			ptree.put<ushort>("composite.p_max", compute_desc_.composite_p_max);
+			ptree.put<float>("composite.weight_h", compute_desc_.weight_h);
+			ptree.put<float>("composite.weight_s", compute_desc_.weight_s);
+			ptree.put<float>("composite.weight_v", compute_desc_.weight_v);
 			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
 
 			//flowgraphy
@@ -1121,6 +1145,7 @@ namespace holovibes
 				mainDisplay->setAngle(displayAngle);
 				mainDisplay->setFlip(displayFlip);
 				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
+
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1673,8 +1698,17 @@ namespace holovibes
 		}
 		void MainWindow::set_composite_intervals()
 		{
+			ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
 			compute_desc_.composite_p_red = ui.PRedSpinBox_Composite->value();
 			compute_desc_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
+			notify();
+		}
+
+		void MainWindow::set_composite_intervals_hsv()
+		{
+			ui.PMinSpinBox_Composite->setValue(std::min(ui.PMaxSpinBox_Composite->value(), ui.PMinSpinBox_Composite->value()));
+			compute_desc_.composite_p_min = ui.PMinSpinBox_Composite->value();
+			compute_desc_.composite_p_max = ui.PMaxSpinBox_Composite->value();
 			notify();
 		}
 
@@ -1685,10 +1719,23 @@ namespace holovibes
 			compute_desc_.weight_b = ui.WeightSpinBox_B->value();
 		}
 
+		void MainWindow::set_composite_weights_hsv()
+		{
+			compute_desc_.weight_h = ui.WeightSpinBox_H->value();
+			compute_desc_.weight_s = ui.WeightSpinBox_S->value();
+			compute_desc_.weight_v = ui.WeightSpinBox_V->value();
+		}
+
 		void MainWindow::set_composite_auto_weights(bool value)
 		{
 			compute_desc_.composite_auto_weights_ = value;
 			set_auto_contrast();
+		}
+
+		void MainWindow::click_composite_rgb_or_hsv()
+		{	
+			compute_desc_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
+			notify();
 		}
 
 		void MainWindow::set_flowgraphy_level(const int value)
@@ -1856,7 +1903,6 @@ namespace holovibes
 						compute_desc_.algorithm = Algorithm::FFT2;
 					else
 						assert(!"Unknow Algorithm.");
-					
 					if (was_none)
 					{
 						close_windows();
@@ -3404,9 +3450,7 @@ namespace holovibes
 			};
 			synchronize_thread(lambda);
 		}
-
 		#pragma endregion
-
 	}
 }
 #include "moc_MainWindow.cc"
