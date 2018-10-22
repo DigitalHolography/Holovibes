@@ -191,6 +191,18 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.0.8
+
+* add: HSV representation
+
+### v.6.0.7
+
+* fix: Add of the automatic set of zmin et zmax for the autofocus
+* fix: initializing of a file holovibes.ini if it doesn't exist
+* add: bfml files for adimec camera
+* add: direct and algorithm none are now rectangular
+* fix: Change the step for the plot auto scale to avoid strange behaviors
+
 ### v.6.0.6
 
 * up: update MainWindow.cc to add documentation
