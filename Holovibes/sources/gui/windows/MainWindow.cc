@@ -413,6 +413,16 @@ namespace holovibes
 			ui.PMaxSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
 
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
+			if (ui.PRedSpinBox_Composite->value() == 0 && ui.PBlueSpinBox_Composite->value() == 0
+				&& ui.PMinSpinBox_Composite->value() == 0 && ui.PMaxSpinBox_Composite->value() == 0)
+			{
+				ui.PBlueSpinBox_Composite->setValue(ui.nSizeSpinBox->value() / 2);
+				ui.PRedSpinBox_Composite->setValue(1);
+				ui.PMaxSpinBox_Composite->setValue(ui.nSizeSpinBox->value() / 2);
+				ui.PMinSpinBox_Composite->setValue(1);
+			}
+
+
 
 			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
 			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);

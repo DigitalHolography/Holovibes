@@ -114,10 +114,10 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
-			float input_elm = log1pf(fabsf(input[i * frame_res + id].x));
-			output[index_w0] += input_elm;
-			output[index_w1] += input_elm * omega_arr[i];
-			output[index_w2] += input_elm * omega_arr[omega_size + i];
+			float input_elm = fabsf(input[i * frame_res + id].x);
+			output[index_w0] += input_elm * omega_arr[i];
+			output[index_w1] += 0.8f; //input_elm * omega_arr[i];
+			output[index_w2] += input_elm;
 		}
 	}
 }
@@ -271,7 +271,7 @@ void hsv(const cuComplex	*input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
-	gpu_multiply_const(output, frame_res * 3, 65536);
+	gpu_multiply_const(output, frame_res * 3, 255);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
