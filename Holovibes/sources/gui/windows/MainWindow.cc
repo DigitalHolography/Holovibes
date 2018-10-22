@@ -1749,6 +1749,12 @@ namespace holovibes
 			notify();
 		}
 
+		void MainWindow::slide_update_threshold_H()
+		{
+			compute_desc_.min_H_value = (float)ui.min_H_horizontal_slider->value() / 1000.0f;
+			compute_desc_.max_H_value = (float)ui.max_H_horizontal_slider->value() / 1000.0f;
+		}
+
 		void MainWindow::set_flowgraphy_level(const int value)
 		{
 			int flag = 0;

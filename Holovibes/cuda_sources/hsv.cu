@@ -182,7 +182,7 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 
 
 
-void hsv(const cuComplex	*input,
+void hsv(const cuComplex *input,
 	float *output,
 	const uint frame_res,
 	uint index_min,
@@ -190,7 +190,9 @@ void hsv(const cuComplex	*input,
 	uint nb_img,
 	const float h,
 	const float s,
-	const float v)
+	const float v,
+	const float minH,
+	const float maxH)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -252,7 +254,7 @@ void hsv(const cuComplex	*input,
 	cudaCheckError();
 
 	normalize_frame(tmp_hsv_arr, frame_res); // h
-	threshold_top_bottom(tmp_hsv_arr, 0, 1, frame_res);
+	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH, maxH, frame_res);
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s

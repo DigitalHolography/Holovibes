@@ -377,6 +377,9 @@ namespace holovibes
 		std::atomic<float>		weight_s;
 		std::atomic<float>		weight_v;
 
+		std::atomic<float> min_H_value;
+		std::atomic<float> max_H_value;
+
 		std::atomic<CompositeKind> composite_kind;
 
 		std::atomic<bool>		composite_auto_weights_;

@@ -1450,6 +1450,40 @@
               <property name="spacing">
                <number>6</number>
               </property>
+              <item row="4" column="1">
+               <widget class="QSlider" name="max_H_horizontal_slider">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="singleStep">
+                 <number>1</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>1000</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksAbove</enum>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_21">
                 <property name="text">
@@ -1457,14 +1491,14 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
+              <item row="5" column="0">
                <widget class="QLabel" name="label_22">
                 <property name="text">
                  <string>S</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="6" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_V">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1483,14 +1517,14 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="6" column="0">
                <widget class="QLabel" name="label_24">
                 <property name="text">
                  <string>V</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="1">
+              <item row="5" column="1">
                <widget class="QDoubleSpinBox" name="WeightSpinBox_S">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1506,6 +1540,34 @@
                 </property>
                 <property name="singleStep">
                  <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSlider" name="min_H_horizontal_slider">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
                 </property>
                </widget>
               </item>
@@ -1525,6 +1587,20 @@
                 </property>
                 <property name="singleStep">
                  <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>max</string>
                 </property>
                </widget>
               </item>
@@ -6380,6 +6456,38 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>min_H_horizontal_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_H()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>606</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>max_H_horizontal_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_H()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>606</x>
+     <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6504,6 +6612,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
   <slot>set_composite_intervals_hsv()</slot>
+  <slot>slide_update_threshold_H()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
