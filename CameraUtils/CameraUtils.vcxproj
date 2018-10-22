@@ -25,9 +25,7 @@
     <ClCompile Include="utils.cc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{411732AF-DD66-42FE-97A9-6365A8CEE675}</ProjectGuid>
