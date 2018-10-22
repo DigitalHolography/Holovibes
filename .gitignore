@@ -12,6 +12,10 @@ Camera/*/*.config
 .vscode
 *.vcxproj
 *.vcxproj.*
+packages/
+CameraUtils/packages.config
+GPIB/packages.config
+Holovibes/packages.config
 
 # Build results
 
