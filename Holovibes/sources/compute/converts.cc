@@ -19,6 +19,7 @@
 #include "compute_bundles_2d.hh"
 #include "tools_conversion.cuh"
 #include "composite.cuh"
+#include "hsv.cuh"
 
 namespace holovibes
 {
@@ -114,17 +115,35 @@ namespace holovibes
 				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize) ||
 					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize))
 					return;
-				composite(stft_env_.gpu_stft_buffer_.get(),
+
+				if(cd_.composite_kind == CompositeKind::RGB)
+					rgb(stft_env_.gpu_stft_buffer_.get(),
 					buffers_.gpu_float_buffer_,
 					fd_.frame_res(),
-					fd_.width,
 					cd_.composite_auto_weights_,
-					cd_.getCompositeZone(),
 					cd_.composite_p_red,
 					cd_.composite_p_blue,
 					cd_.weight_r,
 					cd_.weight_g,
 					cd_.weight_b);
+				else
+					hsv(stft_env_.gpu_stft_buffer_.get(),
+						buffers_.gpu_float_buffer_,
+						fd_.frame_res(),
+						cd_.composite_p_min,
+						cd_.composite_p_max,
+						cd_.nSize,
+						cd_.weight_h,
+						cd_.weight_s,
+						cd_.weight_v);
+
+				if(cd_.composite_auto_weights_)
+					postcolor_normalize(buffers_.gpu_float_buffer_,
+						fd_.frame_res(),
+						fd_.width, cd_.getCompositeZone(),
+						cd_.weight_r,
+						cd_.weight_g,
+						cd_.weight_b);
 			});
 		}
 

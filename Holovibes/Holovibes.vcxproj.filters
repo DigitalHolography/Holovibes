@@ -637,8 +637,8 @@
     <ClInclude Include="includes\compute\rendering.hh">
       <Filter>c++ includes\compute</Filter>
     </ClInclude>
-    <ClInclude Include="includes\thread\thread_reader.hh">
-      <Filter>c++ includes\thread</Filter>
+    <ClInclude Include="cuda_includes\hsv.cuh">
+      <Filter>cuda includes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -674,6 +674,9 @@
     </CustomBuild>
     <CustomBuild Include="includes\gui\other\gui_drag_drop_lineedit.hh">
       <Filter>c++ includes\gui\other</Filter>
+    </CustomBuild>
+    <CustomBuild Include="includes\thread\thread_reader.hh">
+      <Filter>c++ includes</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -751,6 +754,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\aberration.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\hsv.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

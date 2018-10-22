@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1620</width>
+    <width>1841</width>
     <height>511</height>
    </rect>
   </property>
@@ -812,8 +812,17 @@
            </item>
            <item row="2" column="1">
             <widget class="QSpinBox" name="PAccSpinBox">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777206</height>
+              </size>
+             </property>
              <property name="minimum">
               <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>999999999</number>
              </property>
              <property name="value">
               <number>0</number>
@@ -1227,9 +1236,36 @@
           <number>2</number>
          </property>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_33">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QRadioButton" name="radioButton_rgb">
+             <property name="text">
+              <string>RGB</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioButton_hsv">
+             <property name="text">
+              <string>HSV</string>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="title">
-            <string>P intervals</string>
+            <string>Frequency channels (p)</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
@@ -1262,7 +1298,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="label_7">
                 <property name="text">
-                 <string>Red</string>
+                 <string>Min</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -1272,7 +1308,7 @@
               <item row="1" column="1">
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>Blue</string>
+                 <string>Max</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -1298,9 +1334,204 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="groupBox_hue">
+           <property name="maximumSize">
+            <size>
+             <width>201</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Frequency channels (p)</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_18">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_13">
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>1</number>
+              </property>
+              <item row="2" column="0">
+               <widget class="QSpinBox" name="PMinSpinBox_Composite">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSpinBox" name="PMaxSpinBox_Composite">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>65536</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_hsv_settings">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Settings</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_20">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="leftMargin">
+             <number>9</number>
+            </property>
+            <property name="topMargin">
+             <number>9</number>
+            </property>
+            <property name="rightMargin">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_14">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetDefaultConstraint</enum>
+              </property>
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>H</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>S</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_V">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="decimals">
+                 <number>4</number>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>V</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_S">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="decimals">
+                 <number>4</number>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QDoubleSpinBox" name="WeightSpinBox_H">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="decimals">
+                 <number>4</number>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_5">
            <property name="title">
-            <string>Normalization</string>
+            <string>Color equalization</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_14">
             <item>
@@ -1349,26 +1580,26 @@
               </item>
              </layout>
             </item>
-            <item>
-             <widget class="QCheckBox" name="RenormalizationCheckBox">
-              <property name="font">
-               <font>
-                <pointsize>7</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Automatic renormalization</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="CompositeAreaButton">
-              <property name="text">
-               <string>Set auto renormalization area</string>
-              </property>
-             </widget>
-            </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="RenormalizationCheckBox">
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Automatic renormalization</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="CompositeAreaButton">
+           <property name="text">
+            <string>Set auto renormalization area</string>
+           </property>
           </widget>
          </item>
          <item>
@@ -3348,8 +3579,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1620</width>
-     <height>26</height>
+     <width>1841</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -6032,6 +6263,118 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>radioButton_rgb</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_hsv</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>click_composite_rgb_or_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_H</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_S</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>WeightSpinBox_V</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_weights_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>600</x>
+     <y>402</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMinSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>546</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PMaxSpinBox_Composite</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>638</x>
+     <y>293</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6142,6 +6485,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
   <slot>set_composite_weights()</slot>
+  <slot>set_composite_weights_hsv()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
@@ -6154,6 +6498,7 @@ p, li { white-space: pre-wrap; }
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
+  <slot>set_composite_intervals_hsv()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
@@ -6170,5 +6515,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_zernike_factor(double)</slot>
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
+  <slot>click_composite_rgb_or_hsv()</slot>
  </slots>
 </ui>

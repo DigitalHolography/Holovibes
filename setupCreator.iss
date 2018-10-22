@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "6.0.6"
+#define MyAppVersion "6.0.8"
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -127,7 +127,9 @@ Source: "{#QtPath}\Qt5Svg.dll"; DestDir: "{app}\{#MyAppVersion}";Components: pro
 Source: "{#QtPlatformPath}\*"; DestDir: "{app}\{#MyAppVersion}\platforms";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cufft64_92.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#CudaPath}\cudart64_92.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
-Source: "Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
+Source: "Camera\CameraAdimec\bfml\Adimec-Quartz-2A750-Mono_12bit.bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
+Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.4-0.3 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
+Source: "Camera\CameraAdimec\bfml\Adimec Q2A750m-0.2 (4x freerun).bfml"; DestDir: "{app}\{#MyAppVersion}\Camera\CameraAdimec\bfml";Components: program; Flags: ignoreversion
 ;Source: "setup_creator_files\vcredist_2017_x64.exe"; DestDir: "{tmp}";Components: visual; Flags: nocompression ignoreversion; AfterInstall: Visual2017
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 

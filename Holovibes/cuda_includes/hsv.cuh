@@ -9,28 +9,20 @@
 /* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
 /*                                                                              */
 /* **************************************************************************** */
-
 #pragma once
 
-# include "Common.cuh"
+#include <nppdefs.h>
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
+#include "tools_compute.cuh"
 
-# include "compute_descriptor.hh"
 
-/// Computes 3 different p slices and put them in each color
-void rgb(cuComplex	*input,
-	float					*output,
-	const uint				frame_res,
-	bool					normalize,
-	const ushort red,
-	const ushort blue,
-	const float weight_r,
-	const float weight_g,
-	const float weight_b);
-
-void postcolor_normalize(float *output,
+void hsv(const cuComplex *input,
+	float *output,
 	const uint frame_res,
-	const uint real_line_size,
-	holovibes::units::RectFd	selection,
-	const float weight_r,
-	const float weight_g,
-	const float weight_b);
+	uint index_min,
+	uint index_max,
+	uint nb_img,
+	const float h,
+	const float s,
+	const float v);

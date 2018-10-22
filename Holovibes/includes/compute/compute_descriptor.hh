@@ -20,7 +20,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v6.0.5"; /*!< Current version of this project. */
+	const static std::string version = "v6.0.8"; /*!< Current version of this project. */
 
 	using	Tuple4f =	std::tuple<float, float, float, float>;
 
@@ -66,7 +66,7 @@ namespace holovibes
 		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
 		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
 		Complex, /**< Displays the complex buffer using blue and red colors for real and imaginary part */
-		Composite /**< Displays different frequency intervals on color chanels*/
+		Composite /**< Displays different frequency intervals on color RBG or HSV chanels*/
 	};
 
 	/*! \brief Describes the access mode of an accessor. */
@@ -84,6 +84,16 @@ namespace holovibes
 		XYview,
 		XZview,
 		YZview
+	};
+
+	/*!
+	* \brief	Represents the kind of composite image
+	*/
+
+	enum CompositeKind
+	{
+		RGB,
+		HSV
 	};
 
 	/*! \brief Contains compute parameters.
@@ -360,6 +370,15 @@ namespace holovibes
 		std::atomic<float>		weight_r;
 		std::atomic<float>		weight_g;
 		std::atomic<float>		weight_b;
+
+		std::atomic<ushort>		composite_p_min;
+		std::atomic<ushort>		composite_p_max;
+		std::atomic<float>		weight_h;
+		std::atomic<float>		weight_s;
+		std::atomic<float>		weight_v;
+
+		std::atomic<CompositeKind> composite_kind;
+
 		std::atomic<bool>		composite_auto_weights_;
 		//! \}
 
