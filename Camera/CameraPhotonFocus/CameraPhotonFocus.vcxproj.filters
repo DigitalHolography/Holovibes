@@ -6,4 +6,7 @@
   <ItemGroup>
     <ClInclude Include="camera_photon_focus.hh" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>
