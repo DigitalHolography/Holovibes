@@ -2671,10 +2671,11 @@ namespace holovibes
 				boost::split(v_str, str, boost::is_any_of(";"));
 				if (v_str.size() != 2)
 				{
-					display_error("Couldn't load file : too much or to little separator\n");
+					display_error("Couldn't load file : too many or not enough separators \";\"\n");
 					notify();
 					return;
 				}
+
 				boost::trim(v_str[0]);
 				boost::split(matrix_size, v_str[0], boost::is_any_of(delims), boost::token_compress_on);
 				if (matrix_size.size() != 3)
@@ -2683,22 +2684,24 @@ namespace holovibes
 					notify();
 					return;
 				}
+
 				compute_desc_.convo_matrix_width = std::stoi(matrix_size[0]);
 				compute_desc_.convo_matrix_height = std::stoi(matrix_size[1]);
 				compute_desc_.convo_matrix_z = std::stoi(matrix_size[2]);
 				boost::trim(v_str[1]);
 				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
+				if ((compute_desc_.convo_matrix_width * compute_desc_.convo_matrix_height * compute_desc_.convo_matrix_z) != matrix.size())
+				{
+					holovibes_.reset_convolution_matrix();
+					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
+				}
+
 				while (c < matrix.size())
 				{
 					if (matrix[c] != "")
 						compute_desc_.convo_matrix.push_back(std::stof(matrix[c]));
 					c++;
-				}
-				if ((compute_desc_.convo_matrix_width * compute_desc_.convo_matrix_height * compute_desc_.convo_matrix_z) != matrix.size())
-				{
-					holovibes_.reset_convolution_matrix();
-					display_error("Couldn't load file : invalid file\n");
-				}
+				}	
 			}
 			catch (std::exception& e)
 			{
