@@ -47,6 +47,7 @@ namespace holovibes
 			// it represents width/height of the Direct window
 			float ratio = 0.0f;
 			
+			// bool represent if we are resizing the window or creating one
 			bool is_resize = true;
 
 			virtual void	initShaders() override;
