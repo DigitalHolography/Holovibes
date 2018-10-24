@@ -44,13 +44,13 @@ namespace holovibes
 				/* kst_size */
 				int size = static_cast<int>(cd_.convo_matrix.size());
 				/* Build the kst 3x3 matrix */
-				std::unique_ptr<float[]> kst_complex_cpu = std::make_unique<float[]>(size);
+				/*std::unique_ptr<float[]> kst_complex_cpu = std::make_unique<float[]>(size);
 				for (int i = 0; i < size; ++i)
-					kst_complex_cpu[i] = cd_.convo_matrix[i];
+					kst_complex_cpu[i] = cd_.convo_matrix[i];*/
 
 				/* gpu_kernel_buffer */
 				gpu_kernel_buffer_.resize(size);
-				cudaMemcpy(gpu_kernel_buffer_, kst_complex_cpu.get(), sizeof(float) * size, cudaMemcpyHostToDevice);
+				cudaMemcpy(gpu_kernel_buffer_, static_cast<float*>(cd_.convo_matrix.data()), sizeof(float) * size, cudaMemcpyHostToDevice);
 			}
 			if (cd_.flowgraphy_enabled || cd_.convolution_enabled)
 				gpu_special_queue_.resize(fd_.frame_res() * cd_.special_buffer_size);

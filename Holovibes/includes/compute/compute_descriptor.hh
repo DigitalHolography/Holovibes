@@ -238,8 +238,9 @@ namespace holovibes
 		std::atomic<float>			scale_bar_correction_factor;
 		//! Width of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_width;
-		//! Height of the matric used for convolution
+		//! Height of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_height;
+		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z;
 		std::atomic<uint>			flowgraphy_level;
 		std::atomic<uint>			autofocus_size;
