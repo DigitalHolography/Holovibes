@@ -218,6 +218,13 @@ namespace holovibes
 					old_width = old_height;
 				}
 				is_resize = true;
+
+				if (old_height < 140 || old_width < 140)
+				{
+					old_height = tmp_height;
+					old_width = tmp_width;
+				}
+				is_resize = true;
 			}
 
 			QRect screen = QApplication::desktop()->screenGeometry();
