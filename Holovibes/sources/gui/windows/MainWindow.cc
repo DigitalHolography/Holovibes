@@ -1751,6 +1751,9 @@ namespace holovibes
 
 		void MainWindow::slide_update_threshold_H()
 		{
+			if (ui.min_H_horizontal_slider->value() > ui.max_H_horizontal_slider->value())
+				ui.min_H_horizontal_slider->setValue(ui.max_H_horizontal_slider->value());
+
 			compute_desc_.min_H_value = (float)ui.min_H_horizontal_slider->value() / 1000.0f;
 			compute_desc_.max_H_value = (float)ui.max_H_horizontal_slider->value() / 1000.0f;
 		}

@@ -105,19 +105,19 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
 	{
-		const size_t index_w0 = id * 3;
-		const size_t index_w1 = id * 3 + 1;
-		const size_t index_w2 = id * 3 + 2;
-		output[index_w0] = 0;
-		output[index_w1] = 0;
-		output[index_w2] = 0;
+		const size_t index_H = id * 3;
+		const size_t index_S = id * 3 + 1;
+		const size_t index_V = id * 3 + 2;
+		output[index_H] = 0;
+		output[index_S] = 0.8f;
+		output[index_V] = 0;
 
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
 			float input_elm = fabsf(input[i * frame_res + id].x);
-			output[index_w0] += input_elm * omega_arr[i];
-			output[index_w1] += 0.8f; //input_elm * omega_arr[i];
-			output[index_w2] += input_elm;
+			output[index_H] += input_elm * omega_arr[i];
+			//output[index_S] += 0.8f; //input_elm * omega_arr[i];
+			output[index_V] += input_elm;
 		}
 	}
 }
