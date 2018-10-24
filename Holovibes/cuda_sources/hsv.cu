@@ -214,7 +214,7 @@ void hsv(const cuComplex *input,
 			cudaFree(tmp_hsv_arr);
 			cudaCheckError();
 		}
-		cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV array
+		cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3 * 2); // HSV array * 2 , second part is for parallel reduction
 	}
 
 	if (omega_arr_size != nb_img)
@@ -253,14 +253,27 @@ void hsv(const cuComplex *input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
+	printf("PART 1 \n");
+	
+	printf(" min llll is %f max rrrrrr is %f \n", minH, maxH);
+
+
 	normalize_frame(tmp_hsv_arr, frame_res); // h
+	normalize_frame_parallel_reduction(tmp_hsv_arr, frame_res, tmp_hsv_arr + frame_res * 3);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
 	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH, maxH, frame_res);
+	cudaStreamSynchronize(0);
+	cudaCheckError();
+	printf("PART 2 \n");
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
-	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
-	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
+	//normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
+	//gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
+	printf("PART 3 \n");
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
+	printf("END \n");
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
