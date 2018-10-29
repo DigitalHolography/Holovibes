@@ -76,7 +76,7 @@ void kernel_warp_reduce_min(volatile float* sdata_min, unsigned int tid) {
 
 
 template <unsigned int blockSize> __global__
-void kernel_reduce_min(float* g_idata, float* g_odata, unsigned int frame_res) {
+void kernel_reduce_min(float* d_frame, float* d_memory_space_sdata, unsigned int frame_res) {
 	extern __shared__ float sdata_min[];
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x * (blockSize * 2) + tid;
@@ -84,9 +84,9 @@ void kernel_reduce_min(float* g_idata, float* g_odata, unsigned int frame_res) {
 	sdata_min[tid] = INFINITY;
 
 	while (i < frame_res){
-		float tmp_min = g_idata[i];
+		float tmp_min = d_frame[i];
 		if (i + blockSize < frame_res)
-			tmp_min = fminf(tmp_min, g_idata[i + blockSize]);
+			tmp_min = fminf(tmp_min, d_frame[i + blockSize]);
 		sdata_min[tid] = fminf(sdata_min[tid], tmp_min);
 		i += gridSize;
 	}
@@ -112,7 +112,7 @@ void kernel_reduce_min(float* g_idata, float* g_odata, unsigned int frame_res) {
 	if (tid < 32)
 		kernel_warp_reduce_min<blockSize>(sdata_min, tid);
 	if (tid == 0)
-		g_odata[blockIdx.x] = sdata_min[0];
+		d_memory_space_sdata[blockIdx.x] = sdata_min[0];
 }
 
 
@@ -135,7 +135,7 @@ void kernel_warp_reduce_max(volatile float* sdata_max, unsigned int tid) {
 
 
 template <unsigned int blockSize> __global__
-void kernel_reduce_max(float* g_idata, float* g_odata, unsigned int frame_res) {
+void kernel_reduce_max(float* d_frame, float* d_memory_space_sdata, unsigned int frame_res) {
 	extern __shared__ float sdata_max[];
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x * (blockSize * 2) + tid;
@@ -143,9 +143,9 @@ void kernel_reduce_max(float* g_idata, float* g_odata, unsigned int frame_res) {
 	sdata_max[tid] = - 1;
 
 	while (i < frame_res) {
-		float tmp_min = g_idata[i];
+		float tmp_min = d_frame[i];
 		if (i + blockSize < frame_res)
-			tmp_min = fmaxf(tmp_min, g_idata[i + blockSize]);
+			tmp_min = fmaxf(tmp_min, d_frame[i + blockSize]);
 		sdata_max[tid] = fmaxf(sdata_max[tid], tmp_min);
 		i += gridSize;
 	}
@@ -171,56 +171,56 @@ void kernel_reduce_max(float* g_idata, float* g_odata, unsigned int frame_res) {
 	if (tid < 32)
 		kernel_warp_reduce_max<blockSize>(sdata_max, tid);
 	if (tid == 0)
-		g_odata[blockIdx.x] = sdata_max[0];
+		d_memory_space_sdata[blockIdx.x] = sdata_max[0];
 }
 
 /*
-* \brief This function destroys the current image by doing reductions.
-*
+* \brief This function destroys "frame" by doing reductions.
+* \param d_frame the image 
+* \param h_memory_space_sdata space to store results from blocks
 */
 
 template <unsigned int threads>
-float get_maximum_in_image(float* frame, float* memory_space_sdata, unsigned int  frame_res)
+float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_reduce_max<threads> << <blocks, threads, threads * sizeof(float) >> > (frame, memory_space_sdata, frame_res);
+	kernel_reduce_max<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 
-	float *result_array = new float[blocks];
+	float *h_result_array = new float[blocks];
 
-	cudaMemcpy(result_array, memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
 
 	float result = - 1;
 
 	for (unsigned i = 0; i < blocks; ++i)
-		result = std::fmax(result, result_array[i]);
+		result = std::fmax(result, h_result_array[i]);
 
-	delete result_array;
+	delete h_result_array;
 
 	return result;
 }
 
+/*
+* \brief This function destroys "frame" by doing reductions.
+* \param d_frame the image
+* \param h_memory_space_sdata space to store results from blocks
+*/
 template <unsigned int threads>
-float get_minimum_in_image(float* frame, float* memory_space_sdata, unsigned int  frame_res)
+float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
 
-	kernel_reduce_min<threads> << <blocks, threads, threads * sizeof(float) >> > (frame, memory_space_sdata, frame_res);
+	kernel_reduce_min<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 
 	float *result_array = new float[blocks];
 
-	cudaMemcpy(result_array, memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
 
 	float result = INFINITY;
 
-	for (unsigned i = 0; i < blocks; ++i) {
-		
-
+	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmin(result, result_array[i]);
-//		printf("%f, ", result_array[i]);
-	}
-	printf("%f, ", result);
-
 
 	delete result_array;
 
@@ -233,8 +233,8 @@ float get_minimum_in_image(float* frame, float* memory_space_sdata, unsigned int
 
 void min_func_example()
 {
-	unsigned int threads = 512; //get_max_threads_1d();
-	unsigned int 		blocks = map_blocks_to_problem(SIZE, threads);
+	unsigned int threads = 512;
+	unsigned int blocks = map_blocks_to_problem(SIZE, threads);
 
 	float test_arr[SIZE];
 

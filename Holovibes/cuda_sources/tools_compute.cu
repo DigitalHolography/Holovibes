@@ -387,6 +387,8 @@ void kernel_reduce_min(float* g_idata, float* g_odata, uint frame_res) {
 		sdata[tid] = fminf(sdata[tid], fminf( g_idata[i] , g_idata[i + blockSize]));
 		i += gridSize;
 	}
+	if (tid < 10)
+		printf("YESSSSSSSSSSSSS1\n");
 	__syncthreads();
 
 	if ( blockSize >= 512) {
@@ -407,10 +409,18 @@ void kernel_reduce_min(float* g_idata, float* g_odata, uint frame_res) {
 		}
 		__syncthreads();
 	}
+	if (tid < 10)
+		printf("YESSSSSSSSSSSSS2\n");
 	if (tid < 32)
 		kernel_warp_reduce_min<1024>(sdata, tid);
 	if (tid == 0)
+	{
 		g_odata[blockIdx.x] = sdata[0];
+		printf("mininnininiinii %d\n", sdata[0]);
+	}
+	if (tid < 10)
+		printf("YESSSSSSSSSSSSS3\n");
+		
 }
 
 /*
@@ -428,15 +438,15 @@ void get_minimum_image(float* frame, float* result, uint frame_res)
 
 void normalize_frame_parallel_reduction(float* frame, uint frame_res, float* memory_space)
 {
-	cudaMemcpy((void **)memory_space, (void **)frame, frame_res, cudaMemcpyDeviceToDevice);
-	cudaStreamSynchronize(0);
+	cudaMemcpy((void **)memory_space, (void **)frame, frame_res * sizeof(float), cudaMemcpyDeviceToDevice);
+	//cudaStreamSynchronize(0);
 	cudaCheckError();
 	float min;
 	float max;
 
-	get_minimum_image(memory_space, &min, frame_res);
-	cudaStreamSynchronize(0);
+	get_minimum_image(memory_space, memory_space + frame_res, frame_res);
+	//cudaStreamSynchronize(0);
 	cudaCheckError();
-	printf(" mniniinini is %f\n", min);
+	//printf(" mniniinini is %f\n", min);
 
 }

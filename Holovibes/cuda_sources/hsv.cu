@@ -258,7 +258,7 @@ void hsv(const cuComplex *input,
 	printf(" min llll is %f max rrrrrr is %f \n", minH, maxH);
 
 
-	normalize_frame(tmp_hsv_arr, frame_res); // h
+	//normalize_frame(tmp_hsv_arr, frame_res); // h
 	normalize_frame_parallel_reduction(tmp_hsv_arr, frame_res, tmp_hsv_arr + frame_res * 3);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
