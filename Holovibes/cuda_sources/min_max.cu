@@ -10,7 +10,19 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
+#include "tools_compute.cuh"
 #include "min_max.cuh"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <cmath>
+#include <string>
+
 
 template <unsigned int blockSize>__device__
 void kernel_warp_reduce_min(volatile float* sdata_min, unsigned int tid) {
@@ -151,7 +163,7 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmax(result, h_result_array[i]);
 
-	delete h_result_array;
+	delete[] h_result_array;
 
 	return result;
 }
@@ -173,7 +185,7 @@ float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmin(result, result_array[i]);
 
-	delete result_array;
+	delete[] result_array;
 	return result;
 }
 

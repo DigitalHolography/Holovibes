@@ -32,6 +32,7 @@ void kernel_complex_divide(cuComplex	*image,
   }
 }
 
+
 __global__
 void kernel_real_part_divide(cuComplex	*image,
 	const uint		size,

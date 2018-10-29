@@ -10,16 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include "tools_conversion.cuh"
-#include "unique_ptr.hh"
-#include "tools_compute.cuh"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <cmath>
-#include <string>
+#pragma once
 
 template <unsigned int threads>
 float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
