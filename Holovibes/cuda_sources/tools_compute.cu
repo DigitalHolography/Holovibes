@@ -353,10 +353,10 @@ void normalize_frame(float* frame, uint frame_res)
 	cudaMalloc(&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
 	
 	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	const float min = get_minimum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+	const float min = 1;// get_minimum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
 
 	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	const float max = get_maximum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+	const float max = 2;// get_maximum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
 
 	cudaFree(d_tmp_storage);
 	cudaCheckError();
