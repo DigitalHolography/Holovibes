@@ -12,6 +12,8 @@
 
 #include "tools_compute.cuh"
 #include "tools_unwrap.cuh"
+#include "min_max.cuh"
+
 #include <stdio.h>
 
 #define AUTO_CONTRAST_COMPENSATOR 10000
@@ -343,8 +345,19 @@ void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
 
 void normalize_frame(float* frame, uint frame_res)
 {
-	float min, max;
-	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
+	uint		threads = get_max_threads_1d();
+	uint		blocks = map_blocks_to_problem(frame_res, threads);
+
+	float *d_tmp_storage;
+	cudaMalloc(&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
+	
+	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
+	const float min = get_minimum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+
+	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
+	const float max = get_maximum_in_image<512>(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+
+	cudaFree(d_tmp_storage);
 	cudaCheckError();
 	std::cout << " min  =  " << min  << " && max = " << max << std::endl;
 
@@ -354,99 +367,4 @@ void normalize_frame(float* frame, uint frame_res)
 	gpu_multiply_const(frame, frame_res, static_cast<float>((double)1 / static_cast<double>(max - min)));
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-}
-
-
-template <uint blockSize>__device__
-void kernel_warp_reduce_min(volatile float* sdata, uint tid) {
-	if (blockSize >= 64)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 32]);
-	if (blockSize >= 32)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 16]);
-	if (blockSize >= 16)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 8]);
-	if (blockSize >= 8)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 4]);
-	if (blockSize >= 4)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 2]);
-	if (blockSize >= 2)
-		sdata[tid] = fminf(sdata[tid], sdata[tid + 1]);
-}
-
-
-template <uint blockSize> __global__
-void kernel_reduce_min(float* g_idata, float* g_odata, uint frame_res) {
-	extern __shared__ float sdata[];
-	uint tid = threadIdx.x;
-	unsigned int i = blockIdx.x * (blockSize * 2) + tid;
-	unsigned int gridSize = blockSize * 2 * gridDim.x;
-	sdata[tid] = INFINITY;
-
-	while (i < frame_res)
-	{
-		sdata[tid] = fminf(sdata[tid], fminf( g_idata[i] , g_idata[i + blockSize]));
-		i += gridSize;
-	}
-	if (tid < 10)
-		printf("YESSSSSSSSSSSSS1\n");
-	__syncthreads();
-
-	if ( blockSize >= 512) {
-		if (tid < 256) {
-			sdata[tid] = fminf(sdata[tid], sdata[tid + 256]);
-		}
-		__syncthreads();
-	}
-	if (blockSize >= 256) {
-		if ( tid < 128) {
-			sdata[tid] = fminf(sdata[tid], sdata[tid + 128]);
-		}
-		__syncthreads();
-	}
-	if (blockSize >= 128) {
-		if ( tid < 64) {
-			sdata[tid] = fminf(sdata[tid], sdata[tid + 64]);
-		}
-		__syncthreads();
-	}
-	if (tid < 10)
-		printf("YESSSSSSSSSSSSS2\n");
-	if (tid < 32)
-		kernel_warp_reduce_min<1024>(sdata, tid);
-	if (tid == 0)
-	{
-		g_odata[blockIdx.x] = sdata[0];
-		printf("mininnininiinii %d\n", sdata[0]);
-	}
-	if (tid < 10)
-		printf("YESSSSSSSSSSSSS3\n");
-		
-}
-
-/*
-* \brief This function destroys the current image by doing reductions.
-*
-*/
-void get_minimum_image(float* frame, float* result, uint frame_res)
-{
-	uint		threads = get_max_threads_1d();
-	uint		blocks = map_blocks_to_problem(frame_res, threads);
-	kernel_reduce_min<1024> << <blocks, threads, 0, 0 >> > (frame, result, frame_res);
-
-}
-
-
-void normalize_frame_parallel_reduction(float* frame, uint frame_res, float* memory_space)
-{
-	cudaMemcpy((void **)memory_space, (void **)frame, frame_res * sizeof(float), cudaMemcpyDeviceToDevice);
-	//cudaStreamSynchronize(0);
-	cudaCheckError();
-	float min;
-	float max;
-
-	get_minimum_image(memory_space, memory_space + frame_res, frame_res);
-	//cudaStreamSynchronize(0);
-	cudaCheckError();
-	//printf(" mniniinini is %f\n", min);
-
 }

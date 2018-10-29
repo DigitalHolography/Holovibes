@@ -167,5 +167,3 @@ void gpu_multiply_const(cuComplex* frame,
 	cuComplex x);
 
 void normalize_frame(float* frame, uint frame_res);
-
-void normalize_frame_parallel_reduction(float* frame, uint frame_res, float* memory_space);

@@ -259,7 +259,7 @@ void hsv(const cuComplex *input,
 
 
 	//normalize_frame(tmp_hsv_arr, frame_res); // h
-	normalize_frame_parallel_reduction(tmp_hsv_arr, frame_res, tmp_hsv_arr + frame_res * 3);
+	normalize_frame(tmp_hsv_arr, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH, maxH, frame_res);

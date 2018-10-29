@@ -10,15 +10,19 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
+#include "tools_compute.cuh"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <cmath>
+#include <string>
 
-void hsv(cuComplex	*input,
-	float *output,
-	const uint frame_res,
-	const ushort min,
-	const ushort max,
-	const float h,
-	const float s,
-	const float v);
+template <unsigned int threads>
+float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
+
+template <unsigned int threads>
+float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
