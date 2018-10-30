@@ -50,6 +50,7 @@ void auto_contrast_correction(float			*input,
 	float			*max,
 	cudaStream_t	stream)
 {
+	// TODO add correct min max
 	gpu_extremums(input, size, min, max, nullptr, nullptr, stream);
 	*min = ((*min < 1.0f) ? (1.0f) : (*min));
 	*max = ((*max < 1.0f) ? (1.0f) : (*max));

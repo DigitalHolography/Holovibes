@@ -12,8 +12,6 @@
 
 #pragma once
 
-template <unsigned int threads>
 float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
 
-template <unsigned int threads>
 float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);

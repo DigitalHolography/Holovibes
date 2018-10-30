@@ -637,6 +637,9 @@
     <ClInclude Include="cuda_includes\hsv.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\min_max.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -758,6 +761,9 @@
     </CudaCompile>
     <CudaCompile Include="cuda_includes\tools_compute.cuh">
       <Filter>cuda includes\tools</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\min_max.cu">
+      <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

@@ -147,24 +147,17 @@ void kernel_reduce_max(float* d_frame, float* d_memory_space_sdata, unsigned int
 * \param h_memory_space_sdata space to store results from blocks
 */
 
-template <unsigned int threads>
 float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
+	unsigned const threads = 512;
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
-
 	kernel_reduce_max<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
-
 	float *h_result_array = new float[blocks];
-
 	cudaMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
-
 	float result = -1;
-
 	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmax(result, h_result_array[i]);
-
 	delete[] h_result_array;
-
 	return result;
 }
 
@@ -173,9 +166,10 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 * \param d_frame the image
 * \param h_memory_space_sdata space to store results from blocks
 */
-template <unsigned int threads>
+
 float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
+	unsigned const threads = 512;
 	unsigned int blocks = map_blocks_to_problem(frame_res, threads);
 	kernel_reduce_min<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 	float *result_array = new float[blocks];

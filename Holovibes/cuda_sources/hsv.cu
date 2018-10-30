@@ -109,14 +109,14 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 		const size_t index_S = id * 3 + 1;
 		const size_t index_V = id * 3 + 2;
 		output[index_H] = 0;
-		output[index_S] = 0.8f;
+		output[index_S] = 0;
 		output[index_V] = 0;
 
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
 			float input_elm = fabsf(input[i * frame_res + id].x);
 			output[index_H] += input_elm * omega_arr[i];
-			//output[index_S] += 0.8f; //input_elm * omega_arr[i];
+			output[index_S] += input_elm * omega_arr[omega_size + i];
 			output[index_V] += input_elm;
 		}
 	}
@@ -253,28 +253,21 @@ void hsv(const cuComplex *input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	printf("PART 1 \n");
-	
-	printf(" min llll is %f max rrrrrr is %f \n", minH, maxH);
-
-
-	//normalize_frame(tmp_hsv_arr, frame_res); // h
-	normalize_frame(tmp_hsv_arr, frame_res);
-	cudaStreamSynchronize(0);
+	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
+
 	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH, maxH, frame_res);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
-	printf("PART 2 \n");
+
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
-	//normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
-	//gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
-	printf("PART 3 \n");
+
+	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
+	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
+
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
-	printf("END \n");
-	cudaStreamSynchronize(0);
+
 	cudaCheckError();
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
@@ -282,11 +275,11 @@ void hsv(const cuComplex *input,
 	cudaCheckError();
 
 
-	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
+	//kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
-	gpu_multiply_const(output, frame_res * 3, 255);
+	gpu_multiply_const(output, frame_res * 3, 65025);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
