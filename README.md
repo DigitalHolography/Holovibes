@@ -88,7 +88,9 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, record
 
 This mode is useful to do batch computation (call holovibes from a script).
 
-### Adding a camera (for developpers) ###
+## For developpers
+
+### Adding a camera  ###
 
 * Right click on "Camera Libbraries"
 * Add -> new project -> empty project
@@ -99,6 +101,13 @@ This mode is useful to do batch computation (call holovibes from a script).
 * Make sure "CAMERA_EXPORTS" is set (properties -> C/C++ -> preprocessor -> Preprocessor definitions)
 * right click on Holovibes -> Build Events -> Post-Build Events -> add the copy of your SDk dll and your ini file
 * Do not forget updating setupCreator.iss to copy your newly created Dll and .ini file
+
+### Linker Errors ###
+
+Cuda functions
+
+* Go to: Project>Holovibes property>Linker>Input : Add the missing .lib (example: "nppc.lib" )
+* Go to: Project>Holovibes property>C/C++>Command Line>Additionnal options : Add missing "-l*" (example: "-lnppi_static")
 
 ## Features ##
 

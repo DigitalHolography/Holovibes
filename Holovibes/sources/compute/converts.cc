@@ -136,7 +136,8 @@ namespace holovibes
 				else
 					hsv(stft_env_.gpu_stft_buffer_.get(),
 						buffers_.gpu_float_buffer_,
-						fd_.frame_res(),
+						fd_.width,
+						fd_.height,
 						cd_.composite_p_min,
 						cd_.composite_p_max,
 						cd_.nSize,

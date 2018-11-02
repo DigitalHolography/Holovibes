@@ -13,6 +13,7 @@
 #pragma once
 
 # include "Common.cuh"
+# include <nppdefs.h>
 
 /* CONVERSION FUNCTIONS */
 
@@ -155,6 +156,13 @@ void float_to_ushort(const float	*input,
 					const size_t	depth,
 					cudaStream_t	stream = 0);
 
+void float_to_uint8(const float	*input,
+	Npp8u *output,
+	const uint size);
+
+void uint8_to_float(const Npp8u	*input,
+	float *output,
+	const uint size);
 
 void ushort_to_uchar(const ushort	*input,
 	uchar			*output,

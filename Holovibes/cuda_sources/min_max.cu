@@ -141,12 +141,6 @@ void kernel_reduce_max(float* d_frame, float* d_memory_space_sdata, unsigned int
 		d_memory_space_sdata[blockIdx.x] = sdata_max[0];
 }
 
-/*
-* \brief This function destroys "frame" by doing reductions.
-* \param d_frame the image
-* \param h_memory_space_sdata space to store results from blocks
-*/
-
 float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
 	unsigned const threads = 512;
@@ -154,6 +148,8 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	kernel_reduce_max<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 	float *h_result_array = new float[blocks];
 	cudaMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaCheckError();
+
 	float result = -1;
 	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmax(result, h_result_array[i]);
@@ -161,11 +157,6 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	return result;
 }
 
-/*
-* \brief This function destroys "frame" by doing reductions.
-* \param d_frame the image
-* \param h_memory_space_sdata space to store results from blocks
-*/
 
 float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res)
 {
@@ -174,6 +165,8 @@ float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	kernel_reduce_min<threads> << <blocks, threads, threads * sizeof(float) >> > (d_frame, d_memory_space_sdata, frame_res);
 	float *result_array = new float[blocks];
 	cudaMemcpy(result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaCheckError();
+
 	float result = INFINITY;
 
 	for (unsigned i = 0; i < blocks; ++i)
@@ -183,3 +176,26 @@ float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	return result;
 }
 
+void get_minimum_maximum_in_image(const float *frame, const unsigned frame_res, float* min, float* max)
+{
+	const uint threads = 512;
+	const uint blocks = map_blocks_to_problem(frame_res, threads);
+
+
+	float *d_tmp_storage;
+	cudaMalloc(&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
+	cudaCheckError();
+
+	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
+	cudaCheckError();
+
+	*min = get_minimum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+
+	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
+	cudaCheckError();
+
+	*max = get_maximum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+
+	cudaFree(d_tmp_storage);
+	cudaCheckError();
+}

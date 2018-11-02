@@ -11,6 +11,12 @@
 /* **************************************************************************** */
 
 # include "hsv.cuh"
+# include <nppdefs.h>
+# include <nppcore.h>
+# include <nppi.h>
+# include <npps.h>
+# include <nppversion.h>
+# include <npp.h>
 # include <stdio.h>
 # define SAMPLING_FREQUENCY  1
 
@@ -88,7 +94,56 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	}
 }
 
+__global__
+void convert_hsv_to_rgb_255(const Npp8u* input, Npp8u* output, const unsigned frame_res)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
 
+		Npp32f nNormalizedH = (Npp32f)input[id * 3] * 0.003921569F; // / 255.0F
+		Npp32f nNormalizedS = (Npp32f)input[id * 3 + 1] * 0.003921569F;
+		Npp32f nNormalizedV = (Npp32f)input[id * 3 + 2] * 0.003921569F;
+		Npp32f nR;
+		Npp32f nG;
+		Npp32f nB;
+		if (nNormalizedS == 0.0F) {
+			nR = nG = nB = nNormalizedV;
+		}
+		else {
+			if (nNormalizedH == 1.0F)
+				nNormalizedH = 0.0F;
+			else
+				nNormalizedH = nNormalizedH * 6.0F; // / 0.1667F
+		}
+		Npp32f nI = floorf(nNormalizedH);
+		Npp32f nF = nNormalizedH - nI;
+		Npp32f nM = nNormalizedV * (1.0F - nNormalizedS);
+		Npp32f nN = nNormalizedV * (1.0F - nNormalizedS * nF);
+		Npp32f nK = nNormalizedV * (1.0F - nNormalizedS * (1.0F - nF));
+		if (nI == 0.0F) {
+			nR = nNormalizedV; nG = nK; nB = nM;
+		}
+		else if (nI == 1.0F) {
+			nR = nN; nG = nNormalizedV; nB = nM;
+		}
+		else if (nI == 2.0F) {
+			nR = nM; nG = nNormalizedV; nB = nK;
+		}
+		else if (nI == 3.0F) {
+			nR = nM; nG = nN; nB = nNormalizedV;
+		}
+		else if (nI == 4.0F) {
+			nR = nK; nG = nM; nB = nNormalizedV;
+		}
+		else if (nI == 5.0F) {
+			nR = nNormalizedV; nG = nM; nB = nN;
+		}
+		output[id * 3] = (Npp8u)(nR * 255.0F);
+		output[id * 3 + 1] = (Npp8u)(nG * 255.0F);
+		output[id * 3 + 2] = (Npp8u)(nB * 255.0F);
+	}
+}
 
 
 /*
@@ -184,7 +239,8 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 
 void hsv(const cuComplex *input,
 	float *output,
-	const uint frame_res,
+	const uint width,
+	const uint height,
 	uint index_min,
 	uint index_max,
 	uint nb_img,
@@ -194,6 +250,8 @@ void hsv(const cuComplex *input,
 	const float minH,
 	const float maxH)
 {
+	const uint frame_res = height * width;
+
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
@@ -273,13 +331,29 @@ void hsv(const cuComplex *input,
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
+	/*
+	gpu_multiply_const(output, frame_res * 3, 255);
+	cudaCheckError();
 
+	Npp8u* d_uint_space;
+	cudaMalloc(&d_uint_space, sizeof(Npp8u) * frame_res * 3 * 2); // 2 hsv arrays, 1: in, 2: out
+	Npp8u* d_uint_space_out = d_uint_space + frame_res * 3;
+	
+	float_to_uint8(output, d_uint_space, frame_res * 3);
 
-	//kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
+	NppiSize dimension = {width, height};
+	nppiHSVToRGB_8u_C3R(d_uint_space, width, d_uint_space_out, width, dimension);
+	//convert_hsv_to_rgb_255 << <blocks, threads, 0, 0 >> > (d_uint_space, d_uint_space_out, frame_res);
+
+	uint8_to_float(d_uint_space_out, output, frame_res * 3);
+	cudaFree(d_uint_space);
+	*/
+
+	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (output, output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
-	gpu_multiply_const(output, frame_res * 3, 65025);
+	gpu_multiply_const(output, frame_res * 3, 255 * 255);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	

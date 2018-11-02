@@ -404,6 +404,64 @@ void float_to_ushort(const float	*input,
 	cudaCheckError();
 }
 
+
+/*! \brief Kernel function wrapped in float_to_UINT8
+**/
+static __global__
+void kernel_float_to_uint8(const float	*input,
+	Npp8u *output,
+	const uint	size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < size)
+	{
+			if (input[index] > 255.f)
+				output[index] = 255;
+			else if (input[index] < 0.f)
+				output[index] = 0;
+			else
+				output[index] = static_cast<Npp8u>(input[index]);
+	}
+}
+
+
+
+void float_to_uint8(const float	*input,
+	Npp8u *output,
+	const uint size)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_float_to_uint8 << <blocks, threads, 0, 0 >> >(input, output, size);
+	cudaCheckError();
+}
+
+/*! \brief Kernel function wrapped in float_to_UINT8
+**/
+static __global__
+void kernel_uint8_to_float(const  Npp8u	*input,
+	float *output,
+	const uint	size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+
+	if (index < size)
+		output[index] = static_cast<float>(input[index]);
+}
+
+void uint8_to_float(const  Npp8u	*input,
+	float			*output,
+	const uint		size)
+{
+	const uint threads = get_max_threads_1d();
+	const uint blocks = map_blocks_to_problem(size, threads);
+
+	kernel_uint8_to_float << <blocks, threads, 0, 0 >> >(input, output, size);
+	cudaCheckError();
+}
+
 static __global__
 void kernel_ushort_to_uchar(const ushort	*input,
 	uchar		*output,
@@ -587,8 +645,8 @@ void kernel_normalize_complex(cuComplex		*image,
 	}
 }
 
-void normalize_complex(cuComplex		*image,
-						const uint	size)
+void normalize_complex(cuComplex *image,
+ const uint	size)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(size, threads);

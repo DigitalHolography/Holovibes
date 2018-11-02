@@ -346,29 +346,14 @@ void gpu_multiply_const(cuComplex * frame, uint frame_size, cuComplex x)
 
 void normalize_frame(float* frame, uint frame_res)
 {
-	const uint threads = 512;
-	const uint blocks = map_blocks_to_problem(frame_res, threads);
-
 	float min, max;
-	gpu_extremums(frame, frame_res, &min, &max, nullptr, nullptr);
-	
-	float *d_tmp_storage;
-	cudaMalloc(&d_tmp_storage, sizeof(float) * frame_res + sizeof(float) * blocks);
-	
-	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	float min2 = get_minimum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
 
-	cudaMemcpy(d_tmp_storage, frame, sizeof(float) * frame_res, cudaMemcpyDeviceToDevice);
-	float max2 = get_maximum_in_image(d_tmp_storage, d_tmp_storage + frame_res, frame_res);
+	get_minimum_maximum_in_image(frame, frame_res, &min, &max);
 
-	cudaFree(d_tmp_storage);
-	cudaCheckError();
-	std::cout << " min1  = " << min   <<  " | min2  =  " << min2 << " | max1 = " << max  << " | max2 = " << max2 << std::endl;
-
-	gpu_substract_const(frame, frame_res, min2);
+	gpu_substract_const(frame, frame_res, min);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-	gpu_multiply_const(frame, frame_res, 1 / (max2 - min2));
+	gpu_multiply_const(frame, frame_res, 1 / (max - min));
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }

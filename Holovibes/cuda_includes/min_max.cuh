@@ -12,6 +12,23 @@
 
 #pragma once
 
+/*
+* \brief This function destroys "frame" by doing reductions.
+* \param d_frame the image
+* \param h_memory_space_sdata space to store results from blocks
+* \return maximum
+*/
 float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
 
+/*
+* \brief This function destroys "frame" by doing reductions.
+* \param d_frame the image
+* \param h_memory_space_sdata space to store results from blocks
+* \return minimum
+*/
 float get_minimum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned int  frame_res);
+
+/*
+** \brief Writes in min ptr and max ptr the extremums values of frame.
+*/
+void get_minimum_maximum_in_image(const float *frame, const unsigned frame_res, float* min, float* max);

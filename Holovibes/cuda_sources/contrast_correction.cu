@@ -13,6 +13,7 @@
 #include <numeric>
 #include "contrast_correction.cuh"
 #include "tools_compute.cuh"
+#include "min_max.cuh"
 
 static __global__
 void apply_contrast(float		*input,
@@ -37,21 +38,22 @@ void manual_contrast_correction(float			*input,
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
+	float test_min = min * 10.0f;
+	float test_max = max / 10.0f;
 
-	const float factor = dynamic_range / (max - min + FLT_EPSILON);
-	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, min);
+	const float factor = dynamic_range / (test_max - test_min + FLT_EPSILON);
+	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, test_min);
 	cudaCheckError();
 }
 
-void auto_contrast_correction(float			*input,
+void auto_contrast_correction(float	*input,
 	const uint		size,
 	const uint		offset,
 	float			*min,
 	float			*max,
 	cudaStream_t	stream)
 {
-	// TODO add correct min max
-	gpu_extremums(input, size, min, max, nullptr, nullptr, stream);
+	get_minimum_maximum_in_image(input, size, min, max);
 	*min = ((*min < 1.0f) ? (1.0f) : (*min));
 	*max = ((*max < 1.0f) ? (1.0f) : (*max));
 }
