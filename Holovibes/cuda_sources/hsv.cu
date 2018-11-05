@@ -40,57 +40,59 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	{
 		const uint idd = id * 3;
 
-		Npp32f nNormalizedH = src[idd] > 1 ? 1 : src[idd];
-		Npp32f nNormalizedS = src[idd + 1] > 1 ? 1 : src[idd + 1];
-		Npp32f nNormalizedV = src[idd + 2] > 1 ? 1 : src[idd + 2];
+		Npp32f nNormalizedH = fminf(src[idd], 1.0f);
+		Npp32f nNormalizedS = fminf(src[idd + 1], 1.0f);
+		Npp32f nNormalizedV = fminf(src[idd + 2], 1.0f);
 
-		Npp32f nR;
-		Npp32f nG;
-		Npp32f nB;
-		if (nNormalizedS == 0.0F)
+		if(id < 10)
 		{
-			nR = nG = nB = nNormalizedV;
+			printf("HSV[%u] = [%f, %f, %f]\n", id, nNormalizedH, nNormalizedS, nNormalizedV);
 		}
-		else
-		{
-			if (nNormalizedH == 1.0F)
-				nNormalizedH = 0.0F;
-			else
-				nNormalizedH = nNormalizedH * 6.0F; // / 0.1667F
-		}
+
+		Npp32f nR = 0.0f;
+		Npp32f nG = 0.0f;
+		Npp32f nB = 0.0f;
+		nNormalizedH = nNormalizedH * 6.0F; 
+
+		Npp32f C = nNormalizedS * nNormalizedV;
+		Npp32f X = C * fabs( fmodf(1 - nNormalizedH, 2) - 1);
+		Npp32f m = nNormalizedV - C;
+
 		Npp32f nI = floorf(nNormalizedH);
-		Npp32f nF = nNormalizedH - nI;
-		Npp32f nM = nNormalizedV * (1.0F - nNormalizedS);
-		Npp32f nN = nNormalizedV * (1.0F - nNormalizedS * nF);
-		Npp32f nK = nNormalizedV * (1.0F - nNormalizedS * (1.0F - nF));
 		if (nI == 0.0F)
 		{
-			nR = nNormalizedV; nG = nK; nB = nM;
+			nR = C; nG = X;
 		}
 		else if (nI == 1.0F)
 		{
-			nR = nN; nG = nNormalizedV; nB = nM;
+			nR = X; nG = C;
 		}
 		else if (nI == 2.0F)
 		{
-			nR = nM; nG = nNormalizedV; nB = nK;
+			nG = C; nB = X;
 		}
 		else if (nI == 3.0F)
 		{
-			nR = nM; nG = nN; nB = nNormalizedV;
+			nG = X; nB = C;
 		}
 		else if (nI == 4.0F)
 		{
-			nR = nK; nG = nM; nB = nNormalizedV;
+			nR = X; nB = C;
 		}
 		else if (nI == 5.0F)
 		{
-			nR = nNormalizedV; nG = nM; nB = nN;
+			nR = C; nB = X;
 		}
 
-		dst[idd] = nR;
-		dst[idd + 1] = nG;
-		dst[idd + 2] = nB;
+		dst[idd] = nR + m;
+		dst[idd + 1] = nG + m;
+		dst[idd + 2] = nB + m;
+
+		if (id < 10)
+		{
+			printf("RGB[%u] = [%f, %f, %f]\n",id, dst[idd], dst[idd + 1], dst[idd + 2]);
+		}
+
 	}
 }
 
@@ -164,14 +166,14 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 		const size_t index_S = id * 3 + 1;
 		const size_t index_V = id * 3 + 2;
 		output[index_H] = 0;
-		output[index_S] = 0;
+		output[index_S] = 0.8f;
 		output[index_V] = 0;
 
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
 			float input_elm = fabsf(input[i * frame_res + id].x);
 			output[index_H] += input_elm * omega_arr[i];
-			output[index_S] += input_elm * omega_arr[omega_size + i];
+			//output[index_S] += input_elm * omega_arr[omega_size + i];
 			output[index_V] += input_elm;
 		}
 	}
@@ -311,17 +313,21 @@ void hsv(const cuComplex *input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
+	
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
 
-	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH, maxH, frame_res);
-	cudaCheckError();
-
-	normalize_frame(tmp_hsv_arr, frame_res); // h
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 
-	normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
-	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
+	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH * h, maxH * h, frame_res);
+	cudaCheckError();
+	normalize_frame(tmp_hsv_arr, frame_res); // h
+	cudaCheckError();
+
+	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
+
+	//normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
+	//gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, s);
 
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
