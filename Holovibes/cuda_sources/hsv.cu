@@ -21,6 +21,8 @@
 # define SAMPLING_FREQUENCY  1
 
 
+#define BELOW_ONE 0.99999f
+
 
 /*
 * \brief Convert an array of HSV normalized float to an array of RGB normalized float
@@ -37,13 +39,13 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	if (id < frame_res)
 	{
 		const uint idd = id * 3;
-		Npp32f nNormalizedH = fminf(src[idd], 1.0f);
-		Npp32f nNormalizedS = fminf(src[idd + 1], 1.0f);
-		Npp32f nNormalizedV = fminf(src[idd + 2], 1.0f);
-		if (id >1000000 && id< 1000010)
+		Npp32f nNormalizedH = fminf(src[idd], BELOW_ONE);
+		Npp32f nNormalizedS = fminf(src[idd + 1], BELOW_ONE);
+		Npp32f nNormalizedV = fminf(src[idd + 2], BELOW_ONE);
+	/*	if (id >1000000 && id< 1000010)
 		{
 			printf("HSV[%u] = [%f, %f, %f]\n", id, nNormalizedH, nNormalizedS, nNormalizedV);
-		}
+		}*/
 		Npp32f nR = 0.0f;
 		Npp32f nG = 0.0f;
 		Npp32f nB = 0.0f;
@@ -82,10 +84,10 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 		dst[idd + 1] = nG + m;
 		dst[idd + 2] = nB + m;
 		
-		if (id >1000000 && id< 1000010)
+	/*	if (id >1000000 && id< 1000010)
 		{
 			printf("RGB[%u] = [%f, %f, %f]\n",id, dst[id * 3], dst[id * 3 + 1], dst[id * 3 + 2]);
-		}
+		}*/
 
 	}
 }
@@ -180,6 +182,22 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 
 
 
+#include <stdio.h>
+#include <cucomplex.h>
+#include <cmath>
+#include <algorithm>
+# include <nppdefs.h>
+# include <nppcore.h>
+# include <nppi.h>
+# include <npps.h>
+# include <nppversion.h>
+# include <npp.h>
+# include <stdio.h>
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <iterator>
+
 void hsv(const cuComplex *input,
 	float *output,
 	const uint width,
@@ -258,12 +276,16 @@ void hsv(const cuComplex *input,
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
 
-	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
+	
 
-	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH * h, maxH * h, frame_res);
+	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH , maxH , frame_res);
 	cudaCheckError();
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
+
+	gpu_multiply_const(tmp_hsv_arr, frame_res, 0.66f);
+
+	
 
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 
@@ -282,8 +304,33 @@ void hsv(const cuComplex *input,
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	
-	gpu_multiply_const(output, frame_res * 3, 255 * 255);
+	gpu_multiply_const(output, frame_res * 3, 256.0f);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-	
+
+	/*
+	static int hhhhh = 0;
+	 if(hhhhh < 5000)
+	 {
+		 hhhhh++;
+		 if (hhhhh == 4000)
+		 {
+
+			 float* arr = new float[frame_res * 3];
+
+			 cudaMemcpy(arr, output, frame_res * 3 * sizeof(float), cudaMemcpyDeviceToHost);
+
+			 uchar* buffer = new uchar[frame_res * 3];
+			 for (size_t i = 0; i < frame_res * 3; i++)
+			 {
+				 buffer[i] = arr[i];
+			 }
+			 std::ofstream oo("HSV-test-OUUUUUTT.raw", std::ios::binary);
+			 
+			 oo.write((char *)buffer, frame_res * 3 * sizeof(char));
+			 std::cout << "IMG SAVEEEEDDD&&" << std::endl;
+		 }
+	 }
+		 gpu_multiply_const(output, frame_res * 3, 256.0f);*/
+
 }

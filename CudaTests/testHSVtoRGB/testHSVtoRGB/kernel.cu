@@ -14,10 +14,11 @@
 # include <npp.h>
 # include <stdio.h>
 #include <iostream>
+#include <vector>
 #include <fstream>
+#include <iterator>
 
-#include <boost/gil.hpp>
-// #include <boost/gil/extension/io/png_dynamic_io.hpp>
+
 
 # define SAMPLING_FREQUENCY  1
 
@@ -241,14 +242,14 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	{
 		const uint idd = id * 3;
 
-		Npp32f nNormalizedH = fminf(src[idd], 1.0f);
-		Npp32f nNormalizedS = fminf(src[idd + 1], 1.0f);
-		Npp32f nNormalizedV = fminf(src[idd + 2], 1.0f);
-
+		Npp32f nNormalizedH = fminf(src[idd], 0.999999f);
+		Npp32f nNormalizedS = fminf(src[idd + 1], 0.9999999f);
+		Npp32f nNormalizedV = fminf(src[idd + 2], 0.9999999f);
+/*
 		if (id < 10)
 		{
 			printf("HSV[%u] = [%f, %f, %f]\n", id, nNormalizedH, nNormalizedS, nNormalizedV);
-		}
+		}*/
 
 		Npp32f nR = 0.0f;
 		Npp32f nG = 0.0f;
@@ -288,12 +289,12 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 		dst[idd] = nR + m;
 		dst[idd + 1] = nG + m;
 		dst[idd + 2] = nB + m;
-
+		/*
 		if (id < 10)
 		{
 			printf("RGB[%u] = [%f, %f, %f]\n", id, dst[idd], dst[idd + 1], dst[idd + 2]);
 		}
-
+*/
 	}
 }
 
@@ -414,7 +415,7 @@ void gpu_multiply_const(float		*frame,
 {
 	uint		threads = 512;
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
-	kernel_multiply_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+	kernel_multiply_const << <blocks, threads, 0, 0 >> > (frame, frame_size, x);
 }
 
 
@@ -434,7 +435,7 @@ void gpu_substract_const(float		*frame,
 {
 	uint		threads = 512;
 	uint		blocks = map_blocks_to_problem(frame_size, threads);
-	kernel_substract_const << <blocks, threads, 0, 0 >> >(frame, frame_size, x);
+	kernel_substract_const << <blocks, threads, 0, 0 >> > (frame, frame_size, x);
 }
 
 void normalize_frame(float* frame, uint frame_res)
@@ -443,9 +444,10 @@ void normalize_frame(float* frame, uint frame_res)
 
 	get_minimum_maximum_in_image(frame, frame_res, &min, &max);
 
+	
 	gpu_substract_const(frame, frame_res, min);
 	cudaStreamSynchronize(0);
-	gpu_multiply_const(frame, frame_res, 1 / (max - min));
+	gpu_multiply_const(frame, frame_res, 1 / (max - min )); // need to be below 1 for some reason
 	cudaStreamSynchronize(0);
 }
 
@@ -499,13 +501,13 @@ void hsv(const cuComplex *input,
 
 		double step = SAMPLING_FREQUENCY / (double)nb_img;
 		size_t after_mid_index = nb_img / (double)2.0 + (double)1.0;
-		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> >(0, after_mid_index, step, 0, omega_arr_data);
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, omega_arr_data);
 		double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
 		if (nb_img % 2)
 			negative_origin += step / (double)2.0;
 		else
 			negative_origin += step;
-		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> >(after_mid_index, nb_img, step,
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, nb_img, step,
 			negative_origin, omega_arr_data);
 		kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (nb_img, omega_arr_data);
 		cudaStreamSynchronize(0);
@@ -523,7 +525,7 @@ void hsv(const cuComplex *input,
 
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
 
-	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, minH * h, maxH * h, frame_res);
+	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, minH * h, maxH * h, frame_res);
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 
 	gpu_multiply_const(tmp_hsv_arr, frame_res, h);
@@ -562,32 +564,92 @@ void hsv(const cuComplex *input,
 
 }
 
+#define SIZEARR  750000
 
 void open_image_to_test()
 {
+	using uchar = unsigned char;
+
+	const uint threads = 512;
+	uint blocks = map_blocks_to_problem(500 * 500, threads);
+	std::ifstream input("HSV-test.raw", std::ios::binary);
+	uchar* buffer = new uchar[SIZEARR];
+	input.read((char*)buffer, SIZEARR);
+	input.seekg(0, std::ios::beg);
+	
+	float* arr = new float[SIZEARR];
+
+	for (size_t i = 0; i < SIZEARR; i++)
+	{
+		arr[i] = buffer[i];
+	}
+
 	/*
-	boost::gil::rgb8_image_t img(255, 255);
-	boost::gil::rgb8_pixel_t red(255, 0, 0);
-	fill_pixels(view(img), red);
-	png_write_view("redsquare.png", const_view(img));*/
-	/*
-	boost::gil::png_read_image("demo.jpg", img);
-	std::cout << "Read complete, got an image " << img.width()
-		<< " by " << img.height() << " pixels\n";
-	boost::gil::rgb8_pixel_t px = *const_view(img).at(5, 10);
-	std::cout << "The pixel at 5,10 is "
-		<< (int)px[0] << ','
-		<< (int)px[1] << ','
-		<< (int)px[2] << '\n';*/
+	for (size_t i = 0; i < 500; i++)
+	{
+		for (size_t j = 0; j < 500; j++)
+		{
+			unsigned index = 3 * (i * 500 + j);
+			std::cout << "[" << i << "," << j << "]";
+			std::cout << "(" << arr[index] << "," << arr[index + 1] << "," << arr[index + 2] << ")";
+			std::cout << std::endl;
+		}
+	}*/
+	
+	float* d_arr;
+	
+
+	unsigned frame_res = SIZEARR / 3;
+
+	cudaMalloc(&d_arr, SIZEARR * sizeof(float) * 2);
+	cudaMemcpy(d_arr, arr, SIZEARR * sizeof(float), cudaMemcpyHostToDevice);
+	float* d_arr2 = d_arr + SIZEARR;
+	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (d_arr, d_arr2, frame_res);
+	cudaStreamSynchronize(0);
+
+	//gpu_multiply_const(d_arr2, SIZEARR, 1 / 256.0f);
+
+
+	
+	normalize_frame(d_arr2 , frame_res); // h
+
+	normalize_frame(d_arr2 + frame_res, frame_res); // s
+
+	normalize_frame(d_arr2 + frame_res * 2, frame_res); // v
+
+	
+	
+
+	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (d_arr2, d_arr, frame_res);
+	cudaStreamSynchronize(0);
 
 
 
+	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (d_arr, d_arr, frame_res);
+	gpu_multiply_const(d_arr, SIZEARR, 256.0f);
+
+	cudaMemcpy(arr,d_arr, SIZEARR * sizeof(float), cudaMemcpyDeviceToHost);
+
+	for (size_t i = 0; i < SIZEARR; i++)
+	{
+		 buffer[i] = arr[i];
+	}
+
+	
+	std::ofstream output("HSV-test-OUUUUUTT.raw", std::ios::binary);
+
+
+	output.write((char *)buffer, SIZEARR * sizeof(char));
+	/*std::copy(
+		std::istreambuf_iterator<char>(input),
+		std::istreambuf_iterator<char>(),
+		std::ostreambuf_iterator<char>(output));*/
 }
 
 int main()
 {
 	open_image_to_test();
 
-	//getchar();
+//	getchar();
 	return 0;
 }
