@@ -196,7 +196,6 @@ namespace holovibes
 		});
 
 		postprocess_->insert_vibrometry();
-		postprocess_->insert_convolution();
 		postprocess_->insert_flowgraphy();
 
 		converts_->insert_to_float(unwrap_2d_requested_);
@@ -209,6 +208,7 @@ namespace holovibes
 			return;
 		}
 
+		postprocess_->insert_convolution();
 		stabilization_->insert_post_img_type();
 
 		// Inserts the output buffers into the accumulation queues

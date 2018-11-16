@@ -18,6 +18,7 @@
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
+#include "cufft_handle.hh"
 
 namespace holovibes
 {
@@ -33,7 +34,7 @@ namespace holovibes
 			
 			*/
 			Postprocessing(FnVector& fn_vect,
-				const CoreBuffers& buffers,
+				CoreBuffers& buffers,
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
@@ -57,18 +58,19 @@ namespace holovibes
 
 		private:
 
+			//queue used for flowgraphy
 			cuda_tools::UniquePtr<cufftComplex>	gpu_special_queue_;
 			cuda_tools::UniquePtr<float>		gpu_kernel_buffer_;
 			uint								gpu_special_queue_start_index_;
 			uint								gpu_special_queue_max_index_;
 
-			/// Vector function in which we insert the processing
+			// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
 
 			//! Main buffers
-			const CoreBuffers&				buffers_;
+			CoreBuffers&				buffers_;
 
-			/// Describes the frame size
+			// Describes the frame size
 			const camera::FrameDescriptor&	fd_;
 
 			//! Compute Descriptor

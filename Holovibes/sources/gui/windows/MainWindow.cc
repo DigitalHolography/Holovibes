@@ -1125,7 +1125,6 @@ namespace holovibes
 		{
 			QPoint pos(0, 0);
 			QSize size(width, height);
-			std::cout << "\n" << width << " " << height << "\n";
 			init_image_mode(pos, size);
 			/* ---------- */
 			try
@@ -2663,7 +2662,6 @@ namespace holovibes
 			try
 			{
 				std::ifstream file(path);
-				uint c = 0;
 
 				strStream << file.rdbuf();
 				file.close();
@@ -2685,9 +2683,9 @@ namespace holovibes
 					return;
 				}
 
-				compute_desc_.convo_matrix_width = std::stoi(matrix_size[0]);
-				compute_desc_.convo_matrix_height = std::stoi(matrix_size[1]);
-				compute_desc_.convo_matrix_z = std::stoi(matrix_size[2]);
+				uint matrix_width = std::stoi(matrix_size[0]);
+				uint matrix_height = std::stoi(matrix_size[1]);
+				uint matrix_z = std::stoi(matrix_size[2]);
 				boost::trim(v_str[1]);
 				boost::split(matrix, v_str[1], boost::is_any_of(delims), boost::token_compress_on);
 				if ((compute_desc_.convo_matrix_width * compute_desc_.convo_matrix_height * compute_desc_.convo_matrix_z) != matrix.size())
@@ -2696,12 +2694,39 @@ namespace holovibes
 					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
 				}
 
-				while (c < matrix.size())
+				/*while (c < matrix.size())
 				{
 					if (matrix[c] != "")
 						compute_desc_.convo_matrix.push_back(std::stof(matrix[c]));
 					c++;
-				}	
+				}*/
+
+				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
+				//TODO a paralleliser
+				uint h = 0;
+				uint c = 0;
+				uint nx = ui.ImportWidthSpinBox->value();
+				uint ny = ui.ImportHeightSpinBox->value();
+				uint size = nx * ny;
+				
+				std::vector<float> convo_matrix(size, 0.0f);
+
+				int i = 0;
+				while (c < matrix.size())
+				{
+					for (int j = 0; j < matrix_width ; j++)
+					{
+						convo_matrix[i + j] = std::stof(matrix[c]);
+						c++;
+					}
+					i += nx;
+				}
+
+				//on met les largeurs et hauteurs a la taille de nx et de ny
+				compute_desc_.convo_matrix_width = nx;
+				compute_desc_.convo_matrix_height = ny;
+				compute_desc_.convo_matrix_z = matrix_z;
+				compute_desc_.convo_matrix = convo_matrix;
 			}
 			catch (std::exception& e)
 			{

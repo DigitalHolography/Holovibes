@@ -13,30 +13,29 @@
 #pragma once
 
 # include "Common.cuh"
+#include "cufft_handle.hh"
+using holovibes::cuda_tools::CufftHandle;
+
+/*! \brief This function normalize the kernel
+
+* \param gpu_kernel_buffer Buffer which is the kernel
+* \param size Size of the frame (height * width)
+*/
+void normalize_kernel(float		*gpu_kernel_buffer_,
+					  size_t	size);
 
 /*! \brief This function allows us to apply a convolution (with a kernel) to frames
-            
-* This algorithm is currently VERY ressource consuming and need to be improved.
+
 *
-* \param input Buffer on which the convolution will be applied
-* \param tmp_input As the input buffer is going to be modified, we need a copy of it to 
-*  apply convolution.
-* \param frame_resolution Resolution of one frame.
-* \param frame_width Width of one frame
-* \param nframes Number of frame
-* \param kernel Array of complex which is the convolution's kernel
-* \param k_width kernel's width
-* \param k_height kernel's height
-* \param k_z kernel's depth
+* \param input Buffer on which the convolution will be applied 
+* \param output Buffer where the result will be stored
+* \param plan Plan2D used for the three fft
+* \param frame_width Width of the frame
+* \param frame_height Height of the frame
+* \param kernel Array of float which is the convolution's kernel
 */
-void convolution_kernel(cuComplex		*input,
-						cuComplex		*gpu_special_queue,
-						const uint		frame_resolution,
+void convolution_kernel(const float		*input,
+						float			*output,
 						const uint		frame_width,
-						const float		*kernel,
-						const uint		k_width,
-						const uint		k_height,
-						const uint		k_z,
-						uint&			gpu_special_queue_start_index,
-						const uint&		gpu_special_queue_max_index,
-						cudaStream_t	stream = 0);
+						const uint		frame_height,
+						const float		*kerne);

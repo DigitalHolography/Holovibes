@@ -59,6 +59,9 @@ namespace holovibes
 		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_xz_ = nullptr;
 		/** Unsigned Short YZ output buffer. Contains only one frame, inserted after all postprocessing on float_buffer_cut_yz */
 		cuda_tools::UniquePtr<unsigned short>	gpu_ushort_cut_yz_ = nullptr;
+
+		/** */
+		cuda_tools::UniquePtr<float>			gpu_convolution_buffer_ = nullptr;
 	};
 
 	/*! \brief Struct containing variables related to STFT shared by multiple features of the pipe. */

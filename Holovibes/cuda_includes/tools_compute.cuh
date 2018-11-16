@@ -73,6 +73,18 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 									cuComplex		*output,
 									const uint		size);
 
+/*! \brief  divide pixels value of numerator float input images by denominator
+*
+* The images to divide should have the same size.
+* The result is given in output.
+* Output should have the same size of inputs.
+*/
+__global__
+void kernel_divide_frames_float(const float	*numerator,
+								const float	*denominator,
+								float		*output,
+								const uint	size);
+
 /*! \brief  Multiply the pixels value of 2 complexe input images
 *
 * The images to multiply should have the same size.

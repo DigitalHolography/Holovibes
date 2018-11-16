@@ -80,6 +80,8 @@ namespace holovibes
 			*/
 			void insert_fft2();
 
+			void fft_convo_R2C();
+			
 			/*! \brief Apply the STFT algorithm.
 
 			 * 1 : Check if the STFT must be performed acording to stft_steps \n

@@ -16,13 +16,16 @@
 #include "vibrometry.cuh"
 #include "convolution.cuh"
 #include "flowgraphy.cuh"
+#include "tools.cuh"
+#include "tools_compute.cuh"
+using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
 {
 	namespace compute
 	{
 		Postprocessing::Postprocessing(FnVector& fn_vect,
-			const CoreBuffers& buffers,
+			CoreBuffers& buffers,
 			const camera::FrameDescriptor& input_fd,
 			ComputeDescriptor& cd)
 			: gpu_special_queue_()
@@ -33,7 +36,7 @@ namespace holovibes
 			, buffers_(buffers)
 			, fd_(input_fd)
 			, cd_(cd)
-		{
+		{	
 			allocate_buffers();
 		}
 
@@ -42,18 +45,17 @@ namespace holovibes
 			if (cd_.convolution_enabled)
 			{
 				/* kst_size */
-				int size = static_cast<int>(cd_.convo_matrix.size());
-				/* Build the kst 3x3 matrix */
-				/*std::unique_ptr<float[]> kst_complex_cpu = std::make_unique<float[]>(size);
-				for (int i = 0; i < size; ++i)
-					kst_complex_cpu[i] = cd_.convo_matrix[i];*/
+				int size = cd_.convo_matrix.size();
 
 				/* gpu_kernel_buffer */
-				gpu_kernel_buffer_.resize(size);
-				cudaMemcpy(gpu_kernel_buffer_, static_cast<float*>(cd_.convo_matrix.data()), sizeof(float) * size, cudaMemcpyHostToDevice);
+				gpu_kernel_buffer_.resize(size * sizeof(float));
+				cudaMemcpy(gpu_kernel_buffer_, cd_.convo_matrix.data(), sizeof(float) * size, cudaMemcpyHostToDevice);
+	
 			}
 			if (cd_.flowgraphy_enabled || cd_.convolution_enabled)
-				gpu_special_queue_.resize(fd_.frame_res() * cd_.special_buffer_size);
+			{
+				buffers_.gpu_convolution_buffer_.resize(fd_.frame_res() * sizeof(float));
+			}
 		}
 
 		void Postprocessing::insert_vibrometry()
@@ -75,20 +77,13 @@ namespace holovibes
 		{
 			if (cd_.convolution_enabled)
 			{
-				gpu_special_queue_start_index_ = 0;
-				gpu_special_queue_max_index_ = cd_.special_buffer_size;
 				fn_vect_.push_back([=]() {
 					convolution_kernel(
-						buffers_.gpu_input_buffer_,
-						gpu_special_queue_,
-						fd_.frame_res(),
+						buffers_.gpu_float_buffer_,
+						buffers_.gpu_convolution_buffer_,
 						fd_.width,
-						gpu_kernel_buffer_,
-						cd_.convo_matrix_width,
-						cd_.convo_matrix_height,
-						cd_.convo_matrix_z,
-						gpu_special_queue_start_index_,
-						gpu_special_queue_max_index_);
+						fd_.height,
+						gpu_kernel_buffer_);
 				});
 			}
 		}
@@ -101,7 +96,7 @@ namespace holovibes
 				gpu_special_queue_max_index_ = cd_.special_buffer_size;
 				fn_vect_.push_back([=]() {
 					convolution_flowgraphy(
-						buffers_.gpu_input_buffer_,
+						buffers_.gpu_input_buffer_,  //want gpu_float_buffer_ (same file)
 						gpu_special_queue_,
 						gpu_special_queue_start_index_,
 						gpu_special_queue_max_index_,

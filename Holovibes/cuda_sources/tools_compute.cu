@@ -67,11 +67,11 @@ void gpu_float_divide(float		*input,
 	const uint	size,
 	const float	divider)
 {
-	uint threads = get_max_threads_1d();
+	/*uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(size, threads);
 
 	kernel_float_divide << <blocks, threads, 0, 0 >> >(input, size, divider);
-	cudaCheckError();
+	cudaCheckError();*/
 }
 
 __global__
@@ -88,8 +88,20 @@ void kernel_multiply_frames_complex(const cuComplex	*input1,
 		output[index].x = new_x;
 		output[index].y = new_y;
 	}
-	//output[index].x = input1[index].x * input2[index].x;
-	//output[index].y = input1[index].y * input2[index].y;
+}
+
+__global__
+void kernel_divide_frames_float(const float	*numerator,
+								const float	*denominator,
+								float		*output,
+								const uint	size)
+{
+	const uint index = blockIdx.x * blockDim.x + threadIdx.x;
+	if (index < size)
+	{
+		const float new_x = numerator[index] / denominator[index];
+		output[index] = new_x;
+	}
 }
 
 void multiply_frames_complex(const cuComplex	*input1,
