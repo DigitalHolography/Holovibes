@@ -644,3 +644,22 @@ void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 }
+float get_norm(const float	*matrix,
+			   size_t		size)
+{
+	uint threads = 1024;
+	uint blocks = map_blocks_to_problem(size, threads);
+
+	holovibes::cuda_tools::UniquePtr<float> output(blocks);
+	normalize_float_matrix<1024><<<blocks, threads, threads * sizeof(float)>>>(matrix, output, size);
+
+	float *intermediate_sum_cpu = new float[blocks]; //never more than 4096 threads
+	//need to be on cpu for the sum
+	cudaMemcpy(intermediate_sum_cpu, output, blocks * sizeof(float), cudaMemcpyDeviceToHost); //TODO faire la somme sur GPU
+	float sum = 0;
+	for (int i = 0; i < blocks; i++)
+		sum += intermediate_sum_cpu[i];
+	delete[] intermediate_sum_cpu;
+
+	return sum;
+}
