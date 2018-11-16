@@ -143,6 +143,16 @@ void FourierTransform::insert_fft2()
 	});
 }
 
+/*void FourierTransform::fft_convo_R2C()
+{
+	fn_vect_.push_back([=]() {
+		fourier_transform_2D_R2C(
+			buffers_.gpu_float_buffer_,
+			buffers_.gpu_convo_buffer_,
+			plan2d_);
+	});
+}*/
+
 void FourierTransform::insert_stft()
 {
 	fn_vect_.push_back([=]() { queue_enqueue(buffers_.gpu_input_buffer_, stft_env_.gpu_stft_queue_.get()); });

@@ -110,7 +110,7 @@ void apply_log10(float			*input,
 }
 
 /* Kernel used in convolution_operator */
-static __global__
+__global__
 void kernel_complex_to_modulus(const cuComplex	*input,
 							float				*output,
 							const uint			size)
@@ -142,7 +142,7 @@ void convolution_float(		const float			*a,
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
 
-	/* The convolution operator could be optimized. */
+	// The convolution operator could be optimized.
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_a(size);
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_b(size);
 	if (!tmp_a || !tmp_b)
@@ -643,4 +643,4 @@ void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
 	cufftExecC2R(plan2d, tmp_a, out);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-}
+}

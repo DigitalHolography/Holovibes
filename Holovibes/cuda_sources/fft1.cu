@@ -47,6 +47,7 @@ void fft_1(cuComplex*			input,
 	cudaCheckError();
 	// FFT
     cufftExecC2C(plan2D, input, input, CUFFT_FORWARD);
-	cudaStreamSynchronize(stream);
+	cudaStreamSynchronize(stream); //TODO useless?
 	cudaCheckError();
 }
+

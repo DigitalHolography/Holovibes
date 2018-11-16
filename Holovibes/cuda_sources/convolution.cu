@@ -10,88 +10,95 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#pragma once
 #include "convolution.cuh"
+#include "fft1.cuh"
+#include "tools.cuh"
+#include "tools_compute.cuh"
+using holovibes::cuda_tools::CufftHandle;
+
+//the three next function are for test
+__global__
+void print_kernel(cuComplex *output)
+{
+	if (threadIdx.x < 32)
+		printf("%d, %f, %f\n", threadIdx.x, output[threadIdx.x].x, output[threadIdx.x].y);
+}
 
 __global__
-void kernel_multiply_kernel(cuComplex	*input,
-							cuComplex	*gpu_special_queue,
-							const uint	gpu_special_queue_buffer_length,
-							const uint	frame_resolution,
-							const uint	i_width,
-							const float	*kernel,
-							const uint	k_width,
-							const uint	k_height,
-							const uint	nSize,
-							const uint	start_index,
-							const uint	max_index)
+void print_float(float *output)
 {
-	uint index = blockIdx.x * blockDim.x + threadIdx.x;
-	//uint size = frame_resolution * nSize;
-	uint k_size = k_width * k_height;
-	while (index < frame_resolution)
-	{
-		cuComplex sum = make_cuComplex(0, 0);
+	if (threadIdx.x < 32)
+		printf("%d, %f\n", threadIdx.x, output[threadIdx.x]);
+}
 
-		for (uint z = 0; z < nSize; ++z)
-		for (uint m = 0; m < k_width; ++m)
-		for (uint n = 0; n < k_height; ++n) {
-			cuComplex a = gpu_special_queue[(index + m + n * i_width + (((z + start_index) % max_index) * frame_resolution)) % gpu_special_queue_buffer_length];
-			float b = kernel[m + n * k_width + (z * k_size)];
-			sum.x += a.x * b;
-			sum.y += a.y * b;
-		}
-		const uint n_k_size = nSize * k_size;
-		sum.x /= n_k_size;
-		sum.y /= n_k_size;
-		input[index] = sum;
-		index += blockDim.x * gridDim.x;
+__global__
+void fill_output(float *out, unsigned size)
+{
+	unsigned idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < size)
+	{
+		out[idx] = 65000.f;
 	}
 }
 
-void convolution_kernel(cuComplex		*input,
-						cuComplex		*gpu_special_queue,
-						const uint		frame_resolution,
-						const uint		frame_width,
-						const float		*kernel,
-						const uint		k_width,
-						const uint		k_height,
-						const uint		k_z,
-						uint&			gpu_special_queue_start_index,
-						const uint&		gpu_special_queue_max_index,
-						cudaStream_t	stream)
+void normalize_kernel(float		*gpu_kernel_buffer_,
+					  size_t	size)
 {
-
-	uint threads = get_max_threads_1d();
-	uint blocks = map_blocks_to_problem(frame_resolution, threads);
-
-
-	cudaStreamSynchronize(stream);
-
-	if (gpu_special_queue_start_index == 0)
-		gpu_special_queue_start_index = gpu_special_queue_max_index - 1;
-	else
-		--gpu_special_queue_start_index;
-	cudaMemcpy(
-		gpu_special_queue + frame_resolution * gpu_special_queue_start_index,
-		input,
-		sizeof(cuComplex) * frame_resolution,
-		cudaMemcpyDeviceToDevice);
+	uint threads = 1024;
+	uint blocks = map_blocks_to_problem(size, threads);
 	
-	uint gpu_special_queue_buffer_length = gpu_special_queue_max_index * frame_resolution;
+	holovibes::cuda_tools::UniquePtr<float> output(threads);
+	normalize_float_matrix<1024><<<blocks, threads, blocks * sizeof(float)>>>(gpu_kernel_buffer_, output, size);
+	
+	float output_cpu[4096]; //never more than 4096 threads
+	//need to be on cpu for the sum
+	cudaMemcpy(output, output_cpu, threads * sizeof(float), cudaMemcpyDeviceToHost);
+	float sum = 0;
+	for (int i = 0; i < threads; i++)
+		sum += output_cpu[i];
 
-	kernel_multiply_kernel<<<blocks, threads, 0, stream>>>(
-		input,
-		gpu_special_queue,
-		gpu_special_queue_buffer_length,
-		frame_resolution,
-		frame_width,
-		kernel,
-		k_width,
-		k_height,
-		k_z,
-		gpu_special_queue_start_index,
-		gpu_special_queue_max_index);
+	gpu_float_divide(gpu_kernel_buffer_, size, sum);
+}
+
+void convolution_kernel(const float		*input,
+						float			*output,
+						const uint		frame_width,
+						const uint		frame_height,
+						const float		*kernel)
+{
+	
+	size_t size = frame_width * frame_height;
+
+	uint	threads = get_max_threads_1d();
+	uint	blocks = map_blocks_to_problem(size, threads);
+
+	holovibes::cuda_tools::UniquePtr<cuComplex> output_fft(size);
+	holovibes::cuda_tools::UniquePtr<cuComplex> output_kernel(size);
+	if (!output_fft || !output_kernel)
+	{
+		std::cout << "Couldn't allocate buffers for convolution.\n";
+		return;
+	}
+
+	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_complex(size);
+	cudaMemset(tmp_complex.get(), 0, size * sizeof(cuComplex));
 	cudaCheckError();
-		
-	cudaStreamSynchronize(stream);
+	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+	CufftHandle plan(frame_width, frame_height, CUFFT_C2C);
+	cufftExecC2C(plan, tmp_complex.get(), output_fft.get(), CUFFT_FORWARD);
+
+	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+	cufftExecC2C(plan, tmp_complex.get(), output_kernel.get(), CUFFT_FORWARD);
+
+	kernel_multiply_frames_complex <<<blocks, threads>>>(output_fft, output_kernel, output_fft, size);
+
+	cufftExecC2C(plan, output_fft, output_fft, CUFFT_INVERSE);
+
+	kernel_complex_divide<<<blocks, threads>>>(output_fft, size, 1e13);
+	
+	kernel_complex_to_modulus <<<blocks, threads>>>(output_fft, output, (uint) size);
+
+	kernel_divide_frames_float << <blocks, threads>> > (input, output, output, size);
+	//print_float << <blocks, threads >> > (output);
 }

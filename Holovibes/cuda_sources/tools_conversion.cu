@@ -62,7 +62,7 @@ void float_to_complex(cuComplex	*output,
 
 /* Kernel function wrapped by complex_to_modulus. */
 static __global__
-void kernel_complex_to_modulus(const cuComplex	*input,
+void kernel_complex_to_modulus_in_stft(const cuComplex	*input,
 							float				*output,
 							const cuComplex		*stft_buf,
 							const ushort		pmin,
@@ -94,7 +94,7 @@ void complex_to_modulus(const cuComplex	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
 
-	kernel_complex_to_modulus << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
+	kernel_complex_to_modulus_in_stft << <blocks, threads, 0, stream >> >(input, output, stft_buf, pmin, pmax, size);
 	cudaCheckError();
 }
 
