@@ -45,18 +45,7 @@ void fill_output(float *out, unsigned size)
 void normalize_kernel(float		*gpu_kernel_buffer_,
 					  size_t	size)
 {
-	uint threads = 1024;
-	uint blocks = map_blocks_to_problem(size, threads);
-	
-	holovibes::cuda_tools::UniquePtr<float> output(threads);
-	normalize_float_matrix<1024><<<blocks, threads, blocks * sizeof(float)>>>(gpu_kernel_buffer_, output, size);
-	
-	float output_cpu[4096]; //never more than 4096 threads
-	//need to be on cpu for the sum
-	cudaMemcpy(output, output_cpu, threads * sizeof(float), cudaMemcpyDeviceToHost);
-	float sum = 0;
-	for (int i = 0; i < threads; i++)
-		sum += output_cpu[i];
+	float sum = get_norm(gpu_kernel_buffer_, size);
 
 	gpu_float_divide(gpu_kernel_buffer_, size, sum);
 }
@@ -66,9 +55,10 @@ void convolution_kernel(const float		*input,
 						const uint		frame_width,
 						const uint		frame_height,
 						const float		*kernel)
-{
-	
+{	
 	size_t size = frame_width * frame_height;
+
+	float norm_input = get_norm(input, size);
 
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
@@ -95,10 +85,13 @@ void convolution_kernel(const float		*input,
 
 	cufftExecC2C(plan, output_fft, output_fft, CUFFT_INVERSE);
 
-	kernel_complex_divide<<<blocks, threads>>>(output_fft, size, 1e13);
+	//kernel_complex_divide<<<blocks, threads>>>(output_fft, size, 1e13);
 	
 	kernel_complex_to_modulus <<<blocks, threads>>>(output_fft, output, (uint) size);
 
 	kernel_divide_frames_float << <blocks, threads>> > (input, output, output, size);
 	//print_float << <blocks, threads >> > (output);
+
+	float norm_output = get_norm(output, size);
+	gpu_multiply_const(output, size, (norm_input / norm_output));
 }
