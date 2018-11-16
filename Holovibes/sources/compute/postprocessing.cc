@@ -44,10 +44,8 @@ namespace holovibes
 		{
 			if (cd_.convolution_enabled)
 			{
-				/* kst_size */
 				int size = cd_.convo_matrix.size();
 
-				/* gpu_kernel_buffer */
 				gpu_kernel_buffer_.resize(size * sizeof(float));
 				cudaMemcpy(gpu_kernel_buffer_, cd_.convo_matrix.data(), sizeof(float) * size, cudaMemcpyHostToDevice);
 	
