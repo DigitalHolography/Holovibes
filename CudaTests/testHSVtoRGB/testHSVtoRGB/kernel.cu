@@ -240,61 +240,57 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
 	{
-		const uint idd = id * 3;
-
-		Npp32f nNormalizedH = fminf(src[idd], 0.999999f);
-		Npp32f nNormalizedS = fminf(src[idd + 1], 0.9999999f);
-		Npp32f nNormalizedV = fminf(src[idd + 2], 0.9999999f);
-/*
-		if (id < 10)
+		Npp32f nNormalizedH = (Npp32f)src[id * 3];
+		Npp32f nNormalizedS = (Npp32f)src[id * 3 + 1];
+		Npp32f nNormalizedV = (Npp32f)src[id * 3 + 2];
+		Npp32f nR;
+		Npp32f nG;
+		Npp32f nB;
+		if (nNormalizedS == 0.0F)
 		{
-			printf("HSV[%u] = [%f, %f, %f]\n", id, nNormalizedH, nNormalizedS, nNormalizedV);
-		}*/
+			nR = nG = nB = nNormalizedV;
 
-		Npp32f nR = 0.0f;
-		Npp32f nG = 0.0f;
-		Npp32f nB = 0.0f;
-		nNormalizedH = nNormalizedH * 6.0F;
+		}
+		else
+		{
+			if (nNormalizedH == 1.0F)
+				nNormalizedH = 0.0F;
+			else
+				nNormalizedH = nNormalizedH * 6.0F; // / 0.1667F
 
-		Npp32f C = nNormalizedS * nNormalizedV;
-		Npp32f X = C * fabs(fmodf(1 - nNormalizedH, 2) - 1);
-		Npp32f m = nNormalizedV - C;
-
+		}
 		Npp32f nI = floorf(nNormalizedH);
+		Npp32f nF = nNormalizedH - nI;
+		Npp32f nM = nNormalizedV * (1.0F - nNormalizedS);
+		Npp32f nN = nNormalizedV * (1.0F - nNormalizedS * nF);
+		Npp32f nK = nNormalizedV * (1.0F - nNormalizedS * (1.0F - nF));
 		if (nI == 0.0F)
 		{
-			nR = C; nG = X;
+			nR = nNormalizedV; nG = nK; nB = nM;
 		}
 		else if (nI == 1.0F)
 		{
-			nR = X; nG = C;
+			nR = nN; nG = nNormalizedV; nB = nM;
 		}
 		else if (nI == 2.0F)
 		{
-			nG = C; nB = X;
+			nR = nM; nG = nNormalizedV; nB = nK;
 		}
 		else if (nI == 3.0F)
 		{
-			nG = X; nB = C;
+			nR = nM; nG = nN; nB = nNormalizedV;
 		}
 		else if (nI == 4.0F)
 		{
-			nR = X; nB = C;
+			nR = nK; nG = nM; nB = nNormalizedV;
 		}
 		else if (nI == 5.0F)
 		{
-			nR = C; nB = X;
+			nR = nNormalizedV; nG = nM; nB = nN;
 		}
-
-		dst[idd] = nR + m;
-		dst[idd + 1] = nG + m;
-		dst[idd + 2] = nB + m;
-		/*
-		if (id < 10)
-		{
-			printf("RGB[%u] = [%f, %f, %f]\n", id, dst[idd], dst[idd + 1], dst[idd + 2]);
-		}
-*/
+		dst[id * 3] = nR;
+		dst[id * 3 + 1] = nG;
+		dst[id * 3 + 2] = nB;
 	}
 }
 
@@ -444,10 +440,10 @@ void normalize_frame(float* frame, uint frame_res)
 
 	get_minimum_maximum_in_image(frame, frame_res, &min, &max);
 
-	
+
 	gpu_substract_const(frame, frame_res, min);
 	cudaStreamSynchronize(0);
-	gpu_multiply_const(frame, frame_res, 1 / (max - min )); // need to be below 1 for some reason
+	gpu_multiply_const(frame, frame_res, 1 / (max - min)); // need to be below 1 for some reason
 	cudaStreamSynchronize(0);
 }
 
@@ -564,6 +560,9 @@ void hsv(const cuComplex *input,
 
 }
 
+
+
+
 #define SIZEARR  750000
 
 void open_image_to_test()
@@ -576,7 +575,7 @@ void open_image_to_test()
 	uchar* buffer = new uchar[SIZEARR];
 	input.read((char*)buffer, SIZEARR);
 	input.seekg(0, std::ios::beg);
-	
+
 	float* arr = new float[SIZEARR];
 
 	for (size_t i = 0; i < SIZEARR; i++)
@@ -595,47 +594,63 @@ void open_image_to_test()
 			std::cout << std::endl;
 		}
 	}*/
-	
+
 	float* d_arr;
-	
+
 
 	unsigned frame_res = SIZEARR / 3;
 
 	cudaMalloc(&d_arr, SIZEARR * sizeof(float) * 2);
 	cudaMemcpy(d_arr, arr, SIZEARR * sizeof(float), cudaMemcpyHostToDevice);
 	float* d_arr2 = d_arr + SIZEARR;
+
+	gpu_multiply_const(d_arr, SIZEARR, 1 / 256.0f);
+
+
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (d_arr, d_arr2, frame_res);
+
+
+
+
 	cudaStreamSynchronize(0);
 
-	//gpu_multiply_const(d_arr2, SIZEARR, 1 / 256.0f);
+	float min, max;
+	/*get_minimum_maximum_in_image(d_arr2, frame_res, &min, &max);
+	std::cout << "min is : " << min << "max is : " << max << std::endl;*/
 
-
+	threshold_top_bottom << <blocks, threads, 0, 0 >> > (d_arr2, 0.2f, 0.4f, frame_res);
 	
-	normalize_frame(d_arr2 , frame_res); // h
+	normalize_frame(d_arr2, frame_res); // h
 
-	normalize_frame(d_arr2 + frame_res, frame_res); // s
+	gpu_multiply_const(d_arr2, frame_res, 0.66f);
 
-	normalize_frame(d_arr2 + frame_res * 2, frame_res); // v
+	//gpu_multiply_const(d_arr2, frame_res, 0.66f);
 
-	
-	
+	//normalize_frame(d_arr2 + frame_res, frame_res); // s
+
+	//normalize_frame(d_arr2 + frame_res * 2, frame_res); // v
+
+
+
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (d_arr2, d_arr, frame_res);
 	cudaStreamSynchronize(0);
 
 
 
+
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (d_arr, d_arr, frame_res);
+
 	gpu_multiply_const(d_arr, SIZEARR, 256.0f);
 
-	cudaMemcpy(arr,d_arr, SIZEARR * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(arr, d_arr, SIZEARR * sizeof(float), cudaMemcpyDeviceToHost);
 
 	for (size_t i = 0; i < SIZEARR; i++)
 	{
-		 buffer[i] = arr[i];
+		buffer[i] = arr[i];
 	}
 
-	
+
 	std::ofstream output("HSV-test-OUUUUUTT.raw", std::ios::binary);
 
 
@@ -650,6 +665,6 @@ int main()
 {
 	open_image_to_test();
 
-//	getchar();
+	//getchar();
 	return 0;
 }
