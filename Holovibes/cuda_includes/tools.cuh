@@ -236,7 +236,7 @@ __device__ void warpReduce(volatile float *sdata, unsigned int tid) {
 }
 
 template <unsigned int blockSize>
-__global__ void normalize_float_matrix(float *g_idata, float *g_odata, unsigned int n) {
+__global__ void normalize_float_matrix(const float *g_idata, float *g_odata, unsigned int n) {
 	extern __shared__ float sdata[];
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x*(blockSize * 2) + tid;
@@ -251,3 +251,9 @@ __global__ void normalize_float_matrix(float *g_idata, float *g_odata, unsigned 
 	if (tid < 32) warpReduce<blockSize>(sdata, tid);
 	if (tid == 0) g_odata[blockIdx.x] = sdata[0];
 }
+
+/* \brief return the sum of the abs of values in the matrix
+ *
+ */
+float get_norm(const float	*matrix,
+			   size_t		size);
