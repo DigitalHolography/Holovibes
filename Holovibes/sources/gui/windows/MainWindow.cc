@@ -3209,10 +3209,10 @@ namespace holovibes
 			get_good_size(width, height, 512);
 
 			//the convolution is disabled to avoid problem with iamge size
-			std::cout << "1 :" << ui.ConvoCheckBox->isEnabled() << "\n";
+			//std::cout << "1 :" << ui.ConvoCheckBox->isEnabled() << "\n";
 			ui.ConvoCheckBox->setChecked(false);
 			ui.ConvoCheckBox->setEnabled(false);
-			std::cout << "2 :" << ui.ConvoCheckBox->isEnabled() << "\n";
+			//std::cout << "2 :" << ui.ConvoCheckBox->isEnabled() << "\n";
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
