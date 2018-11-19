@@ -11,15 +11,4 @@
 /* **************************************************************************** */
 #pragma once
 
-void hsv(const cuComplex *input,
-	float *output,
-	const uint width,
-	const uint height,
-	uint index_min,
-	uint index_max,
-	uint nb_img,
-	const float h,
-	const float s,
-	const float v,
-	const float minH,
-	const float maxH);
+float *percentile_float(const float *d_input, unsigned frame_res, const float *h_percent, float *h_out_percent, unsigned size_percent);

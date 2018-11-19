@@ -640,6 +640,9 @@
     <ClInclude Include="cuda_includes\min_max.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\percentile.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -763,6 +766,9 @@
       <Filter>cuda includes\tools</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\min_max.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\percentile.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

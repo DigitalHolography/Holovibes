@@ -9,17 +9,29 @@
 /* .JMML.  .JMML.`Ybmd9'.JMML.`Ybmd9'    VF    .JMML.P^YbmdP'   `Mbmmd' M9mmmP' */
 /*                                                                              */
 /* **************************************************************************** */
-#pragma once
 
-void hsv(const cuComplex *input,
-	float *output,
-	const uint width,
-	const uint height,
-	uint index_min,
-	uint index_max,
-	uint nb_img,
-	const float h,
-	const float s,
-	const float v,
-	const float minH,
-	const float maxH);
+#include <thrust/copy.h>
+#include <thrust/device_vector.h>
+#include <thrust/fill.h>
+#include <thrust/sort.h>
+#include "tools_conversion.cuh"
+#include "unique_ptr.hh"
+#include "tools_compute.cuh"
+
+
+float *percentile_float(const float *d_input, unsigned frame_res, const float *h_percent, float *h_out_percent, unsigned size_percent)
+{
+	thrust::device_vector<float> d_tmp_memory(frame_res);
+	thrust::copy(d_input, d_input + frame_res, d_tmp_memory.begin());
+	thrust::sort(d_tmp_memory.begin(), d_tmp_memory.end());
+		
+	for (unsigned i = 0; i < size_percent; ++i)
+	{
+		unsigned index = h_percent[i] / 100 * frame_res;
+		thrust::copy(d_tmp_memory.begin() + index, d_tmp_memory.begin() + index + 1, h_out_percent + i);
+		cudaCheckError();
+	}
+
+	return h_out_percent;
+}
+
