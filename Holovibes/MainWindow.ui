@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1841</width>
-    <height>525</height>
+    <height>598</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -2527,13 +2527,20 @@
                 <string>apply spation-temporal kernels to outputs</string>
                </property>
                <property name="text">
-                <string>Convolution</string>
+                <string>convolve</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="DivideConvoCheckBox">
+           <property name="text">
+            <string>divide by convolved image</string>
+           </property>
+          </widget>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -3656,7 +3663,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -6483,6 +6490,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>DivideConvoCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_divide_convolution_mode(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1058</x>
+     <y>190</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6551,6 +6574,7 @@ p, li { white-space: pre-wrap; }
   <slot>load_convo_matrix()</slot>
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
+  <slot>set_divide_convolution_mode(bool)</slot>
   <slot>set_flowgraphy_mode(bool)</slot>
   <slot>set_flowgraphy_level(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
