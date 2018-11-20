@@ -18,6 +18,7 @@
 #include "flowgraphy.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "contrast_correction.cuh"
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -36,6 +37,7 @@ namespace holovibes
 			, buffers_(buffers)
 			, fd_(input_fd)
 			, cd_(cd)
+			, plan_(input_fd.width, input_fd.height, CUFFT_C2C)
 		{	
 			allocate_buffers();
 		}
@@ -79,9 +81,11 @@ namespace holovibes
 					convolution_kernel(
 						buffers_.gpu_float_buffer_,
 						buffers_.gpu_convolution_buffer_,
+						&plan_,
 						fd_.width,
 						fd_.height,
-						gpu_kernel_buffer_);
+						gpu_kernel_buffer_,
+						cd_.divide_convolution_enabled);
 				});
 			}
 		}

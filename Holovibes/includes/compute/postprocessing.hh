@@ -19,6 +19,7 @@
 #include "frame_desc.hh"
 #include "unique_ptr.hh"
 #include "cufft_handle.hh"
+using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
 {
@@ -75,6 +76,9 @@ namespace holovibes
 
 			//! Compute Descriptor
 			ComputeDescriptor&				cd_;
+
+			// plan used for the convolution (frame width, frame height, cufft_c2c)
+			CufftHandle						plan_;
 		};
 	}
 }

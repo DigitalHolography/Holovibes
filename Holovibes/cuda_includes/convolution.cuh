@@ -28,14 +28,16 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 
 *
 * \param input Buffer on which the convolution will be applied 
-* \param output Buffer where the result will be stored
+* \param convolved_buffer Buffer used for convolution calcul (will be overwriten)
 * \param plan Plan2D used for the three fft
 * \param frame_width Width of the frame
 * \param frame_height Height of the frame
 * \param kernel Array of float which is the convolution's kernel
 */
-void convolution_kernel(const float		*input,
-						float			*output,
+void convolution_kernel(float			*input,
+						float			*convolved_buffer,
+						CufftHandle		*plan,
 						const uint		frame_width,
 						const uint		frame_height,
-						const float		*kerne);
+						const float		*kerne,
+						const bool		divide_convolution_enabled);
