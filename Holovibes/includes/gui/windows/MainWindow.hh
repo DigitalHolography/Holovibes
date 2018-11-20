@@ -129,6 +129,7 @@ namespace holovibes
 			void set_holographic_mode();
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
+			void set_divide_convolution_mode(const bool value);
 			void set_flowgraphy_mode(const bool enable);
 			bool is_direct_mode();
 			void reset();

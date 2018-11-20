@@ -35,6 +35,7 @@ namespace holovibes
 		contrast_enabled(false),
 		vibrometry_enabled(false),
 		convolution_enabled(false),
+		divide_convolution_enabled(false),
 		flowgraphy_enabled(false),
 		croped_stft(false),
 		filter_2d_enabled(false),

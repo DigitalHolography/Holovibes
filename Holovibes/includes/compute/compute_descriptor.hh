@@ -256,6 +256,8 @@ namespace holovibes
 		std::atomic<int>			special_buffer_size;
 		//! is convolution enabled
 		std::atomic<bool>			convolution_enabled;
+		//! is divide by convolution enabled
+		std::atomic<bool>			divide_convolution_enabled;
 		//! is flowgraphy enabled
 		std::atomic<bool>			flowgraphy_enabled;
 		//! is vibrometry enabled
