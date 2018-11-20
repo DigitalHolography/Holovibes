@@ -256,26 +256,13 @@ namespace holovibes
 
 		void Converts::insert_main_ushort()
 		{
-			if (cd_.convolution_enabled)
-			{
-				fn_vect_.push_back([=]() {
-					float_to_ushort(
-						buffers_.gpu_convolution_buffer_,
-						buffers_.gpu_output_buffer_,
-						buffers_.gpu_float_buffer_size_,
-						output_fd_.depth);
-				});
-			}
-			else
-			{
-				fn_vect_.push_back([=]() {
-					float_to_ushort(
-						buffers_.gpu_float_buffer_,
-						buffers_.gpu_output_buffer_,
-						buffers_.gpu_float_buffer_size_,
-						output_fd_.depth);
-				});
-			}
+			fn_vect_.push_back([=]() {
+				float_to_ushort(
+					buffers_.gpu_float_buffer_,
+					buffers_.gpu_output_buffer_,
+					buffers_.gpu_float_buffer_size_,
+					output_fd_.depth);
+			});
 		}
 
 		void Converts::insert_slice_ushort()
