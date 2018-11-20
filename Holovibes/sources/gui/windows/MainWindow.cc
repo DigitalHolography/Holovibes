@@ -1099,6 +1099,7 @@ namespace holovibes
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
+				set_divide_convolution_mode(false);
 				notify();
 				layout_toggled();
 			}
@@ -1183,6 +1184,7 @@ namespace holovibes
 				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
 				if (pipe)
 					pipe->autocontrast_end_pipe(XYview);
+				ui.DivideConvoCheckBox->setEnabled(false);
 				notify();
 			}
 			catch (std::runtime_error& e)
@@ -1452,16 +1454,23 @@ namespace holovibes
 
 		void MainWindow::set_convolution_mode(const bool value)
 		{
-			if (value == true && compute_desc_.convo_matrix.empty())
+			if (value == false && compute_desc_.convolution_enabled == true)
 			{
-				display_error("No valid kernel has been given");
-				compute_desc_.convolution_enabled = false;
+				ui.DivideConvoCheckBox->setChecked(false);
+				ui.DivideConvoCheckBox->setEnabled(false);
+				set_divide_convolution_mode(false);
 			}
-			else
-			{
-				compute_desc_.convolution_enabled = value;
-				set_auto_contrast();
-			}
+
+			if (value == true)
+				ui.DivideConvoCheckBox->setEnabled(true);
+			compute_desc_.convolution_enabled = value;
+			set_auto_contrast();
+			notify();
+		}
+
+		void MainWindow::set_divide_convolution_mode(const bool value)
+		{
+			compute_desc_.divide_convolution_enabled = value;
 			notify();
 		}
 
@@ -2676,6 +2685,7 @@ namespace holovibes
 			std::string delims = " \f\n\r\t\v";
 			std::vector<std::string> v_str, matrix_size, matrix;
 			set_convolution_mode(false);
+			ui.ConvoCheckBox->setChecked(false);
 			holovibes_.reset_convolution_matrix();
 
 			try
@@ -2712,13 +2722,6 @@ namespace holovibes
 					holovibes_.reset_convolution_matrix();
 					display_error("Couldn't load file : the dimension and the number of elements in the matrix\n");
 				}
-
-				/*while (c < matrix.size())
-				{
-					if (matrix[c] != "")
-						compute_desc_.convo_matrix.push_back(std::stof(matrix[c]));
-					c++;
-				}*/
 
 				//on plonge le kernel dans un carre de taille nx*ny tout en gardant le profondeur z
 				//TODO a paralleliser
@@ -3230,8 +3233,9 @@ namespace holovibes
 			//the convolution is disabled to avoid problem with iamge size
 			//std::cout << "1 :" << ui.ConvoCheckBox->isEnabled() << "\n";
 			ui.ConvoCheckBox->setChecked(false);
-			ui.ConvoCheckBox->setEnabled(false);
+			set_convolution_mode(false);
 			//std::cout << "2 :" << ui.ConvoCheckBox->isEnabled() << "\n";
+
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
