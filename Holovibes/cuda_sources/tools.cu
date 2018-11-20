@@ -643,7 +643,8 @@ void correlation_operator(float* a, float* b, float* out, QPoint dimensions)
 	cufftExecC2R(plan2d, tmp_a, out);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-}
+}
+
 float get_norm(const float	*matrix,
 			   size_t		size)
 {
