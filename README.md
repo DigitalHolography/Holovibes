@@ -200,6 +200,14 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.1
+
+* fix: HSV representation is better
+* add: can divide by convolution
+* add: renormalize image after convolution
+* fix: convolution works
+* fix: optimized reading of convolution kernel
+
 ### v.6.0.8
 
 * add: HSV representation
