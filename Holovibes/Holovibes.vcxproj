@@ -493,6 +493,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
+    <ClCompile Include="sources\gui\windows\CompositeWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />
     <ClCompile Include="sources\gui\windows\PlotWindow.cc" />
     <ClCompile Include="sources\gui\windows\HoloWindow.cc" />
