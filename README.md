@@ -200,9 +200,9 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
-### v.6.1
+### v.6.0.9
 
-* fix: HSV representation is better
+* fix: corrected hue part of HSV
 * add: can divide by convolution
 * add: renormalize image after convolution
 * fix: convolution works

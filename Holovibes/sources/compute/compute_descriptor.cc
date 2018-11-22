@@ -72,6 +72,7 @@ namespace holovibes
 		y_accu_enabled(false),
 		y_acc_level(1),
 		stft_level(16),
+		stft_longtime_size(16),
 		stft_steps(1),
 		ref_diff_level(15),
 		ref_diff_enabled(false),

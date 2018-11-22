@@ -630,6 +630,7 @@ namespace holovibes
 				config.reader_buf_max_size = ptree.get<int>("config.input_file_buffer_size", config.reader_buf_max_size);
 				compute_desc_.special_buffer_size = ptree.get<int>("config.convolution_buffer_size", compute_desc_.special_buffer_size);
 				compute_desc_.stft_level = ptree.get<uint>("config.stft_queue_size", compute_desc_.stft_level);
+				compute_desc_.stft_longtime_size = ptree.get<uint>("config.stft_longtime_queue_size", compute_desc_.stft_longtime_size);
 				compute_desc_.ref_diff_level = ptree.get<uint>("config.reference_buffer_size", compute_desc_.ref_diff_level);
 				compute_desc_.img_acc_slice_xy_level = ptree.get<uint>("config.accumulation_buffer_size", compute_desc_.img_acc_slice_xy_level);
 				compute_desc_.display_rate = ptree.get<float>("config.display_rate", compute_desc_.display_rate);
