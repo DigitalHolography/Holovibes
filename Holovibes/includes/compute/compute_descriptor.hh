@@ -15,8 +15,11 @@
  * Contains compute parameters. */
 #pragma once
 
+# include <atomic>
+# include <mutex>
 # include "observable.hh"
 # include "rect.hh"
+
 
 namespace holovibes
 {
@@ -112,6 +115,11 @@ namespace holovibes
 	 */
 	class ComputeDescriptor : public Observable
 	{
+		typedef unsigned char uchar;
+		typedef unsigned short ushort;
+		typedef unsigned int uint;
+		typedef unsigned long ulong;
+
 	private:
 		/*! \brief The lock used in the zone accessors */
 		mutable std::mutex	mutex_;
@@ -370,20 +378,34 @@ namespace holovibes
 
 		//! Composite images
 		//! \{
+
+		//! RGB
 		std::atomic<ushort>		composite_p_red;
 		std::atomic<ushort>		composite_p_blue;
 		std::atomic<float>		weight_r;
 		std::atomic<float>		weight_g;
 		std::atomic<float>		weight_b;
 
-		std::atomic<ushort>		composite_p_min;
-		std::atomic<ushort>		composite_p_max;
-		std::atomic<float>		weight_h;
-		std::atomic<float>		weight_s;
-		std::atomic<float>		weight_v;
 
-		std::atomic<float> min_H_value;
-		std::atomic<float> max_H_value;
+		//! HSV
+		std::atomic<ushort>		composite_p_min_h;
+		std::atomic<ushort>		composite_p_max_h;
+		std::atomic<float>		min_h_value;
+		std::atomic<float>		max_h_value;
+		std::atomic<float> composite_low_h_threshold;
+		std::atomic<float> composite_high_h_threshold;
+
+
+		std::atomic<float>		weight_s;
+
+		std::atomic<bool>		composite_p_activated_v;
+		std::atomic<ushort>		composite_p_min_v;
+		std::atomic<ushort>		composite_p_max_v;
+		std::atomic<float>		min_v_value;
+		std::atomic<float>		max_v_value;
+		std::atomic<float> composite_low_v_threshold;
+		std::atomic<float> composite_high_v_threshold;
+
 
 		std::atomic<CompositeKind> composite_kind;
 

@@ -15,6 +15,7 @@
  * Implementation of the Observable design pattern. */
 #pragma once
 
+# include <algorithm>
 # include <vector>
 # include "observer.hh"
 
@@ -36,7 +37,7 @@ namespace holovibes
     /*! \brief notify all Observer in list */
     void notify_observers()
     {
-      std::for_each(observers_.begin(),
+		std::for_each(observers_.begin(),
         observers_.end(),
         [](Observer* observer) { observer->notify(); });
     }

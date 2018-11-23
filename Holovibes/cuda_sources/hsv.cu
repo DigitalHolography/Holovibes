@@ -18,6 +18,7 @@
 # include <npps.h>
 # include <nppversion.h>
 # include <npp.h>
+# include "hsv.cuh"
 # include "min_max.cuh"
 # include "tools_conversion.cuh"
 # include "unique_ptr.hh"
@@ -197,14 +198,7 @@ void hsv(const cuComplex *d_input,
 	float *d_output,
 	const uint width,
 	const uint height,
-	uint index_min,
-	uint index_max,
-	uint nb_img,
-	const float h,
-	const float s,
-	const float v,
-	const float minH,
-	const float maxH)
+	const ComputeDescriptor& cd)
 {
 	const uint frame_res = height * width;
 
@@ -282,7 +276,7 @@ void hsv(const cuComplex *d_input,
 	cudaCheckError();
 
 	float percent_out[2];
-	const float percent_in_h[2] = 
+	const float percent_in_h[2] =
 	{
 		0.2f, 99.8f
 	};
@@ -319,7 +313,7 @@ void hsv(const cuComplex *d_input,
 
 
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
-	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v); 
+	gpu_multiply_const(tmp_hsv_arr + frame_res * 2, frame_res, v);
 	cudaCheckError();
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, d_output, frame_res);

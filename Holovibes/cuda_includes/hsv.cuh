@@ -10,16 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 #pragma once
+#include "compute_descriptor.hh"
 
-void hsv(const cuComplex *input,
-	float *output,
+typedef unsigned int uint;
+
+void hsv(const cuComplex *d_input,
+	float *d_output,
 	const uint width,
 	const uint height,
-	uint index_min,
-	uint index_max,
-	uint nb_img,
-	const float h,
-	const float s,
-	const float v,
-	const float minH,
-	const float maxH);
+	const ComputeDescriptor& cd);

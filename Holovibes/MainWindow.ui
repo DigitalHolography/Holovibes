@@ -65,7 +65,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="0" column="1">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
       <property name="spacing">
        <number>1</number>
@@ -1568,8 +1568,6 @@
              </layout>
             </item>
            </layout>
-           <zorder>horizontalLayoutWidget</zorder>
-           <zorder>horizontalLayoutWidget</zorder>
           </widget>
          </item>
          <item>
@@ -1699,14 +1697,14 @@
                </widget>
               </item>
               <item row="4" column="2">
-               <widget class="QLabel" name="label_value_threshold_min_int">
+               <widget class="QLabel" name="label_value_threshold_min">
                 <property name="text">
                  <string>0</string>
                 </property>
                </widget>
               </item>
               <item row="5" column="2">
-               <widget class="QLabel" name="label_value_threshold_max_int">
+               <widget class="QLabel" name="label_value_threshold_max">
                 <property name="text">
                  <string>1000</string>
                 </property>
@@ -1726,10 +1724,10 @@
                </widget>
               </item>
               <item row="1" column="1" colspan="2">
-               <widget class="QSpinBox" name="spinBox_value_freq_min"/>
+               <widget class="QSpinBox" name="SpinBox_value_freq_min"/>
               </item>
               <item row="2" column="1" colspan="2">
-               <widget class="QSpinBox" name="spinBox_value_freq_max"/>
+               <widget class="QSpinBox" name="SpinBox_value_freq_max"/>
               </item>
               <item row="3" column="0" colspan="3">
                <widget class="QLabel" name="label_value_threshold">
@@ -6521,7 +6519,7 @@ p, li { white-space: pre-wrap; }
    <sender>WeightSpinBox_saturation</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_weights_hsv()</slot>
+   <slot>set_composite_weights_hsv_s()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>600</x>
@@ -6537,7 +6535,7 @@ p, li { white-space: pre-wrap; }
    <sender>SpinBox_hue_freq_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv()</slot>
+   <slot>set_composite_intervals_hsv_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>546</x>
@@ -6553,7 +6551,7 @@ p, li { white-space: pre-wrap; }
    <sender>SpinBox_hue_freq_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>set_composite_intervals_hsv()</slot>
+   <slot>set_composite_intervals_hsv_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>638</x>
@@ -6569,7 +6567,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_hue_threshold_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_H()</slot>
+   <slot>slide_update_threshold_H_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>606</x>
@@ -6585,7 +6583,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_hue_threshold_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_H()</slot>
+   <slot>slide_update_threshold_H_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>606</x>
@@ -6610,6 +6608,86 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_value_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_v_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>606</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_value_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_v_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>606</x>
+     <y>404</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_value_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_V_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>447</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_value_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_V_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>468</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_value_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>click_activate_frequency_channel_v()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>672</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>
@@ -6724,7 +6802,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_x_accu()</slot>
   <slot>set_y_accu()</slot>
   <slot>set_composite_weights()</slot>
-  <slot>set_composite_weights_hsv()</slot>
+  <slot>set_composite_weights_hsv_s()</slot>
   <slot>set_composite_auto_weights(bool)</slot>
   <slot>update_lens_view(bool)</slot>
   <slot>set_stabilization_area()</slot>
@@ -6737,8 +6815,15 @@ p, li { white-space: pre-wrap; }
   <slot>on_notify()</slot>
   <slot>set_scale_bar(bool)</slot>
   <slot>set_composite_intervals()</slot>
-  <slot>set_composite_intervals_hsv()</slot>
-  <slot>slide_update_threshold_H()</slot>
+  <slot>set_composite_intervals_hsv_h_min()</slot>
+  <slot>set_composite_intervals_hsv_h_max()</slot>
+  <slot>set_composite_intervals_hsv_v_min()</slot>
+  <slot>set_composite_intervals_hsv_v_max()</slot>
+  <slot>slide_update_threshold_H_min()</slot>
+  <slot>slide_update_threshold_H_max()</slot>
+  <slot>slide_update_threshold_V_min()</slot>
+  <slot>slide_update_threshold_V_max()</slot>
+  <slot>click_activate_frequency_channel_v()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>
