@@ -608,7 +608,6 @@ void accumulate_images(const float	*input,
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(nb_pixel, threads);
-
 	kernel_accumulate_images << <blocks, threads, 0, stream >> >(input, output, start, max_elmt, nb_elmt, nb_pixel);
 	cudaCheckError();
 }

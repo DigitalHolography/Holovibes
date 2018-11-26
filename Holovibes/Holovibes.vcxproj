@@ -177,6 +177,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\interpolation.cuh" />
     <ClInclude Include="cuda_includes\min_max.cuh" />
     <ClInclude Include="cuda_includes\operator_overload.cuh" />
+    <ClInclude Include="cuda_includes\percentile.cuh" />
     <ClInclude Include="cuda_includes\preprocessing.cuh" />
     <ClInclude Include="cuda_includes\stabilization.cuh" />
     <ClInclude Include="cuda_includes\stft.cuh" />
@@ -492,6 +493,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClCompile Include="sources\gui\selections\overlays\slice_cross_overlay.cc" />
     <ClCompile Include="sources\gui\selections\overlays\zoom_overlay.cc" />
     <ClCompile Include="sources\gui\windows\BasicOpenGLWindow.cc" />
+    <ClCompile Include="sources\gui\windows\CompositeWindow.cc" />
     <ClCompile Include="sources\gui\windows\DirectWindow.cc" />
     <ClCompile Include="sources\gui\windows\PlotWindow.cc" />
     <ClCompile Include="sources\gui\windows\HoloWindow.cc" />
@@ -586,6 +588,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <CudaCompile Include="cuda_sources\flowgraphy.cu" />
     <CudaCompile Include="cuda_sources\interpolation.cu" />
     <CudaCompile Include="cuda_sources\min_max.cu" />
+    <CudaCompile Include="cuda_sources\percentile.cu" />
     <CudaCompile Include="cuda_sources\preprocessing.cu" />
     <CudaCompile Include="cuda_sources\stabilization.cu" />
     <CudaCompile Include="cuda_sources\stft.cu" />

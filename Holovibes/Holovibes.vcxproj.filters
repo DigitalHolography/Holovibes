@@ -368,6 +368,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_thread_reader.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="sources\gui\windows\CompositeWindow.cc">
+      <Filter>c++ sources\gui\windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
@@ -640,6 +643,9 @@
     <ClInclude Include="cuda_includes\min_max.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\percentile.cuh">
+      <Filter>cuda includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -763,6 +769,9 @@
       <Filter>cuda includes\tools</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\min_max.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\percentile.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>
