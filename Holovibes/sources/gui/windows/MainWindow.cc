@@ -433,10 +433,7 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
-
-			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, compute_desc_.composite_p_min_h);
-			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, compute_desc_.composite_p_max_h);
-
+			click_activate_frequency_channel_v();
 
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_saturation, compute_desc_.weight_s);
 
@@ -1765,26 +1762,22 @@ namespace holovibes
 
 		void MainWindow::set_composite_intervals_hsv_h_min()
 		{
-			compute_desc_.min_h_value = ui.SpinBox_hue_freq_min->value();
-			notify();
+			compute_desc_.composite_p_min_h = ui.SpinBox_hue_freq_min->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_h_max()
 		{
-			compute_desc_.max_h_value = ui.SpinBox_hue_freq_max->value();
-			notify();
+			compute_desc_.composite_p_max_h = ui.SpinBox_hue_freq_max->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_min()
 		{
-			compute_desc_.min_v_value = ui.SpinBox_value_freq_min->value();
-			notify();
+			compute_desc_.composite_p_min_v = ui.SpinBox_value_freq_min->value();
 		}
 
 		void MainWindow::set_composite_intervals_hsv_v_max()
 		{
-			compute_desc_.max_v_value = ui.SpinBox_value_freq_max->value();
-			notify();
+			compute_desc_.composite_p_max_v = ui.SpinBox_value_freq_max->value();
 		}
 
 		void MainWindow::set_composite_weights()
@@ -1813,58 +1806,53 @@ namespace holovibes
 
 		void MainWindow::click_activate_frequency_channel_v()
 		{
-			compute_desc_.composite_p_activated_v = ui.checkBox_value_freq;
-			ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq);
-			ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq);
-			notify();
+			compute_desc_.composite_p_activated_v = ui.checkBox_value_freq->isChecked();
+			ui.SpinBox_value_freq_min->setDisabled(!ui.checkBox_value_freq->isChecked());
+			ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
+		}
+
+		void slide_update_threshold(QSlider& slider, std::atomic<float>& receiver,
+			std::atomic<float>& bound_to_update, QSlider& slider_to_update,
+			QLabel& to_be_written_in, std::atomic<float>& lower_bound,
+			std::atomic<float>& upper_bound)
+		{
+			receiver = slider.value() / 1000.0f;
+			char array[10];
+			sprintf_s(array, "%d", slider.value());
+			to_be_written_in.setText(QString(array));
+			if (lower_bound > upper_bound)
+			{
+				bound_to_update = slider.value() / 1000.0f;
+				slider_to_update.setValue(slider.value());
+			}
 		}
 
 		void  MainWindow::slide_update_threshold_H_min()
 		{
-			compute_desc_.min_h_value = ui.horizontalSlider_hue_threshold_min->value();
-			auto str = std::make_shared<QString>(compute_desc_.min_h_value);
-			ui.label_hue_threshold_min->setText(*str);
-			if (compute_desc_.min_h_value > compute_desc_.max_h_value)
-			{
-				compute_desc_.max_h_value = ui.horizontalSlider_hue_threshold_min->value();
-				ui.horizontalSlider_hue_threshold_max->setValue(compute_desc_.min_h_value);
-			}
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_min, compute_desc_.min_h_value,
+				compute_desc_.max_h_value, *ui.horizontalSlider_hue_threshold_max,
+				*ui.label_hue_threshold_min, compute_desc_.min_h_value, compute_desc_.max_h_value);
 		}
 
 		void  MainWindow::slide_update_threshold_H_max()
 		{
-			compute_desc_.max_h_value = ui.horizontalSlider_hue_threshold_max->value();
-			auto str = std::make_shared<QString>(compute_desc_.max_h_value);
-			ui.label_hue_threshold_max->setText(*str);
-			if (compute_desc_.min_h_value > compute_desc_.max_h_value)
-			{
-				compute_desc_.min_h_value = ui.horizontalSlider_hue_threshold_max->value();
-				ui.horizontalSlider_hue_threshold_min->setValue(compute_desc_.max_h_value);
-			}
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_max, compute_desc_.max_h_value,
+				compute_desc_.min_h_value, *ui.horizontalSlider_hue_threshold_min,
+				*ui.label_hue_threshold_max, compute_desc_.min_h_value, compute_desc_.max_h_value);
 		}
 
 		void MainWindow::slide_update_threshold_V_min()
 		{
-			compute_desc_.min_v_value = ui.horizontalSlider_value_threshold_min->value();
-			auto str = std::make_shared<QString>(compute_desc_.min_v_value);
-			ui.label_value_threshold_min->setText(*str);
-			if (compute_desc_.min_v_value > compute_desc_.max_v_value)
-			{
-				compute_desc_.max_v_value = ui.horizontalSlider_value_threshold_min->value();
-				ui.horizontalSlider_value_threshold_max->setValue(compute_desc_.min_v_value);
-			}
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_min, compute_desc_.min_v_value,
+				compute_desc_.max_v_value, *ui.horizontalSlider_value_threshold_max,
+				*ui.label_value_threshold_min, compute_desc_.min_v_value, compute_desc_.max_v_value);
 		}
 		
 		void MainWindow::slide_update_threshold_V_max()
 		{
-			compute_desc_.max_v_value = ui.horizontalSlider_value_threshold_max->value();
-			auto str = std::make_shared<QString>(compute_desc_.max_v_value);
-			ui.label_value_threshold_max->setText(*str);
-			if (compute_desc_.min_v_value > compute_desc_.max_v_value)
-			{
-				compute_desc_.min_v_value = ui.horizontalSlider_value_threshold_max->value();
-				ui.horizontalSlider_value_threshold_min->setValue(compute_desc_.max_v_value);
-			}
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.max_v_value,
+				compute_desc_.min_v_value, *ui.horizontalSlider_value_threshold_min,
+				*ui.label_value_threshold_max, compute_desc_.min_v_value, compute_desc_.max_v_value);
 		}
 
 		void MainWindow::set_flowgraphy_level(const int value)

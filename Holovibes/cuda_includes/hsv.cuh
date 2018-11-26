@@ -11,11 +11,12 @@
 /* **************************************************************************** */
 #pragma once
 #include "compute_descriptor.hh"
-
+#include "cuComplex.h"
 typedef unsigned int uint;
+
 
 void hsv(const cuComplex *d_input,
 	float *d_output,
 	const uint width,
 	const uint height,
-	const ComputeDescriptor& cd);
+	const holovibes::ComputeDescriptor& cd);

@@ -138,15 +138,7 @@ namespace holovibes
 						buffers_.gpu_float_buffer_,
 						fd_.width,
 						fd_.height,
-						cd_.composite_p_min,
-						cd_.composite_p_max,
-						cd_.nSize,
-						cd_.weight_h,
-						cd_.weight_s,
-						cd_.weight_v,
-						cd_.min_H_value,
-						cd_.max_H_value
-					);
+						cd_);
 
 				if(cd_.composite_auto_weights_)
 					postcolor_normalize(buffers_.gpu_float_buffer_,
