@@ -19,6 +19,11 @@
 #include "tools_compute.cuh"
 
 
+/*
+** \brief Sort a copy of the array and save each of the values at h_percent % of the array in h_out_percent
+** i.e. h_percent = [25f, 50f, 75f] and d_input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] and size_percent = 3
+** gives : h_out_percent = [3, 6, 8]
+*/
 float *percentile_float(const float *d_input, unsigned frame_res, const float *h_percent, float *h_out_percent, unsigned size_percent)
 {
 	thrust::device_vector<float> d_tmp_memory(frame_res);

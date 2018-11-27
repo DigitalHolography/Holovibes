@@ -112,8 +112,6 @@ void kernel_compute_and_fill_h(const cuComplex* input, float* output, const size
 	if (id < frame_res)
 	{
 		const size_t index_H = id * 3;
-		const size_t index_S = id * 3 + 1;
-		const size_t index_V = id * 3 + 2;
 		output[index_H] = 0;
 		float summ_p = 0;
 		float min = FLT_MAX;
@@ -133,6 +131,7 @@ void kernel_compute_and_fill_h(const cuComplex* input, float* output, const size
 
 /*
 ** \brief Compute S component of hsv.
+** Could be factorized with H but I kept it like this for the clarity
 */
 __global__
 void kernel_compute_and_fill_s(const cuComplex* input, float* output, const size_t frame_res,
@@ -144,7 +143,21 @@ void kernel_compute_and_fill_s(const cuComplex* input, float* output, const size
 	if (id < frame_res)
 	{
 		const size_t index_S = id * 3 + 1;		
-		output[index_S] = 0.95f;
+		output[index_S] = 0;
+
+		float summ_p = 0;
+		float min = FLT_MAX;
+
+		for (size_t i = min_index; i <= max_index; ++i)
+		{
+			float input_elm = fabsf(input[i * frame_res + id].x);
+			min = fminf(min, input_elm);
+			output[index_S] += input_elm * omega_arr[i];
+			summ_p += input_elm;
+		}
+
+		output[index_S] -= total_index * min;
+		output[index_S] /= summ_p;
 	}
 }
 
@@ -166,6 +179,36 @@ void kernel_compute_and_fill_v(const cuComplex* input, float* output, const size
 			output[index_V] += input_elm;
 		}
 	}
+}
+
+void compute_and_fill_hsv(const cuComplex* gpu_input, float* gpu_output,
+	const size_t frame_res, const holovibes::ComputeDescriptor& cd,
+	float* omega_arr_data, uint omega_arr_size)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	const uint min_h_index = cd.composite_p_min_h;
+	const uint max_h_index = cd.composite_p_max_h;
+	const uint min_v_index = cd.composite_p_min_v;
+	const uint max_v_index = cd.composite_p_max_v;
+
+	kernel_compute_and_fill_h << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data);
+	kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data + omega_arr_size);
+	if (cd.composite_p_activated_v)
+	{
+		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+			min_v_index, max_v_index);
+	}
+	else
+	{
+		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+			min_h_index, max_h_index);
+	}
+	cudaCheckError();
+
 }
 
 __global__
@@ -225,6 +268,21 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 	}
 }
 
+void apply_percentile_and_threshold(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res, float low_threshold, float high_threshold)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
+	float percent_out[2];
+	const float percent_in_h[2] =
+	{
+		low_threshold, high_threshold
+	};
+
+	percentile_float(gpu_arr, frame_res, percent_in_h, percent_out, 2);
+
+	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, percent_out[0], percent_out[1], frame_res);
+}
+
 
 void hsv(const cuComplex *gpu_input,
 	float *gpu_output,
@@ -255,10 +313,7 @@ void hsv(const cuComplex *gpu_input,
 	}
 
 	const uint nb_img = cd.nSize;
-	const uint min_h_index = cd.composite_p_min_h;
-	const uint max_h_index = cd.composite_p_max_h;
-	const uint min_v_index = cd.composite_p_min_v;
-	const uint max_v_index = cd.composite_p_max_v;
+
 	
 
 	if (omega_arr_size != nb_img)
@@ -288,43 +343,13 @@ void hsv(const cuComplex *gpu_input,
 		cudaCheckError();
 	}
 
-	kernel_compute_and_fill_h << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data);
-	kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data + omega_arr_size);
-	if (cd.composite_p_activated_v)
-	{
-		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-			min_v_index, max_v_index);
-	}
-	else
-	{
-		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-			min_h_index, max_h_index);
-	}
-	cudaCheckError();
+	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, omega_arr_data, omega_arr_size);
 
 	//------------------------------------------------------------//
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
-	cudaStreamSynchronize(0);
-	cudaCheckError();
-
-	normalize_frame(tmp_hsv_arr, frame_res); // h
-	cudaCheckError();
 	
-	float percent_out[2];
-	const float percent_in_h[2] =
-	{
-		cd.composite_low_h_threshold, cd.composite_high_h_threshold
-	};
-	
-	percentile_float(tmp_hsv_arr, frame_res, percent_in_h, percent_out, 2);
-	float min_index_percentile = percent_out[0];
-	float max_index_percentile = percent_out[1];
-
-
-	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, min_index_percentile, max_index_percentile, frame_res);
+	apply_percentile_and_threshold(cd, tmp_hsv_arr, frame_res, cd.composite_low_h_threshold, cd.composite_high_h_threshold);
 	
 	gpu_multiply_const(tmp_hsv_arr, frame_res, -1); // h
 
@@ -337,39 +362,27 @@ void hsv(const cuComplex *gpu_input,
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, slider_h_threshold_min, slider_h_threshold_max, frame_res);
 	cudaCheckError();
 
-
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
 	gpu_multiply_const(tmp_hsv_arr, frame_res, 0.66f);
 
-	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, cd.weight_s);
-	
-	const float percent_in_v[2] =
-	{
-		cd.composite_low_v_threshold, cd.composite_high_v_threshold
-	};
-	
-	percentile_float(tmp_hsv_arr + frame_res * 2, frame_res, percent_in_v, percent_out, 2);
-	min_index_percentile = percent_out[0];
-	max_index_percentile = percent_out[1];
+	apply_percentile_and_threshold(cd, tmp_hsv_arr + frame_res, frame_res, 0.2f, 99.8f);
 
-	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr + frame_res * 2, min_index_percentile, max_index_percentile, frame_res);
-
+	normalize_frame(tmp_hsv_arr + frame_res , frame_res); // s
+	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, cd.weight_s); // s
+	
+	apply_percentile_and_threshold(cd, tmp_hsv_arr + frame_res  * 2, frame_res, cd.composite_low_v_threshold, cd.composite_high_v_threshold);
 	
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	
 	cudaCheckError();
 
 	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
 	//-------------------------------------------------------------------------------//
 	gpu_multiply_const(gpu_output, frame_res * 3, 65536);
-	cudaStreamSynchronize(0);
 	cudaCheckError();
-
 }
