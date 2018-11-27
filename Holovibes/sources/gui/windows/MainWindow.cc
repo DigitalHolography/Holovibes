@@ -433,9 +433,24 @@ namespace holovibes
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_R, compute_desc_.weight_r);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_G, compute_desc_.weight_g);
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_B, compute_desc_.weight_b);
-			click_activate_frequency_channel_v();
+			actualize_frequency_channel_v();
+
+			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, compute_desc_.composite_p_min_h);
+			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, compute_desc_.composite_p_max_h);
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(compute_desc_.min_h_value * 1000));
+			slide_update_threshold_H_min();
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(compute_desc_.max_h_value * 1000));
+			slide_update_threshold_H_max();
 
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_saturation, compute_desc_.weight_s);
+
+			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, compute_desc_.composite_p_min_v);
+			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, compute_desc_.composite_p_max_v);
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(compute_desc_.min_v_value * 1000));
+			slide_update_threshold_V_min();
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(compute_desc_.max_v_value * 1000));
+			slide_update_threshold_V_max();
+
 
 			ui.CompositeGroupBox->setHidden(is_direct_mode() 
 				|| (compute_desc_.img_type != ImgType::Composite));
@@ -745,7 +760,7 @@ namespace holovibes
 				compute_desc_.min_h_value = ptree.get<float>("composite.min_h_value", 0);
 				compute_desc_.max_h_value = ptree.get<float>("composite.max_h_value", 0);
 				compute_desc_.composite_low_h_threshold = ptree.get<float>("composite.low_h_threshold", 0.2f);
-				compute_desc_.composite_high_h_threshold = ptree.get<float>("composite.high_h_threshold", 0.98f);
+				compute_desc_.composite_high_h_threshold = ptree.get<float>("composite.high_h_threshold", 99.8f);
 
 				compute_desc_.weight_s = ptree.get<float>("composite.weight_s", 1);
 
@@ -755,7 +770,7 @@ namespace holovibes
 				compute_desc_.min_v_value = ptree.get<float>("composite.min_v_value", 0);
 				compute_desc_.max_v_value = ptree.get<float>("composite.max_v_value", 0);
 				compute_desc_.composite_low_v_threshold = ptree.get<float>("composite.low_v_threshold", 0.2f);
-				compute_desc_.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 0.98f);
+				compute_desc_.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 99.8f);
 
 
 				
@@ -1811,6 +1826,27 @@ namespace holovibes
 			ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 		}
 
+		void MainWindow::actualize_frequency_channel_v()
+		{
+			click_activate_frequency_channel_v();
+		}
+
+		void fancy_Qslide_text_percent(char* str)
+		{
+			int len = strlen(str);
+			if (len < 2)
+			{
+				str[1] = str[0];
+				str[0] = '0';
+				str[2] = '\0';
+				len = strlen(str);
+			}
+			str[len] = str[len - 1];
+			str[len - 1] = '.';
+			str[len + 1] = '%';
+			str[len + 2] = '\0';
+		}
+
 		void slide_update_threshold(QSlider& slider, std::atomic<float>& receiver,
 			std::atomic<float>& bound_to_update, QSlider& slider_to_update,
 			QLabel& to_be_written_in, std::atomic<float>& lower_bound,
@@ -1819,6 +1855,7 @@ namespace holovibes
 			receiver = slider.value() / 1000.0f;
 			char array[10];
 			sprintf_s(array, "%d", slider.value());
+			fancy_Qslide_text_percent(array);
 			to_be_written_in.setText(QString(array));
 			if (lower_bound > upper_bound)
 			{
@@ -2372,6 +2409,13 @@ namespace holovibes
 			spinBox->blockSignals(true);
 			spinBox->setValue(value);
 			spinBox->blockSignals(false);
+		}
+
+		void MainWindow::QSliderQuietSetValue(QSlider* slider, int value)
+		{
+			slider->blockSignals(true);
+			slider->setValue(value);
+			slider->blockSignals(false);
 		}
 
 		void MainWindow::QDoubleSpinBoxQuietSetValue(QDoubleSpinBox * spinBox, double value)

@@ -101,13 +101,11 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 
 /*
 ** \brief Compute H component of hsv.
-** h, s and v are separated
-** we didn't make more loop to avoid jumps
 */
 __global__
-void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const size_t frame_res,
+void kernel_compute_and_fill_h(const cuComplex* input, float* output, const size_t frame_res,
 	const size_t min_index, const size_t max_index,
-	const size_t diff_index, const size_t omega_size,
+	const size_t total_index, const size_t omega_size,
 	const float* omega_arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -117,25 +115,58 @@ void kernel_compute_and_fill_hsv(const cuComplex* input, float* output, const si
 		const size_t index_S = id * 3 + 1;
 		const size_t index_V = id * 3 + 2;
 		output[index_H] = 0;
-		output[index_S] = 0.95f;
-		output[index_V] = 0;
-
+		float summ_p = 0;
 		float min = FLT_MAX;
+
 		for (size_t i = min_index; i <= max_index; ++i)
 		{
 			float input_elm = fabsf(input[i * frame_res + id].x);
-
 			min = fminf(min, input_elm);
 			output[index_H] += input_elm * omega_arr[i];
-			output[index_V] += input_elm;
+			summ_p += input_elm;
 		}
-		float summ_p = output[index_V];
 
-		output[index_H] -= (max_index - min_index + 1) * min;
+		output[index_H] -= total_index * min;
 		output[index_H] /= summ_p;
 	}
 }
 
+/*
+** \brief Compute S component of hsv.
+*/
+__global__
+void kernel_compute_and_fill_s(const cuComplex* input, float* output, const size_t frame_res,
+	const size_t min_index, const size_t max_index,
+	const size_t total_index, const size_t omega_size,
+	const float* omega_arr)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		const size_t index_S = id * 3 + 1;		
+		output[index_S] = 0.95f;
+	}
+}
+
+/*
+** \brief Compute V component of hsv.
+*/
+__global__
+void kernel_compute_and_fill_v(const cuComplex* input, float* output, const size_t frame_res,
+	const size_t min_index, const size_t max_index)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < frame_res)
+	{
+		const size_t index_V = id * 3 + 2;
+		output[index_V] = 0;
+		for (size_t i = min_index; i <= max_index; ++i)
+		{
+			float input_elm = fabsf(input[i * frame_res + id].x);
+			output[index_V] += input_elm;
+		}
+	}
+}
 
 __global__
 void threshold_top_bottom(float* output, const float tmin, const float tmax, const uint frame_res)
@@ -195,8 +226,8 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 }
 
 
-void hsv(const cuComplex *d_input,
-	float *d_output,
+void hsv(const cuComplex *gpu_input,
+	float *gpu_output,
 	const uint width,
 	const uint height,
 	const holovibes::ComputeDescriptor& cd)
@@ -226,6 +257,9 @@ void hsv(const cuComplex *d_input,
 	const uint nb_img = cd.nSize;
 	const uint min_h_index = cd.composite_p_min_h;
 	const uint max_h_index = cd.composite_p_max_h;
+	const uint min_v_index = cd.composite_p_min_v;
+	const uint max_v_index = cd.composite_p_max_v;
+	
 
 	if (omega_arr_size != nb_img)
 	{
@@ -254,16 +288,25 @@ void hsv(const cuComplex *d_input,
 		cudaCheckError();
 	}
 
-	kernel_compute_and_fill_hsv << <blocks, threads, 0, 0 >> > (d_input, d_output, frame_res,
+	kernel_compute_and_fill_h << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
 		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data);
+	kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data + omega_arr_size);
+	if (cd.composite_p_activated_v)
+	{
+		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+			min_v_index, max_v_index);
+	}
+	else
+	{
+		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+			min_h_index, max_h_index);
+	}
 	cudaCheckError();
-
-
-
 
 	//------------------------------------------------------------//
 
-	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (d_output, tmp_hsv_arr, frame_res);
+	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
@@ -272,18 +315,21 @@ void hsv(const cuComplex *d_input,
 	
 	float percent_out[2];
 	const float percent_in_h[2] =
-	{ 0.05f,0.95f
-		/*cd.composite_low_h_threshold, cd.composite_high_h_threshold*/
+	{
+		cd.composite_low_h_threshold, cd.composite_high_h_threshold
 	};
 	
 	percentile_float(tmp_hsv_arr, frame_res, percent_in_h, percent_out, 2);
 	float min_index_percentile = percent_out[0];
 	float max_index_percentile = percent_out[1];
-	std::cout << "min_index_percentile = " << min_index_percentile << " max_index_percentile = " << max_index_percentile << std::endl;
+
 
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, min_index_percentile, max_index_percentile, frame_res);
+	
 	gpu_multiply_const(tmp_hsv_arr, frame_res, -1); // h
+
 	normalize_frame(tmp_hsv_arr, frame_res); // h
+	
 
 	float slider_h_threshold_min = cd.min_h_value;
 	float slider_h_threshold_max = cd.max_h_value;
@@ -296,9 +342,8 @@ void hsv(const cuComplex *d_input,
 	cudaCheckError();
 	gpu_multiply_const(tmp_hsv_arr, frame_res, 0.66f);
 
-	//normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
 	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, cd.weight_s);
-	/*
+	
 	const float percent_in_v[2] =
 	{
 		cd.composite_low_v_threshold, cd.composite_high_v_threshold
@@ -310,20 +355,20 @@ void hsv(const cuComplex *d_input,
 
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr + frame_res * 2, min_index_percentile, max_index_percentile, frame_res);
 
-	*/
+	
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	
 	cudaCheckError();
 
-	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, d_output, frame_res);
+	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 
-	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (d_output, d_output, frame_res);
+	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 	//-------------------------------------------------------------------------------//
-	gpu_multiply_const(d_output, frame_res * 3, 65536);
+	gpu_multiply_const(gpu_output, frame_res * 3, 65536);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
 

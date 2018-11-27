@@ -1712,6 +1712,9 @@
               </item>
               <item row="0" column="2">
                <widget class="QCheckBox" name="checkBox_value_freq">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
                 <property name="text">
                  <string extracomment="Enable the differenciation of frequency channels between Hue and Value"/>
                 </property>

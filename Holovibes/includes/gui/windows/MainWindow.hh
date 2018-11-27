@@ -159,6 +159,7 @@ namespace holovibes
 			void slide_update_threshold_V_min();
 			void slide_update_threshold_V_max();
 			void click_activate_frequency_channel_v();
+			void actualize_frequency_channel_v();
 			void set_p(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();
@@ -293,6 +294,7 @@ namespace holovibes
 
 			// Change the value without triggering any signals
 			void		QSpinBoxQuietSetValue(QSpinBox* spinBox, int value);
+			void		QSliderQuietSetValue(QSlider* slider, int value);
 			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
 			#pragma endregion
