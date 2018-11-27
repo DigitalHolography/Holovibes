@@ -266,21 +266,14 @@ void hsv(const cuComplex *d_input,
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (d_output, tmp_hsv_arr, frame_res);
 	cudaStreamSynchronize(0);
 	cudaCheckError();
-	//float minn, maxx;
-	/*get_minimum_maximum_in_image(tmp_hsv_arr, frame_res, &minn, &maxx);
-	std::cout << "part 1 min is : " << minn << "max is : " << maxx << std::endl;*/
-	//	threshold_top_bottom << <blocks, threads, 0, 0 >> >(tmp_hsv_arr, 200000, maxx, frame_res);
-	//get_minimum_maximum_in_image(tmp_hsv_arr, frame_res, &minn, &maxx);
-	//gpu_multiply_const(tmp_hsv_arr, frame_res, 1 / maxx);
 
-	//	normalize_frame(tmp_hsv_arr, frame_res); // h
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
-
+	
 	float percent_out[2];
 	const float percent_in_h[2] =
-	{
-		cd.composite_low_h_threshold, cd.composite_high_h_threshold
+	{ 0.05f,0.95f
+		/*cd.composite_low_h_threshold, cd.composite_high_h_threshold*/
 	};
 	
 	percentile_float(tmp_hsv_arr, frame_res, percent_in_h, percent_out, 2);
@@ -301,12 +294,11 @@ void hsv(const cuComplex *d_input,
 
 	normalize_frame(tmp_hsv_arr, frame_res); // h
 	cudaCheckError();
-
 	gpu_multiply_const(tmp_hsv_arr, frame_res, 0.66f);
 
 	//normalize_frame(tmp_hsv_arr + frame_res, frame_res); // s
 	gpu_multiply_const(tmp_hsv_arr + frame_res, frame_res, cd.weight_s);
-
+	/*
 	const float percent_in_v[2] =
 	{
 		cd.composite_low_v_threshold, cd.composite_high_v_threshold
@@ -318,7 +310,7 @@ void hsv(const cuComplex *d_input,
 
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (tmp_hsv_arr + frame_res * 2, min_index_percentile, max_index_percentile, frame_res);
 
-
+	*/
 	normalize_frame(tmp_hsv_arr + frame_res * 2, frame_res); // v
 	
 	cudaCheckError();
