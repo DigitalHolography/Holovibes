@@ -1276,13 +1276,39 @@
               <property name="verticalSpacing">
                <number>1</number>
               </property>
-              <item row="2" column="0">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
                <widget class="QSpinBox" name="PRedSpinBox_Composite">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
                 </property>
                 <property name="minimum">
                  <number>0</number>
@@ -1295,28 +1321,14 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="label_8">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
+              <item row="1" column="3">
                <widget class="QSpinBox" name="PBlueSpinBox_Composite">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -1370,16 +1382,6 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
-               <widget class="QLabel" name="label_hue_freq_max">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="2">
                <widget class="QLabel" name="label_hue_freq_min">
                 <property name="text">
@@ -1390,7 +1392,117 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="3">
+              <item row="2" column="3">
+               <widget class="QSpinBox" name="SpinBox_hue_freq_min">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>9</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" colspan="3">
+               <widget class="QLabel" name="label_hue_freq">
+                <property name="text">
+                 <string>Frequency  channels</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2" colspan="3">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Threshold</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QLabel" name="label_hue_freq_max">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="5">
+               <widget class="QSpinBox" name="SpinBox_hue_freq_max">
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>99</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="5">
+               <widget class="QLabel" name="label_hue_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="5">
+               <widget class="QLabel" name="label_hue_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="3" colspan="2">
+               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3" colspan="2">
                <widget class="QSlider" name="horizontalSlider_hue_threshold_max">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -1421,94 +1533,6 @@
                 </property>
                 <property name="tickPosition">
                  <enum>QSlider::TicksAbove</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="3">
-               <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>15</height>
-                 </size>
-                </property>
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-                <property name="pageStep">
-                 <number>100</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksBelow</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="4">
-               <widget class="QLabel" name="label_hue_threshold_min">
-                <property name="text">
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="4">
-               <widget class="QLabel" name="label_hue_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3" colspan="2">
-               <widget class="QSpinBox" name="SpinBox_hue_freq_max">
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>99</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3" colspan="2">
-               <widget class="QSpinBox" name="SpinBox_hue_freq_min">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="maximum">
-                 <number>9</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2" colspan="3">
-               <widget class="QLabel" name="label_hue_freq">
-                <property name="text">
-                 <string>Frequency  channels</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2" colspan="3">
-               <widget class="QLabel" name="label_27">
-                <property name="text">
-                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -1618,14 +1642,120 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" colspan="2">
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_value_threshold_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_value_threshold_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="SpinBox_value_freq_min">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_value_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QSpinBox" name="SpinBox_value_freq_max">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QCheckBox" name="checkBox_value_freq">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string extracomment="Enable the differenciation of frequency channels between Hue and Value"/>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="3">
                <widget class="QLabel" name="label_value_freq">
                 <property name="text">
                  <string>Frequency channels</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="1">
+              <item row="3" column="0" colspan="4">
+               <widget class="QLabel" name="label_value_threshold">
+                <property name="text">
+                 <string>Threshold</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QLabel" name="label_value_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="3">
+               <widget class="QLabel" name="label_value_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="2">
+               <widget class="QSlider" name="horizontalSlider_value_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" colspan="2">
                <widget class="QSlider" name="horizontalSlider_value_threshold_max">
                 <property name="maximumSize">
                  <size>
@@ -1650,100 +1780,6 @@
                 </property>
                 <property name="tickPosition">
                  <enum>QSlider::TicksAbove</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_value_freq_max_name">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label_value_threshold_max_name">
-                <property name="text">
-                 <string>Max</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QSlider" name="horizontalSlider_value_threshold_min">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>15</height>
-                 </size>
-                </property>
-                <property name="maximum">
-                 <number>1000</number>
-                </property>
-                <property name="pageStep">
-                 <number>100</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="tickPosition">
-                 <enum>QSlider::TicksBelow</enum>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="label_value_threshold_min_name">
-                <property name="text">
-                 <string>Min</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2">
-               <widget class="QLabel" name="label_value_threshold_min">
-                <property name="text">
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="2">
-               <widget class="QLabel" name="label_value_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QCheckBox" name="checkBox_value_freq">
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
-                </property>
-                <property name="text">
-                 <string extracomment="Enable the differenciation of frequency channels between Hue and Value"/>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1" colspan="2">
-               <widget class="QSpinBox" name="SpinBox_value_freq_min">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QSpinBox" name="SpinBox_value_freq_max">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="3">
-               <widget class="QLabel" name="label_value_threshold">
-                <property name="text">
-                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -4203,7 +4239,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>InterpolationCheckbox</tabstop>
   <tabstop>InterpolationLambda1</tabstop>
   <tabstop>InterpolationSensitivity</tabstop>
-  <tabstop>PRedSpinBox_Composite</tabstop>
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>

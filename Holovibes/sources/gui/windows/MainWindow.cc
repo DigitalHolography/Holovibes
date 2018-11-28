@@ -415,18 +415,6 @@ namespace holovibes
 			ui.SpinBox_value_freq_max->setMaximum(compute_desc_.nSize / 2 - 1);
 
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
-			if (ui.PRedSpinBox_Composite->value() == 0 && ui.PBlueSpinBox_Composite->value() == 0
-				&& ui.SpinBox_hue_freq_min->value() == 0 && ui.SpinBox_hue_freq_max->value() == 0)
-			{
-				ui.PRedSpinBox_Composite->setValue(0);
-				ui.PBlueSpinBox_Composite->setValue(ui.nSizeSpinBox->value() / 2);
-				ui.SpinBox_hue_freq_min->setValue(0);
-				ui.SpinBox_hue_freq_max->setValue(ui.nSizeSpinBox->value() / 2);
-				ui.SpinBox_value_freq_min->setValue(0);
-				ui.SpinBox_value_freq_max->setValue(ui.nSizeSpinBox->value() / 2);
-			}
-
-
 
 			QSpinBoxQuietSetValue(ui.PRedSpinBox_Composite, compute_desc_.composite_p_red);
 			QSpinBoxQuietSetValue(ui.PBlueSpinBox_Composite, compute_desc_.composite_p_blue);
@@ -437,18 +425,18 @@ namespace holovibes
 
 			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_min, compute_desc_.composite_p_min_h);
 			QSpinBoxQuietSetValue(ui.SpinBox_hue_freq_max, compute_desc_.composite_p_max_h);
-			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(compute_desc_.min_h_value * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_min, (int)(compute_desc_.slider_h_threshold_min * 1000));
 			slide_update_threshold_H_min();
-			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(compute_desc_.max_h_value * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_hue_threshold_max, (int)(compute_desc_.slider_h_threshold_max * 1000));
 			slide_update_threshold_H_max();
 
 			QDoubleSpinBoxQuietSetValue(ui.WeightSpinBox_saturation, compute_desc_.weight_s);
 
 			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_min, compute_desc_.composite_p_min_v);
 			QSpinBoxQuietSetValue(ui.SpinBox_value_freq_max, compute_desc_.composite_p_max_v);
-			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(compute_desc_.min_v_value * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_min, (int)(compute_desc_.slider_v_threshold_min * 1000));
 			slide_update_threshold_V_min();
-			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(compute_desc_.max_v_value * 1000));
+			QSliderQuietSetValue(ui.horizontalSlider_value_threshold_max, (int)(compute_desc_.slider_v_threshold_max * 1000));
 			slide_update_threshold_V_max();
 
 
@@ -749,31 +737,29 @@ namespace holovibes
 				config.device_number = ptree.get<int>("reset.device_number", config.device_number);
 
 				// Composite
-				compute_desc_.composite_p_red = ptree.get<ushort>("composite.p_red", 0);
-				compute_desc_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 0);
+				compute_desc_.composite_p_red = ptree.get<ushort>("composite.p_red", 1);
+				compute_desc_.composite_p_blue = ptree.get<ushort>("composite.p_blue", 1);
 				compute_desc_.weight_r = ptree.get<float>("composite.weight_r", 1);
 				compute_desc_.weight_g = ptree.get<float>("composite.weight_g", 1);
 				compute_desc_.weight_b = ptree.get<float>("composite.weight_b", 1);
 				
-				compute_desc_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 0);
-				compute_desc_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 0);
-				compute_desc_.min_h_value = ptree.get<float>("composite.min_h_value", 0);
-				compute_desc_.max_h_value = ptree.get<float>("composite.max_h_value", 0);
+				compute_desc_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 1);
+				compute_desc_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 1);
+				compute_desc_.slider_h_threshold_min = ptree.get<float>("composite.slider_h_threshold_min", 0);
+				compute_desc_.slider_h_threshold_max = ptree.get<float>("composite.slider_h_threshold_max", 1.0f);
 				compute_desc_.composite_low_h_threshold = ptree.get<float>("composite.low_h_threshold", 0.2f);
 				compute_desc_.composite_high_h_threshold = ptree.get<float>("composite.high_h_threshold", 99.8f);
 
 				compute_desc_.weight_s = ptree.get<float>("composite.weight_s", 1);
 
 				compute_desc_.composite_p_activated_v = ptree.get<bool>("composite.p_activated_v", false);
-				compute_desc_.composite_p_min_v = ptree.get<ushort>("composite.p_min_v", 0);
-				compute_desc_.composite_p_max_v = ptree.get<ushort>("composite.p_max_v", 0);
-				compute_desc_.min_v_value = ptree.get<float>("composite.min_v_value", 0);
-				compute_desc_.max_v_value = ptree.get<float>("composite.max_v_value", 0);
+				compute_desc_.composite_p_min_v = ptree.get<ushort>("composite.p_min_v", 1);
+				compute_desc_.composite_p_max_v = ptree.get<ushort>("composite.p_max_v", 1);
+				compute_desc_.slider_v_threshold_min = ptree.get<float>("composite.slider_v_threshold_min", 0);
+				compute_desc_.slider_v_threshold_max = ptree.get<float>("composite.slider_v_threshold_max", 1.0f);
 				compute_desc_.composite_low_v_threshold = ptree.get<float>("composite.low_v_threshold", 0.2f);
 				compute_desc_.composite_high_v_threshold = ptree.get<float>("composite.high_v_threshold", 99.8f);
 
-
-				
 				compute_desc_.composite_auto_weights_ = ptree.get<bool>("composite.auto_weights", false);
 
 				// Interpolation
@@ -876,8 +862,8 @@ namespace holovibes
 
 			ptree.put<ushort>("composite.p_min_h", compute_desc_.composite_p_min_h);
 			ptree.put<ushort>("composite.p_max_h", compute_desc_.composite_p_max_h);
-			ptree.put<float>("composite.min_h_value", compute_desc_.min_h_value);
-			ptree.put<float>("composite.max_h_value", compute_desc_.max_h_value);
+			ptree.put<float>("composite.slider_h_threshold_min", compute_desc_.slider_h_threshold_min);
+			ptree.put<float>("composite.slider_h_threshold_max", compute_desc_.slider_h_threshold_max);
 			ptree.put<float>("composite.low_h_threshold", compute_desc_.composite_low_h_threshold);
 			ptree.put<float>("composite.high_h_threshold", compute_desc_.composite_high_h_threshold);
 
@@ -886,8 +872,8 @@ namespace holovibes
 			ptree.put<bool>("composite.p_activated_v", compute_desc_.composite_p_activated_v);
 			ptree.put<ushort>("composite.p_min_v", compute_desc_.composite_p_min_v);
 			ptree.put<ushort>("composite.p_max_v", compute_desc_.composite_p_max_v);
-			ptree.put<float>("composite.min_v_value", compute_desc_.min_v_value);
-			ptree.put<float>("composite.max_v_value", compute_desc_.max_v_value);
+			ptree.put<float>("composite.slider_v_threshold_min", compute_desc_.slider_v_threshold_min);
+			ptree.put<float>("composite.slider_v_threshold_max", compute_desc_.slider_v_threshold_max);
 			ptree.put<float>("composite.low_v_threshold", compute_desc_.composite_low_v_threshold);
 			ptree.put<float>("composite.high_v_threshold", compute_desc_.composite_high_v_threshold);
 
@@ -1866,30 +1852,30 @@ namespace holovibes
 
 		void  MainWindow::slide_update_threshold_H_min()
 		{
-			slide_update_threshold(*ui.horizontalSlider_hue_threshold_min, compute_desc_.min_h_value,
-				compute_desc_.max_h_value, *ui.horizontalSlider_hue_threshold_max,
-				*ui.label_hue_threshold_min, compute_desc_.min_h_value, compute_desc_.max_h_value);
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_min, compute_desc_.slider_h_threshold_min,
+				compute_desc_.slider_h_threshold_max, *ui.horizontalSlider_hue_threshold_max,
+				*ui.label_hue_threshold_min, compute_desc_.slider_h_threshold_min, compute_desc_.slider_h_threshold_max);
 		}
 
 		void  MainWindow::slide_update_threshold_H_max()
 		{
-			slide_update_threshold(*ui.horizontalSlider_hue_threshold_max, compute_desc_.max_h_value,
-				compute_desc_.min_h_value, *ui.horizontalSlider_hue_threshold_min,
-				*ui.label_hue_threshold_max, compute_desc_.min_h_value, compute_desc_.max_h_value);
+			slide_update_threshold(*ui.horizontalSlider_hue_threshold_max, compute_desc_.slider_h_threshold_max,
+				compute_desc_.slider_h_threshold_min, *ui.horizontalSlider_hue_threshold_min,
+				*ui.label_hue_threshold_max, compute_desc_.slider_h_threshold_min, compute_desc_.slider_h_threshold_max);
 		}
 
 		void MainWindow::slide_update_threshold_V_min()
 		{
-			slide_update_threshold(*ui.horizontalSlider_value_threshold_min, compute_desc_.min_v_value,
-				compute_desc_.max_v_value, *ui.horizontalSlider_value_threshold_max,
-				*ui.label_value_threshold_min, compute_desc_.min_v_value, compute_desc_.max_v_value);
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_min, compute_desc_.slider_v_threshold_min,
+				compute_desc_.slider_v_threshold_max, *ui.horizontalSlider_value_threshold_max,
+				*ui.label_value_threshold_min, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
 		}
 		
 		void MainWindow::slide_update_threshold_V_max()
 		{
-			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.max_v_value,
-				compute_desc_.min_v_value, *ui.horizontalSlider_value_threshold_min,
-				*ui.label_value_threshold_max, compute_desc_.min_v_value, compute_desc_.max_v_value);
+			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.slider_v_threshold_max,
+				compute_desc_.slider_v_threshold_min, *ui.horizontalSlider_value_threshold_min,
+				*ui.label_value_threshold_max, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
 		}
 
 		void MainWindow::set_flowgraphy_level(const int value)

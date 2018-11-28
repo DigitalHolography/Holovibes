@@ -18,24 +18,39 @@
 #include "unique_ptr.hh"
 #include "tools_compute.cuh"
 
+void fill_percentile_float_in_case_of_error(float* out_percent, unsigned size_percent)
+{
+	for (size_t i = 0; i < size_percent; i++)
+	{
+		out_percent[i] = i;
+	}
+}
 
 /*
 ** \brief Sort a copy of the array and save each of the values at h_percent % of the array in h_out_percent
 ** i.e. h_percent = [25f, 50f, 75f] and d_input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] and size_percent = 3
 ** gives : h_out_percent = [3, 6, 8]
 */
-float *percentile_float(const float *d_input, unsigned frame_res, const float *h_percent, float *h_out_percent, unsigned size_percent)
+float *percentile_float(const float *gpu_input, unsigned frame_res, const float* h_percent, float* h_out_percent, unsigned size_percent)
 {
-	thrust::device_vector<float> d_tmp_memory(frame_res);
-	thrust::copy(d_input, d_input + frame_res, d_tmp_memory.begin());
-	thrust::sort(d_tmp_memory.begin(), d_tmp_memory.end());
-		
-	for (unsigned i = 0; i < size_percent; ++i)
-	{
-		unsigned index = h_percent[i] / 100 * frame_res;
-		thrust::copy(d_tmp_memory.begin() + index, d_tmp_memory.begin() + index + 1, h_out_percent + i);
-		cudaCheckError();
+	try {
+		thrust::device_vector<float> d_tmp_memory(frame_res);
+		thrust::copy(gpu_input, gpu_input + frame_res, d_tmp_memory.begin());
+		thrust::sort(d_tmp_memory.begin(), d_tmp_memory.end());
+
+		for (unsigned i = 0; i < size_percent; ++i)
+		{
+			unsigned index = h_percent[i] / 100 * frame_res;
+			thrust::copy(d_tmp_memory.begin() + index, d_tmp_memory.begin() + index + 1, h_out_percent + i);
+			cudaCheckError();
+		}
 	}
+	catch (...)
+	{
+		std::cerr << "Something went wrong, you should decrease the number of images to free some GPU memory. (location : percentile_float)" << std::endl;
+		fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
+	}
+
 
 	return h_out_percent;
 }
