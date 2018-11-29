@@ -99,6 +99,58 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 	}
 }
 
+__global__
+void kernel_fill_square_frequency_axis(const size_t length, float* arr)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (id < length)
+	{
+		arr[length + id] = arr[id] * arr[id];
+	}
+}
+
+__global__
+void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
+	const double step, const double origin, float* arr)
+{
+	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
+	if (min + id < max)
+	{
+		arr[min + id] = origin + id * step;
+	}
+}
+
+void reallocate_omega_arr_if_necessary(const holovibes::ComputeDescriptor& cd, float* gpu_omega_arr, size_t* img_nb_ptr, size_t frame_res)
+{
+	if (*img_nb_ptr != cd.nSize)
+	{
+		const uint threads = get_max_threads_1d();
+		uint blocks = map_blocks_to_problem(frame_res, threads);
+
+		*img_nb_ptr = cd.nSize;
+		if (gpu_omega_arr)
+			cudaFree(gpu_omega_arr);
+
+		cudaMalloc(&gpu_omega_arr, sizeof(float) * cd.nSize * 2); // w1[] && w2[]
+		cudaCheckError();
+
+		double step = SAMPLING_FREQUENCY / (double)cd.nSize;
+		size_t after_mid_index = cd.nSize / (double)2.0 + (double)1.0;
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, gpu_omega_arr);
+		double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
+		if (cd.nSize % 2)
+			negative_origin += step / (double)2.0;
+		else
+			negative_origin += step;
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, cd.nSize, step,
+			negative_origin, gpu_omega_arr);
+		kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (cd.nSize, gpu_omega_arr);
+		cudaStreamSynchronize(0);
+		cudaCheckError();
+	}
+}
+
+
 /*
 ** \brief Compute H component of hsv.
 */
@@ -183,7 +235,7 @@ void kernel_compute_and_fill_v(const cuComplex* input, float* output, const size
 
 void compute_and_fill_hsv(const cuComplex* gpu_input, float* gpu_output,
 	const size_t frame_res, const holovibes::ComputeDescriptor& cd,
-	float* omega_arr_data, uint omega_arr_size)
+	float* gpu_omega_arr, size_t omega_arr_size)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -194,9 +246,9 @@ void compute_and_fill_hsv(const cuComplex* gpu_input, float* gpu_output,
 	const uint max_v_index = cd.composite_p_max_v;
 
 	kernel_compute_and_fill_h << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data);
+		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, gpu_omega_arr);
 	kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, omega_arr_data + omega_arr_size);
+		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, gpu_omega_arr + omega_arr_size);
 	if (cd.composite_p_activated_v)
 	{
 		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
@@ -247,26 +299,7 @@ void from_interweaved_components_to_distinct_components(const Npp32f* src, Npp32
 }
 
 
-__global__
-void kernel_fill_square_frequency_axis(const size_t length, float* arr)
-{
-	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (id < length)
-	{
-		arr[length + id] = arr[id] * arr[id];
-	}
-}
 
-__global__
-void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
-	const double step, const double origin, float* arr)
-{
-	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
-	if (min + id < max)
-	{
-		arr[min + id] = origin + id * step;
-	}
-}
 
 void apply_percentile_and_threshold(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res, float low_threshold, float high_threshold)
 {
@@ -328,55 +361,43 @@ void hsv(const cuComplex *gpu_input,
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	static float* omega_arr_data = nullptr;
+
+	static float* gpu_omega_arr = nullptr;
 	static size_t omega_arr_size = 0;
 
-	static float* tmp_hsv_arr = nullptr;
-	static size_t tmp_hsv_size = 0;
-
-	if (tmp_hsv_size != frame_res)
+	// TODO: must be replaced with reallocate_omega_arr_if_necessary(), but random crash prevents it please fix //
+	if (omega_arr_size != cd.nSize)
 	{
-		tmp_hsv_size = frame_res;
-		if (tmp_hsv_arr)
-		{
-			cudaFree(tmp_hsv_arr);
-			cudaCheckError();
-		}
-		cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3 * 2); // HSV array * 2 , second part is for parallel reduction
-	}
+		
 
-	const uint nb_img = cd.nSize;
+		omega_arr_size = cd.nSize;
+		if (gpu_omega_arr)
+			cudaFree(gpu_omega_arr);
 
-	
-
-	if (omega_arr_size != nb_img)
-	{
-		omega_arr_size = nb_img;
-		if (omega_arr_data)
-		{
-			cudaFree(omega_arr_data);
-			cudaCheckError();
-		}
-
-		cudaMalloc(&omega_arr_data, sizeof(float) * nb_img * 2); // w1[] && w2[]
+		cudaMalloc(&gpu_omega_arr, sizeof(float) * cd.nSize * 2); // w1[] && w2[]
 		cudaCheckError();
 
-		double step = SAMPLING_FREQUENCY / (double)nb_img;
-		size_t after_mid_index = nb_img / (double)2.0 + (double)1.0;
-		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, omega_arr_data);
+		double step = SAMPLING_FREQUENCY / (double)cd.nSize;
+		size_t after_mid_index = cd.nSize / (double)2.0 + (double)1.0;
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, gpu_omega_arr);
 		double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
-		if (nb_img % 2)
+		if (cd.nSize % 2)
 			negative_origin += step / (double)2.0;
 		else
 			negative_origin += step;
-		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, nb_img, step,
-			negative_origin, omega_arr_data);
-		kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (nb_img, omega_arr_data);
+		kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (after_mid_index, cd.nSize, step,
+			negative_origin, gpu_omega_arr);
+		kernel_fill_square_frequency_axis << <blocks, threads, 0, 0 >> > (cd.nSize, gpu_omega_arr);
 		cudaStreamSynchronize(0);
 		cudaCheckError();
 	}
+	// ------------------------------------------------------------------------------------------------ //
 
-	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, omega_arr_data, omega_arr_size);
+	float* tmp_hsv_arr;
+	cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
+	cudaCheckError();
+
+	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, omega_arr_size);
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 	
@@ -389,4 +410,6 @@ void hsv(const cuComplex *gpu_input,
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
 
 	gpu_multiply_const(gpu_output, frame_res * 3, 65536);
+
+	cudaFree(tmp_hsv_arr);
 }
