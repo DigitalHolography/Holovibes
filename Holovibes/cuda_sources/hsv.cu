@@ -242,23 +242,28 @@ void compute_and_fill_hsv(const cuComplex* gpu_input, float* gpu_output,
 
 	const uint min_h_index = cd.composite_p_min_h;
 	const uint max_h_index = cd.composite_p_max_h;
+	const uint min_s_index = cd.composite_p_min_s;
+	const uint max_s_index = cd.composite_p_max_s;
 	const uint min_v_index = cd.composite_p_min_v;
 	const uint max_v_index = cd.composite_p_max_v;
 
 	kernel_compute_and_fill_h << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
 		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, gpu_omega_arr);
+	
+	if (cd.composite_p_activated_s)
 	kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
-		min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, gpu_omega_arr + omega_arr_size);
+		min_s_index, max_s_index, max_s_index - min_s_index + 1, omega_arr_size, gpu_omega_arr + omega_arr_size);
+	else
+		kernel_compute_and_fill_s << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
+			min_h_index, max_h_index, max_h_index - min_h_index + 1, omega_arr_size, gpu_omega_arr + omega_arr_size);
+	
 	if (cd.composite_p_activated_v)
-	{
 		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
 			min_v_index, max_v_index);
-	}
 	else
-	{
 		kernel_compute_and_fill_v << <blocks, threads, 0, 0 >> > (gpu_input, gpu_output, frame_res,
 			min_h_index, max_h_index);
-	}
+
 	cudaCheckError();
 
 }
@@ -330,11 +335,14 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor& cd, float* gpu_ar
 
 void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res)
 {
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
 	float* gpu_arr_s = gpu_arr + frame_res;
 
-	apply_percentile_and_threshold(cd, gpu_arr_s, frame_res, 0.2f, 99.8f);
+	apply_percentile_and_threshold(cd, gpu_arr_s, frame_res, cd.composite_low_s_threshold, cd.composite_high_s_threshold);
 	normalize_frame(gpu_arr_s, frame_res);
-	gpu_multiply_const(gpu_arr_s, frame_res, cd.weight_s);
+	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr_s, cd.slider_s_threshold_min, cd.slider_s_threshold_max, frame_res);
+	normalize_frame(gpu_arr_s, frame_res);
 }
 
 void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res)

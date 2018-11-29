@@ -1417,20 +1417,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2" colspan="3">
-               <widget class="QLabel" name="label_hue_freq">
-                <property name="text">
-                 <string>Frequency  channels</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="2" colspan="3">
-               <widget class="QLabel" name="label_27">
-                <property name="text">
-                 <string>Threshold</string>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="4">
                <widget class="QLabel" name="label_hue_freq_max">
                 <property name="text">
@@ -1441,7 +1427,21 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="5">
+              <item row="6" column="6">
+               <widget class="QLabel" name="label_hue_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="6">
+               <widget class="QLabel" name="label_hue_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="5" colspan="2">
                <widget class="QSpinBox" name="SpinBox_hue_freq_max">
                 <property name="minimumSize">
                  <size>
@@ -1460,21 +1460,7 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="5">
-               <widget class="QLabel" name="label_hue_threshold_min">
-                <property name="text">
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="5">
-               <widget class="QLabel" name="label_hue_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="3" colspan="2">
+              <item row="5" column="3" colspan="3">
                <widget class="QSlider" name="horizontalSlider_hue_threshold_min">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
@@ -1502,7 +1488,7 @@
                 </property>
                </widget>
               </item>
-              <item row="6" column="3" colspan="2">
+              <item row="6" column="3" colspan="3">
                <widget class="QSlider" name="horizontalSlider_hue_threshold_max">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -1536,6 +1522,20 @@
                 </property>
                </widget>
               </item>
+              <item row="1" column="2" colspan="4">
+               <widget class="QLabel" name="label_hue_freq">
+                <property name="text">
+                 <string>Frequency  channels</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2" colspan="5">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Threshold</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -1554,38 +1554,157 @@
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_35">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_34">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetDefaultConstraint</enum>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
+             <layout class="QGridLayout" name="gridLayout_15">
               <property name="topMargin">
                <number>0</number>
               </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QDoubleSpinBox" name="WeightSpinBox_saturation">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_saturation_freq_min_name">
+                <property name="text">
+                 <string>Min</string>
                 </property>
-                <property name="decimals">
-                 <number>4</number>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_saturation_freq_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="SpinBox_saturation_freq_min">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_min_name">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_saturation_threshold_max_name">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_max">
+                <property name="text">
+                 <string>1000</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QCheckBox" name="checkBox_saturation_freq">
+                <property name="layoutDirection">
+                 <enum>Qt::RightToLeft</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_saturation_freq_max">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QLabel" name="label_saturation_threshold_min">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_saturation_threshold_min">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <kerning>true</kerning>
+                 </font>
                 </property>
                 <property name="maximum">
-                 <double>100.000000000000000</double>
+                 <number>1000</number>
                 </property>
-                <property name="singleStep">
-                 <double>0.010000000000000</double>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksBelow</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="3">
+               <widget class="QSlider" name="horizontalSlider_saturation_threshold_max">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>15</height>
+                 </size>
+                </property>
+                <property name="maximum">
+                 <number>1000</number>
+                </property>
+                <property name="pageStep">
+                 <number>100</number>
+                </property>
+                <property name="sliderPosition">
+                 <number>1000</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::TicksAbove</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QLabel" name="label_saturation_freq">
+                <property name="text">
+                 <string>Frequency channels</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="5">
+               <widget class="QLabel" name="label_saturation_threshold">
+                <property name="text">
+                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -1676,20 +1795,14 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="3">
-               <widget class="QSpinBox" name="SpinBox_value_freq_max">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>60</width>
-                  <height>0</height>
-                 </size>
+              <item row="5" column="4">
+               <widget class="QLabel" name="label_value_threshold_max">
+                <property name="text">
+                 <string>1000</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="3">
+              <item row="0" column="4">
                <widget class="QCheckBox" name="checkBox_value_freq">
                 <property name="layoutDirection">
                  <enum>Qt::RightToLeft</enum>
@@ -1705,35 +1818,27 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" colspan="3">
-               <widget class="QLabel" name="label_value_freq">
-                <property name="text">
-                 <string>Frequency channels</string>
+              <item row="1" column="3" colspan="2">
+               <widget class="QSpinBox" name="SpinBox_value_freq_max">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0" colspan="4">
-               <widget class="QLabel" name="label_value_threshold">
-                <property name="text">
-                 <string>Threshold</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="3">
+              <item row="4" column="4">
                <widget class="QLabel" name="label_value_threshold_min">
                 <property name="text">
                  <string>0</string>
                 </property>
                </widget>
               </item>
-              <item row="5" column="3">
-               <widget class="QLabel" name="label_value_threshold_max">
-                <property name="text">
-                 <string>1000</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1" colspan="2">
+              <item row="4" column="1" colspan="3">
                <widget class="QSlider" name="horizontalSlider_value_threshold_min">
                 <property name="maximumSize">
                  <size>
@@ -1755,7 +1860,7 @@
                 </property>
                </widget>
               </item>
-              <item row="5" column="1" colspan="2">
+              <item row="5" column="1" colspan="3">
                <widget class="QSlider" name="horizontalSlider_value_threshold_max">
                 <property name="maximumSize">
                  <size>
@@ -1780,6 +1885,20 @@
                 </property>
                 <property name="tickPosition">
                  <enum>QSlider::TicksAbove</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QLabel" name="label_value_freq">
+                <property name="text">
+                 <string>Frequency channels</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="5">
+               <widget class="QLabel" name="label_value_threshold">
+                <property name="text">
+                 <string>Threshold</string>
                 </property>
                </widget>
               </item>
@@ -6562,22 +6681,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>WeightSpinBox_saturation</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_composite_weights_hsv_s()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>600</x>
-     <y>376</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SpinBox_hue_freq_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -6613,7 +6716,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_hue_threshold_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_H_min()</slot>
+   <slot>slide_update_threshold_h_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>606</x>
@@ -6629,7 +6732,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_hue_threshold_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_H_max()</slot>
+   <slot>slide_update_threshold_h_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>606</x>
@@ -6693,7 +6796,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_value_threshold_min</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_V_min()</slot>
+   <slot>slide_update_threshold_v_min()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>591</x>
@@ -6709,7 +6812,7 @@ p, li { white-space: pre-wrap; }
    <sender>horizontalSlider_value_threshold_max</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>slide_update_threshold_V_max()</slot>
+   <slot>slide_update_threshold_v_max()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>591</x>
@@ -6725,11 +6828,91 @@ p, li { white-space: pre-wrap; }
    <sender>checkBox_value_freq</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>click_activate_frequency_channel_v()</slot>
+   <slot>actualize_frequency_channel_v()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>672</x>
      <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_saturation_freq</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actualize_frequency_channel_s()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>671</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_saturation_freq_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_s_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>560</x>
+     <y>286</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SpinBox_saturation_freq_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_composite_intervals_hsv_s_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>654</x>
+     <y>286</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_min</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_s_min()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>329</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider_saturation_threshold_max</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slide_update_threshold_s_max()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>591</x>
+     <y>350</y>
     </hint>
     <hint type="destinationlabel">
      <x>920</x>
@@ -6863,13 +7046,18 @@ p, li { white-space: pre-wrap; }
   <slot>set_composite_intervals()</slot>
   <slot>set_composite_intervals_hsv_h_min()</slot>
   <slot>set_composite_intervals_hsv_h_max()</slot>
+  <slot>set_composite_intervals_hsv_s_min()</slot>
+  <slot>set_composite_intervals_hsv_s_max()</slot>
   <slot>set_composite_intervals_hsv_v_min()</slot>
   <slot>set_composite_intervals_hsv_v_max()</slot>
-  <slot>slide_update_threshold_H_min()</slot>
-  <slot>slide_update_threshold_H_max()</slot>
-  <slot>slide_update_threshold_V_min()</slot>
-  <slot>slide_update_threshold_V_max()</slot>
-  <slot>click_activate_frequency_channel_v()</slot>
+  <slot>slide_update_threshold_h_min()</slot>
+  <slot>slide_update_threshold_h_max()</slot>
+  <slot>slide_update_threshold_s_min()</slot>
+  <slot>slide_update_threshold_s_max()</slot>
+  <slot>slide_update_threshold_v_min()</slot>
+  <slot>slide_update_threshold_v_max()</slot>
+  <slot>actualize_frequency_channel_s()</slot>
+  <slot>actualize_frequency_channel_v()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>
   <slot>set_composite_area()</slot>
   <slot>camera_hamamatsu()</slot>

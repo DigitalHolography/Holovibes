@@ -25,7 +25,7 @@ namespace holovibes
 {
 	const static std::string version = "v6.0.9"; /*!< Current version of this project. */
 
-	using	Tuple4f =	std::tuple<float, float, float, float>;
+	using	Tuple4f = std::tuple<float, float, float, float>;
 
 	/*!
 	 * \brief	Difference kind of camera supported by Holovibes
@@ -149,7 +149,7 @@ namespace holovibes
 		ComputeDescriptor();
 
 		/*! \brief ComputeDescriptor destructor.
-		
+
 		*/
 		~ComputeDescriptor();
 
@@ -199,8 +199,8 @@ namespace holovibes
 		void setStftCursor(const units::PointFd& rect);
 		//! @}
 
-		#pragma region Atomics vars
-		//! Algorithm to apply in hologram mode
+#pragma region Atomics vars
+//! Algorithm to apply in hologram mode
 		std::atomic<Algorithm>		algorithm;
 		//! Mode of computation of the image
 		std::atomic<Computation>	compute_mode;
@@ -294,7 +294,7 @@ namespace holovibes
 		//! are slices YZ and XZ enabled
 		std::atomic<bool>			stft_view_enabled;
 		//! is gpu lens display activated
-		std::atomic<bool>			gpu_lens_display_enabled { true };
+		std::atomic<bool>			gpu_lens_display_enabled{ true };
 		//! enables the signal and noise average computation
 		std::atomic<bool>			average_enabled;
 
@@ -341,7 +341,7 @@ namespace holovibes
 		std::atomic<bool>			p_accu_enabled;
 		//! difference between p min and p max
 		std::atomic<short>			p_acc_level;
-		
+
 		//! is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
 		//! difference between x min and x max
@@ -353,7 +353,7 @@ namespace holovibes
 		std::atomic<short>			y_acc_level;
 
 		//! Enables the resizing of slice windows to have square pixels (according to their real size)
-		std::atomic<bool>			square_pixel { false };
+		std::atomic<bool>			square_pixel{ false };
 
 		//! Use Zernike polynomials instead of paraboloid for the lens
 		std::atomic<bool>			zernike_enabled{ false };
@@ -366,9 +366,9 @@ namespace holovibes
 
 
 		//! Display the raw interferogram when we are in hologram mode.
-		std::atomic<bool>			raw_view { false };
+		std::atomic<bool>			raw_view{ false };
 		//! Enables the recording of the raw interferogram when we are in hologram mode.
-		std::atomic<bool>			record_raw { false };
+		std::atomic<bool>			record_raw{ false };
 
 		//! Wait the beginning of the file to start the recording.
 		std::atomic<bool>			synchronized_record{ false };
@@ -388,28 +388,34 @@ namespace holovibes
 
 
 		//! HSV
-		std::atomic<ushort>		composite_p_min_h;
-		std::atomic<ushort>		composite_p_max_h;
-		std::atomic<float>		slider_h_threshold_min = 0.01f;
-		std::atomic<float>		slider_h_threshold_max = 1.0f;
-		std::atomic<float> composite_low_h_threshold = 0.2f;
-		std::atomic<float> composite_high_h_threshold = 99.8f;
+		std::atomic<ushort>			composite_p_min_h;
+		std::atomic<ushort>			composite_p_max_h;
+		std::atomic<float>			slider_h_threshold_min = 0.01f;
+		std::atomic<float>			slider_h_threshold_max = 1.0f;
+		std::atomic<float>			composite_low_h_threshold = 0.2f;
+		std::atomic<float>			composite_high_h_threshold = 99.8f;
 
 
-		std::atomic<float>		weight_s = 1.0f;
+		std::atomic<bool>			composite_p_activated_s = false;
+		std::atomic<ushort>			composite_p_min_s;
+		std::atomic<ushort>			composite_p_max_s;
+		std::atomic<float>			slider_s_threshold_min = 0.01f;
+		std::atomic<float>			slider_s_threshold_max = 1.0f;
+		std::atomic<float>			composite_low_s_threshold = 0.2f;
+		std::atomic<float>			composite_high_s_threshold = 99.8f;
 
-		std::atomic<bool>		composite_p_activated_v = false;
-		std::atomic<ushort>		composite_p_min_v;
-		std::atomic<ushort>		composite_p_max_v;
-		std::atomic<float>		slider_v_threshold_min = 0.01f;
-		std::atomic<float>		slider_v_threshold_max = 1.0f;
-		std::atomic<float> composite_low_v_threshold = 0.2f;
-		std::atomic<float> composite_high_v_threshold = 99.8f;
+		std::atomic<bool>			composite_p_activated_v = false;
+		std::atomic<ushort>			composite_p_min_v;
+		std::atomic<ushort>			composite_p_max_v;
+		std::atomic<float>			slider_v_threshold_min = 0.01f;
+		std::atomic<float>			slider_v_threshold_max = 1.0f;
+		std::atomic<float>			composite_low_v_threshold = 0.2f;
+		std::atomic<float>			composite_high_v_threshold = 99.8f;
 
 
-		std::atomic<CompositeKind> composite_kind;
+		std::atomic<CompositeKind>	composite_kind;
 
-		std::atomic<bool>		composite_auto_weights_;
+		std::atomic<bool>			composite_auto_weights_;
 		//! \}
 
 		std::atomic<bool>			jitter_enabled_{ false };
@@ -420,6 +426,6 @@ namespace holovibes
 		std::atomic<int>			aberration_slices_{ 8 };
 		std::atomic<double>			aberration_factor_{ 1. };
 
-		#pragma endregion
+#pragma endregion
 	};
 }
