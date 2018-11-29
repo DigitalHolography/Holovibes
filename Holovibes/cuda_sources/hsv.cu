@@ -21,6 +21,7 @@
 # include <npp.h>
 # include "hsv.cuh"
 # include "min_max.cuh"
+# include "convolution.cuh"
 # include "tools_conversion.cuh"
 # include "unique_ptr.hh"
 # include "tools_compute.cuh"
@@ -40,7 +41,7 @@
 */
 
 __global__
-void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t frame_res)
+void kernel_normalized_convert_hsv_to_rgb(const Npp32f *src, Npp32f *dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -100,7 +101,7 @@ void kernel_normalized_convert_hsv_to_rgb(const Npp32f* src, Npp32f* dst, size_t
 }
 
 __global__
-void kernel_fill_square_frequency_axis(const size_t length, float* arr)
+void kernel_fill_square_frequency_axis(const size_t length, float *arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < length)
@@ -111,7 +112,7 @@ void kernel_fill_square_frequency_axis(const size_t length, float* arr)
 
 __global__
 void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
-	const double step, const double origin, float* arr)
+	const double step, const double origin, float *arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (min + id < max)
@@ -120,14 +121,14 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 	}
 }
 
-void fill_frequencies_arrays(const holovibes::ComputeDescriptor& cd, float* gpu_omega_arr, size_t frame_res)
+void fill_frequencies_arrays(const holovibes::ComputeDescriptor &cd, float *gpu_omega_arr, size_t frame_res)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
 	double step = SAMPLING_FREQUENCY / (double)cd.nSize;
 	size_t after_mid_index = cd.nSize / (double)2.0 + (double)1.0;
-	
+
 	kernel_fill_part_frequency_axis << <blocks, threads, 0, 0 >> > (0, after_mid_index, step, 0, gpu_omega_arr);
 	double negative_origin = -SAMPLING_FREQUENCY / (double)2.0;
 	negative_origin += cd.nSize % 2 ? step / (double)2.0 : step;
@@ -142,10 +143,10 @@ void fill_frequencies_arrays(const holovibes::ComputeDescriptor& cd, float* gpu_
 ** \brief Compute H component of hsv.
 */
 __global__
-void kernel_compute_and_fill_h(const cuComplex* input, float* output, const size_t frame_res,
+void kernel_compute_and_fill_h(const cuComplex *input, float *output, const size_t frame_res,
 	const size_t min_index, const size_t max_index,
 	const size_t total_index, const size_t omega_size,
-	const float* omega_arr)
+	const float *omega_arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -173,10 +174,10 @@ void kernel_compute_and_fill_h(const cuComplex* input, float* output, const size
 ** Could be factorized with H but I kept it like this for the clarity
 */
 __global__
-void kernel_compute_and_fill_s(const cuComplex* input, float* output, const size_t frame_res,
+void kernel_compute_and_fill_s(const cuComplex *input, float *output, const size_t frame_res,
 	const size_t min_index, const size_t max_index,
 	const size_t total_index, const size_t omega_size,
-	const float* omega_arr)
+	const float *omega_arr)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -204,7 +205,7 @@ void kernel_compute_and_fill_s(const cuComplex* input, float* output, const size
 ** \brief Compute V component of hsv.
 */
 __global__
-void kernel_compute_and_fill_v(const cuComplex* input, float* output, const size_t frame_res,
+void kernel_compute_and_fill_v(const cuComplex *input, float *output, const size_t frame_res,
 	const size_t min_index, const size_t max_index)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -220,7 +221,7 @@ void kernel_compute_and_fill_v(const cuComplex* input, float* output, const size
 	}
 }
 
-void compute_and_fill_hsv(const cuComplex* gpu_input, float* gpu_output,
+void compute_and_fill_hsv(const cuComplex *gpu_input, float *gpu_output,
 	const size_t frame_res, const holovibes::ComputeDescriptor& cd,
 	float* gpu_omega_arr, size_t omega_arr_size)
 {
@@ -267,7 +268,7 @@ void threshold_top_bottom(float* output, const float tmin, const float tmax, con
 }
 
 __global__
-void from_distinct_components_to_interweaved_components(const Npp32f* src, Npp32f* dst, size_t frame_res)
+void from_distinct_components_to_interweaved_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -279,7 +280,7 @@ void from_distinct_components_to_interweaved_components(const Npp32f* src, Npp32
 }
 
 __global__
-void from_interweaved_components_to_distinct_components(const Npp32f* src, Npp32f* dst, size_t frame_res)
+void from_interweaved_components_to_distinct_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -293,7 +294,7 @@ void from_interweaved_components_to_distinct_components(const Npp32f* src, Npp32
 
 
 
-void apply_percentile_and_threshold(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res, float low_threshold, float high_threshold)
+void apply_percentile_and_threshold(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint frame_res, float low_threshold, float high_threshold)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -307,7 +308,47 @@ void apply_percentile_and_threshold(const holovibes::ComputeDescriptor& cd, floa
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, percent_out[0], percent_out[1], frame_res);
 }
 
-void apply_operations_on_h(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res)
+
+
+void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width)
+{
+	size_t frame_res = height * width;
+
+	float *gpu_convolution_matrix;
+	cudaMalloc(&gpu_convolution_matrix, frame_res * sizeof(float));
+	cudaCheckError();
+	cudaMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
+	cudaCheckError();
+
+	const float _1_over_16 = 0.0625f;
+	const float _2_over_16 = 0.125f;
+	const float _4_over_16 = 0.25f;
+
+	const float gauss_matrix[3][3] =
+	{
+		{ _1_over_16, _2_over_16, _1_over_16 },
+		{ _2_over_16, _4_over_16, _2_over_16 },
+		{ _1_over_16, _2_over_16, _1_over_16 }
+	};
+
+	cudaMemcpy(gpu_convolution_matrix, gauss_matrix[0], 3 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaCheckError();
+	cudaMemcpy(gpu_convolution_matrix + width, gauss_matrix[1], 3 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaCheckError();
+	cudaMemcpy(gpu_convolution_matrix + width * 2, gauss_matrix[2], 3 * sizeof(float), cudaMemcpyHostToDevice);
+	cudaCheckError();
+
+	float *gpu_memory_space;
+	cudaMalloc(&gpu_memory_space, frame_res * sizeof(float));
+	cudaCheckError();
+	convolution_kernel(gpu_arr, gpu_memory_space, &CufftHandle(width, height, CUFFT_C2C), width, height, gpu_convolution_matrix, false, false);
+	cudaCheckError();
+
+	cudaFree(gpu_memory_space);
+	cudaFree(gpu_convolution_matrix);
+}
+
+void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint frame_res)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -320,7 +361,7 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor& cd, float* gpu_ar
 	gpu_multiply_const(gpu_arr, frame_res, 0.66f);
 }
 
-void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res)
+void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint frame_res)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -332,7 +373,7 @@ void apply_operations_on_s(const holovibes::ComputeDescriptor& cd, float* gpu_ar
 	normalize_frame(gpu_arr_s, frame_res);
 }
 
-void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float* gpu_arr, uint frame_res)
+void apply_operations_on_v(const holovibes::ComputeDescriptor& cd, float *gpu_arr, uint frame_res)
 {
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
@@ -356,13 +397,13 @@ void hsv(const cuComplex *gpu_input,
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
-	float* gpu_omega_arr = nullptr;
+	float *gpu_omega_arr = nullptr;
 	cudaMalloc(&gpu_omega_arr, sizeof(float) * cd.nSize * 2); // w1[] && w2[]
 	cudaCheckError();
-	
+
 	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res);
 
-	float* tmp_hsv_arr;
+	float *tmp_hsv_arr;
 	cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array
 	cudaCheckError();
 
@@ -371,6 +412,8 @@ void hsv(const cuComplex *gpu_input,
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 
 	apply_operations_on_h(cd, tmp_hsv_arr, frame_res);
+	if (cd.h_gaussian_blur)
+		apply_gaussian_blur(cd, tmp_hsv_arr, height, width);
 	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);
 

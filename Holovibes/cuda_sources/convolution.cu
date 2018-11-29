@@ -50,17 +50,20 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 	gpu_float_divide(gpu_kernel_buffer_, size, sum);
 }
 
-void convolution_kernel(float		*input,
-	float			*convolved_buffer,
+void convolution_kernel(float		*gpu_input,
+	float			*gpu_convolved_buffer,
 	CufftHandle		*plan,
 	const uint		frame_width,
 	const uint		frame_height,
-	const float		*kernel,
-	const bool		divide_convolution_enabled)
+	const float		*gpu_kernel,
+	const bool		divide_convolution_enabled,
+	const bool		normalize_enabled)
 {
 	size_t size = frame_width * frame_height;
 
-	float norm_input = get_norm(input, size);
+	float norm_input;
+	if (normalize_enabled)
+		norm_input = get_norm(gpu_input, size);
 
 	uint	threads = get_max_threads_1d();
 	uint	blocks = map_blocks_to_problem(size, threads);
@@ -76,23 +79,26 @@ void convolution_kernel(float		*input,
 	holovibes::cuda_tools::UniquePtr<cuComplex> tmp_complex(size);
 	cudaMemset(tmp_complex.get(), 0, size * sizeof(cuComplex));
 	cudaCheckError();
-	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
 	cufftExecC2C(plan->get(), tmp_complex.get(), output_fft.get(), CUFFT_FORWARD);
 
-	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
 	cufftExecC2C(plan->get(), tmp_complex.get(), output_kernel.get(), CUFFT_FORWARD);
 
 	kernel_multiply_frames_complex << <blocks, threads >> > (output_fft, output_kernel, output_fft, size);
 
 	cufftExecC2C(plan->get(), output_fft, output_fft, CUFFT_INVERSE);
 
-	kernel_complex_to_modulus << <blocks, threads >> > (output_fft, convolved_buffer, (uint)size);
+	kernel_complex_to_modulus << <blocks, threads >> > (output_fft, gpu_convolved_buffer, (uint)size);
 
 	if (divide_convolution_enabled)
-		kernel_divide_frames_float << <blocks, threads >> > (input, convolved_buffer, input, size);
+		kernel_divide_frames_float << <blocks, threads >> > (gpu_input, gpu_convolved_buffer, gpu_input, size);
 	else
-		cudaMemcpy(input, convolved_buffer, size * sizeof(float), cudaMemcpyDeviceToDevice);
+		cudaMemcpy(gpu_input, gpu_convolved_buffer, size * sizeof(float), cudaMemcpyDeviceToDevice);
 
-	float norm_output = get_norm(input, size);
-	gpu_multiply_const(input, size, (norm_input / norm_output));
+	if (normalize_enabled) {
+		float norm_output = get_norm(gpu_input, size);
+		gpu_multiply_const(gpu_input, size, (norm_input / norm_output));
+	}
+
 }

@@ -1844,6 +1844,11 @@ namespace holovibes
 			ui.SpinBox_value_freq_max->setDisabled(!ui.checkBox_value_freq->isChecked());
 		}
 
+		void MainWindow::actualize_checkbox_h_gaussian_blur()
+		{
+			compute_desc_.h_gaussian_blur = ui.checkBox_h_gaussian_blur->isChecked();
+		}
+
 		void fancy_Qslide_text_percent(char* str)
 		{
 			int len = strlen(str);

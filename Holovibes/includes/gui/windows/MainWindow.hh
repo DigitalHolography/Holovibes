@@ -163,6 +163,7 @@ namespace holovibes
 			void slide_update_threshold_v_max();
 			void actualize_frequency_channel_s();
 			void actualize_frequency_channel_v();
+			void actualize_checkbox_h_gaussian_blur();
 			void set_p(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();

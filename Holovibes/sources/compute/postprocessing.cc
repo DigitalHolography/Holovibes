@@ -85,7 +85,8 @@ namespace holovibes
 						fd_.width,
 						fd_.height,
 						gpu_kernel_buffer_,
-						cd_.divide_convolution_enabled);
+						cd_.divide_convolution_enabled,
+						true);
 				});
 			}
 		}

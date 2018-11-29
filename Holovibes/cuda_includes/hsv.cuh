@@ -19,4 +19,4 @@ void hsv(const cuComplex *d_input,
 	float *d_output,
 	const uint width,
 	const uint height,
-	const holovibes::ComputeDescriptor& cd);
+	const holovibes::ComputeDescriptor &cd);

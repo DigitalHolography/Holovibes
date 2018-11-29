@@ -33,11 +33,13 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 * \param frame_width Width of the frame
 * \param frame_height Height of the frame
 * \param kernel Array of float which is the convolution's kernel
+* \param divide_convolution_enabled Activate the division of the input by the convolved image
 */
-void convolution_kernel(float			*input,
-						float			*convolved_buffer,
+void convolution_kernel(float			*gpu_input,
+						float			*gpu_convolved_buffer,
 						CufftHandle		*plan,
 						const uint		frame_width,
 						const uint		frame_height,
-						const float		*kerne,
-						const bool		divide_convolution_enabled);
+						const float		*gpu_kernel,
+						const bool		divide_convolution_enabled,
+						const bool		normalize_enabled);
