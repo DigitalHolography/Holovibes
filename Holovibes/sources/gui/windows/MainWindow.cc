@@ -1846,7 +1846,13 @@ namespace holovibes
 
 		void MainWindow::actualize_checkbox_h_gaussian_blur()
 		{
-			compute_desc_.h_gaussian_blur = ui.checkBox_h_gaussian_blur->isChecked();
+			compute_desc_.h_blur_activated = ui.checkBox_h_gaussian_blur->isChecked();
+			ui.SpinBox_hue_blur_kernel_size->setEnabled(ui.checkBox_h_gaussian_blur->isChecked());
+		}
+
+		void MainWindow::actualize_kernel_size_blur()
+		{
+			compute_desc_.h_blur_kernel_size = ui.SpinBox_hue_blur_kernel_size->value();
 		}
 
 		void fancy_Qslide_text_percent(char* str)
@@ -1857,7 +1863,7 @@ namespace holovibes
 				str[1] = str[0];
 				str[0] = '0';
 				str[2] = '\0';
-				len = strlen(str);
+				len = 2;
 			}
 			str[len] = str[len - 1];
 			str[len - 1] = '.';

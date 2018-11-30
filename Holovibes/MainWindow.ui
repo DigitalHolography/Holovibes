@@ -1357,6 +1357,12 @@
             <string>Hue</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_18">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <layout class="QGridLayout" name="gridLayout_13">
               <property name="sizeConstraint">
@@ -1522,13 +1528,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="2" colspan="4">
-               <widget class="QLabel" name="label_hue_freq">
-                <property name="text">
-                 <string>Frequency  channels</string>
-                </property>
-               </widget>
-              </item>
               <item row="4" column="2" colspan="5">
                <widget class="QLabel" name="label_27">
                 <property name="text">
@@ -1536,20 +1535,53 @@
                 </property>
                </widget>
               </item>
-              <item row="7" column="2" colspan="4">
+              <item row="7" column="2">
                <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>Gaussian blur</string>
+                 <string>Blur</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="3">
+               <widget class="QCheckBox" name="checkBox_h_gaussian_blur">
+                <property name="minimumSize">
+                 <size>
+                  <width>10</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" colspan="5">
+               <widget class="QLabel" name="label_hue_freq">
+                <property name="text">
+                 <string>Freq. channels (p) selection </string>
                 </property>
                </widget>
               </item>
               <item row="7" column="6">
-               <widget class="QCheckBox" name="checkBox_h_gaussian_blur">
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
+               <widget class="QSpinBox" name="SpinBox_hue_blur_kernel_size">
+                <property name="enabled">
+                 <bool>false</bool>
                 </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="4" colspan="2">
+               <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string/>
+                 <string>Size</string>
                 </property>
                </widget>
               </item>
@@ -1570,6 +1602,12 @@
             <string>Saturation</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_35">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <layout class="QGridLayout" name="gridLayout_15">
               <property name="topMargin">
@@ -1714,7 +1752,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_saturation_freq">
                 <property name="text">
-                 <string>Frequency channels</string>
+                 <string>Freq. channels (p) selection </string>
                 </property>
                </widget>
               </item>
@@ -1749,7 +1787,7 @@
              <number>9</number>
             </property>
             <property name="topMargin">
-             <number>9</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
              <number>9</number>
@@ -1908,7 +1946,7 @@
               <item row="0" column="0" colspan="4">
                <widget class="QLabel" name="label_value_freq">
                 <property name="text">
-                 <string>Frequency channels</string>
+                 <string>Freq. channels (p) selection </string>
                 </property>
                </widget>
               </item>
@@ -6953,6 +6991,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>SpinBox_hue_blur_kernel_size</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>actualize_kernel_size_blur()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>663</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7089,6 +7143,7 @@ p, li { white-space: pre-wrap; }
   <slot>slide_update_threshold_s_max()</slot>
   <slot>slide_update_threshold_v_min()</slot>
   <slot>slide_update_threshold_v_max()</slot>
+  <slot>actualize_kernel_size_blur()</slot>
   <slot>actualize_frequency_channel_s()</slot>
   <slot>actualize_frequency_channel_v()</slot>
   <slot>set_scale_bar_correction_factor(double)</slot>

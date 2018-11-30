@@ -320,23 +320,20 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	cudaMemset(gpu_convolution_matrix, 0, frame_res * sizeof(float));
 	cudaCheckError();
 
-	const float _1_over_16 = 0.0625f;
-	const float _2_over_16 = 0.125f;
-	const float _4_over_16 = 0.25f;
-
-	const float gauss_matrix[3][3] =
+	float *blur_matrix = new float[cd.h_blur_kernel_size];
+	float blur_value = 1.0f / (float)(cd.h_blur_kernel_size * cd.h_blur_kernel_size);
+	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
 	{
-		{ _1_over_16, _2_over_16, _1_over_16 },
-		{ _2_over_16, _4_over_16, _2_over_16 },
-		{ _1_over_16, _2_over_16, _1_over_16 }
-	};
+		blur_matrix[i] = blur_value;
+	}
 
-	cudaMemcpy(gpu_convolution_matrix, gauss_matrix[0], 3 * sizeof(float), cudaMemcpyHostToDevice);
-	cudaCheckError();
-	cudaMemcpy(gpu_convolution_matrix + width, gauss_matrix[1], 3 * sizeof(float), cudaMemcpyHostToDevice);
-	cudaCheckError();
-	cudaMemcpy(gpu_convolution_matrix + width * 2, gauss_matrix[2], 3 * sizeof(float), cudaMemcpyHostToDevice);
-	cudaCheckError();
+	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
+	{
+		cudaMemcpy(gpu_convolution_matrix + width * i, blur_matrix, cd.h_blur_kernel_size * sizeof(float), cudaMemcpyHostToDevice);
+		cudaCheckError();
+	}
+
+
 
 	float *gpu_memory_space;
 	cudaMalloc(&gpu_memory_space, frame_res * sizeof(float));
@@ -344,12 +341,14 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	convolution_kernel(gpu_arr, gpu_memory_space, &CufftHandle(width, height, CUFFT_C2C), width, height, gpu_convolution_matrix, false, false);
 	cudaCheckError();
 
+	delete[] blur_matrix;
 	cudaFree(gpu_memory_space);
 	cudaFree(gpu_convolution_matrix);
 }
 
-void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint frame_res)
+void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_arr, uint height, uint width)
 {
+	const uint frame_res = height * width;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
@@ -357,6 +356,9 @@ void apply_operations_on_h(const holovibes::ComputeDescriptor &cd, float *gpu_ar
 	gpu_multiply_const(gpu_arr, frame_res, -1);
 	normalize_frame(gpu_arr, frame_res);
 	threshold_top_bottom << <blocks, threads, 0, 0 >> > (gpu_arr, cd.slider_h_threshold_min, cd.slider_h_threshold_max, frame_res);
+	if (cd.h_blur_activated) {
+		apply_gaussian_blur(cd, gpu_arr, height, width);
+	}
 	normalize_frame(gpu_arr, frame_res);
 	gpu_multiply_const(gpu_arr, frame_res, 0.66f);
 }
@@ -411,9 +413,7 @@ void hsv(const cuComplex *gpu_input,
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 
-	apply_operations_on_h(cd, tmp_hsv_arr, frame_res);
-	if (cd.h_gaussian_blur)
-		apply_gaussian_blur(cd, tmp_hsv_arr, height, width);
+	apply_operations_on_h(cd, tmp_hsv_arr, height, width);
 	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);
 

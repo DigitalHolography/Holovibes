@@ -394,7 +394,8 @@ namespace holovibes
 		std::atomic<float>			slider_h_threshold_max = 1.0f;
 		std::atomic<float>			composite_low_h_threshold = 0.2f;
 		std::atomic<float>			composite_high_h_threshold = 99.8f;
-		std::atomic<bool>			h_gaussian_blur = false;
+		std::atomic<bool>			h_blur_activated = false;
+		std::atomic<uint>			h_blur_kernel_size = 1;
 
 		std::atomic<bool>			composite_p_activated_s = false;
 		std::atomic<ushort>			composite_p_min_s;
