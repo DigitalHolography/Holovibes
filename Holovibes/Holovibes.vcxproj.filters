@@ -368,9 +368,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_thread_reader.cc">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="sources\gui\windows\CompositeWindow.cc">
-      <Filter>c++ sources\gui\windows</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\camera_dll.hh">
