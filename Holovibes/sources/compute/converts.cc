@@ -331,5 +331,6 @@ namespace holovibes
 						cd_.weight_b);
 			});
 		}
+	
 	}
 }

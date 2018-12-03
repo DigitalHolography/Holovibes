@@ -214,6 +214,7 @@ namespace holovibes
 
 		//TODO ELLENA
 		if (compute_desc_.is_stft_longtimes)
+		{
 			fourier_transforms_->insert_stft_longtimes();
 			converts_->insert_to_float_longtimes();
 		}
