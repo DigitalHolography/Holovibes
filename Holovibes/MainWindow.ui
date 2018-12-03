@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1841</width>
-    <height>705</height>
+    <height>748</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -120,24 +120,6 @@
          <bool>false</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_12">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_25">
            <item>
@@ -426,7 +408,7 @@
               <double>-1.000000000000000</double>
              </property>
              <property name="maximum">
-              <double>3000.000000000000000</double>
+              <double>1000000.000000000000000</double>
              </property>
              <property name="singleStep">
               <double>0.010000000000000</double>
@@ -588,89 +570,8 @@
         <property name="flat">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <property name="spacing">
-          <number>2</number>
-         </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetNoConstraint</enum>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="ImgTypeLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Img. type:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="ViewModeComboBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <property name="sizeAdjustPolicy">
-              <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>Magnitude</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Squared magnitude</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Argument</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Phase increase</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Complex output</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Composite image</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
+        <layout class="QGridLayout" name="gridLayout_15">
+         <item row="6" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
            <property name="sizeConstraint">
             <enum>QLayout::SetNoConstraint</enum>
@@ -750,7 +651,35 @@
            </item>
           </layout>
          </item>
-         <item>
+         <item row="8" column="0">
+          <widget class="QComboBox" name="WindowSelectionComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="currentText">
+            <string>XY view</string>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>XY view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>XZ view</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>YZ view</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0">
            <property name="horizontalSpacing">
             <number>6</number>
@@ -838,35 +767,195 @@
            </item>
           </layout>
          </item>
-         <item>
-          <widget class="QComboBox" name="WindowSelectionComboBox">
-           <property name="enabled">
-            <bool>false</bool>
+         <item row="1" column="0" colspan="2">
+          <widget class="QCheckBox" name="StftLongtimesCheckBox">
+           <property name="text">
+            <string>STFT long times</string>
            </property>
-           <property name="currentText">
-            <string>XY view</string>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>XY view</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>XZ view</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>YZ view</string>
-            </property>
-           </item>
           </widget>
          </item>
-         <item>
+         <item row="2" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_34">
+           <item>
+            <widget class="QLabel" name="label_26">
+             <property name="text">
+              <string>STFT 2 steps</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="StftLongtimesStepSpinBox"/>
+           </item>
+          </layout>
+         </item>
+         <item row="10" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="1,0,0">
+           <item>
+            <widget class="QCheckBox" name="ScaleBarCheckBox">
+             <property name="text">
+              <string>Scale Bar</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Correction factor to calibrate scale bar with the hologram</string>
+             </property>
+             <property name="text">
+              <string>Corr.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <property name="decimals">
+              <number>4</number>
+             </property>
+             <property name="maximum">
+              <double>10000.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+             <property name="value">
+              <double>1.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="ImgTypeLabel">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Img. type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ViewModeComboBox">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Squared magnitude</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Argument</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Phase increase</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Complex output</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Composite image</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="11" column="1">
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::MinimumExpanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_37">
+           <item>
+            <widget class="QLabel" name="label_27">
+             <property name="text">
+              <string>#img 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="nSizeLongtimesSpinBox"/>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_36">
+           <item>
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>p 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="PLongtimesSpinBox"/>
+           </item>
+          </layout>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_35">
+           <item>
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>p acc 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="PAccLongtimesSpinBox"/>
+           </item>
+          </layout>
+         </item>
+         <item row="9" column="0" colspan="2">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -1103,68 +1192,6 @@
             </item>
            </layout>
           </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="1,0,0">
-           <item>
-            <widget class="QCheckBox" name="ScaleBarCheckBox">
-             <property name="text">
-              <string>Scale Bar</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="statusTip">
-              <string>Correction factor to calibrate scale bar with the hologram</string>
-             </property>
-             <property name="text">
-              <string>Corr.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QDoubleSpinBox" name="doubleSpinBox">
-             <property name="decimals">
-              <number>4</number>
-             </property>
-             <property name="maximum">
-              <double>10000.000000000000000</double>
-             </property>
-             <property name="singleStep">
-              <double>0.100000000000000</double>
-             </property>
-             <property name="value">
-              <double>1.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::MinimumExpanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -4021,7 +4048,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1841</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -5712,22 +5739,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>STFTStepsSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_stft_steps(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>181</x>
-     <y>94</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>74</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AverageClosePlotPushButton</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -7021,6 +7032,99 @@ p, li { white-space: pre-wrap; }
      <x>920</x>
      <y>352</y>
     </hint>
+   <sender>STFTStepsSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_stft_steps(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>181</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>StftLongtimesCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_stft_longtimes(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>StftLongtimesStepSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_stft_longtimes_steps(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>154</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>298</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>nSizeLongtimesSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setPhase_longtimes(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PLongtimesSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_longtimes(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>187</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PAccLongtimesSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_p_accu_longtimes(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>218</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>323</y>
+    </hint>
    </hints>
   </connection>
  </connections>
@@ -7028,6 +7132,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_image_mode(bool)</slot>
   <slot>set_phase_number(int)</slot>
   <slot>set_p(int)</slot>
+  <slot>set_p_longtimes(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
   <slot>set_algorithm(QString)</slot>
@@ -7118,6 +7223,7 @@ p, li { white-space: pre-wrap; }
   <slot>take_sliding_ref()</slot>
   <slot>write_ini()</slot>
   <slot>update_stft_steps(int)</slot>
+  <slot>update_stft_longtimes_steps(int)</slot>
   <slot>dispose_average_graphic()</slot>
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
@@ -7128,7 +7234,9 @@ p, li { white-space: pre-wrap; }
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>
+  <slot>setPhase_longtimes(int)</slot>
   <slot>set_p_accu()</slot>
+  <slot>set_p_accu_longtimes(int)</slot>
   <slot>browse_trigger_config_file()</slot>
   <slot>set_integer_visible(bool)</slot>
   <slot>set_x_accu()</slot>
@@ -7179,5 +7287,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
+  <slot>set_stft_longtimes(bool)</slot>
  </slots>
 </ui>

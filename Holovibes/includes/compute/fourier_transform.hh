@@ -42,13 +42,14 @@ namespace holovibes
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd,
 				const cufftHandle& plan2d,
-				Stft_env& stft_env);
+				Stft_env& stft_env,
+				Stft_env& stft_longtimes_env);
 
 
 			/*! \brief allocate filter2d buffer.
 			
 			*/
-			void allocate_filter2d(unsigned int n);
+			void allocate_filter2d(unsigned int n, bool is_longtimes);
 
 			/*! \brief enqueue functions relative to spatial fourier transforms.
 			
@@ -59,6 +60,11 @@ namespace holovibes
 			
 			*/
 			void insert_stft();
+
+			/*! \brief enqueue functions relative to temporal fourier transforms.
+			
+			*/
+			void insert_stft_longtimes();
 
 			/*! \brief Get Lens Queue used to display the Fresnel lens.
 			
@@ -79,8 +85,6 @@ namespace holovibes
 			
 			*/
 			void insert_fft2();
-
-			void fft_convo_R2C();
 			
 			/*! \brief Apply the STFT algorithm.
 
@@ -91,6 +95,15 @@ namespace holovibes
 			 */
 			void stft_handler();
 
+			/*! \brief Apply the STFT algorithm.
+
+			 * 1 : Check if the STFT must be performed acording to stft_steps \n
+			 * 2 : Call the STFT cuda function \n
+			 * 3 : If STFT has been performed, compute the slice buffer \n
+			 * 4 : Set stft_handle in order to break the pipe after this call when STFT hasn't been performed.
+			 */
+			void stft_longtimes_handler();
+
 			/*! \brief Enqueue the Fresnel lens into the Lens Queue.
 			
 				It will enqueue the lens, and normalize it, in order to display it correctly later.
@@ -100,7 +113,6 @@ namespace holovibes
 			/*! \brief add the zernike polynomials to the current lens.
 			
 			*/
-
 			void compute_zernike(const float z);
 
 			//! Roi zone of Filter 2D
@@ -114,6 +126,8 @@ namespace holovibes
 			cuda_tools::UniquePtr<cufftComplex>	gpu_filter2d_buffer_;
 			//! Crop STFT buffer. Contains nSize frames. Used to apply STFT on smaller areas than the whole window.
 			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_buf_;
+			//! Crop STFT buffer. Contains nSize longtimes frames. Used to apply STFT on smaller areas than the whole window.
+			cuda_tools::UniquePtr<cufftComplex> gpu_cropped_stft_longtimes_buf_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;
@@ -129,6 +143,8 @@ namespace holovibes
 			const cufftHandle&				plan2d_;
 			//! STFT environment.
 			Stft_env&						stft_env_;
+			//! STFT loongtimes environment
+			Stft_env&						stft_longtimes_env_;
 		};
 	}
 }

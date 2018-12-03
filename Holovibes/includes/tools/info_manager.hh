@@ -50,6 +50,7 @@ namespace holovibes
 			STFT_SLICE_CURSOR,
 			STFT_ZONE,
 			STFT_QUEUE,
+			STFT_QUEUE_LONGTIMES,
 			ERR,
 			INFO
 		};

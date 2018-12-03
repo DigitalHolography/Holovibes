@@ -35,6 +35,7 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
+			const Stft_env& stft_longtimes_env,
 			const cufftHandle& plan2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
@@ -44,6 +45,7 @@ namespace holovibes
 			, fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, stft_env_(stft_env)
+			, stft_longtimes_env_(stft_longtimes_env)
 			, unwrap_res_()
 			, unwrap_res_2d_()
 			, plan2d_(plan2d)
@@ -57,9 +59,9 @@ namespace holovibes
 			insert_compute_p_accu();
 			if (cd_.img_type == Composite)
 				insert_to_composite();
-			else if (cd_.img_type == Modulus)
+			else if (cd_.img_type == Modulus) //img type in ui : magnitude
 				insert_to_modulus();
-			else if (cd_.img_type == SquaredModulus)
+			else if (cd_.img_type == SquaredModulus) //img type in ui : squared magnitude
 				insert_to_squaredmodulus();
 			else if (cd_.img_type == Argument)
 				insert_to_argument(unwrap_2d_requested);
@@ -70,6 +72,12 @@ namespace holovibes
 				// Do nothing, leave refresh, and take gpu_input_buffer_ to enqueue output_ queue.
 				// Add p_accu there is needed
 			}
+		}
+
+		void Converts::insert_to_float_longtimes()
+		{
+			insert_compute_p_accu_longtimes();
+			insert_to_composite_longtimes();
 		}
 
 		void Converts::insert_to_ushort()
@@ -90,7 +98,8 @@ namespace holovibes
 			});
 		}
 
-		void Converts::insert_to_modulus()
+		//we use gpu_input_buffer because when nsize = 1, gpu_stft_buffer is not used.
+		void Converts::insert_to_modulus() //TODO ELLENA
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
@@ -138,7 +147,8 @@ namespace holovibes
 						buffers_.gpu_float_buffer_,
 						fd_.width,
 						fd_.height,
-						cd_);
+						cd_,
+						false);
 
 				if(cd_.composite_auto_weights_)
 					postcolor_normalize(buffers_.gpu_float_buffer_,
@@ -272,6 +282,53 @@ namespace holovibes
 					buffers_.gpu_ushort_cut_yz_,
 					stft_env_.gpu_stft_slice_queue_yz->get_frame_desc().frame_res(),
 					2.f);
+			});
+		}
+
+		void Converts::insert_compute_p_accu_longtimes()
+		{
+			fn_vect_.push_back([=]() {
+				pmin_ = cd_.pindex_longtimes;
+				if (cd_.p_acc_level_longtimes > 0)
+					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level_longtimes, static_cast<int>(cd_.nSize_longtimes)));
+				else
+					pmax_ = pmin_;
+			});
+		}
+
+		void Converts::insert_to_composite_longtimes()
+		{
+			fn_vect_.push_back([=]() {
+				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize_longtimes) ||
+					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize_longtimes))
+					return;
+
+				if(cd_.composite_kind == CompositeKind::RGB)
+					rgb(stft_longtimes_env_.gpu_stft_buffer_.get(),
+					buffers_.gpu_float_buffer_,
+					fd_.frame_res(),
+					cd_.composite_auto_weights_,
+					cd_.composite_p_red,
+					cd_.composite_p_blue,
+					cd_.weight_r,
+					cd_.weight_g,
+					cd_.weight_b);
+				else
+					hsv(stft_longtimes_env_.gpu_stft_buffer_.get(),
+						buffers_.gpu_float_buffer_,
+						fd_.width,
+						fd_.height,
+						cd_,
+						true);
+
+				if(cd_.composite_auto_weights_)
+					postcolor_normalize(buffers_.gpu_float_buffer_,
+						fd_.frame_res(),
+						fd_.width,
+						cd_.getCompositeZone(),
+						cd_.weight_r,
+						cd_.weight_g,
+						cd_.weight_b);
 			});
 		}
 	}

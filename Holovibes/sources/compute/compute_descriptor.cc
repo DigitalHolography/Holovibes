@@ -20,7 +20,9 @@ namespace holovibes
 		algorithm(Algorithm::None),
 		compute_mode(Computation::Stop),
 		nSize(1),
+		nSize_longtimes(1),
 		pindex(0),
+		pindex_longtimes(0),
 		lambda(532e-9f),
 		interpolation_enabled(false),
 		interp_lambda(532e-9f),
@@ -67,13 +69,15 @@ namespace holovibes
 		img_acc_slice_yz_level(1),
 		p_accu_enabled(false),
 		p_acc_level(1),
+		p_acc_level_longtimes(0),
 		x_accu_enabled(false),
 		x_acc_level(1),
 		y_accu_enabled(false),
 		y_acc_level(1),
 		stft_level(16),
-		stft_longtime_size(16),
+		is_stft_longtimes(false),
 		stft_steps(1),
+		stft_longtimes_steps(1),
 		ref_diff_level(15),
 		ref_diff_enabled(false),
 		ref_sliding_enabled(false),
@@ -103,7 +107,9 @@ namespace holovibes
 		algorithm = cd.algorithm.load();
 		compute_mode = cd.compute_mode.load();
 		nSize = cd.nSize.load();
+		nSize_longtimes = cd.nSize_longtimes.load();
 		pindex = cd.pindex.load();
+		pindex_longtimes = cd.pindex_longtimes.load();
 		lambda = cd.lambda.load();
 		zdistance = cd.zdistance.load();
 		img_type = cd.img_type.load();
@@ -144,7 +150,9 @@ namespace holovibes
 		img_acc_slice_xz_level = cd.img_acc_slice_xz_level.load();
 		img_acc_slice_yz_level = cd.img_acc_slice_yz_level.load();
 		stft_level = cd.stft_level.load();
+		is_stft_longtimes = cd.is_stft_longtimes.load();
 		stft_steps = cd.stft_steps.load();
+		stft_longtimes_steps = cd.stft_longtimes_steps.load();
 		ref_diff_level = cd.ref_diff_level.load();
 		ref_diff_enabled = cd.ref_diff_enabled.load();
 		ref_sliding_enabled = cd.ref_sliding_enabled.load();
