@@ -27,6 +27,7 @@
 # include "preprocessing.hh"
 # include "postprocessing.hh"
 # include "aberration.hh"
+# include "stft_longtimes.cuh"
 
 namespace holovibes
 {

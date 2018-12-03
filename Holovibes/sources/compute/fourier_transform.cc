@@ -211,6 +211,7 @@ void FourierTransform::stft_handler()
 	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
 	if (!cd_.vibrometry_enabled)
+		//reuse for stft longtimes
 		stft(buffers_.gpu_input_buffer_,
 			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
@@ -282,8 +283,6 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 	}
 	std::lock_guard<std::mutex> Guard(stft_longtimes_env_.stftGuard_);
 
-
-	if (!cd_.vibrometry_enabled)
 		stft(buffers_.gpu_input_buffer_,
 			stft_longtimes_env_.gpu_stft_queue_.get(),
 			stft_longtimes_env_.gpu_stft_buffer_,

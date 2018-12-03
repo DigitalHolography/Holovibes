@@ -107,6 +107,10 @@ namespace holovibes
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
+		stft_longtimes_env_.plan1d_stft_.planMany(1, inembed,
+			inembed, zone_size, 1,
+			inembed, zone_size, 1,
+			CUFFT_C2C, zone_size);
 
 		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 		new_fd2.depth = 8;

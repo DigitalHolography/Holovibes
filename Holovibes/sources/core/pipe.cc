@@ -144,7 +144,6 @@ namespace holovibes
 				update_n_parameter_longtimes(1);
 				std::cerr << "Updating #img 2 failed, #img 2 updated to 1" << std::endl;
 			}
-			
 			update_n_requested_longtimes_ = false;
 		}
 
