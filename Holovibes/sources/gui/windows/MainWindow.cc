@@ -2171,9 +2171,10 @@ namespace holovibes
 			pipe_refresh();
 		}
 
-		void MainWindow::set_import_pixel_size(const double value)
+
+		void MainWindow::pixel_size_import()
 		{
-			compute_desc_.pixel_size = value;
+			compute_desc_.pixel_size = ui.PixelSizeDoubleSpinBox->value();
 		}
 
 		void MainWindow::set_z_iter(const int value)

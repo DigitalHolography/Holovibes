@@ -7007,6 +7007,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>PixelSizeDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>pixel_size_import()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1518</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -7084,7 +7100,7 @@ p, li { white-space: pre-wrap; }
   <slot>set_z_div(int)</slot>
   <slot>set_z_iter(int)</slot>
   <slot>set_import_cine_file(bool)</slot>
-  <slot>set_import_pixel_size(double)</slot>
+  <slot>pixel_size_import()</slot>
   <slot>set_night()</slot>
   <slot>set_classic()</slot>
   <slot>set_float_visible(bool)</slot>

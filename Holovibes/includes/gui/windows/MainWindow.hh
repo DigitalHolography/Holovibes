@@ -198,7 +198,7 @@ namespace holovibes
 			void set_z_div(const int value);
 			void set_autofocus_mode();
 			void request_autofocus_stop();
-			void set_import_pixel_size(const double value);
+			void pixel_size_import();
 			void set_contrast_mode(bool value);
 			void set_auto_contrast();
 			void set_contrast_min(double value);
