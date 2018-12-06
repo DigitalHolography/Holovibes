@@ -91,8 +91,9 @@ namespace holovibes
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
 
-		int inembed[1] = { compute_desc_.nSize };
-
+		//int inembed[1] = { compute_desc_.nSize_longtimes };
+		int inembed[1];
+		inembed[0] = compute_desc_.nSize_longtimes;
 		int zone_size = input_.get_pixels();
 			
 		stft_longtimes_env_.plan1d_stft_.planMany(1, inembed,
@@ -100,14 +101,11 @@ namespace holovibes
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);
 
+		inembed[0] = compute_desc_.nSize;
 		if (compute_desc_.croped_stft)
 			zone_size = compute_desc_.getZoomedZone().area();
 
 		stft_env_.plan1d_stft_.planMany(1, inembed,
-			inembed, zone_size, 1,
-			inembed, zone_size, 1,
-			CUFFT_C2C, zone_size);
-		stft_longtimes_env_.plan1d_stft_.planMany(1, inembed,
 			inembed, zone_size, 1,
 			inembed, zone_size, 1,
 			CUFFT_C2C, zone_size);

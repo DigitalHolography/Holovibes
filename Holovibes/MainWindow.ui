@@ -923,7 +923,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="nSizeLongtimesSpinBox"/>
+            <widget class="QSpinBox" name="nSizeLongtimesSpinBox">
+             <property name="maximum">
+              <number>65536</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -7019,19 +7023,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PixelSizeDoubleSpinBox</sender>
-   <signal>valueChanged(double)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>pixel_size_import()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1518</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>352</y>
-    </hint>
    <sender>STFTStepsSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -7124,6 +7115,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>920</x>
      <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PixelSizeDoubleSpinBox</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>pixel_size_import()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1524</x>
+     <y>151</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
     </hint>
    </hints>
   </connection>

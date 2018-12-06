@@ -73,8 +73,8 @@ void kernel_complex_to_modulus_in_stft(const cuComplex	*input,
 
 	if (index < size)
 	{
-		output[index] = hypotf(input[index].x, input[index].y);
-		for (int i = pmin + 1; i <= pmax; i++)
+		//output[index] = hypotf(input[index].x, input[index].y);
+		for (int i = pmin; i <= pmax; i++)
 		{
 			const cuComplex *current_p_frame = stft_buf + i * size;
 			output[index] += hypotf(current_p_frame[index].x, current_p_frame[index].y);

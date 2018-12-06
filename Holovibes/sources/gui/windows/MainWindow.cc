@@ -414,14 +414,15 @@ namespace holovibes
 
 
 			// Composite		 	
-			ui.PRedSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
-			ui.PBlueSpinBox_Composite->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_hue_freq_min->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_hue_freq_max->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_saturation_freq_min->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_saturation_freq_max->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_value_freq_min->setMaximum(compute_desc_.nSize - 1);
-			ui.SpinBox_value_freq_max->setMaximum(compute_desc_.nSize - 1);
+			int nsize_max = (compute_desc_.is_stft_longtimes ? compute_desc_.nSize_longtimes : compute_desc_.nSize) - 1;
+			ui.PRedSpinBox_Composite->setMaximum(nsize_max);
+			ui.PBlueSpinBox_Composite->setMaximum(nsize_max);
+			ui.SpinBox_hue_freq_min->setMaximum(nsize_max);
+			ui.SpinBox_hue_freq_max->setMaximum(nsize_max);
+			ui.SpinBox_saturation_freq_min->setMaximum(nsize_max);
+			ui.SpinBox_saturation_freq_max->setMaximum(nsize_max);
+			ui.SpinBox_value_freq_min->setMaximum(nsize_max);
+			ui.SpinBox_value_freq_max->setMaximum(nsize_max);
 
 			ui.RenormalizationCheckBox->setChecked(compute_desc_.composite_auto_weights_);
 
