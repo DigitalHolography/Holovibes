@@ -411,10 +411,12 @@ void hsv(const cuComplex *gpu_input,
 
 	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, nsize);
 
-	//from_gpu_img_to_csv(gpu_output, frame_res * 3, "inHSV-gpu_raw_hsv.csv");
+	
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 
+
+	
 	apply_operations_on_h(cd, tmp_hsv_arr, height, width);
 	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);

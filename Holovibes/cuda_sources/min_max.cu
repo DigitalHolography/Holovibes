@@ -150,7 +150,7 @@ float get_maximum_in_image(float* d_frame, float* d_memory_space_sdata, unsigned
 	cudaMemcpy(h_result_array, d_memory_space_sdata, blocks * sizeof(float), cudaMemcpyDeviceToHost);
 	cudaCheckError();
 
-	float result = -1;
+	float result = -INFINITY;
 	for (unsigned i = 0; i < blocks; ++i)
 		result = std::fmax(result, h_result_array[i]);
 	delete[] h_result_array;

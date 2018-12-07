@@ -38,4 +38,5 @@ void from_gpu_img_to_csv(const float *gpu_img, const size_t frame_res, const std
 	}
 
 	file.close();
+	delete[] local_img;
 }

@@ -38,8 +38,8 @@ void manual_contrast_correction(float			*input,
 {
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(size, threads);
-	float test_min = min;// *10.0f;
-	float test_max = max;// /10.0f;
+	float test_min = min;
+	float test_max = max;
 
 	const float factor = dynamic_range / (test_max - test_min + FLT_EPSILON);
 	apply_contrast << <blocks, threads, 0, stream >> > (input, size, factor, test_min);

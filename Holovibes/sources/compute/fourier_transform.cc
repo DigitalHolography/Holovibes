@@ -313,9 +313,7 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 	}
 
 
-	from_gpu_img_to_csv((float*)(void*)stft_longtimes_env_.gpu_stft_queue_.get()->get_buffer(), fd_.width * fd_.height * 2, "part2-stft_longtimes_env_.gpu_stft_queue_.csv");
-	from_gpu_img_to_csv((float*)(void*)stft_longtimes_env_.gpu_stft_buffer_.get(), fd_.width * fd_.height * 2, "part2-stft_longtimes_env_.gpu_stft_buffer_.csv");
-
+	
 	if (cd_.stft_view_enabled && b)
 	{
 		// Conservation of the coordinates when cursor is outside of the window

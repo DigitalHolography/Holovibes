@@ -67,7 +67,11 @@ namespace holovibes
 			/** \brief Insert the convertion Complex => Modulus
 
 			*/
+			
 			void insert_to_modulus();
+			
+
+			void insert_to_modulus_longtimes();
 			/** \brief Insert the convertion Complex => Squared Modulus
 
 			*/

@@ -78,7 +78,8 @@ namespace holovibes
 		void Converts::insert_to_float_longtimes()
 		{
 			insert_compute_p_accu_longtimes();
-			insert_to_composite_longtimes();
+			//insert_to_composite_longtimes();
+			insert_to_modulus_longtimes();
 		}
 
 		void Converts::insert_to_ushort()
@@ -107,6 +108,19 @@ namespace holovibes
 					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
 					stft_env_.gpu_stft_buffer_,
+					pmin_,
+					pmax_,
+					fd_.frame_res());
+			});
+		}
+
+		void Converts::insert_to_modulus_longtimes()
+		{
+			fn_vect_.push_back([=]() {
+				complex_to_modulus(
+					buffers_.gpu_input_buffer_,
+					buffers_.gpu_float_buffer_,
+					stft_longtimes_env_.gpu_stft_buffer_,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
