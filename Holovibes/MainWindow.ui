@@ -784,7 +784,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="StftLongtimesStepSpinBox"/>
+            <widget class="QSpinBox" name="StftLongtimesStepSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -924,6 +931,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="nSizeLongtimesSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
              <property name="maximum">
               <number>65536</number>
              </property>
