@@ -20,6 +20,7 @@
 #include "tools_conversion.cuh"
 #include "composite.cuh"
 #include "hsv.cuh"
+#include "debug_img.cuh"
 
 /*__global__
 void print_kernel_2(unsigned short *output)
@@ -99,7 +100,7 @@ namespace holovibes
 		}
 
 		//we use gpu_input_buffer because when nsize = 1, gpu_stft_buffer is not used.
-		void Converts::insert_to_modulus() //TODO ELLENA
+		void Converts::insert_to_modulus() 
 		{
 			fn_vect_.push_back([=]() {
 				complex_to_modulus(
@@ -295,7 +296,7 @@ namespace holovibes
 					pmax_ = pmin_;
 			});
 		}
-
+		//TODO ELLENA
 		void Converts::insert_to_composite_longtimes()
 		{
 			fn_vect_.push_back([=]() {
@@ -320,6 +321,8 @@ namespace holovibes
 						fd_.height,
 						cd_,
 						true);
+
+				
 
 				if(cd_.composite_auto_weights_)
 					postcolor_normalize(buffers_.gpu_float_buffer_,

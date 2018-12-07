@@ -643,6 +643,9 @@
     <ClInclude Include="cuda_includes\percentile.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
+    <ClInclude Include="cuda_includes\debug_img.cuh">
+      <Filter>cuda includes\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">
@@ -769,6 +772,9 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\percentile.cu">
+      <Filter>cuda sources</Filter>
+    </CudaCompile>
+    <CudaCompile Include="cuda_sources\debug_img.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
   </ItemGroup>

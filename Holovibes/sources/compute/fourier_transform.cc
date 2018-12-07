@@ -20,6 +20,7 @@
 #include "stft.cuh"
 #include "icompute.hh"
 #include "info_manager.hh"
+#include "debug_img.cuh"
 
 using holovibes::compute::FourierTransform;
 using holovibes::compute::Autofocus;
@@ -283,6 +284,7 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 	}
 	std::lock_guard<std::mutex> Guard(stft_longtimes_env_.stftGuard_);
 
+	if (!cd_.vibrometry_enabled)
 		stft(buffers_.gpu_input_buffer_,
 			stft_longtimes_env_.gpu_stft_queue_.get(),
 			stft_longtimes_env_.gpu_stft_buffer_,
@@ -309,6 +311,11 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 			gpu_cropped_stft_longtimes_buf_,
 			true);
 	}
+
+
+	from_gpu_img_to_csv((float*)(void*)stft_longtimes_env_.gpu_stft_queue_.get()->get_buffer(), fd_.width * fd_.height * 2, "part2-stft_longtimes_env_.gpu_stft_queue_.csv");
+	from_gpu_img_to_csv((float*)(void*)stft_longtimes_env_.gpu_stft_buffer_.get(), fd_.width * fd_.height * 2, "part2-stft_longtimes_env_.gpu_stft_buffer_.csv");
+
 	if (cd_.stft_view_enabled && b)
 	{
 		// Conservation of the coordinates when cursor is outside of the window

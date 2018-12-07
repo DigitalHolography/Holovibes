@@ -170,6 +170,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\contrast_correction.cuh" />
     <ClInclude Include="cuda_includes\convolution.cuh" />
     <ClInclude Include="cuda_includes\Common.cuh" />
+    <ClInclude Include="cuda_includes\debug_img.cuh" />
     <ClInclude Include="cuda_includes\fft1.cuh" />
     <ClInclude Include="cuda_includes\fft2.cuh" />
     <ClInclude Include="cuda_includes\filter2D.cuh" />
@@ -581,6 +582,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <CudaCompile Include="cuda_sources\composite.cu" />
     <CudaCompile Include="cuda_sources\contrast_correction.cu" />
     <CudaCompile Include="cuda_sources\convolution.cu" />
+    <CudaCompile Include="cuda_sources\debug_img.cu" />
     <CudaCompile Include="cuda_sources\fft1.cu" />
     <CudaCompile Include="cuda_sources\fft2.cu" />
     <CudaCompile Include="cuda_sources\filter2D.cu" />

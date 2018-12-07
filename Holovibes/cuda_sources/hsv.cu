@@ -13,12 +13,7 @@
 # include <stdio.h>
 # include <iostream>
 # include <fstream>
-# include <nppdefs.h>
-# include <nppcore.h>
-# include <nppi.h>
-# include <npps.h>
-# include <nppversion.h>
-# include <npp.h>
+
 # include "hsv.cuh"
 # include "min_max.cuh"
 # include "convolution.cuh"
@@ -26,6 +21,8 @@
 # include "unique_ptr.hh"
 # include "tools_compute.cuh"
 # include "percentile.cuh"
+# include "debug_img.cuh"
+
 
 # define SAMPLING_FREQUENCY  1
 
@@ -413,6 +410,8 @@ void hsv(const cuComplex *gpu_input,
 	cudaCheckError();
 
 	compute_and_fill_hsv(gpu_input, gpu_output, frame_res, cd, gpu_omega_arr, nsize);
+
+	//from_gpu_img_to_csv(gpu_output, frame_res * 3, "inHSV-gpu_raw_hsv.csv");
 
 	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 
