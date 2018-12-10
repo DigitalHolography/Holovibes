@@ -206,12 +206,23 @@ namespace holovibes
 				cd_.contrast_max_slice_xy = contrast_max;
 				break;
 			case YZview:
-				cd_.contrast_min_slice_yz = contrast_min;
-				cd_.contrast_max_slice_yz = contrast_max;
-				break;
-			case XZview:
+				/*
+				In order to make YZview work follow this:
+					- rotate 90 degrees  YZview image
+					- compute min max with offset
+					- rotate -90 degrees
+
 				cd_.contrast_min_slice_xz = contrast_min;
 				cd_.contrast_max_slice_xz = contrast_max;
+				
+				*/
+				break;
+			case XZview:
+				// temporary hack
+				cd_.contrast_min_slice_xz = contrast_min;
+				cd_.contrast_max_slice_xz = contrast_max;
+				cd_.contrast_min_slice_yz = contrast_min;
+				cd_.contrast_max_slice_yz = contrast_max;
 				break;
 			}
 			cd_.notify_observers();

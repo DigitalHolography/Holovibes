@@ -282,8 +282,11 @@ namespace holovibes
 					stft_env_.stft_handle_ = false;
 					run_all();
 					if (compute_desc_.compute_mode == Hologram)
-					{
-						if (stft_env_.stft_frame_counter_ == compute_desc_.stft_steps)
+					{ // TODO HUGO
+						bool act = stft_env_.stft_frame_counter_ == compute_desc_.stft_steps;
+						if (compute_desc_.is_stft_longtimes)
+							act  = stft_longtimes_env_.stft_frame_counter_ == compute_desc_.stft_longtimes_steps;
+						if (act)
 						{
 							if (!output_.enqueue(get_enqueue_buffer()))
 							{

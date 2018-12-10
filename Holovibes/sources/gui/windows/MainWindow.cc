@@ -280,6 +280,7 @@ namespace holovibes
 
 			// STFT cuts
 			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
+			ui.nSizeLongtimesSpinBox->setEnabled(!ui.STFTCutsCheckBox->isChecked());
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			// Contrast
