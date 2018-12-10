@@ -214,8 +214,8 @@ void rgb(cuComplex	*input,
 		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, 1, 1, 1);
 	else
 		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, weight_r, weight_g, weight_b);
-	print_kernel_2 << <blocks, threads >> > (output);
-	//kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
+	
+	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
 	cudaCheckError();
 	cudaStreamSynchronize(0);
 	
