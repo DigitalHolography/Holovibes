@@ -71,8 +71,8 @@ namespace holovibes
 		void Converts::insert_to_float_longtimes()
 		{
 			insert_compute_p_accu_longtimes();
-			insert_to_composite_longtimes();
-			//insert_to_modulus_longtimes();
+			//insert_to_composite_longtimes();
+			insert_to_modulus_longtimes();
 		}
 
 		void Converts::insert_to_ushort()
