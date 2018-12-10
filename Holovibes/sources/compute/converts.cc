@@ -22,13 +22,6 @@
 #include "hsv.cuh"
 #include "debug_img.cuh"
 
-/*__global__
-void print_kernel_2(unsigned short *output)
-{
-	if (threadIdx.x < 32)
-		printf("%d, %u\n", threadIdx.x, output[threadIdx.x]);
-}*/
-
 namespace holovibes
 {
 	namespace compute
@@ -78,8 +71,8 @@ namespace holovibes
 		void Converts::insert_to_float_longtimes()
 		{
 			insert_compute_p_accu_longtimes();
-			//insert_to_composite_longtimes();
-			insert_to_modulus_longtimes();
+			insert_to_composite_longtimes();
+			//insert_to_modulus_longtimes();
 		}
 
 		void Converts::insert_to_ushort()

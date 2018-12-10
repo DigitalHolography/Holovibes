@@ -14,6 +14,13 @@
 #include "unique_ptr.hh"
 #include "composite.cuh"
 
+static __global__
+void print_kernel_2(float *output)
+{
+	if (threadIdx.x < 32)
+		printf("%d, %f\n", threadIdx.x, output[threadIdx.x]);
+}
+
 struct rect
 {
 	int x;
@@ -199,16 +206,16 @@ void rgb(cuComplex	*input,
 	ushort max = std::max(red, blue);
 	ushort range = std::abs(static_cast<short>(blue - red)) + 1;
 
-	holovibes::cuda_tools::UniquePtr<float>	colors;
 	size_t colors_size = (max + 1) * 3;
-	colors.resize(colors_size);
+	holovibes::cuda_tools::UniquePtr<float>	colors(colors_size);
 	
+
 	if (normalize)
 		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, 1, 1, 1);
 	else
 		kernel_precompute_colors << <blocks, threads, 0, 0 >> > (colors.get(), red, blue, min, max, range, weight_r, weight_g, weight_b);
-
-	kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
+	print_kernel_2 << <blocks, threads >> > (output);
+	//kernel_composite << <blocks, threads, 0, 0 >> > (input, output, frame_res, min, max, range, colors.get());
 	cudaCheckError();
 	cudaStreamSynchronize(0);
 	
