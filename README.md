@@ -200,6 +200,16 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.1.1
+
+* add: new mode stft longtimes
+* fix: pixel size not updated
+* add: first holovibe testsuite
+
+### v.6.1
+
+* up: hsv should be fine now (blur added)
+
 ### v.6.0.9
 
 * fix: corrected hue part of HSV
