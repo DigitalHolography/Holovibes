@@ -26,7 +26,12 @@
 
 # define SAMPLING_FREQUENCY  1
 
-
+static __global__
+void print_kernel_2(float *output)
+{
+	if (threadIdx.x < 32)
+		printf("%d, %f\n", threadIdx.x, output[threadIdx.x]);
+}
 
 
 /*
@@ -429,4 +434,5 @@ void hsv(const cuComplex *gpu_input,
 
 	cudaFree(tmp_hsv_arr);
 	cudaFree(gpu_omega_arr);
+	print_kernel_2 << <blocks, threads >> > (gpu_output);
 }
