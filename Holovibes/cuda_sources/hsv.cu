@@ -434,5 +434,5 @@ void hsv(const cuComplex *gpu_input,
 
 	cudaFree(tmp_hsv_arr);
 	cudaFree(gpu_omega_arr);
-	print_kernel_2 << <blocks, threads >> > (gpu_output);
+	//print_kernel_2 << <blocks, threads >> > (gpu_output);
 }

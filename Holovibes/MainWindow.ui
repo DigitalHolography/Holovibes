@@ -965,7 +965,11 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="PAccLongtimesSpinBox"/>
+            <widget class="QSpinBox" name="PAccLongtimesSpinBox">
+             <property name="maximum">
+              <number>1400000000</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

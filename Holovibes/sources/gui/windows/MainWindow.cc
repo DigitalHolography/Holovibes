@@ -342,8 +342,16 @@ namespace holovibes
 			// p accu
 			ui.PAccuCheckBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
+			ui.PAccSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.pindex - 1);
+			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1);
+			if (compute_desc_.p_acc_level > compute_desc_.nSize - compute_desc_.pindex - 1)
+				compute_desc_.p_acc_level = compute_desc_.nSize - compute_desc_.pindex - 1;
 			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
 			ui.PAccSpinBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
+			
+			if (compute_desc_.p_acc_level_longtimes > compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1)
+				compute_desc_.p_acc_level_longtimes = compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1;
+			ui.PAccLongtimesSpinBox->setValue(compute_desc_.p_acc_level_longtimes);
 
 			// XY accu
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
@@ -456,7 +464,7 @@ namespace holovibes
 			slide_update_threshold_v_max();
 
 
-			ui.CompositeGroupBox->setHidden((is_direct_mode() || (compute_desc_.img_type != ImgType::Composite)) && !compute_desc_.is_stft_longtimes);
+			ui.CompositeGroupBox->setHidden(is_direct_mode() || (compute_desc_.img_type != ImgType::Composite));
 
 			bool rgbMode = ui.radioButton_rgb->isChecked();
 			ui.groupBox->setHidden(!rgbMode);
@@ -1432,7 +1440,6 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				compute_desc_.stft_longtimes_steps = value;
-				std::cout << value << "\n";
 				notify();
 			}
 		}
@@ -2320,10 +2327,13 @@ namespace holovibes
 		void MainWindow::set_stft_longtimes(bool value)
 		{
 			compute_desc_.is_stft_longtimes = value;
-			ui.CompositeGroupBox->setVisible(value);
 			ui.CropStftCheckBox->setChecked(false);
 			compute_desc_.croped_stft = false;
+			compute_desc_.current_window = XYview;
 			set_auto_contrast();
+			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
+			if (pipe)
+				pipe->autocontrast_end_pipe(XYview);
 		}
 
 		#pragma endregion
@@ -3484,10 +3494,8 @@ namespace holovibes
 			get_good_size(width, height, 512);
 
 			//the convolution is disabled to avoid problem with iamge size
-			//std::cout << "1 :" << ui.ConvoCheckBox->isEnabled() << "\n";
 			ui.ConvoCheckBox->setChecked(false);
 			set_convolution_mode(false);
-			//std::cout << "2 :" << ui.ConvoCheckBox->isEnabled() << "\n";
 
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
