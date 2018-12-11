@@ -327,7 +327,7 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 			mouse_posy = cursorPos.y();
 		}
 		// -----------------------------------------------------
-		stft_view_begin(stft_longtimes_env_.gpu_stft_buffer_,
+		stft_view_begin(stft_env_.gpu_stft_buffer_,
 			buffers_.gpu_float_cut_xz_,
 			buffers_.gpu_float_cut_yz_,
 			mouse_posx,
@@ -337,7 +337,7 @@ void FourierTransform::stft_longtimes_handler() //TODO ELLENA
 			width,
 			height,
 			cd_.img_type,
-			cd_.nSize_longtimes,
+			cd_.nSize,
 			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
 			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
 			cd_.img_type);
