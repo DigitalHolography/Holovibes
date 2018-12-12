@@ -479,6 +479,16 @@ namespace holovibes
 			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
 			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
 			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
+
+			// stft longtimes
+			ui.label_26->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.label_27->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.label_28->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.label_29->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.StftLongtimesStepSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.nSizeLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.PLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
+			ui.PAccLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -2327,13 +2337,18 @@ namespace holovibes
 		void MainWindow::set_stft_longtimes(bool value)
 		{
 			compute_desc_.is_stft_longtimes = value;
+			ui.label_26->setHidden(!value);
+			ui.label_27->setHidden(!value);
+			ui.label_28->setHidden(!value);
+			ui.label_29->setHidden(!value);
+			ui.StftLongtimesStepSpinBox->setHidden(!value);
+			ui.nSizeLongtimesSpinBox->setHidden(!value);
+			ui.PLongtimesSpinBox->setHidden(!value);
+			ui.PAccLongtimesSpinBox->setHidden(!value);
 			ui.CropStftCheckBox->setChecked(false);
 			compute_desc_.croped_stft = false;
 			compute_desc_.current_window = XYview;
 			set_auto_contrast();
-			auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-			if (pipe)
-				pipe->autocontrast_end_pipe(XYview);
 		}
 
 		#pragma endregion
