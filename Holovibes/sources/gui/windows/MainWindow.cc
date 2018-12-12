@@ -1578,14 +1578,16 @@ namespace holovibes
 			if (value == false && compute_desc_.convolution_enabled == true)
 			{
 				ui.DivideConvoCheckBox->setChecked(false);
-				ui.DivideConvoCheckBox->setEnabled(false);
 				set_divide_convolution_mode(false);
 			}
 
-			if (value == true)
-				ui.DivideConvoCheckBox->setEnabled(true);
+			ui.DivideConvoCheckBox->setEnabled(value);
 			compute_desc_.convolution_enabled = value;
 			set_auto_contrast();
+			/*if (value = false)
+			{
+
+			}*/
 			notify();
 		}
 
@@ -3036,22 +3038,38 @@ namespace holovibes
 				
 				std::vector<float> convo_matrix(size, 0.0f);
 
-				int i = 0;
+				const  uint minw = (nx / 2) - (matrix_width / 2);
+				const  uint maxw = (nx / 2) + (matrix_width / 2);
+				const  uint minh = (ny / 2) - (matrix_height / 2);
+				const  uint maxh = (ny / 2) + (matrix_height / 2);
+
+				for (size_t i = minw; i < maxw; i++)
+				{
+					for (size_t j = minh; j < maxh; j++)
+					{
+						convo_matrix[i * nx + j] = std::stof(matrix[c]);
+						c++;
+					}
+				}
+
+
+				/*int i = ((ny / 2) - (matrix_height / 2)) * nx;
 				while (c < matrix.size())
 				{
 					for (int j = 0; j < matrix_width ; j++)
 					{
-						convo_matrix[i + j] = std::stof(matrix[c]);
+						convo_matrix[i + (j + (nx / 2) - (matrix_width / 2))] = std::stof(matrix[c]);
 						c++;
 					}
 					i += nx;
-				}
+				}*/
 
 				//on met les largeurs et hauteurs a la taille de nx et de ny
 				compute_desc_.convo_matrix_width = nx;
 				compute_desc_.convo_matrix_height = ny;
 				compute_desc_.convo_matrix_z = matrix_z;
 				compute_desc_.convo_matrix = convo_matrix;
+				
 			}
 			catch (std::exception& e)
 			{
