@@ -50,6 +50,7 @@ namespace holovibes
 
 				gpu_kernel_buffer_.resize(size * sizeof(float));
 				cudaMemcpy(gpu_kernel_buffer_, cd_.convo_matrix.data(), sizeof(float) * size, cudaMemcpyHostToDevice);
+				shift_corners(gpu_kernel_buffer_, cd_.convo_matrix_width, cd_.convo_matrix_height);
 	
 			}
 			if (cd_.flowgraphy_enabled || cd_.convolution_enabled)
