@@ -205,6 +205,18 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.2
+
+* cuda v10
+* fix: main window doesn't show stft longtimes
+* fix: p maximum is dependent of pacc
+* up: convolution kernel is now circshift
+
+### v.6.1.2
+
+* up: fixed frames of xz yz cuts when longtimes
+* fix: pacc limit and remove composite in stft longtimes
+
 ### v.6.1.1
 
 * add: new mode stft longtimes
