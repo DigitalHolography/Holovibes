@@ -344,16 +344,34 @@ namespace holovibes
 			// p accu
 			ui.PAccuCheckBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
 			ui.PAccuCheckBox->setChecked(compute_desc_.p_accu_enabled);
-			ui.PAccSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.pindex - 1);
-			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1);
-			if (compute_desc_.p_acc_level > compute_desc_.nSize - compute_desc_.pindex - 1)
-				compute_desc_.p_acc_level = compute_desc_.nSize - compute_desc_.pindex - 1;
+			ui.PAccSpinBox->setMaximum(compute_desc_.nSize - 1);
+			if (compute_desc_.p_acc_level > compute_desc_.nSize - 1)
+				compute_desc_.p_acc_level = compute_desc_.nSize - 1;
 			ui.PAccSpinBox->setValue(compute_desc_.p_acc_level);
 			ui.PAccSpinBox->setEnabled(compute_desc_.img_type != PhaseIncrease);
-			
-			if (compute_desc_.p_acc_level_longtimes > compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1)
-				compute_desc_.p_acc_level_longtimes = compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1;
+			if (compute_desc_.p_accu_enabled)
+			{
+				ui.PSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.p_acc_level - 1);
+				if (compute_desc_.pindex > compute_desc_.nSize - compute_desc_.p_acc_level - 1)
+					compute_desc_.pindex = compute_desc_.nSize - compute_desc_.p_acc_level - 1;
+				ui.PSpinBox->setValue(compute_desc_.pindex);
+			}
+			else
+			{
+				ui.PSpinBox->setMaximum(compute_desc_.nSize - 1);
+				if (compute_desc_.pindex > compute_desc_.nSize - 1)
+					compute_desc_.pindex = compute_desc_.nSize - 1;
+				ui.PSpinBox->setValue(compute_desc_.pindex);
+			}
+
+			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - 1);
+			if (compute_desc_.p_acc_level_longtimes > compute_desc_.nSize_longtimes - 1)
+				compute_desc_.p_acc_level_longtimes = compute_desc_.nSize_longtimes - 1;
 			ui.PAccLongtimesSpinBox->setValue(compute_desc_.p_acc_level_longtimes);
+			ui.PLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1);
+			if (compute_desc_.pindex_longtimes > compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1)
+				compute_desc_.pindex_longtimes = compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1;
+			ui.PLongtimesSpinBox->setValue(compute_desc_.pindex_longtimes);
 
 			// XY accu
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
@@ -400,8 +418,6 @@ namespace holovibes
 			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
 			ui.STFTCutsCheckBox->setEnabled(ui.nSizeSpinBox->value() >= MIN_IMG_NB_STFT_CUTS);
 
-			ui.PSpinBox->setMaximum(compute_desc_.nSize - 1);
-			ui.PSpinBox->setValue(compute_desc_.pindex);
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_direct);
 			ui.WaveLengthDoubleSpinBox->setValue(compute_desc_.lambda * 1.0e9f);
 			ui.ZDoubleSpinBox->setEnabled(!is_direct);
