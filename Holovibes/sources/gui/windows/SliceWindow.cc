@@ -38,8 +38,8 @@ namespace holovibes
 			auto old_pos = position();
 			if (Cd && !Cd->square_pixel)
 			{
-				const ushort	nImg = Cd->nSize;
-				const uint		nSize = (nImg < 128 ? 128 : (nImg > 256 ? 256 : nImg)) * 2;
+				const ushort nImg = Cd->nSize;
+				const uint nSize = std::min(128u , std::max((unsigned)nImg, 256u)) * 2;
 				if (kView == SliceXZ)
 					resize(QSize(width(), nSize));
 				else if (kView == SliceYZ)
