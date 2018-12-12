@@ -83,7 +83,7 @@ namespace holovibes
 		ref_sliding_enabled(false),
 		stft_view_enabled(false),
 		current_window(WindowKind::XYview),
-		cuts_contrast_p_offset(4),
+		cuts_contrast_p_offset(2),
 		display_rate(30),
 		xy_stabilization_enabled(false),
 		xy_stabilization_paused(false),

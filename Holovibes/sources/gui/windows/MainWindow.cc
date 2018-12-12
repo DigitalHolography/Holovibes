@@ -14,6 +14,8 @@
 #include "pipe.hh"
 #include <filesystem>
 
+#define MIN_IMG_NB_STFT_CUTS 8
+
 namespace holovibes
 {
 	using camera::FrameDescriptor;
@@ -396,6 +398,8 @@ namespace holovibes
 			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.nSizeSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
 			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
+			ui.STFTCutsCheckBox->setEnabled(ui.nSizeSpinBox->value() >= MIN_IMG_NB_STFT_CUTS);
+
 			ui.PSpinBox->setMaximum(compute_desc_.nSize - 1);
 			ui.PSpinBox->setValue(compute_desc_.pindex);
 			ui.WaveLengthDoubleSpinBox->setEnabled(!is_direct);
@@ -1705,6 +1709,11 @@ namespace holovibes
 						holovibes_.get_pipe()->request_update_n_longtimes(nSize_longtimes);
 						compute_desc_.nSize_longtimes = nSize_longtimes;
 					});
+				}
+				ui.PLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - 1);
+				if (compute_desc_.nSize_longtimes <= compute_desc_.pindex_longtimes)
+				{
+					compute_desc_.pindex_longtimes = compute_desc_.nSize_longtimes - 1;
 				}
 			}
 		}
