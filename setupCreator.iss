@@ -119,6 +119,14 @@ Source: "ConvolutionKernels\matrix_gaussian_100.txt"; DestDir: "{app}\{#MyAppVer
 Source: "ConvolutionKernels\matrix_gradient_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_256_256.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_128_128.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_64_64.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_64_8.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_32_32.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_16_16.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_8_8.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\GaussianKernel_4_4.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 
 
 
