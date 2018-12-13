@@ -14,7 +14,7 @@
 #include "pipe.hh"
 #include <filesystem>
 
-#define MIN_IMG_NB_STFT_CUTS 2
+#define MIN_IMG_NB_STFT_CUTS 8
 
 namespace holovibes
 {
@@ -1199,7 +1199,11 @@ namespace holovibes
 			if (is_enabled_camera_)
 			{
 				QPoint pos(0, 0);
-				QSize size(width, height);
+				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+				ushort w = fd.width;
+				ushort h = fd.height;
+				get_good_size(w, h, 512);
+				QSize size(w, h); //width, height);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode = Computation::Direct;
 				createPipe();
@@ -1210,7 +1214,7 @@ namespace holovibes
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
 				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
-				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+				//const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
 				set_divide_convolution_mode(false);
