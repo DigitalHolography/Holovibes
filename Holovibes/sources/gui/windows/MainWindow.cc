@@ -14,7 +14,7 @@
 #include "pipe.hh"
 #include <filesystem>
 
-#define MIN_IMG_NB_STFT_CUTS 8
+#define MIN_IMG_NB_STFT_CUTS 2
 
 namespace holovibes
 {
