@@ -1583,11 +1583,9 @@ namespace holovibes
 
 			ui.DivideConvoCheckBox->setEnabled(value);
 			compute_desc_.convolution_enabled = value;
+			ui.ContrastMaxDoubleSpinBox->setValue(3);
+			set_contrast_max(ui.ContrastMaxDoubleSpinBox->value());
 			set_auto_contrast();
-			/*if (value = false)
-			{
-
-			}*/
 			notify();
 		}
 
@@ -3051,18 +3049,6 @@ namespace holovibes
 						c++;
 					}
 				}
-
-
-				/*int i = ((ny / 2) - (matrix_height / 2)) * nx;
-				while (c < matrix.size())
-				{
-					for (int j = 0; j < matrix_width ; j++)
-					{
-						convo_matrix[i + (j + (nx / 2) - (matrix_width / 2))] = std::stof(matrix[c]);
-						c++;
-					}
-					i += nx;
-				}*/
 
 				//on met les largeurs et hauteurs a la taille de nx et de ny
 				compute_desc_.convo_matrix_width = nx;
