@@ -10,6 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <algorithm>
 # include "texture_update.cuh"
 
 __global__
@@ -50,8 +51,14 @@ void textureUpdate(cudaSurfaceObject_t	cuSurface,
 				const camera::FrameDescriptor&	fd,
 				cudaStream_t			stream)
 {
-	dim3 threads(32, 32);
-	dim3 blocks(fd.width >> 5, fd.height >> 5);
+	
+	const uint fd_width_div_32 = std::max(1u, (unsigned)fd.width / 32u);
+	const uint fd_height_div_32 = std::max(1u, (unsigned)fd.height / 32u);
+	dim3 blocks(fd_width_div_32, fd_height_div_32);
+
+	unsigned thread_width = std::min(32u, (unsigned)fd.width);
+	unsigned thread_height = std::min(32u, (unsigned)fd.height);
+	dim3 threads(thread_width, thread_height);
 
 	if (fd.depth == 8)
 	{
