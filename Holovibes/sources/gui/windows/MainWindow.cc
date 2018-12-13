@@ -355,6 +355,7 @@ namespace holovibes
 				if (compute_desc_.pindex > compute_desc_.nSize - compute_desc_.p_acc_level - 1)
 					compute_desc_.pindex = compute_desc_.nSize - compute_desc_.p_acc_level - 1;
 				ui.PSpinBox->setValue(compute_desc_.pindex);
+				ui.PAccSpinBox->setMaximum(compute_desc_.nSize - compute_desc_.pindex - 1);
 			}
 			else
 			{
@@ -372,6 +373,7 @@ namespace holovibes
 			if (compute_desc_.pindex_longtimes > compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1)
 				compute_desc_.pindex_longtimes = compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1;
 			ui.PLongtimesSpinBox->setValue(compute_desc_.pindex_longtimes);
+			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1);
 
 			// XY accu
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
