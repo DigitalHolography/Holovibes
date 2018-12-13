@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "6.2.0"      
+#define MyAppVersion "6.3.0"      
 #define MyAppPublisher "CNRS"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
@@ -97,9 +97,9 @@ Source: "Holovibes\shaders\vertex.overlay.glsl"; DestDir: "{app}\{#MyAppVersion}
 Source: "InstructionFiles\BatchInstructions.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithBurst.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
 Source: "InstructionFiles\TriggerWithSweep.txt"; DestDir: "{app}\{#MyAppVersion}\InstructionFiles";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_blur_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_edge_detect_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_edge_repousse_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\convolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_blur_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_edge_detect_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_edge_repousse_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_gaussian_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_gradient_x-_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_gradient_x+_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
@@ -113,9 +113,17 @@ Source: "ConvolutionKernels\kernel_test_3.txt"; DestDir: "{app}\{#MyAppVersion}\
 Source: "ConvolutionKernels\matrix_blur_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_gaussian_2_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_gaussian_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\matrix_gaussian_10.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\matrix_gaussian_50.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\matrix_gaussian_100.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_gradient_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+
+
+
+
+
 Source: "{#QwtPath}\qwt.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QwtPath}\qwtd.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion
 Source: "{#QtPath}\Qt5Core.dll"; DestDir: "{app}\{#MyAppVersion}";Components: program; Flags: ignoreversion

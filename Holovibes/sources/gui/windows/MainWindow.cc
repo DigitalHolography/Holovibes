@@ -49,7 +49,7 @@ namespace holovibes
 				lineEdit->setValidator(new DoubleValidator(lineEdit->validator()));
 			}
 		}
-		#pragma region Constructor - Destructor
+#pragma region Constructor - Destructor
 		MainWindow::MainWindow(Holovibes& holovibes, QWidget *parent)
 			: QMainWindow(parent),
 			holovibes_(holovibes),
@@ -179,10 +179,10 @@ namespace holovibes
 			InfoManager::get_manager()->stop_display();
 		}
 
-		
-		#pragma endregion
+
+#pragma endregion
 		/* ------------ */
-		#pragma region Notify
+#pragma region Notify
 		void MainWindow::synchronize_thread(std::function<void()> f)
 		{
 			// We can't update gui values from a different thread
@@ -579,7 +579,7 @@ namespace holovibes
 			InfoManager::get_manager()->insert_info(InfoManager::InfoType::INFO, "Info", msg);
 			InfoManager::get_manager()->startDelError("Info");
 		}
-		
+
 		void MainWindow::credits()
 		{
 			std::string msg =
@@ -625,10 +625,10 @@ namespace holovibes
 			QMessageBox::about(0, "documentation", "<a href='https://ftp.espci.fr/incoming/Atlan/holovibes/manual/'>documentation</a>");
 		}
 
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Ini
-		
+#pragma region Ini
+
 		void MainWindow::configure_holovibes()
 		{
 			open_file(holovibes_.get_launch_path() + "/" + GLOBAL_INI_PATH);
@@ -698,7 +698,7 @@ namespace holovibes
 				// Image rendering
 				image_rendering_action->setChecked(!ptree.get<bool>("image_rendering.hidden", image_rendering_group_box->isHidden()));
 
-				const ushort p_nSize= ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
+				const ushort p_nSize = ptree.get<ushort>("image_rendering.phase_number", compute_desc_.nSize);
 				if (p_nSize < 1)
 					compute_desc_.nSize = 1;
 				else
@@ -707,7 +707,7 @@ namespace holovibes
 				if (p_index >= 0 && p_index < compute_desc_.nSize)
 					compute_desc_.pindex = p_index;
 
-				const ushort p_nSize_longtimes= ptree.get<ushort>("image_rendering.phase_number_longtimes", compute_desc_.nSize_longtimes);
+				const ushort p_nSize_longtimes = ptree.get<ushort>("image_rendering.phase_number_longtimes", compute_desc_.nSize_longtimes);
 				if (p_nSize_longtimes < 1)
 					compute_desc_.nSize_longtimes = 1;
 				else
@@ -733,7 +733,7 @@ namespace holovibes
 					ptree.get<int>("view.view_mode", compute_desc_.img_type)));
 				last_img_type_ = (compute_desc_.img_type == ImgType::Complex) ?
 					"Complex output" : (compute_desc_.img_type == ImgType::Composite) ?
-						"Composite image" : last_img_type_;
+					"Composite image" : last_img_type_;
 
 				compute_desc_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled);
 				compute_desc_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
@@ -805,7 +805,7 @@ namespace holovibes
 				compute_desc_.weight_r = ptree.get<float>("composite.weight_r", 1);
 				compute_desc_.weight_g = ptree.get<float>("composite.weight_g", 1);
 				compute_desc_.weight_b = ptree.get<float>("composite.weight_b", 1);
-				
+
 				compute_desc_.composite_p_min_h = ptree.get<ushort>("composite.p_min_h", 1);
 				compute_desc_.composite_p_max_h = ptree.get<ushort>("composite.p_max_h", 1);
 				compute_desc_.slider_h_threshold_min = ptree.get<float>("composite.slider_h_threshold_min", 0);
@@ -853,7 +853,7 @@ namespace holovibes
 			GroupBox *info_group_box = ui.InfoGroupBox;
 			GroupBox *motion_focus_group_box = ui.MotionFocusGroupBox;
 			Config& config = global::global_config;
-			
+
 			// Config
 			ptree.put<uint>("config.input_buffer_size", config.input_queue_max_size);
 			ptree.put<uint>("config.output_buffer_size", config.output_queue_max_size);
@@ -878,7 +878,7 @@ namespace holovibes
 			ptree.put<float>("image_rendering.z_distance", compute_desc_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
 			ptree.put<holovibes::Algorithm>("image_rendering.algorithm", compute_desc_.algorithm);
-			
+
 			// View
 			ptree.put<bool>("view.hidden", view_group_box->isHidden());
 			ptree.put<holovibes::ImgType>("view.view_mode", compute_desc_.img_type);
@@ -976,7 +976,7 @@ namespace holovibes
 			ptree.put<float>("interpolation.sensitivity", compute_desc_.interp_sensitivity);
 			ptree.put<int>("interpolation.shift", compute_desc_.interp_shift);
 
-			
+
 			boost::property_tree::write_ini(holovibes_.get_launch_path() + "/" + path, ptree);
 		}
 
@@ -984,11 +984,11 @@ namespace holovibes
 		{
 			QDesktopServices::openUrl(QUrl::fromLocalFile(QString(path.c_str())));
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Close Compute
+#pragma region Close Compute
 		void MainWindow::close_critical_compute()
-		{ 
+		{
 			if (compute_desc_.average_enabled)
 				set_average_mode(false);
 			cancel_stft_view(compute_desc_);
@@ -1086,9 +1086,9 @@ namespace holovibes
 			remove_infos();
 			save_ini(GLOBAL_INI_PATH);
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Cameras
+#pragma region Cameras
 		void MainWindow::change_camera(CameraKind c)
 		{
 			close_windows();
@@ -1176,9 +1176,9 @@ namespace holovibes
 		{
 			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Image Mode
+#pragma region Image Mode
 		void MainWindow::init_image_mode(QPoint& position, QSize& size)
 		{
 			if (mainDisplay)
@@ -1209,7 +1209,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
-				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
+				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
@@ -1223,7 +1223,7 @@ namespace holovibes
 		{
 
 			unsigned int depth = holovibes_.get_capture_queue()->get_frame_desc().depth;
-			
+
 			if (compute_desc_.compute_mode == Computation::Hologram)
 			{
 				depth = 2;
@@ -1310,20 +1310,20 @@ namespace holovibes
 
 		void MainWindow::refreshViewMode()
 		{
-      float old_scale = 1.f;
-      glm::vec2 old_translation(0.f, 0.f);
-      if (mainDisplay) {
-        old_scale = mainDisplay->getScale();
-        old_translation = mainDisplay->getTranslate();
-      }
+			float old_scale = 1.f;
+			glm::vec2 old_translation(0.f, 0.f);
+			if (mainDisplay) {
+				old_scale = mainDisplay->getScale();
+				old_translation = mainDisplay->getTranslate();
+			}
 			close_windows();
 			close_critical_compute();
 			try
 			{
 				createPipe();
 				createHoloWindow();
-        mainDisplay->setScale(old_scale);
-        mainDisplay->setTranslate(old_translation[0], old_translation[1]);
+				mainDisplay->setScale(old_scale);
+				mainDisplay->setTranslate(old_translation[0], old_translation[1]);
 			}
 			catch (std::runtime_error& e)
 			{
@@ -1358,6 +1358,21 @@ namespace holovibes
 					// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
+					if (compute_desc_.img_type == ImgType::Composite)
+					{
+						const unsigned min_val_composite = compute_desc_.nSize == 1 ? 0 : 1;
+						const unsigned max_val_composite = compute_desc_.nSize - 1;
+
+						ui.PRedSpinBox_Composite->setValue(min_val_composite);
+						ui.SpinBox_hue_freq_min->setValue(min_val_composite);
+						ui.SpinBox_saturation_freq_min->setValue(min_val_composite);
+						ui.SpinBox_value_freq_min->setValue(min_val_composite);
+
+						ui.PBlueSpinBox_Composite->setValue(max_val_composite);
+						ui.SpinBox_hue_freq_max->setValue(max_val_composite);
+						ui.SpinBox_saturation_freq_max->setValue(max_val_composite);
+						ui.SpinBox_value_freq_max->setValue(max_val_composite);
+					}
 				}
 				last_img_type_ = value;
 
@@ -1376,7 +1391,7 @@ namespace holovibes
 				while (pipe->get_refresh_request());
 			}
 		}
-		
+
 		bool MainWindow::is_direct_mode()
 		{
 			return compute_desc_.compute_mode == Computation::Direct;
@@ -1396,9 +1411,9 @@ namespace holovibes
 					set_holographic_mode();
 			}
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region STFT
+#pragma region STFT
 		void MainWindow::cancel_stft_slice_view()
 		{
 			InfoManager *manager = InfoManager::get_manager();
@@ -1497,7 +1512,7 @@ namespace holovibes
 					QPoint			xzPos = mainDisplay->framePosition() + QPoint(0, mainDisplay->height() + 42);
 					QPoint			yzPos = mainDisplay->framePosition() + QPoint(mainDisplay->width() + 20, 0);
 					const ushort	nImg = compute_desc_.nSize;
-					const uint		nSize = std::max(128u, std::min(256u, (uint) nImg)) * 2;
+					const uint		nSize = std::max(128u, std::min(256u, (uint)nImg)) * 2;
 
 					while (holovibes_.get_pipe()->get_update_n_request());
 					while (holovibes_.get_pipe()->get_cuts_request());
@@ -1551,17 +1566,18 @@ namespace holovibes
 			try {
 				while (holovibes_.get_pipe()->get_refresh_request());
 			}
-			catch(std::exception&)
-			{ }
+			catch (std::exception&)
+			{
+			}
 			if (compute_desc_.p_accu_enabled)
 				compute_desc_.p_accu_enabled = false;
 			compute_desc_.stft_view_enabled = false;
 			notify();
 		}
 
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Computation
+#pragma region Computation
 		void MainWindow::change_window()
 		{
 			QComboBox *window_cbox = ui.WindowSelectionComboBox;
@@ -1893,7 +1909,7 @@ namespace holovibes
 			notify();
 		}
 
-		
+
 
 		void MainWindow::set_composite_intervals_hsv_h_min()
 		{
@@ -1940,7 +1956,7 @@ namespace holovibes
 		}
 
 		void MainWindow::click_composite_rgb_or_hsv()
-		{	
+		{
 			compute_desc_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
 			notify();
 		}
@@ -2037,7 +2053,7 @@ namespace holovibes
 				compute_desc_.slider_v_threshold_max, *ui.horizontalSlider_value_threshold_max,
 				*ui.label_value_threshold_min, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
 		}
-		
+
 		void MainWindow::slide_update_threshold_v_max()
 		{
 			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.slider_v_threshold_max,
@@ -2378,9 +2394,9 @@ namespace holovibes
 			set_auto_contrast();
 		}
 
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Texture
+#pragma region Texture
 		void MainWindow::rotateTexture()
 		{
 			WindowKind curWin = compute_desc_.current_window;
@@ -2460,7 +2476,7 @@ namespace holovibes
 				if (slice)
 					slice->make_pixel_square();
 		}
-		
+
 		void MainWindow::set_locked_zoom(bool value)
 		{
 			compute_desc_.locked_zoom = value;
@@ -2496,9 +2512,9 @@ namespace holovibes
 			compute_desc_.zernike_factor = value;
 			zernike_refresh();
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Autofocus
+#pragma region Autofocus
 		void MainWindow::set_autofocus_mode()
 		{
 			// If current overlay is Autofocus, disable it
@@ -2546,9 +2562,9 @@ namespace holovibes
 				std::cerr << e.what() << std::endl;
 			}
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Contrast - Log
+#pragma region Contrast - Log
 		void MainWindow::set_contrast_mode(bool value)
 		{
 			if (!is_direct_mode())
@@ -2716,9 +2732,9 @@ namespace holovibes
 				notify();
 			}
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Vibrometry
+#pragma region Vibrometry
 		void MainWindow::set_vibro_mode(const bool value)
 		{
 			if (!is_direct_mode())
@@ -2762,9 +2778,9 @@ namespace holovibes
 					display_error("q param has to be between 0 and phase #");
 			}
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Average
+#pragma region Average
 		void MainWindow::set_average_mode(const bool value)
 		{
 			if (mainDisplay)
@@ -2820,10 +2836,10 @@ namespace holovibes
 			   thus it would be confusing to the user to click on "Save" if he
 			   wants to load a file.
 			   So a custom QFileDialog is used where the accept button is labeled "Select"
-			
+
 			   The code below is much shorter but show the wrong label:
 			   QString filename = QFileDialog::getSaveFileName(this,
-			      tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
+				  tr("ROI output file"), "C://", tr("Ini files (*.ini)"));
 				*/
 
 			QFileDialog dialog(this);
@@ -2841,7 +2857,7 @@ namespace holovibes
 				roi_output_line_edit->clear();
 				roi_output_line_edit->insert(filename);
 			}
-			
+
 		}
 
 		void MainWindow::browse_roi_output_file()
@@ -2967,9 +2983,9 @@ namespace holovibes
 			QPushButton* roi_stop_push_button = ui.ROIOutputStopPushButton;
 			roi_stop_push_button->setDisabled(true);
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Convolution
+#pragma region Convolution
 		void MainWindow::browse_convo_matrix_file()
 		{
 			QString filename = QFileDialog::getOpenFileName(this,
@@ -3035,7 +3051,7 @@ namespace holovibes
 				uint nx = ui.ImportWidthSpinBox->value();
 				uint ny = ui.ImportHeightSpinBox->value();
 				uint size = nx * ny;
-				
+
 				std::vector<float> convo_matrix(size, 0.0f);
 
 				const  uint minw = (nx / 2) - (matrix_width / 2);
@@ -3057,7 +3073,7 @@ namespace holovibes
 				compute_desc_.convo_matrix_height = ny;
 				compute_desc_.convo_matrix_z = matrix_z;
 				compute_desc_.convo_matrix = convo_matrix;
-				
+
 			}
 			catch (std::exception& e)
 			{
@@ -3066,9 +3082,9 @@ namespace holovibes
 			}
 			notify();
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Record
+#pragma region Record
 		void MainWindow::browse_file()
 		{
 			QString filename = QFileDialog::getSaveFileName(this,
@@ -3104,7 +3120,7 @@ namespace holovibes
 			if (depth == 6)
 				depth = 3;
 			sub_str += "_" + std::to_string(depth << 3) + "bit"
-					+ "_" + "e"; // Holovibes record only in little endian
+				+ "_" + "e"; // Holovibes record only in little endian
 
 			for (int i = static_cast<int>(filename.length()); i >= 0; --i)
 				if (filename[i] == '.')
@@ -3144,7 +3160,7 @@ namespace holovibes
 		{
 			QSpinBox*  nb_of_frames_spinbox = ui.NumberOfFramesSpinBox;
 			QLineEdit* path_line_edit = ui.ImageOutputPathLineEdit;
-			
+
 			int nb_of_frames = nb_of_frames_spinbox->value();
 			std::string path = path_line_edit->text().toUtf8();
 			if (path == "")
@@ -3160,7 +3176,7 @@ namespace holovibes
 				}
 				else
 					queue = holovibes_.get_current_window_output_queue().get();
-				
+
 				if (queue)
 				{
 					path = set_record_filename_properties(queue->get_frame_desc(), path);
@@ -3196,7 +3212,7 @@ namespace holovibes
 			QProgressBar* progress_bar = InfoManager::get_manager()->get_progress_bar();
 
 			ui.ImageOutputStopPushButton->setDisabled(true);
-			
+
 			if (compute_desc_.record_raw && !compute_desc_.raw_view)
 			{
 				holovibes_.get_pipe()->get_raw_queue()->set_display(false);
@@ -3213,9 +3229,9 @@ namespace holovibes
 			progress_bar->setValue(1);
 			display_info("Record done");
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Batch
+#pragma region Batch
 
 		void MainWindow::browse_batch_input()
 		{
@@ -3268,7 +3284,7 @@ namespace holovibes
 			try
 			{
 				Queue* q = nullptr;
-				
+
 				if (compute_desc_.current_window == WindowKind::XYview)
 					q = holovibes_.get_output_queue().get();
 				else if (compute_desc_.current_window == WindowKind::XZview)
@@ -3490,9 +3506,9 @@ namespace holovibes
 				ret += "." + path_tokens[1];
 			return ret;
 		}
-		#pragma endregion
+#pragma endregion
 		/* ------------ */
-		#pragma region Import
+#pragma region Import
 		void MainWindow::import_browse_file()
 		{
 			static QString tmp_path = "";
@@ -3762,9 +3778,9 @@ namespace holovibes
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
 			import_endian_box->setCurrentIndex(endian);
 		}
-		#pragma endregion
+#pragma endregion
 
-		#pragma region Themes
+#pragma region Themes
 		void MainWindow::set_night()
 		{
 			qApp->setStyle(QStyleFactory::create("Fusion"));
@@ -3799,9 +3815,9 @@ namespace holovibes
 			qApp->setStyleSheet("");
 			theme_index_ = 0;
 		}
-		#pragma endregion
+#pragma endregion
 
-		#pragma region Getters
+#pragma region Getters
 
 		DirectWindow *MainWindow::get_main_display()
 		{
@@ -3814,7 +3830,7 @@ namespace holovibes
 			};
 			synchronize_thread(lambda);
 		}
-		#pragma endregion
+#pragma endregion
 	}
 }
 #include "moc_MainWindow.cc"
