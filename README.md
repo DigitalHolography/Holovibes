@@ -27,7 +27,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 * Make sure the following installations respect the paths set in "PropertySheet.props":
     * Visual Studio 2017
-    * CUDA 9.2 (AFTER installing visual Studio)
+    * CUDA 10 (AFTER installing visual Studio)
     * Qt 5.9.0
     * QT VS TOOLS (Usefull Visual studio add-on)
     * Install and build Qwt 6.1.3 in the "lib" directory
@@ -41,7 +41,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
     * $(QWTDIR)\lib
 * After modifying your path, if Holovibes cannot find the Qt platform "windows", redownload Qt.
 * Verify that it builds with the correct dll. If not, your path contain something wrong.
-    
+
 
 ### IDE ###
 
@@ -49,7 +49,7 @@ Holovibes is a software program that allow to make holographic videos. It is dev
 
 ### CUDA ###
 
-* [CUDA 9.2 Production Release](https://developer.nvidia.com/cuda-downloads)
+* [CUDA 10 Production Release](https://developer.nvidia.com/cuda-downloads)
 
 ### Visual C++ redistributable ###
 
@@ -89,6 +89,11 @@ This enables holograms (FFT1 algorithm) computation using the XiQ camera, record
 This mode is useful to do batch computation (call holovibes from a script).
 
 ## For developpers
+
+### Coding style ###
+
+* use Allman coding style
+* never do bitshift
 
 ### Adding a camera  ###
 
