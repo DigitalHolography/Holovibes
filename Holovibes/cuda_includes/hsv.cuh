@@ -14,6 +14,9 @@
 #include "cuComplex.h"
 typedef unsigned int uint;
 
+void from_distinct_components_to_interweaved_components(const float* src, float* dst, size_t frame_res);
+
+void from_interweaved_components_to_distinct_components(const float* src, float* dst, size_t frame_res);
 
 void hsv(const cuComplex *d_input,
 	float *d_output,
