@@ -270,6 +270,7 @@ namespace holovibes
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
 
 			// STFT longtimes
+			ui.StftLongtimesCheckBox->setEnabled(!is_direct && !compute_desc_.croped_stft);
 			ui.StftLongtimesCheckBox->setChecked(compute_desc_.is_stft_longtimes);
 			ui.StftLongtimesStepSpinBox->setValue(compute_desc_.stft_longtimes_steps);
 			ui.nSizeLongtimesSpinBox->setValue(compute_desc_.nSize_longtimes);
@@ -2392,8 +2393,6 @@ namespace holovibes
 			ui.nSizeLongtimesSpinBox->setHidden(!value);
 			ui.PLongtimesSpinBox->setHidden(!value);
 			ui.PAccLongtimesSpinBox->setHidden(!value);
-			ui.CropStftCheckBox->setChecked(false);
-			compute_desc_.croped_stft = false;
 			compute_desc_.current_window = XYview;
 			set_auto_contrast();
 		}
