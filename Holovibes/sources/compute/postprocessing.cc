@@ -19,6 +19,7 @@
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
+#include "hsv.cuh"
 using holovibes::cuda_tools::CufftHandle;
 
 namespace holovibes
@@ -61,22 +62,45 @@ namespace holovibes
 
 		void Postprocessing::insert_vibrometry()
 		{
-			if (cd_.vibrometry_enabled)
-			{
-				cufftComplex* qframe = buffers_.gpu_input_buffer_.get() + fd_.frame_res();
-				fn_vect_.push_back([=]() {
-					frame_ratio(
-						buffers_.gpu_input_buffer_,
-						qframe,
-						buffers_.gpu_input_buffer_,
-						fd_.frame_res());
-				});
-			}
+			if (!cd_.vibrometry_enabled)
+				return;
+
+			cufftComplex* qframe = buffers_.gpu_input_buffer_.get() + fd_.frame_res();
+			fn_vect_.push_back([=]() {
+				frame_ratio(
+					buffers_.gpu_input_buffer_,
+					qframe,
+					buffers_.gpu_input_buffer_,
+					fd_.frame_res());
+			});
+		}
+
+		void Postprocessing::insert_convolution_composite()
+		{
+			float *tmp_hsv_arr;
+			cudaMalloc(&tmp_hsv_arr, sizeof(float) * fd_.frame_res() * 3);
+			cudaCheckError();
+
+			from_interweaved_components_to_distinct_components(buffers_.gpu_float_buffer_, tmp_hsv_arr, fd_.frame_res());
+
+			convolution_kernel(tmp_hsv_arr, buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
+				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
+			convolution_kernel(tmp_hsv_arr + fd_.frame_res() , buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
+				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
+			convolution_kernel(tmp_hsv_arr + (fd_.frame_res() * 2), buffers_.gpu_convolution_buffer_, &plan_, fd_.width, fd_.height, 
+				gpu_kernel_buffer_, cd_.divide_convolution_enabled, true);
+
+			from_distinct_components_to_interweaved_components(tmp_hsv_arr, buffers_.gpu_float_buffer_, fd_.frame_res());
+
+			cudaFree(tmp_hsv_arr);
 		}
 
 		void Postprocessing::insert_convolution()
 		{
-			if (cd_.convolution_enabled)
+			if (!cd_.convolution_enabled)
+				return;
+			
+			if (cd_.img_type != ImgType::Composite)
 			{
 				fn_vect_.push_back([=]() {
 					convolution_kernel(
@@ -90,25 +114,31 @@ namespace holovibes
 						true);
 				});
 			}
+			else
+			{
+				fn_vect_.push_back([=]() {
+					insert_convolution_composite();
+				});
+			}
 		}
 
 		void Postprocessing::insert_flowgraphy()
 		{
-			if (cd_.flowgraphy_enabled)
-			{
-				gpu_special_queue_start_index_ = 0;
-				gpu_special_queue_max_index_ = cd_.special_buffer_size;
-				fn_vect_.push_back([=]() {
-					convolution_flowgraphy(
-						buffers_.gpu_input_buffer_,  //want gpu_float_buffer_ (same file)
-						gpu_special_queue_,
-						gpu_special_queue_start_index_,
-						gpu_special_queue_max_index_,
-						fd_.frame_res(),
-						fd_.width,
-						cd_.flowgraphy_level);
-				});
-			}
+			if (!cd_.flowgraphy_enabled)
+				return;
+			
+			gpu_special_queue_start_index_ = 0;
+			gpu_special_queue_max_index_ = cd_.special_buffer_size;
+			fn_vect_.push_back([=]() {
+				convolution_flowgraphy(
+					buffers_.gpu_input_buffer_,  //want gpu_float_buffer_ (same file)
+					gpu_special_queue_,
+					gpu_special_queue_start_index_,
+					gpu_special_queue_max_index_,
+					fd_.frame_res(),
+					fd_.width,
+					cd_.flowgraphy_level);
+			});
 		}
 	}
 }

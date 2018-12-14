@@ -59,6 +59,9 @@ namespace holovibes
 
 		private:
 
+			//! used only when the image is composite convolution to do a convolution on each component
+			void insert_convolution_composite();
+
 			//queue used for flowgraphy
 			cuda_tools::UniquePtr<cufftComplex>	gpu_special_queue_;
 			cuda_tools::UniquePtr<float>		gpu_kernel_buffer_;

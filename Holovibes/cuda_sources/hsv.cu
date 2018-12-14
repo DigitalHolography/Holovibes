@@ -271,7 +271,7 @@ void threshold_top_bottom(float* output, const float tmin, const float tmax, con
 }
 
 __global__
-void from_distinct_components_to_interweaved_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
+void kernel_from_distinct_components_to_interweaved_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -282,8 +282,16 @@ void from_distinct_components_to_interweaved_components(const Npp32f *src, Npp32
 	}
 }
 
+void from_distinct_components_to_interweaved_components(const float *src, float* dst, size_t frame_res)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_from_distinct_components_to_interweaved_components<< <blocks, threads, 0, 0 >> > (src, dst, frame_res);
+}
+
 __global__
-void from_interweaved_components_to_distinct_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
+void kernel_from_interweaved_components_to_distinct_components(const Npp32f *src, Npp32f *dst, size_t frame_res)
 {
 	const size_t id = blockIdx.x * blockDim.x + threadIdx.x;
 	if (id < frame_res)
@@ -292,6 +300,14 @@ void from_interweaved_components_to_distinct_components(const Npp32f *src, Npp32
 		dst[id + frame_res] = src[id * 3 + 1];
 		dst[id + frame_res * 2] = src[id * 3 + 2];
 	}
+}
+
+void from_interweaved_components_to_distinct_components(const float *src, float *dst, size_t frame_res)
+{
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(frame_res, threads);
+
+	kernel_from_interweaved_components_to_distinct_components<< <blocks, threads, 0, 0 >> > (src, dst, frame_res);
 }
 
 
@@ -418,7 +434,7 @@ void hsv(const cuComplex *gpu_input,
 
 	
 
-	from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
+	kernel_from_interweaved_components_to_distinct_components << <blocks, threads, 0, 0 >> > (gpu_output, tmp_hsv_arr, frame_res);
 
 
 	
@@ -426,7 +442,7 @@ void hsv(const cuComplex *gpu_input,
 	apply_operations_on_s(cd, tmp_hsv_arr, frame_res);
 	apply_operations_on_v(cd, tmp_hsv_arr, frame_res);
 
-	from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
+	kernel_from_distinct_components_to_interweaved_components << <blocks, threads, 0, 0 >> > (tmp_hsv_arr, gpu_output, frame_res);
 
 	kernel_normalized_convert_hsv_to_rgb << <blocks, threads, 0, 0 >> > (gpu_output, gpu_output, frame_res);
 
