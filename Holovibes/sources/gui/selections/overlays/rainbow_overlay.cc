@@ -116,8 +116,19 @@ namespace holovibes
 			auto cd = parent_->getCd();
 			auto fd = parent_->getFd();
 
-			int red = cd->composite_p_red;
-			int blue = cd->composite_p_blue;
+			
+			int red;
+			int blue;
+			if (cd->composite_kind == CompositeKind::RGB)
+			{
+				red = cd->composite_p_red;
+				blue = cd->composite_p_blue;
+			}
+			else
+			{
+				red = cd->composite_p_min_h;
+				blue = cd->composite_p_max_h;
+			}
 			int green = (red + blue) / 2;
 			units::PointFd red1;
 			units::PointFd red2;
@@ -176,13 +187,29 @@ namespace holovibes
 				zone_.setDst(getMousePos(e->pos()));
 				if (parent_->getKindOfView() == SliceYZ)
 				{
-					parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
-					parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
+					if (parent_->getCd()->composite_kind == CompositeKind::RGB)
+					{
+						parent_->getCd()->composite_p_red = check_interval(zone_.src().x());
+						parent_->getCd()->composite_p_blue = check_interval(zone_.dst().x());
+					}
+					else
+					{
+						parent_->getCd()->composite_p_min_h = check_interval(zone_.src().x());
+						parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().x());
+					}
+
 				}
 				else
 				{
-					parent_->getCd()->composite_p_red = check_interval(zone_.src().y());
-					parent_->getCd()->composite_p_blue = check_interval(zone_.dst().y());
+					if (parent_->getCd()->composite_kind == CompositeKind::RGB) {
+						parent_->getCd()->composite_p_red = check_interval(zone_.src().y());
+						parent_->getCd()->composite_p_blue = check_interval(zone_.dst().y());
+					}
+					else
+					{
+						parent_->getCd()->composite_p_min_h = check_interval(zone_.src().y());
+						parent_->getCd()->composite_p_max_h = check_interval(zone_.dst().y());
+					}
 				}
 				parent_->getCd()->notify_observers();
 			}

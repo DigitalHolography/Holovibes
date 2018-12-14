@@ -53,6 +53,7 @@ void auto_contrast_correction(float	*input,
 	float			*max,
 	cudaStream_t	stream)
 {
+
 	get_minimum_maximum_in_image(input + offset, size - offset, min, max);
 	*min = ((*min < 1.0f) ? (1.0f) : (*min));
 	*max = ((*max < 1.0f) ? (1.0f) : (*max));

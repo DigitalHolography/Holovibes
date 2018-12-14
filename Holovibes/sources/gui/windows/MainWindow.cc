@@ -14,6 +14,7 @@
 #include "pipe.hh"
 #include <filesystem>
 
+
 #define MIN_IMG_NB_STFT_CUTS 8
 
 namespace holovibes
@@ -561,6 +562,7 @@ namespace holovibes
 
 		void MainWindow::layout_toggled()
 		{
+
 			synchronize_thread([=]() {
 				// Resizing to original size, then adjust it to fit the groupboxes
 				resize(baseSize());
@@ -1214,7 +1216,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
-				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
+				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
 				//const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
@@ -1963,6 +1965,20 @@ namespace holovibes
 		void MainWindow::click_composite_rgb_or_hsv()
 		{
 			compute_desc_.composite_kind = ui.radioButton_rgb->isChecked() ? CompositeKind::RGB : CompositeKind::HSV;
+			if (ui.radioButton_rgb->isChecked())
+			{
+				ui.PRedSpinBox_Composite->setValue(ui.SpinBox_hue_freq_min->value());
+				ui.PBlueSpinBox_Composite->setValue(ui.SpinBox_hue_freq_max->value());
+			}
+			else
+			{
+				ui.SpinBox_hue_freq_min->setValue(ui.PRedSpinBox_Composite->value());
+				ui.SpinBox_hue_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
+				ui.SpinBox_saturation_freq_min->setValue(ui.PRedSpinBox_Composite->value());
+				ui.SpinBox_saturation_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
+				ui.SpinBox_value_freq_min->setValue(ui.PRedSpinBox_Composite->value());
+				ui.SpinBox_value_freq_max->setValue(ui.PBlueSpinBox_Composite->value());
+			}
 			notify();
 		}
 

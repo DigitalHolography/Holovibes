@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Holovibes"
-#define MyAppVersion "6.3.0"      
-#define MyAppPublisher "CNRS"
+#define MyAppVersion "6.3.1"      
+#define MyAppPublisher "Holovibes"
 #define MyAppURL "http://www.holovibes.com/"
 #define MyAppExeName "Holovibes.exe"
 
@@ -21,7 +21,8 @@ ArchitecturesAllowed=x64
 AppId={{905ACDE1-B1A5-43D3-A874-5C5FC50A47D8}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
+VersionInfoVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
