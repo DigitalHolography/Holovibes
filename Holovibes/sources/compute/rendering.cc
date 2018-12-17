@@ -198,7 +198,8 @@ namespace holovibes
 		{
 			float contrast_min = 0.f;
 			float contrast_max = 0.f;
-			auto_contrast_correction(input, size, offset, &contrast_min, &contrast_max, stream);
+			auto_contrast_correction(input, size, offset, &contrast_min, &contrast_max,
+				cd_.contrast_threshold_low_percentile, cd_.contrast_threshold_high_percentile);
 			switch (view)
 			{
 			case XYview:

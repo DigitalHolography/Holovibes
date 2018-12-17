@@ -23,7 +23,7 @@
 
 	namespace holovibes
 	{
-		const static std::string version = "v6.4.0"; /*!< Current version of this project. */
+		const static std::string version = "v6.4.5"; /*!< Current version of this project. */
 
 		using	Tuple4f = std::tuple<float, float, float, float>;
 
@@ -237,6 +237,10 @@
 			std::atomic<float>			contrast_min_slice_yz;
 			//! maximum constrast value in yz view
 			std::atomic<float>			contrast_max_slice_yz;
+
+			std::atomic<float> contrast_threshold_low_percentile = 0.5f;
+			
+			std::atomic<float> contrast_threshold_high_percentile = 99.5f;
 
 			//! minimum autofocus value in xy view
 			std::atomic<float>			autofocus_z_min;
