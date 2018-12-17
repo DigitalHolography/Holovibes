@@ -105,7 +105,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				std::cout << GLOBAL_INI_PATH << ": Config file not found. Initializing one with default values." << std::endl;
+				std::cout << GLOBAL_INI_PATH << ": Configuration file not found. Initialization with default values." << std::endl;
 				save_ini(GLOBAL_INI_PATH);
 			}
 
