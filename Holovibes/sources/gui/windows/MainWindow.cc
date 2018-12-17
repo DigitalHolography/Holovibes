@@ -105,7 +105,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				std::cout << GLOBAL_INI_PATH << ": Config file not found. Initializing one with default values." << std::endl;
+				std::cout << GLOBAL_INI_PATH << ": Configuration file not found. Initialization with default values." << std::endl;
 				save_ini(GLOBAL_INI_PATH);
 			}
 
@@ -1221,8 +1221,7 @@ namespace holovibes
 						holovibes_.get_capture_queue()));
 				mainDisplay->setTitle(QString("XY view"));
 				mainDisplay->setCd(&compute_desc_);
-				mainDisplay->setRatio((float)ui.ImportWidthSpinBox->value() / (float)ui.ImportHeightSpinBox->value());
-				//const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+				mainDisplay->setRatio((float) ui.ImportWidthSpinBox->value() / (float) ui.ImportHeightSpinBox->value());
 				InfoManager::get_manager()->insertInputSource(fd);
 				set_convolution_mode(false);
 				set_divide_convolution_mode(false);

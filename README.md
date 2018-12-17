@@ -205,6 +205,19 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.4
+
+* fix: rainbow hsv is now in stftcuts
+* up: pmin and pmax are now copied from rgb to and from hsv
+* fix: can't do cropped stft and stft longtimes at the same time
+* add: convolution on composite image
+
+### v.6.3
+
+* fix: convolution bug due to auto contrast
+* fix: for stft longtimes p and pacc are dependent of #img 2
+* fix: camera window size
+
 ### v.6.2
 
 * cuda v10
