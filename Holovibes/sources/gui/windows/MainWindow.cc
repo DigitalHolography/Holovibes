@@ -745,6 +745,8 @@ namespace holovibes
 				compute_desc_.shift_corners_enabled = ptree.get<bool>("view.shift_corners_enabled", compute_desc_.shift_corners_enabled);
 
 				compute_desc_.contrast_enabled = ptree.get<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
+				compute_desc_.contrast_threshold_low_percentile = ptree.get<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
+				compute_desc_.contrast_threshold_high_percentile = ptree.get<float>("view.contrast_threshold_high_percentile", compute_desc_.contrast_threshold_high_percentile);
 
 				compute_desc_.contrast_min_slice_xy = ptree.get<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy);
 				compute_desc_.contrast_max_slice_xy = ptree.get<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy);
@@ -890,6 +892,9 @@ namespace holovibes
 			ptree.put<bool>("view.log_scale_enabled_cut_yz", compute_desc_.log_scale_slice_yz_enabled);
 			ptree.put<bool>("view.shift_corners_enabled", compute_desc_.shift_corners_enabled);
 			ptree.put<bool>("view.contrast_enabled", compute_desc_.contrast_enabled);
+			ptree.put<float>("view.contrast_threshold_low_percentile", compute_desc_.contrast_threshold_low_percentile);
+			ptree.put<float>("view.contrast_threshold_high_percentile", compute_desc_.contrast_threshold_high_percentile);
+
 			ptree.put<float>("view.contrast_min", compute_desc_.contrast_min_slice_xy);
 			ptree.put<float>("view.contrast_max", compute_desc_.contrast_max_slice_xy);
 			ptree.put<ushort>("view.cuts_contrast_p_offset", compute_desc_.cuts_contrast_p_offset);

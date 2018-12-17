@@ -47,4 +47,5 @@ void auto_contrast_correction(float			*input,
 							const uint		width,
 							float			*min,
 							float			*max,
-							cudaStream_t	stream = 0);
+							float			contrast_threshold_low_percentile,
+							float			contrast_threshold_high_percentile);

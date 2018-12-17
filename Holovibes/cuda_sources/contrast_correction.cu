@@ -14,6 +14,7 @@
 #include "contrast_correction.cuh"
 #include "tools_compute.cuh"
 #include "min_max.cuh"
+#include "percentile.cuh"
 
 static __global__
 void apply_contrast(float		*input,
@@ -51,10 +52,21 @@ void auto_contrast_correction(float	*input,
 	const uint		offset,
 	float			*min,
 	float			*max,
-	cudaStream_t	stream)
+	float			contrast_threshold_low_percentile,
+	float			contrast_threshold_high_percentile)
 {
+	const uint threads = get_max_threads_1d();
+	uint blocks = map_blocks_to_problem(size, threads);
+	float percent_out[2];
+	const float percent_in_h[2] =
+	{
+		contrast_threshold_low_percentile, contrast_threshold_high_percentile
+	};
 
-	get_minimum_maximum_in_image(input + offset, size - offset, min, max);
+	percentile_float(input + offset, size - offset, percent_in_h, percent_out, 2);
+	*min = percent_out[0];
+	*max = percent_out[1];
+	
 	*min = ((*min < 1.0f) ? (1.0f) : (*min));
 	*max = ((*max < 1.0f) ? (1.0f) : (*max));
 }

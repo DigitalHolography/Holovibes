@@ -18,6 +18,9 @@ void from_distinct_components_to_interweaved_components(const float* src, float*
 
 void from_interweaved_components_to_distinct_components(const float* src, float* dst, size_t frame_res);
 
+void apply_percentile_and_threshold(float *gpu_arr, uint frame_res, float low_threshold, float high_threshold);
+
+
 void hsv(const cuComplex *d_input,
 	float *d_output,
 	const uint width,
