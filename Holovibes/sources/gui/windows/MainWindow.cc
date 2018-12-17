@@ -271,7 +271,7 @@ namespace holovibes
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
 
 			// STFT longtimes
-			ui.StftLongtimesCheckBox->setEnabled(!is_direct && !compute_desc_.croped_stft);
+			ui.StftLongtimesCheckBox->setEnabled(!is_direct && compute_desc_.img_type == ImgType::Modulus && !compute_desc_.croped_stft);
 			ui.StftLongtimesCheckBox->setChecked(compute_desc_.is_stft_longtimes);
 			ui.StftLongtimesStepSpinBox->setValue(compute_desc_.stft_longtimes_steps);
 			ui.nSizeLongtimesSpinBox->setValue(compute_desc_.nSize_longtimes);
@@ -1367,7 +1367,7 @@ namespace holovibes
 
 				if (need_refresh(last_img_type_, value))
 				{
-					// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
+				// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 					if (compute_desc_.img_type == ImgType::Composite)
