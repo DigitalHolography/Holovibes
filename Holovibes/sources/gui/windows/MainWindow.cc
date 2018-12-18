@@ -1400,9 +1400,6 @@ namespace holovibes
 				if (compute_desc_.stft_view_enabled)
 					set_auto_contrast_cuts();
 				while (pipe->get_refresh_request());
-
-				if (compute_desc_.img_type != ImgType::Modulus)
-					set_stft_longtimes(false);
 			}
 		}
 
@@ -2416,6 +2413,7 @@ namespace holovibes
 			ui.nSizeLongtimesSpinBox->setHidden(!value);
 			ui.PLongtimesSpinBox->setHidden(!value);
 			ui.PAccLongtimesSpinBox->setHidden(!value);
+			ui.ViewModeComboBox->setEnabled(false);
 			compute_desc_.current_window = XYview;
 			set_auto_contrast();
 		}
