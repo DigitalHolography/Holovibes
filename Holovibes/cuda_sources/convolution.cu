@@ -50,6 +50,8 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 	gpu_float_divide(gpu_kernel_buffer_, size, sum);
 }
 
+static holovibes::cuda_tools::UniquePtr<cuComplex> output_kernel_done = nullptr;
+
 void convolution_kernel(float		*gpu_input,
 	float			*gpu_convolved_buffer,
 	CufftHandle		*plan,
@@ -82,10 +84,15 @@ void convolution_kernel(float		*gpu_input,
 	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_input, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
 	cufftExecC2C(plan->get(), tmp_complex.get(), output_fft.get(), CUFFT_FORWARD);
 
-	cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
-	cufftExecC2C(plan->get(), tmp_complex.get(), output_kernel.get(), CUFFT_FORWARD);
+	if (output_kernel_done == nullptr)
+	{
+		cudaMemcpy2D(tmp_complex.get(), sizeof(cuComplex), gpu_kernel, sizeof(float), sizeof(float), size, cudaMemcpyDeviceToDevice);
+		cufftExecC2C(plan->get(), tmp_complex.get(), output_kernel.get(), CUFFT_FORWARD);
+		output_kernel_done.resize(size);
+		cudaMemcpy(output_kernel_done.get(), output_kernel.get(), size, cudaMemcpyDeviceToDevice);
+	}
 
-	kernel_multiply_frames_complex << <blocks, threads >> > (output_fft, output_kernel, output_fft, size);
+	kernel_multiply_frames_complex << <blocks, threads >> > (output_fft, output_kernel_done, output_fft, size);
 
 	cufftExecC2C(plan->get(), output_fft, output_fft, CUFFT_INVERSE);
 
