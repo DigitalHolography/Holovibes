@@ -41,7 +41,7 @@ namespace holovibes
 			, curve_("First curve")
 			, points_nb_(POINTS)
 			, timer_(this)
-			, curve_get_(curve_get_3)
+			, curve_get_(curve_get_0)
 		{
 			this->setMinimumSize(width, height);
 			plot_.setMinimumSize(width, height);
@@ -60,8 +60,6 @@ namespace holovibes
 
 		void CurvePlot::change_curve(int curve_to_plot)
 		{
-			std::cout << curve_to_plot << std::endl;
-
 			switch (static_cast<CurvePlot::CurveName>(curve_to_plot))
 			{
 			case CurvePlot::CurveName::CURVE_SIGNAL:
