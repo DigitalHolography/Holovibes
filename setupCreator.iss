@@ -109,14 +109,8 @@ Source: "ConvolutionKernels\kernel_prewitt_sobel_2.txt"; DestDir: "{app}\{#MyApp
 Source: "ConvolutionKernels\kernel_prewitt_sobel_edge_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_repoussage_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_sharpen_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\kernel_sodel_xy_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
+Source: "ConvolutionKernels\kernel_sobel_xy_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\kernel_test_3.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_blur_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gaussian_2_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gaussian_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gaussian_10.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gaussian_50.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
-Source: "ConvolutionKernels\matrix_gaussian_100.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_gradient_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_x_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
 Source: "ConvolutionKernels\matrix_sobel_y_5.txt"; DestDir: "{app}\{#MyAppVersion}\ConvolutionKernels";Components: program; Flags: ignoreversion
