@@ -341,6 +341,7 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 
 	float *blur_matrix = new float[cd.h_blur_kernel_size];
 	float blur_value = 1.0f / (float)(cd.h_blur_kernel_size * cd.h_blur_kernel_size);
+	unsigned min_pos_kernel = height / 2 - cd.h_blur_kernel_size / 2;
 	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
 	{
 		blur_matrix[i] = blur_value;
@@ -348,10 +349,12 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 
 	for (size_t i = 0; i < cd.h_blur_kernel_size; i++)
 	{
-		cudaMemcpy(gpu_convolution_matrix + width * i, blur_matrix, cd.h_blur_kernel_size * sizeof(float), cudaMemcpyHostToDevice);
+		cudaMemcpy(gpu_convolution_matrix + min_pos_kernel  + width * (i + min_pos_kernel),
+			blur_matrix, cd.h_blur_kernel_size * sizeof(float), cudaMemcpyHostToDevice);
 		cudaCheckError();
 	}
 
+	shift_corners(gpu_convolution_matrix, width, height);
 
 
 	float *gpu_memory_space;
