@@ -2805,6 +2805,8 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Average
+		bool noise_signal_activated = false;
+		
 		void MainWindow::set_average_mode(const bool value)
 		{
 			if (mainDisplay)
@@ -2819,24 +2821,33 @@ namespace holovibes
 					mainDisplay->getOverlayManager().disable_all(Noise);
 				}
 				is_enabled_average_ = value;
+				if (!value)
+				{
+					noise_signal_activated = false;
+				}
 				notify();
 			}
 		}
 
 		void MainWindow::activeSignalZone()
 		{
+			noise_signal_activated = true;
 			mainDisplay->getOverlayManager().create_overlay<Signal>();
 			notify();
 		}
 
 		void MainWindow::activeNoiseZone()
 		{
+			noise_signal_activated = true;
 			mainDisplay->getOverlayManager().create_overlay<Noise>();
 			notify();
 		}
 
 		void MainWindow::set_average_graphic()
 		{
+			if (!noise_signal_activated)
+				return;	
+
 			PlotWindow *plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
 
 			connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);
