@@ -271,7 +271,7 @@ namespace holovibes
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
 
 			// STFT longtimes
-			ui.StftLongtimesCheckBox->setEnabled(!is_direct && !compute_desc_.croped_stft);
+			ui.StftLongtimesCheckBox->setEnabled(!is_direct && compute_desc_.img_type == ImgType::Modulus && !compute_desc_.croped_stft);
 			ui.StftLongtimesCheckBox->setChecked(compute_desc_.is_stft_longtimes);
 			ui.StftLongtimesStepSpinBox->setValue(compute_desc_.stft_longtimes_steps);
 			ui.nSizeLongtimesSpinBox->setValue(compute_desc_.nSize_longtimes);
@@ -1366,7 +1366,7 @@ namespace holovibes
 
 				if (need_refresh(last_img_type_, value))
 				{
-					// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
+				// This crash in debug mode, but surprinsingly, it works perfectly in release mode.
 					compute_desc_.img_type = static_cast<ImgType>(ptr->currentIndex());
 					refreshViewMode();
 					if (compute_desc_.img_type == ImgType::Composite)
@@ -2413,6 +2413,7 @@ namespace holovibes
 			ui.nSizeLongtimesSpinBox->setHidden(!value);
 			ui.PLongtimesSpinBox->setHidden(!value);
 			ui.PAccLongtimesSpinBox->setHidden(!value);
+			ui.ViewModeComboBox->setEnabled(false);
 			compute_desc_.current_window = XYview;
 			set_auto_contrast();
 		}
@@ -2804,6 +2805,8 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Average
+		bool noise_signal_activated = false;
+		
 		void MainWindow::set_average_mode(const bool value)
 		{
 			if (mainDisplay)
@@ -2818,24 +2821,33 @@ namespace holovibes
 					mainDisplay->getOverlayManager().disable_all(Noise);
 				}
 				is_enabled_average_ = value;
+				if (!value)
+				{
+					noise_signal_activated = false;
+				}
 				notify();
 			}
 		}
 
 		void MainWindow::activeSignalZone()
 		{
+			noise_signal_activated = true;
 			mainDisplay->getOverlayManager().create_overlay<Signal>();
 			notify();
 		}
 
 		void MainWindow::activeNoiseZone()
 		{
+			noise_signal_activated = true;
 			mainDisplay->getOverlayManager().create_overlay<Noise>();
 			notify();
 		}
 
 		void MainWindow::set_average_graphic()
 		{
+			if (!noise_signal_activated)
+				return;	
+
 			PlotWindow *plot_window = new PlotWindow(holovibes_.get_average_queue(), "ROI Average");
 
 			connect(plot_window, SIGNAL(closed()), this, SLOT(dispose_average_graphic()), Qt::UniqueConnection);

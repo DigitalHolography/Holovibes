@@ -75,7 +75,10 @@
      </rect>
     </property>
     <property name="currentText">
-     <string>10log10(Signal/Noise)</string>
+     <string>Signal</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
     <item>
      <property name="text">
@@ -105,7 +108,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>18</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
