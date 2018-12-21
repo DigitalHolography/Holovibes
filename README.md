@@ -205,6 +205,21 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.6.7
+
+fix: plot is now on signal on launch
+fix: hsv h part on convolution
+
+### v.6.6
+
+add doc stft longtimes
+add: icon
+
+### v.6.5
+
+up:stft longtimes is now only on magnitude
+fix: imgtype can't change when stft longtimes is checked
+
 ### v.6.4
 
 * fix: rainbow hsv is now in stftcuts
