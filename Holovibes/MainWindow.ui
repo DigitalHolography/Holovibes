@@ -2990,7 +2990,7 @@
                 <string>apply spation-temporal kernels to outputs</string>
                </property>
                <property name="text">
-                <string>convolve</string>
+                <string>Convolve</string>
                </property>
               </widget>
              </item>
@@ -3001,7 +3001,7 @@
          <item>
           <widget class="QCheckBox" name="DivideConvoCheckBox">
            <property name="text">
-            <string>divide by convolved image</string>
+            <string>Divide by convolved image</string>
            </property>
           </widget>
          </item>
@@ -3075,7 +3075,7 @@
          <item>
           <widget class="QGroupBox" name="AverageGroupBox">
            <property name="title">
-            <string>Average Signal</string>
+            <string>Average signal</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -3397,7 +3397,7 @@
          <item>
           <widget class="QGroupBox" name="RoiOutputGroupBox">
            <property name="title">
-            <string>ROI output:</string>
+            <string>Average signal output: </string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <property name="leftMargin">
