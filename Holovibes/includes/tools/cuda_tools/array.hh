@@ -95,7 +95,7 @@ namespace holovibes
 			std::vector<T> to_cpu()
 			{
 				std::vector<T> cpu_buffer(size_);
-				const uint byte_size = size_ * sizeof(T);
+				const size_t byte_size = size_ * sizeof(T);
 				cudaMemcpy(cpu_buffer.data(), get(), byte_size, cudaMemcpyDeviceToHost);
 				return cpu_buffer;
 			}
