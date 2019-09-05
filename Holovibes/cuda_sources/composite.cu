@@ -14,12 +14,6 @@
 #include "unique_ptr.hh"
 #include "composite.cuh"
 
-static __global__
-void print_kernel_2(float *output)
-{
-	if (threadIdx.x < 32)
-		printf("%d, %f\n", threadIdx.x, output[threadIdx.x]);
-}
 
 struct rect
 {

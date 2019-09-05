@@ -26,13 +26,6 @@
 
 # define SAMPLING_FREQUENCY  1
 
-static __global__
-void print_kernel_2(float *output)
-{
-	if (threadIdx.x < 32)
-		printf("%d, %f\n", threadIdx.x, output[threadIdx.x]);
-}
-
 
 /*
 * \brief Convert an array of HSV normalized float to an array of RGB normalized float
@@ -360,7 +353,8 @@ void apply_gaussian_blur(const holovibes::ComputeDescriptor &cd, float *gpu_arr,
 	float *gpu_memory_space;
 	cudaMalloc(&gpu_memory_space, frame_res * sizeof(float));
 	cudaCheckError();
-	convolution_kernel(gpu_arr, gpu_memory_space, &CufftHandle(width, height, CUFFT_C2C), width, height, gpu_convolution_matrix, false, false);
+	CufftHandle handle{ static_cast<int>(width), static_cast<int>(height), CUFFT_C2C };
+	convolution_kernel(gpu_arr, gpu_memory_space, &handle, width, height, gpu_convolution_matrix, false, false);
 	cudaCheckError();
 
 	delete[] blur_matrix;
@@ -453,5 +447,4 @@ void hsv(const cuComplex *gpu_input,
 
 	cudaFree(tmp_hsv_arr);
 	cudaFree(gpu_omega_arr);
-	//print_kernel_2 << <blocks, threads >> > (gpu_output);
 }
