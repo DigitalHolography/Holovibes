@@ -236,7 +236,7 @@ __device__ void warpReduce(volatile float *sdata, unsigned int tid) {
 }
 
 template <unsigned int blockSize>
-__global__ void normalize_float_matrix(const float *g_idata, float *g_odata, unsigned int n) {
+__global__ void normalize_float_matrix(const float *g_idata, float *g_odata, uint n) {
 	extern __shared__ float sdata[];
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x*(blockSize * 2) + tid;

@@ -652,7 +652,7 @@ float get_norm(const float	*matrix,
 	uint blocks = map_blocks_to_problem(size, threads);
 
 	holovibes::cuda_tools::UniquePtr<float> output(blocks);
-	normalize_float_matrix<1024><<<blocks, threads, threads * sizeof(float)>>>(matrix, output, size);
+	normalize_float_matrix<1024><<<blocks, threads, threads * sizeof(float)>>>(matrix, output, static_cast<uint>(size));
 
 	float *intermediate_sum_cpu = new float[blocks]; //never more than 4096 threads
 	//need to be on cpu for the sum
