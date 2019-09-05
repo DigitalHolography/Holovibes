@@ -2013,7 +2013,7 @@ namespace holovibes
 
 		void fancy_Qslide_text_percent(char* str)
 		{
-			int len = strlen(str);
+			size_t len = strlen(str);
 			if (len < 2)
 			{
 				str[1] = str[0];

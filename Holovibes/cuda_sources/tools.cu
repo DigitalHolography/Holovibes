@@ -658,7 +658,7 @@ float get_norm(const float	*matrix,
 	//need to be on cpu for the sum
 	cudaMemcpy(intermediate_sum_cpu, output, blocks * sizeof(float), cudaMemcpyDeviceToHost); //TODO faire la somme sur GPU
 	float sum = 0;
-	for (int i = 0; i < blocks; i++)
+	for (uint i = 0; i < blocks; i++)
 		sum += intermediate_sum_cpu[i];
 	delete[] intermediate_sum_cpu;
 
