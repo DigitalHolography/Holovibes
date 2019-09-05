@@ -15,343 +15,343 @@
  * Contains compute parameters. */
 #pragma once
 
-	# include <atomic>
-	# include <mutex>
-	# include "observable.hh"
-	# include "rect.hh"
+# include <atomic>
+# include <mutex>
+# include "observable.hh"
+# include "rect.hh"
 
 
-	namespace holovibes
+namespace holovibes
+{
+	const static std::string version = "v7.0.0"; /*!< Current version of this project. */
+
+	using	Tuple4f = std::tuple<float, float, float, float>;
+
+	/*!
+	 * \brief	Difference kind of camera supported by Holovibes
+	 */
+	enum CameraKind
 	{
-		const static std::string version = "v7.0.0"; /*!< Current version of this project. */
+		NONE,
+		Adimec,
+		Edge,
+		IDS,
+		Ixon,
+		Hamamatsu,
+		Pike,
+		Pixelfly,
+		xiQ,
+		xiB,
+		PhotonFocus
+	};
 
-		using	Tuple4f = std::tuple<float, float, float, float>;
+	/*! \brief	Rendering mode for Hologram */
+	enum Algorithm
+	{
+		None, /**< Nothing Applied */
+		FFT1, /**< Fresnel Transform */
+		FFT2  /**< Angular spectrum propagation */
+	};
 
-		/*!
-		 * \brief	Difference kind of camera supported by Holovibes
-		 */
-		enum CameraKind
-		{
-			NONE,
-			Adimec,
-			Edge,
-			IDS,
-			Ixon,
-			Hamamatsu,
-			Pike,
-			Pixelfly,
-			xiQ,
-			xiB,
-			PhotonFocus
-		};
+	/*! \bried	Input processes */
+	enum Computation
+	{
+		Stop, /**< Input not displayed */
+		Direct, /**< Interferogram recorded */
+		Hologram /**< Reconstruction of the object */
+	};
 
-		/*! \brief	Rendering mode for Hologram */
-		enum Algorithm
-		{
-			None, /**< Nothing Applied */
-			FFT1, /**< Fresnel Transform */
-			FFT2  /**< Angular spectrum propagation */
-		};
+	/*! \brief	Displaying type of the image */
+	enum ImgType
+	{
+		Modulus, /**< Modulus of the complex data */
+		SquaredModulus, /**< Modulus taken to its square value */
+		Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
+		PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
+		Complex, /**< Displays the complex buffer using blue and red colors for real and imaginary part */
+		Composite /**< Displays different frequency intervals on color RBG or HSV chanels*/
+	};
 
-		/*! \bried	Input processes */
-		enum Computation
-		{
-			Stop, /**< Input not displayed */
-			Direct, /**< Interferogram recorded */
-			Hologram /**< Reconstruction of the object */
-		};
+	/*! \brief Describes the access mode of an accessor. */
+	enum AccessMode
+	{
+		Get = 1,
+		Set
+	};
 
-		/*! \brief	Displaying type of the image */
-		enum ImgType
-		{
-			Modulus, /**< Modulus of the complex data */
-			SquaredModulus, /**< Modulus taken to its square value */
-			Argument, /**< Phase (angle) value of the complex pixel c, computed with atan(Im(c)/Re(c)) */
-			PhaseIncrease, /**< Phase value computed with the conjugate between the phase of the last image and the previous one */
-			Complex, /**< Displays the complex buffer using blue and red colors for real and imaginary part */
-			Composite /**< Displays different frequency intervals on color RBG or HSV chanels*/
-		};
+	/*!
+	 * \brief	Represents the kind of slice displayed by the window
+	 */
+	enum WindowKind
+	{
+		XYview,
+		XZview,
+		YZview
+	};
 
-		/*! \brief Describes the access mode of an accessor. */
-		enum AccessMode
-		{
-			Get = 1,
-			Set
-		};
+	/*!
+	* \brief	Represents the kind of composite image
+	*/
 
-		/*!
-		 * \brief	Represents the kind of slice displayed by the window
-		 */
-		enum WindowKind
-		{
-			XYview,
-			XZview,
-			YZview
-		};
+	enum CompositeKind
+	{
+		RGB,
+		HSV
+	};
 
-		/*!
-		* \brief	Represents the kind of composite image
+	/*! \brief Contains compute parameters.
+	 *
+	 * Theses parameters will be used when the pipe is refresh.
+	 * It defines parameters for FFT, lens (Fresnel transforms ...),
+	 * post-processing (contrast, shift_corners, log scale).
+	 *
+	 * The class use the *Observer* design pattern instead of the signal
+	 * mechanism of Qt because classes in the namespace holovibes are
+	 * independent of GUI or CLI implementations. So that, the code remains
+	 * reusable.
+	 *
+	 * This class contains std::atomic fields to avoid concurrent access between
+	 * the pipe and the GUI.
+	 */
+	class ComputeDescriptor : public Observable
+	{
+		typedef unsigned char uchar;
+		typedef unsigned short ushort;
+		typedef unsigned int uint;
+		typedef unsigned long ulong;
+
+	private:
+		/*! \brief The lock used in the zone accessors */
+		mutable std::mutex	mutex_;
+
+
+		/*! \brief	The position of the point used to obtain XZ and YZ views */
+		units::PointFd		stft_slice_cursor;
+
+		/*! \brief	The zone to average the signal */
+		units::RectFd		signal_zone;
+		/*! \brief	The zone to average the noise */
+		units::RectFd		noise_zone;
+		/*! \brief	The zone used to compute automatically the z-value */
+		units::RectFd		autofocus_zone;
+		/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
+		units::RectFd		stft_roi_zone;
+		/*! \brief	The area on which we'll normalize the colors*/
+		units::RectFd		composite_zone;
+		/*! \brief	The area on which we'll run the convolution to stabilize*/
+		units::RectFd		stabilization_zone;
+		/*! \brief  The area used to limit the stft computations. */
+		units::RectFd		zoomed_zone;
+
+	public:
+		/*! \brief ComputeDescriptor constructor
+		 * Initialize the compute descriptor to default values of computation. */
+		ComputeDescriptor();
+
+		/*! \brief ComputeDescriptor destructor.
+
 		*/
+		~ComputeDescriptor();
 
-		enum CompositeKind
-		{
-			RGB,
-			HSV
-		};
+		/*! \brief Assignment operator
+		 * The assignment operator is explicitely defined because std::atomic type
+		 * does not allow to generate assignments operator automatically. */
+		ComputeDescriptor& operator=(const ComputeDescriptor& cd);
 
-		/*! \brief Contains compute parameters.
+		/*!
+		 * @{
 		 *
-		 * Theses parameters will be used when the pipe is refresh.
-		 * It defines parameters for FFT, lens (Fresnel transforms ...),
-		 * post-processing (contrast, shift_corners, log scale).
+		 * \brief	Accessor to the selected zone
 		 *
-		 * The class use the *Observer* design pattern instead of the signal
-		 * mechanism of Qt because classes in the namespace holovibes are
-		 * independent of GUI or CLI implementations. So that, the code remains
-		 * reusable.
-		 *
-		 * This class contains std::atomic fields to avoid concurrent access between
-		 * the pipe and the GUI.
+		 * \param			rect	The rectangle to process
+		 * \param 		  	m   	An AccessMode to process.
 		 */
-		class ComputeDescriptor : public Observable
-		{
-			typedef unsigned char uchar;
-			typedef unsigned short ushort;
-			typedef unsigned int uint;
-			typedef unsigned long ulong;
 
-		private:
-			/*! \brief The lock used in the zone accessors */
-			mutable std::mutex	mutex_;
+		void signalZone(units::RectFd& rect, AccessMode m);
+		void noiseZone(units::RectFd& rect, AccessMode m);
+		void autofocusZone(units::RectFd& rect, AccessMode m);
+		//! @}
 
+		/*!
+		 * @{
+		 *
+		 * \brief	Getter of the overlay positions.
+		 *
+		 */
 
-			/*! \brief	The position of the point used to obtain XZ and YZ views */
-			units::PointFd		stft_slice_cursor;
+		units::RectFd getStftZone() const;
+		units::RectFd getCompositeZone() const;
+		units::RectFd getStabilizationZone() const;
+		units::RectFd getZoomedZone() const;
+		units::PointFd getStftCursor() const;
+		//! @}
 
-			/*! \brief	The zone to average the signal */
-			units::RectFd		signal_zone;
-			/*! \brief	The zone to average the noise */
-			units::RectFd		noise_zone;
-			/*! \brief	The zone used to compute automatically the z-value */
-			units::RectFd		autofocus_zone;
-			/*! \brief	Limits the computation to only this zone. Also called Filter 2D*/
-			units::RectFd		stft_roi_zone;
-			/*! \brief	The area on which we'll normalize the colors*/
-			units::RectFd		composite_zone;
-			/*! \brief	The area on which we'll run the convolution to stabilize*/
-			units::RectFd		stabilization_zone;
-			/*! \brief  The area used to limit the stft computations. */
-			units::RectFd		zoomed_zone;
+		/*!
+		 * @{
+		 *
+		 * \brief	Setter of the overlay positions.
+		 *
+		 */
+		void setStftZone(const units::RectFd& rect);
+		void setCompositeZone(const units::RectFd& rect);
+		void setStabilizationZone(const units::RectFd& rect);
+		void setZoomedZone(const units::RectFd& rect);
+		void setStftCursor(const units::PointFd& rect);
+		//! @}
 
-		public:
-			/*! \brief ComputeDescriptor constructor
-			 * Initialize the compute descriptor to default values of computation. */
-			ComputeDescriptor();
+#pragma region Atomics vars
+		//! Algorithm to apply in hologram mode
+		std::atomic<Algorithm>		algorithm;
+		//! Mode of computation of the image
+		std::atomic<Computation>	compute_mode;
+		//! type of the image displayed
+		std::atomic<ImgType>		img_type;
 
-			/*! \brief ComputeDescriptor destructor.
+		//! Last window selected
+		std::atomic<WindowKind>		current_window;
+		//! Number of images used by SFTF i.e. depth of the SFTF cube
+		std::atomic<ushort>			nSize;
+		//! index in the depth axis
+		std::atomic<ushort>			pindex;
+		//! Number of images used by SFTF longtimes i.e. depth of the SFTF cube
+		std::atomic<ushort>			nSize_longtimes;
+		//! index in the depth axis for the stft longtimes
+		std::atomic<ushort>			pindex_longtimes;
+		std::atomic<ushort>			vibrometry_q;
+		//! wave length of the laser
+		std::atomic<float>			lambda;
+		//! Input matrix used for convolution
+		std::vector<float>			convo_matrix;
+		//! z value used by fresnel transform
+		std::atomic<float>			zdistance;
 
-			*/
-			~ComputeDescriptor();
+		//! minimum constrast value in xy view
+		std::atomic<float>			contrast_min_slice_xy;
+		//! maximum constrast value in xy view
+		std::atomic<float>			contrast_max_slice_xy;
+		//! minimum constrast value in xz view
+		std::atomic<float>			contrast_min_slice_xz;
+		//! maximum constrast value in xz view
+		std::atomic<float>			contrast_max_slice_xz;
+		//! minimum constrast value in yz view
+		std::atomic<float>			contrast_min_slice_yz;
+		//! maximum constrast value in yz view
+		std::atomic<float>			contrast_max_slice_yz;
 
-			/*! \brief Assignment operator
-			 * The assignment operator is explicitely defined because std::atomic type
-			 * does not allow to generate assignments operator automatically. */
-			ComputeDescriptor& operator=(const ComputeDescriptor& cd);
+		std::atomic<float> contrast_threshold_low_percentile{ 0.5f };
 
-			/*!
-			 * @{
-			 *
-			 * \brief	Accessor to the selected zone
-			 *
-			 * \param			rect	The rectangle to process
-			 * \param 		  	m   	An AccessMode to process.
-			 */
+		std::atomic<float> contrast_threshold_high_percentile{ 99.5f };
 
-			void signalZone(units::RectFd& rect, AccessMode m);
-			void noiseZone(units::RectFd& rect, AccessMode m);
-			void autofocusZone(units::RectFd& rect, AccessMode m);
-			//! @}
+		//! minimum autofocus value in xy view
+		std::atomic<float>			autofocus_z_min;
+		//! maximum constrast value in xy view
+		std::atomic<float>			autofocus_z_max;
 
-			/*!
-			 * @{
-			 *
-			 * \brief	Getter of the overlay positions.
-			 *
-			 */
+		std::atomic<ushort>			cuts_contrast_p_offset;
+		//! Size of a pixel in micron
+		std::atomic<float>			pixel_size;
+		//! Correction factor of the scale bar, used to match the objective of the camera
+		std::atomic<float>			scale_bar_correction_factor;
+		//! Width of the matrix used for convolution
+		std::atomic<uint>			convo_matrix_width;
+		//! Height of the matrix used for convolution
+		std::atomic<uint>			convo_matrix_height;
+		//! Z of the matrix used for convolution
+		std::atomic<uint>			convo_matrix_z;
+		std::atomic<uint>			flowgraphy_level;
+		std::atomic<uint>			autofocus_size;
+		/*! Number of divison of zmax - zmin used by the autofocus algorithm */
+		std::atomic<uint>			autofocus_z_div;
+		/*! Number of loops done by the autofocus algorithm */
+		std::atomic<uint>			autofocus_z_iter;
+		//! Size of the stft_queue.
+		std::atomic<int>			stft_level;
+		//! Number of pipe iterations between two temporal demodulation.
+		std::atomic<int>			stft_steps;
+		//! Number of pipe iterations between two temporal demodulation.
+		std::atomic<int>			stft_longtimes_steps;
+		std::atomic<int>			unwrap_history_size;
+		std::atomic<int>			special_buffer_size;
+		//! is convolution enabled
+		std::atomic<bool>			convolution_enabled;
+		//! is divide by convolution enabled
+		std::atomic<bool>			divide_convolution_enabled;
+		//! is flowgraphy enabled
+		std::atomic<bool>			flowgraphy_enabled;
+		//! is vibrometry enabled
+		std::atomic<bool>			vibrometry_enabled;
+		//! is log scale in slice XY enabled
+		std::atomic<bool>			log_scale_slice_xy_enabled;
+		//! is log scale in slice XZ enabled
+		std::atomic<bool>			log_scale_slice_xz_enabled;
+		//! is log scale in slice YZ enabled
+		std::atomic<bool>			log_scale_slice_yz_enabled;
+		//! is shift fft enabled (switching representation diagram) 
+		std::atomic<bool>			shift_corners_enabled;
+		//! enables the contract for the slice xy, yz and xz
+		std::atomic<bool>			contrast_enabled;
+		//! enable the limitation of the stft to the zoomed area.
+		std::atomic<bool>			croped_stft;
+		//! Enables the difference with the selected frame.
+		std::atomic<bool>			ref_diff_enabled;
+		//! Enabled the difference with the ref_diff_level previous frame
+		std::atomic<bool>			ref_sliding_enabled;
+		std::atomic<int>			ref_diff_level;
+		//! allows to limit the computations to a selected zone
+		std::atomic<bool>			filter_2d_enabled;
+		//! are slices YZ and XZ enabled
+		std::atomic<bool>			stft_view_enabled;
+		//! is gpu lens display activated
+		std::atomic<bool>			gpu_lens_display_enabled{ true };
+		//! enables the signal and noise average computation
+		std::atomic<bool>			average_enabled;
 
-			units::RectFd getStftZone() const;
-			units::RectFd getCompositeZone() const;
-			units::RectFd getStabilizationZone() const;
-			units::RectFd getZoomedZone() const;
-			units::PointFd getStftCursor() const;
-			//! @}
+		//! is file a .cine
+		std::atomic<bool>			is_cine_file;
 
-			/*!
-			 * @{
-			 *
-			 * \brief	Setter of the overlay positions.
-			 *
-			 */
-			void setStftZone(const units::RectFd& rect);
-			void setCompositeZone(const units::RectFd& rect);
-			void setStabilizationZone(const units::RectFd& rect);
-			void setZoomedZone(const units::RectFd& rect);
-			void setStftCursor(const units::PointFd& rect);
-			//! @}
+		//! Number of frame per seconds displayed
+		std::atomic<float>			display_rate;
 
-	#pragma region Atomics vars
-	//! Algorithm to apply in hologram mode
-			std::atomic<Algorithm>		algorithm;
-			//! Mode of computation of the image
-			std::atomic<Computation>	compute_mode;
-			//! type of the image displayed
-			std::atomic<ImgType>		img_type;
+		//! Enables the XY stabilization.
+		std::atomic<bool>			xy_stabilization_enabled;
+		//! Pause the stabilization, in order to select the stabilization area
+		std::atomic<bool>			xy_stabilization_paused;
+		//! Displays the convolution matrix.
+		std::atomic<bool>			xy_stabilization_show_convolution;
 
-			//! Last window selected
-			std::atomic<WindowKind>		current_window;
-			//! Number of images used by SFTF i.e. depth of the SFTF cube
-			std::atomic<ushort>			nSize;
-			//! index in the depth axis
-			std::atomic<ushort>			pindex;
-			//! Number of images used by SFTF longtimes i.e. depth of the SFTF cube
-			std::atomic<ushort>			nSize_longtimes;
-			//! index in the depth axis for the stft longtimes
-			std::atomic<ushort>			pindex_longtimes;
-			std::atomic<ushort>			vibrometry_q;
-			//! wave length of the laser
-			std::atomic<float>			lambda;
-			//! Input matrix used for convolution
-			std::vector<float>			convo_matrix;
-			//! z value used by fresnel transform
-			std::atomic<float>			zdistance;
+		//! Enables the normalization for each of the frames.
+		std::atomic<bool>			normalize_enabled{ false };
+		//! Enables the interpolation, to match the real pixel size according to the laser wavelength.
+		std::atomic<bool>			interpolation_enabled;
+		//! Current wavelength of the laser
+		std::atomic<float>			interp_lambda;
+		//! Initial wavelength of the laser
+		std::atomic<float>			interp_lambda1;
+		//! Final wavelength of the laser
+		std::atomic<float>			interp_lambda2;
+		std::atomic<float>			interp_sensitivity;
+		std::atomic<int>			interp_shift;
 
-			//! minimum constrast value in xy view
-			std::atomic<float>			contrast_min_slice_xy;
-			//! maximum constrast value in xy view
-			std::atomic<float>			contrast_max_slice_xy;
-			//! minimum constrast value in xz view
-			std::atomic<float>			contrast_min_slice_xz;
-			//! maximum constrast value in xz view
-			std::atomic<float>			contrast_max_slice_xz;
-			//! minimum constrast value in yz view
-			std::atomic<float>			contrast_min_slice_yz;
-			//! maximum constrast value in yz view
-			std::atomic<float>			contrast_max_slice_yz;
+		//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
+		std::atomic<bool>			img_acc_slice_xy_enabled;
+		//! is img average in view XZ enabled
+		std::atomic<bool>			img_acc_slice_xz_enabled;
+		//! is img average in view YZ enabled
+		std::atomic<bool>			img_acc_slice_yz_enabled;
+		//! number of image in view XY to average
+		std::atomic<uint>			img_acc_slice_xy_level;
+		//! number of image in view XZ to average
+		std::atomic<uint>			img_acc_slice_xz_level;
+		//! number of image in view YZ to average
+		std::atomic<uint>			img_acc_slice_yz_level;
 
-			std::atomic<float> contrast_threshold_low_percentile = 0.5f;
-			
-			std::atomic<float> contrast_threshold_high_percentile = 99.5f;
+		//! is p average enabled (average image over multiple depth index)
+		std::atomic<bool>			p_accu_enabled;
+		//! difference between p min and p max
+		std::atomic<short>			p_acc_level;
+		//! difference between p min and p max for the longtimes stft
+		std::atomic<short>			p_acc_level_longtimes;
 
-			//! minimum autofocus value in xy view
-			std::atomic<float>			autofocus_z_min;
-			//! maximum constrast value in xy view
-			std::atomic<float>			autofocus_z_max;
-
-			std::atomic<ushort>			cuts_contrast_p_offset;
-			//! Size of a pixel in micron
-			std::atomic<float>			pixel_size;
-			//! Correction factor of the scale bar, used to match the objective of the camera
-			std::atomic<float>			scale_bar_correction_factor;
-			//! Width of the matrix used for convolution
-			std::atomic<uint>			convo_matrix_width;
-			//! Height of the matrix used for convolution
-			std::atomic<uint>			convo_matrix_height;
-			//! Z of the matrix used for convolution
-			std::atomic<uint>			convo_matrix_z;
-			std::atomic<uint>			flowgraphy_level;
-			std::atomic<uint>			autofocus_size;
-			/*! Number of divison of zmax - zmin used by the autofocus algorithm */
-			std::atomic<uint>			autofocus_z_div;
-			/*! Number of loops done by the autofocus algorithm */
-			std::atomic<uint>			autofocus_z_iter;
-			//! Size of the stft_queue.
-			std::atomic<int>			stft_level;
-			//! Number of pipe iterations between two temporal demodulation.
-			std::atomic<int>			stft_steps;
-			//! Number of pipe iterations between two temporal demodulation.
-			std::atomic<int>			stft_longtimes_steps;
-			std::atomic<int>			unwrap_history_size;
-			std::atomic<int>			special_buffer_size;
-			//! is convolution enabled
-			std::atomic<bool>			convolution_enabled;
-			//! is divide by convolution enabled
-			std::atomic<bool>			divide_convolution_enabled;
-			//! is flowgraphy enabled
-			std::atomic<bool>			flowgraphy_enabled;
-			//! is vibrometry enabled
-			std::atomic<bool>			vibrometry_enabled;
-			//! is log scale in slice XY enabled
-			std::atomic<bool>			log_scale_slice_xy_enabled;
-			//! is log scale in slice XZ enabled
-			std::atomic<bool>			log_scale_slice_xz_enabled;
-			//! is log scale in slice YZ enabled
-			std::atomic<bool>			log_scale_slice_yz_enabled;
-			//! is shift fft enabled (switching representation diagram) 
-			std::atomic<bool>			shift_corners_enabled;
-			//! enables the contract for the slice xy, yz and xz
-			std::atomic<bool>			contrast_enabled;
-			//! enable the limitation of the stft to the zoomed area.
-			std::atomic<bool>			croped_stft;
-			//! Enables the difference with the selected frame.
-			std::atomic<bool>			ref_diff_enabled;
-			//! Enabled the difference with the ref_diff_level previous frame
-			std::atomic<bool>			ref_sliding_enabled;
-			std::atomic<int>			ref_diff_level;
-			//! allows to limit the computations to a selected zone
-			std::atomic<bool>			filter_2d_enabled;
-			//! are slices YZ and XZ enabled
-			std::atomic<bool>			stft_view_enabled;
-			//! is gpu lens display activated
-			std::atomic<bool>			gpu_lens_display_enabled{ true };
-			//! enables the signal and noise average computation
-			std::atomic<bool>			average_enabled;
-
-			//! is file a .cine
-			std::atomic<bool>			is_cine_file;
-
-			//! Number of frame per seconds displayed
-			std::atomic<float>			display_rate;
-
-			//! Enables the XY stabilization.
-			std::atomic<bool>			xy_stabilization_enabled;
-			//! Pause the stabilization, in order to select the stabilization area
-			std::atomic<bool>			xy_stabilization_paused;
-			//! Displays the convolution matrix.
-			std::atomic<bool>			xy_stabilization_show_convolution;
-
-			//! Enables the normalization for each of the frames.
-			std::atomic<bool>			normalize_enabled{ false };
-			//! Enables the interpolation, to match the real pixel size according to the laser wavelength.
-			std::atomic<bool>			interpolation_enabled;
-			//! Current wavelength of the laser
-			std::atomic<float>			interp_lambda;
-			//! Initial wavelength of the laser
-			std::atomic<float>			interp_lambda1;
-			//! Final wavelength of the laser
-			std::atomic<float>			interp_lambda2;
-			std::atomic<float>			interp_sensitivity;
-			std::atomic<int>			interp_shift;
-
-			//! is img average in view XY enabled (average of output over time, i.e. phase compensation)
-			std::atomic<bool>			img_acc_slice_xy_enabled;
-			//! is img average in view XZ enabled
-			std::atomic<bool>			img_acc_slice_xz_enabled;
-			//! is img average in view YZ enabled
-			std::atomic<bool>			img_acc_slice_yz_enabled;
-			//! number of image in view XY to average
-			std::atomic<uint>			img_acc_slice_xy_level;
-			//! number of image in view XZ to average
-			std::atomic<uint>			img_acc_slice_xz_level;
-			//! number of image in view YZ to average
-			std::atomic<uint>			img_acc_slice_yz_level;
-
-			//! is p average enabled (average image over multiple depth index)
-			std::atomic<bool>			p_accu_enabled;
-			//! difference between p min and p max
-			std::atomic<short>			p_acc_level;
-			//! difference between p min and p max for the longtimes stft
-			std::atomic<short>			p_acc_level_longtimes;
-			
 		//! is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
 		//! difference between x min and x max
@@ -402,28 +402,28 @@
 		//! HSV
 		std::atomic<ushort>			composite_p_min_h;
 		std::atomic<ushort>			composite_p_max_h;
-		std::atomic<float>			slider_h_threshold_min = 0.01f;
-		std::atomic<float>			slider_h_threshold_max = 1.0f;
-		std::atomic<float>			composite_low_h_threshold = 0.2f;
-		std::atomic<float>			composite_high_h_threshold = 99.8f;
-		std::atomic<bool>			h_blur_activated = false;
-		std::atomic<uint>			h_blur_kernel_size = 1;
+		std::atomic<float>			slider_h_threshold_min{ 0.01f };
+		std::atomic<float>			slider_h_threshold_max{ 1.0f };
+		std::atomic<float>			composite_low_h_threshold{ 0.2f };
+		std::atomic<float>			composite_high_h_threshold{ 99.8f };
+		std::atomic<bool>			h_blur_activated{ false };
+		std::atomic<uint>			h_blur_kernel_size{ 1 };
 
-		std::atomic<bool>			composite_p_activated_s = false;
+		std::atomic<bool>			composite_p_activated_s{ false };
 		std::atomic<ushort>			composite_p_min_s;
 		std::atomic<ushort>			composite_p_max_s;
-		std::atomic<float>			slider_s_threshold_min = 0.01f;
-		std::atomic<float>			slider_s_threshold_max = 1.0f;
-		std::atomic<float>			composite_low_s_threshold = 0.2f;
-		std::atomic<float>			composite_high_s_threshold = 99.8f;
+		std::atomic<float>			slider_s_threshold_min{ 0.01f };
+		std::atomic<float>			slider_s_threshold_max{ 1.0f };
+		std::atomic<float>			composite_low_s_threshold{ 0.2f };
+		std::atomic<float>			composite_high_s_threshold{ 99.8f };
 
-		std::atomic<bool>			composite_p_activated_v = false;
+		std::atomic<bool>			composite_p_activated_v{ false };
 		std::atomic<ushort>			composite_p_min_v;
 		std::atomic<ushort>			composite_p_max_v;
-		std::atomic<float>			slider_v_threshold_min = 0.01f;
-		std::atomic<float>			slider_v_threshold_max = 1.0f;
-		std::atomic<float>			composite_low_v_threshold = 0.2f;
-		std::atomic<float>			composite_high_v_threshold = 99.8f;
+		std::atomic<float>			slider_v_threshold_min{ 0.01f };
+		std::atomic<float>			slider_v_threshold_max{ 1.0f };
+		std::atomic<float>			composite_low_v_threshold{ 0.2f };
+		std::atomic<float>			composite_high_v_threshold{ 99.8f };
 
 
 		std::atomic<CompositeKind>	composite_kind;
