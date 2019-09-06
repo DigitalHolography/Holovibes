@@ -226,7 +226,7 @@ namespace holovibes
 				is_resize = true;
 			}
 
-			QRect screen = QApplication::desktop()->screenGeometry();
+			QRect screen = QGuiApplication::primaryScreen()->geometry();
 			if (old_height >  screen.height() || old_width > screen.width())
 			{
 				old_height = tmp_height;

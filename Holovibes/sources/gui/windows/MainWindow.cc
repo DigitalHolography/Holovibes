@@ -86,7 +86,7 @@ namespace holovibes
 			setWindowIcon(QIcon("Holovibes.ico"));
 			InfoManager::get_manager(ui.InfoGroupBox);
 
-			QRect rec = QApplication::desktop()->screenGeometry();
+			QRect rec = QGuiApplication::primaryScreen()->geometry();
 			int screen_height = rec.height();
 			int screen_width = rec.width();
 

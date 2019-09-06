@@ -122,7 +122,7 @@ namespace holovibes
 
 		void	BasicOpenGLWindow::keyPressEvent(QKeyEvent* e)
 		{
-			const QRect screen = QApplication::desktop()->availableGeometry();
+			const QRect screen = QGuiApplication::primaryScreen()->availableGeometry();
 			switch (e->key())
 			{
 			case Qt::Key::Key_F11:
