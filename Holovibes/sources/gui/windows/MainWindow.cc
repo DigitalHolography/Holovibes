@@ -270,21 +270,12 @@ namespace holovibes
 			// Displaying mode
 			ui.ViewModeComboBox->setCurrentIndex(compute_desc_.img_type);
 
-			// STFT longtimes
-			ui.StftLongtimesCheckBox->setEnabled(!is_direct && compute_desc_.img_type == ImgType::Modulus && !compute_desc_.croped_stft);
-			ui.StftLongtimesCheckBox->setChecked(compute_desc_.is_stft_longtimes);
-			ui.StftLongtimesStepSpinBox->setValue(compute_desc_.stft_longtimes_steps);
-			ui.nSizeLongtimesSpinBox->setValue(compute_desc_.nSize_longtimes);
-			ui.PLongtimesSpinBox->setValue(compute_desc_.pindex_longtimes);
-			ui.PAccLongtimesSpinBox->setValue(compute_desc_.p_acc_level_longtimes);
-
 			ui.PhaseUnwrap2DCheckBox->
 				setEnabled(compute_desc_.img_type == ImgType::PhaseIncrease ||
 					compute_desc_.img_type == ImgType::Argument);
 
 			// STFT cuts
 			ui.squarePixel_checkBox->setEnabled(ui.STFTCutsCheckBox->isChecked());
-			ui.nSizeLongtimesSpinBox->setEnabled(!ui.STFTCutsCheckBox->isChecked());
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			// Contrast
@@ -367,16 +358,6 @@ namespace holovibes
 				ui.PSpinBox->setValue(compute_desc_.pindex);
 			}
 
-			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - 1);
-			if (compute_desc_.p_acc_level_longtimes > compute_desc_.nSize_longtimes - 1)
-				compute_desc_.p_acc_level_longtimes = compute_desc_.nSize_longtimes - 1;
-			ui.PAccLongtimesSpinBox->setValue(compute_desc_.p_acc_level_longtimes);
-			ui.PLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1);
-			if (compute_desc_.pindex_longtimes > compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1)
-				compute_desc_.pindex_longtimes = compute_desc_.nSize_longtimes - compute_desc_.p_acc_level_longtimes - 1;
-			ui.PLongtimesSpinBox->setValue(compute_desc_.pindex_longtimes);
-			ui.PAccLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - compute_desc_.pindex_longtimes - 1);
-
 			// XY accu
 			ui.XAccuCheckBox->setChecked(compute_desc_.x_accu_enabled);
 			ui.XAccSpinBox->setValue(compute_desc_.x_acc_level);
@@ -416,7 +397,6 @@ namespace holovibes
 			// Image rendering
 			ui.AlgorithmComboBox->setEnabled(!is_direct);
 			ui.AlgorithmComboBox->setCurrentIndex(compute_desc_.algorithm);
-			ui.CropStftCheckBox->setEnabled(!is_direct && !compute_desc_.is_stft_longtimes);
 			// Changing nSize with stft cuts is supported by the pipe, but some modifications have to be done in SliceWindow, OpenGl buffers.
 			ui.nSizeSpinBox->setEnabled(!is_direct && !compute_desc_.stft_view_enabled);
 			ui.nSizeSpinBox->setValue(compute_desc_.nSize);
@@ -447,7 +427,7 @@ namespace holovibes
 
 
 			// Composite		 	
-			int nsize_max = (compute_desc_.is_stft_longtimes ? compute_desc_.nSize_longtimes : compute_desc_.nSize) - 1;
+			int nsize_max = compute_desc_.nSize - 1;
 			ui.PRedSpinBox_Composite->setMaximum(nsize_max);
 			ui.PBlueSpinBox_Composite->setMaximum(nsize_max);
 			ui.SpinBox_hue_freq_min->setMaximum(nsize_max);
@@ -503,16 +483,6 @@ namespace holovibes
 			ui.InterpolationLambda2->setValue(compute_desc_.interp_lambda2 * 1.0e9f);
 			ui.InterpolationSensitivity->setValue(compute_desc_.interp_sensitivity);
 			ui.InterpolationShift->setValue(compute_desc_.interp_shift);
-
-			// stft longtimes
-			ui.label_26->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.label_27->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.label_28->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.label_29->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.StftLongtimesStepSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.nSizeLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.PLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
-			ui.PAccLongtimesSpinBox->setHidden(!compute_desc_.is_stft_longtimes);
 		}
 
 		void MainWindow::notify_error(std::exception& e)
@@ -710,15 +680,6 @@ namespace holovibes
 				if (p_index >= 0 && p_index < compute_desc_.nSize)
 					compute_desc_.pindex = p_index;
 
-				const ushort p_nSize_longtimes = ptree.get<ushort>("image_rendering.phase_number_longtimes", compute_desc_.nSize_longtimes);
-				if (p_nSize_longtimes < 1)
-					compute_desc_.nSize_longtimes = 1;
-				else
-					compute_desc_.nSize_longtimes = p_nSize_longtimes;
-				const ushort p_index_longtimes = ptree.get<ushort>("image_rendering.p_index_longtimes", compute_desc_.pindex_longtimes);
-				if (p_index_longtimes >= 0 && p_index_longtimes < compute_desc_.nSize_longtimes)
-					compute_desc_.pindex_longtimes = p_index_longtimes;
-
 				compute_desc_.lambda = ptree.get<float>("image_rendering.lambda", compute_desc_.lambda);
 
 				compute_desc_.zdistance = ptree.get<float>("image_rendering.z_distance", compute_desc_.zdistance);
@@ -877,8 +838,6 @@ namespace holovibes
 			ptree.put("image_rendering.camera", kCamera);
 			ptree.put<ushort>("image_rendering.phase_number", compute_desc_.nSize);
 			ptree.put<ushort>("image_rendering.p_index", compute_desc_.pindex);
-			ptree.put<ushort>("image_rendering.phase_number_longtimes", compute_desc_.nSize_longtimes);
-			ptree.put<ushort>("image_rendering.p_index_longtimes", compute_desc_.pindex_longtimes);
 			ptree.put<float>("image_rendering.lambda", compute_desc_.lambda);
 			ptree.put<float>("image_rendering.z_distance", compute_desc_.zdistance);
 			ptree.put<double>("image_rendering.z_step", z_step_);
@@ -1493,15 +1452,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::update_stft_longtimes_steps(int value)
-		{
-			if (!is_direct_mode())
-			{
-				compute_desc_.stft_longtimes_steps = value;
-				notify();
-			}
-		}
-
 		void MainWindow::stft_view(bool checked)
 		{
 			InfoManager *manager = InfoManager::get_manager();
@@ -1737,32 +1687,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::setPhase_longtimes(int value)
-		{
-			if (!is_direct_mode())
-			{
-				int nSize_longtimes = value;
-				nSize_longtimes = std::max(1, nSize_longtimes);
-
-				if (nSize_longtimes == compute_desc_.nSize_longtimes)
-					return;
-				notify();
-				auto pipe = dynamic_cast<Pipe *>(holovibes_.get_pipe().get());
-				if (pipe)
-				{
-					pipe->run_end_pipe([=]() {
-						holovibes_.get_pipe()->request_update_n_longtimes(nSize_longtimes);
-						compute_desc_.nSize_longtimes = nSize_longtimes;
-					});
-				}
-				ui.PLongtimesSpinBox->setMaximum(compute_desc_.nSize_longtimes - 1);
-				if (compute_desc_.nSize_longtimes <= compute_desc_.pindex_longtimes)
-				{
-					compute_desc_.pindex_longtimes = compute_desc_.nSize_longtimes - 1;
-				}
-			}
-		}
-
 		void MainWindow::set_special_buffer_size(int value)
 		{
 			if (!is_direct_mode())
@@ -1860,12 +1784,6 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_p_accu_longtimes(int value)
-		{
-			compute_desc_.p_acc_level_longtimes = value;
-			notify();
-		}
-
 		void MainWindow::set_x_accu()
 		{
 			auto box = ui.XAccSpinBox;
@@ -1898,20 +1816,6 @@ namespace holovibes
 			}
 		}
 
-		void MainWindow::set_p_longtimes(int value)
-		{
-			if (!is_direct_mode())
-			{
-				if (value < static_cast<int>(compute_desc_.nSize_longtimes))
-				{
-					compute_desc_.pindex_longtimes = value;
-					notify();
-				}
-				else
-					display_error("p 2 param has to be between 1 and #img 2");
-			}
-		}
-
 		void MainWindow::set_composite_intervals()
 		{
 			ui.PRedSpinBox_Composite->setValue(std::min(ui.PRedSpinBox_Composite->value(), ui.PBlueSpinBox_Composite->value()));
@@ -1919,8 +1823,6 @@ namespace holovibes
 			compute_desc_.composite_p_blue = ui.PBlueSpinBox_Composite->value();
 			notify();
 		}
-
-
 
 		void MainWindow::set_composite_intervals_hsv_h_min()
 		{
@@ -2400,22 +2302,6 @@ namespace holovibes
 		void MainWindow::set_jitter_slices(int value)
 		{
 			compute_desc_.jitter_slices_ = value;
-		}
-
-		void MainWindow::set_stft_longtimes(bool value)
-		{
-			compute_desc_.is_stft_longtimes = value;
-			ui.label_26->setHidden(!value);
-			ui.label_27->setHidden(!value);
-			ui.label_28->setHidden(!value);
-			ui.label_29->setHidden(!value);
-			ui.StftLongtimesStepSpinBox->setHidden(!value);
-			ui.nSizeLongtimesSpinBox->setHidden(!value);
-			ui.PLongtimesSpinBox->setHidden(!value);
-			ui.PAccLongtimesSpinBox->setHidden(!value);
-			ui.ViewModeComboBox->setEnabled(false);
-			compute_desc_.current_window = XYview;
-			set_auto_contrast();
 		}
 
 #pragma endregion

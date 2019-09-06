@@ -571,7 +571,7 @@
          <bool>false</bool>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
-         <item row="6" column="0" colspan="2">
+         <item row="3" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
            <property name="sizeConstraint">
             <enum>QLayout::SetNoConstraint</enum>
@@ -651,7 +651,7 @@
            </item>
           </layout>
          </item>
-         <item row="8" column="0">
+         <item row="5" column="0">
           <widget class="QComboBox" name="WindowSelectionComboBox">
            <property name="enabled">
             <bool>false</bool>
@@ -679,7 +679,7 @@
            </item>
           </widget>
          </item>
-         <item row="7" column="0" colspan="2">
+         <item row="4" column="0" colspan="2">
           <layout class="QGridLayout" name="gridLayout_5" columnstretch="0,0,0">
            <property name="horizontalSpacing">
             <number>6</number>
@@ -824,35 +824,7 @@
            </item>
           </layout>
          </item>
-         <item row="1" column="0" colspan="2">
-          <widget class="QCheckBox" name="StftLongtimesCheckBox">
-           <property name="text">
-            <string>STFT long times</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_34">
-           <item>
-            <widget class="QLabel" name="label_26">
-             <property name="text">
-              <string>STFT 2 steps</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="StftLongtimesStepSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>2147483647</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="10" column="0" colspan="2">
+         <item row="7" column="0" colspan="2">
           <layout class="QHBoxLayout" name="horizontalLayout_24" stretch="1,0,0">
            <item>
             <widget class="QCheckBox" name="ScaleBarCheckBox">
@@ -961,7 +933,7 @@
            </item>
           </layout>
          </item>
-         <item row="11" column="1">
+         <item row="8" column="1">
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -977,60 +949,7 @@
            </property>
           </spacer>
          </item>
-         <item row="3" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_37">
-           <item>
-            <widget class="QLabel" name="label_27">
-             <property name="text">
-              <string>#img 2</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="nSizeLongtimesSpinBox">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>65536</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="4" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_36">
-           <item>
-            <widget class="QLabel" name="label_28">
-             <property name="text">
-              <string>p 2</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="PLongtimesSpinBox"/>
-           </item>
-          </layout>
-         </item>
-         <item row="5" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayout_35">
-           <item>
-            <widget class="QLabel" name="label_29">
-             <property name="text">
-              <string>p acc 2</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="PAccLongtimesSpinBox">
-             <property name="maximum">
-              <number>1400000000</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="9" column="0" colspan="2">
+         <item row="6" column="0" colspan="2">
           <widget class="QFrame" name="frame">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -7113,86 +7032,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>StftLongtimesCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_stft_longtimes(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>124</x>
-     <y>125</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>298</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>StftLongtimesStepSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_stft_longtimes_steps(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>165</x>
-     <y>154</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>298</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>nSizeLongtimesSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>setPhase_longtimes(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>400</x>
-     <y>156</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PLongtimesSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_longtimes(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>400</x>
-     <y>187</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PAccLongtimesSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_accu_longtimes(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>400</x>
-     <y>218</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>920</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PixelSizeDoubleSpinBox</sender>
    <signal>valueChanged(double)</signal>
    <receiver>MainWindow</receiver>
@@ -7213,7 +7052,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_image_mode(bool)</slot>
   <slot>set_phase_number(int)</slot>
   <slot>set_p(int)</slot>
-  <slot>set_p_longtimes(int)</slot>
   <slot>set_wavelength(double)</slot>
   <slot>set_z(double)</slot>
   <slot>set_algorithm(QString)</slot>
@@ -7304,7 +7142,6 @@ p, li { white-space: pre-wrap; }
   <slot>take_sliding_ref()</slot>
   <slot>write_ini()</slot>
   <slot>update_stft_steps(int)</slot>
-  <slot>update_stft_longtimes_steps(int)</slot>
   <slot>dispose_average_graphic()</slot>
   <slot>cancel_stft_slice_view()</slot>
   <slot>stft_view(bool)</slot>
@@ -7315,9 +7152,7 @@ p, li { white-space: pre-wrap; }
   <slot>activeSignalZone()</slot>
   <slot>activeNoiseZone()</slot>
   <slot>setPhase()</slot>
-  <slot>setPhase_longtimes(int)</slot>
   <slot>set_p_accu()</slot>
-  <slot>set_p_accu_longtimes(int)</slot>
   <slot>browse_trigger_config_file()</slot>
   <slot>set_integer_visible(bool)</slot>
   <slot>set_x_accu()</slot>
@@ -7368,6 +7203,5 @@ p, li { white-space: pre-wrap; }
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
-  <slot>set_stft_longtimes(bool)</slot>
  </slots>
 </ui>

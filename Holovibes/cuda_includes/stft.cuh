@@ -61,7 +61,6 @@ void stft(cuComplex			*input,
 		const bool			stft_activated,
 		const holovibes::ComputeDescriptor &cd,
 		cuComplex			*cropped_stft_buf,
-		bool				is_longtimes,
 		cudaStream_t		stream = 0);
 
 /// Computes the average frame for pmin <= p <= pmax

@@ -49,15 +49,14 @@ namespace holovibes
 	{
 		stabilization_ = std::make_unique<compute::Stabilization>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		autofocus_ = std::make_unique<compute::Autofocus>(fn_vect_, buffers_, input_, desc, this);
-		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_, stft_longtimes_env_);
+		fourier_transforms_ = std::make_unique<compute::FourierTransform>(fn_vect_, buffers_, autofocus_, input.get_frame_desc(), desc, plan2d_, stft_env_);
 		rendering_ = std::make_unique<compute::Rendering>(fn_vect_, buffers_, average_env_, desc, input.get_frame_desc(), output.get_frame_desc(), this);
-		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, stft_longtimes_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
+		converts_ = std::make_unique<compute::Converts>(fn_vect_, buffers_, stft_env_, plan2d_, desc, input.get_frame_desc(), output.get_frame_desc());
 		preprocess_ = std::make_unique<compute::Preprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		postprocess_ = std::make_unique<compute::Postprocessing>(fn_vect_, buffers_, input.get_frame_desc(), desc);
 		aberration_ = std::make_unique<compute::Aberration>(buffers_, input.get_frame_desc(), desc, fourier_transforms_->get_lens_queue().get());
 
 		update_n_requested_ = true;
-		update_n_requested_longtimes_ = true;
 		refresh();
 	}
 
@@ -111,7 +110,6 @@ namespace holovibes
 			// Useless function, that has no incidence on output, but maybe fixes a displaying bug of direct hologram
 			//direct_refresh();
 			update_n_requested_ = false;
-			update_n_requested_longtimes_ = false;
 			refresh_requested_ = false;
 			return;
 		}
@@ -135,18 +133,6 @@ namespace holovibes
 			}
 			update_n_requested_ = false;
 		}
-		if (update_n_requested_longtimes_)
-		{
-			if (!update_n_parameter_longtimes(compute_desc_.nSize_longtimes))
-			{
-				compute_desc_.pindex_longtimes = 0;
-				compute_desc_.nSize_longtimes = 1;
-				update_n_parameter_longtimes(1);
-				std::cerr << "Updating #img 2 failed, #img 2 updated to 1" << std::endl;
-			}
-			update_n_requested_longtimes_ = false;
-		}
-
 		// Allocating cuts queues
 		request_queues();
 
@@ -211,23 +197,14 @@ namespace holovibes
 		postprocess_->insert_vibrometry();
 		postprocess_->insert_flowgraphy();
 
-		//TODO ELLENA
-		if (compute_desc_.is_stft_longtimes)
+		converts_->insert_to_float(unwrap_2d_requested_);
+		if (compute_desc_.img_type == Complex)
 		{
-			fourier_transforms_->insert_stft_longtimes();
-			converts_->insert_to_float_longtimes();
-		}
-		else
-		{
-			converts_->insert_to_float(unwrap_2d_requested_);
-			if (compute_desc_.img_type == Complex)
-			{
-				refresh_requested_ = false;
-				autocontrast_requested_ = false;
-				autocontrast_slice_xz_requested_ = false;
-				autocontrast_slice_yz_requested_ = false;
-				return;
-			}
+			refresh_requested_ = false;
+			autocontrast_requested_ = false;
+			autocontrast_slice_xz_requested_ = false;
+			autocontrast_slice_yz_requested_ = false;
+			return;
 		}
 
 		postprocess_->insert_convolution();
@@ -284,8 +261,6 @@ namespace holovibes
 					if (compute_desc_.compute_mode == Hologram)
 					{
 						bool act = stft_env_.stft_frame_counter_ == compute_desc_.stft_steps;
-						if (compute_desc_.is_stft_longtimes)
-							act  = stft_longtimes_env_.stft_frame_counter_ == compute_desc_.stft_longtimes_steps;
 						if (act)
 						{
 							if (!output_.enqueue(get_enqueue_buffer()))

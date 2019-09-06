@@ -53,7 +53,6 @@ namespace holovibes
 		autocontrast_slice_yz_requested_(false),
 		refresh_requested_(false),
 		update_n_requested_(false),
-		update_n_requested_longtimes_(false),
 		stft_update_roi_requested_(false),
 		average_requested_(false),
 		average_record_requested_(false),
@@ -91,16 +90,9 @@ namespace holovibes
 				std::cerr << "Error: can't allocate queue" << std::endl;
 		}
 
-		//int inembed[1] = { compute_desc_.nSize_longtimes };
 		int inembed[1];
-		inembed[0] = compute_desc_.nSize_longtimes;
 		int zone_size = input_.get_pixels();
 			
-		stft_longtimes_env_.plan1d_stft_.planMany(1, inembed,
-			inembed, zone_size, 1,
-			inembed, zone_size, 1,
-			CUFFT_C2C, zone_size);
-
 		inembed[0] = compute_desc_.nSize;
 		if (compute_desc_.croped_stft)
 			zone_size = compute_desc_.getZoomedZone().area();
@@ -113,7 +105,6 @@ namespace holovibes
 		camera::FrameDescriptor new_fd2 = input_.get_frame_desc();
 		new_fd2.depth = 8;
 		stft_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueue"));
-		stft_longtimes_env_.gpu_stft_queue_.reset(new Queue(new_fd2, compute_desc_.stft_level, "STFTQueueLongtimes"));
 
 		if (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled)
 		{
@@ -185,7 +176,7 @@ namespace holovibes
 				request_stft_cuts_ = true; */
 			stft_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueue"));
 			if (auto pipe = dynamic_cast<Pipe *>(this))
-				pipe->get_fourier_transforms()->allocate_filter2d(n, false);
+				pipe->get_fourier_transforms()->allocate_filter2d(n);
 		}
 		catch (std::exception&)
 		{
@@ -200,65 +191,6 @@ namespace holovibes
 		{
 			abort_construct_requested_ = true;
 			allocation_failed(err_count, CustomException("error in update_n_parameters(n)", error_kind::fail_update));
-			return false;
-		}
-
-		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels() * 2))
-			return false;
-		notify_observers();
-		return true;
-	}
-
-	bool	ICompute::update_n_parameter_longtimes(unsigned short n) //TODO ELLENA
-	{
-		unsigned int err_count = 0;
-		abort_construct_requested_ = false;
-		{
-			std::lock_guard<std::mutex> Guard(stft_longtimes_env_.stftGuard_);
-			stft_longtimes_env_.gpu_stft_buffer_.reset();
-			stft_longtimes_env_.plan1d_stft_.reset();
-			/* CUFFT plan1d realloc */
-			int inembed_stft[1] = { n };
-
-			int zone_size = input_.get_pixels();
-
-			stft_longtimes_env_.plan1d_stft_.planMany(1, inembed_stft,
-				inembed_stft, zone_size, 1,
-				inembed_stft, zone_size, 1,
-				CUFFT_C2C, zone_size);
-			stft_longtimes_env_.gpu_stft_buffer_.resize(input_.get_pixels() * n);
-		}
-
-		stft_longtimes_env_.gpu_stft_queue_.reset();
-
-
-		camera::FrameDescriptor new_fd = input_.get_frame_desc();
-		// gpu_stft_queue is a complex queue
-		new_fd.depth = 8;
-		try
-		{
-			/* This will resize cuts buffers: Some modifications are to be applied on opengl to work.
-
-			if (compute_desc_.stft_view_enabled)
-				request_stft_cuts_ = true; */
-			stft_longtimes_env_.gpu_stft_queue_.reset(new Queue(new_fd, n, "STFTQueueLongtimes"));
-			if (auto pipe = dynamic_cast<Pipe *>(this))
-				pipe->get_fourier_transforms()->allocate_filter2d(n, true);
-		}
-		catch (std::exception&)
-		{
-			stft_longtimes_env_.gpu_stft_queue_.reset();
-			request_stft_cuts_ = false;
-			request_delete_stft_cuts_ = true;
-			request_queues();
-			err_count++;
-		}
-
-		if (err_count != 0)
-		{
-			abort_construct_requested_ = true;
-			allocation_failed(err_count, CustomException("error in update_n_parameters_longtimes(n)", error_kind::fail_update));
 			return false;
 		}
 
@@ -443,12 +375,6 @@ namespace holovibes
 	void ICompute::request_update_n(const unsigned short n)
 	{
 		update_n_requested_ = true;
-		request_refresh();
-	}
-
-	void ICompute::request_update_n_longtimes(const unsigned short n)
-	{
-		update_n_requested_longtimes_ = true;
 		request_refresh();
 	}
 

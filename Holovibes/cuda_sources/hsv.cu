@@ -116,9 +116,9 @@ void kernel_fill_part_frequency_axis(const size_t min, const size_t max,
 	}
 }
 
-void fill_frequencies_arrays(const holovibes::ComputeDescriptor &cd, float *gpu_omega_arr, size_t frame_res, bool is_longtimes)
+void fill_frequencies_arrays(const holovibes::ComputeDescriptor &cd, float *gpu_omega_arr, size_t frame_res)
 {
-	const int nSize = is_longtimes ? cd.nSize_longtimes : cd.nSize;
+	const int nSize = cd.nSize;
 	const uint threads = get_max_threads_1d();
 	uint blocks = map_blocks_to_problem(frame_res, threads);
 
@@ -408,10 +408,9 @@ void hsv(const cuComplex *gpu_input,
 	float *gpu_output,
 	const uint width,
 	const uint height,
-	const holovibes::ComputeDescriptor& cd,
-	bool is_longtimes)
+	const holovibes::ComputeDescriptor& cd)
 {
-	const int nsize = is_longtimes ? cd.nSize_longtimes : cd.nSize;
+	const int nsize = cd.nSize;
 	const uint frame_res = height * width;
 
 	const uint threads = get_max_threads_1d();
@@ -421,7 +420,7 @@ void hsv(const cuComplex *gpu_input,
 	cudaMalloc(&gpu_omega_arr, sizeof(float) * nsize * 2); // w1[] && w2[]
 	cudaCheckError();
 
-	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res, is_longtimes);
+	fill_frequencies_arrays(cd, gpu_omega_arr, frame_res);
 
 	float *tmp_hsv_arr;
 	cudaMalloc(&tmp_hsv_arr, sizeof(float) * frame_res * 3); // HSV temp array

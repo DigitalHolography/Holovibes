@@ -213,10 +213,7 @@ namespace holovibes
 		std::atomic<ushort>			nSize;
 		//! index in the depth axis
 		std::atomic<ushort>			pindex;
-		//! Number of images used by SFTF longtimes i.e. depth of the SFTF cube
-		std::atomic<ushort>			nSize_longtimes;
-		//! index in the depth axis for the stft longtimes
-		std::atomic<ushort>			pindex_longtimes;
+		
 		std::atomic<ushort>			vibrometry_q;
 		//! wave length of the laser
 		std::atomic<float>			lambda;
@@ -268,8 +265,7 @@ namespace holovibes
 		std::atomic<int>			stft_level;
 		//! Number of pipe iterations between two temporal demodulation.
 		std::atomic<int>			stft_steps;
-		//! Number of pipe iterations between two temporal demodulation.
-		std::atomic<int>			stft_longtimes_steps;
+
 		std::atomic<int>			unwrap_history_size;
 		std::atomic<int>			special_buffer_size;
 		//! is convolution enabled
@@ -349,8 +345,6 @@ namespace holovibes
 		std::atomic<bool>			p_accu_enabled;
 		//! difference between p min and p max
 		std::atomic<short>			p_acc_level;
-		//! difference between p min and p max for the longtimes stft
-		std::atomic<short>			p_acc_level_longtimes;
 
 		//! is x average in view YZ enabled (average of columns between both selected columns)
 		std::atomic<bool>			x_accu_enabled;
@@ -379,8 +373,6 @@ namespace holovibes
 		std::atomic<bool>			raw_view{ false };
 		//! Enables the recording of the raw interferogram when we are in hologram mode.
 		std::atomic<bool>			record_raw{ false };
-		//! is in stft longtimes mode
-		std::atomic<bool>			is_stft_longtimes;
 
 		//! Wait the beginning of the file to start the recording.
 		std::atomic<bool>			synchronized_record{ false };

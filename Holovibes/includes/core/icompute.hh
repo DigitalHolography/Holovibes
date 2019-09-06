@@ -125,7 +125,6 @@ namespace holovibes
 		void request_filter2D_roi_update();
 		void request_filter2D_roi_end();
 		void request_update_n(const unsigned short n);
-		void request_update_n_longtimes(const unsigned short n);
 		void request_update_unwrap_size(const unsigned size);
 		void request_unwrapping_1d(const bool value);
 		void request_unwrapping_2d(const bool value);
@@ -187,11 +186,6 @@ namespace holovibes
 			stft_env_.stft_frame_counter_ = value;
 		}
 
-		void set_stft_longtimes_frame_counter(uint value)
-		{
-			stft_longtimes_env_.stft_frame_counter_ = value;
-		}
-
 		virtual std::unique_ptr<Queue>&	get_lens_queue() = 0;
 		virtual std::unique_ptr<Queue>&	get_raw_queue() = 0;
 	protected:
@@ -199,7 +193,6 @@ namespace holovibes
 		virtual void refresh() = 0;
 		virtual void allocation_failed(const int& err_count, std::exception& e);
 		virtual bool update_n_parameter(unsigned short n);
-		virtual bool update_n_parameter_longtimes(unsigned short n);
 		void request_queues();
 
 		void fps_count();
@@ -223,8 +216,6 @@ namespace holovibes
 		CoreBuffers			buffers_;
 		/** STFT environment. */
 		Stft_env			stft_env_;
-		/** STFT longtimes environment. */
-		Stft_env			stft_longtimes_env_;
 		/** Average environment. */
 		Average_env			average_env_;
 		/** Pland 2D. Used for spatial fft performed on the complex input frame. */
@@ -250,7 +241,6 @@ namespace holovibes
 		std::atomic<bool>	autocontrast_slice_yz_requested_;
 		std::atomic<bool>	refresh_requested_;
 		std::atomic<bool>	update_n_requested_;
-		std::atomic<bool>	update_n_requested_longtimes_;
 		std::atomic<bool>	stft_update_roi_requested_;
 		std::atomic<bool>	average_requested_;
 		std::atomic<bool>	average_record_requested_;

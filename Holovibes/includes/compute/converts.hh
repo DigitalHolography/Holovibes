@@ -37,7 +37,6 @@ namespace holovibes
 			Converts(FnVector& fn_vect,
 				const CoreBuffers& buffers,
 				const Stft_env& stft_env,
-				const Stft_env& stft_longtimes_env,
 				const cufftHandle& plan2d,
 				ComputeDescriptor& cd,
 				const camera::FrameDescriptor& input_fd,
@@ -47,11 +46,6 @@ namespace holovibes
 
 			*/
 			void insert_to_float(bool unwrap_2d_requested);
-
-			/** \brief Insert functions relative to the convertion Complex => Float in longtimes mode
-
-			*/
-			void insert_to_float_longtimes();
 
 			/** \brief Insert functions relative to the convertion Float => Unsigned Short
 
@@ -70,8 +64,6 @@ namespace holovibes
 			
 			void insert_to_modulus();
 			
-
-			void insert_to_modulus_longtimes();
 			/** \brief Insert the convertion Complex => Squared Modulus
 
 			*/
@@ -96,14 +88,6 @@ namespace holovibes
 
 			*/
 			void insert_slice_ushort();
-			/** \brief Set pmin_ and pmax_ according to p accumulation for the longtimes mode.
-
-			*/
-			void insert_compute_p_accu_longtimes();
-			/** \brief Insert the convertion Complex => Composite in longtimes mode
-
-			*/
-			void insert_to_composite_longtimes();
 
 			//! pindex.
 			ushort pmin_;
@@ -117,8 +101,6 @@ namespace holovibes
 			const CoreBuffers&				buffers_;
 			//! STFT environment
 			const Stft_env&					stft_env_;
-			//! STFT longtimes environment
-			const Stft_env&					stft_longtimes_env_;
 			//! Phase unwrapping 1D. Used for phase increase and Argument.
 			std::unique_ptr<UnwrappingResources>	unwrap_res_;
 			//! Phase unwrapping 2D. Used for phase increase and Argument.

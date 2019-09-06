@@ -29,7 +29,6 @@ namespace holovibes
 		Converts::Converts(FnVector& fn_vect,
 			const CoreBuffers& buffers,
 			const Stft_env& stft_env,
-			const Stft_env& stft_longtimes_env,
 			const cufftHandle& plan2d,
 			ComputeDescriptor& cd,
 			const camera::FrameDescriptor& input_fd,
@@ -39,7 +38,6 @@ namespace holovibes
 			, fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, stft_env_(stft_env)
-			, stft_longtimes_env_(stft_longtimes_env)
 			, unwrap_res_()
 			, unwrap_res_2d_()
 			, plan2d_(plan2d)
@@ -68,13 +66,6 @@ namespace holovibes
 			}
 		}
 
-		void Converts::insert_to_float_longtimes()
-		{
-			insert_compute_p_accu_longtimes();
-			//insert_to_composite_longtimes();
-			insert_to_modulus_longtimes();
-		}
-
 		void Converts::insert_to_ushort()
 		{
 			insert_main_ushort();
@@ -101,19 +92,6 @@ namespace holovibes
 					buffers_.gpu_input_buffer_,
 					buffers_.gpu_float_buffer_,
 					stft_env_.gpu_stft_buffer_,
-					pmin_,
-					pmax_,
-					fd_.frame_res());
-			});
-		}
-
-		void Converts::insert_to_modulus_longtimes()
-		{
-			fn_vect_.push_back([=]() {
-				complex_to_modulus(
-					buffers_.gpu_input_buffer_,
-					buffers_.gpu_float_buffer_,
-					stft_longtimes_env_.gpu_stft_buffer_,
 					pmin_,
 					pmax_,
 					fd_.frame_res());
@@ -155,8 +133,7 @@ namespace holovibes
 						buffers_.gpu_float_buffer_,
 						fd_.width,
 						fd_.height,
-						cd_,
-						false);
+						cd_);
 
 				if(cd_.composite_auto_weights_)
 					postcolor_normalize(buffers_.gpu_float_buffer_,
@@ -292,55 +269,5 @@ namespace holovibes
 					2.f);
 			});
 		}
-
-		void Converts::insert_compute_p_accu_longtimes()
-		{
-			fn_vect_.push_back([=]() {
-				pmin_ = cd_.pindex_longtimes;
-				if (cd_.p_acc_level_longtimes > 0)
-					pmax_ = std::max(0, std::min(pmin_ + cd_.p_acc_level_longtimes, static_cast<int>(cd_.nSize_longtimes)));
-				else
-					pmax_ = pmin_;
-			});
-		}
-		//TODO ELLENA
-		void Converts::insert_to_composite_longtimes()
-		{
-			fn_vect_.push_back([=]() {
-				if (!is_between<ushort>(cd_.composite_p_red, 0, cd_.nSize_longtimes) ||
-					!is_between<ushort>(cd_.composite_p_blue, 0, cd_.nSize_longtimes))
-					return;
-
-				if(cd_.composite_kind == CompositeKind::RGB)
-					rgb(stft_longtimes_env_.gpu_stft_buffer_.get(),
-					buffers_.gpu_float_buffer_,
-					fd_.frame_res(),
-					cd_.composite_auto_weights_,
-					cd_.composite_p_red,
-					cd_.composite_p_blue,
-					cd_.weight_r,
-					cd_.weight_g,
-					cd_.weight_b);
-				else
-					hsv(stft_longtimes_env_.gpu_stft_buffer_.get(),
-						buffers_.gpu_float_buffer_,
-						fd_.width,
-						fd_.height,
-						cd_,
-						true);
-
-				
-
-				if(cd_.composite_auto_weights_)
-					postcolor_normalize(buffers_.gpu_float_buffer_,
-						fd_.frame_res(),
-						fd_.width,
-						cd_.getCompositeZone(),
-						cd_.weight_r,
-						cd_.weight_g,
-						cd_.weight_b);
-			});
-		}
-	
 	}
 }

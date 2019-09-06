@@ -33,13 +33,11 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	const camera::FrameDescriptor& fd,
 	holovibes::ComputeDescriptor& cd,
 	const cufftHandle& plan2d,
-	holovibes::Stft_env& stft_env,
-	holovibes::Stft_env& stft_longtimes_env)
+	holovibes::Stft_env& stft_env)
 	: gpu_lens_()
 	, gpu_lens_queue_()
 	, gpu_filter2d_buffer_()
 	, gpu_cropped_stft_buf_()
-	, gpu_cropped_stft_longtimes_buf_()
 	, fn_vect_(fn_vect)
 	, buffers_(buffers)
 	, autofocus_(autofocus)
@@ -47,7 +45,6 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	, cd_(cd)
 	, plan2d_(plan2d)
 	, stft_env_(stft_env)
-	, stft_longtimes_env_(stft_longtimes_env)
 {
 	gpu_lens_.resize(fd_.frame_res());
 	gpu_filter2d_buffer_.resize(fd_.frame_res());
@@ -58,7 +55,6 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 	{
 		auto zone = cd_.getZoomedZone();
 		gpu_cropped_stft_buf_.resize(zone.area() * cd_.nSize);
-		//gpu_cropped_stft_longtimes_buf_.resize(zone.area() * cd_.nSize_longtimes);
 		ss << zone.x() << "," << zone.y() << "," << zone.right() << "," << zone.bottom() << ")";
 	}
 	else
@@ -68,22 +64,12 @@ FourierTransform::FourierTransform(FnVector& fn_vect,
 }
 
 
-void FourierTransform::allocate_filter2d(unsigned int n, bool is_longtimes)
+void FourierTransform::allocate_filter2d(unsigned int n)
 {
-	if (!is_longtimes)
-	{
-		if (cd_.croped_stft)
-			gpu_cropped_stft_buf_.resize(cd_.getZoomedZone().area() * n);
-		else
-			gpu_cropped_stft_buf_.reset();
-	}
-	/*else
-	{
-		if (cd_.croped_stft)
-			gpu_cropped_stft_longtimes_buf_.resize(cd_.getZoomedZone().area() * n);
-		else
-			gpu_cropped_stft_longtimes_buf_.reset();
-	}*/
+	if (cd_.croped_stft)
+		gpu_cropped_stft_buf_.resize(cd_.getZoomedZone().area() * n);
+	else
+		gpu_cropped_stft_buf_.reset();
 }
 
 void FourierTransform::insert_fft()
@@ -165,14 +151,6 @@ void FourierTransform::insert_stft()
 	fn_vect_.push_back([=]() { stft_handler(); });
 }
 
-void FourierTransform::insert_stft_longtimes()
-{
-	//TODO ELLENA 
-	fn_vect_.push_back([=]() { queue_enqueue(stft_env_.gpu_stft_buffer_.get() + cd_.pindex * fd_.frame_res(), stft_longtimes_env_.gpu_stft_queue_.get()); });
-
-	fn_vect_.push_back([=]() { stft_longtimes_handler(); });
-}
-
 
 std::unique_ptr<Queue>& FourierTransform::get_lens_queue()
 {
@@ -212,7 +190,6 @@ void FourierTransform::stft_handler()
 	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
 	if (!cd_.vibrometry_enabled)
-		//reuse for stft longtimes
 		stft(buffers_.gpu_input_buffer_,
 			stft_env_.gpu_stft_queue_.get(),
 			stft_env_.gpu_stft_buffer_,
@@ -268,81 +245,6 @@ void FourierTransform::stft_handler()
 			cd_.img_type);
 	}
 	stft_env_.stft_handle_ = true;
-}
-
-void FourierTransform::stft_longtimes_handler() //TODO ELLENA
-{
-	static ushort mouse_posx;
-	static ushort mouse_posy;
-
-	stft_longtimes_env_.stft_frame_counter_--;
-	bool b = false;
-	if (stft_longtimes_env_.stft_frame_counter_ == 0)
-	{
-		b = true;
-		stft_longtimes_env_.stft_frame_counter_ = cd_.stft_longtimes_steps;
-	}
-	std::lock_guard<std::mutex> Guard(stft_longtimes_env_.stftGuard_);
-
-	if (!cd_.vibrometry_enabled)
-		stft(buffers_.gpu_input_buffer_,
-			stft_longtimes_env_.gpu_stft_queue_.get(),
-			stft_longtimes_env_.gpu_stft_buffer_,
-			stft_longtimes_env_.plan1d_stft_,
-			cd_.pindex_longtimes,
-			fd_.width,
-			fd_.height,
-			b,
-			cd_,
-			gpu_cropped_stft_longtimes_buf_,
-			true);
-	else
-	{
-		stft(
-			buffers_.gpu_input_buffer_,
-			stft_longtimes_env_.gpu_stft_queue_.get(),
-			stft_longtimes_env_.gpu_stft_buffer_,
-			stft_longtimes_env_.plan1d_stft_,
-			cd_.vibrometry_q,
-			fd_.width,
-			fd_.height,
-			b,
-			cd_,
-			gpu_cropped_stft_longtimes_buf_,
-			true);
-	}
-
-
-	
-	if (cd_.stft_view_enabled && b)
-	{
-		// Conservation of the coordinates when cursor is outside of the window
-		units::PointFd cursorPos = cd_.getStftCursor();
-		const ushort width = fd_.width;
-		const ushort height = fd_.height;
-		if (static_cast<ushort>(cursorPos.x()) < width &&
-			static_cast<ushort>(cursorPos.y()) < height)
-		{
-			mouse_posx = cursorPos.x();
-			mouse_posy = cursorPos.y();
-		}
-		// -----------------------------------------------------
-		stft_view_begin(stft_env_.gpu_stft_buffer_,
-			buffers_.gpu_float_cut_xz_,
-			buffers_.gpu_float_cut_yz_,
-			mouse_posx,
-			mouse_posy,
-			mouse_posx + (cd_.x_accu_enabled ? cd_.x_acc_level.load() : 0),
-			mouse_posy + (cd_.y_accu_enabled ? cd_.y_acc_level.load() : 0),
-			width,
-			height,
-			cd_.img_type,
-			cd_.nSize,
-			cd_.img_acc_slice_xz_enabled ? cd_.img_acc_slice_xz_level.load() : 1,
-			cd_.img_acc_slice_yz_enabled ? cd_.img_acc_slice_yz_level.load() : 1,
-			cd_.img_type);
-	}
-	stft_longtimes_env_.stft_handle_ = true;
 }
 
 void FourierTransform::compute_zernike(const float z)

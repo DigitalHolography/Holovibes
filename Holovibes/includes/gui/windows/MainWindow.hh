@@ -128,7 +128,6 @@ namespace holovibes
 			void set_direct_mode();
 			void set_holographic_mode();
 			void refreshViewMode();
-			void set_stft_longtimes(bool value);
 			void set_convolution_mode(const bool enable);
 			void set_divide_convolution_mode(const bool value);
 			void set_flowgraphy_mode(const bool enable);
@@ -140,14 +139,12 @@ namespace holovibes
 			void set_filter2D();
 			void cancel_filter2D();
 			void setPhase();
-			void setPhase_longtimes(int value);
 			void set_special_buffer_size(int value);
 			void update_lens_view(bool value);
 			void update_raw_view(bool value);
 			void set_p_accu();
 			void set_x_accu();
 			void set_y_accu();
-			void set_p_accu_longtimes(int value);
 			void set_composite_intervals();
 			void set_composite_intervals_hsv_h_min();
 			void set_composite_intervals_hsv_h_max();
@@ -169,7 +166,6 @@ namespace holovibes
 			void actualize_checkbox_h_gaussian_blur();
 			void actualize_kernel_size_blur();
 			void set_p(int value);
-			void set_p_longtimes(int value);
 			void set_flowgraphy_level(const int value);
 			void increment_p();
 			void decrement_p();
@@ -188,7 +184,6 @@ namespace holovibes
 			void stft_view(bool checked);
 			void cancel_stft_slice_view();
 			void update_stft_steps(int value);
-			void update_stft_longtimes_steps(int value);
 			void set_view_mode(QString value);
 			void set_unwrap_history_size(int value);
 			void set_unwrapping_1d(const bool value);

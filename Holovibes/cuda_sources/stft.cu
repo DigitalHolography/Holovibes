@@ -154,20 +154,12 @@ void stft(cuComplex			*input,
 		const bool			stft_activated,
 		const ComputeDescriptor &cd,
 		cuComplex			*cropped_stft_buf,
-		bool				is_longtimes,
 		cudaStream_t		stream)
 {
 	uint stft_level = cd.nSize;
 	uint p = cd.pindex;
 	uint nSize = cd.nSize;
 	bool cropped_stft = cd.croped_stft;
-	if (is_longtimes)
-	{
-		stft_level = cd.nSize_longtimes;
-		p = cd.pindex_longtimes;
-		nSize = cd.nSize_longtimes;
-		cropped_stft = false;
-	}
 	const RectFd cropped_zone = cd.getZoomedZone();
 
 	const int frame_size = width * height;
