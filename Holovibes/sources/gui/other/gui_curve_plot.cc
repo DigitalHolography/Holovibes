@@ -173,5 +173,3 @@ namespace holovibes
 #undef HEIGHT
 #undef TIMER_FREQ
 #undef POINTS
-
-#include "moc_gui_curve_plot.cc"

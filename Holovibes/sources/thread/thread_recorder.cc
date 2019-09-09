@@ -52,5 +52,3 @@ namespace holovibes
 		}
 	}
 }
-
-#include "moc_thread_recorder.cc"

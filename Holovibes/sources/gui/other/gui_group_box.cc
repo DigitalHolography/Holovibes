@@ -34,5 +34,3 @@ namespace holovibes
 		}
 	}
 }
-
-#include "moc_gui_group_box.cc"

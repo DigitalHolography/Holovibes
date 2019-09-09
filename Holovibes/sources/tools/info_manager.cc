@@ -166,5 +166,3 @@ namespace holovibes
 		}
 	}
 }
-
-#include "moc_info_manager.cc"

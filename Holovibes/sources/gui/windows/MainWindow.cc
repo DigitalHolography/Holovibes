@@ -3623,4 +3623,3 @@ namespace holovibes
 #pragma endregion
 	}
 }
-#include "moc_MainWindow.cc"
