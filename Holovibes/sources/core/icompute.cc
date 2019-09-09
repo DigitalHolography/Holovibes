@@ -26,7 +26,6 @@
 #include "power_of_two.hh"
 #include "info_manager.hh"
 #include "tools_compute.cuh"
-#include "vibrometry.cuh"
 #include "compute_bundles.hh"
 #include "custom_exception.hh"
 #include "unique_ptr.hh"
@@ -194,8 +193,7 @@ namespace holovibes
 			return false;
 		}
 
-		/*We malloc 2 frames because we might need a second one if the vibrometry is enabled*/
-		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels() * 2))
+		if (!buffers_.gpu_input_buffer_.resize(input_.get_pixels()))
 			return false;
 		notify_observers();
 		return true;

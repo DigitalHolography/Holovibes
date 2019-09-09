@@ -203,9 +203,6 @@ namespace holovibes
 			void set_contrast_max(double value);
 			void set_log_scale(bool value);
 			void set_shifted_corners(bool value);
-			void set_vibro_mode(bool value);
-			void set_p_vibro(int value);
-			void set_q_vibro(int value);
 			void set_average_mode(bool value);
 			void set_stabilization_area();
 			void set_composite_area();

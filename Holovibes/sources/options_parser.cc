@@ -171,10 +171,6 @@ namespace holovibes
 			po::value<float>(),
 			"Enable contrast and set max value."
 			"Argument use logarithmic scale.")
-
-			("vibrometry,v",
-			po::value<int>(),
-			"Select the q-th component of the DFT and enable vibrometry, vq must be defined in {0, ..., N - 1}.")
 			;
 	}
 
@@ -517,15 +513,6 @@ namespace holovibes
 			else
 				opts_.compute_desc.contrast_max_slice_xy = static_cast<float>(pow(10.0, log_max));
 			opts_.compute_desc.contrast_enabled = true;
-		}
-
-		if (vm_.count("vibrometry"))
-		{
-			const int vibrometry_q = vm_["vibrometry"].as<int>();
-			if (vibrometry_q < 0 || static_cast<unsigned int>(vibrometry_q) >= opts_.compute_desc.nSize)
-				throw std::runtime_error("--vibrometry parameter must be defined in {0, ..., nSize - 1}.");
-			opts_.compute_desc.vibrometry_q = static_cast<unsigned short>(vibrometry_q);
-			opts_.compute_desc.vibrometry_enabled = true;
 		}
 	}
 

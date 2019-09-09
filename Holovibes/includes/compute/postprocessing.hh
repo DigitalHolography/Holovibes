@@ -44,10 +44,6 @@ namespace holovibes
 			*/
 			void allocate_buffers();
 
-			/** \brief Insert the Vibrometry function.
-			
-			*/
-			void insert_vibrometry();
 			/** \brief Insert the Convolution function. TODO: Check if it works.
 			
 			*/

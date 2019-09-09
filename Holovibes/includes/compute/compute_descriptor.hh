@@ -214,7 +214,6 @@ namespace holovibes
 		//! index in the depth axis
 		std::atomic<ushort>			pindex;
 		
-		std::atomic<ushort>			vibrometry_q;
 		//! wave length of the laser
 		std::atomic<float>			lambda;
 		//! Input matrix used for convolution
@@ -271,8 +270,6 @@ namespace holovibes
 		std::atomic<bool>			convolution_enabled;
 		//! is divide by convolution enabled
 		std::atomic<bool>			divide_convolution_enabled;
-		//! is vibrometry enabled
-		std::atomic<bool>			vibrometry_enabled;
 		//! is log scale in slice XY enabled
 		std::atomic<bool>			log_scale_slice_xy_enabled;
 		//! is log scale in slice XZ enabled

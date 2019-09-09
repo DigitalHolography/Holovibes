@@ -189,33 +189,18 @@ void FourierTransform::stft_handler()
 	}
 	std::lock_guard<std::mutex> Guard(stft_env_.stftGuard_);
 
-	if (!cd_.vibrometry_enabled)
-		stft(buffers_.gpu_input_buffer_,
-			stft_env_.gpu_stft_queue_.get(),
-			stft_env_.gpu_stft_buffer_,
-			stft_env_.plan1d_stft_,
-			cd_.pindex,
-			fd_.width,
-			fd_.height,
-			b,
-			cd_,
-			gpu_cropped_stft_buf_,
-			false);
-	else
-	{
-		stft(
-			buffers_.gpu_input_buffer_,
-			stft_env_.gpu_stft_queue_.get(),
-			stft_env_.gpu_stft_buffer_,
-			stft_env_.plan1d_stft_,
-			cd_.vibrometry_q,
-			fd_.width,
-			fd_.height,
-			b,
-			cd_,
-			gpu_cropped_stft_buf_,
-			false);
-	}
+	stft(buffers_.gpu_input_buffer_,
+		stft_env_.gpu_stft_queue_.get(),
+		stft_env_.gpu_stft_buffer_,
+		stft_env_.plan1d_stft_,
+		cd_.pindex,
+		fd_.width,
+		fd_.height,
+		b,
+		cd_,
+		gpu_cropped_stft_buf_,
+		false);
+
 	if (cd_.stft_view_enabled && b)
 	{
 		// Conservation of the coordinates when cursor is outside of the window

@@ -33,7 +33,6 @@ namespace holovibes
 		log_scale_slice_yz_enabled(false),
 		shift_corners_enabled(false),
 		contrast_enabled(false),
-		vibrometry_enabled(false),
 		convolution_enabled(false),
 		divide_convolution_enabled(false),
 		croped_stft(false),
@@ -46,7 +45,6 @@ namespace holovibes
 		contrast_max_slice_xz(65535.f),
 		contrast_max_slice_yz(65535.f),
 		scale_bar_correction_factor(1),
-		vibrometry_q(0),
 		autofocus_size(10),
 		convo_matrix_width(0),
 		convo_matrix_height(0),
@@ -111,7 +109,6 @@ namespace holovibes
 		log_scale_slice_yz_enabled = cd.log_scale_slice_yz_enabled.load();
 		shift_corners_enabled = cd.shift_corners_enabled.load();
 		contrast_enabled = cd.contrast_enabled.load();
-		vibrometry_enabled = cd.vibrometry_enabled.load();
 		convolution_enabled = cd.convolution_enabled.load();
 		filter_2d_enabled = cd.filter_2d_enabled.load();
 		average_enabled = cd.average_enabled.load();
@@ -121,7 +118,6 @@ namespace holovibes
 		contrast_min_slice_yz = cd.contrast_min_slice_yz.load();
 		contrast_max_slice_xz = cd.contrast_max_slice_xz.load();
 		contrast_max_slice_yz = cd.contrast_max_slice_yz.load();
-		vibrometry_q = cd.vibrometry_q.load();
 		autofocus_size = cd.autofocus_size.load();
 		convo_matrix_width = cd.convo_matrix_width.load();
 		convo_matrix_height = cd.convo_matrix_height.load();

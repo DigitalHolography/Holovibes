@@ -469,9 +469,6 @@
     <ClInclude Include="cuda_includes\transforms.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_includes\vibrometry.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_includes\texture_update.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
@@ -724,9 +721,6 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\transforms.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda_sources\vibrometry.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\texture_update.cu">

@@ -364,17 +364,7 @@ namespace holovibes
 			ui.YAccuCheckBox->setChecked(compute_desc_.y_accu_enabled);
 			ui.YAccSpinBox->setValue(compute_desc_.y_acc_level);
 
-			// Vibrometry
-			ui.ImageRatioCheckBox->setChecked(!is_direct && compute_desc_.vibrometry_enabled);
-			QSpinBox *p_vibro = ui.ImageRatioPSpinBox;
-			p_vibro->setEnabled(compute_desc_.vibrometry_enabled);
-			p_vibro->setValue(compute_desc_.pindex);
-			p_vibro->setMaximum(compute_desc_.nSize - 1);
-			QSpinBox *q_vibro = ui.ImageRatioQSpinBox;
-			q_vibro->setEnabled(compute_desc_.vibrometry_enabled);
-			q_vibro->setValue(compute_desc_.vibrometry_q);
-			q_vibro->setMaximum(compute_desc_.nSize - 1);
-
+			// Convolution buffer
 			ui.KernelBufferSizeSpinBox->setValue(compute_desc_.special_buffer_size);
 
 			// Convolution
@@ -722,8 +712,6 @@ namespace holovibes
 
 				// Post Processing
 				special_action->setChecked(!ptree.get<bool>("post_processing.hidden", special_group_box->isHidden()));
-				compute_desc_.vibrometry_q.exchange(
-					ptree.get<int>("post_processing.image_ratio_q", compute_desc_.vibrometry_q));
 				is_enabled_average_ = ptree.get<bool>("post_processing.average_enabled", is_enabled_average_);
 				compute_desc_.average_enabled = is_enabled_average_;
 
@@ -856,7 +844,6 @@ namespace holovibes
 
 			// Post-processing
 			ptree.put<bool>("post_processing.hidden", special_group_box->isHidden());
-			ptree.put<ushort>("post_processing.image_ratio_q", compute_desc_.vibrometry_q);
 			ptree.put<bool>("post_processing.average_enabled", is_enabled_average_);
 
 			// Record
@@ -2576,52 +2563,6 @@ namespace holovibes
 				pipe_refresh();
 				set_auto_contrast();
 				notify();
-			}
-		}
-#pragma endregion
-		/* ------------ */
-#pragma region Vibrometry
-		void MainWindow::set_vibro_mode(const bool value)
-		{
-			if (!is_direct_mode())
-			{
-				if (compute_desc_.pindex > compute_desc_.nSize)
-					compute_desc_.pindex = compute_desc_.nSize.load();
-				if (compute_desc_.vibrometry_q > compute_desc_.nSize)
-					compute_desc_.vibrometry_q = compute_desc_.nSize.load();
-				compute_desc_.vibrometry_enabled = value;
-				pipe_refresh();
-				notify();
-			}
-		}
-
-		void MainWindow::set_p_vibro(int value)
-		{
-			if (!is_direct_mode())
-			{
-				if (!compute_desc_.vibrometry_enabled)
-					return;
-				if (value < static_cast<int>(compute_desc_.nSize) && value >= 0)
-				{
-					compute_desc_.pindex = value;
-					pipe_refresh();
-				}
-				else
-					display_error("p param has to be between 0 and n");
-			}
-		}
-
-		void MainWindow::set_q_vibro(int value)
-		{
-			if (!is_direct_mode())
-			{
-				if (value < static_cast<int>(compute_desc_.nSize) && value >= 0)
-				{
-					compute_desc_.vibrometry_q = value;
-					pipe_refresh();
-				}
-				else
-					display_error("q param has to be between 0 and phase #");
 			}
 		}
 #pragma endregion

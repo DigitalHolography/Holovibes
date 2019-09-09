@@ -187,7 +187,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\tools_conversion.cuh" />
     <ClInclude Include="cuda_includes\tools_unwrap.cuh" />
     <ClInclude Include="cuda_includes\transforms.cuh" />
-    <ClInclude Include="cuda_includes\vibrometry.cuh" />
     <ClInclude Include="GeneratedFiles\ui_MainWindow.h" />
     <ClInclude Include="GeneratedFiles\ui_PlotWindow.h" />
     <ClInclude Include="cuda_includes\hsv.cuh" />
@@ -615,7 +614,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <CudaCompile Include="cuda_sources\tools_conversion.cu" />
     <CudaCompile Include="cuda_sources\tools_unwrap.cu" />
     <CudaCompile Include="cuda_sources\transforms.cu" />
-    <CudaCompile Include="cuda_sources\vibrometry.cu" />
     <CudaCompile Include="cuda_sources\hsv.cu" />
   </ItemGroup>
   <ItemGroup>

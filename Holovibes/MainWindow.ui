@@ -2745,117 +2745,6 @@
           <number>2</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="ImageRatioCheckBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Image ratio Ip/Iq</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <property name="spacing">
-             <number>2</number>
-            </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
-             <number>2</number>
-            </property>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_14">
-              <item>
-               <widget class="QLabel" name="ImageRatioPLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>p:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="ImageRatioPSpinBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_15">
-              <item>
-               <widget class="QLabel" name="ImageRatioQLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="text">
-                 <string>q:</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="ImageRatioQSpinBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimum">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <property name="spacing">
             <number>3</number>
@@ -4400,9 +4289,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>WeightSpinBox_R</tabstop>
   <tabstop>WeightSpinBox_G</tabstop>
   <tabstop>WeightSpinBox_B</tabstop>
-  <tabstop>ImageRatioCheckBox</tabstop>
-  <tabstop>ImageRatioPSpinBox</tabstop>
-  <tabstop>ImageRatioQSpinBox</tabstop>
   <tabstop>ConvoMatrixPathLineEdit</tabstop>
   <tabstop>ConvoMatrixBrowseToolButton</tabstop>
   <tabstop>ConvoLoadMatrixPushButton</tabstop>
@@ -5018,38 +4904,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>0</x>
      <y>153</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageRatioPSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_p_vibro(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>899</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>539</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageRatioQSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_q_vibro(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>984</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>580</x>
-     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -5946,22 +5800,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>444</x>
      <y>69</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ImageRatioCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_vibro_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>989</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>525</x>
-     <y>289</y>
     </hint>
    </hints>
   </connection>
@@ -6986,14 +6824,11 @@ p, li { white-space: pre-wrap; }
   <slot>set_contrast_max(double)</slot>
   <slot>set_log_scale(bool)</slot>
   <slot>set_shifted_corners(bool)</slot>
-  <slot>set_p_vibro(int)</slot>
-  <slot>set_q_vibro(int)</slot>
   <slot>set_number_of_frames(int)</slot>
   <slot>set_record()</slot>
   <slot>browse_file()</slot>
   <slot>set_view_mode(QString)</slot>
   <slot>set_contrast_mode(bool)</slot>
-  <slot>set_vibro_mode(bool)</slot>
   <slot>camera_ids()</slot>
   <slot>camera_pike()</slot>
   <slot>camera_pixelfly()</slot>

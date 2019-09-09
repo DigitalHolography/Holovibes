@@ -13,7 +13,6 @@
 #include "postprocessing.hh"
 #include "icompute.hh"
 #include "compute_descriptor.hh"
-#include "vibrometry.cuh"
 #include "convolution.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
@@ -51,21 +50,6 @@ namespace holovibes
 				
 				buffers_.gpu_convolution_buffer_.resize(fd_.frame_res() * sizeof(float));
 			}
-		}
-
-		void Postprocessing::insert_vibrometry()
-		{
-			if (!cd_.vibrometry_enabled)
-				return;
-
-			cufftComplex* qframe = buffers_.gpu_input_buffer_.get() + fd_.frame_res();
-			fn_vect_.push_back([=]() {
-				frame_ratio(
-					buffers_.gpu_input_buffer_,
-					qframe,
-					buffers_.gpu_input_buffer_,
-					fd_.frame_res());
-			});
 		}
 
 		void Postprocessing::insert_convolution_composite()

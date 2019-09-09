@@ -31,7 +31,6 @@
 #include "tools.hh"
 #include "preprocessing.cuh"
 #include "contrast_correction.cuh"
-#include "vibrometry.cuh"
 #include "interpolation.cuh"
 
 namespace holovibes
@@ -192,8 +191,6 @@ namespace holovibes
 				&& compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
 				request_refresh();
 		});
-
-		postprocess_->insert_vibrometry();
 
 		converts_->insert_to_float(unwrap_2d_requested_);
 		if (compute_desc_.img_type == Complex)
