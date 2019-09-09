@@ -24,7 +24,6 @@
 #include "stft.cuh"
 #include "convolution.cuh"
 #include "composite.cuh"
-#include "flowgraphy.cuh"
 #include "tools.cuh"
 #include "autofocus.cuh"
 #include "tools_conversion.cuh"
@@ -121,7 +120,7 @@ namespace holovibes
 		/* Clean current vector. */
 		fn_vect_.clear();
 
-		// Updating number of images //TODO ELLENA
+		// Updating number of images
 		if (update_n_requested_)
 		{
 			if (!update_n_parameter(compute_desc_.nSize))
@@ -195,7 +194,6 @@ namespace holovibes
 		});
 
 		postprocess_->insert_vibrometry();
-		postprocess_->insert_flowgraphy();
 
 		converts_->insert_to_float(unwrap_2d_requested_);
 		if (compute_desc_.img_type == Complex)
@@ -208,6 +206,8 @@ namespace holovibes
 		}
 
 		postprocess_->insert_convolution();
+		//TODO : apply convolution to XZ YZ cuts
+
 		stabilization_->insert_post_img_type();
 
 		// Inserts the output buffers into the accumulation queues

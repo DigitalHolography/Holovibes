@@ -130,7 +130,6 @@ namespace holovibes
 			void refreshViewMode();
 			void set_convolution_mode(const bool enable);
 			void set_divide_convolution_mode(const bool value);
-			void set_flowgraphy_mode(const bool enable);
 			bool is_direct_mode();
 			void reset();
 			void take_reference();
@@ -166,7 +165,6 @@ namespace holovibes
 			void actualize_checkbox_h_gaussian_blur();
 			void actualize_kernel_size_blur();
 			void set_p(int value);
-			void set_flowgraphy_level(const int value);
 			void increment_p();
 			void decrement_p();
 			void set_wavelength(double value);

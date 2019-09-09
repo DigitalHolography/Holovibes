@@ -255,7 +255,6 @@ namespace holovibes
 		std::atomic<uint>			convo_matrix_height;
 		//! Z of the matrix used for convolution
 		std::atomic<uint>			convo_matrix_z;
-		std::atomic<uint>			flowgraphy_level;
 		std::atomic<uint>			autofocus_size;
 		/*! Number of divison of zmax - zmin used by the autofocus algorithm */
 		std::atomic<uint>			autofocus_z_div;
@@ -272,8 +271,6 @@ namespace holovibes
 		std::atomic<bool>			convolution_enabled;
 		//! is divide by convolution enabled
 		std::atomic<bool>			divide_convolution_enabled;
-		//! is flowgraphy enabled
-		std::atomic<bool>			flowgraphy_enabled;
 		//! is vibrometry enabled
 		std::atomic<bool>			vibrometry_enabled;
 		//! is log scale in slice XY enabled

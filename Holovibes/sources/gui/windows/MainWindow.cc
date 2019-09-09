@@ -380,11 +380,6 @@ namespace holovibes
 			// Convolution
 			ui.ConvoCheckBox->setEnabled(compute_desc_.convo_matrix.size() != 0);
 
-			// Flowgraphy
-			ui.FlowgraphyCheckBox->setChecked(!is_direct && compute_desc_.flowgraphy_enabled);
-			ui.FlowgraphyLevelSpinBox->setEnabled(compute_desc_.flowgraphy_level);
-			ui.FlowgraphyLevelSpinBox->setValue(compute_desc_.flowgraphy_level);
-
 			// STFT
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
@@ -497,10 +492,9 @@ namespace holovibes
 						// notify will be in close_critical_compute
 						compute_desc_.pindex = 0;
 						compute_desc_.nSize = 1;
-						if (compute_desc_.flowgraphy_enabled || compute_desc_.convolution_enabled)
+						if (compute_desc_.convolution_enabled)
 						{
 							compute_desc_.convolution_enabled = false;
-							compute_desc_.flowgraphy_enabled = false;
 							compute_desc_.special_buffer_size = 3;
 						}
 						close_windows();
@@ -755,11 +749,6 @@ namespace holovibes
 				compute_desc_.autofocus_z_div = ptree.get<uint>("autofocus.steps", compute_desc_.autofocus_z_div);
 				compute_desc_.autofocus_z_iter = ptree.get<uint>("autofocus.loops", compute_desc_.autofocus_z_iter);
 
-				//flowgraphy
-				uint flowgraphy_level = ptree.get<uint>("flowgraphy.level", compute_desc_.flowgraphy_level);
-				compute_desc_.flowgraphy_level = (flowgraphy_level % 2 == 0) ? (flowgraphy_level + 1) : (flowgraphy_level);
-				compute_desc_.flowgraphy_enabled = ptree.get<bool>("flowgraphy.enable", compute_desc_.flowgraphy_enabled);
-
 				// Reset button
 				config.set_cuda_device = ptree.get<bool>("reset.set_cuda_device", config.set_cuda_device);
 				config.auto_device_number = ptree.get<bool>("reset.auto_device_number", config.auto_device_number);
@@ -920,16 +909,7 @@ namespace holovibes
 			ptree.put<float>("composite.slider_v_threshold_max", compute_desc_.slider_v_threshold_max);
 			ptree.put<float>("composite.low_v_threshold", compute_desc_.composite_low_v_threshold);
 			ptree.put<float>("composite.high_v_threshold", compute_desc_.composite_high_v_threshold);
-
-
-
-
-
 			ptree.put<bool>("composite.auto_weights", compute_desc_.composite_auto_weights_);
-
-			//flowgraphy
-			ptree.put<uint>("flowgraphy.level", compute_desc_.flowgraphy_level);
-			ptree.put<bool>("flowgraphy.enable", compute_desc_.flowgraphy_enabled);
 
 			//Reset
 			ptree.put<bool>("reset.set_cuda_device", config.set_cuda_device);
@@ -1575,14 +1555,6 @@ namespace holovibes
 			notify();
 		}
 
-		void MainWindow::set_flowgraphy_mode(const bool value)
-		{
-			compute_desc_.flowgraphy_enabled = value;
-			if (!is_direct_mode())
-				pipe_refresh();
-			notify();
-		}
-
 		void MainWindow::take_reference()
 		{
 			if (!is_direct_mode())
@@ -1692,13 +1664,6 @@ namespace holovibes
 			if (!is_direct_mode())
 			{
 				compute_desc_.special_buffer_size = value;
-				if (compute_desc_.special_buffer_size < static_cast<std::atomic<int>>(compute_desc_.flowgraphy_level))
-				{
-					if (compute_desc_.special_buffer_size % 2 == 0)
-						compute_desc_.flowgraphy_level = compute_desc_.special_buffer_size - 1;
-					else
-						compute_desc_.flowgraphy_level = compute_desc_.special_buffer_size;
-				}
 				set_auto_contrast();
 				notify();
 			}
@@ -1986,34 +1951,6 @@ namespace holovibes
 			slide_update_threshold(*ui.horizontalSlider_value_threshold_max, compute_desc_.slider_v_threshold_max,
 				compute_desc_.slider_v_threshold_min, *ui.horizontalSlider_value_threshold_min,
 				*ui.label_value_threshold_max, compute_desc_.slider_v_threshold_min, compute_desc_.slider_v_threshold_max);
-		}
-
-		void MainWindow::set_flowgraphy_level(const int value)
-		{
-			int flag = 0;
-
-			if (!is_direct_mode())
-			{
-				if (value % 2 == 0)
-				{
-					if (value + 1 <= compute_desc_.special_buffer_size)
-					{
-						compute_desc_.flowgraphy_level = value + 1;
-						flag = 1;
-					}
-				}
-				else
-				{
-					if (value <= compute_desc_.special_buffer_size)
-					{
-						compute_desc_.flowgraphy_level = value;
-						flag = 1;
-					}
-				}
-				notify();
-				if (flag == 1)
-					pipe_refresh();
-			}
 		}
 
 		void MainWindow::increment_p()
@@ -2539,8 +2476,7 @@ namespace holovibes
 
 		void MainWindow::set_auto_contrast()
 		{
-			if (!is_direct_mode() &&
-				!compute_desc_.flowgraphy_enabled)
+			if (!is_direct_mode())
 			{
 				try
 				{

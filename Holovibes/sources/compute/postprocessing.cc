@@ -15,7 +15,6 @@
 #include "compute_descriptor.hh"
 #include "vibrometry.cuh"
 #include "convolution.cuh"
-#include "flowgraphy.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
 #include "contrast_correction.cuh"
@@ -30,10 +29,7 @@ namespace holovibes
 			CoreBuffers& buffers,
 			const camera::FrameDescriptor& input_fd,
 			ComputeDescriptor& cd)
-			: gpu_special_queue_()
-			, gpu_kernel_buffer_()
-			, gpu_special_queue_start_index_(0)
-			, gpu_special_queue_max_index_(0)
+			: gpu_kernel_buffer_()
 			, fn_vect_(fn_vect)
 			, buffers_(buffers)
 			, fd_(input_fd)
@@ -52,10 +48,7 @@ namespace holovibes
 				gpu_kernel_buffer_.resize(size * sizeof(float));
 				cudaMemcpy(gpu_kernel_buffer_, cd_.convo_matrix.data(), sizeof(float) * size, cudaMemcpyHostToDevice);
 				shift_corners(gpu_kernel_buffer_, cd_.convo_matrix_width, cd_.convo_matrix_height);
-	
-			}
-			if (cd_.flowgraphy_enabled || cd_.convolution_enabled)
-			{
+				
 				buffers_.gpu_convolution_buffer_.resize(fd_.frame_res() * sizeof(float));
 			}
 		}
@@ -120,25 +113,6 @@ namespace holovibes
 					insert_convolution_composite();
 				});
 			}
-		}
-
-		void Postprocessing::insert_flowgraphy()
-		{
-			if (!cd_.flowgraphy_enabled)
-				return;
-			
-			gpu_special_queue_start_index_ = 0;
-			gpu_special_queue_max_index_ = cd_.special_buffer_size;
-			fn_vect_.push_back([=]() {
-				convolution_flowgraphy(
-					buffers_.gpu_input_buffer_,  //want gpu_float_buffer_ (same file)
-					gpu_special_queue_,
-					gpu_special_queue_start_index_,
-					gpu_special_queue_max_index_,
-					fd_.frame_res(),
-					fd_.width,
-					cd_.flowgraphy_level);
-			});
 		}
 	}
 }

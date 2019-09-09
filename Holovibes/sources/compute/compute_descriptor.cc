@@ -36,7 +36,6 @@ namespace holovibes
 		vibrometry_enabled(false),
 		convolution_enabled(false),
 		divide_convolution_enabled(false),
-		flowgraphy_enabled(false),
 		croped_stft(false),
 		filter_2d_enabled(false),
 		average_enabled(false),
@@ -56,7 +55,6 @@ namespace holovibes
 		autofocus_z_max(1.f),
 		autofocus_z_div(10),
 		autofocus_z_iter(5),
-		flowgraphy_level(3),
 		is_cine_file(false),
 		pixel_size(5.42f),
 		img_acc_slice_xy_enabled(false),
@@ -115,7 +113,6 @@ namespace holovibes
 		contrast_enabled = cd.contrast_enabled.load();
 		vibrometry_enabled = cd.vibrometry_enabled.load();
 		convolution_enabled = cd.convolution_enabled.load();
-		flowgraphy_enabled = cd.flowgraphy_enabled.load();
 		filter_2d_enabled = cd.filter_2d_enabled.load();
 		average_enabled = cd.average_enabled.load();
 		contrast_min_slice_xy = cd.contrast_min_slice_xy.load();
@@ -133,7 +130,6 @@ namespace holovibes
 		autofocus_z_max = cd.autofocus_z_max.load();
 		autofocus_z_div = cd.autofocus_z_div.load();
 		autofocus_z_iter = cd.autofocus_z_iter.load();
-		flowgraphy_level = cd.flowgraphy_level.load();
 		is_cine_file = cd.is_cine_file.load();
 		pixel_size = cd.pixel_size.load();
 		img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();

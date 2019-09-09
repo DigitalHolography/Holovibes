@@ -460,9 +460,6 @@
     <ClInclude Include="cuda_includes\filter2D.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
-    <ClInclude Include="cuda_includes\flowgraphy.cuh">
-      <Filter>cuda includes</Filter>
-    </ClInclude>
     <ClInclude Include="cuda_includes\preprocessing.cuh">
       <Filter>cuda includes</Filter>
     </ClInclude>
@@ -718,9 +715,6 @@
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\filter2D.cu">
-      <Filter>cuda sources</Filter>
-    </CudaCompile>
-    <CudaCompile Include="cuda_sources\flowgraphy.cu">
       <Filter>cuda sources</Filter>
     </CudaCompile>
     <CudaCompile Include="cuda_sources\preprocessing.cu">

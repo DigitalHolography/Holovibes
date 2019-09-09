@@ -39,7 +39,7 @@ namespace holovibes
 				const camera::FrameDescriptor& fd,
 				holovibes::ComputeDescriptor& cd);
 
-			/** \brief Allocates convolution and flowgraphy buffers.
+			/** \brief Allocates convolution buffers.
 			
 			*/
 			void allocate_buffers();
@@ -52,21 +52,13 @@ namespace holovibes
 			
 			*/
 			void insert_convolution();
-			/** \brief Insert the Flowgrpahy function. TODO: FIX, it doesn't work.
-			
-			*/
-			void insert_flowgraphy();
 
 		private:
 
 			//! used only when the image is composite convolution to do a convolution on each component
 			void insert_convolution_composite();
 
-			//queue used for flowgraphy
-			cuda_tools::UniquePtr<cufftComplex>	gpu_special_queue_;
 			cuda_tools::UniquePtr<float>		gpu_kernel_buffer_;
-			uint								gpu_special_queue_start_index_;
-			uint								gpu_special_queue_max_index_;
 
 			// Vector function in which we insert the processing
 			FnVector&						fn_vect_;

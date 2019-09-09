@@ -2936,7 +2936,7 @@
            <item>
             <widget class="QSpinBox" name="KernelBufferSizeSpinBox">
              <property name="toolTip">
-              <string>buffer used to apply convolution &amp; flowgraphy</string>
+              <string>buffer used to apply convolution</string>
              </property>
              <property name="minimum">
               <number>3</number>
@@ -2946,46 +2946,6 @@
              </property>
              <property name="value">
               <number>10</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_10">
-           <item>
-            <widget class="QCheckBox" name="FlowgraphyCheckBox">
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="text">
-              <string>Flowgraphy</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="FlowgraphyLevelLabel">
-             <property name="text">
-              <string>Level</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="FlowgraphyLevelSpinBox">
-             <property name="toolTip">
-              <string>n flowgraphy level (can't be higher than special queue)</string>
-             </property>
-             <property name="minimum">
-              <number>3</number>
-             </property>
-             <property name="maximum">
-              <number>999</number>
-             </property>
-             <property name="singleStep">
-              <number>2</number>
-             </property>
-             <property name="value">
-              <number>3</number>
              </property>
             </widget>
            </item>
@@ -4448,8 +4408,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>ConvoLoadMatrixPushButton</tabstop>
   <tabstop>ConvoCheckBox</tabstop>
   <tabstop>KernelBufferSizeSpinBox</tabstop>
-  <tabstop>FlowgraphyCheckBox</tabstop>
-  <tabstop>FlowgraphyLevelSpinBox</tabstop>
   <tabstop>AverageSignalPushButton</tabstop>
   <tabstop>AverageNoisePushButton</tabstop>
   <tabstop>AveragePlotPushButton</tabstop>
@@ -5528,22 +5486,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>FlowgraphyCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_flowgraphy_mode(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>894</x>
-     <y>230</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>444</x>
-     <y>199</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>KernelBufferSizeSpinBox</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -5556,22 +5498,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>667</x>
      <y>102</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>FlowgraphyLevelSpinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_flowgraphy_level(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>988</x>
-     <y>231</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>663</x>
-     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -7116,8 +7042,6 @@ p, li { white-space: pre-wrap; }
   <slot>browse_convo_matrix_file()</slot>
   <slot>set_convolution_mode(bool)</slot>
   <slot>set_divide_convolution_mode(bool)</slot>
-  <slot>set_flowgraphy_mode(bool)</slot>
-  <slot>set_flowgraphy_level(int)</slot>
   <slot>set_special_buffer_size(int)</slot>
   <slot>set_z_min(double)</slot>
   <slot>set_z_max(double)</slot>

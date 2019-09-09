@@ -174,7 +174,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <ClInclude Include="cuda_includes\fft1.cuh" />
     <ClInclude Include="cuda_includes\fft2.cuh" />
     <ClInclude Include="cuda_includes\filter2D.cuh" />
-    <ClInclude Include="cuda_includes\flowgraphy.cuh" />
     <ClInclude Include="cuda_includes\interpolation.cuh" />
     <ClInclude Include="cuda_includes\min_max.cuh" />
     <ClInclude Include="cuda_includes\operator_overload.cuh" />
@@ -604,7 +603,6 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
     <CudaCompile Include="cuda_sources\fft1.cu" />
     <CudaCompile Include="cuda_sources\fft2.cu" />
     <CudaCompile Include="cuda_sources\filter2D.cu" />
-    <CudaCompile Include="cuda_sources\flowgraphy.cu" />
     <CudaCompile Include="cuda_sources\interpolation.cu" />
     <CudaCompile Include="cuda_sources\min_max.cu" />
     <CudaCompile Include="cuda_sources\percentile.cu" />
