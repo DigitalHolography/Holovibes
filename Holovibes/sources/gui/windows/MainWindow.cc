@@ -279,12 +279,12 @@ namespace holovibes
 			ui.STFTCutsCheckBox->setChecked(!is_direct && compute_desc_.stft_view_enabled);
 
 			// Contrast
-			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled && compute_desc_.img_type != Complex);
-			ui.ContrastCheckBox->setEnabled(compute_desc_.img_type != Complex);
+			ui.ContrastCheckBox->setChecked(!is_direct && compute_desc_.contrast_enabled);
+			ui.ContrastCheckBox->setEnabled(true);
 
 			// FFT shift
 			ui.FFTShiftCheckBox->setChecked(compute_desc_.shift_corners_enabled);
-			ui.FFTShiftCheckBox->setEnabled(compute_desc_.img_type != Complex);
+			ui.FFTShiftCheckBox->setEnabled(true);
 
 			// Window selection
 			QComboBox *window_selection = ui.WindowSelectionComboBox;
@@ -297,10 +297,10 @@ namespace holovibes
 					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_min_slice_xy.load() : log10(compute_desc_.contrast_min_slice_xy));
 				ui.ContrastMaxDoubleSpinBox
 					->setValue(compute_desc_.log_scale_slice_xy_enabled ? compute_desc_.contrast_max_slice_xy.load() : log10(compute_desc_.contrast_max_slice_xy));
-				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled && compute_desc_.img_type != Complex);
-				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
-				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled && compute_desc_.img_type != Complex);
-				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xy_enabled);
+				ui.LogScaleCheckBox->setEnabled(true);
+				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xy_enabled);
+				ui.ImgAccuCheckBox->setEnabled(true);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xy_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(displayAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(displayFlip)).c_str());
@@ -312,9 +312,9 @@ namespace holovibes
 				ui.ContrastMaxDoubleSpinBox
 					->setValue(compute_desc_.log_scale_slice_xz_enabled ? compute_desc_.contrast_max_slice_xz.load() : log10(compute_desc_.contrast_max_slice_xz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_xz_enabled);
-				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(true);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_xz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(true);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_xz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(xzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(xzFlip)).c_str());
@@ -326,9 +326,9 @@ namespace holovibes
 				ui.ContrastMaxDoubleSpinBox
 					->setValue(compute_desc_.log_scale_slice_yz_enabled ? compute_desc_.contrast_max_slice_yz.load() : log10(compute_desc_.contrast_max_slice_yz));
 				ui.LogScaleCheckBox->setChecked(!is_direct && compute_desc_.log_scale_slice_yz_enabled);
-				ui.LogScaleCheckBox->setEnabled(compute_desc_.img_type != Complex);
+				ui.LogScaleCheckBox->setEnabled(true);
 				ui.ImgAccuCheckBox->setChecked(!is_direct && compute_desc_.img_acc_slice_yz_enabled);
-				ui.ImgAccuCheckBox->setEnabled(compute_desc_.img_type != Complex);
+				ui.ImgAccuCheckBox->setEnabled(true);
 				ui.ImgAccuSpinBox->setValue(compute_desc_.img_acc_slice_yz_level);
 				ui.RotatePushButton->setText(("Rot " + std::to_string(static_cast<int>(yzAngle))).c_str());
 				ui.FlipPushButton->setText(("Flip " + std::to_string(yzFlip)).c_str());
@@ -679,9 +679,7 @@ namespace holovibes
 
 				compute_desc_.img_type.exchange(static_cast<ImgType>(
 					ptree.get<int>("view.view_mode", compute_desc_.img_type)));
-				last_img_type_ = (compute_desc_.img_type == ImgType::Complex) ?
-					"Complex output" : (compute_desc_.img_type == ImgType::Composite) ?
-					"Composite image" : last_img_type_;
+				last_img_type_ = compute_desc_.img_type == ImgType::Composite ? "Composite image" : last_img_type_;
 
 				compute_desc_.log_scale_slice_xy_enabled = ptree.get<bool>("view.log_scale_enabled", compute_desc_.log_scale_slice_xy_enabled);
 				compute_desc_.log_scale_slice_xz_enabled = ptree.get<bool>("view.log_scale_enabled_cut_xz", compute_desc_.log_scale_slice_xz_enabled);
@@ -1164,9 +1162,7 @@ namespace holovibes
 			if (compute_desc_.compute_mode == Computation::Hologram)
 			{
 				depth = 2;
-				if (compute_desc_.img_type == ImgType::Complex)
-					depth = 8;
-				else if (compute_desc_.img_type == ImgType::Composite)
+				if (compute_desc_.img_type == ImgType::Composite)
 					depth = 6;
 			}
 			/* ---------- */
@@ -1277,7 +1273,7 @@ namespace holovibes
 			// Is there a change in window pixel depth (needs to be re-opened)
 			bool need_refresh(const QString& last_type, const QString& new_type)
 			{
-				std::vector<QString> types_needing_refresh({ "Complex output", "Composite image" });
+				std::vector<QString> types_needing_refresh({ "Composite image" });
 				for (auto& type : types_needing_refresh)
 					if ((last_type == type) != (new_type == type))
 						return true;

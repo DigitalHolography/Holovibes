@@ -59,11 +59,6 @@ namespace holovibes
 				insert_to_argument(unwrap_2d_requested);
 			else if (cd_.img_type == PhaseIncrease)
 				insert_to_phase_increase(unwrap_2d_requested);
-			else if (cd_.img_type == Complex)
-			{
-				// Do nothing, leave refresh, and take gpu_input_buffer_ to enqueue output_ queue.
-				// Add p_accu there is needed
-			}
 		}
 
 		void Converts::insert_to_ushort()

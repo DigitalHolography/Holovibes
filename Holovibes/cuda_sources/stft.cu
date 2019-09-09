@@ -338,27 +338,16 @@ void stft_view_begin(const cuComplex	*input,
 	const uint threads = get_max_threads_1d();
 	const uint blocks = map_blocks_to_problem(output_size, threads); 
 
-	if (viewmode == ImgType::Complex)
-		fill_64bit_slices << <blocks, threads, 0, stream >> >(
-			input,
-			static_cast<cuComplex *>(output_xz),
-			static_cast<cuComplex *>(output_yz),
-			xmin, ymin,
-			frame_size,
-			output_size,
-			width, height,
-			acc_level_xz, acc_level_yz);
-	else
-		fill_32bit_slices <<<blocks, threads, 0, stream>>>(
-			input,
-			static_cast<float *>(output_xz),
-			static_cast<float *>(output_yz),
-			xmin, ymin, xmax, ymax,
-			frame_size,
-			output_size,
-			width, height,
-			acc_level_xz, acc_level_yz,
-			img_type,
-			nSize);
+	fill_32bit_slices <<<blocks, threads, 0, stream>>>(
+		input,
+		static_cast<float *>(output_xz),
+		static_cast<float *>(output_yz),
+		xmin, ymin, xmax, ymax,
+		frame_size,
+		output_size,
+		width, height,
+		acc_level_xz, acc_level_yz,
+		img_type,
+		nSize);
 	cudaCheckError();
 }

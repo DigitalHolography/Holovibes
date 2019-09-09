@@ -118,7 +118,7 @@ namespace holovibes
 		int output_buffer_size = input_.get_pixels();
 		if (compute_desc_.img_type == Composite)
 			output_buffer_size *= 3;
-		if (compute_desc_.img_type != Complex && !buffers_.gpu_output_buffer_.resize(output_buffer_size))
+		if (!buffers_.gpu_output_buffer_.resize(output_buffer_size))
 			err++;
 		buffers_.gpu_float_buffer_size_ = input_.get_pixels();
 		if (compute_desc_.img_type == ImgType::Composite)
@@ -205,8 +205,8 @@ namespace holovibes
 		{
 			camera::FrameDescriptor fd_xz = output_.get_frame_desc();
 
-			fd_xz.depth = (compute_desc_.img_type == ImgType::Complex) ? sizeof(cuComplex) : sizeof(ushort);
-			uint buffer_depth = compute_desc_.img_type == ImgType::Complex ? sizeof(cufftComplex) : sizeof(float);
+			fd_xz.depth = sizeof(ushort);
+			uint buffer_depth = sizeof(float);
 			auto fd_yz = fd_xz;
 			fd_xz.height = compute_desc_.nSize;
 			fd_yz.width = compute_desc_.nSize;

@@ -184,23 +184,7 @@ namespace holovibes
 
 		aberration_->enqueue(fn_vect_);
 
-		// Complex mode is strangely implemented.
-		// If someone knows why this line is fixing complex slices, please make it cleaner.
-		fn_vect_.push_back([=]() {
-			if ((autocontrast_slice_xz_requested_ || autocontrast_slice_yz_requested_)
-				&& compute_desc_.img_type == Complex && compute_desc_.current_window != XYview)
-				request_refresh();
-		});
-
 		converts_->insert_to_float(unwrap_2d_requested_);
-		if (compute_desc_.img_type == Complex)
-		{
-			refresh_requested_ = false;
-			autocontrast_requested_ = false;
-			autocontrast_slice_xz_requested_ = false;
-			autocontrast_slice_yz_requested_ = false;
-			return;
-		}
 
 		postprocess_->insert_convolution();
 		//TODO : apply convolution to XZ YZ cuts
@@ -238,8 +222,6 @@ namespace holovibes
 
 	void *Pipe::get_enqueue_buffer()
 	{
-		if (compute_desc_.img_type == ImgType::Complex)
-			return buffers_.gpu_input_buffer_;
 		return buffers_.gpu_output_buffer_;
 	}
 
@@ -267,10 +249,8 @@ namespace holovibes
 							}
 							if (compute_desc_.stft_view_enabled)
 							{
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_xz_.get() : buffers_.gpu_ushort_cut_xz_.get(),
-									stft_env_.gpu_stft_slice_queue_xz.get());
-								queue_enqueue(compute_desc_.img_type == Complex ? buffers_.gpu_float_cut_yz_.get() : buffers_.gpu_ushort_cut_yz_.get(),
-									stft_env_.gpu_stft_slice_queue_yz.get());
+								queue_enqueue(buffers_.gpu_ushort_cut_xz_.get(), stft_env_.gpu_stft_slice_queue_xz.get());
+								queue_enqueue(buffers_.gpu_ushort_cut_yz_.get(), stft_env_.gpu_stft_slice_queue_yz.get());
 							}
 						}
 					}

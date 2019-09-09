@@ -921,11 +921,6 @@
              </item>
              <item>
               <property name="text">
-               <string>Complex output</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>Composite image</string>
               </property>
              </item>
