@@ -167,4 +167,4 @@ namespace holovibes
 	}
 }
 
-#include "Debug\moc_info_manager.cc"
+#include "moc_info_manager.cc"

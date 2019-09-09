@@ -139,4 +139,4 @@ namespace holovibes
 	}
 }
 
-#include "Debug\moc_recorder.cc"
+#include "moc_recorder.cc"
