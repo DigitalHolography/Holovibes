@@ -3310,6 +3310,8 @@ namespace holovibes
 				import_line_edit->clear();
 				import_line_edit->insert(filename);
 				tmp_path = filename;
+
+				title_detect();
 			}
 		}
 
@@ -3374,7 +3376,7 @@ namespace holovibes
 			is_enabled_camera_ = false;
 			try
 			{
-				auto file_end = std::experimental::filesystem::file_size(file_src)
+				auto file_end = std::filesystem::file_size(file_src)
 					/ frame_desc.frame_size();
 				if (file_end > end_spinbox->value())
 					file_end = end_spinbox->value();
