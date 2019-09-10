@@ -142,13 +142,11 @@ namespace holovibes
 				return curve_get_(lhs) < curve_get_(rhs);
 			});
 
-			double min = curve_get_(*(minmax.first)) - 1.0;
-			double max = curve_get_(*(minmax.second)) + 1.0;
+			double min = curve_get_(*(minmax.first));
+			double max = curve_get_(*(minmax.second));
+			double offset = (max - min) / 10.0;
 
-			chart->axisX()->setMin(QVariant(0));
-			chart->axisX()->setMax(QVariant(points_nb_));
-			chart->axisY()->setMin(QVariant(min));
-			chart->axisY()->setMax(QVariant(max));
+			chart->axisY()->setRange(min - offset, max + offset);
 		}
 
 		void CurvePlot::start()
