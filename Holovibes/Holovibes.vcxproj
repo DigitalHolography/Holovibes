@@ -71,7 +71,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(QWTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;cuda.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5OpenGLd.lib;qwtd.lib;cusparse.lib;nppc.lib;nppial.lib;nppicc.lib;nppicom.lib;nppidei.lib;nppif.lib;nppig.lib;nppim.lib;nppist.lib;nppisu.lib;nppitc.lib;npps.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;cuda.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5OpenGLd.lib;Qt5Chartsd.lib;cusparse.lib;nppc.lib;nppial.lib;nppicc.lib;nppicom.lib;nppidei.lib;nppif.lib;nppig.lib;nppim.lib;nppist.lib;nppisu.lib;nppitc.lib;npps.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OptimizeReferences>false</OptimizeReferences>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <SuppressStartupBanner>false</SuppressStartupBanner>
@@ -112,7 +112,7 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <AdditionalIncludeDirectories>$(SolutionDir)\Holovibes\includes\tools\cuda_tools;$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\tools\units;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\selections\interfaces;$(SolutionDir)\Holovibes\includes\gui\selections\overlays;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;$(QWTDIR)\src;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Holovibes\includes\tools\cuda_tools;$(SolutionDir)\GPIB;$(SolutionDir)\Holovibes\includes\tools;$(SolutionDir)\Holovibes\includes\tools\units;$(SolutionDir)\Holovibes\includes\thread;$(SolutionDir)\Holovibes\includes\gui\selections;$(SolutionDir)\Holovibes\includes\gui\selections\interfaces;$(SolutionDir)\Holovibes\includes\gui\selections\overlays;$(SolutionDir)\Holovibes\includes\gui\opengl_widgets;$(SolutionDir)\Holovibes\includes\gui\windows;$(SolutionDir)\Holovibes\includes\gui\other;$(SolutionDir)\Holovibes\includes\core;$(SolutionDir)\Holovibes\includes\compute;$(SolutionDir)\Holovibes\includes;$(SolutionDir)\Holovibes\cuda_includes;$(QWTDIR)\src;$(QTDIR)\include;$(QTDIR)\include\QtCharts;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtOpenGL;$(ProjectDir)\GeneratedFiles\$(ConfigurationName);$(ProjectDir)\GeneratedFiles;$(QWTDIR)\include;$(QTDIR)\include\QtDesigner;$(SolutionDir)\lib\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>stdafx.hh</PrecompiledHeaderFile>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WarningLevel>Level3</WarningLevel>
@@ -126,8 +126,8 @@ copy /Y "$(ProjectDir)\holovibes_logo.png" "$(TargetDir)"</Command>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(QWTDIR)\lib;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;qwt.lib;cusparse.lib;nppc.lib;nppial.lib;nppicc.lib;nppicom.lib;nppidei.lib;nppif.lib;nppig.lib;nppim.lib;nppist.lib;nppisu.lib;nppitc.lib;npps.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;cudart.lib;cufft.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;Qt5Charts.lib;cusparse.lib;nppc.lib;nppial.lib;nppicc.lib;nppicom.lib;nppidei.lib;nppif.lib;nppig.lib;nppim.lib;nppist.lib;nppisu.lib;nppitc.lib;npps.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>

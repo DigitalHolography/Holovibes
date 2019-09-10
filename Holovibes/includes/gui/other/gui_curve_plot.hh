@@ -12,16 +12,24 @@
 
 /*! \file
  *
- * Widget containing a QwtPlot. Used to display average/ROI computations. */
+ * Widget wrapping for a QtChart. Used to display average/ROI computations. */
 #pragma once
 
-# include "concurrent_deque.hh"
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QMainWindow>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+using namespace QtCharts;
+
+#include <memory>
+
+#include "concurrent_deque.hh"
 
 namespace holovibes
 {
 	namespace gui
 	{
-		/*! \brief Widget containing a QwtPlot. Used to display average/ROI computations. */
+		/*! \brief Widget wrapping for a QtChart. Used to display average/ROI computations. */
 		class CurvePlot : public QWidget
 		{
 			Q_OBJECT
@@ -67,30 +75,30 @@ namespace holovibes
 			/*! \brief Load data from Deque
 			**
 			** Copy the data from the holovibes Deque to a local vector. Then attach
-			** it to the curve.
+			** it to line_series.
 			*/
 			void load_data_vector();
 
 			/*! \brief Reajust the scale according to max and min values contained in deque.
 			**
-			** Look for current min and max values in the data Deque then adjust the plot
+			** Look for current min and max values in the data Deque then adjust the chart
 			** scale according to these values and replot.
 			*/
 			void auto_scale();
 
-			/*! \brief Starts the plot drawing
+			/*! \brief Starts the chart drawing
 			**
 			** Starts timer_.
 			*/
 			void start();
 
-			/*! \brief Stops the plot drawing
+			/*! \brief Stops the chart drawing
 			**
 			** Stop timer_ if active.
 			*/
 			void stop();
 
-			/*! \brief Sets a new number of points for the plot
+			/*! \brief Sets a new number of points for the chart
 			**
 			** Stops the drawing then change the number of points and resize the vector then
 			** starts again.
@@ -98,19 +106,22 @@ namespace holovibes
 			void set_points_nb(const unsigned int n);
 
 			public slots:
-			/*! \brief Updates the plot */
+			/*! \brief Updates the chart */
 			void update();
 
 			/*! \brief Change the curve ploted by changing curve_get_ */
 			void change_curve(int curve_to_plot);
 
 		private:
+			/*! Data points on the chart */
+			QLineSeries *line_series;
+			/*! The chart itself */
+			QChart *chart;
+			/*! QtWidget used to display the chart on a window */
+			QChartView *chart_view;
+
 			/*! Reference to Deque containing average/ROI data */
 			ConcurrentDeque<Tuple4f>& data_vect_;
-			/*! QwtPlot */
-			QwtPlot plot_;
-			/*! Plot's curve */
-			QwtPlotCurve curve_;
 			/*! Number of points to draw */
 			unsigned int points_nb_;
 			/*! QTimer used to draw every TIMER_FREQ milliseconds */

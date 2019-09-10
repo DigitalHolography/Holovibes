@@ -15,14 +15,28 @@
     Documentation for developpers. \n
 */
 
-
 #include "options_parser.hh"
 #include "MainWindow.hh"
 
 using camera::Endianness;
 
+void qt_output_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+	const std::string& str = msg.toStdString();
+
+	// Do not print the QtChart warning message when
+	// adding new points to the chart it slows things down a lot
+	if (str.find("is NaN or Inf") != str.npos)
+		return;
+
+	std::cout << str << "\n";
+}
+
 int main(int argc, char* argv[])
 {
+	// Custom Qt message handler
+	qInstallMessageHandler(qt_output_message_handler);
+
 	holovibes::OptionsDescriptor opts;
 
 	holovibes::OptionsParser opts_parser(opts);
@@ -56,7 +70,7 @@ int main(int argc, char* argv[])
 
 		// Resizing horizontally the window before starting
 		w.layout_toggled();
-		
+
 		return a.exec();
 	}
 	else

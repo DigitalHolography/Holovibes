@@ -11,9 +11,12 @@
 /* **************************************************************************** */
 
 #include "gui_curve_plot.hh"
+#include "PlotWindow.hh"
 
 #define WIDTH 600
 #define HEIGHT 300
+#define TOP_OFFSET 30
+#define SIZE_OFFSET 20
 #define TIMER_FREQ 40
 #define POINTS 200
 
@@ -37,18 +40,22 @@ namespace holovibes
 			QWidget* parent)
 			: QWidget(parent)
 			, data_vect_(data_vect)
-			, plot_(QString::fromLocal8Bit(""), this)
-			, curve_("First curve")
 			, points_nb_(POINTS)
 			, timer_(this)
 			, curve_get_(curve_get_0)
 		{
-			this->setMinimumSize(width, height);
-			plot_.setMinimumSize(width, height);
-			plot_.setAxisScale(0, -5.0, 15.0, 2.0);
-			plot_.setCanvasBackground(QColor(255, 255, 255));
-			curve_.setPen(QColor(0, 0, 0));
-			show();
+			line_series = new QLineSeries();
+			chart = new QChart();
+			chart_view = new QChartView(chart, parent);
+
+			chart->legend()->hide();
+			chart->addSeries(line_series);
+			chart->createDefaultAxes();
+			chart->setTitle(title);
+
+			chart_view->setRenderHint(QPainter::Antialiasing);
+			chart_view->move(0, TOP_OFFSET);
+
 			average_vector_.resize(points_nb_);
 			connect(&timer_, SIGNAL(timeout()), this, SLOT(update()));
 			timer_.start(TIMER_FREQ);
@@ -56,6 +63,9 @@ namespace holovibes
 
 		CurvePlot::~CurvePlot()
 		{
+			delete line_series;
+			delete chart;
+			delete chart_view;
 		}
 
 		void CurvePlot::change_curve(int curve_to_plot)
@@ -91,37 +101,40 @@ namespace holovibes
 
 		void CurvePlot::resize_plot(const int size)
 		{
-			plot_.resize(QSize::QSize(size, 0));
 			points_nb_ = size;
 			average_vector_.resize(size);
+			chart->axisX()->setMax(QVariant(points_nb_));
 		}
 
 		void CurvePlot::resizeEvent(QResizeEvent* e)
 		{
-			plot_.resize(e->size());
+			chart_view->resize(e->size().width() + SIZE_OFFSET, e->size().height() + SIZE_OFFSET);
 		}
 
 		void CurvePlot::load_data_vector()
 		{
-			QVector<QPointF> new_data;
+			QList<QPointF> new_data;
 
 			if (!data_vect_.empty())
 			{
 				size_t copied_elts_nb = data_vect_.fill_array(average_vector_, points_nb_);
+				new_data.reserve(copied_elts_nb);
 
 				for (size_t i = 0; i < copied_elts_nb; ++i)
-					new_data << QPointF(i, curve_get_(average_vector_[i]));
+				{
+					float x = i;
+					float y = curve_get_(average_vector_[i]);
+					new_data.push_back(QPointF(x, y));
+				}
 			}
-			curve_.setSamples(new_data);
-			curve_.attach(&plot_);
+
+			line_series->replace(new_data);
 		}
 
 		void CurvePlot::auto_scale()
 		{
 			std::vector<Tuple4f> tmp = average_vector_;
-
-			//float curr = 0.0f;
-
+			
 			auto minmax = std::minmax_element(tmp.cbegin(),
 				tmp.cend(),
 				[&](const Tuple4f& lhs, const Tuple4f& rhs)
@@ -132,11 +145,10 @@ namespace holovibes
 			double min = curve_get_(*(minmax.first)) - 1.0;
 			double max = curve_get_(*(minmax.second)) + 1.0;
 
-			plot_.setAxisScale(0,
-				min,
-				max,
-				0);
-			plot_.replot();
+			chart->axisX()->setMin(QVariant(0));
+			chart->axisX()->setMax(QVariant(points_nb_));
+			chart->axisY()->setMin(QVariant(min));
+			chart->axisY()->setMax(QVariant(max));
 		}
 
 		void CurvePlot::start()
@@ -153,23 +165,21 @@ namespace holovibes
 		void CurvePlot::set_points_nb(const unsigned int n)
 		{
 			stop();
-			points_nb_ = n;
-			average_vector_.resize(n);
+			resize_plot(n);
 			start();
 		}
 
 		void CurvePlot::update()
 		{
 			load_data_vector();
-
 			while (data_vect_.size() > points_nb_)
 				data_vect_.pop_front();
-
-			plot_.replot();
 		}
 	}
 }
 #undef WIDTH
 #undef HEIGHT
+#undef TOP_OFFSET
+#undef SIZE_OFFSET
 #undef TIMER_FREQ
 #undef POINTS

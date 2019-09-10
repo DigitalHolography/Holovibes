@@ -101,10 +101,6 @@
 #include <qrect.h>
 #include <qtextdocument.h>
 
-// Qwt
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-
 // Windows Kit
 #include <Windows.h>
 #include <direct.h>

@@ -24,9 +24,9 @@ namespace holovibes
 			, curve_plot_(data_vect, title, 580, 250, this)
 		{
 			ui.setupUi(this);
+			resize(580, 250);
 			this->show();
 
-			curve_plot_.move(0, 30);
 			unsigned int s = static_cast<unsigned int>(data_vect.size());
 			if (s > 0)
 				curve_plot_.resize_plot(s);
