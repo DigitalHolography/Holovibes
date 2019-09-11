@@ -646,6 +646,9 @@
     <ClInclude Include="cuda_includes\debug_img.cuh">
       <Filter>cuda includes\tools</Filter>
     </ClInclude>
+    <ClInclude Include="includes\logger.hh">
+      <Filter>c++ includes\other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="includes\thread\thread_recorder.hh">

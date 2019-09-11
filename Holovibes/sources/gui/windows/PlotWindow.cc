@@ -13,6 +13,9 @@
 #include "PlotWindow.hh"
 #include "concurrent_deque.hh"
 
+#define WIDTH 580
+#define HEIGHT 250
+
 namespace holovibes
 {
 	namespace gui
@@ -21,10 +24,10 @@ namespace holovibes
 			const QString title,
 			QWidget* parent)
 			: QMainWindow(parent)
-			, curve_plot_(data_vect, title, 580, 250, this)
+			, curve_plot_(data_vect, title, WIDTH, HEIGHT, this)
 		{
 			ui.setupUi(this);
-			resize(580, 250);
+			resize(WIDTH, HEIGHT);
 			this->show();
 
 			unsigned int s = static_cast<unsigned int>(data_vect.size());
@@ -75,3 +78,6 @@ namespace holovibes
 		}
 	}
 }
+
+#undef WIDTH
+#undef HEIGHT
