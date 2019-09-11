@@ -10,7 +10,7 @@ add_library("${PROJECT_NAME}" SHARED
 
 set(BITFLOW_SDK "C:/BitFlow SDK 6.30/")
 
-include_directories(
+target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"
     "${Boost_INCLUDE_DIRS}"
 

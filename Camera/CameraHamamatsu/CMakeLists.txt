@@ -8,7 +8,7 @@ add_library("${PROJECT_NAME}" SHARED
     camera_hamamatsu.cc
 )
 
-include_directories(
+target_include_directories("${PROJECT_NAME}" PRIVATE
     "${Boost_INCLUDE_DIRS}"
 
     "${CMAKE_SOURCE_DIR}/Camera/include/"
