@@ -17,6 +17,7 @@
 #include "queue.hh"
 #include "compute_bundles.hh"
 #include "compute_bundles_2d.hh"
+#include "logger.hh"
 
 #include "fft1.cuh"
 #include "fft2.cuh"
@@ -127,7 +128,7 @@ namespace holovibes
 				compute_desc_.pindex = 0;
 				compute_desc_.nSize = 1;
 				update_n_parameter(1);
-				std::cerr << "Updating #img failed, #img updated to 1" << std::endl;
+				LOG_WARN("Updating #img failed, #img updated to 1");
 			}
 			update_n_requested_ = false;
 		}
@@ -284,7 +285,7 @@ namespace holovibes
 	{
 		if (!queue)
 		{
-			std::cout << "Error: queue is null" << std::endl;
+			LOG_ERROR("Error: queue is null");
 			return;
 		}
 		/*Add image to phase accumulation buffer*/

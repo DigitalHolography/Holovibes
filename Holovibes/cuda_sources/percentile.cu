@@ -17,6 +17,7 @@
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"
 #include "tools_compute.cuh"
+#include "logger.hh"
 
 void fill_percentile_float_in_case_of_error(float* out_percent, unsigned size_percent)
 {
@@ -47,7 +48,7 @@ float *percentile_float(const float *gpu_input, unsigned frame_res, const float*
 	}
 	catch (...)
 	{
-		std::cerr << "Something went wrong, you should decrease the number of images to free some GPU memory. (location : percentile_float)" << std::endl;
+		LOG_ERROR("Something went wrong, you should decrease the number of images to free some GPU memory");
 		fill_percentile_float_in_case_of_error(h_out_percent, size_percent);
 	}
 

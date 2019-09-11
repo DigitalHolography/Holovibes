@@ -14,6 +14,7 @@
 #include "BasicOpenGLWindow.hh"
 #include "DirectWindow.hh"
 #include "HoloWindow.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -91,7 +92,7 @@ namespace holovibes
 			Program_->addShaderFromSourceFile(QOpenGLShader::Fragment, "shaders/fragment.color.glsl");
 			Vao_.create();
 			if (!Program_->bind())
-				std::cerr << "[Error] " << Program_->log().toStdString() << std::endl;
+				LOG_ERROR(Program_->log().toStdString());
 			init();
 			Program_->release();
 		}

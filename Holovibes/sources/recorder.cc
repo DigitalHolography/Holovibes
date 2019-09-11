@@ -13,6 +13,7 @@
 
 #include "recorder.hh"
 #include "queue.hh"
+#include "logger.hh"
 
 # include "gui_group_box.hh"
 # include "info_manager.hh"
@@ -47,8 +48,7 @@ namespace holovibes
 		size_t cur_size = queue_.get_current_elts();
 		const size_t max_size = queue_.get_max_elts();
 
-		std::cout << "[RECORDER] started recording " <<
-			n_images << " frames" << std::endl;
+		LOG_INFO(std::string("[RECORDER] started recording ") + std::to_string(n_images) + std::string(" frames"));
 
 		for (unsigned int i = 1; !stop_requested_ && i <= n_images; ++i)
 		{
@@ -76,7 +76,7 @@ namespace holovibes
 			emit value_change(i);
 		}
 
-		std::cout << "[RECORDER] record done !" << std::endl;
+		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");
 		delete[] buffer;
 	}

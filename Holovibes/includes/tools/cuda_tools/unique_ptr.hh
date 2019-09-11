@@ -15,6 +15,8 @@
  * std::unique_ptr "specialization" for cudaFree */
 #pragma once
 
+#include "logger.hh"
+
 namespace holovibes
 {
 	/*! \brief Contains memory handlers for cuda buffers. */
@@ -76,7 +78,7 @@ namespace holovibes
 				auto code = cudaMalloc(&tmp, size);
 				if (code != cudaSuccess)
 				{
-					std::cout << "cudaMalloc error:" << cudaGetErrorString(code) << std::endl;
+					LOG_ERROR(std::string("cudaMalloc: ") + cudaGetErrorString(code));
 					tmp = nullptr;
 				}
 				reset(tmp);

@@ -21,6 +21,7 @@
 #include "composite.cuh"
 #include "hsv.cuh"
 #include "debug_img.cuh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -175,7 +176,7 @@ namespace holovibes
 				}
 				catch (std::exception& e)
 				{
-					std::cerr << "Error while trying to convert to float in Argument :" << e.what() << std::endl;
+					LOG_ERROR(std::string("Error while trying to convert to float in Argument :") + std::string(e.what()));
 				}
 			}
 		}
@@ -230,7 +231,7 @@ namespace holovibes
 			}
 			catch (std::exception& e)
 			{
-				std::cerr << "Error while trying to convert to float in Phase increase :" << e.what() << std::endl;
+				LOG_ERROR(std::string("Error while trying to convert to float in Phase increase :") + std::string(e.what()));
 			}
 		}
 

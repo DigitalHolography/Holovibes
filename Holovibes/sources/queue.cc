@@ -15,6 +15,7 @@
 #include "unique_ptr.hh"
 
 #include "info_manager.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -38,7 +39,7 @@ namespace holovibes
 	{
 		if (!elts || !data_buffer_.resize(frame_size_ * elts))
 		{
-			std::cerr << "Queue: couldn't allocate queue" << std::endl;
+			LOG_ERROR("Queue: couldn't allocate queue");
 			throw std::logic_error(name_ + ": couldn't allocate queue");
 		}
 		frame_desc_.byteEndian = Endianness::LittleEndian;
@@ -115,8 +116,7 @@ namespace holovibes
 			stream_);
 		if (cuda_status != CUDA_SUCCESS)
 		{
-   			std::cerr << "Queue: couldn't enqueue into " << name_ << std::endl;
-			std::cerr << cudaGetErrorString(cudaGetLastError()) << std::endl;
+			LOG_ERROR(std::string("Queue: couldn't enqueue into ") + std::string(name_) + std::string(": ") + std::string(cudaGetErrorString(cudaGetLastError())));
 			if (display_)
 				gui::InfoManager::get_manager()->update_info(name_, "couldn't enqueue");
 			data_buffer_.reset();

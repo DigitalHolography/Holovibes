@@ -30,6 +30,7 @@
 #include "custom_exception.hh"
 #include "unique_ptr.hh"
 #include "pipe.hh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -78,7 +79,7 @@ namespace holovibes
 			fd_yz.width = compute_desc_.nSize;
 			gpu_img_acc_yz_.reset(new Queue(fd_yz, compute_desc_.img_acc_slice_yz_level, "AccumulationQueueYZ"));
 			if (!gpu_img_acc_yz_)
-				std::cerr << "Error: can't allocate queue" << std::endl;
+				LOG_ERROR("Can't allocate queue");
 		}
 		if (compute_desc_.img_acc_slice_xz_enabled)
 		{
@@ -86,7 +87,7 @@ namespace holovibes
 			fd_xz.height = compute_desc_.nSize;
 			gpu_img_acc_xz_.reset(new Queue(fd_xz, compute_desc_.img_acc_slice_xz_level, "AccumulationQueueXZ"));
 			if (!gpu_img_acc_xz_)
-				std::cerr << "Error: can't allocate queue" << std::endl;
+				LOG_ERROR("Can't allocate queue");
 		}
 
 		int inembed[1];
@@ -267,11 +268,11 @@ namespace holovibes
 
 	void ICompute::allocation_failed(const int& err_count, std::exception& e)
 	{
-		std::cerr
-			<< "[ERROR] Pipe: " << std::endl
-			<< " error message: " << e.what() << std::endl
-			<< " err_count: " << err_count << std::endl
-			<< std::endl;
+		LOG_ERROR(
+			std::string("Pipe error:\n") +
+			std::string("  message: ") + std::string(e.what()) + std::string("\n") +
+			std::string("  err_count: ") + std::to_string(err_count) + std::string("\n\n")
+		);
 		notify_error_observers(e);
 	}
 
@@ -291,7 +292,7 @@ namespace holovibes
 				new_fd.depth = 4;
 				queue.reset(new Queue(new_fd, queue_length, "Accumulation"));
 				if (!queue)
-					std::cout << "error: couldn't allocate queue" << std::endl;
+					LOG_ERROR("couldn't allocate queue");
 			}
 			catch (std::exception&)
 			{

@@ -15,6 +15,7 @@
 #include "fft1.cuh"
 #include "tools.cuh"
 #include "tools_compute.cuh"
+#include "logger.hh"
 using holovibes::cuda_tools::CufftHandle;
 
 //the three next function are for test
@@ -73,7 +74,7 @@ void convolution_kernel(float		*gpu_input,
 	holovibes::cuda_tools::UniquePtr<cuComplex> output_kernel(size);
 	if (!output_fft || !output_kernel)
 	{
-		std::cout << "Couldn't allocate buffers for convolution.\n";
+		LOG_ERROR("Couldn't allocate buffers for convolution.\n");
 		return;
 	}
 

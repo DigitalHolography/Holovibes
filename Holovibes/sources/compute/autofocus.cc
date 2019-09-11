@@ -16,6 +16,7 @@
 #include "autofocus.cuh"
 #include "icompute.hh"
 #include "preprocessing.cuh"
+#include "logger.hh"
 
 namespace holovibes
 {
@@ -171,7 +172,7 @@ namespace holovibes
 			if (af_env_.stft_index != af_env_.nSize)
 			{
 				autofocus_reset();
-				std::cout << "Autofocus: shouldn't be called there. You should report this bug." << std::endl;
+				LOG_ERROR("Autofocus shouldn't be called there. You should report this bug.");
 				return;
 			}
 
@@ -206,7 +207,7 @@ namespace holovibes
 					Ic_->request_update_n(cd_.nSize);
 
 					autofocus_reset();
-					std::cout << "Autofocus: Couldn't find a good value for z" << std::endl;
+					LOG_INFO("Autofocus Couldn't find a good value for z");
 					Ic_->request_refresh();
 					return;
 				}

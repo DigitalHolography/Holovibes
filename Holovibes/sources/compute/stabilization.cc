@@ -21,6 +21,7 @@
 #include "tools_conversion.cuh"
 #include "stabilization.cuh"
 #include "icompute.hh"
+#include "logger.hh"
 
 
 using holovibes::compute::Stabilization;
@@ -175,7 +176,7 @@ void Stabilization::insert_average_compute()
 				accumulation_queue_.reset(nullptr);
 			}
 			if (!accumulation_queue_)
-				std::cerr << "Error: can't allocate queue" << std::endl;
+				LOG_ERROR("Can't allocate queue");
 		}
 	}
 	else if (!queue_needed)

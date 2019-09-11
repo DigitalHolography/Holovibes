@@ -14,9 +14,13 @@ public:
 	static void log(const std::string& msg, const std::string& path, int line, const std::string& func)
 	{
 #ifdef _DEBUG
-		std::cout << "(FILE: " << get_file_name(path) << " / LINE: " << line << " / FUNCTION: " << func << ") ";
+		std::cout << "(FILE: " << get_file_name(path) << " / LINE: " << line << " / FUNCTION: " << func << ")" << "\n";
 #endif
 		std::cout << msg << "\n";
+#ifdef _DEBUG
+		std::cout << "\n";
+#endif
+
 	}
 
 private:

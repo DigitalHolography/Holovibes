@@ -12,6 +12,7 @@
 
 #include "MainWindow.hh"
 #include "pipe.hh"
+#include "logger.hh"
 #include <filesystem>
 
 
@@ -105,7 +106,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				std::cout << GLOBAL_INI_PATH << ": Configuration file not found. Initialization with default values." << std::endl;
+				LOG_WARN(std::string(GLOBAL_INI_PATH) + ": Configuration file not found. Initialization with default values.");
 				save_ini(GLOBAL_INI_PATH);
 			}
 
@@ -1004,7 +1005,7 @@ namespace holovibes
 			}
 			catch (std::exception&)
 			{
-				std::cout << GLOBAL_INI_PATH << ": Config file not found. It will use the default values." << std::endl;
+				LOG_WARN(std::string(GLOBAL_INI_PATH) + ": Config file not found. It will use the default values.");
 			}
 			notify();
 		}
@@ -1174,8 +1175,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "cannot create Pipe :" << std::endl;
-				std::cerr << e.what() << std::endl;
+				LOG_ERROR(std::string("cannot create Pipe: ") + std::string(e.what()));
 			}
 		}
 
@@ -1206,8 +1206,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "error createHoloWindow :" << std::endl;
-				std::cerr << e.what() << std::endl;
+				LOG_ERROR(std::string("createHoloWindow: ") + std::string(e.what()));
 			}
 		}
 
@@ -1236,8 +1235,7 @@ namespace holovibes
 			}
 			catch (std::runtime_error& e)
 			{
-				std::cerr << "cannot set holographic mode :" << std::endl;
-				std::cerr << e.what() << std::endl;
+				LOG_ERROR(std::string("cannot set holographic mode: ") + std::string(e.what()));
 			}
 		}
 
@@ -1261,8 +1259,7 @@ namespace holovibes
 			catch (std::runtime_error& e)
 			{
 				mainDisplay.reset(nullptr);
-				std::cerr << "error refreshViewMode :" << std::endl;
-				std::cerr << e.what() << std::endl;
+				LOG_ERROR(std::string("refreshViewMode: ") + std::string(e.what()));
 			}
 			notify();
 			layout_toggled();

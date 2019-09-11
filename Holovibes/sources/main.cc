@@ -17,6 +17,7 @@
 
 #include "options_parser.hh"
 #include "MainWindow.hh"
+#include "logger.hh"
 
 using camera::Endianness;
 

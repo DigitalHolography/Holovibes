@@ -16,6 +16,7 @@
 #include "cuda_tools/unique_ptr.hh"
 #include "cuda_tools/array.hh"
 #include "cuda_tools/cufft_handle.hh"
+#include "logger.hh"
 
 using camera::FrameDescriptor;
 using namespace holovibes;
@@ -602,7 +603,7 @@ void complex_translation(float		*frame,
 	float *tmp_buffer;
 	if (cudaMalloc(&tmp_buffer, width * height * sizeof(float)) != cudaSuccess)
 	{
-		std::cout << "Can't callocate buffer for repositioning" << std::endl;
+		LOG_ERROR("Can't callocate buffer for repositioning");
 		return;
 	}
 
