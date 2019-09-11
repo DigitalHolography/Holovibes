@@ -205,20 +205,46 @@ To let the versioning tool consistent, you have to respect these rules.
 
 ## Changelog ##
 
+### v.7.1
+
+* add: dark mode for chart window
+* up: replace cou calls by logger class calls
+* add: logger clas
+* up: Change char autoscale offset
+* up: Remove qwt ibrary, plot now  uses QtCharts
+* fix: Use std::flesystem instead of std::experimental::filesystem
+* up: Remove complex mode
+* up: remove *.ccincludes for moc_* files
+* up: remove vibrmetry
+* up: remove flowraphy
+* up: fix build ad Qt moc file generation
+* up: use QGuiAppication for screen geometry
+* up: remove stftlongtimes
+* fix: .cu fix arument type warning with static_casts
+* up: composite.c / hsv.cu remove debug gpu function causing warnings
+* fix: array.hh   postprocessing.cc fix initialize type warnings
+* fix: tools.cu /MainWindow.cc fix initialize type warnings
+* up: compute_desriptor.hh fix std::atomic warnings + code format
+* up: bump CUDA vrsion to 10
+
+### v.7.0
+
+?
+
 ### v.6.7
 
-fix: plot is now on signal on launch
-fix: hsv h part on convolution
+* fix: plot is now on signal on launch
+* fix: hsv h part on convolution
 
 ### v.6.6
 
-add doc stft longtimes
-add: icon
+* add doc stft longtimes
+* add: icon
 
 ### v.6.5
 
-up:stft longtimes is now only on magnitude
-fix: imgtype can't change when stft longtimes is checked
+* up:stft longtimes is now only on magnitude
+* fix: imgtype can't change when stft longtimes is checked
 
 ### v.6.4
 

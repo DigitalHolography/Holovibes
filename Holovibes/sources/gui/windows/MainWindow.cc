@@ -545,6 +545,10 @@ namespace holovibes
 
 				"Developers:\n\n"
 
+				"Loïc Bellonnet-Mottet\n"
+				"Antoine Martin\n"
+				"François Te\n"
+
 				"Ellena Davoine\n"
 				"Clement Fang\n"
 				"Danae Marmai\n"
