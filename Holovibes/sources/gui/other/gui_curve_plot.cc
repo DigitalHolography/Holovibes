@@ -48,6 +48,9 @@ namespace holovibes
 			chart = new QChart();
 			chart_view = new QChartView(chart, parent);
 
+			chart->setTheme(QChart::ChartTheme::ChartThemeDark);
+			line_series->setColor(QColor::fromRgb(255, 255, 255));
+
 			chart->legend()->hide();
 			chart->addSeries(line_series);
 			chart->createDefaultAxes();
@@ -172,6 +175,21 @@ namespace holovibes
 			load_data_vector();
 			while (data_vect_.size() > points_nb_)
 				data_vect_.pop_front();
+		}
+
+		void CurvePlot::toggle_dark_mode(bool dark_mode)
+		{
+			auto theme = QChart::ChartTheme::ChartThemeLight;
+			auto line_color = QColor::fromRgb(0, 0, 0);
+
+			if (dark_mode)
+			{
+				theme = QChart::ChartTheme::ChartThemeDark;
+				line_color = QColor::fromRgb(255, 255, 255);
+			}
+
+			chart->setTheme(theme);
+			line_series->setColor(line_color);
 		}
 	}
 }

@@ -105,6 +105,9 @@ namespace holovibes
 			*/
 			void set_points_nb(const unsigned int n);
 
+			/*! Swtich between light and dark mode */
+			void toggle_dark_mode(bool dark_mode);
+
 			public slots:
 			/*! \brief Updates the chart */
 			void update();

@@ -76,6 +76,12 @@ namespace holovibes
 		{
 			curve_plot_.change_curve(curve_to_plot);
 		}
+
+		void PlotWindow::toggle_dark_mode()
+		{
+			QCheckBox* box = findChild<QCheckBox*>("darkModeCheckBox");
+			curve_plot_.toggle_dark_mode(box->isChecked());
+		}
 	}
 }
 

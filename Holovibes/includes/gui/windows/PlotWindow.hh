@@ -87,6 +87,9 @@ namespace holovibes
 			/*! Ask curve_plot_ to change ploted curve */
 			void change_curve(int curve_to_plot);
 
+			/*! Switch between light and dark mode */
+			void toggle_dark_mode();
+
 		private:
 			Ui::PlotWindow ui;
 

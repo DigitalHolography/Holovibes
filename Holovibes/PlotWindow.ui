@@ -101,6 +101,22 @@
      </property>
     </item>
    </widget>
+   <widget class="QCheckBox" name="darkModeCheckBox">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>10</y>
+      <width>74</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Dark mode</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -108,7 +124,7 @@
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -164,10 +180,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>darkModeCheckBox</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>PlotWindow</receiver>
+   <slot>toggle_dark_mode()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>466</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>auto_scale()</slot>
   <slot>change_points_nb(int)</slot>
   <slot>change_curve(int)</slot>
+  <slot>toggle_dark_mode()</slot>
  </slots>
 </ui>
