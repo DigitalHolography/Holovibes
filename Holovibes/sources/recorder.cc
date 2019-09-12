@@ -97,7 +97,7 @@ namespace holovibes
 		// Create a list of the folders which do not currently exist
 		do
 		{
-			if (boost::filesystem::exists(c_str))
+			if (std::filesystem::exists(c_str))
 				break;
 			// Break off the last folder name, store in folderLevels list
 			do
@@ -114,17 +114,17 @@ namespace holovibes
 		folderLevels.pop_back();
 
 		// Save the .exe directory before the record
-		execDir = boost::filesystem::current_path().string();
+		execDir = std::filesystem::current_path().string();
 		if (_chdir(c_str))
 		{
 			throw std::exception("[RECORDER] error cannot _chdir directory");
 		}
 
 		// Create the folders iteratively
-		std::string startPath = boost::filesystem::current_path().string();
+		std::string startPath = std::filesystem::current_path().string();
 		for (std::list<std::string>::iterator it = folderLevels.begin(); it != folderLevels.end(); it++)
 		{
-			if (boost::filesystem::create_directory(it->c_str()) == 0)
+			if (std::filesystem::create_directory(it->c_str()) == 0)
 				throw std::exception("[RECORDER] error cannot create directory");
 
 			_chdir(it->c_str());

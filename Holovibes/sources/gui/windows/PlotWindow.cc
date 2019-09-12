@@ -10,6 +10,7 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "ui_plotwindow.h"
 #include "PlotWindow.hh"
 #include "concurrent_deque.hh"
 

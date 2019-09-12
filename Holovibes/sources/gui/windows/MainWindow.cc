@@ -10,10 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include "ui_mainwindow.h"
 #include "MainWindow.hh"
 #include "pipe.hh"
-#include <filesystem>
-
 
 #define MIN_IMG_NB_STFT_CUTS 8
 
@@ -1106,7 +1105,7 @@ namespace holovibes
 
 		void MainWindow::configure_camera()
 		{
-			open_file(boost::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
+			open_file(std::filesystem::current_path().generic_string() + "/" + holovibes_.get_camera_ini_path());
 		}
 #pragma endregion
 		/* ------------ */

@@ -48,6 +48,7 @@
 #include <exception>
 #include <fstream>
 #include <functional>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <list>
@@ -107,7 +108,6 @@
 
 // Boost
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options/cmdline.hpp>
 #include <boost/program_options/config.hpp>
