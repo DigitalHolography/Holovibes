@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONFIG_TYPE=Debug
-if [ $# -ge 1 ]; then
+if [ $# -ge 1 ] && [ $1 == "Release" ]; then
 	CONFIG_TYPE="$1"
 	shift 1
 fi
