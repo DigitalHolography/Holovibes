@@ -10,6 +10,14 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <QGuiApplication>
+#include <QKeyEvent>
+#include <QRect>
+#include <QScreen>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "texture_update.cuh"
 #include "BasicOpenGLWindow.hh"
 #include "HoloWindow.hh"

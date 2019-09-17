@@ -15,6 +15,11 @@
  * Thread class used to record CSV files of ROI/average computations. */
 #pragma once
 
+#include <string>
+
+#include <QObject>
+#include <QThread>
+
 # include "pipe.hh"
 
 namespace holovibes

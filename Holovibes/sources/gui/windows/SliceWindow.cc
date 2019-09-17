@@ -10,6 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+// Windows include is needed for the cuda_gl_interop header to compile
+#ifdef WIN32
+  #include <windows.h>
+#endif
+#include <cuda_gl_interop.h>
+
 #include "texture_update.cuh"
 #include "SliceWindow.hh"
 #include "MainWindow.hh"

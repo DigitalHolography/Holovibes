@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <sstream>
+
 #include "cross_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "info_manager.hh"

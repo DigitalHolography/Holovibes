@@ -73,14 +73,20 @@
 #include <ctime>
 
 // Qt
+#include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
 #include <QDesktopWidget.h>
+#include <QDragEnterEvent>
 #include <QEvent.h>
 #include <QFileDialog>
+#include <QFont>
 #include <QGroupBox>
+#include <QGuiApplication>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QObject>
 #include <QOpenGLFunctions>
 #include <QOpenGLPaintDevice>
@@ -90,10 +96,15 @@
 #include <QPainter>
 #include <QPen>
 #include <QProgressBar>
+#include <QRect>
+#include <QScreen>
 #include <QShortcut>
 #include <QTextBrowser>
+#include <QTextDocument>
 #include <QThread>
 #include <QVector>
+#include <QWheelEvent>
+#include <QtCharts>
 #include <QtWidgets>
 
 #include <qabstracttextdocumentlayout.h>
@@ -140,5 +151,3 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm\gtc\matrix_transform.hpp>
-#include <glm\gtc\type_ptr.hpp>

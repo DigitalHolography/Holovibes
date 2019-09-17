@@ -15,6 +15,8 @@
 * Regroup all resources used for phase unwrapping 2d. */
 #pragma once
 
+#include <cufft.h>
+
 # include "config.hh"
 
 

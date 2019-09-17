@@ -15,6 +15,8 @@
  * Encapsulate a GPIB DLL ressource  */
 #pragma once
 
+#include <windows.h>
+
 # undef min
 # include "../GPIB/IVisaInterface.hh"
 

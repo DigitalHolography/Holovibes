@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cuda.h>
+
 # include "tools_conversion.cuh"
 # include "info_manager.hh"
 # include "config.hh"

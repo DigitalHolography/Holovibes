@@ -15,6 +15,8 @@
 Implementation of autofocus feature. */
 #pragma once
 
+#include <cufft.h>
+
 #define FOCUS_RANGE      0.5f
 
 #include "pipeline_utils.hh"

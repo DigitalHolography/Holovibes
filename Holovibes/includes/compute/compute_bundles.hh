@@ -15,6 +15,8 @@
  * Regroup all resources used for phase unwrapping. */
 #pragma once
 
+#include <cufft.h>
+
 # include "config.hh"
 
 namespace holovibes

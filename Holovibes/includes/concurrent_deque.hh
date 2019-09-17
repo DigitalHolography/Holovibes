@@ -15,6 +15,10 @@
  * A thread safe wrapper on std::deque. */
 #pragma once
 
+#include <deque>
+#include <mutex>
+#include <tuple>
+
 namespace holovibes
 {
 	using	Tuple4f = std::tuple<float, float, float, float>;

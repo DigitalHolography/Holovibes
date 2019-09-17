@@ -10,6 +10,10 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <filesystem>
+
+#include <cassert>
+
 #include "holovibes.hh"
 #include "queue.hh"
 #include "config.hh"

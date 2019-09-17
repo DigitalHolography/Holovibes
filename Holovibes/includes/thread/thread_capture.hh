@@ -15,6 +15,8 @@
  * Thread encapsulation for obtaining images from a camera. */
 #pragma once
 
+#include <thread>
+
 # include "ithread_input.hh"
 
 /* Forward declarations. */

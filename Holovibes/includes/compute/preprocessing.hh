@@ -14,6 +14,11 @@
 
  Implementation of preprocessing features on complex buffer. */
 #pragma once
+
+#include <atomic>
+
+#include <cufft.h>
+
 #include "pipeline_utils.hh"
 #include "frame_desc.hh"
 
@@ -79,7 +84,7 @@ namespace holovibes
 			//! State of the reference process
 			enum ref_state					ref_diff_state_;
 			//! Counter used by the reference process.
-			uint							ref_diff_counter_;
+			unsigned int					ref_diff_counter_;
 			//! Ref Queue. Accumulating complex images to handle reference.
 			std::unique_ptr<Queue>			gpu_ref_diff_queue_;
 

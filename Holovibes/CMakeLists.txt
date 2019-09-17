@@ -52,11 +52,13 @@ target_include_directories("${PROJECT_NAME}"
     "${CMAKE_SOURCE_DIR}/GPIB/"
 )
 
-# Add precompiled header
-target_precompile_headers("${PROJECT_NAME}"
-    PUBLIC
-    "stdafx.hh"
-)
+# CMake supports precompiled headers natively starting with v3.16
+if(COMMAND target_precompile_headers)
+    target_precompile_headers("${PROJECT_NAME}"
+        PUBLIC
+        "stdafx.hh"
+    )
+endif()
 
 add_subdirectory(sources)
 add_subdirectory(cuda_sources)

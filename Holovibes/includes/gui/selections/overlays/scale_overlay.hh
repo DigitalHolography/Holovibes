@@ -15,6 +15,8 @@
 * Overlay displaying the scale of the image. Could be factorized with slicecross overlay and maybe with strip */
 #pragma once
 
+#include <QImage>
+
 #include "rect_overlay.hh"
 
 namespace holovibes

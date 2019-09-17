@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cuda.h>
+
 #include "queue.hh"
 #include "tools_conversion.cuh"
 #include "unique_ptr.hh"

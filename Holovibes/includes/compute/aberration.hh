@@ -15,6 +15,12 @@
  * Contains functions relative to aberration corrections. */
 #pragma once
 
+#include <vector>
+
+#include <QPoint>
+
+#include <cufft.h>
+
 # include "cuda_tools/unique_ptr.hh"
 # include "cuda_tools/array.hh"
 # include "pipeline_utils.hh"

@@ -11,7 +11,6 @@ target_sources(Holovibes PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/pipeline_utils.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/queue.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/recorder.cc"
-    "${CMAKE_CURRENT_SOURCE_DIR}/stdafx.cc"
 
     "${CMAKE_CURRENT_SOURCE_DIR}/compute/aberration.cc"
     "${CMAKE_CURRENT_SOURCE_DIR}/compute/autofocus.cc"

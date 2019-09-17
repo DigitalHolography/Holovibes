@@ -10,6 +10,9 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <filesystem>
+
+#include <direct.h>
 
 #include "recorder.hh"
 #include "queue.hh"

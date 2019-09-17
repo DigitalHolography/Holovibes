@@ -1,5 +1,10 @@
 #pragma once
 
+#include <QDragEnterEvent>
+#include <QLineEdit>
+#include <QObject>
+#include <QWidget>
+
 namespace holovibes::gui {
 	class Drag_drop_lineedit : public QLineEdit
 	{

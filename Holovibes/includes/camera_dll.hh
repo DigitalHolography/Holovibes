@@ -15,6 +15,11 @@
  * Encapsulate a camera DLL ressource. */
 #pragma once
 
+#include <memory>
+#include <string>
+
+#include <windows.h>
+
 # undef min
 # include "icamera.hh"
 

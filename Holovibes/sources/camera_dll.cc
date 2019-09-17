@@ -10,6 +10,11 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <memory>
+#include <string>
+
+#include <windows.h>
+
 #include "camera_dll.hh"
 
 namespace camera

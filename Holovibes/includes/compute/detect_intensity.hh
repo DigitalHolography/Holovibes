@@ -80,11 +80,11 @@ namespace holovibes
 			//! Intensity of the previous frame
 			float last_intensity_;
 
-			uint current_shift_;
+			unsigned int current_shift_;
 			bool is_delaying_shift_;
 
 			//! Number of frame passed since last jump.
-			uint frames_since_jump_;
+			unsigned int frames_since_jump_;
 
 			/// Vector function in which we insert the processing
 			FnVector&						fn_vect_;

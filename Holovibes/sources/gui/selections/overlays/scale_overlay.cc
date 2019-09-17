@@ -10,6 +10,17 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <iomanip>
+#include <sstream>
+
+#include <QFont>
+#include <QPainter>
+#include <QPen>
+#include <QPixmap>
+#include <QTextCharFormat>
+#include <QTextCursor>
+#include <QTextDocument>
+
 #include "scale_overlay.hh"
 #include "BasicOpenGLWindow.hh"
 #include "real_position.hh"

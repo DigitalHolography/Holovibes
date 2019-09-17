@@ -15,6 +15,11 @@
  * Specialised QThread used for video recording. */
 #pragma once
 
+#include <string>
+
+#include <QObject>
+#include <QThread>
+
 # include "recorder.hh"
 
 /* Forward declaration. */

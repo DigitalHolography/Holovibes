@@ -10,6 +10,8 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <cassert>
+
 #include "icompute.hh"
 #include "fft1.cuh"
 #include "fft2.cuh"

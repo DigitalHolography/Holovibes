@@ -16,11 +16,13 @@
  * and use it as the source for the input queue. */
 #pragma once
 
+#include <QProgressBar>
+#include <QObject>
+
 # include "frame_desc.hh"
 # include "ithread_input.hh"
 # include "power_of_two.hh"
 # include "holovibes.hh"
-#include <QObject>
 
 /* Forward declaration. */
 namespace holovibes

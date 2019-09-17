@@ -10,6 +10,29 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+#endif
+
+#ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
+#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
+#endif
+
+#include <filesystem>
+
+#include <QAction>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QRect>
+#include <QScreen>
+#include <QShortcut>
+#include <QStyleFactory>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 #include "ui_mainwindow.h"
 #include "MainWindow.hh"
 #include "pipe.hh"

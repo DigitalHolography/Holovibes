@@ -10,6 +10,12 @@
 /*                                                                              */
 /* **************************************************************************** */
 
+#include <iomanip>
+
+#include <QProgressBar>
+#include <QObject>
+#include <QThread>
+
 #include "thread_csv_record.hh"
 #include "concurrent_deque.hh"
 #include "holovibes.hh"
