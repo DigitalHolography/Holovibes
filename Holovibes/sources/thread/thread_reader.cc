@@ -196,6 +196,7 @@ namespace holovibes
 			if (!queue_.enqueue(resize_buffer))
 				return false;
 		}
+
 		++frameId_;
 		++act_frame_;
 		return true;
