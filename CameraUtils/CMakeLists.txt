@@ -1,24 +1,17 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (CameraXiq CXX)
-
-find_package(Boost REQUIRED)
+project (CameraUtils CUDA CXX)
 
 add_library("${PROJECT_NAME}" SHARED
-    camera_xiq.cc
+    utils.cc
 )
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
-    "${Boost_INCLUDE_DIRS}"
-
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
-    "${CMAKE_SOURCE_DIR}/CameraUtils/"
-    "${CMAKE_SOURCE_DIR}/Camera/Camera/"
-    "${CMAKE_SOURCE_DIR}/lib/ximea/include/"
+    "${CMAKE_CURRENT_SOURCE_DIR}/"
 )
 
 target_link_libraries("${PROJECT_NAME}"
-    "${CMAKE_SOURCE_DIR}/lib/ximea/m3apiX64.lib"
+    cudart
 )
 
 # Generate the dll file in build/Debug or build/Release
