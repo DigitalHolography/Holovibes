@@ -47,6 +47,7 @@ target_include_directories("${PROJECT_NAME}"
     cuda_includes
 
     "${Boost_INCLUDE_DIRS}"
+    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
 
     "${CMAKE_SOURCE_DIR}/lib/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"

@@ -1,17 +1,16 @@
 cmake_minimum_required (VERSION 3.0)
 
-project (CameraUtils CUDA CXX)
+project (CameraUtils LANGUAGES CXX CUDA)
 
 add_library("${PROJECT_NAME}" SHARED
     utils.cc
 )
 
-target_include_directories("${PROJECT_NAME}" PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/"
-)
+set_source_files_properties(utils.cc PROPERTIES LANGUAGE CUDA)
 
-target_link_libraries("${PROJECT_NAME}"
-    cudart
+target_include_directories("${PROJECT_NAME}"
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/"
 )
 
 # Generate the dll file in build/Debug or build/Release
