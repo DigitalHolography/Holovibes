@@ -26,6 +26,7 @@ link_directories("${Boost_LIBRARY_DIRS}")
 add_executable("${PROJECT_NAME}"
     mainwindow.ui
     plotwindow.ui
+    Holovibes.rc
 )
 
 # Add necessary include dirs

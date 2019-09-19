@@ -22,5 +22,5 @@ if [ $# -ge 1 ]; then
 	esac
 fi
 
-echo "build/$CONFIG_TYPE && ./Holovibes.exe"
+echo "cd build/$CONFIG_TYPE && ./Holovibes.exe"
 cd build/$CONFIG_TYPE && ./Holovibes.exe
