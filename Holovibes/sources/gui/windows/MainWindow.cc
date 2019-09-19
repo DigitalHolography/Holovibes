@@ -1137,10 +1137,10 @@ namespace holovibes
 			{
 				QPoint pos(0, 0);
 				const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
-				ushort w = fd.width;
-				ushort h = fd.height;
-				get_good_size(w, h, 512);
-				QSize size(w, h); //width, height);
+				width = fd.width;
+				height = fd.height;
+				get_good_size(width, height, 512);
+				QSize size(width, height);
 				init_image_mode(pos, size);
 				compute_desc_.compute_mode = Computation::Direct;
 				createPipe();
@@ -1186,6 +1186,10 @@ namespace holovibes
 		void MainWindow::createHoloWindow()
 		{
 			QPoint pos(0, 0);
+			const FrameDescriptor& fd = holovibes_.get_capture_queue()->get_frame_desc();
+			width = fd.width;
+			height = fd.height;
+			get_good_size(width, height, 512);
 			QSize size(width, height);
 			init_image_mode(pos, size);
 			/* ---------- */
