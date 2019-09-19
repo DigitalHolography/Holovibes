@@ -23,7 +23,7 @@
 
 namespace holovibes
 {
-	const static std::string version = "v7.1.0"; /*!< Current version of this project. */
+	const static std::string version = "v7.1.1"; /*!< Current version of this project. */
 
 	using	Tuple4f = std::tuple<float, float, float, float>;
 
