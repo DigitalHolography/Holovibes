@@ -104,7 +104,8 @@
 #include <QThread>
 #include <QVector>
 #include <QWheelEvent>
-#include <QtCharts>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 #include <QtWidgets>
 
 #include <qabstracttextdocumentlayout.h>
