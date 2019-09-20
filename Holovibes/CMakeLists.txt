@@ -19,8 +19,6 @@ find_package(Boost REQUIRED
     COMPONENTS
     program_options
 )
-# Should be happening in target_link_libraries but doesn't work for some reason
-link_directories("${Boost_LIBRARY_DIRS}")
 
 # Add Qt ui files
 add_executable("${PROJECT_NAME}"
@@ -28,6 +26,19 @@ add_executable("${PROJECT_NAME}"
     plotwindow.ui
     Holovibes.rc
 )
+
+# On msvc, the Boost headers contains #pragma directives pointing to the
+# corresponding libraries, automatically linking them.
+if(MSVC)
+    target_link_directories("${PROJECT_NAME}"
+        PRIVATE
+        "${Boost_LIBRARY_DIRS}"
+    )
+else()
+    target_link_libraries("${PROJECT_NAME}"
+        Boost::program_options
+    )
+endif(MSVC)
 
 # Add necessary include dirs
 target_include_directories("${PROJECT_NAME}"
