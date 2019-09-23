@@ -5,7 +5,7 @@ GENERATOR="Visual Studio 15"
 
 function check_arg()
 {
-	case $1 in
+	case "$1" in
 		"Release"|"R"|"r")
 			CONFIG_TYPE=Release
 			return 1;;
@@ -18,13 +18,16 @@ function check_arg()
 		"NMake"|"NM"|"nm")
 			GENERATOR="NMake Makefiles"
 			return 1;;
+		"Visual Studio"*)
+			GENERATOR="$1"
+			return 1;;
 		*)
 			return 0;;
 	esac
 }
 
 while [ $# -ge 1 ]; do
-	check_arg $1
+	check_arg "$1"
 	if [ $? -eq 1 ]; then
 		shift 1
 	else
@@ -35,9 +38,9 @@ done
 echo "[BUILD.SH] CONFIG_TYPE: ${CONFIG_TYPE}"
 echo "[BUILD.SH] GENERATOR: ${GENERATOR}"
 
-if [ "${GENERATOR}" == "Visual Studio 15" ]; then
-	echo "[BUILD.SH] cmake -B build -S . -A x64"
-	cmake -B build -S . -A x64
+if [ -z "${GENERATOR##Visual Studio*}" ]; then
+	echo "[BUILD.SH] cmake -G ${GENERATOR} -B build -S . -A x64"
+	cmake -G "${GENERATOR}" -B build -S . -A x64
 	echo "[BUILD.SH] cmake --build build --config ${CONFIG_TYPE} $@ -- /verbosity:normal"
 	cmake --build build --config "${CONFIG_TYPE}" $@ -- /verbosity:normal
 else
