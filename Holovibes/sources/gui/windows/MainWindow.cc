@@ -10,14 +10,6 @@
 /*                                                                              */
 /* **************************************************************************** */
 
-#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#endif
-
-#ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#endif
-
 #include <filesystem>
 
 #include <QAction>

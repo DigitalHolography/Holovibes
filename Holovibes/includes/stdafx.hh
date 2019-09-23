@@ -19,21 +19,6 @@
 // First, sort all the line
 // To remove duplicated line, replace  ^(.*)(\r?\n\1)+$  by $1
 
-// Because Boost uses std::unary_function which has been removed in C++17
-#ifndef _HAS_AUTO_PTR_ETC
-#define _HAS_AUTO_PTR_ETC 1
-#endif // !_HAS_AUTO_PTR_ETC
-
-// Because Boost uses std::iterator which is deprecated in C++17
-#ifndef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
-#endif
-
-// Because Boost uses std::allocator which is deprecated in C++17
-#ifndef _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#define _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING
-#endif
-
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
