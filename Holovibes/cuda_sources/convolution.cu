@@ -47,9 +47,6 @@ void normalize_kernel(float		*gpu_kernel_buffer_,
 					  size_t	size)
 {
 	float sum = get_norm(gpu_kernel_buffer_, size);
-
-	// Calling an empty function, why?
-	// gpu_float_divide(gpu_kernel_buffer_, static_cast<uint>(size), sum);
 }
 
 void convolution_kernel(float		*gpu_input,
