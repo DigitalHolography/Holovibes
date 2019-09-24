@@ -18,13 +18,18 @@
 
 #include <string>
 #include <cstdint>
-#include <cstdio>
+#include <vector>
+
+#include "json.hh"
+#include "MainWindow.hh"
 
 namespace holovibes
 {
 	class HoloFile
 	{
 	public:
+		using json = ::nlohmann::json;
+
 		#pragma pack(2)
 		struct Header
 		{
@@ -36,8 +41,15 @@ namespace holovibes
 		};
 
 		HoloFile(const std::string& file_path);
+		const Header get_header() const;
+		void update_ui(Ui::MainWindow& ui) const;
+
+		operator bool() const;
 
 	private:
 		Header header_;
+		bool is_holo_file_ = false;
+		std::vector<char> meta_data_str_;
+		json meta_data_;
 	};
 }

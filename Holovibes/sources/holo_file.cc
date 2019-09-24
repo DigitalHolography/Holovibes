@@ -13,6 +13,9 @@
 #include "holo_file.hh"
 
 #include <iostream>
+#include <ios>
+#include <fstream>
+#include <filesystem>
 
 #include "logger.hh"
 
@@ -20,32 +23,62 @@ namespace holovibes
 {
 	HoloFile::HoloFile(const std::string& file_path)
 	{
-		fopen_s(&file_, file_path.c_str(), "rb");
+		std::ifstream file(file_path, std::ios::in | std::ios::binary);
 
-		if (!file_)
+		if (!file)
 		{
 			LOG_ERROR("Could not open file: " + file_path);
 			return;
 		}
 
-		if (std::fread(&header_, 1, sizeof(Header), file_) != sizeof(Header))
+		file.read((char*)(&header_), sizeof(Header));
+		if (file.gcount() != sizeof(Header))
 		{
-			LOG_ERROR("Could not read header of file: " + file_path);
 			return;
 		}
 
-		// printf("HOLO[4]: %.4s\n", header_.HOLO);
-		// std::cout << "pixel_bits: " << header_.pixel_bits << "\n";
-		// std::cout << "width: " << header_.img_width << "\n";
-		// std::cout << "height: " << header_.img_height << "\n";
-		// std::cout << "number of images: " << header_.img_nb << "\n";
+		is_holo_file_ = std::strncmp("HOLO", header_.HOLO, 4) == 0;
+		if (!is_holo_file_)
+		{
+			return;
+		}
+
+		uintmax_t meta_data_offset = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * header_.pixel_bits) / 8;
+		uintmax_t file_size = std::filesystem::file_size(file_path);
+		uintmax_t meta_data_size = file_size - meta_data_offset;
+
+		meta_data_str_.resize(meta_data_size + 1);
+		meta_data_str_[meta_data_size] = 0;
+
+		file.seekg(meta_data_offset, std::ios::beg);
+		file.read(meta_data_str_.data(), meta_data_size);
+
+		meta_data_ = json::parse(meta_data_str_);
 	}
 
-	HoloFile::~HoloFile()
+	const HoloFile::Header HoloFile::get_header() const
 	{
-		if (file_)
-		{
-			std::fclose(file_);
-		}
+		return header_;
+	}
+
+	void HoloFile::update_ui(Ui::MainWindow& ui) const
+	{
+		if (!is_holo_file())
+			return;
+
+		QSpinBox *import_width_box = ui.ImportWidthSpinBox;
+		QSpinBox *import_height_box = ui.ImportHeightSpinBox;
+		QComboBox *import_depth_box = ui.ImportDepthComboBox;
+		QComboBox *import_endian_box = ui.ImportEndiannessComboBox;
+
+		import_width_box->setValue(header_.img_width);
+		import_height_box->setValue(header_.img_height);
+		import_depth_box->setCurrentIndex(log2(header_.pixel_bits) - 3);
+		import_endian_box->setCurrentIndex(0);
+	}
+
+	HoloFile::operator bool() const
+	{
+		return is_holo_file_;
 	}
 }
