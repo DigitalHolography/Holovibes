@@ -17,6 +17,7 @@
 #include <utils.hh>
 #include <camera_exception.hh>
 #include <iostream>
+#include <cstring>
 
 namespace camera
 {
@@ -183,8 +184,17 @@ namespace camera
 
     status |= xiGetParamString(device_, XI_PRM_DEVICE_NAME, &name, name_buffer_size);
 
-    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
-    status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
+    //This camera does not support downsampling
+    if (!strncmp(name, "CB160MG-LX-X8G3-R2", 18))
+    {
+        std::cerr << "Detected camera is Ximea Xib64 CB160MG-LX-X8G3-R2 which does not support downsampling options\n"
+            << "Skipping parameters setting of downsapling rate and downsampling type\n";
+    }
+    else
+    {
+        status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING, downsampling_rate_);
+        status |= xiSetParamInt(device_, XI_PRM_DOWNSAMPLING_TYPE, downsampling_type_);
+    }
     status |= xiSetParamInt(device_, XI_PRM_IMAGE_DATA_FORMAT, img_format_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_X, roi_x_);
     status |= xiSetParamInt(device_, XI_PRM_OFFSET_Y, roi_y_);
