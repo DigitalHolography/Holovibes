@@ -297,6 +297,8 @@ namespace holovibes
 
 		//! is file a .cine
 		std::atomic<bool>			is_cine_file;
+		//! is file a .holo
+		std::atomic<bool>			is_holo_file;
 
 		//! Number of frame per seconds displayed
 		std::atomic<float>			display_rate;

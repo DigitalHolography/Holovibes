@@ -19,6 +19,7 @@
 # include "queue.hh"
 # include "holovibes.hh"
 # include "tools.hh"
+# include "holo_file.hh"
 # include "MainWindow.hh"
 
 using Clock = std::chrono::high_resolution_clock;
@@ -35,6 +36,7 @@ namespace holovibes
 		unsigned int spanEnd,
 		Queue& input,
 		bool is_cine_file,
+		bool is_holo_file,
 		Holovibes& holovibes,
 		QProgressBar *reader_progress_bar,
 		gui::MainWindow *main_window)
@@ -49,6 +51,7 @@ namespace holovibes
 		, spanEnd_(spanEnd)
 		, queue_(input)
 		, is_cine_file_(is_cine_file)
+		, is_holo_file_(is_holo_file)
 		, holovibes_(holovibes)
 		, act_frame_(0)
 		, reader_progress_bar_(reader_progress_bar)
@@ -104,6 +107,10 @@ namespace holovibes
 				offset = offset_cine_first_image(file);
 				// Cine file format put an extra 8 bits header for every image
 				frame_size += 8;
+			}
+			else if (is_holo_file_)
+			{
+				offset = sizeof(HoloFile::Header);
 			}
 			if (cudaMallocHost(&buffer, frame_size * elts_max_nbr) != CUDA_SUCCESS)
 			{

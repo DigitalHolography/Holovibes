@@ -43,7 +43,7 @@ namespace holovibes
 			return;
 		}
 
-		uintmax_t meta_data_offset = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * header_.pixel_bits) / 8;
+		uintmax_t meta_data_offset = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * (header_.pixel_bits / 8));
 		uintmax_t file_size = std::filesystem::file_size(file_path);
 		uintmax_t meta_data_size = file_size - meta_data_offset;
 
@@ -52,7 +52,6 @@ namespace holovibes
 
 		file.seekg(meta_data_offset, std::ios::beg);
 		file.read(meta_data_str_.data(), meta_data_size);
-
 		meta_data_ = json::parse(meta_data_str_);
 	}
 
@@ -63,7 +62,7 @@ namespace holovibes
 
 	void HoloFile::update_ui(Ui::MainWindow& ui) const
 	{
-		if (!is_holo_file())
+		if (!is_holo_file_)
 			return;
 
 		QSpinBox *import_width_box = ui.ImportWidthSpinBox;

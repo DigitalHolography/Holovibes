@@ -244,6 +244,7 @@ namespace holovibes
 					spanEnd,
 					*input_,
 					compute_desc_.is_cine_file,
+					compute_desc_.is_holo_file,
 					holovibes,
 					reader_progress_bar,
 					main_window));

@@ -29,6 +29,7 @@
 #include "MainWindow.hh"
 #include "pipe.hh"
 #include "logger.hh"
+#include "holo_file.hh"
 
 #define MIN_IMG_NB_STFT_CUTS 8
 
@@ -389,7 +390,7 @@ namespace holovibes
 			ui.STFTStepsSpinBox->setEnabled(!is_direct);
 			ui.STFTStepsSpinBox->setValue(compute_desc_.stft_steps);
 
-			// Ref 
+			// Ref
 			ui.TakeRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_sliding_enabled);
 			ui.SlidingRefPushButton->setEnabled(!is_direct && !compute_desc_.ref_diff_enabled && !compute_desc_.ref_sliding_enabled);
 			ui.CancelRefPushButton->setEnabled(!is_direct && (compute_desc_.ref_diff_enabled || compute_desc_.ref_sliding_enabled));
@@ -426,7 +427,7 @@ namespace holovibes
 			ui.ImportEndiannessComboBox->setEnabled(depth_value == "16" && !compute_desc_.is_cine_file);
 
 
-			// Composite		 	
+			// Composite
 			int nsize_max = compute_desc_.nSize - 1;
 			ui.PRedSpinBox_Composite->setMaximum(nsize_max);
 			ui.PBlueSpinBox_Composite->setMaximum(nsize_max);
@@ -2582,7 +2583,7 @@ namespace holovibes
 #pragma endregion
 		/* ------------ */
 #pragma region Average
-		
+
 		void MainWindow::set_average_mode(const bool value)
 		{
 			if (mainDisplay)
@@ -3326,8 +3327,17 @@ namespace holovibes
 				import_line_edit->clear();
 				import_line_edit->insert(filename);
 				tmp_path = filename;
-
-				title_detect();
+				std::string path = import_line_edit->text().toUtf8();
+				HoloFile holofile(path);
+				compute_desc_.is_holo_file = holofile;
+				if (holofile)
+				{
+					holofile.update_ui(ui);
+				}
+				else
+				{
+					title_detect();
+				}
 			}
 		}
 

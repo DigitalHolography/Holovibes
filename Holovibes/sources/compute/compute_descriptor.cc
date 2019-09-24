@@ -54,6 +54,7 @@ namespace holovibes
 		autofocus_z_div(10),
 		autofocus_z_iter(5),
 		is_cine_file(false),
+		is_holo_file(false),
 		pixel_size(5.42f),
 		img_acc_slice_xy_enabled(false),
 		img_acc_slice_xz_enabled(false),
@@ -127,6 +128,7 @@ namespace holovibes
 		autofocus_z_div = cd.autofocus_z_div.load();
 		autofocus_z_iter = cd.autofocus_z_iter.load();
 		is_cine_file = cd.is_cine_file.load();
+		is_holo_file = cd.is_holo_file.load();
 		pixel_size = cd.pixel_size.load();
 		img_acc_slice_xy_enabled = cd.img_acc_slice_xy_enabled.load();
 		img_acc_slice_xz_enabled = cd.img_acc_slice_xz_enabled.load();
