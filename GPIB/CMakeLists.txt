@@ -2,8 +2,6 @@ cmake_minimum_required (VERSION 3.0)
 
 project (gpib CXX)
 
-find_package(Boost REQUIRED)
-
 add_library("${PROJECT_NAME}" SHARED
     gpib_controller.cc
 )

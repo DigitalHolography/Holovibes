@@ -2,8 +2,6 @@ cmake_minimum_required (VERSION 3.0)
 
 project (CameraXib CXX)
 
-find_package(Boost REQUIRED)
-
 add_library("${PROJECT_NAME}" SHARED
     camera_xib.cc
 )

@@ -15,10 +15,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Packages
 find_package(Qt5 COMPONENTS Widgets Core Charts REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(Boost REQUIRED
-    COMPONENTS
-    program_options
-)
 
 # Add Qt ui files
 add_executable("${PROJECT_NAME}"

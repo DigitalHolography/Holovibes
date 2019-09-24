@@ -2,8 +2,6 @@ cmake_minimum_required (VERSION 3.0)
 
 project (CameraPCOPixelfly CXX)
 
-find_package(Boost REQUIRED)
-
 add_library("${PROJECT_NAME}" SHARED
     camera_pco_pixelfly.cc
     "${CMAKE_SOURCE_DIR}/Camera/CameraPCO/camera_pco.cc"
