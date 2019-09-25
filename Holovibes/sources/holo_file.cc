@@ -16,13 +16,14 @@
 #include <ios>
 #include <fstream>
 #include <filesystem>
+#include <cstring>
 
 #include "logger.hh"
 
 namespace holovibes
 {
 	HoloFile::HoloFile(const std::string& file_path)
-		: holo_file_path(file_path)
+		: holo_file_path_(file_path)
 	{
 		std::ifstream file(file_path, std::ios::in | std::ios::binary);
 
@@ -44,14 +45,14 @@ namespace holovibes
 			return;
 		}
 
-		uintmax_t meta_data_offset = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * (header_.pixel_bits / 8));
+		meta_data_offset_ = sizeof(Header) + (header_.img_height * header_.img_width * header_.img_nb * (header_.pixel_bits / 8));
 		uintmax_t file_size = std::filesystem::file_size(file_path);
-		uintmax_t meta_data_size = file_size - meta_data_offset;
+		uintmax_t meta_data_size = file_size - meta_data_offset_;
 
 		meta_data_str_.resize(meta_data_size + 1);
 		meta_data_str_[meta_data_size] = 0;
 
-		file.seekg(meta_data_offset, std::ios::beg);
+		file.seekg(meta_data_offset_, std::ios::beg);
 		file.read(meta_data_str_.data(), meta_data_size);
 
 		try
@@ -87,7 +88,50 @@ namespace holovibes
 		return is_holo_file_;
 	}
 
-	bool HoloFile::create_holo_file(Header& header, const std::string& meta_data_str, const std::string& raw_file_path)
+	HoloFile::Header HoloFile::create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb)
+	{
+		Header header;
+		std::strncpy(header.HOLO, "HOLO", 4);
+		header.pixel_bits = pixel_bits;
+		header.img_width = img_width;
+		header.img_height = img_height;
+		header.img_nb = img_nb;
+		return header;
+	}
+
+
+	bool HoloFile::update(const std::string& meta_data_str)
+	{
+		try
+		{
+			if (!is_holo_file_)
+			{
+				LOG_WARN(holo_file_path_ + " is not a .holo file, it cannot be updated");
+				return false;
+			}
+
+			json meta_data = json::parse(meta_data_str);
+
+			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, "tmp_holo_file_update.tmp_holo_update", sizeof(Header), meta_data_offset_);
+			std::filesystem::remove(holo_file_path_);
+			std::filesystem::rename("tmp_holo_file_update.tmp_holo_update", holo_file_path_);
+
+			if (ret)
+			{
+				meta_data_str_ = meta_data_str;
+				meta_data_ = meta_data;
+			}
+
+			return true;
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR(e.what());
+			return false;
+		}
+	}
+
+	bool HoloFile::create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path)
 	{
 		try
 		{
@@ -111,42 +155,52 @@ namespace holovibes
 
 			std::string output_path = raw_file_path.substr(0, raw_file_path.find_last_of('.')) + ".holo";
 
-			// Doing this the C way because it is much faster
-			FILE* output;
-			FILE* input;
-			if (fopen_s(&output, output_path.c_str(), "wb") != 0)
-			{
-				LOG_WARN("Could not open output file: " + output_path);
-				return false;
-			}
-			if (fopen_s(&input, raw_file_path.c_str(), "rb") != 0)
-			{
-				LOG_WARN("Could not open input file: " + raw_file_path);
-				std::fclose(output);
-				return false;
-			}
-			std::fwrite(&header, sizeof(Header), 1, output);
-#define BUF_SIZE 1 << 16
-			char buffer[BUF_SIZE];
-			size_t r = 0;
-			size_t w = 0;
-			while (w != file_size)
-			{
-				r = std::fread(buffer, 1, BUF_SIZE, input);
-				w += std::fwrite(buffer, 1, r, output);
-			}
-#undef BUF_SIZE
-			std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
-
-			std::fclose(output);
-			std::fclose(input);
-
-			return true;
+			return write_holo_data(header, meta_data_str, raw_file_path, output_path, 0, file_size);
 		}
 		catch (const std::exception& e)
 		{
 			LOG_ERROR(e.what());
 			return false;
 		}
+	}
+
+	bool HoloFile::write_holo_data(Header& header, const std::string& meta_data_str, const std::string& data_file_path, const std::string& output_path, fpos_t begin_offset, fpos_t end_offset)
+	{
+		// Doing this the C way because it is much faster
+		FILE* output;
+		FILE* input;
+		if (fopen_s(&output, output_path.c_str(), "wb") != 0)
+		{
+			LOG_WARN("Could not open output file: " + output_path);
+			return false;
+		}
+		if (fopen_s(&input, data_file_path.c_str(), "rb") != 0)
+		{
+			LOG_WARN("Could not open input file: " + data_file_path);
+			std::fclose(output);
+			return false;
+		}
+
+#define BUF_SIZE 1 << 16
+		std::fseek(input, begin_offset, SEEK_SET);
+		std::fwrite(&header, sizeof(Header), 1, output);
+		char buffer[BUF_SIZE];
+		size_t data_size = end_offset - begin_offset;
+		size_t r = 0;
+		size_t w = 0;
+		while (w < data_size)
+		{
+			// If the remaining data is less then BUF_SIZE only read what is necessary
+			size_t to_read = data_size - r > BUF_SIZE ? BUF_SIZE : data_size - r;
+			r = std::fread(buffer, 1, to_read, input);
+			w += std::fwrite(buffer, 1, r, output);
+		}
+		std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
+#undef BUF_SIZE
+
+		std::fclose(output);
+		std::fclose(input);
+
+		return true;
 	}
 }

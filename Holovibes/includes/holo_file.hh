@@ -18,7 +18,6 @@
 
 #include <string>
 #include <cstdint>
-#include <vector>
 
 #include "json.hh"
 #include "MainWindow.hh"
@@ -68,27 +67,48 @@ namespace holovibes
 		/*! \brief Returns true if the file is a .holo file */
 		operator bool() const;
 
+		/*! Creates a HoloFile::Header with the given arguments */
+		static Header create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb);
+
+		/*! Updates a .holo file by replacing the meta data part
+		*
+		* \param meta_data_str Json meta data as a string */
+		bool update(const std::string& meta_data_str);
+
 		/*! Creates a .holo file
 		*
 		* \param header Header of the new .holo file, the img_nb field will be replaced
 		* \param meta_data_str Json meta data as a string
 		* \param raw_file_path Path to the raw file to convert */
-		static bool create_holo_file(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
+		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
 	private:
 		/*! \brief Path of the .holo file */
-		const std::string& holo_file_path;
+		const std::string holo_file_path_;
 
 		/*! \brief Header of the .holo file */
 		Header header_;
 
+		/*! \brief Meta data offset in the file */
+		uintmax_t meta_data_offset_;
+
 		/*! \brief True if header_.HOLO == "HOLO" */
 		bool is_holo_file_ = false;
 
-		/*! \brief The json meta data as a char vector */
-		std::vector<char> meta_data_str_;
+		/*! \brief The json meta data as a std::string */
+		std::string meta_data_str_;
 
 		/*! The json meta data as a json object */
 		json meta_data_;
+
+		/*! Helper method to write data to a .holo file (used by create & update methods)
+		*
+		* \param header Header of the new .holo file, the img_nb field will be replaced
+		* \param meta_data_str Json meta data as a string
+		* \param data_file_path Path to the file containing image data (could be .raw or .holo)
+		* \param output_path Path of the generated output file
+		* \param begin_offset Offset to the beginning of the image data
+		* \param end_offset Offset to the end of the image data */
+		static bool write_holo_data(Header& header, const std::string& meta_data_str, const std::string& data_file_path, const std::string& output_path, fpos_t begin_offset, fpos_t end_offset);
 	};
 }
