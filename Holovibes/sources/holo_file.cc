@@ -52,7 +52,17 @@ namespace holovibes
 
 		file.seekg(meta_data_offset, std::ios::beg);
 		file.read(meta_data_str_.data(), meta_data_size);
-		meta_data_ = json::parse(meta_data_str_);
+
+		try
+		{
+			meta_data_ = json::parse(meta_data_str_);
+		}
+		catch (...)
+		{
+			LOG_WARN("Could not parse .holo file json meta data, treating the file as a regular .raw file");
+			is_holo_file_ = false;
+			return;
+		}
 	}
 
 	void HoloFile::update_ui(Ui::MainWindow& ui) const
