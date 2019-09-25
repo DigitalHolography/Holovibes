@@ -3447,6 +3447,16 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="ToHoloFilePushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>To HoloFile</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -6806,6 +6816,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ToHoloFilePushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>to_holo_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1439</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6957,5 +6983,6 @@ p, li { white-space: pre-wrap; }
   <slot>set_synchronized_record(bool)</slot>
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
+  <slot>to_holo_file()</slot>
  </slots>
 </ui>

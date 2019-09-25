@@ -203,10 +203,10 @@ namespace holovibes
 			return false;
 		}
 
-#define BUF_SIZE 1 << 16
+#define UPDATE_BUF_SIZE 1 << 16
 		std::fseek(input, begin_offset, SEEK_SET);
 		std::fwrite(&header, sizeof(Header), 1, output);
-		char buffer[BUF_SIZE];
+		char buffer[UPDATE_BUF_SIZE];
 		size_t data_size = end_offset - begin_offset;
 		size_t r = 0;
 		size_t w = 0;

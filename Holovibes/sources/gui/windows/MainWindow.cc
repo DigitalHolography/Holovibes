@@ -3328,8 +3328,11 @@ namespace holovibes
 				import_line_edit->insert(filename);
 				tmp_path = filename;
 				std::string path = import_line_edit->text().toUtf8();
+
+				auto to_holo_file_button = ui.ToHoloFilePushButton;
 				HoloFile holofile(path);
 				compute_desc_.is_holo_file = holofile;
+				ui.ToHoloFilePushButton->setDisabled(holofile);
 				if (holofile)
 				{
 					holofile.update_ui(ui);
@@ -3592,6 +3595,16 @@ namespace holovibes
 			import_depth_box->setCurrentIndex(log2(depth) - 3);
 			import_endian_box->setCurrentIndex(endian);
 		}
+
+		void MainWindow::to_holo_file()
+		{
+			unsigned width = ui.ImportWidthSpinBox->value();
+			unsigned height = ui.ImportHeightSpinBox->value();
+			unsigned pixel_bits = std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3);
+			auto header = HoloFile::create_header(pixel_bits, width, height);
+			HoloFile::create(header, "{}", ui.ImportPathLineEdit->text().toStdString());
+		}
+
 #pragma endregion
 
 #pragma region Themes

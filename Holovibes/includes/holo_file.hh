@@ -77,7 +77,7 @@ namespace holovibes
 
 		/*! Creates a .holo file
 		*
-		* \param header Header of the new .holo file, the img_nb field will be replaced
+		* \param header Header of the new .holo file, the img_nb field will be set according to the image and file sizes
 		* \param meta_data_str Json meta data as a string
 		* \param raw_file_path Path to the raw file to convert */
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
