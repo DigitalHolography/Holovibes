@@ -91,7 +91,10 @@ namespace holovibes
 	HoloFile::Header HoloFile::create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb)
 	{
 		Header header;
-		std::strncpy(header.HOLO, "HOLO", 4);
+		header.HOLO[0] = 'H';
+		header.HOLO[1] = 'O';
+		header.HOLO[2] = 'L';
+		header.HOLO[3] = 'O';
 		header.pixel_bits = pixel_bits;
 		header.img_width = img_width;
 		header.img_height = img_height;
@@ -112,14 +115,22 @@ namespace holovibes
 
 			json meta_data = json::parse(meta_data_str);
 
-			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, "tmp_holo_file_update.tmp_holo_update", sizeof(Header), meta_data_offset_);
-			std::filesystem::remove(holo_file_path_);
-			std::filesystem::rename("tmp_holo_file_update.tmp_holo_update", holo_file_path_);
+			LOG_INFO("Updating file: " + holo_file_path_);
+
+			std::string tmp_path = "update_" + holo_file_path_ + ".tmp";
+			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, tmp_path, sizeof(Header), meta_data_offset_);
 
 			if (ret)
 			{
+				std::filesystem::remove(holo_file_path_);
+				std::filesystem::rename(tmp_path, holo_file_path_);
 				meta_data_str_ = meta_data_str;
 				meta_data_ = meta_data;
+				LOG_INFO("Done.");
+			}
+			else if (std::filesystem::exists(tmp_path))
+			{
+				std::filesystem::remove(tmp_path);
 			}
 
 			return true;
@@ -155,7 +166,10 @@ namespace holovibes
 
 			std::string output_path = raw_file_path.substr(0, raw_file_path.find_last_of('.')) + ".holo";
 
-			return write_holo_data(header, meta_data_str, raw_file_path, output_path, 0, file_size);
+			LOG_INFO("Creating file: " + output_path);
+			bool ret = write_holo_data(header, meta_data_str, raw_file_path, output_path, 0, file_size);
+			LOG_INFO("Done.");
+			return ret;
 		}
 		catch (const std::exception& e)
 		{
@@ -188,12 +202,20 @@ namespace holovibes
 		size_t data_size = end_offset - begin_offset;
 		size_t r = 0;
 		size_t w = 0;
+		unsigned old_percent = 0;
+		unsigned percent = 0;
 		while (w < data_size)
 		{
 			// If the remaining data is less then BUF_SIZE only read what is necessary
 			size_t to_read = data_size - r > BUF_SIZE ? BUF_SIZE : data_size - r;
 			r = std::fread(buffer, 1, to_read, input);
 			w += std::fwrite(buffer, 1, r, output);
+			percent = w * 100 / data_size;
+			if (percent - old_percent >= 10 || percent == 100)
+			{
+				std::cout << "Creating " << output_path << ": " << percent << "%\n";
+				old_percent = percent;
+			}
 		}
 		std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
 #undef BUF_SIZE

@@ -68,7 +68,7 @@ namespace holovibes
 		operator bool() const;
 
 		/*! Creates a HoloFile::Header with the given arguments */
-		static Header create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb);
+		static Header create_header(uint16_t pixel_bits, uint32_t img_width, uint32_t img_height, uint32_t img_nb = 0);
 
 		/*! Updates a .holo file by replacing the meta data part
 		*
