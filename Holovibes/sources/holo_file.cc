@@ -55,11 +55,6 @@ namespace holovibes
 		meta_data_ = json::parse(meta_data_str_);
 	}
 
-	const HoloFile::Header HoloFile::get_header() const
-	{
-		return header_;
-	}
-
 	void HoloFile::update_ui(Ui::MainWindow& ui) const
 	{
 		if (!is_holo_file_)

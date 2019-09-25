@@ -25,31 +25,56 @@
 
 namespace holovibes
 {
+	/*! \brief Used to get meta data from .holo files instead of file titles
+	*
+	* Reads the header of a file and if it is a .holo file reads the json
+	* meta data stored at the end of the file and update the main window
+	* ui with all the necessary data */
 	class HoloFile
 	{
 	public:
+		// nlohmann json lib
 		using json = ::nlohmann::json;
 
+		/*! \brief Packed .holo header to read the good amount bytes into it at once 
+		*
+		* Only contains the necessarys information to retrieve the size of the binary images
+		* data to skip directly to the meta data part at the end */
 		#pragma pack(2)
 		struct Header
 		{
+			/*! \brief .holo file magic number, should be equal to "HOLO" */
 			char HOLO[4];
+			/*! \brief Number of bits in 1 pixel */
 			uint16_t pixel_bits;
+			/*! \brief Width of 1 image in pixels */
 			uint32_t img_width;
+			/*! \brief Height of 1 image in pixels */
 			uint32_t img_height;
+			/*! \brief Number of images in the file */
 			uint32_t img_nb;
 		};
 
+		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data */
 		HoloFile(const std::string& file_path);
-		const Header get_header() const;
+
+		/*! \brief Updates the MainWindow ui object with the .holo file data */
 		void update_ui(Ui::MainWindow& ui) const;
 
+		/*! \brief Returns true if the file is a .holo file */
 		operator bool() const;
 
 	private:
+		/*! \brief Header of the .holo file */
 		Header header_;
+
+		/*! \brief True if header_.HOLO == "HOLO" */
 		bool is_holo_file_ = false;
+
+		/*! \brief The json meta data as a char vector */
 		std::vector<char> meta_data_str_;
+
+		/*! The json meta data as a json object */
 		json meta_data_;
 	};
 }
