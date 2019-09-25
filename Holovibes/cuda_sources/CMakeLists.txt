@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-target_sources(Holovibes PRIVATE
+target_sources(holocuda PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/aberration.cu"
     "${CMAKE_CURRENT_SOURCE_DIR}/autofocus.cu"
     "${CMAKE_CURRENT_SOURCE_DIR}/average.cu"

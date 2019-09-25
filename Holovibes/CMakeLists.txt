@@ -23,6 +23,24 @@ add_executable("${PROJECT_NAME}"
     Holovibes.rc
 )
 
+add_library(holocuda STATIC)
+
+target_include_directories(holocuda
+    PUBLIC
+    cuda_includes/
+    includes/
+    includes/compute/
+    includes/tools/
+    includes/tools/cuda_tools/
+    includes/tools/units/
+
+    "${CMAKE_SOURCE_DIR}/Camera/include/"
+)
+
+target_link_libraries(holocuda
+    Qt5::Core
+)
+
 # On msvc, the Boost headers contains #pragma directives pointing to the
 # corresponding libraries, automatically linking them.
 if(MSVC)
@@ -39,9 +57,6 @@ endif(MSVC)
 # Add necessary include dirs
 target_include_directories("${PROJECT_NAME}"
     PRIVATE
-    "${CMAKE_SOURCE_DIR}/Camera/include/"
-    includes
-    includes/compute/
     includes/core/
     includes/gui/other/
     includes/gui/selections/
@@ -49,16 +64,12 @@ target_include_directories("${PROJECT_NAME}"
     includes/gui/selections/overlays/
     includes/gui/windows/
     includes/thread/
-    includes/tools/
-    includes/tools/cuda_tools/
-    includes/tools/units/
-    cuda_includes
-
-    "${Boost_INCLUDE_DIRS}"
-    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
 
     "${CMAKE_SOURCE_DIR}/lib/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"
+
+    "${Boost_INCLUDE_DIRS}"
+    "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
 )
 
 # CMake supports precompiled headers natively starting with v3.16
@@ -80,6 +91,8 @@ target_link_libraries("${PROJECT_NAME}"
     Qt5::Widgets
     cufft
     OpenGL::GL
+
+    holocuda
 )
 
 # Generate Holovibes.exe in build/Debug or build/Release
