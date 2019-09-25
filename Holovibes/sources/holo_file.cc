@@ -22,6 +22,7 @@
 namespace holovibes
 {
 	HoloFile::HoloFile(const std::string& file_path)
+		: holo_file_path(file_path)
 	{
 		std::ifstream file(file_path, std::ios::in | std::ios::binary);
 
@@ -57,7 +58,7 @@ namespace holovibes
 		{
 			meta_data_ = json::parse(meta_data_str_);
 		}
-		catch (...)
+		catch (const json::exception&)
 		{
 			LOG_WARN("Could not parse .holo file json meta data, treating the file as a regular .raw file");
 			is_holo_file_ = false;
@@ -84,5 +85,68 @@ namespace holovibes
 	HoloFile::operator bool() const
 	{
 		return is_holo_file_;
+	}
+
+	bool HoloFile::create_holo_file(Header& header, const std::string& meta_data_str, const std::string& raw_file_path)
+	{
+		try
+		{
+			if (std::strncmp("HOLO", header.HOLO, 4) != 0)
+			{
+				LOG_WARN("header is not a .holo header");
+				return false;
+			}
+
+			// Throws an exception if the file doesn't exist
+			uintmax_t file_size = std::filesystem::file_size(raw_file_path);
+			header.img_nb = file_size / (header.img_width * header.img_height * (header.pixel_bits / 8));
+			if (file_size != header.img_height * header.img_width * header.img_nb * (header.pixel_bits / 8))
+			{
+				LOG_WARN("File " + raw_file_path + "actual size != computed size, the file is corrupted or the header information is not right");
+				return false;
+			}
+
+			// Throws an exception if the json string contains mistakes
+			json meta_data = json::parse(meta_data_str);
+
+			std::string output_path = raw_file_path.substr(0, raw_file_path.find_last_of('.')) + ".holo";
+
+			// Doing this the C way because it is much faster
+			FILE* output;
+			FILE* input;
+			if (fopen_s(&output, output_path.c_str(), "wb") != 0)
+			{
+				LOG_WARN("Could not open output file: " + output_path);
+				return false;
+			}
+			if (fopen_s(&input, raw_file_path.c_str(), "rb") != 0)
+			{
+				LOG_WARN("Could not open input file: " + raw_file_path);
+				std::fclose(output);
+				return false;
+			}
+			std::fwrite(&header, sizeof(Header), 1, output);
+#define BUF_SIZE 1 << 16
+			char buffer[BUF_SIZE];
+			size_t r = 0;
+			size_t w = 0;
+			while (w != file_size)
+			{
+				r = std::fread(buffer, 1, BUF_SIZE, input);
+				w += std::fwrite(buffer, 1, r, output);
+			}
+#undef BUF_SIZE
+			std::fwrite(meta_data_str.data(), 1, meta_data_str.size(), output);
+
+			std::fclose(output);
+			std::fclose(input);
+
+			return true;
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR(e.what());
+			return false;
+		}
 	}
 }

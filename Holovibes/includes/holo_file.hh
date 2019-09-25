@@ -55,16 +55,30 @@ namespace holovibes
 			uint32_t img_nb;
 		};
 
-		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data */
+		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data
+		*
+		* \param file_path Path of the .holo file to process */
 		HoloFile(const std::string& file_path);
 
-		/*! \brief Updates the MainWindow ui object with the .holo file data */
+		/*! \brief Updates the MainWindow ui object with the .holo file data
+		*
+		* \param ui ui object contained in MainWindow */
 		void update_ui(Ui::MainWindow& ui) const;
 
 		/*! \brief Returns true if the file is a .holo file */
 		operator bool() const;
 
+		/*! Creates a .holo file
+		*
+		* \param header Header of the new .holo file, the img_nb field will be replaced
+		* \param meta_data_str Json meta data as a string
+		* \param raw_file_path Path to the raw file to convert */
+		static bool create_holo_file(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
+
 	private:
+		/*! \brief Path of the .holo file */
+		const std::string& holo_file_path;
+
 		/*! \brief Header of the .holo file */
 		Header header_;
 
