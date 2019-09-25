@@ -68,7 +68,6 @@ target_include_directories("${PROJECT_NAME}"
     "${CMAKE_SOURCE_DIR}/lib/glm/"
     "${CMAKE_SOURCE_DIR}/GPIB/"
 
-    "${Boost_INCLUDE_DIRS}"
     "${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}"
 )
 
@@ -85,6 +84,7 @@ add_subdirectory(cuda_sources)
 add_subdirectory(includes)
 
 target_link_libraries("${PROJECT_NAME}"
+    Boost::boost
     Qt5::Charts
     Qt5::Core
     Qt5::Gui

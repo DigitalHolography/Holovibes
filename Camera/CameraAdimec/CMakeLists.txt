@@ -10,7 +10,6 @@ set(BITFLOW_SDK "C:/BitFlow SDK 6.30/")
 
 target_include_directories("${PROJECT_NAME}" PRIVATE
     "${BITFLOW_SDK}/Include/"
-    "${Boost_INCLUDE_DIRS}"
 
     "${CMAKE_SOURCE_DIR}/Camera/Camera/"
     "${CMAKE_SOURCE_DIR}/Camera/include/"
@@ -31,6 +30,8 @@ target_link_libraries("${PROJECT_NAME}"
     "${BITFLOW_SDK}/Lib64/R64d.lib"
     "${BITFLOW_SDK}/Lib64/clallserial.lib"
     "${BITFLOW_SDK}/Lib64/clserbit.lib"
+
+    Boost::boost
 )
 
 # Generate the dll file in build/Debug or build/Release
