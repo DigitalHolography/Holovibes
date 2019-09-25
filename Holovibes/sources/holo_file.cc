@@ -72,15 +72,23 @@ namespace holovibes
 		if (!is_holo_file_)
 			return;
 
-		QSpinBox *import_width_box = ui.ImportWidthSpinBox;
-		QSpinBox *import_height_box = ui.ImportHeightSpinBox;
-		QComboBox *import_depth_box = ui.ImportDepthComboBox;
-		QComboBox *import_endian_box = ui.ImportEndiannessComboBox;
+		ui.ImportWidthSpinBox->setValue(header_.img_width);
+		ui.ImportHeightSpinBox->setValue(header_.img_height);
+		ui.ImportDepthComboBox->setCurrentIndex(log2(header_.pixel_bits) - 3);
 
-		import_width_box->setValue(header_.img_width);
-		import_height_box->setValue(header_.img_height);
-		import_depth_box->setCurrentIndex(log2(header_.pixel_bits) - 3);
-		import_endian_box->setCurrentIndex(0);
+		update_combo_box(ui.ImportEndiannessComboBox, "endianess", 0);
+	}
+
+	void HoloFile::update_spin_box(QSpinBox* field, const std::string& key, double default_value) const
+	{
+		double val = meta_data_.find(key) != meta_data_.end() ? meta_data_[key] : default_value;
+		field->setValue(val);
+	}
+
+	void HoloFile::update_combo_box(QComboBox* field, const std::string& key, unsigned default_value) const
+	{
+		unsigned val = meta_data_.find(key) != meta_data_.end() ? meta_data_[key] : default_value;
+		field->setCurrentIndex(val);
 	}
 
 	HoloFile::operator bool() const

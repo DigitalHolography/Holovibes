@@ -101,6 +101,9 @@ namespace holovibes
 		/*! The json meta data as a json object */
 		json meta_data_;
 
+		void update_spin_box(QSpinBox* field, const std::string& key, double default_value) const;
+		void update_combo_box(QComboBox* field, const std::string& key, unsigned default_value) const;
+
 		/*! Helper method to write data to a .holo file (used by create & update methods)
 		*
 		* \param header Header of the new .holo file, the img_nb field will be replaced
