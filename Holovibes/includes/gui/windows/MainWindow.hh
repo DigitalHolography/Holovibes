@@ -298,6 +298,9 @@ namespace holovibes
 			void		QSliderQuietSetValue(QSlider* slider, int value);
 			void		QDoubleSpinBoxQuietSetValue(QDoubleSpinBox* spinBox, double value);
 
+			// HoloFile related
+			void holo_file_update_ui();
+
 			#pragma endregion
 			/* ---------- */
 			#pragma region Fields

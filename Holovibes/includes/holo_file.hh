@@ -20,7 +20,7 @@
 #include <cstdint>
 
 #include "json.hh"
-#include "MainWindow.hh"
+using json = ::nlohmann::json;
 
 namespace holovibes
 {
@@ -32,9 +32,6 @@ namespace holovibes
 	class HoloFile
 	{
 	public:
-		// nlohmann json lib
-		using json = ::nlohmann::json;
-
 		/*! \brief Packed .holo header to read the good amount bytes into it at once 
 		*
 		* Only contains the necessarys information to retrieve the size of the binary images
@@ -54,15 +51,12 @@ namespace holovibes
 			uint32_t img_nb;
 		};
 
-		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data
-		*
-		* \param file_path Path of the .holo file to process */
-		HoloFile(const std::string& file_path);
+		static HoloFile& new_instance(const std::string& file_path);
+		static HoloFile& get_instance();
 
-		/*! \brief Updates the MainWindow ui object with the .holo file data
-		*
-		* \param ui ui object contained in MainWindow */
-		void update_ui(Ui::MainWindow& ui) const;
+		const Header& get_header() const;
+		const json& get_meta_data() const;
+		void set_meta_data(const json& meta_data);
 
 		/*! \brief Returns true if the file is a .holo file */
 		operator bool() const;
@@ -83,8 +77,13 @@ namespace holovibes
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
 
 	private:
+		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data
+		*
+		* \param file_path Path of the .holo file to process */
+		HoloFile(const std::string& file_path);
+
 		/*! \brief Path of the .holo file */
-		const std::string holo_file_path_;
+		std::string holo_file_path_;
 
 		/*! \brief Header of the .holo file */
 		Header header_;
@@ -101,9 +100,6 @@ namespace holovibes
 		/*! The json meta data as a json object */
 		json meta_data_;
 
-		void update_spin_box(QSpinBox* field, const std::string& key, double default_value) const;
-		void update_combo_box(QComboBox* field, const std::string& key, unsigned default_value) const;
-
 		/*! Helper method to write data to a .holo file (used by create & update methods)
 		*
 		* \param header Header of the new .holo file, the img_nb field will be replaced
@@ -113,5 +109,7 @@ namespace holovibes
 		* \param begin_offset Offset to the beginning of the image data
 		* \param end_offset Offset to the end of the image data */
 		static bool write_holo_data(Header& header, const std::string& meta_data_str, const std::string& data_file_path, const std::string& output_path, fpos_t begin_offset, fpos_t end_offset);
+
+		static HoloFile* instance;
 	};
 }

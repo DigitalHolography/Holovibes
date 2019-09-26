@@ -3322,22 +3322,17 @@ namespace holovibes
 
 			QLineEdit* import_line_edit = ui.ImportPathLineEdit;
 
-			if (filename != "")
+			if (filename != "" && filename != tmp_path)
 			{
 				import_line_edit->clear();
 				import_line_edit->insert(filename);
 				tmp_path = filename;
-				std::string path = import_line_edit->text().toUtf8();
 
-				auto to_holo_file_button = ui.ToHoloFilePushButton;
-				HoloFile holofile(path);
-				compute_desc_.is_holo_file = holofile;
-				ui.ToHoloFilePushButton->setDisabled(holofile);
-				if (holofile)
-				{
-					holofile.update_ui(ui);
-				}
-				else
+				auto holo_file = HoloFile::new_instance(filename.toStdString());
+				compute_desc_.is_holo_file = holo_file;
+				holo_file_update_ui();
+
+				if (!holo_file)
 				{
 					title_detect();
 				}
@@ -3603,6 +3598,20 @@ namespace holovibes
 			unsigned pixel_bits = std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3);
 			auto header = HoloFile::create_header(pixel_bits, width, height);
 			HoloFile::create(header, "{}", ui.ImportPathLineEdit->text().toStdString());
+		}
+
+		void MainWindow::holo_file_update_ui()
+		{
+			auto holo_file = HoloFile::get_instance();
+
+			ui.ToHoloFilePushButton->setDisabled(holo_file);
+
+			if (!holo_file)
+				return;
+
+			ui.ImportWidthSpinBox->setValue(holo_file.get_header().img_width);
+			ui.ImportHeightSpinBox->setValue(holo_file.get_header().img_height);
+			ui.ImportDepthComboBox->setCurrentIndex(log2(holo_file.get_header().pixel_bits) - 3);
 		}
 
 #pragma endregion

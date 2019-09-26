@@ -22,6 +22,23 @@
 
 namespace holovibes
 {
+	HoloFile* HoloFile::instance = nullptr;
+
+	HoloFile& HoloFile::new_instance(const std::string& file_path)
+	{
+		if (instance != nullptr)
+			delete instance;
+		instance = new HoloFile(file_path);
+		return *instance;
+	}
+
+	HoloFile& HoloFile::get_instance()
+	{
+		if (instance == nullptr)
+			return new_instance("");
+		return *instance;
+	}
+
 	HoloFile::HoloFile(const std::string& file_path)
 		: holo_file_path_(file_path)
 	{
@@ -67,28 +84,19 @@ namespace holovibes
 		}
 	}
 
-	void HoloFile::update_ui(Ui::MainWindow& ui) const
+	const HoloFile::Header& HoloFile::get_header() const
 	{
-		if (!is_holo_file_)
-			return;
-
-		ui.ImportWidthSpinBox->setValue(header_.img_width);
-		ui.ImportHeightSpinBox->setValue(header_.img_height);
-		ui.ImportDepthComboBox->setCurrentIndex(log2(header_.pixel_bits) - 3);
-
-		update_combo_box(ui.ImportEndiannessComboBox, "endianess", 0);
+		return header_;
 	}
 
-	void HoloFile::update_spin_box(QSpinBox* field, const std::string& key, double default_value) const
+	const json& HoloFile::get_meta_data() const
 	{
-		double val = meta_data_.find(key) != meta_data_.end() ? meta_data_[key] : default_value;
-		field->setValue(val);
+		return meta_data_;
 	}
 
-	void HoloFile::update_combo_box(QComboBox* field, const std::string& key, unsigned default_value) const
+	void HoloFile::set_meta_data(const json& meta_data)
 	{
-		unsigned val = meta_data_.find(key) != meta_data_.end() ? meta_data_[key] : default_value;
-		field->setCurrentIndex(val);
+		meta_data_ = meta_data;
 	}
 
 	HoloFile::operator bool() const
@@ -215,7 +223,7 @@ namespace holovibes
 		while (w < data_size)
 		{
 			// If the remaining data is less then BUF_SIZE only read what is necessary
-			size_t to_read = data_size - r > BUF_SIZE ? BUF_SIZE : data_size - r;
+			size_t to_read = data_size - r > UPDATE_BUF_SIZE ? UPDATE_BUF_SIZE : data_size - r;
 			r = std::fread(buffer, 1, to_read, input);
 			w += std::fwrite(buffer, 1, r, output);
 			percent = w * 100 / data_size;
