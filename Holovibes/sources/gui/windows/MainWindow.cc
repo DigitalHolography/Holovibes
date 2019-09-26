@@ -2983,7 +2983,7 @@ namespace holovibes
 				if (queue)
 				{
 					path = set_record_filename_properties(queue->get_frame_desc(), path);
-					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, this));
+					record_thread_.reset(new ThreadRecorder(*queue, path, nb_of_frames, holo_file_get_json_settings(), this));
 
 					connect(record_thread_.get(), SIGNAL(finished()), this, SLOT(finished_image_record()));
 					if (compute_desc_.synchronized_record)
@@ -3106,7 +3106,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3133,7 +3133,7 @@ namespace holovibes
 				{
 					if (is_batch_img_)
 					{
-						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, this));
+						record_thread_.reset(new ThreadRecorder(*q, formatted_path, frame_nb, holo_file_get_json_settings(), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3203,7 +3203,7 @@ namespace holovibes
 				{
 					if (gpib_interface_->execute_next_block())
 					{
-						record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, this));
+						record_thread_.reset(new ThreadRecorder(*q, output_filename, frame_nb, holo_file_get_json_settings(), this));
 						connect(record_thread_.get(),
 							SIGNAL(finished()),
 							this,
@@ -3609,9 +3609,40 @@ namespace holovibes
 			if (!holo_file)
 				return;
 
+			json json_settings = holo_file.get_meta_data();
 			ui.ImportWidthSpinBox->setValue(holo_file.get_header().img_width);
 			ui.ImportHeightSpinBox->setValue(holo_file.get_header().img_height);
 			ui.ImportDepthComboBox->setCurrentIndex(log2(holo_file.get_header().pixel_bits) - 3);
+			ui.AlgorithmComboBox->setCurrentIndex(json_settings.value("algorithm", 0));
+			ui.nSizeSpinBox->setValue(json_settings.value("#img", 1));
+			ui.PSpinBox->setValue(json_settings.value("p", 0));
+			ui.WaveLengthDoubleSpinBox->setValue(json_settings.value("lambda", 700));
+			ui.ZDoubleSpinBox->setValue(json_settings.value("z", 0));
+		}
+
+		json MainWindow::holo_file_get_json_settings()
+		{
+			try
+			{
+				return json
+				{
+					// We need the height / width / bits to be able to create
+					// a header object later on without having a frame descriptor
+					{"img_width", ui.ImportWidthSpinBox->value()},
+					{"img_height", ui.ImportHeightSpinBox->value()},
+					{"pixel_bits", std::pow(2, ui.ImportDepthComboBox->currentIndex() + 3)},
+					{"algorithm", ui.AlgorithmComboBox->currentIndex()},
+					{"#img", ui.nSizeSpinBox->value()},
+					{"p", ui.PSpinBox->value()},
+					{"lambda", static_cast<float>(ui.WaveLengthDoubleSpinBox->value())},
+					{"z", static_cast<float>(ui.ZDoubleSpinBox->value())}
+				};
+			}
+			catch (const std::exception& e)
+			{
+				LOG_ERROR(e.what());
+				return json();
+			}
 		}
 
 #pragma endregion

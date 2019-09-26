@@ -17,6 +17,8 @@
 
 // without namespace
 # include "tools.hh"
+# include "json.hh"
+using json = ::nlohmann::json;
 
 
 // namespace camera
@@ -300,6 +302,7 @@ namespace holovibes
 
 			// HoloFile related
 			void holo_file_update_ui();
+			json MainWindow::holo_file_get_json_settings();
 
 			#pragma endregion
 			/* ---------- */

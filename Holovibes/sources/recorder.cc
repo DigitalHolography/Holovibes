@@ -17,6 +17,7 @@
 #include "recorder.hh"
 #include "queue.hh"
 #include "logger.hh"
+#include "holo_file.hh"
 
 # include "gui_group_box.hh"
 # include "info_manager.hh"
@@ -30,9 +31,11 @@ namespace holovibes
 		, file_()
 		, stop_requested_(false)
 	{
-		if (filepath.find('/') != std::string::npos)
-			createFilePath(filepath);
+		// TODO: This seems useless
+		// if (filepath.find('/') != std::string::npos)
+		// 	createFilePath(filepath);
 
+		output_path_ = filepath;
 		file_.open(filepath, std::ios::binary | std::ios::trunc);
 	}
 
@@ -44,7 +47,7 @@ namespace holovibes
 		_chdir(execDir.c_str());
 	}
 
-	void Recorder::record(const unsigned int n_images)
+	void Recorder::record(const unsigned int n_images, const json& json_settings)
 	{
 		const size_t size = queue_.get_size();
 		char* buffer = new char[size]();
@@ -82,7 +85,26 @@ namespace holovibes
 		LOG_INFO("[RECORDER] record done !");
 		gui::InfoManager::get_manager()->remove_info("Recording");
 		delete[] buffer;
+
+		createHoloFile(json_settings);
 	}
+
+	void Recorder::createHoloFile(const json& json_settings)
+	{
+		try
+		{
+			file_.close();
+			auto header = HoloFile::create_header(json_settings.value("pixel_bits", 8), json_settings.value("img_width", 1024), json_settings.value("img_height", 1024));
+			HoloFile::create(header, json_settings.dump(), output_path_);
+			file_.open(output_path_, std::ios::app);
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR(e.what());
+			LOG_ERROR("Could not create holo file after recording");
+		}
+	}
+
 
 	void Recorder::stop()
 	{

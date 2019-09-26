@@ -20,6 +20,7 @@
 #include "camera_dll.hh"
 #include "tools.hh"
 #include "logger.hh"
+#include "holo_file.hh"
 
 namespace holovibes
 {
@@ -140,7 +141,7 @@ namespace holovibes
 			filepath);
 
 		LOG_INFO("[RECORDER] Recorder Start");
-		recorder->record(rec_n_images);
+		recorder->record(rec_n_images, HoloFile::get_json_settings(get_cam_frame_desc(), compute_desc_));
 		delete recorder;
 		LOG_INFO("[RECORDER] Recorder Stop");
 	}

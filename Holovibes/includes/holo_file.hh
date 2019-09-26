@@ -19,6 +19,8 @@
 #include <string>
 #include <cstdint>
 
+#include "frame_desc.hh"
+#include "compute_descriptor.hh"
 #include "json.hh"
 using json = ::nlohmann::json;
 
@@ -28,7 +30,7 @@ namespace holovibes
 	*
 	* Reads the header of a file and if it is a .holo file reads the json
 	* meta data stored at the end of the file and update the main window
-	* ui with all the necessary data */
+	* ui with all the necessary data. This class behaves like a singleton */
 	class HoloFile
 	{
 	public:
@@ -54,8 +56,11 @@ namespace holovibes
 		static HoloFile& new_instance(const std::string& file_path);
 		static HoloFile& get_instance();
 
+		/*! \brief Returns the current file's header */
 		const Header& get_header() const;
+		/*! \brief Returns the current file's meta data */
 		const json& get_meta_data() const;
+		/*! \brief Sets the current file's meta data */
 		void set_meta_data(const json& meta_data);
 
 		/*! \brief Returns true if the file is a .holo file */
@@ -75,6 +80,12 @@ namespace holovibes
 		* \param meta_data_str Json meta data as a string
 		* \param raw_file_path Path to the raw file to convert */
 		static bool create(Header& header, const std::string& meta_data_str, const std::string& raw_file_path);
+
+		/*! Returns a json object containing the settings from a frame descriptor and a compute descriptor
+		*
+		* \param fd Current frame descriptor
+		* \param cd Current compute descriptor */
+		static json get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd);
 
 	private:
 		/*! \brief Creates a HoloFile object from an existing file path and reads all of the required data
@@ -110,6 +121,7 @@ namespace holovibes
 		* \param end_offset Offset to the end of the image data */
 		static bool write_holo_data(Header& header, const std::string& meta_data_str, const std::string& data_file_path, const std::string& output_path, fpos_t begin_offset, fpos_t end_offset);
 
+		/*! Singleton instance */
 		static HoloFile* instance;
 	};
 }

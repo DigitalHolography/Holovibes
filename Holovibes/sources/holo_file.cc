@@ -241,4 +241,29 @@ namespace holovibes
 
 		return true;
 	}
+
+	json HoloFile::get_json_settings(const camera::FrameDescriptor& fd, const ComputeDescriptor& cd)
+	{
+		try
+		{
+			return json
+			{
+				// We need the height / width / bits to be able to create
+				// a header object later on without having a frame descriptor
+				{"img_width", fd.width},
+				{"img_height", fd.height},
+				{"pixel_bits", fd.depth},
+				{"algorithm", cd.algorithm.load()},
+				{"#img", cd.nSize.load()},
+				{"p", cd.pindex.load()},
+				{"lambda", cd.lambda.load()},
+				{"z", cd.zdistance.load()}
+			};
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR(e.what());
+			return json();
+		}
+	}
 }
