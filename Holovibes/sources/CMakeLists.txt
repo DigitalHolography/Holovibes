@@ -1,5 +1,3 @@
-add_compile_options(/std:c++17)
-
 target_sources(Holovibes PRIVATE
     camera_dll.cc
     config.cc
