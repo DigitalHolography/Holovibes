@@ -265,6 +265,7 @@ namespace holovibes
 			void set_synchronized_record(bool value);
 			void normalize(bool value);	
 			void to_holo_file();
+			void holo_file_update();
 			//! Used to start the record at the same time than file reader.
 			void start_recording();
 			#pragma endregion
@@ -306,7 +307,7 @@ namespace holovibes
 			/*! Updates the compute descriptor with the holo file settings */
 			void holo_file_update_cd();
 			/*! Creates a json object containing the compute descriptor settings */
-			json MainWindow::holo_file_get_json_settings();
+			json holo_file_get_json_settings();
 
 			#pragma endregion
 			/* ---------- */

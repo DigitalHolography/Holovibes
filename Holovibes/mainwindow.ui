@@ -3457,6 +3457,16 @@
              </property>
             </widget>
            </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="UpdateHoloPushButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Update Holo</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -6832,6 +6842,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>UpdateHoloPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>holo_file_update()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1530</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>920</x>
+     <y>373</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>set_image_mode(bool)</slot>
@@ -6984,5 +7010,6 @@ p, li { white-space: pre-wrap; }
   <slot>normalize(bool)</slot>
   <slot>click_composite_rgb_or_hsv()</slot>
   <slot>to_holo_file()</slot>
+  <slot>holo_file_update()</slot>
  </slots>
 </ui>

@@ -134,9 +134,21 @@ namespace holovibes
 
 			json meta_data = json::parse(meta_data_str);
 
-			LOG_INFO("Updating file: " + holo_file_path_);
+			LOG_INFO("Copying and updating file: " + holo_file_path_);
 
-			std::string new_file_path = "copy_" + holo_file_path_;
+			size_t last_dir = holo_file_path_.find_last_of('/');
+			std::string new_file_path;
+			if (last_dir == holo_file_path_.npos)
+			{
+				new_file_path = "copy_" + holo_file_path_;
+			}
+			else
+			{
+				std::string dir = holo_file_path_.substr(0, last_dir + 1);
+				std::string file = holo_file_path_.substr(last_dir + 1, holo_file_path_.size() - last_dir);
+				new_file_path = dir + "copy_" + file;
+			}
+
 			bool ret = write_holo_data(header_, meta_data_str, holo_file_path_, new_file_path, sizeof(Header), meta_data_offset_);
 
 			if (ret)

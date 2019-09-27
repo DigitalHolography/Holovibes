@@ -3311,7 +3311,6 @@ namespace holovibes
 				auto holo_file = HoloFile::new_instance(filename.toStdString());
 				compute_desc_.is_holo_file = holo_file;
 				holo_file_update_ui();
-				holo_file_update_cd();
 
 				if (!holo_file)
 				{
@@ -3332,6 +3331,8 @@ namespace holovibes
 
 		void MainWindow::import_file()
 		{
+			holo_file_update_cd();
+			import_file_stop();
 			QLineEdit *import_line_edit = ui.ImportPathLineEdit;
 			QSpinBox *width_spinbox = ui.ImportWidthSpinBox;
 			QSpinBox *height_spinbox = ui.ImportHeightSpinBox;
@@ -3355,7 +3356,7 @@ namespace holovibes
 
 			compute_desc_.stft_steps = std::ceil(static_cast<float>(fps_spinbox->value()) / 20.0f);
 			compute_desc_.pixel_size = pixel_size_spinbox->value();
-			import_file_stop();
+			// import_file_stop();
 			int	depth_multi = 1;
 			std::string file_src = import_line_edit->text().toUtf8();
 
@@ -3589,6 +3590,7 @@ namespace holovibes
 			auto holo_file = HoloFile::get_instance();
 
 			ui.ToHoloFilePushButton->setDisabled(holo_file);
+			ui.UpdateHoloPushButton->setDisabled(!holo_file);
 
 			if (!holo_file)
 				return;
@@ -3635,6 +3637,12 @@ namespace holovibes
 				return json();
 			}
 		}
+
+		void MainWindow::holo_file_update()
+		{
+			HoloFile::get_instance().update(holo_file_get_json_settings().dump());
+		}
+
 
 #pragma endregion
 
